@@ -17,6 +17,11 @@ my.derived PMID: 511.0.3
 sample.secret.foo.two PMID: 29.0.1002
     value 2
 pmGetPMNSLocation() -> Remote
+SendNameReq: from=0 name="sample.secret.foo.one" pdu=PMNS_TRAVERSE subtype=0
+__pmDecodeNameList
+namelist dump: numnames = 1
+  name[0]: "sample.secret.foo.one"
+SendNameReq: from=0 name="my.derived" pdu=PMNS_TRAVERSE subtype=0
 pmLookupName: request_names -> [0] my.derived
 __pmSendNameList
 namelist dump: numnames = 1
@@ -32,11 +37,6 @@ IDlist dump: numids = 1
   PMID[0]: ADDR 29.0.6
 pmLookupName: receive_names <- [0] 29.0.6
 pmLookupName(1, ...) -> 1
-SendNameReq: from=0 name="sample.secret.foo.one" pdu=PMNS_TRAVERSE subtype=0
-__pmDecodeNameList
-namelist dump: numnames = 1
-  name[0]: "sample.secret.foo.one"
-SendNameReq: from=0 name="my.derived" pdu=PMNS_TRAVERSE subtype=0
 SendNameReq: from=0 name="foo.bar" pdu=PMNS_TRAVERSE subtype=0
 Error: foo.bar: Unknown metric name
 SendNameReq: from=0 name="sample.secret.foo.two" pdu=PMNS_TRAVERSE subtype=0
@@ -237,12 +237,6 @@ pmLoadNameSpace: xmit_pdu -> 29.0.42
 pmLoadNameSpace: xmit_pdu -> 29.0.45
 Loaded ASCII PMNS
 pmGetPMNSLocation() -> Local
-pmLookupName(1, ...) using local PMNS returns 0 and ...
-  name[0]: "my.derived" PMID: ADDR PM_ID_NULL
-pmLookupName(1, ...) -> 1
-pmLookupName(1, ...) using local PMNS returns 1 and ...
-  name[0]: "sample.bin" PMID: ADDR 29.0.6
-pmLookupName(1, ...) -> 1
 pmLookupName(1, ...) using local PMNS returns 1 and ...
   name[0]: "sample.secret.foo.one" PMID: ADDR 29.*.*
 pmLookupName(1, ...) -> 1

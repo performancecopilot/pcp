@@ -1,0 +1,182 @@
+#!/bin/sh
+# PCP QA Test No. 1096
+# Exercise tigher checks for domain/name matching in pmdaproc.sh
+# for PMDA Install/Remove operations
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	# need to Remove whack to cleanse the PMNS
+	#
+	cd ..
+	[ -d sample ] && mv sample whacko
+	cd whacko
+	$sudo ./Remove 2>&1 | _filter_cull
+	rm -f domain.h pmdawhacko help.pag help.dir
+	# put pmcd.conf back
+	#
+	_restore_config $PCP_PMCDCONF_PATH
+	_service pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	# reinstall the sample PMDA ... the PMNS will have been trashed
+	#
+	cd $PCP_VAR_DIR/pmdas/sample
+	sudo ./Install </dev/null >>$here/$seq.full
+	done_clean=true
+    fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    exit $status
+}
+
+_fixup()
+{
+    $sudo cp $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+    _service pmcd restart | _filter_pcp_start
+    _wait_for_pmcd
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+done_clean=false
+_save_config $PCP_PMCDCONF_PATH
+
+_filter()
+{
+    sed \
+	-e '/value/s/[0-9][0-9]*/NUMBER/' \
+    # end
+}
+
+# Handle lines like ...
+# Warning: /etc/pcp/pmcd/pmcd.conf[7] culling entry ...
+# and this one where the quoting may differ from one platform to the next
+# make: Nothing to be done for 'install'. 
+# make: Nothing to be done for 'install'. 
+# gmake: Nothing to be done for `install'.
+#
+_filter_cull()
+{
+    sed \
+	-e '/Warning:/{
+s@'"$PCP_PMCDCONF_PATH"'@PCP_PMCDCONF_PATH@
+s/\[[0-9][0-9]*]/[N]/
+}' \
+	-e 's/^gmake:/make:/' \
+	-e "/Nothing to be done/s/.install./'install'/" \
+    # end
+}
+
+if mkdir -p $tmp/pmdas/whacko
+then
+    :
+else
+    echo "Arrgh: cannot mkdir $tmp/pmdas/whacko"
+    ls -ld $tmp
+    exit
+fi
+cp pmdas/whacko/* $tmp/pmdas/whacko
+cd $tmp/pmdas/whacko
+if [ -f GNUmakefile.install ]
+then
+    # running from a git tree, not the testsuite directory, so use
+    # the installed makefile that does nothing
+    #
+    mv GNUmakefile.install GNUmakefile
+fi
+
+# we need the trivial PMDA ... the "whacko" PMDA uses this executable
+#
+if [ ! -x $PCP_VAR_DIR/pmdas/trivial/pmdatrivial ]
+then
+    ( cd $PCP_VAR_DIR/pmdas/trivial; $sudo make pmdatrivial ) >>$here/$seq.full
+    if [ ! -x $PCP_VAR_DIR/pmdas/trivial/pmdatrivial ]
+    then
+	echo "Arrgh: cannot make $PCP_VAR_DIR/pmdas/pmdatrivial"
+	exit
+    fi
+fi
+
+# Now copy the trivial PMDA executable here
+#
+rm -f pmdawhacko
+cp $PCP_VAR_DIR/pmdas/trivial/pmdatrivial pmdawhacko
+
+# real QA test starts here
+
+# borrow ../schizo's domain
+#
+echo '#define WHACKO 241' >domain.h
+
+( echo "--- initial state"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+
+echo "=== no-error case ===" | tee -a $here/$seq.full
+$sudo ./Install </dev/null 2>&1 | _filter_cull
+( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+pminfo -mf whacko | _filter
+pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+$sudo ./Remove 2>&1 | _filter_cull
+( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+pminfo -mf whacko | _filter
+pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+
+echo | tee -a $here/$seq.full
+echo "=== domain number clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
+# borrow sample PMDA's domain
+echo '#define WHACKO 29' >domain.h
+$sudo ./Install </dev/null 2>&1 | _filter_cull
+( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+pminfo -mf whacko | _filter
+pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+$sudo ./Remove 2>&1 | _filter_cull
+( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+pminfo -mf whacko | _filter
+pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+
+# Reinstate pmcd.conf and reinstall the sample PMDA ... the PMNS will
+# have been trashed, so putting pmcd.conf is not enough.
+# Note we have to do this again after the next test (before exiting)
+# in _cleanup()
+#
+_fixup >>$here/$seq.full
+( cd $PCP_VAR_DIR/pmdas/sample; $sudo ./Install </dev/null ) >>$here/$seq.full
+
+# for this one, we need the parent directory to be called sample, not
+# whacko to dodge a check in pmdaproc.sh
+#
+cd ..
+mv whacko sample
+cd sample
+echo | tee -a $here/$seq.full
+echo "=== domain name clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
+# borrow ../schizo's domain again
+#
+echo '#define WHACKO 241' >domain.h
+$sudo sh -c "iam=sample ./Install" </dev/null 2>&1 | _filter_cull
+( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+pminfo -mf whacko | _filter
+pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+$sudo sh -c "iam=sample ./Remove" 2>&1 | _filter_cull
+( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+pminfo -mf whacko | _filter
+pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+
+# success, all done
+status=0
+exit

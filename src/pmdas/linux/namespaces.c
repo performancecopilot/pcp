@@ -25,7 +25,7 @@ namespace_open(const char *process, const char *namespace)
 {
     char path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "/proc/%s/ns/%s", process, namespace);
+    pmsprintf(path, sizeof(path), "/proc/%s/ns/%s", process, namespace);
     path[sizeof(path)-1] = '\0';
     return open(path, O_RDONLY);
 }
@@ -37,7 +37,7 @@ open_namespace_fds(int nsflags, int pid, int *fdset)
     char	process[32];
 
     if (pid)
-	snprintf(process, sizeof(process), "%d", pid);
+	pmsprintf(process, sizeof(process), "%d", pid);
     else
 	strcpy(process, "self");
 

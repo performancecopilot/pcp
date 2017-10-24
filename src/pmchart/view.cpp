@@ -168,7 +168,7 @@ eol:
 	*p = '\0';
 
 done:
-    if ((pmDebug & DBG_TRACE_APPL0) && (pmDebug & DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	if (buf[0] == '\n')
 	    fprintf(stderr, "openView getwd=EOL\n");
 	else
@@ -281,28 +281,28 @@ bool OpenViewDialog::openView(const char *path)
 	if ((f = fopen(_fname, "r")) == NULL) {
 	    // not found, start the great hunt
 	    // try user's pmchart dir ...
-	    snprintf(_fname, sizeof(_fname),
+	    pmsprintf(_fname, sizeof(_fname),
 			"%s%c" ".pcp%c" "pmchart%c" "%s",
 			(const char *)homepath.toLatin1(), sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
 		// try system pmchart dir
-		snprintf(_fname, sizeof(_fname),
+		pmsprintf(_fname, sizeof(_fname),
 			    "%s%c" "config%c" "pmchart%c" "%s",
 			    pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, path);
 		if ((f = fopen(_fname, "r")) == NULL) {
 		    // try user's kmchart dir
-		    snprintf(_fname, sizeof(_fname),
+		    pmsprintf(_fname, sizeof(_fname),
 				"%s%c" ".pcp%c" "kmchart%c" "%s",
 				(const char *)homepath.toLatin1(),
 				sep, sep, sep, path);
 		    if ((f = fopen(_fname, "r")) == NULL) {
 			// try system kmchart dir
-			snprintf(_fname, sizeof(_fname),
+			pmsprintf(_fname, sizeof(_fname),
 				    "%s%c" "config%c" "kmchart%c" "%s",
 				    pmGetConfig("PCP_VAR_DIR"),
 				    sep, sep, sep, path);
 			if ((f = fopen(_fname, "r")) == NULL) {
-			    snprintf(_fname, sizeof(_fname),
+			    pmsprintf(_fname, sizeof(_fname),
 					"%s%c" "config%c" "pmchart%c" "%s",
 					pmGetConfig("PCP_VAR_DIR"),
 					sep, sep, sep, path);
@@ -312,13 +312,16 @@ bool OpenViewDialog::openView(const char *path)
 		}
 	    }
 	}
-	// check for executable and popen() as needed
+	// check for executable and __pmProcessPipe() as needed
 	//
 	if (fgetc(f) == '#' && fgetc(f) == '!') {
 	    char	cmd[MAXPATHLEN];
-	    sprintf(cmd, "%s", _fname);
+	    __pmExecCtl_t	*argp = NULL;
+	    pmsprintf(cmd, sizeof(cmd), "%s", _fname);
 	    fclose(f);
-	    if ((f = popen(cmd, "r")) == NULL)
+	    if (__pmProcessUnpickArgs(&argp, cmd) < 0)
+		goto nopipe;
+	    if (__pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f) < 0)
 		goto nopipe;
 	    is_popen = 1;
 	}
@@ -548,7 +551,7 @@ new_chart:
 			goto done_chart;
 		}
 done_chart:
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    fprintf(stderr, "openView: new chart: style=%s",
 				    stylestr(style));
 		    if (title != NULL)
@@ -928,7 +931,7 @@ done_tab:
 	    }
 
 	    abort = 0;
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "openView: new %s", optional ? "optional-plot" : "plot");
 		if (legend != NULL) fprintf(stderr, " legend=\"%s\"", legend);
 		if (color != NULL) fprintf(stderr, " color=%s", color);
@@ -1128,7 +1131,7 @@ abandon:
 
     if (f != stdin) {
 	if (is_popen)
-	    pclose(f);
+	    __pmProcessPipeClose(f);
 	else
 	    fclose(f);
     }

@@ -44,6 +44,8 @@ _run_valgrind $ATOP -r $here/archives/pcp-atop.folio \
 	| tee -a $here/$seq.full | _filter
 _run_valgrind $ATOP -r $here/archives/pcp-zeroconf 1 15 \
 	| tee -a $here/$seq.full | _filter
+_run_valgrind $ATOP -r $here/archives/pcp-hotatop.folio \
+	| tee -a $here/$seq.full | _filter
 
 # success, all done
 status=0

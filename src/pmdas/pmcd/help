@@ -552,3 +552,15 @@ mode of operation is active.
 
 @ pmcd.feature.client_cert_required status of required client certificate
 A value of zero indicates not required, one indicates required.
+
+@ pmcd.pid PID for the current pmcd invocation
+
+@ pmcd.seqnum pmcd configuration sequence number
+
+The configuration sequence number starts at 1 when pmcd is started
+and is incremented by 1 each time a PMDA is started or restarted.
+
+So all the while the value of pmcd.seqnum remains constant we can
+assert the data from all the PMDAs forms a continuous time series
+and in particular no counters or other metrics have been reset due
+to a PMDA start/restart.

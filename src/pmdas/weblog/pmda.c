@@ -126,6 +126,7 @@ logmessage(int priority, const char *format, ...)
     char	*level;
     char	*p;
     time_t	now;
+    int		bytes;
 
     buffer[0] = '\0';
     time(&now);
@@ -160,12 +161,17 @@ logmessage(int priority, const char *format, ...)
             break;
     }
 
-    va_start (arglist, format);
-    vsnprintf (buffer, sizeof(buffer), format, arglist);
+    va_start(arglist, format);
+    bytes = vsnprintf(buffer, sizeof(buffer), format, arglist);
+    va_end(arglist);
+    if (bytes >= sizeof(buffer))
+	buffer[sizeof(buffer)-1] = '\0';
+    if (bytes < 0)
+	buffer[0] = '\0';
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
-    fprintf (stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
-    va_end (arglist) ;
+
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, (pid_t)getpid(), level, buffer) ;
 }
 
 /*
@@ -327,11 +333,9 @@ receivePDUs(pmdaInterface *dispatch)
 	interval = (time_t)wl_refreshDelay - (timeout.tv_sec % (time_t)wl_refreshDelay);
 	timeout.tv_sec = interval;
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    logmessage(LOG_DEBUG, "Select set for %d seconds\n", 
 			 interval);
-#endif
 
 	sts = select(nfds, &rfds, (fd_set*)0, (fd_set*)0, &timeout);
 	if (sts < 0) {
@@ -341,10 +345,8 @@ receivePDUs(pmdaInterface *dispatch)
 
 	if (sts == 0) {
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 	    	logmessage(LOG_DEBUG, "Select timed out\n");
-#endif
 
 	    refreshAll();
 	    continue;
@@ -464,22 +466,18 @@ main(int argc, char **argv)
 	char		*argString;
     } regexargs[2];
 
-#ifdef PCP_DEBUG
     struct timeval	start;
     struct timeval	end;
     double		startTime;
-#endif
 
     __pmSetProgname(argv[0]);
     __pmGetUsername(&wl_username);
 
-#ifdef PCP_DEBUG
     __pmtimevalNow(&start);
-#endif
 
     wl_isDSO = 0;
 
-    snprintf(wl_helpFile, sizeof(wl_helpFile), "%s%c" "weblog" "%c" "help",
+    pmsprintf(wl_helpFile, sizeof(wl_helpFile), "%s%c" "weblog" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, WEBSERVER,
 		wl_logFile, wl_helpFile);
@@ -623,7 +621,7 @@ main(int argc, char **argv)
 		    if (strcmp(wl_regexTable[n].name, 
 			       wl_regexTable[wl_numRegex].name) == 0) {
 
-			snprintf(emess, sizeof(emess), "duplicate regex name (%s)",
+			pmsprintf(emess, sizeof(emess), "duplicate regex name (%s)",
 				wl_regexTable[wl_numRegex].name);
 			yyerror(emess);
 			break;
@@ -731,11 +729,9 @@ main(int argc, char **argv)
 		continue;
 	    }
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 	    	logmessage(LOG_DEBUG, "%d regex %s: %s\n", 
 			wl_numRegex, wl_regexTable[wl_numRegex].name, buf1);
-#endif
 
 	    wl_regexTable[wl_numRegex].posix_regexp = 1;
 	    wl_numRegex++;
@@ -773,7 +769,7 @@ main(int argc, char **argv)
 		    if (strcmp(wl_regexTable[n].name, 
 			       wl_regexTable[wl_numRegex].name) == 0) {
 
-			snprintf(emess, sizeof(emess), "duplicate regex name (%s)",
+			pmsprintf(emess, sizeof(emess), "duplicate regex name (%s)",
 				wl_regexTable[wl_numRegex].name);
 			yyerror(emess);
 			break;
@@ -814,11 +810,9 @@ main(int argc, char **argv)
 		continue;
 	    }
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 	    	logmessage(LOG_DEBUG, "%d NON POSIX regex %s: %s\n", 
 			wl_numRegex, wl_regexTable[wl_numRegex].name, buf1);
-#endif
 
 	    wl_regexTable[wl_numRegex].posix_regexp = 0;
 	    wl_numRegex++;
@@ -862,7 +856,7 @@ main(int argc, char **argv)
 	    if (wl_numServers) {
 		for (n = 0; n < wl_numServers; n++) {
 		    if (strcmp(buf1, wl_serverInst[n].i_name) == 0) {
-			snprintf(emess, sizeof(emess), "duplicate server name (%s)", buf1);
+			pmsprintf(emess, sizeof(emess), "duplicate server name (%s)", buf1);
 			yyerror(emess);
 			break;
 		    }
@@ -930,7 +924,7 @@ main(int argc, char **argv)
 		    break;
 
 	    if (n == wl_numRegex) {
-	    	snprintf(emess, sizeof(emess), "access log regex \"%s\" not defined", buf1);
+	    	pmsprintf(emess, sizeof(emess), "access log regex \"%s\" not defined", buf1);
 		yyerror(emess);
 		skip_to_eol(configFile);
 		continue;
@@ -953,7 +947,7 @@ main(int argc, char **argv)
 	    if (server->counts.active) {
 		tmpFp = fopen(server->access.fileName, "r");
 		if (tmpFp == (FILE*)0) {
-		    snprintf(emess, sizeof(emess), "cannot open access log \"%s\"", buf2);
+		    pmsprintf(emess, sizeof(emess), "cannot open access log \"%s\"", buf2);
 		    yywarn(emess);
 		    server->access.filePtr = -1;
 		}
@@ -986,7 +980,7 @@ main(int argc, char **argv)
 		    break;
 
 	    if (n == wl_numRegex) {
-	    	snprintf(emess, sizeof(emess), "error log regex \"%s\" not defined", buf1);
+	    	pmsprintf(emess, sizeof(emess), "error log regex \"%s\" not defined", buf1);
 		yyerror(emess);
 		skip_to_eol(configFile);
 		continue;
@@ -998,7 +992,7 @@ main(int argc, char **argv)
 	    if (server->counts.active) {
 		tmpFp = fopen(server->error.fileName, "r");
 		if (tmpFp == (FILE*)0) {
-		    snprintf(emess, sizeof(emess), "cannot open error log \"%s\"", buf2);
+		    pmsprintf(emess, sizeof(emess), "cannot open error log \"%s\"", buf2);
 		    yywarn(emess);
 		    server->error.filePtr = -1;
 		}
@@ -1008,8 +1002,7 @@ main(int argc, char **argv)
 
 	    check_to_eol(configFile);
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		logmessage(LOG_DEBUG, "%d Server %s, %d, %d, %s, %d, %s\n",
 			wl_numServers,
 			wl_serverInst[wl_numServers].i_name,
@@ -1019,7 +1012,6 @@ main(int argc, char **argv)
 			server->error.format,
 			server->error.fileName);
 	    }
-#endif
 
 	    if (server->counts.active)
 		wl_numActive++;
@@ -1027,7 +1019,7 @@ main(int argc, char **argv)
 	    wl_numServers++;
 	}
 	else {
-	    snprintf(emess, sizeof(emess), "illegal keyword \"%s\"", buf1);
+	    pmsprintf(emess, sizeof(emess), "illegal keyword \"%s\"", buf1);
 	    yyerror(emess);
 	    skip_to_eol(configFile);
 	    continue;
@@ -1094,14 +1086,12 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		logmessage(LOG_DEBUG,
 			      "Creating in pipe (in=%d, out=%d) for sproc %d\n",
 			      proc->inFD[0],
 			      proc->inFD[1],
 			      n);
-#endif
 
 	    sts = pipe1(proc->outFD);
 	    if (sts) {
@@ -1111,14 +1101,12 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		logmessage(LOG_DEBUG,
 			      "Creating out pipe (in=%d, out=%d) for sproc %d\n",
 			      proc->outFD[0],
 			      proc->outFD[1],
 			      n);
-#endif
 
 	    proc->firstServer = (n)*wl_sprocThresh;
 	    if (n != wl_numSprocs)
@@ -1145,14 +1133,12 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 
-#ifdef PCP_DEBUG
-	    if(pmDebug & DBG_TRACE_APPL0) {
+	    if(pmDebugOptions.appl0) {
 		logmessage(LOG_INFO,
 			   "main: created sproc %d: pid %" FMT_PID "\n",
 			   n,
 			   proc->pid);
 	    }
-#endif
 
 	    /* close off unwanted pipes */
 
@@ -1173,12 +1159,10 @@ main(int argc, char **argv)
     wl_sproc[0].lastServer  = (wl_numServers <= wl_sprocThresh) ?
 	wl_numServers - 1 : wl_sprocThresh - 1;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	logmessage(LOG_DEBUG,
 		      "Main process will monitor servers 0 to %d\n",
 		      wl_sproc[0].lastServer);
-#endif
 
     for (n=0; n <= wl_sproc[0].lastServer; n++) {
     	if (wl_servers[n].counts.active) {
@@ -1187,12 +1171,10 @@ main(int argc, char **argv)
 	}
     }
 
-#ifdef PCP_DEBUG
     __pmtimevalNow(&end);
     startTime = __pmtimevalSub(&end, &start);
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	logmessage(LOG_DEBUG, "Agent started in %f seconds", startTime);
-#endif
 
     receivePDUs(&desc);
 

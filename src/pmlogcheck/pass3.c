@@ -128,7 +128,7 @@ unwrap(double current, struct timeval *curtime, checkData *checkdata, int index)
 	print_stamp(stderr, curtime);
 	fprintf(stderr, "]: ");
 	print_metric(stderr, checkdata->desc.pmid);
-	if (pmNameInDom(checkdata->desc.indom, checkdata->instlist[index]->inst, &str) < 0)
+	if (pmNameInDomArchive(checkdata->desc.indom, checkdata->instlist[index]->inst, &str) < 0)
 	    fprintf(stderr, ": %s wrap", typeStr(checkdata->desc.type));
 	else {
 	    fprintf(stderr, "[%s]: %s wrap", str, typeStr(checkdata->desc.type));
@@ -176,8 +176,7 @@ newHashInst(pmValue *vp,
     checkdata->instlist[pos]->lastval = av.d;
     checkdata->instlist[pos]->lasttime = *timestamp;
     checkdata->listsize++;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	char	*name;
 
 	fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
@@ -188,7 +187,7 @@ newHashInst(pmValue *vp,
 	    fprintf(stderr, ": new singular metric\n");
 	else {
 	    fprintf(stderr, ": new metric-instance pair ");
-	    if (pmNameInDom(checkdata->desc.indom, vp->inst, &name) < 0)
+	    if (pmNameInDomArchive(checkdata->desc.indom, vp->inst, &name) < 0)
 		fprintf(stderr, "%d\n", vp->inst);
 	    else {
 		fprintf(stderr, "\"%s\"\n", name);
@@ -197,7 +196,6 @@ newHashInst(pmValue *vp,
 	}
 
     }
-#endif
 }
 
 static void
@@ -249,8 +247,7 @@ docheck(pmResult *result)
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    if (vsp->numval == 0) {
 		fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 		print_stamp(stderr, &result->timestamp);
@@ -268,7 +265,6 @@ docheck(pmResult *result)
 		continue;
 	    }
 	}
-#endif
 	if (vsp->numval <= 0)
 	    continue;
 
@@ -391,15 +387,13 @@ docheck(pmResult *result)
 		if (checkdata->desc.sem == PM_SEM_COUNTER) {
 		    if (diff == 0.0) continue;
 		    diff *= checkdata->scale;
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL2) {
+		    if (pmDebugOptions.appl2) {
 			fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 			print_stamp(stderr, &result->timestamp);
 			fprintf(stderr, "] ");
 			print_metric(stderr, checkdata->desc.pmid);
 			fprintf(stderr, ": current counter value is %.0f\n", av.d);
 		    }
-#endif
 		    if (nowrap == 0)
 			unwrap(av.d, &(result->timestamp), checkdata, k);
 		}
@@ -472,8 +466,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	}
 	delta_stamp = result->timestamp;
 	tsub(&delta_stamp, &last_stamp);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    int		i;
 	    int		sum_val = 0;
 	    int		cnt_noval = 0;
@@ -499,7 +492,6 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 		fprintf(stderr, " count(numval<0)=%d", cnt_err);
 	    fputc('\n', stderr);
 	}
-#endif
 	if (delta_stamp.tv_sec < 0 || delta_stamp.tv_usec < 0) {
 	    /* time went backwards! */
 	    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);

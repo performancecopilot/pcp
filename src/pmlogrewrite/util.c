@@ -144,8 +144,8 @@ _pmLogRename(const char *old, const char *new)
 	    }
 	    if (want) {
 		struct stat	stbuf;
-		snprintf(opath, sizeof(opath), "%s%s", old, p);
-		snprintf(npath, sizeof(npath), "%s%s", new, p);
+		pmsprintf(opath, sizeof(opath), "%s%s", old, p);
+		pmsprintf(npath, sizeof(npath), "%s%s", new, p);
 		if (stat(npath, &stbuf) == 0) {
 		    fprintf(stderr, "__pmLogRename: destination file %s already exists\n", npath);
 		    goto revert;
@@ -166,10 +166,8 @@ _pmLogRename(const char *old, const char *new)
 		    abandon();
 		    /*NOTREACHED*/
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOG)
+		if (pmDebugOptions.log)
 		    fprintf(stderr, "__pmLogRename: %s -> %s\n", opath, npath);
-#endif
 	    }
 	}
     }
@@ -184,15 +182,13 @@ _pmLogRename(const char *old, const char *new)
 
 revert:
     while (nfound > 0) {
-	snprintf(opath, sizeof(opath), "%s%s", old, found[nfound-1]);
-	snprintf(npath, sizeof(npath), "%s%s", new, found[nfound-1]);
+	pmsprintf(opath, sizeof(opath), "%s%s", old, found[nfound-1]);
+	pmsprintf(npath, sizeof(npath), "%s%s", new, found[nfound-1]);
 	if (rename(npath, opath) == -1) {
 	    fprintf(stderr, "__pmLogRename: arrgh trying to revert rename %s -> %s failed: %s\n", npath, opath, pmErrStr(-oserror()));
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "__pmLogRename: revert %s <- %s\n", opath, npath);
-#endif
 	nfound--;
     }
     sts = PM_ERR_GENERIC;
@@ -276,13 +272,11 @@ _pmLogRemove(const char *name)
 		    want = 1;
 	    }
 	    if (want) {
-		snprintf(path, sizeof(path), "%s%s", name, p);
+		pmsprintf(path, sizeof(path), "%s%s", name, p);
 		unlink(path);
 		nfound++;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOG)
+		if (pmDebugOptions.log)
 		    fprintf(stderr, "__pmLogRemove: %s\n", path);
-#endif
 	    }
 	}
     }

@@ -56,12 +56,10 @@ void
 	x->valid = 0;
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "@FUN_host(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -122,12 +120,10 @@ void
     }
 
 done:
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "@FUN_inst(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -166,11 +162,9 @@ void
 	x->valid = 0;
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "@FUN_time(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 

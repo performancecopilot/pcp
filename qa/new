@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# Usage: new [base-seq-no group ...]
+# Usage: new [-n|-s|-v] [base-seq-no group ...]
 #
 # base-seq-no defaults to some random place in the range $min-$max
 #
@@ -12,8 +12,36 @@
 # generic initialization
 . ./common.rc
 
-min=504
+min=500
 max=1399
+max_probes=200
+
+_usage()
+{
+    echo >&2 "Usage: new [-n|-s|-v] [starting-seq-no [group ...]]"
+    exit 1
+}
+
+showme=false
+verbose=false
+smallest=false
+random=true
+while getopts 'nsv?' p
+do
+    case "$p"
+    in
+	n)	showme=true
+		;;
+	s)	smallest=true
+		random=false
+		;;
+	v)	verbose=true
+		;;
+	?)	echo "bad arg: $p"; _usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
@@ -94,55 +122,65 @@ fi
 
 if [ $# -gt 0 ]
 then
-    try=$1
+    try=`printf "%03d\n" $1`
+    random=false
     shift
+elif $smallest
+then
+    try=000
 else
     # random in the range $min-$max based on user name convered from alpha
     # to numeric, prefixed by current clock seconds
     #
-    sec=`date +%S`
-    try=`echo "$USER" \
-	| tr 'a-z' '0-90-90-9' \
-	| awk '{ srand('"$sec"'+$1); print int('$min'+rand()*('$max'-'$min')) }'`
+    seed="`date +%S``echo $USER | tr 'a-z' '0-90-90-9'`"
+    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
 fi
-# pick first hole after $try, provided the test does not already exist
+
+# first $try, then keep randomly probing the min-max space
 #
-wrap=0
-while true
+$verbose && echo >&2 "Info: start probing at $try"
+probe=0
+while [ $probe -lt $max_probes ]
 do
-    id=`sed -n -e 's/:\(retired\|reserved\) / /' -e '/^[0-9]/s/[ 	].*//p' <group \
-	| LC_COLLATE=POSIX sort -n \
-	| $PCP_AWK_PROG '
-BEGIN		{ last = '$try' }
-$1 > '$try'	{ if ($1 != last+1) {
-			exit
-		   }
-		   last = $1
-		}
-END		{ printf "%03d\n",last+1 }'`
-    [ ! -f $id ] && break
-    # already exists, move on ...
-    #
-    try=`expr $id + 1`
-    if [ "$try" -gt "$max" ]
+    if grep "^$try[ :]" <group >/dev/null
     then
-	wrap=`expr $wrap + 1`
-	if [ "$wrap" -eq 2 ]
+	# already allocated ... try again
+	#
+	seed=$try
+	if $random
 	then
-	    echo "Sorry, no unassigned tests in the range $min ... $max.  Time to increase \$max"
-	    exit 1
+	    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+	    probe=`expr $probe + 1`
+	else
+	    try=`expr $try + 1`
+	    try=`printf "%03d\n" $try`
 	fi
-	try=$min
+	$verbose && echo >&2 "Info: try $try"
+    else
+	id=$try
+	break
     fi
 done
+
+if [ $probe -eq $max_probes ]
+then
+    echo >&2 "Error: after $max_probes attempts, no unassigned tests in the range $min ... $max.  Time to increase \$max"
+    exit 1
+fi
+
+if $showme
+then
+    echo $id
+    exit
+fi
 
 echo "Next test is $id"
 
 if [ -f $id ]
 then
-    echo "Error: test $id already exists!"
+    echo >&2 "Error: test $id already exists, but not in group file!"
     _cleanup
-    exit 1
+    exit
 fi
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal script for you to edit ...""$PCP_ECHO_C"
@@ -172,7 +210,7 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-\$sudo rm -rf \$tmp \$tmp.*
+\$sudo rm -rf \$tmp \$tmp.* \$seq.full
 trap "_cleanup; exit \\\$status" 0 1 2 3 15
 
 # real QA test starts here

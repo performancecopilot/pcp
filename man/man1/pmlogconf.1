@@ -105,7 +105,16 @@ or the plural form of one of the keywords.
 .PP
 When run from automated logging setup processes, the
 .B \-c
-option is used to add a message and timestamp indicating this fact.
+option is used to indicate that
+.I pmlogconf
+is in auto-create mode and no interactive dialog takes place.
+The output
+.I configfile
+has an additional comment message
+and timestamp indicating this fact, so that it can be
+identified and subsequently updated using
+.B \-c
+again.
 This option is not appropriate for interactive use of the tool.
 .PP
 The
@@ -165,12 +174,30 @@ taken from the group file (and replaces any previous list of metrics
 associated with this group in
 .IR configfile ).
 .IP \(bu 3n
-When the
+When either the
 .B \-r
-(reprobe) command line option is specified, every group (not just newly
+(reprobe) or the
+.B \-c
+(auto-create) command line option is specified, every group (not just newly
 discovered ones) is reprocessed to see
 if it should be considered for inclusion in
 .IR configfile .
+.IP \(bu 3n
+If a group is found in
+.I configfile
+but the corresponding group does not exist below
+.I groupsdir
+(as would be the case when a group is made obsolete by a PCP upgrade)
+then the handling of the group depends on the mode in which
+.I pmlogconf
+is being run.
+With
+.B \-c
+the corresponding group is culled from
+.IR configfile ,
+otherwise the corresponding group is unchanged in
+.IR configfile .
+In either case a warning is issued.
 .PP
 Each group file is structured as follows:
 .IP \(bu 3n

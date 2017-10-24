@@ -302,7 +302,7 @@ myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
     case 3:
       avp->cp = (char *)malloc(somesize);
       /* place value in avp->cp */
-      snprintf(avp->cp, somesize, ...);
+      pmsprintf(avp->cp, somesize, ...);
       return PMDA_FETCH_DYNAMIC;
 .sp 0.5v
     default:

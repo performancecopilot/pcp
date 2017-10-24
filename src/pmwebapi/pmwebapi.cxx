@@ -286,7 +286,8 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
 
     if (context < 0) {
         char pmmsg[PM_MAXERRMSGLEN];
-        connstamp (cerr, connection) << "new context failed: " << pmErrStr_r (context, pmmsg, sizeof (pmmsg)) << endl;
+        connstamp (cerr, connection) << "new context failed: "
+                                     << pmErrStr_r (context, pmmsg, sizeof (pmmsg)) << endl;
         rc = context;
         goto out;
     }
@@ -357,7 +358,7 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
                          polltimeout << "s" << endl;
     }
 
-    rc = snprintf (http_response, sizeof (http_response), "{ \"context\": %d }", webapi_ctx);
+    rc = pmsprintf (http_response, sizeof (http_response), "{ \"context\": %d }", webapi_ctx);
     assert (rc >= 0 && rc < (int) sizeof (http_response));
     resp = MHD_create_response_from_buffer (strlen (http_response), http_response,
                                             MHD_RESPMEM_MUST_COPY);
@@ -1183,8 +1184,6 @@ metric_prometheus_batch_fetch(void *closure) {
         string pn = metric;
         replace (pn.begin(), pn.end(), '.', ':');
 
-        output << "# HELP " << pn << " " << help_text << endl;
-
         // Append a metric_desc.units-based suffix, and compute an
         // pmConvScale vector to match conventions as per
         // https://prometheus.io/docs/practices/naming/
@@ -1216,6 +1215,17 @@ metric_prometheus_batch_fetch(void *closure) {
         } else {
             continue; // skip quietly
         }
+
+        // append pcp metadata snapshot: metric semantics units
+	char sembuf[64], unitsbuf[64];
+	pmSemStr_r(metric_desc.sem, sembuf, sizeof(sembuf));
+	pmUnitsStr_r(&metric_desc.units, unitsbuf, sizeof(unitsbuf));
+	if (strlen(unitsbuf) == 0)
+	    strncpy(unitsbuf, "none", sizeof(unitsbuf));
+        output << "# PCP " << metric << " " << sembuf << " " << unitsbuf << endl;
+        
+        // append help text
+        output << "# HELP " << pn << " " << help_text << endl;
 
         // append semantics tag
         if (metric_desc.sem == PM_SEM_COUNTER) {
@@ -1276,7 +1286,7 @@ metric_prometheus_batch_fetch(void *closure) {
             // NB: skip the timestamp
         }
         // Only now, with everything collected, append our data to the prometheus output stream
-        (*mptc->output) << output.str();
+        (*mptc->output) << output.str() << endl; // plus a blank line between metrics
         mptc->num_metrics_completed++;
     }
 }
@@ -1315,7 +1325,7 @@ pmwebapi_respond_prometheus (struct MHD_Connection *connection,
         goto out;
     }
 
-    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
+    rc = MHD_add_response_header (resp, "Content-Type", "text/plain");
     if (rc != MHD_YES) {
         connstamp (cerr, connection) << "MHD_add_response_header failed" << endl;
         rc = -ENOMEM;
@@ -1666,7 +1676,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
             /* We need the user to resubmit this with http
                authentication info, with a custom HTTP authentication
                realm for this context. */
-            snprintf (auth_realm, sizeof (auth_realm), "%s/%ld", uriprefix.c_str (), webapi_ctx);
+            pmsprintf (auth_realm, sizeof (auth_realm), "%s/%ld", uriprefix.c_str (), webapi_ctx);
             rc = MHD_queue_basic_auth_fail_response (connection, auth_realm, resp);
             MHD_destroy_response (resp);
             if (rc != MHD_YES) {

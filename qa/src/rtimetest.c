@@ -72,15 +72,13 @@ main(int argc, char *argv[])
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -212,7 +210,7 @@ main(int argc, char *argv[])
 	    fmt = argv[sfx+optind];
 	}
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "tmtmp: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
 		tmtmp.tm_sec, tmtmp.tm_min, tmtmp.tm_hour, tmtmp.tm_mday,
 		tmtmp.tm_mon, tmtmp.tm_year, tmtmp.tm_wday, tmtmp.tm_yday,
@@ -231,7 +229,7 @@ main(int argc, char *argv[])
 	    }
 	    localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
 
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
 		    tmrslt.tm_sec, tmrslt.tm_min, tmrslt.tm_hour, tmrslt.tm_mday,
 		    tmrslt.tm_mon, tmrslt.tm_year, tmrslt.tm_wday, tmrslt.tm_yday,
@@ -244,7 +242,7 @@ main(int argc, char *argv[])
 	    }
 	    localtime_r(&rsltStart.tv_sec, &tmrslt);	// time_t => tm
 
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
 		    tmrslt.tm_sec, tmrslt.tm_min, tmrslt.tm_hour, tmrslt.tm_mday,
 		    tmrslt.tm_mon, tmrslt.tm_year, tmrslt.tm_wday, tmrslt.tm_yday,
@@ -254,7 +252,7 @@ main(int argc, char *argv[])
 	    dump_dt(buffer, &tmrslt);
 	    localtime_r(&rsltEnd.tv_sec, &tmrslt);	// time_t => tm
 
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
 		    tmrslt.tm_sec, tmrslt.tm_min, tmrslt.tm_hour, tmrslt.tm_mday,
 		    tmrslt.tm_mon, tmrslt.tm_year, tmrslt.tm_wday, tmrslt.tm_yday,

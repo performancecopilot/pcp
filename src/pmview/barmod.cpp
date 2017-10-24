@@ -115,7 +115,7 @@ BarMod::generate(SoNode *obj, float xSpace, float zSpace)
 	    const QmcMetric &metric = _metrics->metric(m);
 	    for (i = 0; i < metric.numValues(); i++, v++) {
 		BarBlock &block = _blocks[v];
-		sprintf(buf, "%c%d", theBarId, v);
+		pmsprintf(buf, sizeof(buf), "%c%d", theBarId, v);
 		block._sep = new SoSeparator;
 		block._sep->setName((SbName)buf);
 		_root->addChild(block._sep);

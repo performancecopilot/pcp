@@ -34,15 +34,13 @@ pmStore_ctx(__pmContext *ctxp, const pmResult *result)
     int		ctx;
     __pmDSO	*dp;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmStore(...) pmid[0] %s", pmIDStr_r(result->vset[0]->pmid, dbgbuf, sizeof(dbgbuf)));
 	if (result->numpmid > 1)
 	    fprintf(stderr, " ... pmid[%d] %s", result->numpmid-1, pmIDStr_r(result->vset[result->numpmid-1]->pmid, dbgbuf, sizeof(dbgbuf)));
 	fprintf(stderr, " <:");
     }
-#endif
 
     if (result->numpmid < 1) {
         sts = PM_ERR_TOOSMALL;
@@ -131,8 +129,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -141,7 +138,6 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
     return sts;
 }
 

@@ -127,8 +127,8 @@ local:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
 
 .			{
 			    char emess[160];
-			    sprintf(emess, "Unexpected character '%c'", 
-				    yytext[0]);
+			    pmsprintf(emess, sizeof(emess),
+				    "Unexpected character '%c'", yytext[0]);
 			    yyerror(emess);
 			}
 %%

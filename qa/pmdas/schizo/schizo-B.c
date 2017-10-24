@@ -154,7 +154,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath),
+    pmsprintf(helppath, sizeof(helppath),
 		"%s%c" "testsuite" "%c" "pmdas" "%c" "schizo" "%c" "help",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, SCHIZO,

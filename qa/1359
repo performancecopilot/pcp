@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 1359
+# New debug flag setting/clearing routines ...
+# pmSetDebug() and pmClearDebug(), and the deprecated __pmParseDebug()
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+src/debug pdu
+src/debug exec
+src/debug pdu,appl0,appl1
+src/debug -- -1
+src/debug all
+src/debug pdu,desperate
+# check additive handling and deprecated option
+#
+PCP_DEBUG=deprecated src/debug 1
+# big number should be pdu|desperate
+src/debug 1073741825
+# errors
+src/debug 123.456
+src/debug 1,x
+
+# success, all done
+status=0
+exit

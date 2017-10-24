@@ -86,18 +86,18 @@ walk_metric(int mode, int flag, char *which, int dupok)
 
     if (mp != NULL) {
 	if (!dupok && (mp->flags & flag)) {
-	    snprintf(mess, sizeof(mess), "Duplicate %s clause for metric %s", which, mp->old_name);
+	    pmsprintf(mess, sizeof(mess), "Duplicate %s clause for metric %s", which, mp->old_name);
 	    yyerror(mess);
 	}
 	if (flag != METRIC_DELETE) {
 	    if (mp->flags & METRIC_DELETE) {
-		snprintf(mess, sizeof(mess), "Conflicting %s clause for deleted metric %s", which, mp->old_name);
+		pmsprintf(mess, sizeof(mess), "Conflicting %s clause for deleted metric %s", which, mp->old_name);
 		yyerror(mess);
 	    }
 	}
 	else {
 	    if (mp->flags & (~METRIC_DELETE)) {
-		snprintf(mess, sizeof(mess), "Conflicting delete and other clauses for metric %s", mp->old_name);
+		pmsprintf(mess, sizeof(mess), "Conflicting delete and other clauses for metric %s", mp->old_name);
 		yyerror(mess);
 	    }
 	}
@@ -179,13 +179,13 @@ globaloptlist	: globalopt
 globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    {
 			if (global.flags & GLOBAL_CHANGE_HOSTNAME) {
-			    snprintf(mess, sizeof(mess), "Duplicate global hostname clause");
+			    pmsprintf(mess, sizeof(mess), "Duplicate global hostname clause");
 			    yyerror(mess);
 			}
 			if (strcmp(inarch.label.ll_hostname, $3) == 0) {
 			    /* no change ... */
 			    if (wflag) {
-				snprintf(mess, sizeof(mess), "Global hostname (%s): No change", inarch.label.ll_hostname);
+				pmsprintf(mess, sizeof(mess), "Global hostname (%s): No change", inarch.label.ll_hostname);
 				yywarn(mess);
 			    }
 			}
@@ -198,13 +198,13 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		| TOK_TZ TOK_ASSIGN TOK_STRING
 		    {
 			if (global.flags & GLOBAL_CHANGE_TZ) {
-			    snprintf(mess, sizeof(mess), "Duplicate global tz clause");
+			    pmsprintf(mess, sizeof(mess), "Duplicate global tz clause");
 			    yyerror(mess);
 			}
 			if (strcmp(inarch.label.ll_tz, $3) == 0) {
 			    /* no change ... */
 			    if (wflag) {
-				snprintf(mess, sizeof(mess), "Global timezone (%s): No change", inarch.label.ll_tz);
+				pmsprintf(mess, sizeof(mess), "Global timezone (%s): No change", inarch.label.ll_tz);
 				yywarn(mess);
 			    }
 			}
@@ -217,13 +217,13 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		| TOK_TIME TOK_ASSIGN signtime
 		    {
 			if (global.flags & GLOBAL_CHANGE_TIME) {
-			    snprintf(mess, sizeof(mess), "Duplicate global time clause");
+			    pmsprintf(mess, sizeof(mess), "Duplicate global time clause");
 			    yyerror(mess);
 			}
 			if (global.time.tv_sec == 0 && global.time.tv_usec == 0) {
 			    /* no change ... */
 			    if (wflag) {
-				snprintf(mess, sizeof(mess), "Global time: No change");
+				pmsprintf(mess, sizeof(mess), "Global time: No change");
 				yywarn(mess);
 			    }
 			}
@@ -232,32 +232,32 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    }
 		| TOK_HOSTNAME TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting hostname in hostname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting hostname in hostname clause");
 			yyerror(mess);
 		    }
 		| TOK_HOSTNAME
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in hostname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in hostname clause");
 			yyerror(mess);
 		    }
 		| TOK_TZ TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting timezone string in tz clause");
+			pmsprintf(mess, sizeof(mess), "Expecting timezone string in tz clause");
 			yyerror(mess);
 		    }
 		| TOK_TZ
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in tz clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in tz clause");
 			yyerror(mess);
 		    }
 		| TOK_TIME TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting delta of the form [+-][HH:[MM:]]SS[.d...] in time clause");
+			pmsprintf(mess, sizeof(mess), "Expecting delta of the form [+-][HH:[MM:]]SS[.d...] in time clause");
 			yyerror(mess);
 		    }
 		| TOK_TIME
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in time clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in time clause");
 			yyerror(mess);
 		    }
 		;
@@ -313,11 +313,11 @@ signtime	: TOK_PLUS time
 time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		    { 
 			if ($3 > 59) {
-			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $3);
+			    pmsprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $3);
 			    yywarn(mess);
 			}
 			if ($5 > 59) {
-			    snprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $5);
+			    pmsprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $5);
 			    yywarn(mess);
 			}
 			global.time.tv_sec = $1 * 3600 + $3 * 60 + (int)$5;
@@ -326,11 +326,11 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		| number TOK_COLON number TOK_COLON number	/* HH:MM:SS format */
 		    { 
 			if ($3 > 59) {
-			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $3);
+			    pmsprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $3);
 			    yywarn(mess);
 			}
 			if ($5 > 59) {
-			    snprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $5);
+			    pmsprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $5);
 			    yywarn(mess);
 			}
 			global.time.tv_sec = $1 * 3600 + $3 * 60 + $5;
@@ -338,11 +338,11 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		| number TOK_COLON float		/* MM:SS.d.. format */
 		    { 
 			if ($1 > 59) {
-			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $1);
+			    pmsprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $1);
 			    yywarn(mess);
 			}
 			if ($3 > 59) {
-			    snprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $3);
+			    pmsprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $3);
 			    yywarn(mess);
 			}
 			global.time.tv_sec = $1 * 60 + (int)$3;
@@ -351,11 +351,11 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		| number TOK_COLON number		/* MM:SS format */
 		    { 
 			if ($1 > 59) {
-			    snprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $1);
+			    pmsprintf(mess, sizeof(mess), "Minutes (%d) in time clause more than 59", $1);
 			    yywarn(mess);
 			}
 			if ($3 > 59) {
-			    snprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $3);
+			    pmsprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $3);
 			    yywarn(mess);
 			}
 			global.time.tv_sec = $1 * 60 + $3;
@@ -363,7 +363,7 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		| float			/* SS.d.. format */
 		    {
 			if ($1 > 59) {
-			    snprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $1);
+			    pmsprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $1);
 			    yywarn(mess);
 			}
 			global.time.tv_sec = (int)$1;
@@ -372,7 +372,7 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 		| number		/* SS format */
 		    {
 			if ($1 > 59) {
-			    snprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $1);
+			    pmsprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $1);
 			    yywarn(mess);
 			}
 			global.time.tv_sec = $1;
@@ -415,7 +415,7 @@ indomspec	: TOK_INDOM indom_int
 			TOK_LBRACE optindomopt TOK_RBRACE
 		| TOK_INDOM
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom rule");
+			pmsprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom rule");
 			yyerror(mess);
 		    }
 		;
@@ -427,15 +427,15 @@ indom_int	: TOK_FLOAT
 			int		sts;
 			sts = sscanf($1, "%d.%d", &domain, &serial);
 			if (sts < 2) {
-			    snprintf(mess, sizeof(mess), "Missing serial field for indom");
+			    pmsprintf(mess, sizeof(mess), "Missing serial field for indom");
 			    yyerror(mess);
 			}
 			if (domain < 1 || domain >= DYNAMIC_PMID) {
-			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
+			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
 			    yyerror(mess);
 			}
 			if (serial < 0 || serial >= 4194304) {
-			    snprintf(mess, sizeof(mess), "Illegal serial field (%d) for indom", serial);
+			    pmsprintf(mess, sizeof(mess), "Illegal serial field (%d) for indom", serial);
 			    yyerror(mess);
 			}
 			current_star_indom = 0;
@@ -447,7 +447,7 @@ indom_int	: TOK_FLOAT
 			int		domain;
 			sscanf($1, "%d.", &domain);
 			if (domain < 1 || domain >= DYNAMIC_PMID) {
-			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
+			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
 			    yyerror(mess);
 			}
 			current_star_indom = 1;
@@ -470,7 +470,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
 			    pmInDom	indom;
 			    if (indom_root->new_indom != indom_root->old_indom) {
-				snprintf(mess, sizeof(mess), "Duplicate indom clause for indom %s", pmInDomStr(indom_root->old_indom));
+				pmsprintf(mess, sizeof(mess), "Duplicate indom clause for indom %s", pmInDomStr(indom_root->old_indom));
 				yyerror(mess);
 			    }
 			    if (current_star_indom)
@@ -482,7 +482,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 			    else {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Instance domain %s: indom: No change", pmInDomStr(ip->old_indom));
+				    pmsprintf(mess, sizeof(mess), "Instance domain %s: indom: No change", pmInDomStr(ip->old_indom));
 				    yywarn(mess);
 				}
 			    }
@@ -526,42 +526,42 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    }
 		| TOK_INDOM TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or <domain>.* in indom clause");
 			yyerror(mess);
 		    }
 		| TOK_INDOM
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in indom clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in indom clause");
 			yyerror(mess);
 		    }
 		| TOK_INAME TOK_STRING TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting new external instance name string or DELETE in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting new external instance name string or DELETE in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_INAME TOK_STRING
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_INAME
 		    {
-			snprintf(mess, sizeof(mess), "Expecting old external instance name string in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting old external instance name string in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_INST number TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting new internal instance identifier or DELETE in inst clause");
+			pmsprintf(mess, sizeof(mess), "Expecting new internal instance identifier or DELETE in inst clause");
 			yyerror(mess);
 		    }
 		| TOK_INST number
 		    {
-			snprintf(mess, sizeof(mess), "Expecting -> in inst clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in inst clause");
 			yyerror(mess);
 		    }
 		| TOK_INST
 		    {
-			snprintf(mess, sizeof(mess), "Expecting old internal instance identifier in inst clause");
+			pmsprintf(mess, sizeof(mess), "Expecting old internal instance identifier in inst clause");
 			yyerror(mess);
 		    }
 		;
@@ -615,7 +615,7 @@ metricspec	: TOK_METRIC pmid_or_name
 			TOK_LBRACE optmetricoptlist TOK_RBRACE
 		| TOK_METRIC
 		    {
-			snprintf(mess, sizeof(mess), "Expecting metric name or <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in metric rule");
+			pmsprintf(mess, sizeof(mess), "Expecting metric name or <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in metric rule");
 			yyerror(mess);
 		    }
 		;
@@ -628,7 +628,7 @@ pmid_or_name	: pmid_int
 			sts = pmLookupName(1, &$1, &pmid);
 			if (sts < 0) {
 			    if (wflag) {
-				snprintf(mess, sizeof(mess), "Metric: %s: %s", $1, pmErrStr(sts));
+				pmsprintf(mess, sizeof(mess), "Metric: %s: %s", $1, pmErrStr(sts));
 				yywarn(mess);
 			    }
 			    pmid = PM_ID_NULL;
@@ -648,19 +648,19 @@ pmid_int	: TOK_PMID_INT
 			sts = sscanf($1, "%d.%d.%d", &domain, &cluster, &item);
 			assert(sts == 3);
 			if (domain < 1 || domain > DYNAMIC_PMID) {
-			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
+			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
 			else if (domain == DYNAMIC_PMID) {
-			    snprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
+			    pmsprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
 			    yywarn(mess);
 			}
 			if (cluster < 0 || cluster >= 4096) {
-			    snprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
+			    pmsprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
 			    yyerror(mess);
 			}
 			if (item < 0 || item >= 1024) {
-			    snprintf(mess, sizeof(mess), "Illegal item field (%d) for pmid", item);
+			    pmsprintf(mess, sizeof(mess), "Illegal item field (%d) for pmid", item);
 			    yyerror(mess);
 			}
 			current_star_metric = 0;
@@ -674,16 +674,16 @@ pmid_int	: TOK_PMID_INT
 			int	sts;
 			sts = sscanf($1, "%d.%d.", &domain, &cluster);
 			if (domain < 1 || domain > DYNAMIC_PMID) {
-			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
+			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
 			else if (domain == DYNAMIC_PMID) {
-			    snprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
+			    pmsprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
 			    yywarn(mess);
 			}
 			if (sts == 2) {
 			    if (cluster >= 4096) {
-				snprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
+				pmsprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
 				yyerror(mess);
 			    }
 			    current_star_metric = 1;
@@ -719,7 +719,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    if (pmid == mp->old_desc.pmid) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): pmid: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): pmid: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
 				    yywarn(mess);
 				}
 			    }
@@ -736,7 +736,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    if (strcmp($3, mp->old_name) == 0) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): name: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): name: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
 				    yywarn(mess);
 				}
 			    }
@@ -745,7 +745,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				pmID	pmid;
 				sts = pmLookupName(1, &$3, &pmid);
 				if (sts >= 0) {
-				    snprintf(mess, sizeof(mess), "Metric name %s already assigned for PMID %s", $3, pmIDStr(pmid));
+				    pmsprintf(mess, sizeof(mess), "Metric name %s already assigned for PMID %s", $3, pmIDStr(pmid));
 				    yyerror(mess);
 				}
 				mp->new_name = $3;
@@ -760,7 +760,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    if ($3 == mp->old_desc.type) {
 				/* old == new, so no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
 				    yywarn(mess);
 				}
 			    }
@@ -775,7 +775,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				    mp->flags |= METRIC_CHANGE_TYPE;
 				}
 				else {
-				    snprintf(mess, sizeof(mess), "Old type (PM_TYPE_%s) must be numeric", pmTypeStr(mp->old_desc.type));
+				    pmsprintf(mess, sizeof(mess), "Old type (PM_TYPE_%s) must be numeric", pmTypeStr(mp->old_desc.type));
 				    yyerror(mess);
 				}
 			    }
@@ -791,7 +791,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				    char	tbuf1[20];
 				    pmTypeStr_r(mp->old_desc.type, tbuf0, sizeof(tbuf0));
 				    pmTypeStr_r($5, tbuf1, sizeof(tbuf1));
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No conditional change to PM_TYPE_%s", mp->old_name, pmIDStr(mp->old_desc.pmid), tbuf0, tbuf1);
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No conditional change to PM_TYPE_%s", mp->old_name, pmIDStr(mp->old_desc.pmid), tbuf0, tbuf1);
 				    yywarn(mess);
 				}
 			    }
@@ -806,7 +806,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				    mp->flags |= METRIC_CHANGE_TYPE;
 				}
 				else {
-				    snprintf(mess, sizeof(mess), "Old type (PM_TYPE_%s) must be numeric", pmTypeStr(mp->old_desc.type));
+				    pmsprintf(mess, sizeof(mess), "Old type (PM_TYPE_%s) must be numeric", pmTypeStr(mp->old_desc.type));
 				    yyerror(mess);
 				}
 			    }
@@ -824,7 +824,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    if (indom == mp->old_desc.indom) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): indom: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmInDomStr(mp->old_desc.indom));
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): indom: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmInDomStr(mp->old_desc.indom));
 				    yywarn(mess);
 				}
 			    }
@@ -839,7 +839,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 					 mp->old_desc.type != PM_TYPE_U64 &&
 					 mp->old_desc.type != PM_TYPE_FLOAT &&
 					 mp->old_desc.type != PM_TYPE_DOUBLE) {
-				    snprintf(mess, sizeof(mess), "OUTPUT option MIN, MAX, AVG or SUM requires type to be numeric, not PM_TYPE_%s", pmTypeStr(mp->old_desc.type));
+				    pmsprintf(mess, sizeof(mess), "OUTPUT option MIN, MAX, AVG or SUM requires type to be numeric, not PM_TYPE_%s", pmTypeStr(mp->old_desc.type));
 				    yyerror(mess);
 				}
 				mp->new_desc.indom = indom;
@@ -893,7 +893,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    if ($3 == mp->old_desc.sem) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): sem: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), SemStr(mp->old_desc.sem));
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): sem: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), SemStr(mp->old_desc.sem));
 				    yywarn(mess);
 				}
 			    }
@@ -915,7 +915,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			        $13 == mp->old_desc.units.scaleCount) {
 				/* no change ... */
 				if (wflag) {
-				    snprintf(mess, sizeof(mess), "Metric: %s (%s): units: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): units: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
 				    yywarn(mess);
 				}
 			    }
@@ -935,7 +935,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 					mp->flags |= METRIC_RESCALE;
 				    else {
 					if (wflag) {
-					    snprintf(mess, sizeof(mess), "Metric: %s (%s): Dimension changed, cannot rescale", mp->old_name, pmIDStr(mp->old_desc.pmid));
+					    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): Dimension changed, cannot rescale", mp->old_name, pmIDStr(mp->old_desc.pmid));
 					    yywarn(mess);
 					}
 				    }
@@ -958,57 +958,57 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		    }
 		| TOK_PMID TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in pmid clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in pmid clause");
 			yyerror(mess);
 		    }
 		| TOK_NAME TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting metric name in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting metric name in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_TYPE TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
+			pmsprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
 			yyerror(mess);
 		    }
 		| TOK_TYPE TOK_IF
 		    {
-			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) after if in type clause");
+			pmsprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) after if in type clause");
 			yyerror(mess);
 		    }
 		| TOK_TYPE TOK_IF TOK_TYPE_NAME TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
+			pmsprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
 			yyerror(mess);
 		    }
 		| TOK_INDOM TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or NULL in indom clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <domain>.<serial> or NULL in indom clause");
 			yyerror(mess);
 		    }
 		| TOK_SEM TOK_ASSIGN
 		    {
-			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_SEM_XXX) in sem clause");
+			pmsprintf(mess, sizeof(mess), "Expecting XXX (from PM_SEM_XXX) in sem clause");
 			yyerror(mess);
 		    }
 		| TOK_UNITS TOK_ASSIGN 
 		    {
-			snprintf(mess, sizeof(mess), "Expecting 3 numeric values for dim* fields of units");
+			pmsprintf(mess, sizeof(mess), "Expecting 3 numeric values for dim* fields of units");
 			yyerror(mess);
 		    }
 		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA
 		    {
-			snprintf(mess, sizeof(mess), "Expecting 0 or XXX (from PM_SPACE_XXX) for scaleSpace field of units");
+			pmsprintf(mess, sizeof(mess), "Expecting 0 or XXX (from PM_SPACE_XXX) for scaleSpace field of units");
 			yyerror(mess);
 		    }
 		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA
 		    {
-			snprintf(mess, sizeof(mess), "Expecting 0 or XXX (from PM_TIME_XXX) for scaleTime field of units");
+			pmsprintf(mess, sizeof(mess), "Expecting 0 or XXX (from PM_TIME_XXX) for scaleTime field of units");
 			yyerror(mess);
 		    }
 		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA
 		    {
-			snprintf(mess, sizeof(mess), "Expecting 0 or ONE for scaleCount field of units");
+			pmsprintf(mess, sizeof(mess), "Expecting 0 or ONE for scaleCount field of units");
 			yyerror(mess);
 		    }
 		;
@@ -1038,7 +1038,7 @@ pick		: TOK_OUTPUT TOK_INST number
 		    }
 		| TOK_OUTPUT
 		    {
-			snprintf(mess, sizeof(mess), "Expecting FIRST or LAST or INST or INAME or MIN or MAX or AVG for OUTPUT instance option");
+			pmsprintf(mess, sizeof(mess), "Expecting FIRST or LAST or INST or INAME or MIN or MAX or AVG for OUTPUT instance option");
 			yyerror(mess);
 		    }
 		| /* nothing */

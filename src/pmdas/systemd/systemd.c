@@ -226,7 +226,7 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
     struct uid_gid_tuple* ugt = rp;
 
     assert (ugt == & ctxtab[pmdaGetContext()]);
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         __pmNotifyErr(LOG_DEBUG, "filter (%d) uid=%d gid=%d data=%p bytes=%u\n",
                       pmdaGetContext(), ugt->uid, ugt->gid, data, (unsigned)size);
 
@@ -246,7 +246,7 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
     if (! uid_gid_filter_p)
         return 0;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         __pmNotifyErr(LOG_DEBUG, "filter (%d) uid%s%d gid%s%d wildcard=%d\n",
                       pmdaGetContext(),
                       ugt->uid_p?"=":"?", ugt->uid,
@@ -263,7 +263,7 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
 
     /* OK, we need to take a look at the journal record in question. */
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         __pmNotifyErr(LOG_DEBUG, "filter cursor=%s\n", (const char*) data);
 
     (void) size; /* already known \0-terminated */
@@ -520,7 +520,7 @@ systemd_contextAttributeCallBack(int context,
         break;
     }
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         __pmNotifyErr(LOG_DEBUG, "attrib (%d) uid%s%d gid%s%d wildcard=%d\n",
                       context,
                       ctxtab[context].uid_p?"=":"?", ctxtab[context].uid,
@@ -646,7 +646,7 @@ systemdMain(pmdaInterface *dispatch)
 
         memcpy(&readyfds, &fds, sizeof(readyfds));
         nready = select(maxfd+1, &readyfds, NULL, NULL, & select_timeout);
-        if (pmDebug & DBG_TRACE_APPL2)
+        if (pmDebugOptions.appl2)
             __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
                           nready, interval_expired);
         if (nready < 0) {
@@ -659,12 +659,12 @@ systemdMain(pmdaInterface *dispatch)
         }
 
         if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
-            if (pmDebug & DBG_TRACE_APPL0)
+            if (pmDebugOptions.appl0)
                 __pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
             if (__pmdaMainPDU(dispatch) < 0) {
                 exit(1);        /* fatal if we lose pmcd */
             }
-            if (pmDebug & DBG_TRACE_APPL0)
+            if (pmDebugOptions.appl0)
                 __pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
         }
         systemd_refresh();
@@ -725,7 +725,7 @@ main(int argc, char **argv)
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, SYSTEMD,
                 "systemd.log", helppath);

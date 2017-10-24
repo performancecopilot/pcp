@@ -23,7 +23,7 @@ domain=145
 python_opt=true
 daemon_opt=false
 
-# Get user and socket path definitions
+# Get user and connection definitions
 eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
 
 if [ -z "$user" ]; then
@@ -32,16 +32,14 @@ if [ -z "$user" ]; then
     exit
 fi
 
-if [ -z "$socket" ]; then
-    echo "Failed to get socket configuration, sorry this is fatal"
+if [ -z "$socket" -a -z "$url" ]; then
+    echo "Failed to get connection configuration, sorry this is fatal"
     status=1
     exit
 fi
 
-if [ ! -S "$socket" ]; then
-    echo "$socket: socket does not exist, sorry this is fatal"
-    status=1
-    exit
+if [ -z "$url" -a ! -S "$socket" ]; then
+    echo "Warning: $socket: socket does not exist"
 fi
 
 id -g $user >/dev/null 2>&1

@@ -18,16 +18,16 @@ logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 sleeping ...
 
 host: HOST
-f_config: NULL f_ipc: 6 pid: pmlogger-pid-1 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-1 status: -1
 logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
-f_config: NULL f_ipc: 7 pid: pmlogger-pid-2 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-2 status: -1
 logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
-f_config: NULL f_ipc: 8 pid: pmlogger-pid-3 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-3 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
-f_config: NULL f_ipc: 9 pid: pmlogger-pid-4 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-4 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 send some control requests ...
@@ -69,7 +69,7 @@ f_config: NULL f_ipc: -1 pid: pmlogger-pid-4 status: 0
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 pmlogger processes:
-ps: pmlogger-pid-2 pmlogger -x 6 -h localhost
+ps: pmlogger-pid-2 pmlogger -x N -h localhost
 
 files:
 MKTEMP.HOST.0
@@ -131,6 +131,7 @@ The application that launched pmlogger has asked pmlogger to continue independen
 
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-2
+pmlogger: Caught signal 15, exiting
 
 Log finished DATE
 
@@ -205,16 +206,16 @@ logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 sleeping ...
 
 host: HOST
-f_config: NULL f_ipc: 7 pid: pmlogger-pid-1 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-1 status: -1
 logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
-f_config: NULL f_ipc: 8 pid: pmlogger-pid-2 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-2 status: -1
 logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
-f_config: NULL f_ipc: 9 pid: pmlogger-pid-3 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-3 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
-f_config: NULL f_ipc: 10 pid: pmlogger-pid-4 status: -1
+f_config: NULL f_ipc: N pid: pmlogger-pid-4 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 send some control requests ...
@@ -256,7 +257,7 @@ f_config: NULL f_ipc: -1 pid: pmlogger-pid-4 status: 0
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 pmlogger processes:
-ps: pmlogger-pid-2 pmlogger -x 7 -h localhost
+ps: pmlogger-pid-2 pmlogger -x N -h localhost
 
 files:
 MKTEMP.HOST.0
@@ -312,6 +313,7 @@ The application that launched pmlogger has asked pmlogger to continue independen
 
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-2
+pmlogger: Caught signal 15, exiting
 
 Log finished DATE
 

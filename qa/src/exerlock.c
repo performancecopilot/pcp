@@ -31,9 +31,8 @@ main(int argc, char **argv)
     if (argc != 2) _usage();
 
     __pmAFregister(&delta, NULL, timeout);
-#ifdef DBG_TRACE_DESPERATE
-    pmDebug |= DBG_TRACE_DESPERATE;
-#endif
+
+    pmSetDebug("desperate");
 
     for (p = argv[1]; *p; p++) {
 	switch (*p) {

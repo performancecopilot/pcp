@@ -37,5 +37,6 @@ _cleanup_qt()
     # if we started a dbus-daemon above, we should clean it up
     [ -z "$DBUS_SESSION_BUS_PID" ] || kill $DBUS_SESSION_BUS_PID
     unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
-    $sudo rm -rf $tmp.*
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
 }

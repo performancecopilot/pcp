@@ -64,7 +64,7 @@ refresh_disk_metrics(void)
 	     */
 	    if (strcmp(dsp->device_name, "da") != 0)
 		continue;
-	    snprintf(iname, sizeof(iname), "%s%d", dsp->device_name, dsp->unit_number);
+	    pmsprintf(iname, sizeof(iname), "%s%d", dsp->device_name, dsp->unit_number);
 	    sts = pmdaCacheLookupName(indomtab[DISK_INDOM].it_indom, iname, NULL, NULL);
 	    if (sts == PMDA_CACHE_ACTIVE) {
 		int	j;

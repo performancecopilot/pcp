@@ -19,12 +19,16 @@ Fetch prometheus.test.sample_summary: success
 prometheus.test.sample_summary
     inst [0 or "quantile="0""] value 0.000159623
     inst [1 or "quantile="0.25""] value 0.000291993
+    inst [2 or "sum"] value 1.39120677
+    inst [3 or "count"] value 1818
 Fetch prometheus.test.sample_histogram: success
 
 prometheus.test.sample_histogram
     inst [0 or "le="1""] value 5945
     inst [1 or "le="2""] value 10862
     inst [2 or "le="4""] value 15813
+    inst [3 or "sum"] value 45157
+    inst [4 or "count"] value 18135
 
 === remove prometheus agent ===
 Culling the Performance Metrics Name Space ...

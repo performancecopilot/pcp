@@ -175,25 +175,21 @@ __dminit_component(const char *name, int descend, int recover)
     int		sts = 0;
 
     if (stat(name, &sbuf) < 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DERIVE) {
+	if (pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: derived metrics path component: %s: %s\n",
 		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	}
-#endif
 	sts = -oserror();
 	goto finish;
     }
     if (S_ISREG(sbuf.st_mode)) {
 	/* regular file or symlink to a regular file, load it */
 	sts = __dminit_configfile(name);
-#ifdef PCP_DEBUG
-	if (sts < 0 && pmDebug & DBG_TRACE_DERIVE) {
+	if (sts < 0 && pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "pmLoadDerivedConfig(%s): %s\n", name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-#endif
 	goto finish;
     }
     if (descend && S_ISDIR(sbuf.st_mode)) {
@@ -202,13 +198,11 @@ __dminit_component(const char *name, int descend, int recover)
 	struct dirent	*dp;
 
 	if ((dirp = opendir(name)) == NULL) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DERIVE) {
+	    if (pmDebugOptions.derive) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "Warning: derived metrics path directory component: %s: %s\n",
 		    name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
-#endif
 	    sts = -oserror();
 	    goto finish;
 	}
@@ -223,31 +217,27 @@ __dminit_component(const char *name, int descend, int recover)
 	     */
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
-	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
+	    pmsprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
 	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
 		sts = localsts;
 		goto finish;
 	    }
 	    sts += localsts;
 	}
-#ifdef PCP_DEBUG
 	/* error is most unlikely and ignore unless -Dderive specified */
-	if (oserror() != 0 && pmDebug & DBG_TRACE_DERIVE) {
+	if (oserror() != 0 && pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: %s: readdir failed: %s\n",
 		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	}
-#endif
 	closedir(dirp);
 	goto finish;
     }
     /* otherwise not a file or symlink to a real file or a directory */
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DERIVE) {
+    if (pmDebugOptions.derive) {
 	fprintf(stderr, "Warning: derived metrics path component: %s: unexpected st_mode=%o?\n",
 	    name, (unsigned int)sbuf.st_mode);
     }
-#endif
 
 finish:
     return recover ? 0 : sts;
@@ -303,14 +293,14 @@ __dminit(void)
 	char	global[MAXPATHLEN+1];
 
 	/* anon metrics for event record unpacking */
-PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_PMAPI);
+PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon("event.flags", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
 		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
+PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -330,17 +320,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
 	 *
 	 */
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) == NULL) {
-	    snprintf(global, sizeof(global), "%s/config/derived", pmGetConfig("PCP_VAR_DIR"));
+	    pmsprintf(global, sizeof(global), "%s/config/derived", pmGetConfig("PCP_VAR_DIR"));
 	    if (access(global, F_OK) == 0)
 		configpath = global;
 	}
 	if (configpath && configpath[0] != '\0') {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DERIVE) {
+	    if (pmDebugOptions.derive) {
 		fprintf(stderr, "Derived metric initialization from %s\n",
 		    configpath == global ? global : "$PCP_DERIVED_CONFIG");
 	    }
-#endif
 	    __dminit_parse(configpath, 1 /*recovering*/);
 	}
 	need_init = 0;
@@ -480,24 +468,20 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 		new->info->pmid = PM_ID_NULL;
 		return new;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DERIVE) {
+	    if (pmDebugOptions.derive) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-#endif
 	    free_expr(new);
 	    return NULL;
 	}
 	sts = pmLookupDesc_ctx(ctxp, new->info->pmid, &new->desc);
 	if (sts < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DERIVE) {
+	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-#endif
 	    free_expr(new);
 	    return NULL;
 	}
@@ -1108,8 +1092,7 @@ check_expr(int n, node_t *np)
 	     */
 	    np->desc = np->left->desc;
 	    if (np->left->desc.type != np->right->desc.type) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
 
 		    pmTypeStr_r(np->left->desc.type, strbuf, sizeof(strbuf));
@@ -1117,7 +1100,6 @@ check_expr(int n, node_t *np)
 		    pmTypeStr_r(np->right->desc.type, strbuf, sizeof(strbuf));
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
-#endif
 		PM_TPD(derive_errmsg) = "Different types for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1125,8 +1107,7 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.indom != np->right->desc.indom &&
 	        np->left->desc.indom != PM_INDOM_NULL &&
 	        np->right->desc.indom != PM_INDOM_NULL) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
 
 		    pmInDomStr_r(np->left->desc.indom, strbuf, sizeof(strbuf));
@@ -1134,7 +1115,6 @@ check_expr(int n, node_t *np)
 		    pmInDomStr_r(np->right->desc.indom, strbuf, sizeof(strbuf));
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
-#endif
 		PM_TPD(derive_errmsg) = "Different instance domains for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1144,8 +1124,7 @@ check_expr(int n, node_t *np)
 	    else
 		np->desc.indom = np->right->desc.indom;
 	    if (np->left->desc.sem != np->right->desc.sem) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
 
 		    pmSemStr_r(np->left->desc.sem, strbuf, sizeof(strbuf));
@@ -1153,7 +1132,6 @@ check_expr(int n, node_t *np)
 		    pmSemStr_r(np->right->desc.sem, strbuf, sizeof(strbuf));
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
-#endif
 		PM_TPD(derive_errmsg) = "Different semantics for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1161,8 +1139,7 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.units.dimSpace != np->right->desc.units.dimSpace ||
 	        np->left->desc.units.scaleSpace != np->right->desc.units.scaleSpace)
 		{
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[60];
 
 		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
@@ -1170,7 +1147,6 @@ check_expr(int n, node_t *np)
 		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
 		    fprintf(stderr, " right=%s (dim=%d scale=%d)\n", strbuf, np->right->desc.units.dimSpace, np->right->desc.units.scaleSpace);
 		}
-#endif
 		PM_TPD(derive_errmsg) = "Different units or scale (space) for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1178,8 +1154,7 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.units.dimTime != np->right->desc.units.dimTime ||
 	        np->left->desc.units.scaleTime != np->right->desc.units.scaleTime)
 		{
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[60];
 
 		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
@@ -1187,7 +1162,6 @@ check_expr(int n, node_t *np)
 		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
-#endif
 		PM_TPD(derive_errmsg) = "Different units or scale (time) for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1195,8 +1169,7 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.units.dimCount != np->right->desc.units.dimCount ||
 	        np->left->desc.units.scaleCount != np->right->desc.units.scaleCount)
 		{
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[60];
 
 		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
@@ -1204,7 +1177,6 @@ check_expr(int n, node_t *np)
 		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
-#endif
 		PM_TPD(derive_errmsg) = "Different units or scale (count) for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1494,11 +1466,9 @@ registerderived(const char *name, const char *expr, int isanon)
     initialize_mutex();
     PM_LOCK(registered.mutex);
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
+    if (pmDebugOptions.derive && pmDebugOptions.appl0) {
 	fprintf(stderr, "pmRegisterDerived: name=\"%s\" expr=\"%s\"\n", name, expr);
     }
-#endif
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
@@ -1508,13 +1478,11 @@ registerderived(const char *name, const char *expr, int isanon)
 	    return (char *)expr;
 	}
     }
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0) &&
-        (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.derive && pmDebugOptions.appl0 &&
+        pmDebugOptions.desperate) {
 	/* turn on bison diagnostics */
 	derive_debug = 1;
     }
-#endif
 
     PM_TPD(derive_errmsg) = NULL;
     string = expr;
@@ -1546,14 +1514,13 @@ registerderived(const char *name, const char *expr, int isanon)
     pmid.item = registered.nmetric;
     registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
     registered.mlist[registered.nmetric-1].expr = np;
+    registered.mlist[registered.nmetric-1].bind = 0;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DERIVE) {
+    if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmRegisterDerived: register metric[%d] %s = %s\n", registered.nmetric-1, name, expr);
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __dmdumpexpr(np, 0);
     }
-#endif
 
     PM_UNLOCK(registered.mutex);
     return NULL;
@@ -1592,7 +1559,7 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 
     if ((error = malloc(length)) == NULL)
 	__pmNoMem("pmRegisterDerivedMetric", length, PM_FATAL_ERR);
-    snprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
+    pmsprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
     if (dmsg) {
 	strcat(error, dmsg);
 	strcat(error, "\n");
@@ -1610,25 +1577,25 @@ __pmRegisterAnon(const char *name, int type)
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
-PM_FAULT_CHECK(PM_FAULT_PMAPI);
+PM_FAULT_RETURN(PM_FAULT_PMAPI);
     switch (type) {
 	case PM_TYPE_32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
 	    break;
 	case PM_TYPE_U32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
 	    break;
 	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
 	    break;
 	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
 	    break;
 	case PM_TYPE_FLOAT:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
 	    break;
 	case PM_TYPE_DOUBLE:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
 	    break;
 	default:
 	    return PM_ERR_TYPE;
@@ -1668,11 +1635,9 @@ __dminit_configfile(const char *fname)
     int		eq = -1;
     int		lineno = 1;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DERIVE) {
+    if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmLoadDerivedConfig(\"%s\")\n", fname);
     }
-#endif
 
     if ((fp = fopen(fname, "r")) == NULL) {
 	return -oserror();
@@ -1846,16 +1811,6 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     __dminit();
 
     for (i = 0; i < cp->nmetric; i++) {
-	/* skip invalid derived metrics, e.g. due to missing operands */
-	if (!cp->mlist[i].anon) {
-	    if (ctxp == NULL || cp->mlist[i].expr == NULL) {
-		if (pmDebug & DBG_TRACE_DERIVE) {
-		    fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
-		    	name, cp->mlist[i].name);
-		}
-		continue;
-	    }
-	}
 	/*
 	 * prefix match ... if name is "", then all names match
 	 */
@@ -1863,6 +1818,28 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	    (strncmp(name, cp->mlist[i].name, matchlen) == 0 &&
 	     (cp->mlist[i].name[matchlen] == '.' ||
 	      cp->mlist[i].name[matchlen] == '\0'))) {
+	    /*
+	     * we have a match ... try binding the first time we see
+	     * this one in the current context ... if this fails we
+	     * will skip the metric
+	     */
+	    if (ctxp != NULL && cp->mlist[i].bind == 0) {
+		/* ctxp->c_lock not locked at this point */
+		PM_LOCK(ctxp->c_lock);
+		__dmbind(ctxp, i);
+		PM_UNLOCK(ctxp->c_lock);
+	    }
+	    /* skip invalid derived metrics, e.g. due to missing operands */
+	    if (!cp->mlist[i].anon) {
+		if (ctxp == NULL ||
+		   (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
+		    if (pmDebugOptions.derive) {
+			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
+			    name, cp->mlist[i].name);
+		    }
+		    continue;
+		}
+	    }
 	    sts++;
 	    if ((list = (char **)realloc(list, sts*sizeof(list[0]))) == NULL) {
 		PM_UNLOCK(registered.mutex);
@@ -1870,7 +1847,7 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 		/*NOTREACHED*/
 	    }
 	    list[sts-1] = cp->mlist[i].name;
-	    if (pmDebug & DBG_TRACE_DERIVE)
+	    if (pmDebugOptions.derive)
 	    	fprintf(stderr, "__dmtraverse: name=\"%s\" added \"%s\"\n", name, list[sts-1]);
 	}
     }
@@ -1907,8 +1884,9 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
     for (i = 0; i < cp->nmetric; i++) {
 	/* skip invalid derived metrics, e.g. due to missing operands */
 	if (!cp->mlist[i].anon) {
-	    if (ctxp == NULL || cp->mlist[i].expr == NULL) {
-		if (pmDebug & DBG_TRACE_DERIVE) {
+	    if (ctxp == NULL ||
+	       (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
+		if (pmDebugOptions.derive) {
 		    fprintf(stderr, "__dmchildren: name=\"%s\", omitting invalid child \"%s\"\n",
 		    	name, cp->mlist[i].name);
 		}
@@ -1959,11 +1937,9 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		strncpy(children[num_chn-1], &cp->mlist[i].name[start], len);
 		children[num_chn-1][len] = '\0';
 		need += len+1;
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 		    fprintf(stderr, "__dmchildren: offspring[%d] %s", num_chn-1, children[num_chn-1]);
 		}
-#endif
 
 		if (statuslist != NULL) {
 		    if ((status = (int *)realloc(status, num_chn*sizeof(status[0]))) == NULL) {
@@ -1972,17 +1948,13 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 			/*NOTREACHED*/
 		    }
 		    status[num_chn-1] = cp->mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+		    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 			fprintf(stderr, " (status=%d)", status[num_chn-1]);
 		}
-#endif
 		}
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+		if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 		    fputc('\n', stderr);
 		}
-#endif
 	    }
 	}
     }
@@ -2069,22 +2041,83 @@ __dmgetname(pmID pmid, char ** name)
     return PM_ERR_PMID;
 }
 
+/*
+ * bind the ith derived metric expression in the current context ...
+ * sets cp->mlist[i].expr as return value (NULL for error)
+ */
+void
+__dmbind(__pmContext *ctxp, int i)
+{
+    int		sts;
+    pmID	pmid;
+    ctl_t	*cp;
+
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
+    cp = (ctl_t *)ctxp->c_dm;
+
+    if (!registered.mlist[i].anon) {
+	/*
+	 * Assume anonymous derived metric names are unique, but otherwise
+	 * derived metric names must not clash with real metric names ...
+	 * and if this happens, the real metric wins!
+	 * Logic here depends on pmLookupName() returning before any
+	 * derived metric searching is performed if the name is valid
+	 * for a real metric in the current context.
+	 */
+	sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
+	if (sts >= 0 && !IS_DERIVED(pmid)) {
+	    if (pmDebugOptions.derive) {
+		char	strbuf[20];
+		fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
+		    registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    }
+	    cp->mlist[i].expr = NULL;
+	    goto done;
+	}
+    }
+    /* failures must be reported in bind_expr() or below */
+    cp->mlist[i].expr = bind_expr(ctxp, i, registered.mlist[i].expr, 0);
+    if (cp->mlist[i].expr != NULL) {
+	/* failures must be reported in check_expr() or below */
+	sts = check_expr(i, cp->mlist[i].expr);
+	if (sts < 0) {
+	    free_expr(cp->mlist[i].expr);
+	    cp->mlist[i].expr = NULL;
+	}
+	else {
+	    /* set correct PMID in pmDesc at the top level */
+	    cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
+	}
+    }
+    if (pmDebugOptions.derive && cp->mlist[i].expr != NULL) {
+	fprintf(stderr, "__dmbind: bind metric[%d] %s\n", i, registered.mlist[i].name);
+	if (pmDebugOptions.appl1)
+	    __dmdumpexpr(cp->mlist[i].expr, 0);
+    }
+
+done:
+    cp->mlist[i].bind = 1;
+    return;
+}
+
+/*
+ * called when new context established to clone the derived
+ * metrics control structures
+ */
 void
 __dmopencontext(__pmContext *ctxp)
 {
     int		i;
-    int		sts;
     ctl_t	*cp;
 
     initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+    if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 	fprintf(stderr, "__dmopencontext(->ctx %d) called\n", ctxp->c_handle);
     }
-#endif
     if (registered.nmetric == 0) {
 	ctxp->c_dm = NULL;
 	PM_UNLOCK(registered.mutex);
@@ -2103,54 +2136,12 @@ __dmopencontext(__pmContext *ctxp)
 	/* NOTREACHED */
     }
     for (i = 0; i < cp->nmetric; i++) {
-	pmID	pmid;
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
 	cp->mlist[i].anon = registered.mlist[i].anon;
+	cp->mlist[i].expr = NULL;
+	cp->mlist[i].bind = 0;
 	assert(registered.mlist[i].expr != NULL);
-	if (!registered.mlist[i].anon) {
-	    /*
-	     * Assume anonymous derived metric names are unique, but otherwise
-	     * derived metric names must not clash with real metric names ...
-	     * and if this happens, the real metric wins!
-	     * Logic here depends on pmLookupName() returning before any
-	     * derived metric searching is performed if the name is valid
-	     * for a real metric in the current context.
-	     */
-	    sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
-	    if (sts >= 0 && !IS_DERIVED(pmid)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_DERIVE) {
-		    char	strbuf[20];
-		    fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
-			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-		}
-#endif
-		cp->mlist[i].expr = NULL;
-		continue;
-	    }
-	}
-	/* failures must be reported in bind_expr() or below */
-	cp->mlist[i].expr = bind_expr(ctxp, i, registered.mlist[i].expr, 0);
-	if (cp->mlist[i].expr != NULL) {
-	    /* failures must be reported in check_expr() or below */
-	    sts = check_expr(i, cp->mlist[i].expr);
-	    if (sts < 0) {
-		free_expr(cp->mlist[i].expr);
-		cp->mlist[i].expr = NULL;
-	    }
-	    else {
-		/* set correct PMID in pmDesc at the top level */
-		cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
-	    }
-	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_DERIVE) && cp->mlist[i].expr != NULL) {
-	    fprintf(stderr, "__dmopencontext: bind metric[%d] %s\n", i, registered.mlist[i].name);
-	    if (pmDebug & DBG_TRACE_APPL1)
-		__dmdumpexpr(cp->mlist[i].expr, 0);
-	}
-#endif
     }
     PM_UNLOCK(registered.mutex);
 }
@@ -2163,14 +2154,13 @@ __dmclosecontext(__pmContext *ctxp)
 
     /* if needed, __dminit() called in __dmopencontext beforehand */
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DERIVE) {
+    if (pmDebugOptions.derive) {
 	fprintf(stderr, "__dmclosecontext(->ctx %d) called dm->" PRINTF_P_PFX "%p %d metrics\n", ctxp->c_handle, cp, cp == NULL ? -1 : cp->nmetric);
     }
-#endif
     if (cp == NULL) return;
     for (i = 0; i < cp->nmetric; i++) {
-	free_expr(cp->mlist[i].expr); 
+	if (cp->mlist[i].expr != NULL)
+	    free_expr(cp->mlist[i].expr); 
     }
     free(cp->mlist);
     free(cp);
@@ -2189,9 +2179,13 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 
     for (i = 0; i < cp->nmetric; i++) {
 	if (cp->mlist[i].pmid == pmid) {
+	    if (cp->mlist[i].bind == 0) {
+		/* ctxp->c_lock already locked at this point */
+		__dmbind(ctxp, i);
+	    }
 	    if (cp->mlist[i].expr == NULL)
 		/* bind failed for some reason, reported earlier */
-		return PM_ERR_NAME;
+		return PM_ERR_BADDERIVE;
 	    *desc = cp->mlist[i].expr->desc;
 	    return 0;
 	}
@@ -2219,9 +2213,9 @@ gramerr(const char *phrase, const char *pos, char *arg)
     /* unless lexer has already found something amiss ... */
     if (PM_TPD(derive_errmsg) == NULL) {
 	if (pos == NULL)
-	    snprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
+	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
 	else
-	    snprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
+	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
 	PM_TPD(derive_errmsg) = errmsg;
     }
 }
@@ -2798,7 +2792,7 @@ n_type_str(int type)
 	    return typetab[i].long_name;
 	}
     }
-    snprintf(n_eh_str, sizeof(n_eh_str), "unknown type %d!", type);
+    pmsprintf(n_eh_str, sizeof(n_eh_str), "unknown type %d!", type);
     return n_eh_str;
 }
 
@@ -2815,7 +2809,7 @@ n_type_c(int type)
 	    return typetab[i].short_name;
 	}
     }
-    snprintf(n_eh_c, sizeof(n_eh_c), "op %d!", type);
+    pmsprintf(n_eh_c, sizeof(n_eh_c), "op %d!", type);
     return n_eh_c;
 }
 
@@ -2832,7 +2826,7 @@ l_type_str(int type)
 	    return typetab[i].long_name;
 	}
     }
-    snprintf(l_eh_str, sizeof(l_eh_str), "unknown type %d!", type);
+    pmsprintf(l_eh_str, sizeof(l_eh_str), "unknown type %d!", type);
     return l_eh_str;
 }
 
@@ -3181,11 +3175,9 @@ derive_lex(void)
 	}
 
     }
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
+    if (pmDebugOptions.derive && pmDebugOptions.appl0) {
 	fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), ret == L_EOS ? "" : tokbuf);
     }
-#endif
 
     return ret;
 }

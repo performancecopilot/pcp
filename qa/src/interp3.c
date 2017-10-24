@@ -111,15 +111,13 @@ main(int argc, char **argv)
 	    archive = optarg;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'n':	/* alternative name space file */
@@ -218,10 +216,8 @@ main(int argc, char **argv)
 	if (vflag)
 	    __pmDumpResult(stdout, resp);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
-#endif
     fflush(stderr);
     printf("Found %d samples\n", resnum);
     fflush(stdout);
@@ -245,10 +241,8 @@ main(int argc, char **argv)
 	cmpres(n, resvec[resnum - n], resp);
 	pmFreeResult(resp);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
-#endif
     fflush(stderr);
     printf("Found %d samples\n", n);
     fflush(stdout);
@@ -295,10 +289,8 @@ main(int argc, char **argv)
 	    pmFreeResult(resp);
 	}
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
-#endif
     fflush(stderr);
     printf("Found %d samples\n", n);
     fflush(stdout);
@@ -330,10 +322,8 @@ main(int argc, char **argv)
 	    cmpres(j, resvec[n - 1], resp);
 	    pmFreeResult(resp);
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
-#endif
 	fflush(stderr);
 	printf("Found %d samples\n", j);
 	fflush(stdout);
@@ -364,10 +354,8 @@ main(int argc, char **argv)
 	    i--;
 	    j++;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
-#endif
 	fflush(stderr);
 	printf("Found %d samples\n", j);
 	fflush(stdout);
@@ -411,10 +399,8 @@ main(int argc, char **argv)
 	    cmpres(j+1, resvec[j], resp);
 	    pmFreeResult(resp);
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
-#endif
 	fflush(stderr);
 	printf("Found %d samples\n", i+1);
     }

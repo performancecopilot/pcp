@@ -170,11 +170,11 @@ static void uptime_string(time_t now, char *s, size_t sz)
     seconds = now;
 
     if (days > 1)
-	snprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, minutes, seconds);
+	pmsprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, minutes, seconds);
     else if (days == 1)
-	snprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, minutes, seconds);
+	pmsprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, minutes, seconds);
     else
-	snprintf(s, sz, "%02d:%02d:%02d", hours, minutes, seconds);
+	pmsprintf(s, sz, "%02d:%02d:%02d", hours, minutes, seconds);
 }
 
 static void dumpData(void)
@@ -209,12 +209,12 @@ static int refreshData(void)
     int		len;
     char	*s,*s2,*s3;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Doing pmhttpClientFetch(%s)\n", url);
 
     len = pmhttpClientFetch(http_client, url, res, sizeof(res), NULL, 0);
     if (len < 0) {
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; /* failed */
     }
@@ -317,7 +317,7 @@ static int refreshData(void)
 		    data.sb_open_slot++;
 		    break;
 		default:
-		    if (pmDebug & DBG_TRACE_APPL1) {
+		    if (pmDebugOptions.appl1) {
 			__pmNotifyErr(LOG_WARNING,
 				"Unknown scoreboard character '%c'\n", *s3);
 		    }
@@ -325,12 +325,12 @@ static int refreshData(void)
 		s3++;
 	     }
 	}
-	else if (pmDebug & DBG_TRACE_APPL1) {
+	else if (pmDebugOptions.appl1) {
 	    __pmNotifyErr(LOG_WARNING, "Unknown value name '%s'!\n", s2);
 	}
     }
 
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	dumpData();
     return 1;
 }
@@ -472,7 +472,7 @@ apache_init(pmdaInterface *dp)
 	__pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
 	exit(1);
     }
-    snprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
+    pmsprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
 
     dp->version.two.fetch = apache_fetch;
     pmdaSetFetchCallBack(dp, apache_fetchCallBack);
@@ -489,7 +489,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
 		helppath);

@@ -197,9 +197,10 @@ refresh_mdadm(const char *name)
 
     if (access(linux_mdadm, R_OK) != 0)
     	return -1;
-    snprintf(mdadm, sizeof(mdadm), "%s %s /dev/%s 2>&1 >/dev/null",
+    pmsprintf(mdadm, sizeof(mdadm), "%s %s /dev/%s 2>&1 >/dev/null",
 	linux_mdadm, args, name);	/* discard any/all output */
     mdadm[sizeof(mdadm)-1] = '\0';
+    /* popen() is SAFE, command built from literal strings */
     if (!(pfp = popen(mdadm, "r")))
     	return -1;
     return pclose(pfp);
@@ -220,6 +221,7 @@ refresh_udev(pmInDom disk_indom, pmInDom partitions_indom)
 
     if (access("/dev/xscsi", R_OK) != 0)
     	return;
+    /* popen() is SAFE, command is a literal string */
     if (!(pfp = popen("find /dev/xscsi -name disc -o -name part[0-9]*", "r")))
     	return;
     while (fgets(buf, sizeof(buf), pfp)) {
@@ -261,7 +263,7 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
     struct stat sb;
     char path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	memset(path, 0, sizeof(path));
     	if (read(fd, path, sizeof(path)-1) > 0) {
@@ -278,10 +280,10 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 	 * The sysfs name isn't available, so we'll have to walk /dev/mapper
 	 * and match up dev_t instead [happens on RHEL5 and maybe elsewhere].
 	 */
-	snprintf(path, sizeof(path), "%s/dev/mapper", linux_statspath);
+	pmsprintf(path, sizeof(path), "%s/dev/mapper", linux_statspath);
 	if ((dp = opendir(path)) != NULL) {
 	    while ((dentry = readdir(dp)) != NULL) {
-		snprintf(path, sizeof(path),
+		pmsprintf(path, sizeof(path),
 			"%s/dev/mapper/%s", linux_statspath, dentry->d_name);
 		if (stat(path, &sb) != 0 || !S_ISBLK(sb.st_mode))
 		    continue; /* only interested in block devices */
@@ -313,14 +315,14 @@ persistent_md_name(char *namebuf, int namelen)
     char path[MAXPATHLEN];
     char name[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s/dev/md", linux_statspath);
+    pmsprintf(path, sizeof(path), "%s/dev/md", linux_statspath);
     if ((dp = opendir(path)) != NULL) {
 	while ((dentry = readdir(dp)) != NULL) {
 	    if (dentry->d_name[0] == '.')
 		continue;
 	    if (isdigit(dentry->d_name[0]))
 		continue;
-	    snprintf(path, sizeof(path), "%s/dev/md/%s",
+	    pmsprintf(path, sizeof(path), "%s/dev/md/%s",
 			linux_statspath, dentry->d_name);
 	    if ((size = readlink(path, name, sizeof(name))) < 0)
 		continue;
@@ -653,7 +655,8 @@ _pm_ioscheduler(const char *device)
      * intuit the ones we know about (cfq, deadline, as, noop) based
      * on the different status files they create.
      */
-    sprintf(path, "%s/sys/block/%s/queue/scheduler", linux_statspath, device);
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s/queue/scheduler",
+		    linux_statspath, device);
     if ((fp = fopen(path, "r")) != NULL) {
 	p = fgets(buf, sizeof(buf), fp);
 	fclose(fp);
@@ -673,17 +676,21 @@ _pm_ioscheduler(const char *device)
     else {
 #define BLKQUEUE	"%s/sys/block/%s/queue/"
 	/* sniff around, maybe we'll get lucky and find something */
-	sprintf(path, BLKQUEUE "iosched/quantum", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched/quantum",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "cfq";
-	sprintf(path, BLKQUEUE "iosched/fifo_batch", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched/fifo_batch",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "deadline";
-	sprintf(path, BLKQUEUE "iosched/antic_expire", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched/antic_expire",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "anticipatory";
 	/* punt.  noop has no files to match on ... */
-	sprintf(path, BLKQUEUE "iosched", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "noop";
 	/* else fall though ... */

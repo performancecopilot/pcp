@@ -83,7 +83,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&pmdausername);
 
-    snprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
+    pmsprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
 		"cisco.log", helptext);
@@ -93,7 +93,7 @@ main(int argc, char **argv)
 	switch (c) {
 
 	    case 'C':		/* parser checking mode (debugging) */
-		pmDebug = DBG_TRACE_APPL0;
+		pmSetDebug("appl0");
 		parse_only++;
 		break;
 

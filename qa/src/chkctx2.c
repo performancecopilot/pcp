@@ -41,12 +41,7 @@ main(int argc, char **argv)
     pmResult	*resp;
     pmDesc	desc;
     int		handle;
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N] ";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-a archive] [-h hostname] [-L] [-n namespace]";
+    static char	*usage = "[-a archive] [-D debugspec] [-h hostname] [-L] [-n namespace]";
 
     __pmSetProgname(argv[0]);
 
@@ -62,18 +57,14 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    if (type != 0) {
@@ -105,7 +96,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

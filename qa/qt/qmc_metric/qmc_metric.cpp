@@ -18,7 +18,7 @@ changeConf(const char* str)
     char	name[MAXPATHLEN];
     FILE	*fp;
     
-    sprintf(name, "%s/pmdas/simple/simple.conf", pmGetConfig("PCP_VAR_DIR"));
+    pmsprintf(name, sizeof(name), "%s/pmdas/simple/simple.conf", pmGetConfig("PCP_VAR_DIR"));
     fp = fopen(name, "w");
     if (fp == NULL) {
 	cerr << pmProgname << ": /var/pcp/pmdas/simple/simple.conf: "
@@ -42,16 +42,12 @@ main(int argc, char* argv[])
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 	case 'D':
-	    sts = __pmParseDebug(optarg);
+	    sts = pmSetDebug(optarg);
             if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			 pmProgname, optarg);
                 sts = 1;
             }
-            else {
-                pmDebug |= sts;
-		sts = 0;
-	    }
             break;
 	case '?':
 	default:

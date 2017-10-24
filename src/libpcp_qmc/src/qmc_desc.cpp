@@ -25,7 +25,7 @@ QmcDesc::QmcDesc(pmID pmid)
 	my.scaleUnits = my.desc.units;
 	setUnitStrings();
     }
-    else if (pmDebug & DBG_TRACE_PMC) {
+    else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcDesc::QmcDesc: unable to lookup "
 	     << pmIDStr(my.pmid) << ": " << pmErrStr(my.status) << endl;
@@ -102,7 +102,7 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 		spaceString = "Tb";
 		break;
 	    default:
-		sprintf(sbuf, "space-%d", pu->scaleSpace);
+		pmsprintf(sbuf, sizeof(sbuf), "space-%d", pu->scaleSpace);
 		spaceString = sbuf;
 		break;
 	}
@@ -128,7 +128,7 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 		timeString = "h";
 		break;
 	    default:
-		sprintf(tbuf, "time-%d", pu->scaleTime);
+		pmsprintf(tbuf, sizeof(tbuf), "time-%d", pu->scaleTime);
 		timeString = tbuf;
 		break;
 	}
@@ -142,7 +142,7 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 		countString = "cx10";
 		break;
 	    default:
-		sprintf(cbuf, "cx10^%d", pu->scaleCount);
+		pmsprintf(cbuf, sizeof(cbuf), "cx10^%d", pu->scaleCount);
 		countString = cbuf;
 		break;
 	}
@@ -152,55 +152,55 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 
     if (pu->dimSpace > 0) {
 	if (pu->dimSpace == 1)
-	    sprintf(p, "%s", spaceString);
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", spaceString);
 	else
-	    sprintf(p, "%s^%d", spaceString, pu->dimSpace);
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", spaceString, pu->dimSpace);
 	while (*p) p++;
     }
     if (pu->dimTime > 0) {
 	if (pu->dimTime == 1)
-	    sprintf(p, "%s", timeString);
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", timeString);
 	else
-	    sprintf(p, "%s^%d", timeString, pu->dimTime);
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", timeString, pu->dimTime);
 	while (*p) p++;
     }
     if (pu->dimCount > 0) {
 	if (pu->dimCount == 1)
-	    sprintf(p, "%s", countString);
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", countString);
 	else
-	    sprintf(p, "%s^%d", countString, pu->dimCount);
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", countString, pu->dimCount);
 	while (*p) p++;
     }
     if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0) {
 	*p++ = '/';
 	if (pu->dimSpace < 0) {
 	    if (pu->dimSpace == -1)
-		sprintf(p, "%s", spaceString);
+		pmsprintf(p, sizeof(buf)-(p-buf), "%s", spaceString);
 	    else
-		sprintf(p, "%s^%d", spaceString, -pu->dimSpace);
+		pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", spaceString, -pu->dimSpace);
 	    while (*p) p++;
 	}
 	if (pu->dimTime < 0) {
 	    if (pu->dimTime == -1)
-		sprintf(p, "%s", timeString);
+		pmsprintf(p, sizeof(buf)-(p-buf), "%s", timeString);
 	    else
-		sprintf(p, "%s^%d", timeString, -pu->dimTime);
+		pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", timeString, -pu->dimTime);
 	    while (*p) p++;
 	}
 	if (pu->dimCount < 0) {
 	    if (pu->dimCount == -1)
-		sprintf(p, "%s", countString);
+		pmsprintf(p, sizeof(buf)-(p-buf), "%s", countString);
 	    else
-		sprintf(p, "%s^%d", countString, -pu->dimCount);
+		pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", countString, -pu->dimCount);
 	    while (*p) p++;
 	}
     }
 
     if (buf[0] == '\0') {
 	if (pu->scaleCount == 1)
-	    sprintf(buf, "x10");
+	    pmsprintf(buf, sizeof(buf), "x10");
 	else if (pu->scaleCount != 0)
-	    sprintf(buf, "x10^%d", pu->scaleCount);
+	    pmsprintf(buf, sizeof(buf), "x10^%d", pu->scaleCount);
     }
     else
 	*p = '\0';

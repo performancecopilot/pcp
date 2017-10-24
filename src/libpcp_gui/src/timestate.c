@@ -296,7 +296,7 @@ pmTimeStateVector(pmTimeControls *control, pmTime *pmtime)
 		break;
 
 	    default:
-		if (pmDebug & DBG_TRACE_TIMECONTROL)
+		if (pmDebugOptions.timecontrol)
 		    fprintf(stderr, "pmTimeRecv: cmd %x?\n", cmd);
 		break;
 	}

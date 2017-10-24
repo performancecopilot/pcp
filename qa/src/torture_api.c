@@ -143,14 +143,9 @@ parse_args(int argc, char **argv)
     extern int	optind;
     int		errflag = 0;
     int		c;
-    static char	*usage = "[-bcLmv] [-a archive] [-h host] [-n namespace] [-s 1|2]";
+    static char	*usage = "[-bcLmv] [-a archive] [-D debugspec] [-h host] [-n namespace] [-s 1|2]";
     char	*endnum;
     int		sts;
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D <dbg>]";
-#else
-    static char	*debug = "";
-#endif
 
     __pmSetProgname(argv[0]);
 
@@ -174,15 +169,13 @@ parse_args(int argc, char **argv)
 	    root_children = 1;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* context_namename for live context */
@@ -236,7 +229,7 @@ parse_args(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s%s\n", pmProgname, debug, usage);
+	printf("Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 }
@@ -312,13 +305,11 @@ test_api(void)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
       for (i = 0; i < numpmid; i++) {
         printf("%s: id[%d] = %d\n", namelist[i], i, midlist[i]);
       }
     }
-#endif
 
     /* Set mode for archive so that an indom can be retrieved 
      * if necessary.

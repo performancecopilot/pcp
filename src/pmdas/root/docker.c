@@ -64,14 +64,14 @@ docker_setup(container_engine_t *dp)
     /* determine the location of docker container config.json files */
     if (!docker)
 	docker = docker_default;
-    snprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
+    pmsprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
     dp->path[sizeof(dp->path)-1] = '\0';
 
     /* heuristic to determine which cgroup naming convention in use */
     if (systemd_cgroup || test_systemd_init())
 	dp->state |= CONTAINER_STATE_SYSTEMD;
 
-    if (pmDebug & DBG_TRACE_ATTR)
+    if (pmDebugOptions.attr)
 	__pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s suffix\n", dp->path,
 			(dp->state & CONTAINER_STATE_SYSTEMD)? "systemd" : "default");
 }
@@ -107,7 +107,7 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
     int			sts;
 
     if ((rundir = opendir(dp->path)) == NULL) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "%s: skipping docker path %s\n",
 		    pmProgname, dp->path);
 	return;
@@ -121,13 +121,13 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    continue;
 	/* allocate space for values for this container and update indom */
 	if (sts != PMDA_CACHE_INACTIVE) {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: adding docker container %s\n",
 			pmProgname, path);
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		continue;
 	    cp->engine = dp;
-	    snprintf(cp->cgroup, sizeof(cp->cgroup),
+	    pmsprintf(cp->cgroup, sizeof(cp->cgroup),
 			(dp->state & CONTAINER_STATE_SYSTEMD) ?
 			"/system.slice/docker-%s.scope" : "/docker/%s",
 			path);
@@ -159,8 +159,12 @@ docker_fread(char *buffer, int buflen, void *data)
     FILE	*fp = (FILE *)data;
     int		sts;
 
-    if ((sts = fread(buffer, 1, buflen, fp)) > 0)
+    if ((sts = fread(buffer, 1, buflen, fp)) > 0) {
+	if (pmDebugOptions.attr && pmDebugOptions.desperate)
+	    __pmNotifyErr(LOG_DEBUG, "docker_fread[%d bytes]: %.*s\n",
+			sts, sts, buffer);
 	return sts;
+    }
     if (feof(fp))
 	return 0;
     return -ferror(fp);
@@ -193,11 +197,12 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 	values->pid = local_metrics[0].values.l;
     else
 	values->pid = -1;
-    if (local_metrics[1].values.cp &&
-	(values->name = strdup(local_metrics[1].values.cp)) != NULL)
-	values->uptodate++;
+    if (local_metrics[1].values.cp)
+	values->name = strdup(local_metrics[1].values.cp);
     else
-	values->name = NULL;
+	values->name = strdup("?");
+    if (values->name)
+	values->uptodate++;
     if (local_metrics[2].values.ul)
 	values->flags = CONTAINER_FLAG_RUNNING;
     else if (local_metrics[3].values.ul)
@@ -220,12 +225,12 @@ int determine_docker_version(container_engine_t *dp, const char *name, char *buf
     /* we go with version two first, because v1 config files may not
      * always be cleaned up after the upgrade to v2.
      */
-    snprintf(buf, bufsize, "%s/%s/config.v2.json", dp->path, name);
+    pmsprintf(buf, bufsize, "%s/%s/config.v2.json", dp->path, name);
     if ((fp = fopen(buf, "r")) != NULL) {
 	fclose(fp);
 	return 2;
     }
-    snprintf(buf, bufsize, "%s/%s/config.json", dp->path, name);
+    pmsprintf(buf, bufsize, "%s/%s/config.json", dp->path, name);
     if ((fp = fopen(buf, "r")) != NULL) {
 	fclose(fp);
 	return 1;
@@ -252,7 +257,7 @@ docker_value_refresh(container_engine_t *dp,
 
     if (!docker_values_changed(path, values))
 	return 0;
-    if (pmDebug & DBG_TRACE_ATTR)
+    if (pmDebugOptions.attr)
 	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: file=%s\n", path);
     if ((fp = fopen(path, "r")) == NULL)
 	return -oserror();
@@ -261,7 +266,7 @@ docker_value_refresh(container_engine_t *dp,
     if (sts < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_ATTR)
+    if (pmDebugOptions.attr)
 	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: uptodate=%d of %d\n",
 	    values->uptodate, NUM_UPTODATE);
 

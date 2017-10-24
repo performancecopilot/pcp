@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  */
 
 #include <pcp/pmapi.h>
@@ -66,15 +67,13 @@ main(int argc, char **argv)
 	    configfile = optarg;
 	    break;	
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
@@ -190,6 +189,7 @@ Options:\n\
   -a archive     metrics source is a PCP log archive\n\
   -A align       align sample times on natural boundaries\n\
   -c configfile  file to load configuration from\n\
+  -D debug[,...] set PCP debugging option(s)\n\
   -h host        metrics source is PMCD on host\n\
   -l logfile     redirect diagnostics and trace output\n"
 #ifdef BUILD_STANDALONE

@@ -355,7 +355,7 @@ static void config_indom(pmdaIndom *pindom, int index, perf_counter *counter)
 
     for(i = 0; i < counter->ninstances; ++i)
     {
-        sprintf(cpuname, "cpu%d", counter->data[i].id);
+        pmsprintf(cpuname, sizeof(cpuname), "cpu%d", counter->data[i].id);
         pindom->it_set[i].i_inst = i;
         pindom->it_set[i].i_name = strdup(cpuname);
     }
@@ -372,7 +372,7 @@ static void config_indom_derived(pmdaIndom *pindom, int index, perf_derived_coun
 
     for(i = 0; i < derived_counter->ninstances; ++i)
     {
-        sprintf(cpuname, "cpu%d", derived_counter->counter_list->counter->data[i].id);
+        pmsprintf(cpuname, sizeof(cpuname), "cpu%d", derived_counter->counter_list->counter->data[i].id);
         pindom->it_set[i].i_inst = i;
         pindom->it_set[i].i_name = strdup(cpuname);
     }
@@ -391,7 +391,7 @@ static int setup_perfevents()
     const char *err_desc;
     int ret;
     int	sep = __pmPathSeparator();
-    snprintf(buffer, sizeof(buffer), "%s%c" PMDANAME "%c" PMDANAME ".conf", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+    pmsprintf(buffer, sizeof(buffer), "%s%c" PMDANAME "%c" PMDANAME ".conf", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
     perfif = manager_init(buffer);
     if( 0 == perfif )
@@ -576,7 +576,7 @@ static int setup_pmns()
     pmetric = &metrictab[NUM_STATIC_METRICS];
 
     /* Setup for derived static metrics */
-    snprintf(name, sizeof(name), PMDANAME ".derived.%s", "active");
+    pmsprintf(name, sizeof(name), PMDANAME ".derived.%s", "active");
     __pmAddPMNSNode(pmns, pmetric[0].m_desc.pmid, name);
 
     pmetric += NUM_STATIC_DERIVED_METRICS;
@@ -588,7 +588,7 @@ static int setup_pmns()
 
         for (j = 0; j < METRICSPERCOUNTER; j++)
         {
-            snprintf(name, sizeof(name),
+            pmsprintf(name, sizeof(name),
                      PMDANAME ".hwcounters.%s.%s", id, dynamic_nametab[j]);
             __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
         }
@@ -601,7 +601,7 @@ static int setup_pmns()
         char *id = normalize_metric_name(derived_counters[i].name);
         for (j = 0; j < METRICSPERDERIVED; j++)
         {
-            snprintf(name, sizeof(name),
+            pmsprintf(name, sizeof(name),
                      PMDANAME ".derived.%s.%s", id, dynamic_nametab[j]);
             __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
         }
@@ -624,7 +624,7 @@ perfevent_init(pmdaInterface *dp)
     if (isDSO)
     {
         int sep = __pmPathSeparator();
-        snprintf(mypath, sizeof(mypath), "%s%c" PMDANAME "%c" "help", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+        pmsprintf(mypath, sizeof(mypath), "%s%c" PMDANAME "%c" "help", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_5, PMDANAME " DSO", mypath);
     }
 
@@ -700,7 +700,7 @@ int main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "perfevent" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "perfevent" "%c" "help",
              pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, PERFEVENT,
                "perfevent.log", mypath);

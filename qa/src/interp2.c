@@ -72,15 +72,13 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 
@@ -101,7 +99,7 @@ main(int argc, char **argv)
 \n\
 Options\n\
   -a   archive	  metrics source is an archive log\n\
-  -D   debug	  standard PCP debug flag\n\
+  -D   debugspec  standard PCP debugging options\n\
   -n   namespace  use an alternative PMNS\n",
 		pmProgname);
 	exit(1);

@@ -280,14 +280,12 @@ main(int argc, char **argv)
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+	case 'D':	/* debug options */
+	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'n':	/* alternative namespace file */
@@ -354,7 +352,7 @@ main(int argc, char **argv)
 	}
 
 	if (version == 2 && f == NULL) {
-	    sprintf(pathname, "%s.pag", fname);
+	    pmsprintf(pathname, sizeof(pathname), "%s.pag", fname);
 	    if ((f = fopen(pathname, "w")) == NULL) {
 		fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
 		    pmProgname, pathname, osstrerror());
@@ -439,7 +437,7 @@ main(int argc, char **argv)
 	fclose(f);
 
 	/* do the directory index ... */
-	sprintf(pathname, "%s.dir", fname);
+	pmsprintf(pathname, sizeof(pathname), "%s.dir", fname);
 	if ((f = fopen(pathname, "w")) == NULL) {
 	    fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
 		pmProgname, pathname, osstrerror());

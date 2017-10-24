@@ -249,7 +249,7 @@ serverdb(char *path, size_t size, char *db_method)
      * Return a pointer to the filesystem path component - without
      * the <method>:-prefix - for other routines to work with.
      */
-    snprintf(path, size, "%s" "%c" "etc" "%c" "pki" "%c" "nssdb",
+    pmsprintf(path, size, "%s" "%c" "etc" "%c" "pki" "%c" "nssdb",
 		nss_method, sep, sep, sep);
     return path + strlen(nss_method);
 }
@@ -326,7 +326,7 @@ __pmSecureServerInit(void)
 
 	/* this is the default case on some platforms, so no log spam */
 	if (access(path, R_OK|X_OK) < 0) {
-	    if (pmDebug & DBG_TRACE_CONTEXT)
+	    if (pmDebugOptions.context)
 		__pmNotifyErr(LOG_INFO,
 			      "Cannot access system security database: %s",
 			      secure_server.database_path);
@@ -400,7 +400,7 @@ __pmSecureServerInit(void)
 	    for (node = CERT_LIST_HEAD(certlist);
 		 !CERT_LIST_END(node, certlist);
 		 node = CERT_LIST_NEXT (node)) {
-		if (pmDebug & DBG_TRACE_CONTEXT)
+		if (pmDebugOptions.context)
 		    __pmDumpCertificate(stderr, secure_server.cert_nickname, node->cert);
 		if (!__pmValidCertificate(nssdb, node->cert, now))
 		    continue;
@@ -432,7 +432,7 @@ __pmSecureServerInit(void)
     }
 
     if (! secure_server.certificate_verified) {
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    __pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
 			  secure_server.cert_nickname, secure_server.database_path);
 	}
@@ -535,14 +535,14 @@ __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
     gid_t gid;
 
     if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR) == 0) {
-	snprintf(name, sizeof(name), "%u", uid);
+	pmsprintf(name, sizeof(name), "%u", uid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
 	else
 	    return -ENOMEM;
 
-	snprintf(name, sizeof(name), "%u", gid);
+	pmsprintf(name, sizeof(name), "%u", gid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
@@ -622,7 +622,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     sasl_conn_t *sasl_conn;
     __pmPDU *pb;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "__pmAuthServerNegotiation(fd=%d, ssf=%d)\n",
 		fd, ssf);
 
@@ -643,14 +643,14 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 			sasl_errstring(saslsts, NULL, NULL));
 	return __pmSecureSocketsError(saslsts);
     }
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "__pmAuthServerNegotiation - sending mechanism list "
 		"(%d items, %d bytes): \"%s\"\n", count, length, payload);
 
     if ((sts = __pmSendAuth(fd, FROM_ANON, 0, payload, length)) < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "__pmAuthServerNegotiation - wait for mechanism\n");
 
     sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
@@ -675,11 +675,11 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 				(unsigned int *)&length);
 	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
 		sts = __pmSecureSocketsError(saslsts);
-		if (pmDebug & DBG_TRACE_AUTH)
+		if (pmDebugOptions.auth)
 		    fprintf(stderr, "sasl_server_start failed: %d (%s)\n",
 				    saslsts, pmErrStr(sts));
 	    } else {
-		if (pmDebug & DBG_TRACE_AUTH)
+		if (pmDebugOptions.auth)
 		    fprintf(stderr, "sasl_server_start success: sts=%s\n",
 			    saslsts == SASL_CONTINUE ? "continue" : "ok");
 	    }
@@ -695,7 +695,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     if (sts < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "__pmAuthServerNegotiation method negotiated\n");
 
     while (saslsts == SASL_CONTINUE) {
@@ -707,7 +707,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	if ((sts = __pmSendAuth(fd, FROM_ANON, 0, payload, length)) < 0)
 	    break;
 
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "__pmAuthServerNegotiation awaiting response\n");
 
 	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
@@ -721,7 +721,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 		    sts = __pmSecureSocketsError(sts);
 		    break;
 		}
-		if (pmDebug & DBG_TRACE_AUTH) {
+		if (pmDebugOptions.auth) {
 		    fprintf(stderr, "__pmAuthServerNegotiation"
 				    " step recv (%d bytes)\n", length);
 		}
@@ -739,7 +739,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     }
 
     if (sts < 0) {
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "__pmAuthServerNegotiation loop failed: %d\n", sts);
 	return sts;
     }

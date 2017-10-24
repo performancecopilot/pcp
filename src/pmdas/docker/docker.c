@@ -427,31 +427,31 @@ stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
 static void
 refresh_basic(char *path)
 {
-    char    json_query[BUFSIZ] = "";
+    char    json_query[BUFSIZ];
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
-    sprintf(json_query, "http://localhost/containers/%s/json", path);
+    pmsprintf(json_query, BUFSIZ, "http://localhost/containers/%s/json", path);
     grab_values(json_query, indom, path, basic_metrics, basic_metrics_size);
 } 
 
 static void
 refresh_version(char *path)
 {
-    char    json_query[BUFSIZ] = "";
+    char    json_query[BUFSIZ];
     pmInDom indom = PM_INDOM_NULL;
 
-    sprintf(json_query, "http://localhost/version");
+    pmsprintf(json_query, BUFSIZ, "http://localhost/version");
     grab_values(json_query, indom, path, version_metrics, version_metrics_size);
 }
 
 static void
 refresh_stats(char *path)
 {
-    char    json_query[BUFSIZ] = "";
+    char    json_query[BUFSIZ];
     pmInDom indom = INDOM(CONTAINERS_STATS_CACHE_INDOM);
 
     /* the ?stream=0 bit is set so as to not continuously request stats */
-    sprintf(json_query, "http://localhost/containers/%s/stats?stream=0", path);
+    pmsprintf(json_query, BUFSIZ, "http://localhost/containers/%s/stats?stream=0", path);
     grab_values(json_query, indom, path, stats_metrics, stats_metrics_size);
 }
 
@@ -706,7 +706,7 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
     if ((sts = pmhttpClientFetch(http_client, "unix://var/run/docker.sock",
 			&http_data.json[0], sizeof(http_data.json),
 			json_query, strlen(json_query))) < 0) {
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; // failed
     }
@@ -720,12 +720,12 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
 
     /* allocate space for values for this container and update indom */
     if (sts != PMDA_CACHE_INACTIVE && sts != PMDA_CACHE_ACTIVE) {
-	if (pmDebug & DBG_TRACE_ATTR) {
+	if (pmDebugOptions.attr) {
 	    fprintf(stderr, "%s: adding docker container %s\n",
 		    pmProgname, local_path);
 	}
 	if (!(local_metrics = calloc(json_size, sizeof(json_metric_desc)))) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebugOptions.attr) {
 		fprintf(stderr, "%s: cannot allocate container %s space\n",
 			pmProgname, local_path);
 	    }
@@ -815,7 +815,7 @@ refresh_insts(char *path)
     dir_changed = check_docker_dir(path);
 
     if ((rundir = opendir(path)) == NULL) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "%s: skipping docker path %s\n",
 		    pmProgname, path);
 	return;
@@ -823,7 +823,7 @@ refresh_insts(char *path)
     refresh_version(path);
     while ((drp = readdir(rundir)) != NULL) {
 	if (*(local_path = &drp->d_name[0]) == '.') {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		__pmNotifyErr(LOG_DEBUG, "%s: skipping %s\n",
 			      pmProgname, drp->d_name);
 	    continue;
@@ -850,7 +850,7 @@ docker_setup(void)
 
     if (!docker)
 	docker = docker_default;
-    snprintf(resulting_path, sizeof(mypath), "%s/containers", docker);
+    pmsprintf(resulting_path, sizeof(mypath), "%s/containers", docker);
     resulting_path[sizeof(resulting_path)-1] = '\0';
     return 0;
 }
@@ -866,7 +866,7 @@ docker_init(pmdaInterface *dp)
     int        *loop = (int*)1;
     if (isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "docker DSO", mypath);
     } else {
@@ -933,7 +933,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, DOCKER,
 		"docker.log", mypath);

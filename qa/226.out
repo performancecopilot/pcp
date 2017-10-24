@@ -6,7 +6,7 @@ attr attr# [value]
 children metric-name
 close
 debug all | none
-debug flag [ flag ... ] (flag is decimal or symbolic name)
+debug option [ option ... ] (option is a symbolic name or a decimal number)
 desc metric
 fetch metric [ metric ... ]
 getdesc on | off
@@ -58,12 +58,13 @@ exit, allowing another PMDA to be opened.
 dbpmda> help debug
 
 debug all | none
-debug flag [ flag ... ] (flag is decimal or symbolic name)
+debug option [ option ... ] (option is a symbolic name or a decimal number)
 
-Specify which debugging flags should be active (see pmdbg(1)).  Flags may
-be specified as integers or by name, with multiple flags separated by
-white space.  All flags may be selected or deselected if 'all' or 'none' is
-specified.  The current setting is displayed by the status command.
+Specify which debugging options should be active (see pmdbg(1)).  Options
+may be specified by name (or number for the old bit-field options), with
+multiple options separated by white space.  All options may be selected or
+deselected if 'all' or 'none' is specified.  The current setting is
+displayed by the status command.
 
 
 dbpmda> help desc
@@ -154,7 +155,7 @@ dbpmda> help status
 status
 
 Display the state of dbpmda, including which PMDA is connected, which
-pmDebug flags are set, and the current profile.
+debug options are set, and the current profile.
 
 dbpmda> help store
 

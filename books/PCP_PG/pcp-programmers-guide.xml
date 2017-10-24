@@ -2379,15 +2379,15 @@ main(int argc, char **argv)
           <indexterm id="IG31340177233">
             <primary>flags</primary>
             <secondary>debugging</secondary>
-          </indexterm>You can activate  debugging flags in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported flags can be listed with the <command>pmdbg</command> command; see the <command>pmdbg(1)</command> man page. Setting the debug flag for PMCD in <filename>${PCP_PMCDOPTIONS_PATH}</filename> might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
-        <para>The PMCD debugging flag can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
+          </indexterm>You can activate  debugging options in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported options can be listed with the <command>pmdbg</command> command; see the <command>pmdbg(1)</command> man page. Setting the debug options for PMCD in <filename>${PCP_PMCDOPTIONS_PATH}</filename> might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
+        <para>The PMCD debugging options can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
         <programlisting># <emphasis role="bold">pmstore pmcd.control.debug 5</emphasis></programlisting>
-        <para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>PMDA(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOptions</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
-        <para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream. By convention, all debugging information is enclosed by preprocessor <literal>#ifdef</literal> <command>PCP_DEBUG</command> statements so that they can be compiled out of the program at a later stage, if required, although this is rarely done in practice.</para>
+        <para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>libpmda</literal> option is set within the PMDA; see the <command>PMDA(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOptions</command> to set the global debugging control options. Adding tests within the PMDA for the <literal>appl0</literal>, <literal>appl1</literal> and <literal>appl2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
+        <para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream.</para>
         <para>
           <indexterm id="IG31340177234">
             <primary>simple_store function</primary>
-          </indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a timestamped log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and <command>pmDebug</command> has the <literal>DBG_TRACE_APPL0</literal> flag set as shown in <xref linkend="Z976060060sdc"/>:</para>
+          </indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a timestamped log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and the PCP debugging options have the <literal>appl0</literal> option set as shown in <xref linkend="Z976060060sdc"/>:</para>
         <example id="Z976060060sdc">
           <title>
             <literal>simple.numfetch</literal> in the Simple PMDA</title>
@@ -2398,12 +2398,10 @@ main(int argc, char **argv)
             sts = PM_ERR_SIGN; 
             val = 0; 
         } 
-#ifdef PCP_DEBUG 
-        if (pmDebug &amp; DBG_TRACE_APPL0) { 
+        if (pmDebugOptions.appl0__) { 
             __pmNotifyErr(LOG_DEBUG,
                   &quot;simple: %d stored into numfetch&quot;, val); 
         } 
-#endif 
         numfetch = val; 
         break;</programlisting>
         </example>

@@ -220,15 +220,13 @@ int main(int argc, char** argv){
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -246,7 +244,7 @@ int main(int argc, char** argv){
 "Usage: %s [options] inputfile\n\
 \n\
 Options:\n\
-  -D flags    set debug flags\n",
+  -D debugspec    set debug options\n",
                 pmProgname);
         exit(1);
     }
@@ -284,5 +282,6 @@ Options:\n\
 	    break;
 	}
     }
+    fclose(fp);
     return 0;
 }

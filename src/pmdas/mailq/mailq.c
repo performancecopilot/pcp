@@ -286,7 +286,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
 		"mailq.log", mypath);
@@ -359,29 +359,29 @@ main(int argc, char **argv)
 	_delay[i].i_inst = histo[i].delay;
 	histo[i].count = 0;
 	if (histo[i].delay == 0)
-	    sprintf(namebuf, "recent");
+	    pmsprintf(namebuf, sizeof(namebuf), "recent");
 	else if (histo[i].delay < 60)
-	    sprintf(namebuf, "%d-secs", (int)histo[i].delay);
+	    pmsprintf(namebuf, sizeof(namebuf), "%d-secs", (int)histo[i].delay);
 	else if (histo[i].delay < 60 * 60) {
 	    tmp = histo[i].delay / 60;
 	    if (tmp <= 1)
-		sprintf(namebuf, "1-min");
+		pmsprintf(namebuf, sizeof(namebuf), "1-min");
 	    else
-		sprintf(namebuf, "%d-mins", (int)tmp);
+		pmsprintf(namebuf, sizeof(namebuf), "%d-mins", (int)tmp);
 	}
 	else if (histo[i].delay < 24 * 60 * 60) {
 	    tmp = histo[i].delay / (60 * 60);
 	    if (tmp <= 1)
-		sprintf(namebuf, "1-hour");
+		pmsprintf(namebuf, sizeof(namebuf), "1-hour");
 	    else
-		sprintf(namebuf, "%d-hours", (int)tmp);
+		pmsprintf(namebuf, sizeof(namebuf), "%d-hours", (int)tmp);
 	}
 	else {
 	    tmp = histo[i].delay / (24 * 60 * 60);
 	    if (tmp <= 1)
-		sprintf(namebuf, "1-day");
+		pmsprintf(namebuf, sizeof(namebuf), "1-day");
 	    else
-		sprintf(namebuf, "%d-days", (int)tmp);
+		pmsprintf(namebuf, sizeof(namebuf), "%d-days", (int)tmp);
 	}
 	_delay[i].i_name = strdup(namebuf);
 	if (_delay[i].i_name == NULL) {

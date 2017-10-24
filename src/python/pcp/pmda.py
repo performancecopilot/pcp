@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013-2015 Red Hat.
+# Copyright (C) 2013-2015,2017 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -104,6 +104,7 @@ class pmdaIndom(Structure):
         self.it_numinst = 0
         self.it_set = None
         self.it_indom = indom
+        self.load_indom(indom, insts)
         self.set_instances(indom, insts)
 
     def __iter__(self):
@@ -138,6 +139,14 @@ class pmdaIndom(Structure):
                 if (inst.i_inst == instance):
                     return str(inst.i_name.decode())
         return None
+
+    def load_indom(self, indom, insts):
+        if (isinstance(insts, dict)):
+            LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_LOAD)
+
+    def load(self):
+        if self.it_numinst == -1:
+            LIBPCP_PMDA.pmdaCacheOp(self.it_indom, cpmda.PMDA_CACHE_LOAD)
 
     def set_list_instances(self, insts):
         instance_count = len(insts)

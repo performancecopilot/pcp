@@ -163,6 +163,19 @@ cross-compilation.  Currently packaging is no longer performed,
 although previously MSI builds were possible.  Work on tackling
 this short-coming would be most welcome.
 
+Base package list needed for Fedora cross-compilation:
+    mingw64-gcc
+    mingw64-binutils
+    mingw64-configure
+    mingw64-qt5-qttools-tools
+    mingw64-qt5-qtbase-devel
+    mingw64-pkg-config
+    mingw64-readline
+    mingw64-xz-libs
+    mingw64-qt5-qtsvg
+    mingw64-pdcurses
+    mingw64-libgnurx
+
 ### 2. Account creation
 
 If you want to build the package and install it manually you will

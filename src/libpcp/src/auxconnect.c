@@ -54,10 +54,8 @@ __pmHostEntAlloc(void)
 void
 __pmHostEntFree(__pmHostEnt *hostent)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
         fprintf(stderr, "%s:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", __FILE__, hostent, hostent->name, hostent->name, hostent-> addresses);
-#endif
     if (hostent->name != NULL)
         free(hostent->name);
     if (hostent->addresses != NULL)
@@ -625,15 +623,13 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSockAddr *sock = (__pmSockAddr *)addr;
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.context && pmDebugOptions.desperate) {
 	char *sockname = __pmSockAddrToString(sock);
 	fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s)\n",
 	    __FILE__, fd, __pmSockAddrGetFamily(sock), __pmSockAddrGetPort(sock),
 	    sockname);
 	free(sockname);
     }
-#endif
     if (sock->sockaddr.raw.sa_family == AF_INET)
         return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
     if (sock->sockaddr.raw.sa_family == AF_INET6)
@@ -896,8 +892,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			i;
 
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    const char	*errmsg;
 	    PM_LOCK(__pmLock_extcall);
 	    errmsg = hoststrerror();		/* THREADSAFE */
@@ -905,7 +900,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 		    __FILE__, hostname, pmcd_port, hosterror(), errmsg);
 	    PM_UNLOCK(__pmLock_extcall);
 	}
-#endif
 	return -EHOSTUNREACH;
     }
 
@@ -1040,12 +1034,12 @@ __pmPMCDLocalSocketDefault(void)
 	char *envstr;
 	PM_LOCK(__pmLock_extcall);
 	if ((envstr = getenv("PMCD_SOCKET")) != NULL) {		/* THREADSAFE */
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
+	    pmsprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 	else {
 	    PM_UNLOCK(__pmLock_extcall);
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
+	    pmsprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
 		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
 	}
     }
@@ -1156,13 +1150,11 @@ __pmHostEntGetName(__pmHostEnt *he)
 	     addr != NULL;
 	     addr = __pmHostEntGetSockAddr(he, &enumIx)) {
 	    he->name = __pmGetNameInfo(addr);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DESPERATE) {
+	    if (pmDebugOptions.desperate) {
 		char *sockname = __pmSockAddrToString(addr);
 		fprintf(stderr, "%s:__pmHostEntGetName: __pmGetNameInfo(%s) returns %s\n", __FILE__, sockname, he->name);
 		free(sockname);
 	    }
-#endif
 	    __pmSockAddrFree(addr);
 	    if (he->name != NULL)
 		break;
@@ -1170,10 +1162,8 @@ __pmHostEntGetName(__pmHostEnt *he)
 	if (he->name == NULL)
 	    return NULL;
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
         fprintf(stderr, "%s:__pmHostEntGetName -> %s\n", __FILE__, he->name);
-#endif
 
     return strdup(he->name);
 }
@@ -1249,13 +1239,11 @@ __pmGetNameInfo(__pmSockAddr *address)
         sts = EAI_FAMILY;
     } 
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE) {
+    if (pmDebugOptions.desperate) {
         if (sts != 0) {
             fprintf(stderr, "%s:__pmGetNameInfo: family=%d getnameinfo()-> %d %s\n", __FILE__, address->sockaddr.raw.sa_family, sts, gai_strerror(sts));
         }
     }
-#endif
 
 
     return sts == 0 ? strdup(buf) : NULL;
@@ -1280,17 +1268,14 @@ __pmGetAddrInfo(const char *hostName)
 	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
 	PM_UNLOCK(__pmLock_extcall);
 	if (sts != 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DESPERATE)
+	    if (pmDebugOptions.desperate)
 		fprintf(stderr, "%s:__pmGetAddrInfo: getaddrinfo(%s, ...) -> %d %s\n", __FILE__, hostName, sts, gai_strerror(sts));
-#endif
 	    __pmHostEntFree(hostEntry);
 	    hostEntry = NULL;
 	}
 	/* Leave the host name NULL. It will be looked up on demand in __pmHostEntGetName(). */
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE) {
+    if (pmDebugOptions.desperate) {
 	if (hostEntry == NULL)
 	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> NULL\n", __FILE__, hostName);
 	else {
@@ -1318,7 +1303,6 @@ __pmGetAddrInfo(const char *hostName)
 		fprintf(stderr, "no ip addrs?\n");
 	}
     }
-#endif
     return hostEntry;
 }
 
@@ -1553,8 +1537,7 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 {
     ssize_t	size;
     size = recv(socket, buffer, length, flags);
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d",
 		__FILE__, socket, (int)length, flags, (int)size);
 	if (size < 0) {
@@ -1563,7 +1546,6 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 	}
 	fputc('\n', stderr);
     }
-#endif
     return size;
 }
 

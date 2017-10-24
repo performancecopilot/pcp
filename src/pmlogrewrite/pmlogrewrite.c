@@ -285,7 +285,7 @@ parseargs(int argc, char *argv[])
 		else while ((dp = readdir(dirp)) != NULL) {
 		    /* skip ., .. and "hidden" files */
 		    if (dp->d_name[0] == '.') continue;
-		    snprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, dp->d_name);
+		    pmsprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, dp->d_name);
 		    if (stat(path, &sbuf) < 0) {
 			pmprintf("%s: %s: %s\n", pmProgname, path, osstrerror());
 			opts.errors++;
@@ -325,15 +325,13 @@ parseargs(int argc, char *argv[])
 	    dflag = 1;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(opts.optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'i':	/* in-place, over-write input archive */
@@ -399,10 +397,10 @@ SemStr(int sem)
 {
     static char	buf[20];
 
-    if (sem == PM_SEM_COUNTER) snprintf(buf, sizeof(buf), "counter");
-    else if (sem == PM_SEM_INSTANT) snprintf(buf, sizeof(buf), "instant");
-    else if (sem == PM_SEM_DISCRETE) snprintf(buf, sizeof(buf), "discrete");
-    else snprintf(buf, sizeof(buf), "bad sem? %d", sem);
+    if (sem == PM_SEM_COUNTER) pmsprintf(buf, sizeof(buf), "counter");
+    else if (sem == PM_SEM_INSTANT) pmsprintf(buf, sizeof(buf), "instant");
+    else if (sem == PM_SEM_DISCRETE) pmsprintf(buf, sizeof(buf), "discrete");
+    else pmsprintf(buf, sizeof(buf), "bad sem? %d", sem);
 
     return buf;
 }
@@ -650,8 +648,8 @@ link_entries(void)
 			/* indom already changed via metric clause */
 			if (mp->new_desc.indom != ip->new_indom) {
 			    char	strbuf[80];
-			    snprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(mp->new_desc.indom));
-			    snprintf(mess, sizeof(mess), "Conflicting indom change for metric %s (%s from metric clause, %s from indom clause)", mp->old_name, strbuf, pmInDomStr(ip->new_indom));
+			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(mp->new_desc.indom));
+			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for metric %s (%s from metric clause, %s from indom clause)", mp->old_name, strbuf, pmInDomStr(ip->new_indom));
 			    yysemantic(mess);
 			}
 		    }
@@ -714,7 +712,7 @@ check_indoms()
 		}
 	    }
 	    if (node == NULL) {
-		snprintf(mess, sizeof(mess), "New indom (%s) for metric %s is not in the output archive", pmInDomStr(mp->new_desc.indom), mp->old_name);
+		pmsprintf(mess, sizeof(mess), "New indom (%s) for metric %s is not in the output archive", pmInDomStr(mp->new_desc.indom), mp->old_name);
 		yysemantic(mess);
 	    }
 	}
@@ -753,11 +751,11 @@ check_indoms()
 		else
 		    namej = ip->old_iname[j];
 		if (insti == instj) {
-		    snprintf(mess, sizeof(mess), "Duplicate instance id %d (\"%s\" and \"%s\") for indom %s", insti, namei, namej, pmInDomStr(ip->old_indom));
+		    pmsprintf(mess, sizeof(mess), "Duplicate instance id %d (\"%s\" and \"%s\") for indom %s", insti, namei, namej, pmInDomStr(ip->old_indom));
 		    yysemantic(mess);
 		}
 		if (inst_name_eq(namei, namej) > 0) {
-		    snprintf(mess, sizeof(mess), "Duplicate instance name \"%s\" (%d) and \"%s\" (%d) for indom %s", namei, insti, namej, instj, pmInDomStr(ip->old_indom));
+		    pmsprintf(mess, sizeof(mess), "Duplicate instance name \"%s\" (%d) and \"%s\" (%d) for indom %s", namei, insti, namej, instj, pmInDomStr(ip->old_indom));
 		    yysemantic(mess);
 		}
 	    }
@@ -813,9 +811,9 @@ check_output()
 		    if (i == ip->numinst) {
 			if (wflag) {
 			    if (mp->one_name != NULL)
-				snprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in old indom %s", mp->one_name, pmInDomStr(mp->old_desc.indom));
+				pmsprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in old indom %s", mp->one_name, pmInDomStr(mp->old_desc.indom));
 			    else
-				snprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in old indom %s", mp->one_inst, pmInDomStr(mp->old_desc.indom));
+				pmsprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in old indom %s", mp->one_inst, pmInDomStr(mp->old_desc.indom));
 			    yywarn(mess);
 			}
 		    }
@@ -843,9 +841,9 @@ check_output()
 		    if (i == ip->numinst) {
 			if (wflag) {
 			    if (mp->one_name != NULL)
-				snprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in new indom %s", mp->one_name, pmInDomStr(mp->new_desc.indom));
+				pmsprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in new indom %s", mp->one_name, pmInDomStr(mp->new_desc.indom));
 			    else
-				snprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in new indom %s", mp->one_inst, pmInDomStr(mp->new_desc.indom));
+				pmsprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in new indom %s", mp->one_inst, pmInDomStr(mp->new_desc.indom));
 			    yywarn(mess);
 			}
 		    }
@@ -946,6 +944,7 @@ main(int argc, char **argv)
 	mode_t	cur_umask;
 	int	tmp_f1;			/* fd for first temp basename */
 	int	tmp_f2;			/* fd for second temp basename */
+	int	sep = __pmPathSeparator();
 
 #if HAVE_MKSTEMP
 	strncpy(path, argv[argc-1], sizeof(path));
@@ -957,7 +956,7 @@ main(int argc, char **argv)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
+	pmsprintf(path, sizeof(path), "%s%cXXXXXX", dname, sep);
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f1 = mkstemp(path);
 	umask(cur_umask);
@@ -967,7 +966,7 @@ main(int argc, char **argv)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	sprintf(bak_base, "%s%cXXXXXX", dname, __pmPathSeparator());
+	pmsprintf(bak_base, sizeof(bak_base), "%s%cXXXXXX", dname, sep);
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f2 = mkstemp(bak_base);
 	umask(cur_umask);
@@ -1085,10 +1084,8 @@ main(int argc, char **argv)
 	in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mfp);
 	stslog = nextlog();
 	if (stslog < 0) {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "Log: read EOF @ offset=%ld\n", in_offset);
-#endif
 	    break;
 	}
 	if (stslog == 1) {
@@ -1103,8 +1100,7 @@ main(int argc, char **argv)
 		 */
 		newvolume(outarch.logctl.l_curvol+1);
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: read ");
 	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
@@ -1112,7 +1108,6 @@ main(int argc, char **argv)
 	    __pmPrintStamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, in_offset);
 	}
-#endif
 
 	if (ti_idx < inarch.ctxp->c_archctl->ac_log->l_numti) {
 	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->l_ti[ti_idx];
@@ -1144,8 +1139,7 @@ main(int argc, char **argv)
 	    if (stsmeta == 0) {
 		in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mdfp);
 		stsmeta = nextmeta();
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    if (stsmeta < 0)
 			fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
 		    else if (stsmeta == TYPE_DESC)
@@ -1153,7 +1147,6 @@ main(int argc, char **argv)
 		    else if (stsmeta == TYPE_INDOM)
 			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
 		}
-#endif
 	    }
 	    if (stsmeta < 0) {
 		break;
@@ -1225,6 +1218,9 @@ main(int argc, char **argv)
 		    break;
 		needti = 1;
 		do_indom();
+	    }
+	    else if (stsmeta == 3 /*TYPE_LABEL*/) {
+		;	/* silently ignore optional metadata */
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
@@ -1336,13 +1332,13 @@ abandon(void)
 	if (iflag)
 	    _pmLogRename(bak_base, inarch.name);
 	while (outarch.logctl.l_curvol >= 0) {
-	    snprintf(path, sizeof(path), "%s.%d", outarch.name, outarch.logctl.l_curvol);
+	    pmsprintf(path, sizeof(path), "%s.%d", outarch.name, outarch.logctl.l_curvol);
 	    unlink(path);
 	    outarch.logctl.l_curvol--;
 	}
-	snprintf(path, sizeof(path), "%s.meta", outarch.name);
+	pmsprintf(path, sizeof(path), "%s.meta", outarch.name);
 	unlink(path);
-	snprintf(path, sizeof(path), "%s.index", outarch.name);
+	pmsprintf(path, sizeof(path), "%s.index", outarch.name);
 	unlink(path);
     }
     else

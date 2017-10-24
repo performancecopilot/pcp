@@ -177,14 +177,12 @@ updateValueUnits(const char *str, int offset)
     metrictab[offset].m_desc.units.scaleTime = units[4];
     metrictab[offset].m_desc.units.scaleCount = units[5];
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "%s: value metric units updated using \"%s\"\n"
 		"dimSpace=%d, dimTime=%d, dimCount=%d, scaleSpace=%d, "
 		"scaleTime=%d, scaleCount=%d\n", pmProgname, str,
 		units[0], units[1], units[2], units[3], units[4], units[5]);
     }
-#endif
 
 leaving:
     if (sptr != NULL)
@@ -346,11 +344,9 @@ readData(int clientfd, int *protocol)
 	newhash.txmin = newhash.txmax = data;
 	newhash.txsum = data;
 	hptr = &newhash;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, "'%s' is new to the summary table!",
 		    hptr->tag);
-#endif
 	if (__pmhashinsert(&summary, hptr->tag, hptr) < 0) {
 	    __pmNotifyErr(LOG_ERR, "summary table insert failure - '%s' "
 		"data ignored", hptr->tag);
@@ -392,15 +388,13 @@ readData(int clientfd, int *protocol)
 	indomtab[indom].it_set[index].i_inst = hptr->id;
 	indomtab[indom].it_set[index].i_name = hptr->tag;
 	indomtab[indom].it_numinst++;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "Updated indom #%d:\n", indom);
 	    for (index=0; index < indomtab[indom].it_numinst; index++)
 		fprintf(stderr, "  Instance %d='%s'\n",
 			indomtab[indom].it_set[index].i_inst,
 			indomtab[indom].it_set[index].i_name);
 	}
-#endif
     }
     else {	/* update an existing entry */
 	freeflag++;	/* wont need tag afterwards, so mark for deletion */
@@ -421,11 +415,9 @@ readData(int clientfd, int *protocol)
 	    else if (hptr->tracetype == TRACE_TYPE_OBSERVE)
 		hptr->txsum = data;
 		/* observations are 'permanent' and immediately available */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "'%s' real count updated (%d)",
 			hptr->tag, (int)hptr->realcount);
-#endif
 	}
     }
 
@@ -446,12 +438,10 @@ readData(int clientfd, int *protocol)
 	hash.txmin = hash.txmax = data;
 	hash.txsum = data;
 	hptr = &hash;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, "fresh interval data on fd=%d rpos=%d "
 		    "('%s': len=%d type=%d value=%d)", clientfd, rpos,
 		    hash.tag, taglen, type, (int)data);
-#endif
 	if (__pmhashinsert(ringbuf.ring[rpos].stats, hash.tag, hptr) < 0) {
 	    __pmNotifyErr(LOG_ERR, "ring buffer insert failure - '%s' "
 		"data ignored", hash.tag);
@@ -468,13 +458,11 @@ readData(int clientfd, int *protocol)
 		hptr->txmax = data;
 	    hptr->txsum += data;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, "Updating data on fd=%d ('%s': type=%d "
 		    "count=%d min=%f max=%f sum=%f)",
 		    clientfd, hptr->tag, hptr->tracetype,
 		    hptr->txcount, hptr->txmin, hptr->txmax, hptr->txsum);
-#endif
     }
     if (freeflag) {
 	free(newhash.tag);
@@ -518,11 +506,9 @@ timerUpdate(void)
     __pmhashtrunc(ringbuf.ring[rpos].stats);	/* new working set */
     ringbuf.ring[rpos].working = 1;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "Alarm - working buffer is now %d/%d",
 		rpos+1, rbufsize);
-#endif
 }
 
 static void
@@ -531,10 +517,8 @@ summariseDataAux(hashtable_t *t, void *entry)
     hashdata_t	*hptr;
     hashdata_t	*base = (hashdata_t *)entry;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "summariseDataAux: looking up '%s'", base->tag);
-#endif
     /* update summary hash table */
     if ((hptr = __pmhashlookup(&summary, base->tag, base)) == NULL)
 	__pmNotifyErr(LOG_ERR, "summariseDataAux: entry in ring buffer, "
@@ -589,10 +573,8 @@ summariseData(void)
 {
     int	count;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "summariseData: resummarising");
-#endif
     /* initialise counters */
     tindomsize = pindomsize = oindomsize = 0;
 
@@ -600,11 +582,10 @@ summariseData(void)
     for (count=0; count < rbufsize; count++) {
 	if (ringbuf.ring[count].working == 1)
 	    continue;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "ring buffer table %d/%d has %d entries.\n",
-		count, rbufsize, ringbuf.ring[count].stats->entries);
-#endif
+	if (pmDebugOptions.appl0) {
+	    __pmNotifyErr(LOG_DEBUG, "ring buffer table %d/%d has %d entries.\n",
+			  count, rbufsize, ringbuf.ring[count].stats->entries);
+	}
 	__pmhashtraverse(ringbuf.ring[count].stats, summariseDataAux);
     }
 
@@ -670,11 +651,9 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 	    if (hptr->txcount < 0)	/* not in current time period */
 		return 0;
 	    atom->f = (float)((double)hptr->txcount/(double)timespan.tv_sec);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		__pmNotifyErr(LOG_DEBUG, "rate=%f=%f/%f('%s')\n", (float)atom->f,
 			(double)hptr->txcount, (double)timespan.tv_sec, tag);
-#endif
 	    break;
 	case 2:				/* trace.transact.ave_time */
 	    hash.tracetype = TRACE_TYPE_TRANSACT;
@@ -686,11 +665,9 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 		atom->f = 0;
 	    else {
 		atom->f = (float)((double)hptr->txsum/(double)hptr->txcount);
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1)
+		if (pmDebugOptions.appl1)
 		    __pmNotifyErr(LOG_DEBUG, "ave_time=%f=%f/%f('%s')\n", (float)atom->f,
 			(double)hptr->txsum, (double)hptr->txcount, tag);
-#endif
 	    }
 	    break;
 	case 3:				/* trace.transact.min_time */
@@ -728,11 +705,9 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 	    if (hptr->txcount < 0)	/* not in current time period */
 		return 0;
 	    atom->f = (float)((double)hptr->txcount/(double)timespan.tv_sec);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		__pmNotifyErr(LOG_DEBUG, "rate=%f=%f/%f('%s')\n", (float)atom->f,
 			(double)hptr->txcount, (double)timespan.tv_sec, tag);
-#endif
 	    break;
 	case 8:				/* trace.observe.count */
 	case 17:			/* trace.counter.count */
@@ -751,11 +726,9 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 	    if (hptr->txcount < 0)	/* not in current time period */
 		return 0;
 	    atom->f = (float)((double)hptr->txcount/(double)timespan.tv_sec);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		__pmNotifyErr(LOG_DEBUG, "rate=%f=%f/%f('%s')\n", (float)atom->f,
 			(double)hptr->txcount, (double)timespan.tv_sec, tag);
-#endif
 	    break;
 	case 10:			/* trace.observe.value */
 	case 19:			/* trace.counter.value */
@@ -905,11 +878,9 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    if (dosummary == 1)
 		summariseData();
 	    numval = getIndomSize(pmidp);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "instance domain for %s numval=%d",
 		pmIDStr(dp->pmid), numval);
-#endif
 	}
 	else
 	    numval = 1;
@@ -971,11 +942,9 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				pmIDStr(dp->pmid), pmErrStr(sts));
 	    }
 	    else if (sts == 0) {	/* not current, so don't use */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_DEBUG, "Instance is dated %s (pmid=%s)",
 					ins->i_name, pmIDStr(dp->pmid));
-#endif
 	    }
 	    else if ((sts = __pmStuffValue(&atom, &vset->vlist[j], dp->type)) == PM_ERR_TYPE)
 		__pmNotifyErr(LOG_ERR, "bad desc type (%d) for metric %s",
@@ -983,11 +952,9 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    else if (sts >= 0) {
 		vset->valfmt = sts;
 		j++;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_DEBUG, "Instance is good! %s (pmid=%s)",
 					ins->i_name, pmIDStr(dp->pmid));
-#endif
 	    }
 	} while (dp->indom != PM_INDOM_NULL &&
 				(ins = nextTraceInst(pmda)) != NULL);
@@ -1021,10 +988,8 @@ traceStore(pmResult *result, pmdaExt *pmda)
 	    return PM_ERR_PMID;
 
 	if (pmidp->item == 15) {	/* trace.control.reset */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "resetting trace metrics");
-#endif
 	    /* reset the interval timer */
 	    if (afid >= 0) {
 		__pmAFunregister(afid);
@@ -1073,7 +1038,8 @@ traceStore(pmResult *result, pmdaExt *pmda)
 	    else if (sts >= 0 && ((sts = pmExtractValue(vsp->valfmt,
 			&vsp->vlist[0], PM_TYPE_32, &av, PM_TYPE_32)) >= 0)) {
 		if (pmDebug != av.l) {
-		    pmDebug = av.l;
+		    pmClearDebug("all");
+		    __pmSetDebugBits(av.l);
 		    __pmNotifyErr(LOG_INFO, "debug level set to %d", pmDebug);
 		    debuglibrary(pmDebug);
 		}

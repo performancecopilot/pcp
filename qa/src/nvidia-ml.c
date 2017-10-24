@@ -92,7 +92,7 @@ int
 nvmlInit(void)
 {
     refcount++;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlInit [%d - %d]\n",
 		refcount - 1, refcount);
     return 0;
@@ -102,7 +102,7 @@ int
 nvmlShutdown(void)
 {
     refcount--;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlShutdown [%d - %d]\n",
 		refcount + 1, refcount);
     return NVML_SUCCESS;
@@ -112,7 +112,7 @@ int
 nvmlDeviceGetCount(unsigned int *count)
 {
     *count = sizeof(gpu_table) / sizeof(gpu_table[0]);
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetCount [%u]\n", *count);
     return NVML_SUCCESS;
 }
@@ -127,7 +127,7 @@ nvmlDeviceGetCount(unsigned int *count)
 int
 nvmlDeviceGetHandleByIndex(unsigned int index, nvmlDevice_t *dp)
 {
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetHandleByIndex %u\n", index);
     CHECK_INDEX(index);
     *dp = &gpu_table[index];
@@ -138,7 +138,7 @@ int
 nvmlDeviceGetName(nvmlDevice_t device, char *buffer, unsigned int length)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetName\n");
     CHECK_DEVICE(dev);
     strncpy(buffer, dev->name, length);
@@ -150,7 +150,7 @@ int
 nvmlDeviceGetPciInfo(nvmlDevice_t device, nvmlPciInfo_t *info)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetPciInfo\n");
     CHECK_DEVICE(dev);
     *info = dev->pciinfo;
@@ -161,7 +161,7 @@ int
 nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int *speed)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetFanSpeed\n");
     CHECK_DEVICE(dev);
     *speed = dev->fanspeed;
@@ -172,7 +172,7 @@ int
 nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemperatureSensors_t sensor, unsigned int *value)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetTemperature\n");
     CHECK_DEVICE(dev);
     if (sensor >= NVML_TEMPERATURE_COUNT)
@@ -185,7 +185,7 @@ int
 nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlUtilization_t *util)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetUtilizationRates\n");
     CHECK_DEVICE(dev);
     *util = dev->util;
@@ -196,7 +196,7 @@ int
 nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_t *mem)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetMemoryInfo\n");
     CHECK_DEVICE(dev);
     *mem = dev->mem;
@@ -207,7 +207,7 @@ int
 nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlPstates_t *state)
 {
     struct gputab *dev = (struct gputab *)device;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetPerformanceState\n");
     CHECK_DEVICE(dev);
     *state = dev->state;

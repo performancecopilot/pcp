@@ -212,7 +212,7 @@ metricspec	: NAME
 			sts = metric_cnt;
 
 		    if (sts < 0 || metric_cnt == 0) {
-			sprintf(emess, 
+			pmsprintf(emess, sizeof(emess),
 				"Problem with lookup for metric \"%s\" ...",$1);
 			yywarn(emess);
 			if (sts < 0) {
@@ -273,7 +273,7 @@ hostopt		: AT NAME	{ hostname = strdup($2); }
 		{ 
 			/* That MUST be a mistake! */
 			char tb[64];
-			sprintf (tb, "%d", (int)$2);
+			pmsprintf(tb, sizeof(tb), "%d", (int)$2);
 			hostname = strdup(tb); 
 		}
 		| AT STRING	{ hostname = strdup($2); }

@@ -5,4 +5,4 @@
 #	$ sudo make install
 # this one turns optimization off and debug info on and lock assertions on
 #
-CFLAGS_OPT = -O0 -g -DBUILD_WITH_LOCK_ASSERTS
+CFLAGS_OPT = -O0 -g -DPM_MULTI_THREAD_DEBUG

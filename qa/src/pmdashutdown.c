@@ -11,10 +11,10 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
-	  "  -D N       set pmDebug debugging flag to N\n"
-	  "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
+	  "  -D debugspec set PCP debugging options\n"
+	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -h helpfile  get help text from helpfile rather then default path\n"
-	  "  -l logfile write log into logfile rather than using default log name\n"
+	  "  -l logfile   write log into logfile rather than using default log name\n"
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port    expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p         expect PMCD to supply stdin/stdout (pipe)\n"

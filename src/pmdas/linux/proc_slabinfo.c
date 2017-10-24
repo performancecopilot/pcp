@@ -144,10 +144,8 @@ refresh_proc_slabinfo(pmInDom slab_indom, proc_slabinfo_t *slabinfo)
 	    /* new cache has appeared */
 	    if ((s = calloc(1, sizeof(*s))) == NULL)
 		continue;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "refresh_slabinfo: added \"%s\"\n", name);
-#endif
 	    indom_change++;
 	}
 

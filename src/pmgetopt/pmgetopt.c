@@ -22,7 +22,7 @@ static char buffer[4096];
 static inline char *
 skip_whitespace(char *buffer)
 {
-    while (buffer[0] && isspace(buffer[0]))
+    while (buffer[0] && isspace((int)buffer[0]))
 	buffer++;
     return buffer;
 }
@@ -30,7 +30,7 @@ skip_whitespace(char *buffer)
 static inline char *
 skip_nonwhitespace(char *buffer)
 {
-    while (buffer[0] && !isspace(buffer[0]))
+    while (buffer[0] && !isspace((int)buffer[0]))
 	buffer++;
     return buffer;
 }
@@ -59,7 +59,7 @@ command(pmOptions *opts, char *buffer)
 	start = skip_whitespace(skip_nonwhitespace(start));
 	finish = skip_nonwhitespace(start);
 	*finish = '\0';
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: getopt command: '%s'\n", pmProgname, start);
 	if ((opts->short_options = strdup(start)) == NULL)
 	    __pmNoMem("short_options", strlen(start), PM_FATAL_ERR);
@@ -68,7 +68,7 @@ command(pmOptions *opts, char *buffer)
 
     if (strncasecmp(start, "usage", sizeof("usage")-1) == 0) {
 	start = skip_whitespace(skip_nonwhitespace(start));
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: usage command: '%s'\n", pmProgname, start);
 	if ((opts->short_usage = strdup(start)) == NULL)
 	    __pmNoMem("short_usage", strlen(start), PM_FATAL_ERR);
@@ -76,7 +76,7 @@ command(pmOptions *opts, char *buffer)
     }
 
     if (strncasecmp(start, "end", sizeof("end")-1) == 0) {
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: end command\n", pmProgname);
 	return 1;
     }
@@ -108,7 +108,7 @@ append_text(pmOptions *opts, char *buffer, size_t length)
 {
     pmLongOptions text = PMAPI_OPTIONS_TEXT("");
 
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
 	fprintf(stderr, "%s: append: '%s'\n", pmProgname, buffer);
     if ((text.message = strdup(buffer)) == NULL)
 	__pmNoMem("append_text", length, PM_FATAL_ERR);
@@ -181,7 +181,7 @@ options(pmOptions *opts, char *buffer, size_t length)
      *     -L                   use a local context connection
      *     -X=N                 offset resulting values by N units
      */
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
 	fprintf(stderr, "%s: parsing option: '%s'", pmProgname, buffer);
 
     start = skip_whitespace(skip_nonwhitespace(buffer));
@@ -256,7 +256,7 @@ options(pmOptions *opts, char *buffer, size_t length)
     }
 
     /* handle final two example cases above -- short options only */
-    if (isspace(start[1])) {
+    if (isspace((int)start[1])) {
 	fprintf(stderr, "%s: expected short option at \"%s\", line %d ignored\n",
 		pmProgname, start, lineno);
 	return -EINVAL;
@@ -405,12 +405,10 @@ main(int argc, char **argv)
     while ((c = pmgetopt_r(argc, argv, &localopts)) != EOF) {
 	switch (c) {
 	case 'D':
-	    if ((c = __pmParseDebug(localopts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+	    if ((c = pmSetDebug(localopts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, localopts.optarg);
 		localopts.errors++;
-	    } else {
-		pmDebug |= c;
 	    }
 	    break;
 	case 'c':

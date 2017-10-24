@@ -54,7 +54,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
      * When operating within a container namespace, cannot refer
      * to "self" due to it being a symlinked pid from the host.
      */
-    snprintf(src, sizeof(src), "%s/proc/%s/mounts",
+    pmsprintf(src, sizeof(src), "%s/proc/%s/mounts",
 				linux_statspath, cp ? "1" : "self");
     if ((fp = fopen(src, "r")) == NULL)
 	return -oserror();
@@ -113,12 +113,10 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    if (pmDebugOptions.libpmda) {
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 		    fs->path, device);
 	    }
-#endif
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	}
 	fs->flags = 0;

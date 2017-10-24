@@ -1,0 +1,512 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PCP2XML 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp2xml\f1 \- pcp-to-xml metrics exporter
+.SH SYNOPSIS
+\f3pcp2xml\f1
+[\f3\-CGHILrvVxXz?\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\--archive-folio\f1 \f2folio\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-b\f1 \f2space-scale\f1]
+[\f3\-c\f1 \f2config\f1]
+[\f3\--container\f1 \f2container\f1]
+[\f3\--daemonize\f1]
+[\f3\-e\f1 \f2derived\f1]
+[\f3\-f\f1 \f2format\f1]
+[\f3\-F\f1 \f2outfile\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-O\f1 \f2origin\f1]
+[\f3\-P\f1 \f2precision\f1]
+[\f3\-q\f1 \f2count-scale\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-y\f1 \f2time-scale\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2metricspec [...]\f1
+.SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.B pcp2xml
+is a customizable performance metrics exporter tool from PCP to
+XML.
+Any available performance metric, live or archived, system and/or application,
+can be selected for exporting using either command line arguments or a
+configuration file.
+.P
+.B pcp2xml
+is a close relative of
+.BR pmrep (1).
+Please refer to
+.BR pmrep (1)
+for the
+.I metricspec
+description accepted on
+.B pcp2xml
+command line and
+.BR pmrep.conf (5)
+for description of the
+.B pcp2xml.conf
+configuration file overall syntax, this page describes
+.B pcp2xml
+specific options and configuration file differences with
+.BR pmrep.conf (5).
+.P
+Only the command line options listed on this page are supported,
+other options recognized by
+.BR pmrep (1)
+are not supported.
+.P
+Configuration file options override the corresponding built-in
+default values (if any).
+Command line options override the
+corresponding configuration file options (if any).
+.SH CONFIGURATION FILE
+.B pcp2xml
+uses a configuration file with overall syntax described in
+.BR pmrep.conf (5).
+The following options are common with
+.BR pmrep.conf :
+.BR version ,
+.BR source ,
+.BR speclocal ,
+.BR derived ,
+.BR header ,
+.BR globals ,
+.BR samples ,
+.BR interval ,
+.BR type ,
+.BR ignore_incompat ,
+.BR instances ,
+.BR omit_flat ,
+.BR precision ,
+.BR count_scale ,
+.BR space_scale ,
+.BR time_scale .
+The
+.B output
+option is recognized but ignored for
+.B pmrep.conf
+compatibility.
+.P
+\fBpcp2xml specific options\fR
+.P
+extended (boolean)
+.RS 4
+Write extended information about metrics.
+Corresponding command line option is \fB-x\fR.
+Default is \fBno\fR.
+.RE
+.P
+everything (boolean)
+.RS 4
+Write everything known about metrics, including PCP internal IDs.
+Corresponding command line option is \fB-X\fR.
+Default is \fBno\fR.
+.RE
+.SH COMMAND LINE OPTIONS
+The available command line options are:
+.TP 5
+.B \-a
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive log files identified by the argument
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.TP
+.B \-\-archive\-folio
+Read metric source archives from the PCP archive
+.IR folio
+(see
+.BR mkaf (1)).
+.TP
+.B \-A
+Force the initial sample to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
+.TP
+.B \-b
+.I Unit/scale
+for space (byte) metrics, possible values include
+.BR bytes ,
+.BR Kbytes ,
+.BR KB ,
+.BR Mbytes ,
+.BR MB ,
+and so forth up to
+.BR Ebytes ,
+.BR EB .
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-c
+Specify the
+.I config
+file to use.
+The default is the first found of:
+.BR ./pcp2xml.conf ,
+.BR $HOME/.pcp2xml.conf ,
+.BR $HOME/pcp/pcp2xml.conf ,
+and
+.BR $PCP_SYSCONF_DIR/pcp2xml.conf .
+For details, see the above section and
+.BR pmrep.conf (5).
+.TP
+.B \-\-container
+Fetch performance metrics from the specified
+.IR container ,
+either local or remote (see
+.BR \-h ).
+.TP
+.B \-C
+Exit before reporting any values, but after parsing the configuration
+and metrics and printing possible headers.
+.TP
+.B \-\-daemonize
+Daemonize on startup.
+.TP
+.B \-e
+Specify
+.I derived
+performance metrics. If
+.I derived
+starts with a slash (``/'') or with a dot (``.'') it will be
+interpreted as a derived metrics configuration file, otherwise it will
+be interpreted as comma-separated derived metric expressions.
+For details see
+.BR pmLoadDerivedConfig (3)
+and
+.BR pmRegisterDerived (3).
+.TP
+.B \-G
+Do not include global metrics in reporting (see
+.BR pmrep.conf (5)).
+.TP
+.B \-f
+Use the
+.I format
+string for formatting the timestamp.
+The format will be used with
+Python's
+.B datetime.strftime
+method which is mostly the same as that described in
+.BR strftime (3).
+The default with \fIstdout\fR is
+.BR %H:%M:%S .
+The default with \fIcsv\fR is
+.BR "%Y-%m-%d %H:%M:%S" .
+.TP
+.B \-F
+Specify the output file
+.IR outfile .
+.TP
+.B \-h
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than the default localhost.
+.TP
+.B \-H
+Do not print any headers.
+.TP
+.B \-i
+Report only the listed
+.I instances
+(if present).
+By default all current instances are reported.
+This is a global option that is used for all metrics unless a
+metric-specific instance definition is provided as part of a
+.IR metricspec .
+By default metrics without instances are reported as usual, use
+.B \-v
+to change this.
+Please refer to
+.BR pmrep (1)
+for more details on this option.
+.TP
+.B \-I
+Ignore incompatible metrics. By default incompatible metrics
+(that is, their type is unsupported or they cannot be scaled
+as requested) will cause
+.B pcp2xml
+to terminate with an error message.
+With this option all incompatible metrics are silently omitted
+from reporting. This may be especially useful when requesting
+non-leaf nodes of the PMNS tree for reporting.
+.TP
+.B \-K
+When fetching metrics from a local context (see
+.BR \-L ),
+the
+.B \-K
+option may be used to control the DSO PMDAs that should be made
+accessible.
+The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA(3).
+More than one
+.B \-K
+option may be used.
+.TP
+.B \-L
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
+.TP
+.B \-O
+When reporting archived metrics, start reporting at
+.I origin
+within the time window (see
+.B \-S
+and
+.BR \-T ).
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR origin .
+.TP
+.B \-P
+Use
+.I precision
+for numeric non-integer output values.
+The default is to use 3 decimal places (when applicable).
+.TP
+.B \-q
+.I Unit/scale
+for count metrics, possible values include
+.BR "count x 10^-1" ,
+.BR "count" ,
+.BR "count x 10" ,
+.BR "count x 10^2" ,
+and so forth from
+.B 10^-8
+to
+.BR 10^7 .
+.\" https://bugzilla.redhat.com/show_bug.cgi?id=1264124
+(These values are currently space-sensitive.)
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-r
+Output raw metric values, do not convert cumulative counters to rates.
+This option \fIwill\fR override possible per-metric specifications.
+.TP
+.B \-s
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified,
+.B pcp2xml
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+See also
+.BR \-T .
+.TP
+.B \-S
+When reporting archived metrics, the report will be restricted to those
+records logged at or after
+.IR starttime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+.B \-t
+The default update
+.I interval
+may be set to something other than the default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied units
+in this case are seconds).
+See also the
+.B \-T
+option.
+.TP
+.B \-T
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.RS
+.PP
+When used to define the runtime before \fBpcp2xml\fR will exit,
+if no \fIsamples\fR is given (see \fB-s\fR) then the number of
+reported samples depends on \fIinterval\fR (see \fB-t\fR).
+If
+.I samples
+is given then
+.I interval
+will be adjusted to allow reporting of
+.I samples
+during runtime.
+In case all of
+.BR \-T ,
+.BR \-s ,
+and
+.B \-t
+are given,
+.I endtime
+determines the actual time
+.B pcp2xml
+will run.
+.RE
+.TP
+.B \-v
+Omit single-valued ``flat'' metrics from reporting when instances
+were requested.
+See
+.B -\i
+and
+.BR -\I .
+.TP
+.B \-V
+Display version number and exit.
+.TP
+.B \-x
+Write extended information.
+.TP
+.B \-X
+Write everything known about metrics, including PCP internal IDs.
+.TP
+.B \-y
+.I Unit/scale
+for time metrics, possible values include
+.BR nanosec ,
+.BR ns ,
+.BR microsec ,
+.BR us ,
+.BR millisec ,
+.BR ms ,
+and so forth up to
+.BR hour ,
+.BR hr .
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-z
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.TP
+.B \-Z
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+Note that when including a timezone string in output, ISO 8601 -style
+UTC offsets are used (so something like -Z EST+5 will become UTC-5).
+.TP
+.B \-?
+Display usage message and exit.
+.SH FILES
+.PD 0
+.TP 10
+.BI pcp2xml.conf
+\fBpcp2xml\fR configuration file (see \fB-c\fR).
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parametrize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR mkaf (1),
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pcp2elasticsearch (1),
+.BR pcp2graphite (1),
+.BR pcp2influxdb (1),
+.BR pcp2xlsx (1),
+.BR pcp2xml (1),
+.BR pcp2zabbix (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmrep (1),
+.BR __pmSpecLocalPMDA (3),
+.BR pmLoadDerivedConfig (3),
+.BR pmParseUnitsStr (3),
+.BR pmRegisterDerived (3),
+.BR pcp-archive (5),
+.BR pcp.conf (5),
+.BR pmns (5),
+.BR pmrep.conf (5)
+and
+.BR environ (7).

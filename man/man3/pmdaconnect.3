@@ -137,11 +137,10 @@ will log the type of connection made to
 .BR pmcd (1)
 if the
 .BR PMAPI (3)
-debug control variable
-.RB ( pmDebug )
-has the
-.B DBG_TRACE_LIBPMDA
-flag set.
+debugging option
+.B libpmda
+has been set in the global debugging specification, as described in
+.BR pmSetDebug (3).
 .PP
 If an error occurs that is unrecoverable,
 .I dispatch->status

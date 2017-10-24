@@ -51,9 +51,7 @@ extern void addinst(char *, int);
 extern int connected(void);
 extern int still_connected(int);
 extern int metric_cnt;
-#ifdef PCP_DEBUG
 extern void dumpmetrics(FILE *);
-#endif
 
 /* connection routines */
 extern int ConnectLogger(char *, int *, int *);

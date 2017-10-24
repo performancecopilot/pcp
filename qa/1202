@@ -8,17 +8,24 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 
 status=1 # failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-pmrep -z -a archives/dm-stats dmstats.read dmstats.reads_merged dmstats.read_bytes dmstats.reads_time \
-	dmstats.write dmstats.writes_merged dmstats.write_bytes dmstats.writes_time \
-	dmstats.in_progress dmstats.io_ticks dmstats.queue_ticks dmstats.queue_ticks dmstats.read_ticks dmstats.write_ticks
+pmrep -z -a archives/dm-stats dmstats.read dmstats.reads_merged dmstats.read_bytes \
+	dmstats.reads_time dmstats.write dmstats.writes_merged dmstats.write_bytes \
+	dmstats.writes_time dmstats.in_progress dmstats.io_ticks dmstats.queue_ticks \
+	dmstats.queue_ticks dmstats.read_ticks dmstats.write_ticks
+
+pmrep -z -a archives/dm-stats dmstats.histogram.hist_count dmstats.histogram.hist_bins
 
 status=0
 

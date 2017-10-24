@@ -131,15 +131,15 @@ Options:\n\
     }
 
     pmtracestate(api.state | PMTRACE_STATE_ASYNC);
-    c = 0;	/* reuse as the exit status */
 
     if (api.host != NULL) {
-	if ((p = (char *)malloc(strlen(api.host) + 20)) == NULL) {
+	c = strlen(api.host) + 20;
+	if ((p = (char *)malloc(c)) == NULL) {
 	    fprintf(stderr, "%s: malloc failed: %s\n",
 		    me, pmtraceerrstr(-oserror()));
 	    exit(0);
 	}
-	sprintf(p, "PCP_TRACE_HOST=%s", api.host);
+	pmsprintf(p, c, "PCP_TRACE_HOST=%s", api.host);
 	if (putenv(p) < 0) {
 	    fprintf(stderr, "%s: putenv failed: %s\n",
 		    me, pmtraceerrstr(-oserror()));
@@ -147,6 +147,7 @@ Options:\n\
 	}
     }
 
+    c = 0;	/* reuse as the exit status */
     switch (api.type) {
     case COUNTER:
 	if ((err = pmtracecounter(api.tag, api.arg.value)) < 0) {

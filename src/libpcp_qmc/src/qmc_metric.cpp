@@ -98,7 +98,7 @@ QmcMetric::setup(QmcGroup* group, pmMetricSpec *metricSpec)
 	setupIndom(metricSpec);
     if (my.status < 0)
 	return;
-    if (pmDebug & DBG_TRACE_PMC)
+    if (pmDebugOptions.pmc)
 	dumpAll();
 }
 
@@ -411,7 +411,7 @@ QmcMetric::update()
 	my.values[i].setError(my.values[i].currentError());
 	if (my.values[i].error() < 0)
 	    err++;
-	if (pmDebug & DBG_TRACE_VALUE) {
+	if (pmDebugOptions.value) {
 	    QTextStream cerr(stderr);
 	    if (my.values[i].error() < 0)
 		cerr << "QmcMetric::update: " << spec(true, true, i) 
@@ -434,7 +434,7 @@ QmcMetric::update()
 		value.setValue(0.0);		// for a rate
 		value.setError(value.previousError());
 		err++;
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::update: Previous: " 
 			 << spec(true, true, i) << ": "
@@ -523,7 +523,7 @@ QmcMetric::update()
 		my.values[i].setError(sts);
 	    else {
 		my.values[i].setValue(oval.d);
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::update: scaled " << my.name
 			 << " from " << ival.d << " to " << oval.d
@@ -571,15 +571,15 @@ QmcMetric::formatNumber(double value)
 	if (value > 99950000000000.0)
 	    strcpy(buf, "  inf?");
 	else if (value > 99950000000.0)
-	    sprintf(buf, "%5.2fT", (double)((long double)value / (long double)1000000000000LL));
+	    pmsprintf(buf, sizeof(buf), "%5.2fT", (double)((long double)value / (long double)1000000000000LL));
 	else if (value > 99950000.0)
-	    sprintf(buf, "%5.2fG", (double)((long double)value / (long double)1000000000));
+	    pmsprintf(buf, sizeof(buf), "%5.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value > 99950.0)
-	    sprintf(buf, "%5.2fM", (double)((long double)value / (long double)1000000));
+	    pmsprintf(buf, sizeof(buf), "%5.2fM", (double)((long double)value / (long double)1000000));
 	else if (value > 99.95)
-	    sprintf(buf, "%5.2fK", value / 1000.0);
+	    pmsprintf(buf, sizeof(buf), "%5.2fK", value / 1000.0);
 	else if (value > 0.005)
-	    sprintf(buf, "%5.2f ", value);
+	    pmsprintf(buf, sizeof(buf), "%5.2f ", value);
 	else
 	    strcpy(buf, " 0.00 ");
     }
@@ -587,15 +587,15 @@ QmcMetric::formatNumber(double value)
 	if (value < -9995000000000.0)
 	    strcpy(buf, " -inf?");
 	else if (value < -9995000000.0)
-	    sprintf(buf, "%.2fT", (double)((long double)value / (long double)1000000000000LL));
+	    pmsprintf(buf, sizeof(buf), "%.2fT", (double)((long double)value / (long double)1000000000000LL));
 	else if (value < -9995000.0)
-	    sprintf(buf, "%.2fG", (double)((long double)value / (long double)1000000000));
+	    pmsprintf(buf, sizeof(buf), "%.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value < -9995.0)
-	    sprintf(buf, "%.2fM", (double)((long double)value / (long double)1000000));
+	    pmsprintf(buf, sizeof(buf), "%.2fM", (double)((long double)value / (long double)1000000));
 	else if (value < -9.995)
-	    sprintf(buf, "%.2fK", value / 1000.0);
+	    pmsprintf(buf, sizeof(buf), "%.2fK", value / 1000.0);
 	else if (value < -0.005)
-	    sprintf(buf, "%.2f ", value);
+	    pmsprintf(buf, sizeof(buf), "%.2f ", value);
 	else
 	    strcpy(buf, " 0.00  ");
     }
@@ -634,7 +634,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    // If the number of instances are not the expected number
 	    // then mark the indom as changed
 	    if (!my.explicitInst && (my.values.size() != set->numval)) {
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::extractValues: implicit indom "
 			 << pmInDomStr(indomPtr->id()) << " changed ("
@@ -679,7 +679,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 			extractEventMetric(set, index, valueRef);
 		}
 		else {	// Cannot find it
-		    if (pmDebug & DBG_TRACE_OPTFETCH) {
+		    if (pmDebugOptions.optfetch) {
 			QTextStream cerr(stderr);
 			cerr << "QmcMetric::extractValues: "
 			     << spec(true, true, i) << ": "
@@ -710,7 +710,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    }
 	}
 	else {	// Did not expect any instances
-	    if (pmDebug & DBG_TRACE_OPTFETCH) {
+	    if (pmDebugOptions.optfetch) {
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::extractValues: " << spec(true) 
 		     << " is a singular metric but result contained "
@@ -721,7 +721,7 @@ QmcMetric::extractValues(pmValueSet const* set)
     }
     else if (set->numval == 0) {
 	if (!(hasInstances() && numInst() == 0)) {
-	    if (pmDebug & DBG_TRACE_OPTFETCH) {
+	    if (pmDebugOptions.optfetch) {
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::extractValues: numval == 0: "
 		     << spec(true, false) << ": " << pmErrStr(PM_ERR_VALUE)
@@ -733,7 +733,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	}
     }
     else {
-	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	if (pmDebugOptions.optfetch) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcMetric::extractValues: numval < 0: "
 		 << spec(true, false)
@@ -758,7 +758,7 @@ QmcMetric::aggregateAsString(pmValue const *vp, char *buffer, int buflen)
     memset(buffer, '.', buflen);
     for (int i = 0; i < (buflen/2)-1; i++, p++) {
 	if (i < vp->value.pval->vlen - PM_VAL_HDR_SIZE)
-	    sprintf(buffer + (i*2), "%02x", *p & 0xff);
+	    pmsprintf(buffer + (i*2), buflen - (i*2), "%02x", *p & 0xff);
     }
     buffer[buflen-1] = '\0';
 }
@@ -837,7 +837,7 @@ QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, pmResu
 		record.setParameter(p++, parameterID, context, valueSet);
 	}
 
-	if (pmDebug & DBG_TRACE_VALUE) {
+	if (pmDebugOptions.value) {
 	    QTextStream cerr(stderr);
 	    pmValueSet *valueSet = result[r]->vset[0];
 	    record.dump(cerr, valueSet->vlist[0].inst, r);
@@ -1158,7 +1158,7 @@ QmcMetric::updateIndom(void)
 		    break;
 	}
 	if (!my.active || i == my.values.size()) {
-	    if (pmDebug & DBG_TRACE_INDOM) {
+	    if (pmDebugOptions.indom) {
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::updateIndom: No change required" << endl;
 	    }
@@ -1215,7 +1215,7 @@ QmcMetric::updateIndom(void)
 	    my.values[i].setAllErrors(PM_ERR_VALUE);
     }
 
-    if (pmDebug & DBG_TRACE_PMC) {
+    if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcMetric::updateIndom: " << spec(true) << ": Had " 
 	     << oldNum << " instances, now have " << numInst() << endl;

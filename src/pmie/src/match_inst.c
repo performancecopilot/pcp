@@ -45,13 +45,11 @@ cndMatch_inst(Expr *x)
     ROTATE(x)
 
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "match_inst(" PRINTF_P_PFX "%p): regex handle=" PRINTF_P_PFX "%p desire %s\n",
 	    x, arg2->ring, x->op == CND_MATCH ? "match" : "nomatch");
 	dumpExpr(x);
     }
-#endif
 
     if (arg2->sem != SEM_REGEX) {
 	fprintf(stderr, "cndMatch_inst: internal botch arg2 not SEM_REGEX?\n");
@@ -89,8 +87,7 @@ cndMatch_inst(Expr *x)
 		}
 		else {
 		    sts = regexec((regex_t *)arg2->ring, m->inames[i], 0, NULL, 0);
-#if PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL2) {
+		    if (pmDebugOptions.appl2) {
 			if (x->op == CND_MATCH && sts != REG_NOMATCH) {
 			    fprintf(stderr, "match_inst: inst=\"%s\" match && %s\n",
 				m->inames[i],
@@ -107,7 +104,6 @@ cndMatch_inst(Expr *x)
 					(*ip1 == B_UNKNOWN ? "unknown" : "bogus" )));
 			}
 		    }
-#endif
 		    if ((x->op == CND_MATCH && sts != REG_NOMATCH) ||
 			(x->op == CND_NOMATCH && sts == REG_NOMATCH))
 			*op++ = *ip1 && B_TRUE;
@@ -125,11 +121,9 @@ cndMatch_inst(Expr *x)
 
     x->smpls[0].stamp = arg1->smpls[0].stamp;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndMatch_inst(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 

@@ -1,0 +1,149 @@
+#/usr/bin/env pmpython
+#
+# Copyright (c) 2014 Aconex
+# Copyright (c) 2014-2015,2017 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+import cpmapi as c_api
+from ctypes import cast, c_char_p, Structure, POINTER
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from pcp.pmapi import pmUnits, pmContext as PCP
+
+class Numeric(Structure):
+    _fields_ = [
+	("s", c_char_p)
+    ]
+
+class TestPMDA(PMDA):
+    """
+     Test specific scenarios in the python PMDA wrapper API
+    """
+
+    some_instances = []
+    other_instances = {}
+    loaded_instances = {}
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+        self.refreshes = 0
+
+        self.some_indom = self.indom(0)
+        self.other_indom = self.indom(1)
+        self.loaded_indom = self.indom(2)
+        self.add_indom(pmdaIndom(self.some_indom, self.some_instances))
+        self.add_indom(pmdaIndom(self.other_indom, self.other_instances))
+        self.loaded = pmdaIndom(self.loaded_indom, self.loaded_instances)
+        self.add_indom(self.loaded)
+
+        self.add_metric(name + '.some_value',
+                pmdaMetric(self.pmid(0, 0),
+                c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.some_indom.some_value',
+                pmdaMetric(self.pmid(1, 0),
+                c_api.PM_TYPE_U32, self.some_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.other_indom.some_value',
+                pmdaMetric(self.pmid(2, 0),
+                c_api.PM_TYPE_STRING, self.other_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.loaded_indom.some_value',
+                pmdaMetric(self.pmid(3, 0),
+                c_api.PM_TYPE_STRING, self.loaded_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+
+        self.set_refresh(self.test_update_status)
+        self.set_refresh_all(self.test_refresh_all)
+        self.set_fetch_callback(self.test_fetch_callback)
+        self.set_store_callback(self.test_store_callback)
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
+
+
+    def test_refresh_all(self, clusters):
+        self.log("refresh_all callback")
+        self.refreshes += 1
+
+    def test_update_status(self, cluster):
+        self.log("refresh callback for cluster %d" % (cluster))
+
+        if cluster == 1:
+            empty_instances = []
+            one_instances = [pmdaInstid(0, 'instance0')]
+            two_instances = [pmdaInstid(0, 'instance0'), pmdaInstid(1, 'instance1')]
+            never_seen_instances = [pmdaInstid(99, 'instance99'), pmdaInstid(100, 'instance100'), pmdaInstid(101, 'instance101'), pmdaInstid(102, 'instance102')]
+
+            if self.refreshes < 1:
+                self.replace_indom(self.some_indom, empty_instances)
+            elif self.refreshes < 3:
+                self.replace_indom(self.some_indom, one_instances)
+            elif self.refreshes < 5:
+                self.replace_indom(self.some_indom, two_instances)
+            elif self.refreshes < 7:
+                self.replace_indom(self.some_indom, never_seen_instances)
+            else:
+                self.replace_indom(self.some_indom, empty_instances)
+                self.refreshes = 0
+        elif cluster == 2:
+            if self.refreshes % 2 == 0:
+                self.other_instances = {}
+            else:
+                one = Numeric()
+                one.s = 'ONE'.encode('utf-8')
+                two = Numeric()
+                two.s = 'TWO'.encode('utf-8')
+                self.other_instances = {'one': one, 'two': two}
+            self.replace_indom(self.other_indom, self.other_instances)
+        elif cluster == 3:
+            five = Numeric()
+            five.s = 'FIVE'.encode('utf-8')
+            nine = Numeric()
+            nine.s = 'NINE'.encode('utf-8')
+            self.loaded_instances = {'five': five, 'nine': nine}
+            self.replace_indom(self.loaded_indom, self.loaded_instances)
+        return
+
+
+    def test_fetch_callback(self, cluster, item, inst):
+        self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        if cluster == 0 and item == 0:
+            return [self.refreshes, 1]
+        elif cluster == 1 and item == 0:
+            return [123, 1]
+        elif cluster == 2 and item == 0:
+            voidp = self.inst_lookup(self.other_indom, inst)
+            if voidp is None:
+                return [c_api.PM_ERR_INST, 0]
+            cache = cast(voidp, POINTER(Numeric))
+            return [str(cache.contents.s.decode('utf-8')), 1]
+        elif cluster == 3 and item == 0:
+            voidp = self.inst_lookup(self.loaded_indom, inst)
+            if voidp is None:
+                return [c_api.PM_ERR_INST, 0]
+            cache = cast(voidp, POINTER(Numeric))
+            return [str(cache.contents.s.decode('utf-8')), 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+
+    def test_store_callback(self, cluster, item, inst, value):
+        self.log("store callback for %d.%d[%d]" % (cluster, item, inst))
+        if cluster == 0 and item == 0:
+            self.refreshes = value
+            return 0
+        elif cluster == 3 and item == 0:
+            self.loaded.load()
+            return 0
+        return c_api.PM_ERR_PERMISSION
+
+
+if __name__ == '__main__':
+    TestPMDA('test_python', 242).run()

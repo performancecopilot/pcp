@@ -134,7 +134,7 @@ checkUnits(QmcMetric *metric)
 	    units.scaleCount = 0;
 	metric->setScaleUnits(units);
 
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    cerr << "checkUnits: Changing " << metric->name()
 		<< " to use bytes" << endl;
 	}
@@ -150,7 +150,7 @@ checkUnits(QmcMetric *metric)
 	    units.scaleSpace = 0;
 	metric->setScaleUnits(units);
 
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    cerr << "checkUnits: Changing " << metric->name()
 		<< " to use counts" << endl;
 	}
@@ -167,7 +167,7 @@ checkUnits(QmcMetric *metric)
 		units.scaleCount = 0;
 	    metric->setScaleUnits(units);
 
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		cerr << "checkUnits: Changing " << metric->name()
 		     << " to use time utilization" << endl;
 	    }
@@ -318,7 +318,7 @@ parseConfig(QString const& configName, FILE *configFile)
 	    }
 	}
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    cerr << "parseConfig: Adding metric '" << buf << "' with scale = "
 		 << scale << " from line " << line << endl;
 
@@ -341,11 +341,11 @@ dumpTime(struct timeval const &curPos)
     if (timeOffsetFlag) {
 	double	o = __pmtimevalSub(&curPos, &logStartTime);
 	if (o < 10)
-	    sprintf(buffer, "%.2f ", o);
+	    pmsprintf(buffer, sizeof(buffer), "%.2f ", o);
 	else if (o < 100)
-	    sprintf(buffer, "%.1f ", o);
+	    pmsprintf(buffer, sizeof(buffer), "%.1f ", o);
 	else
-	    sprintf(buffer, "%.0f ", o);
+	    pmsprintf(buffer, sizeof(buffer), "%.0f ", o);
 	for (p = buffer; *p != ' '; p++)
 	    ;
 	*p++ = delimiter;
@@ -982,7 +982,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	cerr << "main: optind = " << opts.optind << ", argc = " << argc
 	     << ", width = " << width << ", precision = " << precision
 	     << endl;
@@ -1029,7 +1029,7 @@ main(int argc, char *argv[])
 
     pmflush();
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	cerr << "main: parsed " << metrics.size() << " metrics"
 	     << endl;
 
@@ -1038,7 +1038,7 @@ main(int argc, char *argv[])
     if (group->context()->source().type() != PM_CONTEXT_ARCHIVE)
 	isLive = true;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	cerr << "main: default source is " << *(group->context()) << endl;
 
     if (opts.tzflag)
@@ -1055,7 +1055,7 @@ main(int argc, char *argv[])
 
     group->defaultTZ(tzLabel, tzString);
 
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	cerr << "main: Using timezone \"" << tzString << "\" from " << tzLabel
 	     << endl;
     }
@@ -1070,7 +1070,7 @@ main(int argc, char *argv[])
 		     pmProgname);
 	    sts = 0;
 	}
-	else if (pmDebug & DBG_TRACE_APPL0)
+	else if (pmDebugOptions.appl0)
 	    cerr << "main: Changed environment with \""
 		 << tzEnv << '"' << endl;
     }
@@ -1091,7 +1091,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
         cerr << "main: start = "
              << __pmtimevalToReal(&logStartTime) << ", end = "
              << __pmtimevalToReal(&logEndTime)
@@ -1115,7 +1115,7 @@ main(int argc, char *argv[])
     if (endTime < pos && opts.finish_optarg == NULL)
 	endTime = DBL_MAX;
 
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	cerr << "main: realStartTime = " << __pmtimevalToReal(&opts.start)
 	     << ", endTime = " << endTime << ", pos = " << pos 
 	     << ", delay = " << delay << endl;

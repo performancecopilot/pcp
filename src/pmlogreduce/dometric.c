@@ -118,8 +118,7 @@ dometric(const char *name)
 	exit(1);
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "metric: \"");
 	__pmPrintMetricNames(stderr, numnames, names, " or ");
 	fprintf(stderr, "\" (%s)\n", pmIDStr(pmidlist[numpmid]));
@@ -128,7 +127,6 @@ dometric(const char *name)
 	fprintf(stderr, "output descriptor (added to archive):\n");
 	__pmPrintDesc(stderr, &mp->odesc);
     }
-#endif
 
     if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, numnames, names)) < 0) {
 	fprintf(stderr,
@@ -170,12 +168,10 @@ dometric(const char *name)
 	}
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	if (mp->idp != NULL)
 	    fprintf(stderr, "    indom %s -> (" PRINTF_P_PFX "%p)\n", pmInDomStr(mp->idp->indom), mp->idp);
     }
-#endif
 
 done:
 

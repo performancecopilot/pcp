@@ -17,7 +17,7 @@
 #
 
 CFILES	= procmemstat.c
-CFLAGS	= -I/usr/include/pcp -DPCP_DEBUG=1
+CFLAGS	= -I/usr/include/pcp
 TARGETS	= procmemstat
 LDOPTS	=
 LDLIBS	= -lpcp

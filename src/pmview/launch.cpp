@@ -385,7 +385,7 @@ Launch::launchPath()
     if ((env = getenv("PM_LAUNCH_PATH")) != NULL)
 	strncpy(launch_path, env, sizeof(launch_path));
     else
-	snprintf(launch_path, sizeof(launch_path), "%s/config/pmlaunch", pmGetConfig("PCP_VAR_DIR"));
+	pmsprintf(launch_path, sizeof(launch_path), "%s/config/pmlaunch", pmGetConfig("PCP_VAR_DIR"));
     return launch_path;
 }
 

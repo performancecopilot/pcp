@@ -103,12 +103,12 @@ pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
 echo | tee -a $here/$seq.full
 echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
 (pmsleep 2.5; echo yo-$seq-2 | systemd-cat) &
-pmevent -T 5 systemd.journal.records | tee -a $here/$seq.full | _filter_events
+pmevent -T 6 systemd.journal.records | tee -a $here/$seq.full | _filter_events
 
 echo | tee -a $here/$seq.full
 echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
 (pmsleep 2.5; echo yo-$seq-3 | systemd-cat) &
-pmevent -T 5 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
+pmevent -T 6 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove </dev/null >>$here/$seq.full 2>&1

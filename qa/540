@@ -1,0 +1,106 @@
+#!/bin/sh
+# PCP QA Test No. 540
+# valgrind version of qa/504 ...
+# Use libpcp_fault to exercise __pmProcessExec() and friends from libpcp.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e 's/exectest([0-9][0-9]*)/exectest(PID)/' \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+	-e 's/alloc([0-9][0-9]*)/alloc(N)/g' \
+    #
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+# real QA test starts here
+echo "1st call to __pmProcessAddArg fails at malloc"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:1	== 1
+End-of-File
+_run_valgrind src/exectest echo not supposed to get here 2>&1 \
+| _filter
+
+echo
+echo "1st call to __pmProcessAddArg fails at realloc"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:2	== 1
+End-of-File
+_run_valgrind src/exectest echo not supposed to get here 2>&1 \
+| _filter
+
+echo
+echo "2nd (and later) calls to __pmProcessAddArg fails at realloc"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:2	> 1
+End-of-File
+_run_valgrind src/exectest echo not supposed to get here 2>&1 \
+| _filter
+
+echo
+echo "4th call to __pmProcessAddArg fails at strdup"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:3	== 4
+End-of-File
+_run_valgrind src/exectest echo not supposed to get here 2>&1 \
+| _filter
+
+echo
+echo "fork() fails"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:4	> 0
+End-of-File
+_run_valgrind src/exectest -- sh -c "sleep 1; echo not supposed to get here" 2>&1 \
+| _filter
+
+echo
+echo "pipe() fails"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:5	> 0
+End-of-File
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+
+echo
+echo "fork() fails after pipe()"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:6	> 0
+End-of-File
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+
+echo
+echo "realloc() fails for pipe map"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:7	> 0
+End-of-File
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+
+# success, all done
+status=0
+exit

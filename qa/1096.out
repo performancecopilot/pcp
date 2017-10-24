@@ -1,0 +1,6 @@
+QA output created by 1096
+=== testing non-multithreaded pmNewContext with one good live context and one bad archive context ===
+pmNewContext(PM_CONTEXT_ARCHIVE, "badarchives/empty")-> -12354 (expected)
+SUCCESS
+=== testing multithreaded pmNewContext with one good live context and one bad archive context ===
+SUCCESS

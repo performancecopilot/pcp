@@ -133,10 +133,10 @@ dos_formatter(char *var, char *prefix, char *val)
 
     if (prefix && dos_rewrite_path(var, val, msys)) {
 	char *p = msys ? msys_native_path(prefix) : prefix;
-	snprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
+	pmsprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
     }
     else {
-	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
+	pmsprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
     putenv(strdup(envbuf));		/* THREADSAFE */
 }
@@ -161,7 +161,7 @@ posix_formatter(char *var, char *prefix, char *val)
     char	*vp;
     char	*vend;
 
-    snprintf(envbuf, sizeof(envbuf), "%s=", var);
+    pmsprintf(envbuf, sizeof(envbuf), "%s=", var);
     vend = &val[strlen(val)-1];
     if (val[0] == *vend && (val[0] == '\'' || val[0] == '"')) {
 	/*
@@ -211,7 +211,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	    conf = __pmNativePath(confpath);
 	}
 	else {
-	    snprintf(dir, sizeof(dir),
+	    pmsprintf(dir, sizeof(dir),
 			 "%s%s", prefix, __pmNativePath(confpath));
 	    conf = dir;
 	}
@@ -261,7 +261,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	     */
 	    formatter(var, prefix, val);
 	}
-	if (pmDebug & DBG_TRACE_CONFIG)
+	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
 	PM_UNLOCK(__pmLock_extcall);
     }
@@ -299,7 +299,7 @@ pmgetconfig(const char *name, int fatal)
      */
     val = getenv(name);		/* THREAD-UNSAFE! */
     if (val == NULL) {
-	if (pmDebug & DBG_TRACE_CONFIG) {
+	if (pmDebugOptions.config) {
 	    fprintf(stderr, "pmgetconfig: getenv(%s) -> NULL\n", name);
 	}
 	if (!fatal)
@@ -307,7 +307,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
     }
 
-    if (pmDebug & DBG_TRACE_CONFIG)
+    if (pmDebugOptions.config)
 	fprintf(stderr, "pmgetconfig: %s=%s\n", name, val);
 
     return val;
@@ -453,7 +453,7 @@ __pmAPIConfig(__pmAPIConfigCallback formatter)
 
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
 	const char *value = features[i].detector();
-	if (pmDebug & DBG_TRACE_CONFIG)
+	if (pmDebugOptions.config)
 	    fprintf(stderr, "__pmAPIConfig: %s=%s\n",
 		  features[i].feature, value);
 	formatter(features[i].feature, value);

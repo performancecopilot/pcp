@@ -68,6 +68,9 @@ $python $here/src/test_pcp_options.py --munchies
 echo && echo check help option and usage message
 $python $here/src/test_pcp_options.py --help
 
+echo && echo check long-only option support
+$python $here/src/test_pcp_options.py --longonly
+
 # success, all done
 status=0
 exit

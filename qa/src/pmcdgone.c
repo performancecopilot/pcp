@@ -247,15 +247,13 @@ main(int argc, char **argv)
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -270,7 +268,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options:\n\
-  -D N		set pmDebug debugging flag to N\n",
+  -D debugspec		set PCP debugging options\n",
 		pmProgname);
 	exit(1);
     }
@@ -371,7 +369,7 @@ Options:\n\
     if (sts != 0)
 	fprintf(stderr, "Warning: pmcd start script returns %d\n", sts);
 
-    sprintf(path, "%s/pmcd_wait", binadm);
+    pmsprintf(path, sizeof(path), "%s/pmcd_wait", binadm);
     if(access(path, X_OK) == 0) {
         sts = system(". $PCP_DIR/etc/pcp.env; [ -x $PCP_BINADM_DIR/pmcd_wait ] && $PCP_BINADM_DIR/pmcd_wait");
 	if (sts != 0)

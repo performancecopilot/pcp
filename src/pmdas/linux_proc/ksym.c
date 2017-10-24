@@ -216,11 +216,9 @@ read_ksyms(__psint_t *end_addr)
 
 	if (!isspace((int)*ip) || ip-inbuf < 4) {
 	    /* bad format line */
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "read_ksyms: bad addr? %c[%d] line=\"%s\"\n", *ip, (int)(ip-inbuf), inbuf);
 	    }
-#endif
 	    continue;
 	}
 
@@ -285,11 +283,9 @@ read_ksyms(__psint_t *end_addr)
 
 	/* next expect module name */
 	if (*ip != '[') {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "read_ksyms: bad start module name %c[%d] != [ line=\"%s\"\n", *ip, (int)(ip-inbuf), inbuf);
 	    }
-#endif
 	    free(ksym_a[ix].name);
 	    continue;
 	}
@@ -298,11 +294,9 @@ read_ksyms(__psint_t *end_addr)
 	while (!isblank((int)*ip) && *ip != ']') ip++;
 
 	if (*ip != ']') {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "read_ksyms: bad end module name %c[%d] != ] line=\"%s\"\n", *ip, (int)(ip-inbuf), inbuf);
 	    }
-#endif
 	    free(ksym_a[ix].name);
 	    continue;
 	}
@@ -337,8 +331,7 @@ next:
 
     fclose(fp);
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "symbols from ksyms ...\n");
 	for (ix = 0; ix < ksym_a_sz; ix++) {
 	    fprintf(stderr, "ksym[%d] " PRINTF_P_PFX "%p %s", ix, (void *)ksym_a[ix].addr, ksym_a[ix].name);
@@ -346,7 +339,6 @@ next:
 	    fprintf(stderr, "\n");
 	}
     }
-#endif
 
     return ksym_a_sz;
 }
@@ -377,14 +369,14 @@ read_sysmap(const char *release, __psint_t end_addr)
     /* Create version symbol name to look for in System.map */
     if (sscanf(release, "%d.%d.%d", &major, &minor, &patch) < 3 )
 	return -1;
-    sprintf(inbuf, "Version_%u", KERNEL_VERSION(major, minor, patch));
+    pmsprintf(inbuf, sizeof(inbuf), "Version_%u", KERNEL_VERSION(major, minor, patch));
 
     /*
      * Walk through System.map path list looking for one that matches
      * either _end from /proc/ksyms or the uts version.
      */
     for (fmt = sysmap_paths; *fmt; fmt++) {
-	snprintf(path, MAXPATHLEN, *fmt, proc_statspath, release);
+	pmsprintf(path, MAXPATHLEN, *fmt, proc_statspath, release);
 	if ((fp = fopen(path, "r"))) {
 	    if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
 		if (e == 2) {
@@ -466,11 +458,9 @@ read_sysmap(const char *release, __psint_t end_addr)
 
 	if (!isspace((int)*ip) || ip-inbuf < 4) {
 	    /* bad format line */
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "read_sysmap: bad addr? %c[%d] line=\"%s\"\n", *ip, (int)(ip-inbuf), inbuf);
 	    }
-#endif
 	    continue;
 	}
 
@@ -532,8 +522,7 @@ read_sysmap(const char *release, __psint_t end_addr)
 
     qsort(ksym_a, ksym_a_sz, sizeof(struct ksym), ksym_compare_addr);
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "symbols from ksyms + sysmap ...\n");
 	for (ix = 0; ix < ksym_a_sz; ix++) {
 	    fprintf(stderr, "ksym[%d] " PRINTF_P_PFX "%p %s", ix, (void *)ksym_a[ix].addr, ksym_a[ix].name);
@@ -541,7 +530,6 @@ read_sysmap(const char *release, __psint_t end_addr)
 	    fprintf(stderr, "\n");
 	}
     }
-#endif
 
     fclose(fp);
 

@@ -218,7 +218,7 @@ dbpmdaGetc (char * inbuf)
 
     if (using_readline) {
 	if (iflag)
-	    snprintf(rl_prompt_storage, 64, "%s> ", prompt);
+	    pmsprintf(rl_prompt_storage, 64, "%s> ", prompt);
 	else
 	    rl_prompt = NULL; 
 

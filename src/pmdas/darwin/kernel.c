@@ -131,7 +131,7 @@ refresh_cpus(struct processor_cpu_load_info **cpuload, pmdaIndom *indom)
 	}
 
 	for (i = 0; i < ncpu; i++) {
-	    snprintf(name, sizeof(name), "cpu%d", i);
+	    pmsprintf(name, sizeof(name), "cpu%d", i);
 	    indom->it_set[i].i_name = strdup(name);
 	    indom->it_set[i].i_inst = i;
 	}

@@ -12,7 +12,7 @@
 ** visualized for the user.
 ** 
 ** Copyright (C) 2000-2012 Gerlof Langeveld
-** Copyright (C) 2015-2016 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -136,6 +136,7 @@ unsigned long 	sampcnt;
 int		linelen  = 80;
 char		screen;
 char		acctreason;	/* accounting not active (return val) 	*/
+char		hotprocflag;
 char		rawreadflag;
 char		rawwriteflag;
 char		*rawname;
@@ -280,7 +281,7 @@ main(int argc, char *argv[])
 
 	if ( (p = getenv("HOME")) )
 	{
-		snprintf(path, sizeof(path), "%s/.atoprc", p);
+		pmsprintf(path, sizeof(path), "%s/.atoprc", p);
 		path[sizeof(path)-1] = '\0';
 		readrc(path, 0);
 	}
@@ -315,13 +316,16 @@ main(int argc, char *argv[])
 		{
 			if (c == 0)
 			{
-				__pmGetLongOptions(&opts);
+				if (opts.index == 0)
+				    hotprocflag++;
+				else		/* a regular PCP long option  */
+				    __pmGetLongOptions(&opts);
 				continue;
 			}
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?             */
-				prusage(pmProgname);
+				prusage(pmProgname, &opts);
 				break;
 
 			   case 'V':		/* version wanted ?           */
@@ -360,14 +364,14 @@ main(int argc, char *argv[])
 
                            case 'P':		/* parseable output?          */
 				if ( !parsedef(opts.optarg) )
-					prusage(pmProgname);
+					prusage(pmProgname, &opts);
 
 				vis.show_samp = parseout;
 				break;
 
                            case 'L':		/* line length                */
 				if ( !numeric(opts.optarg) )
-					prusage(pmProgname);
+					prusage(pmProgname, &opts);
 
 				linelen = atoi(opts.optarg);
 				break;
@@ -398,9 +402,9 @@ main(int argc, char *argv[])
 			{
 				arg = argv[opts.optind];
 				if (!numeric(arg))
-					prusage(pmProgname);
+					prusage(pmProgname, &opts);
 				if ((opts.samples = atoi(arg)) < 1)
-					prusage(pmProgname);
+					prusage(pmProgname, &opts);
 			}
 		}
 	}
@@ -411,7 +415,7 @@ main(int argc, char *argv[])
 	__pmEndOptions(&opts);
 
 	if (opts.errors)
-		prusage(pmProgname);
+		prusage(pmProgname, &opts);
 
 	if (opts.samples)
 		nsamples = opts.samples;
@@ -723,9 +727,9 @@ engine(void)
 ** print usage of this command
 */
 void
-prusage(char *myname)
+prusage(char *myname, pmOptions *opts)
 {
-	printf("Usage: %s [-flags] [interval [samples]]\n",
+	printf("Usage: %s [-flags] [--pcp-flags] [interval [samples]]\n",
 					myname);
 	printf("\t\tor\n");
 	printf("Usage: %s -w  file  [-S] [-%c] [interval [samples]]\n",
@@ -743,6 +747,13 @@ prusage(char *myname)
 			"non-screen output\n");
 
 	(*vis.show_usage)();
+
+	if (opts)
+	{
+		printf("\n");
+		printf("\tspecific flags for PCP (long options only):\n");
+		show_pcp_usage(opts);
+	}
 
 	printf("\n");
 	printf("\tspecific flags for raw logfiles:\n");

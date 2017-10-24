@@ -20,13 +20,14 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \f3pmrep\f1
-[\f3\-CdGHILpruUvVxz?\f1]
+[\f3\-CdGHIkLpruUvVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-b\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\--container\f1 \f2container\f1]
+[\f3\--daemonize\f1]
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-E\f1 \f2lines\f1]
 [\f3\-f\f1 \f2format\f1]
@@ -175,25 +176,18 @@ reporting to the specified instances (so non-matching instances
 will be filtered).
 An optional
 .I unit/scale
-is applicable for dimension-compatible, non-string, and (currently)
-non-raw metrics.
+is applicable for dimension-compatible, non-string metrics.
 (See below for supported
 .I unit/scale
 specifications.)
 By default, cumulative counter metrics are converted to rates.
-If the optional
-.I type
-field is set to
-.B raw
-then this rate conversion is disabled, unit/scale specification is
-(currently) ignored and raw values are reported instead.
 Finally, for supporting output targets (currently:
 .IR stdout )
 a numeric
 .I width
 can be used to set the width of the output column for this metric.
 Too-wide numeric values for output will not be printed (apart from
-decimal places, numeric values will never be silently truncated).
+trailing decimals, numeric values will never be silently truncated).
 Too-wide strings will be truncated.
 .P
 As a special case with metrics that are counters with time units
@@ -256,7 +250,7 @@ Read metric source archives from the PCP archive
 .BR mkaf (1)).
 .TP
 .B \-A
-When reporting archived metrics, force the initial sample to be
+Force the initial sample to be
 aligned on the boundary of a natural time unit
 .IR align .
 Refer to
@@ -308,8 +302,11 @@ and metrics and printing possible headers.
 When replaying from an archive, this option requests that the prevailing
 real-time delay be applied between samples (see
 .BR \-t )
-to effect a pause, rather than the default behaviour of replaying  at
+to effect a pause, rather than the default behaviour of replaying at
 full speed.
+.TP
+.B \-\-daemonize
+Daemonize on startup.
 .TP
 .B \-e
 Specify
@@ -415,6 +412,10 @@ With this option all incompatible metrics are silently omitted
 from reporting. This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
 .TP
+.B \-k
+Write extended CSV output, similar to
+.BR sadf (1).
+.TP
 .B \-K
 When fetching metrics from a local context (see
 .BR \-L ),
@@ -438,13 +439,13 @@ that separates each column of
 or
 .I stdout
 output.
-The
-.I delimiter
-may only be a single character.
 The default for
 .I stdout
 is two spaces (``  '') and comma (``,'') for
 .IR csv .
+In case of CSV output or stdout output with non-whitespace delimiter,
+any string value containing the delimiter will be replaced by the
+underscore (``_'').
 .TP
 .B \-L
 Use a local context to collect metrics from DSO PMDAs on the local host
@@ -478,14 +479,6 @@ Print metrics in CSV format (subject to formatting options).
 .TP 2
 .I stdout
 Print metrics to stdout (format subject to formatting options).
-.TP 2
-.I zabbix
-Send metrics to a Zabbix server.
-See
-.BR pmrep.conf (5)
-for the needed Zabbix configuration options.
-This target is currently
-.IR experimental .
 .RE
 .TP
 .B \-O
@@ -706,12 +699,14 @@ The default is to use the timezone of the local host.
 .B \-Z
 Use
 .I timezone
-when displaying the date and time.
+for the date and time.
 .I Timezone
 is in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
+Note that when including a timezone string in output, ISO 8601 -style
+UTC offsets are used (so something like -Z EST+5 will become UTC-5).
 .TP
 .B \-?
 Display usage message and exit.
@@ -819,6 +814,13 @@ as described in
 .BR PCPIntro (1),
 .BR pcp (1),
 .BR pcp-atop (1),
+.BR pcp2elasticsearch (1),
+.BR pcp2graphite (1),
+.BR pcp2influxdb (1),
+.BR pcp2json (1),
+.BR pcp2xlsx (1),
+.BR pcp2xml (1),
+.BR pcp2zabbix (1),
 .BR pmcd (1),
 .BR pmchart (1),
 .BR pmcollectl (1),

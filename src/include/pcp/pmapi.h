@@ -15,16 +15,6 @@
 #ifndef PCP_PMAPI_H
 #define PCP_PMAPI_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/time.h>
-#include <time.h>
-
 /*
  * Platform and environment customization
  */
@@ -196,6 +186,7 @@ typedef struct pmDesc {
 #define PM_ERR_LOGCHANGEINDOM	(-PM_ERR_BASE-61)   /* The instance domain of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGEUNITS	(-PM_ERR_BASE-62)   /* The units of a metric have changed in an archive */
 #define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
+#define PM_ERR_BADDERIVE	(-PM_ERR_BASE-64)   /* Derived metric definition failed */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -623,6 +614,12 @@ PCP_CALL extern int pmprintf(const char *, ...) __PM_PRINTFLIKE(1,2);
 PCP_CALL extern int pmflush(void);
 
 /*
+ * Wrapper for string formatting that ensures null termination,
+ * even if truncation occurs or the underlying call errors out.
+ */
+PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE(3,4);
+
+/*
  * Wrapper for config/environment variables. Warning: this will exit() with
  * a FATAL error if /etc/pcp.conf does not exist and $PCP_CONF is not set.
  * Use the pmGetOptionalConfig variant if this behaviour is not sought.
@@ -940,6 +937,10 @@ PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
+
+/* libpcp debug/tracing */
+PCP_CALL extern int pmSetDebug(const char *);
+PCP_CALL extern int pmClearDebug(const char *);
 
 #ifdef __cplusplus
 }

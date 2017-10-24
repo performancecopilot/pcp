@@ -260,6 +260,17 @@ in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
+.TP
+.BI "\-D " debugspec
+Sets the PCP debugging options to
+.I debugspec
+to enable diagnostics and tracing that is most helpful for developers or
+when trying to diagnose the misbehaviour of a PCP application.
+.I debugspec
+should be a comma-separated list of debugging option name(s) and/or decimal integers,
+see
+.BR pmdbg (1)
+for a description of the supported option names and values.
 .SH INTERVAL SPECIFICATION AND ALIGNMENT
 Most PCP tools operate with periodic sampling or
 reporting, and the
@@ -886,14 +897,19 @@ with the user, and in particular is used when authentication is
 being performed.
 .TP
 .B PCP_DEBUG
-When set, this variable provides an alternate way to initialize
-the value used to control diagnostic and debug output (the default
-value is 0 to suppress this output).
+When set, this variable provides an alternate to the
+.B \-D
+command line option described above to initialize
+the diagnostic and debug options.
 The value for
 .B $PCP_DEBUG
-should be a decimal integer, see
+is the same as for the
+.B \-D
+command line option, namely 
+a comma-separated list of debugging option name(s), and/or
+decimal integers, see
 .BR pmdbg (1)
-for a description of the supported values.
+for a description of the supported option names and values.
 .TP
 .B PCP_DERIVED_CONFIG
 When set, this variable defines a colon separated list of
@@ -931,6 +947,40 @@ Any component in the
 list or the expanded list of files that is not a file, or is not a directory
 or is not accessible (due to permissions or a bad symbolic link) will
 be silently ignored.
+.RE
+.TP
+.B PCP_IGNORE_MARK_RECORDS
+When PCP archives logs are created there may be temporal gaps associated
+with discontinuities in the time series of logged data, e.g. when
+.BR pmcd (1)
+is restarted or when multiple archive logs are concatenated with
+.BR pmlogextract (1).
+These discontinuities are internally noted with a <mark> record in
+the PCP archive logs, and
+value interpolation as described in
+.BR pmSetMode (3)
+is not supported across <mark> records (because
+the values before and after a <mark> record are not necessarily from
+a continuous time series).
+Sometimes the user knows the data semantics are sound in the region
+of the <mark> records, and
+.B $PCP_IGNORE_MARK_RECORDS
+may be used to suppress the default behaviour.
+.RS
+.PP
+If
+.B PCP_IGNORE_MARK_RECORDS
+is set (but has no value) then all <mark> records will be ignored.
+Otherwise the value
+.B $PCP_IGNORE_MARK_RECORDS
+follows the syntax for an
+.I interval
+argument described above for the
+.B \-t
+option, and <mark> records will be ignored if the time gap between
+the last record before the <mark> and the first record after the
+<mark> is not more than
+.IR interval .
 .RE
 .TP
 .B PCP_SECURE_SOCKETS

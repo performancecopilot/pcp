@@ -4,6 +4,16 @@
 #ifndef PCP_PLATFORM_DEFS_H
 #define PCP_PLATFORM_DEFS_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/time.h>
+#include <time.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -94,11 +104,11 @@ extern "C" {
 #endif
 
 #ifndef ULONGLONG_MAX
-#define ULONGLONG_MAX (__uint64_t)18446744073709551615ULL
+#define ULONGLONG_MAX 18446744073709551615ULL
 #endif
 
 #ifndef LONGLONG_MAX
-#define LONGLONG_MAX (__int64_t)9223372036854775807LL
+#define LONGLONG_MAX 9223372036854775807LL
 #endif
 
 /* Check if __psint_t is set to something meaningful */
@@ -243,7 +253,6 @@ typedef void (*SIG_PF) (int);
 #endif
 
 /* Determine if we are on Windows with MinGW compiler */
-#undef IS_MINGW
 #ifdef IS_MINGW
 
 #ifdef PCP_INTERNAL

@@ -28,13 +28,11 @@ __pmUpdateProfile(int fd, __pmContext *ctxp, int timeout)
 	 * current profile is _not_ already cached at other end of
 	 * IPC, so send the current profile
 	 */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PROFILE) {
+	if (pmDebugOptions.profile) {
 	    fprintf(stderr, "pmFetch: calling __pmSendProfile, context: %d slot: %d\n",
 	            ctxp->c_handle, ctxp->c_slot);
 	    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
 	}
-#endif
 	if ((sts = __pmSendProfile(fd, __pmPtrToHandle(ctxp),
 				   ctxp->c_slot, ctxp->c_instprof)) < 0)
 	    return sts;
@@ -99,15 +97,13 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
     int		need_unlock = 0;
     int		fd, ctx, sts, tout;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmFetch(%d, pmid[0] %s", numpmid, pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
 	if (numpmid > 1)
 	    fprintf(stderr, " ... pmid[%d] %s", numpmid-1, pmIDStr_r(pmidlist[numpmid-1], dbgbuf, sizeof(dbgbuf)));
 	fprintf(stderr, ", ...) <:");
     }
-#endif
 
     if (numpmid < 1) {
 	sts = PM_ERR_TOOSMALL;
@@ -182,8 +178,7 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -192,10 +187,8 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_FETCH) {
+    if (pmDebugOptions.fetch) {
 	fprintf(stderr, "pmFetch returns ...\n");
 	if (sts > 0) {
 	    fprintf(stderr, "PMCD state changes: agent(s)");
@@ -211,7 +204,6 @@ pmapi_return:
 	    fprintf(stderr, "Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
     if (need_unlock) {
 	PM_UNLOCK(ctxp->c_lock);
     }

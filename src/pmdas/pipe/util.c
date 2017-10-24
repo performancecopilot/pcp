@@ -34,7 +34,7 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
     int		sts;
 #endif
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
 		  cmd);
 
@@ -127,20 +127,20 @@ stop_cmd(pid_t pid)
     pid_t	wait_pid;
     int		sts, wstatus = 0;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "stop_cmd: killing pid %" FMT_PID, pid);
 
     /* Send the TERM signal. */
     sts = kill(pid, SIGTERM);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "stop_cmd: kill returned %d", sts);
 
     /* Wait for the process to go away. */
     do {
 	wait_pid = waitpid(pid, &wstatus, 0);
 	wstatus = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0;
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_INFO, "stop_cmd: waitpid pid=%d, sts=%d",
 			    (int)wait_pid, wstatus);
     } while (wait_pid == -1 && errno == EINTR);
@@ -155,14 +155,14 @@ wait_cmd(pid_t pid)
     pid_t	wait_pid;
     int		wstatus = 0;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "wait_cmd: checking pid %" FMT_PID, pid);
 
     /* Check whether the process has gone away. */
     wait_pid = waitpid(pid, &wstatus, WNOHANG);
     wstatus = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "wait_cmd: waitpid pid=%d, sts=%d",
 			(int)wait_pid, wstatus);
 

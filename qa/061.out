@@ -27,7 +27,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -39,14 +39,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory on once -> mandatory maybe
 sample.colour
@@ -85,12 +96,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory on once -> mandatory off
 sample.colour
@@ -129,12 +151,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory on once -> advisory on once
 sample.colour
@@ -166,7 +199,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -178,14 +211,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory on once -> advisory off
 sample.colour
@@ -217,7 +261,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -229,14 +273,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory maybe -> mandatory on once
 sample.colour
@@ -265,7 +320,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -277,14 +332,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory maybe -> mandatory maybe
 sample.colour
@@ -323,12 +389,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory maybe -> mandatory off
 sample.colour
@@ -367,12 +444,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory maybe -> advisory on once
 sample.colour
@@ -401,7 +489,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -413,14 +501,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory maybe -> advisory off
 sample.colour
@@ -459,12 +558,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory off -> mandatory on once
 sample.colour
@@ -493,7 +603,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -505,14 +615,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory off -> mandatory maybe
 sample.colour
@@ -551,12 +672,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory off -> mandatory off
 sample.colour
@@ -595,12 +727,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory off -> advisory on once
 sample.colour
@@ -642,12 +785,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 mandatory off -> advisory off
 sample.colour
@@ -689,12 +843,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory on once -> mandatory on once
 sample.colour
@@ -723,7 +888,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -735,14 +900,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory on once -> mandatory maybe
 sample.colour
@@ -781,12 +957,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory on once -> mandatory off
 sample.colour
@@ -825,12 +1012,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory on once -> advisory on once
 sample.colour
@@ -859,7 +1057,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -871,14 +1069,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory on once -> advisory off
 sample.colour
@@ -917,12 +1126,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory off -> mandatory on once
 sample.colour
@@ -951,7 +1171,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -963,14 +1183,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory off -> mandatory maybe
 sample.colour
@@ -1009,12 +1240,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory off -> mandatory off
 sample.colour
@@ -1053,12 +1295,23 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory off -> advisory on once
 sample.colour
@@ -1087,7 +1340,7 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -1099,14 +1352,25 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP  29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
 
 advisory off -> advisory off
 sample.colour
@@ -1145,9 +1409,20 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+pmlogger: Caught signal 15, exiting
+__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+              2.0.23 (pmcd.pid): value NUMBER
+              2.0.24 (pmcd.seqnum): value NUMBER

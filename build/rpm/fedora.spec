@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.12.1
+Version: 3.12.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -15,7 +15,7 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
 %global disable_selinux 1
@@ -23,8 +23,8 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 
 %global disable_snmp 0
 
-# There are no papi/libpfm devel packages for s390 nor for some rhels, disable
-%ifarch s390 s390x
+# There are no papi/libpfm devel packages for s390, armv7hl nor for some rhels, disable
+%ifarch s390 s390x armv7hl
 %global disable_papi 1
 %global disable_perfevent 1
 %else
@@ -119,11 +119,32 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %endif
 %endif
 
+# boost c++ library, widely available
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%global disable_boost 0
+%else
+%global disable_boost 1
+%endif
+
 # rpm producing "noarch" packages
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_noarch 0
 %else
 %global disable_noarch 1
+%endif
+
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
+%global disable_elasticsearch 0
+%else
+%global disable_elasticsearch 1
+%endif
+
+# python's xlsxwriter module hasn't been included yet, but hopefully
+# it will be eventually, leaving this as a variable for now.
+%if 0%{?fedora} || 0%{?rhel}
+%global disable_xlsx 1
+%else
+%global disable_xlsx 1
 %endif
 
 # prevent conflicting binary and man page install for pcp(1)
@@ -164,6 +185,9 @@ BuildRequires: cairo-devel
 %endif
 %if !%{disable_sdt}
 BuildRequires: systemtap-sdt-devel
+%endif
+%if !%{disable_boost}
+BuildRequires: boost-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: perl-devel perl-generators
@@ -208,6 +232,7 @@ Obsoletes: pcp-gui-debuginfo
 %global _selinuxdir %{_localstatedir}/lib/pcp/selinux
 %global _logconfdir %{_localstatedir}/lib/pcp/config/pmlogconf
 %global _pixmapdir %{_datadir}/pcp-gui/pixmaps
+%global _hicolordir %{_datadir}/icons/hicolor
 %global _booksdir %{_datadir}/doc/pcp-doc
 
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
@@ -221,8 +246,8 @@ Obsoletes: pcp-gui-debuginfo
 %global _with_initd --with-rcdir=%{_initddir}
 %endif
 
-# we never want Infiniband on s390 platforms
-%ifarch s390 s390x
+# we never want Infiniband on s390 and armv7hl platforms
+%ifarch s390 s390x armv7hl
 %global disable_infiniband 1
 %else
 # we never want Infiniband on RHEL5 or earlier
@@ -344,8 +369,6 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers
 URL: http://www.pcp.io
-#Requires: pcp = %{version}-%{release}
-#Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.
@@ -662,6 +685,31 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python2} || !%{disable_python3}
 #
+# pcp-export-pcp2elasticsearch
+#
+%if !%{disable_elasticsearch}
+%package export-pcp2elasticsearch
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to ElasticSearch
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+Requires: python3-elasticsearch
+BuildRequires: python3-elasticsearch
+%else
+Requires: python-pcp = %{version}-%{release}
+Requires: python-elasticsearch
+BuildRequires: python-elasticsearch
+%endif
+
+%description export-pcp2elasticsearch
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to Elasticsearch - a distributed, RESTful search and analytics engine.
+See https://www.elastic.co/community for further details.
+%endif 
+#
 # pcp-export-pcp2graphite
 #
 %package export-pcp2graphite
@@ -699,6 +747,83 @@ Requires: python-requests
 %description export-pcp2influxdb
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
+
+#
+# pcp-export-pcp2json
+#
+%package export-pcp2json
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics in JSON format
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2json
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in JSON format.
+
+#
+# pcp-export-pcp2xlsx
+#
+%if !%{disable_xlsx}
+%package export-pcp2xlsx
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Excel
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2xlsx
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in Excel spreadsheet format.
+%endif
+#
+# pcp-export-pcp2xml
+#
+%package export-pcp2xml
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics in XML format
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2xml
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in XML format.
+
+#
+# pcp-export-pcp2zabbix
+#
+%package export-pcp2zabbix
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2zabbix
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to the Zabbix (https://www.zabbix.org/) monitoring software.
 %endif
 
 %if !%{disable_papi}
@@ -1887,6 +2012,7 @@ Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+BuildRequires: hicolor-icon-theme
 
 %description gui
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -1939,7 +2065,6 @@ BuildRequires: setools
 BuildRequires: setools-console
 %endif
 Requires: policycoreutils
-Requires: pcp = %{version}-%{release}
 
 %description selinux
 This package contains SELinux support for PCP.  The package contains
@@ -2005,6 +2130,7 @@ rm -fr $RPM_BUILD_ROOT/%{_selinuxdir}
 
 %if %{disable_qt}
 rm -fr $RPM_BUILD_ROOT/%{_pixmapdir}
+rm -fr $RPM_BUILD_ROOT/%{_hicolordir}
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmsnap
 rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmsnap
 rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmchart
@@ -2097,7 +2223,8 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pmiostat|pmcollectl|pmatop|zabbix|zbxpcp' |\
-  grep -E -v 'pmrep|pcp2graphite|pcp2influxdb' |\
+  grep -E -v 'pmrep|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
+  grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
@@ -2134,6 +2261,8 @@ ls -1 $RPM_BUILD_ROOT/%{_selinuxdir} |\
 %if !%{disable_qt}
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
+ls -1 $RPM_BUILD_ROOT/%{_hicolordir} |\
+  sed -e 's#^#'%{_hicolordir}'\/#' >> pcp-gui.list
 cat base_bin.list base_exec.list |\
   grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
@@ -2142,7 +2271,7 @@ ls -1 $RPM_BUILD_ROOT/%{_logconfdir}/ |\
     grep -E -v 'zeroconf' >pcp-logconf.list
 cat base_pmdas.list base_bin.list base_exec.list pcp-logconf.list |\
   grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
-  grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials|selinux" |\
+  grep -E -v "$PCP_GUI|pixmaps|hicolor|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
 # all devel pcp package files except those split out into sub packages
@@ -2708,7 +2837,7 @@ cd
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
-%{_datadir}/bash-completion/completions/pcp
+%{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/_pcp
 
 %if !%{disable_sdt}
@@ -2983,11 +3112,30 @@ cd
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
 
+%if !%{disable_elasticsearch}
+%files export-pcp2elasticsearch
+%{_bindir}/pcp2elasticsearch
+%endif
+
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
 
 %files export-pcp2influxdb
 %{_bindir}/pcp2influxdb
+
+%files export-pcp2json
+%{_bindir}/pcp2json
+
+%if !%{disable_xlsx}
+%files export-pcp2xlsx
+%{_bindir}/pcp2xlsx
+%endif
+
+%files export-pcp2xml
+%{_bindir}/pcp2xml
+
+%files export-pcp2zabbix
+%{_bindir}/pcp2zabbix
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %files export-zabbix-agent
@@ -3096,6 +3244,18 @@ cd
 %endif
 
 %changelog
+* Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
+- selinux: add pmlogger_exec_t rule from (BZ 1483320)
+- selinux: pmlc accessing tcp port 4330 (BZ 1447585)
+- selinux: pmnewlog.sh using ps to check pid's for pmloggers (BZ 1488116)
+- Update to latest PCP sources.
+
+* Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3
+- Disable infiniband and papi packages on armv7hl (BZ 1485692)
+
+* Fri Aug 25 2017 Lukas Berk <lberk@redhat.com> - 3.12.1-2
+- Rebuild for infiniband dep breakage.
+
 * Wed Aug 16 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-1
 - Update to latest PCP sources.
 

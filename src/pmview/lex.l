@@ -237,7 +237,8 @@ _group[bB]y[iI]nst	{ yylval.y_barGroup = BarMod::groupByInst; RETURN(GROUP); }
 [\t ]+	{ if (theAltConfig) fputc(' ', theAltConfig); }
 
 .	{
-	    sprintf(theBuffer, "Illegal character '%c'", yytext[0]);
+	    pmsprintf(theBuffer, theBufferLen,
+			"Illegal character '%c'", yytext[0]);
 	    lexerror(theBuffer, yytext);
 	    /*NOTREACHED*/
 	}

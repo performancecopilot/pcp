@@ -201,7 +201,7 @@ cifs_instance_refresh(void)
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /* update indom cache based off of /proc/fs/cifs/Stats file */
-    snprintf(buffer, sizeof(buffer), "%s%s/Stats", cifs_statspath, cifs_procfsdir);
+    pmsprintf(buffer, sizeof(buffer), "%s%s/Stats", cifs_statspath, cifs_procfsdir);
     buffer[sizeof(buffer)-1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL)
@@ -364,7 +364,7 @@ cifs_init(pmdaInterface *dp)
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "cifs" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "cifs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "CIFS DSO", helppath);
     }
@@ -411,7 +411,7 @@ main(int argc, char **argv)
     _isDSO = 0;
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "cifs" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "cifs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, CIFS, "cifs.log", helppath);
 

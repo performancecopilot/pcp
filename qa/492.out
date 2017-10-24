@@ -119,16 +119,16 @@ input records: 416
 output records: 416
 
 ===  bad label ===
-pmlogrewrite: Error: cannot open archive "archives/badlen-8": Illegal label record at start of a PCP archive log file
+pmlogrewrite: Error: cannot open archive "badarchives/badlen-8": Illegal label record at start of a PCP archive log file
 input records: 0
 output records: no file
 
 === truncated metadata ===
-pmlogrewrite: Error: cannot open archive "archives/badlen-9": Corrupted record in a PCP archive log
+pmlogrewrite: Error: cannot open archive "badarchives/badlen-9": Corrupted record in a PCP archive log
 input records: 0
 output records: no file
 
 ===  bad version ===
-pmlogrewrite: Error: cannot open archive "archives/err_v1": Illegal label record at start of a PCP archive log file
+pmlogrewrite: Error: cannot open archive "badarchives/err_v1": Illegal label record at start of a PCP archive log file
 input records: 0
 output records: no file

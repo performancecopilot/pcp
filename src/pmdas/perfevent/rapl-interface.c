@@ -17,16 +17,9 @@
  */
 
 #include "rapl-interface.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <pcp/pmapi.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdint.h>
 #include <math.h>
-#include <errno.h>
 
 /* This device is purely for convience of unit testing
  */
@@ -311,7 +304,7 @@ int rapl_open(rapl_data_t *arg)
     }
 
     if( rapl_cpudata[arg->cpuidx].msrfd == -1 ) {
-        sprintf(msr_filename, FILESYSTEM_ROOT "dev/cpu/%d/msr", arg->cpuidx);
+        pmsprintf(msr_filename, BUFSIZ, FILESYSTEM_ROOT "dev/cpu/%d/msr", arg->cpuidx);
         rapl_cpudata[arg->cpuidx].msrfd = open(msr_filename, O_RDONLY);
     }
 

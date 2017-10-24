@@ -311,6 +311,7 @@ store: success
   sample.colour[342]
 context #### metrics target=sample.dupnames.three.bin response code 200
 metrics: success
+#### PCP sample.dupnames.three.bin instant none
 #### HELP sample:dupnames:three:bin Several constant instances
 #### TYPE sample:dupnames:three:bin gauge
 sample:dupnames:three:bin{instance="bin-100"} 100
@@ -323,11 +324,13 @@ sample:dupnames:three:bin{instance="bin-700"} 700
 sample:dupnames:three:bin{instance="bin-800"} 800
 sample:dupnames:three:bin{instance="bin-900"} 900
 
+
 #### number of metrics attempted: 1
 #### number of metrics completed: 1
 
 context #### metrics target=sample.float.bin response code 200
 metrics: success
+#### PCP sample.float.bin instant none
 #### HELP sample:float:bin like sample.bin but type FLOAT
 #### TYPE sample:float:bin gauge
 sample:float:bin{instance="bin-100"} 100
@@ -340,14 +343,55 @@ sample:float:bin{instance="bin-700"} 700
 sample:float:bin{instance="bin-800"} 800
 sample:float:bin{instance="bin-900"} 900
 
+
 #### number of metrics attempted: 1
 #### number of metrics completed: 1
 
 context #### metrics target=sample.double.one response code 200
 metrics: success
+#### PCP sample.double.one instant none
 #### HELP sample:double:one 1 as a 64-bit floating point value
 #### TYPE sample:double:one gauge
 sample:double:one 1
+
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.long.bin_ctr response code 200
+metrics: success
+#### PCP sample.long.bin_ctr counter Kbyte
+#### HELP sample:long:bin_ctr_bytes like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
+#### TYPE sample:long:bin_ctr_bytes_total counter
+sample:long:bin_ctr_bytes_total{instance="bin-100"} 102400
+sample:long:bin_ctr_bytes_total{instance="bin-200"} 204800
+sample:long:bin_ctr_bytes_total{instance="bin-300"} 307200
+sample:long:bin_ctr_bytes_total{instance="bin-400"} 409600
+sample:long:bin_ctr_bytes_total{instance="bin-500"} 512000
+sample:long:bin_ctr_bytes_total{instance="bin-600"} 614400
+sample:long:bin_ctr_bytes_total{instance="bin-700"} 716800
+sample:long:bin_ctr_bytes_total{instance="bin-800"} 819200
+sample:long:bin_ctr_bytes_total{instance="bin-900"} 921600
+
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.ulong.bin_ctr response code 200
+metrics: success
+#### PCP sample.ulong.bin_ctr counter Kbyte
+#### HELP sample:ulong:bin_ctr_bytes like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
+#### TYPE sample:ulong:bin_ctr_bytes_total counter
+sample:ulong:bin_ctr_bytes_total{instance="bin-100"} 102400
+sample:ulong:bin_ctr_bytes_total{instance="bin-200"} 204800
+sample:ulong:bin_ctr_bytes_total{instance="bin-300"} 307200
+sample:ulong:bin_ctr_bytes_total{instance="bin-400"} 409600
+sample:ulong:bin_ctr_bytes_total{instance="bin-500"} 512000
+sample:ulong:bin_ctr_bytes_total{instance="bin-600"} 614400
+sample:ulong:bin_ctr_bytes_total{instance="bin-700"} 716800
+sample:ulong:bin_ctr_bytes_total{instance="bin-800"} 819200
+sample:ulong:bin_ctr_bytes_total{instance="bin-900"} 921600
+
 
 #### number of metrics attempted: 1
 #### number of metrics completed: 1
@@ -667,6 +711,7 @@ store: success
   sample.colour[342]
 context #### metrics target=sample.dupnames.three.bin response code 200
 metrics: success
+#### PCP sample.dupnames.three.bin instant none
 #### HELP sample:dupnames:three:bin Several constant instances
 #### TYPE sample:dupnames:three:bin gauge
 sample:dupnames:three:bin{instance="bin-100"} 100
@@ -679,11 +724,13 @@ sample:dupnames:three:bin{instance="bin-700"} 700
 sample:dupnames:three:bin{instance="bin-800"} 800
 sample:dupnames:three:bin{instance="bin-900"} 900
 
+
 #### number of metrics attempted: 1
 #### number of metrics completed: 1
 
 context #### metrics target=sample.float.bin response code 200
 metrics: success
+#### PCP sample.float.bin instant none
 #### HELP sample:float:bin like sample.bin but type FLOAT
 #### TYPE sample:float:bin gauge
 sample:float:bin{instance="bin-100"} 100
@@ -696,14 +743,55 @@ sample:float:bin{instance="bin-700"} 700
 sample:float:bin{instance="bin-800"} 800
 sample:float:bin{instance="bin-900"} 900
 
+
 #### number of metrics attempted: 1
 #### number of metrics completed: 1
 
 context #### metrics target=sample.double.one response code 200
 metrics: success
+#### PCP sample.double.one instant none
 #### HELP sample:double:one 1 as a 64-bit floating point value
 #### TYPE sample:double:one gauge
 sample:double:one 1
+
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.long.bin_ctr response code 200
+metrics: success
+#### PCP sample.long.bin_ctr counter Kbyte
+#### HELP sample:long:bin_ctr_bytes like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
+#### TYPE sample:long:bin_ctr_bytes_total counter
+sample:long:bin_ctr_bytes_total{instance="bin-100"} 102400
+sample:long:bin_ctr_bytes_total{instance="bin-200"} 204800
+sample:long:bin_ctr_bytes_total{instance="bin-300"} 307200
+sample:long:bin_ctr_bytes_total{instance="bin-400"} 409600
+sample:long:bin_ctr_bytes_total{instance="bin-500"} 512000
+sample:long:bin_ctr_bytes_total{instance="bin-600"} 614400
+sample:long:bin_ctr_bytes_total{instance="bin-700"} 716800
+sample:long:bin_ctr_bytes_total{instance="bin-800"} 819200
+sample:long:bin_ctr_bytes_total{instance="bin-900"} 921600
+
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.ulong.bin_ctr response code 200
+metrics: success
+#### PCP sample.ulong.bin_ctr counter Kbyte
+#### HELP sample:ulong:bin_ctr_bytes like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
+#### TYPE sample:ulong:bin_ctr_bytes_total counter
+sample:ulong:bin_ctr_bytes_total{instance="bin-100"} 102400
+sample:ulong:bin_ctr_bytes_total{instance="bin-200"} 204800
+sample:ulong:bin_ctr_bytes_total{instance="bin-300"} 307200
+sample:ulong:bin_ctr_bytes_total{instance="bin-400"} 409600
+sample:ulong:bin_ctr_bytes_total{instance="bin-500"} 512000
+sample:ulong:bin_ctr_bytes_total{instance="bin-600"} 614400
+sample:ulong:bin_ctr_bytes_total{instance="bin-700"} 716800
+sample:ulong:bin_ctr_bytes_total{instance="bin-800"} 819200
+sample:ulong:bin_ctr_bytes_total{instance="bin-900"} 921600
+
 
 #### number of metrics attempted: 1
 #### number of metrics completed: 1

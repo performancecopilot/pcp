@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2016 Red Hat.
+# Copyright (c) 2014-2017 Red Hat.
 # Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
-CFILES = pmproxy.c client.c util.c
+CFILES = pmproxy.c client.c
 
 LLDLIBS	= $(PCPLIB)
 LDIRT = pmproxy.log pmproxy.service

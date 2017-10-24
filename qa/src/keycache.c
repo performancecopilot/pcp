@@ -13,7 +13,7 @@ static int histo[128];
 static int vflag = 0;
 
 static void
-do_key(int i, int j, int k, char *name, int *keylen, int *key)
+do_key(int i, int j, int k, char *name, int namelen, int *keylen, int *key)
 {
     if (j == 1)
 	key[0] = (i << 8) | j;
@@ -24,22 +24,22 @@ do_key(int i, int j, int k, char *name, int *keylen, int *key)
     *keylen = (k+1)*sizeof(int);
     switch (k) {
 	case 0:
-	    sprintf(name, "%08x", key[0]);
+	    pmsprintf(name, namelen, "%08x", key[0]);
 	    break;
 	case 1:
 	    key[1] = i;
-	    sprintf(name, "%08x-%08x", key[0], key[1]);
+	    pmsprintf(name, namelen, "%08x-%08x", key[0], key[1]);
 	    break;
 	case 2:
 	    key[1] = i;
 	    key[2] = j;
-	    sprintf(name, "%08x-%08x-%08x", key[0], key[1], key[2]);
+	    pmsprintf(name, namelen, "%08x-%08x-%08x", key[0], key[1], key[2]);
 	    break;
 	case 3:
 	    key[1] = i;
 	    key[2] = j;
 	    key[3] = k;
-	    sprintf(name, "%08x-%08x-%08x-%08x", key[0], key[1], key[2], key[3]);
+	    pmsprintf(name, namelen, "%08x-%08x-%08x-%08x", key[0], key[1], key[2], key[3]);
 	    break;
     }
 
@@ -73,7 +73,7 @@ load_n_go(pmInDom indom)
     for (i = 0; i < 5; i++) {	/* one more iteration than -d in main() */
 	for (j = 1; j < 5; ) {	/* one more iteration than -d in main() */
 	    for (k = 0; k < 4; k++) {	/* one more iteration than -d in main() */
-		do_key(i, j, k, name, &keylen, key);
+		do_key(i, j, k, name, sizeof(name), &keylen, key);
 		for (kflag = 1; kflag >= 0; kflag--) {
 		    /* force duplicate keys by culling the key[] or name[] */
 		    if (kflag)
@@ -141,15 +141,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:dklv")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'd':	/* exercise duplicate checking, save, smaller set of keys */
@@ -198,7 +196,7 @@ main(int argc, char **argv)
     for (i = 0; i < 255; i++) {
 	for (j = 1; j < 255; ) {
 	    for (k = 0; k < 3; k++) {
-		do_key(i, j, k, name, &keylen, key);
+		do_key(i, j, k, name, sizeof(name), &keylen, key);
 
 		if (dflag) {
 		    /* force duplicate keys by culling the key[] or name[] */

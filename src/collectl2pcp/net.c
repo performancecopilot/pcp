@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,7 +14,6 @@
  * Handler for network.interface.*
  * Net     lo: 216173634 2124262    0    0    0     0          0         0 216173634 2124262    0    0    0     0       0          0
  */
-
 
 #include "metrics.h"
 
@@ -75,7 +74,7 @@ net_tcp_handler(handler_t *h, fields_t *f)
     if (f->nfields != 15)
     	return -1;
 
-    if (!isdigit(f->fields[1][0]))
+    if (!isdigit((int)(f->fields[1][0])))
     	return -1; /* skip column heading */
 
     n = 1;
@@ -108,7 +107,7 @@ net_udp_handler(handler_t *h, fields_t *f)
       */
     if (f->nfields != 7)
     	return -1;
-    if (!isdigit(f->fields[1][0]))
+    if (!isdigit((int)(f->fields[1][0])))
     	return -1; /* skip column heading */
 
     n = 1;

@@ -56,7 +56,7 @@ int main()
 	    char tstr[64];
 	    int dst;
 
-	    sprintf(tb, "TZ=%s", zones[which][i]);
+	    pmsprintf(tb, sizeof(tb), "TZ=%s", zones[which][i]);
 	    putenv(tb);
 	    tzset();
 	    tz = getenv("TZ");

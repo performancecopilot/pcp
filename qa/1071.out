@@ -3,13 +3,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 9
+  metrics: 9 (9 instances)
   samples: 9
  interval: 1.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
            k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
                                                            Kbyte         count           sec                       Kbyte         count
@@ -21,13 +21,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 10
+  metrics: 10 (10 instances)
   samples: 9
  interval: 1.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
           000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
@@ -41,13 +41,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 9
+  metrics: 9 (9 instances)
   samples: 9
  interval: 1.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
            k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
                                                            Kbyte         count           sec                       Kbyte         count
@@ -59,13 +59,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 10
+  metrics: 10 (10 instances)
   samples: 9
  interval: 1.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
           000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
@@ -79,13 +79,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 9
+  metrics: 9 (9 instances)
   samples: 9 (requested)
  interval: N/A
- duration: N/A
+ duration: 00:00:04
 
            k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
                                                            Kbyte         count           sec                       Kbyte         count
@@ -97,13 +97,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 10
+  metrics: 10 (10 instances)
   samples: 9 (requested)
  interval: N/A
- duration: N/A
+ duration: 00:00:04
 
           p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
           000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
@@ -117,13 +117,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 9
+  metrics: 9 (9 instances)
   samples: 9 (requested)
  interval: N/A
- duration: N/A
+ duration: 00:00:04
 
            k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
                                                            Kbyte         count           sec                       Kbyte         count
@@ -135,13 +135,13 @@ QA output created by 1071
 
   archive: QAPATH/archives/rep
      host: slack
- timezone: ...-11
+ timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 10
+  metrics: 10 (10 instances)
   samples: 9 (requested)
  interval: N/A
- duration: N/A
+ duration: 00:00:04
 
           p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
           000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25

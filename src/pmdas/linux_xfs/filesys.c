@@ -77,7 +77,7 @@ refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
 	    qp = (project_t *)malloc(sizeof(project_t));
 	    if (!qp)
 		goto next;
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "refresh_filesys_projects: add \"%s\"\n", p);
 	}
 	qp->space_hard = d.d_blk_hardlimit;
@@ -168,7 +168,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 		    fs->path, device);
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);

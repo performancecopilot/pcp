@@ -340,19 +340,15 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-#ifdef PCP_DEBUG
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
@@ -412,7 +408,7 @@ main(int argc, char **argv)
 \n\
 Options\n\
   -a archive	metrics source is an archive log\n\
-  -D debug	standard PCP debug flag\n\
+  -D debug	standard PCP debug options\n\
   -h host	metrics source is PMCD on host (default is local libirixpmda)\n\
   -L            metrics source is local connection to PMDA, no PMCD\n\
   -K spec       optional additional PMDA spec for local connection\n\

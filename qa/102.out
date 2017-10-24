@@ -90,6 +90,7 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
+pmlogger: Caught signal 15, exiting
 
 Log finished DATE
 Logging delta (270000000 msec) cannot be bigger than 268435455 msec
@@ -123,6 +124,7 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
+pmlogger: Caught signal 15, exiting
 
 Log finished DATE
 Logging delta (-2138567296 msec) must be positive
@@ -156,6 +158,7 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
+pmlogger: Caught signal 15, exiting
 
 Log finished DATE
 Performance Co-Pilot Logger Control (pmlc), Version VERSION
@@ -193,6 +196,7 @@ DATE
 pmlc request from HOST: advisory on 25032.7 sec
   metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
+pmlogger: Caught signal 15, exiting
 
 Log finished DATE
 sample.bin currently has no instance number 333

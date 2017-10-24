@@ -1,0 +1,101 @@
+QA output created by 905
+Clients locally, down-rev remote pmcd ...
+--- pmval ---
+
+metric:    sample.bin
+host:      DOWNREV
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.25 sec
+
+    bin-100     bin-500     bin-900 
+        100         500         900 
+        100         500         900 
+
+--- torture_api ---
+pmLookupName: Unexpected error: Unknown metric name
+name[0] disk.all.total -> 60.0.29
+name[1] pmcd -> PM_ID_NULL
+name[2] kernel.all.pswitch -> 60.0.13
+name[3] kernel.all.cpu.user -> 60.0.20
+name[4] kernel.all.cpu.wait.total -> 60.0.35
+name[5] hinv.ncpu -> 60.0.32
+name[6] pmcd.control -> PM_ID_NULL
+name[7] sampledso.aggregate.hullo -> 30.0.34
+name[8] sample.seconds -> 29.0.2
+name[9] sample.colour -> 29.0.5
+name[10] sample.longlong -> PM_ID_NULL
+name[11] bozo.the.clown -> PM_ID_NULL
+
+name: disk.all.total
+
+name: pmcd
+
+name: kernel.all.pswitch
+
+name: kernel.all.cpu.user
+
+name: kernel.all.cpu.wait.total
+
+name: hinv.ncpu
+
+name: pmcd.control
+
+name: sampledso.aggregate.hullo
+
+name: sample.seconds
+
+name: sample.colour
+
+name: sample.longlong
+
+name: bozo.the.clown
+
+
+Unexpected failure for 1 of 52 PMAPI operations
+
+Clients on down-rev host, local pmcd ...
+--- pmval ---
+
+metric:    sample.bin
+host:      LOCALHOST
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.25 sec
+
+    bin-100     bin-500     bin-900 
+        100         500         900 
+        100         500         900 
+
+--- torture_api ---
+pmLookupName: Unexpected error: No such PMAPI error code (8)
+
+name: disk.all.total
+
+name: pmcd
+
+name: kernel.all.pswitch
+
+name: kernel.all.cpu.user
+
+name: kernel.all.cpu.wait.total
+
+name: hinv.ncpu
+
+name: pmcd.control
+
+name: sampledso.aggregate.hullo
+
+name: sample.seconds
+pmNameID botch: expected "sample.seconds", got "sample.dupnames.two.seconds"
+
+name: sample.colour
+
+name: sample.longlong
+
+name: bozo.the.clown
+
+
+Unexpected failure for 2 of 52 PMAPI operations

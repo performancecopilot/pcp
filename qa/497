@@ -44,7 +44,7 @@ End-of-File
 
 # real QA test starts here
 
-pmlogconf -d $tmp $tmp.conf \
+pmlogconf -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo "--- start initial config file ---"
@@ -59,7 +59,7 @@ probe	sample.ulong.ten bozo ? include : exclude
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo
@@ -70,7 +70,7 @@ probe	sample.ulong.ten == ? include : exclude
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo
@@ -81,7 +81,7 @@ probe	sample.ulong.ten exists ? include : foo
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo
@@ -92,7 +92,7 @@ probe	sample.ulong.ten exists ? include exclude
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo
@@ -103,7 +103,7 @@ probe	sample.ulong.ten exists ? include ! exclude
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo
@@ -114,7 +114,7 @@ probe	sample.ulong.ten exists ? include : exclude foo
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo
@@ -125,7 +125,7 @@ force	foo
 ident	foo
 	sample.ulong.ten
 End-of-File
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo "--- start final config file ---"

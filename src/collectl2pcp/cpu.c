@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,10 +12,8 @@
  * for more details.
  *
  * Handler for kernel.{percpu,all}.cpu.*
- *
  * cpu  66057896 4079 13437134 575696782 4513632 1463907 1701801 0 28602 0
  * cpu0 24489004 2578 3862841 132669978 2807446 852698 928386 0 28602 0
- *
  */
 
 #include "metrics.h"
@@ -30,7 +28,7 @@ cpu_handler(handler_t *h, fields_t *f)
     if (f->fieldlen[0] < 3 || f->nfields < 9)
     	return -1;
 
-    if (f->fieldlen[0] > 3 && isdigit(f->fields[0][3])) {
+    if (f->fieldlen[0] > 3 && isdigit((int)(f->fields[0][3]))) {
 	/* kernel.percpu.cpu.* */
 	pmInDom indom = pmInDom_build(LINUX_DOMAIN, CPU_INDOM);
 

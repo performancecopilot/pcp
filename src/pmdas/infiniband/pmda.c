@@ -329,7 +329,7 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
          return;
 
     if (confpath == NULL) {
-	snprintf(defconf, sizeof(defconf), "%s%c" "infiniband" "%c" "config", 
+	pmsprintf(defconf, sizeof(defconf), "%s%c" "infiniband" "%c" "config", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	confpath = defconf;
     }
@@ -383,7 +383,7 @@ main(int argc, char **argv)
     int writeconf = 0;
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help", 
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, IB, "infiniband.log", helppath);
 

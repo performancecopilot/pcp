@@ -12,6 +12,15 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+
+# Last updated for: haproxy 1.7.5
+
+# pylint: disable=superfluous-parens, bad-whitespace
+# pylint: disable=invalid-name, line-too-long, no-self-use
+# pylint: disable=too-many-instance-attributes, too-many-locals
+# pylint: disable=bare-except, broad-except, too-many-branches
+# pylint: disable=too-many-return-statements, bad-continuation
+
 """ PCP HAProxy Performance Metrics Domain Agent """
 
 try:
@@ -19,7 +28,6 @@ try:
 except ImportError:
     import configparser as ConfigParser
 
-import os
 import sys
 import socket
 
@@ -35,7 +43,7 @@ from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_MBYTE, PM_TIME_MSEC, PM
 from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 
 if sys.version_info[0] >= 3:
-    long = int
+    long = int # pylint: disable=redefined-builtin
 
 DEFAULT_USER   = 'root'
 DEFAULT_SOCKET = '/var/lib/haproxy/stats'
@@ -50,16 +58,28 @@ class HAProxyPMDA(PMDA):
         self.stat = {}
         self.user = DEFAULT_USER
         self.skt = DEFAULT_SOCKET
+        self.url = None
+        self.auth = None
+        self.pasw = None
+        self.request = None
         self.read_config()
         self.set_user(self.user)
 
         self.connect_pmcd()
         try:
-            stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            stats.connect(self.skt)
-            stats.close()
+            if not self.url:
+                conn = self.skt
+                stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                stats.connect(self.skt)
+                stats.close()
+            else:
+                conn = self.url
+                self.request = self.setup_urllib(self.url, self.auth, self.pasw)
+                req = self.request.urlopen(self.url)
+                req.read()
+                req.close()
         except Exception as error:
-            self.log("Failed to connect to HAProxy socket %s: %s" % (self.skt, error))
+            self.log("Failed to connect HAProxy at %s: %s" % (conn, error))
 
         units_none  = pmUnits(0, 0, 0, 0, 0, 0)
         units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
@@ -223,13 +243,13 @@ class HAProxyPMDA(PMDA):
 
         for item in range(len(self.info_metrics)):
             self.add_metric(name + '.' + self.info_metrics[item][0], pmdaMetric(self.pmid(self.info_cluster, item),
-                self.info_metrics[item][1], self.info_indom, self.info_metrics[item][2],
-                self.info_metrics[item][3]), self.info_metrics[item][4], self.info_metrics[item][4])
+                            self.info_metrics[item][1], self.info_indom, self.info_metrics[item][2],
+                            self.info_metrics[item][3]), self.info_metrics[item][4], self.info_metrics[item][4])
 
         for item in range(len(self.stat_metrics)):
             self.add_metric(name + '.' + self.stat_metrics[item][0], pmdaMetric(self.pmid(self.stat_cluster, item),
-                self.stat_metrics[item][1], self.stat_indom, self.stat_metrics[item][2],
-                self.stat_metrics[item][3]), self.stat_metrics[item][4], self.stat_metrics[item][4])
+                            self.stat_metrics[item][1], self.stat_indom, self.stat_metrics[item][2],
+                            self.stat_metrics[item][3]), self.stat_metrics[item][4], self.stat_metrics[item][4])
 
         self.set_refresh(self.haproxy_refresh)
         self.set_fetch_callback(self.haproxy_fetch_callback)
@@ -248,31 +268,60 @@ class HAProxyPMDA(PMDA):
                     self.user = config.get('pmda', opt)
                 elif opt == 'socket':
                     self.skt = config.get('pmda', opt)
+                elif opt == 'url':
+                    self.url = config.get('pmda', opt)
+                elif opt == 'auth':
+                    self.auth = config.get('pmda', opt)
+                elif opt == 'pass':
+                    self.pasw = config.get('pmda', opt)
                 else:
                     self.err("Invalid directive '%s' in %s." % (opt, conffile))
                     sys.exit(1)
+
+    def setup_urllib(self, url, auth, pasw):
+        """ Setup urllib """
+        try:
+            import urllib.request as request
+        except:
+            import urllib2 as request
+        passman = request.HTTPPasswordMgrWithDefaultRealm()
+        passman.add_password(None, url, auth, pasw)
+        authhandler = request.HTTPBasicAuthHandler(passman)
+        opener = request.build_opener(authhandler)
+        request.install_opener(opener)
+        return request
 
     def read_socket(self, skt):
         """ Read data from socket """
         resp = ""
         while True:
             data = skt.recv(4096).decode('UTF-8')
-            if not data: break
+            if not data:
+                break
             resp += data
         return resp
 
     def haproxy_refresh(self, cluster):
         """ Refresh """
-        stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
-            stats.connect(self.skt)
+            if not self.url:
+                conn = self.skt
+                stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                stats.connect(self.skt)
+            else:
+                conn = self.url
+                req = self.request.urlopen(self.url)
         except Exception as error:
-            self.log("Failed to connect to %s: %s" % (self.skt, error))
-            if self.info: self.info = {}
-            if self.stat: self.stat = {}
+            self.log("Failed to connect to %s: %s" % (conn, error))
+            if self.info:
+                self.info = {}
+            if self.stat:
+                self.stat = {}
             return
 
         if cluster == self.info_cluster:
+            if self.url:
+                return
             self.info = {}
             stats.send(b"show info\n")
             for line in self.read_socket(stats).splitlines():
@@ -283,17 +332,26 @@ class HAProxyPMDA(PMDA):
         if cluster == self.stat_cluster:
             insts = {}
             self.stat = {}
-            stats.send(b"show stat\n")
-            for line in self.read_socket(stats).splitlines():
-                if not line.startswith('#') and ',' in line:
-                    name = line.split(',')[0] + "::" + line.split(',')[1]
-                    self.stat[name] = line.split(',')
-                    insts[name] = c_int(1)
+            if not self.url:
+                stats.send(b"show stat\n")
+                data = self.read_socket(stats)
+                stats.close()
+            else:
+                data = req.read().decode('UTF-8')
+                req.close()
+            if data.startswith("# pxname"):
+                for line in data.splitlines():
+                    if not line.startswith('#') and ',' in line:
+                        name = line.split(',')[0] + "::" + line.split(',')[1]
+                        self.stat[name] = line.split(',')
+                        insts[name] = c_int(1)
+            else:
+                self.log("Unrecognized reply from HAProxy.")
+                if self.url and data.startswith("<"):
+                    self.log("Got HTML, expected CSV.")
 
             self.stat_insts.set_instances(self.stat_indom, insts)
             self.replace_indom(self.stat_indom, insts)
-
-        stats.close()
 
     def haproxy_fetch_callback(self, cluster, item, inst):
         """ Fetch callback """

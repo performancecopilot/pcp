@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 577
+# pmlogger leaves zombie pmcpp process?
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1sec { sample.long }
+End-of-File
+
+# real QA test starts here
+pmlogger -c $tmp.config -l $tmp.log $tmp &
+pid=$!
+
+rm -f $tmp.ok
+for i in 1 2 3 4 5
+do
+    if [ -s $tmp.meta ]
+    then
+	touch $tmp.ok
+	break
+    fi
+    sleep 1
+done
+
+if [ ! -f $tmp.ok ]
+then
+    echo "Arrgh ... pmlogger not started after 5 seconds"
+    cat $tmp.log
+    kill -KILL $pid
+    exit
+fi
+
+# ps lines first is expected, second shows the bug ...
+#
+# kenj     14024 13998  0 06:35 pts/28   00:00:00 pmlogger -c ...
+# kenj     14027 14024  0 06:35 pts/28   00:00:00 [pmcpp] <defunct>
+#
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+| grep "$pid" \
+| tee -a $here/$seq.full \
+| $PCP_AWK_PROG '
+$2 == "'$pid'"	{ print "Parent pmlogger found" }
+$3 == "'$pid'"	{ print "oops, child process found: " $0 }'
+
+kill -TERM $pid
+wait
+
+cat $tmp.log >>$here/$seq.full
+
+# success, all done
+status=0
+exit

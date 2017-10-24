@@ -49,7 +49,7 @@ bigun_init(pmdaInterface *dp)
      * be found ... fortunately nothing in QA depends on the helpfile
      * being available for the bigun PMDA.
      */
-    snprintf(helppath, sizeof(helppath),
+    pmsprintf(helppath, sizeof(helppath),
 		"%s%c" "testsuite" "%c" "pmdas" "%c" "bigun" "%c" "help",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_4, "bigun DSO", helppath);

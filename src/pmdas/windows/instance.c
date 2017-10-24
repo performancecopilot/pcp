@@ -92,7 +92,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			else {
 			    __pmNotifyErr(LOG_ERR, "windows_check_instance: "
 					"Error: DISK_INDOM malloc[%d] failed "
-					"path=%s\n", q - p + 1, path);
+					"path=%s\n", (int)(q - p + 1), path);
 			    return -1;
 			}
 			/*
@@ -115,7 +115,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * entries like "17" and "17#1" are not useable anyway)
 	     */
 	    if (!ok) {
-		if (pmDebug & DBG_TRACE_LIBPMDA)
+		if (pmDebugOptions.libpmda)
 		    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized disk instance: %s\n", path);
 		free(name);
@@ -142,7 +142,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		int inst = atoi(p);
 		name = (char *)malloc(8);	// "cpuNNNN"
 		if (name != NULL)
-		    sprintf(name, "cpu%d", inst);
+		    pmsprintf(name, 8, "cpu%d", inst);
 		ok = 1;
 	    }
 	    /*
@@ -176,7 +176,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 					"malloc[%d] failed for NETIF_INDOM "
-					"path=%s\n", q - p + 1, path);
+					"path=%s\n", (int)(q - p + 1), path);
 			return -1;
 		    }
 		    /*
@@ -231,7 +231,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed for LDISK_INDOM path=%s\n",
-				q - p + 1, path);
+				(int)(q - p + 1), path);
 			return -1;
 		    }
 		}
@@ -281,7 +281,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed, SQL_INDOM path=%s\n",
-				q - p + 1, path);
+				(int)(q - p + 1), path);
 			return -1;
 		    }
 
@@ -341,7 +341,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed, process/thread path=%s\n",
-				q - p + 1, path);
+				(int)(q - p + 1), path);
 			return -1;
 		    }
 		}

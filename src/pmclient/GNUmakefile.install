@@ -18,7 +18,7 @@
 #
 
 CFILES	= pmclient.c pmclient_fg.c
-CFLAGS	= -I/usr/include/pcp -DPCP_DEBUG=1
+CFLAGS	= -I/usr/include/pcp
 TARGETS	= pmclient pmclient_fg
 LDOPTS	=
 LDLIBS	= -lpcp

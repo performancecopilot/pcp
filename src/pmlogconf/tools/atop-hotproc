@@ -1,0 +1,44 @@
+#pmlogconf-setup 2.0
+ident   per-process hotproc metrics including the pcp-atop set
+probe   hotproc.control.config != "" ? include : exclude
+
+	hotproc.psinfo.cmd
+	hotproc.psinfo.sname
+	hotproc.psinfo.ppid
+	hotproc.psinfo.minflt
+	hotproc.psinfo.maj_flt
+	hotproc.psinfo.utime
+	hotproc.psinfo.stime
+	hotproc.psinfo.priority
+	hotproc.psinfo.nice
+	hotproc.psinfo.start_time
+	hotproc.psinfo.guest_time
+	hotproc.psinfo.vsize
+	hotproc.psinfo.rss
+	hotproc.psinfo.processor
+	hotproc.psinfo.rt_priority
+	hotproc.psinfo.policy
+	hotproc.psinfo.threads
+	hotproc.psinfo.tgid
+	hotproc.psinfo.pid
+	hotproc.namespaces.envid
+	hotproc.id.uid
+	hotproc.id.euid
+	hotproc.id.suid
+	hotproc.id.fsuid
+	hotproc.id.gid
+	hotproc.id.egid
+	hotproc.id.sgid
+	hotproc.id.fsgid
+	hotproc.memory.vmdata
+	hotproc.memory.vmstack
+	hotproc.memory.vmexe
+	hotproc.memory.vmlib
+	hotproc.memory.vmswap
+	hotproc.io.read_bytes
+	hotproc.io.write_bytes
+	hotproc.io.cancelled_write_bytes
+	hotproc.id.uid_nm
+	hotproc.id.euid_nm
+	hotproc.id.suid_nm
+	hotproc.id.fsuid_nm

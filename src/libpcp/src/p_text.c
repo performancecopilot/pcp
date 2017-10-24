@@ -88,9 +88,10 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
 {
     text_t	*pp;
     size_t	need;
+    size_t	len = strlen(buffer);
     int		sts;
 
-    need = sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(strlen(buffer));
+    need = sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(len);
     if ((pp = (text_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -oserror();
     pp->hdr.len = (int)need;
@@ -104,10 +105,15 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
      * __htonpmID or __htonpmInDom (respectively).
      */
     pp->ident = ident;
-
-    pp->buflen = (int)strlen(buffer);
-    memcpy((void *)pp->buffer, (void *)buffer, pp->buflen);
-    pp->buflen = htonl(pp->buflen);
+    pp->buflen = htonl(len);
+    memcpy((void *)pp->buffer, (void *)buffer, len);
+    if (len % sizeof(__pmPDU) != 0) {
+	/* clear the padding bytes, lest they contain garbage */
+	int	pad;
+	char	*padp = pp->buffer + len;
+	for (pad = sizeof(__pmPDU) - 1; pad >= (len % sizeof(__pmPDU)); pad--)
+	    *padp++ = '~';	/* buffer end */
+    }
 
     sts = __pmXmitPDU(fd, (__pmPDU *)pp);
     __pmUnpinPDUBuf(pp);

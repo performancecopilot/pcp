@@ -34,7 +34,7 @@ do
     echo
     echo "=== $arch ==="
     pmdumplog $arch \
-    | sed -e 's/:/ /g' \
+    | sed -e '/(pmcd\./d' -e 's/:/ /g' \
     | $PCP_AWK_PROG '
     /^[0-9]/	{ print $3,$NF }' \
     | $PCP_AWK_PROG '

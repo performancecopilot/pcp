@@ -37,7 +37,7 @@ pmlogsummary -z -n src/root_irix -bmMy $arch \
      | LC_COLLATE=POSIX sort -f | ./xlate_2_new_pmns
 echo
 echo "=== Down-rev error check ==="
-pmlogsummary -v -z -n src/root_irix -a archives/err_v1
+pmlogsummary -v -z -n src/root_irix -a badarchives/err_v1
 echo
 echo "=== Changing inst check ==="
 pmlogsummary -z -a $tmp.changeinst
@@ -48,6 +48,8 @@ _filter()
 {
     sed -e 's/sample.*colour .*none/sample.colour (masked out)/g' \
 	-e 's/pmcd.pmlogger.port .* none/pmcd.pmlogger.port [PID] PORT none/g' \
+	-e '/^pmcd\.seqnum/s/[0-9][0-9.]*/SEQNUM/' \
+	-e '/^pmcd\.pid/s/[0-9][0-9.]*/PID/' \
 	-e 's/  1.001 none/  1.000 none/g'
 	# sample[dso].milliseconds is a fickle mistress
 }

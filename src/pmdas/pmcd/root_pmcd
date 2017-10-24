@@ -35,6 +35,8 @@ pmcd {
     cputime
     feature
     sighups	PMCD:0:22
+    pid		PMCD:0:23
+    seqnum	PMCD:0:24
 }
 
 pmcd.control {

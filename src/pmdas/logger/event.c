@@ -246,7 +246,7 @@ event_config(const char *fname)
 	/* remaining fields filled in after pmdaInit() is called. */
 	numlogfiles++;
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_INFO, "event_config: new logfile %s (%s)",
 				logfile->pathname, logfile->pmnsname);
     }

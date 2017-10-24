@@ -22,6 +22,7 @@
 #include "pmdagfs2.h"
 
 #include <sys/types.h>
+#include <sys/sysmacros.h>
 #include <ctype.h>
 
 static char *gfs2_sysfsdir = "/sys/kernel/debug/gfs2";
@@ -684,7 +685,7 @@ gfs2_device_identifier(const char *name)
      * /sys/fs/gfs2/NAME/id, we extract the data and store it in gfs2_fs->dev
      *
      */
-    snprintf(buffer, sizeof(buffer), "%s/%s/id", gfs2_sysdir, name);
+    pmsprintf(buffer, sizeof(buffer), "%s/%s/id", gfs2_sysdir, name);
     buffer[sizeof(buffer)-1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL)
@@ -1045,7 +1046,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "gfs2" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "gfs2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, GFS2, "gfs2.log", helppath);
 

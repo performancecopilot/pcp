@@ -1,5 +1,5 @@
 QA output created by 311
-== pminfo preamble and no values ==
+== pminfo prologue and no values ==
 Note: timezone set to local timezone of host "splat"
 pmcd.pmlogger.archive
     inst [14737 or "14737"] value "/tmp/err_v1"
@@ -16,7 +16,7 @@ Error: Explicit instance identifier(s) required
 sample.noinst
 No value(s) available!
 
-== pminfo skip preamble and errors instead of values ==
+== pminfo skip prologue and errors instead of values ==
 Note: timezone set to local timezone of host "splat"
 pmcd.pmlogger.archive: pmFetch: End of PCP archive log
 pmcd.pmlogger.host: pmFetch: End of PCP archive log

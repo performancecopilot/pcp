@@ -79,7 +79,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	for (j = 0; j < vsp->numval; j++) {
 	    /* plus value, instance pair */
 	    need += sizeof(__pmValue_PDU);
-	    if (vsp->valfmt != PM_VAL_INSITU) {
+	    if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR) {
 		/* plus pmValueBlock */
 		vneed += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
 	    }
@@ -112,9 +112,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    vlp->valfmt = htonl(vsp->valfmt);
 	for (j = 0; j < vsp->numval; j++) {
 	    vlp->vlist[j].inst = htonl(vsp->vlist[j].inst);
-	    if (vsp->valfmt == PM_VAL_INSITU)
-		vlp->vlist[j].value.lval = htonl(vsp->vlist[j].value.lval);
-	    else {
+	    if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR) {
 		/*
 		 * pmValueBlocks are harder!
 		 * -- need to copy the len field (len) + len bytes (vbuf)
@@ -133,6 +131,10 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 		/* point to the value block at the end of the PDU */
 		vlp->vlist[j].value.lval = htonl((int)(vbp - _pdubuf));
 		vbp += PM_PDU_SIZE(nb);
+	    }
+	    else {
+		/* punt on vsp->valfmt == PM_VAL_INSITU */
+		vlp->vlist[j].value.lval = htonl(vsp->vlist[j].value.lval);
 	    }
 	}
 	vlp->numval = htonl(vsp->numval);
@@ -160,10 +162,8 @@ __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU)
+    if (pmDebugOptions.pdu)
 	__pmDumpResult_ctx(ctxp, stderr, result);
-#endif
     if ((sts = __pmEncodeResult(fd, result, &pdubuf)) < 0)
 	return sts;
     pp = (result_t *)pdubuf;
@@ -225,29 +225,23 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
     pp = (result_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
     if (pduend - (char *)pdubuf < sizeof(result_t) - sizeof(__pmPDU)) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__pmDecodeResult: Bad: len=%d smaller than min %d\n", pp->hdr.len, (int)(sizeof(result_t) - sizeof(__pmPDU)));
 	}
-#endif
 	return PM_ERR_IPC;
     }
 
     numpmid = ntohl(pp->numpmid);
     if (numpmid < 0 || numpmid > pp->hdr.len) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__pmDecodeResult: Bad: numpmid=%d negative or not smaller than PDU len %d\n", numpmid, pp->hdr.len);
 	}
-#endif
 	return PM_ERR_IPC;
     }
     if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *)) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__pmDecodeResult: Bad: numpmid=%d larger than max %ld\n", numpmid, (long)(INT_MAX - sizeof(pmResult) / sizeof(pmValueSet *)));
 	}
-#endif
 	return PM_ERR_IPC;
     }
     if ((pr = (pmResult *)malloc(sizeof(pmResult) +
@@ -265,11 +259,9 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	vlp = (vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
 
 	if (sizeof(*vlp) - sizeof(vlp->vlist) - sizeof(int) > (pduend - (char *)vlp)) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] outer vlp past end of PDU buffer\n", i);
 	}
-#endif
 	    goto corrupt;
 	}
 
@@ -277,48 +269,38 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	nvsize += sizeof(pmValueSet);
 	numval = ntohl(vlp->numval);
 	valfmt = ntohl(vlp->valfmt);
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    pmID	pmid = __ntohpmID(vlp->pmid);
 	    char	strbuf[20];
 	    fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
 			i, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), numval);
 	}
-#endif
 	/* numval may be negative - it holds an error code in that case */
 	if (numval > pp->hdr.len) {
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > len=%d\n", i, numval, pp->hdr.len);
 	    }
-#endif
 	    goto corrupt;
 	}
 	if (numval > 0) {
 	    if (sizeof(*vlp) - sizeof(vlp->vlist) > (pduend - (char *)vlp)) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] inner vlp past end of PDU buffer\n", i);
 		}
-#endif
 		goto corrupt;
 	    }
 	    if (numval >= (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > max=%ld\n", i, numval, (long)((INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)));
 		}
-#endif
 		goto corrupt;
 	    }
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    nvsize += (numval - 1) * sizeof(pmValue);
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		fprintf(stderr, " valfmt: %s",
 			valfmt == PM_VAL_INSITU ? "insitu" : "ptr");
 	    }
-#endif
 	    if (valfmt != PM_VAL_INSITU) {
 		for (j = 0; j < numval; j++) {
 		    __pmValue_PDU *pduvp;
@@ -326,75 +308,59 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 
 		    pduvp = &vlp->vlist[j];
 		    if (sizeof(__pmValue_PDU) > (size_t)(pduend - (char *)pduvp)) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] initial pduvp past end of PDU buffer\n", i, j);
 			}
-#endif
 			goto corrupt;
 		    }
 		    index = ntohl(pduvp->value.lval);
 		    if (index < 0 || index > pp->hdr.len) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] index=%d\n", i, j, index);
 			}
-#endif
 			goto corrupt;
 		    }
 		    pduvbp = (pmValueBlock *)&pdubuf[index];
 		    if (vsplit > (char *)pduvbp)
 			vsplit = (char *)pduvbp;
 		    if (sizeof(unsigned int) > (size_t)(pduend - (char *)pduvbp)) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] second pduvp past end of PDU buffer\n", i, j);
 			}
-#endif
 			goto corrupt;
 		    }
 		    __ntohpmValueBlock(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE || pduvbp->vlen > pp->hdr.len) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] vlen=%d\n", i, j, pduvbp->vlen);
 			}
-#endif
 			goto corrupt;
 		    }
 		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] third pduvp past end of PDU buffer\n", i, j);
 			}
-#endif
 			goto corrupt;
 		    }
 		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			fprintf(stderr, " len: %d type: %d",
 			    pduvbp->vlen - PM_VAL_HDR_SIZE, pduvbp->vtype);
 		    }
-#endif
 		}
 	    }
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fputc('\n', stderr);
 	}
-#endif
     }
 
     need = nvsize + vbsize;
     offset = sizeof(result_t) - sizeof(__pmPDU) + vsize;
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	fprintf(stderr, "need: %d vsize: %d nvsize: %d vbsize: %d offset: %d hdr.len: %d pduend: %p vsplit: %p (diff %d) pdubuf: %p (diff %d)\n", need, vsize, nvsize, vbsize, offset, pp->hdr.len, pduend, vsplit, (int)(pduend-vsplit), pdubuf, (int)(pduend-(char *)pdubuf));
     }
-#endif
 
     if (need < 0 ||
 	vsize > INT_MAX / sizeof(__pmPDU) ||
@@ -450,24 +416,20 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	pr->vset[i] = nvsp;
 	nvsp->pmid = __ntohpmID(vlp->pmid);
 	nvsp->numval = ntohl(vlp->numval);
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    char	strbuf[20];
 	    fprintf(stderr, "new vlist[%d] pmid: %s numval: %d",
 			i, pmIDStr_r(nvsp->pmid, strbuf, sizeof(strbuf)), nvsp->numval);
 	}
-#endif
 
 	vsize += sizeof(nvsp->pmid) + sizeof(nvsp->numval);
 	nvsize += sizeof(pmValueSet);
 	if (nvsp->numval > 0) {
 	    nvsp->valfmt = ntohl(vlp->valfmt);
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, " valfmt: %s",
 			    nvsp->valfmt == PM_VAL_INSITU ? "insitu" : "ptr");
 	}
-#endif
 	    vsize += sizeof(nvsp->valfmt) + nvsp->numval * sizeof(__pmValue_PDU);
 	    nvsize += (nvsp->numval - 1) * sizeof(pmValue);
 	    for (j = 0; j < nvsp->numval; j++) {
@@ -477,21 +439,18 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 		nvp->inst = ntohl(vp->inst);
 		if (nvsp->valfmt == PM_VAL_INSITU) {
 		    nvp->value.lval = ntohl(vp->value.lval);
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			fprintf(stderr, " value: %d", nvp->value.lval);
 		    }
-#endif
 		}
-		else {
+		else if (nvsp->valfmt == PM_VAL_DPTR || nvsp->valfmt == PM_VAL_SPTR) {
 		    /*
-		     * in the input PDU buffer, pval is an index to the
+		     * in the input PDU buffer, lval is an index to the
 		     * start of the pmValueBlock, in units of __pmPDU
 		     */
-		    index = sizeof(__pmPDU) * ntohl(vp->value.pval) + offset;
+		    index = sizeof(__pmPDU) * ntohl(vp->value.lval) + offset;
 		    nvp->value.pval = (pmValueBlock *)&newbuf[index];
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			int		k, len;
 			len = nvp->value.pval->vlen - PM_VAL_HDR_SIZE;
 			fprintf(stderr, " len: %d type: %d value: 0x", len,
@@ -499,15 +458,18 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 			for (k = 0; k < len; k++)
 			    fprintf(stderr, "%02x", nvp->value.pval->vbuf[k]);
 		    }
-#endif
+		}
+		else {
+		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+			fprintf(stderr, " botch: valfmt=%d\n", nvsp->valfmt);
+		    }
+		    goto corrupt;
 		}
 	    }
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fputc('\n', stderr);
 	}
-#endif
     }
     if (numpmid == 0)
 	__pmUnpinPDUBuf(newbuf);
@@ -526,11 +488,9 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
      */
     for (i = 0; i < numpmid; i++) {
 	if (sizeof(*vlp) - sizeof(vlp->vlist) - sizeof(int) > (pduend - (char *)vlp)) {
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] outer vlp past end of PDU buffer\n", i);
 	    }
-#endif
 	    goto corrupt;
 	}
 
@@ -539,30 +499,24 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	vsp->numval = ntohl(vsp->numval);
 	/* numval may be negative - it holds an error code in that case */
 	if (vsp->numval > pp->hdr.len) {
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > len=%d\n", i, vsp->numval, pp->hdr.len);
 	    }
-#endif
 	    goto corrupt;
 	}
 
 	vsize += sizeof(vsp->pmid) + sizeof(vsp->numval);
 	if (vsp->numval > 0) {
 	    if (sizeof(*vlp) - sizeof(vlp->vlist) > (pduend - (char *)vlp)) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] inner vlp past end of PDU buffer\n", i);
 		}
-#endif
 		goto corrupt;
 	    }
 	    if (vsp->numval >= (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > max=%ld\n", i, vsp->numval, (long)((INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)));
 		}
-#endif
 		goto corrupt;
 	    }
 	    vsp->valfmt = ntohl(vsp->valfmt);
@@ -573,11 +527,9 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 
 		pduvp = &vsp->vlist[j];
 		if (sizeof(__pmValue_PDU) > (size_t)(pduend - (char *)pduvp)) {
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] initial pduvp past end of PDU buffer\n", i, j);
 		    }
-#endif
 		    goto corrupt;
 		}
 
@@ -588,39 +540,31 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 		    /* salvage pmValueBlocks from end of PDU */
 		    index = ntohl(pduvp->value.lval);
 		    if (index < 0 || index > pp->hdr.len) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] index=%d\n", i, j, index);
 			}
-#endif
 			goto corrupt;
 		    }
 		    pduvbp = (pmValueBlock *)&pdubuf[index];
 		    if (vsplit > (char *)pduvbp)
 			vsplit = (char *)pduvbp;
 		    if (sizeof(unsigned int) > (size_t)(pduend - (char *)pduvbp)) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] second pduvp past end of PDU buffer\n", i, j);
 			}
-#endif
 			goto corrupt;
 		    }
 		    __ntohpmValueBlock(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE || pduvbp->vlen > pp->hdr.len) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] vlen=%d\n", i, j, pduvbp->vlen);
 			}
-#endif
 			goto corrupt;
 		    }
 		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] third pduvp past end of PDU buffer\n", i, j);
 			}
-#endif
 			goto corrupt;
 		    }
 		    pduvp->value.pval = pduvbp;
@@ -634,11 +578,9 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
     }
     if (numpmid > 0) {
 	if (sizeof(result_t) - sizeof(__pmPDU) + vsize != pp->hdr.len - (pduend - vsplit)) {
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		fprintf(stderr, "__pmDecodeResult: Bad: vsplit past end of PDU buffer\n");
 	    }
-#endif
 	    goto corrupt;
 	}
 	/*
@@ -650,10 +592,8 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
     }
 #endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU)
+    if (pmDebugOptions.pdu)
 	__pmDumpResult_ctx(ctxp, stderr, pr);
-#endif
 
     /*
      * Note we return with the input buffer (pdubuf) still pinned and

@@ -66,7 +66,7 @@ metriclist	: metricspec
 metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 		    {
 			if (name == NULL) {
-			    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
+			    pmsprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
 			    yyerror(emess);
 			}
 			found = 0;
@@ -86,7 +86,7 @@ metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 			}
 
 			if (!found) {
-			    snprintf(emess, sizeof(emess), 
+			    pmsprintf(emess, sizeof(emess), 
 				"Problem with lookup for metric \"%s\" ... "
 				"metric ignored", name);
 			    yywarn(emess);
@@ -137,7 +137,7 @@ dometric(const char *name)
 	 * pmLookupName once earlier, otherwise the PMNS is botched
 	 * somehow
 	 */
-	snprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not extracted", name);
+	pmsprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not extracted", name);
 	goto bad;
     }
 
@@ -146,7 +146,7 @@ dometric(const char *name)
 	 * also should not happen ... if name is valid in the archive
 	 * then the pmDesc should be available
 	 */
-	snprintf(emess, sizeof(emess),
+	pmsprintf(emess, sizeof(emess),
 	    "Description unavailable for metric \"%s\" ... not extracted", name);
 	goto bad;
     }
@@ -222,7 +222,7 @@ dometric(const char *name)
 	    inst = -1;
 	    if (extlist[i] != NULL) {
 		if ((sts = pmLookupInDomArchive(dp->indom, extlist[i])) < 0) {
-		    snprintf(emess, sizeof(emess),
+		    pmsprintf(emess, sizeof(emess),
 			"Instance \"%s\" is not defined for the metric \"%s\"",
 			    extlist[i], name);
 		    yywarn(emess);
@@ -234,7 +234,7 @@ dometric(const char *name)
 	    else {
 		char *p;
 		if ((sts = pmNameInDomArchive(dp->indom, intlist[i], &p)) < 0) {
-		    snprintf(emess, sizeof(emess),
+		    pmsprintf(emess, sizeof(emess),
 			"Instance \"%d\" is not defined for the metric \"%s\"",
 			    intlist[i], name);
 		    yywarn(emess);
@@ -270,7 +270,7 @@ dometric(const char *name)
      * this metric are valid ... skip the metric
      */
     if (skip) {
-	snprintf(emess, sizeof(emess),
+	pmsprintf(emess, sizeof(emess),
 		"None of the instances for metric \"%s\" are valid, metric not extracted",
 		ml[ml_numpmid].name);
 	yywarn(emess);
@@ -289,7 +289,7 @@ bad:
     return;
 
 nomem:
-    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
+    pmsprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
     yyerror(emess);
 }
 

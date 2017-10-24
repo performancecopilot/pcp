@@ -1,0 +1,32 @@
+QA output created by 504
+1st call to __pmProcessAddArg fails at malloc
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv malloc: malloc(N) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+
+1st call to __pmProcessAddArg fails at realloc
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+
+2nd (and later) calls to __pmProcessAddArg fails at realloc
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[1]: "not"
+
+4th call to __pmProcessAddArg fails at strdup
+[DATE] exectest(PID) Warning: __pmProcessAddArg: arg strdup: malloc(N) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[3]: "to"
+
+fork() fails
+__pmProcessExec -> -11 Resource temporarily unavailable
+
+pipe() fails
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+__pmProcessPipe(..., "r", ...) -> -23: Too many open files in system
+
+fork() fails after pipe()
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+__pmProcessPipe(..., "r", ...) -> -38: Function not implemented
+
+realloc() fails for pipe map
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+__pmProcessPipe(..., "r", ...) -> -12: Cannot allocate memory
