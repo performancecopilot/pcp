@@ -711,7 +711,8 @@ main(int argc, char *argv[])
     /* don't have %x equivalent of FMT_PID unfortunately */
     fmt = strdup(" %" FMT_PID "\n");
     p = index(fmt, 'd');
-    *p = 'x';
+    if (p)
+	*p = 'x';
     fprintf(stderr, fmt, mypid);
     free(fmt);
 

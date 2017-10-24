@@ -1323,7 +1323,7 @@ class pmContext(object):
             source = None
 
         if not context:
-            if '/' == source:
+            if '/' in source:
                 context = c_api.PM_CONTEXT_ARCHIVE
                 options.pmSetOptionArchive(source)
                 options.pmSetOptionContext(c_api.PM_CONTEXT_ARCHIVE)
