@@ -46,7 +46,7 @@ End-of-File
 echo "=== XLS ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
 sheet2pcp sheet/simple.xls $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
+[ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
 
 # success, all done
 exit

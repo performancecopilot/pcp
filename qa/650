@@ -63,7 +63,7 @@ pid=$!
 echo "= metric names recorded"
 pminfo -a $tmp.1
 echo "= archive contents..."
-pmdumplog -a $tmp.1 | _filter $pid
+pmdumplog -dilmst $tmp.1 | _filter $pid
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
@@ -80,7 +80,7 @@ pid=$!
 echo "= metric names recorded"
 pminfo -a $tmp.2
 echo "= archive contents..."
-pmdumplog -a $tmp.2 | _filter $pid
+pmdumplog -dilmst $tmp.2 | _filter $pid
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
@@ -99,7 +99,7 @@ pid=$!
 echo "= metric names recorded"
 pminfo -a $tmp.3
 echo "= archive contents..."
-pmdumplog -a $tmp.3 | _filter $pid
+pmdumplog -dilmst $tmp.3 | _filter $pid
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 

@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 1159
+# SIGINT for pmlogger, part of
+# https://github.com/performancecopilot/pcp/issues/116
+#
+# See also qa/1109.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.conf
+log mandatory on 10 msec {
+    cgroup
+    containers
+    disk
+    event
+    filesys
+    hinv
+    hotproc
+    ipc
+    jbd2
+    kernel
+    mem
+    mmv
+    network
+    nfs
+    nfs3
+    nfs4
+    pmcd
+    pmda
+    proc
+    quota
+    rpc
+    swap
+    swapdev
+    sysfs
+    tmpfs
+    vfs
+    xfs
+}
+End-of-File
+
+pmlogger -c $tmp.conf -T 5sec -l $tmp.log -m qa/$seq $tmp &
+pid=$!
+
+echo "pmlogger PID=$pid" >>$here/$seq.full
+
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+
+sleep 2
+kill -INT $pid
+wait
+
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+
+if [ -f $tmp.0 ]
+then
+    cat $tmp.log >>$here/$seq.full
+    pmdumplog $tmp \
+    | grep '^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9] ' \
+    | tee -a $here/$seq.full \
+    | wc -l \
+    | $PCP_AWK_PROG '
+40 <= $1 && $1 <= 60	{ print "Found 40-60 records in archive"; next }
+			{ print "Unexpected " $1 " records in archive" }'
+else
+    echo "Arrgh, pmlogger never got started ..."
+    cat $tmp.log
+fi
+
+# success, all done
+status=0
+exit

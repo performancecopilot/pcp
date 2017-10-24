@@ -60,7 +60,7 @@ cd $tmp.dir
 rm -f myarchive.*
 perl $here/src/batch_import.perl 2>&1 | tee -a $here/$seq.full | _filter3
 pminfo -dm -a myarchive
-pmdumplog -a myarchive 2>&1 | _filter2
+pmdumplog -dilmst myarchive 2>&1 | _filter2
 
 # success, all done
 status=0

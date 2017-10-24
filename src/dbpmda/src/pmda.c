@@ -823,12 +823,14 @@ fillResult(pmResult *result, int type)
 
 	if (vsp->numval == 0) {
 	    printf("Error: %s not available!\n", pmIDStr(param.pmid));
-	    return PM_ERR_VALUE;
+	    sts = PM_ERR_VALUE;
+	    goto done;
 	}
 
 	if (vsp->numval < 0) {
 	    printf("Error: %s: %s\n", pmIDStr(param.pmid), pmErrStr(vsp->numval));
-	    return vsp->numval;
+	    sts = vsp->numval;
+	    goto done;
 	}
 
 	for (i = 0; i < vsp->numval; i++) {
@@ -844,6 +846,10 @@ fillResult(pmResult *result, int type)
 	    putchar('\n');
 	}
     }
+
+done:
+    if (type == PM_TYPE_STRING && atom.cp != NULL)
+	free(atom.cp);
 
     return sts;
 }

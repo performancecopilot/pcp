@@ -22,12 +22,12 @@ export TZ=UTC
 
 echo "+++ __pmLogPutresult() +++"
 src/chkputlogresult -b $tmp.1
-pmdumplog -a $tmp.1
+pmdumplog -dilmst $tmp.1
 
 echo
 echo "+++ __pmLogPutresult2() +++"
 src/chkputlogresult $tmp.2
-pmdumplog -a $tmp.2
+pmdumplog -dilmst $tmp.2
 
 echo
 echo "+++ compare files (expect no diffs) +++"

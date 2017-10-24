@@ -118,7 +118,13 @@ pmTimeStateSetup(
 	struct timeval first, struct timeval last, char *tz, char *tz_label)
 {
     pmTime	*pmtime = malloc(sizeof(pmTime));
+    pmTime	*pmtime_tmp;
     int		fd, sts, tzlen;
+
+    if (pmtime == NULL) {
+	fprintf(stderr, "%s: pmTimeConnect: malloc: %s\n", pmProgname, osstrerror());
+	exit(EXIT_FAILURE);
+    }
 
     pmtime->magic = PMTIME_MAGIC;
     pmtime->length = sizeof(pmTime);
@@ -139,7 +145,7 @@ pmTimeStateSetup(
 	tz = __pmTimezone_r(tzbuf, sizeof(tzbuf));
 	if (ctxt == PM_CONTEXT_ARCHIVE) {
 	    if ((sts = pmNewZone(tz)) < 0) {
-		fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
+		fprintf(stderr, "%s: pmTimeConnect: Cannot set timezone to \"%s\": %s\n",
 			pmProgname, tz, pmErrStr(sts));
 		exit(EXIT_FAILURE);
 	    }
@@ -149,11 +155,12 @@ pmTimeStateSetup(
     if (tz_label == NULL)
 	tz_label = "localhost";
     pmtime->length += tzlen + strlen(tz_label) + 1;
-    pmtime = realloc(pmtime, pmtime->length);
-    if (!pmtime) {
-	fprintf(stderr, "%s: realloc: %s\n", pmProgname, osstrerror());
+    pmtime_tmp = realloc(pmtime, pmtime->length);
+    if (pmtime_tmp == NULL) {
+	fprintf(stderr, "%s: pmTimeConnect: realloc: %s\n", pmProgname, osstrerror());
 	exit(EXIT_FAILURE);
     }
+    pmtime = pmtime_tmp;
     strcpy(pmtime->data, tz);
     strcpy(pmtime->data + tzlen, tz_label);
     if ((fd = pmTimeConnect(port, pmtime)) < 0) {

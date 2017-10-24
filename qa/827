@@ -55,9 +55,9 @@ do
     pmlogrewrite -c $tmp.config_$tree -w archives/new_$tree $tmp.old
     pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/linux_proc_net_${tree}_migrate.conf -w $tmp.old $tmp.new
 
-    pmdumplog -z -a $tmp.old >$tmp.old.dump
-    pmdumplog -z -a $tmp.new >$tmp.new.dump
-    pmdumplog -z -a archives/new_$tree >$tmp.ref.dump
+    pmdumplog -z -dilmst $tmp.old >$tmp.old.dump
+    pmdumplog -z -dilmst $tmp.new >$tmp.new.dump
+    pmdumplog -z -dilmst archives/new_$tree >$tmp.ref.dump
 
     echo "old -> new changes"
     diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'

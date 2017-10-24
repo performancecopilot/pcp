@@ -28,7 +28,7 @@ metric sample.bin { delete }
 End-of-File
 pmlogrewrite -c $tmp.config -Dappl0,appl1,appl2 archives/foo+ $tmp 2>>$seq.full
 pminfo -m -a $tmp | LC_COLLATE=POSIX sort
-pmdumplog -a $tmp >>$seq.full
+pmdumplog -dilmst $tmp >>$seq.full
 
 echo | tee -a $seq.full
 echo "--- change NAME for sample.dupnames.two.lights" | tee -a $seq.full

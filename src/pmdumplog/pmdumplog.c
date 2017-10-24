@@ -726,7 +726,7 @@ main(int argc, char *argv[])
 	switch (c) {
 
 	case 'a':	/* dump everything */
-	    dflag = iflag = lflag = mflag = sflag = tflag = 1;
+	    dflag = iflag = Lflag = lflag = mflag = sflag = tflag = 1;
 	    break;
 
 	case 'd':	/* dump pmDesc structures */
