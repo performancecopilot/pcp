@@ -16,7 +16,7 @@ label domain
 label indom indom#
 label cluster cluster#
 label item metric
-label instances metric
+label instances indom#
 name pmid#
 namespace fname
 open dso dsoname init_routine [ domain# ]
@@ -108,7 +108,7 @@ label domain
 label indom indom#
 label cluster cluster#
 label item metric
-label instances metric
+label instances indom#
 
 dbpmda> help name
 
