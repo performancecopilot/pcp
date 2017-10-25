@@ -102,25 +102,25 @@ timestamp(ostream &o)
 
 
 // Lightweight wrapper for pthread_mutex_t, incl. nonlocking non-pthread backup implementation
-struct lock_t {
+struct my_lock_t {
 #if HAVE_PTHREAD_H
 private:
   pthread_mutex_t _lock;
 public:
-  lock_t() { pthread_mutex_init(& this->_lock, NULL); }
-  ~lock_t() { pthread_mutex_destroy (& this->_lock); }
+  my_lock_t() { pthread_mutex_init(& this->_lock, NULL); }
+  ~my_lock_t() { pthread_mutex_destroy (& this->_lock); }
   void lock() { pthread_mutex_lock (& this->_lock); }
   void unlock() { pthread_mutex_unlock (& this->_lock); }
 #else
 public:
-  lock_t() {}
-  ~lock_t() {}
+  my_lock_t() {}
+  ~my_lock_t() {}
   void lock() {}
   void unlock() {}
 #endif
 private:
-  lock_t(const lock_t&); // make uncopyable
-  lock_t& operator=(lock_t const&); // make unassignable
+  my_lock_t(const my_lock_t&); // make uncopyable
+  my_lock_t& operator=(my_lock_t const&); // make unassignable
 };
 
 
@@ -128,10 +128,10 @@ private:
 struct locker
 {
 public:
-  locker(lock_t *_m): m(_m) { m->lock(); }
+  locker(my_lock_t *_m): m(_m) { m->lock(); }
   ~locker() { m->unlock(); }
 private:
-  lock_t* m;
+  my_lock_t* m;
 };
 
 
@@ -139,20 +139,20 @@ private:
 // A little class that impersonates an ostream to the extent that it can
 // take << streaming operations.  It batches up the bits into an internal
 // stringstream until it is destroyed; then flushes to the original ostream.
-class lock_t;
+class my_lock_t;
 class obatched
 {
 private:
   ostream& o;
   stringstream stro;
-  static lock_t lock;
+  static my_lock_t lock;
 public:
   obatched(ostream& oo): o(oo) { }
   ~obatched() { locker do_not_cross_the_streams(& obatched::lock); o << stro.str(); o.flush(); }
   operator ostream& () { return stro; }
   template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
 };
-lock_t obatched::lock; // just the one, since cout/cerr iostreams are not thread-safe
+my_lock_t obatched::lock; // just the one, since cout/cerr iostreams are not thread-safe
 
 
 extern "C" void *
@@ -321,7 +321,7 @@ pmmgr_configurable::timestamp(ostream& o) const
 // as it represents siply a parsing of a pcp metric-description string.
 
 static std::map<std::string,pmMetricSpec*> parsed_metric_cache;
-static lock_t parsed_metric_cache_lock;
+static my_lock_t parsed_metric_cache_lock;
 
 pmMetricSpec*
 pmmgr_job_spec::parse_metric_spec (const string& spec) const
@@ -523,7 +523,7 @@ struct pmcd_search_task
   // Single BKL to protect all shared data.  This should be sufficient
   // since the bulk of the time of the search threads should be
   // blocked in the network stack (attempting connections).
-  lock_t lock;
+  my_lock_t lock;
 
   pmmgr_job_spec *job; // reentrant/const members called from multiple threads
   set<pcp_context_spec>::const_iterator new_specs_iterator; // pointer into same
@@ -576,7 +576,7 @@ pmmgr_pmcd_search_thread (void *a)
 struct pmcd_choice_container_search_task
 {
   // Single BKL
-  lock_t lock;
+  my_lock_t lock;
 
   bool subtarget_containers; // RO: cached spec->get_config_exists()
 
