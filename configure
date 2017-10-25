@@ -3266,7 +3266,7 @@ then
 
 $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
@@ -12620,7 +12620,7 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    _raw=`$CPP conftest.c \
+    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
     | $SED \
 	-e 's/[ 	]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[ 	][ 	]*//' \
@@ -15210,6 +15210,65 @@ _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
 
 $as_echo "#define HAVE_ZPOOL_VDEV_NAME_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 4-argument style zfs_iter_snapshots" >&5
+$as_echo_n "checking for 4-argument style zfs_iter_snapshots... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, B_FALSE, callback, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZFS_ITER_SNAPSHOTS_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 3-argument style zfs_iter_snapshots" >&5
+$as_echo_n "checking for 3-argument style zfs_iter_snapshots... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, callback, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZFS_ITER_SNAPSHOTS_3ARG 1" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
