@@ -217,7 +217,7 @@ setavail(pmResult *resp)
  * Note that the tp argument is used to return the timestamp of the indom.
  * It is a merger of __pmLogGetIndom and searchindom.
  */
-int
+static int
 __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int **instlist, char ***namelist)
 {
     __pmHashNode	*hp;
@@ -293,7 +293,7 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 }
 
 static int
-manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp, int only_instances)
+manageLabels(pmDesc *desc, const __pmTimeval *tp, int only_instances)
 {
     int		i = 0;
     int		len;
@@ -328,7 +328,7 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp, int only_i
 	    ident = PM_IN_NULL;
 
 	/* Lookup returns >= 0 when the key exists */
-	if (__pmLogLookupLabel(logctl, type, ident, &label, tp) >= 0)
+	if (__pmLogLookupLabel(&logctl, type, ident, &label, tp) >= 0)
 	    continue;
 
 	if (type == PM_LABEL_CONTEXT)
@@ -347,7 +347,7 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp, int only_i
 	    len = 0;
 
 	if (len > 0) {
-	    sts = __pmLogPutLabel(logctl, type, ident, len, label, tp);
+	    sts = __pmLogPutLabel(&logctl, type, ident, len, label, tp);
 	    if (sts < 0) {
 		return sts;
 	    }
@@ -707,7 +707,7 @@ do_work(task_t *tp)
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
-		manageLabels(&logctl, &desc, &resp_tval, 0);
+		manageLabels(&desc, &resp_tval, 0);
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
 		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);
@@ -781,7 +781,7 @@ do_work(task_t *tp)
 			free(instlist);
 			free(namelist);
 		    }
-		    manageLabels(&logctl, &desc, &tmp, 1);
+		    manageLabels(&desc, &tmp, 1);
 		    needti = 1;
 		    if (pmDebugOptions.appl2)
 			fprintf(stderr, "callback: indom (%s) changed\n", pmInDomStr(desc.indom));

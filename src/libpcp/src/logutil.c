@@ -772,7 +772,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 }
 
 static void
-logFreePMNS(__pmLogCtl *lcp)
+logFreeMeta(__pmLogCtl *lcp)
 {
     if (lcp->l_pmns != NULL) {
 	__pmFreePMNS(lcp->l_pmns);
@@ -890,7 +890,7 @@ __pmLogClose(__pmLogCtl *lcp)
     /*
      * We no longer free l_pmns here or clear l_hashpmid or l_hashindom here.
      * They may be needed by the next archive of a multi-archive context.
-     * They are now now freed as needed using logFreePMNS().
+     * They are now now freed as needed using logFreeMeta().
      */
     if (lcp->l_tifp != NULL) {
 	__pmResetIPC(__pmFileno(lcp->l_tifp));
@@ -1147,7 +1147,7 @@ cleanup:
     if (dirp != NULL)
 	closedir(dirp);
     __pmLogClose(lcp);
-    logFreePMNS(lcp);
+    logFreeMeta(lcp);
     free(tbuf);
     free(base);
     return sts;
@@ -1224,7 +1224,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
 cleanup:
     __pmLogClose(lcp);
-    logFreePMNS(lcp);
+    logFreeMeta(lcp);
     return sts;
 }
 
@@ -3318,7 +3318,7 @@ __pmArchCtlFree(__pmArchCtl *acp)
     if (lcp != NULL) {
 	if (--lcp->l_refcnt == 0) {
 	    __pmLogClose(lcp);
-	    logFreePMNS(lcp);
+	    logFreeMeta(lcp);
 	    free(lcp);
 	}
     }
