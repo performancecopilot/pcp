@@ -372,8 +372,8 @@ dodso(int pdu)
 		i = param.pmid;
 	    }
 	    else if (param.number & PM_LABEL_INSTANCES) {
-		printf("Instances of PMID: %s\n", pmIDStr(param.pmid));
-		i = param.pmid;
+		printf("Instances of pmInDom: %s\n", pmInDomStr(param.indom));
+		i = param.indom;
 	    }
 	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */
 		i = PM_IN_NULL;

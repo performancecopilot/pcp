@@ -355,9 +355,9 @@ stmt	: OPEN EOL				{
 		param.pmid = (pmID)$3;
 		stmt_type = LABEL; YYACCEPT;
 	    }
-	| LABEL INSTANCES metric EOL		{
+	| LABEL INSTANCES indom EOL		{
 		param.number = PM_LABEL_INSTANCES;
-		param.pmid = (pmID)$3;
+		param.indom = indom.whole;
 		stmt_type = LABEL; YYACCEPT;
 	    }
 

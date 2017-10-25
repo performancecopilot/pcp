@@ -621,9 +621,13 @@ dopmda(int pdu)
 		printf("Cluster: %s\n", strcluster(param.pmid));
 		ident = param.pmid;
 	    }
-	    else if (param.number & (PM_LABEL_ITEM|PM_LABEL_INSTANCES)) {
+	    else if (param.number & PM_LABEL_ITEM) {
 		printf("PMID: %s\n", pmIDStr(param.pmid));
 		ident = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_INSTANCES) {
+		printf("Instances of pmInDom: %s\n", pmInDomStr(param.indom));
+		ident = param.indom;
 	    }
 	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */
 		ident = PM_IN_NULL;

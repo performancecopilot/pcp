@@ -303,7 +303,7 @@ dohelp(int command, int full)
 	    puts("label indom indom#");
 	    puts("label cluster cluster#");
 	    puts("label item metric");
-	    puts("label instances metric");
+	    puts("label instances indom#");
 	    break;
 	case NAMESPACE:
 	    puts("namespace fname");

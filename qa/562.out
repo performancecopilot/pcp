@@ -119,10 +119,10 @@ dbpmda> label item sampledso.darkness
 PMID: 30.0.92
 Info: DSO label() returns 0
 dbpmda> 
-** Labels on instances sampledso.bin via dbpmda (dso)
+** Labels on instances 30.2 via dbpmda (dso)
 dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
-dbpmda> label instances sampledso.bin
-Instances of PMID: 30.0.6
+dbpmda> label instances 30.2
+Instances of pmInDom: 30.2
 [  0] Labels inst: 100
     bin=100
 [  1] Labels inst: 200
@@ -183,11 +183,11 @@ dbpmda> label item sample.darkness
 PMID: 29.0.92
 Info: __pmDecodeLabel() returns 0 label sets
 dbpmda> 
-** Labels on instances sample.bin via dbpmda (pipe)
+** Labels on instances 29.2 via dbpmda (pipe)
 dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
 Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-dbpmda> label instances sample.bin
-PMID: 29.0.6
+dbpmda> label instances 29.2
+Instances of pmInDom: 29.2
 [  0] Labels inst: 100
     bin=100
 [  1] Labels inst: 200
