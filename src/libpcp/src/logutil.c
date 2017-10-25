@@ -2723,8 +2723,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     __pm_off_t	logend;
     __pm_off_t	physend = 0;
 
-    if (ctxp != NULL)
-	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * default, when all else fails ...
