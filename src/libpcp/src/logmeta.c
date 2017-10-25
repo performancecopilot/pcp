@@ -1001,8 +1001,11 @@ __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
 
     len = (int)sizeof(ext_t);
     for (i = 0; i < nsets; i++) {
-	len += sizeof(unsigned int) + sizeof(int) + labelsets[i].jsonlen
-		 + sizeof(int) + labelsets[i].nlabels * sizeof(pmLabel);
+	len += sizeof(unsigned int);	/* instance identifier */
+	len += sizeof(int) + labelsets[i].jsonlen; /* json */
+	len += sizeof(int);		/* count or error code */
+	if (labelsets[i].nlabels > 0)
+	    len += (labelsets[i].nlabels * sizeof(pmLabel));
     }
     len += LENSIZE;
 
