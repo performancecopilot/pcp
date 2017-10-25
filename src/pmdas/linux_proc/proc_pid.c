@@ -864,8 +864,10 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
 		int numlen = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]);
 		if ((k = read(fd, buf+numlen, sizeof(buf)-numlen)) > 0) {
-		    p = buf + k + numlen - 1;
-		    *p = '\0';
+		    p = buf + k + numlen;
+		    if (p - buf >= sizeof(buf))
+			p--;
+		    *p-- = '\0';
 		    /* Skip trailing nils, i.e. don't replace them */
 		    while (buf+numlen < p) {
 			if (*p-- != '\0') {
