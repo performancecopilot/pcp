@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <pcp/pmapi.h>
 #include "atop.h"
 #include "photoproc.h"
 

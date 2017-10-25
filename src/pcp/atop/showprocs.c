@@ -24,7 +24,11 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#ifdef HAVE_NCURSES_CURSES_H
+#include <ncurses/curses.h>
+#else
 #include <curses.h>
+#endif
 #include <regex.h>
 #include <pwd.h>
 #include <grp.h>
