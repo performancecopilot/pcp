@@ -116,14 +116,6 @@ AC_ARG_WITH([python3],
     [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
     [do_python3=check])
 
-dnl check --with-python* arg sanity
-if test "$do_python" = yes && test "$do_python3" = yes
-then
-    echo '
-FATAL ERROR: Can only specify one of --with-python or --with-python3'
-    exit 1
-fi
-
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
@@ -785,8 +777,6 @@ AS_IF([test "x$do_python" != "xno"], [
     else
 	AC_MSG_CHECKING([Python version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
-	PY2_MAJOR=$PY_MAJOR
-	PY2_MINOR=$PY_MINOR
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
@@ -811,6 +801,7 @@ AS_IF([test "x$do_python" != "xno"], [
 	AC_MSG_ERROR([cannot enable Python - no supported version found])
     fi
 ])
+AC_SUBST(enable_python2)
 
 dnl check if python3 tools/packages wanted (need python >= 3.3)
 enable_python3=false
@@ -846,18 +837,10 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_MSG_ERROR([cannot enable Python3 - no supported version found])
     fi
 ])
-
-dnl pick at most one Python version, favour 3 over 2
-if $enable_python2 && $enable_python3
-then
-    echo WARNING: Choosing Python $PY_MAJOR.$PY_MINOR in preference to Python $PY2_MAJOR.$PY2_MINOR
-    enable_python2=false
-fi
-AC_SUBST(enable_python2)
 AC_SUBST(enable_python3)
 
 dnl convenience macro to determine if either python is available
-AC_MSG_CHECKING([for acceptable python version])
+AC_MSG_CHECKING([for any python version])
 if test "$cross_compiling" = "yes"; then
     ans=$have_python
     echo "cross-compile -> \"$ans\"" >&5
