@@ -188,6 +188,7 @@ usr/share/man/man3/pmlookuptext.3.gz
 usr/share/man/man3/pmLookupText.3.gz
 usr/share/man/man3/pmmergelabels.3.gz
 usr/share/man/man3/pmMergeLabels.3.gz
+usr/share/man/man3/pmMergeLabelSets.3.gz
 usr/share/man/man3/pmmktime.3.gz
 usr/share/man/man3/__pmMktime.3.gz
 usr/share/man/man3/pmnameall.3.gz
