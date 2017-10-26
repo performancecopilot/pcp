@@ -34,82 +34,84 @@ def write_endpoint_metadata(args=None, endpoint=None):
 
 
 class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
-    def sample_gauge_data(self, iteration=None, instances=None):
+    def sample_gauge_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
         gauge_value = 12.1
         instance_scale = 1
         instance_count = 0
-        gauge_string = "# HELP sample_gauge{:04d} Sample gauge metric.\n# Type sample_gauge{:04d} gauge\n".format(iteration, iteration)
+        gauge_string = "# HELP sample_gauge{:04d} Sample gauge metric.\n# Type sample_gauge{:04d} gauge\n".format(endpointNum, endpointNum)
         for i in range(instances):
-            gauge_string += "sample_gauge{:04d}{{bar=\"{}\"}} {:.1f}\n".format(iteration, (i * instance_scale), (int(i) * int(instance_count) * float(gauge_value)))
+            gauge_string += "sample_gauge{:04d}{{bar=\"{}\"}} {:.1f}\n".format(endpointNum, (i * instance_scale), (int(iteration) * int(instance_count) * float(gauge_value)))
             instance_count += 1
         return gauge_string
 
-    def sample_counter_data(self, iteration=None, instances=None):
+    def sample_counter_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
         count_value = 1.70205394e+08
-        counter_string = "# HELP sample_counter{:04d} Sample counter metric.\n# TYPE sample_counter{:04d} counter\n".format(iteration, iteration)
+        counter_string = "# HELP sample_counter{:04d} Sample counter metric.\n# TYPE sample_counter{:04d} counter\n".format(endpointNum, endpointNum)
         instance_scale = 0.7
         instance_count = 0
         for i in range(instances):
-            counter_string += "sample_counter{:04d}{{baz=\"{}\"}} {:.8e}\n".format(iteration, (i * instance_scale), (iteration * instance_count * count_value))
+            counter_string += "sample_counter{:04d}{{baz=\"{}\"}} {:.8e}\n".format(endpointNum, (i * instance_scale), (int(iteration) * instance_count * count_value))
             instance_count += 1
         return counter_string
 
-    def sample_summary_data(self, iteration=None, instances=None):
+    def sample_summary_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
         summary_value_q0 = 0.000159623
         summary_value_sum = 1.3912067700000001
         summary_value_count = 1818
         instance_scale = 0.25
         instance_count = 0
         summary_string = "# HELP sample_summary{:04d} Sample summary metric has instances.\n\
-# TYPE sample_summary{:04d} summary\n".format(iteration, iteration)
+# TYPE sample_summary{:04d} summary\n".format(endpointNum, endpointNum)
         for i in range(instances):
-            summary_string += "sample_summary{:04d}{{quantile=\"{}\"}} {:.9f}\n".format(iteration, (i * instance_scale), (iteration * instance_count * float(summary_value_q0)))
+            summary_string += "sample_summary{:04d}{{quantile=\"{}\"}} {:.9f}\n".format(endpointNum, (i * instance_scale), (int(iteration) * instance_count * float(summary_value_q0)))
             instance_count += 1
         summary_string += "sample_summary{:04d}_sum {:.16f}\n\
-sample_summary{:04d}_count {}\n".format(iteration, (int(iteration) * float(summary_value_sum)),
-                                        iteration, (int(iteration) * int(summary_value_count)))
+sample_summary{:04d}_count {}\n".format(endpointNum, (int(iteration) * float(summary_value_sum)),
+                                        endpointNum, (int(iteration) * int(summary_value_count)))
         return summary_string
 
-    def sample_histogram_data(self, iteration=None, instances=None):
+    def sample_histogram_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
         histogram_value_l1 = 5945
         histogram_value_sum = 45157
         histogram_value_count = 18135
         instance_scale = 2
         instance_count = 0
         histogram_string = "# HELP sample_histogram{:04d} Sample histogram metric has instances.\n\
-# TYPE sample_histogram{:04d} histogram\n".format(iteration, iteration)
+# TYPE sample_histogram{:04d} histogram\n".format(endpointNum, endpointNum)
         for i in range(instances):
-            histogram_string += "sample_histogram{:04d}{{le=\"{}\"}} {:d}\n".format(iteration, (i * instance_scale), (iteration * instance_count * histogram_value_l1))
+            histogram_string += "sample_histogram{:04d}{{le=\"{}\"}} {:d}\n".format(endpointNum, (i * instance_scale), (int(iteration) * instance_count * histogram_value_l1))
             instance_count += 1
         histogram_string += "sample_histogram{:04d}_sum {:d}\n\
-sample_histogram{:04d}_count {:d}\n".format(iteration, (int(iteration) * int(histogram_value_sum)),
-                                            iteration, (int(iteration) * int(histogram_value_count)))
+sample_histogram{:04d}_count {:d}\n".format(endpointNum, (int(instances) * int(histogram_value_sum)),
+                                            endpointNum, (int(instances) * int(histogram_value_count)))
         return histogram_string
 
-    def format_prometheus_output(self, metrics=None, iteration=None, instances=None, error=None):
+    def format_prometheus_output(self, metrics=None, iteration=None, instances=None, error=None, endpointNum=None):
         metrics_remaining = metrics
         endpoint_string = ""
         while metrics_remaining >= 0:
-            endpoint_string += self.sample_gauge_data(iteration, instances)
+            endpoint_string += self.sample_gauge_data(iteration, instances, metrics_remaining, endpointNum)
             metrics_remaining -= 1
             iteration += 1
             if metrics_remaining <= 0:
                 break
-            endpoint_string += self.sample_counter_data(iteration, instances)
+            endpoint_string += self.sample_counter_data(iteration, instances, metrics_remaining, endpointNum)
             metrics_remaining -= 1
             iteration += 1
             if metrics_remaining <= 0:
                 break
-            endpoint_string += self.sample_summary_data(iteration, instances)
-            metrics_remaining -= 4
+            endpoint_string += self.sample_summary_data(iteration, instances, metrics_remaining, endpointNum)
+#            metrics_remaining -= 4
+            metrics_remaining -= instances
             iteration += 1
             if metrics_remaining <= 0:
                 break
-            endpoint_string += self.sample_histogram_data(iteration, instances)
-            metrics_remaining -= 5
+            endpoint_string += self.sample_histogram_data(iteration, instances, metrics_remaining, endpointNum)
+#            metrics_remaining -= 5
+            metrics_remaining -= instances
             iteration += 1
         if error is not None:
-            return endpoint_string[:len(endpoint_string)/error]
+            return endpoint_string[:int(len(endpoint_string)/int(error))]
         else:
             return endpoint_string
 
@@ -126,7 +128,7 @@ sample_histogram{:04d}_count {:d}\n".format(iteration, (int(iteration) * int(his
                     error = None
                 self.send_response(200)
                 self.end_headers()
-                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances), error).encode())  # multiply by activeendpoint value or something?
+                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances), error, endpointNum).encode())  # multiply by activeendpoint value or something?
                 self.server.lock.acquire()
                 try:
                     activeEndpoint[endpointNum] += 1
@@ -190,7 +192,7 @@ def parsing():
     parser.add_argument('--port', default=10000, help='port to start fake endpoints on')
     parser.add_argument('--error', default=0, help='create errornous data in prometheus endpoints')
     parser.add_argument('--url', default="foo&endpoint=", help='url for the endpoint, the endpoint number must be the last part')
-    parser.add_argument('--output', default="./", help='directory to create endpoint metadata in')
+    parser.add_argument('--output', default="/tmp", help='directory to create endpoint metadata in')
     args = parser.parse_args()
     return args
 
