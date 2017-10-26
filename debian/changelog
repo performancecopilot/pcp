@@ -1,8 +1,9 @@
 pcp (4.0.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Fix FTBFS building arch-indep packages (closes: #805955)
 
- -- Nathan Scott <nathans@debian.org>  Mon, 01 Jan 2018 10:59:12 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 19 Jan 2018 12:34:56 +1100
 
 pcp (3.12.2) unstable; urgency=low
 
