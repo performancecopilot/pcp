@@ -24,6 +24,7 @@ try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
+import time
 import csv
 import sys
 import os
@@ -51,6 +52,11 @@ class pmConfig(object):
         self.pmids = []
         self.descs = []
         self.insts = []
+
+        # Pause helpers
+        self._round = 0
+        self._init_ts = None
+        self._tz = time.strftime('%z')
 
         # Pass data with pmTraversePMNS
         self._tmp = []
@@ -545,3 +551,17 @@ class pmConfig(object):
         if float(self.util.interval) <= 0:
             sys.stderr.write("Interval must be greater than zero.\n")
             sys.exit(1)
+
+    def pause(self):
+        """ Pause before next sampling """
+        self._round += 1
+
+        if not self._init_ts:
+            self._init_ts = float(self.util.pmfg_ts().strftime("%s.%f"))
+
+        next = self._init_ts + float(self.util.interval) * self._round
+
+        sleep = next - time.time()
+
+        if sleep > 0:
+            time.sleep(sleep)

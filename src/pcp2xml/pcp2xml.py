@@ -301,7 +301,7 @@ class PCP2XML(object):
             if self.samples and self.samples > 0:
                 self.samples -= 1
             if self.delay and self.interpol and self.samples != 0:
-                self.context.pmtimevalSleep(self.interval)
+                self.pmconfig.pause()
 
         # Allow to flush buffered values / say goodbye
         self.report(None)
