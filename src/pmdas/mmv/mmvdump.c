@@ -20,6 +20,7 @@
 #include <pcp/impl.h>
 #include <inttypes.h>
 #include <sys/stat.h>
+#include <strings.h>
 
 int
 dump_indoms(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)

@@ -2926,6 +2926,13 @@ else
 fi
 
 
+if test "$do_python" = yes && test "$do_python3" = yes
+then
+    echo '
+FATAL ERROR: Can only specify one of --with-python or --with-python3'
+    exit 1
+fi
+
 
 # Check whether --with-books was given.
 if test "${with_books+set}" = set; then :
@@ -3275,7 +3282,7 @@ then
 
 $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
@@ -7262,6 +7269,8 @@ if test "x$do_python" != "xno"; then :
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python version" >&5
 $as_echo_n "checking Python version... " >&6; }
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	PY2_MAJOR=$PY_MAJOR
+	PY2_MINOR=$PY_MINOR
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 2; then
@@ -7302,7 +7311,6 @@ done
     fi
 
 fi
-
 
 enable_python3=false
 if test "x$do_python3" != "xno"; then :
@@ -7356,9 +7364,16 @@ done
 
 fi
 
+if $enable_python2 && $enable_python3
+then
+    echo WARNING: Choosing Python $PY_MAJOR.$PY_MINOR in preference to Python $PY2_MAJOR.$PY2_MINOR
+    enable_python2=false
+fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for any python version" >&5
-$as_echo_n "checking for any python version... " >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for acceptable python version" >&5
+$as_echo_n "checking for acceptable python version... " >&6; }
 if test "$cross_compiling" = "yes"; then
     ans=$have_python
     echo "cross-compile -> \"$ans\"" >&5
@@ -9912,6 +9927,18 @@ ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_include
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
 #define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in ncurses/curses.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "ncurses/curses.h" "ac_cv_header_ncurses_curses_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncurses_curses_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_NCURSES_CURSES_H 1
 _ACEOF
 
 fi
@@ -12703,7 +12730,7 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    _raw=`$CPP conftest.c \
+    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
     | $SED \
 	-e 's/[ 	]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[ 	][ 	]*//' \
@@ -15293,6 +15320,65 @@ _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
 
 $as_echo "#define HAVE_ZPOOL_VDEV_NAME_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 4-argument style zfs_iter_snapshots" >&5
+$as_echo_n "checking for 4-argument style zfs_iter_snapshots... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, B_FALSE, callback, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZFS_ITER_SNAPSHOTS_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 3-argument style zfs_iter_snapshots" >&5
+$as_echo_n "checking for 3-argument style zfs_iter_snapshots... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, callback, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZFS_ITER_SNAPSHOTS_3ARG 1" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }

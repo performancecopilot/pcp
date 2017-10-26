@@ -196,11 +196,14 @@ setavail(pmResult *resp)
 	    else {
 		/* allocate new instance if required */
 		int	need = (k + 1) * sizeof(insthist_t);
+		insthist_t	*tmp_instlist;
 
-		php->ph_instlist = (insthist_t *)realloc(php->ph_instlist, need);
-		if (php->ph_instlist == (insthist_t *)0) {
+		tmp_instlist = (insthist_t *)realloc(php->ph_instlist, need);
+		if (tmp_instlist == NULL) {
 		    __pmNoMem("setavail: inst list realloc", need, PM_FATAL_ERR);
+		    /* NOTREACHED */
 		}
+		php->ph_instlist = tmp_instlist;
 		ihp = &php->ph_instlist[k];
 		ihp->ih_inst = inst;
 		ihp->ih_flags = 0;
@@ -384,6 +387,7 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
     int		str_len = 0;
     char	*data;
     char	**names;
+    char	**tmp_names;
     task_t	*tp;
 
     /*
@@ -420,7 +424,12 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
 		int	old_str_len = str_len;
 		str_len += strlen(tp->t_namelist[i]) + 1;
 		numnames++;
-		names = (char **)realloc(names, numnames * sizeof(names[0]) + str_len);
+		tmp_names = (char **)realloc(names, numnames * sizeof(names[0]) + str_len);
+		if (tmp_names == NULL) {
+		    __pmNoMem("lookupTaskCacheNames: names realloc", numnames * sizeof(names[0]) + str_len, PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
+		names = tmp_names;
 		data = (char *)names + ((numnames-1) * sizeof(names[0]));
 		/* relocate strings */
 		memmove(data+sizeof(names[0]), data, old_str_len);

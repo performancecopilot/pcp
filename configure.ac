@@ -116,6 +116,14 @@ AC_ARG_WITH([python3],
     [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
     [do_python3=check])
 
+dnl check --with-python* arg sanity
+if test "$do_python" = yes && test "$do_python3" = yes
+then
+    echo '
+FATAL ERROR: Can only specify one of --with-python or --with-python3'
+    exit 1
+fi
+
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
@@ -290,7 +298,7 @@ then
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
@@ -777,6 +785,8 @@ AS_IF([test "x$do_python" != "xno"], [
     else
 	AC_MSG_CHECKING([Python version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	PY2_MAJOR=$PY_MAJOR
+	PY2_MINOR=$PY_MINOR
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
@@ -801,7 +811,6 @@ AS_IF([test "x$do_python" != "xno"], [
 	AC_MSG_ERROR([cannot enable Python - no supported version found])
     fi
 ])
-AC_SUBST(enable_python2)
 
 dnl check if python3 tools/packages wanted (need python >= 3.3)
 enable_python3=false
@@ -837,10 +846,18 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_MSG_ERROR([cannot enable Python3 - no supported version found])
     fi
 ])
+
+dnl pick at most one Python version, favour 3 over 2
+if $enable_python2 && $enable_python3
+then
+    echo WARNING: Choosing Python $PY_MAJOR.$PY_MINOR in preference to Python $PY2_MAJOR.$PY2_MINOR
+    enable_python2=false
+fi
+AC_SUBST(enable_python2)
 AC_SUBST(enable_python3)
 
 dnl convenience macro to determine if either python is available
-AC_MSG_CHECKING([for any python version])
+AC_MSG_CHECKING([for acceptable python version])
 if test "$cross_compiling" = "yes"; then
     ans=$have_python
     echo "cross-compile -> \"$ans\"" >&5
@@ -1577,6 +1594,7 @@ AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
+AC_CHECK_HEADERS(ncurses/curses.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -2221,7 +2239,7 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    _raw=`$CPP conftest.c \
+    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
     | $SED \
 	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[[ 	]][[ 	]]*//' \
@@ -3264,6 +3282,28 @@ then
 	  (void) zpool_vdev_name(zh, zp, np, B_FALSE);
 	],
 	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_4ARG, [1], [4-arg zpool_vdev_name])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl check for zfs_iter_snapshots API style from <libzfs.h>
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    AC_MSG_CHECKING([for 4-argument style zfs_iter_snapshots])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, B_FALSE, callback, NULL);
+	],
+	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_4ARG, [1], [4-arg zfs_iter_snapshots])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+    AC_MSG_CHECKING([for 3-argument style zfs_iter_snapshots])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, callback, NULL);
+	],
+	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_3ARG, [1], [3-arg zfs_iter_snapshots])
 	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 fi
 

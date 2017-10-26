@@ -40,7 +40,7 @@ _getnetworkaddr()
 		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
 		case "$mask"
 		in
-		    255.255.255.0|0xffffff00)	# /24 network
+		    255.255.255.0|0xffffff00|ffffff00)	# /24 network
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    # pmcd's [access] is not smart enough to handle other

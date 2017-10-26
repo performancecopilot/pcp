@@ -628,11 +628,20 @@
 /* Define to 1 if you have the <ws2tcpip.h> header file. */
 #undef HAVE_WS2TCPIP_H
 
+/* Define to 1 if you have the <ncurses/curses.h> header file. */
+#undef HAVE_NCURSES_CURSES_H
+
 /* 4-arg zpool_vdev_name */
 #undef HAVE_ZPOOL_VDEV_NAME_4ARG
 
 /* 5-arg zpool_vdev_name */
 #undef HAVE_ZPOOL_VDEV_NAME_5ARG
+
+/* 3-arg zfs_iter_snapshots */
+#undef HAVE_ZFS_ITER_SNAPSHOTS_3ARG
+
+/* 4-arg zfs_iter_snapshots */
+#undef HAVE_ZFS_ITER_SNAPSHOTS_4ARG
 
 /* Define to 1 if you have the `__clone' function. */
 #undef HAVE___CLONE

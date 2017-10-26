@@ -304,11 +304,15 @@ class pmConfig(object):
             if instances and inst[1][0]:
                 found = [[], []]
                 for r in instances:
-                    cr = re.compile(r'\A' + r + r'\Z')
-                    for i, s in enumerate(inst[1]):
-                        if re.match(cr, s):
-                            found[0].append(inst[0][i])
-                            found[1].append(inst[1][i])
+                    try:
+                        cr = re.compile(r'\A' + r + r'\Z')
+                        for i, s in enumerate(inst[1]):
+                            if re.match(cr, s):
+                                found[0].append(inst[0][i])
+                                found[1].append(inst[1][i])
+                    except Exception as e:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                        sys.exit(1)
                 if not found[0]:
                     return
                 inst = tuple(found)
