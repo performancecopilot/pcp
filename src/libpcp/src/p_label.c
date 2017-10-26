@@ -177,7 +177,7 @@ typedef struct {
     int		padding;
     int		nsets;
     labelset_t	sets[1];
-} label_t;
+} labels_t;
 
 int
 __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets)
@@ -187,14 +187,14 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
     size_t	json_offset;
     size_t	json_need;
     labelset_t	*lsp;
-    label_t	*pp;
+    labels_t	*pp;
     pmLabel	*lp;
     int		sts;
     int		i, j;
 
     if (nsets < 0)
 	return -EINVAL;
-    labels_need = sizeof(label_t) + (sizeof(labelset_t) * (nsets - 1));
+    labels_need = sizeof(labels_t) + (sizeof(labelset_t) * (nsets - 1));
     json_need = 0;
     for (i = 0; i < nsets; i++) {
 	if (sets[i].jsonlen < 0)
@@ -204,7 +204,7 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
 	    labels_need += sets[i].nlabels * sizeof(pmLabel);
     }
 
-    if ((pp = (label_t *)__pmFindPDUBuf((int)labels_need + json_need)) == NULL)
+    if ((pp = (labels_t *)__pmFindPDUBuf((int)labels_need + json_need)) == NULL)
 	return -oserror();
 
     pp->hdr.len = (int)(labels_need + json_need);
@@ -298,7 +298,7 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     pmLabelSet	*sp;
     pmLabel	*lp;
     labelset_t	*lsp;
-    label_t	*label_pdu;
+    labels_t	*label_pdu;
     size_t	pdu_length;
     char	*pdu_end;
     char	*json;
@@ -310,11 +310,11 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     int		nsets;
     int		i, j;
 
-    label_pdu = (label_t *)pdubuf;
+    label_pdu = (labels_t *)pdubuf;
     pdu_end = (char *)pdubuf + label_pdu->hdr.len;
     pdu_length = pdu_end - (char *)label_pdu;
 
-    if (pdu_length < sizeof(label_t) - sizeof(labelset_t))
+    if (pdu_length < sizeof(labels_t) - sizeof(labelset_t))
 	return PM_ERR_IPC;
 
     *ident = ntohl(label_pdu->ident);
