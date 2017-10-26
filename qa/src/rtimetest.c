@@ -114,7 +114,8 @@ main(int argc, char *argv[])
     set_tm(NULL, &tmtmp, &tmstart, 0, 19, 11, 45);
     tmtmp_str = asctime(&tmtmp);
     char *tmtmp_c = strchr(tmtmp_str, '\n');
-    *tmtmp_c = ' ';
+    if (tmtmp_c)
+	*tmtmp_c = ' ';
     if (__pmParseTime(tmtmp_str, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
 	printf ("%s: %s\n", errmsg, tmtmp_str);
     }

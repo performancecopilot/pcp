@@ -3,18 +3,6 @@
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
 
-/* sizeof long */
-#undef HAVE_32BIT_LONG
-
-/* pointer size */
-#undef HAVE_32BIT_PTR
-
-/* sizeof long */
-#undef HAVE_64BIT_LONG
-
-/* pointer size */
-#undef HAVE_64BIT_PTR
-
 /* AI_ADDRCONFIG macro */
 #undef HAVE_AI_ADDRCONFIG
 
@@ -47,6 +35,9 @@
 
 /* Define to 1 if you have the <bits/wordsize.h> header file. */
 #undef HAVE_BITS_WORDSIZE_H
+
+/* Define to 1 if you have the <boost/flyweight.hpp> header file. */
+#undef HAVE_BOOST_FLYWEIGHT_HPP
 
 /* Define to 1 if you have the `brk' function. */
 #undef HAVE_BRK
@@ -705,12 +696,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* sizeof suseconds_t */
-#undef PM_SIZEOF_SUSECONDS_T
-
-/* sizeof time_t */
-#undef PM_SIZEOF_TIME_T
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
