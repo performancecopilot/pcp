@@ -35,6 +35,7 @@ void sort_r(void *base, size_t nel, size_t width,
 #  define _SORT_R_INLINE __inline
 #else
   /* Using our own recursive quicksort sort_r_simple() */
+#  define _SORT_R_INLINE
 #endif
 
 #if (defined NESTED_QSORT && NESTED_QSORT == 0)
