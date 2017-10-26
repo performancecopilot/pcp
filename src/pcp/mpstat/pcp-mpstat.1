@@ -1,3 +1,16 @@
+.\"
+.\" Copyright (c) 2017 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
 .TH PCP-MPSTAT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 pcp-mpstat \- Report CPU and Interrupt related statistics.
@@ -10,7 +23,7 @@ pcp-mpstat \- Report CPU and Interrupt related statistics.
 .B ] [ -s
 .I count
 .B ] [ -a
-.I pcp-archive
+.I archive
 .B ]
 .SH DESCRIPTION
 The
@@ -20,7 +33,7 @@ processor 0 being the first one. If no activity/option has been selected, then t
 default report is the CPU utilization
 .B [ -u ]
 report.
-
+.PP
 The
 .I interval
 parameter specifies the amount of time in seconds between each report. Default is one second.
@@ -28,22 +41,21 @@ The value of
 .I count
 parameter determines the number of samples to be displayed.
 Default is continous.
-
-
 .SH OPTIONS
 .IP -A
 This option is equivalent to specifying
 .BR "-u -I ALL -P ALL"
 .IP "-I { SUM | CPU | SCPU | ALL }"
 Report interrupts statistics.
-
+.br
+.br
 With the
 .B SUM
 keyword, the
 .B pcp mpstat
 command reports the total number of interrupts per processor.
 The following values are displayed:
-
+.PP
 .B CPU
 .RS
 .RS
@@ -187,13 +199,11 @@ Display four reports of global statistics among all processors at two second int
 .B pcp mpstat -P ALL -t 2 -s 5
 .RS
 Display four reports of statistics for all processors at two second intervals.
-
 .SH NOTES
 .B pcp-mpstat
 is inspired by the
 .BR mpstat (1)
 command and aims to be command line and output compatible with it.
-
 .PP
 .SH ENVIRONMENT
 .BR TZ

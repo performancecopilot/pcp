@@ -1265,7 +1265,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
       // Find prior archives by globbing for archive-*.index files,
       // to exclude reduced-archives (if any).  (*.index files are
-      // optional as per pcp-archive.5, but pmlogger_merge.sh relies
+      // optional as per pmlogger(5), but pmlogger_merge(1) relies
       // on it.)
       vector<string> mergeable_archives; // those to merge
       glob_t the_blob;
