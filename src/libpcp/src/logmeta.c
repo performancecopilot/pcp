@@ -219,7 +219,7 @@ addlabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets,
     int			timecmp;
     int			sts;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
+PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
     if ((idp = (__pmLogLabelSet *)malloc(sizeof(__pmLogLabelSet))) == NULL)
 	return -oserror();
     idp->stamp = *tp;		/* struct assignment */
@@ -228,13 +228,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     idp->nsets = nsets;
     idp->labelsets = labelsets;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA) {
+    if (pmDebugOptions.logmeta) {
 	fprintf(stderr, "addlabel( ..., %u, %u, ", type, ident);
 	StrTimeval((__pmTimeval *)tp);
 	fprintf(stderr, ", nsets=%d)\n", nsets);
     }
-#endif
 
     if ((sts = __pmLogLookupLabel(lcp, type, ident, &label, NULL)) <= 0) {
 
@@ -360,7 +358,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	}
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {
-            numpmid++;
+	    numpmid++;
 PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
 		sts = -oserror();
@@ -1060,8 +1058,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
     if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
 	char	errmsg[PM_MAXERRMSGLEN];
 
-	pmprintf("__pmLogPutLabel(...,type=%d,indent=%d): write failed: returned %d expecting %d: %s\n",
-	    type, ident, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
+	pmprintf("__pmLogPutLabel(...,type=%d,ident=%d): write failed: returned %d expecting %d: %s\n",
+		type, ident, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	free(out);
 	return -oserror();
