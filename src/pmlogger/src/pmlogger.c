@@ -279,6 +279,7 @@ static int
 add_msg(char **bp, int nchar, char *p)
 {
     int		add_len;
+    char	*tmp_bp;
 
     if (nchar < 0 || p == NULL)
 	return nchar;
@@ -286,8 +287,12 @@ add_msg(char **bp, int nchar, char *p)
     add_len = (int)strlen(p);
     if (nchar == 0)
 	add_len++;
-    if ((*bp = realloc(*bp, nchar+add_len)) == NULL)
+    if ((tmp_bp = (char *)realloc(*bp, nchar+add_len)) == NULL) {
+	free(*bp);
+	*bp = NULL;
 	return -1;
+    }
+    *bp = tmp_bp;
     if (nchar == 0)
 	strcpy(*bp, p);
     else
@@ -1313,7 +1318,7 @@ disconnect(int sts)
 {
     time_t  		now;
     int			ctx;
-    __pmContext		*ctxp;
+    __pmContext		*ctxp = NULL;	/* pander to cppcheck */
 
     if ((ctx = pmWhichContext()) >= 0)
 	ctxp = __pmHandleToPtr(ctx);
@@ -1360,7 +1365,7 @@ reconnect(void)
     int	    		sts;
     int			ctx;
     time_t		now;
-    __pmContext		*ctxp;
+    __pmContext		*ctxp = NULL;	/* pander to cppcheck */
 
     if ((ctx = pmWhichContext()) >= 0)
 	ctxp = __pmHandleToPtr(ctx);
