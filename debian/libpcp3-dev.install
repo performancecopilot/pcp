@@ -118,7 +118,6 @@ usr/share/man/man3/pmGetOptionalConfig.3.gz
 usr/share/man/man3/pmgetoptions.3.gz
 usr/share/man/man3/pmGetOptions.3.gz
 usr/share/man/man3/pmgetopt_r.3.gz
-usr/share/man/man3/pmGetPMIDLabels.3.gz
 usr/share/man/man3/pmgetpmnslocation.3.gz
 usr/share/man/man3/pmGetPMNSLocation.3.gz
 usr/share/man/man3/pmgetversion.3.gz
