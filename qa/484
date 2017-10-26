@@ -56,6 +56,7 @@ do
     cat $tmp.err >>$seq.full
     # strip any command line options preceding the archive basename
     arch=`echo $arch | sed -e 's/.* //'`
+    [ $arch = "tmparch/bigbin" ] && echo "Known issue: pmlogrewrite labels WIP"
     _cmp $arch $tmp.new
 done
 

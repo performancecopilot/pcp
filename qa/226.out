@@ -11,6 +11,12 @@ desc metric
 fetch metric [ metric ... ]
 getdesc on | off
 instance indom# [ number | name | "name" ]
+label context
+label domain
+label indom indom#
+label cluster cluster#
+label item metric
+label instances indom#
 name pmid#
 namespace fname
 open dso dsoname init_routine [ domain# ]
@@ -94,6 +100,15 @@ instance indom# [ number | name | "name" ]
 
 List the instances in 'indom'.  The list may be restricted to a specific
 instance 'name' or 'number'.
+
+dbpmda> help label
+
+label context
+label domain
+label indom indom#
+label cluster cluster#
+label item metric
+label instances indom#
 
 dbpmda> help name
 

@@ -195,6 +195,30 @@ QA output created by 513
   __pmDecodeAttr: sts = 0 (No error)
 [attr] checking access beyond limit
   __pmDecodeAttr: sts = -12366 (IPC protocol failure)
+[label_req] checking all-zeroes structure
+  __pmDecodeLabelReq: sts = -12366 (IPC protocol failure)
+[label_req] checking access beyond buffer
+  __pmDecodeLabelReq: sts = -12366 (IPC protocol failure)
+[label] checking all-zeroes structure
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking large nsets field
+  __pmDecodeLabel: sts = -12 (Cannot allocate memory)
+[label] checking large nlabels field
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking large json offset field
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking large jsonlen field
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking negative json offset field
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking negative jsonlen field
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking access beyond basic buffer
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking jsonlen access beyond extended buffer
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[label] checking json access beyond extended buffer
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/pducrash

@@ -548,7 +548,6 @@ PCP_3.18 {
 } PCP_3.17;
 
 PCP_3.19 {
-  global:
     __pmLogRead_ctx;
 } PCP_3.18;
 
@@ -588,3 +587,34 @@ PCP_3.21 {
     __pmProcessPipe;
     __pmProcessPipeClose;
 } PCP_3.20;
+
+PCP_3.22 {
+  global:
+    pmGetContextLabels;
+    pmGetDomainLabels;
+    pmGetInDomLabels;
+    pmGetClusterLabels;
+    pmGetItemLabels;
+    pmGetInstancesLabels;
+    pmLookupLabels;
+    pmMergeLabels;
+    pmMergeLabelSets;
+    pmFreeLabelSets;
+
+    __pmAddLabels;
+    __pmMergeLabels;
+    __pmParseLabels;
+    __pmParseLabelSet;
+    __pmGetContextLabels;
+    __pmGetDomainLabels;
+    __pmDumpLabelSet;
+    __pmDumpLabelSets;
+    __pmLogLookupLabel;
+    __pmLogPutLabel;
+    __pmSendLabel;
+    __pmSendLabelReq;
+    __pmRecvLabel;
+    __pmRecvLabelReq;
+    __pmDecodeLabel;
+    __pmDecodeLabelReq;
+} PCP_3.21;

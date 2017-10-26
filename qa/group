@@ -222,6 +222,9 @@ wrap
 # pmstore command and pmStore() libpcp routine
 pmstore
 
+# metadata labels and pm*Labels() libpcp routines
+labels
+
 # trace library and PMDA
 trace
 
@@ -905,14 +908,14 @@ collectl
 558 pmie local
 559 pmlogsummary local
 560 pmda.simple local pmda.install
-561:reserved libpcp python labels local
-562:reserved pmcd pmda.sample dbpmda pminfo labels libpcp local
-563:reserved pmcd pmda.pmcd pminfo labels libpcp local
+561 libpcp python labels local
+562 pmcd pmda.sample dbpmda pminfo labels libpcp local
+563 pmcd pmda.pmcd pminfo labels libpcp local
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
-567:reserved libpcp labels local
-568:reserved pmcd pmda.sample pminfo labels libpcp local
+567 libpcp labels local
+568 pmcd pmda.sample pminfo labels libpcp local
 569 pmprobe #679693 local sanity
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
@@ -974,7 +977,7 @@ collectl
 662 pmwebapi pmda.sample local
 663 pmwebapi local
 666 pmmgr local slow valgrind
-667 python local
+667 pcp2graphite python pcp2xxx local
 668 pmmgr local containers pmdumplog
 669 pmmgr local pmlogcheck
 670 libpcp local
@@ -1385,7 +1388,7 @@ collectl
 1108 logutil local folio pmlogextract
 1109 pmlogger valgrind local pmdumplog
 1110 pmda.haproxy local
-1111 pcp2influxdb python local
+1111 pcp2influxdb python pcp2xxx local
 1112 pmda.linux local
 1113 pcp python local
 1114 archive pmval multi-archive local

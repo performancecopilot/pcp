@@ -187,6 +187,7 @@ typedef struct pmDesc {
 #define PM_ERR_LOGCHANGEUNITS	(-PM_ERR_BASE-62)   /* The units of a metric have changed in an archive */
 #define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
 #define PM_ERR_BADDERIVE	(-PM_ERR_BASE-64)   /* Derived metric definition failed */
+#define PM_ERR_NOLABELS		(-PM_ERR_BASE-65)    /* No support for label metadata */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -459,15 +460,78 @@ PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
  * PMCD state changes returned as pmFetch function result for PM_CONTEXT_HOST
  * contexts, i.e. when communicating with PMCD
  */
+#define PMCD_ADD_AGENT		(1<<0)
+#define PMCD_RESTART_AGENT	(1<<1)
+#define PMCD_DROP_AGENT		(1<<2)
+
 #define PMCD_NO_CHANGE		0
-#define PMCD_ADD_AGENT		1
-#define PMCD_RESTART_AGENT	2
-#define PMCD_DROP_AGENT		4
+#define PMCD_AGENT_CHANGE	\
+	(PMCD_ADD_AGENT | PMCD_RESTART_AGENT | PMCD_DROP_AGENT)
+#define PMCD_LABEL_CHANGE	(1<<3)
 
 /*
  * Variant that is used to return a pmResult from an archive
  */
 PCP_CALL extern int pmFetchArchive(pmResult **);
+
+/*
+ * Support for metric values annotated with name:value pairs (labels).
+ *
+ * The full set of labels for a given metric instance is the union of
+ * those found at the levels: source (host/archive), domain (agent),
+ * indom, metric, and finally instances (individual metric values).
+ *
+ * Individual labels can be intrinsic to a metric value (i.e. they
+ * form an inherent part of its identity like the pmDesc metadata)
+ * or extrinsic (i.e. they are simply optional annotations).
+ */
+typedef struct pmLabel {
+    unsigned int	name : 16;	/* label name offset in JSONB string */
+    unsigned int	namelen : 8;	/* length of name excluding the null */
+    unsigned int	flags : 8;	/* information about this label */
+    unsigned int	value : 16;	/* offset of the label value */
+    unsigned int	valuelen : 16;	/* length of value in bytes */
+} pmLabel;
+
+typedef struct pmLabelSet {
+    unsigned int 	inst;		/* PM_IN_NULL or the instance ID */
+    int			nlabels;	/* count of labels or error code */
+    char		*json;		/* JSON formatted labels string */
+    unsigned int	jsonlen : 16;	/* JSON string length byte count */
+    unsigned int	padding : 16;	/* zero, reserved for future use */
+    pmLabel		*labels;	/* indexing into the JSON string */
+} pmLabelSet;
+
+#define PM_MAXLABELS		((1<<8)-1)
+#define PM_MAXLABELJSONLEN	((1<<16)-1)
+
+#define PM_LABEL_CONTEXT	(1<<0)
+#define PM_LABEL_DOMAIN		(1<<1)
+#define PM_LABEL_INDOM		(1<<2)
+#define PM_LABEL_CLUSTER	(1<<3)
+#define PM_LABEL_ITEM		(1<<4)
+#define PM_LABEL_INSTANCES	(1<<5)
+#define PM_LABEL_OPTIONAL	(1<<7)
+
+PCP_CALL extern int pmGetContextLabels(pmLabelSet **);
+PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);
+PCP_CALL extern int pmGetInDomLabels(pmInDom, pmLabelSet **);
+PCP_CALL extern int pmGetClusterLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetItemLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetInstancesLabels(pmInDom, pmLabelSet **);
+
+PCP_CALL extern int pmLookupLabels(pmID, pmLabelSet **);
+
+/*
+ * The full set is formed by merging labels from all levels of the
+ * hierarchy using the precedence rules described in pmLookupLabels(3).
+ */
+PCP_CALL extern int pmMergeLabels(char **, int, char *, int);
+PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int,
+		int (*filter)(const pmLabel *, const char *, void *), void *);
+
+/* Free a labelset array */
+PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);
 
 /*
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for

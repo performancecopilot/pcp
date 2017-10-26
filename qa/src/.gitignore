@@ -98,12 +98,15 @@ json_test
 keycache
 keycache2
 killparent
+labels
 loadderived
 loadconfig2
 logcontrol
 lookupnametest
 mark-bug
 matchInstanceName
+mergelabels
+mergelabelsets
 mkfiles
 mmv_genstats
 mmv_instances

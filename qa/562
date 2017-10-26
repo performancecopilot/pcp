@@ -1,0 +1,130 @@
+#!/bin/sh
+# PCP QA Test No. 562
+# Exercise metric labels with dbpmda, pminfo, pmcd and local context.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+pipeargs=""
+id pcp >/dev/null 2>&1 && pipeargs="-U $username"
+need_restore=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_labels()
+{
+    sed \
+	-e "s/-U ${username}/-U USERNAME/g" \
+	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+	-e "s/.userid.:$userid/\"userid\":UID/g" \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,pmda_sample.$DSO_SUFFIX ,pmda_sample.dso ,g" \
+    #end
+}
+
+_pmcd_labels()
+{
+    echo "** Labels on $1 $2 via pmcd"
+    pminfo --labels $2
+    echo
+}
+
+_dso_labels()
+{
+    echo "** Labels on $1 $2 via local context"
+    pminfo --labels -L $2
+    echo
+}
+
+_dbpipe_labels()
+{
+    echo "** Labels on $1 $2 via dbpmda (pipe)"
+    one=$1
+    two=$2
+    [ $one = metric ] && one="item"
+    cat <<End-of-File | dbpmda -ei 2>&1
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29
+label $one $two
+End-of-File
+}
+
+_dbdso_labels()
+{
+    echo "** Labels on $1 $2 via dbpmda (dso)"
+    one=$1
+    two=$2
+    [ $one = metric ] && one="item"
+    cat <<End-of-File | dbpmda -ei 2>&1
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+label $one $two
+End-of-File
+}
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+echo "{\"QA\":$seq}" > $tmp.$seq
+$sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels
+_service pmcd restart
+_wait_for_pmcd
+
+echo == PMCD labels
+_pmcd_labels metric sample.colour	| _filter_labels
+_pmcd_labels metric sample.darkness	| _filter_labels
+_pmcd_labels metric sample.rapid	| _filter_labels
+_pmcd_labels metric sample.bin		| _filter_labels
+_pmcd_labels indom 29.1			| _filter_labels
+
+echo == DSO labels
+_dso_labels metric sampledso.colour	| _filter_labels
+_dso_labels metric sampledso.darkness	| _filter_labels
+_dso_labels metric sampledso.rapid	| _filter_labels
+_dso_labels metric sampledso.bin	| _filter_labels
+_dso_labels indom 30.1			| _filter_labels
+
+echo == dbpmda DSO labels
+_dbdso_labels context 			| _filter_labels
+_dbdso_labels domain 			| _filter_labels
+_dbdso_labels metric sampledso.colour	| _filter_labels
+_dbdso_labels metric sampledso.rapid	| _filter_labels
+_dbdso_labels indom 30.1		| _filter_labels
+_dbdso_labels metric sampledso.darkness | _filter_labels
+_dbdso_labels instances 30.2		| _filter_labels
+
+echo == dbpmda PIPE labels
+_dbpipe_labels domain			| _filter_labels
+_dbpipe_labels metric sample.colour	| _filter_labels
+_dbpipe_labels metric sample.rapid	| _filter_labels
+_dbpipe_labels indom 29.1		| _filter_labels
+_dbpipe_labels metric sample.darkness	| _filter_labels
+_dbpipe_labels instances 29.2		| _filter_labels
+
+# success, all done
+status=0
+exit

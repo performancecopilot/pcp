@@ -1,0 +1,162 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDALABEL 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaLabel\f1,
+\f3pmdaSetLabelCallBack\f1 \- fill pmdaLabelSet structures with metric labels
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaLabel(int \fIident\fP, int \fItype\fP, pmLabelSet **\fIsets\fP, pmdaExt *\fIpmda\fP);
+.br
+.ti -8n
+int pmdaSetLabelCallBack(pmdaInterface *\fIdispatch\fP, pmdaLabelCallBack\ \fIcallback\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.B pmdaLabel
+uses the standard
+.BR PMDA (3)
+data structures to return the labels for performance domain, instance domain,
+metric or individual instances in "JSONB" format in the given
+.I sets
+data structure.
+.PP
+The
+.I type
+argument determines the interpretation of
+.I ident
+and the requested form of label,
+as follows:
+.TP 4n
+.B PM_LABEL_DOMAIN
+when
+.I ident
+is a PMDA domain identifier,
+.TP 4n
+.B PM_LABEL_CLUSTER
+when
+.I ident
+is a metric identifier and labels for the cluster containing that
+metric are being requested.
+.TP 4n
+.B PM_LABEL_ITEM
+when
+.I ident
+is a metric identifier,
+.TP 4n
+.B PM_LABEL_INDOM
+when
+.I ident
+is an instance domain identifier, or
+.TP 4n
+.B PM_LABEL_INSTANCES
+when
+.I ident
+is a metric identifier and labels for all instances of that
+metric are being requested.
+.PP
+The label
+.I sets
+pointer must be initialised to NULL before calling
+.B pmdaLabel
+and space is only to be allocated when labels are present and returned.
+In this case, the return code must indicate the number of label
+.I sets
+that have been allocated.
+This will only ever be greater than one in the 
+.B PM_LABEL_INSTANCES
+case.
+.PP
+This is one of the few generic callbacks in
+.I libpcp_pmda
+(see
+.BR PMDA (3))
+that is incomplete, requiring
+a further
+.B pmdaLabelCallBack
+method of its own.
+The additional callback should be registered using
+.B pmdaSetLabelCallBack
+and the
+.B pmdaLabelCallBack
+method has the following prototype:
+.nf
+.ft CW
+.ps -1
+int func(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **set)
+.ps
+.ft
+.fi
+.PP
+The purpose of the
+.B pmdaLabelCallBack
+routine is to provide labels for individual instances of a given metric.
+Its successful return code differs significantly to
+.BR pmdaLabel ,
+as described below.
+.SH DIAGNOSTICS
+On success
+.B pmdaLabel
+returns the number of label
+.I sets
+created.
+This is usually zero or one, except in the case of
+.B PM_LABEL_INSTANCES
+where more than one label
+.I sets
+will often be returned, one for each instance of the requested metric.
+.PP
+By contrast, on success of the
+.B pmdaLabelCallBack
+routine the number of labels successfully added to the provided
+labelset pointer must be returned (and not the total number of label
+.IR sets ).
+.PP
+If labels for the requested entity could not be obtained due to a
+catastrophic failure, such as an out of memory condition, these
+routines will return a negative error code.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_7
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR pminfo (1),
+.BR malloc (3),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaInit (3)
+and
+.BR pmLookupLabels (3).

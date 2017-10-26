@@ -1,0 +1,22 @@
+QA output created by 567
+Core mergelabelsets output:
+
+Merged testing/services/location (no filter)
+{"datacenter":"torquay","environment":"production","more":{"all":false,"none":true},"none":none,"services":["indexer","database"],"some":[1,2,3]}
+
+Merged services/location (cull optional)
+{"environment":"production","services":["indexer","database"]}
+
+Merged services/NULL/location/empty (cull none)
+{}
+
+Python mergelabelsets output:
+
+Python: Merged testing/services/location (no filter):
+{"datacenter":"torquay","environment":"production","more":{"all":false,"none":true},"none":none,"services":["indexer","database"],"some":[1,2,3]}
+
+Python: Merged services/location (cull optional):
+{"environment":"production","services":["indexer","database"]}
+
+Python: Merged services/location/empty (cull none):
+{}

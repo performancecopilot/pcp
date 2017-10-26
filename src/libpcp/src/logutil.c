@@ -714,6 +714,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     lcp->l_minvol = lcp->l_maxvol = lcp->l_curvol = 0;
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
     lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
+    lcp->l_hashlabels.nodes = lcp->l_hashlabels.hsize = 0;
     lcp->l_tifp = lcp->l_mdfp = lcp->l_mfp = NULL;
 
     if ((lcp->l_tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
@@ -771,7 +772,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 }
 
 static void
-logFreePMNS(__pmLogCtl *lcp)
+logFreeMeta(__pmLogCtl *lcp)
 {
     if (lcp->l_pmns != NULL) {
 	__pmFreePMNS(lcp->l_pmns);
@@ -829,6 +830,53 @@ logFreePMNS(__pmLogCtl *lcp)
 	}
 	free(hcp->hash);
     }
+
+    if (lcp->l_hashlabels.hsize != 0) {
+	__pmHashCtl	*type_ctl = &lcp->l_hashlabels;
+	__pmHashCtl	*ident_ctl;
+	__pmHashNode 	*type_node;
+	__pmHashNode 	*curr_type_node;
+	__pmHashNode	*ident_node;
+	__pmHashNode	*curr_ident_node;
+	__pmLogLabelSet	*label;
+	__pmLogLabelSet	*curr_label;
+	pmLabelSet	*labelset;
+	int		i;
+	int		j;
+	int		k;
+
+	for (i = 0; i < type_ctl->hsize; i++) {
+	    for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
+		ident_ctl = (__pmHashCtl *) type_node->data;
+
+		for (j = 0; j < ident_ctl->hsize; j++) {
+		    for (ident_node = ident_ctl->hash[j]; ident_node != NULL; ) {
+			for (label = (__pmLogLabelSet *)ident_node->data; label != NULL; ) {
+			    for (k = 0; k < label->nsets; k++) {
+				labelset = &label->labelsets[k];
+				free(labelset->json);
+				free(labelset->labels);
+			    }
+			    free(label->labelsets);
+			    curr_label = label;
+			    label = label->next;
+			    free(curr_label);
+			}
+			curr_ident_node = ident_node;
+			ident_node = ident_node->next;
+			free(curr_ident_node);
+		    }
+		}
+
+		curr_type_node = type_node;
+		type_node = type_node->next;
+		free(ident_ctl->hash);
+		free(ident_ctl);
+		free(curr_type_node);
+	    }
+	}
+	free(type_ctl->hash);
+    }
 }
 
 /*
@@ -842,7 +890,7 @@ __pmLogClose(__pmLogCtl *lcp)
     /*
      * We no longer free l_pmns here or clear l_hashpmid or l_hashindom here.
      * They may be needed by the next archive of a multi-archive context.
-     * They are now now freed as needed using logFreePMNS().
+     * They are now now freed as needed using logFreeMeta().
      */
     if (lcp->l_tifp != NULL) {
 	__pmResetIPC(__pmFileno(lcp->l_tifp));
@@ -1099,7 +1147,7 @@ cleanup:
     if (dirp != NULL)
 	closedir(dirp);
     __pmLogClose(lcp);
-    logFreePMNS(lcp);
+    logFreeMeta(lcp);
     free(tbuf);
     free(base);
     return sts;
@@ -1176,7 +1224,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
 cleanup:
     __pmLogClose(lcp);
-    logFreePMNS(lcp);
+    logFreeMeta(lcp);
     return sts;
 }
 
@@ -2675,8 +2723,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     __pm_off_t	logend;
     __pm_off_t	physend = 0;
 
-    if (ctxp != NULL)
-	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * default, when all else fails ...
@@ -3270,7 +3317,7 @@ __pmArchCtlFree(__pmArchCtl *acp)
     if (lcp != NULL) {
 	if (--lcp->l_refcnt == 0) {
 	    __pmLogClose(lcp);
-	    logFreePMNS(lcp);
+	    logFreeMeta(lcp);
 	    free(lcp);
 	}
     }

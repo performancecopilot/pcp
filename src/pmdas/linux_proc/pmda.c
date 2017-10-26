@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2016 Red Hat.
+ * Portions Copyright (c) 2012-2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1656,12 +1656,12 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 static int
 proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
+    unsigned int	serial = pmInDom_serial(indom);
     int			need_refresh[NUM_CLUSTERS] = { 0 };
     char		newname[16];		/* see Note below */
     int			sts;
 
-    switch (indomp->serial) {
+    switch (serial) {
     case PROC_INDOM:
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
@@ -1714,7 +1714,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ((indomp->serial == PROC_INDOM || indomp->serial == HOTPROC_INDOM) &&
+    if ((serial == PROC_INDOM || serial == HOTPROC_INDOM) &&
 	inst == PM_IN_NULL && name != NULL) {
     	/*
 	 * For the proc indoms if the name is a pid (as a string), and it
@@ -1744,7 +1744,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	fprintf(stderr, "proc_instance: initial access have=%d all=%d proc_ctx_access=%d\n", have_access, all_access, proc_ctx_access(pmda->e_context));
 
     if (have_access ||
-	((indomp->serial != PROC_INDOM) && (indomp->serial != HOTPROC_INDOM))) {
+	((serial != PROC_INDOM) && (serial != HOTPROC_INDOM))) {
 	if ((sts = proc_refresh(pmda, need_refresh)) == 0)
 	    sts = pmdaInstance(indom, inst, name, result, pmda);
     }
@@ -3245,6 +3245,102 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
+static int
+proc_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    char	*name, *device;
+    int		sts;
+
+    switch (pmInDom_serial(indom)) {
+    case PROC_INDOM:
+    case HOTPROC_INDOM:
+	if ((sts = pmdaAddLabels(lp, "{\"pid\":%u}", inst)) < 0)
+	    return sts;
+	return 1;
+
+    case CGROUP_PERDEVBLKIO_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	device = strrchr(name, ':');
+	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"device_name\":\"%s\"}",
+				(int)(device - name) - 1, name, device + 1)) < 0)
+	    return sts;
+	return 1;
+
+    case CGROUP_PERCPUACCT_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	device = strrchr(name, ':');
+	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"cpu\":\"%s\"}",
+				(int)(device - name) - 1, name, device + 4)) < 0)
+	    return sts;
+	return 1;
+
+    case CGROUP_CPUSET_INDOM:
+    case CGROUP_CPUACCT_INDOM:
+    case CGROUP_CPUSCHED_INDOM:
+    case CGROUP_MEMORY_INDOM:
+    case CGROUP_NETCLS_INDOM:
+    case CGROUP_BLKIO_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%s\"}", name)) < 0)
+	    return sts;
+	return 1;
+
+    default:
+	break;
+    }
+    return 0;
+}
+
+static int
+proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
+{
+    int		sts;
+
+    switch (pmInDom_serial(indom)) {
+    case CGROUP_CPUSET_INDOM:
+    case CGROUP_CPUACCT_INDOM:
+    case CGROUP_CPUSCHED_INDOM:
+    case CGROUP_PERCPUACCT_INDOM:
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
+	    return sts;
+	return 1;
+    case CGROUP_MEMORY_INDOM:
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"memory\"}")) < 0)
+	    return sts;
+	return 1;
+    case CGROUP_NETCLS_INDOM:
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"interface\"}")) < 0)
+	    return sts;
+	return 1;
+    case CGROUP_BLKIO_INDOM:
+    case CGROUP_PERDEVBLKIO_INDOM:
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"block\"}")) < 0)
+	    return sts;
+	return 1;
+    default:
+	break;
+    }
+    return 0;
+}
+
+static int
+proc_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
+{
+    int		sts;
+
+    if ((type & PM_LABEL_INDOM) &&
+	(sts = proc_label_indom(ident, lp, pmda)) < 0)
+	return sts;
+
+    return pmdaLabel(ident, type, lp, pmda);
+}
+
 /*
  * Helper routines for accessing a generic static string dictionary
  */
@@ -3252,8 +3348,8 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 char *
 proc_strings_lookup(int index)
 {
-    char *value;
-    pmInDom dict = INDOM(STRINGS_INDOM);
+    char	*value;
+    pmInDom	dict = INDOM(STRINGS_INDOM);
 
     if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
 	return value;
@@ -3300,21 +3396,23 @@ proc_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "proc DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "proc DSO", helppath);
     }
 
     if (dp->status != 0)
 	return;
     dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
 
-    dp->version.six.instance = proc_instance;
-    dp->version.six.store = proc_store;
-    dp->version.six.fetch = proc_fetch;
-    dp->version.six.text = proc_text;
-    dp->version.six.pmid = proc_pmid;
-    dp->version.six.name = proc_name;
-    dp->version.six.children = proc_children;
-    dp->version.six.attribute = proc_ctx_attrs;
+    dp->version.seven.instance = proc_instance;
+    dp->version.seven.store = proc_store;
+    dp->version.seven.fetch = proc_fetch;
+    dp->version.seven.text = proc_text;
+    dp->version.seven.pmid = proc_pmid;
+    dp->version.seven.name = proc_name;
+    dp->version.seven.children = proc_children;
+    dp->version.seven.attribute = proc_ctx_attrs;
+    dp->version.seven.label = proc_label;
+    pmdaSetLabelCallBack(dp, proc_labelCallBack);
     pmdaSetEndContextCallBack(dp, proc_ctx_end);
     pmdaSetFetchCallBack(dp, proc_fetchCallBack);
 
@@ -3404,7 +3502,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmProgname, PROC, "proc.log", helppath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch (c) {

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2017 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -30,6 +30,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
+	labels.c mergelabels.c mergelabelsets.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
@@ -133,7 +134,8 @@ PYTHONFILES = \
 	fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
-        test_pmfg.python
+        test_pmfg.python \
+	mergelabels.python mergelabelsets.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)
@@ -345,6 +347,19 @@ slow_af:	slow_af.c
 mmv_poke:	mmv_poke.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ mmv_poke.c $(LDLIBS)
+
+labels:	labels.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ labels.c  $(LDLIBS)
+
+mergelabels:	mergelabels.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ mergelabels.c  $(LDLIBS)
+
+mergelabelsets:	mergelabelsets.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ mergelabelsets.c  $(LDLIBS)
+
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #

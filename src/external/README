@@ -5,3 +5,12 @@ Lightweight JSON parser
 Lightweight HTTP parser
     - https://nodejs.org/
     - https://github.com/nodejs/http-parser/
+
+sort_r (portable quicksort with closure)
+    - https://github.com/noporpoise/sort_r
+
+hash (portable performant hash function)
+    - http://burlteburtle.net/bob/hash/evahash.html
+
+sha1 (portable SHA1 hash implementation)
+    - https://github.com/antirez/redis/blob/4.0/src

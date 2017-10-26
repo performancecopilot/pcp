@@ -328,6 +328,7 @@ cannot be known in advance (e.g. for
 .BR pmGetInDom (3),
 .BR pmNameInDom (3),
 .BR pmNameID (3),
+.BR pmLookupLabels (3),
 .BR pmLookupText (3)
 and
 .BR pmFetch (3))
@@ -340,7 +341,9 @@ In some cases this simply involves calls to
 but in others (most notably for the result from
 .BR pmFetch (3)),
 special routines (e.g. \c
-.BR pmFreeResult (3))
+.BR pmFreeResult (3)
+and
+.BR pmFreeLabelSets (3))
 should be used to release the storage.
 .PP
 As a general rule, if the called routine returns

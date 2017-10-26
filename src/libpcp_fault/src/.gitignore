@@ -5,3 +5,5 @@
 GNUlocaldefs
 exports
 libpcp_fault.*
+derive_parser.y.in
+fix_derive_parser_y

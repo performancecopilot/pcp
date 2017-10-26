@@ -11,8 +11,3 @@ Found POST URL in output
 Found auth data in HTTP request
 Found proper metric body in output
 === 4. pcp2influxdb bad-instance tolerance ===
-Excluding metric sample.aggregate.null (need numeric type)
-Excluding metric sample.string.hullo (need numeric type)
-Excluding metric NoSuchMetric (PM_ERR_NAME Unknown metric name)
-Excluding metric sample.bad.unknown (PM_ERR_PMID Unknown or illegal metric identifier)
-Excluding metric sample.bad.nosupport (need numeric type)

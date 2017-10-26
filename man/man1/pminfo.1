@@ -19,7 +19,7 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \f3pminfo\f1
-[\f3\-dfFLmMtTvxz\f1]
+[\f3\-dfFlLmMtTvxz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-b\f1 \f2batchsize\f1]
 [\f3\-c\f1 \f2dmfile\f1]
@@ -191,6 +191,11 @@ More than one
 .B \-K
 option may be used.
 .TP
+.B \-l
+Print label sets associated with metrics, instance domains and values.
+Labels are optional metric metadata described in detail in
+.BR pmLookupLabels (3).
+.TP
 .B \-m
 Print the PMID in terse mode.
 .TP
@@ -266,6 +271,7 @@ as described in
 .BR pmrep (1),
 .BR pmval (1),
 .BR PMAPI (3),
+.BR pmLookupLabels (3),
 .BR pmLoadDerivedConfig (3),
 .BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (5),

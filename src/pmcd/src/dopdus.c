@@ -330,6 +330,158 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
     return sts;
 }
 
+static int
+GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
+{
+    __pmHashNode	*node;
+    const char		*userid;
+    const char		*groupid;
+    const char		*container;
+    static char		host[MAXHOSTNAMELEN];
+    char		buf[PM_MAXLABELJSONLEN];
+    char		*hostname;
+    int			sts;
+
+    if ((sts = __pmGetContextLabels(sets)) >= 0) {
+	if ((hostname = pmcd_hostname) == NULL) {
+	    (void)gethostname(host, MAXHOSTNAMELEN);
+	    hostname = pmcd_hostname = host;
+	}
+	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
+			(const char *)node->data : NULL);
+	groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
+			(const char *)node->data : NULL);
+	container = ((node = __pmHashSearch(PCP_ATTR_CONTAINER, &cp->attrs)) ?
+			(const char *)node->data : NULL);
+
+	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	if (userid)
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
+			    userid);
+	if (groupid)
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"groupid\":%s",
+			    groupid);
+	if (container)
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"container\":%s",
+			    container);
+	pmsprintf(buf+sts, sizeof(buf)-sts, "}");
+	if ((sts = __pmAddLabels(sets, buf, PM_LABEL_CONTEXT)) > 0)
+	    return 1;
+    }
+    return sts;
+}
+
+int
+DoLabel(ClientInfo *cp, __pmPDU *pb)
+{
+    int			sts, s;
+    int			ident, type, nsets = 0;
+    pmLabelSet		*sets = NULL;
+    AgentInfo		*ap = NULL;
+    int			fdfail = -1;
+
+    sts = __pmDecodeLabelReq(pb, &ident, &type);
+    if (sts < 0)
+	return sts;
+
+    switch (type) {
+	case PM_LABEL_CONTEXT:
+	    nsets = sts = GetContextLabels(cp, &sets);
+	    goto response;
+	case PM_LABEL_DOMAIN:
+	    if (!(ap = FindDomainAgent(ident)))
+		return PM_ERR_NOAGENT;
+	    break;
+	case PM_LABEL_INDOM:
+	    if (!(ap = FindDomainAgent(((__pmInDom_int *)&ident)->domain)))
+		return PM_ERR_INDOM;
+	    break;
+	case PM_LABEL_CLUSTER:
+	case PM_LABEL_ITEM:
+	case PM_LABEL_INSTANCES:
+	    if (!(ap = FindDomainAgent(((__pmID_int *)&ident)->domain)))
+		return PM_ERR_PMID;
+	    break;
+	default:
+	    return PM_ERR_TYPE;
+    }
+
+    if (!ap->status.connected)
+	return PM_ERR_NOAGENT;
+
+    if (ap->ipcType == AGENT_DSO) {
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+	    ap->ipc.dso.dispatch.version.seven.ext->e_context = cp - client;
+	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_7) {
+	    sts = ap->ipc.dso.dispatch.version.seven.label(ident, type, &sets,
+					ap->ipc.dso.dispatch.version.any.ext);
+	} else if (type & PM_LABEL_DOMAIN) {
+	    sts = __pmGetDomainLabels(ap->pmDomainId, ap->pmDomainLabel, &sets);
+	    nsets = sts;
+	    goto response;
+	} else {
+	    sts = 0;
+	}
+	if (sts >= 0)
+	    nsets = sts;
+    }
+    else {
+	if (ap->status.notReady)
+	    return PM_ERR_AGAIN;
+
+	pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_LABEL_REQ, ident);
+	sts = __pmSendLabelReq(ap->inFd, cp - client, ident, type);
+	if (sts >= 0) {
+	    int		pinpdu;
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
+	    if (sts > 0)
+		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+	    if (sts == PDU_LABEL)
+		sts = __pmDecodeLabel(pb, &ident, &type, &sets, &nsets);
+	    else if (sts == PDU_ERROR) {
+		nsets = 0;
+		sets = NULL;
+		s = __pmDecodeError(pb, &sts);
+		if (s < 0)
+		    sts = s;
+		else
+		    sts = CheckError(ap, sts);
+		pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_LABEL, sts);
+	    }
+	    else {
+		pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_LABEL, sts);
+		sts = PM_ERR_IPC;	/* Wrong PDU type */
+		fdfail = ap->outFd;
+	    }
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
+	}
+	else {
+	    pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_LABEL_REQ, sts);
+	    fdfail = ap->inFd;
+	}
+    }
+
+response:
+    if (sts >= 0) {
+	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_LABEL, (int)ident);
+	sts = __pmSendLabel(cp->fd, FROM_ANON, ident, type, sets, nsets);
+	if (sts < 0) {
+	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_LABEL, sts);
+	    CleanupClient(cp, sts);
+	}
+	pmFreeLabelSets(sets, nsets);
+    }
+    else {
+	if (ap && ap->ipcType != AGENT_DSO &&
+	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+	    fdfail != -1)
+	    CleanupAgent(ap, AT_COMM, fdfail);
+    }
+
+    return sts;
+}
+
 /*
  * This handler is for remote versions of pmNameAll or pmNameID.
  * Note: only one pmid for the list should be sent.
@@ -1074,6 +1226,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 			{ PDU_FLAG_SECURE_ACK,	"SECURE_ACK" },
 			{ PDU_FLAG_NO_NSS_INIT,	"NO_NSS_INIT" },
 			{ PDU_FLAG_CONTAINER,	"CONTAINER" },
+			{ PDU_FLAG_LABEL,	"LABEL" },
 		    };
 		    int	i;
 		    int	first = 1;

@@ -1,0 +1,72 @@
+
+Missing code:
+- audit all the code TODOs
+  - many operators in the language are not implemented yet
+  - error handling needs plenty of attention
+  - "tail -f" mode of operation for archives
+  - interpolated mode of operation for archives
+  - live mode of operation for pmcd
+  - string escaping rules need to be defined and implemented
+  - implement modular run-time loading of backend engine code
+  - regression testing of all the shiny new things
+  - non-numeric metric types and event records
+- drop separation of notes and labels in querying (separate handling
+  of optional labels is only needed for the identity calculation)
+- convert pcp:desc:* to more compact format (pmid and indom)
+- configuration mechanism for multiple Redis servers (see nutcracker)
+- implement callback-based operation, make pmseries provide the
+  simple output form (done inside the engine atm - move to pmseries)
+- scale-up: sharding of redis requests (consistent hashing, create
+  connections opportunistically)
+- scale-down: private redis server (unix socket) if none available
+- series functions (Nth-percentile, average, stddev, max-N, min-N,
+  rates - operating on zset (single key), so lua scripts can help
+  with implementing these in-server.
+- label-based group-by concept from the other time series languages
+- optimise the archive loading process - switch to batching updates,
+  rework the string identifier assignment for updating in parallel.
+- handling of nesting in JSONB labels (see notes in code); both the
+  load and query code need tweaks to support this.
+- store an optional label on "load"/"loadmeta" allowing us to
+  later find the original source (host/archive) - will need to
+  be an array/map (this implements Kenj's idea of a metadata-
+  only mode of operation)
+- event-based non-blocking interface (hiredis support exists, use it)
+- a background "vacuum" mode for dropping values beyond a certain age
+  (see note on the streams data structure below, support planned for
+  this concept there)
+- make a more clear API (probably not just a single multiplexed call)
+- pmproxy interface (possibly also Redis protocol pass-through)
+- pmwebd interface (sits directly above libpcp API extensions)
+- security (user+group labels already associated with series)
+- documentation (man pages, books, etc)
+
+Other ideas and areas for further investigation:
+- series naming (Mark's idea - assignment operator, and allowing human
+  readable names in place of SHA1 identifiers, similar to Docker)
+- series graphing (grafana plugin)
+  http://docs.grafana.org/plugins/developing/development/
+  http://docs.grafana.org/plugins/developing/datasources/
+- series alerting (also grafana? and/or prometheus alertmanager?)
+- schema changes for error handling (embedded pmResult errors, mark records)
+  ... will need separate keys (zsets) to represent these concepts
+- possibly add pmid and indom reverse indices? (see missing code notes)
+- possibly reimplement pmdaredis(1) in C and hiredis using batches queries
+- separate context keys?  (representing source archive or hostspec)
+  ... see earlier re storing as a note associated with every timeseries,
+  we also want mark records (dicontinuities) associated with a context.
+- Henry was looking for a central help text search service (i.e. for *all*
+  metric & indom help text, not just active PMDAs on some host) - see also
+  full text search module (redisearch.io) for 4.x Redis series.
+- Redis upstream folk are building a new native Redis time series data type
+  (streams) and associated commands for the 4.2 release - code is available
+  to explore already (would replace the pcp:values:series zset keys)
+- using ZSET key TTL to drop entire time series after disuse (this seems to
+  be built into the streams key type, so check that out first)
+- using PUB/SUB to push time series values directly to clients (seems to be
+  built into streams as well)
+- if streams turns out non-optimal for PCP, Redis 4.x provides for modular
+  extension of Redis servers - BYO time series implementation inside Redis.
+- federation code (moving keys between remote Redis instances - note that
+  cross-data-centre improvements are targetted by Redis upstream for 4.2).
+

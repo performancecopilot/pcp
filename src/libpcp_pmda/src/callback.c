@@ -42,7 +42,7 @@ __pmdaCntInst(pmInDom indom, pmdaExt *pmda)
 	}
 	if (i == pmda->e_nindoms) {
 	    char	strbuf[20];
-	    __pmNotifyErr(LOG_WARNING, "cntinst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	    __pmNotifyErr(LOG_WARNING, "__pmdaCntInst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	}
     }
 
@@ -739,6 +739,204 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 	*buffer = NULL;
 
     return (*buffer == NULL) ? PM_ERR_TEXT : 0;
+}
+
+/*
+ * Provide default handlers to fill set(s) of labels for the context
+ * or requested ID of type domain, indom, cluster, item or instances.
+ */
+
+int
+pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+    pmLabelSet		*rlp, *lp = NULL;
+    size_t		size;
+    char		idbuf[32], *idp;
+    char		errbuf[PM_MAXERRMSGLEN];
+    int			sts = 0, count, inst, numinst;
+
+    if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
+
+    switch (type) {
+    case PM_LABEL_CONTEXT:
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "pmdaLabel: context %d labels request\n",
+			pmda->e_context);
+	if ((lp = *lpp) == NULL)	/* use default handler */
+	    return __pmGetContextLabels(lpp);
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_DOMAIN:
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "pmdaLabel: domain %d (%s) labels request\n",
+			pmda->e_domain, pmda->e_name);
+	if ((lp = *lpp) == NULL)	/* use default handler */
+	    return __pmGetDomainLabels(pmda->e_domain, pmda->e_name, lpp);
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_INDOM:
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "pmdaLabel: InDom %s labels request\n",
+			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)));
+	if ((lp = *lpp) == NULL)	/* no default handler */
+	    return 0;
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_CLUSTER:
+	if (pmDebugOptions.labels) {
+	    pmIDStr_r(ident, idbuf, sizeof(idbuf));
+	    idp = rindex(idbuf, '.');
+	    *idp = '\0';	/* drop the final (item) part */
+	    fprintf(stderr, "pmdaLabel: cluster %s labels request\n", idbuf);
+	}
+	if ((lp = *lpp) == NULL)	/* no default handler */
+	    return 0;
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_ITEM:
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "pmdaLabel: cluster %s labels request\n",
+			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+	if ((lp = *lpp) == NULL)	/* no default handler */
+	    return 0;
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_INSTANCES:
+	if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_7)
+	    return 0;
+
+	if (ident == PM_INDOM_NULL)
+	    numinst = 1;
+	else
+	    numinst = __pmdaCntInst(ident, pmda);
+
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "pmdaLabel: InDom %s %d instance labels request\n",
+			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)), numinst);
+
+	if (numinst == 0)
+	    return 0;
+
+	/* allocate minimally-sized chunk of contiguous memory upfront */
+	size = numinst * sizeof(pmLabelSet);
+	if ((lp = (pmLabelSet *)malloc(size)) == NULL)
+	    return -oserror();
+	*lpp = lp;
+
+	inst = PM_IN_NULL;
+	if (ident != PM_INDOM_NULL) {
+	    __pmdaStartInst(ident, pmda);
+	    __pmdaNextInst(&inst, pmda);
+	}
+
+	count = 0;
+	do {
+	    if (count == numinst) {
+		/* more instances than expected! */
+		numinst++;
+		size = numinst * sizeof(pmLabelSet);
+		if ((rlp = (pmLabelSet *)realloc(*lpp, size)) == NULL)
+		    return -oserror();
+		*lpp = rlp;
+		lp = rlp + count;
+	    }
+	    memset(lp, 0, sizeof(*lp));
+
+	    if ((sts = (*(pmda->e_labelCallBack))(ident, inst, &lp)) < 0) {
+		pmInDomStr_r(ident, idbuf, sizeof(idbuf));
+		pmErrStr_r(sts, errbuf, sizeof(errbuf));
+		__pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
+				"InDom %s[%d]: %s\n", idbuf, inst, errbuf);
+	    }
+	    if ((lp->nlabels = sts) > 0)
+		pmdaAddLabelFlags(lp, type);
+	    lp->inst = inst;
+	    count++;
+	    lp++;
+
+	} while (ident != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));
+
+	return count;
+
+    default:
+	break;
+    }
+
+    return PM_ERR_TYPE;
+}
+
+int
+pmdaAddLabelFlags(pmLabelSet *lsp, int flags)
+{
+    int		i;
+
+    if (lsp == NULL)
+	return 0;
+    for (i = 0; i < lsp->nlabels; i++)
+	lsp->labels[i].flags |= flags;
+    return 1;
+}
+
+/*
+ * Add labels (name:value pairs) to a labelset, varargs style.
+ */
+
+int
+pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
+{
+    char		errbuf[PM_MAXERRMSGLEN];
+    char		buf[PM_MAXLABELJSONLEN];
+    va_list		arg;
+    int			sts;
+
+    va_start(arg, fmt);
+    sts = vsnprintf(buf, sizeof(buf), fmt, arg);
+    va_end(arg);
+    if (sts < 0)
+	return sts;
+    if (sts >= sizeof(buf))
+	buf[sizeof(buf)-1] = '\0';
+
+    if (pmDebugOptions.labels)
+	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
+
+    if ((sts = __pmAddLabels(lsp, buf, 0)) < 0) {
+	__pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
+		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+    }
+    return sts;
+}
+
+/*
+ * Add notes (optional name:value pairs) to a labelset, varargs style.
+ */
+
+int
+pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
+{
+    char		errbuf[PM_MAXERRMSGLEN];
+    char		buf[PM_MAXLABELJSONLEN];
+    va_list		arg;
+    int			sts;
+
+    va_start(arg, fmt);
+    sts = vsnprintf(buf, sizeof(buf), fmt, arg);
+    va_end(arg);
+    if (sts < 0)
+	return sts;
+    if (sts >= sizeof(buf))
+	buf[sizeof(buf)-1] = '\0';
+
+    if (pmDebugOptions.labels)
+	fprintf(stderr, "pmdaAddNotes: %s\n", buf);
+
+    if ((sts = __pmAddLabels(lsp, buf, PM_LABEL_OPTIONAL)) < 0) {
+	__pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,
+		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+    }
+    return sts;
 }
 
 /*

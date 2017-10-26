@@ -2,7 +2,7 @@
 # PCP QA Test No. 667
 # checks basic pcp2graphite functionality
 #
-# Copyright (c) 2015 Red Hat, Inc.
+# Copyright (c) 2015-2017 Red Hat, Inc.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -28,23 +28,22 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # handle differences like ...
-# (S'pcp.sample.byte_rate' vs (Vpcp.sample.byte_rate
-# (I1192055500 vs (L1192055490L
-# ?(lp0 vs <(lp0 vs :lp1
-# F222.0 vs F222
+# =(lp0 vs ?(lp0 vs <(lp0 vs :lp1
+# (Vpcp.sample.byte_rate vs (S'pcp.sample.byte_rate'
+# (L1192055490L vs (I1192055500
+# I436 vs L436L
 # remove ^ttp*
 #
 _filter_strings()
 {
     sed \
+	-e 's/^.(lp./=(lp0/' \
 	-e '/^(/{
-s/(S'"'"'/\(/
+s/(S'"'"'/\(V/
 s/'"'"'$//
-s/(V/\(/
-s/(L\(.*\)L$/(I\1/
+s/(I\([0-9].*\)$/(L\1L/
 }' \
-	-e 's/^.(lp./?(lp0/' \
-	-e 's/^F\([0-9][0-9]*\)\.0$/F\1/' \
+	-e 's/^I\([0-9][0-9]*\)$/L\1L/' \
 	-e '/^ttp*/d' \
     # end
 }
@@ -69,8 +68,8 @@ _full_stash()
     echo "--- socket cat stderr --" >>$seq.full
     cat $tmp.socat.err >>$seq.full
 }
-scale=10
-ncpu=`pmprobe -v hinv.ncpu | awk '{print $3*'$scale'".0"}'`
+
+ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 pcp2graphite="$python `which pcp2graphite`"
 
 echo | tee -a $seq.full
@@ -78,7 +77,7 @@ echo "=== 1. pcp2graphite one-shot pickle  ===" | tee -a $seq.full
 socat tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
-$pcp2graphite -t 1 hinv.ncpu hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &   # will error out after socket cat dies
+$pcp2graphite -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 3
 $signal $pid $p2gpid >/dev/null 2>&1
@@ -94,7 +93,7 @@ rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
-$pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
+$pcp2graphite -r -t 2 -A 2s -E $port_text -x foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $pid $p2gpid >/dev/null 2>&1
@@ -110,7 +109,7 @@ rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
-$pcp2graphite -L -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
+$pcp2graphite -r -t 2 -A 2s -E $port_text -x foobar. -L hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $pid $p2gpid >/dev/null 2>&1
@@ -126,7 +125,7 @@ rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
-$pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad >$tmp.p2g.out 2>$tmp.p2g.err &
+$pcp2graphite -r -t 2 -A 2s -E $port_text -I sample.aggregate.null sample.string.hullo sample.bad >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $pid $p2gpid >/dev/null 2>&1
@@ -144,7 +143,7 @@ socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err 
 pid=$!
 sleep 2
 # TZ=UTC here to constrain pcp2graphite's -DAPPL0 stdout logging of time.ctime()
-TZ=UTC $pcp2graphite -DAPPL0 -t 1 -s 30 -P $port_text -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
+TZ=UTC $pcp2graphite -DAPPL0 -r -t 1 -s 30 -E $port_text -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
 $signal $pid >/dev/null 2>&1
 wait
 cat $tmp.socat.out
@@ -157,7 +156,7 @@ rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port_pickled,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
-TZ=UTC $pcp2graphite -DAPPL0 -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:40 GMT' -p $port_pickled -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
+TZ=UTC $pcp2graphite -DAPPL0 -r -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:40 GMT' -p $port_pickled -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
 $signal $pid >/dev/null 2>&1
 wait
 # while pickle format 0 is ascii, it's wrapped in a struct.pack that
@@ -176,7 +175,7 @@ echo pickle version: $pickle_version >> $seq.full
 socat tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
-$pcp2graphite -r $pickle_version -t 1 hinv.ncpu hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &   # will error out after socket cat dies
+$pcp2graphite -X $pickle_version -r -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 3
 $signal $pid $p2gpid >/dev/null 2>&1
