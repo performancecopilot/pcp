@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2017, Red Hat.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,9 +25,9 @@ TimeControl::TimeControl() : QProcess(NULL)
     my.tzData = NULL;
     my.bufferLength = sizeof(QmcTime::Packet);
 
-    my.buffer = (char *)malloc(my.bufferLength);
-    my.livePacket = (QmcTime::Packet *)malloc(sizeof(QmcTime::Packet));
-    my.archivePacket = (QmcTime::Packet *)malloc(sizeof(QmcTime::Packet));
+    my.buffer = (char *)calloc(1, my.bufferLength);
+    my.livePacket = (QmcTime::Packet *)calloc(1, sizeof(QmcTime::Packet));
+    my.archivePacket = (QmcTime::Packet *)calloc(1, sizeof(QmcTime::Packet));
     if (!my.buffer || !my.livePacket || !my.archivePacket)
 	nomem();
     my.livePacket->magic = QmcTime::Magic;
@@ -133,7 +133,7 @@ void TimeControl::addArchive(
 	my.archivePacket->end = endtime;
     }
 
-    if ((message = (QmcTime::Packet *)malloc(sz)) == NULL)
+    if ((message = (QmcTime::Packet *)calloc(1, sz)) == NULL)
 	nomem();
     *message = *my.archivePacket;
     message->command = QmcTime::Bounds;
