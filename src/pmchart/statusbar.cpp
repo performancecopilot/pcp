@@ -34,13 +34,10 @@ StatusBar::StatusBar()
 	"rightmost point, and either status information or the timeframe "
 	"covering all Visible Points to the left");
 
-    delete layout();
-    QHBoxLayout *box = new QHBoxLayout;
-    box->setMargin(0);
-    box->setSpacing(1);
-    box->addWidget(my.timeButton);
-    box->addWidget(my.timeFrame);
-    setLayout(box);
+    // Add the time button and the time frame to the status bar.
+    addWidget(my.timeButton);
+    addWidget(my.timeFrame, 1);
+    clearSpacing(layout());
 
     my.timeAxis = new TimeAxis(my.timeFrame);
     my.timeAxis->setFixedHeight(timeAxisHeight());
@@ -116,4 +113,35 @@ void StatusBar::paintEvent(QPaintEvent *)
     opt.palette = palette();
     opt.state = QStyle::State_None;
     style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, my.timeFrame);
+}
+
+void StatusBar::clearSpacing(QLayout *lp)
+{
+    // Traverse the structure of the given layout ensuring that each object takes
+    // no extra space. Start with the layout itself.
+    lp->setMargin(0);
+    lp->setSpacing(0);
+
+    // Now examine its children, if any.
+    int numItems = lp->count();
+    for (int i = 0; i < numItems; ++i) {
+	QLayoutItem *child = lp->itemAt(i);
+
+	// Recursively examine any nested layouts.
+	QLayout *l = child->layout();
+	if (l) {
+	    clearSpacing(l);
+	    continue;
+	}
+
+	// Remove any spacer items.
+	// Careful!! The list will shrink!
+	QSpacerItem *s = child->spacerItem();
+	if (s) {
+	    lp->removeItem(s);
+	    delete s;
+	    --numItems;
+	    --i;
+	}
+    }
 }

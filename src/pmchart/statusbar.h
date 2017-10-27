@@ -48,6 +48,7 @@ protected:
     bool event(QEvent *);
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
+    void clearSpacing(QLayout *);
 
 private:
     struct {
