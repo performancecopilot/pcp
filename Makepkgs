@@ -239,7 +239,7 @@ then
     configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
 elif [ $target = netbsd ]
 then
-    # Try to mimic where pkgsrc/pkgin place things
+    # Try to mimic where pkgsrc/pkgin places things
     #
     configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
 elif [ $target = freebsd ]
@@ -259,6 +259,11 @@ then
 		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 		;;
     esac
+elif [ $target = solaris ]
+then
+    # Need to take control of the Python versions, otherwise standard.
+    #
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=check"
 else
     # Bog-standard options suitable for a package on any platform.
     # Command line can be used to extend this set, and any unusual

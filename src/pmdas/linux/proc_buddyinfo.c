@@ -26,10 +26,11 @@ enum {
 static int MAX_ORDER = -1; /* maximum number of page order (This value is determined by kernel config) */
 
 int
-node_name_check(const char* data)
+node_name_check(const char *data)
 {
     int i;
     int len = strlen(data);
+
     for (i = 0; i < len; i++) {
         if (data[i] == ' ') {
 	    return i;
@@ -45,6 +46,7 @@ static int read_node_name(const char *data, char *buf)
     char tmp_buf[64];
     int start;
     int end;
+
     for (i = 0; i < len; i++) {
         if (data[i] == ',') {
             tmp_buf[i] = '\0';
@@ -74,6 +76,7 @@ static int read_buddyinfo(const char *data, char (*buf)[SPLIT_MAX], int max)
     int n = 0;
     int i = 0;
     int len = strlen(data);
+
     for (; index < len; index++)
         if (data[index] != ' ')
             break;
@@ -135,6 +138,7 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
         char node_name[64];
         char *zone_name;
         int values[SPLIT_MAX];
+
         i = read_node_name(buf, node_name);
         i+=6; /* erase ", zone" */
         read_buddyinfo(buf+i, read_buf, MAX_ORDER+1); /* read zone name and page order */
@@ -142,7 +146,8 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
         for (i=0; i < MAX_ORDER; i++)
             values[i] = atoi(read_buf[i+1]);
         for (i=0; i < proc_buddyinfo->nbuddys; i++) {
-            if (strcmp(proc_buddyinfo->buddys[i].node_name, node_name)==0 && strcmp(proc_buddyinfo->buddys[i].zone_name, zone_name)==0 )
+            if (strcmp(proc_buddyinfo->buddys[i].node_name, node_name)==0 &&
+		strcmp(proc_buddyinfo->buddys[i].zone_name, zone_name)==0)
                 break;
         }
         if (i==proc_buddyinfo->nbuddys) {
@@ -157,6 +162,7 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
                 pmsprintf(proc_buddyinfo->buddys[i+j].id_name,
 			 sizeof(proc_buddyinfo->buddys[i+j].id_name),
 			 "%s::order%u::%s", zone_name, j, node_name);
+                proc_buddyinfo->buddys[i+j].order = j;
             }
         }
         /* update data */

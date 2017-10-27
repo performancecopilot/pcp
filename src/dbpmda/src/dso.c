@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2017 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -184,6 +184,7 @@ dodso(int pdu)
     pmDesc		desc;
     pmDesc		*desc_list = NULL;
     pmResult		*result;
+    pmLabelSet		*labelset = NULL;
     __pmInResult	*inresult;
     int			i;
     int			j;
@@ -355,6 +356,49 @@ dodso(int pdu)
 		else
 		    printf("Error: DSO text() failed: %s\n", pmErrStr(sts));
 	    }
+	    break;
+
+	case PDU_LABEL_REQ:
+	    if (param.number & PM_LABEL_INDOM) {
+		printf("pmInDom: %s\n", pmInDomStr(param.indom));
+		i = param.indom;
+	    }
+	    else if (param.number & PM_LABEL_CLUSTER) {
+		printf("Cluster: %s\n", strcluster(param.pmid));
+		i = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_ITEM) {
+		printf("PMID: %s\n", pmIDStr(param.pmid));
+		i = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_INSTANCES) {
+		printf("Instances of pmInDom: %s\n", pmInDomStr(param.indom));
+		i = param.indom;
+	    }
+	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */
+		i = PM_IN_NULL;
+
+	    sts = dispatch.version.seven.label(i, param.number, &labelset, dispatch.version.any.ext);
+	    if (sts > 0) {
+		for (i = 0; i < sts; i++) {
+		    if (labelset[i].inst != PM_IN_NULL)
+			printf("[%3d] Labels inst: %d\n", i, labelset[i].inst);
+		    else
+			printf("Labels:\n");
+		    for (j = 0; j < labelset[i].nlabels; j++) {
+			pmLabel	*lp = &labelset[i].labels[j];
+			char *name = labelset[i].json + lp->name;
+			char *value = labelset[i].json + lp->value;
+			printf("    %.*s=%.*s\n", lp->namelen, name, lp->valuelen, value);
+		    }
+		}
+		pmFreeLabelSets(labelset, sts);
+	    }
+	    else if (sts == 0)
+		printf("Info: DSO label() returns 0\n");
+	    else
+		printf("Error: DSO label() failed: %s\n", pmErrStr(sts));
+
 	    break;
 
 	case PDU_PMNS_IDS:

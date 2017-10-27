@@ -31,6 +31,7 @@ extern void setup_context(void);
 extern void reset_profile(void);
 extern char *strcons(char *, char *);
 extern char *strnum(int);
+extern char *strcluster(pmID);
 extern void initmetriclist(void);
 extern void addmetriclist(pmID);
 extern void initarglist(void);

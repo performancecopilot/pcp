@@ -58,11 +58,13 @@ pmdaDynamicPMNS(const char *prefix,
 	    pmdaMetric *metrics, int nmetrics)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
+    struct dynamic *tmp_dynamic;
 
-    if ((dynamic = (struct dynamic *)realloc(dynamic, size)) == NULL) {
+    if ((tmp_dynamic = (struct dynamic *)realloc(dynamic, size)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic metrics");
 	return;
     }
+    dynamic = tmp_dynamic;
 
     dynamic[dynamic_count].prefix = prefix;
     dynamic[dynamic_count].prefixlen = strlen(prefix);

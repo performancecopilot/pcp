@@ -43,7 +43,7 @@ do
     echo
     echo "=== bad #`echo $bad | sed -e 's/.*\.bad\.//'` ==="
     cp $bad $tmp/bozo.client_v2.meta
-    pmdumplog -z -a -Dlogmeta $tmp/bozo.client_v2 2>&1 \
+    pmdumplog -z -dilmst -Dlogmeta $tmp/bozo.client_v2 2>&1 \
     | _filter
 done
 
@@ -52,7 +52,7 @@ do
     echo
     echo "=== size $size ==="
     dd if=$tmp/bozo.client_v2.save bs=1 count=$size of=$tmp/bozo.client_v2.meta >/dev/null 2>&1
-    pmdumplog -z -a -Dlogmeta $tmp/bozo.client_v2 2>&1 \
+    pmdumplog -z -dilmst -Dlogmeta $tmp/bozo.client_v2 2>&1 \
     | _filter
 done
 

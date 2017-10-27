@@ -47,19 +47,19 @@ End-of-File
 echo "=== CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
 sheet2pcp sheet/simple.csv $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
+[ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
 
 echo
 echo "=== resaved CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
 sheet2pcp sheet/simple-resave.csv $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
+[ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
 
 echo
 echo "=== /dev/null ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
 sheet2pcp /dev/null $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
+[ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
 
 echo
 echo "=== bad datetime CSV ==="

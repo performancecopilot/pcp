@@ -1219,8 +1219,11 @@ main(int argc, char **argv)
 		needti = 1;
 		do_indom();
 	    }
-	    else if (stsmeta == 3 /*TYPE_LABEL*/) {
-		;	/* silently ignore optional metadata */
+	    else if (stsmeta == TYPE_LABEL) {
+		/* TODO: support label metadata extraction */
+		if (pmDebugOptions.labels)
+		    fprintf(stderr, "%s: Warning: %s\n",
+			    pmProgname, pmErrStr(PM_ERR_NOLABELS));
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",

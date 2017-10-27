@@ -9,13 +9,17 @@ echo "QA output created by $seq"
 
 rm -f $seq.full
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
 echo pmmgr ok
+
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+pminfo xfs.log.writes >/dev/null 2>&1 || _notrun "xfs metrics unavailable"
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
@@ -194,6 +198,9 @@ for f in $tmp.dir/$hostname/*.meta; do
     pmloglabel -L $f >>$seq.full
 done
 
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
+
 date >>$seq.full
 echo "=== 9. how about some granular/reduced mode with some extra monitoring ===" | tee -a $seq.full
 echo 20sec >$tmp.dir/pmlogmerge
@@ -215,8 +222,6 @@ echo 'pmstat' >> $tmp.dir/monitor # long-lived
 # upstream 0d4227aa8e4 via BZ#1289912
 echo 'pmrep :vmstat' >> $tmp.dir/monitor # long-lived
 echo 'pminfo xfs' >> $tmp.dir/monitor # short-lived
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
 
 date >>$seq.full
 echo "=== 10. wait a bit ===" | tee -a $seq.full

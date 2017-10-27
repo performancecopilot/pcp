@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 579
+# collectl2pcp error reporting from gzip failure
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+# filter pid's in lines like ...
+# __pmProcessExec: pid=1965 wait_pid=1965
+#
+_filter()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
+	-e "s@$tmp@TMP@g" \
+    #end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+collectl2pcp -Dexec -F /no/such/file.gz noarchive >$tmp.out 2>$tmp.err
+cat $tmp.out
+_filter <$tmp.err
+touch $tmp.gz
+collectl2pcp -Dexec -F $tmp.gz noarchive >$tmp.out 2>$tmp.err
+cat $tmp.out
+_filter <$tmp.err
+
+# success, all done
+status=0
+exit

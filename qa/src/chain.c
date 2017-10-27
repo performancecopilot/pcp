@@ -31,7 +31,7 @@ main(int argc, char **argv)
     int		pid;
     int		debug = 0;
     int		p1[2], p2[2];
-    char	pbuf[512];
+    char	pbuf[512] = {0};
 
     if (argc > 3 && strcmp(argv[1], "-d") == 0) {
 	debug=1;

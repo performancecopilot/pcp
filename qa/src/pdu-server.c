@@ -55,6 +55,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		inst;
     char	*name;
     __pmInResult	*inres;
+    pmLabelSet	*sets = NULL;
+    int		nsets;
     int		control;
     int		length;
     int		state;
@@ -232,6 +234,59 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    __pmFreeInResult(inres);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendInstance: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+
+	case PDU_LABEL_REQ:
+	    if ((e = __pmDecodeLabelReq(pb, &ident, &type)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeLabelReq: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		fprintf(stderr, "+ PDU_LABEL_REQ: ident=%d type=0x%x: ", ident, type);
+		if (type & PM_LABEL_CONTEXT)
+		    fprintf(stderr, "CONTEXT");
+		else if (type & PM_LABEL_DOMAIN)
+		    fprintf(stderr, "DOMAIN %d", ident);
+		else if (type & PM_LABEL_INDOM)
+		    fprintf(stderr, "INDOM %s", pmInDomStr((pmInDom)ident));
+		else if (type & PM_LABEL_CLUSTER)
+		    fprintf(stderr, "PMID %s CLUSTER ", pmIDStr((pmID)ident));
+		else if (type & PM_LABEL_ITEM)
+		    fprintf(stderr, "PMID %s ITEM", pmIDStr((pmID)ident));
+		else if (type & PM_LABEL_INSTANCES)
+		    fprintf(stderr, "PMID %s INSTANCES", pmIDStr((pmID)ident));
+		else
+		    fprintf(stderr, "BAD TYPE");
+		fputc('\n', stderr);
+	    }
+#endif
+	    e = __pmSendLabelReq(fd, mypid, ident, type);
+	    if (e < 0) {
+		fprintf(stderr, "%s: Error: SendLabelReq: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+
+	case PDU_LABEL:
+	    if ((e = __pmDecodeLabel(pb, &ident, &type, &sets, &nsets)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeLabel: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		fprintf(stderr, "+ PDU_LABEL: ident=%d type=0x%x", ident, type);
+		__pmDumpLabelSets(stderr, sets, nsets);
+	    }
+#endif
+	    e = __pmSendLabel(fd, mypid, ident, type, sets, nsets);
+	    pmFreeLabelSets(sets, nsets);
+	    if (e < 0) {
+		fprintf(stderr, "%s: Error: SendLabel: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
 	    fail = 0;
@@ -656,7 +711,8 @@ main(int argc, char *argv[])
     /* don't have %x equivalent of FMT_PID unfortunately */
     fmt = strdup(" %" FMT_PID "\n");
     p = index(fmt, 'd');
-    *p = 'x';
+    if (p)
+	*p = 'x';
     fprintf(stderr, fmt, mypid);
     free(fmt);
 

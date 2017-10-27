@@ -54,6 +54,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     int			inst;
     char		*iname;
     __pmInResult	*inres;
+    pmLabelSet		*labels = NULL;
     char		*buffer;
     __pmProfile  	*new_profile;
     static __pmProfile	*profile = NULL;
@@ -311,6 +312,25 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmSendDesc(pmda->e_outfd, FROM_ANON, &desc);
 	break;
 
+    case PDU_LABEL_REQ:
+
+	if (pmDebugOptions.libpmda) {
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_LABEL_REQ\n");
+	}
+
+	if ((sts = __pmDecodeLabelReq(pb, &ident, &type)) >= 0 &&
+	    HAVE_V_SEVEN(dispatch->comm.pmda_interface)) {
+	    ctxnum = dispatch->version.seven.ext->e_context;
+	    sts = dispatch->version.seven.label(ident, type, &labels, pmda);
+	}
+	if (sts < 0)
+	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	else {
+	    __pmSendLabel(pmda->e_outfd, FROM_ANON, ident, type, labels, sts);
+	    pmFreeLabelSets(labels, sts);
+	}
+	break;
+
     case PDU_INSTANCE_REQ:
 
 	if (pmDebugOptions.libpmda) {
@@ -462,6 +482,18 @@ pmdaSetDoneCallBack(pmdaInterface *dispatch, pmdaDoneCallBack callback)
 	dispatch->version.any.ext->e_doneCallBack = callback;
     else {
 	__pmNotifyErr(LOG_CRIT, "Unable to set done callback for PMDA interface version %d.",
+		     dispatch->comm.pmda_interface);
+	dispatch->status = PM_ERR_GENERIC;
+    }
+}
+
+void
+pmdaSetLabelCallBack(pmdaInterface *dispatch, pmdaLabelCallBack callback)
+{
+    if (HAVE_V_SEVEN(dispatch->comm.pmda_interface))
+	dispatch->version.any.ext->e_labelCallBack = callback;
+    else {
+	__pmNotifyErr(LOG_CRIT, "Unable to set label callback for PMDA interface version %d.",
 		     dispatch->comm.pmda_interface);
 	dispatch->status = PM_ERR_GENERIC;
     }

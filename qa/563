@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 563
+# Exercise global metric labels using pminfo and pmcd.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+userid=`id -u`
+groupid=`id -g`
+hostname=`hostname`
+need_restore=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_labels()
+{
+    sed \
+	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+	-e "s/.userid.:$userid/\"userid\":UID/g" \
+    #end
+}
+
+report_header()
+{
+    echo && echo == $@
+}
+
+report_labels()
+{
+    pminfo -fl pmcd.labels | _filter_labels
+}
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+_service pmcd restart
+_wait_for_pmcd
+
+report_header  No global labels
+report_labels
+
+#report_header  Bad global label
+#echo '{one:two}' > $tmp.label
+#$sudo cp $tmp.label $PCP_ETC_DIR/pcp/labels/bad
+#report_labels
+#$sudo rm -f $PCP_ETC_DIR/pcp/labels/bad
+
+#report_header  Empty global label
+#echo '{}' > $tmp.empty
+#$sudo cp $tmp.empty $PCP_ETC_DIR/pcp/labels/empty
+#report_labels
+#$sudo rm $PCP_ETC_DIR/pcp/labels/empty
+
+report_header  Simple global label
+echo '{"one":"two"}' > $tmp.simple
+$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple
+report_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/simple
+
+report_header  Array global label
+echo '{"a1":[1,2,3,4], "a2":[]}' > $tmp.array
+$sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array
+report_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/array
+
+report_header  Map global label
+echo '{"map1": {"a":1,"b":2}, "map2": {}}' > $tmp.map
+$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map
+report_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/map
+
+report_header  Multiple global labels
+$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple
+$sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array
+$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map
+report_labels
+
+# success, all done
+status=0
+exit

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2015,2017 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -45,6 +45,8 @@ static struct sysinfo {
 #ifndef roundup
 #define roundup(x,y) ((((x) + ((y) - 1)) / (y)) * (y))
 #endif
+
+#define boolstr(truth)	((truth) ? "true" : "false")
 
 static int need_mirage;	/* only do mirage glop is someone asks for it */
 static int need_dynamic;/* only do dynamic glop is someone asks for it */
@@ -2825,6 +2827,169 @@ sample_store(pmResult *result, pmdaExt *ep)
     return sts;
 }
 
+static int
+sample_label_domain(pmLabelSet **sets, pmdaExt *ep)
+{
+    pmLabelSet	*lp = NULL;
+    int		sts;
+
+    if ((sts = __pmGetDomainLabels(ep->e_domain, ep->e_name, &lp)) < 0)
+	return sts;
+    if ((sts = pmdaAddLabels(&lp, "{\"role\":\"testing\"}")) > 0) {
+	*sets = lp;
+	return 1;
+    }
+    pmFreeLabelSets(lp, 1);
+    return 0;
+}
+
+static int
+sample_label_indom(pmInDom indom, pmLabelSet **lp)
+{
+    int		sts;
+
+    if (indom == indomtab[COLOUR_INDOM].it_indom) {
+	if ((sts = pmdaAddLabels(lp, "{\"model\":\"RGB\"}")) < 0)
+	    return sts;
+	return 1;
+    }
+    if (indom == indomtab[FAMILY_INDOM].it_indom) {
+	if ((sts = pmdaAddLabels(lp, "{\"clan\":\"mcdonell\"}")) < 0)
+	    return sts;
+	return 1;
+    }
+    return 0;
+}
+
+static int
+sample_label_item(pmID pmid, pmLabelSet **lp)
+{
+    __pmID_int	*pmidp = (__pmID_int *)&pmid;
+
+    if (pmidp->cluster != 0)
+	return 0;
+
+    switch (pmidp->item) {
+	case 14:	/* long.write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_long != 13));
+	    return 1;
+	case 24:	/* longlong.write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_longlong != 13));
+	    return 1;
+	case 19:	/* float.write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_float != 13));
+	    return 1;
+	case 29:	/* double.write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_double != 13));
+	    return 1;
+	case 36:	/* write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_write_me != 2));
+	    return 1;
+	case 97:	/* ulong.write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_ulong != 13));
+	    return 1;
+	case 102:	/* ulonglong.write_me */
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_ulonglong != 13));
+	    return 1;
+
+	case 64:	/* rapid */
+	    pmdaAddLabels(lp, "{\"measure\":\"speed\"}");
+	    pmdaAddLabels(lp, "{\"units\":\"metres per second\"}");
+	    pmdaAddLabels(lp, "{\"unitsystem\":\"SI\"}");
+	    return 1;
+
+	default:
+	    break;
+    }
+    return 0;
+}
+
+static int
+sample_label_cb(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    if (indom == indomtab[BIN_INDOM].it_indom ||
+	indom == indomtab[SCRAMBLE_INDOM].it_indom) {
+	pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
+	return 1;
+    }
+    if (indom == indomtab[MIRAGE_INDOM].it_indom) {
+	/* instance zero is always present, the rest come and go */
+	pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
+	return 1;
+    }
+    return 0;
+}
+
+static pmdaIndom *
+sample_lookup_indom(pmInDom indom)
+{
+    pmdaIndom	*idp;
+
+    for (idp = indomtab; idp->it_indom != PM_INDOM_NULL; idp++) {
+	if (idp->it_indom == indom)
+	    return idp;
+    }
+    return NULL;
+}
+
+static int
+sample_label_insts(pmInDom indom, pmLabelSet **lpp)
+{
+    pmLabelSet	*lp;
+    pmdaIndom	*idp;
+    int		i, numinst;
+
+    if (not_ready > 0)
+	return limbo();
+
+    if (indom == PM_INDOM_NULL)
+	return 0;
+    if ((idp = sample_lookup_indom(indom)) == NULL)
+	return PM_ERR_INDOM;
+    if ((numinst = cntinst(indom)) == 0)
+	return numinst;
+
+    if ((lp = (pmLabelSet *)calloc(numinst, sizeof(pmLabelSet))) == NULL)
+	return -oserror();
+
+    *lpp = lp;
+    for (i = 0; i < numinst; i++, lp++) {
+	lp->inst = idp->it_set[i].i_inst;
+	sample_label_cb(indom, lp->inst, &lp);
+	pmdaAddLabelFlags(lp, PM_LABEL_INSTANCES);
+    }
+    return numinst;
+}
+
+static int
+sample_label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
+{
+    int		sts = 0;
+
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
+
+    switch (type) {
+	case PM_LABEL_DOMAIN:
+	    sts = sample_label_domain(lp, ep);
+	    break;
+	case PM_LABEL_INDOM:
+	    sts = sample_label_indom((pmInDom)ident, lp);
+	    break;
+	case PM_LABEL_ITEM:
+	    sts = sample_label_item((pmID)ident, lp);
+	    break;
+	case PM_LABEL_INSTANCES:
+	    /* cannot use default handler, no indomtab */
+	    return sample_label_insts((pmInDom)ident, lp);
+	default:
+	    break;
+    }
+    if (sts < 0)
+	return sts;
+    return pmdaLabel(ident, type, lp, ep);
+}
+
 void
 __PMDA_INIT_CALL
 sample_init(pmdaInterface *dp)
@@ -2856,6 +3021,7 @@ sample_init(pmdaInterface *dp)
     dp->version.four.name = sample_name;
     dp->version.four.children = sample_children;
     dp->version.six.attribute = sample_attribute;
+    dp->version.seven.label = sample_label;
     pmdaSetEndContextCallBack(dp, sample_ctx_end);
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */

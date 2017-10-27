@@ -64,7 +64,7 @@ QA output created by 006
 -12407 The units of a metric have changed in an archive
 -12408 PMCD requires a client certificate
 -12409 Derived metric definition failed
--12410 No such PMAPI error code (-12410)
+-12410 No support for metric label metadata
 -12411 No such PMAPI error code (-12411)
 -12412 No such PMAPI error code (-12412)
 -12413 No such PMAPI error code (-12413)

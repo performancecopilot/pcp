@@ -68,6 +68,13 @@ _xlsx_filter docProps/core.xml
 _path_filter xl/worksheets/sheet1.xml
 cd $tmp.dir
 echo "--- diffing outputs - no output expected"
+# map >< to >\n< so we can see differences better
+for file in ref/xl/worksheets/sheet1.xml run/xl/worksheets/sheet1.xml
+do
+    sed -e 's/></>\
+</g' <$file >$tmp.tmp
+    mv $tmp.tmp $file
+done
 diff -purN ref run
 echo "--- end of diff"
 cd $here

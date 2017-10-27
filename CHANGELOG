@@ -1,5 +1,5 @@
-pcp-4.0.0 (1 January 2018)
-    - work in progress
+pcp-4.0.0 (19 January 2018)
+    - Work-in-progress, see http://pcp.io/roadmap
 
 pcp-3.12.2 (18 October 2017)
     - dm pmda: fix memory corruption from a double free

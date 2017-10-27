@@ -31,7 +31,7 @@ pmlogextract -z archives/arch_a archives/arch_b $tmp.arch
 
 # sed is strange to avoid printf issue between platforms
 #
-pmdumplog -a -z $tmp.arch \
+pmdumplog -dilmst -z $tmp.arch \
 | sed \
     -e 's/14:46:52.146/14:46:52.145/' \
     -e '/\[[0-9][0-9]* bytes\]/d'

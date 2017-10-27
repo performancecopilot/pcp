@@ -26,7 +26,7 @@ A="archives/rep"
 
 _filter()
 {
-    LC_ALL=C sort | \
+    LC_COLLATE=POSIX sort | \
     sed -e "s,$A,ARCHIVE_PATH,g"
 }
 

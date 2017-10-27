@@ -33,8 +33,8 @@ _cmp()
     do
 	ls -l $file $2`echo $file | sed -e "s;$1;;"` >>$seq.full
     done
-    pmdumplog -z -a $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -a $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
     echo "pmdumplog diffs ..."
     diff -u $tmp.in $tmp.out | _filter
 }
@@ -56,6 +56,7 @@ do
     cat $tmp.err >>$seq.full
     # strip any command line options preceding the archive basename
     arch=`echo $arch | sed -e 's/.* //'`
+    [ $arch = "tmparch/bigbin" ] && echo "Known issue: pmlogrewrite labels WIP"
     _cmp $arch $tmp.new
 done
 

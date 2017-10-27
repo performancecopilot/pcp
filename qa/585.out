@@ -1,0 +1,136 @@
+QA output created by 585
+
+=== -O 30s ===
+Note: timezone set to local timezone of host "moomba" from archive
+
+metric:    kernel.percpu.cpu.user
+archive:   archives/moomba.client
+host:      moomba
+start:     Fri Oct  8 14:21:21 1999
+end:       Fri Oct  8 14:21:36 1999
+semantics: cumulative counter
+units:     millisec
+samples:   2
+
+                   cpu0        cpu1        cpu2        cpu3 
+14:21:26.790   21779000    21276570    23297770    22473800 
+14:21:31.793   21779000    21277570    23297820    22473860 
+Note: timezone set to local timezone of host "moomba" from archive
+
+kernel.percpu.cpu.user 4 21779000 21276570 23297770 22473800
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+kernel.percpu.cpu.user
+    inst [0 or "cpu0"] value 21779000
+    inst [1 or "cpu1"] value 21276570
+    inst [2 or "cpu2"] value 23297770
+    inst [3 or "cpu3"] value 22473800
+
+=== -O 15s ===
+Note: timezone set to local timezone of host "moomba" from archive
+
+metric:    kernel.percpu.cpu.user
+archive:   archives/moomba.client
+host:      moomba
+start:     Fri Oct  8 14:21:06 1999
+end:       Fri Oct  8 14:21:36 1999
+semantics: cumulative counter
+units:     millisec
+samples:   2
+
+                   cpu0        cpu1        cpu2        cpu3 
+14:21:11.791   21779000    21276540    23297770    22473800 
+14:21:16.794   21779000    21276540    23297770    22473800 
+Note: timezone set to local timezone of host "moomba" from archive
+
+kernel.percpu.cpu.user 4 21779000 21276540 23297770 22473800
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+kernel.percpu.cpu.user
+    inst [0 or "cpu0"] value 21779000
+    inst [1 or "cpu1"] value 21276540
+    inst [2 or "cpu2"] value 23297770
+    inst [3 or "cpu3"] value 22473800
+
+=== -O 10s ===
+Note: timezone set to local timezone of host "moomba" from archive
+
+metric:    kernel.percpu.cpu.user
+archive:   archives/moomba.client
+host:      moomba
+start:     Fri Oct  8 14:21:01 1999
+end:       Fri Oct  8 14:21:36 1999
+semantics: cumulative counter
+units:     millisec
+samples:   2
+
+                   cpu0        cpu1        cpu2        cpu3 
+14:21:01.795   21778990    21276530    23297770    22473800 
+14:21:06.788   21778990    21276530    23297770    22473800 
+Note: timezone set to local timezone of host "moomba" from archive
+
+kernel.percpu.cpu.user 4 21778990 21276530 23297770 22473800
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+kernel.percpu.cpu.user
+    inst [0 or "cpu0"] value 21778990
+    inst [1 or "cpu1"] value 21276530
+    inst [2 or "cpu2"] value 23297770
+    inst [3 or "cpu3"] value 22473800
+
+=== -O 5s ===
+Note: timezone set to local timezone of host "moomba" from archive
+
+metric:    kernel.percpu.cpu.user
+archive:   archives/moomba.client
+host:      moomba
+start:     Fri Oct  8 14:20:56 1999
+end:       Fri Oct  8 14:21:36 1999
+semantics: cumulative counter
+units:     millisec
+samples:   2
+
+                   cpu0        cpu1        cpu2        cpu3 
+14:20:56.793   21778980    21276530    23297770    22473800 
+14:21:01.795   21778990    21276530    23297770    22473800 
+Note: timezone set to local timezone of host "moomba" from archive
+
+kernel.percpu.cpu.user 4 21778980 21276530 23297770 22473800
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+kernel.percpu.cpu.user
+    inst [0 or "cpu0"] value 21778980
+    inst [1 or "cpu1"] value 21276530
+    inst [2 or "cpu2"] value 23297770
+    inst [3 or "cpu3"] value 22473800
+
+=== -O 0 ===
+Note: timezone set to local timezone of host "moomba" from archive
+
+metric:    kernel.percpu.cpu.user
+archive:   archives/moomba.client
+host:      moomba
+start:     Fri Oct  8 14:20:51 1999
+end:       Fri Oct  8 14:21:36 1999
+semantics: cumulative counter
+units:     millisec
+samples:   2
+
+                   cpu0        cpu1        cpu2        cpu3 
+14:20:56.793   21778980    21276530    23297770    22473800 
+14:21:01.795   21778990    21276530    23297770    22473800 
+Note: timezone set to local timezone of host "moomba" from archive
+
+kernel.percpu.cpu.user 4 21778980 21276530 23297770 22473800
+Note: timezone set to local timezone of host "moomba" from archive
+
+
+kernel.percpu.cpu.user
+    inst [0 or "cpu0"] value 21778980
+    inst [1 or "cpu1"] value 21276530
+    inst [2 or "cpu2"] value 23297770
+    inst [3 or "cpu3"] value 22473800

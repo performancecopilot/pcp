@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -52,6 +52,8 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
  * defined as comments to catch code that tries to
  * use them in an expression or assignment.
  */
+#define __htonpmLabel(a)	/* noop */
+#define __ntohpmLabel(a)	/* noop */
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
 #define __htonf(a)		/* noop */
@@ -71,6 +73,7 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 #define __htonpmInDom(a)	htonl(a)
 #define __ntohpmInDom(a)	ntohl(a)
 
+
 extern pmUnits __htonpmUnits(pmUnits) _PCP_HIDDEN;
 extern pmUnits __ntohpmUnits(pmUnits) _PCP_HIDDEN;
 extern __pmPDUInfo __htonpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
@@ -79,6 +82,8 @@ extern __pmCred __htonpmCred(__pmCred) _PCP_HIDDEN;
 extern __pmCred __ntohpmCred(__pmCred) _PCP_HIDDEN;
 
 /* insitu swab for these */
+extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
+extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */
@@ -329,5 +334,12 @@ extern const char *strerror_r(int, char *, size_t);
 extern pid_t __pmProcessWait(pid_t, int, int *, int *) _PCP_HIDDEN;
 #endif
 
+
+#define MAXLABELS		((1<<8)-1)
+#define MAXLABELJSONLEN		((1<<16)-1)
+#define MAXLABELNAMELEN		((1<<8)-1)
+#define MAXLABELVALUELEN	((1<<16)-1)
+extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
+			 pmLabelSet **, int *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

@@ -176,6 +176,7 @@ int
 pmTimeRecv(int fd, pmTime **datap)
 {
     pmTime *k = *datap;
+    pmTime *k_tmp;
     int sts, remains;
 
     memset(k, 0, sizeof(pmTime));
@@ -187,13 +188,20 @@ pmTimeRecv(int fd, pmTime **datap)
 	setoserror(neterror());
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
-	*datap = k = realloc(k, k->length);
-	sts = __pmRecv(fd, (char *)k + sizeof(pmTime), remains, 0);
-	if (sts >= 0 && sts != remains) {
-	    setoserror(E2BIG);
+	k_tmp = realloc(k, k->length);
+	if (k_tmp == NULL) {
+	    setoserror(ENOMEM);
 	    sts = -1;
-	} else if (sts < 0) {
-	    setoserror(neterror());
+	}
+	else {
+	    *datap = k = k_tmp;
+	    sts = __pmRecv(fd, (char *)k + sizeof(pmTime), remains, 0);
+	    if (sts >= 0 && sts != remains) {
+		setoserror(E2BIG);
+		sts = -1;
+	    } else if (sts < 0) {
+		setoserror(neterror());
+	    }
 	}
     }
     if (sts < 0)

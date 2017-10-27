@@ -124,7 +124,7 @@ x=`pmdumplog $tmp | _filter`
 if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
-    pmdumplog -a $tmp
+    pmdumplog -dilmst $tmp
 else
     echo "$x"
 fi
@@ -142,7 +142,7 @@ if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
     $signal -s TERM $pid
-    pmdumplog -a $tmp
+    pmdumplog -dilmst $tmp
 else
     echo "$x"
 fi
@@ -211,7 +211,7 @@ if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
     $signal -s TERM $pid
-    pmdumplog -a $tmp
+    pmdumplog -dilmst $tmp
 else
     echo "$x"
 fi
@@ -279,7 +279,7 @@ if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
     $signal -s TERM $pid
-    pmdumplog -a $tmp
+    pmdumplog -dilmst $tmp
 else
     echo "$x"
 fi

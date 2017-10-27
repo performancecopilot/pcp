@@ -126,7 +126,7 @@ typedef struct {
 int
 __pmSendInstance(int fd, int from, __pmInResult *result)
 {
-    instance_t	*rp;
+    instance_t		*rp;
     instlist_t		*ip;
     int			need;
     int			i;

@@ -290,7 +290,7 @@ then
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
@@ -1577,6 +1577,7 @@ AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
+AC_CHECK_HEADERS(ncurses/curses.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -1626,6 +1627,9 @@ AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
+
+PKG_CHECK_MODULES([hiredis], [hiredis], [have_hiredis=true], [have_hiredis=false])
+AC_SUBST(HAVE_HIREDIS, [$have_hiredis])
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
 if $have_devmapper
@@ -2218,7 +2222,7 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    _raw=`$CPP conftest.c \
+    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
     | $SED \
 	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[[ 	]][[ 	]]*//' \
@@ -3261,6 +3265,28 @@ then
 	  (void) zpool_vdev_name(zh, zp, np, B_FALSE);
 	],
 	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_4ARG, [1], [4-arg zpool_vdev_name])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl check for zfs_iter_snapshots API style from <libzfs.h>
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    AC_MSG_CHECKING([for 4-argument style zfs_iter_snapshots])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, B_FALSE, callback, NULL);
+	],
+	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_4ARG, [1], [4-arg zfs_iter_snapshots])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+    AC_MSG_CHECKING([for 3-argument style zfs_iter_snapshots])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, callback, NULL);
+	],
+	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_3ARG, [1], [3-arg zfs_iter_snapshots])
 	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 fi
 

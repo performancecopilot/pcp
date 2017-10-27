@@ -857,6 +857,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	char	errmsg[PM_MAXERRMSGLEN];
 	PM_LOCK(__pmLock_extcall);
 	strncpy(errmsg, hoststrerror(), PM_MAXERRMSGLEN);	/* THREADSAFE */
+	errmsg[sizeof(errmsg)-1] = '\0';
 	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 		      realname, errmsg);

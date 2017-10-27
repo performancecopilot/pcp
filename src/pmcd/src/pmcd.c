@@ -352,6 +352,11 @@ HandleClientInput(__pmFdSet *fdsPtr)
 		      PM_ERR_PERMISSION : DoInstance(cp, pb);
 		break;
 
+	    case PDU_LABEL_REQ:
+		sts = (cp->denyOps & PMCD_OP_FETCH) ?
+		      PM_ERR_PERMISSION : DoLabel(cp, pb);
+		break;
+
 	    case PDU_DESC_REQ:
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoDesc(cp, pb);
@@ -673,6 +678,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 	    cp->pduInfo.version = PDU_VERSION;
 	    cp->pduInfo.licensed = 1;
+	    cp->pduInfo.features = PDU_FLAG_LABEL;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_SECURE))
 		cp->pduInfo.features |= (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))

@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMFREELABELSETS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmFreeLabelSets\f1 \- release storage allocated for performance metric labels
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmFreeLabelSets(pmLabelSet *\fIsets\fP, int \fInsets\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The array of label
+.I sets
+returned by
+.BR pmLookupLabels (3)
+and related APIs are allocated below the
+Performance Metrics Application Programming Interface (PMAPI)
+using a variety of calls to the system's dynamic memory
+allocation (i.e. \c
+.BR malloc (3))
+interfaces.
+.PP
+Applications should call
+.B pmFreeLabelSets
+to release the storage previously allocated for the label
+.I sets
+array when access to the structure is no longer needed.
+The return value from
+.B pmLookupLabels
+indicates the number of elements in the label
+.I sets
+array, and this should be passed in using the
+.I nsets
+parameter.
+.PP
+Under
+.B no
+circumstances should an application use
+.CW "free(labelset)"
+to release storage previously allocated for a
+.CW pmLabelSet
+by
+.BR pmLookupLabels (3)
+or related APIs.
+.SH SEE ALSO
+.BR malloc (3),
+.BR PMAPI (3)
+and
+.BR pmLookupLabels (3).

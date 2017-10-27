@@ -34,23 +34,25 @@ End-of-File
 # real QA test starts here
 echo "=== _cpu defined, config from -c ==="
 ( echo "%define _cpu"; cat $tmp.common ) >$tmp.config
-pmlogger -c $tmp.config -l $tmp.log $tmp -s 1
+pmlogger -c $tmp.config -l $tmp.log $tmp -s 1 &
+_wait_pmlogger_end $!
 _filter_pmlogger_log <$tmp.log
 pminfo -a $tmp | LC_COLLATE=POSIX sort
 rm -f $tmp.0 $tmp.meta $tmp.index
 
 echo
 echo "=== _cpu defined, config from stdin ==="
-( echo "%define _cpu"; cat $tmp.common ) \
-| pmlogger -l $tmp.log $tmp -s 1
+( echo "%define _cpu"; cat $tmp.common ) >$tmp.tmp
+pmlogger -c $tmp.tmp -l $tmp.log $tmp -s 1 &
+_wait_pmlogger_end $!
 _filter_pmlogger_log <$tmp.log
 pminfo -a $tmp | LC_COLLATE=POSIX sort
 rm -f $tmp.0 $tmp.meta $tmp.index
 
 echo
 echo "=== _cpu not defined, config from stdin ==="
-cat $tmp.common \
-| pmlogger -l $tmp.log $tmp -s 1
+pmlogger -c $tmp.common -l $tmp.log $tmp -s 1 &
+_wait_pmlogger_end $!
 _filter_pmlogger_log <$tmp.log
 pminfo -a $tmp | LC_COLLATE=POSIX sort
 rm -f $tmp.0 $tmp.meta $tmp.index
