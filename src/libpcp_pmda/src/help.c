@@ -49,6 +49,7 @@ pmdaOpenHelp(const char *fname)
     help_idx_t	hdr;
     help_t	*hp;
     struct stat	sbuf;
+    help_t	*tmp_tab;
 
     for (sts = 0; sts < numhelp; sts++) {
 	if (tab[sts].dir_fd == -1)
@@ -56,12 +57,14 @@ pmdaOpenHelp(const char *fname)
     }
     if (sts == numhelp) {
 	sts = numhelp++;
-	tab = (help_t *)realloc(tab, numhelp * sizeof(tab[0]));
-	if (tab == NULL) {
+	tmp_tab = (help_t *)realloc(tab, numhelp * sizeof(tab[0]));
+	if (tmp_tab == NULL) {
 	    __pmNoMem("pmdaOpenHelp", numhelp * sizeof(tab[0]), PM_RECOV_ERR);
+	    tab = NULL;
 	    numhelp = 0;
 	    return -oserror();
 	}
+	tab = tmp_tab;
     }
     hp = &tab[sts];
     memset(hp, 0, sizeof(*hp));

@@ -25,7 +25,7 @@ import os
 import cpmapi
 import cpmda
 from pcp.pmapi import pmContext as PCP
-from pcp.pmapi import pmInDom, pmDesc, pmUnits, pmErr
+from pcp.pmapi import pmInDom, pmDesc, pmUnits, pmErr, pmLabelSet
 
 from ctypes.util import find_library
 from ctypes import CDLL, c_int, c_long, c_char_p, c_void_p, cast, byref
@@ -58,6 +58,23 @@ LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 LIBPCP_PMDA.pmdaCacheResize.restype = c_int
 LIBPCP_PMDA.pmdaCacheResize.argtypes = [pmInDom, c_int]
 
+LIBPCP_PMDA.pmdaAddLabels.restype = c_int
+LIBPCP_PMDA.pmdaAddLabels.argtypes = [POINTER(POINTER(pmLabelSet)), c_char_p]
+LIBPCP_PMDA.pmdaAddLabelFlags.restype = c_int
+LIBPCP_PMDA.pmdaAddLabelFlags.argtypes = [POINTER(pmLabelSet), c_int]
+
+def pmdaAddLabels(label):
+    result_p = POINTER(pmLabelSet)()
+    status = LIBPCP_PMDA.pmdaAddLabels(byref(result_p), label)
+    if status < 0:
+        raise pmErr(status)
+    return result_p
+
+def pmdaAddLabelFlags(labels, flags):
+    status = LIBPCP_PMDA.pmdaAddLabelFlags(labels, flags)
+    if status < 0:
+        raise pmErr(status)
+    return status
 
 ##
 # Definition of structures used by C library libpcp_pmda, derived from <pcp/pmda.h>
@@ -455,6 +472,10 @@ class PMDA(MetricDispatch):
         return cpmda.set_fetch(fetch)
 
     @staticmethod
+    def set_label(label):
+        return cpmda.set_label(label)
+
+    @staticmethod
     def set_refresh(refresh):
         return cpmda.set_refresh(refresh)
 
@@ -465,6 +486,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def set_fetch_callback(fetch_callback):
         return cpmda.set_fetch_callback(fetch_callback)
+
+    @staticmethod
+    def set_label_callback(label_callback):
+        return cpmda.set_label_callback(label_callback)
 
     @staticmethod
     def set_store_callback(store_callback):

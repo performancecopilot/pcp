@@ -1,0 +1,120 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMMERGELABELS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmMergeLabels\f1,
+\f3pmMergeLabelSets\f1 \- merge sets of performance metric labels
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmMergeLabels(char **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
+.sp
+.ti -8n
+int pmMergeLabelSets(pmLabelSet **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP, int (*\fIfilter\fP)(const pmLabel *, const char *, void *), void *\fIarg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmMergeLabels
+takes multiple (\c
+.IR nsets )
+performance metric label
+.I sets
+and merges them into a single result
+.I buffer
+of
+.I length
+bytes.
+Both the input
+.I sets
+and the result
+.I buffer
+are
+.IR name : value
+pairs in the "JSONB" format described on
+.BR pmLookupLabels (3).
+.PP
+The
+.B pmMergeLabelSets
+interface serves the same purpose, but allows for indexed
+.I sets
+of labels to be merged.
+The format of the
+.I pmLabelSet
+data structure is described in detail in
+.BR pmLookupLabels (3).
+.PP
+Although names may repeat across the provided label
+.IR sets ,
+duplicate names are not allowed in the final
+.IR buffer .
+Any label names occuring in more than one of the input label
+.I sets
+are reduced to one using the rules described in the "PRECEDENCE"
+section of
+.BR pmLookupLabels .
+The position of each element in the
+.I sets
+array is significant in terms of the precedence rules \- earlier
+positions are taken to be of lower precedence to later positions.
+.PP
+Values must be primitive JSON entities (e.g. numbers, strings),
+one-dimensional arrays or maps (i.e. simple associative arrays).
+.PP
+In addition to using indexed label
+.I sets
+the
+.B pmMergeLabelSets
+interface provides an optional
+.I filter
+callback function.
+If non-NULL, this function will be called for each label that
+would be added to the output
+.IR buffer ,
+allowing finer-grained control over the final merged set.
+This mechanism can be used to
+.I filter
+individual labels based on their name, value, and/or flags.
+If the
+.I filter
+function returns zero (false), then the given label is filtered
+from the resulting set.
+Any non-zero return value indicates that the label should be
+included in the
+.IR buffer .
+.PP
+.SH DIAGNOSTICS
+On success, both
+.B pmMergeLabels
+and
+.B pmMergeLabelSets
+returns the number of bytes written into the supplied
+.IR buffer .
+.PP
+Failure to parse the input strings, failure to allocate memory, or any
+internal inconsistencies found will result in a negative return code.
+.SH SEE ALSO
+.BR pminfo (1),
+.BR PMAPI (3)
+and
+.BR pmLookupLabels (3).

@@ -1,132 +1,514 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PCP2GRAPHITE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-.B pcp2graphite 
-\- pcp-to-graphite metrics exporter
+\f3pcp2graphite\f1 \- pcp-to-graphite metrics exporter
 .SH SYNOPSIS
-.B pcp2graphite
-[\f3\-h\f1 \f2hostspec\f1]
+\f3pcp2graphite\f1
+[\f3\-CGHILrvV?\f1]
 [\f3\-a\f1 \f2archive\f1]
-[\f3\-L\f1]
+[\f3\--archive-folio\f1 \f2folio\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-b\f1 \f2space-scale\f1]
+[\f3\-c\f1 \f2config\f1]
+[\f3\--container\f1 \f2container\f1]
+[\f3\--daemonize\f1]
+[\f3\-e\f1 \f2derived\f1]
+[\f3\-E\f1 \f2text-port\f1]
+[\f3\-g\f1 \f2server\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-O\f1 \f2origin\f1]
-[\f3\-T\f1 \f2finish\f1]
+[\f3\-p\f1 \f2pickle-port\f1]
+[\f3\-P\f1 \f2precision\f1]
+[\f3\-q\f1 \f2count-scale\f1]
 [\f3\-s\f1 \f2samples\f1]
-[\f3\-t\f1 \f2delta\f1]
-[\f3\-g\f1 \f2graphitehost\f1]
-[\f3\-p\f1 \f2pickleport\f1]
-[\f3\-P\f1 \f2textport\f1]
-[\f3\-r\f1 \f2pickleprotocol\f1]
-[\f3\-u\f1 \f2units\f1]
-[\f3\-m\f1 \f2prefix\f1]
-\f2metricname\f1 ...
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-x\f1 \f2prefix\f1]
+[\f3\-X\f1 \f2pickle-protocol\f1]
+[\f3\-y\f1 \f2time-scale\f1]
+\f2metricspec [...]\f1
 .SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
 .B pcp2graphite
-is a PCP metric exporter.
-It relays hierarchies of the
-.BR pmns (5)
-to a designated
-Graphite (Carbon/Whisper) database by periodically polling, then
-copying/converting relevant numerical metrics across the Graphite
-"text" or "pickled" TCP protocols.  Metric values are optionally
-scaled to a given unit/scale, but are not rate-converted.  Metric
-names may be prefixed and are somewhat canonicalized to fit the
-Graphite namespace rules.
-.PP
-The data transfer will continue on a best-effort basis until the
-program is interrupted.  Temporary errors are ignored.  Multiple
-copies of this program may be run in parallel, to populate different
-Graphite databases or subtrees, with different scaling or sampling
-intervals.
-.PP
+is a customizable performance metrics exporter tool from PCP to
+Graphite.
+Any available performance metric, live or archived, system and/or application,
+can be selected for exporting using either command line arguments or a
+configuration file.
+.P
+.B pcp2graphite
+is a close relative of
+.BR pmrep (1).
+Please refer to
+.BR pmrep (1)
+for the
+.I metricspec
+description accepted on
+.B pcp2graphite
+command line and
+.BR pmrep.conf (5)
+for description of the
+.B pcp2graphite.conf
+configuration file overall syntax, this page describes
+.B pcp2graphite
+specific options and configuration file differences with
+.BR pmrep.conf (5).
+.P
+Only the command line options listed on this page are supported,
+other options recognized by
+.BR pmrep (1)
+are not supported.
+.P
+Configuration file options override the corresponding built-in
+default values (if any).
+Command line options override the
+corresponding configuration file options (if any).
+.SH CONFIGURATION FILE
+.B pcp2graphite
+uses a configuration file with overall syntax described in
+.BR pmrep.conf (5).
+The following options are common with
+.BR pmrep.conf :
+.BR version ,
+.BR source ,
+.BR speclocal ,
+.BR derived ,
+.BR header ,
+.BR globals ,
+.BR samples ,
+.BR interval ,
+.BR type ,
+.BR ignore_incompat ,
+.BR instances ,
+.BR omit_flat ,
+.BR precision ,
+.BR count_scale ,
+.BR space_scale ,
+.BR time_scale .
 The
-.BR pmmgr (1)
-daemon can be used to ensure one or more
-.B pcp2grapite
-instances start at system boot time.
-.SH OPTIONS
-.TP
-.B \-h \f2hostspec\f1
-Extract metrics from the specified
-.BR pmcd (1)
-daemon, using a host specification as described on
-.BR PCPIntro (1).
-The default is \f3local:\f1.
-.TP
-.B \-a \f2archive\f1
-Extract metrics from the given set of archives,
+.B output
+option is recognized but ignored for
+.B pmrep.conf
+compatibility.
+.P
+\fBpcp2graphite specific options\fR
+.P
+graphite_host (string)
+.RS 4
+Hostname or IP address of Graphite server to send the metrics to.
+Corresponding command line option is \fB-g\fR.
+Default is \fBlocalhost\fR.
+.RE
+.P
+graphite_port (integer)
+.RS 4
+Specify port number of Graphite server (plaintext or pickle).
+Corresponding command line options are \fB-p\fR and \fB-E\fR.
+Default is \fB2004\fR.
+.RE
+.P
+pickle (boolean)
+.RS 4
+Specify whether to use pickle protocol.
+Corresponding command line options are \fB-p\fR and \fB-E\fR.
+Default is \fByes\fR.
+.RE
+.P
+pickle_protocol (integer)
+.RS 4
+Specify pickle protocol version.
+Corresponding command line option is \fB-X\fR.
+Default is \fB0\fR.
+.RE
+.P
+prefix (string)
+.RS 4
+Specify the prefix for metrics sent to the server.
+Corresponding command line option is \fB-x\fR.
+Default is \fBpcp.\fR.
+.RE
+.SH COMMAND LINE OPTIONS
+The available command line options are:
+.TP 5
+.B \-a
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive log files identified by the argument
+.IR archive ,
 which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of a directory containing
 one or more archives.
 .TP
-.B \-L
-Extract metrics from the local context PCP PMDAs.
+.B \-\-archive\-folio
+Read metric source archives from the PCP archive
+.IR folio
+(see
+.BR mkaf (1)).
 .TP
-.B \-t \f2delta\f1
-Specify the polling interval in seconds.  If live, polling is aligned to
-natural multiples of this interval.  The default is \f360\f1 seconds.
+.B \-A
+Force the initial sample to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
 .TP
-.B \-O \f2origin\f1
-Set the time origin for archive scanning.  The default is the start of the
-set of archives.
+.B \-b
+.I Unit/scale
+for space (byte) metrics, possible values include
+.BR bytes ,
+.BR Kbytes ,
+.BR KB ,
+.BR Mbytes ,
+.BR MB ,
+and so forth up to
+.BR Ebytes ,
+.BR EB .
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
 .TP
-.B \-T \f2finish\f1
-Set the time finish for archive scanning.  The default is the end of the
-set of archives.
-.TP
-.B \-s \f2samples\f1
-Set the maximum number of samples to relay.  The default is unlimited.
-.TP
-.B \-g \f2graphitehost\f1
-Specify the graphite carbon-cache server where the relayed data is to
-be relayed.  The default is \f3localhost\f1.
-.TP
-.B \-p \f2pickleport\f1
-Select the more efficient "pickled" encoding for carbon-cache
-communication, and use the given TCP port.  This is the default, using
-port \f32004\f1.
-.TP
-.B \-P \f2textport\f1
-Alternately, select the less efficient "text" encoding for carbon-cache
-communication, and use the given TCP port.  This protocol is not
-default, because it requires a separate TCP connection for each
-metric.  The typical port is \f32003\f1.
-.TP
-.B \-r \f2pickleprotocol\f1
-Select the protocol for the "pickled" encoding. The possible values are:
-.RS
-.IP \[bu] 2
-0 - ASCII protocol (the slowest),
-.IP \[bu]
-1 - old binary protocol - pre Python 2.3,
-.IP \[bu]
-2 - new binary protocol introduced in Python 2.3.
-.RE
-.RS
-.TP
-The default is \f30\f1.
-.RE
-.TP
-.B \-u \f2units\f1
-Rescale the metrics to the given UNITS string, as parsed by the
-.IR pmParseUnitsStr (3)
-function.  This must be dimensionally consistent with the underlying
-PCP metric.  The default is to perform no scaling.
-.TP
-.B \-m \f2prefix\f1
-Use the given string as a prefix for all PMNS metrics relayed to Graphite.
-The default is \f3pcp.\f1 (note the period at the end).
-.TP
-.I metricname
-Relay all numeric metrics nested at or below the given name in the PMNS.
-This option may be repeated.  This is a compulsory option, having no
-default.
-.SH "SEE ALSO"
-.BR PCPIntro (1),
-.BR pmcd (1),
-.BR pmParseUnitsStr (3),
-.BR http://graphite.wikidot.com/ ,
-.BR pmmgr (1),
-.BR pmval (1),
-.BR PMAPI (3),
-.BR pcp.conf (5)
+.B \-c
+Specify the
+.I config
+file to use.
+The default is the first found of:
+.BR ./pcp2graphite.conf ,
+.BR $HOME/.pcp2graphite.conf ,
+.BR $HOME/pcp/pcp2graphite.conf ,
 and
-.BR pmns (5).
+.BR $PCP_SYSCONF_DIR/pcp2graphite.conf .
+For details, see the above section and
+.BR pmrep.conf (5).
+.TP
+.B \-\-container
+Fetch performance metrics from the specified
+.IR container ,
+either local or remote (see
+.BR \-h ).
+.TP
+.B \-C
+Exit before reporting any values, but after parsing the configuration
+and metrics and printing possible headers.
+.TP
+.B \-\-daemonize
+Daemonize on startup.
+.TP
+.B \-e
+Specify
+.I derived
+performance metrics. If
+.I derived
+starts with a slash (``/'') or with a dot (``.'') it will be
+interpreted as a derived metrics configuration file, otherwise it will
+be interpreted as comma-separated derived metric expressions.
+For details see
+.BR pmLoadDerivedConfig (3)
+and
+.BR pmRegisterDerived (3).
+.TP
+.B \-E
+Graphite server plaintext
+.IR port .
+Using this option disables the pickle protocol.
+.TP
+.B \-g
+Graphite
+.I server
+to send the metrics to.
+.TP
+.B \-G
+Do not include global metrics in reporting (see
+.BR pmrep.conf (5)).
+.TP
+.B \-h
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than the default localhost.
+.TP
+.B \-H
+Do not print any headers.
+.TP
+.B \-i
+Report only the listed
+.I instances
+(if present).
+By default all current instances are reported.
+This is a global option that is used for all metrics unless a
+metric-specific instance definition is provided as part of a
+.IR metricspec .
+By default metrics without instances are reported as usual, use
+.B \-v
+to change this.
+Please refer to
+.BR pmrep (1)
+for more details on this option.
+.TP
+.B \-I
+Ignore incompatible metrics. By default incompatible metrics
+(that is, their type is unsupported or they cannot be scaled
+as requested) will cause
+.B pcp2graphite
+to terminate with an error message.
+With this option all incompatible metrics are silently omitted
+from reporting. This may be especially useful when requesting
+non-leaf nodes of the PMNS tree for reporting.
+.TP
+.B \-K
+When fetching metrics from a local context (see
+.BR \-L ),
+the
+.B \-K
+option may be used to control the DSO PMDAs that should be made
+accessible.
+The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA(3).
+More than one
+.B \-K
+option may be used.
+.TP
+.B \-L
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
+.TP
+.B \-O
+When reporting archived metrics, start reporting at
+.I origin
+within the time window (see
+.B \-S
+and
+.BR \-T ).
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR origin .
+.TP
+.B \-p
+Graphite server pickle
+.IR port .
+Using this option enables the pickle protocol.
+.TP
+.B \-P
+Use
+.I precision
+for numeric non-integer output values.
+The default is to use 3 decimal places (when applicable).
+.TP
+.B \-q
+.I Unit/scale
+for count metrics, possible values include
+.BR "count x 10^-1" ,
+.BR "count" ,
+.BR "count x 10" ,
+.BR "count x 10^2" ,
+and so forth from
+.B 10^-8
+to
+.BR 10^7 .
+.\" https://bugzilla.redhat.com/show_bug.cgi?id=1264124
+(These values are currently space-sensitive.)
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-r
+Output raw metric values, do not convert cumulative counters to rates.
+This option \fIwill\fR override possible per-metric specifications.
+.TP
+.B \-s
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified,
+.B pcp2graphite
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+See also
+.BR \-T .
+.TP
+.B \-S
+When reporting archived metrics, the report will be restricted to those
+records logged at or after
+.IR starttime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+.B \-t
+The default update
+.I interval
+may be set to something other than the default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied units
+in this case are seconds).
+See also the
+.B \-T
+option.
+.TP
+.B \-T
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.RS
+.PP
+When used to define the runtime before \fBpcp2graphite\fR will exit,
+if no \fIsamples\fR is given (see \fB-s\fR) then the number of
+reported samples depends on \fIinterval\fR (see \fB-t\fR).
+If
+.I samples
+is given then
+.I interval
+will be adjusted to allow reporting of
+.I samples
+during runtime.
+In case all of
+.BR \-T ,
+.BR \-s ,
+and
+.B \-t
+are given,
+.I endtime
+determines the actual time
+.B pcp2graphite
+will run.
+.RE
+.TP
+.B \-v
+Omit single-valued ``flat'' metrics from reporting when instances
+were requested.
+See
+.B -\i
+and
+.BR -\I .
+.TP
+.B \-V
+Display version number and exit.
+.TP
+.B \-x
+Metrics
+.I prefix
+for measurements sent to the server.
+.TP
+.B \-X
+Pickle
+.I protocol
+version number.
+.TP
+.B \-y
+.I Unit/scale
+for time metrics, possible values include
+.BR nanosec ,
+.BR ns ,
+.BR microsec ,
+.BR us ,
+.BR millisec ,
+.BR ms ,
+and so forth up to
+.BR hour ,
+.BR hr .
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-?
+Display usage message and exit.
+.SH FILES
+.PD 0
+.TP 10
+.BI pcp2graphite.conf
+\fBpcp2graphite\fR configuration file (see \fB-c\fR).
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parametrize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR mkaf (1),
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pcp2elasticsearch (1),
+.BR pcp2influxdb (1),
+.BR pcp2json (1),
+.BR pcp2xlsx (1),
+.BR pcp2xml (1),
+.BR pcp2zabbix (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmrep (1),
+.BR __pmSpecLocalPMDA (3),
+.BR pmLoadDerivedConfig (3),
+.BR pmParseUnitsStr (3),
+.BR pmRegisterDerived (3),
+.BR pcp-archive (5),
+.BR pcp.conf (5),
+.BR pmns (5)
+and
+.BR pmrep.conf (5).

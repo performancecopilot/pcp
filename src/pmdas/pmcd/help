@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2017 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -191,8 +191,18 @@ Running total of BINARY mode PMNS_TRAVERSE PDUs received by the PMCD from
 clients and agents.
 
 @ pmcd.pdu_in.auth AUTH PDUs received by PMCD
-Running total of BINARY mode AUTH PDUs received by the PMCD from
+Running total of BINARY mode AUTH PDUs received by PMCD from
 clients and agents.  These PDUs are used for authentication.
+
+@ pmcd.pdu_in.label_req LABEL_REQ PDUs received by PMCD
+Running total of BINARY mode LABEL_REQ PDUs received by PMCD from
+clients and agents.  These PDUs are used to request metric metadata
+labels.
+
+@ pmcd.pdu_in.label LABEL PDUs received by PMCD
+Running total of BINARY mode LABEL PDUs received by PMCD from
+clients and agents.  These PDUs are used to send custom metric
+metadata in the form of name:value pairs (labels).
 
 @ pmcd.pdu_out.total Total PDUs sent by PMCD
 Running total of all BINARY mode PDUs sent by the PMCD to clients and
@@ -266,6 +276,14 @@ and agents.
 Running total of BINARY mode AUTH PDUs sent by the PMCD to clients
 and agents.  These PDUs are used for authentication.
 
+@ pmcd.pdu_out.label_req LABEL_REQ PDUs sent by PMCD
+Running total of BINARY mode LABEL_REQ PDUs sent by the PMCD to clients
+and agents.  These are used to request metadata labels (name:value pairs).
+
+@ pmcd.pdu_out.label LABEL PDUs sent by PMCD
+Running total of BINARY mode LABEL PDUs sent by the PMCD to clients
+and agents.  These are used to send metadata labels (name:value pairs).
+
 @ pmcd.pmlogger.host host where active pmlogger is running
 The fully qualified domain name of the host on which a pmlogger
 instance is running.
@@ -310,6 +328,11 @@ Enables determination of "local" time for timestamps returned via
 PMCD from a remote host.
 
 @ pmcd.sighups count of SIGHUP signals pmcd has received
+
+@ pmcd.labels Context level metadata labels associated with all values
+Additional end-user and PMCS metadata can be associated with performance
+metrics via $PCP_SYSCONF_DIR/labels files.  This metric exports the value
+that will be reported by pmGetContextLabels(3).
 
 @ pmcd.hostname local hostname
 A reasonably unique identifier of the PMCD installation, for use

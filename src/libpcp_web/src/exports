@@ -2,6 +2,9 @@ PCP_WEB_1.0 {
   global:
     pmjsonInitIndom;
     pmjsonInit;
+
+  local:
+    *;
 };
 
 PCP_WEB_1.1 {

@@ -19,7 +19,9 @@ void
 buildinst(int *numinst, int **intlist, char ***extlist, int intid, char *extid)
 {
     char	**el;
+    char	**tmp_el;
     int		*il;
+    int		*tmp_il;
     int		num = *numinst;
 
     if (num == 0) {
@@ -31,8 +33,18 @@ buildinst(int *numinst, int **intlist, char ***extlist, int intid, char *extid)
 	el = *extlist;
     }
 
-    el = (char **)realloc(el, (num+1)*sizeof(el[0]));
-    il = (int *)realloc(il, (num+1)*sizeof(il[0]));
+    tmp_el = (char **)realloc(el, (num+1)*sizeof(el[0]));
+    if (tmp_el == NULL) {
+	__pmNoMem("buildinst extlist", (num+1)*sizeof(el[0]), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    el = tmp_el;
+    tmp_il = (int *)realloc(il, (num+1)*sizeof(il[0]));
+    if (tmp_il == NULL) {
+	__pmNoMem("buildinst intlist", (num+1)*sizeof(il[0]), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    il = tmp_il;
 
     il[num] = intid;
 

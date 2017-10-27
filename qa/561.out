@@ -1,0 +1,100 @@
+QA output created by 561
+=> One label merged, value should be v2
+Verify Core mergelabels
+Low ->  {"name":"v1"} {"name":"v2"}  <- High
+Result: {"name":"v2"}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {"name":"v1"} {"name":"v2"}  <- High
+Result: {"name":"v2"}
+Verified: OK
+
+=> Simple labels, different basic values
+Verify Core mergelabels
+Low ->  {"n0":"s","n1":34,"n2":true,"n3":null} {"high":"priority"}  <- High
+Result: {"high":"priority","n0":"s","n1":34,"n2":true,"n3":null}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {"n0":"s","n1":34,"n2":true,"n3":null} {"high":"priority"}  <- High
+Result: {"high":"priority","n0":"s","n1":34,"n2":true,"n3":null}
+Verified: OK
+
+=> Complex labels, maps as values, single element
+Verify Core mergelabels
+Low ->  {} {"map":{"priority":"one"}}  <- High
+Result: {"map":{"priority":"one"}}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {} {"map":{"priority":"one"}}  <- High
+Result: {"map":{"priority":"one"}}
+Verified: OK
+
+=> Complex labels, maps as values, multiple elements
+Verify Core mergelabels
+Low ->  {} {"map":{"priority":"one","ratio":2.5}}  <- High
+Result: {"map":{"priority":"one","ratio":2.5}}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {} {"map":{"priority":"one","ratio":2.5}}  <- High
+Result: {"map":{"priority":"one","ratio":2.5}}
+Verified: OK
+
+=> Complex labels, multiple maps as values, multiple element
+Verify Core mergelabels
+Low ->  {"map"} {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}  <- High
+Result: {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {"map"} {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}  <- High
+Result: {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}
+Verified: OK
+
+=> Complex labels, arrays as values, single element
+Verify Core mergelabels
+Low ->  {} {"a":["priority"]}  <- High
+Result: {"a":["priority"]}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {} {"a":["priority"]}  <- High
+Result: {"a":["priority"]}
+Verified: OK
+
+=> Complex labels, arrays as values, multiple elements
+Verify Core mergelabels
+Low ->  {} {"a":["priority","one","ratio",2.5]}  <- High
+Result: {"a":["priority","one","ratio",2.5]}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {} {"a":["priority","one","ratio",2.5]}  <- High
+Result: {"a":["priority","one","ratio",2.5]}
+Verified: OK
+
+=> Complex labels1, multiple arrays as values, multiple elements
+Verify Core mergelabels
+Low ->  {"a":[1]} {"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}  <- High
+Result: {"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {"a":[1]} {"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}  <- High
+Result: {"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}
+Verified: OK
+
+=> Complex labels2, multiple arrays as values, multiple elements
+Verify Core mergelabels
+Low ->  {"datacenter":"torquay","environment":"production"} {"services":["indexer","database"]} {"none":none,"some":[1,2,3],"more":{"all":false,"none":true}}  <- High
+Result: {"datacenter":"torquay","environment":"production","more":{"all":false,"none":true},"none":none,"services":["indexer","database"],"some":[1,2,3]}
+Verified: OK
+
+Verify Python mergelabels
+Low ->  {"datacenter":"torquay","environment":"production"} {"services":["indexer","database"]} {"none":none,"some":[1,2,3],"more":{"all":false,"none":true}}  <- High
+Result: {"datacenter":"torquay","environment":"production","more":{"all":false,"none":true},"none":none,"services":["indexer","database"],"some":[1,2,3]}
+Verified: OK
+

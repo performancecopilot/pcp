@@ -273,7 +273,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 char *
 __pmPDUTypeStr_r(int type, char *buf, int buflen)
 {
-    char	*res = NULL;
+    char	*res;
 
     switch (type) {
     case PDU_ERROR:		res = "ERROR"; break;
@@ -296,6 +296,8 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     case PDU_LOG_STATUS:	res = "LOG_STATUS"; break;
     case PDU_LOG_REQUEST:	res = "LOG_REQUEST"; break;
     case PDU_ATTR:		res = "ATTR"; break;
+    case PDU_LABEL_REQ:		res = "LABEL_REQ"; break;
+    case PDU_LABEL:		res = "LABEL"; break;
     default:			res = NULL; break;
     }
     if (res)

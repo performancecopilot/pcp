@@ -324,6 +324,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		p = strerror_r(save_error, errmsg, sizeof(errmsg));
 		if (p != errmsg)
 		    strncpy(errmsg, p, sizeof(errmsg));
+		errmsg[sizeof(errmsg)-1] = '\0';
 	    }
 #else
 	    /*

@@ -38,6 +38,6 @@ Helgrind, a thread error detector
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === stdout ===
 Total PDU counts
-in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 traverse: found MYNUMBER metrics, sts MYSTS

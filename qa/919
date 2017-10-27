@@ -39,7 +39,7 @@ _filter()
 # real QA test starts here
 pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 1 -s 3 -l $tmp.log $tmp
 cat $tmp.log >>$seq.full
-pmdumplog -a $tmp >>$seq.full
+pmdumplog -dilmst $tmp >>$seq.full
 
 pmstat -t 1 -a $tmp | _filter
 

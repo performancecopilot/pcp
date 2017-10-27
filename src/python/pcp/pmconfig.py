@@ -24,6 +24,7 @@ try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
+import time
 import csv
 import sys
 import os
@@ -52,8 +53,13 @@ class pmConfig(object):
         self.descs = []
         self.insts = []
 
+        # Pause helpers
+        self._round = 0
+        self._init_ts = None
+        self._tz = time.strftime('%z')
+
         # Pass data with pmTraversePMNS
-        self.tmp = []
+        self._tmp = []
 
     def set_config_file(self, default_config):
         """ Set default config file """
@@ -298,17 +304,21 @@ class pmConfig(object):
                     desc.contents.type == pmapi.c_api.PM_TYPE_DOUBLE or
                     desc.contents.type == pmapi.c_api.PM_TYPE_STRING):
                 raise pmapi.pmErr(pmapi.c_api.PM_ERR_TYPE)
-            instances = self.util.instances if not self.tmp[0] else self.tmp
+            instances = self.util.instances if not self._tmp[0] else self._tmp
             if self.util.omit_flat and instances and not inst[1][0]:
                 return
             if instances and inst[1][0]:
                 found = [[], []]
                 for r in instances:
-                    cr = re.compile(r'\A' + r + r'\Z')
-                    for i, s in enumerate(inst[1]):
-                        if re.match(cr, s):
-                            found[0].append(inst[0][i])
-                            found[1].append(inst[1][i])
+                    try:
+                        cr = re.compile(r'\A' + r + r'\Z')
+                        for i, s in enumerate(inst[1]):
+                            if re.match(cr, s):
+                                found[0].append(inst[0][i])
+                                found[1].append(inst[1][i])
+                    except Exception as e:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                        sys.exit(1)
                 if not found[0]:
                     return
                 inst = tuple(found)
@@ -372,9 +382,9 @@ class pmConfig(object):
         for metric in metrics:
             try:
                 l = len(self.pmids)
-                self.tmp = metrics[metric][1]
-                if not 'append' in dir(self.tmp):
-                    self.tmp = [self.tmp]
+                self._tmp = metrics[metric][1]
+                if not 'append' in dir(self._tmp):
+                    self._tmp = [self._tmp]
                 self.util.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found
@@ -541,3 +551,17 @@ class pmConfig(object):
         if float(self.util.interval) <= 0:
             sys.stderr.write("Interval must be greater than zero.\n")
             sys.exit(1)
+
+    def pause(self):
+        """ Pause before next sampling """
+        self._round += 1
+
+        if not self._init_ts:
+            self._init_ts = float(self.util.pmfg_ts().strftime("%s.%f"))
+
+        next = self._init_ts + float(self.util.interval) * self._round
+
+        sleep = next - time.time()
+
+        if sleep > 0:
+            time.sleep(sleep)

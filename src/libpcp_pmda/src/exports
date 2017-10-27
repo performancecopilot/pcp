@@ -154,3 +154,12 @@ PCP_PMDA_3.6 {
     __pmdaRecvRootPDUStop;
     __pmdaDecodeRootPDUStop;
 } PCP_PMDA_3.5;
+
+PCP_PMDA_3.7 {
+  global:
+    pmdaLabel;
+    pmdaAddLabels;
+    pmdaAddLabelFlags;
+    pmdaSetLabelCallBack;
+    pmdaAddNotes;
+} PCP_PMDA_3.6;

@@ -1,0 +1,209 @@
+QA output created by 562
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+== PMCD labels
+** Labels on metric sample.colour via pmcd
+
+sample.colour
+    inst [0 or "red"] labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+    inst [1 or "green"] labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+    inst [2 or "blue"] labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+
+** Labels on metric sample.darkness via pmcd
+
+sample.darkness
+    inst [0 or "red"] labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+    inst [1 or "green"] labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+    inst [2 or "blue"] labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+
+** Labels on metric sample.rapid via pmcd
+
+sample.rapid
+    labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","measure":"speed","role":"testing","units":"metres per second","unitsystem":"SI","userid":UID}
+
+** Labels on metric sample.bin via pmcd
+
+sample.bin
+    inst [100 or "bin-100"] labels {"QA":562,"agent":"pmdasample","bin":100,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [200 or "bin-200"] labels {"QA":562,"agent":"pmdasample","bin":200,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [300 or "bin-300"] labels {"QA":562,"agent":"pmdasample","bin":300,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [400 or "bin-400"] labels {"QA":562,"agent":"pmdasample","bin":400,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [500 or "bin-500"] labels {"QA":562,"agent":"pmdasample","bin":500,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [600 or "bin-600"] labels {"QA":562,"agent":"pmdasample","bin":600,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [700 or "bin-700"] labels {"QA":562,"agent":"pmdasample","bin":700,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [800 or "bin-800"] labels {"QA":562,"agent":"pmdasample","bin":800,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+    inst [900 or "bin-900"] labels {"QA":562,"agent":"pmdasample","bin":900,"groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+
+** Labels on indom 29.1 via pmcd
+
+InDom: 29.1 0x7400001
+    labels {"QA":562,"agent":"pmdasample","groupid":GID,"hostname":"HOSTNAME","model":"RGB","role":"testing","userid":UID}
+
+== DSO labels
+** Labels on metric sampledso.colour via local context
+
+sampledso.colour
+    inst [0 or "red"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+
+** Labels on metric sampledso.darkness via local context
+
+sampledso.darkness
+    inst [0 or "red"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+
+** Labels on metric sampledso.rapid via local context
+
+sampledso.rapid
+    labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","measure":"speed","role":"testing","units":"metres per second","unitsystem":"SI"}
+
+** Labels on metric sampledso.bin via local context
+
+sampledso.bin
+    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample DSO","bin":100,"hostname":"HOSTNAME","role":"testing"}
+    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample DSO","bin":200,"hostname":"HOSTNAME","role":"testing"}
+    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample DSO","bin":300,"hostname":"HOSTNAME","role":"testing"}
+    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample DSO","bin":400,"hostname":"HOSTNAME","role":"testing"}
+    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample DSO","bin":500,"hostname":"HOSTNAME","role":"testing"}
+    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample DSO","bin":600,"hostname":"HOSTNAME","role":"testing"}
+    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample DSO","bin":700,"hostname":"HOSTNAME","role":"testing"}
+    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample DSO","bin":800,"hostname":"HOSTNAME","role":"testing"}
+    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample DSO","bin":900,"hostname":"HOSTNAME","role":"testing"}
+
+** Labels on indom 30.1 via local context
+
+InDom: 30.1 0x7800001
+    labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+
+== dbpmda DSO labels
+** Labels on context  via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label context 
+Labels:
+    QA=562
+dbpmda> 
+** Labels on domain  via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label domain 
+Labels:
+    agent="sample DSO"
+    role="testing"
+dbpmda> 
+** Labels on metric sampledso.colour via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label item sampledso.colour
+PMID: 30.0.5
+Info: DSO label() returns 0
+dbpmda> 
+** Labels on metric sampledso.rapid via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label item sampledso.rapid
+PMID: 30.0.64
+Labels:
+    measure="speed"
+    units="metres per second"
+    unitsystem="SI"
+dbpmda> 
+** Labels on indom 30.1 via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label indom 30.1
+pmInDom: 30.1
+Labels:
+    model="RGB"
+dbpmda> 
+** Labels on metric sampledso.darkness via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label item sampledso.darkness
+PMID: 30.0.92
+Info: DSO label() returns 0
+dbpmda> 
+** Labels on instances 30.2 via dbpmda (dso)
+dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
+dbpmda> label instances 30.2
+Instances of pmInDom: 30.2
+[  0] Labels inst: 100
+    bin=100
+[  1] Labels inst: 200
+    bin=200
+[  2] Labels inst: 300
+    bin=300
+[  3] Labels inst: 400
+    bin=400
+[  4] Labels inst: 500
+    bin=500
+[  5] Labels inst: 600
+    bin=600
+[  6] Labels inst: 700
+    bin=700
+[  7] Labels inst: 800
+    bin=800
+[  8] Labels inst: 900
+    bin=900
+dbpmda> 
+== dbpmda PIPE labels
+** Labels on domain  via dbpmda (pipe)
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> label domain 
+Labels:
+    agent="pmdasample"
+    role="testing"
+dbpmda> 
+** Labels on metric sample.colour via dbpmda (pipe)
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> label item sample.colour
+PMID: 29.0.5
+Info: __pmDecodeLabel() returns 0 label sets
+dbpmda> 
+** Labels on metric sample.rapid via dbpmda (pipe)
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> label item sample.rapid
+PMID: 29.0.64
+Labels:
+    measure="speed"
+    units="metres per second"
+    unitsystem="SI"
+dbpmda> 
+** Labels on indom 29.1 via dbpmda (pipe)
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> label indom 29.1
+pmInDom: 29.1
+Labels:
+    model="RGB"
+dbpmda> 
+** Labels on metric sample.darkness via dbpmda (pipe)
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> label item sample.darkness
+PMID: 29.0.92
+Info: __pmDecodeLabel() returns 0 label sets
+dbpmda> 
+** Labels on instances 29.2 via dbpmda (pipe)
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> label instances 29.2
+Instances of pmInDom: 29.2
+[  0] Labels inst: 100
+    bin=100
+[  1] Labels inst: 200
+    bin=200
+[  2] Labels inst: 300
+    bin=300
+[  3] Labels inst: 400
+    bin=400
+[  4] Labels inst: 500
+    bin=500
+[  5] Labels inst: 600
+    bin=600
+[  6] Labels inst: 700
+    bin=700
+[  7] Labels inst: 800
+    bin=800
+[  8] Labels inst: 900
+    bin=900
+dbpmda> 

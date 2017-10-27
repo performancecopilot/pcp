@@ -64,7 +64,7 @@ then
     #
     pmquery >/dev/null 2>&1 \
 	-timeout 5 \
-	-header "kmchart view construction" \
+	-header "pmchart view construction" \
 	-t "Finding top CPU burners, please wait 5 seconds ..." &
     query=$!
     echo "/\[0*$query /d" >>$tmp/sed
@@ -76,7 +76,7 @@ i=0
 fail=true
 for metric in proc.psinfo.utime proc.psusage.utime
 do
-    nval=`pmprobe -if $* $metric 2>&1 \
+    nval=`pmprobe -ifF "$*" $metric 2>&1 \
           | tee $tmp/err.$i \
 	  | $PCP_AWK_PROG '{print $2}'`
     if [ "$nval" -gt 0 ]
@@ -94,10 +94,10 @@ fi
 
 # note arguments from pmchart are nothing or -h host or -a archive
 #
-if pminfo -F $* $metric >$tmp/1 2>$tmp/err.a
+if pminfo -F "$*" $metric >$tmp/1 2>$tmp/err.a
 then
     sleep 5
-    if pminfo -F $* $metric >$tmp/2 2>$tmp/err.b
+    if pminfo -F "$*" $metric >$tmp/2 2>$tmp/err.b
     then
 	:
     else

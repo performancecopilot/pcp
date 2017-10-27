@@ -35,6 +35,7 @@
 #endif
 #include <signal.h>
 #include <ctype.h>
+#include <strings.h>
 
 struct __pmExecCtl {
     int		argc;

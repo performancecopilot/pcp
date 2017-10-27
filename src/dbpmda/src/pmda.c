@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2017 Red Hat.
  * Copyright (c) 1995,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -32,11 +32,11 @@
 #include "./lex.h"
 #include "./gram.h"
 
-static __pmTimeval	now = { 0, 0 };
+static __pmTimeval	now;
 
 int			infd;
 int			outfd;
-char			*myPmdaName = 0;
+char			*myPmdaName;
 
 extern int		_creds_timeout;
 
@@ -348,11 +348,14 @@ dopmda(int pdu)
     pmDesc		desc;
     pmDesc		*desc_list = NULL;
     pmResult		*result = NULL;
+    pmLabelSet		*labelset = NULL;
     __pmInResult	*inresult;
     __pmPDU		*pb;
     int			i;
     int			j;
+    int			type;
     int			ident;
+    int			numsets;
     int			length;
     char		*buffer;
     struct timeval	start;
@@ -606,8 +609,68 @@ dopmda(int pdu)
 		}
 		else
 		    printf("Error: __pmSendTextReq() failed: %s\n", pmErrStr(sts));
-	    
 	    }
+	    break;
+
+	case PDU_LABEL_REQ:
+	    if (param.number & PM_LABEL_INDOM) {
+		printf("pmInDom: %s\n", pmInDomStr(param.indom));
+		ident = param.indom;
+	    }
+	    else if (param.number & PM_LABEL_CLUSTER) {
+		printf("Cluster: %s\n", strcluster(param.pmid));
+		ident = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_ITEM) {
+		printf("PMID: %s\n", pmIDStr(param.pmid));
+		ident = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_INSTANCES) {
+		printf("Instances of pmInDom: %s\n", pmInDomStr(param.indom));
+		ident = param.indom;
+	    }
+	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */
+		ident = PM_IN_NULL;
+
+	    if ((sts = __pmSendLabelReq(outfd, FROM_ANON, ident, param.number)) >= 0) {
+		if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_LABEL) {
+		    if ((sts = __pmDecodeLabel(pb, &ident, &type, &labelset, &numsets)) >= 0) {
+			for (i = 0; i < numsets; i++) {
+			    if (labelset[i].inst != PM_IN_NULL)
+				printf("[%3d] Labels inst: %d\n", i, labelset[i].inst);
+			    else
+				printf("Labels:\n");
+			    for (j = 0; j < labelset[i].nlabels; j++) {
+				pmLabel	*lp = &labelset[i].labels[j];
+				char *name = labelset[i].json + lp->name;
+				char *value = labelset[i].json + lp->value;
+				printf("    %.*s=%.*s\n", lp->namelen, name, lp->valuelen, value);
+			    }
+			}
+			if (numsets > 0)
+			    pmFreeLabelSets(labelset, numsets);
+			else
+			    printf("Info: __pmDecodeLabel() returns 0 label sets\n");
+		    }
+		    else
+			printf("Error: __pmDecodeLabel() failed: %s\n", pmErrStr(sts));
+		}
+		else if (sts == PDU_ERROR) {
+		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
+			printf("Error PDU: %s\n", pmErrStr(sts));
+		    else
+			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
+		else
+		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
+	    }
+	    else
+		printf("Error: __pmSendLabelReq() failed: %s\n", pmErrStr(sts));
+
 	    break;
 
 	case PDU_PMNS_IDS:
@@ -823,12 +886,14 @@ fillResult(pmResult *result, int type)
 
 	if (vsp->numval == 0) {
 	    printf("Error: %s not available!\n", pmIDStr(param.pmid));
-	    return PM_ERR_VALUE;
+	    sts = PM_ERR_VALUE;
+	    goto done;
 	}
 
 	if (vsp->numval < 0) {
 	    printf("Error: %s: %s\n", pmIDStr(param.pmid), pmErrStr(vsp->numval));
-	    return vsp->numval;
+	    sts = vsp->numval;
+	    goto done;
 	}
 
 	for (i = 0; i < vsp->numval; i++) {
@@ -844,6 +909,10 @@ fillResult(pmResult *result, int type)
 	    putchar('\n');
 	}
     }
+
+done:
+    if (type == PM_TYPE_STRING && atom.cp != NULL)
+	free(atom.cp);
 
     return sts;
 }

@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 568
+# Exercise generic PMAPI labelset lookup.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+userid=`id -u`
+groupid=`id -g`
+hostname=`hostname`
+need_restore=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_labels()
+{
+    sed \
+	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOST\"/g" \
+	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+	-e "s/.userid.:$userid/\"userid\":UID/g" \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+echo '{"pcpqa":"labels"}' > $tmp.labels
+$sudo cp $tmp.labels $PCP_ETC_DIR/pcp/labels/pcpqa
+_service pmcd restart
+_wait_for_pmcd
+
+$here/src/labels \
+	sample.bin \
+	sample.colour \
+	sample.long.one \
+| _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/pcpqa
+
+# success, all done
+status=0
+exit

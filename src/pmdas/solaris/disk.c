@@ -328,7 +328,7 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 	    }
 
 	    if ((kn = kstat_data_lookup(ctl->sderr, m)) == NULL) {
-		if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
+		if (pmDebugOptions.appl0 && pmDebugOptions.appl2)
 		    fprintf(stderr, "No %s in %s\n", m, diskname);
 		return 0;
 	    }

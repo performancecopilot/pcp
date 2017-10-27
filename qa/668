@@ -158,7 +158,7 @@ echo "== container archive data dump:" >>$seq.full
 ls -lR $tmp.dir >>$seq.full # for reference
 for f in $tmp.dir/$hostname--*/*.meta; do
     echo == $f == >>$seq.full
-    pmdumplog -a $f >>$seq.full
+    pmdumplog -dilmst $f >>$seq.full
 done
 
 status=0

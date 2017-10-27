@@ -35,10 +35,16 @@
 #include <termio.h>
 #include <unistd.h>
 #include <stdarg.h>
+#ifdef HAVE_NCURSES_CURSES_H
+#include <ncurses/curses.h>
+#else
 #include <curses.h>
+#endif
 #include <pwd.h>
 #include <grp.h>
 #include <regex.h>
+
+#include <pcp/pmapi.h>
 
 #include "atop.h"
 #include "photoproc.h"

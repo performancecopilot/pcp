@@ -1,5 +1,8 @@
 GNUlocaldefs
 check.done
+sort_r.h
+jsmn.h
+jsmn.c
 getdate.h
 getdate.tab.?
 derive_parser.y

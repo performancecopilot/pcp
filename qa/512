@@ -126,7 +126,7 @@ _filter <$tmp.trace
 echo | tee -a $seq.full
 echo "== pmdumplog ==" | tee -a $seq.full
 _pre $SRC/pmdumplog pmdumplog
-$SRC/pmdumplog/pmdumplog.debug -a -Dlock $tmp-out >$tmp.err 2>$tmp.out
+$SRC/pmdumplog/pmdumplog.debug -dilmst -Dlock $tmp-out >$tmp.err 2>$tmp.out
 _post $SRC/pmdumplog pmdumplog
 cat $tmp.out $tmp.err | _filter
 

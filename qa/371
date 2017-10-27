@@ -184,7 +184,7 @@ sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
 # don't expect an output archive as there are no rows of data
 # in the spreadsheet
 #
-[ -f $tmp.0 -o -f $tmp.index -o -f $tmp.meta ] && pmdumplog -az $tmp
+[ -f $tmp.0 -o -f $tmp.index -o -f $tmp.meta ] && pmdumplog -dilmstz $tmp
 
 # success, all done
 exit

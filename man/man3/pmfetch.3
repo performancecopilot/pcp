@@ -292,6 +292,10 @@ An attempt has been made to restart at least one failed PMDA.
 At least one PMDA has been started.
 .IP \fBPMCD_DROP_AGENT\fR
 PMCD has noticed the termination of at least one PMDA.
+.IP \fBPMCD_AGENT_CHANGE\fR
+A convenience macro for any of the three PMDA changes.
+.IP \fBPMCD_LABEL_CHANGE\fR
+PMCD has been informed of changes to global (context) labels.
 .PP
 The default is to return zero to indicate
 no change in state, however
@@ -312,6 +316,7 @@ zero or greater than zero.
 .BR pmFreeResult (3),
 .BR pmGetInDom (3),
 .BR pmLookupDesc (3),
+.BR pmLookupLabels (3),
 .BR pmLookupName (3),
 .BR pmNewContext (3),
 .BR pmSetMode (3),

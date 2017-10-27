@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2014,2017 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -308,6 +308,23 @@ main(int argc, char **argv)
 		    break;
 		}
 		break;
+
+	    case LABEL:
+		switch (connmode) {
+		    case CONN_DSO:
+			dodso(PDU_LABEL_REQ);
+			break;
+
+		    case CONN_DAEMON:
+			dopmda(PDU_LABEL_REQ);
+			break;
+
+		    case NO_CONN:
+			yywarn("No PMDA currently opened");
+			break;
+		}
+		break;
+
 	    case NAMESPACE:
 		if (cmd_namespace != NULL)
 		    free(cmd_namespace);

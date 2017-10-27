@@ -72,6 +72,8 @@ usr/share/man/man3/pmdainstance.3.gz
 usr/share/man/man3/pmdaInstance.3.gz
 usr/share/man/man3/pmdainterfacemoved.3.gz
 usr/share/man/man3/pmdaInterfaceMoved.3.gz
+usr/share/man/man3/pmdalabel.3.gz
+usr/share/man/man3/pmdaLabel.3.gz
 usr/share/man/man3/pmdamain.3.gz
 usr/share/man/man3/pmdaMain.3.gz
 usr/share/man/man3/pmdaname.3.gz
@@ -98,6 +100,7 @@ usr/share/man/man3/pmdaSetDoneCallBack.3.gz
 usr/share/man/man3/pmdaSetEndContextCallBack.3.gz
 usr/share/man/man3/pmdaSetFetchCallBack.3.gz
 usr/share/man/man3/pmdaSetFlags.3.gz
+usr/share/man/man3/pmdaSetLabelCallBack.3.gz
 usr/share/man/man3/pmdaSetResultCallBack.3.gz
 usr/share/man/man3/pmdastore.3.gz
 usr/share/man/man3/pmdaStore.3.gz

@@ -23,10 +23,15 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#ifdef HAVE_NCURSES_CURSES_H
+#include <ncurses/curses.h>
+#else
 #include <curses.h>
+#endif
 #include <regex.h>
 #include <pwd.h>
 #include <grp.h>
+#include <stdarg.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -1219,7 +1224,7 @@ generic_samp(double curtime, double delta,
 				{
 					char *ep;
 
-					if (id >= MAXPID-1)
+					if (id >= AT_MAXPID-1)
 					{
 						procsel.pid[id] = 0;	// stub
 
@@ -1713,6 +1718,7 @@ generic_samp(double curtime, double delta,
 					firstproc = 0;
 				break;
 
+#ifndef IS_SOLARIS
 			   /*
 			   ** handle screen resize
 			   */
@@ -1726,6 +1732,7 @@ generic_samp(double curtime, double delta,
 				(void) getch();
 				timeout(-1);
 				break;
+#endif
 
 			   /*
 			   ** unknown key-stroke

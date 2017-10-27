@@ -45,7 +45,7 @@ pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp &
 logger_pid=$!
 wait
 _filter_pmlogger_log <$tmp.log
-pmdumplog -a $tmp | _filter_pmdumplog | _filter
+pmdumplog -dilmst $tmp | _filter_pmdumplog | _filter
 
 rm $tmp.*
 cat > $tmp.config << EOF
@@ -58,6 +58,6 @@ pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp &
 logger_pid=$!
 wait
 _filter_pmlogger_log <$tmp.log
-pmdumplog -a $tmp | _filter_pmdumplog | _filter
+pmdumplog -dilmst $tmp | _filter_pmdumplog | _filter
 
 exit 0

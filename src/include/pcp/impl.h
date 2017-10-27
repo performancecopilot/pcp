@@ -349,10 +349,11 @@ typedef struct {
 /* new ones start here, no DBG_TRACE_xxx macro and no backwards compatibility */
     int	deprecated;	/* Report use of deprecated services */
     int	exec;	 	/* __pmProcessExec and related calls */
+    int labels;		/* label metadata operations */
+    int series;		/* Time series query operations */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
-
 
 PCP_CALL extern int __pmParseDebug(const char *);
 PCP_CALL extern void __pmSetDebugBits(int);
@@ -519,22 +520,18 @@ typedef struct {
     __pmHashCtl	l_hashindom;	/* instance domain hashed access */
     __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
+    __pmHashCtl	l_hashlabels;	/* maps the various metadata label types */
     int		l_minvol;	/* (when reading) lowest known volume no. */
     int		l_maxvol;	/* (when reading) highest known volume no. */
     int		l_numseen;	/* (when reading) size of l_seen */
     int		*l_seen;	/* (when reading) volumes opened OK */
-    __pmLogLabel	l_label;	/* (when reading) log label */
+    __pmLogLabel l_label;	/* (when reading) log label */
     __pm_off_t	l_physend;	/* (when reading) offset to physical EOF */
 				/*                for last volume */
     __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
     __pmnsTree	*l_pmns;        /* namespace from meta data */
-    /*
-     * This was added to the ABI in order to support multiple archives
-     * in a single context. In order to maintain ABI compatibility it must
-     * be at the end of this structure.
-     */
     int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
@@ -594,6 +591,32 @@ PCP_CALL extern void __pmFreeProfile(__pmProfile *);
 PCP_CALL extern __pmInDomProfile *__pmFindProfile(pmInDom, const __pmProfile *);
 PCP_CALL extern int __pmInProfile(pmInDom, const __pmProfile *, int);
 PCP_CALL extern void __pmFreeInResult(__pmInResult *);
+
+/*
+ * Internal interfaces for metadata labels (name:value pairs).
+ */
+static inline int
+pmlabel_extrinsic(pmLabel *lp)
+{
+    return (lp->flags & PM_LABEL_OPTIONAL) != 0;
+}
+
+static inline int
+pmlabel_intrinsic(pmLabel *lp)
+{
+    return (lp->flags & PM_LABEL_OPTIONAL) == 0;
+}
+
+PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
+PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
+PCP_CALL extern int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
+PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
+
+PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
+PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
+
+PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
+PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 
 /*
  * Version and capabilities information for PDU exchanges
@@ -940,6 +963,7 @@ typedef struct {
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 #define PDU_FLAG_CONTAINER	(1U<<6)
 #define PDU_FLAG_CERT_REQD	(1U<<7)
+#define PDU_FLAG_LABEL		(1U<<8)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -1005,7 +1029,9 @@ PCP_CALL extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_TRAVERSE	0x7010
 #define PDU_ATTR		0x7011
 #define PDU_AUTH		PDU_ATTR
-#define PDU_FINISH		0x7011
+#define PDU_LABEL_REQ		0x7012
+#define PDU_LABEL		0x7013
+#define PDU_FINISH		0x7013
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -1065,6 +1091,10 @@ PCP_CALL extern int __pmSendAuth(int, int, int, const char *, int);
 PCP_CALL extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
 PCP_CALL extern int __pmSendAttr(int, int, int, const char *, int);
 PCP_CALL extern int __pmDecodeAttr(__pmPDU *, int *, char **, int *);
+PCP_CALL extern int __pmSendLabelReq(int, int, int, int);
+PCP_CALL extern int __pmDecodeLabelReq(__pmPDU *, int *, int *);
+PCP_CALL extern int __pmSendLabel(int, int, int, int, pmLabelSet *, int);
+PCP_CALL extern int __pmDecodeLabel(__pmPDU *, int *, int *, pmLabelSet **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 
@@ -1180,6 +1210,39 @@ typedef struct __pmLogInDom {
 } __pmLogInDom;
 
 /*
+ * __pmLogLabelSet is used to hold the sets of labels for the label
+ * hierarchy in memory.  Only in the case of instances will it have
+ * multiple labelsets.  For all other (higher) hierarchy levels, a
+ * single labelset suffices (nsets == 1, and nlabels >= 0).  Also,
+ * in memory labelsets are linked together in reverse chronological
+ * order (just like the __pmLogInDom structure above).
+ * -- externally we write these as
+ *	timestamp
+ *	type (int - PM_LABEL_* types)
+ *	ident (int - PM_IN_NULL, domain, indom, pmid)
+ *	nsets (int - usually 1, except for instances)
+ *	jsonb offset (int - offset to jsonb start)
+ *	labelset[0] ... labelset[numsets-1]
+ *	jsonb table (strings, concatenated)
+ *
+ * -- with each labelset array entry as
+ *	inst (int)
+ *	nlabels (int)
+ *	jsonb offset (int)
+ *	jsonb length (int)
+ *	label[0] ... label[nlabels-1] (struct pmLabel)
+ */
+
+typedef struct __pmLogLabelSet {
+    struct __pmLogLabelSet *next;
+    __pmTimeval		stamp;
+    int			type;
+    int			ident;
+    int			nsets;
+    pmLabelSet		*labelsets;
+} __pmLogLabelSet;
+
+/*
  * record header in the metadata log file ... len (by itself) also is
  * used as a trailer
  */
@@ -1190,6 +1253,7 @@ typedef struct {
 
 #define TYPE_DESC	1	/* header, pmDesc, trailer */
 #define TYPE_INDOM	2	/* header, __pmLogInDom, trailer */
+#define TYPE_LABEL	3	/* header, __pmLogLabelSet, trailer */
 
 PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
@@ -1226,6 +1290,9 @@ PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const __pmTimeval *, 
 PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **, char ***);
 PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
+
+PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, pmLabelSet **label, const __pmTimeval *);
+PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets, pmLabelSet *labelsets, const __pmTimeval *tp);
 
 PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -908,6 +908,9 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
     dispatch->comm.pmapi_version = PMAPI_VERSION;
     dispatch->comm.flags = 0;
 
+    if (HAVE_V_SEVEN(version)) {
+	dispatch->version.seven.label = pmdaLabel;
+    }
     if (HAVE_V_SIX(version)) {
 	dispatch->version.six.attribute = pmdaAttribute;
     }
@@ -948,12 +951,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
     }
     extp->dispatch = dispatch;
     pmda->e_ext = (void *)extp;
-
     pmdaSetResultCallBack(dispatch, __pmFreeResultValues);
-    pmdaSetFetchCallBack(dispatch, (pmdaFetchCallBack)0);
-    pmdaSetCheckCallBack(dispatch, (pmdaCheckCallBack)0);
-    pmdaSetDoneCallBack(dispatch, (pmdaDoneCallBack)0);
-    pmdaSetEndContextCallBack(dispatch, (pmdaEndContextCallBack)0);
 }
 
 /*

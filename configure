@@ -746,6 +746,9 @@ SYSTEMD_CFLAGS
 HAVE_DEVMAPPER
 DEVMAPPER_LIBS
 DEVMAPPER_CFLAGS
+HAVE_HIREDIS
+hiredis_LIBS
+hiredis_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
@@ -1034,6 +1037,8 @@ avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
 ncurses_CFLAGS
 ncurses_LIBS
+hiredis_CFLAGS
+hiredis_LIBS
 DEVMAPPER_CFLAGS
 DEVMAPPER_LIBS
 SYSTEMD_CFLAGS
@@ -1771,6 +1776,10 @@ Some influential environment variables:
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
               linker flags for ncurses, overriding pkg-config
+  hiredis_CFLAGS
+              C compiler flags for hiredis, overriding pkg-config
+  hiredis_LIBS
+              linker flags for hiredis, overriding pkg-config
   DEVMAPPER_CFLAGS
               C compiler flags for DEVMAPPER, overriding pkg-config
   DEVMAPPER_LIBS
@@ -3267,7 +3276,7 @@ then
 
 $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
+    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
@@ -9910,6 +9919,18 @@ fi
 
 done
 
+for ac_header in ncurses/curses.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "ncurses/curses.h" "ac_cv_header_ncurses_curses_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncurses_curses_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_NCURSES_CURSES_H 1
+_ACEOF
+
+fi
+
+done
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sys/endian.h " >&5
 $as_echo_n "checking for sys/endian.h ... " >&6; }
@@ -10344,6 +10365,80 @@ $as_echo "yes" >&6; }
 	have_ncurses=true
 fi
 HAVE_NCURSES=$have_ncurses
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for hiredis" >&5
+$as_echo_n "checking for hiredis... " >&6; }
+
+if test -n "$hiredis_CFLAGS"; then
+    pkg_cv_hiredis_CFLAGS="$hiredis_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"hiredis\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "hiredis") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_hiredis_CFLAGS=`$PKG_CONFIG --cflags "hiredis" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$hiredis_LIBS"; then
+    pkg_cv_hiredis_LIBS="$hiredis_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"hiredis\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "hiredis") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_hiredis_LIBS=`$PKG_CONFIG --libs "hiredis" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        hiredis_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "hiredis" 2>&1`
+        else
+	        hiredis_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "hiredis" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$hiredis_PKG_ERRORS" >&5
+
+	have_hiredis=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_hiredis=false
+else
+	hiredis_CFLAGS=$pkg_cv_hiredis_CFLAGS
+	hiredis_LIBS=$pkg_cv_hiredis_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_hiredis=true
+fi
+HAVE_HIREDIS=$have_hiredis
 
 
 
@@ -12621,7 +12716,7 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    _raw=`$CPP conftest.c \
+    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
     | $SED \
 	-e 's/[ 	]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[ 	][ 	]*//' \
@@ -15211,6 +15306,65 @@ _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
 
 $as_echo "#define HAVE_ZPOOL_VDEV_NAME_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 4-argument style zfs_iter_snapshots" >&5
+$as_echo_n "checking for 4-argument style zfs_iter_snapshots... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, B_FALSE, callback, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZFS_ITER_SNAPSHOTS_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 3-argument style zfs_iter_snapshots" >&5
+$as_echo_n "checking for 3-argument style zfs_iter_snapshots... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ zfs_handle_t *zh;
+	  zfs_iter_f callback;
+	  (void)zfs_iter_snapshots(zh, callback, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZFS_ITER_SNAPSHOTS_3ARG 1" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }

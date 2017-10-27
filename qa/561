@@ -1,0 +1,84 @@
+#!/bin/sh
+# PCP QA Test No. 561
+# Exercise pmMergeLabels(3) handling of various input data.
+#
+# Copyright (c) 2016-2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mergePy()
+{
+    result=`$python $here/src/mergelabels.python $@`
+
+    verify="FAIL"
+    $python $here/src/mergelabels.python "$result" {} >/dev/null
+    [ $? -eq 0 ] && verify="OK"
+
+    echo "Verify Python mergelabels"
+    echo "Low ->  $@  <- High"
+    echo "Result: $result"
+    echo "Verified: $verify"
+    echo
+}
+
+mergeCore()
+{
+    result=`$here/src/mergelabels $@`
+
+    verify="FAIL"
+    $here/src/mergelabels "$result" {} >/dev/null
+    [ $? -eq 0 ] && verify="OK"
+
+    echo "Verify Core mergelabels"
+    echo "Low ->  $@  <- High"
+    echo "Result: $result"
+    echo "Verified: $verify"
+    echo
+}
+
+mergeHelper()
+{
+    mergeCore $@
+    mergePy $@
+}
+
+echo "=> One label merged, value should be v2"
+mergeHelper '{"name":"v1"}' '{"name":"v2"}'
+
+echo "=> Simple labels, different basic values"
+mergeHelper '{"n0":"s","n1":34,"n2":true,"n3":null}' '{"high":"priority"}'
+
+echo "=> Complex labels, maps as values, single element"
+mergeHelper '{}' '{"map":{"priority":"one"}}'
+echo "=> Complex labels, maps as values, multiple elements"
+mergeHelper '{}' '{"map":{"priority":"one","ratio":2.5}}'
+
+echo "=> Complex labels, multiple maps as values, multiple element"
+mergeHelper '{"map"}' '{"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}'
+
+echo "=> Complex labels, arrays as values, single element"
+mergeHelper '{}' '{"a":["priority"]}'
+
+echo "=> Complex labels, arrays as values, multiple elements"
+mergeHelper '{}' '{"a":["priority","one","ratio",2.5]}'
+
+echo "=> Complex labels1, multiple arrays as values, multiple elements"
+mergeHelper '{"a":[1]}' '{"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}'
+
+echo "=> Complex labels2, multiple arrays as values, multiple elements"
+mergeHelper '{"datacenter":"torquay","environment":"production"}' \
+      '{"services":["indexer","database"]}' \
+      '{"none":none,"some":[1,2,3],"more":{"all":false,"none":true}}'
+
+# success, all done
+status=0
+exit

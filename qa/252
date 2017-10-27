@@ -84,7 +84,7 @@ _test_file_size()
 {
   size_arg=$1
   num_bytes=$2	# bytes version of size_arg
-  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  $pmlogger -r -s $size_arg -c $tmp.config -l $tmp.log $tmp 
   if [ -f $tmp.0 ]
   then
     bigger_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
@@ -92,11 +92,17 @@ _test_file_size()
     bigger_size=-1
   fi
   _num_recs
+  echo "_test_file_size: $1: first pass num_recs=$num_recs" >>$here/$seq.full
+  ls -l $tmp.0 >>$here/$seq.full
+  cat $tmp.log >>$here/$seq.full
   num_recs=`expr $num_recs - 1`
   if [ $num_recs -gt 0 ]
   then
     _clean_archive
-    $pmlogger -s $num_recs -c $tmp.config -l $tmp.log $tmp 
+    $pmlogger -r -s $num_recs -c $tmp.config -l $tmp.log $tmp 
+    echo "_test_file_size: $1: second pass ..." >>$here/$seq.full
+    ls -l $tmp.0 >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
     if [ -f $tmp.0 ]
     then
       smaller_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
@@ -192,7 +198,7 @@ log mandatory on 100 msec {
     sample.colour
     sample.bin
     sample.bucket
-    sample.drift
+    sample.longlong
     sample.step
     sample.write_me
     sample.lights

@@ -133,7 +133,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
+%if 0%{?fedora} >= 24
 %global disable_elasticsearch 0
 %else
 %global disable_elasticsearch 1
@@ -190,7 +190,10 @@ BuildRequires: systemtap-sdt-devel
 BuildRequires: boost-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: perl-devel perl-generators
+BuildRequires: perl-devel
+%endif
+%if 0%{?fedora}
+BuildRequires: perl-generators
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
@@ -2811,6 +2814,7 @@ cd
 %config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/pcp.env
+%dir %{_confdir}/labels
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
@@ -3244,6 +3248,9 @@ cd
 %endif
 
 %changelog
+* Fri Jan 19 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - selinux: add pmlogger_exec_t rule from (BZ 1483320)
 - selinux: pmlc accessing tcp port 4330 (BZ 1447585)

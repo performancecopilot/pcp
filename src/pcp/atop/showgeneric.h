@@ -21,7 +21,7 @@
 */
 #define USERSTUB	9999999
 #define MAXUSERSEL	64
-#define MAXPID		32
+#define AT_MAXPID	32
 
 struct syscap {
 	int	nrcpu;
@@ -35,7 +35,7 @@ struct pselection {
 	char	username[256];
 	uid_t	userid[MAXUSERSEL];
 
-	pid_t	pid[MAXPID];
+	pid_t	pid[AT_MAXPID];
 
 	char	progname[64];
 	int	prognamesz;

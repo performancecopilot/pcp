@@ -86,7 +86,7 @@ part == 2 && $1 == "dbpmda>"			{ part = 3 }
 part == 1 && $1 == "pmInDom:" && $2 == "62.0"	{ part = 2 }'
 
     [ -f $tmp.1 ] && cat $tmp.1
-    [ -f $tmp.2 ] && LC_COLLATE=posix sort --key 6 $tmp.2 \
+    [ -f $tmp.2 ] && LC_COLLATE=POSIX sort --key 6 $tmp.2 \
     | $PCP_AWK_PROG '
 NR == 1	{ printf "[  X] inst: X name: %s\n",$6 }
 NR > 1	{ printf "[X+%d] inst: X+%d name: %s\n", NR-1, NR-1, $6 }'

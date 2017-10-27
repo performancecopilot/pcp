@@ -84,7 +84,7 @@ echo "--- Start of received data ---"
 egrep '(mappings|slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
 while read -r line
 do
-  echo $line | json_reformat | LC_ALL=C sort | tr -d ,
+  echo $line | json_reformat | LC_COLLATE=POSIX sort | tr -d ,
 done < $tmp.archive.data
 echo "--- End of received data ---"
 _full_stash

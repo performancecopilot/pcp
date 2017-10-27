@@ -255,8 +255,11 @@ do_logue(int type)
      */
 done:
     for (i = 0; i < n_metric; i++) {
-	if (res->vset[i] != NULL)
+	if (res->vset[i] != NULL) {
+	    if (res->vset[i]->valfmt == PM_VAL_DPTR)
+		free(res->vset[i]->vlist[0].value.pval);
 	    free(res->vset[i]);
+	}
     }
     free(res);
     if (res_pmcd != NULL)

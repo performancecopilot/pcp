@@ -29,7 +29,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name = 'pcp',
-    version = '1.2',
+    version = '4.0',
     description = 'Performance Co-Pilot collector, monitor and instrumentation APIs',
     long_description = long_description,
     license = 'GPLv2+',
