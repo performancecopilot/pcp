@@ -1,0 +1,13 @@
+
+Package: python-pcp
+Section: python
+Architecture: any
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}), libpcp-import1 (= ${binary:Version})
+Description: Performance Co-Pilot Python PMAPI module
+ The PCP Python module contains the language bindings for
+ building Performance Metric API client tools using Python.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
