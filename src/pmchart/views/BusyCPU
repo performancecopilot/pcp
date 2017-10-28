@@ -33,7 +33,7 @@ _err()
 	    -icon error \
 	    -B "OK"
     else
-	cat $tmp/msg
+	cat >&2 $tmp/msg
     fi
     exit
     }
@@ -83,8 +83,8 @@ for metric in proc.psinfo.utime proc.psusage.utime
 do
     nval=`pmprobe -ifF $* $metric 2>&1 \
           | tee $tmp/err.$i \
-	  | $PCP_AWK_PROG '$2 > 0 {print $2}'`
-    if [ -n "$nval" -a "$nval" -gt 0 ]
+	  | $PCP_AWK_PROG '$1 == "'$metric'" && $2 > 0 {print $2}'`
+    if [ -n "$nval" ] && [ "$nval" -gt 0 ]
     then
 	fail=false
 	break
