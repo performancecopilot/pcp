@@ -2,9 +2,9 @@ usr/share/doc/pcp-doc/html/contacts.html
 usr/share/doc/pcp-doc/html/credits.html
 usr/share/doc/pcp-doc/html/diskmodel/model.fio
 usr/share/doc/pcp-doc/html/diskmodel/model.folio
-usr/share/doc/pcp-doc/html/diskmodel/model.pl.gz
+usr/share/doc/pcp-doc/html/diskmodel/model.pl
 usr/share/doc/pcp-doc/html/diskmodel/model.view
-usr/share/doc/pcp-doc/html/diskmodel/model.xls.gz
+usr/share/doc/pcp-doc/html/diskmodel/model.xls
 usr/share/doc/pcp-doc/html/diskmodel/nasread.out
 usr/share/doc/pcp-doc/html/diskmodel/naswrite.out
 usr/share/doc/pcp-doc/html/glossary.html
@@ -33,7 +33,7 @@ usr/share/doc/pcp-doc/html/images/mover.png
 usr/share/doc/pcp-doc/html/images/mover.v3.png
 usr/share/doc/pcp-doc/html/images/mpvis.png
 usr/share/doc/pcp-doc/html/images/ovevents.png
-usr/share/doc/pcp-doc/html/images/pcp.ico.gz
+usr/share/doc/pcp-doc/html/images/pcp.ico
 usr/share/doc/pcp-doc/html/images/pcpicon.png
 usr/share/doc/pcp-doc/html/images/pmchart_add_host_container.png
 usr/share/doc/pcp-doc/html/images/pmchart_add_host_secure.png
@@ -80,7 +80,7 @@ usr/share/doc/pcp-doc/html/images/trace_example.png
 usr/share/doc/pcp-doc/html/images/trace_libpcp.png
 usr/share/doc/pcp-doc/html/images/xenln.png
 usr/share/doc/pcp-doc/html/images/xnmevents.png
-usr/share/doc/pcp-doc/html/importdata/mover2pcp.gz
+usr/share/doc/pcp-doc/html/importdata/mover2pcp
 usr/share/doc/pcp-doc/html/index.html
 usr/share/doc/pcp-doc/html/installation.html
 usr/share/doc/pcp-doc/html/lab.auth.html
@@ -104,12 +104,12 @@ usr/share/doc/pcp-doc/html/pmie/pswitch.pmie
 usr/share/doc/pcp-doc/html/pmie/pswitch.view
 usr/share/doc/pcp-doc/html/pmview/example.view
 usr/share/doc/pcp-doc/html/pmview/godzilla.web.folio
-usr/share/doc/pcp-doc/html/pmview/godzilla.web.view.gz
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.view
 usr/share/doc/pcp-doc/html/qwtlicense.html
 usr/share/doc/pcp-doc/html/timecontrol.html
 usr/share/doc/pcp-doc/html/views.html
-usr/share/doc/pcp-doc/pcp-programmers-guide.pdf.gz
-usr/share/doc/pcp-doc/pcp-users-and-administrators-guide.pdf.gz
+usr/share/doc/pcp-doc/pcp-programmers-guide.pdf
+usr/share/doc/pcp-doc/pcp-users-and-administrators-guide.pdf
 usr/share/pcp/demos/tutorials/cpuperf.tar.gz
 usr/share/pcp/demos/tutorials/diskmodel.tar.gz
 usr/share/pcp/demos/tutorials/diskperf.tar.gz
