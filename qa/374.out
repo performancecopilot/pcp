@@ -90,6 +90,12 @@ pmcd.pdu_in.pmns_traverse
 pmcd.pdu_in.auth
     adv  off nl             
 
+pmcd.pdu_in.label_req
+    adv  off nl             
+
+pmcd.pdu_in.label
+    adv  off nl             
+
 pmcd.agent.type
     mand on             once [29 or "sample"]
     mand on             once [2 or "pmcd"]
