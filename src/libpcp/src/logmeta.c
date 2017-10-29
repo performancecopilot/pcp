@@ -297,6 +297,43 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
     return sts;
 }
 
+static int
+addtext(__pmLogCtl *lcp, unsigned int ident, unsigned int type, char *buffer)
+{
+    __pmHashNode	*hp;
+    __pmHashCtl		*l_hashtype;
+    char		*text;
+    int			sts;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
+    if (pmDebug & DBG_TRACE_LOGMETA)
+	fprintf(stderr, "addtext( ..., %u, %u)", ident, type);
+
+    if ((sts = __pmLogLookupText(lcp, ident, type, &buffer)) < 0) {
+
+	if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL) {
+	    if ((l_hashtype = (__pmHashCtl *)calloc(1, sizeof(__pmHashCtl))) == NULL)
+		return -oserror();
+
+	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashtext);
+	    if (sts > 0) {
+		/* __pmHashAdd returns 1 for success, but we want 0. */
+		sts = 0;
+	    }
+	} else {
+	    l_hashtype = (__pmHashCtl *)hp->data;
+	}
+
+	if ((text = strdup(buffer)) == NULL)
+	    return -oserror();
+
+	if ((sts = __pmHashAdd(ident, (void *)text, l_hashtype)) > 0)
+	    sts = 0;
+    }
+
+    return sts;
+}
+
 /*
  * Load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
  * log file -- used at the initialization (NewContext) of an archive.
@@ -685,6 +722,60 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    if ((sts = addlabel(lcp, type, ident, nsets, labelsets, &stamp)) < 0)
 		goto end;
 	}
+	else if (h.type == TYPE_TEXT) {
+	    char		*tbuf;
+	    int			type;
+	    int			ident;
+	    int			k;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
+	    if ((tbuf = (char *)malloc(rlen)) == NULL) {
+		sts = -oserror();
+		goto end;
+	    }
+	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
+		if (pmDebugOptions.logmeta) {
+		    fprintf(stderr, "__pmLogLoadMeta: text read -> %d: expected: %d\n",
+			    n, rlen);
+		}
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
+		    sts = -oserror();
+		}
+		else
+		    sts = PM_ERR_LOGREC;
+		free(tbuf);
+		goto end;
+	    }
+
+	    k = 0;
+	    type = ntohl(*((unsigned int *)&tbuf[k]));
+	    k += sizeof(type);
+	    if (!(type & (PM_TEXT_ONELINE|PM_TEXT_HELP))) {
+		if (pmDebugOptions.logmeta) {
+		    fprintf(stderr, "__pmLogLoadMeta: bad text type -> %x\n",
+			    type);
+		}
+		free(tbuf);
+		continue;
+	    }
+	    else if (type & PM_TEXT_INDOM)
+		ident = __ntohpmInDom(*((unsigned int *)&tbuf[k]));
+	    else if (type & PM_TEXT_PMID)
+		ident = __ntohpmID(*((unsigned int *)&tbuf[k]));
+	    else {
+		if (pmDebugOptions.logmeta) {
+		    fprintf(stderr, "__pmLogLoadMeta: bad text ident -> %x\n",
+			    type);
+		}
+		free(tbuf);
+		continue;
+	    }
+	    k += sizeof(ident);
+
+	    addtext(lcp, ident, type, (char *)&tbuf[k]);
+	    free(tbuf);
+	}
 	else
 	    __pmFseek(f, (long)rlen, SEEK_CUR);
 	n = (int)__pmFread(&check, 1, sizeof(check), f);
@@ -1067,6 +1158,84 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
     free(out);
 
     return addlabel(lcp, type, ident, nsets, labelsets, tp);
+}
+
+/*
+ * scan the indirect hash data structure to find any help text,
+ * given an identifier (pmid/indom) and type (oneline/fulltext)
+ */
+int
+__pmLogLookupText(__pmLogCtl *lcp, unsigned int ident, unsigned int type,
+		char **buffer)
+{
+    __pmHashCtl		*text_hash;
+    __pmHashNode	*hp;
+
+    if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL)
+	return PM_ERR_NOTHOST;	/* back-compat error code */
+
+    text_hash = (__pmHashCtl *)hp->data;
+    if ((hp = __pmHashSearch(ident, text_hash)) == NULL)
+	return PM_ERR_TEXT;
+
+    *buffer = (char *)hp->data;
+    return 0;
+}
+
+int
+__pmLogPutText(__pmLogCtl *lcp, unsigned int ident, unsigned int type,
+		char *buffer, int cached)
+{
+    int		sts;
+    int		len;
+    char	*ptr;
+    int		textlen;
+    typedef struct {
+	__pmLogHdr	hdr;
+	int		type;
+	int		ident;
+	char		data[0];
+    } ext_t;
+    ext_t	*out;
+
+    assert(type & (PM_TEXT_HELP|PM_TEXT_ONELINE));
+    assert(type & (PM_TEXT_PMID|PM_TEXT_INDOM));
+
+    textlen = strlen(buffer) + 1;
+    len = (int)sizeof(ext_t) + textlen + LENSIZE;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
+    if ((out = (ext_t *)malloc(len)) == NULL)
+	return -oserror();
+
+    /* swab all output fields */
+    out->hdr.len = htonl(len);
+    out->hdr.type = htonl(TYPE_TEXT);
+    out->type = htonl(type);
+    out->ident = htonl(ident);
+
+    /* copy in the actual text (ascii) */
+    ptr = (char *) &out->data;
+    memmove((void *)ptr, buffer, textlen);
+
+    /* trailer length */
+    ptr += textlen;
+    memmove((void *)ptr, &out->hdr.len, sizeof(out->hdr.len));
+
+    if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
+	char	errmsg[PM_MAXERRMSGLEN];
+
+	pmprintf("__pmLogPutText(...ident,=%d,type=%d): write failed: returned %d expecting %d: %s\n",
+		ident, type, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
+	pmflush();
+	free(out);
+	return -oserror();
+    }
+    free(out);
+
+    if (!cached)
+	return 0;
+    return addtext(lcp, ident, type, buffer);
 }
 
 int

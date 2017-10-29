@@ -349,8 +349,8 @@ typedef struct {
 /* new ones start here, no DBG_TRACE_xxx macro and no backwards compatibility */
     int	deprecated;	/* Report use of deprecated services */
     int	exec;	 	/* __pmProcessExec and related calls */
-    int labels;		/* label metadata operations */
-    int series;		/* Time series query operations */
+    int labels;		/* Metric label metadata operations */
+    int series;		/* Time series tracing */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
@@ -521,6 +521,7 @@ typedef struct {
     __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
     __pmHashCtl	l_hashlabels;	/* maps the various metadata label types */
+    __pmHashCtl l_hashtext;	/* maps the various help text types */
     int		l_minvol;	/* (when reading) lowest known volume no. */
     int		l_maxvol;	/* (when reading) highest known volume no. */
     int		l_numseen;	/* (when reading) size of l_seen */
@@ -1136,12 +1137,14 @@ bozo - unknown size of long !!!
 /*
  * For the help text PDUs, the type (PM_TEXT_ONELINE or PM_TEXT_HELP)
  * is 'or'd with the following to encode the request for a PMID or
- * a pmInDom ...
+ * a pmInDom.  Default is to fallback to ONELINE if HELP unavailable;
+ * the (internal) PM_TEXT_DIRECT flag disables this behaviour.
  * Note the values must therefore be (a) bit fields and (b) different
  *	to the public macros PM_TEXT_* in pmapi.h 
  */
 #define PM_TEXT_PMID	4
 #define PM_TEXT_INDOM	8
+#define PM_TEXT_DIRECT	16
 
 /*
  * no mem today, my love has gone away ....
@@ -1243,10 +1246,20 @@ typedef struct __pmLogLabelSet {
 } __pmLogLabelSet;
 
 /*
+ * __pmLogText is used to hold the metric and instance domain help text
+ * internally, for help text associated with an archive context.
+ */
+typedef struct __pmLogText {
+    int			type;	/* oneline/full and pmid/indom */
+    int			ident;	/* metric or indom identifier */
+    char		*text;
+} __pmLogText;
+
+/*
  * record header in the metadata log file ... len (by itself) also is
  * used as a trailer
  */
-typedef struct {
+typedef struct __pmLogHdr {
     int		len;	/* record length, includes header and trailer */
     int		type;	/* see TYPE_* #defines below */
 } __pmLogHdr;
@@ -1254,6 +1267,7 @@ typedef struct {
 #define TYPE_DESC	1	/* header, pmDesc, trailer */
 #define TYPE_INDOM	2	/* header, __pmLogInDom, trailer */
 #define TYPE_LABEL	3	/* header, __pmLogLabelSet, trailer */
+#define TYPE_TEXT	4	/* header, __pmLogText, trailer */
 
 PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
@@ -1291,8 +1305,10 @@ PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **
 PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
 
-PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, pmLabelSet **label, const __pmTimeval *);
-PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets, pmLabelSet *labelsets, const __pmTimeval *tp);
+PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *, unsigned int, unsigned int, pmLabelSet **, const __pmTimeval *);
+PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimeval *);
+PCP_CALL extern int __pmLogLookupText(__pmLogCtl *, unsigned int , unsigned int, char **);
+PCP_CALL extern int __pmLogPutText(__pmLogCtl *, unsigned int , unsigned int, char *, int);
 
 PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);

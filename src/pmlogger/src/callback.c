@@ -359,6 +359,62 @@ manageLabels(pmDesc *desc, const __pmTimeval *tp, int only_instances)
     return sts;
 }
 
+static int
+manageText(pmDesc *desc)
+{
+    int		i;
+    int		j;
+    int		sts;
+    int		level;
+    int		indom;
+    unsigned int types;
+    unsigned int ident;
+    char	*text;
+    unsigned int text_types[] = { PM_TEXT_ONELINE, PM_TEXT_HELP };
+    unsigned int ident_types[] = { PM_TEXT_PMID, PM_TEXT_INDOM };
+    const unsigned int	ntypes = sizeof(text_types) / sizeof(text_types[0]);
+    const unsigned int	nidents = sizeof(ident_types) / sizeof(ident_types[0]);
+
+    for (i = 0; i < ntypes; i++) {
+	for (j = 0; j < nidents; j++) {
+	    types = text_types[i] | ident_types[j];
+	    level = text_types[i] | PM_TEXT_DIRECT;
+	    indom = ident_types[j] & PM_TEXT_INDOM;
+	    ident = indom ? desc->indom : desc->pmid;
+
+	    if (indom && desc->indom == PM_INDOM_NULL)
+		continue;
+
+	    /* Lookup returns >= 0 when the key exists */
+	    if (__pmLogLookupText(&logctl, ident, types, &text) >= 0)
+		continue;
+
+	    if (indom)
+		sts = pmLookupInDomText(ident, level, &text);
+	    else
+		sts = pmLookupText(ident, level, &text);
+
+	    /*
+	     * Only cache indoms help texts (final parameter) - there
+	     * are far fewer (less memory used), and we only need to
+	     * make sure we log them once, not PMID help text which
+	     * is guarded by the pmDesc logging-once logic.
+	     */
+	    if (sts == 0) {
+		if (text[0] == '\0')
+		    free(text);
+		else {
+		    sts = __pmLogPutText(&logctl, ident, types, text, indom);
+		    free(text);
+		    if (sts < 0)
+			break;
+		}
+	    }
+	}
+    }
+    return sts;
+}
+
 /*
  * Lookup the first cache index associated with a given PMID in a given task.
  */
@@ -717,6 +773,7 @@ do_work(task_t *tp)
 		    exit(1);
 		}
 		manageLabels(&desc, &resp_tval, 0);
+		manageText(&desc);
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
 		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);

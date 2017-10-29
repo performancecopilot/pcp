@@ -414,13 +414,18 @@ option) for a set of PCP archives.
 .B PM_ERR_NOTHOST
 .I "Operation requires context with host source of metrics"
 .br
-Operations involving help text (ie. \c
-.BR pmLookupText (3)
-and
-.BR pmLookupInDomText (3))
-or calls to
+Calls to
 .BR pmStore (3)
 require a host context and are not supported for PCP archives.
+.RS
+.PP
+For archives created with versions of PCP prior to 4.0, the
+.BR pmLookupText (3)
+and
+.BR pmLookupInDomText (3)
+calls will return this code for archive PMAPI contexts (help
+and one-line text was not previously recorded in archive logs).
+.RE
 .TP
 .B PM_ERR_LOGREC
 .I "Corrupted record in a PCP archive log"

@@ -1227,31 +1227,97 @@ counter).
 --- help.c case 3 ---
 
 sample.seconds
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
 
 sample.colour
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
 
 sample.bin
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
 
 sample.drift
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+This metric returns a random value (expected mean is approximately 200),
+subject to a trending pattern such that the sequence is mainly monotonic,
+with a change in direction after on average 4 consecutive samples.
+
+Use pmStore() to modify the instantaneous value, which becomes the new
+expected mean.
 
 sample.lights
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+A singular metric that has a discrete string value, namely "red",
+"yellow" or "green".  There is some persistance in the value, so
+consecutive fetches are likely to return the same value, however over a
+long period of time all values are equally probable.
 
 sample.dupnames.three.bin
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
 
 sample.dupnames.two.seconds
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
 
 sample.dupnames.two.bin
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
 
 sample.dupnames.two.lights
-Full Help: Error: Operation requires context with host source of metrics
+Help:
+A singular metric that has a discrete string value, namely "red",
+"yellow" or "green".  There is some persistance in the value, so
+consecutive fetches are likely to return the same value, however over a
+long period of time all values are equally probable.
 --- help.c case 4 ---
 
 simple.now

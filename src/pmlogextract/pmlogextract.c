@@ -1108,6 +1108,7 @@ nextmeta(void)
 {
     int		i;
     int		j;
+    int		type;
     int		want;
     int		numeof = 0;
     int		sts;
@@ -1158,10 +1159,12 @@ againmeta:
 	    continue;
 	}
 
+	type = ntohl(iap->pb[META][1]);
+
 	/* pmDesc entries, if not seen before & wanted,
 	 *	then append to desc list
 	 */
-	if (ntohl(iap->pb[META][1]) == TYPE_DESC) {
+	if (type == TYPE_DESC) {
 	    pmid = ntoh_pmID(iap->pb[META][2]);
 
 	    /* if ml is defined, then look for pmid in the list
@@ -1194,7 +1197,7 @@ againmeta:
 		goto againmeta;
 	    }
 	}
-	else if (ntohl(iap->pb[META][1]) == TYPE_INDOM) {
+	else if (type == TYPE_INDOM) {
 	    /* if ml is defined, then look for instance domain in the list
 	     * if indom is not in the list then discard it immediately
 	     */
@@ -1227,18 +1230,27 @@ againmeta:
 	        goto againmeta;
 	    }
 	}
-	else if (ntohl(iap->pb[META][1]) == TYPE_LABEL) {
+	else if (type == TYPE_LABEL) {
 	    /* TODO: support label metadata extraction */
-	    if (pmDebugOptions.labels)
+	    if (pmDebugOptions.logmeta)
 		fprintf(stderr, "%s: Warning: %s\n",
 			pmProgname, pmErrStr(PM_ERR_NOLABELS));
 	    free(iap->pb[META]);
 	    iap->pb[META] = NULL;
 	    goto againmeta;
 	}
+	else if (type == TYPE_TEXT) {
+	    /* TODO: support help text extraction */
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "%s: Warning: %s\n",
+			pmProgname, pmErrStr(PM_ERR_TEXT));
+	    free(iap->pb[META]);
+	    iap->pb[META] = NULL;
+	    goto againmeta;
+	}
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
-		    pmProgname, (int)ntohl(iap->pb[META][1]));
+		    pmProgname, type);
 	    abandon_extract();
 	}
 

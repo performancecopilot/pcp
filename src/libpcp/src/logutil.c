@@ -715,6 +715,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
     lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
     lcp->l_hashlabels.nodes = lcp->l_hashlabels.hsize = 0;
+    lcp->l_hashtext.nodes = lcp->l_hashtext.hsize = 0;
     lcp->l_tifp = lcp->l_mdfp = lcp->l_mfp = NULL;
 
     if ((lcp->l_tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
@@ -772,6 +773,144 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 }
 
 static void
+logFreeHashPMID(__pmHashCtl *hcp)
+{
+    __pmHashNode	*hp;
+    __pmHashNode	*prior_hp;
+    int			i;
+
+    for (i = 0; i < hcp->hsize; i++) {
+	for (hp = hcp->hash[i], prior_hp = NULL; hp != NULL; hp = hp->next) {
+	    if (hp->data != NULL)
+		free(hp->data);
+	    if (prior_hp != NULL)
+		free(prior_hp);
+	    prior_hp = hp;
+	}
+	if (prior_hp != NULL)
+	    free(prior_hp);
+    }
+    free(hcp->hash);
+}
+
+static void
+logFreeHashInDom(__pmHashCtl *hcp)
+{
+    __pmHashNode	*hp;
+    __pmHashNode	*prior_hp;
+    __pmLogInDom	*idp;
+    __pmLogInDom	*prior_idp;
+    int			i;
+
+    for (i = 0; i < hcp->hsize; i++) {
+	for (hp = hcp->hash[i], prior_hp = NULL; hp != NULL; hp = hp->next) {
+	    for (idp = (__pmLogInDom *)hp->data, prior_idp = NULL;
+		idp != NULL; idp = idp->next) {
+		if (idp->buf != NULL)
+		    free(idp->buf);
+		if (idp->allinbuf == 0 && idp->namelist != NULL)
+		    free(idp->namelist);
+		if (prior_idp != NULL)
+		    free(prior_idp);
+		prior_idp = idp;
+	    }
+	    if (prior_idp != NULL)
+		free(prior_idp);
+	    if (prior_hp != NULL)
+		free(prior_hp);
+	    prior_hp = hp;
+	}
+	if (prior_hp != NULL)
+	    free(prior_hp);
+    }
+    free(hcp->hash);
+}
+
+static void
+logFreeHashLabels(__pmHashCtl *type_ctl)
+{
+    __pmHashCtl		*ident_ctl;
+    __pmHashNode 	*type_node;
+    __pmHashNode 	*curr_type_node;
+    __pmHashNode	*ident_node;
+    __pmHashNode	*curr_ident_node;
+    __pmLogLabelSet	*label;
+    __pmLogLabelSet	*curr_label;
+    pmLabelSet		*labelset;
+    int			i;
+    int			j;
+    int			k;
+
+    for (i = 0; i < type_ctl->hsize; i++) {
+	for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
+	    ident_ctl = (__pmHashCtl *) type_node->data;
+
+	    for (j = 0; j < ident_ctl->hsize; j++) {
+		for (ident_node = ident_ctl->hash[j]; ident_node != NULL; ) {
+		    for (label = (__pmLogLabelSet *)ident_node->data; label != NULL; ) {
+			for (k = 0; k < label->nsets; k++) {
+			    labelset = &label->labelsets[k];
+			    free(labelset->json);
+			    free(labelset->labels);
+			}
+			free(label->labelsets);
+			curr_label = label;
+			label = label->next;
+			free(curr_label);
+		    }
+		    curr_ident_node = ident_node;
+		    ident_node = ident_node->next;
+		    free(curr_ident_node);
+		}
+	    }
+
+	    curr_type_node = type_node;
+	    type_node = type_node->next;
+	    free(ident_ctl->hash);
+	    free(ident_ctl);
+	    free(curr_type_node);
+	}
+    }
+    free(type_ctl->hash);
+}
+
+static void
+logFreeHashText(__pmHashCtl *type_ctl)
+{
+    __pmHashCtl		*ident_ctl;
+    __pmHashNode 	*type_node;
+    __pmHashNode 	*curr_type_node;
+    __pmHashNode	*ident_node;
+    __pmHashNode	*curr_ident_node;
+    char		*text;
+    int			i;
+    int			j;
+
+    for (i = 0; i < type_ctl->hsize; i++) {
+	for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
+	    ident_ctl = (__pmHashCtl *) type_node->data;
+
+	    for (j = 0; j < ident_ctl->hsize; j++) {
+		for (ident_node = ident_ctl->hash[j]; ident_node != NULL; ) {
+		    text = (char *)ident_node->data;
+		    curr_ident_node = ident_node;
+		    ident_node = ident_node->next;
+		    free(curr_ident_node);
+		    free(text);
+		}
+	    }
+
+	    curr_type_node = type_node;
+	    type_node = type_node->next;
+	    free(ident_ctl->hash);
+	    free(ident_ctl);
+	    free(curr_type_node);
+	}
+    }
+    free(type_ctl->hash);
+}
+
+static void
 logFreeMeta(__pmLogCtl *lcp)
 {
     if (lcp->l_pmns != NULL) {
@@ -779,104 +918,17 @@ logFreeMeta(__pmLogCtl *lcp)
 	lcp->l_pmns = NULL;
     }
 
-    if (lcp->l_hashpmid.hsize != 0) {
-	__pmHashCtl	*hcp = &lcp->l_hashpmid;
-	__pmHashNode	*hp;
-	__pmHashNode	*prior_hp;
-	int		i;
+    if (lcp->l_hashpmid.hsize != 0)
+	logFreeHashPMID(&lcp->l_hashpmid);
 
-	for (i = 0; i < hcp->hsize; i++) {
-	    for (hp = hcp->hash[i], prior_hp = NULL; hp != NULL; hp = hp->next) {
-		if (hp->data != NULL)
-		    free(hp->data);
-		if (prior_hp != NULL)
-		    free(prior_hp);
-		prior_hp = hp;
-	    }
-	    if (prior_hp != NULL)
-		free(prior_hp);
-	}
-	free(hcp->hash);
-    }
+    if (lcp->l_hashindom.hsize != 0)
+	logFreeHashInDom(&lcp->l_hashindom);
 
-    if (lcp->l_hashindom.hsize != 0) {
-	__pmHashCtl	*hcp = &lcp->l_hashindom;
-	__pmHashNode	*hp;
-	__pmHashNode	*prior_hp;
-	__pmLogInDom	*idp;
-	__pmLogInDom	*prior_idp;
-	int		i;
+    if (lcp->l_hashlabels.hsize != 0)
+	logFreeHashLabels(&lcp->l_hashlabels);
 
-	for (i = 0; i < hcp->hsize; i++) {
-	    for (hp = hcp->hash[i], prior_hp = NULL; hp != NULL; hp = hp->next) {
-		for (idp = (__pmLogInDom *)hp->data, prior_idp = NULL;
-		     idp != NULL; idp = idp->next) {
-		    if (idp->buf != NULL)
-			free(idp->buf);
-		    if (idp->allinbuf == 0 && idp->namelist != NULL)
-			free(idp->namelist);
-		    if (prior_idp != NULL)
-			free(prior_idp);
-		    prior_idp = idp;
-		}
-		if (prior_idp != NULL)
-		    free(prior_idp);
-		if (prior_hp != NULL)
-		    free(prior_hp);
-		prior_hp = hp;
-	    }
-	    if (prior_hp != NULL)
-		free(prior_hp);
-	}
-	free(hcp->hash);
-    }
-
-    if (lcp->l_hashlabels.hsize != 0) {
-	__pmHashCtl	*type_ctl = &lcp->l_hashlabels;
-	__pmHashCtl	*ident_ctl;
-	__pmHashNode 	*type_node;
-	__pmHashNode 	*curr_type_node;
-	__pmHashNode	*ident_node;
-	__pmHashNode	*curr_ident_node;
-	__pmLogLabelSet	*label;
-	__pmLogLabelSet	*curr_label;
-	pmLabelSet	*labelset;
-	int		i;
-	int		j;
-	int		k;
-
-	for (i = 0; i < type_ctl->hsize; i++) {
-	    for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
-		ident_ctl = (__pmHashCtl *) type_node->data;
-
-		for (j = 0; j < ident_ctl->hsize; j++) {
-		    for (ident_node = ident_ctl->hash[j]; ident_node != NULL; ) {
-			for (label = (__pmLogLabelSet *)ident_node->data; label != NULL; ) {
-			    for (k = 0; k < label->nsets; k++) {
-				labelset = &label->labelsets[k];
-				free(labelset->json);
-				free(labelset->labels);
-			    }
-			    free(label->labelsets);
-			    curr_label = label;
-			    label = label->next;
-			    free(curr_label);
-			}
-			curr_ident_node = ident_node;
-			ident_node = ident_node->next;
-			free(curr_ident_node);
-		    }
-		}
-
-		curr_type_node = type_node;
-		type_node = type_node->next;
-		free(ident_ctl->hash);
-		free(ident_ctl);
-		free(curr_type_node);
-	    }
-	}
-	free(type_ctl->hash);
-    }
+    if (lcp->l_hashtext.hsize != 0)
+	logFreeHashText(&lcp->l_hashtext);
 }
 
 /*

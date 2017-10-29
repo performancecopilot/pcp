@@ -245,7 +245,7 @@ c | c | l.
 Offset	Length	Name
 _
 0	4	tag, TYPE_DESC=1
-4	4	pmid
+4	4	PMID
 8	4	type (PM_TYPE_*)
 12	4	instance domain number
 16	4	semantics of value (PM_SEM_*)
@@ -322,7 +322,7 @@ _
 4	4	timestamp, seconds part (past UNIX epoch)
 8	4	timestamp, microseconds part
 12	4	label type (PM_LABEL_* type macros.)
-16	4	numeric identifier - domain, pmid, etc
+16	4	numeric identifier - domain, PMID, etc
 		or PM_IN_NULL=-1 for context labels
 20	4	N: number of label sets in this record,
 		usually 1 except in the case of instances
@@ -360,6 +360,30 @@ _
 18	2	first label value length
 20	2	second label name offset (if appropriate)
 \...	...	...
+.TE
+
+.SS pmLogText
+This record stores help text associated with a metric or an
+instance domain \- as provided by
+.BR pmLookupText (3)
+and
+.BR pmLookupInDomText (3).
+.PP
+The metric identifier and instance domain number will have
+already been mentioned in a prior
+.IR pmDesc
+record.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	tag, TYPE_TEXT=4
+4	4	text and identifier type (PM_TEXT_* macros.)
+8	4	numeric identifier - PMID or instance domain
+12	M	help text string, arbitrary text
 .TE
 
 .SH INDEX FILE (.index) RECORDS
@@ -421,7 +445,9 @@ default location for the PCP daemon manager
 .BR PMAPI (3),
 .BR pmLookupDesc (3),
 .BR pmLookupInDom (3),
+.BR pmLookupInDomText (3),
 .BR pmLookupLabels (3),
+.BR pmLookupText (3),
 .BR mkaf (1),
 .BR pmafm (1),
 .BR pmchart (1),
