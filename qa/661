@@ -54,7 +54,7 @@ echo "crashers"
 _filter_curl_i()
 {
     tr -d '\r' |                      # drop ^M from httpd results
-    sed -e 's,^Date:.*$,Date: XXX,' |
+    sed -e 's,^Date:.*$,Date: XXX,' -e 's/302 Moved Temporarily/302 Found/' |
     grep -v 'Connection:.*Alive'      # some microhttpd versions add this
 }
 
