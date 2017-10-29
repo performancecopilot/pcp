@@ -25,13 +25,18 @@ _err()
     done
     echo >>$tmp/msg
     echo "Sorry, there is nothing to display." >>$tmp/msg
-    pmconfirm >/dev/null \
-	-header "pmchart view construction failure" \
-	-file $tmp/msg \
-	-icon error \
-	-B "OK"
+    if $dialog
+    then
+	pmconfirm >/dev/null \
+	    -header "pmchart view construction failure" \
+	    -file $tmp/msg \
+	    -icon error \
+	    -B "OK"
+    else
+	cat >&2 $tmp/msg
+    fi
     exit
-}
+    }
 
 # find top 10 consumers of user mode CPU cycles and generate a plot for each
 #
@@ -76,10 +81,10 @@ i=0
 fail=true
 for metric in proc.psinfo.utime proc.psusage.utime
 do
-    nval=`pmprobe -ifF "$*" $metric 2>&1 \
+    nval=`pmprobe -ifF $* $metric 2>&1 \
           | tee $tmp/err.$i \
-	  | $PCP_AWK_PROG '{print $2}'`
-    if [ "$nval" -gt 0 ]
+	  | $PCP_AWK_PROG '$1 == "'$metric'" && $2 > 0 {print $2}'`
+    if [ -n "$nval" ] && [ "$nval" -gt 0 ]
     then
 	fail=false
 	break
@@ -94,10 +99,10 @@ fi
 
 # note arguments from pmchart are nothing or -h host or -a archive
 #
-if pminfo -F "$*" $metric >$tmp/1 2>$tmp/err.a
+if pminfo -F $* $metric >$tmp/1 2>$tmp/err.a
 then
     sleep 5
-    if pminfo -F "$*" $metric >$tmp/2 2>$tmp/err.b
+    if pminfo -F $* $metric >$tmp/2 2>$tmp/err.b
     then
 	:
     else

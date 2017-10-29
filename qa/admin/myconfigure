@@ -89,7 +89,7 @@ then
 		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 		;;
     esac
-elif [ $target = solaris ]
+elif [ $target = sunos ]
 then
     # Need to take control of the Python versions, otherwise standard.
     #
