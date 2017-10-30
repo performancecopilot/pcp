@@ -21,6 +21,13 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filename_filter()
+{
+    sed \
+	-e '/Invalid directive/s/ in .*/ in the config file./' \
+    #end
+}
+
 _live_filter()
 {
     sed \
@@ -90,6 +97,7 @@ pmrep -s 1 -t 1 -b GB -w 3x mem.util.free
 pmrep -s 1 -t 1 -i '('      disk.dev.read
 pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read
 pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read
+pmrep -s 1 -t 1 :nosuchset
 
 echo "== exercise non-integer options"
 pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _archive_filter
@@ -283,15 +291,35 @@ pmrep -C $log2 -u -U -q MB -I mem.util
 pmrep -C $log2 -u    -i sda mem.util.free disk.dev mem.util
 pmrep -C $log2 -u -v -i sda mem.util.free disk.dev mem.util
 
+echo "== handle empty/invalid/multiple metricsets in config file"
+echo '[fail]' > $tmp.econfig
+echo 'failure = yes' >> $tmp.econfig
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :fail
+echo '[options]' > $tmp.econfig
+echo 'mem.util.free = freemem' >> $tmp.econfig
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _filename_filter
+echo '[empty]' > $tmp.econfig
+echo 'interval = 2s' >> $tmp.econfig
+echo '[metric]' >> $tmp.econfig
+echo 'mem.util.free = freemem' >> $tmp.econfig
+echo 'interval = 3s' >> $tmp.econfig
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :empty | _archive_filter
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :metric | _archive_filter
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :empty :metric | _archive_filter
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :metric :empty | _archive_filter
+
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig
 echo 'header = yes' >> $tmp.pconfig
 echo 'unitinfo = no' >> $tmp.pconfig
 echo 'interval = 2s' >> $tmp.pconfig
+# Use built-in defaults for header/unitinfo/interval
 pmrep -s 5 $log2 -p mem.util.free
 echo "---"
+# Override built-in defaults of unitinfo/interval
 pmrep -s 5 $log2 -p -c $tmp.pconfig mem.util.free
 echo "---"
+# Override built-in defaults / config of header/interval
 pmrep -s 5 $log2 -t 3s -p -H -c $tmp.pconfig mem.util.free
 echo "---"
 echo '[options]' > $tmp.pconfig
@@ -299,24 +327,38 @@ echo "source = $here/archives/no-such-archive" >> $tmp.pconfig
 echo '[source]' >> $tmp.pconfig
 echo "source = $here/archives/rep" >> $tmp.pconfig
 echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
+# Override generic option with metricset specific option
 pmrep -s 5 -c $tmp.pconfig -z -p -u :source
 echo "---"
 echo '[source]' > $tmp.pconfig
 echo 'source = wrong.example.com' >> $tmp.pconfig
 echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
+# Override config file source with command line option
 pmrep -s 5 $log2 -c $tmp.pconfig -p -u :source
 echo "---"
 echo '[source]' > $tmp.pconfig
 echo 'source = @' >> $tmp.pconfig
 echo "speclocal = clear|add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init" >> $tmp.pconfig
 echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
+# Test speclocal from config file
 pmrep -s 1 -c $tmp.pconfig -p -u :source | _live_filter
 echo "---"
 echo '[source]' > $tmp.pconfig
 echo 'source = @' >> $tmp.pconfig
 echo 'speclocal = fail' >> $tmp.pconfig
 echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
+# Test speclocal override from command line
 pmrep -s 1 -K clear -K add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init -c $tmp.pconfig -p -u :source | _live_filter
+echo "---"
+echo '[options]' > $tmp.pconfig
+echo 'interval = 4s' >> $tmp.pconfig
+echo '[testing]' >> $tmp.pconfig
+echo 'unitinfo = yes' >> $tmp.pconfig
+echo 'timestamp = no' >> $tmp.pconfig
+echo 'interval = 3s' >> $tmp.pconfig
+echo 'mem.util.free = freemem' >> $tmp.pconfig
+# Test overriding metricset specific settings (#357)
+pmrep -s 3 $log2 -p -c $tmp.pconfig -U -t 2s :testing
 
 # success, all done
 echo "== done"
