@@ -90,7 +90,8 @@ End-of-File
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 echo "{\"QA\":$seq}" > $tmp.$seq
-$sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels
+$sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null
+$sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels/
 _service pmcd restart
 _wait_for_pmcd
 

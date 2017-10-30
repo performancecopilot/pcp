@@ -1195,7 +1195,7 @@ static char *
 fetch_labels(int ctx, pmAtomValue *avp, char **hostname)
 {
     pmcd_container_t	*container;
-    pmLabelSet		*set;
+    pmLabelSet		*set = NULL;
     int			sts;
 
     if ((sts = __pmGetContextLabels(&set)) < 0) {
