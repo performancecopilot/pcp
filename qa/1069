@@ -87,6 +87,9 @@ echo "== invalid command line parameters"
 pmrep -s 1 -t 1 -b GB -E 1x mem.util.free
 pmrep -s 1 -t 1 -b GB -P 2x mem.util.free
 pmrep -s 1 -t 1 -b GB -w 3x mem.util.free
+pmrep -s 1 -t 1 -i '('      disk.dev.read
+pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read
+pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read
 
 echo "== exercise non-integer options"
 pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _archive_filter

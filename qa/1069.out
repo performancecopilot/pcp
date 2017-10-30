@@ -246,6 +246,9 @@ HH:MM:SS        1
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
+Invalid regex '(': unbalanced parenthesis.
+Invalid regex '.[]*': unexpected end of regular expression.
+Invalid regex '.[z-a]': bad character range.
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
