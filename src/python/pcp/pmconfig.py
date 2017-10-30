@@ -559,9 +559,9 @@ class pmConfig(object):
         if not self._init_ts:
             self._init_ts = float(self.util.pmfg_ts().strftime("%s.%f"))
 
-        next = self._init_ts + float(self.util.interval) * self._round
+        wakeup = self._init_ts + float(self.util.interval) * self._round
 
-        sleep = next - time.time()
+        sleep = wakeup - time.time()
 
         if sleep > 0:
             time.sleep(sleep)
