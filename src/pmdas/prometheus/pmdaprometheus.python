@@ -475,7 +475,7 @@ class Source(object):
                 return num_metrics
                 
 
-        def refresh(self):
+        def refresh(self,timeout):
                 '''
                 Find the target URL by reading .url file.
                 Fetch the target URL.
@@ -497,7 +497,7 @@ class Source(object):
                         if url.startswith('file://'):
                                 t = open(url[7:],'r').read()
                         else:
-                                r = self.requests.get(url,timeout=1) # XXX parametrize
+                                r = self.requests.get(url,timeout=timeout)
                                 r.raise_for_status() # non-200?  ERROR
                                 t = r.text
                         s = self.parse_lines(t)
@@ -519,7 +519,7 @@ class Source(object):
 
 
 class PrometheusPMDA(PMDA):
-        def __init__(self,pmda_name,domain,config):
+        def __init__(self,pmda_name,domain,config,timeout):
                 ''' Initialize the PMDA
                 '''
                 # urgent: say hi the invoking pmcd, redirect stderr etc.
@@ -529,6 +529,7 @@ class PrometheusPMDA(PMDA):
                 self.pmda_name = pmda_name
                 self.config_dir = config
                 self.config_dir_ctime = None
+                self.timeout = timeout
                 self.debug_flag = ('PCP_PYTHON_DEBUG' in os.environ)
 
                 # the list of configured sources
@@ -651,7 +652,7 @@ class PrometheusPMDA(PMDA):
         def refresh_worker(self,cluster):
                 try:
                         self.assert_source_invariants(cluster=cluster)
-                        self.source_by_cluster[cluster].refresh()
+                        self.source_by_cluster[cluster].refresh(self.timeout)
                 except Exception as e:
                         self.log("Cannot refresh cluster %d: %s" % (cluster, e))
 
@@ -666,7 +667,7 @@ class PrometheusPMDA(PMDA):
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
                         threads.append(t)
-                        t.daemon = True
+                        ## t.daemon = True
                         t.start()
                 for t in threads:
                         t.join() # XXX: timeout maybe?
@@ -699,7 +700,11 @@ if __name__ == '__main__':
                             type=str,
                             default=os.getenv('PCP_PMDAS_DIR')+'/prometheus/urls.d',
                             help='set URL configuration directory')
+        parser.add_argument('-t','--timeout',
+                            type=int,
+                            default=2,
+                            help='HTTP GET timeout for each end-point URL (default 2 seconds)')
         args = parser.parse_args()
 
-        pmda = PrometheusPMDA('prometheus', 144, args.config)
+        pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout)
         pmda.run()
