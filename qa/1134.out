@@ -1,0 +1,850 @@
+QA output created by 1134
+---
+                                k.a.uptime
+                                       sec
+00:00:00                           1234567
+00:00:01                                 0
+00:00:02                        4294967295
+00:00:03                                 1
+00:00:04                                 0
+00:00:05                        4294967295
+00:00:06                                 1
+00:00:07                                 0
+00:00:29                           7654321
+---
+                                   s.f.one
+                                          
+00:00:00                       1234567.000
+00:00:08                               NaN
+00:00:09                               inf
+00:00:10           9223372036854775808.000
+00:00:11           9223372036854775808.000
+00:00:12                             1.000
+00:00:13                             0.000
+00:00:14                            -1.000
+00:00:15          -9223372036854775808.000
+00:00:16          -9223372036854775808.000
+00:00:17                              -inf
+00:00:18                               NaN
+00:00:29                       7654321.000
+---
+Time,"kernel.uname.release"
+1970-01-01 00:00:00,"1.2.3"
+1970-01-01 00:00:19,"null:"
+1970-01-01 00:00:20,"line: :break"
+1970-01-01 00:00:21,"this: :is:\':a:':quote:\ :test"
+1970-01-01 00:00:22,"char:<:&:`:$:;:!:#: :?:*:|:~:>:test"
+1970-01-01 00:00:23,""
+1970-01-01 00:00:24,"dont: ;touch /tmp/toast; :eval"
+1970-01-01 00:00:25,"XXX"
+1970-01-01 00:00:26,"XXX"
+1970-01-01 00:00:27,"X"
+1970-01-01 00:00:28,"some:åäöšŠžŽ€🙃§½¼¾:unicode"
+1970-01-01 00:00:29,"3.2.1"
+---
+     13      32 1050069
+---
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "@unit": "sec",
+                  "value": ""
+                  "value": "-1.000"
+                  "value": "-9223372036854775808.000"
+                  "value": "-9223372036854775808.000"
+                  "value": "-inf"
+                  "value": "0"
+                  "value": "0"
+                  "value": "0"
+                  "value": "0.000"
+                  "value": "1"
+                  "value": "1"
+                  "value": "1.000"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1.2.3"
+                  "value": "1234567"
+                  "value": "1234567.000"
+                  "value": "3.2.1"
+                  "value": "4294967295"
+                  "value": "4294967295"
+                  "value": "7654321"
+                  "value": "7654321.000"
+                  "value": "9223372036854775808.000"
+                  "value": "9223372036854775808.000"
+                  "value": "X"
+                  "value": "XXX"
+                  "value": "XXX"
+                  "value": "char:<:&:`:$:;:!:#: :?:*:|:~:>:test"
+                  "value": "dont:\n;touch /tmp/toast;\n:eval"
+                  "value": "inf"
+                  "value": "line:\n:break"
+                  "value": "nan"
+                  "value": "nan"
+                  "value": "null:"
+                  "value": "some:åäöšŠžŽ€🙃§½¼¾:unicode"
+                  "value": "this:\":is:\\':a:':quote:\\\":test"
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "one": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "release": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                "uptime": {
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+                }
+              "all": {
+              "all": {
+              "all": {
+              "all": {
+              "all": {
+              "all": {
+              "all": {
+              "all": {
+              "all": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "float": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              "uname": {
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              }
+              },
+              },
+              },
+              },
+              },
+              },
+              },
+              },
+              },
+            "@interval": "0",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@interval": "1",
+            "@timestamp": "1970-01-01 00:00:00",
+            "@timestamp": "1970-01-01 00:00:01",
+            "@timestamp": "1970-01-01 00:00:02",
+            "@timestamp": "1970-01-01 00:00:03",
+            "@timestamp": "1970-01-01 00:00:04",
+            "@timestamp": "1970-01-01 00:00:05",
+            "@timestamp": "1970-01-01 00:00:06",
+            "@timestamp": "1970-01-01 00:00:07",
+            "@timestamp": "1970-01-01 00:00:08",
+            "@timestamp": "1970-01-01 00:00:09",
+            "@timestamp": "1970-01-01 00:00:10",
+            "@timestamp": "1970-01-01 00:00:11",
+            "@timestamp": "1970-01-01 00:00:12",
+            "@timestamp": "1970-01-01 00:00:13",
+            "@timestamp": "1970-01-01 00:00:14",
+            "@timestamp": "1970-01-01 00:00:15",
+            "@timestamp": "1970-01-01 00:00:16",
+            "@timestamp": "1970-01-01 00:00:17",
+            "@timestamp": "1970-01-01 00:00:18",
+            "@timestamp": "1970-01-01 00:00:19",
+            "@timestamp": "1970-01-01 00:00:20",
+            "@timestamp": "1970-01-01 00:00:21",
+            "@timestamp": "1970-01-01 00:00:22",
+            "@timestamp": "1970-01-01 00:00:23",
+            "@timestamp": "1970-01-01 00:00:24",
+            "@timestamp": "1970-01-01 00:00:25",
+            "@timestamp": "1970-01-01 00:00:26",
+            "@timestamp": "1970-01-01 00:00:27",
+            "@timestamp": "1970-01-01 00:00:28",
+            "@timestamp": "1970-01-01 00:00:29",
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "kernel": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            "sample": {
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+            },
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          {
+          }
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+          },
+        "@host": "localhost",
+        "@metrics": [
+        "@source": "ARCHIVE_PATH",
+        "@timezone": "UTC+0"
+        ],
+      {
+      }
+    "@hosts": [
+    ]
+  "@pcp": {
+  }
+{
+}
+---
+            <one>-1.000</one>
+            <one>-9223372036854775808.000</one>
+            <one>-9223372036854775808.000</one>
+            <one>-inf</one>
+            <one>0.000</one>
+            <one>1.000</one>
+            <one>1234567.000</one>
+            <one>7654321.000</one>
+            <one>9223372036854775808.000</one>
+            <one>9223372036854775808.000</one>
+            <one>inf</one>
+            <one>nan</one>
+            <one>nan</one>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>1.2.3</release>
+            <release>3.2.1</release>
+            <release>None</release>
+            <release>X</release>
+            <release>XXX</release>
+            <release>XXX</release>
+            <release>char:&lt;:&amp;:`:$:;:!:#: :?:*:|:~:>:test</release>
+            <release>dont:
+            <release>line:
+            <release>null:</release>
+            <release>some:åäöšŠžŽ€🙃§½¼¾:unicode</release>
+            <release>this:":is:\':a:':quote:\":test</release>
+            <uptime unit="sec">0</uptime>
+            <uptime unit="sec">0</uptime>
+            <uptime unit="sec">0</uptime>
+            <uptime unit="sec">1234567</uptime>
+            <uptime unit="sec">1</uptime>
+            <uptime unit="sec">1</uptime>
+            <uptime unit="sec">4294967295</uptime>
+            <uptime unit="sec">4294967295</uptime>
+            <uptime unit="sec">7654321</uptime>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </float>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <float>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      <timestamp value="1970-01-01 00:00:00" interval="0">
+      <timestamp value="1970-01-01 00:00:01" interval="1">
+      <timestamp value="1970-01-01 00:00:02" interval="1">
+      <timestamp value="1970-01-01 00:00:03" interval="1">
+      <timestamp value="1970-01-01 00:00:04" interval="1">
+      <timestamp value="1970-01-01 00:00:05" interval="1">
+      <timestamp value="1970-01-01 00:00:06" interval="1">
+      <timestamp value="1970-01-01 00:00:07" interval="1">
+      <timestamp value="1970-01-01 00:00:08" interval="1">
+      <timestamp value="1970-01-01 00:00:09" interval="1">
+      <timestamp value="1970-01-01 00:00:10" interval="1">
+      <timestamp value="1970-01-01 00:00:11" interval="1">
+      <timestamp value="1970-01-01 00:00:12" interval="1">
+      <timestamp value="1970-01-01 00:00:13" interval="1">
+      <timestamp value="1970-01-01 00:00:14" interval="1">
+      <timestamp value="1970-01-01 00:00:15" interval="1">
+      <timestamp value="1970-01-01 00:00:16" interval="1">
+      <timestamp value="1970-01-01 00:00:17" interval="1">
+      <timestamp value="1970-01-01 00:00:18" interval="1">
+      <timestamp value="1970-01-01 00:00:19" interval="1">
+      <timestamp value="1970-01-01 00:00:20" interval="1">
+      <timestamp value="1970-01-01 00:00:21" interval="1">
+      <timestamp value="1970-01-01 00:00:22" interval="1">
+      <timestamp value="1970-01-01 00:00:23" interval="1">
+      <timestamp value="1970-01-01 00:00:24" interval="1">
+      <timestamp value="1970-01-01 00:00:25" interval="1">
+      <timestamp value="1970-01-01 00:00:26" interval="1">
+      <timestamp value="1970-01-01 00:00:27" interval="1">
+      <timestamp value="1970-01-01 00:00:28" interval="1">
+      <timestamp value="1970-01-01 00:00:29" interval="1">
+    </metrics>
+    <metrics>
+    <source>ARCHIVE_PATH</source>
+    <timezone>UTC+0</timezone>
+  </host>
+  <host nodename="localhost">
+:break</release>
+:eval</release>
+;touch /tmp/toast;
+</pcp>
+<?xml version="1.0" encoding="UTF-8"?>
+<pcp>
+---

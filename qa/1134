@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 1134
+# Exercise pmrep/pcp2json/pcp2xml output with challenging values.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
+which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+A="archives/value-test"
+
+_filter()
+{
+    LC_COLLATE=POSIX sort | \
+    sed -e "s,$A,ARCHIVE_PATH,g"
+}
+
+# real QA test starts here
+echo "---"
+pmrep -z -p -u -a $A -w 32 kernel.all.uptime
+echo "---"
+pmrep -z -p -u -a $A -w 32 sample.float.one
+echo "---"
+pmrep -z -p -u -a $A kernel.uname.release -o csv | sed -e 's,XXX.*XXX,XXX,g'
+echo "---"
+pmrep -z -p -u -a $A kernel.uname.release -o csv | wc
+echo "---"
+pcp2json -z -a $A -H -I "" | _filter | sed -e 's,XXX.*XXX,XXX,g'
+echo "---"
+pcp2xml -z -a $A -H -I "" | _filter | sed -e 's,XXX.*XXX,XXX,g'
+echo "---"
+
+# success, all done
+status=0
+exit
