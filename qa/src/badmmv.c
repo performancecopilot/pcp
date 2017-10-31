@@ -440,7 +440,7 @@ main(int argc, char **argv)
 	case 'D':
 	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    break;

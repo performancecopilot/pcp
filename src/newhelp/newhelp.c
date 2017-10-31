@@ -103,7 +103,7 @@ newentry(char *buf)
 	}
 	else {
 	    fprintf(stderr, "%s: [%s:%d] %s: %s, entry abandoned\n",
-		    pmProgname, filename, ln, buf, pmErrStr(n));
+		    pmGetProgname(), filename, ln, buf, pmErrStr(n));
 	    status = 2;
 	    return;
 	}
@@ -111,7 +111,7 @@ newentry(char *buf)
     else {
 	if (pmid == PM_ID_NULL) {
 	    fprintf(stderr, "%s: [%s:%d] %s: unknown metric, entry abandoned\n",
-		    pmProgname, filename, ln, name);
+		    pmGetProgname(), filename, ln, name);
 	    status = 2;
 	    return;
 	}
@@ -121,7 +121,7 @@ newentry(char *buf)
 	if (hindex[thisindex].pmid == pmid) {
 	    __pmInDom_int	*kp = (__pmInDom_int *)&pmid;
 	    fprintf(stderr, "%s: [%s:%d] duplicate key (", 
-		    pmProgname, filename, ln);
+		    pmGetProgname(), filename, ln);
 	    if (kp->flag == 0)
 		fprintf(stderr, "%s", pmIDStr(pmid));
 	    else {
@@ -165,14 +165,14 @@ newentry(char *buf)
     
     if (p - start == 1 && verbose) {
 	fprintf(stderr, "%s: [%s:%d] %s: warning, null oneline\n",
-	    pmProgname, filename, ln, name);
+	    pmGetProgname(), filename, ln, name);
 	warn = 1;
 	if (!status) status = 1;
     }
 
     if (fwrite(start, sizeof(*start), p - start, f) != p - start || ferror(f)) {
 	fprintf(stderr, "%s: [%s:%d] %s: write oneline failed, entry abandoned\n",
-		pmProgname, filename, ln, name);
+		pmGetProgname(), filename, ln, name);
 	thisindex--;
 	status = 2;
 	return;
@@ -196,7 +196,7 @@ newentry(char *buf)
 
     if (i == 0 && verbose) {
 	fprintf(stderr, "%s: [%s:%d] %s: warning, null help\n",
-	    pmProgname, filename, ln, name);
+	    pmGetProgname(), filename, ln, name);
 	warn = 1;
 	if (!status) status = 1;
     }
@@ -204,7 +204,7 @@ newentry(char *buf)
     if (fwrite(p, sizeof(*p), i+1, f) != i+1 || ferror(f)) {
 	fprintf(stderr, 
 		"%s: [%s:%d] %s: write help failed, entry abandoned\n",
-		pmProgname, filename, ln, name);
+		pmGetProgname(), filename, ln, name);
 	thisindex--;
 	status = 2;
 	return;
@@ -283,7 +283,7 @@ main(int argc, char **argv)
 	case 'D':	/* debug options */
 	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, opts.optarg);
+		    pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    break;
@@ -303,12 +303,12 @@ main(int argc, char **argv)
 	case 'v':	/* version 2 only these days */
 	    version = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		pmprintf("%s: -v requires numeric argument\n", pmProgname);
+		pmprintf("%s: -v requires numeric argument\n", pmGetProgname());
 		opts.errors++;
 	    }
 	    if (version != 2) {
 		pmprintf("%s: deprecated option - only version 2 is supported\n",
-			pmProgname);
+			pmGetProgname());
 		opts.errors++;
 	    }
 	    break;
@@ -326,7 +326,7 @@ main(int argc, char **argv)
     }
 
     if ((n = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	fprintf(stderr, "%s: pmLoadASCIINameSpace(%s, 1): %s\n", pmProgname, pmnsfile, pmErrStr(n));
+	fprintf(stderr, "%s: pmLoadASCIINameSpace(%s, 1): %s\n", pmGetProgname(), pmnsfile, pmErrStr(n));
 	exit(2);
     }
 
@@ -344,7 +344,7 @@ main(int argc, char **argv)
 	    if (fname == NULL) {
 		fprintf(stderr, 
 			"%s: need either a -o option or a filename "
-			"argument to name the output file\n", pmProgname);
+			"argument to name the output file\n", pmGetProgname());
 		exit(2);
 	    }
 	    filename = "<stdin>";
@@ -355,7 +355,7 @@ main(int argc, char **argv)
 	    pmsprintf(pathname, sizeof(pathname), "%s.pag", fname);
 	    if ((f = fopen(pathname, "w")) == NULL) {
 		fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
-		    pmProgname, pathname, osstrerror());
+		    pmGetProgname(), pathname, osstrerror());
 		exit(2);
 	    }
 	    /* header: 2 => pag cf 1 => dir */
@@ -392,7 +392,7 @@ main(int argc, char **argv)
 		if (bp[0] == '\0') {
 		    if (verbose)
 			fprintf(stderr, "%s: [%s:%d] null entry?\n", 
-				pmProgname, filename, ln);
+				pmGetProgname(), filename, ln);
 		    skip = 1;
 		    bp = buf;
 		    if (!status) status = 1;
@@ -413,7 +413,7 @@ main(int argc, char **argv)
 		*p++ = '\n';
 		*p = '\0';
 		fprintf(stderr, "%s: [%s:%d] long line split after ...\n%s",
-			    pmProgname, filename, ln, buf);
+			    pmGetProgname(), filename, ln, buf);
 		ln--;
 		if (!status) status = 1;
 	    }
@@ -423,7 +423,7 @@ main(int argc, char **argv)
 		bp[-1] = '\0';
 		bp[-2] = '\n';
 		fprintf(stderr, "%s: [%s:%d] entry truncated after ... %s",
-			    pmProgname, filename, ln, &bp[-64]);
+			    pmGetProgname(), filename, ln, &bp[-64]);
 		skip = 1;
 		if (!status) status = 1;
 	    }
@@ -440,7 +440,7 @@ main(int argc, char **argv)
 	pmsprintf(pathname, sizeof(pathname), "%s.dir", fname);
 	if ((f = fopen(pathname, "w")) == NULL) {
 	    fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
-		pmProgname, pathname, osstrerror());
+		pmGetProgname(), pathname, osstrerror());
 	    exit(2);
 	}
 
@@ -451,7 +451,7 @@ main(int argc, char **argv)
 	hdr.off_text = thisindex + 1;	/* # entries */
 	if (fwrite(&hdr, sizeof(hdr), 1, f) != 1 || ferror(f)) {
 	     fprintf(stderr, "%s: fwrite index failed: %s\n",
-		     pmProgname, osstrerror());
+		     pmGetProgname(), osstrerror());
 	     exit(2);
 	}
 
@@ -461,7 +461,7 @@ main(int argc, char **argv)
 	    if (fwrite(&hindex[i], sizeof(hindex[0]), 1, f) != 1
 		|| ferror(f)) {
 		 fprintf(stderr, "%s: fwrite index failed: %s\n",
-			 pmProgname, osstrerror());
+			 pmGetProgname(), osstrerror());
 		 exit(2);
 	    }
 	}

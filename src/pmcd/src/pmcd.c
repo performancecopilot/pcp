@@ -153,7 +153,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		sts = pmSetDebug(opts.optarg);
 		if (sts < 0) {
 		    pmprintf("%s: unrecognized debug options specification (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		    opts.errors++;
 		}
 		break;
@@ -181,7 +181,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    case 'L': /* Maximum size for PDUs from clients */
 		val = (int)strtol(opts.optarg, NULL, 0);
 		if (val <= 0) {
-		    pmprintf("%s: -L requires a positive value\n", pmProgname);
+		    pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		    opts.errors++;
 		} else {
 		    __pmSetPDUCeiling(val);
@@ -203,7 +203,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    case 'p':
 		if (__pmServerAddPorts(opts.optarg) < 0) {
 		    pmprintf("%s: -p requires a positive numeric argument (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		    opts.errors++;
 		} else {
 		    *nports += 1;
@@ -218,7 +218,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val <= 0.0) {
 		    pmprintf("%s: -q requires a positive numeric argument\n",
-			pmProgname);
+			pmGetProgname());
 		    opts.errors++;
 		} else {
 		    _creds_timeout = val;
@@ -241,7 +241,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0.0) {
 		    pmprintf("%s: -t requires a positive numeric argument\n",
-			pmProgname);
+			pmGetProgname());
 		    opts.errors++;
 		} else {
 		    pmcd_timeout = val;
@@ -252,7 +252,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0) {
 		    pmprintf("%s: -T requires a positive numeric argument\n",
-			pmProgname);
+			pmGetProgname());
 		    opts.errors++;
 		} else {
 		    pmcd_trace_mask = val;
@@ -967,7 +967,7 @@ main(int argc, char *argv[])
      * Note that if this fails don't worry as messages will still
      * go to stderr.
      */
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+    __pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));

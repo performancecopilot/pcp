@@ -486,12 +486,12 @@ main(int argc, char **argv)
     pmdaInterface	pmda;
     char		helppath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
+    pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmGetProgname(), APACHE, "apache.log",
 		helppath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &pmda)) != EOF) {

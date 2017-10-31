@@ -75,7 +75,7 @@ metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 				fprintf(stderr, 
 				    "%s: Error: cannot use context (%d) "
 				    "from archive \"%s\"\n", 
-				    pmProgname, inarch[i].ctx, inarch[i].name);
+				    pmGetProgname(), inarch[i].ctx, inarch[i].name);
 				exit(1);
 			    }
 
@@ -260,7 +260,7 @@ dometric(const char *name)
 
     }
     else {
-	fprintf(stderr, "%s: dometric: botch: bad numinst %d!\n", pmProgname, numinst);
+	fprintf(stderr, "%s: dometric: botch: bad numinst %d!\n", pmGetProgname(), numinst);
 	abandon_extract();
     }
 

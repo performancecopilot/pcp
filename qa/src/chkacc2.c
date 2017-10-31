@@ -24,7 +24,7 @@ main(int argc, char **argv)
     __pmSockAddr	*inaddr;
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "46D:?")) != EOF) {
 	switch (c) {
@@ -41,7 +41,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -60,7 +60,7 @@ main(int argc, char **argv)
 Options:\n\
   -4             do IPv4 (default)\n\
   -6		 do IPv6\n",
-                pmProgname);
+                pmGetProgname());
         return 1;
     }
 

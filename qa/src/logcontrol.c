@@ -37,7 +37,7 @@ main(int argc, char **argv)
     pmResult	*status;
     int		delta = 5000;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:i:n:P:p:r:")) != EOF) {
 	switch (c) {
@@ -46,7 +46,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -66,7 +66,7 @@ main(int argc, char **argv)
 	case 'P':	/* port for pmlogger */
 	    port = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -P requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -P requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -74,7 +74,7 @@ main(int argc, char **argv)
 	case 'p':	/* pid for pmlogger */
 	    pid = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -p requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -82,7 +82,7 @@ main(int argc, char **argv)
 	case 'r':	/* logging delta */
 	    delta = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -r requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -r requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -112,7 +112,7 @@ USAGE:
 " mandatory {on|off|maybe}\n"
 " advisory {on|off}\n"
 " enquire\n"
-		, pmProgname);
+		, pmGetProgname());
 	exit(1);
     }
 
@@ -141,18 +141,18 @@ USAGE:
     }
 
     if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = __pmConnectLogger(host, &pid, &port)) < 0) {
 	printf("%s: Cannot connect to pmlogger (%d) on host \"%s\": %s\n",
-	    pmProgname, pid, host, pmErrStr(sts));
+	    pmGetProgname(), pid, host, pmErrStr(sts));
 	exit(1);
     }
     ctlport = sts;
@@ -197,7 +197,7 @@ USAGE:
 
     sts = __pmControlLog(ctlport, request, control, state, delta, &status);
     if (sts < 0) {
-	printf("%s: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -245,7 +245,7 @@ USAGE:
     pmFreeResult(request);
     pmFreeResult(status);
     if ((sts = pmWhichContext()) < 0) {
-	printf("%s: pmWhichContext: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmWhichContext: %s\n", pmGetProgname(), pmErrStr(sts));
 	goto done;
     }
     pmDestroyContext(sts);

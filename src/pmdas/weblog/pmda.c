@@ -114,7 +114,7 @@ Options\n\
   -6 port	expect PMCD to connect on given ipv6 port (number or name)\n\
 \n\
 If none of the -i, -p or -u options are given, the configuration file is\n\
-checked and then %s terminates.\n", pmProgname, pmProgname);
+checked and then %s terminates.\n", pmGetProgname(), pmGetProgname());
     exit(1);
 }
 
@@ -171,7 +171,7 @@ logmessage(int priority, const char *format, ...)
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
 
-    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, (pid_t)getpid(), level, buffer) ;
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmGetProgname(), (pid_t)getpid(), level, buffer) ;
 }
 
 /*
@@ -470,7 +470,7 @@ main(int argc, char **argv)
     struct timeval	end;
     double		startTime;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&wl_username);
 
     __pmtimevalNow(&start);
@@ -479,7 +479,7 @@ main(int argc, char **argv)
 
     pmsprintf(wl_helpFile, sizeof(wl_helpFile), "%s%c" "weblog" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, WEBSERVER,
+    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), WEBSERVER,
 		wl_logFile, wl_helpFile);
 
     while ((n = pmdaGetOpt(argc, argv, "CD:d:h:i:l:n:pS:t:u:U:6:?", 
@@ -494,7 +494,7 @@ main(int argc, char **argv)
 	    wl_sprocThresh = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
 		fprintf(stderr, "%s: -S requires numeric argument\n",
-			pmProgname);
+			pmGetProgname());
 		err++;
 	    }
 	    break;
@@ -503,7 +503,7 @@ main(int argc, char **argv)
 	    if (pmParseInterval(optarg, &delta, &err_msg) < 0) {
                     (void)fprintf(stderr,
                             "%s: -n requires a time interval: %s\n",
-                            err_msg, pmProgname);
+                            err_msg, pmGetProgname());
                     free(err_msg);
                     err++;
                 }
@@ -516,7 +516,7 @@ main(int argc, char **argv)
 	    if (pmParseInterval(optarg, &delta, &err_msg) < 0) {
                     (void)fprintf(stderr,
                             "%s: -t requires a time interval: %s\n",
-                            err_msg, pmProgname);
+                            err_msg, pmGetProgname());
                     free(err_msg);
                     err++;
                 }
@@ -530,7 +530,7 @@ main(int argc, char **argv)
 	    break;
 
 	default:
-	    fprintf(stderr, "%s: Unknown option \"-%c\"", pmProgname, (char)n);
+	    fprintf(stderr, "%s: Unknown option \"-%c\"", pmGetProgname(), (char)n);
 	    err++;
 	    break;
 	}

@@ -120,7 +120,7 @@ showClients(void)
 {
     int i;
 
-    fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
+    fprintf(stderr, "%s: %d connected clients:\n", pmGetProgname(), nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
     for (i=0; i < nclients; i++) {

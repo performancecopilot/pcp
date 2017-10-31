@@ -708,7 +708,7 @@ usage(void)
             "  -s interval  default delay between iterations (default %d sec)\n"
             "  -U username  user account to run under (default \"adm\")\n"
             "  -f           disable per-uid/gid record filtering (default on)\n",
-            pmProgname, maxmem, (int)interval.tv_sec);
+            pmGetProgname(), maxmem, (int)interval.tv_sec);
     exit(1);
 }
 
@@ -724,10 +724,10 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, SYSTEMD,
+    pmdaDaemon(&desc, PMDA_INTERFACE_6, pmGetProgname(), SYSTEMD,
                 "systemd.log", helppath);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:f?", &desc, &err)) != EOF) {
@@ -738,7 +738,7 @@ main(int argc, char **argv)
                     convertUnits(&endnum, &maxmem);
                 if (*endnum != '\0' || maxmem < minmem) {
                     fprintf(stderr, "%s: invalid max memory '%s' (min=%ld)\n",
-                            pmProgname, optarg, minmem);
+                            pmGetProgname(), optarg, minmem);
                     err++;
                 }
                 break;
@@ -746,7 +746,7 @@ main(int argc, char **argv)
             case 's':
                 if (pmParseInterval(optarg, &interval, &endnum) < 0) {
                     fprintf(stderr, "%s: -s requires a time interval: %s\n",
-                            pmProgname, endnum);
+                            pmGetProgname(), endnum);
                     free(endnum);
                     err++;
                 }

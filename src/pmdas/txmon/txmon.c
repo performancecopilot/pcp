@@ -271,12 +271,12 @@ main(int argc, char **argv)
     size_t		shm_size;
     stat_t		*sp;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TXMON,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmGetProgname(), TXMON,
 		"txmon.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);

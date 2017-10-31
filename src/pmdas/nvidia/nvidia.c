@@ -373,10 +373,10 @@ main(int argc, char **argv)
     pmdaInterface	desc;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     initializeHelpPath();
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, NVML,
+    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), NVML,
 		"nvidia.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);

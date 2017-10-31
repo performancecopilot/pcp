@@ -90,7 +90,8 @@ cannot be created, this is an error.
 The application that is creating the session is identified by
 .I creator
 (most often this would be the same as the global PMAPI application name,
-.IR pmProgname ).
+as returned by
+.BR pmGetProgname (3)).
 If the application knows how to create its own configuration file to replay
 the recorded session, then
 .I replay

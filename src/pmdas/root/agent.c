@@ -70,13 +70,13 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	if (pipe1(inPipe) < 0) {
 	    __pmNotifyErr(LOG_ERR,
 		    "%s: input pipe create failed for \"%s\" agent: %s\n",
-		    pmProgname, label, osstrerror());
+		    pmGetProgname(), label, osstrerror());
 	    return (pid_t)-1;
 	}
 	if (pipe1(outPipe) < 0) {
 	    __pmNotifyErr(LOG_ERR,
 		    "%s: output pipe create failed for \"%s\" agent: %s\n",
-		    pmProgname, label, osstrerror());
+		    pmGetProgname(), label, osstrerror());
 	    close(inPipe[0]);
 	    close(inPipe[1]);
 	    return (pid_t)-1;
@@ -135,7 +135,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	    execvp(transfer_final[0], transfer_final);
 	    /* botch if reach here */
 	    fprintf(stderr, "%s: error starting %s: %s\n",
-		    pmProgname, transfer_final[0], osstrerror());
+		    pmGetProgname(), transfer_final[0], osstrerror());
 	    /* avoid atexit() processing, so _exit not exit */
 	    _exit(1);
 	}

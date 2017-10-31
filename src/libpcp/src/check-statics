@@ -473,6 +473,7 @@ util.o
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
     pmProgname			# no unsafe side-effects, see notes in util.c
+    appname			# no unsafe side-effects, see notes in util.c
     pmDebug			# set-once from main(), read-only elsewhere
     				# also guarded by __pmLock_extcall when set
 				# from __pmInitLocks()
@@ -498,6 +499,7 @@ util.o
     xconfirm			# no unsafe side-effects, see notes in util.c
     tmpdir_init			# no unsafe side-effects, see notes in util.c
     tmpdir			# no unsafe side-effects, see notes in util.c
+pmapi_old.o
 ?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File

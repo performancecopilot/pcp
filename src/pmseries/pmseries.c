@@ -53,7 +53,7 @@ set_command(char **cmdp, const char *set, pmOptions *opts)
 	*cmdp = (char *)set;
     else {
 	pmprintf("%s: command is set to %s, cannot reset to %s\n",
-		pmProgname, *cmdp, set);
+		pmGetProgname(), *cmdp, set);
 	opts->errors++;
     }
 }
@@ -123,7 +123,7 @@ main(int argc, char *argv[])
 
     if ((sts = pmSeries(command, query)) < 0) {
 	fprintf(stderr, "%s: pmSeries: %s - %s\n",
-		    pmProgname, command, pmErrStr(sts));
+		    pmGetProgname(), command, pmErrStr(sts));
 	exit(1);
     }
     exit(0);

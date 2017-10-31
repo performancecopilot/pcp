@@ -9,7 +9,7 @@
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
 	  "  -D debugspec set PCP debugging options\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
@@ -30,12 +30,12 @@ main(int argc, char *argv[])
     int			err = 0;
     pmdaInterface	desc = { 0 };
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     /*
      * Honour the pmcd connection protocol ... 
      */
-    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, desc.domain, "pmdashutdown.log", NULL);
+    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmGetProgname(), desc.domain, "pmdashutdown.log", NULL);
     if (desc.status != 0) {
 	fprintf(stderr, "pmdaDaemon() failed!\n");
 	exit(1);
@@ -55,6 +55,6 @@ main(int argc, char *argv[])
      */
     sleep(10);
 
-    fprintf(stderr, "%s terminated\n", pmProgname);
+    fprintf(stderr, "%s terminated\n", pmGetProgname());
     exit(0);
 }

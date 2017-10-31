@@ -103,7 +103,7 @@ getargs(int argc, char **argv)
     int		i;
     int		sts;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:n:i:t:v")) != EOF) {
 	switch (c) {
@@ -112,7 +112,7 @@ getargs(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -124,7 +124,7 @@ getargs(int argc, char **argv)
 	case 'i':	/* iterations */
 	    iterations = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -i requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -i requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -136,7 +136,7 @@ getargs(int argc, char **argv)
 	case 't':
 	    refresh = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -t requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -t requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -154,7 +154,7 @@ getargs(int argc, char **argv)
 
     if (errflag) {
 USAGE:
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
@@ -168,7 +168,7 @@ USAGE:
 	if (strncmp(metrics[i], "hotproc.", 8) == 0) {
 	   if (i > 0 && !is_hotproc) {
 		printf("%s: Error: all metrics should be from same agent\n",
-		       pmProgname); 
+		       pmGetProgname()); 
 		exit(1);
            }
 	   is_hotproc = 1; 
@@ -176,14 +176,14 @@ USAGE:
 	else if (strncmp(metrics[i], "proc.", 5) == 0) {
 	   if (i > 0 && is_hotproc) {
 		printf("%s: Error: all metrics should be from same agent\n",
-		       pmProgname); 
+		       pmGetProgname()); 
 		exit(1);
            }
 	   is_hotproc = 0; 
 	}
 	else {
 	    printf("%s: Error: all metrics should be from "
-		   "proc or hotproc agent: %s\n", pmProgname, metrics[i]);
+		   "proc or hotproc agent: %s\n", pmGetProgname(), metrics[i]);
 	    exit(1);
 	}
 	printf("metrics[%d] = <%s>\n", i, metrics[i]);
@@ -355,7 +355,7 @@ test_instance(void)
     printf("\n--- GetInDom ---\n");
     sts = pmGetInDom(indom, &all_inst, &all_names);
     if (sts < 0) {
-	printf("%s: pmGetInDom: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmGetInDom: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     else
@@ -369,14 +369,14 @@ test_instance(void)
 
 	/* e.g. inst=0, name="00000 sched" */
 	if (sscanf(all_names[i], proc_fmt, &inst) != 1) {
-	    printf("%s: Error: cannot get PID from instname\n", pmProgname);
-	    printf("%s: <id,name> = <%ld,\"%s\">\n", pmProgname,
+	    printf("%s: Error: cannot get PID from instname\n", pmGetProgname());
+	    printf("%s: <id,name> = <%ld,\"%s\">\n", pmGetProgname(),
 		   (long)all_inst[i], all_names[i]);
 	    exit(1);
 	}
 	if (inst != all_inst[i]) {
-	    printf("%s: Error: instname is wrong\n", pmProgname);
-	    printf("%s: <id,name> = <%ld,\"%s\"> != %d (fmt=%s)\n", pmProgname,
+	    printf("%s: Error: instname is wrong\n", pmGetProgname());
+	    printf("%s: <id,name> = <%ld,\"%s\"> != %d (fmt=%s)\n", pmGetProgname(),
 		   (long)all_inst[i], all_names[i], inst, proc_fmt);
 	    exit(1);
 	}
@@ -399,7 +399,7 @@ test_instance(void)
 		continue;
 	    }
 	    else {
-		printf("%s: pmLookupInDom: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmLookupInDom: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -409,8 +409,8 @@ test_instance(void)
 	sscanf(all_names[i], proc_fmt, &x);
 	if (x != inst) {
 	    printf("%s: Error: inst is wrong, expect: %d got: %d\n",
-		pmProgname, inst, x);
-	    printf("%s: Expected=%d, Actual=%d\n", pmProgname, x, inst);
+		pmGetProgname(), inst, x);
+	    printf("%s: Expected=%d, Actual=%d\n", pmGetProgname(), x, inst);
 	    exit(1);
 	}
     }/*for*/
@@ -429,7 +429,7 @@ test_instance(void)
 		continue;
 	    }
 	    else {
-		printf("%s: pmNameInDom: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmNameInDom: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -445,8 +445,8 @@ test_instance(void)
 		;
 	    if (strncmp(q, x, strlen(x)) != 0 ||
 		(q[strlen(x)] != '\0' && q[strlen(x)] != ' ')) {
-		printf("%s: Error: name is wrong\n", pmProgname);
-		printf("%s: Expected=\"%s\", Actual=\"%s\"\n", pmProgname, x, name);
+		printf("%s: Error: name is wrong\n", pmGetProgname());
+		printf("%s: Expected=\"%s\", Actual=\"%s\"\n", pmGetProgname(), x, name);
 		exit(1);
 	    }
 	}
@@ -481,7 +481,7 @@ test_prof_fetch(void)
 
     printf("\n--- Check profile in context dump... ---\n");
     if ((sts = pmWhichContext()) < 0) {
-	printf("%s: pmWhichContext: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmWhichContext: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     __pmDumpContext(stdout, sts, PM_INDOM_NULL);
@@ -493,7 +493,7 @@ test_prof_fetch(void)
 
 	sts = pmFetch(nmetrics, pmids, &result1);
 	if (sts < 0) {
-	    printf("%s: iteration %d : %s\n", pmProgname, i, pmErrStr(sts));
+	    printf("%s: iteration %d : %s\n", pmGetProgname(), i, pmErrStr(sts));
 	    exit(1);
 	}
 	__pmDumpResult(stdout, result1);
@@ -503,13 +503,13 @@ test_prof_fetch(void)
 	    pmValueSet *set = result1->vset[j];
 
 	    if (set->numval != 2) {
-		printf("%s: Error: num of inst == %d\n", pmProgname, set->numval);
+		printf("%s: Error: num of inst == %d\n", pmGetProgname(), set->numval);
 	    }        
 
 	    for (k = 0; k < set->numval; k++) {
 		pmValue *val = &set->vlist[k];
 		if (val->inst != pids[0] && val->inst != pids[1]) {
-		    printf("%s: Error: inst ids do not match pids\n", pmProgname);
+		    printf("%s: Error: inst ids do not match pids\n", pmGetProgname());
 		    exit(1);
 		}        
 	    } 
@@ -528,7 +528,7 @@ test_prof_fetch(void)
     }
     sts = pmFetch(nmetrics, pmids, &result2);
     if (sts < 0) {
-	printf("%s: fetch all %d instances : %s\n", pmProgname, all_n, pmErrStr(sts));
+	printf("%s: fetch all %d instances : %s\n", pmGetProgname(), all_n, pmErrStr(sts));
 	exit(1);
     }
     __pmDumpResult(stdout, result2);
@@ -549,11 +549,11 @@ test_store(void)
 
     sts = pmFetch(nmetrics, pmids, &result);
     if (sts < 0) {
-	printf("%s: fetch failed : %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: fetch failed : %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmStore(result)) != -EACCES && sts != PM_ERR_PERMISSION) {
-	printf("%s: Error: pmStore did not fail correctly\n", pmProgname);
+	printf("%s: Error: pmStore did not fail correctly\n", pmGetProgname());
 	printf("Expected: %s\n", pmErrStr(-EACCES));
 	printf("or: %s\n", pmErrStr(PM_ERR_PERMISSION));
 	printf("Got:      %s\n", pmErrStr(sts));
@@ -579,14 +579,14 @@ main(int argc, char **argv)
     if (pmnsfile != PM_NS_DEFAULT) {
 	if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 	    printf("%s: Cannot load pmnsfile from \"%s\": %s\n", 
-		    pmProgname, pmnsfile, pmErrStr(sts));
+		    pmGetProgname(), pmnsfile, pmErrStr(sts));
 	    exit(1);
 	}
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
 	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", 
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
@@ -598,7 +598,7 @@ main(int argc, char **argv)
         test_store();
 
     if ((sts = pmWhichContext()) < 0) {
-	printf("%s: pmWhichContext: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmWhichContext: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     pmDestroyContext(sts);

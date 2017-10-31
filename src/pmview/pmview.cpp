@@ -140,7 +140,7 @@ bool PmView::view(bool showAxis,
 
     viewer()->setSceneGraph(my.root);
     viewer()->setAutoRedraw(true);
-    viewer()->setTitle(pmProgname);
+    viewer()->setTitle(pmGetProgname());
     if (showAxis)
 	viewer()->setFeedbackVisibility(true);
 
@@ -299,7 +299,7 @@ void PmView::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)
 
 void PmView::filePrint()
 {
-    QMessageBox::information(this, pmProgname, "Print, print, print... whirrr");
+    QMessageBox::information(this, pmGetProgname(), "Print, print, print... whirrr");
 }
 
 void PmView::fileQuit()
@@ -317,7 +317,7 @@ void PmView::helpManual()
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
     if (!ok) {
 	documents.prepend("Failed to open:\n");
-	QMessageBox::warning(this, pmProgname, documents);
+	QMessageBox::warning(this, pmGetProgname(), documents);
     }
 }
 
@@ -331,7 +331,7 @@ void PmView::helpTutorial()
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
     if (!ok) {
 	documents.prepend("Failed to open:\n");
-	QMessageBox::warning(this, pmProgname, documents);
+	QMessageBox::warning(this, pmGetProgname(), documents);
     }
 }
 
@@ -644,7 +644,7 @@ bool View::stopRecording()
     if (error) {
 	cleanupRecording();
 	pmview->setRecordState(false);
-	QMessageBox::warning(NULL, pmProgname, errmsg,
+	QMessageBox::warning(NULL, pmGetProgname(), errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
@@ -675,7 +675,7 @@ bool View::queryRecording(void)
 
     if (error) {
 	pmview->setRecordState(false);
-	QMessageBox::warning(NULL, pmProgname, errmsg,
+	QMessageBox::warning(NULL, pmGetProgname(), errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
@@ -689,7 +689,7 @@ bool View::detachLoggers(void)
 
     if (error) {
 	pmview->setRecordState(false);
-	QMessageBox::warning(NULL, pmProgname, errmsg,
+	QMessageBox::warning(NULL, pmGetProgname(), errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }

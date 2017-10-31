@@ -195,14 +195,14 @@ broken_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 2:
 	    fprintf(stderr, 
 		    "%s: Fetching metric 0.2 which does not exist\n",
-		    pmProgname);
+		    pmGetProgname());
 	    atom->l = 42;
 	    break;
 	    /* metric not defined in table or pmns */
 	case 3:
 	    fprintf(stderr, 
 		    "%s: Fetching metric 0.3 which does not exist\n",
-		    pmProgname);
+		    pmGetProgname());
 	    atom->l = -1;
 	    break;
 	case 5:
@@ -326,7 +326,7 @@ broken_init(pmdaInterface *dp)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
 	  "  -d N       set pmDebug debugging flag to N\n"
 	  "  -D domain  use domain (numeric) for metrics domain of PMDA\n"
@@ -351,18 +351,18 @@ main(int argc, char **argv)
     int			err = 0;
     pmdaInterface	desc;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     _isDSO = 0;
 
 #if defined(BUG_5)
     /* we don't grok PMDA_INTERFACE_4 ... */
-    pmdaDaemon(&desc, 4, pmProgname, BROKEN, _logFile,
+    pmdaDaemon(&desc, 4, pmGetProgname(), BROKEN, _logFile,
 	       _helpText);
 #elif defined(VERSION_1)
-    pmdaDaemon(&desc, PMDA_PROTOCOL_2, pmProgname, BROKEN, _logFile,
+    pmdaDaemon(&desc, PMDA_PROTOCOL_2, pmGetProgname(), BROKEN, _logFile,
 	       _helpText);
 #else
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, BROKEN, _logFile,
+    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), BROKEN, _logFile,
 	       _helpText);
 #endif
     

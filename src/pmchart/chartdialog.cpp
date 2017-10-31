@@ -243,7 +243,7 @@ void ChartDialog::buttonOk_clicked()
 	QDialog::accept();
     } else {
 	tabWidget->setCurrentIndex(index);
-	QMessageBox::warning(this, pmProgname, message,
+	QMessageBox::warning(this, pmGetProgname(), message,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
     }
@@ -262,7 +262,7 @@ void ChartDialog::buttonApply_clicked()
     }
     else {
 	tabWidget->setCurrentIndex(index);
-	QMessageBox::warning(this, pmProgname, message,
+	QMessageBox::warning(this, pmGetProgname(), message,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
     }
@@ -344,7 +344,7 @@ void ChartDialog::metricAddButtonClicked()
 	    QString message = item->metricName();
 	    message.prepend(tr("Cannot plot metric: "));
 	    message.append(tr("\nThis metric does not have a numeric type."));
-	    QMessageBox::warning(this, pmProgname, message,
+	    QMessageBox::warning(this, pmGetProgname(), message,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	}
@@ -384,7 +384,7 @@ void ChartDialog::archiveButtonClicked()
 	    archive.prepend(tr("Cannot open PCP archive: "));
 	    archive.append(tr("\n"));
 	    archive.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, archive,
+	    QMessageBox::warning(this, pmGetProgname(), archive,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
@@ -408,14 +408,14 @@ void ChartDialog::hostButtonClicked()
 
 	if (hostspec == QString::null || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
-	    QMessageBox::warning(this, pmProgname, hostspec,
+	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
 	    hostspec.prepend(tr("Cannot connect to host: "));
 	    hostspec.append(tr("\n"));
 	    hostspec.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, hostspec,
+	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
@@ -863,7 +863,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	}
 	else
 	    msg.append(pmErrStr(m));
-	QMessageBox::critical(pmchart, pmProgname,  msg);
+	QMessageBox::critical(pmchart, pmGetProgname(),  msg);
     }
     else {
 	cp->setStroke(m, style, name->currentColor());

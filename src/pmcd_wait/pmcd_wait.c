@@ -48,7 +48,7 @@ PrintTimeout(void)
     if (verbose) {
 	fprintf(stderr, "%s: Failed to connect to PMCD on host \"%s\""
 		" in %ld seconds\n",
-		pmProgname, hostname, delta);
+		pmGetProgname(), hostname, delta);
     }
 }
 
@@ -69,7 +69,7 @@ main(int argc, char **argv)
     }
 
     if (opts.optind < argc) {
-	pmprintf("%s: Too many arguments\n", pmProgname);
+	pmprintf("%s: Too many arguments\n", pmGetProgname());
 	opts.errors++;
     }
 
@@ -77,7 +77,7 @@ main(int argc, char **argv)
 	delta = opts.interval.tv_sec;
 	if (delta <= 0) {
 	    pmprintf("%s: -t argument must be at least 1 second\n",
-		pmProgname);
+		pmGetProgname());
 	    opts.errors++;
 	}
     }
@@ -96,7 +96,7 @@ main(int argc, char **argv)
     if (sts < 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to create env string: %s\n",
-		pmProgname, osstrerror());
+		pmGetProgname(), osstrerror());
 	}
 	exit(EXIT_STS_UNIXERR);
     }
@@ -104,7 +104,7 @@ main(int argc, char **argv)
     if (sts != 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to set PMCD_CONNECT_TIMEOUT: %s\n",
-		pmProgname, osstrerror());
+		pmGetProgname(), osstrerror());
 	}
 	exit(EXIT_STS_UNIXERR);
     }
@@ -134,7 +134,7 @@ main(int argc, char **argv)
 	else {
 	    if (verbose) {
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-			pmProgname, hostname, pmErrStr(sts));
+			pmGetProgname(), hostname, pmErrStr(sts));
 	    }
 	    if (sts > PM_ERR_BASE)
 		exit(EXIT_STS_UNIXERR);

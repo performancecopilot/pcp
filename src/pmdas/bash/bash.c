@@ -424,13 +424,13 @@ main(int argc, char **argv)
     long		minmem;
     int			c, sep = __pmPathSeparator();
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     minmem = getpagesize();
     bash_maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
     pmsprintf(helppath, sizeof(helppath), "%s%c" "bash" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, BASH, "bash.log", helppath);
+    pmdaDaemon(&desc, PMDA_INTERFACE_5, pmGetProgname(), BASH, "bash.log", helppath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &desc)) != EOF) {
 	switch (c) {
@@ -440,7 +440,7 @@ main(int argc, char **argv)
 		convertUnits(&endnum, &bash_maxmem);
 	    if (*endnum != '\0' || bash_maxmem < minmem) {
 		pmprintf("%s: invalid max memory '%s' (min=%ld)\n",
-			    pmProgname, opts.optarg, minmem);
+			    pmGetProgname(), opts.optarg, minmem);
 		opts.errors++;
 	    }
 	    break;
@@ -448,7 +448,7 @@ main(int argc, char **argv)
 	case 's':
 	    if (pmParseInterval(opts.optarg, &bash_interval, &endnum) < 0) {
 		pmprintf("%s: -s requires a time interval: %s\n",
-			 pmProgname, endnum);
+			 pmGetProgname(), endnum);
 		free(endnum);
 		opts.errors++;
 	    }

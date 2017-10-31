@@ -41,31 +41,31 @@ get_sample(void)
     if (first) {
 	sts = pmParseUnitsStr(scale, &scaleunits, &scalemult);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: unit/scale parse error\n", pmProgname, osstrerror());
+	    fprintf(stderr, "%s: unit/scale parse error\n", pmGetProgname(), osstrerror());
 	    exit(1);
 	}
 
 	numpmid = sizeof(metrics) / sizeof(char *);
 	if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmGetProgname(), osstrerror());
 	    exit(1);
 	}
 	if ((desclist = (pmDesc *)malloc(numpmid * sizeof(desclist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmGetProgname(), osstrerror());
 	    exit(1);
 	}
 	if ((sts = pmLookupName(numpmid, metrics, pmidlist)) < 0) {
-	    printf("%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	    for (i = 0; i < numpmid; i++) {
 		if (pmidlist[i] == PM_ID_NULL)
-		    fprintf(stderr, "%s: metric \"%s\" not in name space\n", pmProgname, metrics[i]);
+		    fprintf(stderr, "%s: metric \"%s\" not in name space\n", pmGetProgname(), metrics[i]);
 	    }
 	    exit(1);
 	}
 	for (i = 0; i < numpmid; i++) {
 	    if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0) {
 		fprintf(stderr, "%s: cannot retrieve description for metric \"%s\" (PMID: %s)\nReason: %s\n",
-		    pmProgname, metrics[i], pmIDStr(pmidlist[i]), pmErrStr(sts));
+		    pmGetProgname(), metrics[i], pmIDStr(pmidlist[i]), pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -82,7 +82,7 @@ get_sample(void)
 
     /* fetch the current metrics */
     if ((sts = pmFetch(numpmid, pmidlist, &rp)) < 0) {
-	fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -134,7 +134,7 @@ main(int argc, char **argv)
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"local:\": %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

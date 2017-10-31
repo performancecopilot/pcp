@@ -89,12 +89,12 @@ main(int argc, char **argv)
     char		*username;
 
     _isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmProgname, SAMPLE,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmGetProgname(), SAMPLE,
 		"sample.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);

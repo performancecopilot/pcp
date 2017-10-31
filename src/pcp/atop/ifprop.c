@@ -89,7 +89,7 @@ initifprop(void)
 	{
 		fprintf(stderr,
 			"%s: allocating interface table: %s [%ld bytes]\n",
-			pmProgname, strerror(errno), (long)propsize);
+			pmGetProgname(), strerror(errno), (long)propsize);
 		cleanstop(1);
 	}
 

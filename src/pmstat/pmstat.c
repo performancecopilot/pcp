@@ -104,7 +104,7 @@ getNewContext(int type, char *host, int quiet)
     sts = pmCreateFetchGroup(&s->pmfg, type, host);
     if (sts < 0) {
 	fprintf(stderr, "%s: Cannot create fetchgroup: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	goto fail;
     }
 
@@ -199,7 +199,7 @@ getNewContext(int type, char *host, int quiet)
     if (i != num_items)
 	return s;
 
-    fprintf(stderr, "%s: %s: Cannot resolve any metrics.\n", pmProgname, host);
+    fprintf(stderr, "%s: %s: Cannot resolve any metrics.\n", pmGetProgname(), host);
     pmDestroyFetchGroup(s->pmfg);
 
 fail:
@@ -217,7 +217,7 @@ saveContextHostName(struct statsrc *s)
 
     if ((length = strlen(name)) == 0)
 	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
-		pmProgname, ctx);
+		pmGetProgname(), ctx);
     if ((name = strdup(name)) == NULL)
 	__pmNoMem("context name", length + 1, PM_FATAL_ERR);
     return name;
@@ -377,12 +377,12 @@ main(int argc, char *argv[])
     }
 
     if (argc != opts.optind) {
-	pmprintf("%s: too many options\n", pmProgname);
+	pmprintf("%s: too many options\n", pmGetProgname());
 	opts.errors++;
     }
 
     if (pauseFlag && (opts.context != PM_CONTEXT_ARCHIVE)) {
-	pmprintf("%s: -P can only be used with archives\n", pmProgname);
+	pmprintf("%s: -P can only be used with archives\n", pmGetProgname());
 	opts.errors++;
     }
 
@@ -438,7 +438,7 @@ main(int argc, char *argv[])
     }
 
     if (!ctxCount) {
-	fprintf(stderr, "%s: No place to get data from!\n", pmProgname);
+	fprintf(stderr, "%s: No place to get data from!\n", pmGetProgname());
 	exit(1);
     }
 

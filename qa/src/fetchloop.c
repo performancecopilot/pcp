@@ -58,14 +58,14 @@ main(int argc, char **argv)
     long	hz = sysconf(_SC_CLK_TCK);
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "c:D:h:Ln:s:?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* configfile */
 	    if (configfile != NULL) {
-		fprintf(stderr, "%s: at most one -c option allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one -c option allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    configfile = optarg;
@@ -75,7 +75,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -83,7 +83,7 @@ main(int argc, char **argv)
 	case 'h':	/* contact PMCD on this hostname */
 #ifdef BUILD_STANDALONE
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 #endif
@@ -94,7 +94,7 @@ main(int argc, char **argv)
 #ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = NULL;
@@ -111,7 +111,7 @@ main(int argc, char **argv)
 	case 's':	/* sample count */
 	    samples = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -135,12 +135,12 @@ Options:\n\
 #endif
 "  -n pmnsfile    use an alternative PMNS\n\
   -s samples     terminate after this many samples [default 1000]\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 
     if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, 
+	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
@@ -153,10 +153,10 @@ Options:\n\
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
@@ -193,9 +193,9 @@ Options:\n\
     if (sts != numpmid) {
 	int		i;
 	if (sts < 0)
-	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	else
-	    fprintf(stderr, "%s: pmLookupName: returned %d, expected %d\n", pmProgname, sts, numpmid);
+	    fprintf(stderr, "%s: pmLookupName: returned %d, expected %d\n", pmGetProgname(), sts, numpmid);
 	for (i = 0; i < numpmid; i++) {
 	    if (pmidlist[i] == PM_ID_NULL)
 		fprintf(stderr, "   %s is bad\n", namelist[i]);
@@ -208,7 +208,7 @@ Options:\n\
     while (samples == -1 || samples-- > 0) {
 	sts = pmFetch(numpmid, pmidlist, &rp);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	pmFreeResult(rp);

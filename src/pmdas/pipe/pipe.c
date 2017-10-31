@@ -434,13 +434,13 @@ main(int argc, char **argv)
     int			sep = __pmPathSeparator();
     int			c, Cflag = 0;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
     pmsprintf(helppath, sizeof(helppath), "%s%c" "pipe" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, PIPE,
+    pmdaDaemon(&desc, PMDA_INTERFACE_6, pmGetProgname(), PIPE,
 		"pipe.log", helppath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &desc)) != EOF) {
@@ -457,7 +457,7 @@ main(int argc, char **argv)
 		convertUnits(&endnum, &maxmem);
 	    if (*endnum != '\0' || maxmem < minmem) {
 		pmprintf("%s: invalid max memory '%s' (min=%ld)\n",
-			    pmProgname, opts.optarg, minmem);
+			    pmGetProgname(), opts.optarg, minmem);
 		opts.errors++;
 	    }
 	    break;

@@ -126,7 +126,7 @@ solaris_init(pmdaInterface *dp)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
@@ -159,11 +159,11 @@ main(int argc, char **argv)
     char		*namespace = PM_NS_DEFAULT;
 
     _isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "solaris" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, SOLARIS,
+    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmGetProgname(), SOLARIS,
 		"solaris.log", mypath);
 
     while ((c = pmdaGetOpt(argc, argv, "N:D:d:l:?", &desc, &err)) != EOF) {

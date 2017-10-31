@@ -255,7 +255,7 @@ void OpenViewDialog::archiveAdd()
 	    archive.prepend(tr("Cannot open PCP archive: "));
 	    archive.append(tr("\n"));
 	    archive.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, archive,
+	    QMessageBox::warning(this, pmGetProgname(), archive,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	} else {
@@ -279,14 +279,14 @@ void OpenViewDialog::hostAdd()
 
 	if (hostspec == QString::null || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
-	    QMessageBox::warning(this, pmProgname, hostspec,
+	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
 	    hostspec.prepend(tr("Cannot connect to host: "));
 	    hostspec.append(tr("\n"));
 	    hostspec.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, hostspec,
+	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
@@ -320,7 +320,7 @@ bool OpenViewDialog::useLiveContext(int index)
 {
     if (liveGroup->numContexts() == 0) {
 	QString msg("No host connections have been established yet\n");
-	QMessageBox::warning(NULL, pmProgname, msg,
+	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
 	return false;
@@ -336,7 +336,7 @@ bool OpenViewDialog::useLiveContext(int index)
 	QString msg;
 	msg.sprintf("Failed to connect to pmcd on \"%s\".\n%s.\n\n",
 		    sourceName, pmErrStr(sts));
-	QMessageBox::warning(NULL, pmProgname, msg,
+	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
 	result = false;
@@ -349,7 +349,7 @@ bool OpenViewDialog::useArchiveContext(int index)
 {
     if (archiveGroup->numContexts() == 0) {
 	QString msg("No PCP archives have been opened yet\n");
-	QMessageBox::warning(NULL, pmProgname, msg,
+	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
 	return false;
@@ -365,7 +365,7 @@ bool OpenViewDialog::useArchiveContext(int index)
 	QString msg;
 	msg.sprintf("Failed to open archive \"%s\".\n%s.\n\n",
 		    sourceName, pmErrStr(sts));
-	QMessageBox::warning(NULL, pmProgname, msg,
+	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
 	result = false;
@@ -392,7 +392,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
 	    msg = tr("Cannot open Host View(s) in an Archive Tab\n");
 	else
 	    msg = tr("Cannot open Archive View(s) in a Host Tab\n");
-	QMessageBox::warning(this, pmProgname, msg,
+	QMessageBox::warning(this, pmGetProgname(), msg,
 	    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 	    QMessageBox::NoButton, QMessageBox::NoButton);
 	return false;
@@ -453,7 +453,7 @@ void OpenViewDialog::openPushButton_clicked()
     }
 
     if (msg.isEmpty() == false) {
-	QMessageBox::warning(this, pmProgname, msg,
+	QMessageBox::warning(this, pmGetProgname(), msg,
 	    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 	    QMessageBox::NoButton, QMessageBox::NoButton);
     }

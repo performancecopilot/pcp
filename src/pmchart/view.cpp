@@ -103,11 +103,11 @@ static void err(int severity, int do_where, QString msg)
     }
     else {
 	if (severity == E_CRIT)
-	    QMessageBox::critical(pmchart, pmProgname,  msg);
+	    QMessageBox::critical(pmchart, pmGetProgname(),  msg);
 	else if (severity == E_WARN)
-	    QMessageBox::warning(pmchart, pmProgname,  msg);
+	    QMessageBox::warning(pmchart, pmGetProgname(),  msg);
 	else
-	    QMessageBox::information(pmchart, pmProgname,  msg);
+	    QMessageBox::information(pmchart, pmGetProgname(),  msg);
     }
     _errors++;
 }

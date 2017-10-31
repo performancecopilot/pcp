@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 	    if (*endnum != '\0' || opts.guiport < 0) {
 		pmprintf(
 		    "%s: PMTIME_PORT must be a numeric port number (not %s)\n",
-			pmProgname, envstr);
+			pmGetProgname(), envstr);
 		pmflush();
 		exit(1);
 	    }
@@ -95,10 +95,10 @@ int main(int argc, char **argv)
 
     if (!opts.guiport || tl.isListening() == false) {
 	if (!autoport)
-	    pmprintf("%s: cannot find an available port\n", pmProgname);
+	    pmprintf("%s: cannot find an available port\n", pmGetProgname());
 	else
 	    pmprintf("%s: cannot connect to requested port (%d)\n",
-		    pmProgname, opts.guiport);
+		    pmGetProgname(), opts.guiport);
 	pmflush();
 	exit(1);
     } else if (autoport) {	/* write to stdout for client */
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	if (write(fileno(stdout), name, sts + 1) < 0) {
 	    if (errno != EPIPE) {
 		pmprintf("%s: cannot write port for client: %s\n",
-		    pmProgname, strerror(errno));
+		    pmGetProgname(), strerror(errno));
 		pmflush();
 	    }
 	    exit(1);

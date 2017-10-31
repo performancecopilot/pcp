@@ -76,7 +76,7 @@ open_config(char configfile[])
     if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
 	if (pmDebug & DBG_TRACE_APPL0) {
 	    fprintf(stderr, "%s: Cannot open configuration file \"%s\": %s\n",
-		    pmProgname, hotproc_configfile, osstrerror());
+		    pmGetProgname(), hotproc_configfile, osstrerror());
 	}
 	return NULL;
     }
@@ -111,7 +111,7 @@ parse_config(bool_node **tree)
     char *ptr = NULL;
 
     if ((sts = parse_predicate(tree)) != 0) {
-	fprintf(stderr, "%s: Failed to parse configuration file\n", pmProgname);
+	fprintf(stderr, "%s: Failed to parse configuration file\n", pmGetProgname());
 	return -sts;
     }
 
@@ -131,13 +131,13 @@ parse_config(bool_node **tree)
 	(file = fdopen(fid, "w+")) == NULL) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to create \"%s\": %s\n",
-	    pmProgname, tmpname, strerror(-sts));
+	    pmGetProgname(), tmpname, strerror(-sts));
 	goto error;
     }
     if (unlink(tmpname) == -1) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to unlink \"%s\": %s\n",
-	    pmProgname, tmpname, strerror(-sts));
+	    pmGetProgname(), tmpname, strerror(-sts));
 	goto error;
     }
     dump_predicate(file, *tree);
@@ -145,7 +145,7 @@ parse_config(bool_node **tree)
     if (fstat(fileno(file), &stat_buf) < 0) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to stat \"%s\": %s\n",
-	    pmProgname, tmpname, strerror(-sts));
+	    pmGetProgname(), tmpname, strerror(-sts));
 	goto error;
     }
     size = (long)stat_buf.st_size;
@@ -153,14 +153,14 @@ parse_config(bool_node **tree)
     if (ptr == NULL) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to malloc: %s\n",
-	    pmProgname, strerror(-sts));
+	    pmGetProgname(), strerror(-sts));
 	goto error;
     }
     rewind(file);
     if (fread(ptr, size, 1, file) != 1) {
 	clearerr(file);
 	fprintf(stderr, "%s: parse_config: failed to fread \"%s\"\n",
-	    pmProgname, tmpname);
+	    pmGetProgname(), tmpname);
 	sts = -1;
 	goto error;
     }
@@ -202,7 +202,7 @@ read_config(FILE *conf)
     sts = fstat(fileno(conf), &stat_buf);
     if (sts < 0) {
 	fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
-	    pmProgname, hotproc_configfile, osstrerror());
+	    pmGetProgname(), hotproc_configfile, osstrerror());
 	return 0;
     }
     size = (long)stat_buf.st_size;
@@ -211,7 +211,7 @@ read_config(FILE *conf)
     conf_buffer = (char*)malloc(size+1*sizeof(char));
     if (conf_buffer == NULL) {
 	fprintf(stderr, "%s: Cannot create buffer configuration file \"%s\"\n",
-	    pmProgname, hotproc_configfile);
+	    pmGetProgname(), hotproc_configfile);
 	return 0;
     }
 
@@ -219,7 +219,7 @@ read_config(FILE *conf)
     nread = fread(conf_buffer, sizeof(char), size, conf);
     if (nread != size) {
 	fprintf(stderr, "%s: Failure to fread \"%s\" file into buffer\n",
-	    pmProgname, hotproc_configfile);
+	    pmGetProgname(), hotproc_configfile);
 	return 0;
     }
     conf_buffer[size] = '\0'; /* terminate the buffer */
@@ -243,7 +243,7 @@ eval_tree(config_vars *vars)
 static void 
 eval_error(char *msg)
 {
-   fprintf(stderr, "%s: Internal error : %s\n", pmProgname, msg?msg:""); 
+   fprintf(stderr, "%s: Internal error : %s\n", pmGetProgname(), msg?msg:""); 
    exit(1);
 }
 

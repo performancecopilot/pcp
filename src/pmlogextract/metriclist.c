@@ -34,7 +34,7 @@ extractpmid(pmValueSet *vsetp, struct timeval *timestamp, pmResult **resp)
     result = (pmResult *)malloc(sizeof(pmResult));
     if (result == NULL) {
 	fprintf(stderr, "%s: Error: cannot malloc space in \"extractpmid\".\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
@@ -42,7 +42,7 @@ extractpmid(pmValueSet *vsetp, struct timeval *timestamp, pmResult **resp)
     result->vset[0] = (pmValueSet *)malloc(size);
     if (result->vset[0] == NULL) {
 	fprintf(stderr, "%s: Error: cannot malloc space in \"extractpmid\".\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
@@ -67,7 +67,7 @@ extractpmid(pmValueSet *vsetp, struct timeval *timestamp, pmResult **resp)
 	    if (result->vset[0]->vlist[i].value.pval == NULL) {
 		fprintf(stderr,
 		    "%s: Error: cannot malloc space in \"extractpmid\".\n",
-			pmProgname);
+			pmGetProgname());
 		exit(1);
     	    }
 
@@ -79,7 +79,7 @@ extractpmid(pmValueSet *vsetp, struct timeval *timestamp, pmResult **resp)
 	     * a total of 4 bytes - the rest is used for vbuf
 	     */
 	    if (vbp->vlen < 4) {
-		fprintf(stderr, "%s: Warning: pmValueBlock vlen (%u) is too small\n", pmProgname, vbp->vlen);
+		fprintf(stderr, "%s: Warning: pmValueBlock vlen (%u) is too small\n", pmGetProgname(), vbp->vlen);
 	    }
 	    memcpy(result->vset[0]->vlist[i].value.pval->vbuf,
 						vbp->vbuf, vbp->vlen-4);
@@ -95,7 +95,7 @@ mk_rlist_t(void)
     rlist_t	*rlist;
     if ((rlist = (rlist_t *)malloc(sizeof(rlist_t))) == NULL) {
 	fprintf(stderr, "%s: Error: cannot malloc space in \"mk_rlist_t\"\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
     rlist->res = NULL;
@@ -293,6 +293,6 @@ searchmlist(pmResult *_Oresult)
 
 nomem:
     fprintf(stderr, "%s: Error: cannot malloc space in \"searchmlist\".\n",
-	    pmProgname);
+	    pmGetProgname());
     exit(1);
 }

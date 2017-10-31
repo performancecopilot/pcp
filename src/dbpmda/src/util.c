@@ -193,7 +193,7 @@ addarglist(char *arg)
 
     if (param.argc >= argc) {
         argc = param.argc;
-	argv = (char **)realloc(argv, argc * sizeof(pmProgname));
+	argv = (char **)realloc(argv, argc * sizeof(char *));
 	if (argv == NULL) {
 	    fprintf(stderr, "addarglist: realloc failed: %s\n", osstrerror());
 	    exit(1);

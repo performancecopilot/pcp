@@ -189,7 +189,7 @@ refresh_sbstats(pmdaExt *pmda, __pmnsTree **tree)
 	*tree = sbstats_tree;
     } else if ((sts = __pmNewPMNS(&sbstats_tree)) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to create sbstats names: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
     } else {
         for (t = 0; t < NUM_LOCKTYPES; t++)

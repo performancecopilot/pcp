@@ -394,7 +394,7 @@ locateError(void)
 
     if (mark < 0) {
         pmprintf("%s: Unrecoverable internal error in locateError()\n",
-                pmProgname);
+                pmGetProgname());
         pmflush();
         exit(1);
     }
@@ -450,7 +450,7 @@ lexerror(const char * msg, const char * yytext)
     }
 
     pmprintf("%s: Fatal error in configuration file at line %d:\n\t%s\n", 
-	     pmProgname, lineNum + 1, msg);
+	     pmGetProgname(), lineNum + 1, msg);
 
     pmflush();
     exit(1);

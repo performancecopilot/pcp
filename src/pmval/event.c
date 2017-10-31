@@ -299,12 +299,12 @@ printevents(Context *x, pmValueSet *vset, int cols)
 			sts = pmNameInDom(x->desc.indom, inst, &iname);
 		    if (sts < 0) {
 			fprintf(stderr, "%s: pmNameInDom: %s[%u]: %s\n",
-				pmProgname, x->metric, inst, pmErrStr(sts));
+				pmGetProgname(), x->metric, inst, pmErrStr(sts));
 			exit(EXIT_FAILURE);
 		    }
 		    if ((sts = __pmHashAdd(inst, (void *)iname, &x->ihash)) < 0) {
 			fprintf(stderr, "%s: __pmHashAdd: %s[%s (%u)]: %s\n",
-				pmProgname, x->metric, iname, inst,
+				pmGetProgname(), x->metric, iname, inst,
 				pmErrStr(sts));
 			exit(EXIT_FAILURE);
 		    }

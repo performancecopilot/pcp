@@ -100,7 +100,7 @@ BarObj::finishedAdd()
     if (_metrics.numMetrics() == 0) {
 	BaseObj::addBase(_root);
 	pmprintf("%s: Error: Bar object has no metrics\n",
-		 pmProgname);
+		 pmGetProgname());
 	_length = 0;
 	_width = baseWidth();
 	_depth = baseDepth();
@@ -132,7 +132,7 @@ BarObj::finishedAdd()
         if (colSpec->_scale) {
 	    if (_mod == BarMod::yScale) {
 		pmprintf("%s: Warning: Color scale ignored for Y-Scale Bar object.\n",
-			 pmProgname);
+			 pmGetProgname());
 	    }
 	    else {
 		if (colSpec->_list.size() == 0)
@@ -147,7 +147,7 @@ BarObj::finishedAdd()
 	}
         else if (_mod == BarMod::color || _mod == BarMod::colYScale) {
 	    pmprintf("%s: Warning: Expected color scale for color modulated Bar object.\n",
-		     pmProgname);
+		     pmGetProgname());
 
 	    if (colSpec->_list.size() == 0)
 		colScale = new ColorScale(0.0, 0.0, 1.0);
@@ -157,7 +157,7 @@ BarObj::finishedAdd()
     }
     else {
         pmprintf("%s: Warning: No colours specified for Bar objects, defaulting to blue.\n",
-                 pmProgname);
+                 pmGetProgname());
 
 	if (_mod == BarMod::color || _mod == BarMod::colYScale)
 	    colScale = new ColorScale(0.0, 0.0, 1.0);

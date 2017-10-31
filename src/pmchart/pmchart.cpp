@@ -419,7 +419,7 @@ void PmChart::helpManual()
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
     if (!ok) {
 	documents.prepend("Failed to open:\n");
-	QMessageBox::warning(this, pmProgname, documents);
+	QMessageBox::warning(this, pmGetProgname(), documents);
     }
 }
 

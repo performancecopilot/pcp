@@ -505,12 +505,12 @@ main(int argc, char **argv)
     pmdaInterface	desc;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, MOUNTS,
+    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), MOUNTS,
 		"mounts.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);

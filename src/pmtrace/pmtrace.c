@@ -38,8 +38,8 @@ main(int argc, char **argv)
 	} arg;
     } api;
 
-    __pmSetProgname(argv[0]);
-    me = pmProgname;
+    pmSetProgname(argv[0]);
+    me = pmGetProgname();
 
     memset(&api, 0, sizeof(api));
 

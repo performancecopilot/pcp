@@ -114,7 +114,7 @@ bool QedRecordDialog::saveFolio(QString folioName, QString viewName)
 	msg.append(folioName);
 	msg.append("\n");
 	msg.append(folio.errorString());
-	QMessageBox::warning(this, pmProgname, msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return false;
     }
 
@@ -150,7 +150,7 @@ bool QedRecordDialog::saveConfig(QString configfile, QString configdata)
 	msg.append(configfile);
 	msg.append("\n");
 	msg.append(config.errorString());
-	QMessageBox::warning(this, pmProgname, msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return false;
     }
 
@@ -192,7 +192,7 @@ void PmLogger::finished(int, QProcess::ExitStatus)
 	    msg.append("Additional diagnostics may be available in the log:\n");
 	    msg.append(my.logfile);
 	}
-	QMessageBox::warning(NULL, pmProgname, msg);
+	QMessageBox::warning(NULL, pmGetProgname(), msg);
     }
 }
 
@@ -205,7 +205,7 @@ void QedRecordDialog::buttonOk_clicked()
 	    QString msg = tr("Record Sampling Interval is invalid.\n");
 	    msg.append(deltaLineEdit->text());
 	    msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
-	    QMessageBox::warning(this, pmProgname, msg);
+	    QMessageBox::warning(this, pmGetProgname(), msg);
 	    return;
 	}
     }
@@ -222,7 +222,7 @@ void QedRecordDialog::buttonOk_clicked()
 	QString msg = tr("Failed to create path for view:\n");
 	msg.append(viewName);
 	msg.append("\n");
-	QMessageBox::warning(this, pmProgname, msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return;
     }
 
@@ -236,7 +236,7 @@ void QedRecordDialog::buttonOk_clicked()
 	QString msg = tr("Failed to create path for folio:\n");
 	msg.append(folioName);
 	msg.append("\n");
-	QMessageBox::warning(this, pmProgname, msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return;
     }
 

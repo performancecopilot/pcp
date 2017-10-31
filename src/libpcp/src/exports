@@ -600,6 +600,8 @@ PCP_3.22 {
     pmMergeLabels;
     pmMergeLabelSets;
     pmFreeLabelSets;
+    pmGetProgname;
+    pmSetProgname;
 
     __pmAddLabels;
     __pmMergeLabels;

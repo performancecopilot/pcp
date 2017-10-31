@@ -335,7 +335,7 @@ dbpmdaFlexInput(char * inbuf, int ms)
     if (linepos == linelen) {
 	linelen = (linelen) ? linelen * 2 : 128;
 	if ((line = (char *)realloc(line, linelen * sizeof(char))) == NULL) {
-	    fprintf(stderr, "%s: Lexer internal error\n", pmProgname);
+	    fprintf(stderr, "%s: Lexer internal error\n", pmGetProgname());
 	    exit(1);
 	}
     }
@@ -501,7 +501,7 @@ locateError(void)
 
     if (mark < 0) {
 	fprintf(stderr, "%s: Unrecoverable internal error in locateError()\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 

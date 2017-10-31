@@ -41,14 +41,14 @@ main(int argc, char **argv)
 	/* non-flag args are argv[optind] ... argv[argc-1] */
 	name = expr = argv[opts.optind];
 	if ((name = strsep(&expr, "=")) == NULL) {
-	    fprintf(stderr, "%s: invalid name=expr \"%s\"\n", pmProgname, name);
+	    fprintf(stderr, "%s: invalid name=expr \"%s\"\n", pmGetProgname(), name);
 	    return 1;
 	}
 
 	if (pmRegisterDerivedMetric(name, expr, &errmsg) < 0) {
-	    fprintf(stderr, "%s: %s", pmProgname, errmsg);
+	    fprintf(stderr, "%s: %s", pmGetProgname(), errmsg);
 	} else {
-	    printf("%s: registered \"%s\" as: \"%s\"\n", pmProgname, name, expr);
+	    printf("%s: registered \"%s\" as: \"%s\"\n", pmGetProgname(), name, expr);
 	}
 	opts.optind++;
     }

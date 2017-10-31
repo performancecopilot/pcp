@@ -513,7 +513,7 @@ agentId(char *name)
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
 	fprintf(stderr, "%s: agentId: metric %s not found in namespace: %s\n",
-		pmProgname, name, pmErrStr(sts));
+		pmGetProgname(), name, pmErrStr(sts));
 	exit(1);
     }
     return pmid;
@@ -983,7 +983,7 @@ agentInit(void)
     /* Only load PMNS if it's default and hence not already loaded */
     if (pmnsfile == PM_NS_DEFAULT && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	fprintf(stderr, "%s: agentInit: cannot load metric namespace: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

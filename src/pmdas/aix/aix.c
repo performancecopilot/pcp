@@ -104,12 +104,12 @@ main(int argc, char **argv)
     pmdaInterface	desc;
 
     _isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "aix" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, AIX, "aix.log", mypath);
+    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmGetProgname(), AIX, "aix.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);
     if (opts.errors) {

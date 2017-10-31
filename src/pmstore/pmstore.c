@@ -59,7 +59,7 @@ mkAtom(pmAtomValue *avp, int type, const char *buf)
     }
     if (sts < 0) {
 	fprintf(stderr, "%s: cannot convert string value \"%s\": %s\n",
-		    pmProgname, buf, pmErrStr(sts));
+		    pmGetProgname(), buf, pmErrStr(sts));
 	exit(1);
     }
 }
@@ -130,10 +130,10 @@ main(int argc, char **argv)
     if ((sts = pmNewContext(opts.context, source)) < 0) {
 	if (opts.context == PM_CONTEXT_LOCAL)
 	    fprintf(stderr, "%s: Cannot make standalone local connection: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, source, pmErrStr(sts));
+		    pmGetProgname(), source, pmErrStr(sts));
 	exit(1);
     }
 
@@ -152,12 +152,12 @@ main(int argc, char **argv)
     }
     if (desc.type == PM_TYPE_AGGREGATE || desc.type == PM_TYPE_AGGREGATE_STATIC) {
 	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_AGGREGATE metrics\n",
-	    pmProgname);
+	    pmGetProgname());
 	exit(1);
     }
     if (desc.type == PM_TYPE_EVENT || desc.type == PM_TYPE_HIGHRES_EVENT) {
 	fprintf(stderr, "%s: Cannot modify values for event type metrics\n",
-	    pmProgname);
+	    pmGetProgname());
 	exit(1);
     }
     if (instnames != NULL) {

@@ -361,7 +361,7 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
           "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile write log into logfile rather than using default log name\n"
@@ -382,10 +382,10 @@ main(int argc, char **argv)
     int opt;
     int writeconf = 0;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, IB, "infiniband.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmGetProgname(), IB, "infiniband.log", helppath);
 
     while ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:w?", &dispatch, &err)) != EOF) {
 	switch (opt) {

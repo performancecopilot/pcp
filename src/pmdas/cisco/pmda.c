@@ -80,12 +80,12 @@ main(int argc, char **argv)
     int			c;
     char		helptext[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&pmdausername);
 
     pmsprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmGetProgname(), CISCO,
 		"cisco.log", helptext);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:6:" "CM:Nn:P:r:s:U:x:?", 
@@ -102,7 +102,7 @@ main(int argc, char **argv)
 		break;
 
 	    case 'n':		/* set program name, for parse (debugging) */
-		pmProgname = optarg;
+		pmSetProgname(optarg);
 		break;
 
 	    case 'P':		/* passwd */
@@ -113,7 +113,7 @@ main(int argc, char **argv)
 		refreshdelay = (int)strtol(optarg, &endnum, 10);
 		if (*endnum != '\0') {
 		    fprintf(stderr, "%s: -r requires numeric (number of seconds) argument\n",
-			    pmProgname);
+			    pmGetProgname());
 		    err++;
 		}
 		break;
@@ -134,7 +134,7 @@ main(int argc, char **argv)
 		port = (int)strtol(optarg, &endnum, 10);
 		if (*endnum != '\0') {
 		    fprintf(stderr, "%s: -x requires numeric argument\n",
-			    pmProgname);
+			    pmGetProgname());
 		    err++;
 		}
 		break;
@@ -148,7 +148,7 @@ main(int argc, char **argv)
     if (n_intf == 0 || err) {
 	fprintf(stderr, 
 	    "Usage: %s [options] host:{a|B|E|e|f|h|s}N[/M[.I]] [...]\n\n", 
-	    pmProgname);
+	    pmGetProgname());
 	fputs("Options:\n"
 	      "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	      "  -i port      expect PMCD to connect on given inet port (number or name)\n"
@@ -268,13 +268,13 @@ main(int argc, char **argv)
 		 */
 		if ((f = fopen(p, "r")) == NULL) {
 		    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
-			pmProgname, argv[optind], hoststrerror());
+			pmGetProgname(), argv[optind], hoststrerror());
 		    /* abandon this host (cisco) */
 		    continue;
 		}
 		else {
 		    fprintf(stderr, "%s: assuming file %s contains output from \"show int\" command\n",
-			pmProgname, p);
+			pmGetProgname(), p);
 
 		    cisco[i].host = p;
 		    cisco[i].username = myusername != NULL ? myusername : username;
@@ -286,7 +286,7 @@ main(int argc, char **argv)
 		}
 	    } else if (!hostInfo) {
 		fprintf(stderr, "%s: unknown hostname %s: %s\n",
-			pmProgname, p, hoststrerror());
+			pmGetProgname(), p, hoststrerror());
 		/* abandon this host (cisco) */
 		continue;
 	    } else {
@@ -316,7 +316,7 @@ main(int argc, char **argv)
 			fprintf(stderr, 
 				"%s: conflicting usernames (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
-				pmProgname, cisco[i].username, myusername, 
+				pmGetProgname(), cisco[i].username, myusername, 
 				cisco[i].host);
 			exit(1);
 		    }
@@ -333,7 +333,7 @@ main(int argc, char **argv)
 			fprintf(stderr, 
 				"%s: conflicting user-level passwords (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
-				pmProgname, cisco[i].passwd, mypasswd, 
+				pmGetProgname(), cisco[i].passwd, mypasswd, 
 				cisco[i].host);
 			exit(1);
 		    }
@@ -350,7 +350,7 @@ main(int argc, char **argv)
 			fprintf(stderr, 
 				"%s: conflicting user-level prompts (\"%s\" "
 				"and \"%s\") for cisco \"%s\"\n",
-				pmProgname, cisco[i].prompt, myprompt, 
+				pmGetProgname(), cisco[i].prompt, myprompt, 
 				cisco[i].host);
 			exit(1);
 		    }
@@ -372,14 +372,14 @@ main(int argc, char **argv)
         continue;
 
 badintfspec:
-        fprintf(stderr, "%s: bad interface specification \"%s\"\n", pmProgname, argv[optind]);
+        fprintf(stderr, "%s: bad interface specification \"%s\"\n", pmGetProgname(), argv[optind]);
         fprintf(stderr, "      should be like sydcisco.sydney:s1 or b9u-cisco1-81.engr.sgi.com:f2/0\n");
         fprintf(stderr, "      or cisco.melbourne:e0?secret\n");
         exit(1);
     }
 
     if (n_cisco == 0) {
-	fprintf(stderr, "%s: Nothing to monitor\n", pmProgname);
+	fprintf(stderr, "%s: Nothing to monitor\n", pmGetProgname());
 	exit(1);
     }
 

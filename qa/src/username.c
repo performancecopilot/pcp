@@ -15,7 +15,7 @@
 static void
 usage (void)
 {
-    fprintf(stderr, "Usage %s: username\n", pmProgname);
+    fprintf(stderr, "Usage %s: username\n", pmGetProgname());
     exit(1);
 }
 
@@ -24,7 +24,7 @@ main(int argc, char* argv[])
 {
     int sts;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     if (argc != 2)
 	usage();
     sts = __pmSetProcessIdentity(argv[1]);

@@ -263,7 +263,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	else
 	    msg.sprintf("Cannot get children of node\n\"%s\".\n%s.\n\n",
 		name, pmErrStr(sts));
-	QMessageBox::warning(NULL, pmProgname, msg,
+	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
 	goto done;
@@ -380,7 +380,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 
 done:
     if (fail_count)
-	QMessageBox::warning(NULL, pmProgname, failmsg,
+	QMessageBox::warning(NULL, pmGetProgname(), failmsg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     if (pmidlist)
@@ -413,7 +413,7 @@ void NameSpace::expandInstanceNames(bool show)
 	QString msg = QString();
 	msg.sprintf("Error fetching instance domain at node \"%s\".\n%s.\n\n",
 		(const char *)metricName().toLatin1(), pmErrStr(sts));
-	QMessageBox::warning(NULL, pmProgname, msg,
+	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default |
 			QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);

@@ -140,7 +140,7 @@ main(int argc, char **argv)
 	case 'P':		/* connect to primary logger */
 	    if (port != PM_LOG_NO_PORT || (is_unix && is_socket_path)) {
 		pmprintf("%s: at most one of -P, -p, unix socket, or PID may be specified\n",
-			pmProgname);
+			pmGetProgname());
 		opts.errors++;
 	    } else {
 		port = PM_LOG_PRIMARY_PORT;
@@ -150,13 +150,13 @@ main(int argc, char **argv)
 	case 'p':		/* connect via port */
 	    if (port != PM_LOG_NO_PORT || is_unix) {
 		pmprintf("%s: at most one of -P, -p, unix socket, or PID may be specified\n",
-			pmProgname);
+			pmGetProgname());
 		opts.errors++;
 	    } else {
 		port = (int)strtol(opts.optarg, &endnum, 10);
 		if (*endnum != '\0' || port <= PM_LOG_PRIMARY_PORT) {
 		    pmprintf("%s: port must be numeric and greater than %d\n",
-			    pmProgname, PM_LOG_PRIMARY_PORT);
+			    pmGetProgname(), PM_LOG_PRIMARY_PORT);
 		    opts.errors++;
 		}
 	    }
@@ -170,14 +170,14 @@ main(int argc, char **argv)
 	/* pid was specified */
 	if (port != PM_LOG_NO_PORT || (is_unix && is_socket_path)) {
 	    pmprintf("%s: at most one of -P, -p, unix socket, or PID may be specified\n",
-		    pmProgname);
+		    pmGetProgname());
 	    opts.errors++;
 	}
 	else {
 	    pid = (int)strtol(argv[opts.optind], &endnum, 10);
 	    if (*endnum != '\0' || pid <= PM_LOG_PRIMARY_PID) {
 		pmprintf("%s: PID must be a numeric process ID and greater than %d\n",
-			pmProgname, PM_LOG_PRIMARY_PID);
+			pmGetProgname(), PM_LOG_PRIMARY_PID);
 		opts.errors++;
 	    }
 	}
@@ -186,7 +186,7 @@ main(int argc, char **argv)
     if (!opts.errors && host && pid == PM_LOG_NO_PID &&
 	port == PM_LOG_NO_PORT && !is_socket_path) {
 	pmprintf("%s: -h may not be used without -P or -p or a socket path or a PID\n",
-		pmProgname);
+		pmGetProgname());
 	opts.errors++;
     }
 

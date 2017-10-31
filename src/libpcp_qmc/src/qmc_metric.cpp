@@ -62,7 +62,7 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
     my.status = pmParseMetricSpec(string, 0, NULL, &metricSpec, &msg);
     if (my.status < 0) {
 	pmprintf("%s: Error: Unable to parse metric spec:\n%s\n", 
-		 pmProgname, msg);
+		 pmGetProgname(), msg);
 	my.name = QString::null;
 	free(msg);
     }
@@ -135,7 +135,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    name = strdup(nameAscii());
 	    src = strdup(context()->source().sourceAscii());
 	    pmprintf("%s: Error: %s%c%s: %s\n", 
-		     pmProgname,
+		     pmGetProgname(),
 		     contextType == PM_CONTEXT_LOCAL ?  "@" : src,
 		     contextType == PM_CONTEXT_ARCHIVE ? '/' : ':',
 		     name, pmErrStr(my.status));
@@ -154,7 +154,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    name = strdup(nameAscii());
 	    src = strdup(context()->source().sourceAscii());
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
-		     pmProgname, contextType == PM_CONTEXT_LOCAL ? "@" : src,
+		     pmGetProgname(), contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     name, context()->source().hostAscii());
 	}
@@ -166,7 +166,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    src = strdup(context()->source().sourceAscii());
 	    pmprintf("%s: Error: %s%c%s has type \"%s\","
 		     " which is not a number or a string\n",
-		     pmProgname, contextType == PM_CONTEXT_LOCAL ? "@" : src,
+		     pmGetProgname(), contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     name, pmTypeStr(descType));
 	}
@@ -548,7 +548,7 @@ QmcMetric::dumpAll() const
 void
 QmcMetric::dumpErr() const
 {
-    pmprintf("%s: Error: %s: %s\n", pmProgname,
+    pmprintf("%s: Error: %s: %s\n", pmGetProgname(),
 	     (const char *)spec(true).toLatin1(), pmErrStr(my.status));
 }
 
@@ -558,7 +558,7 @@ QmcMetric::dumpErr() const
 void
 QmcMetric::dumpErr(const char *inst) const
 {
-    pmprintf("%s: Error: %s[%s]: %s\n", pmProgname,
+    pmprintf("%s: Error: %s[%s]: %s\n", pmGetProgname(),
 	     (const char *)spec(true).toLatin1(), inst, pmErrStr(my.status));
 }
 

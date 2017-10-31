@@ -161,7 +161,7 @@ newHashInst(pmValue *vp,
 	fprintf(stderr, "] ");
 	print_metric(stderr, checkdata->desc.pmid);
 	fprintf(stderr, ": pmExtractValue failed: %s\n", pmErrStr(sts));
-	fprintf(stderr, "%s: possibly corrupt archive?\n", pmProgname);
+	fprintf(stderr, "%s: possibly corrupt archive?\n", pmGetProgname());
 	exit(EXIT_FAILURE);
     }
     size = (pos+1)*sizeof(instData*);

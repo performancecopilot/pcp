@@ -171,7 +171,7 @@ void ExportDialog::flush()
 				 transparent, everything) == false) {
 	QString message = tr("Failed to save image file\n");
 	message.append(file);
-	QMessageBox::warning(this, pmProgname, message,
+	QMessageBox::warning(this, pmGetProgname(), message,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
     }
@@ -201,7 +201,7 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     bool sts = writer.write(image);
     if (!sts)
 	fprintf(stderr, "%s: error writing %s (%s): %s\n",
-		pmProgname, (const char *) file.toLatin1(), format,
+		pmGetProgname(), (const char *) file.toLatin1(), format,
 		(const char *) writer.errorString().toLatin1());
     return sts;
 }

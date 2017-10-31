@@ -226,7 +226,7 @@ void Tab::stopRecording(void)
     if (error) {
 	cleanupRecording();
 	pmchart->setRecordState(false);
-	QMessageBox::warning(this, pmProgname, errmsg,
+	QMessageBox::warning(this, pmGetProgname(), errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
@@ -279,7 +279,7 @@ void Tab::queryRecording(void)
 	    my.loggerList.at(i)->write(msg.toLatin1());
 	cleanupRecording();
 	pmchart->setRecordState(false);
-	QMessageBox::warning(this, pmProgname, errmsg,
+	QMessageBox::warning(this, pmGetProgname(), errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
@@ -306,7 +306,7 @@ void Tab::detachLoggers(void)
     if (error) {
 	cleanupRecording();
 	pmchart->setRecordState(false);
-	QMessageBox::warning(this, pmProgname, errmsg,
+	QMessageBox::warning(this, pmGetProgname(), errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }

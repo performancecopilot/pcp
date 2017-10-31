@@ -45,7 +45,7 @@ ostream & timestamp (ostream & o)
         now2[19] = '\0';		// overwrite \n
     }
 
-    return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" << getpid () << "): ";
+    return o << "[" << (now2 ? now2 : "") << "] " << pmGetProgname() << "(" << getpid () << "): ";
     // NB: we're single-threaded; no point printing out a thread-id too
 }
 

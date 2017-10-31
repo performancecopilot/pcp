@@ -33,7 +33,7 @@ main(int argc, char **argv)
     pmInDom	indom[3];	/* null, good, bad */
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "fD:O:?")) != EOF) {
 	switch (c) {
@@ -42,7 +42,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -69,7 +69,7 @@ main(int argc, char **argv)
 Options:\n\
   -f             fault injection mode ... only do good archive ops\n\
   -O offset      initial offset into the time window\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
     indom[0] = PM_INDOM_NULL;
@@ -92,14 +92,14 @@ Options:\n\
 	    local[MAXHOSTNAMELEN-1] = '\0';
 	    if ((sts = pmNewContext(PM_CONTEXT_HOST, local)) < 0) {
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, local, pmErrStr(sts));
+		    pmGetProgname(), local, pmErrStr(sts));
 		exit(1);
 	    }
 	}
 	else if (c == 2) {
 	    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[optind])) < 0) {
 		fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		    pmProgname, argv[optind], pmErrStr(sts));
+		    pmGetProgname(), argv[optind], pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -108,18 +108,18 @@ Options:\n\
 	if (c == 2) {
 	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 		fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    startTime = label.ll_start;
 	    if ((sts = pmGetArchiveEnd(&endTime)) < 0) {
 		fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    if ((tzh = pmNewContextZone()) < 0) {
 		fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		    pmProgname, pmErrStr(tzh));
+		    pmGetProgname(), pmErrStr(tzh));
 		exit(1);
 	    }
 	    sts = pmParseTimeWindow(NULL, NULL, NULL, offset, &startTime,
@@ -127,12 +127,12 @@ Options:\n\
 			    &endnum);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: illegal time window specification\n%s",
-		    pmProgname, endnum);
+		    pmGetProgname(), endnum);
 		exit(1);
 	    }
 	    if ((sts = pmSetMode(PM_MODE_FORW, &appOffset, 0)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}

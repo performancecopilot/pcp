@@ -61,7 +61,7 @@ main(int argc, char **argv)
     int priority;
     int c;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "ip:st:?")) != EOF) {
 	switch (c) {
@@ -89,7 +89,7 @@ main(int argc, char **argv)
 			"  -s          log message to standard error as well\n"
 			"  -p pri      enter message with specified priority\n"
 			"  -t tag      mark the line with the specified tag\n",
-		pmProgname);
+		pmGetProgname());
 	return 2;
     }
 
@@ -132,13 +132,13 @@ main(int argc, char **argv)
     sink = RegisterEventSource(NULL, "Application");
     if (!sink) {
 	fprintf(stderr, "%s: RegisterEventSource failed (%ld)\n",
-			pmProgname, GetLastError());
+			pmGetProgname(), GetLastError());
 	return 1;
     }
     msgptr = msg;
     if (!ReportEvent(sink, priority, 0, 0, NULL, 1, 0, &msgptr, NULL))
 	fprintf(stderr, "%s: ReportEvent failed (%ld)\n",
-			pmProgname, GetLastError());
+			pmGetProgname(), GetLastError());
     DeregisterEventSource(sink);
     return 0;
 }

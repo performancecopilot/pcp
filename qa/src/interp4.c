@@ -99,7 +99,7 @@ main(int argc, char **argv)
     int		resnum = 0;
     struct timeval	when;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:Tt:v")) != EOF) {
 	switch (c) {
@@ -112,7 +112,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -141,27 +141,27 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
     if ((ctx = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	printf("%s: Cannot connect to archive \"%s\": %s\n", pmProgname, archive, pmErrStr(ctx));
+	printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx));
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetArchiveLabel(%d): %s\n", pmProgname, ctx, pmErrStr(sts));
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx, pmErrStr(sts));
 	exit(1);
     }
 
     when = loglabel.ll_start;
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -189,7 +189,7 @@ main(int argc, char **argv)
     for (;;) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
@@ -207,7 +207,7 @@ main(int argc, char **argv)
     for (i = 0; i < 10; i++) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
 	when.tv_usec += delta * 1000;
 	if (when.tv_usec > 1000000) {
@@ -220,13 +220,13 @@ main(int argc, char **argv)
     printf("\nPass 1.2: backwards past EOL\n");
     fflush(stdout);
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {
-        printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+        printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
     for (i = 0; i < 10; i++) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
     }
     fflush(stderr);
@@ -237,7 +237,7 @@ main(int argc, char **argv)
     for (;;) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	n++;
@@ -253,7 +253,7 @@ main(int argc, char **argv)
     for (i = 0; i < 10; i++) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	} else {
 	    pmFreeResult(resp);
 	}
@@ -268,13 +268,13 @@ main(int argc, char **argv)
     printf("\nPass 2.2: forwards prior to SOL\n");
     fflush(stdout);
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
-        printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+        printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
     for (i = 0; i < 10; i++) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
     }
     fflush(stderr);
@@ -284,7 +284,7 @@ main(int argc, char **argv)
     for (n = 0;; n++) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	cmpres(n, resvec[n], resp);

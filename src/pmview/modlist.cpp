@@ -57,7 +57,7 @@ ModList::ModList(SoQtViewer *viewer,
   _allId(0)
 {
     QSettings modSettings;
-    modSettings.beginGroup(pmProgname);
+    modSettings.beginGroup(pmGetProgname());
     QString sval = modSettings.value("saturation", QString("")).toString();
     modSettings.endGroup();
 

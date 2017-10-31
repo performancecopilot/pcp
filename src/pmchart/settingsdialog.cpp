@@ -134,7 +134,7 @@ void SettingsDialog::chartDeltaLineEdit_editingFinished()
 	QString msg = tr("Default Chart Sampling Interval is invalid.\n");
 	msg.append(chartDeltaLineEdit->text());
 	msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
-	QMessageBox::warning(this, pmProgname, msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
     }
     else if (input != globalSettings.chartDelta) {
 	globalSettings.chartDeltaModified = true;
@@ -154,7 +154,7 @@ void SettingsDialog::loggerDeltaLineEdit_editingFinished()
 	QString msg = tr("Default Record Sampling Interval is invalid.\n");
 	msg.append(loggerDeltaLineEdit->text());
 	msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
-	QMessageBox::warning(this, pmProgname, msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
     }
     else if (input != globalSettings.loggerDelta) {
 	globalSettings.loggerDeltaModified = true;
@@ -553,7 +553,7 @@ conflict:
     QString msg = newName;
     msg.prepend("New scheme name \"");
     msg.append("\" conflicts with an existing name");
-    QMessageBox::warning(this, pmProgname, msg);
+    QMessageBox::warning(this, pmGetProgname(), msg);
 }
 
 void SettingsDialog::setupSchemePalette()
@@ -711,14 +711,14 @@ void SettingsDialog::hostButton_clicked()
 
 	if (hostspec == QString::null || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
-	    QMessageBox::warning(this, pmProgname, hostspec,
+	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
 	    hostspec.prepend(tr("Cannot connect to host: "));
 	    hostspec.append(tr("\n"));
 	    hostspec.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, hostspec,
+	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {

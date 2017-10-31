@@ -28,7 +28,7 @@ main(int argc, char **argv)
     char	timebuf[26];
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:O:s:zZ:?")) != EOF) {
 	switch (c) {
@@ -36,9 +36,9 @@ main(int argc, char **argv)
 	case 'a':	/* archive name */
 	    if (type != 0) {
 #ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 #else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
 #endif
 		errflag++;
 	    }
@@ -50,7 +50,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -58,14 +58,14 @@ main(int argc, char **argv)
 	case 's':	/* sample count */
 	    samples = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
 
 	case 'z':	/* timezone from archive */
 	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    zflag++;
@@ -73,7 +73,7 @@ main(int argc, char **argv)
 
 	case 'Z':	/* $TZ timezone */
 	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    tz = optarg;
@@ -95,36 +95,36 @@ Options:\n\
   -s samples     terminate after this many samples\n\
   -z             set reporting timezone to local time of metrics source\n\
   -Z timezone    set reporting timezone\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 
     if (type == 0) {
-	fprintf(stderr, "%s: -a is not optional\n", pmProgname);
+	fprintf(stderr, "%s: -a is not optional\n", pmGetProgname());
 	exit(1);
     }
 
     if ((sts = pmNewContext(type, archive)) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, archive, pmErrStr(sts));
+		pmGetProgname(), archive, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-	    pmProgname, pmErrStr(sts));
+	    pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
-	fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     if (zflag) {
 	if ((tzh = pmNewContextZone()) < 0) {
 	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(tzh));
+		pmGetProgname(), pmErrStr(tzh));
 	    exit(1);
 	}
 	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
@@ -133,7 +133,7 @@ Options:\n\
     else if (tz != NULL) {
 	if ((tzh = pmNewZone(tz)) < 0) {
 	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(tzh));
+		pmGetProgname(), tz, pmErrStr(tzh));
 	    exit(1);
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
@@ -147,7 +147,7 @@ Options:\n\
 	}
 	sts = pmLookupName(1, &argv[optind], &pmidlist[numpmid]);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: pmLookupName(..., %s, ...): %s\n", pmProgname, argv[optind], pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupName(..., %s, ...): %s\n", pmGetProgname(), argv[optind], pmErrStr(sts));
 	    exit(1);
 	}
 	numpmid++;
@@ -170,7 +170,7 @@ Options:\n\
     }
 
     if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
-	fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

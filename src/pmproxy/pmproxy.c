@@ -108,7 +108,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	case 'D':	/* debug options */
 	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    break;
@@ -134,7 +134,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	case 'L': /* Maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
 	    if (sts <= 0) {
-		pmprintf("%s: -L requires a positive value\n", pmProgname);
+		pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		opts.errors++;
 	    } else {
 		__pmSetPDUCeiling(sts);
@@ -144,7 +144,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	case 'p':
 	    if (__pmServerAddPorts(opts.optarg) < 0) {
 		pmprintf("%s: -p requires a positive numeric argument (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    } else {
 		*nports += 1;
@@ -499,14 +499,14 @@ GetProxyHostname(void)
     char        host[MAXHOSTNAMELEN];
 
     if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-        __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmProgname);
+        __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmGetProgname());
         DontStart();
     }
     host[MAXHOSTNAMELEN-1] = '\0';
 
     hep = __pmGetAddrInfo(host);
     if (hep == NULL) {
-        __pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmProgname);
+        __pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmGetProgname());
         DontStart();
     } else {
         hostname = __pmHostEntGetName(hep);
@@ -542,7 +542,7 @@ main(int argc, char *argv[])
 	maxpending = atoi(envstr);
     ParseOptions(argc, argv, &nport);
 
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+    __pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));

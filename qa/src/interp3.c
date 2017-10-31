@@ -102,7 +102,7 @@ main(int argc, char **argv)
     struct timeval	when;
     int		done;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:Tt:v")) != EOF) {
 	switch (c) {
@@ -115,7 +115,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -144,36 +144,36 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
     if ((ctx[0] = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	printf("%s: Cannot connect to archive \"%s\": %s\n", pmProgname, archive, pmErrStr(ctx[0]));
+	printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetArchiveLabel(%d): %s\n", pmProgname, ctx[0], pmErrStr(sts));
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
 
     when = loglabel.ll_start;
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     if ((ctx[1] = pmDupContext()) < 0) {
-        printf("%s: Cannot dup context to archive \"%s\": %s\n", pmProgname, archive, pmErrStr(ctx[0]));
+        printf("%s: Cannot dup context to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
         exit(1);
     }
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
-        printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+        printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
 
@@ -207,7 +207,7 @@ main(int argc, char **argv)
     for (;;) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
@@ -226,7 +226,7 @@ main(int argc, char **argv)
     __pmLogReads = 0;
     when = resvec[resnum - 1]->timestamp;
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -234,7 +234,7 @@ main(int argc, char **argv)
     for (;;) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	n++;
@@ -252,13 +252,13 @@ main(int argc, char **argv)
     pmUseContext(ctx[0]);
     when = loglabel.ll_start;
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     pmUseContext(ctx[1]);
     when = resvec[resnum - 1]->timestamp;
     if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -268,7 +268,7 @@ main(int argc, char **argv)
 	pmUseContext(ctx[0]);
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
@@ -280,7 +280,7 @@ main(int argc, char **argv)
 	pmUseContext(ctx[1]);
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
@@ -306,7 +306,7 @@ main(int argc, char **argv)
 	when = resvec[i]->timestamp;
 
 	if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {	
-	    printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
@@ -314,7 +314,7 @@ main(int argc, char **argv)
 	for (;;) {
 	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		if (sts != PM_ERR_EOL)
-		    printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		    printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		break;
 	    }
 	    j++;
@@ -339,14 +339,14 @@ main(int argc, char **argv)
 	    i = 0;
 	when = resvec[i]->timestamp;
 	if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {
-	    printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
 	for (;;) {
 	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		if (sts != PM_ERR_EOL)
-		    printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		    printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		break;
 	    }
 	    cmpres(i, resvec[i], resp);
@@ -372,13 +372,13 @@ main(int argc, char **argv)
 
 	when = resvec[0]->timestamp;
 	if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {	
-	    printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
 	for (j = 0; j <= i; j++) {
 	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    cmpres(j+1, resvec[j], resp);
@@ -387,13 +387,13 @@ main(int argc, char **argv)
 
 	when = resvec[i]->timestamp;
 	if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {	
-	    printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
 	for (j = i; j >= 0; j--) {
 	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    cmpres(j+1, resvec[j], resp);

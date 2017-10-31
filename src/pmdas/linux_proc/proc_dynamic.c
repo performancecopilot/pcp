@@ -376,7 +376,7 @@ refresh_dynamic_proc(pmdaExt *pmda, __pmnsTree **tree)
         *tree = dynamic_proc_tree;
     } else if ((sts = __pmNewPMNS(&dynamic_proc_tree)) < 0) {
         __pmNotifyErr(LOG_ERR, "%s: failed to create dynamic_proc names: %s\n",
-                        pmProgname, pmErrStr(sts));
+                        pmGetProgname(), pmErrStr(sts));
         *tree = NULL;
     } else {
 	/* Call something that constructs the PMNS by multiple calls to __pmAddPMNSNode */

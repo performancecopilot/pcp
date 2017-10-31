@@ -52,7 +52,7 @@ parse_args(int argc, char **argv)
     static char *style_str = "[-s 1|2]";
     char	*endnum;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:N:n:s:v")) != EOF) {
 	switch (c) {
@@ -61,7 +61,7 @@ parse_args(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -84,7 +84,7 @@ parse_args(int argc, char **argv)
 	case 's':	/* pmns style */
 	    pmns_style = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		printf("%s: -s requires numeric argument\n", pmProgname);
+		printf("%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -97,7 +97,7 @@ parse_args(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s%s\n", pmProgname, style_str, usage);
+	printf("Usage: %s %s%s\n", pmGetProgname(), style_str, usage);
 	exit(1);
     }
 }
@@ -111,7 +111,7 @@ load_namespace(char *namespace)
     gettimeofday(&then, (struct timezone *)0);
     sts = pmLoadASCIINameSpace(namespace, dupok);
     if (sts < 0) {
-	printf("%s: Cannot load namespace from \"%s\" (dupok=%d): %s\n", pmProgname, namespace, dupok, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\" (dupok=%d): %s\n", pmGetProgname(), namespace, dupok, pmErrStr(sts));
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);
@@ -124,7 +124,7 @@ test_nameall(int argc, char *argv[])
     int sts;
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 

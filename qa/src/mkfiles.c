@@ -12,7 +12,7 @@
 static void
 usage (void)
 {
-    fprintf(stderr, "Usage %s: basename nfiles\n", pmProgname);
+    fprintf(stderr, "Usage %s: basename nfiles\n", pmGetProgname());
     exit(1);
 }
 
@@ -25,7 +25,7 @@ main(int argc, char* argv[])
     char	*extptr;
     int		i, sts, len;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     if (argc != 3)
 	usage();

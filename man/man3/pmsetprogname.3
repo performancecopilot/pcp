@@ -1,0 +1,61 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSETPROGNAME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSetProgname\f1,
+\f3pmGetProgname\f1 \- application name services
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmSetProgname(const char *\fIprogram\fP);
+.br
+char *pmGetProgname(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Within the Performance Co-Pilot (PCP) run-time libraries the name
+of a running application is maintained to be used in error and
+diagnostic messages.
+.PP
+The default application name is
+.BR pcp .
+.PP
+.B pmSetProgname
+may be used to set the application name to
+.I program
+after stripping any leading components that begin with the filesystem
+path name separator (``/'' for Unix-like systems).
+If
+.I program
+is
+.BR NULL ,
+the default application name is restored.
+The return value is 0 for success, else
+an error code suitable for passing to
+.BR pmErrStr (3).
+.PP
+.B pmGetProgname
+may be used to return the current application name, and will
+return
+.B NULL
+if the default application name is in effect.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmErrStr (3)
+and
+.BR __pmNotifyErr (3).

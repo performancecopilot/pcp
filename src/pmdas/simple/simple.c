@@ -491,12 +491,12 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
 		"simple.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);

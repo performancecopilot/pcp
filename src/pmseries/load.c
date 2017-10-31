@@ -64,7 +64,7 @@ pmiderr(SOURCE *sp, pmID pmid, const char *msg, ...)
 
     if (__pmHashSearch(pmid, &sp->errorhash) == NULL) {
 	numnames = pmNameAll(pmid, &names);
-	fprintf(stderr, "%s: ", pmProgname);
+	fprintf(stderr, "%s: ", pmGetProgname());
 	__pmPrintMetricNames(stderr, numnames, names, " or ");
 	fprintf(stderr, "(%s) - ", pmIDStr(pmid));
 	va_start(arg, msg);
@@ -85,10 +85,10 @@ cache_prepare(const char *name, void *arg)
 
     if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0)
 	fprintf(stderr, "%s: failed to lookup metric name (pmid=%s): %s\n",
-		pmProgname, name, pmErrStr(sts));
+		pmGetProgname(), name, pmErrStr(sts));
     else if ((hname = strdup(name)) == NULL)
 	fprintf(stderr, "%s: failed dup metric name (%s): out of memory\n",
-		pmProgname, name);
+		pmGetProgname(), name);
     else {
 	if (sp->verbose || pmDebugOptions.series)
 	    fprintf(stderr, "cache_prepare: caching PMID=%s name=%s\n",
@@ -287,7 +287,7 @@ new_values_names(SOURCE *sp, metric_t *metric)
 	if ((sts = pmGetInstancesLabels(indom, &labelset)) < 0) {
 	    if (sp->verbose)
 		fprintf(stderr, "%s: failed to get PMID %s labels: %s\n",
-			pmProgname, pmInDomStr(indom), pmErrStr(sts));
+			pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	    /* continue on with no labels for this value */
 	    sts = 0;
 	}
@@ -319,7 +319,7 @@ new_value(SOURCE	*sp,
     if ((sts = pmExtractValue(valfmt, vp, type, &av, metric->outype)) < 0) {
 	pmiderr(sp, metric->desc.pmid, "failed to extract value: %s\n",
 		pmErrStr(sts));
-	fprintf(stderr, "%s: possibly corrupt archive?\n", pmProgname);
+	fprintf(stderr, "%s: possibly corrupt archive?\n", pmGetProgname());
 	return;
     }
     size = (pos + 1) * sizeof(value_t *);
@@ -352,12 +352,12 @@ new_domain(SOURCE *sp, int domain, context_t *context)
     if ((sts = pmGetDomainLabels(domain, &domainp->labels)) < 0) {
 	if (sp->verbose)
 	    fprintf(stderr, "%s: failed to get domain (%d) labels: %s\n",
-		    pmProgname, domain, pmErrStr(sts));
+		    pmGetProgname(), domain, pmErrStr(sts));
 	/* continue on with no labels for this domain */
     }
     if (__pmHashAdd(domain, (void *)domainp, &sp->domainhash) < 0) {
 	fprintf(stderr, "%s: failed to store domain labels (domain=%d): %s\n",
-		pmProgname, domain, pmErrStr(sts));
+		pmGetProgname(), domain, pmErrStr(sts));
     }
     return domainp;
 }
@@ -376,14 +376,14 @@ new_cluster(SOURCE *sp, int cluster, domain_t *domain)
 	if (sp->verbose)
 	    fprintf(stderr,
 		    "%s: failed to get cluster (%u.%u) labels: %s\n",
-		    pmProgname, pmid_domain(cluster), pmid_cluster(cluster),
+		    pmGetProgname(), pmid_domain(cluster), pmid_cluster(cluster),
 		    pmErrStr(sts));
 	/* continue on with no labels for this cluster */
     }
     if (__pmHashAdd(cluster, (void *)clusterp, &sp->clusterhash) < 0) {
 	fprintf(stderr,
 		"%s: failed to store cluster labels (cluster=%u.%u): %s\n",
-		pmProgname, pmid_domain(cluster), pmid_cluster(cluster),
+		pmGetProgname(), pmid_domain(cluster), pmid_cluster(cluster),
 		pmErrStr(sts));
     }
     return clusterp;
@@ -402,12 +402,12 @@ new_indom(SOURCE *sp, pmInDom indom, domain_t *domain)
     if ((sts = pmGetInDomLabels(indom, &indomp->labels)) < 0) {
 	if (sp->verbose)
 	    fprintf(stderr, "%s: failed to get indom (%s) labels: %s\n",
-		    pmProgname, pmInDomStr(indom), pmErrStr(sts));
+		    pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	/* continue on with no labels for this indom */
     }
     if (__pmHashAdd(indom, (void *)indomp, &sp->indomhash) < 0) {
 	fprintf(stderr, "%s: failed to store indom (%s) labels: %s\n",
-		pmProgname, pmInDomStr(indom), pmErrStr(sts));
+		pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
     }
     return indomp;
 }
@@ -440,7 +440,7 @@ new_metric(SOURCE	*sp,
 
     if ((sts = pmNameAll(pmid, &names)) < 0)
 	fprintf(stderr, "%s: failed to lookup metric %s names: %s\n",
-		pmProgname, pmIDStr(pmid), pmErrStr(sts));
+		pmGetProgname(), pmIDStr(pmid), pmErrStr(sts));
     if (sts <= 0) {
 	free(metric);
 	return NULL;
@@ -482,7 +482,7 @@ new_metric(SOURCE	*sp,
     if ((sts = pmGetItemLabels(pmid, &metric->labels)) < 0) {
 	if (sp->verbose)
 	    fprintf(stderr, "%s: failed to get metric %s labels: %s\n",
-		    pmProgname, pmIDStr(pmid), pmErrStr(sts));
+		    pmGetProgname(), pmIDStr(pmid), pmErrStr(sts));
 	/* continue on with no labels for this PMID */
     }
 
@@ -625,7 +625,7 @@ series_cache_update(SOURCE *sp, pmResult *result, int metadata)
 
 	    if (__pmHashAdd(metric->desc.pmid, (void *)metric, &sp->pmidhash) < 0) {
 		pmiderr(sp, metric->desc.pmid, "failed hash table insertion\n",
-			pmProgname);
+			pmGetProgname());
 		/* free memory allocated above on insert failure */
 		free_metric(metric);
 		continue;
@@ -780,7 +780,7 @@ series_cache_load(SOURCE *sp, timing_t *tp, int metadata)
 
     if ((sts = pmSetMode(PM_MODE_FORW, &tp->start, 0)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
 
@@ -815,7 +815,7 @@ series_cache_load(SOURCE *sp, timing_t *tp, int metadata)
     if (sts == PM_ERR_EOL)
 	sts = 0;
     else {
-	fprintf(stderr, "%s: fetch failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: fetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	sts = 1;
     }
     return sts;
@@ -881,7 +881,7 @@ load_prepare_metrics(SOURCE *sp)
 	if ((sts = pmTraversePMNS_r(metrics[i], cache_prepare, sp)) >= 0)
 	    continue;
 	fprintf(stderr, "%s: PMNS traversal failed for %s: %s\n",
-			pmProgname, metrics[i], pmErrStr(sts));
+			pmGetProgname(), metrics[i], pmErrStr(sts));
 	break;
     }
     return sts;
@@ -946,20 +946,20 @@ load_resolve_source(SOURCE *sp)
     if ((sts = pmNewContext(cp->type, cp->source)) < 0) {
 	if (cp->type == PM_CONTEXT_HOST)
             fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, cp->source, pmErrStr(sts));
+		    pmGetProgname(), cp->source, pmErrStr(sts));
 	else if (sp->context.type == PM_CONTEXT_LOCAL)
 	    fprintf(stderr, "%s: Cannot make standalone connection on localhost: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		    pmProgname, cp->source, pmErrStr(sts));
+		    pmGetProgname(), cp->source, pmErrStr(sts));
     }
     cp->context = sts;
 
     if ((sts = pmGetContextLabels(&cp->labels)) < 0) {
 	if (default_labelset(cp->context, &cp->labels) < 0) {
 	    fprintf(stderr, "%s: failed to get context labels: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(EXIT_FAILURE);
 	}
     }
@@ -974,7 +974,7 @@ series_source(node_t *root, timing_t *timing, int metadata)
     sp->redis = redis_init();
     load_prepare_source(sp, root, 0);
     if (!sp->context.type) {
-	fprintf(stderr, "%s: Found no context to load\n", pmProgname);
+	fprintf(stderr, "%s: Found no context to load\n", pmGetProgname());
 	return -ESRCH;
     }
     load_resolve_source(sp);

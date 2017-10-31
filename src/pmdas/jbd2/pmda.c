@@ -293,12 +293,12 @@ main(int argc, char **argv)
     char		help[MAXPATHLEN];
 
     _isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(help, sizeof(help), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, JBD2, "jbd2.log", help);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), JBD2, "jbd2.log", help);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch(c) {

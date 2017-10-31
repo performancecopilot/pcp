@@ -72,7 +72,7 @@ pass1(__pmContext *ctxp, char *archname)
 		meta_size = sbuf.st_size;
 	    else {
 		/* should not get here ... as detected in after pass0 */
-		fprintf(stderr, "%s: pass1: botch: cannot open metadata file (%s)\n", pmProgname, path);
+		fprintf(stderr, "%s: pass1: botch: cannot open metadata file (%s)\n", pmGetProgname(), path);
 		exit(1);
 	    }
 	}

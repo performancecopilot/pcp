@@ -61,7 +61,7 @@ main(int argc, char **argv)
 
 	case 'D':
 	    if ((i = __pmParseDebug(opts.optarg)) < 0) {
-		fprintf(stderr, "%s: unrecognized debug option specification (%s)\n", pmProgname, opts.optarg);
+		fprintf(stderr, "%s: unrecognized debug option specification (%s)\n", pmGetProgname(), opts.optarg);
 		exit(1);
 	    }
 	    else 

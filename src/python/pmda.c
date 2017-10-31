@@ -825,7 +825,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
         return NULL;
 
     name = strdup(pmdaname);
-    __pmSetProgname(name);
+    pmSetProgname(name);
     if ((p = getenv("PCP_PYTHON_DEBUG")) != NULL)
         if (pmSetDebug(p) < 0)
 	    PyErr_SetString(PyExc_TypeError, "unrecognized debug options specification");

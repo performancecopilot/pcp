@@ -22,14 +22,14 @@ main(int argc, char **argv)
     char	buf[MAXHOSTNAMELEN];
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:L?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -40,14 +40,14 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = optarg;
@@ -56,7 +56,7 @@ main(int argc, char **argv)
 
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = NULL;
@@ -78,7 +78,7 @@ Options:\n\
   -a archive     metrics source is a PCP log archive\n\
   -h host        metrics source is PMCD on host\n\
   -L             use local context instead of PMCD\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 
@@ -92,10 +92,10 @@ Options:\n\
     if ((ctx1 = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(ctx1));
+		pmGetProgname(), host, pmErrStr(ctx1));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(ctx1));
+		pmGetProgname(), host, pmErrStr(ctx1));
 	/* continue on in this case to test a bad context */
     }
 

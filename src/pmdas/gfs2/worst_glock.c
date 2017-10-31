@@ -314,7 +314,7 @@ refresh_worst_glock(pmdaExt *pmda, __pmnsTree **tree)
 	*tree = worst_glock_tree;
     } else if ((sts = __pmNewPMNS(&worst_glock_tree)) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to create worst_glock names: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
     } else {
         for (t = 0; t < NUM_TOPNUM; t++)

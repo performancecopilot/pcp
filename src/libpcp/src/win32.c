@@ -38,6 +38,8 @@
 #include <winbase.h>
 #include <psapi.h>
 
+static char	*appname = NULL;
+
 #define FILETIME_1970		116444736000000000ull	/* 1/1/1601-1/1/1970 */
 #define HECTONANOSEC_PER_SEC	10000000ull
 #define MILLISEC_PER_SEC	1000
@@ -141,24 +143,47 @@ __pmSetProcessIdentity(const char *username)
 }
 
 int
-__pmSetProgname(const char *program)
+pmSetProgname(const char *program)
 {
     int	sts1, sts2;
-    char *p, *suffix = NULL;
+    const char *p
+    const char *name;
+    char *suffix = NULL;
+    int c;
     WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA wsaData;
 
-    /* Trim command name of leading directory components and ".exe" suffix */
-    if (program)
-	pmProgname = (char *)program;
-    for (p = pmProgname; pmProgname && *p; p++) {
+    if (program == NULL) {
+	/* Restore the default application name */
+	if (appname != NULL)
+	    free(appname);
+	appname = NULL;
+	pmProgname = "pcp";		/* for deprecated use */
+	return 0;
+    }
+
+    /* Trim command name of leading directory components */
+    for (name = p = program; *p; p++) {
 	if (*p == '\\' || *p == '/')
-	    pmProgname = p + 1;
+	    name = p+1;
 	if (*p == '.')
 	    suffix = p;
     }
-    if (suffix && strcmp(suffix, ".exe") == 0)
+    if (suffix && strcmp(suffix, ".exe") == 0) {
+	c = *suffix;
 	*suffix = '\0';
+    }
+
+    /* strdup failure leaves appname set to NULL, which is the default */
+    appname = strdup(name);
+
+    if (appname == NULL) {
+	pmProgname = "pcp";		/* for deprecated use */
+	return -ENOMEM;
+    }
+    else {
+	pmProgname = appname;		/* for deprecated use */
+    }
 
     /* Deal with all files in binary mode - no EOL futzing */
     _fmode = O_BINARY;

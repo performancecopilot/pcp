@@ -135,14 +135,14 @@ void setupEnvironment(void)
 	putenv(value);
 
     QCoreApplication::setOrganizationName("PCP");
-    QCoreApplication::setApplicationName(pmProgname);
+    QCoreApplication::setApplicationName(pmGetProgname());
 }
 
 void writeSettings(void)
 {
     QSettings userSettings;
 
-    userSettings.beginGroup(pmProgname);
+    userSettings.beginGroup(pmGetProgname());
     if (globalSettings.chartDeltaModified) {
 	globalSettings.chartDeltaModified = false;
 	userSettings.setValue("chartDelta", globalSettings.chartDelta);
@@ -263,7 +263,7 @@ void checkHistory(int samples, int visible)
 static void readSettings(void)
 {
     QSettings userSettings;
-    userSettings.beginGroup(pmProgname);
+    userSettings.beginGroup(pmGetProgname());
 
     //
     // Parameters related to sampling
@@ -460,7 +460,7 @@ main(int argc, char ** argv)
 
     memset(&opts, 0, sizeof(opts));
     __pmtimevalNow(&opts.origin);
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     QApplication a(argc, argv);
     setupEnvironment();
     readSettings();
@@ -489,7 +489,7 @@ main(int argc, char ** argv)
 	case 'F':
 	    sts = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || c < 0) {
-		pmprintf("%s: -F requires a numeric argument\n", pmProgname);
+		pmprintf("%s: -F requires a numeric argument\n", pmGetProgname());
 		opts.errors++;
 	    } else {
 		globalSettings.fontSize = sts;
@@ -512,7 +512,7 @@ main(int argc, char ** argv)
 	    vh = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || vh < 1) {
 		pmprintf("%s: -v requires a numeric argument, larger than 1\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    break;
@@ -576,7 +576,7 @@ main(int argc, char ** argv)
 	checkHistory(sh, vh);
 	if (globalSettings.sampleHistoryModified ||
 	    globalSettings.visibleHistoryModified) {
-	    pmprintf("%s: invalid sample/visible history\n", pmProgname);
+	    pmprintf("%s: invalid sample/visible history\n", pmGetProgname());
 	    pmflush();
 	    exit(1);
 	}
@@ -616,7 +616,7 @@ main(int argc, char ** argv)
 	    liveGroup->useTZ(QString(opts.timezone));
 	if ((sts = pmNewZone(opts.timezone)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
-		    pmProgname, (char *)opts.timezone, pmErrStr(sts));
+		    pmGetProgname(), (char *)opts.timezone, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
 	}

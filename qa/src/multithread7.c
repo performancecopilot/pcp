@@ -236,7 +236,7 @@ main(int argc, char **argv)
     int		c;
     int		i;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
@@ -245,7 +245,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -258,7 +258,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind == argc || argc-optind > 3) {
-	fprintf(stderr, "Usage: %s [-D...] host1 [host2 [host3]]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-D...] host1 [host2 [host3]]\n", pmGetProgname());
 	exit(1);
     }
 

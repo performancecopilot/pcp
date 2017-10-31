@@ -36,7 +36,7 @@ main(int argc, char **argv)
     pmResult	*status;
     pmDesc	desc;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:K:Ln:")) != EOF) {
 	switch (c) {
@@ -45,14 +45,14 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
 
 	case 'h':	/* hostname for PMCD to contact */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of --h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of --h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = optarg;
@@ -61,14 +61,14 @@ main(int argc, char **argv)
 
 	case 'K':	/* update local PMDA table */
 	    if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
-		fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmProgname, errmsg);
+		fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmGetProgname(), errmsg);
 		errflag++;
 	    }
 	    break;
 
 	case 'L':	/* local PMDA connection, no PMCD */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    type = PM_CONTEXT_LOCAL;
@@ -97,7 +97,7 @@ Options\n\
                 spec is of the form op,domain,dso-path,init-routine\n\
   -n namespace  use an alternative PMNS\n\
   -v            be verbose\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
@@ -111,18 +111,18 @@ Options\n\
     }
 
     if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: pmLoadASCIINameSpace: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmLoadASCIINameSpace: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     if (type == 0) type = PM_CONTEXT_HOST;
     if ((sts = pmNewContext(type, host)) < 0) {
-	printf("%s: pmNewContext(%d, %s): %s\n", pmProgname, type, host, pmErrStr(sts));
+	printf("%s: pmNewContext(%d, %s): %s\n", pmGetProgname(), type, host, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = __pmConnectLogger(host, &pid, &port)) < 0) {
-	printf("%s: Cannot connect to primary pmlogger on host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	printf("%s: Cannot connect to primary pmlogger on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
     ctlport = sts;
@@ -148,7 +148,7 @@ Options\n\
     }
 
     if ((sts = pmFetch(numpmid, pmidlist, &req)) < 0) {
-	printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

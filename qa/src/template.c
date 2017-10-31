@@ -37,7 +37,7 @@ main(int argc, char **argv)
     struct timeval appOffset;
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:A:c:D:h:l:Ln:O:s:S:t:T:U:zZ:?")) != EOF) {
 	switch (c) {
@@ -45,9 +45,9 @@ main(int argc, char **argv)
 	case 'a':	/* archive name */
 	    if (type != 0) {
 #ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 #else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
 #endif
 		errflag++;
 	    }
@@ -61,7 +61,7 @@ main(int argc, char **argv)
 
 	case 'c':	/* configfile */
 	    if (configfile != NULL) {
-		fprintf(stderr, "%s: at most one -c option allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one -c option allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    configfile = optarg;
@@ -71,7 +71,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -79,9 +79,9 @@ main(int argc, char **argv)
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
 #ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 #else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
 #endif
 		errflag++;
 	    }
@@ -92,7 +92,7 @@ main(int argc, char **argv)
 #ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = NULL;
@@ -117,7 +117,7 @@ main(int argc, char **argv)
 	case 's':	/* sample count */
 	    samples = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -128,7 +128,7 @@ main(int argc, char **argv)
 
 	case 't':	/* change update interval */
 	    if (pmParseInterval(optarg, &delta, &endnum) < 0) {
-		fprintf(stderr, "%s: illegal -t argument\n", pmProgname);
+		fprintf(stderr, "%s: illegal -t argument\n", pmGetProgname());
 		fputs(endnum, stderr);
 		free(endnum);
 		errflag++;
@@ -142,9 +142,9 @@ main(int argc, char **argv)
 	case 'U':	/* uninterpolated archive log */
 	    if (type != 0) {
 #ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 #else
-		fprintf(stderr, "%s: at most one of -a, -h and -U allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -U allowed\n", pmGetProgname());
 #endif
 		errflag++;
 	    }
@@ -155,7 +155,7 @@ main(int argc, char **argv)
 
 	case 'z':	/* timezone from host */
 	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    zflag++;
@@ -163,7 +163,7 @@ main(int argc, char **argv)
 
 	case 'Z':	/* $TZ timezone */
 	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    tz = optarg;
@@ -177,7 +177,7 @@ main(int argc, char **argv)
     }
 
     if (zflag && type == 0) {
-	fprintf(stderr, "%s: -z requires an explicit -a, -h or -U option\n", pmProgname);
+	fprintf(stderr, "%s: -z requires an explicit -a, -h or -U option\n", pmGetProgname());
 	errflag++;
     }
 
@@ -203,19 +203,19 @@ Options:\n\
   -T endtime     end of the time window\n\
   -z             set reporting timezone to local time of metrics source\n\
   -Z timezone    set reporting timezone\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 
     if (logfile != NULL) {
-	__pmOpenLog(pmProgname, logfile, stderr, &sts);
+	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmProgname, logfile);
+	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}
     }
 
     if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, 
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
@@ -229,22 +229,22 @@ Options:\n\
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
     if (type == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
 	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
-		fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -254,7 +254,7 @@ Options:\n\
 	    endTime.tv_usec = 0;
 	    fflush(stdout);
 	    fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	    fprintf(stderr, "\nWARNING: This archive is sufficiently damaged that it may not be possible to\n");
 	    fprintf(stderr, "         produce complete information.  Continuing and hoping for the best.\n\n");
 	    fflush(stderr);
@@ -268,7 +268,7 @@ Options:\n\
     if (zflag) {
 	if ((tzh = pmNewContextZone()) < 0) {
 	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(tzh));
+		pmGetProgname(), pmErrStr(tzh));
 	    exit(1);
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
@@ -280,7 +280,7 @@ Options:\n\
     else if (tz != NULL) {
 	if ((tzh = pmNewZone(tz)) < 0) {
 	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(tzh));
+		pmGetProgname(), tz, pmErrStr(tzh));
 	    exit(1);
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
@@ -294,7 +294,7 @@ Options:\n\
 
     if (align != NULL && type != PM_CONTEXT_ARCHIVE) {
 	fprintf(stderr, "%s: -A option only supported for PCP archives, alignment request ignored\n",
-		pmProgname);
+		pmGetProgname());
 	align = NULL;
     }
 
@@ -303,7 +303,7 @@ Options:\n\
 			    &endnum);
 
     if (sts < 0) {
-	fprintf(stderr, "%s: illegal time window specification\n%s", pmProgname, endnum);
+	fprintf(stderr, "%s: illegal time window specification\n%s", pmGetProgname(), endnum);
 	exit(1);
     }
 
