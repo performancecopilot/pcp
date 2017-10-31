@@ -167,7 +167,7 @@ Performance Co-Pilot configuration on smash:
 <a name="systemlevel"></a>
 <H1>System Level Performance Monitoring</H1>
 
-<P>PCP comes with a wide range of command line utilities for accessing live performance metrics via PMCDs or historical data using archive logs. The following examples illustrate some of the most useful use cases, please see the corresponding manual pages for each command for additional information. In the examples below <B>-h &lt;host&gt;</B> could be used to query a remote host, the default is the local host. Shell completion support for Bash and especially for Zsh allows completing available metrics, metric sets (with <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a>), and available command line options.
+<P>PCP comes with a wide range of command line utilities for accessing live performance metrics via PMCDs or historical data using archive logs. The following examples illustrate some of the most useful use cases, please see the corresponding manual pages for each command for additional information. In the examples below <B>-h &lt;host&gt;</B> could be used to query a remote host, the default is the local host. Shell completion support for Bash and especially for Zsh allows completing available metrics, metricsets (with <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a>), and available command line options.
 
 <a name="live"></a>
 <H3>Monitoring Live Performance Metrics</H3>
@@ -305,7 +305,7 @@ Dump past CPU load, memory usage, and disk write operations per partition in an 
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Replay <a href="http://man7.org/linux/man-pages/man8/vmstat.8.html">vmstat</a> like metrics (using a customizable metric set definition from the <a href="http://man7.org/linux/man-pages/man5/pmrep.conf.5.html">pmrep.conf</a> configuration file) from an archive on every full 5 minutes using UTC as timezone:<BR><B>
+Replay <a href="http://man7.org/linux/man-pages/man8/vmstat.8.html">vmstat</a> like metrics (using a customizable metricset definition from the <a href="http://man7.org/linux/man-pages/man5/pmrep.conf.5.html">pmrep.conf</a> configuration file) from an archive on every full 5 minutes using UTC as timezone:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -a acme.com/20140902 -A 5min -t 5min -Z UTC :vmstat</B>
 </TD></TR>
 </TABLE>

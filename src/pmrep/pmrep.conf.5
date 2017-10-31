@@ -29,7 +29,7 @@ The metrics of interest are named in the
 argument(s) on the
 .B pmrep
 command line. These metricspecs define individual metrics or pre-defined
-performance metric sets to be read from the configuration file described
+performance metricsets to be read from the configuration file described
 below. For command line argument details see
 .BR pmrep (1).
 .P
@@ -345,8 +345,8 @@ specified in them will be reported.
 .RS 4
 Any option valid in the \fB[options]\fR section is also valid in a
 custom section. Any option or metric defined in the custom section will
-override the same option or metric possibly defined earlier in the
-\fB[options]\fR section. See below for the metricspec specification.
+override the same option or metric possibly defined in an earlier
+section. See below for the metricspec specification.
 .RE
 .SH METRICSET SPECIFICATION
 There are three forms of the

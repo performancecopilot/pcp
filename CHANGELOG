@@ -98,7 +98,7 @@ pcp-3.12.1 (16 August 2017)
     - pmdalinux: add nfsd worker thread status values
     - pmdanews: fixes to ps(1) command invocation on FreeBSD
     - pmdaroot: defensive behaviour for containers lacking a Name
-    - pmrep: add per process metric sets to default pmrep.conf(5)
+    - pmrep: add per process metricsets to default pmrep.conf(5)
     - pmrep: exit in check mode after all preparations
     - pmie: modified back-off when metrics or hosts unavailable
     - pmwebd: add Prometheus metrics exporter endpoint
