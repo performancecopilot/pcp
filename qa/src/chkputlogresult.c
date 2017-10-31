@@ -38,7 +38,7 @@ main(int argc, char **argv)
     char	**nlist;
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "bD::?")) != EOF) {
 	switch (c) {
@@ -51,7 +51,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -72,18 +72,18 @@ Options:\n\
                       __pmLogPutResult2(), the default\n\
   -D debugflag[,...]\n\
 ",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on \"local:\": %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = __pmLogCreate("qatest", argv[optind], LOG_PDU_VERSION, &ctl)) != 0) {
-	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     ctl.l_state = PM_LOG_STATE_INIT;
@@ -99,17 +99,17 @@ Options:\n\
 
     ctl.l_label.ill_vol = PM_LOG_VOL_TI;
     if ((sts = __pmLogWriteLabel(ctl.l_tifp, &ctl.l_label)) != 0) {
-	fprintf(stderr, "%s: __pmLogWriteLabel TI failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: __pmLogWriteLabel TI failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     ctl.l_label.ill_vol = PM_LOG_VOL_META;
     if ((sts = __pmLogWriteLabel(ctl.l_mdfp, &ctl.l_label)) != 0) {
-	fprintf(stderr, "%s: __pmLogWriteLabel META failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: __pmLogWriteLabel META failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     ctl.l_label.ill_vol = 0;
     if ((sts = __pmLogWriteLabel(ctl.l_mfp, &ctl.l_label)) != 0) {
-	fprintf(stderr, "%s: __pmLogWriteLabel VOL 0 failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: __pmLogWriteLabel VOL 0 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -121,16 +121,16 @@ Options:\n\
     assert(pmids != NULL);
     for (i = 0; i < nmetric; i++) {
 	if ((sts = pmLookupName(1, &metrics[i], &pmids[i])) != 1) {
-	    fprintf(stderr, "%s: pmLookupName(\"%s\") failed: %s\n", pmProgname, metrics[i], pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupName(\"%s\") failed: %s\n", pmGetProgname(), metrics[i], pmErrStr(sts));
 	    exit(1);
 	}
 	printf("%s -> %s\n", metrics[i], pmIDStr(pmids[i]));
 	if ((sts = pmLookupDesc(pmids[i], &desc)) < 0) {
-	    fprintf(stderr, "%s: pmLookupDesc(\"%s\") failed: %s\n", pmProgname, pmIDStr(pmids[i]), pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupDesc(\"%s\") failed: %s\n", pmGetProgname(), pmIDStr(pmids[i]), pmErrStr(sts));
 	    exit(1);
 	}
 	if ((sts = __pmLogPutDesc(&ctl, &desc, 1, &metrics[i])) < 0) {
-	    fprintf(stderr, "%s: __pmLogPutDesc(\"%s\") failed: %s\n", pmProgname, pmIDStr(pmids[i]), pmErrStr(sts));
+	    fprintf(stderr, "%s: __pmLogPutDesc(\"%s\") failed: %s\n", pmGetProgname(), pmIDStr(pmids[i]), pmErrStr(sts));
 	    exit(1);
 	}
 	if (desc.indom != PM_INDOM_NULL) {
@@ -139,34 +139,34 @@ Options:\n\
 		exit(1);
 	    }
 	    if ((sts = __pmLogPutInDom(&ctl, desc.indom, &epoch, numinst, ilist, nlist)) < 0) {
-		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmProgname, pmInDomStr(desc.indom), numinst, pmErrStr(sts));
+		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), numinst, pmErrStr(sts));
 		exit(1);
 	    }
 	}
     }
     for (i = 0; i < nmetric; i++) {
 	if ((sts = pmFetch(i+1, pmids, &rp)) < 0) {
-	    fprintf(stderr, "%s: pmFetch(%d, ...) failed: %s\n", pmProgname, i+1, pmErrStr(sts));
+	    fprintf(stderr, "%s: pmFetch(%d, ...) failed: %s\n", pmGetProgname(), i+1, pmErrStr(sts));
 	    exit(1);
 	}
 	rp->timestamp.tv_sec = ++epoch.tv_sec;
 	rp->timestamp.tv_usec = epoch.tv_usec;
 	if ((sts = __pmEncodeResult(__pmFileno(ctl.l_mfp), rp, &pdp)) < 0) {
-	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	__pmOverrideLastFd(__pmFileno(ctl.l_mfp));
 	if (bflag) {
 	    printf("__pmLogPutResult: %d metrics ...\n", i+1);
 	    if ((sts = __pmLogPutResult(&ctl, pdp)) < 0) {
-		fprintf(stderr, "%s: __pmLogPutResult failed: %s\n", pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: __pmLogPutResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
 	else {
 	    printf("__pmLogPutResult2: %d metrics ...\n", i+1);
 	    if ((sts = __pmLogPutResult2(&ctl, pdp)) < 0) {
-		fprintf(stderr, "%s: __pmLogPutResult2 failed: %s\n", pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: __pmLogPutResult2 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}

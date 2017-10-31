@@ -156,14 +156,14 @@ updateValueUnits(const char *str, int offset)
     for (i = 0; i < 6; i++) {
 	if ((s = strtok((i==0 ? sptr : NULL), ",")) == NULL) {
 	    fprintf(stderr, "%s: token parse error in string \"%s\"\n",
-		    pmProgname, str);
+		    pmGetProgname(), str);
 	    sts = -1;
 	    goto leaving;
 	}
 	units[i] = (int)strtol(s, &endp, 10);
 	if (*endp) {
 	    fprintf(stderr, "%s: integer parse error for substring \"%s\"\n",
-		    pmProgname, s);
+		    pmGetProgname(), s);
 	    sts = -1;
 	    goto leaving;
 	}
@@ -180,7 +180,7 @@ updateValueUnits(const char *str, int offset)
     if (pmDebugOptions.appl0) {
 	fprintf(stderr, "%s: value metric units updated using \"%s\"\n"
 		"dimSpace=%d, dimTime=%d, dimCount=%d, scaleSpace=%d, "
-		"scaleTime=%d, scaleCount=%d\n", pmProgname, str,
+		"scaleTime=%d, scaleCount=%d\n", pmGetProgname(), str,
 		units[0], units[1], units[2], units[3], units[4], units[5]);
     }
 

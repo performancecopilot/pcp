@@ -21,7 +21,7 @@ main(int argc, char *argv[])
     static const char	*usage = "[-aAptV] url";
     struct http_client	*client;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     while ((c = getopt(argc, argv, "a:A:D:t:vV:?")) != EOF) {
 	switch (c) {
 
@@ -82,7 +82,7 @@ main(int argc, char *argv[])
     }
 
     if (errflag || optind >= argc) {
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 

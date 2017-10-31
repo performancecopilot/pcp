@@ -24,7 +24,7 @@ main(int argc, char **argv)
     int		numpmid;
     pmResult	*rslt;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:n:")) != EOF) {
 	switch (c) {
@@ -33,7 +33,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -54,17 +54,17 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 

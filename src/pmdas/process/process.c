@@ -390,11 +390,11 @@ main(int argc, char **argv)
     pmdaInterface	desc;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
 	pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, PROCESS,
+    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), PROCESS,
 		"process.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);

@@ -23,8 +23,8 @@
  *	attempts to set/clear the state in __pmSyslog() which locking will
  *	not avoid
  *
- * pmProgname - most likely set in main(), not worth protecting here
- * 	and impossible to capture all the read uses in other places
+ * pmProgname and appname - most likely set in main(), not worth protecting
+ *	here
  *
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
@@ -94,7 +94,8 @@ static int	pmprintf_atexit_installed = 0;
 static int	xconfirm_init = 0;
 static char 	*xconfirm = NULL;
 
-PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
+PCP_DATA char	*pmProgname = "pcp";		/* deprecated: the real McCoy */
+static char	*appname = NULL;
 
 PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
 PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
@@ -198,7 +199,7 @@ __pmNotifyErr(int priority, const char *message, ...)
     /* when profiling use "[%.19s.%lu]" for extra precision */
     pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ct_buf,
 		/* (unsigned long)tv.tv_usec, */
-		pmProgname, (pid_t)getpid(), level);
+		pmGetProgname(), (pid_t)getpid(), level);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */
@@ -1338,7 +1339,7 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     }
     *sum += now - *last;
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
-			pmProgname, now-*last, *sum, event);
+			pmGetProgname(), now-*last, *sum, event);
     *last = now;
 }
 
@@ -1593,10 +1594,10 @@ pmfstate(int state)
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
 		if (!xconfirm)
 		    fprintf(stderr, "%s: using stderr - no PCP_XCONFIRM_PROG\n",
-			    pmProgname);
+			    pmGetProgname());
 		else if (access(__pmNativePath(xconfirm), X_OK) < 0)
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
-			    pmProgname, xconfirm, osstrerror_r(errmsg, sizeof(errmsg)));
+			    pmGetProgname(), xconfirm, osstrerror_r(errmsg, sizeof(errmsg)));
 		else
 		    errtype = PM_USEDIALOG;
 	    }
@@ -1674,13 +1675,13 @@ vpmprintf(const char *msg, va_list arg)
 fail:
 		if (fname != NULL) {
 		    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-			pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
+			pmGetProgname(), fname, osstrerror_r(errmsg, sizeof(errmsg)));
 		    unlink(fname);
 		    free(fname);
 		}
 		else {
 		    fprintf(stderr, "%s: vpmprintf: failed to create temporary file: %s\n",
-			pmProgname, osstrerror_r(errmsg, sizeof(errmsg)));
+			pmGetProgname(), osstrerror_r(errmsg, sizeof(errmsg)));
 		}
 		fprintf(stderr, "vpmprintf msg:\n");
 		if (fd >= 0)
@@ -1760,7 +1761,7 @@ pmflush(void)
 	case PM_USEDIALOG:
 	    /* If we're here, it means xconfirm has passed access test */
 	    if (xconfirm == NULL) {
-		fprintf(stderr, "%s: no PCP_XCONFIRM_PROG\n", pmProgname);
+		fprintf(stderr, "%s: no PCP_XCONFIRM_PROG\n", pmGetProgname());
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
@@ -1795,7 +1796,7 @@ pmflush(void)
 	    /* no thread-safe issue here ... we're executing xconfirm */
 	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT)) < 0) {
 		fprintf(stderr, "%s: __pmProcessExec(%s, ...) failed: %s\n",
-		    pmProgname, __pmNativePath(xconfirm), 
+		    pmGetProgname(), __pmNativePath(xconfirm), 
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    /*
@@ -2637,18 +2638,47 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
 }
 
 int
-__pmSetProgname(const char *program)
+pmSetProgname(const char *program)
 {
-    char *p;
+    const char *p;
+    const char *name;
+
+    if (program == NULL) {
+	/* Restore the default application name */
+	if (appname != NULL)
+	    free(appname);
+	appname = NULL;
+	pmProgname = "pcp";		/* for deprecated use */
+	return 0;
+    }
 
     /* Trim command name of leading directory components */
-    if (program)
-	pmProgname = (char *)program;
-    for (p = pmProgname; pmProgname && *p; p++) {
+    for (name = p = program; *p; p++) {
 	if (*p == '/')
-	    pmProgname = p+1;
+	    name = p+1;
     }
+
+    /* strdup failure leaves appname set to NULL, which is the default */
+    appname = strdup(name);
+
+    if (appname == NULL) {
+	pmProgname = "pcp";		/* for deprecated use */
+	return -ENOMEM;
+    }
+    else {
+	pmProgname = appname;		/* for deprecated use */
+    }
+
     return 0;
+}
+
+char *
+pmGetProgname(void)
+{
+    if (appname == NULL)
+	return "pcp";
+    else
+	return appname;
 }
 
 int

@@ -367,7 +367,7 @@ root_close_socket(void)
 	__pmCloseSocket(socket_fd);
 	if (unlink(socket_path) != 0 && oserror() != ENOENT) {
 	    __pmNotifyErr(LOG_ERR, "%s: cannot unlink %s: %s",
-			  pmProgname, socket_path,
+			  pmGetProgname(), socket_path,
 			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
 	socket_fd = -EPROTO;
@@ -856,10 +856,10 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "root" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, ROOT, "root.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), ROOT, "root.log", helppath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch (c) {

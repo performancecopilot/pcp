@@ -1018,7 +1018,7 @@ int
 __pmInitAuthServer(void)
 {
     __pmInitAuthPaths();
-    if (sasl_server_init(common_callbacks, pmProgname) != SASL_OK) {
+    if (sasl_server_init(common_callbacks, pmGetProgname()) != SASL_OK) {
 	__pmNotifyErr(LOG_ERR, "Failed to start authenticating server");
 	return -EINVAL;
     }

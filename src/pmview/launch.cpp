@@ -95,8 +95,8 @@ Launch::setDefaultOptions(int interval,
 	addOption("defsourcetype", defsourcetype);
     if (defsourcename != NULL)
 	addOption("defsourcename", defsourcename);
-    if (pmProgname != NULL)
-	addOption("progname", pmProgname);
+    if (pmGetProgname() != NULL)
+	addOption("progname", pmGetProgname());
     addOption("pid", (int)getpid());
 
     if (selected)

@@ -1045,10 +1045,10 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "gfs2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, GFS2, "gfs2.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), GFS2, "gfs2.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

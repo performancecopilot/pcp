@@ -68,7 +68,7 @@ get_sample(void)
 	if ((sts = pmExtendFetchGroup_item(pmfg, "hinv.ncpu", NULL, NULL,
 					   &info.ncpu, PM_TYPE_32, &sts)) < 0) {
 	    fprintf(stderr, "%s: Failed hinv.ncpu ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	
@@ -83,7 +83,7 @@ get_sample(void)
 				&info.load1, PM_TYPE_DOUBLE, NULL)) < 0) {
 	    fprintf(stderr, "%s: Failed kernel.all.load[1] "
 			    "ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if ((sts = pmExtendFetchGroup_item(pmfg,
@@ -91,7 +91,7 @@ get_sample(void)
 				&info.load15, PM_TYPE_DOUBLE, NULL)) < 0) {
 	    fprintf(stderr, "%s: Failed kernel.all.load[15] "
 			    "ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if ((sts = pmExtendFetchGroup_indom(pmfg,
@@ -100,7 +100,7 @@ get_sample(void)
 				NULL, indom_maxnum, &num_cpu_user, NULL)) < 0) {
 	    fprintf(stderr, "%s: Failed kernel.percpu.cpu.user "
 				"ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
@@ -110,7 +110,7 @@ get_sample(void)
 				NULL, indom_maxnum, &num_cpu_sys, NULL)) < 0) {
 	    fprintf(stderr, "%s: Failed kernel.percpu.cpu.sys "
 				"ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if ((sts = pmExtendFetchGroup_item(pmfg,
@@ -118,7 +118,7 @@ get_sample(void)
 				&info.freemem, PM_TYPE_DOUBLE, NULL)) < 0) {
 	    fprintf(stderr, "%s: Failed mem.freemem "
 				"ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if ((sts = pmExtendFetchGroup_item(pmfg,
@@ -126,12 +126,12 @@ get_sample(void)
 				&info.dkiops, PM_TYPE_32, NULL)) < 0) {
 	    fprintf(stderr, "%s: Failed disk.all.total "
 				"ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if ((sts = pmExtendFetchGroup_timestamp(pmfg, &info.timestamp)) < 0) {
 	    fprintf(stderr, "%s: Failed ExtendFetchGroup: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
@@ -149,7 +149,7 @@ get_sample(void)
      */
     sts = pmFetchGroup(pmfg);
     if (sts < 0) {
-	fprintf(stderr, "%s: pmFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmFetchGroup: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -210,7 +210,7 @@ main(int argc, char **argv)
     }
 
     if (pauseFlag && opts.context != PM_CONTEXT_ARCHIVE) {
-	pmprintf("%s: pause can only be used with archives\n", pmProgname);
+	pmprintf("%s: pause can only be used with archives\n", pmGetProgname());
 	opts.errors++;
     }
 
@@ -232,10 +232,10 @@ main(int argc, char **argv)
     if (sts < 0) {
 	if (opts.context == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, source, pmErrStr(sts));
+		    pmGetProgname(), source, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		    pmProgname, source, pmErrStr(sts));
+		    pmGetProgname(), source, pmErrStr(sts));
 	exit(1);
     }
     c = pmGetFetchGroupContext(pmfg);
@@ -255,7 +255,7 @@ main(int argc, char **argv)
     if (opts.context == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, (int)(opts.interval.tv_sec*1000 + opts.interval.tv_usec/1000))) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
     }

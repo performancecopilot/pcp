@@ -40,13 +40,13 @@ main(int argc, char **argv)
     char		*command = NULL;
     char		*username;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
     pmsprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmProgname, SYSSUMMARY,
+    pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmGetProgname(), SYSSUMMARY,
 		"summary.log", helpfile);
 
     while ((c = pmdaGetOpt(argc, argv, "H:h:D:d:l:U:",
@@ -72,7 +72,7 @@ main(int argc, char **argv)
     }
     if (len == 0) {
 	fprintf(stderr, "%s: a command must be given after the options\n",
-		pmProgname);
+		pmGetProgname());
 	errflag++;
     }
     else {
@@ -88,7 +88,7 @@ main(int argc, char **argv)
 
     if (errflag) {
 	fprintf(stderr, "Usage: %s [options] command [arg ...]\n\n",
-		pmProgname);
+		pmGetProgname());
 	fputs("Options:\n"
 	      "  -h helpfile    help text file\n"
 	      "  -d domain      use domain (numeric) for metrics domain of PMDA\n"
@@ -145,7 +145,7 @@ main(int argc, char **argv)
     cmdpipe = clientPipe[0]; /* parent/agent reads from here */
     __pmSetVersionIPC(cmdpipe, PDU_VERSION2);
 
-    summaryMainLoop(pmProgname, cmdpipe, &dispatch);
+    summaryMainLoop(pmGetProgname(), cmdpipe, &dispatch);
 
     summary_done();
     exit(0);

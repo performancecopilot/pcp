@@ -381,7 +381,7 @@ SetupRequestPorts(void)
 	if (n < nport) {
 	    __pmNotifyErr(LOG_WARNING,
 		"%s: duplicate client request port (%d) will be ignored\n",
-                     pmProgname, portlist[n]);
+                     pmGetProgname(), portlist[n]);
 	    portlist[n] = -1;
 	}
     }
@@ -571,7 +571,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
 		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	if (neterror() == EADDRINUSE)
-	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmProgname);
+	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmGetProgname());
 	goto fail;
     }
 
@@ -697,7 +697,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
 #else
 	__pmNotifyErr(LOG_ERR, "%s: unix domain sockets are not supported\n",
-		      pmProgname);
+		      pmGetProgname());
 #endif
     }
 #endif
@@ -706,7 +706,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	return maximum;
 
     __pmNotifyErr(LOG_ERR, "%s: can't open any request ports, exiting\n",
-		pmProgname);
+		pmGetProgname());
     return -1;
 }
 
@@ -743,7 +743,7 @@ __pmServerCloseRequestPorts(void)
 	if (unlink(localSocketPath) != 0 && oserror() != ENOENT) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
-			  pmProgname, localSocketPath, getuid(), geteuid(),
+			  pmGetProgname(), localSocketPath, getuid(), geteuid(),
 			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
     }
@@ -855,7 +855,7 @@ __pmServerDumpRequestPorts(FILE *stream)
 
     fprintf(stream, "%s request port(s):\n"
 	  "  sts fd   port  family address\n"
-	  "  === ==== ===== ====== =======\n", pmProgname);
+	  "  === ==== ===== ====== =======\n", pmGetProgname());
 
     if (localSocketFd != -EPROTO)
 	fprintf(stderr, "  %-3s %4d %5s %-6s %s\n",
@@ -882,7 +882,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 
     if (fd == localSocketFd) {
 	pmsprintf(buffer, sz, "%s unix request socket %s",
-		 pmProgname, localSocketPath);
+		 pmGetProgname(), localSocketPath);
 	return buffer;
     }
 
@@ -891,7 +891,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 	for (j = 0; j < FAMILIES; j++) {
 	    if (fd == rp->fds[j]) {
 		pmsprintf(buffer, sz, "%s %s request socket %s",
-			pmProgname, RequestFamilyString(j), rp->address);
+			pmGetProgname(), RequestFamilyString(j), rp->address);
 		return buffer;
 	    }
 	}

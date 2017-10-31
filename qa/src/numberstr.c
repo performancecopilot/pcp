@@ -11,9 +11,9 @@ main(int argc, char *argv[])
     double	d;
     char	*endptr;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     if (argc != 2) {
-	fprintf(stderr, "Usage: %s double\n", pmProgname);
+	fprintf(stderr, "Usage: %s double\n", pmGetProgname());
 	exit(1);
     }
 

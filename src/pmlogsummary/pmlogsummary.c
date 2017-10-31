@@ -146,7 +146,7 @@ pmiderr(pmID pmid, const char *msg, ...)
 	char	**names;
 
 	numnames = pmNameAll(pmid, &names);
-	fprintf(stderr, "%s: ", pmProgname);
+	fprintf(stderr, "%s: ", pmGetProgname());
 	__pmPrintMetricNames(stderr, numnames, names, " or ");
 	fprintf(stderr, "(%s) - ", pmIDStr(pmid));
 	va_start(arg, msg);
@@ -188,7 +188,7 @@ printlabel(void)
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -259,7 +259,7 @@ printsummary(const char *name)
     /* cast away const, pmLookupName should never modify name */
     if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
 	fprintf(stderr, "%s: failed to lookup metric name (pmid=%s): %s\n",
-		pmProgname, name, pmErrStr(sts));
+		pmGetProgname(), name, pmErrStr(sts));
 	return;
     }
 
@@ -414,7 +414,7 @@ newHashInst(pmValue *vp,
 
     if ((sts = pmExtractValue(valfmt, vp, avedata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
 	pmiderr(avedata->desc.pmid, "failed to extract value: %s\n", pmErrStr(sts));
-	fprintf(stderr, "%s: possibly corrupt archive?\n", pmProgname);
+	fprintf(stderr, "%s: possibly corrupt archive?\n", pmGetProgname());
 	exit(1);
     }
     size = (pos+1) * sizeof(instData *);
@@ -753,7 +753,7 @@ calcaverage(pmResult *result)
 	    avedata = (aveData*) malloc(sizeof(aveData));
 	    newHashItem(vsp, &desc, avedata, &result->timestamp);
 	    if (__pmHashAdd(avedata->desc.pmid, (void*)avedata, &hashlist) < 0) {
-		pmiderr(avedata->desc.pmid, "failed %s hash table insertion\n", pmProgname);
+		pmiderr(avedata->desc.pmid, "failed %s hash table insertion\n", pmGetProgname());
 		/* free memory allocated above on insert failure */
 		for (j = 0; j < vsp->numval; j++)
 		    if (avedata->instlist[j]) free(avedata->instlist[j]);
@@ -998,7 +998,7 @@ main(int argc, char *argv[])
 	    sts = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || sts < 0) {
 		pmprintf("%s: -B requires positive numeric argument\n",
-			pmProgname);
+			pmGetProgname());
 		opts.errors++;
 	    }
 	    else
@@ -1044,7 +1044,7 @@ main(int argc, char *argv[])
 	case 'p':	/* number of digits after decimal point */
 	    precision = (unsigned int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		pmprintf("%s: -p requires numeric argument\n", pmProgname);
+		pmprintf("%s: -p requires numeric argument\n", pmGetProgname());
 		opts.errors++;
 	    }
 	    break;
@@ -1093,7 +1093,7 @@ main(int argc, char *argv[])
 
     if ((sts = c = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, archive, pmErrStr(sts));
+		pmGetProgname(), archive, pmErrStr(sts));
 	exit(1);
     }
 
@@ -1103,7 +1103,7 @@ main(int argc, char *argv[])
     }
     
     if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
-	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -1144,7 +1144,7 @@ main(int argc, char *argv[])
 		fprintf(stderr, "resetting for second iteration\n");
 	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
 		fprintf(stderr, "%s: pmSetMode reset failed: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -1153,7 +1153,7 @@ main(int argc, char *argv[])
     }
 
     if (sts != PM_ERR_EOL) {
-	fprintf(stderr, "%s: fetch failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: fetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exitstatus = 1;
     }
 
@@ -1162,7 +1162,7 @@ main(int argc, char *argv[])
 
     if (opts.optind >= argc) {	/* print all results */
 	if ((sts = pmTraversePMNS("", printsummary)) < 0) {
-	    fprintf(stderr, "%s: PMNS traversal failed: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: PMNS traversal failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
     }
@@ -1177,7 +1177,7 @@ main(int argc, char *argv[])
 	    }
 	    if ((sts = pmTraversePMNS(msp->metric, printsummary)) < 0)
 		fprintf(stderr, "%s: PMNS traversal failed for %s: %s\n",
-			pmProgname, msp->metric, pmErrStr(sts));
+			pmGetProgname(), msp->metric, pmErrStr(sts));
 	    pmFreeMetricSpec(msp);
 	}
     }

@@ -738,13 +738,13 @@ papi_internal_init(pmdaInterface *dp)
     sts = pmsprintf(papi_version, sizeof(papi_version), "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
 	    PAPI_VERSION_MINOR(PAPI_VERSION), PAPI_VERSION_REVISION(PAPI_VERSION));
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "%s failed to create papi version metric.\n",pmProgname);
+	__pmNotifyErr(LOG_ERR, "%s failed to create papi version metric.\n",pmGetProgname());
 	return PM_ERR_GENERIC;
     }
 
     if ((sts = __pmNewPMNS(&papi_tree)) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s failed to create dynamic papi pmns: %s\n",
-		      pmProgname, pmErrStr(sts));
+		      pmGetProgname(), pmErrStr(sts));
 	papi_tree = NULL;
 	return PM_ERR_GENERIC;
     }
@@ -960,11 +960,11 @@ main(int argc, char **argv)
     pmdaInterface dispatch;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PAPI, "papi.log", helppath);	
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), PAPI, "papi.log", helppath);	
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {
 	pmdaUsageMessage(&opts);

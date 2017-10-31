@@ -20,7 +20,7 @@ int
 main(int argc, char **argv)
 {
     int i;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     for (i=1; i < argc; i++) {
 	pmiestats_t ps;
@@ -29,30 +29,30 @@ main(int argc, char **argv)
 
 	if (f < 0) {
 	    fprintf(stderr, "%s: cannot open %s - %s\n",
-		    pmProgname, argv[i], osstrerror());
+		    pmGetProgname(), argv[i], osstrerror());
 	    continue;
 	}
 
 	if (fstat(f, &st) < 0) {
 	    fprintf(stderr, "%s: cannot get size of %s - %s\n",
-		    pmProgname, argv[i], osstrerror());
+		    pmGetProgname(), argv[i], osstrerror());
 	    goto closefile;
 	}
 
 	if (st.st_size != sizeof(ps)) {
 	    fprintf(stderr, "%s: %s is not a valid pmie stats file\n",
-		    pmProgname, argv[i]);
+		    pmGetProgname(), argv[i]);
 	    goto closefile;
 	}
 	if (read(f, &ps, sizeof(ps)) != sizeof(ps)) {
 	    fprintf(stderr, "%s: cannot read %ld bytes from %s\n",
-		    pmProgname, (long)sizeof(ps), argv[i]);
+		    pmGetProgname(), (long)sizeof(ps), argv[i]);
 	    goto closefile;
 	}
 
 	if (ps.version != 1) {
 	    fprintf(stderr, "%s: unsupported version %d in %s\n",
-		    pmProgname, ps.version, argv[i]);
+		    pmGetProgname(), ps.version, argv[i]);
 	    goto closefile;
 	}
 

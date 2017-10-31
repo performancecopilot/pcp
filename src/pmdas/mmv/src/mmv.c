@@ -131,7 +131,7 @@ choose_cluster(int requested, const char *path)
 	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG,
 				"MMV: %s: duplicate cluster %d in use",
-				pmProgname, requested);
+				pmGetProgname(), requested);
 	    break;
 	}
     }
@@ -169,7 +169,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_ERR,
 			"%s: %s client version %d unsupported (current is %d)",
-			pmProgname, prefix, header.version, MMV_VERSION);
+			pmGetProgname(), prefix, header.version, MMV_VERSION);
 		__pmMemoryUnmap(m, size);
 		return -ENOSYS;
 	    }
@@ -222,17 +222,17 @@ create_client_stat(const char *client, const char *path, size_t size)
 		scnt++;
 	    } else {
 		__pmNotifyErr(LOG_ERR, "%s: client \"%s\" out of memory - %s",
-				pmProgname, client, osstrerror());
+				pmGetProgname(), client, osstrerror());
 		__pmMemoryUnmap(m, size);
 		scnt = 0;
 	    }
 	} else {
 	    __pmNotifyErr(LOG_ERR, "%s: failed to memory map \"%s\" - %s",
-				pmProgname, path, osstrerror());
+				pmGetProgname(), path, osstrerror());
 	}
     } else if (pmDebugOptions.appl0) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to open client file \"%s\" - %s",
-				pmProgname, client, osstrerror());
+				pmGetProgname(), client, osstrerror());
     }
     return 0;
 }
@@ -392,7 +392,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     ip->it_set = (pmdaInstid *)realloc(ip->it_set, size);
     if (ip->it_set == NULL) {
 	__pmNotifyErr(LOG_ERR, "%s: cannot get memory for instance list in %s",
-			pmProgname, s->name);
+			pmGetProgname(), s->name);
 	ip->it_numinst = 0;
 	return -ENOMEM;
     }
@@ -441,7 +441,7 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     indoms = realloc(indoms, sizeof(pmdaIndom) * (intot + 1));
     if (indoms == NULL) {
 	__pmNotifyErr(LOG_ERR, "%s: cannot grow indom list in %s",
-			pmProgname, s->name);
+			pmGetProgname(), s->name);
 	return -ENOMEM;
     }
     ip = &indoms[intot++];
@@ -449,7 +449,7 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     ip->it_set = (pmdaInstid *)calloc(count, sizeof(pmdaInstid));
     if (ip->it_set == NULL) {
 	__pmNotifyErr(LOG_ERR, "%s: cannot get memory for instance list in %s",
-			pmProgname, s->name);
+			pmGetProgname(), s->name);
 	ip->it_numinst = 0;
 	return -ENOMEM;
     }
@@ -488,7 +488,7 @@ map_stats(pmdaExt *pmda)
 
     if ((sts = __pmNewPMNS(&pmns)) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 	pmns = NULL;
 	return;
     }
@@ -1013,7 +1013,7 @@ mmv_reload_maybe(pmdaExt *pmda)
 
     if (need_reload) {
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG, "MMV: %s: reloading", pmProgname);
+	    __pmNotifyErr(LOG_DEBUG, "MMV: %s: reloading", pmGetProgname());
 	map_stats(pmda);
 
 	pmda->e_indoms = indoms;
@@ -1023,7 +1023,7 @@ mmv_reload_maybe(pmdaExt *pmda)
 	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, 
 		      "MMV: %s: %d metrics and %d indoms after reload", 
-		      pmProgname, mtot, intot);
+		      pmGetProgname(), mtot, intot);
     }
 }
 
@@ -1252,7 +1252,7 @@ mmv_init(pmdaInterface *dp)
 	    }
 	} else {
 	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
-				pmProgname);
+				pmGetProgname());
 	    if (isDSO)
 		return;
 	    exit(0);
@@ -1280,13 +1280,13 @@ main(int argc, char **argv)
     pmdaInterface dispatch = { 0 };
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
-	prefix = pmProgname + 4;
+    if (strncmp(pmGetProgname(), "pmda", 4) == 0 && strlen(pmGetProgname()) > 4)
+	prefix = pmGetProgname() + 4;
     pmsprintf(logfile, sizeof(logfile), "%s.log", prefix);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, MMV, logfile, NULL);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), MMV, logfile, NULL);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

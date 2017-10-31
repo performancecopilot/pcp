@@ -280,12 +280,12 @@ main(int argc, char **argv)
     pmdaInterface	desc;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "lustrecomm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LUSTRECOMM,
+    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), LUSTRECOMM,
 		"lustrecomm.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);

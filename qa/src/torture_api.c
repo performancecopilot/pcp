@@ -147,14 +147,14 @@ parse_args(int argc, char **argv)
     char	*endnum;
     int		sts;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:iLmn:s:vbc")) != EOF) {
 	switch (c) {
 	case 'a':	/* archive name for context */
             if (context_type != 0) {
 	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
-                        pmProgname);
+                        pmGetProgname());
 		errflag++;
 	    }
 	    context_type = PM_CONTEXT_ARCHIVE;
@@ -173,7 +173,7 @@ parse_args(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -181,7 +181,7 @@ parse_args(int argc, char **argv)
 	case 'h':	/* context_namename for live context */
             if (context_type != 0) {
 	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
-                        pmProgname);
+                        pmGetProgname());
 		errflag++;
 	    }
 	    context_type = PM_CONTEXT_HOST;
@@ -194,7 +194,7 @@ parse_args(int argc, char **argv)
 	case 'L':	/* LOCAL context */
             if (context_type != 0) {
 	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
-                        pmProgname);
+                        pmGetProgname());
 		errflag++;
 	    }
 	    context_type = PM_CONTEXT_LOCAL;
@@ -216,7 +216,7 @@ parse_args(int argc, char **argv)
 	case 's':	/* pmns style */
 	    pmns_style = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		printf("%s: -s requires numeric argument\n", pmProgname);
+		printf("%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -229,7 +229,7 @@ parse_args(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 }
@@ -244,7 +244,7 @@ load_namespace(char *namespace)
     _op++;
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	_err++;
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);
@@ -277,7 +277,7 @@ test_api(void)
     if ((sts = pmNewContext(context_type, context_name)) < 0) {
 	_err++;
 	printf("%s: Error in creating %s context for \"%s\": %s\n", 
-	       pmProgname, 
+	       pmGetProgname(), 
 	       context_type == PM_CONTEXT_HOST ? "host" :
 	       context_type == PM_CONTEXT_ARCHIVE ? "archive" :
 	       "local", 

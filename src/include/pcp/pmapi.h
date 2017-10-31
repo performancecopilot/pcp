@@ -1006,6 +1006,13 @@ PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 PCP_CALL extern int pmSetDebug(const char *);
 PCP_CALL extern int pmClearDebug(const char *);
 
+/*
+ * Startup handling:
+ * set/get program name, as used in pmNotifyErr() ... default is "pcp"
+ */
+PCP_CALL extern int pmSetProgname(const char *);
+PCP_CALL extern char *pmGetProgname(void);
+
 #ifdef __cplusplus
 }
 #endif

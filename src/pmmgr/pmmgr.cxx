@@ -86,7 +86,7 @@ timestamp(ostream &o)
   if (now2)
     now2[19] = '\0'; // overwrite " YYYY \n"
 
-  return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "("
+  return o << "[" << (now2 ? now2 : "") << "] " << pmGetProgname() << "("
 	   << getpid()
 #ifdef HAVE_PTHREAD_H
 #ifdef IS_LINUX
@@ -1776,7 +1776,7 @@ int main (int argc, char *argv[])
 	  if ((c = pmSetDebug(opts.optarg)) < 0)
 	    {
 	      pmprintf("%s: unrecognized debug options specification (%s)\n",
-		       pmProgname, opts.optarg);
+		       pmGetProgname(), opts.optarg);
 	      opts.errors++;
 	    }
 	  break;
@@ -1796,7 +1796,7 @@ int main (int argc, char *argv[])
 	  polltime = atoi(opts.optarg);
 	  if (polltime <= 0)
 	    {
-	      pmprintf("%s: poll time too short\n", pmProgname);
+	      pmprintf("%s: poll time too short\n", pmGetProgname());
 	      opts.errors++;
 	    }
 	  break;
@@ -1828,7 +1828,7 @@ int main (int argc, char *argv[])
   // NB: A failure from this call is of no significance: pmmgr is not
   // required to be run as uid pcp or root, so must not fail for the
   // mere inability to write into /var/run/pcp.
-  (void) __pmServerCreatePIDFile(pmProgname, 0);
+  (void) __pmServerCreatePIDFile(pmGetProgname(), 0);
 
 #ifndef IS_MINGW
     /* lose root privileges if we have them */

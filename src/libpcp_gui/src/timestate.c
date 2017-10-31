@@ -44,7 +44,7 @@ __pmtimevalCmp(struct timeval *a, struct timeval *b)
 
 static void timeControlExited()
 {
-    fprintf(stderr, "\n%s: Time Control dialog exited, goodbye.\n", pmProgname);
+    fprintf(stderr, "\n%s: Time Control dialog exited, goodbye.\n", pmGetProgname());
 }
 
 static void timeControlRewind()
@@ -82,7 +82,7 @@ static void timeControlNewZone(char *timezone, char *label)
 
     if (sts < 0)
 	fprintf(stderr, "%s: Warning: cannot set timezone to \"%s\": %s\n",
-		pmProgname, timezone, pmErrStr(sts));
+		pmGetProgname(), timezone, pmErrStr(sts));
     else
 	printf("new timezone: %s (%s)\n", timezone, label);
 }
@@ -106,7 +106,7 @@ pmTimeStateMode(int mode, struct timeval delta, struct timeval *position)
     }
 
     if ((sts = pmSetMode(mode, position, step)) < 0) {
-	fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
 }
@@ -122,7 +122,7 @@ pmTimeStateSetup(
     int		fd, sts, tzlen;
 
     if (pmtime == NULL) {
-	fprintf(stderr, "%s: pmTimeConnect: malloc: %s\n", pmProgname, osstrerror());
+	fprintf(stderr, "%s: pmTimeConnect: malloc: %s\n", pmGetProgname(), osstrerror());
 	exit(EXIT_FAILURE);
     }
 
@@ -146,7 +146,7 @@ pmTimeStateSetup(
 	if (ctxt == PM_CONTEXT_ARCHIVE) {
 	    if ((sts = pmNewZone(tz)) < 0) {
 		fprintf(stderr, "%s: pmTimeConnect: Cannot set timezone to \"%s\": %s\n",
-			pmProgname, tz, pmErrStr(sts));
+			pmGetProgname(), tz, pmErrStr(sts));
 		exit(EXIT_FAILURE);
 	    }
 	}
@@ -157,14 +157,14 @@ pmTimeStateSetup(
     pmtime->length += tzlen + strlen(tz_label) + 1;
     pmtime_tmp = realloc(pmtime, pmtime->length);
     if (pmtime_tmp == NULL) {
-	fprintf(stderr, "%s: pmTimeConnect: realloc: %s\n", pmProgname, osstrerror());
+	fprintf(stderr, "%s: pmTimeConnect: realloc: %s\n", pmGetProgname(), osstrerror());
 	exit(EXIT_FAILURE);
     }
     pmtime = pmtime_tmp;
     strcpy(pmtime->data, tz);
     strcpy(pmtime->data + tzlen, tz_label);
     if ((fd = pmTimeConnect(port, pmtime)) < 0) {
-	fprintf(stderr, "%s: pmTimeConnect: %s\n", pmProgname, pmErrStr(fd));
+	fprintf(stderr, "%s: pmTimeConnect: %s\n", pmGetProgname(), pmErrStr(fd));
 	exit(EXIT_FAILURE);
     }
 
@@ -209,7 +209,7 @@ pmTimeStateAck(pmTimeControls *control, pmTime *pmtime)
 	    control->exited();
 	else
 	    fprintf(stderr, "\n%s: pmTimeSendAck: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
 }

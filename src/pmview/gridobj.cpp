@@ -123,7 +123,7 @@ GridObj::addObj(ViewObj *obj, int col, int row)
 	if ((row >= item._row && row < (item._row + item._item->rows())) &&
 	    (col >= item._col && col < (item._col + item._item->cols()))) {
 	    pmprintf("%s: %s at %d,%d (%dx%d) collides with %s at %d,%d (%dx%d)\nThe later object will be ignored\n",
-		     pmProgname, item._item->name(), item._col, 
+		     pmGetProgname(), item._item->name(), item._col, 
 		     item._row, item._item->cols(), item._item->rows(),
 		     obj->name(), col, row, obj->cols(), obj->rows());
 	    return;

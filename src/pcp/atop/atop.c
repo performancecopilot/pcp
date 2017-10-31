@@ -296,7 +296,7 @@ main(int argc, char *argv[])
 	** check if we are supposed to behave as 'atopsar'
 	** i.e. system statistics only
 	*/
-	if (strcmp(pmProgname, "pcp-atopsar") == 0)
+	if (strcmp(pmGetProgname(), "pcp-atopsar") == 0)
 		return atopsar(argc, argv);
 
 	/* 
@@ -325,7 +325,7 @@ main(int argc, char *argv[])
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?             */
-				prusage(pmProgname, &opts);
+				prusage(pmGetProgname(), &opts);
 				break;
 
 			   case 'V':		/* version wanted ?           */
@@ -364,14 +364,14 @@ main(int argc, char *argv[])
 
                            case 'P':		/* parseable output?          */
 				if ( !parsedef(opts.optarg) )
-					prusage(pmProgname, &opts);
+					prusage(pmGetProgname(), &opts);
 
 				vis.show_samp = parseout;
 				break;
 
                            case 'L':		/* line length                */
 				if ( !numeric(opts.optarg) )
-					prusage(pmProgname, &opts);
+					prusage(pmGetProgname(), &opts);
 
 				linelen = atoi(opts.optarg);
 				break;
@@ -393,7 +393,7 @@ main(int argc, char *argv[])
 			{
 				pmprintf(
 			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
-					pmProgname, arg, endnum);
+					pmGetProgname(), arg, endnum);
 				free(endnum);
 				opts.errors++;
 			}
@@ -402,9 +402,9 @@ main(int argc, char *argv[])
 			{
 				arg = argv[opts.optind];
 				if (!numeric(arg))
-					prusage(pmProgname, &opts);
+					prusage(pmGetProgname(), &opts);
 				if ((opts.samples = atoi(arg)) < 1)
-					prusage(pmProgname, &opts);
+					prusage(pmGetProgname(), &opts);
 			}
 		}
 	}
@@ -415,7 +415,7 @@ main(int argc, char *argv[])
 	__pmEndOptions(&opts);
 
 	if (opts.errors)
-		prusage(pmProgname, &opts);
+		prusage(pmGetProgname(), &opts);
 
 	if (opts.samples)
 		nsamples = opts.samples;
@@ -760,7 +760,7 @@ prusage(char *myname, pmOptions *opts)
 	printf("\t  -w  write raw data to PCP archive folio\n");
 	printf("\t  -r  read  raw data from PCP archive folio\n");
 	printf("\t  -S  finish %s automatically before midnight "
-	                "(i.s.o. #samples)\n", pmProgname);
+	                "(i.s.o. #samples)\n", pmGetProgname());
 	printf("\t  -b  begin showing data from specified time\n");
 	printf("\t  -e  finish showing data after specified time\n");
 	printf("\n");
@@ -769,10 +769,10 @@ prusage(char *myname, pmOptions *opts)
 	printf("\n");
 	printf("If the interval-value is zero, a new sample can be\n");
 	printf("forced manually by sending signal USR1"
-			" (kill -USR1 %s-pid)\n", pmProgname);
+			" (kill -USR1 %s-pid)\n", pmGetProgname());
 	printf("or with the keystroke '%c' in interactive mode.\n", MSAMPNEXT);
 	printf("\n");
-	printf("Please refer to the man-page of '%s' for more details.\n", pmProgname);
+	printf("Please refer to the man-page of '%s' for more details.\n", pmGetProgname());
 
 	cleanstop(1);
 }

@@ -34,7 +34,7 @@ main(int argc, char **argv)
     struct timeval appEnd;
     struct timeval appOffset;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:?")) != EOF) {
 	switch (c) {
@@ -43,14 +43,14 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = optarg;
@@ -65,7 +65,7 @@ main(int argc, char **argv)
     }
 
     if (zflag && type == 0) {
-	fprintf(stderr, "%s: -z requires an explicit -a, -h or -U option\n", pmProgname);
+	fprintf(stderr, "%s: -z requires an explicit -a, -h or -U option\n", pmGetProgname());
 	errflag++;
     }
 
@@ -76,19 +76,19 @@ main(int argc, char **argv)
 Options\n\
   -D debug	standard PCP debug options\n\
   -h host	metrics source is PMCD on host\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
     if (logfile != NULL) {
-	__pmOpenLog(pmProgname, logfile, stderr, &sts);
+	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmProgname, logfile);
+	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}
     }
 
     if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, 
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
@@ -101,29 +101,29 @@ Options\n\
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
     if (type == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
 	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
-		fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
   	startTime = label.ll_start;
 	sts = pmGetArchiveEnd(&endTime);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: pmGetArchiveEnd: %s\n", pmProgname,
+	    fprintf(stderr, "%s: pmGetArchiveEnd: %s\n", pmGetProgname(),
 		    pmErrStr(sts));
 	    exit(1);
 	}
@@ -136,7 +136,7 @@ Options\n\
     if (zflag) {
 	if ((tzh = pmNewContextZone()) < 0) {
 	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(tzh));
+		pmGetProgname(), pmErrStr(tzh));
 	    exit(1);
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
@@ -148,7 +148,7 @@ Options\n\
     else if (tz != NULL) {
 	if ((tzh = pmNewZone(tz)) < 0) {
 	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(tzh));
+		pmGetProgname(), tz, pmErrStr(tzh));
 	    exit(1);
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
@@ -164,7 +164,7 @@ Options\n\
 
     if (align != NULL && type != PM_CONTEXT_ARCHIVE) {
 	fprintf(stderr, "%s: -A option only supported for PCP archives, alignment request ignored\n",
-		pmProgname);
+		pmGetProgname());
 	align = NULL;
     }
 
@@ -173,7 +173,7 @@ Options\n\
 			    &endnum);
 
     if (sts < 0) {
-	fprintf(stderr, "%s: %s\n", pmProgname, endnum);
+	fprintf(stderr, "%s: %s\n", pmGetProgname(), endnum);
 	exit(1);
     }
 

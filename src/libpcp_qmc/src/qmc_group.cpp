@@ -48,12 +48,12 @@ QmcGroup::QmcGroup(bool restrictArchives)
         char *tz = __pmTimezone();
 	if (tz == NULL)
 	    pmprintf("%s: Warning: Unable to get timezone from environment\n",
-		     pmProgname);
+		     pmGetProgname());
 	else {
 	    tzLocal = pmNewZone(tz);
 	    if (tzLocal < 0)
 		pmprintf("%s: Warning: Timezone for localhost: %s\n",
-			 pmProgname, pmErrStr(tzLocal));
+			 pmGetProgname(), pmErrStr(tzLocal));
 	    else {
 		tzLocalString = tz;
 		my.tzDefault = tzLocal;
@@ -86,7 +86,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
     else if (type == PM_CONTEXT_ARCHIVE) {
 	if (source == QString::null) {
 	    pmprintf("%s: Error: Archive context requires archive path\n",
-			 pmProgname);
+			 pmGetProgname());
 	    return PM_ERR_NOCONTEXT;
 	}
 	// This doesn't take into account {.N,.meta,.index,} ... but
@@ -103,7 +103,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 		if (!defaultDefined()) {
 		    pmprintf("%s: Error: "
 			 "Cannot connect to PMCD on localhost: %s\n",
-			 pmProgname,
+			 pmGetProgname(),
 			 pmErrStr(my.localSource->status()));
 		    return my.localSource->status();
 		}
@@ -134,7 +134,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 
 	    if (my.mode == PM_CONTEXT_HOST && type == PM_CONTEXT_ARCHIVE) {
 		pmprintf("%s: Error: Archive \"%s\" requested "
-			 "after live mode was assumed.\n", pmProgname,
+			 "after live mode was assumed.\n", pmGetProgname(),
 			 (const char *)source.toLatin1());
 		return PM_ERR_NOCONTEXT;
 	    }
@@ -151,7 +151,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 
 		if (i == numContexts()) {
 		    pmprintf("%s: Error: No archives were specified "
-			     "for host \"%s\"\n", pmProgname,
+			     "for host \"%s\"\n", pmGetProgname(),
 			     (const char *)source.toLatin1());
 		    return PM_ERR_NOTARCHIVE;
 		}
@@ -169,14 +169,14 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	QmcSource *src = QmcSource::getSource(type, source, flags, false);
 	if (src == NULL) {
 	    pmprintf("%s: Error: No archives were specified for host \"%s\"\n",
-		     pmProgname, (const char *)source.toLatin1());
+		     pmGetProgname(), (const char *)source.toLatin1());
 	    return PM_ERR_NOTARCHIVE;
 	}
 
 	QmcContext *newContext = new QmcContext(src);
 	if (newContext->handle() < 0) {
 	    sts = newContext->handle();
-	    pmprintf("%s: Error: %s: %s\n", pmProgname,
+	    pmprintf("%s: Error: %s: %s\n", pmGetProgname(),
 		     (const char *)source.toLatin1(), pmErrStr(sts));
 	    delete newContext;
 	    return sts;
@@ -191,12 +191,12 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 		if (my.contexts[i]->source().host() ==
 			newContext->source().host()) {
 		    pmprintf("%s: Error: Archives \"%s\" and \"%s\" are from "
-			     "the same host \"%s\"\n", pmProgname,
+			     "the same host \"%s\"\n", pmGetProgname(),
 			     my.contexts[i]->source().sourceAscii(),
 			     newContext->source().sourceAscii(),
 			     my.contexts[i]->source().hostAscii());
 		    pmprintf("%s: Consider combining them using pmlogextract(1)\n",
-			     pmProgname);
+			     pmGetProgname());
 		    delete newContext;
 		    return PM_ERR_NOCONTEXT;
 		}
@@ -217,7 +217,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	my.use = i;
 	sts = useContext();
 	if (sts < 0) {
-	    pmprintf("%s: Error: Unable to use context to %s: %s\n", pmProgname,
+	    pmprintf("%s: Error: Unable to use context to %s: %s\n", pmGetProgname(),
 		     context()->source().sourceAscii(), pmErrStr(sts));
 	    return sts;
 	}
@@ -349,7 +349,7 @@ QmcGroup::createLocalContext()
 
 	QmcContext *newContext = new QmcContext(localSource);
 	if (newContext->handle() < 0) {
-	    pmprintf("%s: Error: %s: %s\n", pmProgname,
+	    pmprintf("%s: Error: %s: %s\n", pmGetProgname(),
 		     (const char *)localHost.toLatin1(), pmErrStr(newContext->handle()));
 	}
 	my.contexts.append(newContext);
@@ -446,7 +446,7 @@ QmcGroup::useContext()
     if ((context()->status() == 0) &&
 	(sts = pmUseContext(context()->handle())) < 0)
 	pmprintf("%s: Error: Unable to reuse context to %s: %s\n",
-		 pmProgname, context()->source().sourceAscii(), pmErrStr(sts));
+		 pmGetProgname(), context()->source().sourceAscii(), pmErrStr(sts));
     return sts;
 }
 
@@ -504,7 +504,7 @@ QmcGroup::setArchiveMode(int mode, const struct timeval *when, int interval)
 	sts = pmUseContext(my.contexts[i]->handle());
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to switch to context for %s: %s\n",
-		     pmProgname, my.contexts[i]->source().sourceAscii(),
+		     pmGetProgname(), my.contexts[i]->source().sourceAscii(),
 		     pmErrStr(sts));
 	    result = sts;
 	    continue;
@@ -512,7 +512,7 @@ QmcGroup::setArchiveMode(int mode, const struct timeval *when, int interval)
 	sts = pmSetMode(mode, when, interval);
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to set context mode for %s: %s\n",
-		     pmProgname, my.contexts[i]->source().sourceAscii(),
+		     pmGetProgname(), my.contexts[i]->source().sourceAscii(),
 		     pmErrStr(sts));
 	    result = sts;
 	}

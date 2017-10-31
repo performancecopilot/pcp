@@ -180,7 +180,7 @@ report(char *msg)
 {
     LexIn *x = lin;
 
-    fprintf(stderr, "%s: %s - ", pmProgname, msg);
+    fprintf(stderr, "%s: %s - ", pmGetProgname(), msg);
     if (x) {
         fprintf(stderr, "near line %d of ", x->lno);
         if (x->stream) {

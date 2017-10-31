@@ -60,14 +60,14 @@ main(int argc, char **argv)
     int		i;
     int		status = 0;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:c:D:fl:n:s:t:VzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -76,7 +76,7 @@ main(int argc, char **argv)
 
 	case 'c':	/* configfile */
 	    if (configfile != (char *)0) {
-		fprintf(stderr, "%s: at most one -c option allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one -c option allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    configfile = optarg;
@@ -86,7 +86,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -97,7 +97,7 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = optarg;
@@ -115,7 +115,7 @@ main(int argc, char **argv)
 	case 's':	/* sample count */
 	    samples = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -123,7 +123,7 @@ main(int argc, char **argv)
 	case 't':	/* delta seconds (double) */
 	    delta = strtod(optarg, &endnum);
 	    if (*endnum != '\0' || delta <= 0.0) {
-		fprintf(stderr, "%s: -t requires floating point argument\n", pmProgname);
+		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -134,7 +134,7 @@ main(int argc, char **argv)
 
 	case 'z':	/* timezone from host */
 	    if (tz != (char *)0) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    zflag++;
@@ -142,7 +142,7 @@ main(int argc, char **argv)
 
 	case 'Z':	/* $TZ timezone */
 	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    tz = optarg;
@@ -156,7 +156,7 @@ main(int argc, char **argv)
     }
 
     if (zflag && type == 0) {
-	fprintf(stderr, "%s: -z requires an explicit -a or -h option\n", pmProgname);
+	fprintf(stderr, "%s: -z requires an explicit -a or -h option\n", pmGetProgname());
 	errflag++;
     }
 
@@ -177,19 +177,19 @@ Options\n\
   -V 	          verbose/diagnostic output\n\
   -z              set reporting timezone to local time for host from -a or -h\n\
   -Z   timezone   set reporting timezone\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
     if (logfile != (char *)0) {
-	__pmOpenLog(pmProgname, logfile, stderr, &sts);
+	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmProgname, logfile);
+	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}
     }
 
     if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
@@ -201,17 +201,17 @@ Options\n\
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
     if (type == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
     }
@@ -219,7 +219,7 @@ Options\n\
     if (zflag) {
 	if ((tzh = pmNewContextZone()) < 0) {
 	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(tzh));
+		pmGetProgname(), pmErrStr(tzh));
 	    exit(1);
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
@@ -231,7 +231,7 @@ Options\n\
     else if (tz != (char *)0) {
 	if ((tzh = pmNewZone(tz)) < 0) {
 	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(tzh));
+		pmGetProgname(), tz, pmErrStr(tzh));
 	    exit(1);
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
@@ -251,9 +251,9 @@ Options\n\
     }
     if (sts != N_PMID_A) {
 	if (sts < 0)
-	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	else
-	    fprintf(stderr, "%s: pmLookupName: expecting %d, got %d\n", pmProgname, (int)(N_PMID_A), sts);
+	    fprintf(stderr, "%s: pmLookupName: expecting %d, got %d\n", pmGetProgname(), (int)(N_PMID_A), sts);
 	exit(1);
     }
 
@@ -263,9 +263,9 @@ Options\n\
     }
     if (sts != N_PMID_B) {
 	if (sts < 0)
-	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	else
-	    fprintf(stderr, "%s: pmLookupName: expecting %d, got %d\n", pmProgname, (int)(N_PMID_B), sts);
+	    fprintf(stderr, "%s: pmLookupName: expecting %d, got %d\n", pmGetProgname(), (int)(N_PMID_B), sts);
 	exit(1);
     }
 
@@ -279,14 +279,14 @@ Options\n\
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
     if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
-	fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     for (sample=0; ; sample++) {
 	if ((sts = pmFetch(N_PMID_A, pmid_a, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
-		fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
 	    }
 	    break;
@@ -314,14 +314,14 @@ Options\n\
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
     if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
-	fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     for (sample=0; ; sample++) {
 	if ((sts = pmFetch(N_PMID_B, pmid_b, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
-		fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
 	    }
 	    break;

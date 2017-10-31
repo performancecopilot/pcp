@@ -93,7 +93,6 @@ main(int argc, char **argv)
     int		j;
     key_t	key;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
@@ -107,12 +106,7 @@ main(int argc, char **argv)
     extern char	*optarg;
     extern int	optind;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:l:n:i:")) != EOF) {
 	switch (c) {
@@ -121,7 +115,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -147,19 +141,19 @@ main(int argc, char **argv)
 
     if (errflag) {
 USAGE:
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
     sts = pmNewContext(PM_CONTEXT_HOST, host);
 
     if (sts < 0) {
-	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
@@ -170,7 +164,7 @@ USAGE:
     memset(pmids, 0, sizeof(pmids));
     for (npmids=0; metrics[npmids]; npmids++) {
 	if ((sts = pmLookupName(1, &metrics[npmids], &pmids[npmids])) < 0) {
-	    fprintf(stderr, "%s: metric ``%s'' : %s\n", pmProgname, metrics[npmids], pmErrStr(sts));
+	    fprintf(stderr, "%s: metric ``%s'' : %s\n", pmGetProgname(), metrics[npmids], pmErrStr(sts));
 	    exit(1);
 	}
 	fprintf(stderr, "pmid=%s <%s>\n", pmIDStr(pmids[npmids]), metrics[npmids]);
@@ -244,7 +238,7 @@ USAGE:
     for (j = 0; j < npmids; j++) {
 	sts = pmFetch(1, &pmids[j], &result);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: metric %s : %s\n", pmProgname, metrics[j], pmErrStr(sts));
+	    fprintf(stderr, "%s: metric %s : %s\n", pmGetProgname(), metrics[j], pmErrStr(sts));
 	    exit(1);
 	}
 	__pmDumpResult(stderr, result);
@@ -258,7 +252,7 @@ USAGE:
 	    sts = pmFetch(j+1, pmids, &result);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: iteration %d cascade %d : %s\n",
-		    pmProgname, iter, j, pmErrStr(sts));
+		    pmGetProgname(), iter, j, pmErrStr(sts));
 		exit(1);
 	    }
 	    __pmDumpResult(stderr, result);

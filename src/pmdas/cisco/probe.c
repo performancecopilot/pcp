@@ -225,7 +225,7 @@ probe_cisco(cisco_t * cp)
 		}
 	    }
 	    if (i == num_intf_tab)
-		fprintf(stderr, "%s: Warning, unknown interface: %s\n", pmProgname, w);
+		fprintf(stderr, "%s: Warning, unknown interface: %s\n", pmGetProgname(), w);
 	    if (ctype != NULL && name != NULL && !defer) {
 		if (first)
 		    first = 0;
@@ -261,7 +261,7 @@ main(int argc, char **argv)
     char		*username = NULL;
     __pmHostEnt		*hostInfo = NULL;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "ND:P:s:U:x:?")) != EOF) {
 	switch (c) {
@@ -274,7 +274,7 @@ main(int argc, char **argv)
 		sts = pmSetDebug(optarg);
 		if (sts < 0) {
 		    fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-			pmProgname, optarg);
+			pmGetProgname(), optarg);
 		    errflag++;
 		}
 		break;
@@ -295,7 +295,7 @@ main(int argc, char **argv)
 		port = (int)strtol(optarg, &endnum, 10);
 		if (*endnum != '\0') {
 		    fprintf(stderr, "%s: -x requires numeric argument\n",
-			    pmProgname);
+			    pmGetProgname());
 		    errflag++;
 		}
 		break;
@@ -306,7 +306,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind != argc-1) {
-	fprintf(stderr, "Usage: %s [-U username] [-P passwd] [-s prompt] [-x port] host\n\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-U username] [-P passwd] [-s prompt] [-x port] host\n\n", pmGetProgname());
 	exit(1);
     }
 
@@ -318,14 +318,14 @@ main(int argc, char **argv)
 
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
-		pmProgname, argv[optind], hoststrerror());
+		pmGetProgname(), argv[optind], hoststrerror());
 	    exit(1);
 	}
 	else {
 	    cisco_t c;
 
 	    fprintf(stderr, "%s: assuming file %s contains output from \"show int\" command\n",
-	    	pmProgname, argv[optind]);
+	    	pmGetProgname(), argv[optind]);
 
 	    c.host = argv[optind];
 	    c.username = NULL;

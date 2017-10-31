@@ -168,7 +168,7 @@ logmessage(int priority, const char *format, ...)
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
 
-    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, (pid_t)getpid(), level, buffer) ;
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmGetProgname(), (pid_t)getpid(), level, buffer) ;
 }
 
 

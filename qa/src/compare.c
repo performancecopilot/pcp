@@ -21,7 +21,7 @@ main(int argc, char *argv[])
     int		err = 0;
     int		nArgs;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "s:t:")) != EOF)
 	switch (c) {
@@ -53,7 +53,7 @@ main(int argc, char *argv[])
     if (err || nArgs < 2 || nArgs > 3) {
 	fprintf(stderr,
 		"Usage: %s [-t tolerance] [-s small] number number [number]\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
@@ -70,7 +70,7 @@ main(int argc, char *argv[])
 	else
 	    d[i] = strtod(argv[optind + i], &endp);
 	if (*endp != '\0') {
-	    fprintf(stderr, "%s: non-numeric argument \"%s\"\n", pmProgname, argv[optind + i]);
+	    fprintf(stderr, "%s: non-numeric argument \"%s\"\n", pmGetProgname(), argv[optind + i]);
 	    exit(1);
 	}
     }

@@ -544,7 +544,7 @@ END {
     printf "\nstatic void\n" >>pmda_c
     printf "usage(void)\n" >>pmda_c
     printf "{\n" >>pmda_c
-    printf "    fprintf(stderr, \"Usage: %%s [options]\\n\\n\", pmProgname);\n" >>pmda_c
+    printf "    fprintf(stderr, \"Usage: %%s [options]\\n\\n\", pmGetProgname());\n" >>pmda_c
     printf "    fputs(\"Options:\\n\"\n" >>pmda_c
     printf "          \"  -d domain  use domain (numeric) for metrics domain of PMDA\\n\"\n" >>pmda_c
     printf "          \"  -l logfile write log into logfile rather than using default log name\\n\",\n" >>pmda_c
@@ -560,12 +560,12 @@ END {
     printf "    pmdaInterface       dispatch;\n" >>pmda_c
     printf "    char                helppath[MAXPATHLEN];\n" >>pmda_c
     printf "\n" >>pmda_c
-    printf "    __pmSetProgname(argv[0]);\n" >>pmda_c
+    printf "    pmSetProgname(argv[0]);\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    _isDSO = 0;\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    pmsprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\", pmGetConfig(\"PCP_VAR_DIR\"));\n" >>pmda_c
-    printf "    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, '$IAM', \"'$iam'.log\", helppath);\n" >>pmda_c
+    printf "    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), '$IAM', \"'$iam'.log\", helppath);\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    if ((c = pmdaGetOpt(argc, argv, \"D:d:l:?\", &dispatch, &err)) != EOF)\n" >>pmda_c
     printf "        err++;\n" >>pmda_c

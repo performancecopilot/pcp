@@ -256,7 +256,7 @@ main(int argc, char **argv)
     vs.vlist[0].inst = PM_IN_NULL;
     vs.vlist[0].value.pval = (pmValueBlock *)ebuf;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
@@ -266,7 +266,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -279,7 +279,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s ...\n", pmProgname);
+	fprintf(stderr, "Usage: %s ...\n", pmGetProgname());
 	fprintf(stderr, "options:\n");
 	fprintf(stderr, "-D debug\n");
 	exit(1);

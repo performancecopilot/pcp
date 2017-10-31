@@ -478,12 +478,12 @@ store(char const* name, char const* inst)
     sprintf(buf, "pmstore %s %s > /dev/null\n", name, inst);
     cout << name << ' ' << inst << endl;
     if (system(buf) < 0) {
-	pmprintf("%s: system(%s) failed\n", pmProgname, buf);
+	pmprintf("%s: system(%s) failed\n", pmGetProgname(), buf);
 	pmflush();
 	exit(1);
     }
     if (system("pminfo -f dynamic") < 0) {
-	pmprintf("%s: system(pminfo) failed\n", pmProgname);
+	pmprintf("%s: system(pminfo) failed\n", pmGetProgname());
 	pmflush();
 	exit(1);
     }
@@ -531,7 +531,7 @@ main(int argc, char* argv[])
     QStringList	metrics;
     QList<int>	metricIds;
 
-    pmProgname = basename(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
@@ -539,7 +539,7 @@ main(int argc, char* argv[])
 	    sts = pmSetDebug(optarg);
             if (sts < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			 pmProgname, optarg);
+			 pmGetProgname(), optarg);
                 sts = 1;
             }
             break;
@@ -551,7 +551,7 @@ main(int argc, char* argv[])
     }
 
     if (sts || optind != argc) {
-	pmprintf("Usage: %s\n", pmProgname);
+	pmprintf("Usage: %s\n", pmGetProgname());
 	pmflush();
 	exit(1);
         /*NOTREACHED*/

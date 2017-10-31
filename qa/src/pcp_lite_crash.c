@@ -23,14 +23,14 @@ main(int argc, char **argv)
     char	*host = NULL;
     char	*metric = "kernel.all.cpu.idle";
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:Ln:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -42,14 +42,14 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = optarg;
@@ -58,7 +58,7 @@ main(int argc, char **argv)
 
 	case 'L':	/* local, no PMCD */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = NULL;
@@ -86,12 +86,12 @@ Options:\n\
   -h hostname	connect to PMCD on this host\n\
   -L		connect local, no PMCD\n\
   -n namespace	alternative PMNS specification file\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
@@ -103,18 +103,18 @@ Options:\n\
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	else if (type == PM_CONTEXT_LOCAL)
 	    fprintf(stderr, "%s: Cannot connect in local standalone mode: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = pmLookupName(1, &metric, &pmid)) < 0) {
-        printf("%s: %s\n", pmProgname, pmErrStr(sts));
+        printf("%s: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
 

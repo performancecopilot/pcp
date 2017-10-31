@@ -722,12 +722,12 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
     if (sts != PMDA_CACHE_INACTIVE && sts != PMDA_CACHE_ACTIVE) {
 	if (pmDebugOptions.attr) {
 	    fprintf(stderr, "%s: adding docker container %s\n",
-		    pmProgname, local_path);
+		    pmGetProgname(), local_path);
 	}
 	if (!(local_metrics = calloc(json_size, sizeof(json_metric_desc)))) {
 	    if (pmDebugOptions.attr) {
 		fprintf(stderr, "%s: cannot allocate container %s space\n",
-			pmProgname, local_path);
+			pmGetProgname(), local_path);
 	    }
 	    return 0;
 	}
@@ -817,7 +817,7 @@ refresh_insts(char *path)
     if ((rundir = opendir(path)) == NULL) {
 	if (pmDebugOptions.attr)
 	    fprintf(stderr, "%s: skipping docker path %s\n",
-		    pmProgname, path);
+		    pmGetProgname(), path);
 	return;
     }
     refresh_version(path);
@@ -825,7 +825,7 @@ refresh_insts(char *path)
 	if (*(local_path = &drp->d_name[0]) == '.') {
 	    if (pmDebugOptions.attr)
 		__pmNotifyErr(LOG_DEBUG, "%s: skipping %s\n",
-			      pmProgname, drp->d_name);
+			      pmGetProgname(), drp->d_name);
 	    continue;
 	}
 	refresh_basic(local_path);
@@ -935,7 +935,7 @@ main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, DOCKER,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), DOCKER,
 		"docker.log", mypath);
 
     while ((c = pmdaGetOpt(argc, argv, "CD:d:l:U:?", &dispatch, &err)) != EOF) {

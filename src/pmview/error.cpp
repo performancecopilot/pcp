@@ -24,7 +24,7 @@ yywarn(const char *s)
 					   "%s: warning - line %3$d: %4$s\n";
     const char * config = (const char *)theConfigName.toLatin1();
 
-    pmprintf(fmt, pmProgname, config, lineNum+1, s);
+    pmprintf(fmt, pmGetProgname(), config, lineNum+1, s);
     pmflush();
 }
 
@@ -40,7 +40,7 @@ yyerror(const char *s)
     if (!locateError())
 	s = (char *)badeof;
 	
-    pmprintf(fmt, pmProgname, config, lineNum+1, s);
+    pmprintf(fmt, pmGetProgname(), config, lineNum+1, s);
     pmflush();
     errorCount++; /* It's used in pmview.cpp to abort the execution */
 }

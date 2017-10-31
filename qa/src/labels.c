@@ -46,7 +46,7 @@ main(int argc, char **argv)
     pmLabelSet	*lsp;
     pmLabelSet	*sets;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -76,13 +76,13 @@ main(int argc, char **argv)
     if ((sts = pmNewContext(opts.context, source)) < 0) {
 	if (opts.context == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-			    pmProgname, source, pmErrStr(sts));
+			    pmGetProgname(), source, pmErrStr(sts));
 	else if (opts.context == PM_CONTEXT_LOCAL)
 	    fprintf(stderr, "%s: Cannot make standalone connection on localhost: %s\n",
-			    pmProgname, pmErrStr(sts));
+			    pmGetProgname(), pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-			    pmProgname, source, pmErrStr(sts));
+			    pmGetProgname(), source, pmErrStr(sts));
 	exit(1);
     }
     /* complete TZ and time window option (origin) setup */
@@ -95,17 +95,17 @@ main(int argc, char **argv)
 	metric = argv[opts.optind++];
 	if ((sts = pmLookupName(1, &metric, &pmid)) < 0) {
 	    fprintf(stderr, "%s: cannot lookup name %s: %s\n",
-			pmProgname, metric, pmErrStr(sts));
+			pmGetProgname(), metric, pmErrStr(sts));
 	    exit(1);
 	}
 	if (pmid == PM_ID_NULL) {
-	    fprintf(stderr, "%s: no such metric: %s\n", pmProgname, metric);
+	    fprintf(stderr, "%s: no such metric: %s\n", pmGetProgname(), metric);
 	    continue;
 	}
 
 	if ((sts = nsets = pmLookupLabels(pmid, &sets)) < 0) {
 	    fprintf(stderr, "%s: cannot get labels for %s: %s\n",
-			pmProgname, metric, pmErrStr(sts));
+			pmGetProgname(), metric, pmErrStr(sts));
 	    exit(1);
 	}
 

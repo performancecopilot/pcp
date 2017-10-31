@@ -135,7 +135,7 @@ main(int argc, char **argv)
     int		next_type;
     char	*endnum;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:eHin:Opv:?")) != EOF) {
 	switch (c) {
@@ -144,7 +144,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -178,13 +178,13 @@ main(int argc, char **argv)
 	case 'v':	/* version 2 only these days */
 	    version = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -v requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -v requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    if (version != 2) {
 		fprintf(stderr 
                        ,"%s: deprecated option - only version 2 is supported\n"
-                       , pmProgname);
+                       , pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -197,25 +197,25 @@ main(int argc, char **argv)
     }
 
     if (optind == argc) {
-	fprintf(stderr, "%s: missing helpfile argument\n\n", pmProgname);
+	fprintf(stderr, "%s: missing helpfile argument\n\n", pmGetProgname());
 	errflag = 1;
     }
 
     if (aflag && optind < argc-1) {
 	fprintf(stderr, "%s: metricname arguments cannot be used with -i or -p\n\n",
-	    pmProgname);
+	    pmGetProgname());
 	errflag = 1;
     }
 
     if (aflag == 0 && optind == argc-1 && oneline+help != 0) {
 	fprintf(stderr, "%s: -O or -H require metricname arguments or -i or -p\n\n",
-	    pmProgname);
+	    pmGetProgname());
 	errflag = 1;
     }
 
     if (eflag && (allpmid || allindom)) {
 	fprintf(stderr, "%s: -e cannot be used with -i or -p\n\n",
-	    pmProgname);
+	    pmGetProgname());
 	errflag = 1;
     }
 
@@ -234,7 +234,7 @@ main(int argc, char **argv)
 "  -v version   deprecated (only version 2 format supported)\n"
 "\n"
 "No options implies silently check internal integrity of the helpfile.\n",
-		pmProgname, pmProgname);
+		pmGetProgname(), pmGetProgname());
 	exit(1);
     }
 

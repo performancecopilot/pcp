@@ -27,7 +27,7 @@ main(int argc, char **argv)
 
     static char	*usage = "[-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:i:n:")) != EOF) {
 	switch (c) {
@@ -36,7 +36,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -48,7 +48,7 @@ main(int argc, char **argv)
 	case 'i':	/* iteration count */
 	    iter = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -i requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -i requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -65,7 +65,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 

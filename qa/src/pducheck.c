@@ -1632,7 +1632,7 @@ main(int argc, char **argv)
     char	*endnum;
     __pmID_int	*pmidp;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:i:Np:v:?")) != EOF) {
 	switch (c) {
@@ -1640,7 +1640,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -1648,7 +1648,7 @@ main(int argc, char **argv)
 	case 'i':	/* iterations */
 	    iter = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -i requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -i requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -1661,7 +1661,7 @@ main(int argc, char **argv)
 	case 'p':	/* port */
 	    port = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -p requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -1688,7 +1688,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind < argc-1) {
-	fprintf(stderr, "Usage: %s [-N] [-D debugspec] [-i iter] [-p port] [-v remote_version] [host]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-N] [-D debugspec] [-i iter] [-p port] [-v remote_version] [host]\n", pmGetProgname());
 	exit(1);
     }
 

@@ -157,11 +157,11 @@ photoproc(struct tstat **tasks, int *taskslen)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating process %d: %s\n",
-				pmProgname, pids[i], insts[i]);
+				pmGetProgname(), pids[i], insts[i]);
 		update_task(&(*tasks)[i], pids[i], insts[i], result, descs);
 	}
 	if (pmDebugOptions.appl0)
-		fprintf(stderr, "%s: done %d processes\n", pmProgname, count);
+		fprintf(stderr, "%s: done %d processes\n", pmGetProgname(), count);
 
 	pmFreeResult(result);
 	free(insts);

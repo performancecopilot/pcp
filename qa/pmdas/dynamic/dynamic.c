@@ -363,7 +363,7 @@ dynamic_init(pmdaInterface *dp)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
@@ -387,11 +387,11 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath),
 		"%s%c" "testsuite" "%c" "pmdas" "%c" "dynamic" "%c" "help",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, DYNAMIC,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), DYNAMIC,
 		"dynamic.log", helppath);
 
     if (pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:6:?", &dispatch, &err) != EOF)

@@ -23,10 +23,10 @@ main(int argc, char *argv[])
     long	dom;
     char	*end;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     if (argc < 2) {
-	fprintf(stderr, "Usage: %s domain ...\n", pmProgname);
+	fprintf(stderr, "Usage: %s domain ...\n", pmGetProgname());
 	exit(1);
     }
     if ((ids = (pmID *)malloc((argc - 1) * NMETRICS * sizeof(pmID))) == (pmID *)0) {

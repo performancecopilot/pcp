@@ -892,7 +892,7 @@ freebsd_init(pmdaInterface *dp)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
@@ -918,12 +918,12 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, FREEBSD,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmGetProgname(), FREEBSD,
 		"freebsd.log", mypath);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF) {

@@ -12,26 +12,26 @@ dometric(const char *name)
     if ((namelist = (char **)realloc(namelist, (numpmid+1)*sizeof(namelist[0]))) == NULL) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot realloc space for %d namelist\n",
-		pmProgname, numpmid+1);
+		pmGetProgname(), numpmid+1);
 	exit(1);
     }
     namelist[numpmid] = strdup(name);
     if ((pmidlist = (pmID *)realloc(pmidlist, (numpmid+1)*sizeof(pmidlist[0]))) == NULL) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot realloc space for %d pmidlist\n",
-		pmProgname, numpmid+1);
+		pmGetProgname(), numpmid+1);
 	exit(1);
     }
     if ((sts = pmLookupName(1, (char **)&name, &pmidlist[numpmid])) < 0) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot lookup pmID for metric \"%s\": %s\n",
-		pmProgname, name, pmErrStr(sts));
+		pmGetProgname(), name, pmErrStr(sts));
 	exit(1);
     }
     if ((metriclist = (metric_t *)realloc(metriclist, (numpmid+1)*sizeof(metriclist[0]))) == NULL) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot realloc space for %d metric_t's\n",
-		pmProgname, numpmid+1);
+		pmGetProgname(), numpmid+1);
 	exit(1);
     }
     mp = &metriclist[numpmid];
@@ -39,7 +39,7 @@ dometric(const char *name)
     if ((sts = pmLookupDesc(pmidlist[numpmid], &mp->idesc)) < 0) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot lookup pmDesc for metric \"%s\": %s\n",
-		pmProgname, name, pmErrStr(sts));
+		pmGetProgname(), name, pmErrStr(sts));
 	exit(1);
     }
     mp->odesc = mp->idesc;	/* struct assignment */
@@ -54,7 +54,7 @@ dometric(const char *name)
         mp->idesc.type == PM_TYPE_EVENT) {
 	fprintf(stderr,
 	    "%s: %s: Warning: skipping %s metric\n",
-		pmProgname, name, pmTypeStr(mp->idesc.type));
+		pmGetProgname(), name, pmTypeStr(mp->idesc.type));
 	mp->mode = MODE_SKIP;
 	goto done;
     }
@@ -114,7 +114,7 @@ dometric(const char *name)
     if ((numnames = pmNameAll(pmidlist[numpmid], &names)) < 0) {
 	fprintf(stderr,
 	    "%s: Error: failed to get names for %s (%s): %s\n",
-		pmProgname, namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
+		pmGetProgname(), namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
 	exit(1);
     }
 
@@ -130,7 +130,7 @@ dometric(const char *name)
 
     if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, numnames, names)) < 0) {
 	fprintf(stderr,
-	    "%s: Error: failed to add pmDesc for", pmProgname);
+	    "%s: Error: failed to add pmDesc for", pmGetProgname());
 	__pmPrintMetricNames(stderr, numnames, names, " or ");
 	fprintf(stderr,
 	    " (%s): %s\n", pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
@@ -158,7 +158,7 @@ dometric(const char *name)
 	    if ((mp->idp = (indom_t *)malloc(sizeof(indom_t))) == NULL) {
 		fprintf(stderr,
 		    "%s: dometric: Error: cannot malloc indom_t for %s\n",
-		    pmProgname, pmInDomStr(mp->idesc.indom));
+		    pmGetProgname(), pmInDomStr(mp->idesc.indom));
 		exit(1);
 	    }
 	    mp->idp->indom = mp->idesc.indom;

@@ -1620,10 +1620,10 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     _isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, XFS, "xfs.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmGetProgname(), XFS, "xfs.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

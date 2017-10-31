@@ -56,7 +56,7 @@ StackObj::finishedAdd()
 
     if (_metrics.numMetrics() == 0) {
 	pmprintf("%s: Error: Stack object has no metrics\n",
-		 pmProgname);
+		 pmGetProgname());
 	_length = 0;
     }
     else {
@@ -70,7 +70,7 @@ StackObj::finishedAdd()
 	    if (colSpec != NULL) {
 		if (colSpec->_scale)
 		    pmprintf("%s: Warning: Color scale ignored for stack object.\n",
-			     pmProgname);
+			     pmGetProgname());
 		else {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0)
@@ -86,7 +86,7 @@ StackObj::finishedAdd()
 	    }
 	    else
 		pmprintf("%s: Warning: No colours specified for stack object, "
-			 "defaulting to blue.\n", pmProgname);
+			 "defaulting to blue.\n", pmGetProgname());
 
 	    _metrics.resolveColors(MetricList::perValue);
 

@@ -198,12 +198,12 @@ void
 domain_write(void)
 {
     char *p, name[512] = { 0 };
-    int i, len = strlen(pmProgname);
+    int i, len = strlen(pmGetProgname());
 
     if (len >= sizeof(name) - 1)
 	len = sizeof(name) - 2;
-    p = pmProgname;
-    if (strncmp(pmProgname, "pmda", 4) == 0)
+    p = pmGetProgname();
+    if (strncmp(p, "pmda", 4) == 0)
 	p += 4;
     for (i = 0; i < len; i++)
 	name[i] = toupper(p[i]);
@@ -630,11 +630,10 @@ new(CLASS,name,domain)
 	char *	pmdaname;
 	char	helpfile[256];
     CODE:
-	pmProgname = name;
 	RETVAL = &dispatch;
 	logfile = local_strdup_suffix(name, ".log");
 	pmdaname = local_strdup_prefix("pmda", name);
-	__pmSetProgname(pmdaname);
+	pmSetProgname(pmdaname);
 	sep = __pmPathSeparator();
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL) {
 	    if (pmSetDebug(p) < 0)

@@ -19,14 +19,14 @@ main(int argc, char **argv)
     char	**sets, result[PM_MAXLABELJSONLEN];
     static char	*usage = "labels [[labels] ...]";
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(optarg)) < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    else
@@ -42,7 +42,7 @@ main(int argc, char **argv)
 
     nsets = argc - optind;
     if (errflag || nsets < 1) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 

@@ -70,7 +70,7 @@ static void usage(void)
 "  -V            display pmview version number and exit\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname, (int)PmView::defaultViewDelta());
+	pmGetProgname(), (int)PmView::defaultViewDelta());
     pmflush();
     exit(1);
 }
@@ -81,7 +81,7 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     va_list arg;
     va_start(arg, msg);
 
-    int pos = pmsprintf(theBuffer, theBufferLen, "%s: Warning: ", pmProgname);
+    int pos = pmsprintf(theBuffer, theBufferLen, "%s: Warning: ", pmGetProgname());
     pos += vsnprintf(theBuffer + pos, theBufferLen - pos, msg, arg);
     pmsprintf(theBuffer + pos, theBufferLen - pos, "\n");
 
@@ -142,7 +142,7 @@ void writeSettings(void)
 {
     QSettings userSettings;
 
-    userSettings.beginGroup(pmProgname);
+    userSettings.beginGroup(pmGetProgname());
     if (globalSettings.viewDeltaModified) {
 	globalSettings.viewDeltaModified = false;
 	userSettings.setValue("viewDelta", globalSettings.viewDelta);
@@ -189,7 +189,7 @@ void writeSettings(void)
 void readSettings(void)
 {
     QSettings userSettings;
-    userSettings.beginGroup(pmProgname);
+    userSettings.beginGroup(pmGetProgname());
 
     //
     // Parameters related to sampling
@@ -253,7 +253,7 @@ genInventor(void)
 	if (!(yyin = fopen(configfile, "r"))) {
 	    pmprintf(
 		"%s: Error: Unable to open configuration file \"%s\": %s\n",
-		pmProgname, configfile, strerror(errno));
+		pmGetProgname(), configfile, strerror(errno));
 	    return -1;
 	}
 	theAltConfigName = theConfigName;
@@ -282,7 +282,7 @@ genInventor(void)
 fail:
             pmprintf("%s: Warning: Unable to save configuration for "
 		     "recording to \"%s\": %s\n",
-		    pmProgname, configfile, strerror(errno));
+		    pmGetProgname(), configfile, strerror(errno));
 	else if (pmDebug & DBG_TRACE_APPL0)
 	    cerr << "genInventor: Copy of configuration saved to "
 		 << configfile << endl;
@@ -296,7 +296,7 @@ fail:
 	fclose(theAltConfig);
 
     if (pmDebug & DBG_TRACE_APPL0) {
-	cerr << pmProgname << ": " << errorCount << " errors detected in "
+	cerr << pmGetProgname() << ": " << errorCount << " errors detected in "
 	     << theConfigName << endl;
     }
 
@@ -331,12 +331,12 @@ fail:
     if ((ViewObj::numModObjects() == 0 || theModList->size() == 0) && 
 	 elementalNodeList.getLength() == 0) {
 	pmprintf("%s: No valid modulated objects in the scene\n",
-		 pmProgname);
+		 pmGetProgname());
 	sts--;
     }
     else if (sts < 0) {
 	pmprintf("%s: Unrecoverable errors in the configuration file %s\n",
-	    pmProgname, (const char *)theConfigName.toLatin1());
+	    pmGetProgname(), (const char *)theConfigName.toLatin1());
     }
 
     return sts;
@@ -391,7 +391,7 @@ main(int argc, char **argv)
 	usage();
 
     if (a.my.pmnsfile && (sts = pmLoadNameSpace(a.my.pmnsfile)) < 0) {
-	pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
+	pmprintf("%s: %s\n", pmGetProgname(), pmErrStr(sts));
 	pmflush();
 	exit(1);
     }
@@ -428,7 +428,7 @@ main(int argc, char **argv)
 	    liveGroup->useTZ(QString(a.my.tz));
 	if ((sts = pmNewZone(a.my.tz)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
-		    pmProgname, (char *)a.my.tz, pmErrStr(sts));
+		    pmGetProgname(), (char *)a.my.tz, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
 	}

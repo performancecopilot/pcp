@@ -48,7 +48,7 @@ newlabel(void)
     /* check version number */
     if ((ilabel.ll_magic & 0xff) != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: version number %d (not %d as expected) in archive (%s)\n",
-		pmProgname, ilabel.ll_magic & 0xff, PM_LOG_VERS02, iname);
+		pmGetProgname(), ilabel.ll_magic & 0xff, PM_LOG_VERS02, iname);
 	exit(1);
     }
 
@@ -95,14 +95,14 @@ newvolume(char *base, __pmTimeval *tvp)
 	stamp.tv_sec = tvp->tv_sec;
 	stamp.tv_usec = tvp->tv_usec;
 	fprintf(stderr, "%s: New log volume %d, at ",
-		pmProgname, nextvol);
+		pmGetProgname(), nextvol);
 	__pmPrintStamp(stderr, &stamp);
 	fputc('\n', stderr);
 	return;
     }
     else {
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
-		pmProgname, nextvol, pmErrStr(-oserror()));
+		pmGetProgname(), nextvol, pmErrStr(-oserror()));
 	exit(1);
     }
 }

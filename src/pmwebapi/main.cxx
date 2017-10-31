@@ -556,7 +556,7 @@ main (int argc, char *argv[])
         case 'p':
             port = (int) strtol (opts.optarg, &endptr, 0);
             if (*endptr != '\0' || port < 0 || port > 65535) {
-                pmprintf ("%s: invalid port number %s\n", pmProgname, opts.optarg);
+                pmprintf ("%s: invalid port number %s\n", pmGetProgname(), opts.optarg);
                 opts.errors++;
             }
             break;
@@ -564,7 +564,7 @@ main (int argc, char *argv[])
         case 't':
             maxtimeout = strtoul (opts.optarg, &endptr, 0);
             if (*endptr != '\0') {
-                pmprintf ("%s: invalid timeout %s\n", pmProgname, opts.optarg);
+                pmprintf ("%s: invalid timeout %s\n", pmGetProgname(), opts.optarg);
                 opts.errors++;
             }
             break;
@@ -584,13 +584,13 @@ main (int argc, char *argv[])
         case 'i':
             graphite_timestep = atoi (opts.optarg);
             if (graphite_timestep <= 0) {
-                pmprintf ("%s: timestep too small %s\n", pmProgname, opts.optarg);
+                pmprintf ("%s: timestep too small %s\n", pmGetProgname(), opts.optarg);
                 opts.errors++;
             }
             break;
 
         case 'I':
-            pmprintf ("%s: %s option ignored\n", pmProgname, opts.optarg);
+            pmprintf ("%s: %s option ignored\n", pmGetProgname(), opts.optarg);
             /* graphite_archivedir = 1; */
             break;
 
@@ -626,7 +626,7 @@ main (int argc, char *argv[])
         case 'c':
             perm_context = strtoul (opts.optarg, &endptr, 0);
             if (*endptr != '\0' || perm_context >= INT_MAX) {
-                pmprintf ("%s: invalid context number %s\n", pmProgname, opts.optarg);
+                pmprintf ("%s: invalid context number %s\n", pmGetProgname(), opts.optarg);
                 opts.errors++;
             }
             break;
@@ -707,12 +707,12 @@ main (int argc, char *argv[])
     }
 
     if (!permissive && localmode) {
-        pmprintf ( "%s: non-permissive and local-context modes are mutually exclusive\n", pmProgname);
+        pmprintf ( "%s: non-permissive and local-context modes are mutually exclusive\n", pmGetProgname());
         opts.errors++;
     }
 
     if (permissive && __pmServerHasFeature (PM_SERVER_FEATURE_CREDS_REQD)) {
-        pmprintf ( "%s: permissive and mandatory authentication modes are mutually exclusive\n", pmProgname);
+        pmprintf ( "%s: permissive and mandatory authentication modes are mutually exclusive\n", pmGetProgname());
         opts.errors++;
     }
 
@@ -792,7 +792,7 @@ main (int argc, char *argv[])
         }
     }
 
-    timestamp (clog) << pmProgname << endl;
+    timestamp (clog) << pmGetProgname() << endl;
     server_dump_request_ports (d4 != NULL, d6 != NULL, port);
     server_dump_configuration ();
 

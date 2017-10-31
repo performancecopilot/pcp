@@ -86,7 +86,7 @@ main(int argc, char **argv)
     optcost_t		ocp = { 4, 1, 15, 10, 2, 0 };	/* my costs */
     fetchctl_t		*fp;
 
-    __pmSetProgname(pmProgname);
+    pmSetProgname(pmGetProgname());
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
@@ -96,7 +96,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -109,7 +109,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 

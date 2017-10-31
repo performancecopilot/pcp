@@ -149,7 +149,7 @@ atopsar(int argc, char *argv[])
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?        */
-				pratopsaruse(pmProgname, &opts);
+				pratopsaruse(pmGetProgname(), &opts);
 				break;
 
                            case 'b':		/* begin time ?          */
@@ -167,12 +167,12 @@ atopsar(int argc, char *argv[])
 
 			   case 'R':		/* summarize samples */
 				if (!numeric(opts.optarg))
-					pratopsaruse(pmProgname, &opts);
+					pratopsaruse(pmGetProgname(), &opts);
 
 				summarycnt = atoi(opts.optarg);
 
 				if (summarycnt < 1)
-					pratopsaruse(pmProgname, &opts);
+					pratopsaruse(pmGetProgname(), &opts);
 				break;
 
 			   case 'S':		/* timestamp on every line */
@@ -242,13 +242,13 @@ atopsar(int argc, char *argv[])
 
 			arg = argv[opts.optind++];
 			if (!numeric(arg))
-				pratopsaruse(pmProgname, &opts);
+				pratopsaruse(pmGetProgname(), &opts);
 	
 			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
 			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
-					pmProgname, arg, endnum);
+					pmGetProgname(), arg, endnum);
 				free(endnum);
 				opts.errors++;
 			}
@@ -257,9 +257,9 @@ atopsar(int argc, char *argv[])
 			{
 				arg = argv[opts.optind];
 				if (!numeric(arg))
-					pratopsaruse(pmProgname, &opts);
+					pratopsaruse(pmGetProgname(), &opts);
 				if ((opts.samples = atoi(arg)) < 1)
-					pratopsaruse(pmProgname, &opts);
+					pratopsaruse(pmGetProgname(), &opts);
 			}
 		}
 	}
@@ -277,7 +277,7 @@ atopsar(int argc, char *argv[])
 	__pmEndOptions(&opts);
 
 	if (opts.errors)
-		prusage(pmProgname, &opts);
+		prusage(pmGetProgname(), &opts);
 
 	if (opts.samples)
 		nsamples = opts.samples;

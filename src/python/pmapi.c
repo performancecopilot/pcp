@@ -653,13 +653,13 @@ setOptionSamples(PyObject *self, PyObject *args, PyObject *keywords)
 
     if (options.finish_optarg) {
 	pmprintf("%s: at most one of finish time and sample count allowed\n",
-		pmProgname);
+		pmGetProgname());
 	options.errors++;
     } else {
 	options.samples = (int)strtol(count, &endnum, 10);
 	if (*endnum != '\0' || options.samples < 0) {
 	    pmprintf("%s: sample count must be a positive numeric argument\n",
-		pmProgname);
+		pmGetProgname());
 	    options.errors++;
 	}
     }
@@ -679,7 +679,7 @@ setOptionInterval(PyObject *self, PyObject *args, PyObject *keywords)
 
     if (pmParseInterval(delta, &options.interval, &errmsg) < 0) {
 	pmprintf("%s: interval argument not in pmParseInterval(3) format:\n",
-		pmProgname);
+		pmGetProgname());
 	pmprintf("%s\n", errmsg);
 	options.errors++;
 	free(errmsg);
@@ -843,7 +843,7 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 #endif
 
 	/* All parameters may be referred back to later, e.g. via
-	 * pmProgname or getOperands (and others), so we need to
+	 * pmGetProgname() or getOperands (and others), so we need to
 	 * allocate the memory to hold these strings permanently.
          */
 	if ((string = strdup(string)) == NULL) {
@@ -913,7 +913,7 @@ setContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
 	    mode |= PM_XTB_SET(PM_TIME_MSEC);
 	}
 	if ((sts = pmSetMode(mode, &position, step)) < 0) {
-	    pmprintf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	    pmprintf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    options.flags |= PM_OPTFLAG_RUNTIME_ERR;
 	    options.errors++;
 	}

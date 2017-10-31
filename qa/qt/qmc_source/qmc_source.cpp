@@ -16,7 +16,7 @@ main(int argc, char* argv[])
     char	buf[MAXHOSTNAMELEN];
     QString	source;
 
-    pmProgname = basename(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
@@ -24,7 +24,7 @@ main(int argc, char* argv[])
 	    sts = pmSetDebug(optarg);
             if (sts < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			 pmProgname, optarg);
+			 pmGetProgname(), optarg);
                 sts = 1;
             }
             break;
@@ -36,7 +36,7 @@ main(int argc, char* argv[])
     }
 
     if (sts) {
-	pmprintf("Usage: %s\n", pmProgname);
+	pmprintf("Usage: %s\n", pmGetProgname());
 	pmflush();
 	exit(1);
         /*NOTREACHED*/
@@ -51,7 +51,7 @@ main(int argc, char* argv[])
 
     if (src1->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"oview-short\": %s\n",
-		 pmProgname, pmErrStr(src1->status()));
+		 pmGetProgname(), pmErrStr(src1->status()));
 	pmflush();
 	sts = 1;
     }
@@ -62,7 +62,7 @@ main(int argc, char* argv[])
 
     if (src2->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
-		pmProgname, (const char *)source.toLatin1(),
+		pmGetProgname(), (const char *)source.toLatin1(),
 		pmErrStr(src2->status()));
 	pmflush();
 	sts = 1;
@@ -70,7 +70,7 @@ main(int argc, char* argv[])
 
     if (src1 != src2) {
 	pmprintf("%s: Error: Matching host to an archive failed: src1 = %s, src2 = %s\n",
-		 pmProgname, (const char *)src1->desc().toLatin1(),
+		 pmGetProgname(), (const char *)src1->desc().toLatin1(),
 		(const char *)src2->desc().toLatin1());
 	pmflush();
 	QmcSource::dumpList(cerr);
@@ -84,19 +84,19 @@ main(int argc, char* argv[])
 
     if (src3->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
-		 pmProgname, buf, pmErrStr(src3->status()));
+		 pmGetProgname(), buf, pmErrStr(src3->status()));
 	pmflush();
     }
 
     if (src4->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
-		 pmProgname, buf, pmErrStr(src4->status()));
+		 pmGetProgname(), buf, pmErrStr(src4->status()));
 	pmflush();
     }
 
     if (src3 != src4) {
 	pmprintf("%s: Error: Identical host test failed: src3 = %s, src4 = %s\n",
-		 pmProgname, (const char *)src3->desc().toLatin1(),
+		 pmGetProgname(), (const char *)src3->desc().toLatin1(),
 		(const char *)src4->desc().toLatin1());
 	pmflush();
 	QmcSource::dumpList(cerr);
@@ -109,7 +109,7 @@ main(int argc, char* argv[])
     
     if (src5->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to localhost: %s\n",
-		 pmProgname, pmErrStr(src5->status()));
+		 pmGetProgname(), pmErrStr(src5->status()));
 	pmflush();
 	sts = 1;
     }

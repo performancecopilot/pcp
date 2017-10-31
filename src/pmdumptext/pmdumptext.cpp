@@ -209,7 +209,7 @@ traverse(const char *str, double scale)
     sts = pmParseMetricSpec((char *)str, 0, (char *)0, &theMetric, &msg);
     if (sts < 0) {
 	pmprintf("%s: Error: Unable to parse metric spec:\n%s\n", 
-		 pmProgname, msg);
+		 pmGetProgname(), msg);
 	free(msg);
 	return sts;
     }
@@ -234,7 +234,7 @@ traverse(const char *str, double scale)
 	    doMetricType = PM_CONTEXT_LOCAL;
 	else {
 	    pmprintf("%s: Error: invalid metric source (%d): %s\n",
-			 pmProgname, theMetric->isarch, theMetric->metric);
+			 pmGetProgname(), theMetric->isarch, theMetric->metric);
 	    sts = -1;
 	}
 	doMetricSource = theMetric->source;
@@ -247,7 +247,7 @@ traverse(const char *str, double scale)
 		sts = -1;
 	    else if (sts < 0) {
 		pmprintf("%s: Error: %s: %s\n",
-			 pmProgname, theMetric->metric, pmErrStr(sts));
+			 pmGetProgname(), theMetric->metric, pmErrStr(sts));
 	    }
 	}
     }
@@ -282,7 +282,7 @@ parseConfig(QString const& configName, FILE *configFile)
 	last = &buf[len-1];
 	if (*last != '\n' && !feof(configFile)) {
 	    pmprintf("%s: Line %d of %s was too long, skipping.\n",
-	    	     pmProgname, line, (const char *)configName.toLatin1());
+	    	     pmGetProgname(), line, (const char *)configName.toLatin1());
 	    while(buf[len-1] != '\n') {
 	    	if (fgets(buf, sizeof(buf), configFile) == NULL)
 		    break;
@@ -312,7 +312,7 @@ parseConfig(QString const& configName, FILE *configFile)
 
 	    if (*msg != '\0') {
 	    	pmprintf("%s: Line %d of %s has an illegal scaling factor, assuming 0.\n",
-			 pmProgname, line, (const char *)configName.toLatin1());
+			 pmGetProgname(), line, (const char *)configName.toLatin1());
 		err++;
 		scale = 0.0;
 	    }
@@ -759,7 +759,7 @@ main(int argc, char *argv[])
 		}
 	    }
 	    else if (strlen(opts.optarg) > 1) {
-		pmprintf("%s: delimiter must be one character\n", pmProgname);
+		pmprintf("%s: delimiter must be one character\n", pmGetProgname());
 		opts.errors++;
 	    }
 	    else
@@ -777,7 +777,7 @@ main(int argc, char *argv[])
 	case 'F':	// Fixed width values
 	    if (shortFlag) {
 		pmprintf("%s: -F and -G options may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else
@@ -787,12 +787,12 @@ main(int argc, char *argv[])
 	case 'G':	// Shortest format
 	    if (descFlag) {
 		pmprintf("%s: -F and -G may not be used together\n", 
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else if (niceFlag) {
 		pmprintf("%s: -i and -G may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else
@@ -806,12 +806,12 @@ main(int argc, char *argv[])
 	case 'i':	// abbreviate metric names
 	    if (precFlag) {
 		pmprintf("%s: -i and -P may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else if (shortFlag) {
 		pmprintf("%s: -i and -G may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else
@@ -846,12 +846,12 @@ main(int argc, char *argv[])
         case 'P':       // precision
 	    if (widthFlag) {
 		pmprintf("%s: -P and -w may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else if (niceFlag) {
 		pmprintf("%s: -i and -P may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else {
@@ -859,7 +859,7 @@ main(int argc, char *argv[])
 		precFlag = true;
 		if (*endnum != '\0' || precision < 0) {
 		    pmprintf("%s: -P requires a positive numeric argument\n",
-			     pmProgname);
+			     pmGetProgname());
 		    opts.errors++;
 		}
 	    }
@@ -874,7 +874,7 @@ main(int argc, char *argv[])
 	    repeatLines = (int)strtol(opts.optarg, &endnum, 10);
             if (*endnum != '\0' || repeatLines <= 0) {
                 pmprintf("%s: -R requires a positive numeric argument\n",
-			 pmProgname);
+			 pmGetProgname());
                 opts.errors++;
             }
             break;
@@ -890,7 +890,7 @@ main(int argc, char *argv[])
         case 'w':       // width
 	    if (precFlag) {
 		pmprintf("%s: -P and -w may not be used together\n",
-			 pmProgname);
+			 pmGetProgname());
 		opts.errors++;
 	    }
 	    else {
@@ -898,11 +898,11 @@ main(int argc, char *argv[])
 		widthFlag = true;
 		if (*endnum != '\0' || width < 0) {
 		    pmprintf("%s: -w requires a positive numeric argument\n",
-			     pmProgname);
+			     pmGetProgname());
 		    opts.errors++;
 		}
 		else if (width < 3) {
-		    pmprintf("%s: -w must be greater than 2\n", pmProgname);
+		    pmprintf("%s: -w must be greater than 2\n", pmGetProgname());
 		    opts.errors++;
 		}
 	    }
@@ -912,7 +912,7 @@ main(int argc, char *argv[])
 
     if (opts.context == PM_CONTEXT_HOST) {
 	if (opts.nhosts > 1) {
-	    pmprintf("%s: only one host may be specified\n", pmProgname);
+	    pmprintf("%s: only one host may be specified\n", pmGetProgname());
 	    opts.errors++;
 	}
     }
@@ -995,7 +995,7 @@ main(int argc, char *argv[])
 	else {
 	    configFile = fopen((const char *)configName.toLatin1(), "r");
 	    if (configFile == NULL) {
-		pmprintf("%s: Unable to open %s: %s\n", pmProgname,
+		pmprintf("%s: Unable to open %s: %s\n", pmGetProgname(),
 			(const char *)configName.toLatin1(), strerror(errno));
 	    	pmflush();
 		exit(1);
@@ -1004,7 +1004,7 @@ main(int argc, char *argv[])
     }
     else if (configName.length()) {
 	pmprintf("%s: configuration file cannot be specified with metrics\n",
-		 pmProgname);
+		 pmGetProgname());
 	exit(1);
     }
     
@@ -1019,13 +1019,13 @@ main(int argc, char *argv[])
     }
 
     if (metrics.size() == 0 || numValues == 0) {
-	pmprintf("%s: no valid metrics, exiting.\n", pmProgname);
+	pmprintf("%s: no valid metrics, exiting.\n", pmGetProgname());
 	pmflush();
 	exit(1);
     }
     else if (opts.errors)
         pmprintf("%s: Warning: Some metrics ignored, continuing with valid metrics\n",
-		 pmProgname);
+		 pmGetProgname());
 
     pmflush();
 
@@ -1046,7 +1046,7 @@ main(int argc, char *argv[])
     else if (opts.timezone) {
 	sts = group->useTZ(opts.timezone);
         if ((sts = pmNewZone(opts.timezone)) < 0) {
-	    pmprintf("%s: cannot set timezone to \"%s\": %s\n", pmProgname,
+	    pmprintf("%s: cannot set timezone to \"%s\": %s\n", pmGetProgname(),
 			opts.timezone, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
@@ -1067,7 +1067,7 @@ main(int argc, char *argv[])
 	sts = putenv(strdup((const char *)tzEnv.toLatin1()));
 	if (sts < 0) {
 	    pmprintf("%s: Warning: Unable to set timezone in environment\n",
-		     pmProgname);
+		     pmGetProgname());
 	    sts = 0;
 	}
 	else if (pmDebugOptions.appl0)

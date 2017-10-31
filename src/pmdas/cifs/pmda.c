@@ -410,10 +410,10 @@ main(int argc, char **argv)
 
     _isDSO = 0;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "cifs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, CIFS, "cifs.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), CIFS, "cifs.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

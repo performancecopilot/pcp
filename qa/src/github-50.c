@@ -24,7 +24,7 @@ main(int argc, char **argv)
     __pmContext	*ctxp;
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:Lx?")) != EOF) {
 	switch (c) {
@@ -32,9 +32,9 @@ main(int argc, char **argv)
 	case 'a':	/* archive name */
 	    if (type != 0) {
 #ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
 #else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
 #endif
 		errflag++;
 	    }
@@ -46,7 +46,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -54,9 +54,9 @@ main(int argc, char **argv)
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
 #ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
 #else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
 #endif
 		errflag++;
 	    }
@@ -67,7 +67,7 @@ main(int argc, char **argv)
 #ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    host = NULL;
@@ -79,7 +79,7 @@ main(int argc, char **argv)
 
 	case 'x':	/* no current context */
 	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    type = -1;
@@ -102,7 +102,7 @@ Options:\n\
 "  -L             use local context instead of PMCD\n"
 #endif
 "  -x             no current context\n"
-	    , pmProgname);
+	    , pmGetProgname());
         exit(1);
     }
 
@@ -115,30 +115,30 @@ Options:\n\
 	if ((sts = pmNewContext(type, host)) < 0) {
 	    if (type == PM_CONTEXT_HOST)
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, host, pmErrStr(sts));
+		    pmGetProgname(), host, pmErrStr(sts));
     #ifdef BUILD_STANDALONE
 	    else if (type == PM_CONTEXT_LOCAL)
 		fprintf(stderr, "%s: Cannot initialize LOCAL context: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
     #endif
 	    else
 		fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		    pmProgname, host, pmErrStr(sts));
+		    pmGetProgname(), host, pmErrStr(sts));
 	    exit(1);
 	}
     }
 
     if ((sts = pmGetArchiveLabel(&label)) < 0)
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-	    pmProgname, pmErrStr(sts));
+	    pmGetProgname(), pmErrStr(sts));
     else
 	fprintf(stderr, "%s: archive label record: magic=%x host=%s\n",
-	    pmProgname, label.ll_magic, label.ll_hostname);
+	    pmGetProgname(), label.ll_magic, label.ll_hostname);
 
     ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL) {
 	fprintf(stderr, "%s: __pmHandleToPtr botch: for context=%d\n",
-	    pmProgname, pmWhichContext());
+	    pmGetProgname(), pmWhichContext());
 	exit(1);
     }
 

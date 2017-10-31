@@ -89,7 +89,7 @@ _report(__pmFILE *fp)
 
     here = __pmLseek(fp, 0L, SEEK_CUR);
     fprintf(stderr, "%s: Error occurred at byte offset %ld into a file of",
-	    pmProgname, (long)here);
+	    pmGetProgname(), (long)here);
     if (__pmFstat(fp, &sbuf) < 0)
 	fprintf(stderr, ": stat: %s\n", osstrerror());
     else
@@ -117,7 +117,7 @@ newvolume(int vol)
     }
     else {
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
-		pmProgname, outarch.name, vol, pmErrStr(-oserror()));
+		pmGetProgname(), outarch.name, vol, pmErrStr(-oserror()));
 	abandon();
 	/*NOTREACHED*/
     }
@@ -196,7 +196,7 @@ nextmeta()
     if ((sts = _pmLogGet(lcp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
-		    pmProgname, inarch.name, pmErrStr(sts));
+		    pmGetProgname(), inarch.name, pmErrStr(sts));
 	    _report(lcp->l_mdfp);
 	}
 	return -1;
@@ -230,7 +230,7 @@ nextlog(void)
     if (sts < 0) {
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
-		    pmProgname, inarch.name, pmErrStr(sts));
+		    pmGetProgname(), inarch.name, pmErrStr(sts));
 	    _report(lcp->l_mfp);
 	}
 	return -1;
@@ -264,7 +264,7 @@ parseargs(int argc, char *argv[])
 	case 'c':	/* config file */
 	    if (stat(opts.optarg, &sbuf) < 0) {
 		pmprintf("%s: stat(%s) failed: %s\n",
-			pmProgname, opts.optarg, osstrerror());
+			pmGetProgname(), opts.optarg, osstrerror());
 		opts.errors++;
 		break;
 	    }
@@ -279,7 +279,7 @@ parseargs(int argc, char *argv[])
 		char		path[MAXPATHLEN+1];
 
 		if ((dirp = opendir(opts.optarg)) == NULL) {
-		    pmprintf("%s: opendir(%s) failed: %s\n", pmProgname, opts.optarg, osstrerror());
+		    pmprintf("%s: opendir(%s) failed: %s\n", pmGetProgname(), opts.optarg, osstrerror());
 		    opts.errors++;
 		}
 		else while ((dp = readdir(dirp)) != NULL) {
@@ -287,7 +287,7 @@ parseargs(int argc, char *argv[])
 		    if (dp->d_name[0] == '.') continue;
 		    pmsprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, dp->d_name);
 		    if (stat(path, &sbuf) < 0) {
-			pmprintf("%s: %s: %s\n", pmProgname, path, osstrerror());
+			pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
 			opts.errors++;
 		    }
 		    else if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
@@ -305,11 +305,11 @@ parseargs(int argc, char *argv[])
 		    closedir(dirp);
 	    }
 	    else {
-		pmprintf("%s: Error: -c config %s is not a file or directory\n", pmProgname, opts.optarg);
+		pmprintf("%s: Error: -c config %s is not a file or directory\n", pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    if (nconf > 0 && conf == NULL) {
-		fprintf(stderr, "%s: Error: conf[%d] realloc(%d) failed: %s\n", pmProgname, nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
+		fprintf(stderr, "%s: Error: conf[%d] realloc(%d) failed: %s\n", pmGetProgname(), nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -329,7 +329,7 @@ parseargs(int argc, char *argv[])
 	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    break;
@@ -376,7 +376,7 @@ parseconfig(char *file)
     configfile = file;
     if ((yyin = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, osstrerror());
+		pmGetProgname(), configfile, osstrerror());
 	exit(1);
     }
     if (vflag > 1)
@@ -892,7 +892,7 @@ main(int argc, char **argv)
 
     if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE, inarch.name)) < 0) {
 	fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
-		pmProgname, inarch.name, pmErrStr(inarch.ctx));
+		pmGetProgname(), inarch.name, pmErrStr(inarch.ctx));
 	exit(1);
     }
     inarch.ctxp = __pmHandleToPtr(inarch.ctx);
@@ -908,13 +908,13 @@ main(int argc, char **argv)
 
     if ((sts = pmGetArchiveLabel(&inarch.label)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n",
-		pmProgname, inarch.name, pmErrStr(sts));
+		pmGetProgname(), inarch.name, pmErrStr(sts));
 	exit(1);
     }
 
     if ((inarch.label.ll_magic & 0xff) != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
-		pmProgname, inarch.label.ll_magic & 0xff, inarch.name);
+		pmGetProgname(), inarch.label.ll_magic & 0xff, inarch.name);
 	exit(1);
     }
 
@@ -952,7 +952,7 @@ main(int argc, char **argv)
 	strncpy(dname, dirname(path), sizeof(dname));
 	dname[sizeof(dname)-1] = '\0';
 	if ((dir_fd = open(dname, O_RDONLY)) < 0) {
-	    fprintf(stderr, "%s: Error: cannot open directory \"%s\" for reading: %s\n", pmProgname, dname, strerror(errno));
+	    fprintf(stderr, "%s: Error: cannot open directory \"%s\" for reading: %s\n", pmGetProgname(), dname, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -962,7 +962,7 @@ main(int argc, char **argv)
 	umask(cur_umask);
 	outarch.name = strdup(path);
 	if (outarch.name == NULL) {
-	    fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmProgname, path, strerror(errno));
+	    fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmGetProgname(), path, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -982,14 +982,14 @@ main(int argc, char **argv)
 	dname[sizeof(dname)-1] = '\0';
 
 	if ((s = tempnam(dname, fname)) == NULL) {
-	    fprintf(stderr, "%s: Error: first tempnam() failed: %s\n", pmProgname, strerror(errno));
+	    fprintf(stderr, "%s: Error: first tempnam() failed: %s\n", pmGetProgname(), strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	else {
 	    outarch.name = strdup(s);
 	    if (outarch.name == NULL) {
-		fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmProgname, s, strerror(errno));
+		fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmGetProgname(), s, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -998,7 +998,7 @@ main(int argc, char **argv)
 	    umask(cur_umask);
 	}
 	if ((s = tempnam(dname, fname)) == NULL) {
-	    fprintf(stderr, "%s: Error: second tempnam() failed: %s\n", pmProgname, strerror(errno));
+	    fprintf(stderr, "%s: Error: second tempnam() failed: %s\n", pmGetProgname(), strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -1010,12 +1010,12 @@ main(int argc, char **argv)
 	}
 #endif
 	if (tmp_f1 < 0) {
-	    fprintf(stderr, "%s: Error: create first temp (%s) failed: %s\n", pmProgname, outarch.name, strerror(errno));
+	    fprintf(stderr, "%s: Error: create first temp (%s) failed: %s\n", pmGetProgname(), outarch.name, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	if (tmp_f2 < 0) {
-	    fprintf(stderr, "%s: Error: create second temp (%s) failed: %s\n", pmProgname, bak_base, strerror(errno));
+	    fprintf(stderr, "%s: Error: create second temp (%s) failed: %s\n", pmGetProgname(), bak_base, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -1054,7 +1054,7 @@ main(int argc, char **argv)
     /* create output log - must be done before writing label */
     if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.logctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
-		pmProgname, outarch.name, pmErrStr(sts));
+		pmGetProgname(), outarch.name, pmErrStr(sts));
 	abandon();
 	/*NOTREACHED*/
     }
@@ -1223,17 +1223,17 @@ main(int argc, char **argv)
 		/* TODO: support label metadata extraction */
 		if (pmDebugOptions.logmeta)
 		    fprintf(stderr, "%s: Warning: %s\n",
-			    pmProgname, pmErrStr(PM_ERR_NOLABELS));
+			    pmGetProgname(), pmErrStr(PM_ERR_NOLABELS));
 	    }
 	    else if (stsmeta == TYPE_TEXT) {
 		/* TODO: support help text extraction */
 		if (pmDebugOptions.logmeta)
 		    fprintf(stderr, "%s: Warning: %s\n",
-			    pmProgname, pmErrStr(PM_ERR_TEXT));
+			    pmGetProgname(), pmErrStr(PM_ERR_TEXT));
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
-		    pmProgname, stsmeta);
+		    pmGetProgname(), stsmeta);
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -1292,25 +1292,25 @@ main(int argc, char **argv)
 	 */
 	if (__pmFsync(outarch.logctl.l_mdfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output metadata file: %s\n",
-		pmProgname, __pmFileno(outarch.logctl.l_mdfp), strerror(errno));
+		pmGetProgname(), __pmFileno(outarch.logctl.l_mdfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
 	if (__pmFsync(outarch.logctl.l_mfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output data file: %s\n",
-		pmProgname, __pmFileno(outarch.logctl.l_mfp), strerror(errno));
+		pmGetProgname(), __pmFileno(outarch.logctl.l_mfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
 	if (__pmFsync(outarch.logctl.l_tifp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output index file: %s\n",
-		pmProgname, __pmFileno(outarch.logctl.l_tifp), strerror(errno));
+		pmGetProgname(), __pmFileno(outarch.logctl.l_tifp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
 	if (fsync(dir_fd) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output directory: %s\n",
-		pmProgname, dir_fd, strerror(errno));
+		pmGetProgname(), dir_fd, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}

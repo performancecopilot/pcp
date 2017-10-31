@@ -22,7 +22,7 @@ main(int argc, char **argv)
     int		errflag = 0;
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "c:D:?")) != EOF) {
 	switch (c) {
@@ -36,7 +36,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -54,7 +54,7 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -c configfile  file to load derived metric configurations from\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 

@@ -182,7 +182,7 @@ do_desc(void)
 	    }
 	    if (i == numnames) {
 		fprintf(stderr, "%s: Botch: old name %s not found in list of %d names for pmid %s ...",
-			pmProgname, mp->old_name, numnames, pmIDStr(mp->old_desc.pmid));
+			pmGetProgname(), mp->old_name, numnames, pmIDStr(mp->old_desc.pmid));
 		for (i = 0; i < numnames; i++) {
 		    if (i > 0) fputc(',', stderr);
 		    fprintf(stderr, " %s", names[i]);
@@ -204,7 +204,7 @@ do_desc(void)
     }
     if ((sts = __pmLogPutDesc(&outarch.logctl, &desc, numnames, names)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutDesc: %s (%s): %s\n",
-		pmProgname, names[0], pmIDStr(desc.pmid), pmErrStr(sts));
+		pmGetProgname(), names[0], pmIDStr(desc.pmid), pmErrStr(sts));
 	abandon();
 	/*NOTREACHED*/
     }

@@ -38,7 +38,7 @@ main(int argc, char **argv)
     char	*start = NULL;
     char	*end;
 
-    __pmSetProgname(pmProgname);
+    pmSetProgname(pmGetProgname());
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
@@ -47,7 +47,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;

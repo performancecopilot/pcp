@@ -81,7 +81,7 @@ mailq_histogram(char *option)
     q = strtok(option, ",");
     while (q != NULL) {
 	if ((sts = pmParseInterval((const char *)q, &tv, &errmsg)) < 0) {
-	    pmprintf("%s: bad historgram bins argument:\n%s\n", pmProgname, errmsg);
+	    pmprintf("%s: bad historgram bins argument:\n%s\n", pmGetProgname(), errmsg);
 	    free(errmsg);
 	    return -EINVAL;
 	}
@@ -277,18 +277,18 @@ main(int argc, char **argv)
     char		namebuf[30];
     char		mypath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     if (getcwd(startdir, sizeof(startdir)) == NULL) {
 	fprintf(stderr, "%s: getcwd() failed: %s\n",
-	    pmProgname, pmErrStr(-oserror()));
+	    pmGetProgname(), pmErrStr(-oserror()));
 	exit(1);
     }
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmGetProgname(), MAILQ,
 		"mailq.log", mypath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
@@ -304,7 +304,7 @@ main(int argc, char **argv)
 	    if (c != 0) {
 		regerror(c, &mq_regex, mypath, sizeof(mypath));
 		pmprintf("%s: cannot compile regular expression: %s\n",
-			pmProgname, mypath);
+			pmGetProgname(), mypath);
 		opts.errors++;
 	    }
 	    break;

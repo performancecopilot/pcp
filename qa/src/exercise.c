@@ -104,7 +104,7 @@ char *argv[];
     static char	*usage = "[-D debugspec] [-h hostname] [-i iterations] [-n namespace] [-l licenseflag ] [name ...]";
 
     __pmProcessDataSize(NULL);
-    __pmSetProgname(pmProgname);
+    pmSetProgname(pmGetProgname());
 
     while ((c = getopt(argc, argv, "D:h:i:l:n:")) != EOF) {
 	switch (c) {
@@ -113,7 +113,7 @@ char *argv[];
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -125,7 +125,7 @@ char *argv[];
 	case 'i':	/* iteration count */
 	    iter = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -i requires numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -i requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
 	    break;
@@ -142,14 +142,14 @@ char *argv[];
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     sts = pmNewContext(PM_CONTEXT_HOST, host);
 
     if (sts < 0) {
-	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	exit(1);
     }
 
@@ -158,7 +158,7 @@ char *argv[];
 	 * only explicitly load namespace if -n specified
 	 */
 	if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	    printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	    printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	    exit(1);
 	}
     }

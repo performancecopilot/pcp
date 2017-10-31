@@ -84,7 +84,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, opts.optarg);
+		    pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    break;
@@ -109,7 +109,7 @@ main(int argc, char **argv)
 	    sts = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || sts <= 0.0) {
 		pmprintf("%s: -q requires a positive numeric argument\n",
-			pmProgname);
+			pmGetProgname());
 		opts.errors++;
 	    } else {
 		_creds_timeout = sts;
@@ -134,14 +134,14 @@ main(int argc, char **argv)
 	    /* pid was specified */
 	    if (primary) {
 		pmprintf("%s: you may not specify both -P and a pid\n",
-			pmProgname);
+			pmGetProgname());
 		opts.errors++;
 	    }
 	    else {
 		pid = (int)strtol(argv[opts.optind], &endnum, 10);
 		if (*endnum != '\0') {
 		    pmprintf("%s: pid must be a numeric process id\n",
-			    pmProgname);
+			    pmGetProgname());
 		    opts.errors++;
 		}
 	    }
@@ -156,14 +156,14 @@ main(int argc, char **argv)
     if (pmnsfile == PM_NS_DEFAULT) {
 	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 		fprintf(stderr, "%s: Cannot load default namespace: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
     }
     else {
 	if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 		fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
-			pmProgname, pmnsfile, pmErrStr(sts));
+			pmGetProgname(), pmnsfile, pmErrStr(sts));
 	    exit(1);
 	}
     }
@@ -331,33 +331,33 @@ main(int argc, char **argv)
 		cmd_namespace = strdup(param.name);
 		if (cmd_namespace == NULL) {
 		    fprintf(stderr, "%s: No memory for new namespace\n",
-			    pmProgname);
+			    pmGetProgname());
 		    exit(1);
 		}
 		pmUnloadNameSpace();
 		if ((sts = pmLoadASCIINameSpace(cmd_namespace, 1)) < 0) {
 		    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
-			    pmProgname, cmd_namespace, pmErrStr(sts));
+			    pmGetProgname(), cmd_namespace, pmErrStr(sts));
 
 		    pmUnloadNameSpace();
 		    if (pmnsfile == PM_NS_DEFAULT) {
 			fprintf(stderr, "%s: Reload default namespace\n",
-				pmProgname);
+				pmGetProgname());
 			if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 			    fprintf(stderr,
 				    "%s: Cannot load default namespace: %s\n",
-				    pmProgname, pmErrStr(sts));
+				    pmGetProgname(), pmErrStr(sts));
 			    exit(1);
 			}
 		    }
 		    else {
 			fprintf(stderr, "%s: Reload namespace from \"%s\"\n",
-				pmProgname, pmnsfile);
+				pmGetProgname(), pmnsfile);
 			if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 			    fprintf(stderr,
 				    "%s: Cannot load namespace from \"%s\""
 				    ": %s\n",
-				    pmProgname, pmnsfile, pmErrStr(sts));
+				    pmGetProgname(), pmnsfile, pmErrStr(sts));
 			    exit(1);
 			}
 		    }

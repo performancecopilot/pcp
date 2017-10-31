@@ -429,7 +429,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			 * deadlock hell!
 			 */
 			fprintf(stderr, "%s: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:\n%s\n",
-				pmProgname, endnum);
+				pmGetProgname(), endnum);
 			free(endnum);
 			ignore_mark_records = 0;
 		    }

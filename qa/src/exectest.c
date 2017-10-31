@@ -38,7 +38,7 @@ main(int argc, char **argv)
     FILE	*fout;
 
     /* trim cmd name of leading directory components */
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     setlinebuf(stdout);
     setlinebuf(stderr);
@@ -50,14 +50,14 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
 
 	case 'p':	/* __pmProcessPipe(), reading */
 	    if (pipein || pipeout) {
-		fprintf(stderr, "%s: at most one of -p or -P allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -p or -P allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    pipein++;
@@ -65,13 +65,13 @@ main(int argc, char **argv)
 
 	case 'P':	/* __pmProcessPipe(), writing */
 	    if (pipein || pipeout) {
-		fprintf(stderr, "%s: at most one of -p or -P allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -p or -P allowed\n", pmGetProgname());
 		errflag++;
 	    }
 	    pipeout++;
 	    if ((fin = fopen(optarg, "r")) == NULL) {
 		fprintf(stderr, "%s: cannot open \"%s\" for reading: \"%s\"\n",
-		    pmProgname, optarg, pmErrStr(-errno));
+		    pmGetProgname(), optarg, pmErrStr(-errno));
 		exit(1);
 	    }
 	    break;
@@ -91,7 +91,7 @@ Options:\n\
   -D debug[,...] set PCP debugging option(s)\n\
   -p             read to EOF from __pmProcessPipe\n\
   -P data        read data file and write to __pmProcessPipe\n",
-                pmProgname);
+                pmGetProgname());
         exit(1);
     }
 

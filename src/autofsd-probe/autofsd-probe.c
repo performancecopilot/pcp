@@ -37,7 +37,7 @@ main(int argc, char **argv)
     char		*host = "local:";
     int			errflag = 0;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "h:t:?")) != EOF) {
 	switch (c) {
@@ -48,7 +48,7 @@ main(int argc, char **argv)
 
 	case 't':	/* change timeout interval */
 	    if (pmParseInterval(optarg, &tv, &p) < 0) {
-		fprintf(stderr, "%s: illegal -t argument\n", pmProgname);
+		fprintf(stderr, "%s: illegal -t argument\n", pmGetProgname());
 		fputs(p, stderr);
 		free(p);
 		errflag++;
@@ -57,7 +57,7 @@ main(int argc, char **argv)
 
 	case '?':
 	default:
-	    fprintf(stderr, "Usage: %s [-h host] [-t timeout]\n", pmProgname);
+	    fprintf(stderr, "Usage: %s [-h host] [-t timeout]\n", pmGetProgname());
 	    errflag++;
 	    break;
 	}

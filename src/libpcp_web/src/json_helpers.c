@@ -421,7 +421,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	if (bytes < 0) {
 	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: failed to read more JSON: %s\n",
-			pmProgname, osstrerror());
+			pmGetProgname(), osstrerror());
 	    sts = -oserror();
 	    goto finished;
 	}

@@ -56,18 +56,18 @@ get_ncpu(void)
     int		sts;
 
     if ((sts = pmLookupName(1, pmclient_init, pmidlist)) < 0) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	fprintf(stderr, "%s: metric \"%s\" not in name space\n",
-			pmProgname, pmclient_init[0]);
+			pmGetProgname(), pmclient_init[0]);
 	exit(1);
     }
     if ((sts = pmLookupDesc(pmidlist[0], desclist)) < 0) {
 	fprintf(stderr, "%s: cannot retrieve description for metric \"%s\" (PMID: %s)\nReason: %s\n",
-		pmProgname, pmclient_init[0], pmIDStr(pmidlist[0]), pmErrStr(sts));
+		pmGetProgname(), pmclient_init[0], pmIDStr(pmidlist[0]), pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmFetch(1, pmidlist, &rp)) < 0) {
-	fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -106,25 +106,25 @@ get_sample(info_t *ip)
 
 	numpmid = sizeof(pmclient_sample) / sizeof(char *);
 	if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmGetProgname(), osstrerror());
 	    exit(1);
 	}
 	if ((desclist = (pmDesc *)malloc(numpmid * sizeof(desclist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
+	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmGetProgname(), osstrerror());
 	    exit(1);
 	}
 	if ((sts = pmLookupName(numpmid, pmclient_sample, pmidlist)) < 0) {
-	    printf("%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	    for (i = 0; i < numpmid; i++) {
 		if (pmidlist[i] == PM_ID_NULL)
-		    fprintf(stderr, "%s: metric \"%s\" not in name space\n", pmProgname, pmclient_sample[i]);
+		    fprintf(stderr, "%s: metric \"%s\" not in name space\n", pmGetProgname(), pmclient_sample[i]);
 	    }
 	    exit(1);
 	}
 	for (i = 0; i < numpmid; i++) {
 	    if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0) {
 		fprintf(stderr, "%s: cannot retrieve description for metric \"%s\" (PMID: %s)\nReason: %s\n",
-		    pmProgname, pmclient_sample[i], pmIDStr(pmidlist[i]), pmErrStr(sts));
+		    pmGetProgname(), pmclient_sample[i], pmIDStr(pmidlist[i]), pmErrStr(sts));
 		exit(1);
 	    }
 	}
@@ -132,7 +132,7 @@ get_sample(info_t *ip)
 
     /* fetch the current metrics */
     if ((sts = pmFetch(numpmid, pmidlist, &crp)) < 0) {
-	fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -150,11 +150,11 @@ get_sample(info_t *ip)
 	    inst15 = pmLookupInDom(desclist[LOADAV].indom, "15 minute");
 	}
 	if (inst1 < 0) {
-	    fprintf(stderr, "%s: cannot translate instance for 1 minute load average\n", pmProgname);
+	    fprintf(stderr, "%s: cannot translate instance for 1 minute load average\n", pmGetProgname());
 	    exit(1);
 	}
 	if (inst15 < 0) {
-	    fprintf(stderr, "%s: cannot translate instance for 15 minute load average\n", pmProgname);
+	    fprintf(stderr, "%s: cannot translate instance for 15 minute load average\n", pmGetProgname());
 	    exit(1);
 	}
 	pmDelProfile(desclist[LOADAV].indom, 0, NULL);	/* all off */
@@ -291,7 +291,7 @@ main(int argc, char **argv)
     }
 
     if (pauseFlag && opts.context != PM_CONTEXT_ARCHIVE) {
-	pmprintf("%s: pause can only be used with archives\n", pmProgname);
+	pmprintf("%s: pause can only be used with archives\n", pmGetProgname());
 	opts.errors++;
     }
 
@@ -312,10 +312,10 @@ main(int argc, char **argv)
     if ((sts = c = pmNewContext(opts.context, source)) < 0) {
 	if (opts.context == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmProgname, source, pmErrStr(sts));
+		    pmGetProgname(), source, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		    pmProgname, source, pmErrStr(sts));
+		    pmGetProgname(), source, pmErrStr(sts));
 	exit(1);
     }
 
@@ -335,7 +335,7 @@ main(int argc, char **argv)
     if (opts.context == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, (int)(opts.interval.tv_sec*1000 + opts.interval.tv_usec/1000))) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
-		    pmProgname, pmErrStr(sts));
+		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
     }

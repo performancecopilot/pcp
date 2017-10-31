@@ -3499,10 +3499,10 @@ main(int argc, char **argv)
     char		*username = "root";
 
     _isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmProgname, PROC, "proc.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), PROC, "proc.log", helppath);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch (c) {

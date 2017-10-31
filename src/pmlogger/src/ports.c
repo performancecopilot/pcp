@@ -449,7 +449,7 @@ GetPorts(char *file)
 	    /* not a fatal error; continue on without control file */
 #ifdef DESPERATE
 	    fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
-		    pmProgname, file, osstrerror());
+		    pmGetProgname(), file, osstrerror());
 #endif
 	    return;
 	}
@@ -538,7 +538,7 @@ init_ports(void)
     if (atexit(cleanup) != 0) {
 	perror("atexit");
 	fprintf(stderr, "%s: unable to register atexit cleanup function.  Exiting\n",
-		pmProgname);
+		pmGetProgname());
 	cleanup();
 	exit(1);
     }
@@ -564,7 +564,7 @@ init_ports(void)
     if (sts < 0) {
 	if (oserror() != EEXIST) {
 	    fprintf(stderr, "%s: error creating port file dir %s: %s\n",
-		pmProgname, ctlfile, osstrerror());
+		pmGetProgname(), ctlfile, osstrerror());
 	    exit(1);
 	}
     } else {
@@ -601,11 +601,11 @@ init_ports(void)
 	if (lstat(linkfile, &sbuf) == 0 && !S_ISLNK(sbuf.st_mode)) {
 	    if (unlink(linkfile) != 0) {
 		fprintf(stderr, "%s: warning: failed to remove old-style hardlink to stale control file '%s': %s\n",
-			pmProgname, linkfile, osstrerror());
+			pmGetProgname(), linkfile, osstrerror());
 	    }
 	    else if (pmDebugOptions.context) {
 		fprintf(stderr, "%s: info: removed old-style hardlink to stale control file '%s' (mode: %0o)\n",
-			pmProgname, linkfile, sbuf.st_mode);
+			pmGetProgname(), linkfile, sbuf.st_mode);
 	    }
 	}
 #endif
@@ -617,27 +617,27 @@ init_ports(void)
 	if (get_pid_from_symlink(linkfile, &pid) == 0) {
 	    /* primary symlink is OK */
 	    if (pmDebugOptions.context) {
-		fprintf(stderr, "%s: info: found primary symlink -> pid %" FMT_PID "\n", pmProgname, pid);
+		fprintf(stderr, "%s: info: found primary symlink -> pid %" FMT_PID "\n", pmGetProgname(), pid);
 	    }
 	    if (!__pmProcessExists(pid)) {
 	    	if (unlink(linkfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale control file for pid %" FMT_PID ": %s\n",
-			    pmProgname, linkfile, pid, osstrerror());
+			    pmGetProgname(), linkfile, pid, osstrerror());
 		}
 		else if (pmDebugOptions.context) {
 		    fprintf(stderr, "%s: info: removed '%s' symlink to stale control file for pid %" FMT_PID "\n",
-			    pmProgname, linkfile, pid);
+			    pmGetProgname(), linkfile, pid);
 		}
 		/* remove the stale control file too */
 		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
 				pmGetConfig("PCP_TMP_DIR"), sep, sep, pid);
 	    	if (unlink(pidfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
-			    pmProgname, pidfile, osstrerror());
+			    pmGetProgname(), pidfile, osstrerror());
 		}
 		else if (pmDebugOptions.context) {
 		    fprintf(stderr, "%s: info: removed stale control file '%s': %s\n",
-			    pmProgname, pidfile, osstrerror());
+			    pmGetProgname(), pidfile, osstrerror());
 		}
 	    }
 	}
@@ -649,19 +649,19 @@ init_ports(void)
 	    /* configuration error - only one primary pmlogger should be configured */
 	    if (pid == -1)
 		fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, pid <unknown> linkfile=%s\n",
-		    pmProgname, linkfile);
+		    pmGetProgname(), linkfile);
 	    else
 		fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, pid %" FMT_PID " linkfile=%s\n",
-		    pmProgname, pid, linkfile);
+		    pmGetProgname(), pid, linkfile);
 	    exit(1);
 	}
 
 	if ((sts = symlink(ctlfile, linkfile)) != 0) {
 	    fprintf(stderr, "%s: error creating primary logger symbolic link %s: %s\n",
-		    pmProgname, linkfile, osstrerror());
+		    pmGetProgname(), linkfile, osstrerror());
 	}
 	else if (pmDebugOptions.context) {
-	    fprintf(stderr, "%s: info: created control file symlink %s -> %s\n", pmProgname, linkfile, ctlfile);
+	    fprintf(stderr, "%s: info: created control file symlink %s -> %s\n", pmGetProgname(), linkfile, ctlfile);
 	}
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -678,11 +678,11 @@ init_ports(void)
 	if (stat(linkSocketPath, &sbuf) == 0 && S_ISSOCK(sbuf.st_mode)) {
 	    if (unlink(linkSocketPath) != 0) {
 		fprintf(stderr, "%s: warning: failed to remove old-style hardlink to stale socket '%s': %s\n",
-			pmProgname, linkSocketPath, osstrerror());
+			pmGetProgname(), linkSocketPath, osstrerror());
 	    }
 	    else if (pmDebugOptions.context) {
 		fprintf(stderr, "%s: info: removed old-style hardlink to stale socket '%s': %s\n",
-			pmProgname, linkSocketPath, osstrerror());
+			pmGetProgname(), linkSocketPath, osstrerror());
 	    }
 	}
 
@@ -696,20 +696,20 @@ init_ports(void)
 		    if (!__pmProcessExists(pid)) {
 			if (unlink(linkSocketPath) != 0) {
 			    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale socket '%s': %s\n",
-				    pmProgname, linkSocketPath, pidfile, osstrerror());
+				    pmGetProgname(), linkSocketPath, pidfile, osstrerror());
 			}
 			else if (pmDebugOptions.context) {
 			    fprintf(stderr, "%s: info: removed '%s' symlink to stale socket '%s'\n",
-				    pmProgname, linkSocketPath, pidfile);
+				    pmGetProgname(), linkSocketPath, pidfile);
 			}
 			/* remove the stale socket too */
 			if (unlink(pidfile) != 0) {
 			    fprintf(stderr, "%s: warning: failed to remove stale pmlogger socket '%s': %s\n",
-				    pmProgname, pidfile, osstrerror());
+				    pmGetProgname(), pidfile, osstrerror());
 			}
 			else if (pmDebugOptions.context) {
 			    fprintf(stderr, "%s: info: removed stale pmlogger socket '%s'\n",
-				    pmProgname, pidfile);
+				    pmGetProgname(), pidfile);
 			}
 		    }
 		    break;
@@ -725,7 +725,7 @@ init_ports(void)
 	if (access(linkSocketPath, F_OK) == 0) {
 	    /* configuration error - only one primary pmlogger should be configured */
 	    fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, socketPath=%s linkSocketPath=%s\n",
-		    pmProgname, socketPath, linkSocketPath);
+		    pmGetProgname(), socketPath, linkSocketPath);
 	    exit(1);
 	}
 
@@ -734,11 +734,11 @@ init_ports(void)
 	 */
 	if ((sts = symlink(socketPath, linkSocketPath)) != 0) {
 	    fprintf(stderr, "%s: error creating primary logger socket symbolic link %s: %s\n",
-		    pmProgname, linkSocketPath, osstrerror());
+		    pmGetProgname(), linkSocketPath, osstrerror());
 	}
 	else if (pmDebugOptions.context) {
 	    fprintf(stderr, "%s: info: created primary pmlogger socket symlink %s -> %s\n",
-		    pmProgname, linkSocketPath, socketPath);
+		    pmGetProgname(), linkSocketPath, socketPath);
 	}
 
 	if ((linkSocketPath = strdup(linkSocketPath)) == NULL) {

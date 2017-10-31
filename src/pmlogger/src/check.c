@@ -185,7 +185,7 @@ validate_metrics(void)
 
     time(&now);
     fprintf(stderr, "%s: Validating metrics after PMCD state changed at %s",
-		    pmProgname, ctime(&now));
+		    pmGetProgname(), ctime(&now));
 
     /*
      * Check each metric in each element of the task list, whether it is

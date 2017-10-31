@@ -641,7 +641,7 @@ rpm_init(pmdaInterface * dp)
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fprintf(stderr, "Options:\n"
 	  "  -C           parse the RPM database, and exit\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
@@ -670,13 +670,13 @@ main(int argc, char **argv)
     char helppath[MAXPATHLEN];
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, RPM,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmGetProgname(), RPM,
 	       "rpm.log", helppath);
 
     while ((c =

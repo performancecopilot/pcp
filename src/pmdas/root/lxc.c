@@ -80,7 +80,7 @@ lxc_insts_refresh(container_engine_t *dp, pmInDom indom)
     if ((rundir = opendir(dp->path)) == NULL) {
 	if (pmDebugOptions.attr)
 	    fprintf(stderr, "%s: skipping lxc path %s\n",
-		    pmProgname, dp->path);
+		    pmGetProgname(), dp->path);
 	return;
     }
 
@@ -94,7 +94,7 @@ lxc_insts_refresh(container_engine_t *dp, pmInDom indom)
 	if (sts != PMDA_CACHE_INACTIVE) {
 	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: adding lxc container %s\n",
-			pmProgname, path);
+			pmGetProgname(), path);
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		continue;
 	    cp->engine = dp;

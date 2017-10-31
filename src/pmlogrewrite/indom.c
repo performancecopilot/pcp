@@ -332,7 +332,7 @@ do_indom(void)
 	     */
 	    if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
-				pmProgname, pmInDomStr(indom), pmErrStr(sts));
+				pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -424,7 +424,7 @@ do_indom(void)
      */
     if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
-			pmProgname, pmInDomStr(indom), pmErrStr(sts));
+			pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	abandon();
 	/*NOTREACHED*/
     }

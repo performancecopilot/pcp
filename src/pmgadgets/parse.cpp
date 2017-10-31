@@ -1329,7 +1329,7 @@ Parse(void)
     }
     if (nErrors) {
 	pmprintf("%s: configuration file has errors "
-		"(%d lines parsed, %d errors)\n", pmProgname, nLines, nErrors);
+		"(%d lines parsed, %d errors)\n", pmGetProgname(), nLines, nErrors);
 	pmflush();
 	return -1;
     }

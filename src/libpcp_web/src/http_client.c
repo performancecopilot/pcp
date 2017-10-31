@@ -310,7 +310,7 @@ http_client_get(http_client *cp)
 
     /* sanitize request parameters */
     if ((agent = cp->user_agent) == NULL)
-	agent = pmProgname;
+	agent = pmGetProgname();
     if ((version = cp->agent_vers) == NULL)
 	version = "1.0";
     if ((path = url + up->field_data[UF_PATH].off) == NULL ||
@@ -613,7 +613,7 @@ pmhttpNewClient(void)
     cp->timeout.tv_sec = DEFAULT_READ_TIMEOUT;
     cp->max_redirect = DEFAULT_MAX_REDIRECT;
     cp->http_version = PV_HTTP_1_1;
-    cp->user_agent = pmProgname;
+    cp->user_agent = pmGetProgname();
     cp->agent_vers = pmGetOptionalConfig("PCP_VERSION");
     cp->fd = -1;
     return cp;

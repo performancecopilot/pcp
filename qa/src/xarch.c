@@ -102,7 +102,7 @@ main(int argc, char **argv)
     int		done;
     static struct timeval microsec = { 0, 1 };
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:tv")) != EOF) {
 	switch (c) {
@@ -115,7 +115,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -140,37 +140,37 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
     if ((ctx[0] = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	printf("%s: Cannot connect to archive \"%s\": %s\n", pmProgname, archive, pmErrStr(ctx[0]));
+	printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetArchiveLabel(%d): %s\n", pmProgname, ctx[0], pmErrStr(sts));
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
 
     when.tv_sec = 0;
     when.tv_usec = 0;
     if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     if ((ctx[1] = pmDupContext()) < 0) {
-        printf("%s: Cannot dup context to archive \"%s\": %s\n", pmProgname, archive, pmErrStr(ctx[0]));
+        printf("%s: Cannot dup context to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
         exit(1);
     }
     if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
-        printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+        printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
 
@@ -181,7 +181,7 @@ main(int argc, char **argv)
     i = 0;
     while (optind < argc - 1) {
 	if (i == 20) {
-	    fprintf(stderr, "%s: Too many metrics, re-build me\n", pmProgname);
+	    fprintf(stderr, "%s: Too many metrics, re-build me\n", pmGetProgname());
 	    exit(1);
 	}
 	namelist[i++] = argv[optind]++;
@@ -213,7 +213,7 @@ main(int argc, char **argv)
     for (;;) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
@@ -230,7 +230,7 @@ main(int argc, char **argv)
     when.tv_sec = 0x7fffffff;
     when.tv_usec = 0;
     if ((sts = pmSetMode(PM_MODE_BACK, &when, 0)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -238,7 +238,7 @@ main(int argc, char **argv)
     for (;;) {
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	n++;
@@ -254,14 +254,14 @@ main(int argc, char **argv)
     when.tv_sec = 0;
     when.tv_usec = 0;
     if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     pmUseContext(ctx[1]);
     when.tv_sec = 0x7fffffff;
     when.tv_usec = 0;
     if ((sts = pmSetMode(PM_MODE_BACK, &when, 0)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -271,7 +271,7 @@ main(int argc, char **argv)
 	pmUseContext(ctx[0]);
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
@@ -283,7 +283,7 @@ main(int argc, char **argv)
 	pmUseContext(ctx[1]);
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
@@ -315,7 +315,7 @@ main(int argc, char **argv)
 		__pmtimevalInc(&when, &microsec);
 	    }
 	    if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
-		printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 
@@ -323,7 +323,7 @@ main(int argc, char **argv)
 	    for (;;) {
 		if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		    if (sts != PM_ERR_EOL)
-			printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+			printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		    break;
 		}
 		j++;
@@ -358,14 +358,14 @@ main(int argc, char **argv)
 		}
 	    }
 	    if ((sts = pmSetMode(PM_MODE_BACK, &when, 0)) < 0) {
-		printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+		printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 
 	    for (;;) {
 		if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		    if (sts != PM_ERR_EOL)
-			printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+			printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		    break;
 		}
 		cmpres(i, resvec[i], resp);
@@ -383,15 +383,15 @@ main(int argc, char **argv)
     when = loglabel.ll_start;
     when.tv_sec--;
     if ((sts = pmSetMode(PM_MODE_BACK, &when, 0)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmFetchArchive(&resp)) < 0) {
 	if (sts != PM_ERR_EOL)
-	    printf("%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmFetchArchive: %s\n", pmGetProgname(), pmErrStr(sts));
     }
     else {
-	printf("%s: pmFetchArchive: unexpected success before start of log\n", pmProgname);
+	printf("%s: pmFetchArchive: unexpected success before start of log\n", pmGetProgname());
 	__pmDumpResult(stdout, resp);
 	pmFreeResult(resp);
     }
@@ -399,15 +399,15 @@ main(int argc, char **argv)
     when.tv_sec = 0x7fffffff;
     when.tv_usec = 0;
     if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmFetchArchive(&resp)) < 0) {
 	if (sts != PM_ERR_EOL)
-	    printf("%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: pmFetchArchive: %s\n", pmGetProgname(), pmErrStr(sts));
     }
     else {
-	printf("%s: pmFetchArchive: unexpected success after end of log\n", pmProgname);
+	printf("%s: pmFetchArchive: unexpected success after end of log\n", pmGetProgname());
 	__pmDumpResult(stdout, resp);
 	pmFreeResult(resp);
     }

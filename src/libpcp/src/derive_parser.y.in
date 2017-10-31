@@ -298,14 +298,14 @@ PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
-		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
-		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 
 	/*

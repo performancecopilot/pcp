@@ -20,7 +20,7 @@ parse_args(int argc, char **argv)
     int		sts;
     static char	*usage = "[-D debugspec] [-v]";
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
@@ -29,7 +29,7 @@ parse_args(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -42,7 +42,7 @@ parse_args(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
@@ -82,7 +82,7 @@ main(int argc, char **argv)
   printf("Number of metrics = %d\n", num_metrics);
 
   if ((sts = __pmNewPMNS(&pmns)) < 0) {
-      fprintf(stderr, "%s: __pmNewPMNS: %s\n", pmProgname, pmErrStr(sts));
+      fprintf(stderr, "%s: __pmNewPMNS: %s\n", pmGetProgname(), pmErrStr(sts));
       exit(1);
   }
 
@@ -93,14 +93,14 @@ main(int argc, char **argv)
       printf("Adding node: \"%s\"[%d]\n", name, pmid);
       if (sts < 0) {
 	  fprintf(stderr, "%s: __pmAddPMNSNode: %s\n", 
-		  pmProgname, pmErrStr(sts));
+		  pmGetProgname(), pmErrStr(sts));
 	  exit(1);
       }
   } 
 
   if ((sts = __pmFixPMNSHashTab(pmns, num_metrics, 1)) < 0) {
       fprintf(stderr, "%s: __pmFixPMNSHashTab: %s\n", 
-	      pmProgname, pmErrStr(sts));
+	      pmGetProgname(), pmErrStr(sts));
       exit(1);
   }
   __pmUsePMNS(pmns);
@@ -119,7 +119,7 @@ main(int argc, char **argv)
 
       if ((sts = pmLookupName(1, &name, &thepmid)) < 0) {
 	  fprintf(stderr, "%s: _pmLookupName: %s\n", 
-		  pmProgname, pmErrStr(sts));
+		  pmGetProgname(), pmErrStr(sts));
       }
       if (thepmid == pmid) {
 	  printf("%d matches for name lookup\n", pmid);
@@ -137,7 +137,7 @@ main(int argc, char **argv)
 
       if ((sts = pmNameID(pmid, &thename)) < 0) {
 	  fprintf(stderr, "%s: _pmNameID: %s\n", 
-		  pmProgname, pmErrStr(sts));
+		  pmGetProgname(), pmErrStr(sts));
       }
       if (strcmp(name, thename) == 0) {
 	  printf("%s matches for id lookup\n", name);
@@ -157,7 +157,7 @@ main(int argc, char **argv)
       printf("Children of %s:\n", parent);
       if ((sts = pmGetChildren(parent, &offspring)) < 0) {
 	  fprintf(stderr, "%s: _pmGetChildren: %s\n", 
-		  pmProgname, pmErrStr(sts));
+		  pmGetProgname(), pmErrStr(sts));
       }
       num_childs = sts;
       for (j = 0; j < num_childs; j++) {

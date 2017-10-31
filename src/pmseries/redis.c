@@ -320,7 +320,7 @@ redis_series_annotate(redisContext *redis,
     sts = merge_labelsets(metric, value, buf, sizeof(buf), filter, &annotate);
     if (sts < 0) {
 	fprintf(stderr, "%s: failed to merge series %s labelsets: %s\n",
-		pmProgname, value->hash, pmErrStr(sts));
+		pmGetProgname(), value->hash, pmErrStr(sts));
 	exit(1);
     }
 }
@@ -399,12 +399,12 @@ redis_check_schema(redisContext *redis)
 
 	if (!version || version > PCP_SCHEMA_VERSION) {
 	    fprintf(stderr, "%s: unknown schema version in use (%u)\n",
-		    pmProgname, version);
+		    pmGetProgname(), version);
 	    exit(1);
 	}
     } else if (reply->type != REDIS_REPLY_NIL) {
 	fprintf(stderr, "%s: unknown schema version type (%u)\n",
-		pmProgname, reply->type);
+		pmGetProgname(), reply->type);
 	exit(1);
     } else {
 	freeReplyObject(reply);

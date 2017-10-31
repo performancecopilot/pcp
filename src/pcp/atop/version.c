@@ -21,7 +21,7 @@ getstrvers(void)
 
 	pmsprintf(vers, sizeof vers,
 		"%s version: %s <pcp@groups.io>",
-		pmProgname, PCP_VERSION);
+		pmGetProgname(), PCP_VERSION);
 
 	return vers;
 }

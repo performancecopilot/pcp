@@ -1196,13 +1196,19 @@ fetch_labels(int ctx, pmAtomValue *avp, char **hostname)
 {
     pmcd_container_t	*container;
     pmLabelSet		*set = NULL;
+    int			sts;
 
-    __pmGetContextLabels(&set);
-    pmdaAddLabels(&set, "{\"hostname\":\"%s\"}", ctx_hostname(ctx, hostname));
-    if ((container = ctx_container(ctx)) != NULL)
-	pmdaAddLabels(&set, "{\"container\":\"%s\"}", container->name);
-    avp->cp = strndup(set->json, set->jsonlen + 1);
-    pmFreeLabelSets(set, 1);
+    if ((sts = __pmGetContextLabels(&set)) < 0) {
+	fprintf(stderr, "fetch_labels: __pmGetContextLabels: returns %d (%s)\n", sts, pmErrStr(sts));
+	avp->cp = "";
+    }
+    else {
+	pmdaAddLabels(&set, "{\"hostname\":\"%s\"}", ctx_hostname(ctx, hostname));
+	if ((container = ctx_container(ctx)) != NULL)
+	    pmdaAddLabels(&set, "{\"container\":\"%s\"}", container->name);
+	avp->cp = strndup(set->json, set->jsonlen + 1);
+	pmFreeLabelSets(set, 1);
+    }
     return avp->cp;
 }
 

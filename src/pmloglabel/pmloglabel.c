@@ -186,7 +186,7 @@ main(int argc, char *argv[])
 	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    break;
@@ -221,7 +221,7 @@ main(int argc, char *argv[])
 	    version = atoi(opts.optarg);
 	    if (version != PM_LOG_VERS02) {
 		fprintf(stderr, "%s: unknown version number (%s)\n",
-			pmProgname, opts.optarg);
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
 	    readonly = 0;
@@ -240,7 +240,7 @@ main(int argc, char *argv[])
     }
 
     if (opts.optind != argc - 1 && opts.narchives == 0) {
-	pmprintf("%s: insufficient arguments\n", pmProgname);
+	pmprintf("%s: insufficient arguments\n", pmGetProgname());
 	opts.errors++;
     }
 
@@ -256,7 +256,7 @@ main(int argc, char *argv[])
 	printf("Scanning for components of archive \"%s\"\n", archive);
     if ((sts = __pmLogLoadLabel(&logctl, archive)) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, archive, pmErrStr(sts));
+		pmGetProgname(), archive, pmErrStr(sts));
 	exit(1);
     }
 

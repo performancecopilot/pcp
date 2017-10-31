@@ -568,7 +568,7 @@ static int setup_pmns()
 
     if ((sts = __pmNewPMNS(&pmns)) < 0)
     {
-        __pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmProgname, pmErrStr(sts));
+        __pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(sts));
         pmns = NULL;
         return -1;
     }
@@ -672,7 +672,7 @@ perfevent_init(pmdaInterface *dp)
 
 static void usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
           "  -C           maintain compatibility to (possibly) nonconforming metric names\n"
           "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
@@ -697,12 +697,12 @@ int main(int argc, char **argv)
     pmdaInterface	dispatch;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "perfevent" "%c" "help",
              pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, PERFEVENT,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmGetProgname(), PERFEVENT,
                "perfevent.log", mypath);
 
     while ((c = pmdaGetOpt(argc, argv, "CD:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF)

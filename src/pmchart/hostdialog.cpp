@@ -236,7 +236,7 @@ HostDialog::nssGuiError(QProcess::ProcessError error)
 	message.append(tr("Generic nss-gui program failure, state="));
 	message.append(error).append("\n");
     }
-    QMessageBox::warning(this, pmProgname, message,
+    QMessageBox::warning(this, pmGetProgname(), message,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		Qt::NoButton, Qt::NoButton);
     my.nssGuiStarted = false;
@@ -250,7 +250,7 @@ HostDialog::nssGuiFinished(int exitCode, QProcess::ExitStatus exitStatus)
     if (exitCode) {
 	QString message(tr("nss-gui helper process failed\nExit status was:"));
 	message.append(exitCode).append("\n");
-	QMessageBox::warning(this, pmProgname, message,
+	QMessageBox::warning(this, pmGetProgname(), message,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		Qt::NoButton, Qt::NoButton);
     }

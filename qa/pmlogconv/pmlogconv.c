@@ -99,7 +99,7 @@ nextrec(void)
 		inarch.eof[META] = 1;
 		if (sts != PM_ERR_EOL) {
 		    fprintf(stderr, "%s: Error: __pmLogRead[meta %s]: %s\n",
-			pmProgname, inarch.name, pmErrStr(sts));
+			pmGetProgname(), inarch.name, pmErrStr(sts));
 		    _report(lcp->l_mdfp);
 		    exit(1);
 		}
@@ -115,7 +115,7 @@ nextrec(void)
 		inarch.eof[LOG] = 1;
 		if (sts != PM_ERR_EOL) {
 		    fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
-			pmProgname, inarch.name, pmErrStr(sts));
+			pmGetProgname(), inarch.name, pmErrStr(sts));
 		    _report(lcp->l_mfp);
 		    exit(1);
 		}
@@ -178,12 +178,7 @@ main(int argc, char **argv)
     extern int	optind;
     extern int	pmDebug;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:n:?")) != EOF) {
 	switch (c) {
@@ -192,7 +187,7 @@ main(int argc, char **argv)
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    else
@@ -217,24 +212,24 @@ main(int argc, char **argv)
 Options\n\
   -D debug	   standard PCP debug flag\n\
   -n pmnsfile	   PMNS to use (not optional)\n",
-		pmProgname);
+		pmGetProgname());
 	exit(1);
     }
 
     if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	fprintf(stderr, "%s: Error loading namespace: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: Error loading namespace: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     inarch.name = argv[optind];
     if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE, inarch.name)) < 0) {
 	fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
-		pmProgname, inarch.name, pmErrStr(inarch.ctx));
+		pmGetProgname(), inarch.name, pmErrStr(inarch.ctx));
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&inarch.label)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n",
-	    pmProgname, inarch.name, pmErrStr(sts));
+	    pmGetProgname(), inarch.name, pmErrStr(sts));
 	exit(1);
     }
 
@@ -244,7 +239,7 @@ Options\n\
 
     output = argv[argc-1];
     if ((sts = __pmLogCreate("", output, PM_LOG_VERS02, &logctl)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -292,7 +287,7 @@ Options\n\
 	    /* write data record out */
 	    if ((sts = _pmLogPut(logctl.l_mfp, inarch.pb[LOG])) < 0) {
 		fprintf(stderr, "%s: Error: _pmLogPut: log data: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    /* free data record buffer */
@@ -336,7 +331,7 @@ Options\n\
 	    else {
 		if ((sts = _pmLogPut(logctl.l_mdfp, inarch.pb[META])) < 0) {
 		    fprintf(stderr, "%s: Error: _pmLogPut: meta data: %s\n",
-			    pmProgname, pmErrStr(sts));
+			    pmGetProgname(), pmErrStr(sts));
 		    exit(1);
 		}
 		needti = 1;

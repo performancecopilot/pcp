@@ -47,7 +47,7 @@ extern pid_t		sprocpid;	/* for refresh() */
 extern pmdaIndom	indomtab;	/* cmd tag indom */
 
 extern int		pmDebug;
-extern char		*pmProgname;
+extern char		*pmGetProgname();
 
 extern void		shping_init(pmdaInterface *);
 

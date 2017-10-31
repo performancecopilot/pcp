@@ -88,7 +88,7 @@ Options:\n\
   -t timeout   time in seconds before aborting the wait for individual\n\
                commands to complete [default 20 seconds]\n\
   -U username  run the agent and commands as alternate user [default \"pcp\"]\n",
-	pmProgname);
+	pmGetProgname());
     exit(1);
 }
 
@@ -111,12 +111,12 @@ main(int argc, char **argv)
     char		lbuf[256];
     char		mypath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "shping" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SHPING, 
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmGetProgname(), SHPING, 
 		"shping.log", mypath);
 
     while ((n = pmdaGetOpt(argc, argv,"CD:d:I:l:t:U:?",
@@ -132,7 +132,7 @@ main(int argc, char **argv)
 		if (*endnum != '\0') {
 		    fprintf(stderr, 
 		    	    "%s: -I requires number of seconds as argument\n",
-			    pmProgname);
+			    pmGetProgname());
 		    err++;
 		}
 		break;
@@ -142,7 +142,7 @@ main(int argc, char **argv)
 		if (*endnum != '\0') {
 		    fprintf(stderr, 
 		    	    "%s: -t requires number of seconds as argument\n",
-			    pmProgname);
+			    pmGetProgname());
 		    err++;
 		}
 		break;
@@ -163,7 +163,7 @@ main(int argc, char **argv)
     configfile = argv[optind];
     if ((conf = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Unable to open config file \"%s\": %s\n",
-	    pmProgname, configfile, osstrerror());
+	    pmGetProgname(), configfile, osstrerror());
 	exit(1);
     }
     line = 0;
@@ -216,7 +216,7 @@ main(int argc, char **argv)
 
     if (numcmd == 0) {
 	fprintf(stderr, "%s: No commands in config file \"%s\"?\n",
-	    pmProgname, configfile);
+	    pmGetProgname(), configfile);
 	exit(1);
     }
     else if (parseonly)

@@ -281,7 +281,7 @@ photosyst(struct sstat *si)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating processor %d: %s\n",
-				pmProgname, ids[i], insts[i]);
+				pmGetProgname(), ids[i], insts[i]);
 		update_processor(&si->cpu.cpu[i], ids[i], result, descs);
 	}
 	si->cpu.nrcpu = nrcpu;
@@ -349,7 +349,7 @@ photosyst(struct sstat *si)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating interface %d: %s\n",
-				pmProgname, ids[i], insts[i]);
+				pmGetProgname(), ids[i], insts[i]);
 		update_interface(&si->intf.intf[i], ids[i], insts[i], result, descs);
 	}
 	si->intf.intf[nrintf].name[0] = '\0';
@@ -494,7 +494,7 @@ photosyst(struct sstat *si)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating disk %d: %s\n",
-				pmProgname, ids[i], insts[i]);
+				pmGetProgname(), ids[i], insts[i]);
 		update_disk(&si->dsk.dsk[i], ids[i], insts[i], result, descs);
 	}
 	si->dsk.dsk[nrdisk].name[0] = '\0';
@@ -516,7 +516,7 @@ photosyst(struct sstat *si)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating lvm %d: %s\n",
-				pmProgname, ids[i], insts[i]);
+				pmGetProgname(), ids[i], insts[i]);
 		update_lvm(&si->dsk.lvm[i], ids[i], insts[i], result, descs);
 	}
 	si->dsk.lvm[nrlvm].name[0] = '\0'; 
@@ -539,7 +539,7 @@ photosyst(struct sstat *si)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating md %d: %s\n",
-				pmProgname, ids[i], insts[i]);
+				pmGetProgname(), ids[i], insts[i]);
 		update_mdd(&si->dsk.mdd[i], ids[i], insts[i], result, descs);
 	}
 	si->dsk.mdd[nrmdd].name[0] = '\0'; 
@@ -595,7 +595,7 @@ photosyst(struct sstat *si)
 	{
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating nfsmnt %d: %s\n",
-				pmProgname, ids[i], insts[i]);
+				pmGetProgname(), ids[i], insts[i]);
 		update_mnt(&si->nfs.nfsmnt[i], ids[i], insts[i], result, descs);
 	}
 	si->nfs.nfsmnt[nrnfs].mountdev[0] = '\0'; 

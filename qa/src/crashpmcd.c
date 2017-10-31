@@ -59,7 +59,7 @@ main(int argc, char *argv[])
     int j;
     int k;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     target = argc == 2 ? argv[1] : "localhost";
 

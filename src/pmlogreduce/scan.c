@@ -45,20 +45,20 @@ doscan(struct timeval *end)
 	 */
 	if ((ictx_b = pmNewContext(PM_CONTEXT_ARCHIVE, iname)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot open archive \"%s\" (ctx_b): %s\n",
-		    pmProgname, iname, pmErrStr(ictx_b));
+		    pmGetProgname(), iname, pmErrStr(ictx_b));
 	    exit(1);
 	}
 
 	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 0)) < 0) {
 	    fprintf(stderr,
-		"%s: Error: pmSetMode (ictx_b) failed: %s\n", pmProgname, pmErrStr(sts));
+		"%s: Error: pmSetMode (ictx_b) failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
     }
 
     if ((sts = pmUseContext(ictx_b)) < 0) {
 	fprintf(stderr, "%s: doscan: Error: cannot use context: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -75,7 +75,7 @@ doscan(struct timeval *end)
 	    if (sts == PM_ERR_EOL)
 		break;
 	    fprintf(stderr,
-		"%s: doscan: Error: pmFetch failed: %s\n", pmProgname, pmErrStr(sts));
+		"%s: doscan: Error: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if (pmDebugOptions.appl2) {
@@ -112,7 +112,7 @@ doscan(struct timeval *end)
 	    markrec.numpmid = 0;
 	    if ((sts = __pmLogPutResult2(&logctl, (__pmPDU *)&markrec)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutResult2: mark record write: %s\n",
-			pmProgname, pmErrStr(sts));
+			pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    /*
@@ -149,7 +149,7 @@ doscan(struct timeval *end)
 	    if (i == numpmid) {
 		fprintf(stderr,
 		    "%s: scan: Arrgh, cannot find pid %s in pidlist[]\n",
-			pmProgname, pmIDStr(vsp->pmid));
+			pmGetProgname(), pmIDStr(vsp->pmid));
 		exit(1);
 	    }
 	    mp = &metriclist[i];
@@ -167,7 +167,7 @@ doscan(struct timeval *end)
 		    vp = (value_t *)malloc(sizeof(value_t));
 		    if (vp == NULL) {
 			fprintf(stderr,
-			    "%s: rewrite: Arrgh, cannot malloc value_t\n", pmProgname);
+			    "%s: rewrite: Arrgh, cannot malloc value_t\n", pmGetProgname());
 			exit(1);
 		    }
 		    if (lvp == NULL)
@@ -215,7 +215,7 @@ doscan(struct timeval *end)
 
     if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
 	fprintf(stderr,
-	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmProgname);
+	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmGetProgname());
 	__pmPrintStamp(stderr, &last_tv);
 	fprintf(stderr,
 	    " failed: %s\n", pmErrStr(sts));

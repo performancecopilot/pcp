@@ -24,7 +24,7 @@ do_PMNS_op(char *msg)
     printf("---%s---\n", msg);
     printf("PMNS location = %d\n", pmGetPMNSLocation());
     if ((sts = pmLookupName(1, &name, &pmid)) < 0) { 
-	fprintf(stderr, "%s: lookup failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: lookup failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     } 
 }
@@ -43,7 +43,7 @@ main(int argc, char **argv)
     int		i;
     int		contype = PM_CONTEXT_HOST;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "Li:h:a:D:n:tv")) != EOF) {
 	switch (c) {
@@ -68,7 +68,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -93,26 +93,26 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s\n", pmProgname, usage);
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     switch (contype) {
     case PM_CONTEXT_LOCAL:
 	if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
-	    printf("%s: Cannot create local context: %s\n", pmProgname, pmErrStr(sts));
+	    printf("%s: Cannot create local context: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	break;
     case PM_CONTEXT_ARCHIVE:
 	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	    printf("%s: Cannot connect to archive \"%s\": %s\n", pmProgname, archive, pmErrStr(sts));
+	    printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(sts));
 	    exit(1);
 	}
 	break;
     case PM_CONTEXT_HOST:
 	if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	    printf("%s: Cannot connect to host \"%s\": %s\n", pmProgname, host, pmErrStr(sts));
+	    printf("%s: Cannot connect to host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
 	    exit(1);
 	}
 	break;
@@ -124,7 +124,7 @@ main(int argc, char **argv)
 	pmUnloadNameSpace();
 	do_PMNS_op("post-unload");
 	if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	    printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	    printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	    exit(1);
 	}
 	do_PMNS_op("post-load");

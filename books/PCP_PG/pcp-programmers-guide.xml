@@ -2321,9 +2321,9 @@ main(int argc, char **argv)
     pmdaInterface       dispatch;
 
     isDSO = 0;
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
     __pmGetUsername(&amp;username);
-    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
+    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
                &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 
     pmdaGetOptions(argc, argv, &amp;opts, &amp;dispatch);
@@ -5200,7 +5200,7 @@ int <replaceable>status</replaceable> = pmRecordSetup("folio string", "creator s
           <procedure id="id5206969">
             <title>Creating a Recording Session</title>
             <step>
-              <para>Call <command>pmRecordSetup</command> to establish a new recording session. A new Archive Folio is created using the name <replaceable>folio</replaceable>. If the <replaceable>folio</replaceable> file or directory already exists, or if it cannot be created, this is an error. The application that is creating the session is identified by creator (most often this would be the same as the global PMAPI application name, <literal>pmProgname</literal>). If the application knows how to create its own configuration file to replay the recorded session, replay should be nonzero. The <command>pmRecordSetup</command> function returns a stdio stream onto which the application writes the text of any required replay configuration file.</para>
+              <para>Call <command>pmRecordSetup</command> to establish a new recording session. A new Archive Folio is created using the name <replaceable>folio</replaceable>. If the <replaceable>folio</replaceable> file or directory already exists, or if it cannot be created, this is an error. The application that is creating the session is identified by creator (most often this would be the same as the global PMAPI application name, as returned <literal>pmGetProgname()</literal>). If the application knows how to create its own configuration file to replay the recorded session, replay should be nonzero. The <command>pmRecordSetup</command> function returns a stdio stream onto which the application writes the text of any required replay configuration file.</para>
             </step>
             <step>
               <para>For each host that is to be included in the recording session, call <command>pmRecordAddHost</command>. A new <filename>pmRecordHost</filename> structure is returned via <replaceable>rhp</replaceable>. It is assumed that PMCD is running on the host as this is how <command>pmlogger</command> retrieves the required performance metrics. See <xref linkend="LE13213-PARENT"/> for more information.</para>

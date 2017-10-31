@@ -33,14 +33,14 @@ char *argv[];
     int		ctx = -1;	/* context for host */
     static char	*usage = "[-D debugspec] [-n namespace] [-a archive] [-h host] [-L]";
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:Ln:")) != EOF) {
 	switch (c) {
 
 	case 'a':
 	    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, optarg)) < 0) {
-		printf("%s: pmNewContext(archive %s): %s\n", pmProgname, optarg, pmErrStr(sts));
+		printf("%s: pmNewContext(archive %s): %s\n", pmGetProgname(), optarg, pmErrStr(sts));
 		exit(1);
 	    }
 	    break;
@@ -49,14 +49,14 @@ char *argv[];
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
 
 	case 'h':
 	    if ((ctx = pmNewContext(PM_CONTEXT_HOST, optarg)) < 0) {
-		printf("%s: pmNewContext(host %s): %s\n", pmProgname, optarg, pmErrStr(ctx));
+		printf("%s: pmNewContext(host %s): %s\n", pmGetProgname(), optarg, pmErrStr(ctx));
 		exit(1);
 	    }
 	    break;
@@ -64,7 +64,7 @@ char *argv[];
 	case 'L':
 	    putenv("PMDA_LOCAL_SAMPLE=");	/* sampledso needed */
 	    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
-		printf("%s: pmNewContext(host %s): %s\n", pmProgname, optarg, pmErrStr(sts));
+		printf("%s: pmNewContext(host %s): %s\n", pmGetProgname(), optarg, pmErrStr(sts));
 		exit(1);
 	    }
 	    break;
@@ -81,12 +81,12 @@ char *argv[];
     }
 
     if (errflag || optind != argc) {
-	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
 
     if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
@@ -112,7 +112,7 @@ char *argv[];
 
     if (ctx == -1) {
 	if ((ctx = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
-	    printf("%s: pmNewContext(local:): %s\n", pmProgname, pmErrStr(ctx));
+	    printf("%s: pmNewContext(local:): %s\n", pmGetProgname(), pmErrStr(ctx));
 	    exit(1);
 	}
     }

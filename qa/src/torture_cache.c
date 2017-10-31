@@ -590,7 +590,7 @@ main(int argc, char **argv)
     int		sts;
     int		c;
 
-    __pmSetProgname(argv[0]);
+    pmSetProgname(argv[0]);
 
     indomp = (__pmInDom_int *)&indom;
 
@@ -601,7 +601,7 @@ main(int argc, char **argv)
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmProgname, optarg);
+		    pmGetProgname(), optarg);
 		errflag++;
 	    }
 	    break;
@@ -614,7 +614,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s [-D...] [a|b|c|d|...|i 1|2|3}\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-D...] [a|b|c|d|...|i 1|2|3}\n", pmGetProgname());
 	exit(1);
     }
 
