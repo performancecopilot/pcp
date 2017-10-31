@@ -628,6 +628,7 @@ zlib_CFLAGS
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
+enable_decompression
 lib_for_lzma
 lib_for_atomic
 enable_secure
@@ -947,7 +948,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -998,6 +998,7 @@ with_selinux
 with_make
 with_tar
 with_zip
+with_transparent_decompression
 enable_ssp
 enable_pie
 enable_visibility
@@ -1091,7 +1092,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1344,15 +1344,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1490,7 +1481,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1643,7 +1634,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1731,6 +1721,9 @@ Optional Packages:
                           auto discovery)
   --with-zip              path to GNU compatible zip(1) (default is empty for
                           auto discovery)
+  --with-transparent-decompression
+                          enable support for transparent decompression of
+                          archives (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -3051,6 +3044,16 @@ if test "${with_zip+set}" = set; then :
 else
   ZIP=''
 fi
+
+
+
+# Check whether --with-transparent-decompression was given.
+if test "${with_transparent_decompression+set}" = set; then :
+  withval=$with_transparent_decompression; do_decompression=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-transparent-decompression=$withval"
+else
+  do_decompression=check
+fi
+
 
 
 
@@ -15865,7 +15868,32 @@ fi
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma_block_decoder in -llzma" >&5
+if test "$do_decompression" = "check" -o "$do_decompression" = "yes"
+then
+    enable_decompression=true
+
+    for ac_header in lzma.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "lzma.h" "ac_cv_header_lzma_h" "$ac_includes_default"
+if test "x$ac_cv_header_lzma_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LZMA_H 1
+_ACEOF
+
+else
+
+	enable_decompression=false
+	if test "$do_decompression" = "yes"
+	then
+		as_fn_error $? "cannot enable transparent decompression - no lzma header" "$LINENO" 5
+	fi
+
+fi
+
+done
+
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma_block_decoder in -llzma" >&5
 $as_echo_n "checking for lzma_block_decoder in -llzma... " >&6; }
 if ${ac_cv_lib_lzma_lzma_block_decoder+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -15903,9 +15931,29 @@ fi
 $as_echo "$ac_cv_lib_lzma_lzma_block_decoder" >&6; }
 if test "x$ac_cv_lib_lzma_lzma_block_decoder" = xyes; then :
   lib_for_lzma="-llzma"
+else
+
+	enable_decompression=false
+	if test "$do_decompression" = "yes"
+	then
+	    as_fn_error $? "cannot enable transparent decompression - no lzma library" "$LINENO" 5
+	fi
+
 fi
 
 
+
+    if test "$enable_decompression" = "true"
+    then
+
+$as_echo "#define HAVE_TRANSPARENT_DECOMPRESSION 1" >>confdefs.h
+
+
+$as_echo "#define HAVE_LZMA_DECOMPRESSION 1" >>confdefs.h
+
+    fi
+
+fi
 
 if test -f /usr/include/sn/arsess.h
 then

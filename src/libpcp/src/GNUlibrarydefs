@@ -13,6 +13,10 @@ LIBPCP_LDLIBS += $(LIB_FOR_AVAHI)
 LIBPCP_CFLAGS += $(AVAHICFLAGS)
 endif
 
+ifeq "$(ENABLE_DECOMPRESSION)" "true"
+LIBPCP_LDLIBS += $(LIB_FOR_LZMA)
+endif
+
 ifeq "$(TARGET_OS)" "mingw"
 LIBPCP_LDLIBS += -lpsapi -lws2_32
 endif

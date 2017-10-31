@@ -70,6 +70,12 @@ CFILES += avahi.c
 LFILES += avahi.c
 endif
 
+ifeq "$(ENABLE_DECOMPRESSION)" "true"
+LLDLIBS += $(LIB_FOR_LZMA)
+CFILES += io_xz.c
+LFILES += io_xz.c
+endif
+
 ifneq "$(TARGET_OS)" "mingw"
 LFILES += accounts.c
 CFILES += accounts.c

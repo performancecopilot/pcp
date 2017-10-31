@@ -31,6 +31,8 @@
  * SUCH DAMAGE.
  *
  */
+#include "config.h"
+#if HAVE_LZMA_DECOMPRESSION
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -894,3 +896,4 @@ __pm_fops __pm_xz = {
     .__pmsetvbuf = xz_setvbuf,
     .__pmclose = xz_close
 };
+#endif /* HAVE_LZMA_DECOMPRESSION */

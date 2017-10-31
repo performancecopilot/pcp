@@ -249,6 +249,7 @@ ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 ENABLE_SELINUX = @enable_selinux@
+ENABLE_DECOMPRESSION = @enable_decompression@
 
 # selinux configuration bits
 PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@

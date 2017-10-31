@@ -18,12 +18,15 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <sys/stat.h>
+#include "config.h"
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
 
 extern __pm_fops __pm_stdio;
+#if HAVE_TRANSPARENT_DECOMPRESSION && HAVE_LZMA_DECOMPRESSION
 extern __pm_fops __pm_xz;
+#endif
 
 /*
  * Open a PCP file with given mode and return a __pmFILE. An i/o
@@ -50,8 +53,14 @@ __pmFopen(const char *path, const char *mode)
      * something like that should be moved here.
      */
     pathlen = strlen(path);
-    if (pathlen > 3 && memcmp(path + pathlen - 3, ".xz", 3) == 0)
+    if (pathlen > 3 && memcmp(path + pathlen - 3, ".xz", 3) == 0) {
+#if HAVE_TRANSPARENT_DECOMPRESSION && HAVE_LZMA_DECOMPRESSION
 	f->fops = &__pm_xz;
+#else
+	free(f);
+	return NULL; /* Not handled */
+#endif
+    }
     else
 	f->fops = &__pm_stdio;
 

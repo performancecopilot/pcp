@@ -205,6 +205,14 @@ AC_ARG_WITH([zip],
     [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
     [ZIP=''])
 
+AC_ARG_WITH(
+    [transparent-decompression],
+    [AC_HELP_STRING([--with-transparent-decompression],
+		    [enable support for transparent decompression of archives (default is on)])],
+    [do_decompression=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-transparent-decompression=$withval"],
+    [do_decompression=check])
+
+
 dnl
 dnl Note: the following environment variables may be set to override defaults:
 dnl MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
@@ -3390,8 +3398,35 @@ dnl check for -latomic, needed for some -march=i386 builds with i686 c++ distro 
 AC_CHECK_LIB(atomic, __atomic_fetch_add_4, [lib_for_atomic="-latomic"])
 AC_SUBST(lib_for_atomic)
 
-AC_CHECK_LIB(lzma, lzma_block_decoder, [lib_for_lzma="-llzma"])
-AC_SUBST(lib_for_lzma)
+dnl Check for -llzma
+if test "$do_decompression" = "check" -o "$do_decompression" = "yes"
+then
+    enable_decompression=true
+
+    AC_CHECK_HEADERS([lzma.h], [], [
+	enable_decompression=false
+	if test "$do_decompression" = "yes"
+	then
+		AC_MSG_ERROR([cannot enable transparent decompression - no lzma header])
+	fi
+    ])
+
+    AC_CHECK_LIB(lzma, lzma_block_decoder, [lib_for_lzma="-llzma"], [
+	enable_decompression=false
+	if test "$do_decompression" = "yes"
+	then
+	    AC_MSG_ERROR([cannot enable transparent decompression - no lzma library])
+	fi
+    ])
+    AC_SUBST(lib_for_lzma)
+
+    if test "$enable_decompression" = "true"
+    then
+	AC_DEFINE(HAVE_TRANSPARENT_DECOMPRESSION, [1], [Transparent decompression])
+	AC_DEFINE(HAVE_LZMA_DECOMPRESSION, [1], [lzma decompression])
+    fi
+    AC_SUBST(enable_decompression)
+fi
 
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h
