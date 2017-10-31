@@ -246,9 +246,9 @@ HH:MM:SS        1
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
-Invalid regex '(': unbalanced parenthesis.
-Invalid regex '.[]*': unexpected end of regular expression.
-Invalid regex '.[z-a]': bad character range.
+Invalid regex '(': missing ), unterminated subpattern at position 2.
+Invalid regex '.[]*': bad escape \Z at position 6.
+Invalid regex '.[z-a]': bad character range z-a at position 4.
 Metricset definition ':nosuchset' not found.
 == unsupported metric type
 Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
@@ -829,7 +829,7 @@ Unknown option mem.util.free in [options].
 
   m.u.used
      Kbyte
-Options not allowed in [global] section.
+No options allowed in [global] section.
 No metrics specified.
 
   archive: QAPATH/archives/20130706
