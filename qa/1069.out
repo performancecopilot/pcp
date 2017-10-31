@@ -250,6 +250,8 @@ Invalid regex '(': unbalanced parenthesis.
 Invalid regex '.[]*': unexpected end of regular expression.
 Invalid regex '.[z-a]': bad character range.
 Metricset definition ':nosuchset' not found.
+== unsupported metric type
+Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
@@ -462,6 +464,17 @@ Metricset definition ':nosuchset' not found.
   samples: 4
  interval: 1.0 sec
  duration: 00:00:03
+
+
+  archive: QAPATH/archives/19970807.09.54
+     host: gonzo
+ timezone: UTC+0
+    start: Thu Aug  7 22:59:00 1997
+      end: Wed Aug  6 23:55:01 1997
+  metrics: 1 (1 instance)
+  samples: 0
+ interval: 1.0 sec
+ duration: 00:00:00
 
 == exercise extended CSV output
 11
@@ -766,7 +779,7 @@ pmrep: Impossible value or scale conversion
           ms/s   count/s    count/s    count/s         Kbyte/s          Kbyte/s
 == handle empty/invalid/multiple metricsets in config file
 Invalid metric yes (PM_ERR_NAME Unknown metric name).
-Invalid directive [options]/mem.util.free in the config file.
+Unknown option mem.util.free in [options].
 No metrics specified.
 
   archive: QAPATH/archives/20130706
@@ -801,6 +814,75 @@ No metrics specified.
  interval: 2.0 sec
  duration: 00:00:00
 
+== handle options/global/metricset section corner cases / issues
+Unknown option mem.util.free in [options].
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 1 (1 instance)
+  samples: 1
+ interval: 2.0 sec
+ duration: 00:00:00
+
+  m.u.used
+     Kbyte
+Options not allowed in [global] section.
+No metrics specified.
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 1 (1 instance)
+  samples: 1
+ interval: 2.0 sec
+ duration: 00:00:00
+
+  freemem
+    Kbyte
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 2 (2 instances)
+  samples: 1
+ interval: 2.0 sec
+ duration: 00:00:00
+
+  freemem  usedmem
+    Kbyte    Kbyte
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 1 (1 instance)
+  samples: 1
+ interval: 2.0 sec
+ duration: 00:00:00
+
+  usedmem
+    Kbyte
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 2 (2 instances)
+  samples: 1
+ interval: 2.0 sec
+ duration: 00:00:00
+
+  freemem  usedmem
+    Kbyte    Kbyte
 == exercise option priority
           m.u.free
              Kbyte

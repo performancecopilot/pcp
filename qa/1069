@@ -21,13 +21,6 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_filename_filter()
-{
-    sed \
-	-e '/Invalid directive/s/ in .*/ in the config file./' \
-    #end
-}
-
 _live_filter()
 {
     sed \
@@ -99,6 +92,9 @@ pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read
 pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read
 pmrep -s 1 -t 1 :nosuchset
 
+echo "== unsupported metric type"
+pmrep -s 1 -t 1 sample.sysinfo
+
 echo "== exercise non-integer options"
 pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _archive_filter
 
@@ -127,6 +123,7 @@ pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Asia/Kolkata sampl
 | _archive_filter
 pmrep -C -x -H -U -z -a $here/archives/numa hinv.machine | _archive_filter
 pmrep -C -x -H -U -z -a $here/archives/rep hinv.machine | _archive_filter
+pmrep -C -x -H -U -Z UTC -a $here/archives/19970807.09.54 -S "@22:59:00" sample.milliseconds | _archive_filter
 
 echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
@@ -297,7 +294,7 @@ echo 'failure = yes' >> $tmp.econfig
 pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :fail
 echo '[options]' > $tmp.econfig
 echo 'mem.util.free = freemem' >> $tmp.econfig
-pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _filename_filter
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _archive_filter
 echo '[empty]' > $tmp.econfig
 echo 'interval = 2s' >> $tmp.econfig
 echo '[metric]' >> $tmp.econfig
@@ -307,6 +304,35 @@ pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :empty | _archive_filter
 pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :metric | _archive_filter
 pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :empty :metric | _archive_filter
 pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :metric :empty | _archive_filter
+
+echo "== handle options/global/metricset section corner cases / issues"
+echo '[options]' > $tmp.cconfig
+echo 'interval = 2s' >> $tmp.cconfig
+echo 'mem.util.free = freemem' >> $tmp.cconfig
+# No metrics in options allowed
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used | _archive_filter
+echo '[options]' > $tmp.cconfig
+echo 'interval = 2s' >> $tmp.cconfig
+echo '[global]' >> $tmp.cconfig
+echo 'interval = 3s' >> $tmp.cconfig
+echo 'mem.util.free = freemem' >> $tmp.cconfig
+# No options in globals allowed
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G mem.util.used | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig    mem.util.used | _archive_filter
+echo '[options]' > $tmp.cconfig
+echo 'interval = 2s' >> $tmp.cconfig
+echo '[global]' >> $tmp.cconfig
+echo 'mem.util.free = freemem' >> $tmp.cconfig
+echo '[testing]' >> $tmp.cconfig
+echo 'mem.util.used = usedmem' >> $tmp.cconfig
+# No metrics
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :options | _archive_filter
+# Ok to pass
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig    :global | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :global :testing | _archive_filter
+# Expected to pass
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :testing | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig    :testing | _archive_filter
 
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig

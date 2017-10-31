@@ -128,7 +128,7 @@ class pmConfig(object):
             if opt in self.util.keys:
                 self.set_attr(opt, config.get(section, opt))
             elif section == 'options':
-                sys.stderr.write("Invalid directive [%s]/%s in %s.\n" % (section, opt, self.util.config))
+                sys.stderr.write("Unknown option %s in [%s].\n" % (opt, section))
                 sys.exit(1)
 
     def read_options(self):
@@ -240,6 +240,9 @@ class pmConfig(object):
             if config.has_section('global'):
                 parsemet = OrderedDict()
                 for key in config.options('global'):
+                    if key in self.util.keys:
+                        sys.stderr.write("No options allowed in [global] section.\n")
+                        sys.exit(1)
                     self.parse_metric_info(parsemet, key, config.get('global', key))
                 for metric in parsemet:
                     name = parsemet[metric][:1][0]

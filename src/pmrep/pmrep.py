@@ -531,7 +531,9 @@ class PMReporter(object):
             else:
                 duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
                 samples = int(duration / float(self.interval) + 1)
+                samples = max(0, samples)
                 duration = (samples - 1) * float(self.interval)
+                duration = max(0, duration)
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
         instances = sum([len(x[0]) for x in self.pmconfig.insts])
@@ -539,6 +541,7 @@ class PMReporter(object):
 
         if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
             duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+            duration = max(0, duration)
 
         def secs_to_readable(seconds):
             """ Convert seconds to easily readable format """
