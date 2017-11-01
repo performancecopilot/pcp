@@ -18,9 +18,6 @@
 #include "gridobj.h"
 #include "defaultobj.h"
 
-#include <iostream>
-using namespace std;
-
 GridObj::~GridObj()
 {
 }
@@ -57,14 +54,12 @@ GridObj::setTran(float xTran, float zTran, int setWidth, int setDepth)
 
     assert(_finished == true);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	cerr << "\nGridObj(" << width() << "x" << depth() << ")@" 
 	     << col() << "," << row() 
 	     << "::setTran (" 
 	     << xTran << ", " << zTran << ", "
 	     << setWidth << ", " << setDepth << ")" << endl;
-#endif
 
     BaseObj::setBaseSize(width(), depth());
     BaseObj::setTran(xTran + xShift, zTran + zShift, setWidth, setDepth);
@@ -86,11 +81,9 @@ GridObj::setTran(float xTran, float zTran, int setWidth, int setDepth)
 	for (j = item._row; j < item._row + item._item->rows(); j++)
 	    totalDepth += _rowDepth[j];
 	
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    cerr << "GridObj::setTran: [" << i << "] at " << item._col
 		 << ',' << item._row << ": ";
-#endif
 
 	item._item->setTran(colPos[item._col] - xShift + borderX(), 
 			    rowPos[item._row] - zShift + borderZ(), 
@@ -130,12 +123,10 @@ GridObj::addObj(ViewObj *obj, int col, int row)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	cerr << "GridObj::addObj: Adding item " << _list.length() << ": "
 	     << obj->name() << ", size = " << obj->width() << 'x'
 	     << obj->depth() << endl;
-#endif
 
     newItem._item = obj;
     newItem._row = row;
@@ -149,21 +140,17 @@ GridObj::addObj(ViewObj *obj, int col, int row)
 
     // Fasttrack size adjustments for simple objects
     if (obj->cols() == 1 && _colWidth[col] < obj->width()) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    cerr << "GridObj::addObj: increasing col[" << col << "] from " 
 		 << _colWidth[col] << " to " << obj->width() << endl;
-#endif
 	_width += obj->width() - _colWidth[col];
 	_colWidth[col] = obj->width();
     }
 
     if (obj->rows() == 1 && _rowDepth[row] < obj->depth()) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    cerr << "GridObj::addObj: increasing row[" << row << "] from " 
 		 << _rowDepth[row] << " to " << obj->depth() << endl;
-#endif
 	_depth += obj->depth() - _rowDepth[row];
 	_rowDepth[row] = obj->depth();
     }
@@ -200,23 +187,19 @@ GridObj::finishedAdd()
 		for (j = item._col; 
 		     j < item._col + item._item->cols() && adjust > 0; j++) {
 		    if (adjust > size) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing col["
 				 << j << "] from " << _colWidth[j] << " to "
 				 << _colWidth[j] + size << endl;
-#endif
 			_colWidth[j] += size;
 			_width+= size;
 			adjust = 0;
 		    }
 		    else {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing col["
 				 << j << "] from " << _colWidth[j] << " to "
 				 << _colWidth[j] + adjust << endl;
-#endif
 			_colWidth[j] += adjust;
 			_width += adjust;
 			size -= adjust;
@@ -239,23 +222,19 @@ GridObj::finishedAdd()
 		for (j = item._row; 
 		     j < item._row + item._item->rows() && adjust > 0; j++) {
 		    if (adjust > size) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing row["
 				 << j << "] from " << _rowDepth[j] << " to "
 				 << _rowDepth[j] + size << endl;
-#endif
 			_rowDepth[j] += size;
 			_depth+= size;
 			adjust = 0;
 		    }
 		    else {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing row["
 				 << j << "] from " << _rowDepth[j] << " to "
 				 << _rowDepth[j] + adjust << endl;
-#endif
 			_rowDepth[j] += adjust;
 			_depth += adjust;
 			size -= adjust;
@@ -267,10 +246,8 @@ GridObj::finishedAdd()
 
     _finished = true;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	cerr << "GridObj::finishedAdd: " << *this << endl;
-#endif
 }
 
 QTextStream&

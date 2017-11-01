@@ -18,9 +18,6 @@
 #include "main.h"
 #include "togglemod.h"
 
-#include <iostream>
-using namespace std;
-
 ToggleMod::~ToggleMod()
 {
 }
@@ -50,17 +47,13 @@ ToggleMod::selectAll()
 {
     int		i;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ToggleMod::selectAll: \"" << _label << '"' << endl;
-#endif
 
     for (i = 0; i < _list.size(); i++) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    cerr << "ToggleMod::selectAll: Selecting [" << i << ']' 
 		 << endl;
-#endif
 
     	_list[i]->selectAll();
     }
@@ -71,18 +64,14 @@ ToggleMod::select(SoPath *path)
 {
     int		i;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ToggleMod::select: \"" << _label << '"' << endl;
-#endif
 
     theModList->selectAllOn();
 
     for (i = 0; i < _list.size(); i++) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    cerr << "ToggleMod::select: Selecting [" << i << ']' << endl;
-#endif
 
 	_list[i]->selectAll();
     }
@@ -97,10 +86,8 @@ ToggleMod::select(SoPath *path)
 int
 ToggleMod::remove(SoPath *)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ToggleMod::remove: " << _label << endl;
-#endif
     return 0;
 }
 

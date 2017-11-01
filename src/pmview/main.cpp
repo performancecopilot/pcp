@@ -27,10 +27,6 @@
 #include "viewobj.h"
 #include "main.h"
 
-#include <sys/stat.h>
-#include <iostream>
-using namespace std;
-
 int Cflag;
 int Lflag;
 int Wflag;
@@ -47,6 +43,7 @@ SceneGroup *archiveGroup;	// one metrics class group for all archives
 SceneGroup *activeGroup;	// currently active metric fetchgroup
 QedTimeControl *pmtime;		// one timecontrol class for pmtime
 PmView *pmview;
+QTextStream cerr(stderr);
 
 static const char *options = "A:a:Cc:D:g:h:Ln:O:p:S:T:t:VzZ:?";
 
