@@ -270,7 +270,11 @@ photosyst(struct sstat *si)
 
 	nrcpu = get_instances("processors", PERCPU_UTIME, descs, &ids, &insts);
 	if (nrcpu == 0)
-		nrcpu = hinv_nrcpus;
+	{
+		fprintf(stderr, "%s: no per-processor values available\n",
+			pmGetProgname());
+		cleanstop(0);
+	}
 	if (nrcpu > onrcpu)
 	{
 		size = nrcpu * sizeof(struct percpu);
@@ -338,7 +342,11 @@ photosyst(struct sstat *si)
 	ids = NULL;
 	nrintf = get_instances("interfaces", PERINTF_RBYTE, descs, &ids, &insts);
 	if (nrintf == 0)
-		nrintf = hinv_nrintf;
+	{
+		fprintf(stderr, "%s: no per-interface values available\n",
+			pmGetProgname());
+		cleanstop(0);
+	}
 	if (nrintf > onrintf)
 	{
 		size = (nrintf + 1) * sizeof(struct perintf);
@@ -483,7 +491,11 @@ photosyst(struct sstat *si)
 	ids = NULL;
 	nrdisk = get_instances("disks", PERDISK_NREAD, descs, &ids, &insts);
 	if (nrdisk == 0)
-		nrdisk = hinv_nrdisk;
+	{
+		fprintf(stderr, "%s: no per-disk values available\n",
+			pmGetProgname());
+		cleanstop(0);
+	}
 	if (nrdisk > onrdisk)
 	{
 		size = (nrdisk + 1) * sizeof(struct perdsk);

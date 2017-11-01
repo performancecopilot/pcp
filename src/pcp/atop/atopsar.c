@@ -241,9 +241,6 @@ atopsar(int argc, char *argv[])
 			char	*endnum, *arg;
 
 			arg = argv[opts.optind++];
-			if (!numeric(arg))
-				pratopsaruse(pmGetProgname(), &opts);
-	
 			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
@@ -2101,7 +2098,7 @@ topcline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 {
 	count_t	availcpu;
 
-	if (!ts)
+	if (!ts || nactproc < 3)
 	{
 		printf("report not available.....\n");
 		return 0;
@@ -2152,7 +2149,7 @@ topmline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 {
 	count_t		availmem;
 
-	if (!ts)
+	if (!ts || nactproc < 3)
 	{
 		printf("report not available.....\n");
 		return 0;
@@ -2196,7 +2193,7 @@ topdline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	int		i;
 	count_t		availdsk;
 
-	if (!ts)
+	if (!ts || nactproc < 3)
 	{
 		printf("report not available.....\n");
 		return 0;
@@ -2255,7 +2252,7 @@ topnline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	int		i;
 	count_t		availnet;
 
-	if (!ts)
+	if (!ts || nactproc < 3)
 	{
 		printf("report not available.....\n");
 		return 0;

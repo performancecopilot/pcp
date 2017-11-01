@@ -41,6 +41,12 @@ pcp $allopts atopsar -r $here/archives/pcp-atop -i | _filter
 echo; echo == Memory metrics
 pcp $allopts atopsar -r $here/archives/pcp-atop -m | _filter
 
+echo; echo == Top3 processes by processor
+pcp $allopts atopsar -r $here/archives/pcp-atop -O | _filter
+
+echo; echo == Top3 processes by memory
+pcp $allopts atopsar -r $here/archives/pcp-atop -G | _filter
+
 echo; echo == Checking sample count and interval
 export PCP_ARCHIVE=$here/archives/pcp-atop
 pcp -z atopsar -m 2 3 > $tmp.mem1
@@ -49,6 +55,10 @@ unset PCP_ARCHIVE
 test -s $tmp.mem1 || echo "Unexpected empty file 1"
 test -s $tmp.mem2 || echo "Unexpected empty file 2"
 diff $tmp.mem1 $tmp.mem2 && echo OK
+
+echo; echo == Check handling of missing values
+pcp atopsar -r archives/pcp-vmstat
+pcp atopsar -r archives/pcp-mpstat
 
 # success, all done
 echo; echo "== Done"
