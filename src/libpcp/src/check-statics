@@ -473,7 +473,6 @@ util.o
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
     pmProgname			# no unsafe side-effects, see notes in util.c
-    appname			# no unsafe side-effects, see notes in util.c
     pmDebug			# set-once from main(), read-only elsewhere
     				# also guarded by __pmLock_extcall when set
 				# from __pmInitLocks()

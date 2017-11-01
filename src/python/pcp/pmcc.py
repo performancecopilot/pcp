@@ -616,6 +616,32 @@ class MetricGroupManager(dict, MetricCache):
             self._default_pause = self._default_delta
         return self._default_pause
 
+    def checkMissingMetrics(self, nameL):
+        """
+        Return a list of metrics that are missing from the default context.
+        This is usually only applicable when replaying archives.
+        Return None if all found, else a list of missing metric names.
+        """
+        missing = []
+        nameA = (c_char_p * len(nameL))()
+        for i, n in enumerate(nameL):
+            if type(n) != type(b''):
+                n = n.encode('utf-8')
+            nameA[i] = c_char_p(n)
+        try:
+            # fast path: check all in one call
+            pmContext.pmLookupName(self, nameA)
+        except pmErr as err:
+            # failure: check all names individually
+            for i, n in enumerate(nameA):
+                try:
+                    pmContext.pmLookupName(self, (n))
+                except pmErr as err:
+                    missing.append(nameL[i])
+        if len(missing) == 0:
+            return None 
+        return missing 
+
     def fetch(self):
         """ Perform fetch operation on all of the groups. """
         for group in self.keys():

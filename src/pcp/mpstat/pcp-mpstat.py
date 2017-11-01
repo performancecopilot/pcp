@@ -643,6 +643,10 @@ if __name__ == '__main__':
         soft_interrupts_list = NamedInterrupts(manager, 'kernel.percpu.softirqs').get_all_named_interrupt_metrics()
         MPSTAT_METRICS += interrupts_list
         MPSTAT_METRICS += soft_interrupts_list
+        missing = manager.checkMissingMetrics(MPSTAT_METRICS)
+        if missing != None:
+            sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
+            sys.exit(1)
         manager['mpstat'] = MPSTAT_METRICS
         manager.printer = MpstatReport(cpu_util_reporter, total_interrupt_usage_reporter, soft_interrupt_usage_reporter, hard_interrupt_usage_reporter)
         sts = manager.run()

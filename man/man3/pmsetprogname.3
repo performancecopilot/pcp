@@ -21,7 +21,7 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmSetProgname(const char *\fIprogram\fP);
+void pmSetProgname(const char *\fIprogram\fP);
 .br
 char *pmGetProgname(void);
 .sp
@@ -40,22 +40,21 @@ may be used to set the application name to
 .I program
 after stripping any leading components that begin with the filesystem
 path name separator (``/'' for Unix-like systems).
+.PP
+It is the callers responsibility to ensure the memory pointed to by
+.I program
+remains available for the life of the application.
+Typically, the value passed as
+.I program
+for a C program would be
+.BR argv[0] .
 If
 .I program
 is
 .BR NULL ,
 the default application name is restored.
-The return value is 0 for success, else
-an error code suitable for passing to
-.BR pmErrStr (3).
 .PP
 .B pmGetProgname
-may be used to return the current application name, and will
-return
-.B NULL
-if the default application name is in effect.
+may be used to return the current application name.
 .SH SEE ALSO
-.BR PMAPI (3),
-.BR pmErrStr (3)
-and
-.BR __pmNotifyErr (3).
+.BR PMAPI (3).

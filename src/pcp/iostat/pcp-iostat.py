@@ -390,9 +390,14 @@ if __name__ == '__main__':
             manager.pmSetMode(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), 0)
 
         if "dm" in IostatOptions.xflag :
-            manager["iostat"] = IOSTAT_DM_METRICS
+            namelist = IOSTAT_DM_METRICS
         else:
-            manager["iostat"] = IOSTAT_SD_METRICS
+            namelist = IOSTAT_SD_METRICS
+        missing = manager.checkMissingMetrics(namelist)
+        if missing != None:
+            sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % (missing))
+            sys.exit(1)
+        manager["iostat"] = namelist
         manager.printer = IostatReport()
         sts = manager.run()
         sys.exit(sts)

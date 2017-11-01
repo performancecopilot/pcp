@@ -22,5 +22,6 @@
 int
 __pmSetProgname(const char *program)
 {
-    return pmSetProgname(program);
+    pmSetProgname(program);
+    return 0;
 }
