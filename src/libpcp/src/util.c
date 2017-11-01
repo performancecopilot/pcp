@@ -23,8 +23,7 @@
  *	attempts to set/clear the state in __pmSyslog() which locking will
  *	not avoid
  *
- * pmProgname and appname - most likely set in main(), not worth protecting
- *	here
+ * pmProgname - most likely set in main(), not worth protecting here
  *
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
@@ -94,8 +93,7 @@ static int	pmprintf_atexit_installed;
 static int	xconfirm_init;
 static char 	*xconfirm;
 
-PCP_DATA char	*pmProgname = "pcp";		/* deprecated: the real McCoy */
-static char	*appname;
+PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
 
 PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
 PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
@@ -2637,43 +2635,27 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
     return 0;
 }
 
-int
+void
 pmSetProgname(const char *program)
 {
-    const char *p;
-    const char *name;
+    char	*p;
 
     if (program == NULL) {
 	/* Restore the default application name */
-	appname = NULL;
-	pmProgname = "pcp";		/* for deprecated use */
-	return 0;
+	pmProgname = "pcp";
+    } else {
+	/* Trim command name of leading directory components */
+	pmProgname = (char *)program;
+	for (p = pmProgname; *p; p++)
+	    if (*p == __pmPathSeparator())
+		pmProgname = p+1;
     }
-
-    /* Trim command name of leading directory components */
-    for (name = p = program; *p; p++) {
-	if (*p == '/')
-	    name = p+1;
-    }
-
-    if ((appname = (char *)name) == NULL) {
-	pmProgname = "pcp";		/* for deprecated use */
-	return -ENOMEM;
-    }
-    else {
-	pmProgname = appname;		/* for deprecated use */
-    }
-
-    return 0;
 }
 
 char *
 pmGetProgname(void)
 {
-    if (appname == NULL)
-	return "pcp";
-    else
-	return appname;
+    return pmProgname;
 }
 
 int

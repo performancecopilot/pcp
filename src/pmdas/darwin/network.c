@@ -25,7 +25,6 @@
 #include "pmda.h"
 #include "network.h"
 
-extern char *pmGetProgname();
 extern mach_port_t mach_master_port;
 
 void
