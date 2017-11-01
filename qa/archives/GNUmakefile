@@ -34,7 +34,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
 	  pcp-hotatop.0.xz pcp-hotatop.meta pcp-hotatop.index \
 	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index \
-	  value-test.0.xz value-test.meta value-test.index
+	  value-test.0.xz value-test.meta value-test.index \
+	  coverage.0.xz coverage.meta coverage.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant \
@@ -45,7 +46,8 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.ipcs mk.value-test
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
-	  kenj-pc-2.config reduce.config uwrap.config wrap.config
+	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
+	  coverage.config
 
 OTHERS = ds390-access.gz collectl-qa bigace.pmns README
 
