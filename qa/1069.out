@@ -246,9 +246,9 @@ HH:MM:SS        1
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
-Invalid regex '(': missing ), unterminated subpattern at position 2.
-Invalid regex '.[]*': bad escape \Z at position 6.
-Invalid regex '.[z-a]': bad character range z-a at position 4.
+Invalid regex '(':
+Invalid regex '.[]*':
+Invalid regex '.[z-a]':
 Metricset definition ':nosuchset' not found.
 == unsupported metric type
 Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
@@ -465,6 +465,66 @@ Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
  interval: 1.0 sec
  duration: 00:00:03
 
+== exercise timezone change
+
+  archive: QAPATH/archives/coverage
+     host: localhost.localdomain
+ timezone: UTC+3
+    start: Sun Oct 29 03:30:00 2017
+      end: Sun Oct 29 04:46:00 2017
+  metrics: 1 (1 instance)
+  samples: N/A
+ interval: N/A
+ duration: 01:16:00
+
+          m.u.free
+             Kbyte
+03:30:00   1900820
+03:35:00   1900372
+03:40:00   1900280
+03:45:00   1855104
+03:50:00   1855044
+03:55:00   1854660
+04:00:00   1854660
+04:05:00   1854600
+04:10:00   1854664
+04:15:00   1854504
+04:20:00   1854568
+04:25:00   1854476
+04:30:00   1854508
+04:35:00   1854380
+04:40:00   1854288
+04:45:00   1854228
+
+  archive: QAPATH/archives/coverage
+     host: localhost.localdomain
+ timezone: UTC+0
+    start: Sun Oct 29 00:30:00 2017
+      end: Sun Oct 29 01:46:00 2017
+  metrics: 1 (1 instance)
+  samples: N/A
+ interval: N/A
+ duration: 01:16:00
+
+          m.u.free
+             Kbyte
+00:30:00   1900820
+00:35:00   1900372
+00:40:00   1900280
+00:45:00   1855104
+00:50:00   1855044
+00:55:00   1854660
+01:00:00   1854660
+01:05:00   1854600
+01:10:00   1854664
+01:15:00   1854504
+01:20:00   1854568
+01:25:00   1854476
+01:30:00   1854508
+01:35:00   1854380
+01:40:00   1854288
+01:45:00   1854228
+== exercise starttime handling / confirm no negative duration/samples
 
   archive: QAPATH/archives/19970807.09.54
      host: gonzo

@@ -87,9 +87,9 @@ echo "== invalid command line parameters"
 pmrep -s 1 -t 1 -b GB -E 1x mem.util.free
 pmrep -s 1 -t 1 -b GB -P 2x mem.util.free
 pmrep -s 1 -t 1 -b GB -w 3x mem.util.free
-pmrep -s 1 -t 1 -i '('      disk.dev.read
-pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read
-pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read
+pmrep -s 1 -t 1 -i '('      disk.dev.read 2>&1 | grep -o "Invalid regex '(':"
+pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read 2>&1 | grep -o "Invalid regex '.\[]\*':"
+pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read 2>&1 | grep -o "Invalid regex '.\[z-a\]':"
 pmrep -s 1 -t 1 :nosuchset
 
 echo "== unsupported metric type"
@@ -123,6 +123,14 @@ pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Asia/Kolkata sampl
 | _archive_filter
 pmrep -C -x -H -U -z -a $here/archives/numa hinv.machine | _archive_filter
 pmrep -C -x -H -U -z -a $here/archives/rep hinv.machine | _archive_filter
+
+echo "== exercise timezone change"
+pmrep -u --archive $here/archives/coverage -p -x -z mem.util.free \
+| _archive_filter
+pmrep -u --archive $here/archives/coverage -p -x -Z UTC mem.util.free \
+| _archive_filter
+
+echo "== exercise starttime handling / confirm no negative duration/samples"
 pmrep -C -x -H -U -Z UTC -a $here/archives/19970807.09.54 -S "@22:59:00" sample.milliseconds | _archive_filter
 
 echo "== exercise extended CSV output"

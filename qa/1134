@@ -38,9 +38,18 @@ pmrep -z -p -u -a $A -w 32 kernel.all.uptime
 echo "---"
 pmrep -z -p -u -a $A -w 32 sample.float.one
 echo "---"
+# -s 10 can be removed when Python 2 support is dropped
+pmrep -z -p -u -a $A -w 32 -s 10 kernel.uname.release
+echo "---"
+# -s 10 can be removed when Python 2 support is dropped
+pmrep -z -p -u -a $A -w 32 -s 10 -l \; kernel.uname.release
+echo "---"
 pmrep -z -p -u -a $A kernel.uname.release -o csv | sed -e 's,XXX.*XXX,XXX,g'
 echo "---"
 pmrep -z -p -u -a $A kernel.uname.release -o csv | wc
+echo "---"
+# For completeness sake, no -nan in archives/value-test
+pmrep -z -p -u -a archives/all-sles9-sp1.meta -w 10 filesys.full
 echo "---"
 pcp2json -z -a $A -H -I "" | _filter | sed -e 's,XXX.*XXX,XXX,g'
 echo "---"

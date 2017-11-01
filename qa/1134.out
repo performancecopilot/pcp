@@ -28,6 +28,32 @@ QA output created by 1134
 00:00:18                               NaN
 00:00:29                       7654321.000
 ---
+                               k.u.release
+                                          
+00:00:00                             1.2.3
+00:00:19                             null:
+00:00:20                     line:\n:break
+00:00:21    this:":is:\':a:':quote:\":test
+00:00:22                               xxx
+00:00:23                                  
+00:00:24  dont:\n;touch /tmp/toast;\n:eval
+00:00:25                               xxx
+00:00:26                               xxx
+00:00:27                                 X
+---
+        ;                     k.u.release
+        ;                                
+00:00:00;                           1.2.3
+00:00:19;                           null:
+00:00:20;                   line:\n:break
+00:00:21;  this:":is:\':a:':quote:\":test
+00:00:22;                             xxx
+00:00:23;                                
+00:00:24;dont:\n_touch /tmp/toast_\n:eval
+00:00:25;                             xxx
+00:00:26;                             xxx
+00:00:27;                               X
+---
 Time,"kernel.uname.release"
 1970-01-01 00:00:00,"1.2.3"
 1970-01-01 00:00:19,"null:"
@@ -43,6 +69,13 @@ Time,"kernel.uname.release"
 1970-01-01 00:00:29,"3.2.1"
 ---
      13      32 1050069
+---
+              f.full      f.full      f.full      f.full
+           /dev/root   /dev/sdb2   /dev/sda4    /dev/hda
+                                                        
+19:37:13      47.790       6.755      62.383         NaN
+19:37:16      47.790       6.755      62.383         NaN
+19:37:19      47.790       6.755      62.383         NaN
 ---
                   "@unit": "sec",
                   "@unit": "sec",
