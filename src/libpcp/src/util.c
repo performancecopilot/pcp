@@ -2643,6 +2643,9 @@ pmSetProgname(const char *program)
     const char *p;
     const char *name;
 
+    if (appname != NULL)
+	free(appname);
+
     if (program == NULL) {
 	/* Restore the default application name */
 	appname = NULL;
@@ -2656,7 +2659,10 @@ pmSetProgname(const char *program)
 	    name = p+1;
     }
 
-    if ((appname = (char *)name) == NULL) {
+    /* strdup failure leaves appname set to NULL, which is the default */
+    appname = strdup(name);
+
+    if (appname == NULL) {
 	pmProgname = "pcp";		/* for deprecated use */
 	return -ENOMEM;
     }
