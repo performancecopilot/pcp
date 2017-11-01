@@ -56,7 +56,6 @@ class pmConfig(object):
         # Pause helpers
         self._round = 0
         self._init_ts = None
-        self._tz = time.strftime('%z')
 
         # Pass data with pmTraversePMNS
         self._tmp = []
