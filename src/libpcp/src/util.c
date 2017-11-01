@@ -89,13 +89,13 @@ static int	dosyslog;
 static int	pmState = PM_STATE_APPL;
 static int	done_exit;
 #ifdef HAVE_ATEXIT
-static int	pmprintf_atexit_installed = 0;
+static int	pmprintf_atexit_installed;
 #endif
-static int	xconfirm_init = 0;
-static char 	*xconfirm = NULL;
+static int	xconfirm_init;
+static char 	*xconfirm;
 
 PCP_DATA char	*pmProgname = "pcp";		/* deprecated: the real McCoy */
-static char	*appname = NULL;
+static char	*appname;
 
 PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
 PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
@@ -2645,8 +2645,6 @@ pmSetProgname(const char *program)
 
     if (program == NULL) {
 	/* Restore the default application name */
-	if (appname != NULL)
-	    free(appname);
 	appname = NULL;
 	pmProgname = "pcp";		/* for deprecated use */
 	return 0;
@@ -2658,10 +2656,7 @@ pmSetProgname(const char *program)
 	    name = p+1;
     }
 
-    /* strdup failure leaves appname set to NULL, which is the default */
-    appname = strdup(name);
-
-    if (appname == NULL) {
+    if ((appname = (char *)name) == NULL) {
 	pmProgname = "pcp";		/* for deprecated use */
 	return -ENOMEM;
     }
