@@ -368,7 +368,10 @@ if __name__ == '__main__':
         if TapestatOptions.uflag:
             # -u turns off interpolation
             manager.pmSetMode(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), 0)
-
+        missing = manager.checkMissingMetrics(TAPESTAT_METRICS)
+        if missing != None:
+            sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
+            sys.exit(1)
         manager["tapestat"] = TAPESTAT_METRICS
         #print "calling TapestatReport()"
         manager.printer = TapestatReport()

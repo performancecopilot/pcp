@@ -599,6 +599,10 @@ if __name__ == "__main__":
         manager = pmcc.MetricGroupManager.builder(opts,sys.argv)
         if not opts.checkOptions():
             raise pmapi.pmUsageErr
+        missing = manager.checkMissingMetrics(PIDSTAT_METRICS)
+        if missing != None:
+            sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % (missing))
+            sys.exit(1)
         manager['pidstat'] = PIDSTAT_METRICS
         manager.printer = PidstatReport()
         sts = manager.run()

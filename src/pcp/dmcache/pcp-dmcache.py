@@ -163,6 +163,10 @@ if __name__ == '__main__':
         options.pmSetLongOptionVersion()
         options.pmSetLongOptionHelp()
         manager = pmcc.MetricGroupManager.builder(options, sys.argv)
+        missing = manager.checkMissingMetrics(CACHE_METRICS)
+        if missing != None:
+            sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
+            sys.exit(1)
         manager.printer = DmCachePrinter(options.pmGetOperands())
         manager['dmcache'] = CACHE_METRICS
         manager.run()
