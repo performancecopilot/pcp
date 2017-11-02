@@ -40,14 +40,15 @@ PCP_DATA int	__pmLogReads;
 static const struct {
     const char	*suff;
     const int	appl;
+    const int   direct;
 } compress_ctl[] = {
-    { ".xz",	USE_XZ },
-    { ".lzma",	USE_XZ },
-    { ".bz2",	USE_BZIP2 },
-    { ".bz",	USE_BZIP2 },
-    { ".gz",	USE_GZIP },
-    { ".Z",	USE_GZIP },
-    { ".z",	USE_GZIP },
+    { ".xz",	USE_XZ,	 	1 }, /* can decompress directly */
+    { ".lzma",	USE_XZ,		0 },
+    { ".bz2",	USE_BZIP2,	0 },
+    { ".bz",	USE_BZIP2,	0 },
+    { ".gz",	USE_GZIP,	0 },
+    { ".Z",	USE_GZIP,	0 },
+    { ".z",	USE_GZIP,	0 },
 };
 static const int ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 
@@ -409,6 +410,15 @@ fopen_compress(const char *fname)
 	return NULL;
     }
 
+    if (compress_ctl[i].direct) {
+	/* We have the ability to decompress this archive directly. Try it. */
+	char tmpname[MAXPATHLEN];
+	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
+	if ((fp = __pmFopen(tmpname, "r")) != NULL)
+	    return fp; /* Success */
+    }
+    
+    /* We will need to decompress this file using an external program first. */
     if (compress_ctl[i].appl == USE_XZ) {
 	cmd = "xz";
 	arg = "-dc";

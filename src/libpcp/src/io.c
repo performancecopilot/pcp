@@ -18,14 +18,16 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <sys/stat.h>
+#include "config.h"
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
 
 extern __pm_fops __pm_stdio;
-#if 0 /* not yet .... */
+#if HAVE_TRANSPARENT_DECOMPRESSION && HAVE_LZMA_DECOMPRESSION
 extern __pm_fops __pm_xz;
 #endif
+
 /*
  * Open a PCP file with given mode and return a __pmFILE. An i/o
  * handler is automatically chosen based on filename suffix, e.g. .xz, .gz,
@@ -37,18 +39,30 @@ __pmFILE *
 __pmFopen(const char *path, const char *mode)
 {
     __pmFILE *f;
+    size_t pathlen;
 
     if ((f = (__pmFILE *)malloc(sizeof(__pmFILE))) == NULL)
     	return NULL;
     memset(f, 0, sizeof(__pmFILE));
 
     /*
-     * For now, we only support the stdio handler with standard
-     * ".index", ".meta" or ".[0-9]+" suffixes.
+     * For now, we only support:
+     * - the stdio handler with standard ".index", ".meta" or ".[0-9]+" suffixes.
+     * - the xz handler with the ".xz" suffix.
      * TODO lookup other handlers, as in logutil.c:index_compress(),
      * something like that should be moved here.
      */
-    f->fops = &__pm_stdio;
+    pathlen = strlen(path);
+    if (pathlen > 3 && memcmp(path + pathlen - 3, ".xz", 3) == 0) {
+#if HAVE_TRANSPARENT_DECOMPRESSION && HAVE_LZMA_DECOMPRESSION
+	f->fops = &__pm_xz;
+#else
+	free(f);
+	return NULL; /* Not handled */
+#endif
+    }
+    else
+	f->fops = &__pm_stdio;
 
     /*
      * Call the open method for chosen handler. Depending on the handler,

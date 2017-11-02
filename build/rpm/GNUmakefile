@@ -98,6 +98,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_manager@|$(ENABLE_MANAGER)|g' \
 	    -e's|@enable_webapi@|$(ENABLE_WEBAPI)|g' \
 	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \
+	    -e's|@enable_lzma@|$(ENABLE_LZMA)|g' \
 	    -e's|@have_libmicrohttpd@|$(have_libmicrohttpd)|g' \
 	    -e's|@have_cairo@|$(have_cairo)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
