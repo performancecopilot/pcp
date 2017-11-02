@@ -148,6 +148,8 @@ $(TOPDIR)/src/pmns/stdpmid:
 pmdbg.h : ../../include/pcp/pmapi.h ../../include/pcp/impl.h mk_pmdbg
 	./mk_pmdbg
 
+labels.o:	../../external/sort_r.h
+
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition
 # ... refer to check-statics to add exceptions and annotations for new

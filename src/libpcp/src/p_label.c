@@ -197,8 +197,6 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
     labels_need = sizeof(labels_t) + (sizeof(labelset_t) * (nsets - 1));
     json_need = 0;
     for (i = 0; i < nsets; i++) {
-	if (sets[i].jsonlen < 0)
-	    return -EINVAL;
 	json_need += sets[i].jsonlen;
 	if (sets[i].nlabels > 0)
 	    labels_need += sets[i].nlabels * sizeof(pmLabel);
@@ -351,7 +349,7 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	/* validity checks - these conditions should not happen */
 	if (nlabels >= MAXLABELS)
 	    goto corrupt;
-	if (jsonlen < 0 || jsonlen >= MAXLABELJSONLEN)
+	if (jsonlen >= MAXLABELJSONLEN)
 	    goto corrupt;
 
 	/* check JSON content fits within the PDU bounds */

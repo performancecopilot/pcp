@@ -1,0 +1,144 @@
+#!/usr/bin/env pmpython
+# -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
+""" Generate a test archive with challenging values """
+
+import sys
+from pcp import pmapi, pmi
+
+# Our metrics for testing
+metrics = ["kernel.all.uptime", "sample.float.one", "kernel.uname.release"]
+
+# Get a context
+pmfg = pmapi.fetchgroup()
+ctx = pmfg.get_context()
+
+# Initialize the archive
+arch = pmi.pmiLogImport("value-test")
+arch.pmiSetHostname("localhost")
+arch.pmiSetTimezone("UTC")
+for metric in metrics:
+    pmids = ctx.pmLookupName(metric)
+    descs = ctx.pmLookupDescs(pmids)
+    arch.pmiAddMetric(metric,
+                      pmids[0],
+                      descs[0].contents.type,
+                      descs[0].contents.indom,
+                      descs[0].contents.sem,
+                      descs[0].contents.units)
+
+# Timestamp
+start = 0
+batch = -1
+
+# Start with sane values
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % 1234567)
+arch.pmiPutValue("sample.float.one", None, "%f" % 1234567.0)
+arch.pmiPutValue("kernel.uname.release", None, "1.2.3")
+arch.pmiWrite(start + batch, 0)
+
+if sys.version_info[0] >= 3:
+    int_max = sys.maxsize
+else:
+    int_max = sys.maxint
+
+# Integer tests
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % (int_max+1))
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % int_max)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % 1)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % 0)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % -1)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % -int_max)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % (-int_max-1))
+arch.pmiWrite(start + batch, 0)
+
+# Floating point tests
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % float("NaN"))
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % float("inf"))
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % (int_max+1))
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % int_max)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % 1)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % 0)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % -1)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % -int_max)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % (-int_max-1))
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % float("-inf"))
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("sample.float.one", None, "%f" % float("-NaN"))
+arch.pmiWrite(start + batch, 0)
+
+# String tests
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "null:\00:string")
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "line:\n:break")
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "this:\":is:\\':a:':quote:\\\":test")
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "char:<:&:`:$:;:!:#: :?:*:|:~:>:test")
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "")
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "dont:\n;touch /tmp/toast;\n:eval")
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "X" * 1024)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "X" * 1024 * 1024)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "X" * 1024 ** 3)
+arch.pmiWrite(start + batch, 0)
+batch += 1
+arch.pmiPutValue("kernel.uname.release", None, "some:åäöšŠžŽ€🙃§½¼¾:unicode")
+arch.pmiWrite(start + batch, 0)
+
+# End with sane values
+batch += 1
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % 7654321)
+arch.pmiPutValue("sample.float.one", None, "%f" % 7654321)
+arch.pmiPutValue("kernel.uname.release", None, "3.2.1")
+arch.pmiWrite(start + batch, 0)
+
+# Done
+arch.pmiEnd()

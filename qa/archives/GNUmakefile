@@ -33,7 +33,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20130706.0.bz2 20130706.meta 20130706.index \
 	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
 	  pcp-hotatop.0.xz pcp-hotatop.meta pcp-hotatop.index \
-	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index
+	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index \
+	  value-test.0.xz value-test.meta value-test.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant \
@@ -41,7 +42,7 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all mk.atop mk.hotatop \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
-	  mk.ipcs
+	  mk.ipcs mk.value-test
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config

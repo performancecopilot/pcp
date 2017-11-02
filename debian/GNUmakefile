@@ -345,6 +345,12 @@ endif
 
 control:	control.master control.webapi control.pcpgui fixcontrol.master
 	./fixcontrol.master >control
+ifeq ($(ENABLE_PYTHON2), true)
+	cat control.python2 >>control
+endif
+ifeq ($(ENABLE_PYTHON3), true)
+	cat control.python3 >>control
+endif
 ifeq ($(HAVE_WEBAPPS), true)
 	cat control.vector >>control
 endif

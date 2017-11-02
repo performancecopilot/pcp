@@ -610,7 +610,9 @@ PCP_3.22 {
     __pmDumpLabelSet;
     __pmDumpLabelSets;
     __pmLogLookupLabel;
+    __pmLogLookupText;
     __pmLogPutLabel;
+    __pmLogPutText;
     __pmSendLabel;
     __pmSendLabelReq;
     __pmRecvLabel;

@@ -33,7 +33,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $seq.full \
+    | sed \
 	-e "s/\[.*\]: /[INST]: /g" \
 	-e "s/$container/CONTAINER/g" \
 	-e "s/$container_hostname/CONTAINER_HOSTNAME/g" \
@@ -44,9 +45,11 @@ _filter()
 
 _exclude_clients()
 {
-    # remove any long-running clients (pmlogger/pmie)
+    # remove any long-running clients (pmlogger/pmie) or
+    # anonymous clients (whoami == "")
+    #
     pminfo -f pmcd.client.whoami | \
-    egrep ' pmlogger | pmie ' | \
+    egrep 'pmlogger|pmie|""' | \
     sed -e 's/ *inst \[\([0-9][0-9]*\) or .*/-x \1 /g'
 }
 

@@ -278,10 +278,10 @@ verify_label_name(pmLabel *lp, const char *json)
 
     if (length == 0)
 	return -EINVAL;
-    if (!isalpha(*sp))	/* first character must be alphanumeric */
+    if (!isalpha((int)*sp))	/* first character must be alphanumeric */
 	return -EINVAL;
     while (++sp < (start + length)) {
-	if (isalnum(*sp) || *sp == '_')
+	if (isalnum((int)*sp) || *sp == '_')
 	    continue;
 	return -EINVAL;
     }

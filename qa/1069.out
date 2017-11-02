@@ -246,6 +246,10 @@ HH:MM:SS        1
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
+Invalid regex '(': unbalanced parenthesis.
+Invalid regex '.[]*': unexpected end of regular expression.
+Invalid regex '.[z-a]': bad character range.
+Metricset definition ':nosuchset' not found.
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
@@ -760,6 +764,43 @@ pmrep: Impossible value or scale conversion
   d.d.avactive  d.d.read  d.d.write  d.d.total  d.d.read_bytes  d.d.write_bytes
            sda       sda        sda        sda             sda              sda
           ms/s   count/s    count/s    count/s         Kbyte/s          Kbyte/s
+== handle empty/invalid/multiple metricsets in config file
+Invalid metric yes (PM_ERR_NAME Unknown metric name).
+Invalid directive [options]/mem.util.free in the config file.
+No metrics specified.
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 1 (1 instance)
+  samples: 1
+ interval: 3.0 sec
+ duration: 00:00:00
+
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 1 (1 instance)
+  samples: 1
+ interval: 3.0 sec
+ duration: 00:00:00
+
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:47:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 1 (1 instance)
+  samples: 1
+ interval: 2.0 sec
+ duration: 00:00:00
+
 == exercise option priority
           m.u.free
              Kbyte
@@ -805,4 +846,9 @@ HH:MM:SS         1
                one
                   
 HH:MM:SS         1
+---
+          freemem
+00:47:01    38220
+00:47:03    38220
+00:47:05    38220
 == done

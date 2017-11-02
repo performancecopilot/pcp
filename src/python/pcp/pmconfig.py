@@ -120,23 +120,30 @@ class pmConfig(object):
             except ValueError:
                 setattr(self.util, name, value)
 
+    def read_section_options(self, config, section):
+        """ Read options from a configuration file section """
+        if not config.has_section(section):
+            return
+        for opt in config.options(section):
+            if opt in self.util.keys:
+                self.set_attr(opt, config.get(section, opt))
+            elif section == 'options':
+                sys.stderr.write("Invalid directive [%s]/%s in %s.\n" % (section, opt, self.util.config))
+                sys.exit(1)
+
     def read_options(self):
         """ Read options from configuration file """
         config = ConfigParser.SafeConfigParser()
         if self.util.config:
             config.read(self.util.config)
-        if not config.has_section('options'):
-            return
-        for opt in config.options('options'):
-            if opt in self.util.keys:
-                self.set_attr(opt, config.get('options', opt))
-            else:
-                sys.stderr.write("Invalid directive '%s' in %s.\n" % (opt, self.util.config))
-                sys.exit(1)
+        self.read_section_options(config, 'options')
+        for arg in iter(sys.argv[1:]):
+            if arg.startswith(":") and arg[1:] in config.sections():
+                self.read_section_options(config, arg[1:])
 
     def read_cmd_line(self):
         """ Read command line options """
-        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)  # Do later
+        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
 
@@ -238,7 +245,7 @@ class pmConfig(object):
                     name = parsemet[metric][:1][0]
                     globmet[name] = parsemet[metric][1:]
 
-        # Add command line and configuration file metric sets
+        # Add command line and configuration file metricsets
         tempmet = OrderedDict()
         for metric in metrics:
             if metric.startswith(":"):
@@ -249,23 +256,21 @@ class pmConfig(object):
                 m[2] = insts
                 tempmet[m[0]] = m[1:]
 
-        # Get config and set details for configuration file metric sets
+        # Get config and set details for configuration file metricsets
         confmet = OrderedDict()
         for spec in tempmet:
             if tempmet[spec] is None:
                 if config.has_section(spec):
                     parsemet = OrderedDict()
                     for key in config.options(spec):
-                        if key in self.util.keys:
-                            self.set_attr(key, config.get(spec, key))
-                        else:
+                        if key not in self.util.keys:
                             self.parse_metric_info(parsemet, key, config.get(spec, key))
                             for metric in parsemet:
                                 name = parsemet[metric][:1][0]
                                 confmet[name] = parsemet[metric][1:]
                             tempmet[spec] = confmet
                 else:
-                    raise IOError("Metric set definition '%s' not found." % metric)
+                    raise IOError("Metricset definition '%s' not found." % metric)
 
         # Create the combined metrics set
         if self.util.globals == 1:
@@ -275,8 +280,12 @@ class pmConfig(object):
             if isinstance(tempmet[metric], list):
                 self.util.metrics[metric] = tempmet[metric]
             else:
-                for m in tempmet[metric]:
-                    self.util.metrics[m] = confmet[m]
+                if tempmet[metric]:
+                    for m in tempmet[metric]:
+                        self.util.metrics[m] = confmet[m]
+
+        if not self.util.metrics:
+            raise IOError("No metrics specified.")
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
@@ -559,9 +568,9 @@ class pmConfig(object):
         if not self._init_ts:
             self._init_ts = float(self.util.pmfg_ts().strftime("%s.%f"))
 
-        next = self._init_ts + float(self.util.interval) * self._round
+        wakeup = self._init_ts + float(self.util.interval) * self._round
 
-        sleep = next - time.time()
+        sleep = wakeup - time.time()
 
         if sleep > 0:
             time.sleep(sleep)

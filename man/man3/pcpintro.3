@@ -197,7 +197,7 @@ Platform-specific permission errors are returned as
 .br
 Some value conversion requests are illegal, eg. bad debug flag symbolic name
 for
-.B \-D
+.B \-D/\-\-debug
 option, or asking
 .BR pmExtractValue (3)
 to translate non-numeric data types to numbers and
@@ -253,7 +253,7 @@ and/or
 before calling
 .BR pmFetch (3).
 See also the
-.B \-F
+.B \-F/\-\-fetchall
 option to
 .BR pminfo (1).
 .TP
@@ -408,19 +408,24 @@ cannot be opened for reading.
 An attempt is made to read past the end file of the last volume
 of a set of PCP archives, or past the
 end of the time window (as specified with a 
-.B \-T
+.B \-T/\-\-finish
 option) for a set of PCP archives.
 .TP
 .B PM_ERR_NOTHOST
 .I "Operation requires context with host source of metrics"
 .br
-Operations involving help text (ie. \c
-.BR pmLookupText (3)
-and
-.BR pmLookupInDomText (3))
-or calls to
+Calls to
 .BR pmStore (3)
 require a host context and are not supported for PCP archives.
+.RS
+.PP
+For archives created with versions of PCP prior to 4.0, the
+.BR pmLookupText (3)
+and
+.BR pmLookupInDomText (3)
+calls will return this code for archive PMAPI contexts (help
+and one-line text was not previously recorded in archive logs).
+.RE
 .TP
 .B PM_ERR_LOGREC
 .I "Corrupted record in a PCP archive log"
@@ -671,10 +676,36 @@ using the
 .BR pmGetConfig (3)
 function.
 .SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
 .BR pmerr (1),
+.BR pminfo (1),
+.BR pmtime (1),
+.BR pmstore (1),
+.BR pmlogger (1),
 .BR PMAPI (3),
+.BR pmAddProfile (3),
+.BR pmDelProfile (3),
+.BR pmConvScale (3),
+.BR pmNewContext (3),
+.BR pmDestroyContext (3),
 .BR pmErrStr (3),
+.BR pmExtractValue (3),
+.BR pmFetch (3),
+.BR pmFetchArchive (3),
 .BR pmGetConfig (3),
+.BR pmGetInDom (3),
+.BR pmGetInDomArchive (3),
+.BR pmLoadNameSpace (3),
+.BR pmLookupInDom (3),
+.BR pmLookupInDomText (3),
+.BR pmLookupName (3),
+.BR pmLookupText (3),
+.BR pmNameInDom (3),
+.BR pmNameInDomArchive (3),
+.BR pmSetMode (3),
+.BR pmStore (3),
+.BR pmTimeConnect (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

@@ -1221,9 +1221,15 @@ main(int argc, char **argv)
 	    }
 	    else if (stsmeta == TYPE_LABEL) {
 		/* TODO: support label metadata extraction */
-		if (pmDebugOptions.labels)
+		if (pmDebugOptions.logmeta)
 		    fprintf(stderr, "%s: Warning: %s\n",
 			    pmProgname, pmErrStr(PM_ERR_NOLABELS));
+	    }
+	    else if (stsmeta == TYPE_TEXT) {
+		/* TODO: support help text extraction */
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "%s: Warning: %s\n",
+			    pmProgname, pmErrStr(PM_ERR_TEXT));
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",

@@ -6,6 +6,7 @@ QA output created by 633
 5 pmGetPDU: PMNS_IDS
 4 pmGetPDU: PMNS_NAMES
 6 pmGetPDU: RESULT
+6 pmGetPDU: TEXT
 1 pmXmitPDU: CREDS
 2 pmXmitPDU: DESC_REQ
 6 pmXmitPDU: FETCH
@@ -16,3 +17,4 @@ QA output created by 633
 2 pmXmitPDU: PMNS_TRAVERSE
 3 pmXmitPDU: PROFILE
 1 pmXmitPDU: RESULT
+6 pmXmitPDU: TEXT_REQ

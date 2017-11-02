@@ -31,13 +31,18 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter_pminfo()
 {
     # filter ip_vti tunnel type connections that may exist on (some) machines
-    tee -a $here/$seq.full |
-    sed \
+    tee -a $here/$seq.full >$tmp.tmp
+    sed <$tmp.tmp \
 	-e '/ip_vti/d' \
+	-e '2q' \
+    # end
+    sed <$tmp.tmp \
+	-e '1,2d' \
 	-e 's/\[[0-9][0-9]* or ".*"\]/[INST or NAME]/' \
 	-e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/' \
 	-e 's/value ".*"$/value STRING/' \
-    #end
+    | LC_COLLATE=POSIX sort \
+    | uniq
 }
 
 # real QA test starts here
@@ -47,13 +52,19 @@ echo "== container: $container" >> $seq.full
 echo "== kernel PMDA" | tee -a $seq.full
 # expect 2 interfaces (lo/eth0) and 2 mounts
 metrics="network.interface.in.bytes filesys.used"
-pminfo --fetch --container=$container $metrics | _filter_pminfo
+for m in $metrics
+do
+    pminfo --fetch --container=$container $m | _filter_pminfo
+done
 echo
 
 echo "== procfs PMDA" | tee -a $seq.full
 # expect values for a single process (sleep) and one cgroup
 metrics="proc.memory.rss cgroup.memory.stat.rss"
-pminfo --fetch --container=$container $metrics | _filter_pminfo
+for m in $metrics
+do
+    pminfo --fetch --container=$container $m | _filter_pminfo
+done
 echo
 
 echo "== pmcd PMDA" | tee -a $seq.full

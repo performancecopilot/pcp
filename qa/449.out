@@ -89,6 +89,6 @@ func1: [4] d.f.fumble -> 3.0.1 -> d.f.fumble
 
 === PMNS Load/Unload & Traverse concurrency ===
 Total PDU counts
-in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 traverse: found MYNUMBER metrics, sts MYSTS

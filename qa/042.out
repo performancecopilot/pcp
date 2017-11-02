@@ -3,10 +3,8 @@ QA output created by 042
 
 network.interface.in.bytes
     inst [INST or NAME] value NUMBER
-    inst [INST or NAME] value NUMBER
 
 filesys.used
-    inst [INST or NAME] value NUMBER
     inst [INST or NAME] value NUMBER
 
 == procfs PMDA

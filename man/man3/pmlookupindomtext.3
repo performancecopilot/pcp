@@ -67,6 +67,11 @@ the space when it is no longer required.
 .PP
 .B pmLookupInDomText
 returns zero on success.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTHOST\f1
+For archives created with versions of PCP prior to 4.0, if the
+current PMAPI context is an archive log (help and one-line text
+was previously not maintained in the archive logs)
 .SH SEE ALSO
 .BR chkhelp (1),
 .BR newhelp (1),
@@ -77,7 +82,3 @@ returns zero on success.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOTHOST\f1
-if the current PMAPI context is an archive log
-(help and one-line text is not maintained in the archive logs)

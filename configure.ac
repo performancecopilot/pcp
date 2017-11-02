@@ -2230,7 +2230,14 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
+    if test $target_os = darwin
+    then
+	# Need to strip -arch foo args for gcc -E 
+	_myflags=`echo "$CPPFLAGS" "$CFLAGS" | sed -e 's/-arch [[^ ]]*//g'`
+    else
+	_myflags="$CPPFLAGS $CFLAGS"
+    fi
+    _raw=`$CPP $_myflags conftest.c \
     | $SED \
 	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[[ 	]][[ 	]]*//' \
