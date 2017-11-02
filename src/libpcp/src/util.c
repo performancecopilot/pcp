@@ -2640,9 +2640,6 @@ pmSetProgname(const char *program)
 {
     char	*p;
 
-    if (appname != NULL)
-	free(appname);
-
     if (program == NULL) {
 	/* Restore the default application name */
 	pmProgname = "pcp";
