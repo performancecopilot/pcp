@@ -628,8 +628,11 @@ zlib_CFLAGS
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
+enable_lzma
 enable_decompression
 lib_for_lzma
+lzma_LIBS
+lzma_CFLAGS
 lib_for_atomic
 enable_secure
 lib_for_nspr
@@ -1052,6 +1055,8 @@ cairo_CFLAGS
 cairo_LIBS
 CXXCPP
 XMKMF
+lzma_CFLAGS
+lzma_LIBS
 zlib_CFLAGS
 zlib_LIBS'
 
@@ -1792,6 +1797,8 @@ Some influential environment variables:
   cairo_LIBS  linker flags for cairo, overriding pkg-config
   CXXCPP      C++ preprocessor
   XMKMF       Path to xmkmf, Makefile generator for X Window System
+  lzma_CFLAGS C compiler flags for lzma, overriding pkg-config
+  lzma_LIBS   linker flags for lzma, overriding pkg-config
   zlib_CFLAGS C compiler flags for zlib, overriding pkg-config
   zlib_LIBS   linker flags for zlib, overriding pkg-config
 
@@ -15875,32 +15882,80 @@ fi
 
 
 
-if test "$do_decompression" = "check" -o "$do_decompression" = "yes"
-then
-    enable_decompression=true
+if test "x$do_decompression" != "xno"; then :
 
-    for ac_header in lzma.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "lzma.h" "ac_cv_header_lzma_h" "$ac_includes_default"
-if test "x$ac_cv_header_lzma_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LZMA_H 1
-_ACEOF
+    # Check for -llzma
+    enable_lzma=true
 
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma" >&5
+$as_echo_n "checking for lzma... " >&6; }
+
+if test -n "$lzma_CFLAGS"; then
+    pkg_cv_lzma_CFLAGS="$lzma_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"liblzma\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "liblzma") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_lzma_CFLAGS=`$PKG_CONFIG --cflags "liblzma" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
 else
-
-	enable_decompression=false
-	if test "$do_decompression" = "yes"
-	then
-		as_fn_error $? "cannot enable transparent decompression - no lzma header" "$LINENO" 5
-	fi
-
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$lzma_LIBS"; then
+    pkg_cv_lzma_LIBS="$lzma_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"liblzma\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "liblzma") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_lzma_LIBS=`$PKG_CONFIG --libs "liblzma" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
 fi
 
-done
 
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma_block_decoder in -llzma" >&5
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        lzma_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblzma" 2>&1`
+        else
+	        lzma_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblzma" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$lzma_PKG_ERRORS" >&5
+
+	enable_lzma=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	enable_lzma=false
+else
+	lzma_CFLAGS=$pkg_cv_lzma_CFLAGS
+	lzma_LIBS=$pkg_cv_lzma_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma_block_decoder in -llzma" >&5
 $as_echo_n "checking for lzma_block_decoder in -llzma... " >&6; }
 if ${ac_cv_lib_lzma_lzma_block_decoder+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -15939,28 +15994,52 @@ $as_echo "$ac_cv_lib_lzma_lzma_block_decoder" >&6; }
 if test "x$ac_cv_lib_lzma_lzma_block_decoder" = xyes; then :
   lib_for_lzma="-llzma"
 else
-
-	enable_decompression=false
-	if test "$do_decompression" = "yes"
-	then
-	    as_fn_error $? "cannot enable transparent decompression - no lzma library" "$LINENO" 5
-	fi
-
+  enable_lzma=false
 fi
 
 
+fi
+
+    for ac_header in lzma.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "lzma.h" "ac_cv_header_lzma_h" "$ac_includes_default"
+if test "x$ac_cv_header_lzma_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LZMA_H 1
+_ACEOF
+
+else
+  enable_lzma=false
+fi
+
+done
+
+
+    if test "$enable_lzma" = "true"
+    then
+
+
+
+$as_echo "#define HAVE_LZMA_DECOMPRESSION 1" >>confdefs.h
+
+	enable_decompression=true
+    fi
+
+    if test "$do_decompression" != "check" -a "$enable_decompression" != "true"
+    then
+	as_fn_error $? "cannot enable transparent decompression - no supported compression formats" "$LINENO" 5
+    fi
 
     if test "$enable_decompression" = "true"
     then
 
 $as_echo "#define HAVE_TRANSPARENT_DECOMPRESSION 1" >>confdefs.h
 
-
-$as_echo "#define HAVE_LZMA_DECOMPRESSION 1" >>confdefs.h
-
     fi
 
 fi
+
+
 
 if test -f /usr/include/sn/arsess.h
 then

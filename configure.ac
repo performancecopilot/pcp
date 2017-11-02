@@ -3405,35 +3405,38 @@ dnl check for -latomic, needed for some -march=i386 builds with i686 c++ distro 
 AC_CHECK_LIB(atomic, __atomic_fetch_add_4, [lib_for_atomic="-latomic"])
 AC_SUBST(lib_for_atomic)
 
-dnl Check for -llzma
-if test "$do_decompression" = "check" -o "$do_decompression" = "yes"
-then
-    enable_decompression=true
+dnl Check for decompression libraries
+AS_IF([test "x$do_decompression" != "xno"], [
+    # Check for -llzma
+    enable_lzma=true
+    PKG_CHECK_MODULES([lzma], [liblzma],
+        [AC_CHECK_LIB(lzma, lzma_block_decoder,
+		      [lib_for_lzma="-llzma"],
+		      [enable_lzma=false])
+        ],[enable_lzma=false])
 
-    AC_CHECK_HEADERS([lzma.h], [], [
-	enable_decompression=false
-	if test "$do_decompression" = "yes"
-	then
-		AC_MSG_ERROR([cannot enable transparent decompression - no lzma header])
-	fi
-    ])
+    AC_CHECK_HEADERS([lzma.h], [], [enable_lzma=false])
 
-    AC_CHECK_LIB(lzma, lzma_block_decoder, [lib_for_lzma="-llzma"], [
-	enable_decompression=false
-	if test "$do_decompression" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable transparent decompression - no lzma library])
-	fi
-    ])
-    AC_SUBST(lib_for_lzma)
+    if test "$enable_lzma" = "true"
+    then
+        AC_SUBST(lib_for_lzma)
+	AC_SUBST(lzma_CFLAGS)
+	AC_DEFINE(HAVE_LZMA_DECOMPRESSION, [1], [lzma decompression])
+	enable_decompression=true
+    fi
+
+    if test "$do_decompression" != "check" -a "$enable_decompression" != "true"
+    then
+	AC_MSG_ERROR([cannot enable transparent decompression - no supported compression formats])
+    fi
 
     if test "$enable_decompression" = "true"
     then
 	AC_DEFINE(HAVE_TRANSPARENT_DECOMPRESSION, [1], [Transparent decompression])
-	AC_DEFINE(HAVE_LZMA_DECOMPRESSION, [1], [lzma decompression])
     fi
-    AC_SUBST(enable_decompression)
-fi
+])
+AC_SUBST(enable_decompression)
+AC_SUBST(enable_lzma)
 
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h

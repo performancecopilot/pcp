@@ -26,6 +26,8 @@ hash.c
 help.c
 instance.c
 interp.c
+io.c
+io_xz.c
 ipc.c
 lock.c
 logconnect.c

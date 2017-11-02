@@ -130,6 +130,7 @@ CAIROCFLAGS = @cairo_CFLAGS@
 NCURSESCFLAGS = @ncurses_CFLAGS@
 LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 ZLIBCFLAGS = @zlib_CFLAGS@
+LZMACFLAGS = @lzma_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -250,6 +251,7 @@ ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 ENABLE_SELINUX = @enable_selinux@
 ENABLE_DECOMPRESSION = @enable_decompression@
+ENABLE_LZMA = @enable_lzma@
 
 # selinux configuration bits
 PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@

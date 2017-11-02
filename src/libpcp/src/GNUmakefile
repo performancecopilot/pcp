@@ -51,7 +51,7 @@ ifeq "$(ENABLE_AVAHI)" "true"
 CFILES += avahi.c
 endif
 
-ifeq "$(ENABLE_DECOMPRESSION)" "true"
+ifeq "$(ENABLE_LZMA)" "true"
 CFILES += io_xz.c
 endif
 
