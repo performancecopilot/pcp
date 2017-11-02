@@ -1,0 +1,131 @@
+QA output created by 586
+Usage: template [options] ...
+
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
+
+=== bad option -w ===
+template: invalid option -- 'w'
+Usage: template [options] ...
+... usage stuff deleted
+
+=== bad option --bozo ===
+template: unrecognized option '--bozo'
+Usage: template [options] ...
+... usage stuff deleted
+
+=== bad arg for -n option  ===
+Error Parsing ASCII PMNS: Cannot open "/no/such/pmns"
+template: Cannot load namespace from "/no/such/pmns": No such file or directory
+
+=== bad arg for -K option  ===
+template: __pmSpecLocalPMDA failed: bad op in spec
+Usage: template [options] ...
+... usage stuff deleted
+
+=== -s 13 ===
+Got -s "13"
+
+=== -a tmparch/foo -Dpmapi ===
+pmNewContext(2, "tmparch/foo") <::> returns 0
+
+=== -g ===
+Got -g
+
+=== -h localhost -Dpmapi ===
+pmNewContext(1, "localhost") <::> returns 0
+
+=== -t 1min2sec3msec ===
+Got -t 62.003000 (secs)
+
+=== -H TMP.hosts -Dpmapi ===
+pmNewContext(1, "localhost") <::> returns 0
+
+=== -n /var/lib/pcp/pmns/root ===
+Loaded PMNS
+
+=== -Z UTC-13 ===
+Got -Z "UTC-13"
+
+=== -z -S +13hr -a archives/conn20070309 ===
+Note: timezone set to local timezone of host "app1" from archive
+
+Start time: 13:10:47.856
+Origin time: 13:10:47.856
+Finish time: 00:10:17.859
+Got -z
+
+=== -z -O @01:02:03 -a archives/conn20070309 ===
+Note: timezone set to local timezone of host "app1" from archive
+
+Start time: 00:10:47.856
+Origin time: 01:02:03.000
+Finish time: 00:10:17.859
+Got -z
+
+=== -z -T -1hr -a archives/conn20070309 ===
+Note: timezone set to local timezone of host "app1" from archive
+
+Start time: 00:10:47.856
+Origin time: 00:10:47.856
+Finish time: 23:10:17.859
+Got -z
+
+=== -Z UTC -A 2hr -a archives/conn20070309 ===
+Note: timezone set to "TZ=UTC"
+
+Got -A "2hr"
+Start time: 14:00:00.000
+Origin time: 14:00:00.000
+Finish time: 13:10:17.859
+Got -Z "UTC"
+
+=== -V ===
+template version PCP_VERSION
+
+=== --container=0123456789abcdef ===
+Got --container="0123456789abcdef"
+
+=== -L ===
+Got -L
+
+=== -N TMP.pmns ===
+Error Parsing ASCII PMNS: Duplicate metric id (1.2.3) in name space for metrics "two" and "one"
+
+template: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
