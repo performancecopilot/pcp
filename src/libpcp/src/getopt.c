@@ -81,11 +81,8 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
  * Note - called with an active context via pmGetContextOptions.
  */
 static int
-__pmBoundaryOptions(
-  pmOptions *opts,
-  struct timeval *begin,
-  struct timeval *end
-) {
+__pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
+{
     int	i;
     int	ctx, sts = 0;
 

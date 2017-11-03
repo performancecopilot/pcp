@@ -43,9 +43,6 @@
 #include "qed_timecontrol.h"
 #include "qed_recorddialog.h"
 
-#include <iostream>
-using namespace std;
-
 QString		theConfigName;
 QString		theAltConfigName;
 FILE		*theConfigFile;
@@ -157,19 +154,15 @@ bool PmView::view(bool showAxis,
 	passes = atoi(sval);
 #endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	cerr << "PmView::view: antialiasing set to smooth = "
 	     << (smooth == TRUE ? "true" : "false")
 	     << ", passes = " << passes << endl;
-#endif
 
     if (passes > 1)
         viewer()->setAntialiasing(smooth, atoi(sval));
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	cerr << "PmView::view: displaying window" << endl;
-#endif
 
     viewer()->viewAll();
 
@@ -207,11 +200,9 @@ void PmView::render(RenderOptions options, time_t theTime)
 		;
 	    else {
 		// TODO: set label string to my.text
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
-		cerr << "PmView::render: metricLabel text \"" <<
-			my.text() << "\"" << endl;
-#endif
+		if (pmDebugOptions.appl1)
+		    cerr << "PmView::render: metricLabel text \"" <<
+			my.text << "\"" << endl;
 	    }
 	}
     }

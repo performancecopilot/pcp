@@ -20,9 +20,6 @@
 #include "modlist.h"
 #include "launch.h"
 
-#include <iostream>
-using namespace std;
-
 ColorScaleMod::~ColorScaleMod()
 {
 }
@@ -53,12 +50,10 @@ ColorScaleMod::ColorScaleMod(const char *metric, double scale,
 	_root->addChild(obj);
 
 	add();
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+
+	if (pmDebugOptions.appl2)
 	    cerr << "ColorScaleMod: Added " << metric << " (Id = " 
 		 << _root->getName().getString() << ")" << endl;
-#endif
-
     }
     else if (_metrics->numValues() > 1) {
 	warningMsg(_POS_, 
@@ -172,19 +167,15 @@ ColorScaleMod::launch(Launch &launch, bool) const
 int
 ColorScaleMod::select(SoPath *)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ColorScaleMod::select: " << _metrics->metric(0) << endl;
-#endif
     return 1;
 }
 
 int
 ColorScaleMod::remove(SoPath *)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ColorScaleMod::remove: " << _metrics->metric(0) << endl;
-#endif
     return 0;
 }

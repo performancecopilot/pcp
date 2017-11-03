@@ -20,9 +20,6 @@
 #include "modlist.h"
 #include "launch.h"
 
-#include <iostream>
-using namespace std;
-
 ScaleMod::~ScaleMod()
 {
 }
@@ -57,11 +54,9 @@ ScaleMod::ScaleMod(const char *str,
 
 	add();
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    cerr << "ScaleMod: Added " << str << " (Id = " 
 		 << _root->getName().getString() << ")" << endl;
-#endif
     }
 
     // Invalid metric
@@ -165,19 +160,15 @@ ScaleMod::launch(Launch &launch, bool) const
 int
 ScaleMod::select(SoPath *)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ScaleMod::select: " << _metrics->metric(0) << endl;
-#endif
     return 1;
 }
 
 int
 ScaleMod::remove(SoPath *)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "ScaleMod::remove: " << _metrics->metric(0) << endl;
-#endif
     return 0;
 }

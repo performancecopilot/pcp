@@ -16,9 +16,6 @@
 #include "colorlist.h"
 #include <QSettings>
 
-#include <iostream>
-using namespace std;
-
 DefaultObj	*DefaultObj::theDefaultObj;
 
 DefaultObj::DefaultObj()
@@ -168,8 +165,6 @@ DefaultObj::getResources()
 
     resources.endGroup();
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	cerr << "DefaultObj::getResources: " << *this << endl;
-#endif
 }

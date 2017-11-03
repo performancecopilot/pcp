@@ -17,9 +17,6 @@
 #include "colorscale.h"
 #include "metriclist.h"
 
-#include <iostream>
-using namespace std;
-
 #define PM_LAUNCH_VERSION1 1
 #define PM_LAUNCH_VERSION2 2
 
@@ -141,13 +138,11 @@ Launch::addMetric(const QmcMetric &metric,
 		      int instance,
 		      bool useSocks)
 {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
-	    cerr << "Launch::addMetric(1): Adding ";
-	    metric.dump(cerr, true, instance);
-	    cerr << " (" << _metricCount << ')' << endl;
-	}
-#endif
+    if (pmDebugOptions.appl1) {
+	cerr << "Launch::addMetric(1): Adding ";
+	metric.dump(cerr, true, instance);
+	cerr << " (" << _metricCount << ')' << endl;
+    }
 
     QmcSource source = metric.context()->source();
     QByteArray ba;
@@ -164,13 +159,11 @@ Launch::addMetric(const QmcMetric &metric,
 		      int instance,
 		      bool useSocks)
 {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
-	    cerr << "Launch::addMetric(2): Adding ";
-	    metric.dump(cerr, true, instance);
-	    cerr << " (" << _metricCount << ')' << endl;
-	}
-#endif
+    if (pmDebugOptions.appl1) {
+	cerr << "Launch::addMetric(2): Adding ";
+	metric.dump(cerr, true, instance);
+	cerr << " (" << _metricCount << ')' << endl;
+    }
 
     QmcSource source = metric.context()->source();
     QByteArray ba;
@@ -196,11 +189,9 @@ Launch::addMetric(int context,
     QString	col;
 
     if (_groupMetric == -1) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    cerr << "Launch::addMetric: Called before startGroup."
 		 << " Adding a group." << endl;
-#endif
 	startGroup();
     }
 
@@ -229,11 +220,9 @@ Launch::addMetric(int context,
     QString	col;
 
     if (_groupMetric == -1) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    cerr << "Launch::addMetric: Called before startGroup."
 		 << " Adding a group." << endl;
-#endif
 	startGroup();
     }
 
@@ -319,11 +308,9 @@ Launch::startGroup(const char *hint)
     if (_groupMetric != -1)
     	cerr << "Launch::startGroup: Two groups started at once!" << endl;
     else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    cerr << "Launch::startGroup: Starting group " << _groupCount 
 	         << endl;
-#endif
 
 	_groupMetric = _metricCount;
 	_groupHint = hint;
@@ -340,11 +327,9 @@ Launch::endGroup()
 	     << _groupCount << endl;
 	_groupMetric = -1;
     } else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    cerr << "Launch::endGroup: ending group " << _groupCount 
 	         << endl;
-#endif
 
 	_groupMetric = -1;
 	_groupCount++;
@@ -355,11 +340,9 @@ void
 Launch::append(Launch const &rhs)
 {
     if (rhs._groupMetric != -1) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    cerr << "Launch::append: Group not finished in appended object."
 	         << " Completing group" << endl;
-#endif
 
 	// Cast away const, yuk.
 	((Launch *)(&rhs))->endGroup();
@@ -388,8 +371,6 @@ Launch::launchPath()
 	pmsprintf(launch_path, sizeof(launch_path), "%s/config/pmlaunch", pmGetConfig("PCP_VAR_DIR"));
     return launch_path;
 }
-
-#include <iostream>
 
 void
 Launch::output(int fd) const

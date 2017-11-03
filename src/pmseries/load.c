@@ -451,12 +451,10 @@ new_metric(SOURCE	*sp,
     metric->mapids = mapids;
     metric->numnames = sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "Metric [%s] ", pmIDStr(pmid));
 	__pmPrintMetricNames(stderr, sts, names, " or ");
     }
-#endif
 
     /* pick out domain#, indom# and cluster# and update label caches */
     domain = pmid_domain(pmid);
@@ -523,12 +521,10 @@ markrecord(SOURCE *sp, pmResult *result)
     metric_t		*metric;
     struct timeval	timediff;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fputstamp(&result->timestamp, '\n', stderr);
 	fprintf(stderr, " - mark record\n\n");
     }
-#endif
     for (i = 0; i < sp->pmidhash.hsize; i++) {
 	for (hptr = sp->pmidhash.hash[i]; hptr != NULL; hptr = hptr->next) {
 	    metric = (metric_t *)hptr->data;
@@ -696,24 +692,20 @@ series_cache_update(SOURCE *sp, pmResult *result, int metadata)
 		    val = av.d;
 		else
 		    val = unwrap(av.d, value->lastval.d, metric->desc.type);
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    __pmPrintMetricNames(stderr,
 				metric->numnames, metric->names, " or ");
 		    fprintf(stderr, " base value is %f, count %d\n",
 				val, value->count + 1);
 		}
-#endif
 		if (value->marked || val < value->lastval.d) {
 		    /* either previous record was a "mark", or this is not */
 		    /* the first one, and counter not monotonic increasing */
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL1) {
+		    if (pmDebugOptions.appl1) {
 			__pmPrintMetricNames(stderr,
 				metric->numnames, metric->names, " or ");
 			fprintf(stderr, " counter wrapped or <mark>\n");
 		    }
-#endif
 		    wrap = 1;
 		    value->marked = 0;
 		    tadd(&value->firsttime, &result->timestamp);
@@ -740,8 +732,7 @@ series_cache_update(SOURCE *sp, pmResult *result, int metadata)
 	    }
 	    if (!wrap) {
 		value->count++;
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_APPL1) &&
+		if ((pmDebugOptions.appl1) &&
 		    ((metric->desc.sem != PM_SEM_COUNTER) ||
 		     (value->count > 0))) {
 		    struct timeval	metrictimespan;
@@ -760,7 +751,6 @@ series_cache_update(SOURCE *sp, pmResult *result, int metadata)
 				diff, value->count);
 		    }
 		}
-#endif
 	    }
 	    value->lastval = av;
 	    value->lasttime = result->timestamp;

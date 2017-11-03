@@ -16,11 +16,9 @@
 #include <Inventor/nodes/SoSelection.h>
 #include "modulate.h"
 #include "modlist.h"
+#include "main.h"
 
-#include <iostream>
-using namespace std;
-
-double			theNormError = 1.05;
+double		theNormError = 1.05;
 
 const QString	Modulate::theErrorText = "Metric Unavailable";
 const QString	Modulate::theStartText = "Metric has not been fetched from source";
@@ -124,10 +122,8 @@ Modulate::record(Record &rec) const
 void
 Modulate::selectAll()
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	cerr << "Modulate::selectAll: selectAll for " << *this << endl;
-#endif
 
     theModList->selectAllId(_root, 1);
     theModList->selectSingle(_root);

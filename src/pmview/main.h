@@ -149,4 +149,6 @@ int warningMsg(const char *fileName, int line, const char *msg, ...);
 int errorMsg(const char *fileName, int line, const char *msg, ...);
 int fatalMsg(const char *fileName, int line, const char *msg, ...);
 
+extern QTextStream cerr;
+
 #endif	// MAIN_H
