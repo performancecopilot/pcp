@@ -1,0 +1,10 @@
+QA output created by 1182
+pmGetProgname="pcp"
+pmGetProgname()="progname"
+pmProgname="progname"
+__pmSetProgname(foo) -> 0 & pmProgname="foo"
+pmGetProgname()="foo"
+pmSetProgname(bar) & pmGetProgname()="bar"
+pmProgname="bar"
+pmSetProgname(NULL) & pmGetProgname()="pcp"
+pmProgname="pcp"

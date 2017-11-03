@@ -25,6 +25,6 @@
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
-#define pmProgname pmGetProgname()
+PCP_DATA extern char *pmProgname;
 
 #endif /* PCP_PMAPI_OLD_H */

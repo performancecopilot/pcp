@@ -61,7 +61,7 @@ echo "=== bad arg for -K option  ==="
 src/template -K bozo,foo,bar 2>&1 | _filter_usage
 
 cat <<End-of-File >$tmp.hosts
-localhost
+127.0.0.1
 End-of-File
 
 cat <<End-of-File >$tmp.pmns
@@ -73,7 +73,7 @@ End-of-File
 
 unset PCP_CONTAINER
 
-for a in "-s 13" "-a tmparch/foo -Dpmapi" -g "-h localhost -Dpmapi" \
+for a in "-s 13" "-a tmparch/foo -Dpmapi" -g "-h 127.0.0.1 -Dpmapi" \
 	"-t 1min2sec3msec" "-H $tmp.hosts -Dpmapi" \
 	"-n $PCP_VAR_DIR/pmns/root" "-Z UTC-13" \
 	"-z -S +13hr -a archives/conn20070309" \
