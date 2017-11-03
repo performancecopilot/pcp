@@ -175,6 +175,7 @@ pmsocks_objstyle
 pmsprintf
 pmtimezone.so
 proc_test
+progname
 pv
 pv64
 pv64.c
