@@ -1,7 +1,7 @@
 /*
- * Old (deprecated) PMAPI routines ... someday these might all go away.
+ * Deprecated PMAPI routines ... someday these might all go away.
  *
- * Copyright (c) 2017 Ken McDonell  All Rights Reserved.
+ * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -15,9 +15,7 @@
  */
 
 #include "pmapi.h"
-#include "pmapi_old.h"
-#include "impl.h"
-#include "internal.h"
+#include "deprecated.h"
 
 int
 __pmSetProgname(const char *program)

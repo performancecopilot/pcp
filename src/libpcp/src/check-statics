@@ -498,7 +498,7 @@ util.o
     xconfirm			# no unsafe side-effects, see notes in util.c
     tmpdir_init			# no unsafe side-effects, see notes in util.c
     tmpdir			# no unsafe side-effects, see notes in util.c
-pmapi_old.o
+deprecated.o
 ?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
