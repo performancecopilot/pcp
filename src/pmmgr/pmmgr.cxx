@@ -2010,6 +2010,24 @@ int main (int argc, char *argv[])
       alarm (0);
       (void) signal (SIGCHLD, SIG_DFL);
       (void) signal (SIGALRM, SIG_DFL);
+
+      // Reap any zombie child processes.  These could be
+      // (a) direct daemon processes we started - in which case
+      //     our later specif waitpid()s will fail, but that's OK;
+      //     at worst we'll lose the wstatus code; we still test
+      //     for liveness with kill($pid, 0)
+      // (b) indirect children of our daemon processes, or
+      // (c) random child processes, if pmmgr happens to be pid=1,
+      //     and in both cases we can simply reap the zombie
+      // but not
+      // (d) a temporary child process opened with popen() or similar,
+      //     whose output we were collecting, and whose rc we really
+      //     care about ... because all those child processes will have
+      //     been conclusively dealt with during the -> poll()'s above.
+      int pid;
+      do {
+        pid = waitpid(-1, NULL, WNOHANG);
+      } while (pid > 0);
     }
 
   // NB: don't let this cleanup be interrupted by pending-quit signals;
