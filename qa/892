@@ -13,11 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+$sudo rm -rf $tmp.* $seq.full
+
 _get_libpcp_config
 $ipv6 || _notrun "IPv6 support is not available"
 host=`hostname`
 [ -z "$host" ] && _notrun "Cannot discover local host name"
-addr=`_host_to_ipv6addrs $host | head -1`
+_host_to_ipv6addrs $host | tee -a $seq.full >$tmp.tmp
+addr=`head -1 $tmp.tmp`
 [ -z "$addr" ] && _notrun "Cannot translate hostname ($host) to IPv6 address"
 ipv6local=`_ipv6_localhost`
 
@@ -40,7 +43,6 @@ then
 fi
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _cleanup()
 {
@@ -65,7 +67,7 @@ _filter()
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "Using IPv6 addr=$addr" > $seq.full
+echo "Using IPv6 addr=$addr" >>$seq.full
 
 _save_config $PCP_SYSCONFIG_DIR/pmcd
 
