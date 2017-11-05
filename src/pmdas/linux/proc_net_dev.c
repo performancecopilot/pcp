@@ -461,7 +461,11 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
     if ((fp = linux_statsfile("/proc/net/if_inet6", buf, sizeof(buf))) == NULL)
 	return 0;
 
-    while (fscanf(fp, "%4s%4s%4s%4s%4s%4s%4s%4s %02x %02x %02x %02x %20s\n",
+    /*
+     * expecting something like ...
+     * fe80000000000000fc5400fffe906c44 20e 40 20 80    vnet9
+     */
+    while (fscanf(fp, "%4s%4s%4s%4s%4s%4s%4s%4s %x %x %x %x %s\n",
 		  addr6p[0], addr6p[1], addr6p[2], addr6p[3],
 		  addr6p[4], addr6p[5], addr6p[6], addr6p[7],
 		  &if_idx, &plen, &scope, &dad_status, devname) != EOF) {
