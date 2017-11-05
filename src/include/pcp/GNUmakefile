@@ -24,6 +24,7 @@ HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = $(CONFFILES)
+NOSHIP_HFILES = libpcp.h
 
 LDIRT = $(GENERATED_HFILES)
 

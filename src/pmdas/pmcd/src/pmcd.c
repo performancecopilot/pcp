@@ -346,7 +346,6 @@ static void
 init_tables(int dom)
 {
     int			i;
-    __pmID_int		*pmidp;
     __pmInDom_int	*indomp;
 
     /* set domain in instance domain correctly */
@@ -377,19 +376,21 @@ init_tables(int dom)
 
     /* merge performance domain ID part into PMIDs in pmDesc table */
     for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
-	pmidp = (__pmID_int *)&desctab[i].pmid;
-	pmidp->domain = dom;
-	if (pmidp->cluster == 0 && pmidp->item == 8)
+	unsigned int	cluster = pmid_cluster(desctab[i].pmid);
+	unsigned int	item = pmid_item(desctab[i].pmid);
+
+	desctab[i].pmid = pmid_build(dom, cluster, item);
+	if (cluster == 0 && item == 8)
 	    desctab[i].indom = regindom;
-	else if (pmidp->cluster == 0 && (pmidp->item == 18 || pmidp->item == 19))
+	else if (cluster == 0 && (item == 18 || item == 19))
 	    desctab[i].indom = bufindom;
-	else if (pmidp->cluster == 3)
+	else if (cluster == 3)
 	    desctab[i].indom = logindom;
-	else if (pmidp->cluster == 4)
+	else if (cluster == 4)
 	    desctab[i].indom = pmdaindom;
-	else if (pmidp->cluster == 5)
+	else if (cluster == 5)
 	    desctab[i].indom = pmieindom;
-	else if (pmidp->cluster == 6)
+	else if (cluster == 6)
 	    desctab[i].indom = clientindom;
     }
     ndesc--;
@@ -1305,7 +1306,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     pmiestats_t		*pmie;
     pmValueSet		*vset;
     pmDesc		*dp = NULL;	/* initialize to pander to gcc */
-    __pmID_int		*pmidp;
     pmAtomValue		atom;
     __pmLogPort		*lpp;
 
@@ -1328,6 +1328,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	 * there will only be one logger running (i.e. one instance).  For the
 	 * infrequent cases resize the value set later.
 	 */
+	unsigned int	cluster;
+	unsigned int	item;
+
 	res->vset[i] = NULL;
 	if (vset_resize(res, i, 0, 1) == -1)
 		return -ENOMEM;
@@ -1352,11 +1355,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	valfmt = -1;
 	sts = 0;
 	
-	pmidp = (__pmID_int *)&pmidlist[i];
-	switch (pmidp->cluster) {
+	cluster = pmid_cluster(pmidlist[i]);
+	item = pmid_item(pmidlist[i]);
+
+	switch (cluster) {
 
 	    case 0:	/* global metrics */
-		    switch (pmidp->item) {
+		    switch (item) {
 			case 0:		/* control.debug */
 				atom.l = pmDebug;
 				break;
@@ -1471,7 +1476,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    __pmCountPDUBuf(bufinst[j].inst + 1024, &xtra_alloced, &xtra_free);
 				    alloced -= xtra_alloced;
 				    free -= xtra_free;
-				    if (pmidp->item == 18)
+				    if (item == 18)
 					atom.l = alloced;
 				    else
 					atom.l = free;
@@ -1514,33 +1519,33 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    break;
 
 	    case 1:	/* PDUs received */
-		    if (pmidp->item == _TOTAL) {
+		    if (item == _TOTAL) {
 			/* total */
 			atom.ul = 0;
 			for (j = 0; j <= PDU_MAX; j++)
 			    atom.ul += __pmPDUCntIn[j];
 		    }
-		    else if (pmidp->item > PDU_MAX+1)
+		    else if (item > PDU_MAX+1)
 			sts = atom.l = PM_ERR_PMID;
-		    else if (pmidp->item < _TOTAL)
-			atom.ul = __pmPDUCntIn[pmidp->item];
+		    else if (item < _TOTAL)
+			atom.ul = __pmPDUCntIn[item];
 		    else
-			atom.ul = __pmPDUCntIn[pmidp->item-1];
+			atom.ul = __pmPDUCntIn[item-1];
 		    break;
 
 	    case 2:	/* PDUs sent */
-		    if (pmidp->item == _TOTAL) {
+		    if (item == _TOTAL) {
 			/* total */
 			atom.ul = 0;
 			for (j = 0; j <= PDU_MAX; j++)
 			    atom.ul += __pmPDUCntOut[j];
 		    }
-		    else if (pmidp->item > PDU_MAX+1)
+		    else if (item > PDU_MAX+1)
 			sts = atom.l = PM_ERR_PMID;
-		    else if (pmidp->item < _TOTAL)
-			atom.ul = __pmPDUCntOut[pmidp->item];
+		    else if (item < _TOTAL)
+			atom.ul = __pmPDUCntOut[item];
 		    else
-			atom.ul = __pmPDUCntOut[pmidp->item-1];
+			atom.ul = __pmPDUCntOut[item-1];
 		    break;
 
 	    case 3:	/* pmlogger control port, pmcd_host, archive and host */
@@ -1565,7 +1570,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			if (!__pmInProfile(logindom, _profile, lpp[j].pid))
 			    continue;
 			vset->vlist[numval].inst = lpp[j].pid;
-			switch (pmidp->item) {
+			switch (item) {
 			    case 0:		/* pmlogger.port */
 				atom.ul = lpp[j].port;
 				break;
@@ -1610,7 +1615,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    if (!__pmInProfile(pmdaindom, _profile, agent[j].pmDomainId))
 			continue;
 		    vset->vlist[numval].inst = agent[j].pmDomainId;
-		    switch (pmidp->item) {
+		    switch (item) {
 			case 0:		/* agent.type */
 			    atom.ul = agent[j].ipcType << 1;
 			    break;
@@ -1660,7 +1665,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			continue;
 		    vset->vlist[numval].inst = pmies[j].pid;
 		    pmie = (pmiestats_t *)pmies[j].mmap;
-		    switch (pmidp->item) {
+		    switch (item) {
 			case 0:		/* pmie.configfile */
 			    atom.cp = pmie->config;
 			    break;
@@ -1733,10 +1738,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    if (!__pmInProfile(clientindom, _profile, client[j].seq))
 			continue;
 		    vset->vlist[numval].inst = client[j].seq;
-		    switch (pmidp->item) {
+		    switch (item) {
 			case 0:		/* client.whoami */
 			case 2:		/* client.container */
-			    atom.cp = fetch_client_metric(pmidp->item, &client[j]);
+			    atom.cp = fetch_client_metric(item, &client[j]);
 			    if (!atom.cp)
 				/* no id registered, so no value */
 				atom.cp = "";
@@ -1768,11 +1773,11 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		break;
 
 	    case 7:	/* cputime metrics */
-		sts = fetch_cputime(pmidp->item, pmda->e_context, &atom);
+		sts = fetch_cputime(item, pmda->e_context, &atom);
 		break;
 
 	    case 8:	/* feature metrics */
-		sts = fetch_feature(pmidp->item, &atom);
+		sts = fetch_feature(item, &atom);
 		break;
 	}
 
@@ -1813,18 +1818,22 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
     int		sts = 0;
     int		ctx = pmda->e_context;
     char	*cp;
-    pmValueSet	*vsp;
-    __pmID_int	*pmidp;
 
     for (i = 0; i < result->numpmid; i++) {
+	pmValueSet	*vsp;
+	unsigned int	cluster;
+	unsigned int	item;
+
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
-	if (pmidp->cluster == 0) {
-	    if (pmidp->item == 0) {	/* pmcd.control.debug */
+	cluster = pmid_cluster(vsp->pmid);
+	item = pmid_item(vsp->pmid);
+
+	if (cluster == 0) {
+	    if (item == 0) {	/* pmcd.control.debug */
 		pmClearDebug("all");
 		__pmSetDebugBits(vsp->vlist[0].value.lval);
 	    }
-	    else if (pmidp->item == 4) { /* pmcd.control.timeout */
+	    else if (item == 4) { /* pmcd.control.timeout */
 		val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
@@ -1834,7 +1843,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    pmcd_timeout = val;
 		}
 	    }
-	    else if (pmidp->item == 8) { /* pmcd.control.register */
+	    else if (item == 8) { /* pmcd.control.register */
 		for (j = 0; j < vsp->numval; j++) {
 		    if (0 <= vsp->vlist[j].inst && vsp->vlist[j].inst < NUMREG)
 			reg[vsp->vlist[j].inst] = vsp->vlist[j].value.lval;
@@ -1844,7 +1853,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    }
 		}
 	    }
-	    else if (pmidp->item == 9) { /* pmcd.control.traceconn */
+	    else if (item == 9) { /* pmcd.control.traceconn */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
 		    pmcd_trace_mask &= (~TR_MASK_CONN);
@@ -1855,7 +1864,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    break;
 		}
 	    }
-	    else if (pmidp->item == 10) { /* pmcd.control.tracepdu */
+	    else if (item == 10) { /* pmcd.control.tracepdu */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
 		    pmcd_trace_mask &= (~TR_MASK_PDU);
@@ -1866,7 +1875,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    break;
 		}
 	    }
-	    else if (pmidp->item == 11) { /* pmcd.control.tracebufs */
+	    else if (item == 11) { /* pmcd.control.tracebufs */
 		val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
@@ -1874,16 +1883,16 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		}
 		pmcd_init_trace(val);
 	    }
-	    else if (pmidp->item == 12) { /* pmcd.control.dumptrace */
+	    else if (item == 12) { /* pmcd.control.dumptrace */
 		pmcd_dump_trace(stderr);
 	    }
-	    else if (pmidp->item == 13) { /* pmcd.control.dumpconn */
+	    else if (item == 13) { /* pmcd.control.dumpconn */
 		time_t	now;
 		time(&now);
 		fprintf(stderr, "\n->Current PMCD clients at %s", ctime(&now));
 		ShowClients(stderr);
 	    }
-	    else if (pmidp->item == 14) { /* pmcd.control.tracenobuf */
+	    else if (item == 14) { /* pmcd.control.tracenobuf */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
 		    pmcd_trace_mask &= (~TR_MASK_NOBUF);
@@ -1894,7 +1903,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    break;
 		}
 	    }
-	    else if (pmidp->item == 15) { /* pmcd.control.sighup */
+	    else if (item == 15) { /* pmcd.control.sighup */
 #ifdef HAVE_SIGHUP
 		/*
 		 * send myself SIGHUP
@@ -1908,9 +1917,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		break;
 	    }
 	}
-	else if (pmidp->cluster == 6) {
-	    if (pmidp->item == 0 ||	/* pmcd.client.whoami */
-		pmidp->item == 2) {	/* pmcd.client.container */
+	else if (cluster == 6) {
+	    if (item == 0 ||	/* pmcd.client.whoami */
+		item == 2) {	/* pmcd.client.container */
 		/*
 		 * Expect one value for one instance (current client).
 		 * Clients can only set their own whoami/container.
@@ -1926,7 +1935,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		ctxtab[ctx].id = this_client_id;
 		ctxtab[ctx].seq = client[this_client_id].seq;
 		cp = vsp->vlist[0].value.pval->vbuf;
-		if (pmidp->item == 0) {
+		if (item == 0) {
 		    free(ctxtab[ctx].whoami.value);
 		    ctxtab[ctx].whoami.value = strdup(cp);
 		} else {

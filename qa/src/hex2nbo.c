@@ -5,6 +5,21 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
+/* copied from libpcp.h */
+typedef struct {
+#ifdef HAVE_BITFIELDS_LTOR
+	unsigned int	flag : 1;
+	unsigned int	domain : 9;
+	unsigned int	cluster : 12;
+	unsigned int	item : 10;
+#else
+	unsigned int	item : 10;
+	unsigned int	cluster : 12;
+	unsigned int	domain : 9;
+	unsigned int	flag : 1;
+#endif
+} __pmID_int;
+
 /*
  * internal structs with field order reversed for the not network
  * byte order case

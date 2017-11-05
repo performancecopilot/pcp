@@ -92,22 +92,23 @@ static int
 txmon_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     stat_t		*sp;
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     unsigned int	real_count;
 
     if (inst != PM_IN_NULL && mdesc->m_desc.indom == PM_INDOM_NULL)
 	return PM_ERR_INST;
 
-    if (idp->cluster != 0)
+    if (cluster != 0)
 	return PM_ERR_PMID;
 
-    if (idp->item <= 3) {
+    if (item <= 3) {
 	if (inst >= control->n_tx)
 	    return PM_ERR_INST;
 
 	sp = (stat_t *)((__psint_t)control + control->index[inst]);
 
-	switch (idp->item) {
+	switch (item) {
 	    case 0:				/* txmon.count */
 		if (control->level < 1)
 		    return PM_ERR_AGAIN;
@@ -132,7 +133,7 @@ txmon_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     }
     else {
-	switch (idp->item) {
+	switch (item) {
 
 	    case 4:				/* txmon.control.level */
 		atom->ul = control->level;
@@ -159,16 +160,14 @@ txmon_store(pmResult *result, pmdaExt *pmda)
     int		val;
     int		sts = 0;
     pmValueSet	*vsp = NULL;
-    __pmID_int	*pmidp = NULL;
     stat_t	*sp;
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
 
-	if (pmidp->cluster == 0) {	/* all storable metrics are cluster 0 */
+	if (pmid_cluster(vsp->pmid) == 0) {	/* all storable metrics are cluster 0 */
 
-	    switch (pmidp->item) {
+	    switch (pmid_item(vsp->pmid)) {
 		case 0:				/* no store for these ones */
 		case 1:
 		case 2:

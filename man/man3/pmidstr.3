@@ -45,28 +45,10 @@ of length
 which should have room for at least 20 bytes.
 .PP
 Internally, a PMID is
-encoded as follows;
-.PP
-.ft CW
-.nf
-.in +0.5i
-typedef struct {
-    int             pad:2;
-    unsigned int    domain:8;
-    unsigned int    cluster:12;
-    unsigned int    item:10;
-} __pmID_int;
-.in
-.fi
-.ft 1
-.PP
+encoded with three fields: domain, cluster and item.
 .B pmIDStr
-returns a string with each of the
-.CW domain ,
-.CW cluster
-and
-.CW item
-subfields appearing as decimal numbers, separated by periods.
+returns a string with each of the fields
+appearing as decimal numbers, separated by periods.
 .PP
 The string value result from
 .B pmIDStr

@@ -223,13 +223,12 @@ bash_trace_decoder(int eventarray,
 static int
 bash_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     bash_process_t	*bp;
 
-    if (idp->cluster != 0)
+    if (pmid_cluster(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
 
-    switch (idp->item) {
+    switch (pmid_item(mdesc->m_desc.pmid)) {
     case bash_xtrace_maxmem:
 	atom->ull = (unsigned long long)bash_maxmem;
 	return PMDA_FETCH_STATIC;
@@ -245,7 +244,7 @@ bash_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	pmdaCacheLookup(indoms[BASH_INDOM].it_indom, inst, NULL, (void **)&bp))
 	return PM_ERR_INST;
 
-    switch (idp->item) {
+    switch (pmid_item(mdesc->m_desc.pmid)) {
     case bash_xtrace_numclients:
 	return pmdaEventQueueClients(bp->queueid, atom);
     case bash_xtrace_queuemem:
@@ -263,11 +262,10 @@ bash_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 bash_store_metric(pmValueSet *vsp, int context)
 {
-    __pmID_int	*idp = (__pmID_int *)&vsp->pmid;
     pmInDom	processes = indoms[BASH_INDOM].it_indom;
     int		sts;
 
-    if (idp->cluster != 0 || idp->item != bash_xtrace_records)
+    if (pmid_cluster(vsp->pmid) != 0 || pmid_item(vsp->pmid) != bash_xtrace_records)
 	return PM_ERR_PERMISSION;
 
     if (pmDebugOptions.appl0)

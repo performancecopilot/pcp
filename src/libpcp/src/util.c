@@ -61,6 +61,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmdbg.h"
 #include "internal.h"
 
@@ -2745,5 +2746,41 @@ __pmDumpStack(FILE *f)
     fprintf(f, "[No backtrace support available]\n");
 }
 #endif /* HAVE_BACKTRACE */
+
+/*
+ * pmID helper functions
+ */
+
+unsigned int
+pmid_item(pmID id)
+{
+    return __pmid_int(&id)->item;
+}
+
+unsigned int 
+pmid_cluster(pmID id)
+{
+    return __pmid_int(&id)->cluster;
+}
+
+unsigned int 
+pmid_domain(pmID id)
+{
+    return __pmid_int(&id)->domain;
+}
+
+pmID
+pmid_build(unsigned int domain, unsigned int cluster, unsigned int item)
+{
+    pmID id;
+    __pmID_int idint;
+
+    idint.flag = 0;
+    idint.domain = domain;
+    idint.cluster = cluster;
+    idint.item = item;
+    memcpy(&id, &idint, sizeof(id));
+    return id;
+}
 
 #endif /* !IS_MINGW */

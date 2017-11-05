@@ -129,22 +129,23 @@ static char	*username;
 static int
 lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int 		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     void *vp;
 
 	/* check for PMID errors */
-    if ( !((idp->cluster == 0) && (idp->item <= 4)) &&
-	 !((idp->cluster == 1) && (idp->item <= 10)) )
+    if ( !((cluster == 0) && (item <= 4)) &&
+	 !((cluster == 1) && (item <= 10)) )
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
 
 	/* refresh and store data */
-    if (idp->cluster == 0) {
+    if (cluster == 0) {
 	vp = malloc (4);
 	int aux = 10;
         /* not saving any time fussing with "how recent", just do it */
-        switch (idp->item) {
+        switch (item) {
             case 0:
 		/* consider mdesc->m_desc.type */
 		/* problem: the way it's stored in PCP isn't necessarily */
@@ -169,16 +170,16 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
                 atom->l = *((long *) vp);
                 break;
             default:
-                printf ("PMID %d:%d non-existant\n",idp->cluster,idp->item);
+                printf ("PMID %d:%d non-existant\n",cluster,item);
                 break;
         }
 	free (vp);
     }
-    if (idp->cluster == 1) {
+    if (cluster == 1) {
 	vp = malloc (4);
 	int aux = 10;
 	
-        switch(idp->item) {
+        switch(item) {
             case 0:
 		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 0);
                 atom->l = *((long *) vp);

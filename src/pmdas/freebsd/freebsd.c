@@ -419,13 +419,14 @@ static int
 freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     int			sts = PM_ERR_PMID;
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     mib_t		*mp;
 
     mp = (mib_t *)mdesc->m_user;
-    if (idp->cluster == CL_SYSCTL) {
+    if (cluster == CL_SYSCTL) {
 	/* sysctl() simple cases */
-	switch (idp->item) {
+	switch (item) {
 	    /* 32-bit integer values */
 	    case 0:		/* hinv.ncpu */
 	    case 18:		/* swap.pagesin */
@@ -511,7 +512,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
 		     * CP_IDLE
 		     */
-		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[idp->item-3])/cpuhz;
+		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[item-3])/cpuhz;
 		    sts = 1;
 		}
 		break;
@@ -532,7 +533,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		     * CPU up to the maximum number of CPUs installed in
 		     * the system.
 		     */
-		    atom->ull = 1000*((__uint64_t *)mp->m_data)[inst * CPUSTATES + idp->item-8]/cpuhz;
+		    atom->ull = 1000*((__uint64_t *)mp->m_data)[inst * CPUSTATES + item-8]/cpuhz;
 		    sts = 1;
 		}
 		break;
@@ -548,9 +549,9 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	}
     }
-    else if (idp->cluster == CL_SPECIAL) {
+    else if (cluster == CL_SPECIAL) {
 	/* special cases */
-	switch (idp->item) {
+	switch (item) {
 	    case 0:	/* hinv.ndisk */
 		refresh_disk_metrics();
 		atom->ul = pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_SIZE_ACTIVE);
@@ -653,11 +654,11 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	}
     }
-    else if (idp->cluster == CL_DISK) {
+    else if (cluster == CL_DISK) {
 	/* disk metrics */
 	sts = do_disk_metrics(mdesc, inst, atom);
     }
-    else if (idp->cluster == CL_NETIF) {
+    else if (cluster == CL_NETIF) {
 	/* network interface metrics */
 	sts = do_netif_metrics(mdesc, inst, atom);
     }

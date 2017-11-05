@@ -163,14 +163,14 @@ dump(char *xpect)
 		/* should not happen! */
 		fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_flags, pmErrStr(sts));
 		/* avoid subsequent warnings ... */
-		__pmid_int(&pmid_flags)->item = 1;
+		pmid_flags = pmid_build(pmid_domain(pmid_flags), pmid_cluster(pmid_flags), 1);
 	    }
 	    sts = pmLookupName(1, &name_missed, &pmid_missed);
 	    if (sts < 0) {
 		/* should not happen! */
 		fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_missed, pmErrStr(sts));
 		/* avoid subsequent warnings ... */
-		__pmid_int(&pmid_missed)->item = 1;
+		pmid_missed = pmid_build(pmid_domain(pmid_missed), pmid_cluster(pmid_missed), 1);
 	    }
 	}
 
@@ -232,16 +232,16 @@ main(int argc, char **argv)
      * note these PMIDs must match the corresponding metrics in
      * desctab[] and this cannot easily be done automatically
      */
-    ((__pmID_int *)&pmid_array)->domain = mydomain;
-    ((__pmID_int *)&pmid_type)->domain = mydomain;
-    ((__pmID_int *)&pmid_32)->domain = mydomain;
-    ((__pmID_int *)&pmid_u32)->domain = mydomain;
-    ((__pmID_int *)&pmid_64)->domain = mydomain;
-    ((__pmID_int *)&pmid_u64)->domain = mydomain;
-    ((__pmID_int *)&pmid_float)->domain = mydomain;
-    ((__pmID_int *)&pmid_double)->domain = mydomain;
-    ((__pmID_int *)&pmid_string)->domain = mydomain;
-    ((__pmID_int *)&pmid_aggregate)->domain = mydomain;
+    pmid_array = pmid_build(mydomain, pmid_cluster(pmid_array), pmid_item(pmid_array));
+    pmid_type = pmid_build(mydomain, pmid_cluster(pmid_type), pmid_item(pmid_type));
+    pmid_32 = pmid_build(mydomain, pmid_cluster(pmid_32), pmid_item(pmid_32));
+    pmid_u32 = pmid_build(mydomain, pmid_cluster(pmid_u32), pmid_item(pmid_u32));
+    pmid_64 = pmid_build(mydomain, pmid_cluster(pmid_64), pmid_item(pmid_64));
+    pmid_u64 = pmid_build(mydomain, pmid_cluster(pmid_u64), pmid_item(pmid_u64));
+    pmid_float = pmid_build(mydomain, pmid_cluster(pmid_float), pmid_item(pmid_float));
+    pmid_double = pmid_build(mydomain, pmid_cluster(pmid_double), pmid_item(pmid_double));
+    pmid_string = pmid_build(mydomain, pmid_cluster(pmid_string), pmid_item(pmid_string));
+    pmid_aggregate = pmid_build(mydomain, pmid_cluster(pmid_aggregate), pmid_item(pmid_aggregate));
     /* build pmValueBlock for aggregate value */
     aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + sizeof(aggrval));
     aggr->vtype = PM_TYPE_AGGREGATE;

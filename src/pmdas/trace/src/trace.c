@@ -625,19 +625,19 @@ nextTraceInst(pmdaExt *pmda)
 }
 
 static int
-auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
+auxFetch(int inst, pmID pmid, char *tag, pmAtomValue *atom)
 {
-    if (inst != PM_IN_NULL && idp->cluster != 0)
+    if (inst != PM_IN_NULL && pmid_cluster(pmid) != 0)
 	return PM_ERR_INST;
 
     /* transaction, point, counter and observe trace values and control data */
-    if (idp->cluster == 0) {
+    if (pmid_cluster(pmid) == 0) {
 	hashdata_t	hash;
 	hashdata_t	*hptr;
 
 	hash.tag = tag;
 
-	switch (idp->item) {
+	switch (pmid_item(pmid)) {
 	case 0:				/* trace.transact.count */
 	    hash.tracetype = TRACE_TYPE_TRANSACT;
 	    if ((hptr = __pmhashlookup(&summary, hash.tag, &hash)) == NULL)
@@ -711,7 +711,7 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 	    break;
 	case 8:				/* trace.observe.count */
 	case 17:			/* trace.counter.count */
-	    hash.tracetype = (idp->item == 8)?
+	    hash.tracetype = (pmid_item(pmid) == 8)?
 			TRACE_TYPE_OBSERVE : TRACE_TYPE_COUNTER;
 	    if ((hptr = __pmhashlookup(&summary, hash.tag, &hash)) == NULL)
 		return PM_ERR_INST;
@@ -719,7 +719,7 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 	    break;
 	case 9:				/* trace.observe.rate */
 	case 18:			/* trace.counter.rate */
-	    hash.tracetype = (idp->item == 9)?
+	    hash.tracetype = (pmid_item(pmid) == 9)?
 			TRACE_TYPE_OBSERVE : TRACE_TYPE_COUNTER;
 	    if ((hptr = __pmhashlookup(&summary, hash.tag, &hash)) == NULL)
 		return PM_ERR_INST;
@@ -732,7 +732,7 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 	    break;
 	case 10:			/* trace.observe.value */
 	case 19:			/* trace.counter.value */
-	    hash.tracetype = (idp->item == 10)?
+	    hash.tracetype = (pmid_item(pmid) == 10)?
 			TRACE_TYPE_OBSERVE : TRACE_TYPE_COUNTER;
 	    if ((hptr = __pmhashlookup(&summary, hash.tag, &hash)) == NULL)
 		return PM_ERR_INST;
@@ -767,14 +767,14 @@ auxFetch(int inst, __pmID_int *idp, char *tag, pmAtomValue *atom)
 }
 
 static int
-getIndomSize(__pmID_int *pmidp)
+getIndomSize(pmID pmid)
 {
     int size;
 
-    if (pmidp->cluster != 0)
+    if (pmid_cluster(pmid) != 0)
 	return 1;
 
-    switch (pmidp->item) {
+    switch (pmid_item(pmid)) {
 	case 0:		/* uses summary's real counters (transact) */
 	case 5:
 	    size = indomtab[TRANSACT_INDOM].it_numinst;
@@ -819,7 +819,6 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     static pmResult	*res = NULL;
     pmValueSet		*vset;
     pmDesc		*dp;
-    __pmID_int		*pmidp;
     pmdaMetric		*metap;
     pmAtomValue		atom;
     pmdaInstid		*ins;
@@ -848,11 +847,10 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     for (i = 0; i < numpmid; i++) {
 	dp = NULL;
 	metap = NULL;
-	pmidp = (__pmID_int *)&pmidlist[i];
 	if (pmda->e_direct) {
-	    if (pmidp->item < pmda->e_nmetrics &&
-		pmidlist[i] == pmda->e_metrics[pmidp->item].m_desc.pmid) {
-		metap = &pmda->e_metrics[pmidp->item];
+	    if (pmid_item(pmidlist[i]) < pmda->e_nmetrics &&
+		pmidlist[i] == pmda->e_metrics[pmid_item(pmidlist[i])].m_desc.pmid) {
+		metap = &pmda->e_metrics[pmid_item(pmidlist[i])];
 		dp = &(metap->m_desc);
 	    }
 	}
@@ -877,7 +875,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	     */
 	    if (dosummary == 1)
 		summariseData();
-	    numval = getIndomSize(pmidp);
+	    numval = getIndomSize(pmidlist[i]);
     if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "instance domain for %s numval=%d",
 		pmIDStr(dp->pmid), numval);
@@ -930,7 +928,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		}
 	    }
 	    vset->vlist[j].inst = ins->i_inst;
-	    if ((sts = auxFetch(ins->i_inst, pmidp, ins->i_name, &atom)) < 0) {
+	    if ((sts = auxFetch(ins->i_inst, pmidlist[i], ins->i_name, &atom)) < 0) {
 		if (sts == PM_ERR_PMID)
 		    __pmNotifyErr(LOG_ERR, "unknown PMID requested - '%s'",
 				pmIDStr(dp->pmid));
@@ -975,19 +973,17 @@ traceStore(pmResult *result, pmdaExt *pmda)
     int		i, j;
     int         sts = 0;
     pmValueSet  *vsp = NULL;
-    __pmID_int   *pmidp = NULL;
     pmAtomValue	av;
     extern int	afid;
     extern void alarming(int, void *);
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
 
-	if (pmidp->cluster != 0)
+	if (pmid_cluster(vsp->pmid) != 0)
 	    return PM_ERR_PMID;
 
-	if (pmidp->item == 15) {	/* trace.control.reset */
+	if (pmid_item(vsp->pmid) == 15) {	/* trace.control.reset */
 	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "resetting trace metrics");
 	    /* reset the interval timer */
@@ -1032,7 +1028,7 @@ traceStore(pmResult *result, pmdaExt *pmda)
 	    dosummary = 1;
 	    __pmNotifyErr(LOG_INFO, "PMDA reset");
 	}
-	else if (pmidp->item == 16) {	/* trace.control.debug */
+	else if (pmid_item(vsp->pmid) == 16) {	/* trace.control.debug */
 	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		sts = PM_ERR_BADSTORE;
 	    else if (sts >= 0 && ((sts = pmExtractValue(vsp->valfmt,

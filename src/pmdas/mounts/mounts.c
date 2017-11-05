@@ -365,17 +365,16 @@ mounts_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     __uint64_t	ull, used;
     mountinfo	*mp;
 
-    if (idp->cluster != MOUNTS_CLUSTER)
+    if (pmid_cluster(mdesc->m_desc.pmid) != MOUNTS_CLUSTER)
 	return PM_ERR_PMID;
     if (inst >= indomtab[MOUNTS_INDOM].it_numinst)
 	return PM_ERR_INST;
     mp = &mount_list[inst];
 
-    switch (idp->item) {
+    switch (pmid_item(mdesc->m_desc.pmid)) {
     case MOUNTS_DEVICE:
 	atom->cp = mp->device;
 	break;

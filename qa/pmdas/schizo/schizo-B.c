@@ -66,13 +66,14 @@ static pmdaMetric metrictab[] = {
 static int
 schizo_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
 
     __pmNotifyErr(LOG_DEBUG, "schizo_fetch: %d.%d[%d]\n",
-		  idp->cluster, idp->item, inst);
+		  cluster, item, inst);
 
-    if (idp->cluster == 0) {
-	switch (idp->item) {
+    if (cluster == 0) {
+	switch (item) {
 	case 0:					/* version */
 	    atom->cp = "B";
 	    break;
@@ -89,16 +90,16 @@ schizo_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
     }
-    else if (idp->cluster == 1) {
-	switch(idp->item) {
+    else if (cluster == 1) {
+	switch(item) {
 	case 1:					/* data1 */
-	    atom->ll = (__int64_t)(inst*idp->item);
+	    atom->ll = (__int64_t)(inst*item);
 	    break;
 
 	case 2:					/* data2 */
 	case 3:					/* data3 */
 	case 4:					/* data4 */
-	    atom->l = inst*idp->item;
+	    atom->l = inst*item;
 	    break;
 
 	default:

@@ -806,9 +806,9 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster < NUM_CLUSTERS)
-	    need_refresh[idp->cluster]++;
+	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	if (cluster < NUM_CLUSTERS)
+	    need_refresh[cluster]++;
     }
 
     if ((sts = gfs2_fetch_refresh(pmda, need_refresh)) < 0)
@@ -822,49 +822,49 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     struct gfs2_fs	*fs;
     int			sts;
 
-    switch (idp->cluster) {
+    switch (pmid_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_GLOCKS:
 	sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
-	return gfs2_glocks_fetch(idp->item, &fs->glocks, atom);
+	return gfs2_glocks_fetch(item, &fs->glocks, atom);
 
     case CLUSTER_SBSTATS:
 	sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
-	return gfs2_sbstats_fetch(idp->item, &fs->sbstats, atom);
+	return gfs2_sbstats_fetch(item, &fs->sbstats, atom);
 
     case CLUSTER_GLSTATS:
         sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
-	return gfs2_glstats_fetch(idp->item, &fs->glstats, atom);
+	return gfs2_glstats_fetch(item, &fs->glstats, atom);
 
     case CLUSTER_TRACEPOINTS:
         sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
-        return gfs2_ftrace_fetch(idp->item, &fs->ftrace, atom);
+        return gfs2_ftrace_fetch(item, &fs->ftrace, atom);
 
     case CLUSTER_WORSTGLOCK:
         sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void**)&fs);
         if (sts < 0)
             return sts;
-        return gfs2_worst_glock_fetch(idp->item, &fs->worst_glock, atom);
+        return gfs2_worst_glock_fetch(item, &fs->worst_glock, atom);
 
     case CLUSTER_LATENCY:
         sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void**)&fs);
         if (sts < 0)
             return sts;
-        return gfs2_latency_fetch(idp->item, &fs->latency, atom);
+        return gfs2_latency_fetch(item, &fs->latency, atom);
 
     case CLUSTER_CONTROL:
-        return gfs2_control_fetch(idp->item, atom);
+        return gfs2_control_fetch(item, atom);
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;
@@ -930,26 +930,29 @@ gfs2_store(pmResult *result, pmdaExt *pmda)
 {
     int		i;
     int		sts = 0;
-    pmValueSet	*vsp;
-    __pmID_int	*pmidp;
 
     for (i = 0; i < result->numpmid && !sts; i++) {
-	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
+	unsigned int	cluster;
+	unsigned int	item;
+	pmValueSet	*vsp;
 
-	if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item <= CONTROL_BUFFER_SIZE_KB) {
-            sts = gfs2_control_set_value(control_locations[pmidp->item], vsp);
+	vsp = result->vset[i];
+	cluster = pmid_cluster(vsp->pmid);
+	item = pmid_item(vsp->pmid);
+
+	if (cluster == CLUSTER_CONTROL && item <= CONTROL_BUFFER_SIZE_KB) {
+            sts = gfs2_control_set_value(control_locations[item], vsp);
         }
 
-        if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_WORSTGLOCK) {
+        if (cluster == CLUSTER_CONTROL && item == CONTROL_WORSTGLOCK) {
             sts = worst_glock_set_state(vsp);
         }
 
-        if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_LATENCY) {
+        if (cluster == CLUSTER_CONTROL && item == CONTROL_LATENCY) {
             sts = latency_set_state(vsp);
         }
 
-        if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
+        if (cluster == CLUSTER_CONTROL && item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
             sts = ftrace_set_threshold(vsp);
         }
     }

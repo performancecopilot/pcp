@@ -13,13 +13,10 @@ int
 main()
 {
     pmID	pmid;
-    __pmID_int	*p = (__pmID_int *)&pmid;
     pmResult	*rp;
     int		sts;
 
-    pmid = 0;
-    p->domain = 2;		/* pmcd */
-    p->cluster = 13;		/* bogus */
+    pmid = pmid_build(2, 13, 0);	/* pmcd.<bogusmetric> */
 
     sts = pmNewContext(PM_CONTEXT_HOST, "localhost");
     if (sts < 0) {

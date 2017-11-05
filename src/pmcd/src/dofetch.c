@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmcd.h"
 
 /* Freq. histogram: pmids for each agent in current fetch request */

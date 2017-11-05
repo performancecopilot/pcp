@@ -397,7 +397,7 @@ init_data(int domain)
 {
     int			i;
     int			serial;
-    __pmID_int		*ip;
+    pmID		pmid;
     __pmInDom_int	*iip;
 
     /*
@@ -415,8 +415,8 @@ init_data(int domain)
     for (i = 0; i < metrictab_sz; i++) {
 	metrictab[i].m_user = &metricdesc[i];
 	metrictab[i].m_desc = metricdesc[i].md_desc;
-	ip = (__pmID_int *)&metricdesc[i].md_desc.pmid;
-	ip->domain = domain;
+	pmid = metricdesc[i].md_desc.pmid;
+	metricdesc[i].md_desc.pmid = pmid_build(domain, pmid_cluster(pmid), pmid_item(pmid));
 	if (metricdesc[i].md_desc.indom != PM_INDOM_NULL) {
 	    serial = metricdesc[i].md_desc.indom;
 	    iip = (__pmInDom_int *)&metricdesc[i].md_desc.indom;

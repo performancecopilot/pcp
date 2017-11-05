@@ -53,15 +53,15 @@ init_events(int domain)
      * note these PMIDs must match the corresponding metrics in
      * desctab[] and this cannot easily be done automatically
      */
-    ((__pmID_int *)&pmid_type)->domain = domain;
-    ((__pmID_int *)&pmid_32)->domain = domain;
-    ((__pmID_int *)&pmid_u32)->domain = domain;
-    ((__pmID_int *)&pmid_64)->domain = domain;
-    ((__pmID_int *)&pmid_u64)->domain = domain;
-    ((__pmID_int *)&pmid_float)->domain = domain;
-    ((__pmID_int *)&pmid_double)->domain = domain;
-    ((__pmID_int *)&pmid_string)->domain = domain;
-    ((__pmID_int *)&pmid_aggregate)->domain = domain;
+    pmid_type = pmid_build(domain, pmid_cluster(pmid_type), pmid_item(pmid_type));
+    pmid_32 = pmid_build(domain, pmid_cluster(pmid_32), pmid_item(pmid_32));
+    pmid_u32 = pmid_build(domain, pmid_cluster(pmid_u32), pmid_item(pmid_u32));
+    pmid_64 = pmid_build(domain, pmid_cluster(pmid_64), pmid_item(pmid_64));
+    pmid_u64 = pmid_build(domain, pmid_cluster(pmid_u64), pmid_item(pmid_u64));
+    pmid_float = pmid_build(domain, pmid_cluster(pmid_float), pmid_item(pmid_float));
+    pmid_double = pmid_build(domain, pmid_cluster(pmid_double), pmid_item(pmid_double));
+    pmid_string = pmid_build(domain, pmid_cluster(pmid_string), pmid_item(pmid_string));
+    pmid_aggregate = pmid_build(domain, pmid_cluster(pmid_aggregate), pmid_item(pmid_aggregate));
 
     /* build pmValueBlock for aggregate value */
     aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + sizeof(aggrval));

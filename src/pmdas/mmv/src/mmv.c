@@ -845,18 +845,17 @@ mmv_lookup_stat_metric(pmID pmid, unsigned int inst,
 	stats_t **stats, mmv_disk_value_t **value,
 	__uint64_t *shorttext, __uint64_t *helptext)
 {
-    __pmID_int *id = (__pmID_int *)&pmid;
     int si, sts = PM_ERR_PMID;
 
     for (si = 0; si < scnt; si++) {
 	stats_t *s = &slist[si];
 
-	if (s->cluster != id->cluster)
+	if (s->cluster != pmid_cluster(pmid))
 	    continue;
 
 	sts = (s->version == MMV_VERSION1) ?
-	    mmv_lookup_item1(id->item, inst, s, value, shorttext, helptext):
-	    mmv_lookup_item2(id->item, inst, s, value, shorttext, helptext);
+	    mmv_lookup_item1(pmid_item(pmid), inst, s, value, shorttext, helptext):
+	    mmv_lookup_item2(pmid_item(pmid), inst, s, value, shorttext, helptext);
 	if (sts >= 0) {
 	    *stats = s;
 	    break;
@@ -878,10 +877,8 @@ mmv_lookup_stat_metric_value(pmID pmid, unsigned int inst,
 static int
 mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int *id = (__pmID_int *)&(mdesc->m_desc.pmid);
-
-    if (id->cluster == 0) {
-	if (id->item <= 2) {
+    if (pmid_cluster(mdesc->m_desc.pmid) == 0) {
+	if (pmid_item(mdesc->m_desc.pmid) <= 2) {
 	    atom->l = *(int *)mdesc->m_user;
 	    return 1;
 	}
@@ -1152,13 +1149,11 @@ mmv_store(pmResult *result, pmdaExt *ep)
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet * vsp = result->vset[i];
-	__pmID_int * id = (__pmID_int *)&vsp->pmid;
 
-	if (id->cluster == 0) {
+	if (pmid_cluster(vsp->pmid) == 0) {
 	    for (m = 0; m < mtot; m++) {
-		__pmID_int * mid = (__pmID_int *)&(metrics[m].m_desc.pmid);
 
-		if (mid->cluster == 0 && mid->item == id->item) {
+		if (pmid_cluster(metrics[m].m_desc.pmid) == 0 && pmid_item(metrics[m].m_desc.pmid) == pmid_item(vsp->pmid)) {
 		    pmAtomValue atom;
 		    int sts;
 
@@ -1168,9 +1163,9 @@ mmv_store(pmResult *result, pmdaExt *ep)
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 					PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
 			return sts;
-		    if (id->item == 0)
+		    if (pmid_item(vsp->pmid) == 0)
 			reload = atom.l;
-		    else if (id->item == 1)
+		    else if (pmid_item(vsp->pmid) == 1)
 			pmDebug = atom.l;
 		    else
 			return PM_ERR_PERMISSION;

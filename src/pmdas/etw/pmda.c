@@ -329,18 +329,17 @@ static pmdaMetric metrictab[] = {
 static int
 etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     etw_event_t	*etw;
     int		sts = PMDA_FETCH_STATIC;
 
     __pmNotifyErr(LOG_WARNING, "called %s, mdesc=%p", __FUNCTION__, mdesc);
 
-    switch (idp->cluster) {
+    switch (pmid_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_KERNEL_PROCESS:
 	if ((etw = ((mdesc != NULL) ? mdesc->m_user : NULL)) == NULL)
 	    return PM_ERR_PMID;
 
-	switch (idp->item) {
+	switch (pmid_item(mdesc->m_desc.pmid)) {
 	    case 0:		/* etw.kernel.process.start.count */
 	    case 20:		/* etw.kernel.process.exit.count */
 	    case 50:		/* etw.kernel.thread.start.count */
@@ -383,7 +382,7 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_CONFIGURATION:
-	switch (idp->item) {
+	switch (pmid_item(mdesc->m_desc.pmid)) {
 	    case 0:			/* etw.numclients */
 		sts = pmdaEventClients(atom);
 		break;

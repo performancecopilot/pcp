@@ -137,11 +137,9 @@ static __uint64_t
 disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 {
     pmID	pmid;
-    __pmID_int	*ip = (__pmID_int *)&pmid;
     __uint64_t	val;
 
-    pmid = mdesc->m_desc.pmid;
-    ip->domain = 0;
+    pmid = pmid_build(0, pmid_cluster(mdesc->m_desc.pmid), pmid_item(mdesc->m_desc.pmid));
 
 // from kstat_io_t ...
 //

@@ -1352,14 +1352,15 @@ xfs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 static int
 xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     unsigned long long 	offset;
     struct sysfs_xfs	*xfs;
     struct filesys	*fs;
     int			sts;
 
-    if (mdesc->m_user != NULL && idp->cluster != CLUSTER_PERDEV) {
-	if ((idp->cluster == CLUSTER_XFS || idp->cluster == CLUSTER_XFSBUF) &&
+    if (mdesc->m_user != NULL && cluster != CLUSTER_PERDEV) {
+	if ((cluster == CLUSTER_XFS || cluster == CLUSTER_XFSBUF) &&
 	    sysfs_xfs.errcode != 0) {
 	    /* no values available for XFS metrics */
 	    return 0;
@@ -1380,10 +1381,10 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     }
     else
-    switch (idp->cluster) {
+    switch (cluster) {
 
     case CLUSTER_XFS:
-	switch (idp->item) {
+	switch (item) {
 	case 79: /* xfs.control.reset */
 	    atom->ul = 0;
 	    break;
@@ -1418,14 +1419,14 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_QUOTA:
-	if (idp->item <= 5) {
+	if (item <= 5) {
 	    sts = pmdaCacheLookup(INDOM(FILESYS_INDOM), inst, NULL,
 					(void **)&fs);
 	    if (sts < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
 		return PM_ERR_INST;
-	    switch (idp->item) {
+	    switch (item) {
 	    case 0:	/* quota.state.project.accounting */
 		atom->ul = !!(fs->flags & FSF_QUOT_PROJ_ACC);
 		break;
@@ -1436,7 +1437,7 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_PMID;
 	    }
 	}
-	else if (idp->item <= 13) {
+	else if (item <= 13) {
 	    struct project *pp;
 	    sts = pmdaCacheLookup(INDOM(QUOTA_PRJ_INDOM), inst, NULL,
 					(void **)&pp);
@@ -1444,7 +1445,7 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
 		return PM_ERR_INST;
-	    switch (idp->item) {
+	    switch (item) {
 	    case 6:	/* quota.project.space.hard */
 		atom->ull = pp->space_hard >> 1; /* BBs to KB */
 		break;
@@ -1487,9 +1488,9 @@ xfs_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster >= MIN_CLUSTER && idp->cluster < NUM_CLUSTERS)
-	    need_refresh[idp->cluster]++;
+	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	if (cluster >= MIN_CLUSTER && cluster < NUM_CLUSTERS)
+	    need_refresh[cluster]++;
     }
 
     xfs_refresh(pmda, need_refresh);
@@ -1500,14 +1501,14 @@ static int
 xfs_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	__pmID_int	*idp = (__pmID_int *)&ident;
+	pmID	pmid = (pmID)ident;
 
 	/* share per-device help text with globals */
-	if (idp->cluster == CLUSTER_PERDEV) {
-	    if (idp->item >= 140 && idp->item <= 148)
-		idp->cluster = CLUSTER_XFSBUF;
+	if (pmid_cluster(pmid) == CLUSTER_PERDEV) {
+	    if (pmid_item(pmid) >= 140 && pmid_item(pmid) <= 148)
+		ident = (int)pmid_build(pmid_domain(pmid), CLUSTER_XFSBUF, pmid_item(pmid));
 	    else
-		idp->cluster = CLUSTER_XFS;
+		ident = (int)pmid_build(pmid_domain(pmid), CLUSTER_XFS, pmid_item(pmid));
 	}
     }
     return pmdaText(ident, type, buf, pmda);
@@ -1543,13 +1544,11 @@ xfs_store(pmResult *result, pmdaExt *pmda)
     int		i;
     int		sts = 0;
     pmValueSet	*vsp;
-    __pmID_int	*pmidp;
 
     for (i = 0; i < result->numpmid && !sts; i++) {
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
 
-	if (pmidp->cluster == CLUSTER_XFS && pmidp->item == 79) {
+	if (pmid_cluster(vsp->pmid) == CLUSTER_XFS && pmid_item(vsp->pmid) == 79) {
 	    if ((sts = xfs_zero(vsp)) < 0)
 		break;
 	} else {

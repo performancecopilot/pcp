@@ -478,13 +478,12 @@ docker_store(pmResult *result, pmdaExt *pmda)
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
-	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
  
-	if (idp->cluster != CLUSTER_CONTROL)
+	if (pmid_cluster(vsp->pmid) != CLUSTER_CONTROL)
 	    return PM_ERR_PMID;
 
-	switch (idp->item) {
+	switch (pmid_item(vsp->pmid)) {
 	case 0:
 	    if (pmExtractValue(vsp->valfmt, &vsp->vlist[0], PM_TYPE_U64, &av, PM_TYPE_U64) < 0)
 		return PM_ERR_VALUE;
@@ -505,7 +504,7 @@ docker_store(pmResult *result, pmdaExt *pmda)
 static int
 docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     int			sts = 0;
     char		*name;
     json_metric_desc	*local_metrics;
@@ -513,7 +512,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     pthread_mutex_lock(&stats_mutex);
 
-    switch (idp->cluster) {
+    switch (pmid_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_BASIC:
 
 	indom = INDOM(CONTAINERS_INDOM);
@@ -525,27 +524,27 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    }
 	}
-	switch (idp->item) {
+	switch (item) {
 	case 0:		/* docker.pid */
-	    atom->ll = local_metrics[idp->item].values.l;
+	    atom->ll = local_metrics[item].values.l;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 1:             /* docker.name */
-	    atom->cp = *local_metrics[idp->item].values.cp == '/' ?
-			local_metrics[idp->item].values.cp + 1 :
-			local_metrics[idp->item].values.cp;
+	    atom->cp = *local_metrics[item].values.cp == '/' ?
+			local_metrics[item].values.cp + 1 :
+			local_metrics[item].values.cp;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 2:             /* docker.running */
-	    atom->ul = (local_metrics[idp->item].values.ll & CONTAINER_FLAG_RUNNING) != 0;
+	    atom->ul = (local_metrics[item].values.ll & CONTAINER_FLAG_RUNNING) != 0;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 3:                /* docker.paused */
-	    atom->ul = local_metrics[idp->item].values.ll;
+	    atom->ul = local_metrics[item].values.ll;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 4:                /* docker.restarting */
-	    atom->ul = local_metrics[idp->item].values.ll;
+	    atom->ul = local_metrics[item].values.ll;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	default:
@@ -555,7 +554,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_VERSION:
-	switch (idp->item) {
+	switch (item) {
 	case 0:               /* docker.version */
 	case 1:               /* docker.os */
 	case 2:               /* docker.kernel */
@@ -563,7 +562,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 4:               /* docker.commit */
 	case 5:               /* docker.arch */
 	case 6:               /* docker.apiversion */
-	    if ((atom->cp = version_metrics[idp->item].values.cp) == NULL)
+	    if ((atom->cp = version_metrics[item].values.cp) == NULL)
 		sts = PMDA_FETCH_NOVALUES;
 	    else
 		sts = PMDA_FETCH_STATIC;
@@ -584,8 +583,8 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    }
 	}
-	if (idp->item <= 48) {
-	    atom->ull = local_metrics[idp->item].values.ull;
+	if (item <= 48) {
+	    atom->ull = local_metrics[item].values.ull;
 	    sts = PMDA_FETCH_STATIC;
 	}
 	else {
@@ -594,7 +593,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_CONTROL:
-	switch (idp->item) {
+	switch (item) {
 	case 0:
 	    pthread_mutex_lock(&refresh_mutex);
 	    atom->ull = thread_freq;

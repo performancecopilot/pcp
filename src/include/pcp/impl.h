@@ -16,36 +16,6 @@
 #ifndef PCP_IMPL_H
 #define PCP_IMPL_H
 
-#include <time.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/time.h>
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
-#ifdef HAVE_NETINET_TCP_H
-#include <netinet/tcp.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h> 
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
  * global data structures and mutual exclusion when required.
@@ -101,82 +71,6 @@ PCP_CALL extern int __pmGetInternalState(void);
  */
 #define PMWEBD_PORT 44323
 #define PMWEBD_PROTOCOL "http"
-
-/*
- * Internally, this is how to decode a PMID!
- * - flag is to denote state internally in some operations
- * - domain is usually the unique domain number of a PMDA, but see
- *   below for some special cases
- * - cluster and item together uniquely identify a metric within a domain
- */
-typedef struct {
-#ifdef HAVE_BITFIELDS_LTOR
-	unsigned int	flag : 1;
-	unsigned int	domain : 9;
-	unsigned int	cluster : 12;
-	unsigned int	item : 10;
-#else
-	unsigned int	item : 10;
-	unsigned int	cluster : 12;
-	unsigned int	domain : 9;
-	unsigned int	flag : 1;
-#endif
-} __pmID_int;
-
-/*
- * Special case PMIDs
- *   Domain DYNAMIC_PMID (number 511) is reserved for PMIDs representing
- *   the root of a dynamic subtree in the PMNS (and in this case the real
- *   domain number is encoded in the cluster field and the item field is
- *   zero).
- *   Domain DYNAMIC_PMID is also reserved for the PMIDs of derived metrics
- *   and in this case the item field is non-zero.  If a derived metric is
- *   written to a PCP archive, then the top bit is set in the cluster field
- *   (to disambiguate this from derived metics that must be evaluted on
- *   the pmFetch() path).
- */
-#define DYNAMIC_PMID	511
-#define IS_DYNAMIC_ROOT(x) (pmid_domain(x) == DYNAMIC_PMID && pmid_item(x) == 0)
-#define IS_DERIVED(x) (pmid_domain(x) == DYNAMIC_PMID && (pmid_cluster(x) & 2048) == 0 && pmid_item(x) != 0)
-
-static inline __pmID_int *
-__pmid_int(pmID *idp)
-{
-    /* avoid gcc's warning about dereferencing type-punned pointers */
-    return (__pmID_int *)idp;
-}
-
-static inline unsigned int 
-pmid_item(pmID id)
-{
-    return __pmid_int(&id)->item;
-}
-
-static inline unsigned int 
-pmid_cluster(pmID id)
-{
-    return __pmid_int(&id)->cluster;
-}
-
-static inline unsigned int 
-pmid_domain(pmID id)
-{
-    return __pmid_int(&id)->domain;
-}
-
-static inline pmID
-pmid_build(unsigned int domain, unsigned int cluster, unsigned int item)
-{
-    pmID id;
-    __pmID_int idint;
-
-    idint.flag = 0;
-    idint.domain = domain;
-    idint.cluster = cluster;
-    idint.item = item;
-    memcpy(&id, &idint, sizeof(id));
-    return id;
-}
 
 /*
  * Internally, this is how to decode an Instance Domain Identifier

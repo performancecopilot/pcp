@@ -110,17 +110,16 @@ compare_delay(const void *a, const void *b)
 static int
 mailq_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int		b;
 
-    if (idp->cluster == 0) {
-	if (idp->item == 0) {			/* mailq.length */
+    if (pmid_cluster(mdesc->m_desc.pmid) == 0) {
+	if (pmid_item(mdesc->m_desc.pmid) == 0) {	/* mailq.length */
 	    if (inst == PM_IN_NULL)
 		atom->ul = queue;
 	    else
 		return PM_ERR_INST;
 	}
-	else if (idp->item == 1) {		/* mailq.deferred */
+	else if (pmid_item(mdesc->m_desc.pmid) == 1) {	/* mailq.deferred */
 	    /* inst is unsigned, so always >= 0 */
 	    for (b = 0; b < numhisto; b++) {
 		if (histo[b].delay == inst) break;

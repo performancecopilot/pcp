@@ -108,28 +108,28 @@ static int
 pipe_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     struct pipe_command	*pc;
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     int			context, queue = -1, sts;
 
     context = pmdaGetContext();
-    if (idp->item >= PIPE_METRIC_COUNT)
+    if (item >= PIPE_METRIC_COUNT)
 	return PM_ERR_PMID;
-    if (idp->item == PIPE_LINE)	/* event parameter only */
+    if (item == PIPE_LINE)	/* event parameter only */
 	return PMDA_FETCH_NOVALUES;
 
-    if (idp->item > PIPE_COMMANDS) {
+    if (item > PIPE_COMMANDS) {
 	if (inst == PM_IN_NULL)
 	    return PM_ERR_INST;
 	sts = pmdaCacheLookup(INDOM(PIPE_INDOM), inst, NULL, (void **)&pc);
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
     }
-    if (idp->item > PIPE_LINE) {
+    if (item > PIPE_LINE) {
 	if ((queue = event_queueid(context, inst)) < 0)
 	    return PMDA_FETCH_NOVALUES;
     }
 
-    switch (idp->item) {
+    switch (item) {
     case PIPE_NUMCLIENTS:
 	if (inst != PM_IN_NULL)
 	    return PM_ERR_INST;
@@ -178,9 +178,8 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet	*vsp = result->vset[i];
-	__pmID_int	*idp = (__pmID_int *)&vsp->pmid;
 
-	if (idp->item != PIPE_FIREHOSE)
+	if (pmid_item(vsp->pmid) != PIPE_FIREHOSE)
 	    return PM_ERR_PERMISSION;
 	if (vsp->numval != 1)
 	    return PM_ERR_BADSTORE;

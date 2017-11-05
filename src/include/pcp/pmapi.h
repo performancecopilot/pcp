@@ -20,6 +20,36 @@
  */
 #include "platform_defs.h"
 
+#include <time.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/time.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+#ifdef HAVE_NETINET_TCP_H
+#include <netinet/tcp.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h> 
+#endif
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1012,6 +1042,30 @@ PCP_CALL extern int pmClearDebug(const char *);
  */
 PCP_CALL extern void pmSetProgname(const char *);
 PCP_CALL extern char *pmGetProgname(void);
+
+/*
+ * Special case PMIDs
+ *   Domain DYNAMIC_PMID (number 511) is reserved for PMIDs representing
+ *   the root of a dynamic subtree in the PMNS (and in this case the real
+ *   domain number is encoded in the cluster field and the item field is
+ *   zero).
+ *   Domain DYNAMIC_PMID is also reserved for the PMIDs of derived metrics
+ *   and in this case the item field is non-zero.  If a derived metric is
+ *   written to a PCP archive, then the top bit is set in the cluster field
+ *   (to disambiguate this from derived metics that must be evaluted on
+ *   the pmFetch() path).
+ */
+#define DYNAMIC_PMID	511
+#define IS_DYNAMIC_ROOT(x) (pmid_domain(x) == DYNAMIC_PMID && pmid_item(x) == 0)
+#define IS_DERIVED(x) (pmid_domain(x) == DYNAMIC_PMID && (pmid_cluster(x) & 2048) == 0 && pmid_item(x) != 0)
+
+/*
+ * pmID helper functions
+ */
+PCP_CALL extern unsigned int pmid_item(pmID);
+PCP_CALL extern unsigned int pmid_cluster(pmID);
+PCP_CALL extern unsigned int pmid_domain(pmID);
+PCP_CALL extern pmID pmid_build(unsigned int, unsigned int, unsigned int);
 
 #ifdef __cplusplus
 }
