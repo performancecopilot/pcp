@@ -1190,9 +1190,6 @@ static int      	numMetrics = (sizeof(wl_metrics)/sizeof(wl_metrics[0]));
 /* number of instance domains */
 static int		numIndoms = sizeof(wl_indomTable)/sizeof(wl_indomTable[0]);
 
-/* mask to get the cluster from a PMID */
-static int		_clusterMask = (1<<22) - (1<<10);
-
 /* refresh all logs if wl_updateAll != 0 */
 int			wl_updateAll = 0;
 
