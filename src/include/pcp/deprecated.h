@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Ken McDonell  All Rights Reserved.
+ * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef PCP_PMAPI_OLD_H
-#define PCP_PMAPI_OLD_H
+#ifndef PCP_DEPRECATED_H
+#define PCP_DEPRECATED_H
 
 /*
  * The functions below are deprecated and while still available
@@ -27,4 +27,4 @@
 PCP_CALL extern int __pmSetProgname(const char *);
 PCP_DATA extern char *pmProgname;
 
-#endif /* PCP_PMAPI_OLD_H */
+#endif /* PCP_DEPRECATED_H */

@@ -4,7 +4,7 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/pmapi_old.h>
+#include <pcp/deprecated.h>
 
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,		/* -D */

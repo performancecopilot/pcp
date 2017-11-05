@@ -130,6 +130,7 @@ CAIROCFLAGS = @cairo_CFLAGS@
 NCURSESCFLAGS = @ncurses_CFLAGS@
 LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 ZLIBCFLAGS = @zlib_CFLAGS@
+LZMACFLAGS = @lzma_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -249,6 +250,8 @@ ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 ENABLE_SELINUX = @enable_selinux@
+ENABLE_DECOMPRESSION = @enable_decompression@
+ENABLE_LZMA = @enable_lzma@
 
 # selinux configuration bits
 PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@
@@ -298,6 +301,7 @@ LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_ATOMIC = @lib_for_atomic@
+LIB_FOR_LZMA = @lib_for_lzma@
 
 HAVE_CAIRO = @HAVE_CAIRO@
 LIB_FOR_CAIRO = @cairo_LIBS@

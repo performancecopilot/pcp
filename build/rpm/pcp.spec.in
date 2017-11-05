@@ -25,6 +25,9 @@ BuildRequires: rpm-build
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
+%if "@enable_lzma@" == "true"
+BuildRequires: xz-devel
+%endif
 BuildRequires: zlib-devel
 %if "@enable_secure@" == "true"
 %if "%{_vendor}" == "suse"

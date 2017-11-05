@@ -29,7 +29,8 @@ LFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
-	fault.c access.c getopt.c probe.c \
+	fault.c access.c getopt.c probe.c io.c io_stdio.c exec.c \
+	deprecated.c \
 	derive.h internal.h avahi.h probe.h compiler.h \
 	getdate.y derive_parser.y.in fix_derive_parser_y
 
@@ -42,8 +43,8 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
-	fault.c access.c getopt.c probe.c io.c io_stdio.c io_xz.c \
-	exec.c
+	fault.c access.c getopt.c probe.c io.c io_stdio.c exec.c \
+	deprecated.c
 HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h jsmn.h
 XFILES = jsmn.h jsmn.c
 YFILES = getdate.y derive_parser.y
@@ -68,6 +69,13 @@ LLDLIBS += $(LIB_FOR_AVAHI)
 LCFLAGS += $(AVAHICFLAGS)
 CFILES += avahi.c
 LFILES += avahi.c
+endif
+
+ifeq "$(ENABLE_LZMA)" "true"
+LLDLIBS += $(LIB_FOR_LZMA)
+LCFLAGS += $(LZMACFLAGS)
+CFILES += io_xz.c
+LFILES += io_xz.c
 endif
 
 ifneq "$(TARGET_OS)" "mingw"
