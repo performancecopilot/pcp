@@ -156,9 +156,8 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *pmda)
 	    metricdesc[i].vals[j].flags = V_NONE;
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int *pmidp = (__pmID_int *)&pmidlist[i];
-	int cluster = pmidp->cluster;
-	int item = pmidp->item;
+	unsigned int cluster = pmid_cluster(pmidlist[i]);
+	unsigned int item = pmid_item(pmidlist[i]);
 
 	if (cluster == 1)
 	    extra_memstat = 1;

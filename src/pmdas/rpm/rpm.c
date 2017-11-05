@@ -251,22 +251,22 @@ rpm_fetch_totals(int item, pmAtomValue *atom)
 static int
 rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int *idp = (__pmID_int *) &mdesc->m_desc.pmid;
+    unsigned int item = pmid_item(mdesc->m_desc.pmid);
     int sts;
 
     pthread_mutex_lock(&indom_mutex);
-    switch (idp->cluster) {
+    switch (pmid_cluster(mdesc->m_desc.pmid)) {
     case 0:
 	if (inst != PM_IN_NULL)
 	    sts = PM_ERR_INST;
 	else
-	    sts = rpm_fetch_pmda(idp->item, atom);
+	    sts = rpm_fetch_pmda(item, atom);
 	break;
     case 1:
-	sts = rpm_fetch_package(idp->item, inst, atom);
+	sts = rpm_fetch_package(item, inst, atom);
 	break;
     case 2:
-	sts = rpm_fetch_totals(idp->item, atom);
+	sts = rpm_fetch_totals(item, atom);
 	break;
     default:
 	sts = PM_ERR_PMID;

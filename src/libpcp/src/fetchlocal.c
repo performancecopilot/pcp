@@ -16,6 +16,7 @@
 #include <sys/time.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmda.h"
 #include "internal.h"
 

@@ -154,18 +154,19 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			sts;
     static int		oldfetch;
     static double	usr, sys;
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
 
     if (inst != PM_IN_NULL &&
-	!(idp->cluster == 0 && idp->item == 1) &&
-	!(idp->cluster == 2 && idp->item == 4))
+	!(cluster == 0 && item == 1) &&
+	!(cluster == 2 && item == 4))
 	return PM_ERR_INST;
 
-    if (idp->cluster == 0) {
-	if (idp->item == 0) {			/* simple.numfetch */
+    if (cluster == 0) {
+	if (item == 0) {			/* simple.numfetch */
 	    atom->l = numfetch;
 	}
-	else if (idp->item == 1) {		/* simple.color */
+	else if (item == 1) {		/* simple.color */
 	    switch (inst) {
 	    case 0:				/* red */
 		red = (red + 1) % 256;
@@ -186,20 +187,20 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	else
 	    return PM_ERR_PMID;
     }
-    else if (idp->cluster == 1) {		/* simple.time */
+    else if (cluster == 1) {		/* simple.time */
 	if (oldfetch < numfetch) {
 	    __pmProcessRunTimes(&usr, &sys);
 	    oldfetch = numfetch;
 	}
-	if (idp->item == 2)			/* simple.time.user */
+	if (item == 2)			/* simple.time.user */
 	    atom->d = usr;
-	else if (idp->item == 3)      		/* simple.time.sys */
+	else if (item == 3)      		/* simple.time.sys */
 	    atom->d = sys;
 	else
 	    return PM_ERR_PMID;
      }
-     else if (idp->cluster == 2) {
-	if (idp->item == 4) {			/* simple.now */
+     else if (cluster == 2) {
+	if (item == 4) {			/* simple.now */
 	    struct timeslice *tsp;
 	    if ((sts = pmdaCacheLookup(*now_indom, inst, NULL, (void *)&tsp)) != PMDA_CACHE_ACTIVE) {
 		if (sts < 0)
@@ -384,16 +385,19 @@ simple_store(pmResult *result, pmdaExt *pmda)
     int		val;
     int		sts = 0;
     pmValueSet	*vsp = NULL;
-    __pmID_int	*pmidp = NULL;
 
     /* a store request may affect multiple metrics at once */
     for (i = 0; i < result->numpmid; i++) {
+	unsigned int	cluster;
+	unsigned int	item;
+
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
+	cluster = pmid_cluster(vsp->pmid);
+	item = pmid_item(vsp->pmid);
 
-	if (pmidp->cluster == 0) {	/* all storable metrics are cluster 0 */
+	if (cluster == 0) {	/* all storable metrics are cluster 0 */
 
-	    switch (pmidp->item) {
+	    switch (item) {
 	    	case 0:					/* simple.numfetch */
 		    val = vsp->vlist[0].value.lval;
 		    if (val < 0) {
@@ -438,9 +442,9 @@ simple_store(pmResult *result, pmdaExt *pmda)
 		    break;
 	    }
 	}
-	else if ((pmidp->cluster == 1 && 
-		 (pmidp->item == 2 || pmidp->item == 3)) ||
-		 (pmidp->cluster == 2 && pmidp->item == 4)) {
+	else if ((cluster == 1 && 
+		 (item == 2 || item == 3)) ||
+		 (cluster == 2 && item == 4)) {
 	    sts = PM_ERR_PERMISSION;
 	    break;
 	}

@@ -15,6 +15,8 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
+#include "libpcp.h"
 #include "pmda.h"
 
 /* yacc/lex routines */

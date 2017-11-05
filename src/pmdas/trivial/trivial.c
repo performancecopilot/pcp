@@ -68,9 +68,7 @@ static pmdaOptions opts = {
 static int
 trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-
-    if (idp->cluster != 0 || idp->item != 0)
+    if (pmid_cluster(mdesc->m_desc.pmid) != 0 || pmid_item(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;

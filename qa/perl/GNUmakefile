@@ -3,6 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 PFILE = test.pl
 CFILE = cvalue.c
+LDLIBS = -lpcp
 TESTDIR = $(PCP_VAR_DIR)/testsuite/perl
 MAKEFILE = Makefile
 LDIRT	= $(PFILE) $(CFILE) cvalue

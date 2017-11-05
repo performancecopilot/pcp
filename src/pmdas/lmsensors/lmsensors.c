@@ -645,15 +645,16 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
    lm87 sensor87;
    lm79 sensor79;
    lm75 sensor75;
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+   unsigned int cluster = pmid_cluster(mdesc->m_desc.pmid);
+   unsigned int item = pmid_item(mdesc->m_desc.pmid);
 
-    if (idp->cluster > 5)
+    if (cluster > 5)
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
 
-    if (idp->cluster == 0) {	/*lmsensors*/
-	switch (idp->item) {
+    if (cluster == 0) {	/*lmsensors*/
+	switch (item) {
 	    case 0:
 		    atom->l = schips.total;
 		    break ;
@@ -676,10 +677,10 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    return PM_ERR_PMID;
        }
     }
-    if (idp->cluster == 1) {	/*lmsensors.lm75*/
+    if (cluster == 1) {	/*lmsensors.lm75*/
 	    if (schips.n_lm75 > 0) {
 		sensor75=get_lm75();
-		switch (idp->item) {
+		switch (item) {
 		    case 0:
 			    atom->f = sensor75.temp;
 			    break ;
@@ -688,10 +689,10 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    }
 	    } else atom->f=9999;
     }
-    if (idp->cluster == 2) {	/*lmsensors.lm79*/
+    if (cluster == 2) {	/*lmsensors.lm79*/
 	    if (schips.n_lm79 > 0) {
 		sensor79=get_lm79();
-		switch (idp->item) {
+		switch (item) {
 		    case 0:
 			    atom->l = sensor79.fan1;
 			    break ;
@@ -739,10 +740,10 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    }
 	    } else atom->f=9999;
     }
-    if (idp->cluster == 3) {	/*lmsensors.lm87*/
+    if (cluster == 3) {	/*lmsensors.lm87*/
 	    if (schips.n_lm87 > 0) {
 		sensor87=get_lm87();
-		switch (idp->item) {
+		switch (item) {
 		    case 0:
 			    atom->l = sensor87.fan1;
 			    break ;
@@ -781,10 +782,10 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    }
 	    } else atom->f=9999;
     }
-    if (idp->cluster == 4) {	/*lmsensors.w83781d*/
+    if (cluster == 4) {	/*lmsensors.w83781d*/
 	    if (schips.n_w83781d > 0) {
 		sensorw83781d=get_w83781d();
-		switch (idp->item) {
+		switch (item) {
 		    case 0:
 			    atom->l = sensorw83781d.fan1;
 			    break ;
@@ -841,10 +842,10 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    }
 	    } else atom->f=9999;
     }
-    if (idp->cluster == 5) {	/*lmsensors.mtp008*/
+    if (cluster == 5) {	/*lmsensors.mtp008*/
 	    if (schips.n_mtp008 > 0) {
 		sensormtp008=get_mtp008();
-		switch (idp->item) {
+		switch (item) {
 		    case 0:
 			    atom->l = sensormtp008.fan1;
 			    break ;

@@ -621,12 +621,13 @@ is_partitions_metric(pmID full_pmid)
 {
     int			i;
     static pmID		*p = NULL;
-    __pmID_int          *idp = (__pmID_int *)&(full_pmid);
-    pmID		pmid = PMDA_PMID(idp->cluster, idp->item);
+    pmID		pmid;
     int			n = sizeof(disk_metric_table) / sizeof(disk_metric_table[0]);
 
+    pmid = PMDA_PMID(pmid_cluster(full_pmid), pmid_item(full_pmid));
+
     /* fast test for same matched metric as last time */
-    if (p && *p == PMDA_PMID(idp->cluster, idp->item))
+    if (p && *p == pmid)
     	return 1;
 
     for (p = disk_metric_table, i=0; i < n; i++, p++) {
@@ -704,7 +705,8 @@ unknown:
 int
 proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int          *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     int                 i;
     partitions_entry_t	*p = NULL;
 
@@ -713,12 +715,12 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
     }
 
-    switch (idp->cluster) {
+    switch (cluster) {
     case CLUSTER_STAT:
 	/*
 	 * disk.{dev,all} remain in CLUSTER_STAT for backward compatibility
 	 */
-	switch(idp->item) {
+	switch(item) {
 	case 4: /* disk.dev.read */
 	    if (p == NULL)
 		return PM_ERR_INST;
@@ -812,7 +814,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    break;
 		if (!pmdaCacheLookup(INDOM(DISK_INDOM), i, NULL, (void **)&p) || !p)
 		    continue;
-		switch (idp->item) {
+		switch (item) {
 		case 24: /* disk.all.read */
 		    atom->ull += p->rd_ios;
 		    break;
@@ -871,7 +873,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PARTITIONS:
 	if (p == NULL)
 	    return PM_ERR_INST;
-	switch(idp->item) {
+	switch(item) {
 	    /* disk.partitions */
 	    case 0: /* disk.partitions.read */
 		_pm_assign_ulong(atom, p->rd_ios);
@@ -952,7 +954,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_MD:
 	if (p == NULL)
 	    return PM_ERR_INST;
-	switch(idp->item) {
+	switch(item) {
 	case 0: /* disk.{dm,md}.read */
 	    _pm_assign_ulong(atom, p->rd_ios);
 	    break;
@@ -993,7 +995,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = p->aveq;
 	    break;
 	case 13: /* hinv.map.{dm,md}name */
-	    atom->cp = (idp->cluster == CLUSTER_DM) ? p->dmname : p->mdname;
+	    atom->cp = (cluster == CLUSTER_DM) ? p->dmname : p->mdname;
 	    break;
 	case 14: /* disk.{dm,md}.read_rawactive */
 	    atom->ul = p->rd_ticks;
@@ -1012,7 +1014,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_MDADM:
 	if (p == NULL)
 	    return PM_ERR_INST;
-	switch(idp->item) {
+	switch(item) {
 	case 0: /* disk.md.status */
 	    atom->l = refresh_mdadm(p->namebuf);
 	    break;

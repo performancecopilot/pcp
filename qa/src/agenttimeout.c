@@ -24,7 +24,6 @@ main(int argc, char *argv[])
     unsigned	pmcdTimeout;
     unsigned	oldTimeout;
     pmValueSet	*vsp;
-    __pmID_int	*pip;
     int		tElapsed;
     int		tMax;
     int		errflag = 0;
@@ -133,10 +132,7 @@ main(int argc, char *argv[])
     pmFreeResult(result);
     printf("    timeout is now %d seconds\n", pmcdTimeout);
 
-    pip = (__pmID_int *)&pmid;
-    pip->domain = domain;
-    pip->cluster = 0;
-    pip->item = 0;
+    pmid = pmid_build(domain, 0, 0);
     tBegin = time((time_t *)0);
     if ((sts = pmFetch(1, &pmid, &result)) < 0) {
 	fprintf(stderr, "fetch error = %s\n", pmErrStr(sts));

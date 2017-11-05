@@ -3,6 +3,7 @@
 #include "XSUB.h"
 #include <pmapi.h>
 #include <impl.h>
+#include <libpcp.h>
 #include <import.h>
 
 MODULE = PCP::LogImport              PACKAGE = PCP::LogImport

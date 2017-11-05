@@ -124,13 +124,12 @@ jbd2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 jbd2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int			sts;
     proc_jbd2_t		*jbd2;
 
-    switch (idp->cluster) {
+    switch (pmid_cluster(mdesc->m_desc.pmid)) {
     case 0:
-	if (!idp->item) { /* jbd2.njournals */
+	if (!pmid_item(mdesc->m_desc.pmid)) { /* jbd2.njournals */
 	    atom->ul = pmdaCacheOp(INDOM(JBD2_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	}
@@ -144,7 +143,7 @@ jbd2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (jbd2->version < 2)
 	    return 0;
 
-	switch (idp->item) {
+	switch (pmid_item(mdesc->m_desc.pmid)) {
 
 	case 1:		/* transaction.count */
 	    _pm_assign_ulong(atom, jbd2->tid);

@@ -188,20 +188,24 @@ static int	compat_names = 0;
  */
 static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
+    unsigned int cluster;
+    unsigned int item;
     if( NULL == mdesc )
     {
         return PM_ERR_PMID;
     }
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    if(idp->cluster == 0)
+    cluster = pmid_cluster(mdesc->m_desc.pmid);
+    item = pmid_item(mdesc->m_desc.pmid);
+
+    if(cluster == 0)
     {
-        if(idp->item == 0)
+        if(item == 0)
         {
             atom->cp = VERSION;
             return 1;
         }
-        else if( idp->item == 1)
+        else if( item == 1)
         {
             atom->l = activecounters;
             return 1;
@@ -211,9 +215,9 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
             return PM_ERR_PMID;
         }
     }
-    if (idp->cluster == 1)
+    if (cluster == 1)
     {
-        if (idp->item == 0)
+        if (item == 0)
         {
             atom->l = nderivedcounters;
             return 1;
@@ -223,7 +227,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
             return PM_ERR_PMID;
         }
     }
-    else if(idp->cluster >= (nderivedcounters + nhwcounters + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS)  )
+    else if(cluster >= (nderivedcounters + nhwcounters + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS)  )
     {
         return PM_ERR_PMID;
     }
@@ -238,7 +242,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
     const perf_data *pdata = NULL;
     const perf_derived_data *pddata = NULL;
 
-    if (idp->cluster >= NUM_STATIC_DERIVED_CLUSTERS + NUM_STATIC_CLUSTERS + nhwcounters)
+    if (cluster >= NUM_STATIC_DERIVED_CLUSTERS + NUM_STATIC_CLUSTERS + nhwcounters)
         pddata = &(pinfo->derived_counter->data[inst]);
     else if (pinfo->hwcounter->counter_disabled)
 	return PM_ERR_VALUE;

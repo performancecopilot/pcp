@@ -91,17 +91,18 @@ static pmdaMetric metrictab[] = {
 static int
 dynamic_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
 
     if (inst != PM_IN_NULL &&
-	!(idp->cluster == 0 && idp->item >= 1 && idp->item <= 3))
+	!(cluster == 0 && item >= 1 && item <= 3))
 	return PM_ERR_INST;
 
     __pmNotifyErr(LOG_DEBUG, "dynamic_fetch: %d.%d[%d]\n",
-		  idp->cluster, idp->item, inst);
+		  cluster, item, inst);
 
-    if (idp->cluster == 0) {
-	switch (idp->item) {
+    if (cluster == 0) {
+	switch (item) {
 	case 0:					/* numinst */
 	    atom->ul = numInsts;
 	    break;
@@ -140,8 +141,8 @@ dynamic_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
     }
-    else if (idp->cluster == 1) {		/* dynamic.control */
-	switch(idp->item) {
+    else if (cluster == 1) {		/* dynamic.control */
+	switch(item) {
 	case 4:					/* add */
 	    atom->ul = sizeInsts;
 	    break;
@@ -188,15 +189,18 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
     int		sts = 0;
     int		val;
     pmValueSet	*vsp = NULL;
-    __pmID_int	*pmidp = NULL;
 
     for (i = 0; i < result->numpmid; i++) {
+	unsigned int	cluster;
+	unsigned int	item;
+
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
+	cluster = pmid_cluster(vsp->pmid);
+	item = pmid_item(vsp->pmid);
 
-	if (pmidp->cluster == 1) {	/* all storable metrics are cluster 1 */
+	if (cluster == 1) {	/* all storable metrics are cluster 1 */
 
-	    switch (pmidp->item) {
+	    switch (item) {
 	    	case 4:					/* add */
 		    
 		    val = vsp->vlist[0].value.lval;
@@ -287,7 +291,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 		    break;
 	    }
 	}
-	else if (pmidp->cluster == 0 && pmidp->item <= 3) {
+	else if (cluster == 0 && item <= 3) {
 	    sts = -EACCES;
 	    break;
 	}

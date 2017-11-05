@@ -18,15 +18,12 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
 {
     int			j;
     int			numinst;
-    static int		pmid = 0;
+    static pmID		pmid;
     static int		indom = 0;
-    static __pmID_int	*pmidp = (__pmID_int *)&pmid;
     static __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
 
-    pmidp->flag = 0;
-    pmidp->domain = pmid_d;
-    pmidp->cluster = 0;
-    pmidp->item = pmid_i;
+    pmid = pmid_build(pmid_d, 0, pmid_i);
+
     indomp->flag = 0;
     indomp->domain = indom_d;
     indomp->serial = indom_s;

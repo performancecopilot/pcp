@@ -158,8 +158,6 @@ refresh(void *dummy)
 static int
 cisco_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 {
-    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-
 #ifndef HAVE_SPROC
     /* Check is refresh thread is still with us */
     int err;
@@ -172,7 +170,7 @@ cisco_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
     if (!intf[inst].fetched)
 	return PM_ERR_AGAIN;
 
-    switch (idp->item) {
+    switch (pmid_item(mdesc->m_desc.pmid)) {
 
 	case 1:		/* bytes_in */
 		if (intf[inst].bytes_in == -1) return 0;

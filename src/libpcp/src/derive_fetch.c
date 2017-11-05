@@ -22,6 +22,7 @@
 #include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 
 extern const int promote[6][6];

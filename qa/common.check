@@ -458,14 +458,29 @@ _make_helptext()
 #
 _host_to_ipv6addrs()
 {
-    ADDRESS=`pminfo -f -h "$1" network.interface.ipv6_addr | \
-    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g'`
-    LOCAL_LINK=`echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }' | grep -i "^fe80::"`
-    if [ ! -z "$LOCAL_LINK" ]; then
-        echo $ADDRESS | awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
-    else
-        echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }'
-    fi
+    # extract string from lines like:
+    # inst [2 or "br0"] value "fe80::d217:c2ff:fea7:4ae9/64"
+    #
+    pminfo -f -h "$1" network.interface.ipv6_addr \
+    | sed \
+	-e '/^$/d' \
+	-e '/^network/d' \
+	-e '/"lo"/d' \
+	-e 's/.* or "//' \
+	-e 's/"] value "/ /' \
+	-e 's/\/[0-9][0-9]*"//g' \
+    | while read iface addr
+    do
+	case "$addr"
+	in
+	    fe80::*)
+		echo "$addr%$iface"
+		;;
+	    *)
+		echo $addr
+		;;
+	esac
+    done
 }
 
 _host_to_ipaddr()

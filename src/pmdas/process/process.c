@@ -327,11 +327,9 @@ process_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 process_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-
-    if (idp->cluster != 0)
+    if (pmid_cluster(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
-    if (idp->item != 0)
+    if (pmid_item(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
 
     /* We have the values stored, simply grab it and return it.  */

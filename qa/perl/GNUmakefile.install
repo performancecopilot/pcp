@@ -7,7 +7,7 @@ PFILE = test.pl
 CFILE = cvalue.c
 
 cvalue:	cvalue.c
-	$(CC) -o cvalue cvalue.c
+	$(CC) -o cvalue cvalue.c -lpcp
 
 # files from the perl/PMDA source directory
 #

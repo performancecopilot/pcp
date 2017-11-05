@@ -85,11 +85,10 @@ sysinfo_init(int first)
 static __uint32_t
 sysinfo_derived(pmdaMetric *mdesc, int inst)
 {
-    pmID	pmid = mdesc->m_desc.pmid;
-    __pmID_int	*ip = (__pmID_int *)&pmid;
+    pmID	pmid;
     __uint32_t	val;
 
-    ip->domain = 0;
+    pmid = pmid_build(0, pmid_cluster(mdesc->m_desc.pmid), pmid_item(mdesc->m_desc.pmid));
 
     switch (pmid) {
 

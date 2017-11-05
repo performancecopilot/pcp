@@ -346,20 +346,21 @@ do_sendmail_cf(void)
 static int
 sendmail_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
 
     if (ptr == NULL)
 	return 0;
 
-    if (idp->cluster == 0) {
-	if (idp->item == 0) {
+    if (cluster == 0) {
+	if (item == 0) {
 		/* sendmail.start_date */
 		atom->cp = ctime(start_date);
 		atom->cp[24] = '\0';	/* no newline */
 		return 1;
 	}
     }
-    else if (idp->cluster == 1) {
+    else if (cluster == 1) {
 	if (inst >= nmailer)
 	    return 0;
 
@@ -367,7 +368,7 @@ sendmail_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return 0;
 	}
 
-	switch (idp->item) {
+	switch (item) {
 	    case 0:			/* sendmail.permailer.msgs_from */
 		atom->ul = msgs_from[inst];
 		break;
@@ -390,12 +391,12 @@ sendmail_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	return 1;
     }
-    else if (idp->cluster == 2) {
+    else if (cluster == 2) {
 	int		i;
 
 	atom->ul = 0;
 
-	switch (idp->item) {
+	switch (item) {
 	    case 0:			/* sendmail.total.msgs_from */
 		for (i = 0; i < nmailer; i++)
 		    atom->ul += msgs_from[i];

@@ -80,14 +80,13 @@ static pmdaMetric metrictab[] = {
 static int
 roomtemp_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     char		return_msg[128];
     int			numval = 0;
 
-    if (idp->cluster == 0) {
+    if (pmid_cluster(mdesc->m_desc.pmid) == 0) {
 	if (inst >= indomtab[DEVICE].it_numinst)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (pmid_item(mdesc->m_desc.pmid)) {
 	    case 0:		/* roomtemp.celsius */
 	    case 1:		/* roomtemp.fahrenheit */
 		if (!Aquire1WireNet(tty, return_msg, sizeof(return_msg))) {
@@ -97,7 +96,7 @@ roomtemp_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (ReadTemperature(sntab[inst].sn, &atom->f))
 		    numval = 1;
 		Release1WireNet(return_msg, sizeof(return_msg));
-		if (idp->item == 1)
+		if (pmid_item(mdesc->m_desc.pmid) == 1)
 		    /* convert to fahrenheit */
 		    atom->f = atom->f * 9 / 5 + 32;
 		break;

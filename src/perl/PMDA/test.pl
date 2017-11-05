@@ -26,7 +26,7 @@ print "ok 1\n";
 
 use vars qw( $cvalue $perlvalue $failed $cases );
 
-`make -f Makefile cvalue`;
+`LDLIBS=-lpcp make -f Makefile cvalue`;
 
 # verify constants are defined and match their C counterparts
 # - assuming here that the header file matches our PMDA.pm

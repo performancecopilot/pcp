@@ -359,9 +359,9 @@ dm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster < NUM_CLUSTERS)
-	    need_refresh[idp->cluster]++;
+	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	if (cluster < NUM_CLUSTERS)
+	    need_refresh[cluster]++;
     }
 
     if ((sts = dm_fetch_refresh(pmda, need_refresh)) < 0)
@@ -376,43 +376,43 @@ dm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     struct cache_stats *cache;
     struct pool_stats *pool;
     struct vol_stats *vol;
     struct pm_wrap *pw;
     int sts;
 
-    switch (idp->cluster) {
+    switch (pmid_cluster(mdesc->m_desc.pmid)) {
         case CLUSTER_CACHE:
             sts = pmdaCacheLookup(dm_indom(DM_CACHE_INDOM), inst, NULL, (void **)&cache);
             if (sts < 0)
                 return sts;
-            return dm_cache_fetch(idp->item, cache, atom);
+            return dm_cache_fetch(item, cache, atom);
 
         case CLUSTER_POOL:
 	    sts = pmdaCacheLookup(dm_indom(DM_THIN_POOL_INDOM), inst, NULL, (void **)&pool);
 	    if (sts < 0)
 	        return sts;
-	    return dm_thin_pool_fetch(idp->item, pool, atom);
+	    return dm_thin_pool_fetch(item, pool, atom);
 
         case CLUSTER_VOL:
 	    sts = pmdaCacheLookup(dm_indom(DM_THIN_VOL_INDOM), inst, NULL, (void **)&vol);
 	    if (sts < 0)
 	        return sts;
-	    return dm_thin_vol_fetch(idp->item, vol, atom);
+	    return dm_thin_vol_fetch(item, vol, atom);
 
 	case CLUSTER_DM_COUNTER:
 	    sts = pmdaCacheLookup(dm_indom(DM_STATS_INDOM), inst, NULL, (void**)&pw);
 	    if (sts < 0)
 	        return sts;
-	    return pm_dm_stats_fetch(idp->item, pw, atom);
+	    return pm_dm_stats_fetch(item, pw, atom);
 
 	case CLUSTER_DM_HISTOGRAM:
 	    sts = pmdaCacheLookup(dm_indom(DM_HISTOGRAM_INDOM), inst, NULL, (void**)&pw);
 	    if (sts < 0)
 	        return sts;
-	    return pm_dm_histogram_fetch(idp->item, pw, atom);
+	    return pm_dm_histogram_fetch(item, pw, atom);
 
         default: /* unknown cluster */
 	    return PM_ERR_PMID;

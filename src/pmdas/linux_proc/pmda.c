@@ -1763,7 +1763,8 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 static int
 proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     pmInDom		indom;
     int			sts;
     int			have_totals;
@@ -1815,11 +1816,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     }
     else
-    switch (idp->cluster) {
+    switch (cluster) {
     case CLUSTER_HOTPROC_GLOBAL:
 	have_totals = get_hot_totals(&ta, &ti, &tt, &tci);
 
-	switch (idp->item) {
+	switch (item) {
 	case ITEM_HOTPROC_G_REFRESH: /* hotproc.control.refresh */
 	    atom->ul = hotproc_update_interval.tv_sec;
 	    break;
@@ -1875,7 +1876,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts == 0)
 	    return PM_ERR_INST;
 
-	switch (idp->item) {
+	switch (item) {
 	    case ITEM_HOTPROC_P_SYSCALLS: /* No way to get this right now (maybe from systemtap?)*/
 		return PM_ERR_PMID;
 		break;
@@ -1909,7 +1910,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	active_proc_pid = &hotproc_pid;
 	/*FALLTHROUGH*/
     case CLUSTER_PID_STAT:
-	if (idp->item == 99) /* proc.nprocs */
+	if (item == 99) /* proc.nprocs */
 	    atom->ul = active_proc_pid->indom->it_numinst;
 	else {
 	    if (!have_access)
@@ -1918,7 +1919,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (entry == NULL)
 		return sts;
 
-	    switch (idp->item) {
+	    switch (item) {
 	    case PROC_PID_STAT_PID: /* proc.psinfo.pid */
 		atom->ul = entry->id;
 		break;
@@ -1946,7 +1947,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case PROC_PID_STAT_CMD: /* proc.psinfo.cmd */
-		f = _pm_getfield(entry->stat_buf, idp->item);
+		f = _pm_getfield(entry->stat_buf, item);
 		if (f == NULL)
 		    return 0;
 		atom->cp = f + 1;
@@ -1958,7 +1959,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case PROC_PID_STAT_STATE: /* string */ /* proc.psinfo.sname */
-		f = _pm_getfield(entry->stat_buf, idp->item);
+		f = _pm_getfield(entry->stat_buf, item);
 		if (f == NULL)
 		    return 0;
 	    	atom->cp = f;
@@ -1966,7 +1967,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case PROC_PID_STAT_VSIZE: /* proc.psinfo.vsize */
 	    case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */ /* proc.psinfo.rss_rlim */
-		f = _pm_getfield(entry->stat_buf, idp->item);
+		f = _pm_getfield(entry->stat_buf, item);
 		if (f == NULL)
 		    return 0;
 		atom->ull = strtoull(f, &tail, 0);
@@ -1974,7 +1975,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case PROC_PID_STAT_RSS: /* pages converted to kbytes */ /* proc.psinfo.rss */
-		f = _pm_getfield(entry->stat_buf, idp->item);
+		f = _pm_getfield(entry->stat_buf, item);
 		if (f == NULL)
 		    return 0;
 		atom->ull = strtoull(f, &tail, 0);
@@ -1986,7 +1987,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case PROC_PID_STAT_CUTIME: /* proc.psinfo.cutime */
 	    case PROC_PID_STAT_CSTIME: /* proc.psinfo.cstime */
 		/* unsigned jiffies converted to unsigned msecs */
-		f = _pm_getfield(entry->stat_buf, idp->item);
+		f = _pm_getfield(entry->stat_buf, item);
 		if (f == NULL)
 		    return 0;
 		jiffies = (__int64_t)strtoul(f, &tail, 0);
@@ -1996,14 +1997,14 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
 	    case PROC_PID_STAT_NICE: /* signed decimal int */ /* proc.psinfo.nice */
 		/* both are signed decimal integers in range [-20,20] */
-		f = _pm_getfield(entry->stat_buf, idp->item);
+		f = _pm_getfield(entry->stat_buf, item);
 		if (f == NULL)
 		    return 0;
 		atom->l = (__int32_t)strtol(f, &tail, 0);
 		break;
 
 	    case PROC_PID_STAT_WCHAN: /* proc.psinfo.wchan */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		if ((f = _pm_getfield(entry->stat_buf, item)) == NULL)
 		    return 0;
 		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
 		break;
@@ -2042,7 +2043,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    /* The following 2 case groups need to be here since the #defines don't match the index into the buffer */
 	    case PROC_PID_STAT_RTPRIORITY: /* proc.psinfo.rt_priority */
 	    case PROC_PID_STAT_POLICY: /* proc.psinfo.policy */
-	    	if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL) /* Note the offset */
+	    	if ((f = _pm_getfield(entry->stat_buf, item - 3)) == NULL) /* Note the offset */
 		    	return 0;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    	break;
@@ -2053,7 +2054,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	/*
 		 * unsigned jiffies converted to unsigned milliseconds
 		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL)  /* Note the offset */
+		if ((f = _pm_getfield(entry->stat_buf, item - 3)) == NULL)  /* Note the offset */
 		    return 0;
 
 		jiffies = (__uint64_t)strtoul(f, &tail, 0);
@@ -2063,7 +2064,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	/*
 		 * unsigned jiffies converted to unsigned milliseconds
 		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		if ((f = _pm_getfield(entry->stat_buf, item)) == NULL)
 		    return 0;
 
 		jiffies = (__uint64_t)strtoul(f, &tail, 0);
@@ -2074,8 +2075,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		/*
 		 * unsigned decimal int
 		 */
-		if (idp->item < NR_PROC_PID_STAT) {
-		    if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		if (item < NR_PROC_PID_STAT) {
+		    if ((f = _pm_getfield(entry->stat_buf, item)) == NULL)
 		    	return 0;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		}
@@ -2092,7 +2093,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_STATM:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
+	if (item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
 	    if ((entry = fetch_proc_pid_maps(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
 	    atom->cp = (entry->maps_buf ? entry->maps_buf : "");
@@ -2100,9 +2101,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((entry = fetch_proc_pid_statm(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
 
-	    if (idp->item <= PROC_PID_STATM_DIRTY) {
+	    if (item <= PROC_PID_STATM_DIRTY) {
 		/* unsigned int */
-		if ((f = _pm_getfield(entry->statm_buf, idp->item)) == NULL)
+		if ((f = _pm_getfield(entry->statm_buf, item)) == NULL)
 		    return 0;
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
@@ -2121,10 +2122,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((entry = fetch_proc_pid_schedstat(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 
-	if (idp->item < NR_PROC_PID_SCHED) {
-	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
+	if (item < NR_PROC_PID_SCHED) {
+	    if ((f = _pm_getfield(entry->schedstat_buf, item)) == NULL)
 		return 0;
-	    if (idp->item == PROC_PID_SCHED_PCOUNT)
+	    if (item == PROC_PID_SCHED_PCOUNT)
 		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoul(f, &tail, 0));
 	    else
 		atom->ull  = (__uint64_t)strtoull(f, &tail, 0);
@@ -2142,7 +2143,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((entry = fetch_proc_pid_io(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 
-	switch (idp->item) {
+	switch (item) {
 
 	case PROC_PID_IO_RCHAR: /* proc.io.rchar */
 	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
@@ -2201,7 +2202,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((entry = fetch_proc_pid_status(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
 
-	switch (idp->item) {
+	switch (item) {
 
 	case PROC_PID_STATUS_UID: /* proc.id.uid */
 	case PROC_PID_STATUS_EUID: /* proc.id.euid */
@@ -2213,10 +2214,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PROC_PID_STATUS_FSUID_NM: { /* proc.id.fsuid_nm */
 	    struct passwd *pwe;
 
-	    if ((f = _pm_getfield(entry->status_lines.uid, (idp->item % 4) + 1)) == NULL)
+	    if ((f = _pm_getfield(entry->status_lines.uid, (item % 4) + 1)) == NULL)
 		return 0;
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-	    if (idp->item > PROC_PID_STATUS_FSUID) {
+	    if (item > PROC_PID_STATUS_FSUID) {
 		if ((pwe = getpwuid((uid_t)atom->ul)) != NULL)
 		    atom->cp = pwe->pw_name;
 		else
@@ -2235,10 +2236,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PROC_PID_STATUS_FSGID_NM: { /* proc.id.fsgid_nm */
 	    struct group *gre;
 
-	    if ((f = _pm_getfield(entry->status_lines.gid, (idp->item % 4) + 1)) == NULL)
+	    if ((f = _pm_getfield(entry->status_lines.gid, (item % 4) + 1)) == NULL)
 		return 0;
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-	    if (idp->item > PROC_PID_STATUS_FSGID) {
+	    if (item > PROC_PID_STATUS_FSGID) {
 		if ((gre = getgrgid((gid_t)atom->ul)) != NULL) {
 		    atom->cp = gre->gr_name;
 		} else {
@@ -2428,7 +2429,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	subsys_t *ssp;
 
 	indom = INDOM(CGROUP_SUBSYS_INDOM);
-	if (idp->item == 1) { /* cgroup.subsys.count */
+	if (item == 1) { /* cgroup.subsys.count */
 	    atom->ul = pmdaCacheOp(indom, PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	}
@@ -2436,7 +2437,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_SUBSYS_HIERARCHY: /* cgroup.subsys.hierarchy */
 	    atom->ul = ssp->hierarchy;
 	    break;
@@ -2456,7 +2457,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	filesys_t *fsp;
 
 	indom = INDOM(CGROUP_MOUNTS_INDOM);
-	switch (idp->item) {
+	switch (item) {
 	case CG_MOUNTS_SUBSYS: /* cgroup.mounts.subsys */
 	    if ((sts = pmdaCacheLookup(indom, inst, NULL, (void **)&fsp)) < 0)
 		return sts;
@@ -2481,7 +2482,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_CPUSET_CPUS: /* cgroup.cpuset.cpus */
 	    atom->cp = proc_strings_lookup(cpuset->cpus);
 	    break;
@@ -2498,7 +2499,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	cgroup_percpuacct_t *percpuacct;
 	cgroup_cpuacct_t *cpuacct;
 
-	if (idp->item == CG_CPUACCT_PERCPU_USAGE) {
+	if (item == CG_CPUACCT_PERCPU_USAGE) {
 	    indom = INDOM(CGROUP_PERCPUACCT_INDOM);
 	    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&percpuacct);
 	} else {
@@ -2509,7 +2510,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_CPUACCT_USER: /* cgroup.cpuacct.stat.user */
 	    atom->ull = cpuacct->user;
 	    break;
@@ -2536,7 +2537,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_CPUSCHED_SHARES: /* cgroup.cpusched.shares */
 	    atom->ull = cpusched->shares;
 	    break;
@@ -2569,7 +2570,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_MEMORY_STAT_CACHE: /* cgroup.memory.stat.cache */
 	    atom->ull = memory->stat.cache;
 	    break;
@@ -2695,7 +2696,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_NETCLS_CLASSID: /* cgroup.netclass.classid */
 	    atom->ull = netcls->classid;
 	    break;
@@ -2720,7 +2721,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
-	switch (idp->item) {
+	switch (item) {
 	case CG_PERDEVBLKIO_IOMERGED_READ: /* cgroup.blkio.dev.io_merged.read */
 	    atom->ull = blkdev->stats.io_merged.read;
 	    break;
@@ -2991,7 +2992,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_FD:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if (idp->item > PROC_PID_FD_COUNT)
+	if (item > PROC_PID_FD_COUNT)
 	    return PM_ERR_PMID;
 	if ((entry = fetch_proc_pid_fd(inst, active_proc_pid, &sts)) == NULL) /* proc.fd.count */
 	    return sts;
@@ -3004,7 +3005,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_CGROUP:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if (idp->item > PROC_PID_CGROUP)
+	if (item > PROC_PID_CGROUP)
 	    return PM_ERR_PMID;
 	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL) /* proc.psinfo.cgroups */
 	    return sts;
@@ -3017,7 +3018,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_LABEL:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if (idp->item > PROC_PID_LABEL)
+	if (item > PROC_PID_LABEL)
 	    return PM_ERR_PMID;
 	if ((entry = fetch_proc_pid_label(inst, active_proc_pid, &sts)) == NULL) /* proc.psinfo.labels */
 	    return sts;
@@ -3025,7 +3026,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_CONTROL:
-	switch (idp->item) {
+	switch (item) {
 	/* case 1: not reached -- proc.control.all.threads is direct */
 	case 2:	/* proc.control.perclient.threads */
 	    atom->ul = proc_ctx_threads(pmdaGetContext(), threads);
@@ -3049,13 +3050,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    __pmID_int	*idp;
-    int		i, sts, cluster;
+    int		i, sts;
     int		need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	idp = (__pmID_int *)&(pmidlist[i]);
-	cluster = idp->cluster;
+	unsigned int	cluster = pmid_cluster(pmidlist[i]);
 	if (cluster >= MIN_CLUSTER && cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }
@@ -3084,14 +3083,13 @@ proc_store(pmResult *result, pmdaExt *pmda)
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
-	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	switch (idp->cluster) {
+	switch (pmid_cluster(vsp->pmid)) {
 	case CLUSTER_CONTROL:
 	    if (vsp->numval != 1)
 		sts = PM_ERR_INST;
-	    else switch (idp->item) {
+	    else switch (pmid_item(vsp->pmid)) {
 	    case 1: /* proc.control.all.threads */
 		if (!have_access)
 		    sts = PM_ERR_PERMISSION;
@@ -3125,7 +3123,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	case CLUSTER_HOTPROC_GLOBAL:
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
-	    else switch (idp->item) {
+	    else switch (pmid_item(vsp->pmid)) {
 	    case ITEM_HOTPROC_G_REFRESH: /* hotproc.control.refresh */
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {

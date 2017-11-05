@@ -5704,7 +5704,8 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 static int
 linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
     int			i;
     int			sts;
     long		sl;
@@ -5722,17 +5723,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 * don't have NULL for the m_user field in their respective
          * metrictab slot.
 	 */
-	if (idp->cluster == CLUSTER_VMSTAT) {
+	if (cluster == CLUSTER_VMSTAT) {
 	    if (!(_pm_have_proc_vmstat) ||
 		*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 	    	return 0; /* no value available on this kernel */
 	}
 	else
-	if (idp->cluster == CLUSTER_NET_SNMP) {
+	if (cluster == CLUSTER_NET_SNMP) {
 	    __uint64_t value;
 
 	    /* network.icmpmsg has an indom - deal with it now */
-	    if (idp->item == 88 || idp->item == 89) {
+	    if (item == 88 || item == 89) {
 		if (inst > NR_ICMPMSG_COUNTERS)
 		    return PM_ERR_INST;
 		value = *((__uint64_t *)mdesc->m_user + inst);
@@ -5742,37 +5743,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 1;
 	    }
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
-		if (idp->item != 53)	/* tcp.maxconn is special */
+		if (item != 53)	/* tcp.maxconn is special */
 		    return 0; /* no value available on this kernel */
 	}
 	else
-	if (idp->cluster == CLUSTER_NET_NETSTAT) {
+	if (cluster == CLUSTER_NET_NETSTAT) {
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 	        return 0; /* no value available on this kernel */
 	}
 	else
-	if (idp->cluster == CLUSTER_NET_NFS) {
+	if (cluster == CLUSTER_NET_NFS) {
 	    /*
 	     * check if rpc stats are available
 	     */
-	    if (idp->item >= 20 && idp->item <= 27 && proc_net_rpc.client.errcode != 0)
+	    if (item >= 20 && item <= 27 && proc_net_rpc.client.errcode != 0)
 		/* no values available for client rpc/nfs - this is expected <= 2.0.36 */
 	    	return 0;
 	    else
-	    if (idp->item >= 30 && idp->item <= 47 && proc_net_rpc.server.errcode != 0)
+	    if (item >= 30 && item <= 47 && proc_net_rpc.server.errcode != 0)
 		/* no values available - expected without /proc/net/rpc/nfsd */
 	    	return 0; /* no values available */
-	    if (idp->item >= 51 && idp->item <= 57 && proc_net_rpc.server.errcode != 0)
+	    if (item >= 51 && item <= 57 && proc_net_rpc.server.errcode != 0)
 		/* no values available - expected without /proc/net/rpc/nfsd */
 	    	return 0; /* no values available */
-	    if (idp->item >= 71 && idp->item <= 76 && proc_fs_nfsd.errcode != 0) {
+	    if (item >= 71 && item <= 76 && proc_fs_nfsd.errcode != 0) {
 		/* no values available - expected without /proc/fs/nfsd */
 	    	return 0; /* no values available */
 	    }
 	}
-	if (idp->cluster == CLUSTER_SYSFS_KERNEL) {
+	if (cluster == CLUSTER_SYSFS_KERNEL) {
 	    /* no values available for udev metrics */
-	    if (idp->item == 0 && !sysfs_kernel.valid_uevent_seqnum) {
+	    if (item == 0 && !sysfs_kernel.valid_uevent_seqnum) {
 		return 0;
 	    }
 	}
@@ -5804,12 +5805,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     }
     else
-    switch (idp->cluster) {
+    switch (cluster) {
     case CLUSTER_STAT:
 	/*
 	 * All metrics from /proc/stat
 	 */
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* kernel.percpu.cpu.user */
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
@@ -6073,7 +6074,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_UPTIME:  /* uptime */
-	switch (idp->item) {
+	switch (item) {
 	case 0:
 	    /*
 	     * kernel.all.uptime (in seconds)
@@ -6095,7 +6096,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_MEMINFO: /* mem */
-    	switch (idp->item) {
+    	switch (item) {
 	case 0: /* mem.physmem (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemTotal))
 	    	return 0; /* no values available */
@@ -6441,7 +6442,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_LOADAVG: 
-	switch(idp->item) {
+	switch(item) {
 	case 0:  /* kernel.all.load */
 	    if (inst == 1)
 	    	atom->f = proc_loadavg.loadavg[0];
@@ -6469,19 +6470,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_NET_DEV: /* network.interface */
-	if (idp->item == 27) {	/* hinv.ninterface */
+	if (item == 27) {	/* hinv.ninterface */
 	    atom->ul = pmdaCacheOp(INDOM(NET_DEV_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	}
 	sts = pmdaCacheLookup(INDOM(NET_DEV_INDOM), inst, NULL, (void **)&netip);
 	if (sts < 0)
 	    return sts;
-	if (idp->item <= 15) {
+	if (item <= 15) {
 	    /* network.interface.{in,out} */
-	    atom->ull = netip->counters[idp->item];
+	    atom->ull = netip->counters[item];
 	}
 	else
-	switch (idp->item) {
+	switch (item) {
 	case 16: /* network.interface.total.bytes */
 	    atom->ull = netip->counters[0] + netip->counters[8];
 	    break;
@@ -6538,7 +6539,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* network.interface.inet_addr */
 	    if (addrp->has_inet == 0)
 		return 0;
@@ -6565,7 +6566,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_FILESYS:
-	if (idp->item == 0)
+	if (item == 0)
 	    atom->ul = pmdaCacheOp(INDOM(FILESYS_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	else {
 	    struct statfs *sbuf;
@@ -6584,7 +6585,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		fs->flags |= FSF_FETCHED;
 	    }
 
-	    switch (idp->item) {
+	    switch (item) {
 	    case 1: /* filesys.capacity */
 	    	ull = (__uint64_t)sbuf->f_blocks;
 	    	atom->ull = ull * sbuf->f_bsize / 1024;
@@ -6647,7 +6648,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		fs->flags |= FSF_FETCHED;
 	    }
 
-	    switch (idp->item) {
+	    switch (item) {
 	    case 1: /* tmpfs.capacity */
 	    	ull = (__uint64_t)sbuf->f_blocks;
 	    	atom->ull = ull * sbuf->f_bsize / 1024;
@@ -6689,7 +6690,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
 
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* swapdev.free (kbytes) */
 	    atom->ul = swap->size - swap->used;
 	    break;
@@ -6710,7 +6711,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
 
     case CLUSTER_NET_NFS:
-	switch (idp->item) {
+	switch (item) {
 	case 1: /* nfs.client.calls */
 	    if (proc_net_rpc.client.errcode != 0)
 	    	return 0; /* no values available */
@@ -6823,7 +6824,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_SLAB:
 	if (proc_slabinfo.permission != 1)
 	    return 0;
-	return proc_slabinfo_fetch(INDOM(SLAB_INDOM), idp->item, inst, atom);
+	return proc_slabinfo_fetch(INDOM(SLAB_INDOM), item, inst, atom);
 
     case CLUSTER_PARTITIONS:
 	return proc_partitions_fetch(mdesc, inst, atom);
@@ -6835,7 +6836,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* hinv.map.scsi */
 	    atom->cp = (scsi_entry && scsi_entry->dev_name) ? scsi_entry->dev_name : "";
 	    break;
@@ -6845,7 +6846,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     	break;
 
     case CLUSTER_KERNEL_UNAME:
-	switch(idp->item) {
+	switch(item) {
 	case 5: /* pmda.uname */
 	    pmsprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
 	    	kernel_uname.sysname, 
@@ -6873,7 +6874,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (inst != PM_IN_NULL &&
 	    pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* hinv.cpu.clock */
 	    if (cp->info.clock == 0.0)
 		return 0;
@@ -6937,7 +6938,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_SYSFS_DEVICES:
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* hinv.cpu.online */
 	    if (pmdaCacheLookup(INDOM(CPU_INDOM), inst, NULL, NULL) < 0)
 		return PM_ERR_INST;
@@ -6964,7 +6965,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* mem.zoneinfo.protection */
             atom->ull = (__uint64_t)*value;
 	}
@@ -6979,14 +6980,14 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
-	if (idp->item >= ZONE_VALUES)
+	if (item >= ZONE_VALUES)
 	    return PM_ERR_PMID;
-	atom->ull = info->values[idp->item];
+	atom->ull = info->values[item];
 	break;
     }
 
     case CLUSTER_KSM_INFO:
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* mem.ksm.full_scans */
 	    _pm_assign_ulong(atom, ksm_info.full_scans);
 	    break;
@@ -7020,7 +7021,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_SEM_INFO:
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.sem.used_sem */
 	    atom->ul = _sem_info.semusz;
 	    break;
@@ -7044,7 +7045,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.shm.key */
 	    atom->cp = (char *)shm_stat->shm_key;
 	    break;
@@ -7078,7 +7079,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.msg.key */
 	    atom->cp = (char *)msg_que->msg_key;
 	    break;
@@ -7109,7 +7110,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.sem.key */
 	    atom->cp = (char *)sem_arr->sem_key;
 	    break;
@@ -7132,7 +7133,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
     case CLUSTER_SEM_LIMITS:
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.sem.max_semmap */
 	    atom->ul = sem_limits.semmap;
 	    break;
@@ -7169,7 +7170,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_SHM_INFO:
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* ipc.shm.tot */
 	    atom->ul = _shm_info.shm_tot;
 	    break;
@@ -7197,7 +7198,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
     case CLUSTER_MSG_INFO:
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.msg.used_queues */
 	    atom->ul = _msg_info.msgpool;
 	    break;
@@ -7216,7 +7217,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
     case CLUSTER_MSG_LIMITS:
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.msg.sz_pool */
 	    atom->ul = msg_limits.msgpool;
 	    break;
@@ -7250,7 +7251,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
     case CLUSTER_SHM_LIMITS:
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* ipc.shm.max_segsz */
 	    atom->ul = shm_limits.shmmax;
 	    break;
@@ -7297,7 +7298,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
 
-	switch (idp->item) {
+	switch (item) {
 	case 0: /* mem.numa.util.total */
 	    sts = linux_table_lookup("MemTotal:", np->meminfo, &atom->ull);
 	    break;
@@ -7444,7 +7445,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_INTERRUPT_OTHER:
     case CLUSTER_INTERRUPTS:
     case CLUSTER_SOFTIRQS:
-	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
+	return interrupts_fetch(cluster, item, inst, atom);
 
     case CLUSTER_DM:
     case CLUSTER_MD:
@@ -7452,7 +7453,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return proc_partitions_fetch(mdesc, inst, atom);
 
     case CLUSTER_NET_SOFTNET:
-	switch (idp->item) {
+	switch (item) {
 	case 0:	/* network.softnet.processed */
 	    if (!(proc_net_softnet.flags & SN_PROCESSED))
 		return PM_ERR_APPVERSION;
@@ -7533,7 +7534,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_BUDDYINFO:
 	if (inst >= proc_buddyinfo.nbuddys)
 	    return PM_ERR_INST;
-	switch (idp->item) {
+	switch (item) {
 	case 0:
 	    _pm_assign_ulong(atom, proc_buddyinfo.buddys[inst].value);
 	    break;
@@ -7547,7 +7548,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_TAPEDEV:
-	if (idp->item == TAPESTATS_HINV_NTAPE) {
+	if (item == TAPESTATS_HINV_NTAPE) {
 	    /* hinv.ntape */
 	    atom->ul = pmdaCacheOp(INDOM(TAPEDEV_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	}
@@ -7557,14 +7558,14 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	     */
 	    tapedev_t *tape = NULL;
 
-	    if (idp->item >= TAPESTATS_COUNT)
+	    if (item >= TAPESTATS_COUNT)
 		return PM_ERR_PMID;
 	    sts = pmdaCacheLookup(INDOM(TAPEDEV_INDOM), inst, NULL, (void **)&tape);
 	    if (sts < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE || tape == NULL)
 		return PM_ERR_INST;
-	    atom->ull = tape->counts[idp->item];
+	    atom->ull = tape->counts[item];
 	}
 	break;
 
@@ -7582,23 +7583,24 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
+	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	unsigned int	item = pmid_item(pmidlist[i]);
 
-	if (idp->cluster >= NUM_CLUSTERS)
+	if (cluster >= NUM_CLUSTERS)
 	    continue;
 
-	switch (idp->cluster) {
+	switch (cluster) {
 	case CLUSTER_STAT:
 	case CLUSTER_DM:
 	case CLUSTER_MD:
 	case CLUSTER_MDADM:
 	    if (is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
-	    else if (idp->item != 48)	/* hz */
-		need_refresh[idp->cluster]++;
+	    else if (item != 48)	/* hz */
+		need_refresh[cluster]++;
 	    /* In 2.6 kernels, swap.{pagesin,pagesout} are in /proc/vmstat */
-	    if (_pm_have_proc_vmstat && idp->cluster == CLUSTER_STAT) {
-		if (idp->item >= 8 && idp->item <= 11)
+	    if (_pm_have_proc_vmstat && cluster == CLUSTER_STAT) {
+		if (item >= 8 && item <= 11)
 		    need_refresh[CLUSTER_VMSTAT]++;
 	    }
 	    break;
@@ -7610,18 +7612,18 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_SOFTIRQS:
 	case CLUSTER_SYSFS_DEVICES:
 	case CLUSTER_NET_SOFTNET:
-	    need_refresh[idp->cluster]++;
+	    need_refresh[cluster]++;
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 
 	case CLUSTER_NUMA_MEMINFO:
-	    need_refresh[idp->cluster]++;
+	    need_refresh[cluster]++;
 	    need_refresh[CLUSTER_MEMINFO]++;
 	    break;
 
 	case CLUSTER_NET_DEV:
-	    need_refresh[idp->cluster]++;
-	    switch (idp->item) {
+	    need_refresh[cluster]++;
+	    switch (item) {
 	    case 21:	/* network.interface.mtu */
 		need_refresh[REFRESH_NET_MTU]++;
 		break;
@@ -7642,8 +7644,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    break;
 
 	case CLUSTER_NET_ADDR:
-	    need_refresh[idp->cluster]++;
-	    switch (idp->item) {
+	    need_refresh[cluster]++;
+	    switch (item) {
 	    case 0:	/* network.interface.ipv4_addr */
 		need_refresh[REFRESH_NETADDR_INET]++;
 		break;
@@ -7658,7 +7660,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    break;
 
 	default:
-	    need_refresh[idp->cluster]++;
+	    need_refresh[cluster]++;
 	    break;
 	}
     }
@@ -7995,7 +7997,6 @@ linux_init(pmdaInterface *dp)
     int		i, major, minor, point;
     size_t	nmetrics, nindoms;
     char	*envpath;
-    __pmID_int	*idp;
 
     /* optional overrides of some globals for testing */
     if ((envpath = getenv("LINUX_HERTZ")) != NULL) {
@@ -8077,9 +8078,8 @@ linux_init(pmdaInterface *dp)
 	}
     }
     for (i = 0; i < sizeof(metrictab)/sizeof(pmdaMetric); i++) {
-	idp = (__pmID_int *)&(metrictab[i].m_desc.pmid);
-	if (idp->cluster == CLUSTER_STAT) {
-	    switch (idp->item) {
+	if (pmid_cluster(metrictab[i].m_desc.pmid) == CLUSTER_STAT) {
+	    switch (pmid_item(metrictab[i].m_desc.pmid)) {
 	    case 0:	/* kernel.percpu.cpu.user */
 	    case 1:	/* kernel.percpu.cpu.nice */
 	    case 2:	/* kernel.percpu.cpu.sys */
@@ -8133,7 +8133,7 @@ linux_init(pmdaInterface *dp)
 	}
 	if (metrictab[i].m_desc.type == PM_TYPE_NOSUPPORT)
 	    fprintf(stderr, "Bad kernel metric descriptor type (%u.%u)\n",
-			    idp->cluster, idp->item);
+			    pmid_cluster(metrictab[i].m_desc.pmid), pmid_item(metrictab[i].m_desc.pmid));
     }
 
     nindoms = sizeof(indomtab)/sizeof(indomtab[0]);

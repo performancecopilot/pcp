@@ -62,7 +62,7 @@ _myprog -Z
 _myprog -h $remote -D -n
 _myprog -b
 _myprog -a -h $remote -D 1 
-_myprog -h $remote -D 1 -n davenamespace
+_myprog -h $remote -n davenamespace
 _myprog -a hoges.arh -f -l
 _myprog -h hoges -l
 _myprog -h hoges -l -n 

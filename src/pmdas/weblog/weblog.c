@@ -2421,13 +2421,12 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     static int		maxnpmids = 0;
     pmValueSet		*vset = (pmValueSet *)0;
     pmDesc		*dp = (pmDesc *)0;
-    __pmID_int		*pmidp;
     pmAtomValue		atom;
     int			haveValue = 0;
     int			type;
     __psint_t		m_offset = 0;	/* initialize to pander to gcc */
     int			m_type = 0;	/* initialize to pander to gcc */
-    int			cluster;
+    unsigned int	cluster;
     __uint32_t		tmp32;
     __uint64_t		tmp64;
 
@@ -2436,11 +2435,10 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
     j = 0;
     for (i = 0; i < numpmid; i++) {
-    	pmidp = (__pmID_int *)&pmidlist[i];
-	if (pmidp->cluster == 1)
+	if (pmid_cluster(pmidlist[i]) == 1)
 	    break;
 	else
-	    j += pmidp->cluster;
+	    j += pmid_cluster(pmidlist[i]);
     }
 
     if (i < numpmid) {
@@ -2479,18 +2477,18 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
  */
 
     for (i = 0; i < numpmid; i++) {
+	unsigned int	item = pmid_item(pmidlist[i]);
 
-    	pmidp = (__pmID_int*)&pmidlist[i];
 	dp = (pmDesc *)0;
 
 	if (ext->e_direct) {
 
- 	    if (pmidp->item < numMetrics && 
-		pmidlist[i] == wl_metrics[pmidp->item].m_desc.pmid) {
+ 	    if (item < numMetrics && 
+		pmidlist[i] == wl_metrics[item].m_desc.pmid) {
 
-		dp = &wl_metrics[pmidp->item].m_desc;
-		m_offset = wl_metricInfo[pmidp->item].m_offset;
-		m_type = wl_metricInfo[pmidp->item].m_type;
+		dp = &wl_metrics[item].m_desc;
+		m_offset = wl_metricInfo[item].m_offset;
+		m_type = wl_metricInfo[item].m_type;
 	    }
 	}
 	else {
@@ -2556,7 +2554,6 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
         }
 
         type = dp->type;
-        pmidp = (__pmID_int *)&pmidlist[i];
         j = 0;
 
         do {
@@ -2578,7 +2575,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
             vset->vlist[j].inst = inst;
 
-            cluster = (dp->pmid & _clusterMask) >> 10;
+            cluster = pmid_cluster(dp->pmid);
             haveValue = 1;
 
             switch(m_type) {
@@ -2929,7 +2926,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 logmessage(LOG_CRIT, 
                        "Illegal Meta Type (%d) for metric %d\n",
                        m_type,
-                       pmidp->item);
+                       pmid_item(pmidlist[i]));
                 exit(1);
             }
             
@@ -2964,14 +2961,12 @@ web_store(pmResult *result, pmdaExt *ext)
     int		j;
     pmValueSet	*vsp;
     int		sts = 0;
-    __pmID_int	*pmidp;
     WebServer	*server = (WebServer*)0;
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	pmidp = (__pmID_int *)&vsp->pmid;
-	if (pmidp->cluster == 0) {
-	    if (pmidp->item == 1) {	/* web.activity.config.catchup */
+	if (pmid_cluster(vsp->pmid) == 0) {
+	    if (pmid_item(vsp->pmid) == 1) {	/* web.activity.config.catchup */
 		int	val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
@@ -2979,7 +2974,7 @@ web_store(pmResult *result, pmdaExt *ext)
 		}
 		wl_refreshDelay = val;
 	    }
-	    else if (pmidp->item == 3) {/* web.activity.config.check */
+	    else if (pmid_item(vsp->pmid) == 3) {/* web.activity.config.check */
 		int	val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
@@ -2987,7 +2982,7 @@ web_store(pmResult *result, pmdaExt *ext)
 		}
 		wl_chkDelay = val;
 	    }
-	    else if (pmidp->item == 35) {/* web.activity.server.watched */
+	    else if (pmid_item(vsp->pmid) == 35) {/* web.activity.server.watched */
 	        for (j = 0; j < vsp->numval; j++) {
 		    int val = vsp->vlist[j].value.lval;
 		    if (val < 0) {

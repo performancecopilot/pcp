@@ -162,12 +162,13 @@ static char		*_helpText = "pmdas/broken/broken_v2";
 static int
 broken_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    static int	count = 0;
-    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    static int		count = 0;
+    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
 
-    switch (idp->cluster) {
+    switch (cluster) {
     case 0:
-	switch (idp->item) {
+	switch (item) {
 	case 0:
 	    atom->l = ++count;
 	    break;
@@ -248,7 +249,7 @@ broken_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
     case 1:
-	switch (idp->item) {
+	switch (item) {
 	case 1:
 	    atom->l = 333;
 	    break;

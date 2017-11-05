@@ -165,7 +165,8 @@ papi_endContextCallBack(int context)
 static int
 papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    unsigned int cluster = pmid_cluster(mdesc->m_desc.pmid);
+    unsigned int item = pmid_item(mdesc->m_desc.pmid);
     int sts;
     int i;
     int state;
@@ -176,17 +177,17 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     now = time(NULL);
 
-    switch (idp->cluster) {
+    switch (cluster) {
     case CLUSTER_PAPI:
-	if (idp->item >= 0 && idp->item <= number_of_events) {
-	    // the 'case' && 'idp->item' value we get is the pmns_position
-	    if (papi_info[idp->item].position >= 0) { // live counter?
-		atom->ll = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
+	if (item >= 0 && item <= number_of_events) {
+	    // the 'case' && 'item' value we get is the pmns_position
+	    if (papi_info[item].position >= 0) { // live counter?
+		atom->ll = papi_info[item].prev_value + values[papi_info[item].position];
 		return PMDA_FETCH_STATIC;
 	    }
 	    else { // inactive counter?
-                if (papi_info[idp->item].metric_enabled) { // but requested?
-                    papi_info[idp->item].metric_enabled = 0; // give up
+                if (papi_info[item].metric_enabled) { // but requested?
+                    papi_info[item].metric_enabled = 0; // give up
                     return PM_ERR_VALUE; // i.e., expect no values ever
                 }
                 return PMDA_FETCH_NOVALUES;
@@ -196,7 +197,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
 
     case CLUSTER_CONTROL:
-	switch (idp->item) {
+	switch (item) {
 	case CONTROL_ENABLE:
 	    atom->cp = "";
 	    return PMDA_FETCH_STATIC;
@@ -266,11 +267,11 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_AVAILABLE:
-	if (idp->item == AVAILABLE_NUM_COUNTERS) {
+	if (item == AVAILABLE_NUM_COUNTERS) {
 	    atom->ul = number_of_counters;
 	    return PMDA_FETCH_STATIC;
 	}
-	if (idp->item == AVAILABLE_VERSION) {
+	if (item == AVAILABLE_VERSION) {
 	    atom->cp = papi_version;
 	    return PMDA_FETCH_STATIC;
 	}
@@ -300,15 +301,15 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
         time_t now = time (NULL);
 
         for (i=0; i<numpmid; i++) {
-            __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-            if (idp->cluster == CLUSTER_PAPI) {
-		if (idp->item >= 0 && idp->item <= number_of_events) {
-                    if (papi_info[idp->item].position < 0) { // new counter?
+	    unsigned int item = pmid_item(pmidlist[i]);
+            if (pmid_cluster(pmidlist[i]) == CLUSTER_PAPI) {
+		if (item >= 0 && item <= number_of_events) {
+                    if (papi_info[item].position < 0) { // new counter?
 			need_refresh_p = 1;
 		    }
 		    // update or initialize remaining lifetime
-		    if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER)
-			papi_info[idp->item].metric_enabled = now + auto_enable_time;
+		    if (papi_info[item].metric_enabled != METRIC_ENABLED_FOREVER)
+			papi_info[item].metric_enabled = now + auto_enable_time;
 		}
             }
         }
@@ -328,8 +329,7 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
        pcp metrics, we do this only for CLUSTER_PAPI pmids.  This is
        independent of auto-enable mode. */
     for (i=0; i<numpmid; i++) {
-        __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-        if (idp->cluster == CLUSTER_PAPI) {
+        if (pmid_cluster(pmidlist[i]) == CLUSTER_PAPI) {
             sts = check_papi_state();
             if (sts & PAPI_RUNNING) {
                 sts = PAPI_read(EventSet, values);
@@ -344,8 +344,7 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     sts = 0; /* clear out any PAPI remnant flags */
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster != CLUSTER_AVAILABLE)
+	if (pmid_cluster(pmidlist[i]) != CLUSTER_AVAILABLE)
 	    sts = 1;
     }
     if (sts == 0 || permission_check(pmda->e_context))
@@ -531,14 +530,13 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	return PM_ERR_PERMISSION;
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
-	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	if (idp->cluster != CLUSTER_CONTROL) {
+	if (pmid_cluster(vsp->pmid) != CLUSTER_CONTROL) {
 	    sts2 = PM_ERR_PERMISSION;
 	    continue;
 	}
-	switch (idp->item) {
+	switch (pmid_item(vsp->pmid)) {
 	case CONTROL_ENABLE:
 	case CONTROL_DISABLE: // NB: almost identical handling!
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
@@ -551,7 +549,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			papi_info[j].metric_enabled =
-			    (idp->item == CONTROL_ENABLE) ? METRIC_ENABLED_FOREVER : 0;
+			    (pmid_item(vsp->pmid) == CONTROL_ENABLE) ? METRIC_ENABLED_FOREVER : 0;
 			break;
 		    }
 		}
@@ -618,9 +616,8 @@ static int
 papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
     int sts = PM_ERR_PMID; // presume fail; switch statements fall through to this
-    __pmID_int *idp = (__pmID_int *)&(pmid);
 
-    switch (idp->cluster) {
+    switch (pmid_cluster(pmid)) {
     case CLUSTER_PAPI:
 	desc->pmid = pmid;
 	desc->type = PM_TYPE_64;
@@ -631,7 +628,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	break;
 
     case CLUSTER_CONTROL:
-	switch (idp->item) {
+	switch (pmid_item(pmid)) {
 	case CONTROL_ENABLE:
 	case CONTROL_RESET:
 	case CONTROL_DISABLE:
@@ -663,7 +660,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	break;
 
     case CLUSTER_AVAILABLE:
-	switch (idp->item) {
+	switch (pmid_item(pmid)) {
 	case AVAILABLE_NUM_COUNTERS:
 	    desc->pmid = pmid;
 	    desc->type = PM_TYPE_U32;
@@ -691,18 +688,18 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 static int
 papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
-    __pmID_int *pmidp = (__pmID_int *)&ident;
+    pmID pmid = (pmID)ident;
 
     /* no indoms - we only deal with metric help text */
     if ((type & PM_TEXT_PMID) != PM_TEXT_PMID)
 	return PM_ERR_TEXT;
 
-    if (pmidp->cluster == CLUSTER_PAPI) {
-	if (pmidp->item >= 0 && pmidp->item < number_of_events) {
+    if (pmid_cluster(pmid) == CLUSTER_PAPI) {
+	if (pmid_item(pmid) >= 0 && pmid_item(pmid) < number_of_events) {
 	    if (type & PM_TEXT_ONELINE)
-		*buffer = papi_info[pmidp->item].info.short_descr;
+		*buffer = papi_info[pmid_item(pmid)].info.short_descr;
 	    else
-		*buffer = papi_info[pmidp->item].info.long_descr;
+		*buffer = papi_info[pmid_item(pmid)].info.long_descr;
 	    return 0;
 	}
 	else
