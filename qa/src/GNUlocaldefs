@@ -153,7 +153,7 @@ endif
 MYFILES += \
 	err_v1.dump \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
-	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
+	pthread_barrier.h libpcp.h pv.c qa_test.c qa_timezone.c \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c
@@ -196,7 +196,7 @@ TRACELIB	= $(LLDLIBS) -lpcp_trace
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
 #
-LDIRT	+= *.log domain.h help.pag help.dir \
+LDIRT	+= *.log domain.h libpcp.h help.pag help.dir \
 	big[0-2].[0-2] big[0-2].index big[0-2].meta \
 	chkctx2_lite.c fetchrate_lite.c \
 	localconfig.h gmon.out \
@@ -636,6 +636,11 @@ endif
 
 arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h
+
+hex2nbo.o:	libpcp.h
+
+libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
+	cp $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h
 
 bozo:
 	@echo TARGETS=$(TARGETS)
