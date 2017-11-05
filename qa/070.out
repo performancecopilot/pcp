@@ -1,351 +1,661 @@
 QA output created by 070
 
 Trying ... -a
-Option requires an argument -- a
-Usage: template [options] [metrics ...]
+template: option requires an argument -- a
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -A
-Option requires an argument -- A
-Usage: template [options] [metrics ...]
+template: option requires an argument -- A
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -c
-Option requires an argument -- c
-Usage: template [options] [metrics ...]
+template: option requires an argument -- c
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -D
-Option requires an argument -- D
-Usage: template [options] [metrics ...]
+template: option requires an argument -- D
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -h
-Option requires an argument -- h
-Usage: template [options] [metrics ...]
+template: option requires an argument -- h
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -l
-Option requires an argument -- l
-Usage: template [options] [metrics ...]
+template: option requires an argument -- l
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -n
-Option requires an argument -- n
-Usage: template [options] [metrics ...]
+template: option requires an argument -- n
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -s
-Option requires an argument -- s
-Usage: template [options] [metrics ...]
+template: option requires an argument -- s
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -S
-Option requires an argument -- S
-Usage: template [options] [metrics ...]
+template: option requires an argument -- S
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -t
-Option requires an argument -- t
-Usage: template [options] [metrics ...]
+template: option requires an argument -- t
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -T
-Option requires an argument -- T
-Usage: template [options] [metrics ...]
+template: option requires an argument -- T
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -U
-Option requires an argument -- U
-Usage: template [options] [metrics ...]
+template: invalid option -- U
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -Z
-Option requires an argument -- Z
-Usage: template [options] [metrics ...]
+template: option requires an argument -- Z
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -h REMOTEHOST -D -n
 template: unrecognized debug options specification (-n)
-Usage: template [options] [metrics ...]
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -b
-Illegal option -- b
-Usage: template [options] [metrics ...]
+template: invalid option -- b
+Usage: template [options] ...
 
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  --container=NAME      specify an individual container to be queried
+
+template options:
+  -c CONFIGFILE, --config=CONFIGFILE
+                        some configuration file
+  -f, --flag            some flag
+  -i INST, --instance=INST
+                        some instance
+  -l LOGFILE, --log=LOGFILE
+                        log file
 
 Trying ... -a -h REMOTEHOST -D 1
 template: Cannot open archive "-h": No such file or directory
 
-Trying ... -h REMOTEHOST -D 1 -n davenamespace
+Trying ... -h REMOTEHOST -n davenamespace
 Error Parsing ASCII PMNS: Cannot open "davenamespace"
 template: Cannot load namespace from "davenamespace": No such file or directory
 
 Trying ... -a hoges.arh -f -l
-Illegal option -- f
-Option requires an argument -- l
-Usage: template [options] [metrics ...]
-
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+template: Cannot open archive "hoges.arh": No such file or directory
 
 Trying ... -h hoges -l
-Option requires an argument -- l
-Usage: template [options] [metrics ...]
-
-Options:
-  -a archive     metrics source is a PCP log archive
-  -A align       align sample times on natural boundaries
-  -c configfile  file to load configuration from
-  -D debug[,...] set PCP debugging option(s)
-  -h host        metrics source is PMCD on host
-  -l logfile     redirect diagnostics and trace output
-  -n pmnsfile    use an alternative PMNS
-  -O offset      initial offset into the time window
-  -s samples     terminate after this many samples
-  -S starttime   start of the time window
-  -t interval    sample interval [default 1.0 seconds]
-  -T endtime     end of the time window
-  -z             set reporting timezone to local time of metrics source
-  -Z timezone    set reporting timezone
+template: Cannot connect to pmcd on host "hoges": No route to host
 
 Trying ... -h hoges -l -n
