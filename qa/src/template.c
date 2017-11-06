@@ -160,7 +160,8 @@ main(int argc, char **argv)
 	printf("Got -s \"%d\"\n", opts.samples);
 
     if (opts.interval.tv_sec > 0 || opts.interval.tv_usec > 0)
-	printf("Got -t %d.%06d (secs)\n", (int)opts.interval.tv_sec, (int)opts.interval.tv_usec);
+	printf("Got -t %d.%06d (secs)\n",
+		(int)opts.interval.tv_sec, (int)opts.interval.tv_usec);
 
     p = getenv("PCP_CONTAINER");
     if (p != NULL)
