@@ -46,7 +46,15 @@ All metrics from a file named
 will be exported as PCP metrics with the
 .I prometheus.FOO.
 prefix.  Therefore, the FOO name must be a valid component for PMNS metric
-names.
+names.  If the FOO name has multiple dot-separated components, the resulting
+PMNS names will present those components.  Users should avoid configurations
+with sources that mix levels of nesting, such as
+.IR FOO.BAR.url
+.IR FOO.BAZ.url
+.IR FOO.url
+because metrics under FOO one may conflict with or hide FOO.BAR and FOO.BAZ
+subtrees.
+
 
 \" example
 \" describe metric naming conventions

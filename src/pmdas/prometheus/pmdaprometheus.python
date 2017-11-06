@@ -588,7 +588,7 @@ class PrometheusPMDA(PMDA):
                         # pass # could fall through
                         return
                 
-                nickname_regexp = re.compile(r"^[A-Za-z]\w*$")
+                nickname_regexp = re.compile(r"^[A-Za-z][A-Za-z0-9_.]*$")
                 
                 # XXX: nuke sources related to removed files
                 self.log("walking %s, ctime %s" % (self.config_dir, self.config_dir_ctime))
