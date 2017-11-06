@@ -149,9 +149,9 @@ redis_series_desc(redisContext *redis, metric_t *metric, value_t *value)
 		" type %u"
 		" units %s",
 	    value->hash,
-	    pmid_cluster(metric->desc.pmid),
-	    pmid_domain(metric->desc.pmid),
-	    pmid_item(metric->desc.pmid),
+	    pmID_cluster(metric->desc.pmid),
+	    pmID_domain(metric->desc.pmid),
+	    pmID_item(metric->desc.pmid),
 	    metric->desc.sem,
 	    pmInDom_serial(metric->desc.indom),
 	    metric->desc.type,
@@ -166,9 +166,9 @@ redis_series_desc(redisContext *redis, metric_t *metric, value_t *value)
 		" type %u"
 		" units %s",
 	    value->hash,
-	    pmid_cluster(metric->desc.pmid),
-	    pmid_domain(metric->desc.pmid),
-	    pmid_item(metric->desc.pmid),
+	    pmID_cluster(metric->desc.pmid),
+	    pmID_domain(metric->desc.pmid),
+	    pmID_item(metric->desc.pmid),
 	    metric->desc.sem,
 	    metric->desc.type,
 	    pmUnitsStr(&metric->desc.units));

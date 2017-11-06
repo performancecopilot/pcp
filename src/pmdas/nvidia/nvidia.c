@@ -238,12 +238,12 @@ nvidia_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    if (pmid_cluster(mdesc->m_desc.pmid) != 0)
+    if (pmID_cluster(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
-    if (pmid_item(mdesc->m_desc.pmid) != 0 && inst > indomtab[GCARD_INDOM].it_numinst)
+    if (pmID_item(mdesc->m_desc.pmid) != 0 && inst > indomtab[GCARD_INDOM].it_numinst)
 	return PM_ERR_INST;
 
-    switch (pmid_item(mdesc->m_desc.pmid)) {
+    switch (pmID_item(mdesc->m_desc.pmid)) {
         case NVIDIA_NUMCARDS:
             atom->ul = pcp_nvinfo.numcards;
             break;

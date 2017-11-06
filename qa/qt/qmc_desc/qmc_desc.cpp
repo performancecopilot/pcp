@@ -58,7 +58,7 @@ main(int argc, char* argv[])
     }
 
     /* Linux hinv.ncpu PMID: 60.0.32 */
-    pmID hinv_ncpu = pmid_build(60, 0, 32);
+    pmID hinv_ncpu = pmID_build(60, 0, 32);
     QmcDesc hinv_ncpu_pmc(hinv_ncpu);
     pmDesc hinv_ncpu_desc = hinv_ncpu_pmc.desc();
 
@@ -82,7 +82,7 @@ main(int argc, char* argv[])
     fflush(stderr);
 
     fprintf(stderr, "\n*** Fetch a bad descriptor ***\n");
-    pmID bad = pmid_build(42,42,42);
+    pmID bad = pmID_build(42,42,42);
     QmcDesc bad_pmc(bad);
     
     if (bad_pmc.status() < 0) {

@@ -419,8 +419,8 @@ static int
 freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     int			sts = PM_ERR_PMID;
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     mib_t		*mp;
 
     mp = (mib_t *)mdesc->m_user;
@@ -686,11 +686,11 @@ freebsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
      * they have changed
      */
     for (i = 0; !done_disk && !done_netif && i < numpmid; i++) {
-	if (pmid_cluster(pmidlist[i]) == CL_DISK) {
+	if (pmID_cluster(pmidlist[i]) == CL_DISK) {
 	    refresh_disk_metrics();
 	    done_disk = 1;
 	}
-	else if (pmid_cluster(pmidlist[i]) == CL_NETIF) {
+	else if (pmID_cluster(pmidlist[i]) == CL_NETIF) {
 	    refresh_netif_metrics();
 	    done_netif = 1;
 	}

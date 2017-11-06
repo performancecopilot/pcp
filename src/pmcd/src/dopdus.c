@@ -613,7 +613,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	if (idlist[i] == PM_ID_NULL || !IS_DYNAMIC_ROOT(idlist[i]))
 	    continue;
 	lsts = 0;
-	domain = pmid_cluster(idlist[i]);
+	domain = pmID_cluster(idlist[i]);
 	/*
 	 * don't return <domain>.*.* ... all return paths from here
 	 * must either set a valid PMID in idlist[i] or indicate
@@ -739,7 +739,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     namelist[0] = name;
     sts = pmLookupName(1, namelist, idlist);
     if (sts == 1 && IS_DYNAMIC_ROOT(idlist[0])) {
-	int		domain = pmid_cluster(idlist[0]);
+	int		domain = pmID_cluster(idlist[0]);
 	AgentInfo	*ap = NULL;
 	if ((ap = FindDomainAgent(domain)) == NULL) {
 	    sts = PM_ERR_NOAGENT;
@@ -916,7 +916,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 	if (sts < 1)
 	    continue;
 	if (IS_DYNAMIC_ROOT(idlist[0])) {
-	    int		domain = pmid_cluster(idlist[0]);
+	    int		domain = pmID_cluster(idlist[0]);
 	    AgentInfo	*ap;
 	    if ((ap = FindDomainAgent(domain)) == NULL)
 		continue;

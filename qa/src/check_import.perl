@@ -49,7 +49,7 @@ check($_, "pmiUseContext");
 $_ = pmiUseContext($ctx1);
 check($_, "pmiUseContext");
 
-$_ = pmiAddMetric("my.metric.foo", pmid_build(PMI_DOMAIN,0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
+$_ = pmiAddMetric("my.metric.foo", pmID_build(PMI_DOMAIN,0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
 check($_, "pmiAddMetric");
 $_ = pmiAddMetric("my.metric.bar", PM_ID_NULL, PM_TYPE_U64, pmInDom_build(PMI_DOMAIN,1), PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
 check($_, "pmiAddMetric");
@@ -61,7 +61,7 @@ $_ = pmiAddMetric("my.metric.double", PM_ID_NULL, PM_TYPE_DOUBLE, PM_INDOM_NULL,
 check($_, "pmiAddMetric");
 $_ = pmiAddMetric("my.metric.string", PM_ID_NULL, PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(0,0,0,0,0,0));
 check($_, "pmiAddMetric");
-$_ = pmiAddMetric("my.dup.pmid", pmid_build(PMI_DOMAIN,0,3), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(0,0,0,0,0,0));
+$_ = pmiAddMetric("my.dup.pmid", pmID_build(PMI_DOMAIN,0,3), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(0,0,0,0,0,0));
 check($_, "pmiAddMetric");
 $_ = pmiAddMetric("my.metric.float", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, pmiUnits(0,0,0,0,0,0));
 check($_, "pmiAddMetric");

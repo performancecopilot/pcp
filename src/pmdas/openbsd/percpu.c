@@ -85,7 +85,7 @@ do_percpu_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	sts = 1;
 	/* cluster and domain already checked, just need item ... */
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 
 	    case 3:		/* kernel.percpu.cpu.user */
 		atom->ull = 1000 * stats[inst*CPUSTATES+CP_USER] / cpuhz;

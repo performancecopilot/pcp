@@ -241,7 +241,7 @@ again4:
     pr.numpmid = 1;
     pr.vset[0] = &pvs;
     /* assume BROKEN PMDA is not installed */
-    pr.vset[0]->pmid = pmid_build(249,123,456);
+    pr.vset[0]->pmid = pmID_build(249,123,456);
     pr.vset[0]->numval = 1;
     pr.vset[0]->valfmt = PM_VAL_INSITU;
     pr.vset[0]->vlist[0].inst = PM_INDOM_NULL;

@@ -51,13 +51,13 @@ static int
 solaris_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     metricdesc_t *mdp = (metricdesc_t *)mdesc->m_user;
-    int cluster = pmid_cluster(mdesc->m_desc.pmid);
+    int cluster = pmID_cluster(mdesc->m_desc.pmid);
     method_t *m = methodtab + cluster;
     hrtime_t start;
     int rv;
 
     if (cluster == 4095) {
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	case 0: /* pmda.prefetch.time */
 		if ((inst <= 0) || (inst > methodtab_sz+1))
 			return PM_ERR_INST;
@@ -190,7 +190,7 @@ main(int argc, char **argv)
 	    int	i;
 	    int e;
 
-	    metricdesc[c].md_desc.pmid = pmid_build(desc.domain, pmid_cluster(metricdesc[c].md_desc.pmid), pmid_item(metricdesc[c].md_desc.pmid));
+	    metricdesc[c].md_desc.pmid = pmID_build(desc.domain, pmID_cluster(metricdesc[c].md_desc.pmid), pmID_item(metricdesc[c].md_desc.pmid));
 
 	    if ((e = pmNameAll(metricdesc[c].md_desc.pmid, &names)) < 1) {
 		printf ("Cannot find %s(%s) in %s: %s\n",

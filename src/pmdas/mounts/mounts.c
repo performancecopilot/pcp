@@ -368,13 +368,13 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     __uint64_t	ull, used;
     mountinfo	*mp;
 
-    if (pmid_cluster(mdesc->m_desc.pmid) != MOUNTS_CLUSTER)
+    if (pmID_cluster(mdesc->m_desc.pmid) != MOUNTS_CLUSTER)
 	return PM_ERR_PMID;
     if (inst >= indomtab[MOUNTS_INDOM].it_numinst)
 	return PM_ERR_INST;
     mp = &mount_list[inst];
 
-    switch (pmid_item(mdesc->m_desc.pmid)) {
+    switch (pmID_item(mdesc->m_desc.pmid)) {
     case MOUNTS_DEVICE:
 	atom->cp = mp->device;
 	break;

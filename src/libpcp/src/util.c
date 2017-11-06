@@ -418,9 +418,9 @@ pmIDStr_r(pmID pmid, char *buf, int buflen)
 	 * that can enumerate the subtree in the cluster field, while
 	 * the item field is zero
 	 */
-	pmsprintf(buf, buflen, "%d.*.*", pmid_cluster(pmid));
+	pmsprintf(buf, buflen, "%d.*.*", pmID_cluster(pmid));
     else
-	pmsprintf(buf, buflen, "%d.%d.%d", pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid));
+	pmsprintf(buf, buflen, "%d.%d.%d", pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid));
     return buf;
 }
 
@@ -2752,28 +2752,28 @@ __pmDumpStack(FILE *f)
  */
 
 unsigned int
-pmid_item(pmID pmid)
+pmID_item(pmID pmid)
 {
     __pmID_int	*idp = (__pmID_int *)&pmid;
     return idp->item;
 }
 
 unsigned int 
-pmid_cluster(pmID pmid)
+pmID_cluster(pmID pmid)
 {
     __pmID_int	*idp = (__pmID_int *)&pmid;
     return idp->cluster;
 }
 
 unsigned int 
-pmid_domain(pmID pmid)
+pmID_domain(pmID pmid)
 {
     __pmID_int	*idp = (__pmID_int *)&pmid;
     return idp->domain;
 }
 
 pmID
-pmid_build(unsigned int domain, unsigned int cluster, unsigned int item)
+pmID_build(unsigned int domain, unsigned int cluster, unsigned int item)
 {
     pmID id;
     __pmID_int idint;

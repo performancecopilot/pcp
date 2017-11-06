@@ -134,7 +134,7 @@ pmns_refresh(void)
 	domain = strtoul(pmid, &next, 10);
 	cluster = strtoul(next+1, &next, 10);
 	item = strtoul(next+1, &next, 10);
-	id = pmid_build(domain, cluster, item);
+	id = pmID_build(domain, cluster, item);
 	if ((sts = __pmAddPMNSNode(pmns, id, SvPV_nolen(metric))) < 0)
 	    croak("failed to add metric %s(%s) to namespace: %s",
 		SvPV_nolen(metric), pmIDStr(id), pmErrStr(sts));
@@ -676,7 +676,7 @@ pmda_pmid(cluster,item)
 	unsigned int	cluster
 	unsigned int	item
     CODE:
-	RETVAL = pmid_build(dispatch.domain, cluster, item);
+	RETVAL = pmID_build(dispatch.domain, cluster, item);
     OUTPUT:
 	RETVAL
 
@@ -688,7 +688,7 @@ pmda_pmid_name(cluster,item)
 	const char	*name;
 	SV		**rval;
     CODE:
-	name = pmIDStr(pmid_build(dispatch.domain, cluster, item));
+	name = pmIDStr(pmID_build(dispatch.domain, cluster, item));
 	rval = hv_fetch(metric_names, name, strlen(name), 0);
 	if (!rval || !(*rval))
 	    XSRETURN_UNDEF;
@@ -704,7 +704,7 @@ pmda_pmid_text(cluster,item)
 	const char	*name;
 	SV		**rval;
     CODE:
-	name = pmIDStr(pmid_build(dispatch.domain, cluster, item));
+	name = pmIDStr(pmID_build(dispatch.domain, cluster, item));
 	rval = hv_fetch(metric_oneline, name, strlen(name), 0);
 	if (!rval || !(*rval))
 	    XSRETURN_UNDEF;

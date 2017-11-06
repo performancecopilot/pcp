@@ -425,7 +425,7 @@ refresh(int numpmid, pmID *pmidlist)
     if ((clusters = malloc(need)) == NULL)
         return -ENOMEM;
     for (i = 0; i < numpmid; i++) {
-        int cluster = pmid_cluster(pmidlist[i]);
+        int cluster = pmID_cluster(pmidlist[i]);
         for (j = 0; j < count; j++)
             if (clusters[j] == cluster)
                 break;
@@ -465,7 +465,7 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
     if (label_func) {
         PyObject *arglist, *result;
 
-	id = (type == PM_LABEL_CLUSTER) ? (int)pmid_cluster(ident) : ident;
+	id = (type == PM_LABEL_CLUSTER) ? (int)pmID_cluster(ident) : ident;
 
         arglist = Py_BuildValue("(ii)", id, type);
         if (arglist == NULL)
@@ -704,9 +704,9 @@ lookup_metric(__pmID_int *pmid, pmdaExt *pmda)
 
     for (i = 0; i < pmda->e_nmetrics; i++) {
         mp = &pmda->e_metrics[i];
-        if (pmid->item != pmid_item(mp->m_desc.pmid))
+        if (pmid->item != pmID_item(mp->m_desc.pmid))
             continue;
-        if (pmid->cluster != pmid_cluster(mp->m_desc.pmid))
+        if (pmid->cluster != pmID_cluster(mp->m_desc.pmid))
             continue;
         return mp;
     }
@@ -1151,7 +1151,7 @@ pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
                         "ii:pmda_pmid", keyword_list,
                         &item, &cluster))
         return NULL;
-    result = pmid_build(dispatch.domain, item, cluster);
+    result = pmID_build(dispatch.domain, item, cluster);
     return Py_BuildValue("i", result);
 }
 

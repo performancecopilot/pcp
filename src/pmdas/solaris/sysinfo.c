@@ -88,7 +88,7 @@ sysinfo_derived(pmdaMetric *mdesc, int inst)
     pmID	pmid;
     __uint32_t	val;
 
-    pmid = pmid_build(0, pmid_cluster(mdesc->m_desc.pmid), pmid_item(mdesc->m_desc.pmid));
+    pmid = pmID_build(0, pmID_cluster(mdesc->m_desc.pmid), pmID_item(mdesc->m_desc.pmid));
 
     switch (pmid) {
 
@@ -241,7 +241,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 
     /* Special processing of metrics which notionally belong
      * to sysinfo category */
-    switch (pmid_item(mdesc->m_desc.pmid)) {
+    switch (pmID_item(mdesc->m_desc.pmid)) {
     case 109: /* hinv.physmem */
 	return kstat_fetch_named(kc, atom, "physmem", 20);
     case 136: /* mem.physmem */

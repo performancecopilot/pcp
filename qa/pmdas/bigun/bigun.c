@@ -24,8 +24,8 @@ static pmValueBlock *vbp;
 static int
 bigun_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    if (pmid_cluster(mdesc->m_desc.pmid) != 0 ||
-        pmid_item(mdesc->m_desc.pmid) != 0)
+    if (pmID_cluster(mdesc->m_desc.pmid) != 0 ||
+        pmID_item(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
     if (inst != PM_IN_NULL)
 	return PM_ERR_INST;

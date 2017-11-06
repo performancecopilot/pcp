@@ -163,14 +163,14 @@ dump(char *xpect)
 		/* should not happen! */
 		fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_flags, pmErrStr(sts));
 		/* avoid subsequent warnings ... */
-		pmid_flags = pmid_build(pmid_domain(pmid_flags), pmid_cluster(pmid_flags), 1);
+		pmid_flags = pmID_build(pmID_domain(pmid_flags), pmID_cluster(pmid_flags), 1);
 	    }
 	    sts = pmLookupName(1, &name_missed, &pmid_missed);
 	    if (sts < 0) {
 		/* should not happen! */
 		fprintf(stderr, "Warning: cannot get PMID for %s: %s\n", name_missed, pmErrStr(sts));
 		/* avoid subsequent warnings ... */
-		pmid_missed = pmid_build(pmid_domain(pmid_missed), pmid_cluster(pmid_missed), 1);
+		pmid_missed = pmID_build(pmID_domain(pmid_missed), pmID_cluster(pmid_missed), 1);
 	    }
 	}
 
@@ -232,16 +232,16 @@ main(int argc, char **argv)
      * note these PMIDs must match the corresponding metrics in
      * desctab[] and this cannot easily be done automatically
      */
-    pmid_array = pmid_build(mydomain, pmid_cluster(pmid_array), pmid_item(pmid_array));
-    pmid_type = pmid_build(mydomain, pmid_cluster(pmid_type), pmid_item(pmid_type));
-    pmid_32 = pmid_build(mydomain, pmid_cluster(pmid_32), pmid_item(pmid_32));
-    pmid_u32 = pmid_build(mydomain, pmid_cluster(pmid_u32), pmid_item(pmid_u32));
-    pmid_64 = pmid_build(mydomain, pmid_cluster(pmid_64), pmid_item(pmid_64));
-    pmid_u64 = pmid_build(mydomain, pmid_cluster(pmid_u64), pmid_item(pmid_u64));
-    pmid_float = pmid_build(mydomain, pmid_cluster(pmid_float), pmid_item(pmid_float));
-    pmid_double = pmid_build(mydomain, pmid_cluster(pmid_double), pmid_item(pmid_double));
-    pmid_string = pmid_build(mydomain, pmid_cluster(pmid_string), pmid_item(pmid_string));
-    pmid_aggregate = pmid_build(mydomain, pmid_cluster(pmid_aggregate), pmid_item(pmid_aggregate));
+    pmid_array = pmID_build(mydomain, pmID_cluster(pmid_array), pmID_item(pmid_array));
+    pmid_type = pmID_build(mydomain, pmID_cluster(pmid_type), pmID_item(pmid_type));
+    pmid_32 = pmID_build(mydomain, pmID_cluster(pmid_32), pmID_item(pmid_32));
+    pmid_u32 = pmID_build(mydomain, pmID_cluster(pmid_u32), pmID_item(pmid_u32));
+    pmid_64 = pmID_build(mydomain, pmID_cluster(pmid_64), pmID_item(pmid_64));
+    pmid_u64 = pmID_build(mydomain, pmID_cluster(pmid_u64), pmID_item(pmid_u64));
+    pmid_float = pmID_build(mydomain, pmID_cluster(pmid_float), pmID_item(pmid_float));
+    pmid_double = pmID_build(mydomain, pmID_cluster(pmid_double), pmID_item(pmid_double));
+    pmid_string = pmID_build(mydomain, pmID_cluster(pmid_string), pmID_item(pmid_string));
+    pmid_aggregate = pmID_build(mydomain, pmID_cluster(pmid_aggregate), pmID_item(pmid_aggregate));
     /* build pmValueBlock for aggregate value */
     aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + sizeof(aggrval));
     aggr->vtype = PM_TYPE_AGGREGATE;

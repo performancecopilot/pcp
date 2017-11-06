@@ -60,7 +60,7 @@ do_vm_uvmexp_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	sts = 1;
 	/* cluster and domain already checked, just need item ... */
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	    case 1:		/* kernel.all.pswitch */
 		atom->ull = stats.swtch;
 		break;

@@ -15,21 +15,21 @@
 .\"
 .TH PMID_HELPER 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmid_build\f1,
-\f3pmid_domain\f1,
-\f3pmid_cluster\f1,
-\f3pmid_item\f1 \- helper methods for manipulating PMIDs
+\f3pmID_build\f1,
+\f3pmID_domain\f1,
+\f3pmID_cluster\f1,
+\f3pmID_item\f1 \- helper methods for manipulating PMIDs
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-pmID pmid_build(unsigned int \fIdomain\fP, unsigned int \fIcluster\fP, unsigned int \fIitem\fP);
+pmID pmID_build(unsigned int \fIdomain\fP, unsigned int \fIcluster\fP, unsigned int \fIitem\fP);
 .br
-unsigned int pmid_domain(pmID \fIpmid\fP);
+unsigned int pmID_domain(pmID \fIpmid\fP);
 .br
-unsigned int pmid_cluster(pmID \fIpmid\fP);
+unsigned int pmID_cluster(pmID \fIpmid\fP);
 .br
-unsigned int pmid_item(pmID \fIpmid\fP);
+unsigned int pmID_item(pmID \fIpmid\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -47,10 +47,10 @@ constructs a pmID from
 and
 .IR item .
 .PP
-.BR pmid_domain ,
-.B pmid_cluster
+.BR pmID_domain ,
+.B pmID_cluster
 and
-.B pmid_item
+.B pmID_item
 return the respective fields from
 .IR pmid .
 .SH SEE ALSO

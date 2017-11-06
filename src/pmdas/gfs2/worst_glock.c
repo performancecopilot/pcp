@@ -294,7 +294,7 @@ static void
 add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
 {
     char entry[64];
-    pmID pmid = pmid_build(domain, cluster, (lock * NUM_GLOCKSTATS) + stat);
+    pmID pmid = pmID_build(domain, cluster, (lock * NUM_GLOCKSTATS) + stat);
 
     pmsprintf(entry, sizeof(entry),
 	     "gfs2.worst_glock.%s.%s", topnum[lock], stattype[stat]);
@@ -334,19 +334,19 @@ refresh_worst_glock(pmdaExt *pmda, __pmnsTree **tree)
 static void
 refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
 {
-    int item = pmid_item(source->m_desc.pmid);
-    int domain = pmid_domain(source->m_desc.pmid);
-    int cluster = pmid_cluster(source->m_desc.pmid);
+    int item = pmID_item(source->m_desc.pmid);
+    int domain = pmID_domain(source->m_desc.pmid);
+    int cluster = pmID_cluster(source->m_desc.pmid);
 
     memcpy(dest, source, sizeof(pmdaMetric));
     item += lock * NUM_GLOCKSTATS;
-    dest->m_desc.pmid = pmid_build(domain, cluster, item);
+    dest->m_desc.pmid = pmID_build(domain, cluster, item);
 
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 worst_glock refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
 			source, dest, domain, cluster,
-			pmid_item(source->m_desc.pmid), domain, cluster, item);
+			pmID_item(source->m_desc.pmid), domain, cluster, item);
 }
 
 /*
@@ -364,10 +364,10 @@ size_metrictable(int *total, int *trees)
 static int
 worst_glock_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 {
-    int item = pmid_item(pmid);
+    int item = pmID_item(pmid);
     static char text[128];
 
-    if (pmid_cluster(pmid) != CLUSTER_WORSTGLOCK)
+    if (pmID_cluster(pmid) != CLUSTER_WORSTGLOCK)
 	return PM_ERR_PMID;
     if (item < 0 || item >= WORST_GLOCK_COUNT)
 	return PM_ERR_PMID;

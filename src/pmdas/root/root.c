@@ -209,7 +209,7 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char		*name;
     int			sts;
 
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case 0:	/* container metrics */
 	containers = INDOM(CONTAINERS_INDOM);
 	sts = pmdaCacheLookup(containers, inst, &name, (void**)&cp);
@@ -227,7 +227,7 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    }
 	    return PM_ERR_INST;
 	}
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	case 0:		/* containers.engine */
 	    atom->cp = cp->engine->name;
 	    break;

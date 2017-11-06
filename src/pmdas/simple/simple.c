@@ -154,8 +154,8 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			sts;
     static int		oldfetch;
     static double	usr, sys;
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
 
     if (inst != PM_IN_NULL &&
 	!(cluster == 0 && item == 1) &&
@@ -392,8 +392,8 @@ simple_store(pmResult *result, pmdaExt *pmda)
 	unsigned int	item;
 
 	vsp = result->vset[i];
-	cluster = pmid_cluster(vsp->pmid);
-	item = pmid_item(vsp->pmid);
+	cluster = pmID_cluster(vsp->pmid);
+	item = pmID_item(vsp->pmid);
 
 	if (cluster == 0) {	/* all storable metrics are cluster 0 */
 

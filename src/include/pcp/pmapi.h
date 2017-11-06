@@ -1056,16 +1056,16 @@ PCP_CALL extern char *pmGetProgname(void);
  *   the pmFetch() path).
  */
 #define DYNAMIC_PMID	511
-#define IS_DYNAMIC_ROOT(x) (pmid_domain(x) == DYNAMIC_PMID && pmid_item(x) == 0)
-#define IS_DERIVED(x) (pmid_domain(x) == DYNAMIC_PMID && (pmid_cluster(x) & 2048) == 0 && pmid_item(x) != 0)
+#define IS_DYNAMIC_ROOT(x) (pmID_domain(x) == DYNAMIC_PMID && pmID_item(x) == 0)
+#define IS_DERIVED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 0 && pmID_item(x) != 0)
 
 /*
  * pmID helper functions
  */
-PCP_CALL extern unsigned int pmid_item(pmID);
-PCP_CALL extern unsigned int pmid_cluster(pmID);
-PCP_CALL extern unsigned int pmid_domain(pmID);
-PCP_CALL extern pmID pmid_build(unsigned int, unsigned int, unsigned int);
+PCP_CALL extern unsigned int pmID_item(pmID);
+PCP_CALL extern unsigned int pmID_cluster(pmID);
+PCP_CALL extern unsigned int pmID_domain(pmID);
+PCP_CALL extern pmID pmID_build(unsigned int, unsigned int, unsigned int);
 
 #ifdef __cplusplus
 }

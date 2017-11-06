@@ -170,7 +170,7 @@ cisco_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
     if (!intf[inst].fetched)
 	return PM_ERR_AGAIN;
 
-    switch (pmid_item(mdesc->m_desc.pmid)) {
+    switch (pmID_item(mdesc->m_desc.pmid)) {
 
 	case 1:		/* bytes_in */
 		if (intf[inst].bytes_in == -1) return 0;

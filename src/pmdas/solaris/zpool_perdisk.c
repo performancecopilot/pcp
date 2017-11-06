@@ -265,7 +265,7 @@ zpool_perdisk_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
 	return PM_ERR_INST;
 
     if (stats->vdev_stats_fresh) {
-	switch (pmid_item(md->md_desc.pmid)) {
+	switch (pmID_item(md->md_desc.pmid)) {
 	case 0: /* zpool.perdisk.state */
 	    atom->cp = (char *)zpool_state_to_name(stats->vds.vs_state,
 					   stats->vds.vs_aux);

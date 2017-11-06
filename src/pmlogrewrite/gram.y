@@ -72,8 +72,8 @@ walk_metric(int mode, int flag, char *which, int dupok)
 	else
 	    mp = mp->m_next;
 	while (mp != NULL) {
-	    if (pmid_domain(mp->old_desc.pmid) == star_domain &&
-		(star_cluster == PM_ID_NULL || star_cluster == pmid_cluster(mp->old_desc.pmid)))
+	    if (pmID_domain(mp->old_desc.pmid) == star_domain &&
+		(star_cluster == PM_ID_NULL || star_cluster == pmID_cluster(mp->old_desc.pmid)))
 		break;
 	    mp = mp->m_next;
 	}
@@ -589,17 +589,17 @@ metricspec	: TOK_METRIC pmid_or_name
      */
 			    PM_UNLOCK(ctxp->c_lock);
 			    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
-			    star_domain = pmid_domain($2);
+			    star_domain = pmID_domain($2);
 			    if (current_star_metric == 1)
-				star_cluster = pmid_cluster($2);
+				star_cluster = pmID_cluster($2);
 			    else
 				star_cluster = PM_ID_NULL;
 			    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 				 node != NULL;
 				 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
-				if (pmid_domain((pmID)(node->key)) == star_domain &&
+				if (pmID_domain((pmID)(node->key)) == star_domain &&
 				    (star_cluster == PM_ID_NULL ||
-				     star_cluster == pmid_cluster((pmID)(node->key))))
+				     star_cluster == pmID_cluster((pmID)(node->key))))
 				    current_metricspec = start_metric((pmID)(node->key));
 			    }
 			    do_walk_metric = 1;
@@ -666,7 +666,7 @@ pmid_int	: TOK_PMID_INT
 			}
 			current_star_metric = 0;
 			free($1);
-			$$ = pmid_build(domain, cluster, item);
+			$$ = pmID_build(domain, cluster, item);
 		    }
 		| TOK_PMID_STAR
 		    {
@@ -694,7 +694,7 @@ pmid_int	: TOK_PMID_INT
 			    current_star_metric = 2;
 			}
 			free($1);
-			$$ = pmid_build(domain, cluster, 0);
+			$$ = pmID_build(domain, cluster, 0);
 		    }
 		;
 
@@ -712,9 +712,9 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			pmID		pmid;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_PMID, "pmid", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_PMID, "pmid", 0)) {
 			    if (current_star_metric == 1)
-				pmid = pmid_build(pmid_domain($3), pmid_cluster($3), pmid_item(mp->old_desc.pmid));
+				pmid = pmID_build(pmID_domain($3), pmID_cluster($3), pmID_item(mp->old_desc.pmid));
 			    else if (current_star_metric == 2)
-				pmid = pmid_build(pmid_domain($3), pmid_cluster(mp->old_desc.pmid), pmid_item(mp->old_desc.pmid));
+				pmid = pmID_build(pmID_domain($3), pmID_cluster(mp->old_desc.pmid), pmID_item(mp->old_desc.pmid));
 			    else
 				pmid = $3;
 			    if (pmid == mp->old_desc.pmid) {

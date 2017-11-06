@@ -157,7 +157,7 @@ Options\n\
     }
     if (result->numpmid >= 5) {
 	for (j = 0; j < result->numpmid; j++) {
-	    if (pmid_domain(result->vset[0]->pmid) != 2)
+	    if (pmID_domain(result->vset[0]->pmid) != 2)
 		break;
 	}
 	if (j == result->numpmid) {

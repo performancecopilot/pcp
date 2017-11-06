@@ -180,7 +180,7 @@ sub domap($)
 			    # expected N.N.N or PMI_DOMAIN.N.N format
 			    my @args = split(/\./, $value);
 			    $args[0] = PMI_DOMAIN if $args[0] eq "PMI_DOMAIN";
-			    $pmid = pmid_build($args[0],$args[1],$args[2]);
+			    $pmid = pmID_build($args[0],$args[1],$args[2]);
 			}
 			elsif ($value eq "PM_ID_NULL") {
 			    # accept literal default value

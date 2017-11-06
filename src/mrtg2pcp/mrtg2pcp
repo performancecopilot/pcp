@@ -61,11 +61,11 @@ pmiSetTimezone($zone) == 0
 
 my $indom = pmInDom_build($domain, $indomid);
 pmiAddMetric("network.interface.in.bytes",
-	pmid_build($domain,$cluster,$in_item), PM_TYPE_U64, $indom,
+	pmID_build($domain,$cluster,$in_item), PM_TYPE_U64, $indom,
 	PM_SEM_COUNTER, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0)) == 0
 	or die "pmiAddMetric(network.interface.in.bytes, ...): " . pmiErrStr(-1) . "\n";
 pmiAddMetric("network.interface.out.bytes",
-	pmid_build($domain,$cluster,$out_item), PM_TYPE_U64, $indom,
+	pmID_build($domain,$cluster,$out_item), PM_TYPE_U64, $indom,
 	PM_SEM_COUNTER, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0)) == 0
 	or die "pmiAddMetric(network.interface.out.bytes, ...): " . pmiErrStr(-1) . "\n";
 

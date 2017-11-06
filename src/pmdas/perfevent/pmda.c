@@ -195,8 +195,8 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
         return PM_ERR_PMID;
     }
 
-    cluster = pmid_cluster(mdesc->m_desc.pmid);
-    item = pmid_item(mdesc->m_desc.pmid);
+    cluster = pmID_cluster(mdesc->m_desc.pmid);
+    item = pmID_item(mdesc->m_desc.pmid);
 
     if(cluster == 0)
     {
@@ -325,7 +325,7 @@ static int perfevent_text(int ident, int type, char **buffer, pmdaExt *pmda)
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID)
     {
         /* Lookup pmid in the metric table. */
-        int item = pmid_item(ident);
+        int item = pmID_item(ident);
 
         /* bounds check item, ensure PMID matches and user data present */
         if (item >= 0 && item < nummetrics

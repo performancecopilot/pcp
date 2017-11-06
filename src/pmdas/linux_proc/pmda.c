@@ -1763,8 +1763,8 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 static int
 proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     pmInDom		indom;
     int			sts;
     int			have_totals;
@@ -3054,7 +3054,7 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	unsigned int	cluster = pmID_cluster(pmidlist[i]);
 	if (cluster >= MIN_CLUSTER && cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }
@@ -3085,11 +3085,11 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet *vsp = result->vset[i];
 	pmAtomValue av;
 
-	switch (pmid_cluster(vsp->pmid)) {
+	switch (pmID_cluster(vsp->pmid)) {
 	case CLUSTER_CONTROL:
 	    if (vsp->numval != 1)
 		sts = PM_ERR_INST;
-	    else switch (pmid_item(vsp->pmid)) {
+	    else switch (pmID_item(vsp->pmid)) {
 	    case 1: /* proc.control.all.threads */
 		if (!have_access)
 		    sts = PM_ERR_PERMISSION;
@@ -3123,7 +3123,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	case CLUSTER_HOTPROC_GLOBAL:
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
-	    else switch (pmid_item(vsp->pmid)) {
+	    else switch (pmID_item(vsp->pmid)) {
 	    case ITEM_HOTPROC_G_REFRESH: /* hotproc.control.refresh */
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {

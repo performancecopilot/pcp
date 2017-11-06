@@ -129,11 +129,11 @@ usr/share/man/man3/pmiaddinstance.3.gz
 usr/share/man/man3/pmiAddInstance.3.gz
 usr/share/man/man3/pmiaddmetric.3.gz
 usr/share/man/man3/pmiAddMetric.3.gz
-usr/share/man/man3/pmid_build.3.gz
-usr/share/man/man3/pmid_cluster.3.gz
-usr/share/man/man3/pmid_domain.3.gz
+usr/share/man/man3/pmID_build.3.gz
+usr/share/man/man3/pmID_cluster.3.gz
+usr/share/man/man3/pmID_domain.3.gz
 usr/share/man/man3/pmid_helper.3.gz
-usr/share/man/man3/pmid_item.3.gz
+usr/share/man/man3/pmID_item.3.gz
 usr/share/man/man3/pmidstr.3.gz
 usr/share/man/man3/pmIDStr.3.gz
 usr/share/man/man3/pmIDStr_r.3.gz

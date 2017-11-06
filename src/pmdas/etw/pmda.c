@@ -334,12 +334,12 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     __pmNotifyErr(LOG_WARNING, "called %s, mdesc=%p", __FUNCTION__, mdesc);
 
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_KERNEL_PROCESS:
 	if ((etw = ((mdesc != NULL) ? mdesc->m_user : NULL)) == NULL)
 	    return PM_ERR_PMID;
 
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	    case 0:		/* etw.kernel.process.start.count */
 	    case 20:		/* etw.kernel.process.exit.count */
 	    case 50:		/* etw.kernel.thread.start.count */
@@ -382,7 +382,7 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_CONFIGURATION:
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	    case 0:			/* etw.numclients */
 		sts = pmdaEventClients(atom);
 		break;

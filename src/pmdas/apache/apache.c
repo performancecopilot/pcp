@@ -346,12 +346,12 @@ apache_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    if (pmid_cluster(mdesc->m_desc.pmid) != 0)
+    if (pmID_cluster(mdesc->m_desc.pmid) != 0)
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
 
-    switch (pmid_item(mdesc->m_desc.pmid)) {
+    switch (pmID_item(mdesc->m_desc.pmid)) {
 	case 0:
 	    if (!(data.flags & ACCESSES))
 		return 0;

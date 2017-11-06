@@ -177,7 +177,7 @@ Options:\n\
     for (i = 0; i < numpmid; i++) {
 	namelist[i] = argv[optind+i];
 	/* bogus pmID to be sure real values are set below pmLookupName() */
-	pmidlist[i] = pmid_build(i+1, i+1, i+1);
+	pmidlist[i] = pmID_build(i+1, i+1, i+1);
     }
 
     sts = pmLookupName(numpmid, namelist, pmidlist);

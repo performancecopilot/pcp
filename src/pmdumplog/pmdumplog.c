@@ -138,7 +138,7 @@ setup_event_derived_metrics(void)
 	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n",
 		    name_flags, pmErrStr(sts));
 	    /* avoid subsequent warnings ... */
-	    pmid_flags = pmid_build(pmid_domain(pmid_flags), pmid_cluster(pmid_flags), 1);
+	    pmid_flags = pmID_build(pmID_domain(pmid_flags), pmID_cluster(pmid_flags), 1);
 	}
 	sts = pmLookupName(1, &name_missed, &pmid_missed);
 	if (sts < 0) {
@@ -146,7 +146,7 @@ setup_event_derived_metrics(void)
 	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n",
 		    name_missed, pmErrStr(sts));
 	    /* avoid subsequent warnings ... */
-	    pmid_missed = pmid_build(pmid_domain(pmid_missed), pmid_cluster(pmid_missed), 1);
+	    pmid_missed = pmID_build(pmID_domain(pmid_missed), pmID_cluster(pmid_missed), 1);
 	}
     }
 }

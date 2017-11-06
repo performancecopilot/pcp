@@ -124,7 +124,7 @@ do_filesys_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts == PMDA_CACHE_ACTIVE) {
 	    sts = 1;
 	    /* cluster and domain already checked, just need item ... */
-	    switch (pmid_item(mdesc->m_desc.pmid)) {
+	    switch (pmID_item(mdesc->m_desc.pmid)) {
 
 		case 1:		/* filesys.capcity */
 		    atom->ull = ((uint64_t)sp->f_blocks*sp->f_bsize)/1024;
@@ -184,7 +184,7 @@ do_filesys_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 *
 	 * cluster and domain already checked, just need item ...
 	 */
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	    case 0:		/* hinv.nfilesys */
 		atom->ul = nfilesys - skipped_filesys;
 		sts = 1;

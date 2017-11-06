@@ -1479,9 +1479,9 @@ memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 static int
 windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	domain = pmid_domain(mdesc->m_desc.pmid);
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	domain = pmID_domain(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     pdh_value_t		*vp;
 
     if (cluster == 1)
@@ -1582,7 +1582,7 @@ windows_init(pmdaInterface *dp)
     for (i = 0; i < metrictab_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
 	pmID pmid = mp->desc.pmid;
-	mp->desc.pmid = pmid_build(dp->domain, pmid_cluster(pmid), pmid_item(pmid));
+	mp->desc.pmid = pmID_build(dp->domain, pmID_cluster(pmid), pmID_item(pmid));
 	if (mp->desc.indom != PM_INDOM_NULL)
 	    mp->desc.indom = INDOM(dp->domain, mp->desc.indom);
     }

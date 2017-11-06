@@ -251,11 +251,11 @@ rpm_fetch_totals(int item, pmAtomValue *atom)
 static int
 rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int sts;
 
     pthread_mutex_lock(&indom_mutex);
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case 0:
 	if (inst != PM_IN_NULL)
 	    sts = PM_ERR_INST;

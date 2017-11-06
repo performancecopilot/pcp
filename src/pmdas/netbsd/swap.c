@@ -74,7 +74,7 @@ do_swap_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ull = 0;
 	sts = 1;
 	/* cluster and domain already checked, just need item ... */
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	    case 1:		/* swap.length */
 		atom->ull = 0;
 		for (i = 0; i < ndev; i++)

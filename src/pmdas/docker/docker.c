@@ -480,10 +480,10 @@ docker_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet *vsp = result->vset[i];
 	pmAtomValue av;
  
-	if (pmid_cluster(vsp->pmid) != CLUSTER_CONTROL)
+	if (pmID_cluster(vsp->pmid) != CLUSTER_CONTROL)
 	    return PM_ERR_PMID;
 
-	switch (pmid_item(vsp->pmid)) {
+	switch (pmID_item(vsp->pmid)) {
 	case 0:
 	    if (pmExtractValue(vsp->valfmt, &vsp->vlist[0], PM_TYPE_U64, &av, PM_TYPE_U64) < 0)
 		return PM_ERR_VALUE;
@@ -504,7 +504,7 @@ docker_store(pmResult *result, pmdaExt *pmda)
 static int
 docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     int			sts = 0;
     char		*name;
     json_metric_desc	*local_metrics;
@@ -512,7 +512,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     pthread_mutex_lock(&stats_mutex);
 
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_BASIC:
 
 	indom = INDOM(CONTAINERS_INDOM);

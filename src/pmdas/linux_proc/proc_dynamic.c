@@ -305,7 +305,7 @@ build_dynamic_proc_tree(int domain)
 		if (tree == DYNPROC_HOTPROC)
 		    cluster = get_hot_cluster(cluster);
 
-		pmid = pmid_build(domain, cluster, item);
+		pmid = pmID_build(domain, cluster, item);
 		__pmAddPMNSNode(dynamic_proc_tree, pmid, entry);
 
 		num_hash_entries++;
@@ -332,9 +332,9 @@ build_dynamic_proc_tree(int domain)
 static void
 refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 {
-    int domain = pmid_domain(source->m_desc.pmid);
-    int cluster = pmid_cluster(source->m_desc.pmid);
-    int item = pmid_item(source->m_desc.pmid);
+    int domain = pmID_domain(source->m_desc.pmid);
+    int cluster = pmID_cluster(source->m_desc.pmid);
+    int item = pmID_item(source->m_desc.pmid);
     int hotcluster = -1;
 
     memcpy(dest, source, sizeof(pmdaMetric));
@@ -342,7 +342,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
     if (id == 1) {
 	hotcluster = get_hot_cluster(cluster);
 	if (hotcluster != -1) {
-	    dest->m_desc.pmid = pmid_build(domain, hotcluster, item);
+	    dest->m_desc.pmid = pmID_build(domain, hotcluster, item);
 	    if (source->m_desc.indom == PM_INDOM_NULL) {
 		dest->m_desc.indom = PM_INDOM_NULL;
 	    }
@@ -424,8 +424,8 @@ size_metrictable(int *total, int *trees)
 static int
 dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 {
-    int item = pmid_item(pmid);
-    int cluster = pmid_cluster(pmid);
+    int item = pmID_item(pmid);
+    int cluster = pmID_cluster(pmid);
     char name[128];
 
     if (get_name(cluster, item, name, sizeof(name))) {

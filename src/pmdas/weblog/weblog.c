@@ -2432,10 +2432,10 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
     j = 0;
     for (i = 0; i < numpmid; i++) {
-	if (pmid_cluster(pmidlist[i]) == 1)
+	if (pmID_cluster(pmidlist[i]) == 1)
 	    break;
 	else
-	    j += pmid_cluster(pmidlist[i]);
+	    j += pmID_cluster(pmidlist[i]);
     }
 
     if (i < numpmid) {
@@ -2474,7 +2474,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
  */
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	item = pmid_item(pmidlist[i]);
+	unsigned int	item = pmID_item(pmidlist[i]);
 
 	dp = (pmDesc *)0;
 
@@ -2572,7 +2572,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
             vset->vlist[j].inst = inst;
 
-            cluster = pmid_cluster(dp->pmid);
+            cluster = pmID_cluster(dp->pmid);
             haveValue = 1;
 
             switch(m_type) {
@@ -2923,7 +2923,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                 logmessage(LOG_CRIT, 
                        "Illegal Meta Type (%d) for metric %d\n",
                        m_type,
-                       pmid_item(pmidlist[i]));
+                       pmID_item(pmidlist[i]));
                 exit(1);
             }
             
@@ -2962,8 +2962,8 @@ web_store(pmResult *result, pmdaExt *ext)
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	if (pmid_cluster(vsp->pmid) == 0) {
-	    if (pmid_item(vsp->pmid) == 1) {	/* web.activity.config.catchup */
+	if (pmID_cluster(vsp->pmid) == 0) {
+	    if (pmID_item(vsp->pmid) == 1) {	/* web.activity.config.catchup */
 		int	val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
@@ -2971,7 +2971,7 @@ web_store(pmResult *result, pmdaExt *ext)
 		}
 		wl_refreshDelay = val;
 	    }
-	    else if (pmid_item(vsp->pmid) == 3) {/* web.activity.config.check */
+	    else if (pmID_item(vsp->pmid) == 3) {/* web.activity.config.check */
 		int	val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
@@ -2979,7 +2979,7 @@ web_store(pmResult *result, pmdaExt *ext)
 		}
 		wl_chkDelay = val;
 	    }
-	    else if (pmid_item(vsp->pmid) == 35) {/* web.activity.server.watched */
+	    else if (pmID_item(vsp->pmid) == 35) {/* web.activity.server.watched */
 	        for (j = 0; j < vsp->numval; j++) {
 		    int val = vsp->vlist[j].value.lval;
 		    if (val < 0) {

@@ -1240,7 +1240,7 @@ series_desc_reply(const char *series, int nelements, redisReply **elements)
     extract_number(elements[0], &domain);
     extract_number(elements[1], &cluster);
     extract_number(elements[2], &item);
-    pmid = pmid_build(domain, cluster, item);
+    pmid = pmID_build(domain, cluster, item);
     printf("      \"pmid\": \"%s\",\n", pmIDStr_r(pmid, buf, 64));
 
     if (extract_number(elements[3], &serial) == 0) {

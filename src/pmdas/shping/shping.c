@@ -410,12 +410,12 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	dp = NULL;
 
 	if (ext->e_direct) {
- 	    if (pmid_cluster(pmidlist[i]) == 0 && pmid_item(pmidlist[i]) < nummetric)
-		dp = &metrics[pmid_item(pmidlist[i])].m_desc;
+ 	    if (pmID_cluster(pmidlist[i]) == 0 && pmID_item(pmidlist[i]) < nummetric)
+		dp = &metrics[pmID_item(pmidlist[i])].m_desc;
 	}
 	else {
 	    for (j = 1; j<nummetric; j++) {
-		if (pmid_cluster(pmidlist[i]) == 0 && 
+		if (pmID_cluster(pmidlist[i]) == 0 && 
 		    metrics[j].m_desc.pmid == pmidlist[i]) {
 		    dp = &metrics[j].m_desc;
 		    break;
@@ -484,8 +484,8 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	    }
 	    vset->vlist[j].inst = inst;
 
-	    if (pmid_cluster(pmidlist[i]) == 0) {
-		switch (pmid_item(pmidlist[i])) {
+	    if (pmID_cluster(pmidlist[i]) == 0) {
+		switch (pmID_item(pmidlist[i])) {
 
 		    case 0:	/* shping.time.real PMID: ...0.0 */
 			atom.f = cmdlist[inst].real;
@@ -565,8 +565,8 @@ shping_store(pmResult *result, pmdaExt *ext)
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	if (pmid_cluster(vsp->pmid) == 0) {
-	    switch (pmid_item(vsp->pmid)) {
+	if (pmID_cluster(vsp->pmid) == 0) {
+	    switch (pmID_item(vsp->pmid)) {
 		case 4:	/* shping.control.cycletime PMID: ...0.4 */
 		    ival = vsp->vlist[0].value.lval;
 		    if (ival < 0) {

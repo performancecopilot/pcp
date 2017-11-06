@@ -60,10 +60,10 @@ pass2(__pmContext *ctxp, char *archname)
 		dp->type);
 	}
 	if (dp->indom != PM_INDOM_NULL &&
-	    pmid_domain(dp->pmid) != pmInDom_domain(dp->indom)) {
+	    pmID_domain(dp->pmid) != pmInDom_domain(dp->indom)) {
 	    fprintf(stderr, "%s.meta: %s [%s]: domain of pmid (%d) != domain of indom (%d)\n",
 		archname, name == NULL ? "unknown" : name, pmIDStr(dp->pmid),
-		pmid_domain(dp->pmid), pmInDom_domain(dp->indom));
+		pmID_domain(dp->pmid), pmInDom_domain(dp->indom));
 	}
 	if (dp->sem != PM_SEM_COUNTER && dp->sem != PM_SEM_INSTANT &&
 	    dp->sem != PM_SEM_DISCRETE) {

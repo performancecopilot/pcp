@@ -92,8 +92,8 @@ static int
 txmon_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     stat_t		*sp;
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     unsigned int	real_count;
 
     if (inst != PM_IN_NULL && mdesc->m_desc.indom == PM_INDOM_NULL)
@@ -165,9 +165,9 @@ txmon_store(pmResult *result, pmdaExt *pmda)
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 
-	if (pmid_cluster(vsp->pmid) == 0) {	/* all storable metrics are cluster 0 */
+	if (pmID_cluster(vsp->pmid) == 0) {	/* all storable metrics are cluster 0 */
 
-	    switch (pmid_item(vsp->pmid)) {
+	    switch (pmID_item(vsp->pmid)) {
 		case 0:				/* no store for these ones */
 		case 1:
 		case 2:

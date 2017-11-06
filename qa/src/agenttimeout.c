@@ -132,7 +132,7 @@ main(int argc, char *argv[])
     pmFreeResult(result);
     printf("    timeout is now %d seconds\n", pmcdTimeout);
 
-    pmid = pmid_build(domain, 0, 0);
+    pmid = pmID_build(domain, 0, 0);
     tBegin = time((time_t *)0);
     if ((sts = pmFetch(1, &pmid, &result)) < 0) {
 	fprintf(stderr, "fetch error = %s\n", pmErrStr(sts));

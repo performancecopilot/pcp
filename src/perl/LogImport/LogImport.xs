@@ -14,12 +14,23 @@ MODULE = PCP::LogImport              PACKAGE = PCP::LogImport
 # name here is a little odd ... follows impl.h definition rather
 # than pmi* naming so calls from C and Perl are the same
 pmID
+pmID_build(domain, cluster, item)
+	unsigned int	domain;
+	unsigned int	cluster;
+	unsigned int	item;
+    CODE:
+	RETVAL = pmID_build(domain, cluster, item);
+    OUTPUT:
+	RETVAL
+
+# and old name for backwards compatibility
+pmID
 pmid_build(domain, cluster, item)
 	unsigned int	domain;
 	unsigned int	cluster;
 	unsigned int	item;
     CODE:
-	RETVAL = pmid_build(domain, cluster, item);
+	RETVAL = pmID_build(domain, cluster, item);
     OUTPUT:
 	RETVAL
 

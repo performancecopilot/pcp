@@ -124,7 +124,7 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
 	return PM_ERR_INST;
 
     if (zps->vdev_stats_fresh) {
-	switch (pmid_item(md->md_desc.pmid)) {
+	switch (pmID_item(md->md_desc.pmid)) {
 	case 0: /* zpool.state */
 	    atom->cp = zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
 	    break;

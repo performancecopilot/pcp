@@ -139,7 +139,7 @@ disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
     pmID	pmid;
     __uint64_t	val;
 
-    pmid = pmid_build(0, pmid_cluster(mdesc->m_desc.pmid), pmid_item(mdesc->m_desc.pmid));
+    pmid = pmID_build(0, pmID_cluster(mdesc->m_desc.pmid), pmID_item(mdesc->m_desc.pmid));
 
 // from kstat_io_t ...
 //
@@ -307,7 +307,7 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
     }
 
     if (offset == -1) {
-	if (pmid_item(mdesc->m_desc.pmid) == 35) { /* hinv.disk.devlink */
+	if (pmID_item(mdesc->m_desc.pmid) == 35) { /* hinv.disk.devlink */
 	    return fetch_disk_devlink(ctl->ksp, atom);
 	}
 	if (!fetch_disk_data(kc, mdesc, ctl, diskname))
@@ -377,7 +377,7 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     int	i;
     pmInDom dindom = indomtab[DISK_INDOM].it_indom;
 
-    if (pmid_item(mdesc->m_desc.pmid) == 20) { /* hinv.ndisk */
+    if (pmID_item(mdesc->m_desc.pmid) == 20) { /* hinv.ndisk */
 	i = pmdaCacheOp(dindom, PMDA_CACHE_SIZE_ACTIVE);
 	if (i < 0) {
 		return 0;

@@ -39,7 +39,7 @@ main(int argc, char **argv)
     check(sts, "pmiSetTimezone");
 
     printf("Checking metric name: \"%s\" ...\n", argv[1]);
-    sts = pmiAddMetric(argv[1], pmid_build(245,0,1),
+    sts = pmiAddMetric(argv[1], pmID_build(245,0,1),
 				PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 				pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
     check(sts, "pmiAddMetric");

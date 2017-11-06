@@ -1154,8 +1154,8 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return 1;
     }
 
-    item = pmid_item(mdesc->m_desc.pmid);
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    item = pmID_item(mdesc->m_desc.pmid);
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_LOADAVG:	return fetch_loadavg(item, inst, atom);
     case CLUSTER_CPULOAD:	return fetch_cpuload(item, atom);
     case CLUSTER_VMSTAT:	return fetch_vmstat(item, inst, atom);
@@ -1191,7 +1191,7 @@ darwin_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int	i, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	unsigned int	cluster = pmID_cluster(pmidlist[i]);
 	if (cluster >= 0 && cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }

@@ -38,9 +38,9 @@ ids(void)
     int		i;
 
     for (i = 0; i < sizeof(data)/sizeof(data[0]); i++) {
-	if (PMDA_PMID(data[i].cluster,data[i].item) != pmid_build(0,data[i].cluster,data[i].item)) {
+	if (PMDA_PMID(data[i].cluster,data[i].item) != pmID_build(0,data[i].cluster,data[i].item)) {
 	    fprintf(stderr, "botch: PMDA_PMID(%d,%d) -> %x", data[i].cluster, data[i].item, PMDA_PMID(data[i].cluster,data[i].item));
-	    fprintf(stderr, " pmid_build(0,%d,%d) -> %x\n", data[i].cluster, data[i].item, pmid_build(0,data[i].cluster,data[i].item));
+	    fprintf(stderr, " pmID_build(0,%d,%d) -> %x\n", data[i].cluster, data[i].item, pmID_build(0,data[i].cluster,data[i].item));
 	}
 	printf("PMDA_PMID: %d,%d = %d\n", data[i].cluster, data[i].item, PMDA_PMID(data[i].cluster,data[i].item));
     }

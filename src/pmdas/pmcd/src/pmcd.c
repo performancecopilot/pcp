@@ -376,10 +376,10 @@ init_tables(int dom)
 
     /* merge performance domain ID part into PMIDs in pmDesc table */
     for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
-	unsigned int	cluster = pmid_cluster(desctab[i].pmid);
-	unsigned int	item = pmid_item(desctab[i].pmid);
+	unsigned int	cluster = pmID_cluster(desctab[i].pmid);
+	unsigned int	item = pmID_item(desctab[i].pmid);
 
-	desctab[i].pmid = pmid_build(dom, cluster, item);
+	desctab[i].pmid = pmID_build(dom, cluster, item);
 	if (cluster == 0 && item == 8)
 	    desctab[i].indom = regindom;
 	else if (cluster == 0 && (item == 18 || item == 19))
@@ -1355,8 +1355,8 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	valfmt = -1;
 	sts = 0;
 	
-	cluster = pmid_cluster(pmidlist[i]);
-	item = pmid_item(pmidlist[i]);
+	cluster = pmID_cluster(pmidlist[i]);
+	item = pmID_item(pmidlist[i]);
 
 	switch (cluster) {
 
@@ -1825,8 +1825,8 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	unsigned int	item;
 
 	vsp = result->vset[i];
-	cluster = pmid_cluster(vsp->pmid);
-	item = pmid_item(vsp->pmid);
+	cluster = pmID_cluster(vsp->pmid);
+	item = pmID_item(vsp->pmid);
 
 	if (cluster == 0) {
 	    if (item == 0) {	/* pmcd.control.debug */

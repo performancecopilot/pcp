@@ -40,7 +40,7 @@ disk_total_derived(pmdaMetric *mdesc, int inst)
     __uint64_t  val;
                                                                                 
     pmid = mdesc->m_desc.pmid;
-    pmid_build(0, pmid_cluster(pmid), pmid_item(pmid));
+    pmID_build(0, pmID_cluster(pmid), pmID_item(pmid));
 
     switch (pmid) {
 	case PMDA_PMID(0,49):	/* disk.all.total_bytes */

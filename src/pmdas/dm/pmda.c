@@ -359,7 +359,7 @@ dm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	unsigned int	cluster = pmID_cluster(pmidlist[i]);
 	if (cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }
@@ -376,14 +376,14 @@ dm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     struct cache_stats *cache;
     struct pool_stats *pool;
     struct vol_stats *vol;
     struct pm_wrap *pw;
     int sts;
 
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
         case CLUSTER_CACHE:
             sts = pmdaCacheLookup(dm_indom(DM_CACHE_INDOM), inst, NULL, (void **)&cache);
             if (sts < 0)

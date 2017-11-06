@@ -1720,11 +1720,11 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    pmidlist[0] = pmid_build(0, 0, 0);
-    pmidlist[1] = pmid_build(123, 456, 789);
-    pmidlist[2] = pmid_build(255, 0, 0);
-    pmidlist[3] = pmid_build(0, 4095, 0);
-    pmidlist[4] = pmid_build(0, 0, 1023);
+    pmidlist[0] = pmID_build(0, 0, 0);
+    pmidlist[1] = pmID_build(123, 456, 789);
+    pmidlist[2] = pmID_build(255, 0, 0);
+    pmidlist[3] = pmID_build(0, 4095, 0);
+    pmidlist[4] = pmID_build(0, 0, 1023);
     pmidlist[5] = PM_ID_NULL;
 
     for (pass = 0; pass < iter; pass++) {

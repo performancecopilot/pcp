@@ -113,7 +113,7 @@ cache_value_metadata(SOURCE *sp, metric_t *metric, value_t *value)
 		    "\"semantics\":%u,\"type\":%u,\"units\":%u},"
 		"\"inst\":{\"id\":0,\"name\":null},"
 		"\"label\":%s}",
-		pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid),
+		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
 		desc->sem, desc->type, *(unsigned int *)&desc->units,
 		value_labels(metric, value))
 	:
@@ -122,7 +122,7 @@ cache_value_metadata(SOURCE *sp, metric_t *metric, value_t *value)
 		    "\"semantics\":%u,\"serial\":%u,\"type\":%u,\"units\":%u},"
 		"\"inst\":{\"id\":%u,\"name\":%s},"
 		"\"label\":%s}",
-		pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid),
+		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
 		desc->sem, pmInDom_serial(desc->indom), desc->type,
 		*(unsigned int *)&desc->units, value_instid(value),
 		value_instname(value), value_labels(metric, value));
@@ -376,14 +376,14 @@ new_cluster(SOURCE *sp, int cluster, domain_t *domain)
 	if (sp->verbose)
 	    fprintf(stderr,
 		    "%s: failed to get cluster (%u.%u) labels: %s\n",
-		    pmGetProgname(), pmid_domain(cluster), pmid_cluster(cluster),
+		    pmGetProgname(), pmID_domain(cluster), pmID_cluster(cluster),
 		    pmErrStr(sts));
 	/* continue on with no labels for this cluster */
     }
     if (__pmHashAdd(cluster, (void *)clusterp, &sp->clusterhash) < 0) {
 	fprintf(stderr,
 		"%s: failed to store cluster labels (cluster=%u.%u): %s\n",
-		pmGetProgname(), pmid_domain(cluster), pmid_cluster(cluster),
+		pmGetProgname(), pmID_domain(cluster), pmID_cluster(cluster),
 		pmErrStr(sts));
     }
     return clusterp;
@@ -457,12 +457,12 @@ new_metric(SOURCE	*sp,
     }
 
     /* pick out domain#, indom# and cluster# and update label caches */
-    domain = pmid_domain(pmid);
+    domain = pmID_domain(pmid);
     if ((hptr = __pmHashSearch(domain, &sp->domainhash)) != NULL)
 	dp = (domain_t *)hptr->data;
     else
 	dp = new_domain(sp, domain, &sp->context);
-    cluster = pmid_build(domain, pmid_cluster(pmid), 0);
+    cluster = pmID_build(domain, pmID_cluster(pmid), 0);
     if ((hptr = __pmHashSearch(cluster, &sp->clusterhash)) != NULL)
 	cp = (cluster_t *)hptr->data;
     else

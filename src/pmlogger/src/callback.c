@@ -17,9 +17,9 @@
 
 int	last_log_offset;
 
-#define IS_DERIVED_LOGGED(x) (pmid_domain(x) == DYNAMIC_PMID && (pmid_cluster(x) & 2048) == 2048 && pmid_item(x) != 0)
-#define SET_DERIVED_LOGGED(x) pmid_build(pmid_domain(x), 2048 | pmid_cluster(x), pmid_item(x))
-#define CLEAR_DERIVED_LOGGED(x) pmid_build(pmid_domain(x), ~2048 & pmid_cluster(x), pmid_item(x))
+#define IS_DERIVED_LOGGED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 2048 && pmID_item(x) != 0)
+#define SET_DERIVED_LOGGED(x) pmID_build(pmID_domain(x), 2048 | pmID_cluster(x), pmID_item(x))
+#define CLEAR_DERIVED_LOGGED(x) pmID_build(pmID_domain(x), ~2048 & pmID_cluster(x), pmID_item(x))
 
 /*
  * pro tem, we have a single context with the pmcd providing the
@@ -322,9 +322,9 @@ manageLabels(pmDesc *desc, const __pmTimeval *tp, int only_instances)
 	    ident = desc->indom;
 	}
 	else if (type == PM_LABEL_DOMAIN)
-	    ident = pmid_domain(desc->pmid);
+	    ident = pmID_domain(desc->pmid);
 	else if (type == PM_LABEL_CLUSTER)
-	    ident = pmid_build(pmid_domain(ident), pmid_cluster(ident), 0);
+	    ident = pmID_build(pmID_domain(ident), pmID_cluster(ident), 0);
 	else if (type == PM_LABEL_ITEM)
 	    ident = desc->pmid;
 	else

@@ -22,7 +22,7 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
     static int		indom = 0;
     static __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
 
-    pmid = pmid_build(pmid_d, 0, pmid_i);
+    pmid = pmID_build(pmid_d, 0, pmid_i);
 
     indomp->flag = 0;
     indomp->domain = indom_d;

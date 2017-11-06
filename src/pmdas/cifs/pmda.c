@@ -276,8 +276,8 @@ cifs_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	if (pmid_cluster(pmidlist[i]) < NUM_CLUSTERS)
-	    need_refresh[pmid_cluster(pmidlist[i])]++;
+	if (pmID_cluster(pmidlist[i]) < NUM_CLUSTERS)
+	    need_refresh[pmID_cluster(pmidlist[i])]++;
     }
 
     if ((sts = cifs_fetch_refresh(pmda, need_refresh)) < 0)
@@ -295,15 +295,15 @@ cifs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     struct cifs_fs *fs;
     int sts;
 
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_GLOBAL_STATS:
-        return cifs_global_stats_fetch(pmid_item(mdesc->m_desc.pmid), atom);
+        return cifs_global_stats_fetch(pmID_item(mdesc->m_desc.pmid), atom);
 
     case CLUSTER_FS_STATS:
 	sts = pmdaCacheLookup(INDOM(CIFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
-	return cifs_fs_stats_fetch(pmid_item(mdesc->m_desc.pmid), &fs->fs_stats, atom);
+	return cifs_fs_stats_fetch(pmID_item(mdesc->m_desc.pmid), &fs->fs_stats, atom);
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;

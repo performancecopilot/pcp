@@ -645,8 +645,8 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
    lm87 sensor87;
    lm79 sensor79;
    lm75 sensor75;
-   unsigned int cluster = pmid_cluster(mdesc->m_desc.pmid);
-   unsigned int item = pmid_item(mdesc->m_desc.pmid);
+   unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
+   unsigned int item = pmID_item(mdesc->m_desc.pmid);
 
     if (cluster > 5)
 	return PM_ERR_PMID;

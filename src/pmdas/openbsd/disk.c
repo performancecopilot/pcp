@@ -121,7 +121,7 @@ do_disk_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts == PMDA_CACHE_ACTIVE) {
 	    sts = 1;
 	    /* cluster and domain already checked, just need item ... */
-	    switch (pmid_item(mdesc->m_desc.pmid)) {
+	    switch (pmID_item(mdesc->m_desc.pmid)) {
 		case 0:		/* disk.dev.read */
 		    atom->ull = sp->ds_rxfer;
 		    break;
@@ -166,7 +166,7 @@ do_disk_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (!pmdaCacheLookup(indomtab[DISK_INDOM].it_indom, l_inst, NULL, (void **)&sp))
 		continue;
 	    /* cluster and domain already checked, just need item ... */
-	    switch (pmid_item(mdesc->m_desc.pmid)) {
+	    switch (pmID_item(mdesc->m_desc.pmid)) {
 		case 6:		/* disk.all.read */
 		    atom->ull += sp->ds_rxfer;
 		    break;

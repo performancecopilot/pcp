@@ -539,8 +539,8 @@ int
 ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmInDom_int *ind = (__pmInDom_int *)&(mdesc->m_desc.indom);
-    unsigned int cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int	rv = 1; 
     port_state_t *pst = NULL;
     hca_state_t *hca = NULL;
@@ -1022,7 +1022,7 @@ ib_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet *vs = result->vset[i];
 	int inst;
 
-	if (pmid_cluster(vs->pmid) != 2) {
+	if (pmID_cluster(vs->pmid) != 2) {
 	    return (-EACCES);
 	}
 
@@ -1034,7 +1034,7 @@ ib_store(pmResult *result, pmdaExt *pmda)
 	    int id = vs->vlist[inst].inst;
 	    void *closure = NULL;
 
-	    switch (pmid_item(vs->pmid)) {
+	    switch (pmID_item(vs->pmid)) {
 	    case METRIC_ib_control_query_timeout:
 		if (pmdaCacheLookup (pmda->e_indoms[IB_PORT_INDOM].it_indom,
 				     id, NULL, &closure) == PMDA_CACHE_ACTIVE) {

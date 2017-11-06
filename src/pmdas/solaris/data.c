@@ -1429,7 +1429,7 @@ init_data(int domain)
     for (i = 0; i < metrictab_sz; i++) {
 	metrictab[i].m_user = &metricdesc[i];
 	metrictab[i].m_desc = metricdesc[i].md_desc;
-	metricdesc[i].md_desc.pmid = pmid_build(domain, pmid_cluster(metricdesc[i].md_desc.pmid), pmid_item(metricdesc[i].md_desc.pmid));
+	metricdesc[i].md_desc.pmid = pmID_build(domain, pmID_cluster(metricdesc[i].md_desc.pmid), pmID_item(metricdesc[i].md_desc.pmid));
 
 	if (metricdesc[i].md_desc.indom != PM_INDOM_NULL) {
 	    serial = metricdesc[i].md_desc.indom;

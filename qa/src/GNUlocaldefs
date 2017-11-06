@@ -639,7 +639,7 @@ scale.o:	localconfig.h
 
 hex2nbo.o:	libpcp.h
 
-libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
+libpcp.h:
 	cp $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h
 
 bozo:

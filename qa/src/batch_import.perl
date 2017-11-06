@@ -36,7 +36,7 @@ check($_, "pmiSetTimezone");
 $_ = pmiUseContext($ctx1);
 check($_, "pmiUseContext");
 
-$_ = pmiAddMetric("my.metric.foo", pmid_build(PMI_DOMAIN,0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
+$_ = pmiAddMetric("my.metric.foo", pmID_build(PMI_DOMAIN,0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
 check($_, "pmiAddMetric");
 $_ = pmiAddMetric("my.metric.bar", PM_ID_NULL, PM_TYPE_U64, pmInDom_build(PMI_DOMAIN,1), PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
 check($_, "pmiAddMetric");

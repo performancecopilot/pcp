@@ -5704,8 +5704,8 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 static int
 linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     int			i;
     int			sts;
     long		sl;
@@ -7583,8 +7583,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	cluster = pmid_cluster(pmidlist[i]);
-	unsigned int	item = pmid_item(pmidlist[i]);
+	unsigned int	cluster = pmID_cluster(pmidlist[i]);
+	unsigned int	item = pmID_item(pmidlist[i]);
 
 	if (cluster >= NUM_CLUSTERS)
 	    continue;
@@ -7809,8 +7809,8 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 static int
 linux_labelItem(pmID pmid, pmLabelSet **lp)
 {
-    unsigned int	cluster = pmid_cluster(pmid);
-    unsigned int	item = pmid_item(pmid);
+    unsigned int	cluster = pmID_cluster(pmid);
+    unsigned int	item = pmID_item(pmid);
     int			sts;
 
     switch (cluster) {
@@ -8078,8 +8078,8 @@ linux_init(pmdaInterface *dp)
 	}
     }
     for (i = 0; i < sizeof(metrictab)/sizeof(pmdaMetric); i++) {
-	if (pmid_cluster(metrictab[i].m_desc.pmid) == CLUSTER_STAT) {
-	    switch (pmid_item(metrictab[i].m_desc.pmid)) {
+	if (pmID_cluster(metrictab[i].m_desc.pmid) == CLUSTER_STAT) {
+	    switch (pmID_item(metrictab[i].m_desc.pmid)) {
 	    case 0:	/* kernel.percpu.cpu.user */
 	    case 1:	/* kernel.percpu.cpu.nice */
 	    case 2:	/* kernel.percpu.cpu.sys */
@@ -8133,7 +8133,7 @@ linux_init(pmdaInterface *dp)
 	}
 	if (metrictab[i].m_desc.type == PM_TYPE_NOSUPPORT)
 	    fprintf(stderr, "Bad kernel metric descriptor type (%u.%u)\n",
-			    pmid_cluster(metrictab[i].m_desc.pmid), pmid_item(metrictab[i].m_desc.pmid));
+			    pmID_cluster(metrictab[i].m_desc.pmid), pmID_item(metrictab[i].m_desc.pmid));
     }
 
     nindoms = sizeof(indomtab)/sizeof(indomtab[0]);

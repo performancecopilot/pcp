@@ -624,7 +624,7 @@ is_partitions_metric(pmID full_pmid)
     pmID		pmid;
     int			n = sizeof(disk_metric_table) / sizeof(disk_metric_table[0]);
 
-    pmid = PMDA_PMID(pmid_cluster(full_pmid), pmid_item(full_pmid));
+    pmid = PMDA_PMID(pmID_cluster(full_pmid), pmID_item(full_pmid));
 
     /* fast test for same matched metric as last time */
     if (p && *p == pmid)
@@ -705,8 +705,8 @@ unknown:
 int
 proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     int                 i;
     partitions_entry_t	*p = NULL;
 

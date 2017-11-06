@@ -416,7 +416,7 @@ init_data(int domain)
 	metrictab[i].m_user = &metricdesc[i];
 	metrictab[i].m_desc = metricdesc[i].md_desc;
 	pmid = metricdesc[i].md_desc.pmid;
-	metricdesc[i].md_desc.pmid = pmid_build(domain, pmid_cluster(pmid), pmid_item(pmid));
+	metricdesc[i].md_desc.pmid = pmID_build(domain, pmID_cluster(pmid), pmID_item(pmid));
 	if (metricdesc[i].md_desc.indom != PM_INDOM_NULL) {
 	    serial = metricdesc[i].md_desc.indom;
 	    iip = (__pmInDom_int *)&metricdesc[i].md_desc.indom;

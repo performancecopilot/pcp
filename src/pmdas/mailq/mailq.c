@@ -112,14 +112,14 @@ mailq_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     int		b;
 
-    if (pmid_cluster(mdesc->m_desc.pmid) == 0) {
-	if (pmid_item(mdesc->m_desc.pmid) == 0) {	/* mailq.length */
+    if (pmID_cluster(mdesc->m_desc.pmid) == 0) {
+	if (pmID_item(mdesc->m_desc.pmid) == 0) {	/* mailq.length */
 	    if (inst == PM_IN_NULL)
 		atom->ul = queue;
 	    else
 		return PM_ERR_INST;
 	}
-	else if (pmid_item(mdesc->m_desc.pmid) == 1) {	/* mailq.deferred */
+	else if (pmID_item(mdesc->m_desc.pmid) == 1) {	/* mailq.deferred */
 	    /* inst is unsigned, so always >= 0 */
 	    for (b = 0; b < numhisto; b++) {
 		if (histo[b].delay == inst) break;

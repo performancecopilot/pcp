@@ -806,7 +806,7 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	unsigned int	cluster = pmID_cluster(pmidlist[i]);
 	if (cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }
@@ -822,11 +822,11 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     struct gfs2_fs	*fs;
     int			sts;
 
-    switch (pmid_cluster(mdesc->m_desc.pmid)) {
+    switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_GLOCKS:
 	sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
@@ -937,8 +937,8 @@ gfs2_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet	*vsp;
 
 	vsp = result->vset[i];
-	cluster = pmid_cluster(vsp->pmid);
-	item = pmid_item(vsp->pmid);
+	cluster = pmID_cluster(vsp->pmid);
+	item = pmID_item(vsp->pmid);
 
 	if (cluster == CLUSTER_CONTROL && item <= CONTROL_BUFFER_SIZE_KB) {
             sts = gfs2_control_set_value(control_locations[item], vsp);

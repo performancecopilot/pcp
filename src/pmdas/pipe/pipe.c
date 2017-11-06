@@ -108,7 +108,7 @@ static int
 pipe_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     struct pipe_command	*pc;
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     int			context, queue = -1, sts;
 
     context = pmdaGetContext();
@@ -179,7 +179,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet	*vsp = result->vset[i];
 
-	if (pmid_item(vsp->pmid) != PIPE_FIREHOSE)
+	if (pmID_item(vsp->pmid) != PIPE_FIREHOSE)
 	    return PM_ERR_PERMISSION;
 	if (vsp->numval != 1)
 	    return PM_ERR_BADSTORE;

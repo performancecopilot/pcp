@@ -13,7 +13,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
     pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
     pmiWrite pmiPutMark pmiDump pmiErrStr pmiUnits pmiID pmiInDom
-    pmid_build pmInDom_build
+    pmID_build pmid_build pmInDom_build
     pmiBatchPutValue pmiBatchPutValueHandle pmiBatchWrite pmiBatchEnd
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE

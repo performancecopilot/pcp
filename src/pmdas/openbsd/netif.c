@@ -222,7 +222,7 @@ do_netif_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts == PMDA_CACHE_ACTIVE) {
 	    sts = 1;
 	    /* cluster and domain already checked, just need item ... */
-	    switch (pmid_item(mdesc->m_desc.pmid)) {
+	    switch (pmID_item(mdesc->m_desc.pmid)) {
 		case 0:		/* network.interface.mtu */
 		    atom->ull = ifm->ifm_data.ifi_mtu;
 		    break;
@@ -305,7 +305,7 @@ do_netif_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 *
 	 * cluster and domain already checked, just need item ...
 	 */
-	switch (pmid_item(mdesc->m_desc.pmid)) {
+	switch (pmID_item(mdesc->m_desc.pmid)) {
 	    case 17:		/* hinv.interface */
 		atom->ul = valid;
 		sts = 1;

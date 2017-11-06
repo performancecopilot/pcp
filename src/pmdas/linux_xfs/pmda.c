@@ -1352,8 +1352,8 @@ xfs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 static int
 xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     unsigned long long 	offset;
     struct sysfs_xfs	*xfs;
     struct filesys	*fs;
@@ -1488,7 +1488,7 @@ xfs_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
-	unsigned int	cluster = pmid_cluster(pmidlist[i]);
+	unsigned int	cluster = pmID_cluster(pmidlist[i]);
 	if (cluster >= MIN_CLUSTER && cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }
@@ -1504,11 +1504,11 @@ xfs_text(int ident, int type, char **buf, pmdaExt *pmda)
 	pmID	pmid = (pmID)ident;
 
 	/* share per-device help text with globals */
-	if (pmid_cluster(pmid) == CLUSTER_PERDEV) {
-	    if (pmid_item(pmid) >= 140 && pmid_item(pmid) <= 148)
-		ident = (int)pmid_build(pmid_domain(pmid), CLUSTER_XFSBUF, pmid_item(pmid));
+	if (pmID_cluster(pmid) == CLUSTER_PERDEV) {
+	    if (pmID_item(pmid) >= 140 && pmID_item(pmid) <= 148)
+		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFSBUF, pmID_item(pmid));
 	    else
-		ident = (int)pmid_build(pmid_domain(pmid), CLUSTER_XFS, pmid_item(pmid));
+		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFS, pmID_item(pmid));
 	}
     }
     return pmdaText(ident, type, buf, pmda);
@@ -1548,7 +1548,7 @@ xfs_store(pmResult *result, pmdaExt *pmda)
     for (i = 0; i < result->numpmid && !sts; i++) {
 	vsp = result->vset[i];
 
-	if (pmid_cluster(vsp->pmid) == CLUSTER_XFS && pmid_item(vsp->pmid) == 79) {
+	if (pmID_cluster(vsp->pmid) == CLUSTER_XFS && pmID_item(vsp->pmid) == 79) {
 	    if ((sts = xfs_zero(vsp)) < 0)
 		break;
 	} else {

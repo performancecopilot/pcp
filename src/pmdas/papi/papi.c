@@ -165,8 +165,8 @@ papi_endContextCallBack(int context)
 static int
 papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int cluster = pmid_cluster(mdesc->m_desc.pmid);
-    unsigned int item = pmid_item(mdesc->m_desc.pmid);
+    unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int sts;
     int i;
     int state;
@@ -301,8 +301,8 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
         time_t now = time (NULL);
 
         for (i=0; i<numpmid; i++) {
-	    unsigned int item = pmid_item(pmidlist[i]);
-            if (pmid_cluster(pmidlist[i]) == CLUSTER_PAPI) {
+	    unsigned int item = pmID_item(pmidlist[i]);
+            if (pmID_cluster(pmidlist[i]) == CLUSTER_PAPI) {
 		if (item >= 0 && item <= number_of_events) {
                     if (papi_info[item].position < 0) { // new counter?
 			need_refresh_p = 1;
@@ -329,7 +329,7 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
        pcp metrics, we do this only for CLUSTER_PAPI pmids.  This is
        independent of auto-enable mode. */
     for (i=0; i<numpmid; i++) {
-        if (pmid_cluster(pmidlist[i]) == CLUSTER_PAPI) {
+        if (pmID_cluster(pmidlist[i]) == CLUSTER_PAPI) {
             sts = check_papi_state();
             if (sts & PAPI_RUNNING) {
                 sts = PAPI_read(EventSet, values);
@@ -344,7 +344,7 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     sts = 0; /* clear out any PAPI remnant flags */
 
     for (i = 0; i < numpmid; i++) {
-	if (pmid_cluster(pmidlist[i]) != CLUSTER_AVAILABLE)
+	if (pmID_cluster(pmidlist[i]) != CLUSTER_AVAILABLE)
 	    sts = 1;
     }
     if (sts == 0 || permission_check(pmda->e_context))
@@ -532,11 +532,11 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet *vsp = result->vset[i];
 	pmAtomValue av;
 
-	if (pmid_cluster(vsp->pmid) != CLUSTER_CONTROL) {
+	if (pmID_cluster(vsp->pmid) != CLUSTER_CONTROL) {
 	    sts2 = PM_ERR_PERMISSION;
 	    continue;
 	}
-	switch (pmid_item(vsp->pmid)) {
+	switch (pmID_item(vsp->pmid)) {
 	case CONTROL_ENABLE:
 	case CONTROL_DISABLE: // NB: almost identical handling!
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
@@ -549,7 +549,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			papi_info[j].metric_enabled =
-			    (pmid_item(vsp->pmid) == CONTROL_ENABLE) ? METRIC_ENABLED_FOREVER : 0;
+			    (pmID_item(vsp->pmid) == CONTROL_ENABLE) ? METRIC_ENABLED_FOREVER : 0;
 			break;
 		    }
 		}
@@ -617,7 +617,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
     int sts = PM_ERR_PMID; // presume fail; switch statements fall through to this
 
-    switch (pmid_cluster(pmid)) {
+    switch (pmID_cluster(pmid)) {
     case CLUSTER_PAPI:
 	desc->pmid = pmid;
 	desc->type = PM_TYPE_64;
@@ -628,7 +628,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	break;
 
     case CLUSTER_CONTROL:
-	switch (pmid_item(pmid)) {
+	switch (pmID_item(pmid)) {
 	case CONTROL_ENABLE:
 	case CONTROL_RESET:
 	case CONTROL_DISABLE:
@@ -660,7 +660,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	break;
 
     case CLUSTER_AVAILABLE:
-	switch (pmid_item(pmid)) {
+	switch (pmID_item(pmid)) {
 	case AVAILABLE_NUM_COUNTERS:
 	    desc->pmid = pmid;
 	    desc->type = PM_TYPE_U32;
@@ -694,12 +694,12 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
     if ((type & PM_TEXT_PMID) != PM_TEXT_PMID)
 	return PM_ERR_TEXT;
 
-    if (pmid_cluster(pmid) == CLUSTER_PAPI) {
-	if (pmid_item(pmid) >= 0 && pmid_item(pmid) < number_of_events) {
+    if (pmID_cluster(pmid) == CLUSTER_PAPI) {
+	if (pmID_item(pmid) >= 0 && pmID_item(pmid) < number_of_events) {
 	    if (type & PM_TEXT_ONELINE)
-		*buffer = papi_info[pmid_item(pmid)].info.short_descr;
+		*buffer = papi_info[pmID_item(pmid)].info.short_descr;
 	    else
-		*buffer = papi_info[pmid_item(pmid)].info.long_descr;
+		*buffer = papi_info[pmID_item(pmid)].info.long_descr;
 	    return 0;
 	}
 	else
@@ -770,7 +770,7 @@ papi_internal_init(pmdaInterface *dp)
 		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
 		memcpy(&papi_info[i].papi_string_code, info.symbol + 5, strlen(info.symbol)-5);
 		pmsprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
-		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
+		pmid = pmID_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
 		__pmAddPMNSNode(papi_tree, pmid, entry);
 		memset(&entry[0], 0, sizeof(entry));
@@ -831,7 +831,7 @@ papi_internal_init(pmdaInterface *dp)
 			    sizeof(papi_info[i].papi_string_code) - 1);
 		}
 		pmsprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
-		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
+		pmid = pmID_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
 		__pmAddPMNSNode(papi_tree, pmid, entry);
 		memset(&entry[0], 0, sizeof(entry));

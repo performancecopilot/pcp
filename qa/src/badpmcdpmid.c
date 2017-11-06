@@ -16,7 +16,7 @@ main()
     pmResult	*rp;
     int		sts;
 
-    pmid = pmid_build(2, 13, 0);	/* pmcd.<bogusmetric> */
+    pmid = pmID_build(2, 13, 0);	/* pmcd.<bogusmetric> */
 
     sts = pmNewContext(PM_CONTEXT_HOST, "localhost");
     if (sts < 0) {
