@@ -91,9 +91,16 @@ fi
 
 if $HAVE_BOOST
 then
-    echo "s/?{libboost-dev},/libboost-dev,/" >>$tmp.sed
+    echo "s/?{libboost-dev}/libboost-dev,/" >>$tmp.sed
 else
-    echo "s/?{libboost-dev},//" >>$tmp.sed
+    echo "s/?{libboost-dev}//" >>$tmp.sed
+fi
+
+if [ -n "$LIB_FOR_LZMA" ]
+then
+    echo "s/?{liblzma-dev}/liblzma-dev,/" >>$tmp.sed
+else
+    echo "s/?{liblzma-dev}//" >>$tmp.sed
 fi
 
 sed -f $tmp.sed <control.master
