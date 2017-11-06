@@ -9,16 +9,16 @@ and an extensive ToDo[14] list.  Contributions welcome!
  [2] https://research.google.com/pubs/pub43438.html
  [3] https://prometheus.io
  [4] https://prometheus.io/docs/querying/basics/
- [5] https://github.com/performancecopilot/pcp/tree/pcp-4
- [6] https://github.com/performancecopilot/pcp/tree/pcp-4/src/pmseries
+ [5] https://github.com/performancecopilot/pcp/tree/master
+ [6] https://github.com/performancecopilot/pcp/tree/master/src/pmseries
  [7] https://gist.github.com/natoscott/1bada43f35acf3cbfcb6167ceec6cd65
  [8] https://gist.github.com/natoscott/71769e4e08966b5887b3b48e24becaf5
  [9] https://gist.github.com/natoscott/b26089838b93b22b04ee8633d581d5a6
 [10] https://gist.github.com/natoscott/e03efe89e40f29bc484df68de92829f7
-[11] https://github.com/performancecopilot/pcp/tree/pcp-4/src/pmseries/ident.txt
-[12] https://github.com/performancecopilot/pcp/tree/pcp-4/src/pmseries/query.txt
-[13] https://github.com/performancecopilot/pcp/tree/pcp-4/src/pmseries/schema.svg
-[14] https://github.com/performancecopilot/pcp/tree/pcp-4/src/pmseries/TODO
+[11] https://github.com/performancecopilot/pcp/tree/master/src/pmseries/ident.txt
+[12] https://github.com/performancecopilot/pcp/tree/master/src/pmseries/query.txt
+[13] https://github.com/performancecopilot/pcp/tree/master/src/pmseries/schema.svg
+[14] https://github.com/performancecopilot/pcp/tree/master/src/pmseries/TODO
 [15] https://github.com/redis/hiredis
 [16] https://redis.io/topics/data-types-intro
 
@@ -147,8 +147,8 @@ is needed to ensure fast and reliabile access.
 == Prototype
 
 An early implementation of several of these concepts has been
-committed to the pcp-4 branch of the PCP tree on github.  It
-is implemented using the Redis NoSQL in-memory data store,
+committed to the current master branch of the PCP tree on github.
+It is implemented using the Redis NoSQL in-memory data store,
 internally.  The above concepts are generic so an alternative
 could conceivably be "plugged in" but so far Redis is working
 out extremely well.
@@ -172,7 +172,7 @@ of the time series keys in mind.  It follows the key naming
 conventions recommended in the Redis community.
 
 Building the prototype requires a hiredis[15,16] development
-package to be installed locally - configure.ac in the pcp-4
+package to be installed locally - configure.ac in the master
 branch checks for this.
 
 

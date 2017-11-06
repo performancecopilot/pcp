@@ -54,7 +54,7 @@ kernel.all.load{app: "maps"}[interval: 10, samples: 3]
 }
 
 
-kernel.all.load {hostname == "www.acme.com, inst.name ~= '1 min*'}
+kernel.all.load {hostname == "www.acme.com", inst.name ~= '1 min*'}
 
 { "result": "scalar",
   "series": [
