@@ -1,0 +1,59 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMID_HELPER 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmid_build\f1,
+\f3pmid_domain\f1,
+\f3pmid_cluster\f1,
+\f3pmid_item\f1 \- helper methods for manipulating PMIDs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+pmID pmid_build(unsigned int \fIdomain\fP, unsigned int \fIcluster\fP, unsigned int \fIitem\fP);
+.br
+unsigned int pmid_domain(pmID \fIpmid\fP);
+.br
+unsigned int pmid_cluster(pmID \fIpmid\fP);
+.br
+unsigned int pmid_item(pmID \fIpmid\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Within the Performance Co-Pilot (PCP) each metric is assigned a
+unique Performance Metric Identifier (pmID).
+Internally a pmID is constructed from 3 fields: the domain number
+(of the associated Performance Metrics Domain Agent, or PMDA),
+the cluster number and the item number (the last two are assigned by the PMDA).
+.PP
+.B build_pmid
+constructs a pmID from
+.IR domain ,
+.I cluster
+and
+.IR item .
+.PP
+.BR pmid_domain ,
+.B pmid_cluster
+and
+.B pmid_item
+return the respective fields from
+.IR pmid .
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmIDStr (3).

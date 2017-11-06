@@ -404,7 +404,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    if ((sts = pmLookupName(1, &name, &pmid_flags)) < 0) {
 		fprintf(stderr, "%s: Warning: failed to get PMID for %s: %s\n",
 			caller, name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		__pmid_int(&pmid_flags)->item = 1;
+		pmid_flags = pmid_build(pmid_domain(pmid_flags), pmid_cluster(pmid_flags), 1);
 	    }
 	}
 	vset->pmid = pmid_flags;
@@ -424,7 +424,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    if ((sts = pmLookupName(1, &name, &pmid_missed)) < 0) {
 		fprintf(stderr, "%s: Warning: failed to get PMID for %s: %s\n",
 			caller, name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		__pmid_int(&pmid_missed)->item = 1;
+		pmid_missed = pmid_build(pmid_domain(pmid_missed), pmid_cluster(pmid_missed), 1);
 	    }
 	}
 	vset->pmid = pmid_missed;

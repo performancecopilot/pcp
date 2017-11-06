@@ -213,7 +213,7 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n",
 			name_flags, pmErrStr(sts));
 	    /* avoid subsequent warnings ... */
-	    __pmid_int(&pmid_flags)->item = 1;
+	    pmid_flags = pmid_build(pmid_domain(pmid_flags), pmid_cluster(pmid_flags), 1);
 	}
 	sts = pmLookupName(1, &name_missed, &pmid_missed);
 	if (sts < 0) {
@@ -221,7 +221,7 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	    fprintf(stderr, "Warning: cannot get PMID for %s: %s\n",
 			name_missed, pmErrStr(sts));
 	    /* avoid subsequent warnings ... */
-	    __pmid_int(&pmid_missed)->item = 1;
+	    pmid_missed = pmid_build(pmid_domain(pmid_missed), pmid_cluster(pmid_missed), 1);
 	}
     }
 

@@ -46,11 +46,4 @@ typedef struct {
 #endif
 } __pmID_int;
 
-static inline __pmID_int *
-__pmid_int(pmID *idp)
-{
-    /* avoid gcc's warning about dereferencing type-punned pointers */
-    return (__pmID_int *)idp;
-}
-
 #endif /* PCP_LIBPCP_H */

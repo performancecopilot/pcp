@@ -19,12 +19,7 @@ pmid_build(domain, cluster, item)
 	unsigned int	cluster;
 	unsigned int	item;
     CODE:
-	pmID id;
-	__pmid_int(&id)->flag = 0;
-	__pmid_int(&id)->domain = domain;
-	__pmid_int(&id)->cluster = cluster;
-	__pmid_int(&id)->item = item;
-	RETVAL = id;
+	RETVAL = pmid_build(domain, cluster, item);
     OUTPUT:
 	RETVAL
 

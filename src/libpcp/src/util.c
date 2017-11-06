@@ -2752,21 +2752,24 @@ __pmDumpStack(FILE *f)
  */
 
 unsigned int
-pmid_item(pmID id)
+pmid_item(pmID pmid)
 {
-    return __pmid_int(&id)->item;
+    __pmID_int	*idp = (__pmID_int *)&pmid;
+    return idp->item;
 }
 
 unsigned int 
-pmid_cluster(pmID id)
+pmid_cluster(pmID pmid)
 {
-    return __pmid_int(&id)->cluster;
+    __pmID_int	*idp = (__pmID_int *)&pmid;
+    return idp->cluster;
 }
 
 unsigned int 
-pmid_domain(pmID id)
+pmid_domain(pmID pmid)
 {
-    return __pmid_int(&id)->domain;
+    __pmID_int	*idp = (__pmID_int *)&pmid;
+    return idp->domain;
 }
 
 pmID
