@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 
-# Last updated for: libvirt 3.8.0
+# Last updated for: libvirt 3.9.0
 
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
