@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "deprecated.h"
 #include "pmda.h"
 #include "stats.h"
 #include "pmcd/src/pmcd.h"

@@ -20,7 +20,7 @@
 #include "parse_events.h"
 #include <perfmon/pfmlib_perf_event.h>
 
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 #include <limits.h>
 #include <dirent.h>
 

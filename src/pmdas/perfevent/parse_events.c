@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 #include <dirent.h>
 
 #include "parse_events.h"
