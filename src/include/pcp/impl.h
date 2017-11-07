@@ -166,8 +166,6 @@ typedef struct {
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
 
-PCP_CALL extern int __pmParseDebug(const char *);
-PCP_CALL extern void __pmSetDebugBits(int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
@@ -315,8 +313,6 @@ PCP_CALL extern void __pmClearerr(__pmFILE *);
 PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
 
-typedef struct __pmnsTree __pmnsTree;	/* REMOVE when __pmLogCtl moves to libpcp.h */
-
 /*
  * Log/Archive Control
  */
@@ -344,7 +340,7 @@ typedef struct {
     __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
-    __pmnsTree	*l_pmns;        /* namespace from meta data */
+    pmnsTree_t	*l_pmns;        /* namespace from meta data */
     int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
