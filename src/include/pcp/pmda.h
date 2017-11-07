@@ -46,7 +46,6 @@ typedef struct __pmnsTree  pmdaNameSpace;
 typedef struct __pmHashCtl pmdaHashTable;
 typedef struct __pmProfile pmdaInProfile;
 typedef struct __pmInResult pmdaInResult;
-typedef struct __pmnsNode pmnsNode;
 
 /*
  * Instance description: index and name
@@ -625,7 +624,6 @@ PMDA_CALL extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
 PMDA_CALL extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
 PMDA_CALL extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
 PMDA_CALL extern int pmdaTreeSize(pmdaNameSpace *);
-PMDA_CALL extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
 
 /*
  * PMDA instance domain cache support
