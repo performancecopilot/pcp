@@ -155,7 +155,7 @@ PCP_PMDA_3.6 {
     __pmdaDecodeRootPDUStop;
 } PCP_PMDA_3.5;
 
-PCP_PMDA_3.7 {
+PCP_PMDA_4.0 {
   global:
     pmdaLabel;
     pmdaAddLabels;

@@ -588,7 +588,7 @@ PCP_3.21 {
     __pmProcessPipeClose;
 } PCP_3.20;
 
-PCP_3.22 {
+PCP_4.0 {
   global:
     pmGetContextLabels;
     pmGetDomainLabels;
