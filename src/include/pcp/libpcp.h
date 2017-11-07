@@ -66,6 +66,39 @@ typedef struct {
 } __pmInDom_int;
 
 /*
+ * Internal structure of a PMNS node
+ */
+typedef struct __pmnsNode {
+    struct __pmnsNode	*parent;
+    struct __pmnsNode	*next;
+    struct __pmnsNode	*first;
+    struct __pmnsNode	*hash;	/* used as "last" in build, then pmid hash synonym */
+    char		*name;
+    pmID		pmid;
+} __pmnsNode;
+
+/*
+ * Internal structure of a PMNS tree
+ */
+typedef struct __pmnsTree {
+    __pmnsNode		*root;  /* root of tree structure */
+    __pmnsNode		**htab; /* hash table of nodes keyed on pmid */
+    int			htabsize;     /* number of nodes in the table */
+    int			mark_state;   /* the total mark value for trimming */
+} __pmnsTree;
+
+/* used by pmnsmerge... */
+PCP_CALL extern __pmnsTree *__pmExportPMNS(void); 
+
+/* for PMNS in archives */
+PCP_CALL extern int __pmNewPMNS(__pmnsTree **);
+PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
+PCP_CALL extern void __pmUsePMNS(__pmnsTree *); /* for debugging */
+PCP_CALL extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
+PCP_CALL extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
+PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
+
+/*
  * For QA apps ...
  */
 PCP_CALL extern void __pmDumpDebug(FILE *);

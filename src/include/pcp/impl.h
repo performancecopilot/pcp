@@ -72,38 +72,6 @@ PCP_CALL extern int __pmGetInternalState(void);
 #define PMWEBD_PORT 44323
 #define PMWEBD_PROTOCOL "http"
 
-/*
- * internal structure of a PMNS node
- */
-typedef struct __pmnsNode {
-    struct __pmnsNode	*parent;
-    struct __pmnsNode	*next;
-    struct __pmnsNode	*first;
-    struct __pmnsNode	*hash;	/* used as "last" in build, then pmid hash synonym */
-    char		*name;
-    pmID		pmid;
-} __pmnsNode;
-
-/*
- * internal structure of a PMNS tree
- */
-typedef struct __pmnsTree {
-    __pmnsNode		*root;  /* root of tree structure */
-    __pmnsNode		**htab; /* hash table of nodes keyed on pmid */
-    int			htabsize;     /* number of nodes in the table */
-    int			mark_state;   /* the total mark value for trimming */
-} __pmnsTree;
-
-/* used by pmnsmerge... */
-PCP_CALL extern __pmnsTree *__pmExportPMNS(void); 
-
-/* for PMNS in archives */
-PCP_CALL extern int __pmNewPMNS(__pmnsTree **);
-PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
-PCP_CALL extern void __pmUsePMNS(__pmnsTree *); /* for debugging */
-PCP_CALL extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
-PCP_CALL extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
-
 /* helper routine to print all names of a metric */
 PCP_CALL extern void __pmPrintMetricNames(FILE *, int, char **, char *);
 
@@ -211,7 +179,6 @@ PCP_CALL extern void __pmFreeResultValues(pmResult *);
 PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
-PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_DATA extern int __pmLogReads;
 
@@ -347,6 +314,8 @@ PCP_CALL extern int __pmFerror(__pmFILE *);
 PCP_CALL extern void __pmClearerr(__pmFILE *);
 PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
+
+typedef struct __pmnsTree __pmnsTree;	/* REMOVE when __pmLogCtl moves to libpcp.h */
 
 /*
  * Log/Archive Control
