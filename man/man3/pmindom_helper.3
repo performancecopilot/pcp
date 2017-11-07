@@ -1,0 +1,54 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMINDOM_HELPER 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmInDom_build\f1,
+\f3pmInDom_domain\f1,
+\f3pmInDom_serial\f1 \- helper methods for manipulating instance domain identifiers
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+pmInDom pmInDom_build(unsigned int \fIdomain\fP, unsigned int \fIserial\fP);
+.br
+unsigned int pmInDom_domain(pmInDom \fIindom\fP);
+.br
+unsigned int pmInDom_serial(pmInDom \fIindom\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Within the Performance Co-Pilot (PCP) each instance domain is assigned a
+unique Instance Domain Identifier (pmInDom).
+Internally a pmInDom is constructed from 2 fields: the domain number
+(of the associated Performance Metrics Domain Agent, or PMDA) and
+the serial number (assigned by the PMDA).
+.PP
+.B pmInDom_build
+constructs a pmInDom from
+.I domain
+and
+.IR serial .
+.PP
+.BR pmInDom_domain
+and
+.B pmInDom_serial
+return the respective fields from
+.IR indom .
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmInDomStr (3).

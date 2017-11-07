@@ -73,57 +73,6 @@ PCP_CALL extern int __pmGetInternalState(void);
 #define PMWEBD_PROTOCOL "http"
 
 /*
- * Internally, this is how to decode an Instance Domain Identifier
- * - flag is to denote state internally in some operations
- * - domain is usually the unique domain number of a PMDA, but DYNAMIC_PMID
- *   (number 511) is reserved (see above for PMID encoding rules)
- * - serial uniquely identifies an InDom within a domain
- */
-typedef struct {
-#ifdef HAVE_BITFIELDS_LTOR
-	int		flag : 1;
-	unsigned int	domain : 9;
-	unsigned int	serial : 22;
-#else
-	unsigned int	serial : 22;
-	unsigned int	domain : 9;
-	int		flag : 1;
-#endif
-} __pmInDom_int;
-
-static inline __pmInDom_int *
-__pmindom_int(pmInDom *idp)
-{
-    /* avoid gcc's warning about dereferencing type-punned pointers */
-    return (__pmInDom_int *)idp;
-}
-
-static inline unsigned int 
-pmInDom_domain(pmInDom id)
-{
-    return __pmindom_int(&id)->domain;
-}
-
-static inline unsigned int 
-pmInDom_serial(pmInDom id)
-{
-    return __pmindom_int(&id)->serial;
-}
-
-static inline pmInDom
-pmInDom_build(unsigned int domain, unsigned int serial)
-{
-    pmInDom ind;
-    __pmInDom_int indint;
-
-    indint.flag = 0;
-    indint.domain = domain;
-    indint.serial = serial;
-    memcpy(&ind, &indint, sizeof(ind));
-    return ind;
-}
-
-/*
  * internal structure of a PMNS node
  */
 typedef struct __pmnsNode {

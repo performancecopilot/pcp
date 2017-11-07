@@ -538,7 +538,6 @@ ib_linkwidth (port_state_t *pst)
 int
 ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmInDom_int *ind = (__pmInDom_int *)&(mdesc->m_desc.indom);
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int	rv = 1; 
@@ -556,7 +555,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_INST;
     }
 
-    if (ind->serial != IB_CNT_INDOM) {
+    if (pmInDom_serial(mdesc->m_desc.indom) != IB_CNT_INDOM) {
 	if ((st = pmdaCacheLookup (mdesc->m_desc.indom, inst, &name,
 				   &closure)) != PMDA_CACHE_ACTIVE) {
 	    if (st == PMDA_CACHE_INACTIVE)
@@ -570,7 +569,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     /* If fetching from HCA indom, then no refreshing is necessary for the
      * lifetime of a pmda. Ports could change state, so some update could be
      * necessary */
-    switch (ind->serial) {
+    switch (pmInDom_serial(mdesc->m_desc.indom)) {
     case IB_PORT_INDOM:
 	if (cluster > 3) {
 	    return PM_ERR_INST;

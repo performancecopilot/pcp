@@ -20,7 +20,7 @@ LLDFLAGS = \
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
 NVIDIAQALIB = libnvidia-ml.$(DSOSUFFIX)
 
-LDIRT += localconfig.h
+LDIRT += localconfig.h libpcp.h
 
 include GNUlocaldefs
 
@@ -34,3 +34,7 @@ install install_pcp:
 	$(INSTALL) -m 755 $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
 	$(INSTALL) -m 644 GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+
+libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
+	rm -f libpcp.h
+	ln $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h

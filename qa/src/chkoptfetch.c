@@ -19,14 +19,10 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
     int			j;
     int			numinst;
     static pmID		pmid;
-    static int		indom = 0;
-    static __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
+    static pmInDom	indom;
 
     pmid = pmID_build(pmid_d, 0, pmid_i);
-
-    indomp->flag = 0;
-    indomp->domain = indom_d;
-    indomp->serial = indom_s;
+    indom = pmInDom_build(indom_d, indom_s);
 
     desc = (pmDesc *)realloc(desc, (i+1) * sizeof(desc[0]));
     if (desc == (pmDesc *)0) {

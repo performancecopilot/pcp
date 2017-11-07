@@ -187,9 +187,7 @@ out:
 static int
 root_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-
-    if (indomp->serial == CONTAINERS_INDOM)
+    if (pmInDom_serial(indom) == CONTAINERS_INDOM)
 	root_refresh_container_indom();
     return pmdaInstance(indom, inst, name, result, pmda);
 }

@@ -346,33 +346,14 @@ static void
 init_tables(int dom)
 {
     int			i;
-    __pmInDom_int	*indomp;
 
     /* set domain in instance domain correctly */
-    indomp = (__pmInDom_int *)&logindom;
-    indomp->flag = 0;
-    indomp->domain = dom;
-    indomp->serial = INDOM_PMLOGGERS;
-    indomp = (__pmInDom_int *)&regindom;
-    indomp->flag = 0;
-    indomp->domain = dom;
-    indomp->serial = INDOM_REGISTER;
-    indomp = (__pmInDom_int *)&pmdaindom;
-    indomp->flag = 0;
-    indomp->domain = dom;
-    indomp->serial = INDOM_PMDAS;
-    indomp = (__pmInDom_int *)&pmieindom;
-    indomp->flag = 0;
-    indomp->domain = dom;
-    indomp->serial = INDOM_PMIES;
-    indomp = (__pmInDom_int *)&bufindom;
-    indomp->flag = 0;
-    indomp->domain = dom;
-    indomp->serial = INDOM_POOL;
-    indomp = (__pmInDom_int *)&clientindom;
-    indomp->flag = 0;
-    indomp->domain = dom;
-    indomp->serial = INDOM_CLIENT;
+    logindom = pmInDom_build(dom, INDOM_PMLOGGERS);
+    regindom = pmInDom_build(dom, INDOM_REGISTER);
+    pmdaindom = pmInDom_build(dom, INDOM_PMDAS);
+    pmieindom = pmInDom_build(dom, INDOM_PMIES);
+    bufindom = pmInDom_build(dom, INDOM_POOL);
+    clientindom = pmInDom_build(dom, INDOM_CLIENT);
 
     /* merge performance domain ID part into PMIDs in pmDesc table */
     for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {

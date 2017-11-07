@@ -1062,10 +1062,17 @@ PCP_CALL extern char *pmGetProgname(void);
 /*
  * pmID helper functions
  */
-PCP_CALL extern unsigned int pmID_item(pmID);
-PCP_CALL extern unsigned int pmID_cluster(pmID);
-PCP_CALL extern unsigned int pmID_domain(pmID);
 PCP_CALL extern pmID pmID_build(unsigned int, unsigned int, unsigned int);
+PCP_CALL extern unsigned int pmID_domain(pmID);
+PCP_CALL extern unsigned int pmID_cluster(pmID);
+PCP_CALL extern unsigned int pmID_item(pmID);
+
+/*
+ * pmInDom helper functions
+ */
+PCP_CALL extern pmInDom pmInDom_build(unsigned int, unsigned int);
+PCP_CALL extern unsigned int pmInDom_domain(pmInDom);
+PCP_CALL extern unsigned int pmInDom_serial(pmInDom);
 
 #ifdef __cplusplus
 }

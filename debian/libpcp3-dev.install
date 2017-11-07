@@ -145,6 +145,10 @@ usr/share/man/man3/pmigethandle.3.gz
 usr/share/man/man3/pmiGetHandle.3.gz
 usr/share/man/man3/pmiID.3.gz
 usr/share/man/man3/pmiInDom.3.gz
+usr/share/man/man3/pmInDom_build.3.gz
+usr/share/man/man3/pmInDom_domain.3.gz
+usr/share/man/man3/pmindom_helper.3.gz
+usr/share/man/man3/pmInDom_serial.3.gz
 usr/share/man/man3/pmindomstr.3.gz
 usr/share/man/man3/pmInDomStr.3.gz
 usr/share/man/man3/pmInDomStr_r.3.gz

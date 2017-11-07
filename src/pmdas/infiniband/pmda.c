@@ -335,8 +335,8 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
     }
 
     for (i=0; i < ARRAYSZ(indomtab); i++) {
-	__pmindom_int(&indomtab[i].it_indom)->domain = dp->domain;
-	if (IB_CNT_INDOM != __pmindom_int(&indomtab[i].it_indom)->serial) {
+	indomtab[i].it_indom = pmInDom_build(dp->domain, pmInDom_serial(indomtab[i].it_indom));
+	if (IB_CNT_INDOM != pmInDom_serial(indomtab[i].it_indom)) {
 	    pmdaCacheOp (indomtab[i].it_indom, PMDA_CACHE_LOAD);
 	}
     }
@@ -346,7 +346,7 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 	return;
 
     for (i=0; i < ARRAYSZ(indomtab); i++) {
-	if (IB_CNT_INDOM != __pmindom_int(&indomtab[i].it_indom)->serial) {
+	if (IB_CNT_INDOM != pmInDom_serial(indomtab[i].it_indom)) {
 	    pmdaCacheOp (indomtab[i].it_indom, PMDA_CACHE_SAVE);
 	}
     }

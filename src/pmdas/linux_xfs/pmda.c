@@ -1338,12 +1338,12 @@ xfs_refresh(pmdaExt *pmda, int *need_refresh)
 static int
 xfs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS] = { 0 };
+    unsigned int	serial = pmInDom_serial(indom);
 
-    if (indomp->serial == DEVICES_INDOM)
+    if (serial == DEVICES_INDOM)
 	need_refresh[CLUSTER_PERDEV]++;
-    if (indomp->serial == FILESYS_INDOM || indomp->serial == QUOTA_PRJ_INDOM)
+    else if (serial == FILESYS_INDOM || serial == QUOTA_PRJ_INDOM)
 	need_refresh[CLUSTER_QUOTA]++;
     xfs_refresh(pmda, need_refresh);
     return pmdaInstance(indom, inst, name, result, pmda);

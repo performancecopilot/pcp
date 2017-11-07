@@ -1069,44 +1069,22 @@ nextinst(int *inst)
 static void
 init_tables(int dom)
 {
-    int			i, allocsz;
-    __pmInDom_int	b_indom;
-    __pmInDom_int	*indomp;
-    pmDesc		*dp;
+    int		i, allocsz;
+    int		serial;
+    pmDesc	*dp;
 
     /* serial numbering is arbitrary, but must be unique in this PMD */
-    b_indom.flag = 0;
-    b_indom.domain = dom;
-    b_indom.serial = 1;
-    indomp = (__pmInDom_int *)&indomtab[COLOUR_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[BIN_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[MIRAGE_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[FAMILY_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[HORDES_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[DODGEY_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[DYNAMIC_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[MANY_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[SCRAMBLE_INDOM].it_indom;
-    *indomp = b_indom;
-    b_indom.serial++;
-    indomp = (__pmInDom_int *)&indomtab[EVENT_INDOM].it_indom;
-    *indomp = b_indom;
+    serial = 1;
+    indomtab[COLOUR_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[BIN_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[MIRAGE_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[FAMILY_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[HORDES_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[DODGEY_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[DYNAMIC_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[MANY_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[SCRAMBLE_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[EVENT_INDOM].it_indom = pmInDom_build(dom, serial++);
 
     /* rewrite indom in desctab[] */
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {

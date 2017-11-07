@@ -46,4 +46,23 @@ typedef struct {
 #endif
 } __pmID_int;
 
+/*
+ * Internally, this is how to decode an Instance Domain Identifier
+ * - flag is to denote state internally in some operations
+ * - domain is usually the unique domain number of a PMDA, but DYNAMIC_PMID
+ *   (number 511) is reserved (see above for PMID encoding rules)
+ * - serial uniquely identifies an InDom within a domain
+ */
+typedef struct {
+#ifdef HAVE_BITFIELDS_LTOR
+	int		flag : 1;
+	unsigned int	domain : 9;
+	unsigned int	serial : 22;
+#else
+	unsigned int	serial : 22;
+	unsigned int	domain : 9;
+	int		flag : 1;
+#endif
+} __pmInDom_int;
+
 #endif /* PCP_LIBPCP_H */

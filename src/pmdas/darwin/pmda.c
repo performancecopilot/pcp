@@ -1172,10 +1172,9 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 darwin_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS] = { 0 };
 
-    switch (indomp->serial) {
+    switch (pmInDom_serial(&indom)) {
     case FILESYS_INDOM: need_refresh[CLUSTER_FILESYS]++; break;
     case DISK_INDOM:	need_refresh[CLUSTER_DISK]++; break;
     case CPU_INDOM:	need_refresh[CLUSTER_CPU]++; break;

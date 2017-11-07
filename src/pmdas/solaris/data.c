@@ -1443,7 +1443,7 @@ init_data(int domain)
      * us but we need properly setup indoms for pmdaCache which means that
      * we have to do it ourselves */
     for (i = 0; i < indomtab_sz; i++) {
-	__pmindom_int(&indomtab[i].it_indom)->domain = domain;
+	indomtab[i].it_indom = pmInDom_build(domain, pmInDom_serial(indomtab[i].it_indom));
     }
 
     /*

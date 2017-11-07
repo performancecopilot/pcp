@@ -2775,15 +2775,42 @@ pmID_domain(pmID pmid)
 pmID
 pmID_build(unsigned int domain, unsigned int cluster, unsigned int item)
 {
-    pmID id;
-    __pmID_int idint;
+    pmID	pmid;
+    __pmID_int	pmid_int;
 
-    idint.flag = 0;
-    idint.domain = domain;
-    idint.cluster = cluster;
-    idint.item = item;
-    memcpy(&id, &idint, sizeof(id));
-    return id;
+    pmid_int.flag = 0;
+    pmid_int.domain = domain;
+    pmid_int.cluster = cluster;
+    pmid_int.item = item;
+    memcpy(&pmid, &pmid_int, sizeof(pmid));
+    return pmid;
+}
+
+unsigned int 
+pmInDom_domain(pmInDom indom)
+{
+    __pmInDom_int	*idp = (__pmInDom_int *)&indom;
+    return idp->domain;
+}
+
+unsigned int 
+pmInDom_serial(pmInDom indom)
+{
+    __pmInDom_int	*idp = (__pmInDom_int *)&indom;
+    return idp->serial;
+}
+
+pmInDom
+pmInDom_build(unsigned int domain, unsigned int serial)
+{
+    pmInDom		indom;
+    __pmInDom_int	indom_int;
+
+    indom_int.flag = 0;
+    indom_int.domain = domain;
+    indom_int.serial = serial;
+    memcpy(&indom, &indom_int, sizeof(indom));
+    return indom;
 }
 
 #endif /* !IS_MINGW */

@@ -7761,10 +7761,9 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 static int
 linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 {
-    __pmInDom_int	*inp = (__pmInDom_int *)&indom;
     int			sts;
 
-    switch (inp->serial) {
+    switch (pmInDom_serial(indom)) {
     case CPU_INDOM:
 	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
 	    return sts;

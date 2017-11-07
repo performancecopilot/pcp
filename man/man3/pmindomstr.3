@@ -53,26 +53,11 @@ structure, following a call to
 for a particular performance metric.
 .PP
 Internally, an instance domain identifier is
-encoded as follows;
-.PP
-.ft CW
-.nf
-.in +0.5i
-typedef struct {
-    int             pad:2;
-    unsigned int    domain:8;        /* the administrative PMD */
-    unsigned int    serial:22;       /* unique within PMD */
-} __pmInDom_int;
-.in
-.fi
-.ft 1
+encoded with two fields: domain and serial.
 .PP
 .B pmInDomStr
-returns a string with each of the
-.CW domain
-and
-.CW serial
-subfields appearing as decimal numbers, separated by periods.
+returns a string with each of the fields
+appearing as decimal numbers, separated by periods.
 .PP
 The string value returned by
 .B pmInDomStr

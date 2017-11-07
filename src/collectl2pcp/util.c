@@ -52,13 +52,12 @@ int
 put_str_instance(pmInDom indom, char *instance)
 {
     int sts;
-    __pmInDom_int *idp = __pmindom_int(&indom);
     int id;
 
-    if (idp->domain == PROC_DOMAIN)
+    if (pmInDom_domain(indom) == PROC_DOMAIN)
     	id = atoi(instance);
     else
-	id = indom_cnt[idp->serial]++;
+	id = indom_cnt[pmInDom_serial(indom)]++;
 
     sts = pmiAddInstance(indom, instance, id);
     return sts ? sts : id;

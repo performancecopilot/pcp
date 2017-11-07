@@ -602,10 +602,13 @@ PCP_3.22 {
     pmFreeLabelSets;
     pmGetProgname;
     pmSetProgname;
-    pmID_item;
-    pmID_cluster;
-    pmID_domain;
     pmID_build;
+    pmID_domain;
+    pmID_cluster;
+    pmID_item;
+    pmInDom_build;
+    pmInDom_domain;
+    pmInDom_serial;
 
     __pmAddLabels;
     __pmMergeLabels;

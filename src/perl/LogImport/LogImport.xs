@@ -41,11 +41,7 @@ pmInDom_build(domain, serial)
 	unsigned int	domain;
 	unsigned int	serial;
     CODE:
-	pmInDom indom;
-	__pmindom_int(&indom)->flag = 0;
-	__pmindom_int(&indom)->domain = domain;
-	__pmindom_int(&indom)->serial = serial;
-	RETVAL = indom;
+	RETVAL = pmInDom_build(domain, serial);
     OUTPUT:
 	RETVAL
 

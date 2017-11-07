@@ -50,7 +50,6 @@ windows_instance_refresh(pmInDom indom)
 int
 windows_lookup_instance(char *path, pdh_metric_t *mp)
 {
-    __pmInDom_int	*ip;
     static void		*seen = (void *)0xfeedbabe;
     void		*sp;
     char		*p, *q, *name = NULL;
@@ -59,8 +58,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
     if (mp->desc.indom == PM_INDOM_NULL)
 	return PM_IN_NULL;
 
-    ip = (__pmInDom_int *)&mp->desc.indom;
-    switch (ip->serial) {
+    switch (pmInDom_serial(mp->desc.indom)) {
 	/*
 	 * Examples:
 	 * \\WINBUILD\PhysicalDisk(0 C:)\Disk Reads/sec
@@ -290,7 +288,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		     * not unique up to the first space by any means.  So,
 		     * replace ' 's to play by the PCP instance name rules.
 		     */
-		    if (ip->serial == SQL_USER_INDOM) {
+		    if (pmInDom_serial(mp->desc.indom) == SQL_USER_INDOM) {
 			for (p = name; *p; p++)
 			    if (*p == ' ') *p = '_';
 		    }
