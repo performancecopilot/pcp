@@ -25,6 +25,7 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 import argparse
 from collections import OrderedDict
 from ctypes import c_int
+from pprint import pformat
 import copy
 import errno
 import math
@@ -136,7 +137,7 @@ class Metric(object):
                         if self.pcpline: # pmwebd
                                 instname = labels['instance']
                         else:
-                                instname = str(labels)
+                                instname = pformat(labels) # sort labels 
                         # self.source.pmda.debug("store %s instance %s value %s" % (self.pcpline, instname, value))
                         inst = self.indom_table.intern_lookup_value(instname)
                         self.values[inst] = float(value)
