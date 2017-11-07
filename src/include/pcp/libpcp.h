@@ -65,4 +65,9 @@ typedef struct {
 #endif
 } __pmInDom_int;
 
+/*
+ * For QA apps ...
+ */
+PCP_CALL extern void __pmDumpDebug(FILE *);
+
 #endif /* PCP_LIBPCP_H */

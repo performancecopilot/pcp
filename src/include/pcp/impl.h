@@ -1628,8 +1628,6 @@ PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
 					   char ***);
 
 
-PCP_CALL extern void __pmDumpDebug(FILE *);
-
 #ifdef __cplusplus
 }
 #endif
