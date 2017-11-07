@@ -17,7 +17,7 @@
  */
 
 #include "rapl-interface.h"
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 #include <fcntl.h>
 #include <math.h>
 

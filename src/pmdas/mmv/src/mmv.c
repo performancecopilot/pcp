@@ -27,6 +27,7 @@
 #include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmda.h"
 #include "./domain.h"
 #include <sys/stat.h>

@@ -21,10 +21,14 @@
  * Deprecated Symbol		Replacement
  * __pmSetProgname()		pmSetProgname()
  * pmProgname			pmGetProgname()
+ * __pmParseDebug()		pmSetDebug()
+ * __pmSetDebugBits()		pmSetDebug()/pmClearDebug()
  *
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
 PCP_DATA extern char *pmProgname;
+PCP_CALL extern int __pmParseDebug(const char *);
+PCP_CALL extern void __pmSetDebugBits(int);
 
 #endif /* PCP_DEPRECATED_H */

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include "perflock.h"
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 
 #define PERF_LOCK_PATH "/perfevent/perflock"
 

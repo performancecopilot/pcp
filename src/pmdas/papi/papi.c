@@ -14,9 +14,10 @@
  * for more details.
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "libpcp.h"
+#include "pmda.h"
 #include "domain.h"
 #include <papi.h>
 #include <assert.h>

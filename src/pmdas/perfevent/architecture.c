@@ -14,7 +14,7 @@
 
 #include "architecture.h"
 
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 #include <dirent.h>
 #include <limits.h>
 

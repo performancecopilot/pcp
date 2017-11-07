@@ -25,7 +25,7 @@ include $(BUILDRULES)
 
 
 OUTDIR = ./target
-INCDIR = $(TOPDIR)/src/include
+INCDIR = $(TOPDIR)/src/include/pcp
 SRCDIR = $(TOPDIR)/src/pmdas/perfevent
 SRCS = perf_event_test.c \
        architecture.c \

@@ -24,10 +24,10 @@
 \**************************************************************************/
 
 #include <Python.h>
-#include <pcp/pmapi.h>
-#include <pcp/pmda.h>
-#include <pcp/impl.h>
-#include <pcp/libpcp.h>
+#include "pmapi.h"
+#include "pmda.h"
+#include "impl.h"
+#include "libpcp.h"
 
 #if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL

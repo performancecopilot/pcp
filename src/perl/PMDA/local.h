@@ -14,10 +14,10 @@
 #ifndef LOCAL_H
 #define LOCAL_H
 
-#include <pmapi.h>
-#include <impl.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "libpcp.h"
-#include <pmda.h>
+#include "pmda.h"
 
 typedef struct sv scalar_t;
 typedef struct timeval delta_t;

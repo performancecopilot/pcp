@@ -639,6 +639,7 @@ scale.o:	localconfig.h
 
 hex2nbo.o:	libpcp.h
 endian.o:	libpcp.h
+debug.o:	libpcp.h
 
 bozo:
 	@echo TARGETS=$(TARGETS)

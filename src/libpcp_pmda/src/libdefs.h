@@ -39,4 +39,10 @@ typedef struct {
  */
 extern __uint32_t hash(const signed char *, int, __uint32_t);
 
+/*
+ * These ones escaped via the exports file, but are only used within
+ * the libpcp_pmda library, so pull the definitions back from <pcp/pmda.h>
+ */
+PMDA_CALL extern __pmnsNode * pmdaNodeLookup(__pmnsNode *, const char *);
+
 #endif /* LIBDEFS_H */

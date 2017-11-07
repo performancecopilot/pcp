@@ -7,6 +7,9 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <pcp/deprecated.h>
+
+#include "libpcp.h"
 
 int
 main(int argc, char **argv)

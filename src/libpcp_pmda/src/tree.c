@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmda.h"
 
 #define NONLEAF(node)	((node)->pmid == PM_ID_NULL)

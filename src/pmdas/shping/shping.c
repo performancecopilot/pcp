@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "deprecated.h"
 #include "pmda.h"
 #include "shping.h"
 #include "domain.h"
