@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "deprecated.h"
 #include "../libpcp/src/pmdbg.h"
 
 static char	*fmt_old = "DBG_TRACE_%-11.11s  %10d  %s\n";

@@ -24,7 +24,7 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(optarg)) < 0) {
+	    if ((sts = pmSetDebug(optarg)) < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
 		    pmGetProgname(), optarg);
 		errflag++;

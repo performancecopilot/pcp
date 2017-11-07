@@ -18,6 +18,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+#include <pcp/deprecated.h>
 #include "percontext.h"
 #include "events.h"
 #include "domain.h"

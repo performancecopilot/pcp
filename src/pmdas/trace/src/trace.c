@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "deprecated.h"
 #include "pmda.h"
 #include "domain.h"
 #include "data.h"
