@@ -1,7 +1,7 @@
 [Unit]
 Description=Instrumented Golang Service
 Documentation=https://github.com/performancecopilot/speed
-After=local-fs.target network.target pmcd.service
+After=network-online.target pmcd.service
 
 [Service]
 Type=simple
