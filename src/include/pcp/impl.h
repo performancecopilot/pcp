@@ -1161,21 +1161,6 @@ PCP_CALL extern int __pmProcessDataSize(unsigned long *);
 PCP_CALL extern int __pmProcessRunTimes(double *, double *);
 PCP_CALL extern int __pmSetProcessIdentity(const char *);
 
-/* __pmProcessExec and friends ... replacementes for system(3) and popen(3) */
-typedef struct __pmExecCtl __pmExecCtl_t;		/* opaque handle */
-PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, const char *);
-PCP_CALL extern int __pmProcessUnpickArgs(__pmExecCtl_t **, const char *);
-#define PM_EXEC_TOSS_NONE	0
-#define PM_EXEC_TOSS_STDIN	1
-#define PM_EXEC_TOSS_STDOUT	2
-#define PM_EXEC_TOSS_STDERR	4
-#define PM_EXEC_TOSS_ALL	7
-#define PM_EXEC_NOWAIT		0
-#define PM_EXEC_WAIT		1
-PCP_CALL extern int __pmProcessExec(__pmExecCtl_t **, int, int);
-PCP_CALL extern int __pmProcessPipe(__pmExecCtl_t **, const char *, int, FILE **);
-PCP_CALL extern int __pmProcessPipeClose(FILE *);
-
 /*
  * platform independent memory mapped file handling
  */

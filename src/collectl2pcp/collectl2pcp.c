@@ -16,6 +16,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <pcp/libpcp.h>
 #include <pcp/pmda.h>
 #include <pcp/import.h>
 #include "metrics.h"

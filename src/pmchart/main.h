@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <pcp/libpcp.h>
 
 #include "tab.h"
 #include "colorscheme.h"

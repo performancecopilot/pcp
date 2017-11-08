@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMPROCESSEXEC 3 "PCP" "Performance Co-Pilot"
+.TH PMPROCESSEXEC 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmProcessAddArg\f1,
 \f3__pmProcessUnpickArgs\f1,
@@ -23,6 +23,8 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
 .br
@@ -32,6 +34,13 @@ int __pmProcessExec(__pmExecCtl_t **\fIhandle\fP, int \fItoss\fP, int \fIwait\fP
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .PP
 Within the libraries and applications of the Performance Co-Pilot
