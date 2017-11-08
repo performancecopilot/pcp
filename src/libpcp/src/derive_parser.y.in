@@ -2741,7 +2741,6 @@ static struct {
     { L_COLON,		N_COLON,	"COLON",	":" },
     { L_LPAREN,		0,		"LPAREN",	"(" },
     { L_RPAREN,		0,		"RPAREN",	")" },
-    { L_RPAREN,		0,		"COMMA",	"," },
     { L_TYPE,		0,		"TYPE",		NULL },
     { L_SEMANTICS,	0,		"SEMANTICS",	NULL },
     { L_UNITS,		0,		"UNITS",	NULL },
