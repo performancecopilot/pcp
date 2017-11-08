@@ -126,7 +126,7 @@ class Metric(object):
                 ''' Erase all stored instance/value pairs, in anticipation of a new set. '''
                 self.values.clear()
         
-        def format_instname(self,labels):
+        def format_prom_instname(self,labels):
                 ''' Format the argument labels dict as a legal PCP external instance name.
                     This is a comma separated list of name:'value' pairs where each value
                     is 'quoted'. The instance name is prefixed with a persistent unique
@@ -140,7 +140,7 @@ class Metric(object):
                         if len(name) > 0:
                                 name += ','
                         name += key + ":'" + val + "'"
-                inst = self.indom_table.intern_lookup_value(name)
+                inst = self.indom_table.intern_lookup_value(name,True)
                 return inst, str(inst) + " " + name
 
         def store_inst(self,labels,value):
@@ -151,10 +151,12 @@ class Metric(object):
                         self.values[c_api.PM_IN_NULL] = float(value)
                 else:
                         if self.pcpline: # pmwebd
-                                inst,instname = self.format_instname(labels['instance'])
+                                # NB: no quoting/transforms - preserve incoming value verbatim
+                                instname = labels['instance']
+                                inst = self.indom_table.intern_lookup_value(instname)
                         else:
-                                inst,instname = self.format_instname(labels)
-                        self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
+                                inst,instname = self.format_prom_instname(labels)
+                        # self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
                         self.values[inst] = float(value)
                         self.indom_table.save() # XXX: ideally less frequently
                         
@@ -220,8 +222,10 @@ class PersistentNameTable(object):
                                 self.pmda.log("cannot save %s: %s" % (self.store_file_name, e))
                         
 
-        def intern_lookup_value(self, name):
-                '''Add/lookup given name, return its persistent inst identifier.'''
+        def intern_lookup_value(self, name, prefix=False):
+                '''Add/lookup given name, return its persistent identifier.
+                If @prefix is true, prepend to the instance number to the name,
+                for use in generating unique-prefixed instance names.'''
                 if name in self.names_to_instances: # fast path
                         # mapping the translated name (without inst prefix) to inst
                         return self.names_to_instances[name]
@@ -229,10 +233,19 @@ class PersistentNameTable(object):
                         num = len(self.instances)
                         if (num > self.maxnum):
                                 raise ValueError('Too many (%d) different names' % num)
-                        name_with_prefix = str(num) + " " + name
-                        self.instances.append(name_with_prefix)
-                        self.names_to_instances[name] = num # nb: name without prefix
-                        assert self.instances[num] == name_with_prefix
+                        if prefix:
+                                # NB: note trickery: instances[] contains prefixed names,
+                                # since those are the ones that will pass to the c pmda layer;
+                                # names_to_instances[] maps unprefixed names, since those are
+                                # the ones used as incoming keys.
+                                name_with_prefix = str(num) + " " + name
+                                self.instances.append(name_with_prefix)
+                                self.names_to_instances[name] = num # nb: name without prefix
+                                assert self.instances[num] == name_with_prefix
+                        else:
+                                self.instances.append(name)
+                                self.names_to_instances[name] = num
+                                assert self.instances[num] == name
                         self.need_save = True
                         return num # the new inst number
 
