@@ -133,6 +133,16 @@ PCP_CALL extern void __pmAccFreeSavedGroups(void);
 PCP_CALL extern void __pmAccFreeSavedLists(void);
 
 /*
+ * AF - general purpose asynchronous event management routines
+ */
+PCP_CALL extern int __pmAFsetup(const struct timeval *, const struct timeval *, void *, void (*)(int, void *));
+PCP_CALL extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));
+PCP_CALL extern int __pmAFunregister(int);
+PCP_CALL extern void __pmAFblock(void);
+PCP_CALL extern void __pmAFunblock(void);
+PCP_CALL extern int __pmAFisempty(void);
+
+/*
  * For QA apps ...
  */
 PCP_CALL extern void __pmDumpDebug(FILE *);
