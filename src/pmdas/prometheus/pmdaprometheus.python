@@ -488,7 +488,7 @@ class Source(object):
                                 # the metric values; we can ignore
                                 # lp[2].
                                 if lp[1] == 'PCP': # XXX: extend, regularize, document
-                                        pcpline = ' '.join(lp[2:])
+                                        pcpline = lp[2] # XXX: skip trailing parts 
                                 elif lp[1] == 'HELP':
                                         # assume lp[2] matches metric name
                                         helpline = ' '.join(lp[3:]) # XXX unescape \\ \n
