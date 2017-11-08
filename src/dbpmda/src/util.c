@@ -16,6 +16,7 @@
 #include "./dbpmda.h"
 #include "./lex.h"
 #include "./gram.h"
+#include <pcp/deprecated.h>
 
 /*
  * This works because ...

@@ -67,7 +67,7 @@ PmChart::PmChart() : QMainWindow(NULL)
     toolbarAction->setChecked(true);
     my.toolbarHidden = !globalSettings.initialToolbar;
     my.consoleHidden = true;
-    if (!pmDebug)
+    if (!Dflag)
 	consoleAction->setVisible(false);
     consoleAction->setChecked(false);
 
@@ -472,7 +472,7 @@ void PmChart::optionsToolbar()
 
 void PmChart::optionsConsole()
 {
-    if (pmDebug) {
+    if (Dflag) {
 	if (my.consoleHidden)
 	    console->show();
 	else

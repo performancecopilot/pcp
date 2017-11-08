@@ -30,6 +30,7 @@
 int Cflag;
 int Lflag;
 int Wflag;
+int somedebug;
 char *outgeometry;
 Settings globalSettings;
 
@@ -82,7 +83,7 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     pos += vsnprintf(theBuffer + pos, theBufferLen - pos, msg, arg);
     pmsprintf(theBuffer + pos, theBufferLen - pos, "\n");
 
-    if (pmDebug) {
+    if (somedebug) {
 	QTextStream cerr(stderr);
 	cerr << file << ":" << line << ": " << theBuffer << endl;
     }
@@ -280,7 +281,7 @@ fail:
             pmprintf("%s: Warning: Unable to save configuration for "
 		     "recording to \"%s\": %s\n",
 		    pmGetProgname(), configfile, strerror(errno));
-	else if (pmDebug & DBG_TRACE_APPL0)
+	else if (pmDebugOptions.appl0)
 	    cerr << "genInventor: Copy of configuration saved to "
 		 << configfile << endl;
 
@@ -292,7 +293,7 @@ fail:
     if (theAltConfig)
 	fclose(theAltConfig);
 
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	cerr << pmGetProgname() << ": " << errorCount << " errors detected in "
 	     << theConfigName << endl;
     }
@@ -308,9 +309,9 @@ fail:
 				   rootObj->depth() / -2.0);
 	sep->addChild(tran);
 
-	if (pmDebug & DBG_TRACE_APPL0 ||
-	    pmDebug & DBG_TRACE_APPL1 ||
-	    pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl0 ||
+	    pmDebugOptions.appl1 ||
+	    pmDebugOptions.appl2) {
 	    SoBaseColor *col = new SoBaseColor;
 	    col->rgb.setValue(1.0, 0.0, 0.0);
 	    sep->addChild(col);
@@ -357,6 +358,16 @@ main(int argc, char **argv)
 
 	case 'C':
 	    Cflag++;
+	    break;
+
+	case 'D':
+	    somedebug = 1;
+	    sts = pmSetDebug(optarg);
+	    if (sts < 0) {
+		pmprintf("%s: Warning: unrecognized debug options (%s) ignored\n",
+			    pmGetProgname(), optarg);
+		pmflush();
+	    }
 	    break;
 
 	case 'g':

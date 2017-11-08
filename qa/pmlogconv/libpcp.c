@@ -52,10 +52,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG)
+    if (pmDebugOptions.log)
 	fprintf(stderr, "__pmLogChkLabel: fd=%d vol=%d", fileno(f), vol);
-#endif
 
     fseek(f, (long)0, SEEK_SET);
     n = (int)fread(&len, 1, sizeof(len), f);
@@ -63,18 +61,14 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     if (n != sizeof(len) || len != xpectlen) {
 	if (feof(f)) {
 	    clearerr(f);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOG)
+	    if (pmDebugOptions.log)
 		fprintf(stderr, " file is empty\n");
-#endif
 	    return PM_ERR_NODATA;
 	}
 	else {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOG)
+	    if (pmDebugOptions.log)
 		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)\n",
 		    n, (int)sizeof(len), len, xpectlen);
-#endif
 	    if (ferror(f)) {
 		clearerr(f);
 		return -errno;
@@ -85,11 +79,9 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     }
 
     if ((n = (int)fread(lp, 1, sizeof(__pmLogLabel), f)) != sizeof(__pmLogLabel)) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, " bad label len=%d: expected %d\n",
 		n, (int)sizeof(__pmLogLabel));
-#endif
 	if (ferror(f)) {
 	    clearerr(f);
 	    return -errno;
@@ -109,11 +101,9 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     n = (int)fread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len) || len != xpectlen) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)\n",
 		n, (int)sizeof(len), len, xpectlen);
-#endif
 	if (ferror(f)) {
 	    clearerr(f);
 	    return -errno;
@@ -126,20 +116,16 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC ||
 	(version != PM_LOG_VERS01 && version != PM_LOG_VERS02) ||
 	lp->ill_vol != vol) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, " version %d not supported\n", version);
-#endif
 	return PM_ERR_LABEL;
     }
     else {
 	if (__pmSetVersionIPC(fileno(f), version) < 0)
 	    return -errno;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
 		lp->ill_magic, version, lp->ill_vol, (int)lp->ill_pid, lp->ill_hostname);
-#endif
     }
 
     if (vol >= 0 && vol < lcp->l_numseen)
@@ -187,11 +173,9 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA)
+    if (pmDebugOptions.logmeta)
 	fprintf(stderr, "addindom( ..., %s, %s, numinst=%d)\n",
 	    pmInDomStr(indom), StrTimeval((__pmTimeval *)tp), numinst);
-#endif
 
 
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
@@ -245,12 +229,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
                 sts = 0;
 		goto end;
             }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA) {
+	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "__pmLogLoadMeta: header read -> %d: expected: %d\n",
 			n, (int)sizeof(__pmLogHdr));
 	    }
-#endif
 	    if (ferror(f)) {
 		clearerr(f);
 		sts = -errno;
@@ -259,12 +241,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		sts = PM_ERR_LOGREC;
 	    goto end;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOGMETA) {
+	if (pmDebugOptions.logmeta) {
 	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%d @ offset=%d\n",
 		h.len, h.type, (int)(ftell(f) - sizeof(__pmLogHdr)));
 	}
-#endif
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {
             numpmid++;
@@ -273,12 +253,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		goto end;
 	    }
 	    if ((n = (int)fread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOGMETA) {
+		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: pmDesc read -> %d: expected: %d\n",
 			    n, (int)sizeof(pmDesc));
 		}
-#endif
 		if (ferror(f)) {
 		    clearerr(f);
 		    sts = -errno;
@@ -308,12 +286,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
                 /* read in the names & store in PMNS tree ... */
 		if ((n = (int)fread(&numnames, 1, sizeof(numnames), f)) != 
                      sizeof(numnames)) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LOGMETA) {
+		    if (pmDebugOptions.logmeta) {
 			fprintf(stderr, "__pmLogLoadMeta: numnames read -> %d: expected: %d\n",
 				n, (int)sizeof(numnames));
 		    }
-#endif
 		    if (ferror(f)) {
 			clearerr(f);
 			sts = -errno;
@@ -330,12 +306,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
  		for (i = 0; i < numnames; i++) {
 		    if ((n = (int)fread(&len, 1, sizeof(len), f)) != 
 			 sizeof(len)) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_LOGMETA) {
+			if (pmDebugOptions.logmeta) {
 			    fprintf(stderr, "__pmLogLoadMeta: len name[%d] read -> %d: expected: %d\n",
 				    i, n, (int)sizeof(len));
 			}
-#endif
 			if (ferror(f)) {
 			    clearerr(f);
 			    sts = -errno;
@@ -350,12 +324,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		    }
 
 		    if ((n = (int)fread(name, 1, len, f)) != len) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_LOGMETA) {
+			if (pmDebugOptions.logmeta) {
 			    fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
 				    i, n, len);
 			}
-#endif
 			if (ferror(f)) {
 			    clearerr(f);
 			    sts = -errno;
@@ -365,12 +337,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 			goto end;
 		    }
                     name[len] = '\0';
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LOGMETA) {
+		    if (pmDebugOptions.logmeta) {
 			fprintf(stderr, "__pmLogLoadMeta: PMID: %s name: %s\n",
 				pmIDStr(dp->pmid), name);
 		    }
-#endif
 
                     if ((sts = __pmAddPMNSNode(lcp->l_pmns, dp->pmid, name)) < 0) {
 			/*
@@ -405,12 +375,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		goto end;
 	    }
 	    if ((n = (int)fread(tbuf, 1, rlen, f)) != rlen) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOGMETA) {
+		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: indom read -> %d: expected: %d\n",
 			    n, rlen);
 		}
-#endif
 		if (ferror(f)) {
 		    clearerr(f);
 		    sts = -errno;
@@ -463,12 +431,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	n = (int)fread(&check, 1, sizeof(check), f);
 	check = ntohl(check);
 	if (n != sizeof(check) || h.len != check) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA) {
+	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "__pmLogLoadMeta: trailer read -> %d or len=%d: expected %d @ offset=%d\n",
 		    n, check, h.len, (int)(ftell(f) - sizeof(check)));
 	    }
-#endif
 	    if (ferror(f)) {
 		clearerr(f);
 		sts = -errno;

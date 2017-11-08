@@ -74,7 +74,7 @@ open_config(char configfile[])
     hotproc_configfile = strdup(configfile);
 
     if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "%s: Cannot open configuration file \"%s\": %s\n",
 		    pmGetProgname(), hotproc_configfile, osstrerror());
 	}

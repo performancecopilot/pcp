@@ -160,6 +160,10 @@ static char
     }
 }
 
+#define REPORT_STYLE0	1
+#define REPORT_STYLE1	2
+#define REPORT_STYLE2	3
+
 void
 __pmDebugLock(int op, void *lock, const char *file, int line)
 {
@@ -174,17 +178,17 @@ __pmDebugLock(int op, void *lock, const char *file, int line)
     if (lock == (void *)&__pmLock_libpcp) {
 	if (pmDebugOptions.appl0 ||
 	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
-	    report = DBG_TRACE_APPL0;
+	    report = REPORT_STYLE0;
     }
     else if ((ctx = __pmIsContextLock(lock)) >= 0) {
 	if (pmDebugOptions.appl1 ||
 	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
-	    report = DBG_TRACE_APPL1;
+	    report = REPORT_STYLE1;
     }
     else {
 	if (pmDebugOptions.appl2 ||
 	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
-	    report = DBG_TRACE_APPL2;
+	    report = REPORT_STYLE2;
     }
 
     if (report) {
@@ -215,13 +219,13 @@ again:
 	}
     }
 
-    if (report == DBG_TRACE_APPL0) {
+    if (report == REPORT_STYLE0) {
 	fprintf(stderr, "(global_libpcp)");
     }
-    else if (report == DBG_TRACE_APPL1) {
+    else if (report == REPORT_STYLE1) {
 	fprintf(stderr, "(ctx %d)", ctx);
     }
-    else if (report == DBG_TRACE_APPL2) {
+    else if (report == REPORT_STYLE2) {
 	fprintf(stderr, "(%s)", lockname(lock));
     }
     if (report) {

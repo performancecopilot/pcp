@@ -51,6 +51,8 @@ float		theGlobalScale = 1.2;
 char		**frontend_argv;
 int		frontend_argc;
 
+extern int	somedebug;
+
 PmView::PmView() : QMainWindow(NULL)
 {
     my.dialogsSetup = false;
@@ -79,7 +81,7 @@ PmView::PmView() : QMainWindow(NULL)
     my.toolbarHidden = !globalSettings.initialToolbar;
     toolbarAction->setChecked(globalSettings.initialToolbar);
     my.consoleHidden = true;
-    if (!pmDebug)
+    if (somedebug)
 	consoleAction->setVisible(false);
     consoleAction->setChecked(false);
 

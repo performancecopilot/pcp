@@ -1148,7 +1148,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	}
     }
 
-    if (pmDebugOptions.series && (pmDebug & DBG_TRACE_APPL0))
+    if (pmDebugOptions.series && pmDebugOptions.appl0)
 	fprintf(stderr, "series_lex() -> type=L_%s \"%s\"\n",
 		l_type_str(ret), ret == L_EOS ? "" : lp->yy_tokbuf);
 
