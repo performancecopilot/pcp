@@ -99,6 +99,40 @@ PCP_CALL extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
 PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 
 /*
+ * Generic access control routines
+ */
+PCP_CALL extern int __pmAccAddOp(unsigned int);
+
+PCP_CALL extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
+PCP_CALL extern int __pmAccAddUser(const char *, unsigned int, unsigned int, int);
+PCP_CALL extern int __pmAccAddGroup(const char *, unsigned int, unsigned int, int);
+
+PCP_CALL extern int __pmAccAddClient(__pmSockAddr *, unsigned int *);
+PCP_CALL extern int __pmAccAddAccount(const char *, const char *, unsigned int *);
+PCP_CALL extern void __pmAccDelClient(__pmSockAddr *);
+PCP_CALL extern void __pmAccDelAccount(const char *, const char *);
+
+PCP_CALL extern void __pmAccDumpHosts(FILE *);
+PCP_CALL extern void __pmAccDumpUsers(FILE *);
+PCP_CALL extern void __pmAccDumpGroups(FILE *);
+PCP_CALL extern void __pmAccDumpLists(FILE *);
+
+PCP_CALL extern int __pmAccSaveHosts(void);
+PCP_CALL extern int __pmAccSaveUsers(void);
+PCP_CALL extern int __pmAccSaveGroups(void);
+PCP_CALL extern int __pmAccSaveLists(void);
+
+PCP_CALL extern int __pmAccRestoreHosts(void);
+PCP_CALL extern int __pmAccRestoreUsers(void);
+PCP_CALL extern int __pmAccRestoreGroups(void);
+PCP_CALL extern int __pmAccRestoreLists(void);
+
+PCP_CALL extern void __pmAccFreeSavedHosts(void);
+PCP_CALL extern void __pmAccFreeSavedUsers(void);
+PCP_CALL extern void __pmAccFreeSavedGroups(void);
+PCP_CALL extern void __pmAccFreeSavedLists(void);
+
+/*
  * For QA apps ...
  */
 PCP_CALL extern void __pmDumpDebug(FILE *);

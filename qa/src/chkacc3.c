@@ -5,8 +5,9 @@
 
 /* Check access control wildcarding, bad ops etc. */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "libpcp.h"
 #include "localconfig.h"
 
 int a[4] = {0, 37, 235, 126};
