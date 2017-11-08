@@ -27,6 +27,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 /*
  * PDU for general pmlogger notification (PDU_LOG_REQUEST)

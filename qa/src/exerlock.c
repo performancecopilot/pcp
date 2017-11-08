@@ -4,8 +4,9 @@
  * exercise low-level libpcp locking primitives
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "libpcp.h"
 
 static void
 timeout(int i, void *j)

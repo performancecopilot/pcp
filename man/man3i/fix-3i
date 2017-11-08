@@ -1,0 +1,129 @@
+#!/bin/sh
+#
+# make changes to man page source after migration from man3 to man3i
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_usage()
+{
+    echo "Usage: fix-3i [-v] file [...]"
+    exit 1
+}
+
+verbose=false
+while getopts "v?" c
+do
+    case $c
+    in
+	v)
+	    verbose=true
+	    ;;
+	?)
+	    _usage
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+for file
+do
+    if [ ! -f $file ]
+    then
+	echo "Error: $file: file not found"
+	continue
+    fi
+
+    if grep '^\.SH CAVEAT' $file >/dev/null
+    then
+	awk <$file >$tmp.tmp '
+$1 == ".SH" && $2 == "CAVEAT"	{ skip = 1; next }
+skip == 1 && $1 == ".SH"	{ skip = 0 }
+skip == 0			{ print }'
+    else
+	cp $file $tmp.tmp
+    fi
+
+    sed <$tmp.tmp >$tmp.check \
+	-e '/^\.SH DESCRIPTION/i\
+.SH CAVEAT\
+This documentation is intended for internal Performance Co-Pilot\
+(PCP) developer use.\
+.PP\
+These interfaces are not part of the PCP APIs that are guaranteed to\
+remain fixed across releases, and they may not work, or may provide\
+different semantics at some point in the future.' \
+    # end
+
+    if cmp $file $tmp.check >/dev/null
+    then
+	$verbose && echo "$file: .SH CAVEAT OK"
+    else
+	mv $tmp.check $file
+	echo "$file: .SH CAVEAT added or updated"
+    fi
+
+    if grep '^\.TH [^ ][^ ]* 3i ' <$file >/dev/null
+    then
+	$verbose && echo "$file: .TH macro OK"
+    else
+	sed -e '/^\.TH/s/ "*3"* / 3i /' <$file >$tmp.tmp
+	mv $tmp.tmp $file
+	echo "$file: .TH macro fixed"
+    fi
+
+    sed <$file >$tmp.tmp \
+	-e '/#include <pcp\//{
+s/<pcp\//"/
+s/>/"/
+}'
+    if cmp $file $tmp.tmp >/dev/null
+    then
+	:
+    else
+	echo "$file: stripped <pcp from includes"
+	mv $tmp.tmp $file
+    fi
+
+    if grep '#include "libpcp.h"' $file >/dev/null
+    then
+	$verbose && echo "$file: libpcp.h already in place"
+    else
+	if grep '#include "impl.h"' $file >/dev/null
+	then
+	    sed <$file >$tmp.tmp \
+		-e '/#include "impl.h"/a\
+.br\
+#include "libpcp.h"'
+	    if cmp $file $tmp.tmp >/dev/null
+	    then
+		$verbose && echo "Botch: $file: failed to add libpcp.h after impl.h"
+	    else
+		echo "$file: add libpcp.h after impl.h"
+		mv $tmp.tmp $file
+	    fi
+	elif grep '#include "pmapi.h"' $file >/dev/null
+	then
+	    sed <$file >$tmp.tmp \
+		-e '/#include "pmapi.h"/a\
+.br\
+#include "impl.h"\
+.br\
+#include "libpcp.h"'
+	    if cmp $file $tmp.tmp >/dev/null
+	    then
+		$verbose && echo "Botch: $file: failed to add libpcp.h after pmapi.h"
+	    else
+		echo "$file: add impl.h and libpcp.h after pmapi.h"
+		mv $tmp.tmp $file
+	    fi
+	else
+	    echo "Warning: $file: no place to add libpcp.h"
+	fi
+    fi
+
+done
+
+exit
+

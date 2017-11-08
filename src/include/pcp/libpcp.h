@@ -143,6 +143,93 @@ PCP_CALL extern void __pmAFunblock(void);
 PCP_CALL extern int __pmAFisempty(void);
 
 /*
+ * private PDU protocol between pmlc and pmlogger
+ */
+#define LOG_PDU_VERSION2	2	/* private pdus & PCP 2.0 error codes */
+#define LOG_PDU_VERSION		LOG_PDU_VERSION2
+
+#define LOG_REQUEST_NEWVOLUME	1
+#define LOG_REQUEST_STATUS	2
+#define LOG_REQUEST_SYNC	3
+
+typedef struct {
+    __pmTimeval  ls_start;	/* start time for log */
+    __pmTimeval  ls_last;	/* last time log written */
+    __pmTimeval  ls_timenow;	/* current time */
+    int		ls_state;	/* state of log (from __pmLogCtl) */
+    int		ls_vol;		/* current volume number of log */
+    __int64_t	ls_size;	/* size of current volume */
+    char	ls_hostname[PM_LOG_MAXHOSTLEN];
+				/* name of pmcd host */
+    char	ls_fqdn[PM_LOG_MAXHOSTLEN];
+				/* fully qualified domain name of pmcd host */
+    char	ls_tz[PM_TZ_MAXLEN];
+				/* $TZ at collection host */
+    char	ls_tzlogger[PM_TZ_MAXLEN];
+				/* $TZ at pmlogger */
+} __pmLoggerStatus;
+
+#define PDU_LOG_CONTROL		0x8000
+#define PDU_LOG_STATUS		0x8001
+#define PDU_LOG_REQUEST		0x8002
+
+PCP_CALL extern int __pmConnectLogger(const char *, int *, int *);
+PCP_CALL extern int __pmSendLogControl(int, const pmResult *, int, int, int);
+PCP_CALL extern int __pmDecodeLogControl(const __pmPDU *, pmResult **, int *, int *, int *);
+PCP_CALL extern int __pmSendLogRequest(int, int);
+PCP_CALL extern int __pmDecodeLogRequest(const __pmPDU *, int *);
+PCP_CALL extern int __pmSendLogStatus(int, __pmLoggerStatus *);
+PCP_CALL extern int __pmDecodeLogStatus(__pmPDU *, __pmLoggerStatus **);
+
+/* logger timeout helper function */
+PCP_CALL extern int __pmLoggerTimeout(void);
+
+/*
+ * other interfaces shared by pmlc and pmlogger
+ */
+
+PCP_CALL extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
+
+#define PM_LOG_OFF		0	/* state */
+#define PM_LOG_MAYBE		1
+#define PM_LOG_ON		2
+
+#define PM_LOG_MANDATORY	11	/* control */
+#define PM_LOG_ADVISORY		12
+#define PM_LOG_ENQUIRE		13
+
+/* macros for logging control values from __pmControlLog() */
+#define PMLC_SET_ON(val, flag) \
+        (val) = ((val) & ~0x1) | ((flag) & 0x1)
+#define PMLC_GET_ON(val) \
+        ((val) & 0x1)
+#define PMLC_SET_MAND(val, flag) \
+        (val) = ((val) & ~0x2) | (((flag) & 0x1) << 1)
+#define PMLC_GET_MAND(val) \
+        (((val) & 0x2) >> 1)
+#define PMLC_SET_AVAIL(val, flag) \
+        (val) = ((val) & ~0x4) | (((flag) & 0x1) << 2)
+#define PMLC_GET_AVAIL(val) \
+        (((val) & 0x4) >> 2)
+#define PMLC_SET_INLOG(val, flag) \
+        (val) = ((val) & ~0x8) | (((flag) & 0x1) << 3)
+#define PMLC_GET_INLOG(val) \
+        (((val) & 0x8) >> 3)
+
+#define PMLC_SET_STATE(val, state) \
+        (val) = ((val) & ~0xf) | ((state) & 0xf)
+#define PMLC_GET_STATE(val) \
+        ((val) & 0xf)
+
+/* 28 bits of delta, 32 bits of state */
+#define PMLC_MAX_DELTA  0x0fffffff
+
+#define PMLC_SET_DELTA(val, delta) \
+        (val) = ((val) & 0xf) | ((delta) << 4)
+#define PMLC_GET_DELTA(val) \
+        ((((val) & ~0xf) >> 4) & PMLC_MAX_DELTA)
+
+/*
  * For QA apps ...
  */
 PCP_CALL extern void __pmDumpDebug(FILE *);

@@ -13,15 +13,17 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMCONTROLLOG 3 "PCP" "Performance Co-Pilot"
+.TH PMCONTROLLOG 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmControlLog\f1 \- enable, disable or enquire about logging of performance
 metrics
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 .br
-#include <pcp/impl.h>
+#include "impl.h"
+.br
+#include "libpcp.h"
 .sp
 .ad l
 .hy 0
@@ -34,6 +36,13 @@ int __pmControlLog(int \fIfd\fP, const pmResult *\fIrequest\fP, int\ \fIcontrol\
 .ad
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .de CW
 .ie t \f(CW\\$1\fR\\$2

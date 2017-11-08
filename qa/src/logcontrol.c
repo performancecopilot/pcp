@@ -6,8 +6,9 @@
  * Utility to control archive logging for metrics
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "libpcp.h"
 
 int
 main(int argc, char **argv)
