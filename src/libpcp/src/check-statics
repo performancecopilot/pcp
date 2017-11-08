@@ -214,7 +214,7 @@ derive_parser.tab.o
     tokbuf			# guarded by registered.mutex
     tokbuflen			# guarded by registered.mutex
     string			# guarded by registered.mutex
-    this			# guarded by registered.mutex
+    lexicon			# guarded by registered.mutex
     lexpeek			# guarded by registered.mutex
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
