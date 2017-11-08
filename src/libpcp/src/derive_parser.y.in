@@ -40,9 +40,6 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-#ifdef IS_MINGW
-extern const char *strerror_r(int, char *, size_t);
-#endif
 
 #define YYDEBUG 1
 
@@ -69,7 +66,7 @@ static char		*derive_errmsg;
 /* lexer variables */
 static char		*tokbuf;
 static int		tokbuflen;
-static const char	*this;		/* start of current lexicon */
+static const char	*lexicon;	/* start of current lexicon */
 static int		lexpeek;
 static const char	*string;
 
@@ -85,7 +82,6 @@ typedef union {
 static node_t *parse_tree;
 
 int derive_parse(void);
-static int derive_lex(void);
 static int derive_lex(void);
 static void derive_error(char *);
 int derive_debug;
@@ -116,7 +112,7 @@ initialize_mutex(void)
     char			errmsg[PM_MAXERRMSGLEN];
 
     if ((psts = pthread_mutex_lock(&init)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
+	osstrerror_r(psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
 	exit(4);
     }
@@ -128,17 +124,17 @@ initialize_mutex(void)
 	pthread_mutexattr_t    attr;
 
 	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    osstrerror_r(psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
 	    exit(4);
 	}
 	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    osstrerror_r(psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
 	    exit(4);
 	}
 	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    osstrerror_r(psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
 	    exit(4);
 	}
@@ -146,7 +142,7 @@ initialize_mutex(void)
 	done = 1;
     }
     if ((psts = pthread_mutex_unlock(&init)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
+	osstrerror_r(psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
 	exit(4);
     }
@@ -1386,9 +1382,7 @@ __dmdumpexpr(node_t *np, int level)
     if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     else if (np->type == N_SCALE) {
-	char	*p;
-	p = pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf));
-	if (p == NULL) {
+	if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
 	    fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
 	    	np->desc.units.scaleCount, np->desc.units.scaleTime,
 	    	np->desc.units.scaleSpace,
@@ -1493,7 +1487,7 @@ registerderived(const char *name, const char *expr, int isanon)
     np = parse_tree;
     if (np == NULL) {
 	/* parser error */
-	char	*sts = (char *)this;
+	char	*sts = (char *)lexicon;
 	PM_UNLOCK(registered.mutex);
 	return sts;
     }
@@ -2868,7 +2862,7 @@ derive_lex(void)
 	c = get();
 	if (firstch) {
 	    if (isspace((int)c)) continue;
-	    this = &string[-1];
+	    lexicon = &string[-1];
 	    firstch = 0;
 	}
 	if (c == EOF) {
