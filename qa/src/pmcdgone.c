@@ -13,8 +13,8 @@
  */
 
 #include <ctype.h>
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
 
 #include "localconfig.h"

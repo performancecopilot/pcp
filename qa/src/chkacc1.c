@@ -3,8 +3,8 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
 #include "localconfig.h"
 

@@ -5,8 +5,8 @@
  * (non-Win32 variant of the test, uses uid_t/gid_t)
  */
 
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
 #if defined(HAVE_PWD_H)
 #include <pwd.h>

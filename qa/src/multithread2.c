@@ -7,8 +7,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
 #include <pthread.h>
 

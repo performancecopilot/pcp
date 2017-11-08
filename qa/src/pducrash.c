@@ -5,11 +5,11 @@
  * calls the __pmDecode* routines.
  */
 
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
-#include "trace.h"
-#include "trace_dev.h"
+#include <pcp/trace.h>
+#include <pcp/trace_dev.h>
 
 static void
 decode_label_req(const char *name)

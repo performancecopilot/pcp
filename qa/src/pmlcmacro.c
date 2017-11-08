@@ -6,8 +6,8 @@
  * exercise the state bit fiddling macros for pmlogger and friends
  */
 
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
 
 int

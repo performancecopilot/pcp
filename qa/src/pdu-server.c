@@ -13,11 +13,11 @@
  *		for PDUs
  */
 
-#include "pmapi.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include "libpcp.h"
-#include "trace.h"
-#include "trace_dev.h"
+#include <pcp/trace.h>
+#include <pcp/trace_dev.h>
 #include <strings.h>
 #include "localconfig.h"
 
