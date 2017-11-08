@@ -38,6 +38,10 @@ import requests
 import threading
 
 
+# Number of seconds to wait between poll attempts on a source that
+# we've never been able to connect to & collect a list of metrics from.
+empty_source_pmns_poll = 10.0
+
 MAX_CLUSTER = 0xfff    # ~ max. number of prometheus sources
 MAX_METRIC = 0x3ff     # ~ max. number of metrics per source
 MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
@@ -158,7 +162,9 @@ class Metric(object):
                                 inst,instname = self.format_prom_instname(labels)
                         # self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
                         self.values[inst] = float(value)
-                        self.indom_table.save() # XXX: ideally less frequently
+
+        def save(self):
+                self.indom_table.save()
                         
         def fetch_inst(self,inst): # fetch instance
                 if not self.values:
@@ -401,6 +407,7 @@ class Source(object):
                 self.path = path # pathname to .url file
                 self.pmda = pmda # the shared pmda
 
+                self.refresh_time = 0 # "never"
                 self.requests = requests.Session() # allow persistent connections etc.
                 
                 # persistently assign numeric id to our metrics
@@ -418,9 +425,11 @@ class Source(object):
                 OTOH, if it hasn't been fetched from "recently", maybe
                 it grew new metrics, and may need a look-see.  So we
                 could track the last time a fetch was done to this source,
-                and "time out" the PMNS from it.  XXX
+                and "time out" the PMNS from it.
                 '''
-                return len(self.metrics_by_name) == 0
+                now = time.time()
+                last_try_age = now - self.refresh_time
+                return len(self.metrics_by_name) == 0 and last_try_age > empty_source_pmns_poll
                 
         def parse_metric_line(self,line,pcpline,helpline,typeline):
                 '''
@@ -518,6 +527,8 @@ class Source(object):
                         m.clear_values()
                 # XXX: ditch metrics no longer found in document
 
+                self.refresh_time = time.time()
+                
                 # (re)read the URL from given file
                 try:
                         url = open(self.path,'r').read().strip()
@@ -533,6 +544,9 @@ class Source(object):
                                 r.raise_for_status() # non-200?  ERROR
                                 t = r.text
                         s = self.parse_lines(t)
+                        # save metric & indom lookup tables changes, if any 
+                        for n,m in self.metrics_by_name.items():
+                                m.save()
                         self.pmids_table.save()
                         self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(t), s, url))
                 except Exception as e:
@@ -667,7 +681,8 @@ class PrometheusPMDA(PMDA):
                 for k,v in self.source_by_cluster.items():
                         if v.old_enough_for_refresh():
                                 clusters.append(k)
-                self.refresh_some_clusters_for_fetch(clusters)
+                if len(clusters) > 0:
+                        self.refresh_some_clusters_for_fetch(clusters)
 
                 
         def fetch_callback(self, cluster, item, inst):
@@ -695,6 +710,8 @@ class PrometheusPMDA(PMDA):
                 '''
                 clusters = [int(l) for l in _clusters] # convert from PyLong
                 threads = []
+
+                self.debug("refreshing clusters %s" % clusters)
                 for c in clusters:
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
