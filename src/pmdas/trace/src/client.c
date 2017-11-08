@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "trace_dev.h"
 #include "client.h"
 #include "comms.h"

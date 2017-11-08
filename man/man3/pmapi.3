@@ -401,39 +401,6 @@ Any use of a
 context, as the DSO PMDAs that are called directly from
 .B libpcp
 may not be thread-safe.
-.TP 4n
-2.
-The interval timer services use global state with semantics that demand
-it is only used in the context of a single thread, so
-.BR __pmAFregister (3),
-.BR __pmAFunregister (3),
-.BR __pmAFblock (3),
-.B __pmAFunblock (3)
-and
-.BR __pmAFisempty (3).
-.TP 4n
-3.
-The following (undocumented) access control manipulation
-routines that are principally intended
-for single-threaded applications:
-.BR __pmAccAddOp ,
-.BR __pmAccSaveHosts ,
-.BR __pmAccRestoreHosts ,
-.BR __pmAccFreeSavedHosts ,
-.BR __pmAccAddHost ,
-.BR __pmAccAddClient ,
-.B __pmAccDelClient
-and
-.BR __pmAccDumpHosts .
-.TP 4n
-4.
-The following (undocumented) routines that identify
-.I pmlogger
-control ports and are principally intended
-for single-threaded applications:
-.B __pmLogFindPort
-and
-.BR __pmLogFindLocalPorts .
 .SH "PCP ENVIRONMENT"
 Most environment variables are described in
 .BR PCPIntro (1).

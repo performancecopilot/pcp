@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmcd.h"
 
 #define MIN_CLIENTS_ALLOC 8

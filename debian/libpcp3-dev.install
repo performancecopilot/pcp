@@ -31,6 +31,8 @@ usr/share/man/man3/__pmAFunblock.3.gz
 usr/share/man/man3/__pmAFunregister.3.gz
 usr/share/man/man3/pmapi.3.gz
 usr/share/man/man3/PMAPI.3.gz
+usr/share/man/man3/pmapi_internal.3.gz
+usr/share/man/man3/PMAPI_INTERNAL.3.gz
 usr/share/man/man3/pmatomstr.3.gz
 usr/share/man/man3/pmAtomStr.3.gz
 usr/share/man/man3/pmAtomStr_r.3.gz

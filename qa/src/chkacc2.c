@@ -7,8 +7,9 @@
  * Check connection limits
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "libpcp.h"
 #include "localconfig.h"
 
 int

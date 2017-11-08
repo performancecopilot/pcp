@@ -30,6 +30,7 @@
 %{
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "logger.h"
 
 int		mystate = GLOBAL;	/* config file parser state */

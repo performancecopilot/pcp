@@ -1,0 +1,85 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PMAPI_INTERNAL 3i "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3PMAPI_INTERNAL\f1 \- internal details for the Performance Metrics Application Programming Interface
+.SH "C SYNOPSIS"
+.ft 3
+#include "libpcp.h"
+.sp
+.ft 1
+\& ... assorted routines ...
+.ft 3
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.PP
+Refer to
+.BR PMAPI (3)
+for general information about the external interfaces defined in <pcp/pmapi.h>.
+The interfaces described here assume that context.
+.SH "MULTI-THREADED APPLICATIONS"
+The following groups of internal functions and services in
+.B libpcp
+are restricted to being called from a single-thread, and this is enforced
+by returning
+.B PM_ERR_THREAD
+when an attempt to call the routines in each group from more than one
+thread is detected.
+.TP 4n
+1.
+The interval timer services use global state with semantics that demand
+it is only used in the context of a single thread, so
+.BR __pmAFregister (3),
+.BR __pmAFunregister (3),
+.BR __pmAFblock (3),
+.B __pmAFunblock (3)
+and
+.BR __pmAFisempty (3).
+.TP 4n
+2.
+The following access control manipulation
+routines that are principally intended
+for single-threaded applications:
+.BR __pmAccAddOp ,
+.BR __pmAccSaveHosts ,
+.BR __pmAccRestoreHosts ,
+.BR __pmAccFreeSavedHosts ,
+.BR __pmAccAddHost ,
+.BR __pmAccAddClient ,
+.B __pmAccDelClient
+and
+.BR __pmAccDumpHosts .
+.TP 4n
+3.
+The following routines that identify
+.I pmlogger
+control ports and are principally intended
+for single-threaded applications:
+.B __pmLogFindPort
+and
+.BR __pmLogFindLocalPorts .
+.SH SEE ALSO
+.BR PMAPI (3).

@@ -16,6 +16,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 /* per-configured-pipe structure */
 typedef struct pipe_command {
