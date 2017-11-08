@@ -4,6 +4,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 static fetchctl_t	*root;
 
