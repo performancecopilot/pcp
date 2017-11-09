@@ -27,6 +27,7 @@
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <pcp/deprecated.h>
 
 #if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL

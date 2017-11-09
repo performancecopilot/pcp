@@ -307,7 +307,7 @@ addtext(__pmLogCtl *lcp, unsigned int ident, unsigned int type, char *buffer)
     int			sts;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
-    if (pmDebug & DBG_TRACE_LOGMETA)
+    if (pmDebugOptions.logmeta)
 	fprintf(stderr, "addtext( ..., %u, %u)", ident, type);
 
     if ((sts = __pmLogLookupText(lcp, ident, type, &buffer)) < 0) {

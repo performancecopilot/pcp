@@ -19,6 +19,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 
 #define MIN_ITIMER_USEC 100

@@ -100,19 +100,19 @@ dataprint(__pmHashTable *t, void *e)
 
 
 void
-debuglibrary(int flag)
+debuglibrary(void)
 {
     extern int	__pmstate;
     int		state;
 
     state = pmtracestate(0);
-    if (flag & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	state |= PMTRACE_STATE_COMMS;
-    if (flag & DBG_TRACE_PDU)
+    if (pmDebugOptions.pdu)
 	state |= PMTRACE_STATE_PDU;
-    if (flag & DBG_TRACE_PDUBUF)
+    if (pmDebugOptions.pdubuf)
 	state |= PMTRACE_STATE_PDUBUF;
-    if (flag == 0)
+    if (somedebug == 0)
 	__pmstate = 0;
     else
 	pmtracestate(state);

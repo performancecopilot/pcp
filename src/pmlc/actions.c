@@ -16,6 +16,7 @@
 #include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */

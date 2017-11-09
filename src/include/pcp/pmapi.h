@@ -1037,6 +1037,50 @@ PCP_CALL extern int pmSetDebug(const char *);
 PCP_CALL extern int pmClearDebug(const char *);
 
 /*
+ * New style ...
+ * Note that comments are important ... these are extracted and
+ * built into pmdbg.h.
+ */
+typedef struct {
+    int	pdu;		/* PDU traffic at the Xmit and Recv level */
+    int	fetch;		/* Results from pmFetch */
+    int	profile;	/* Changes and xmits for instance profile */
+    int	value;		/* Metric value extraction and conversion */
+    int	context;	/* Changes to PMAPI contexts */
+    int	indom;		/* Low-level instance profile xfers */
+    int	pdubuf;		/* PDU buffer operations */
+    int	log;		/* Archive log manipulations */
+    int	logmeta;	/* Archive metadata operations */
+    int	optfetch;	/* optFetch magic */
+    int	af;		/* Asynchronous event scheduling */
+    int	appl0;		/* Application-specific flag 0 */
+    int	appl1;		/* Application-specific flag 1 */
+    int	appl2;		/* Application-specific flag 2 */
+    int	pmns;		/* PMNS operations */
+    int	libpmda;	/* PMDA callbacks into libpcp_pmda */
+    int	timecontrol;	/* Time control API */
+    int	pmc;		/* Metrics class operations */
+    int	derive;		/* Derived metrics functionality */
+    int	lock;		/* Synchronization and lock tracing */
+    int	interp;		/* Interpolate mode for archives */
+    int	config;		/* Configuration parameters */
+    int	pmapi;		/* PMAPI call tracing */
+    int	fault;		/* Fault injection tracing */
+    int	auth;		/* Authentication tracing */
+    int	discovery;	/* Service discovery tracing */
+    int	attr;		/* Connection attribute handling */
+    int	http;		/* Trace HTTP operations in libpcp_web */
+    int	desperate;	/* Verbose/Desperate level (developers only) */
+/* new ones start here, no DBG_TRACE_xxx macro and no backwards compatibility */
+    int	deprecated;	/* Report use of deprecated services */
+    int	exec;	 	/* __pmProcessExec and related calls */
+    int labels;		/* Metric label metadata operations */
+    int series;		/* Time series tracing */
+} pmdebugoptions_t;
+
+PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
+
+/*
  * Startup handling:
  * set/get program name, as used in pmNotifyErr() ... default is "pcp"
  */

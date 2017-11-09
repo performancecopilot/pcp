@@ -228,8 +228,8 @@ by
 .PP
 Additional tracing (via
 .B \-Dfault
-and
-.BR DBG_TRACE_FAULT )
+or
+.BR pmDebugOptions.fault )
 and a new
 PMAPI error code (\c
 .BR PM_ERR_FAULT )
@@ -237,7 +237,7 @@ are also defined, although
 these will only ever be seen or used in
 .IR libpcp_fault .
 If
-.B DBG_TRACE_FAULT
+.B pmDebugOptions.fault
 is set the first time
 .B __pmFaultInject
 is called, then

@@ -19,6 +19,8 @@
 #include "timelord.h"
 #include "pmtime.h"
 
+static int Dflag;
+
 static pmOptions opts;
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
@@ -45,6 +47,15 @@ static void setupEnvironment(void)
     QCoreApplication::setApplicationName("pmtime");
 }
 
+static int
+override(int opt, pmOptions *opts)
+{
+    (void)opts;
+    if (opt == 'D')
+	Dflag = 1;
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int		sts, autoport = 0;
@@ -55,6 +66,7 @@ int main(int argc, char **argv)
     /* -a/-h ignored, back-compat for time control from libpcp_gui */
     opts.short_options = "ahD:p:V?";
     opts.long_options = longopts;
+    opts.override = override;
     (void)pmGetOptions(argc, argv, &opts);
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT) || opts.optind != argc) {
 	if ((opts.flags & PM_OPTFLAG_EXIT)) {
@@ -120,11 +132,11 @@ int main(int argc, char **argv)
     tl.setContext(&hc, &ac);
 
     hc.init();
-    if (!pmDebug) hc.disableConsole();
+    if (!Dflag) hc.disableConsole();
     else hc.popup(1);
 
     ac.init();
-    if (!pmDebug) ac.disableConsole();
+    if (!Dflag) ac.disableConsole();
     else ac.popup(1);
 
     a.exec();

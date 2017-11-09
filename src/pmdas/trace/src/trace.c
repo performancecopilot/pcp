@@ -1039,7 +1039,7 @@ traceStore(pmResult *result, pmdaExt *pmda)
 		    pmClearDebug("all");
 		    __pmSetDebugBits(av.l);
 		    __pmNotifyErr(LOG_INFO, "debug level set to %d", pmDebug);
-		    debuglibrary(pmDebug);
+		    debuglibrary();
 		}
 	    }
 	}

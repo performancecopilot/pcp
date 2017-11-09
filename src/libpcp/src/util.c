@@ -62,6 +62,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "libpcp.h"
+#include "deprecated.h"
 #include "pmdbg.h"
 #include "internal.h"
 #include "deprecated.h"

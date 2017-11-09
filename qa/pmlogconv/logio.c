@@ -44,21 +44,17 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
 	f = lcp->l_mfp;
 
     offset = __pmFtell(f);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "_pmLogGet: fd=%d vol=%d posn=%ld ",
 	    fileno(f), vol, offset);
     }
-#endif
 
 again:
     sts = (int)__pmFread(&head, 1, sizeof(head), f);
     if (sts != sizeof(head)) {
 	if (sts == 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOG)
+	    if (pmDebugOptions.log)
 		fprintf(stderr, "AFTER end\n");
-#endif
 	    __pmFseek(f, offset, SEEK_SET);
 	    if (vol != PM_LOG_VOL_META) {
 		if (lcp->l_curvol < lcp->l_maxvol) {
@@ -70,10 +66,8 @@ again:
 	    }
 	    return PM_ERR_EOL;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: hdr fread=%d %s\n", sts, strerror(errno));
-#endif
 	if (sts > 0)
 	    return PM_ERR_LOGREC;
 	else
@@ -81,21 +75,17 @@ again:
     }
 
     if ((lpb = (__pmPDU *)malloc(ntohl(head))) == NULL) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: __pmFindPDUBuf(%d) %s\n",
 		(int)ntohl(head), strerror(errno));
-#endif
 	__pmFseek(f, offset, SEEK_SET);
 	return -errno;
     }
 
     lpb[0] = head;
     if ((sts = (int)__pmFread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: data fread=%d %s\n", sts, strerror(errno));
-#endif
 	if (sts == 0) {
 	    __pmFseek(f, offset, SEEK_SET);
 	    return PM_ERR_EOL;
@@ -110,16 +100,13 @@ again:
     p = (char *)lpb;
     memcpy(&tail, &p[ntohl(head) - sizeof(head)], sizeof(head));
     if (head != tail) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: head-tail mismatch (%d-%d)\n",
 		(int)ntohl(head), (int)ntohl(tail));
-#endif
 	return PM_ERR_LOGREC;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM) {
 	    fprintf(stderr, "@");
 	    if (sts >= 0) {
@@ -134,10 +121,8 @@ again:
 	}
 	fprintf(stderr, " len=%d (incl head+tail)\n", (int)ntohl(head));
     }
-#endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU) {
+    if (pmDebugOptions.pdu) {
 	int		i, j;
 	struct timeval	stamp;
 	__pmTimeval	*tvp = (__pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
@@ -161,7 +146,6 @@ again:
 	}
 	fputc('\n', stderr);
     }
-#endif
 
     *pb = lpb;
     return 0;
@@ -173,18 +157,14 @@ _pmLogPut(FILE *f, __pmPDU *pb)
     int		rlen = ntohl(pb[0]);
     int		sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
 	    fileno(f), rlen);
     }
-#endif
 
     if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, strerror(errno));
-#endif
 	return -errno;
     }
     return 0;

@@ -24,6 +24,7 @@
 #include "trace.h"
 #include "trace_dev.h"
 #include "comms.h"
+#include "data.h"
 
 #define DEFAULT_TIMESPAN	60	/* one minute  */
 #define DEFAULT_BUFSIZE		5	/* twelve second update */
@@ -33,6 +34,7 @@ struct timeval	interval;
 unsigned int	rbufsize  = DEFAULT_BUFSIZE;
 int		ctlport	  = -1;
 char		*ctlsock;
+int		somedebug;
 
 static char	mypath[MAXPATHLEN];
 static char	*username;
@@ -41,7 +43,7 @@ extern void traceInit(pmdaInterface *dispatch);
 extern void traceMain(pmdaInterface *dispatch);
 extern int  updateObserveValue(const char *);
 extern int  updateCounterValue(const char *);
-extern void debuglibrary(int);
+extern void debuglibrary(void);
 
 static void
 usage(void)
@@ -150,6 +152,7 @@ main(int argc, char **argv)
     int			err = 0;
     int			sep = __pmPathSeparator();
     int			c = 0;
+    int			sts;
 
     pmSetProgname(argv[0]);
     __pmGetUsername(&username);
@@ -167,6 +170,15 @@ main(int argc, char **argv)
 	    if (parseAuth(optarg) < 0)
 		err++;
 	    /* add optarg to access control list */
+	    break;
+	case 'D':
+	    sts = pmSetDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
+		    pmGetProgname(), optarg);
+		err++;
+	    }
+	    somedebug = 1;
 	    break;
 	case 'I':
 	    ctlport = (int)strtol(optarg, &endnum, 10);
@@ -211,7 +223,7 @@ main(int argc, char **argv)
     interval.tv_usec = (long)((timespan.tv_sec % rbufsize) * 1000000);
     rbufsize++;		/* reserve space for the `working' buffer */
 
-    debuglibrary(pmDebug);
+    debuglibrary();
 
     pmdaOpenLog(&dispatch);
     __pmSetProcessIdentity(username);

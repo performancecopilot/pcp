@@ -23,6 +23,7 @@
 #define DESPERATE 0
 
 int Cflag;
+int Dflag;
 int Hflag;
 int Lflag;
 int Wflag;
@@ -436,6 +437,8 @@ override(int opt, pmOptions *opts)
     (void)opts;
     if (opt == 'g')
 	return 1;
+    if (opt == 'D')
+	Dflag = 1;
     if (opt == 'H')
 	Hflag = 1;
     if (opt == 'L')

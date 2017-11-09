@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "pcp/pmapi.h"
+#include <pcp/pmapi.h>
 
 /*
  * exercise pmPrintValue() ... should produce very similar answers

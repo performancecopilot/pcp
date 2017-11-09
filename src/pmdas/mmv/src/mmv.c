@@ -23,12 +23,13 @@
  * of the file (by default - this can be changed).
  */
 
-#include "pmapi.h"
-#include "mmv_stats.h"
-#include "mmv_dev.h"
-#include "impl.h"
-#include "libpcp.h"
-#include "pmda.h"
+#include <pcp/pmapi.h>
+#include <pcp/mmv_stats.h>
+#include <pcp/mmv_dev.h>
+#include <pcp/impl.h>
+#include <pcp/libpcp.h>
+#include <pcp/deprecated.h>
+#include <pcp/pmda.h>
 #include "./domain.h"
 #include <sys/stat.h>
 #include <inttypes.h>

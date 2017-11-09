@@ -15,6 +15,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 #include <strings.h>
@@ -244,8 +245,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeLabelReq: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_LABEL_REQ: ident=%d type=0x%x: ", ident, type);
 		if (type & PM_LABEL_CONTEXT)
 		    fprintf(stderr, "CONTEXT");
@@ -263,7 +263,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, "BAD TYPE");
 		fputc('\n', stderr);
 	    }
-#endif
 	    e = __pmSendLabelReq(fd, mypid, ident, type);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendLabelReq: %s\n", pmGetProgname(), pmErrStr(e));
@@ -277,12 +276,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeLabel: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_LABEL: ident=%d type=0x%x", ident, type);
 		__pmDumpLabelSets(stderr, sets, nsets);
 	    }
-#endif
 	    e = __pmSendLabel(fd, mypid, ident, type, sets, nsets);
 	    pmFreeLabelSets(sets, nsets);
 	    if (e < 0) {

@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMAF 3 "PCP" "Performance Co-Pilot"
+.TH PMAF 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmAFsetup\f1,
 \f3__pmAFregister\f1,
@@ -23,9 +23,11 @@
 \f3__pmAFisempty\f1 \- event queue services for periodic asynchronous callbacks
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 .br
-#include <pcp/impl.h>
+#include "impl.h"
+.br
+#include "libpcp.h"
 .sp
 .ad l
 .hy 0
@@ -50,6 +52,13 @@ int __pmAFisempty(void);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 The routines implement an event queue and callback framework that supports
 periodic evaluation of a series of events with varying frequencies

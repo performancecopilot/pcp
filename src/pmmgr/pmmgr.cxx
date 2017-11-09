@@ -216,7 +216,7 @@ pmmgr_configurable::wrap_popen(const std::string& cmd)
 {
   string output;
   
-  if (pmDebug & DBG_TRACE_APPL1)
+  if (pmDebugOptions.appl1)
     timestamp(obatched(cout)) << "pipe-running " << cmd << endl;
 
   FILE* f = popen(cmd.c_str(), "r");
@@ -242,7 +242,7 @@ pmmgr_configurable::wrap_popen(const std::string& cmd)
   if (status != 0)
     timestamp(obatched(cerr)) << "popen(" << cmd << ") failed: rc=" << status << endl;
 
-  if (pmDebug & DBG_TRACE_APPL1)
+  if (pmDebugOptions.appl1)
     timestamp(obatched(cout)) << "collected " << output << endl;
 
   return output;
@@ -755,7 +755,7 @@ pmmgr_job_spec::poll()
       !get_config_exists ("target-kubectl-pod"))
     new_specs.insert("local:");
 
-  if (pmDebug & DBG_TRACE_APPL1)
+  if (pmDebugOptions.appl1)
     {
       timestamp(obatched(cout)) << "poll targets" << endl;
       for (set<string>::const_iterator it = new_specs.begin();

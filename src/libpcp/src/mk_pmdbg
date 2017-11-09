@@ -13,7 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Create pmdbg.h from ../../include/pcp/impl.h
+# Create pmdbg.h from ../../include/pcp/.h
 
 INCDIR=../../include
 
@@ -26,19 +26,22 @@ else
     exit 1
 fi
 
-if [ ! -f $INCDIR/pcp/impl.h ]
-then
-    echo "mk_pmdbg: cannot find impl.h"
-    exit 1
-fi
+for file in pmapi.h deprecated.h
+do
+    if [ ! -f $INCDIR/pcp/$file ]
+    then
+	echo "mk_pmdbg: cannot find $file"
+	exit 1
+    fi
+done
 
-sedcmd=`$PCP_AWK_PROG <$INCDIR/pcp/impl.h '
+sedcmd=`$PCP_AWK_PROG <$INCDIR/pcp/pmapi.h '
 BEGIN			{ start=0 }
 /^typedef struct \{/	{ start=NR }
 /^} pmdebugoptions_t;/	{ if (start>0) print start "," NR "p"; exit }'`
 if [ -z $sedcmd ]
 then
-    echo "mk_pmdbg: cannot find __pmdebugoptions typedef in impl.h"
+    echo "mk_pmdbg: cannot find __pmdebugoptions typedef in pmapi.h"
     exit 1
 fi
 
@@ -49,7 +52,7 @@ rm -f pmdbg.h
 cat <<End-of-File >pmdbg.h
 /*
  * DO NOT EDIT.
- * Built from ../../include/pcp/impl.h by mk_pmdbg.
+ * Built from ../../include/pcp/{pmapi,deprecated}.h by mk_pmdbg.
  * Any modifications here will be lost.
  */
 
@@ -67,7 +70,7 @@ End-of-File
 # start with the old DBG_TRACE macros ...
 #define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
 #
-sed -n <$INCDIR/pcp/impl.h \
+sed -n <$INCDIR/pcp/deprecated.h \
     -e '/#define[ 	]*DBG_TRACE_/{
 s/#define[ 	]*DBG_TRACE_\([A-Z0-9_]*\)/\1/
 s/[ 	].*\/\* */ /
@@ -86,7 +89,7 @@ echo "/* new debug options with no DBG_TRACE_xxx equivalent */" >>pmdbg.h
 # New ones ... look like this
 #	int	exec;	 	/* pmExec tracing */
 #
-sed -n -e $sedcmd <$INCDIR/pcp/impl.h \
+sed -n -e $sedcmd <$INCDIR/pcp/pmapi.h \
 | sed -n \
     -e '/[ 	]*int[ 	][ 	]*\([a-z][a-z0-9_]*\);/{
 s//\1/
