@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMDISCOVERSERVICES 3 "PCP" "Performance Co-Pilot"
+.TH PMDISCOVERSERVICES 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmDiscoverServices\f1 \- discover PCP services on the network
 .SH "C SYNOPSIS"
@@ -25,6 +25,8 @@ int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, c
 .fi
 .sp
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 .nf
 int __pmDiscoverServicesWithOptions(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIoptionsString\fP, const volatile unsigned *\fIflags\fP, char ***\fIurls\fP);
@@ -32,6 +34,13 @@ int __pmDiscoverServicesWithOptions(const char *\fIservice\fP, const char *\fIme
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .de CW
 .ie t \f(CW\\$1\f1\\$2

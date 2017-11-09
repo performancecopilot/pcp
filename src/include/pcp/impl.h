@@ -1230,20 +1230,6 @@ PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 /* Get nanosecond precision timestamp from system clocks */
 PCP_CALL extern int __pmGetTimespec(struct timespec *);
 
-/*
- * Service discovery with options.
- * The 4th argument is a pointer to a mask of flags for boolean options
- * and status. It is set and tested using the following bits.
- */
-#define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
-#define PM_SERVICE_DISCOVERY_RESOLVE		0x2
-
-PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
-					   const char *,
-					   const char *,
-					   const volatile sig_atomic_t *,
-					   char ***);
-
 #ifdef __cplusplus
 }
 #endif
