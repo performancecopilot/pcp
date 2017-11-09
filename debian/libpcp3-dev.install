@@ -41,7 +41,7 @@ usr/share/man/man3/pmconnectlogger.3.gz
 usr/share/man/man3/__pmConnectLogger.3.gz
 usr/share/man/man3/pmcontrollog.3.gz
 usr/share/man/man3/__pmControlLog.3.gz
-usr/share/man/man3/pmconverttime.3.gz
+usr/share/man/man3/__pmconverttime.3.gz
 usr/share/man/man3/__pmConvertTime.3.gz
 usr/share/man/man3/pmconvscale.3.gz
 usr/share/man/man3/pmConvScale.3.gz
@@ -203,7 +203,7 @@ usr/share/man/man3/pmLookupText.3.gz
 usr/share/man/man3/pmmergelabels.3.gz
 usr/share/man/man3/pmMergeLabels.3.gz
 usr/share/man/man3/pmMergeLabelSets.3.gz
-usr/share/man/man3/pmmktime.3.gz
+usr/share/man/man3/__pmmktime.3.gz
 usr/share/man/man3/__pmMktime.3.gz
 usr/share/man/man3/pmnameall.3.gz
 usr/share/man/man3/pmNameAll.3.gz
@@ -225,7 +225,7 @@ usr/share/man/man3/pmNumberStr_r.3.gz
 usr/share/man/man3/pmopenlog.3.gz
 usr/share/man/man3/__pmOpenLog.3.gz
 usr/share/man/man3/__pmOverrideLastFd.3.gz
-usr/share/man/man3/pmparsectime.3.gz
+usr/share/man/man3/__pmparsectime.3.gz
 usr/share/man/man3/__pmParseCtime.3.gz
 usr/share/man/man3/pmparsedebug.3.gz
 usr/share/man/man3/__pmParseDebug.3.gz
@@ -237,7 +237,7 @@ usr/share/man/man3/pmparseinterval.3.gz
 usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmparsemetricspec.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
-usr/share/man/man3/pmparsetime.3.gz
+usr/share/man/man3/__pmparsetime.3.gz
 usr/share/man/man3/__pmParseTime.3.gz
 usr/share/man/man3/pmparsetimewindow.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz

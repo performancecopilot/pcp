@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMMKTIME 3 "PCP" "Performance Co-Pilot"
+.TH PMMKTIME 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmMktime\f1 \- convert a \fBtm\fR structure to a calendar time
 .SH "C SYNOPSIS"
@@ -23,11 +23,20 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 time_t __pmMktime(struct tm *\fItimeptr\fP);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmMktime
 is very similar to

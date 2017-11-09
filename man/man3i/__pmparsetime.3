@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMPARSETIME 3 "PCP" "Performance Co-Pilot"
+.TH PMPARSETIME 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmParseTime\f1 \- parse time point specification
 .SH "C SYNOPSIS"
@@ -21,6 +21,8 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 .ad l
 .hy 0
@@ -33,6 +35,13 @@ int __pmParseTime(const char *\fIstring\fP, struct timeval *\fIlogStart\fP, stru
 .ad
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmParseTime
 is designed to encapsulate the interpretation of a time point specification in
@@ -89,6 +98,6 @@ this error message string.
 .BR pmParseInterval (3),
 .BR pmParseTimeWindow (3),
 .BR pmUseZone (3),
-.BR __pmConvertTime (3)
+.BR __pmConvertTime (3i)
 and
-.BR __pmParseCtime (3).
+.BR __pmParseCtime (3i).

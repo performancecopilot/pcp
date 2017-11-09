@@ -16,6 +16,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 #undef HASHSIZE
 #define HASHSIZE	40	/* SHA1: 40 for convenience, could be 20 */

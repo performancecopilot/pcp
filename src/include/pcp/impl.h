@@ -23,9 +23,31 @@ extern "C" {
 /*
  * functions to be promoted to pmapi.h and the __pm version added
  * to deprecated.*
+ * === start ==
  */
+
+/* platform independent set process identity */
 PCP_CALL extern int __pmSetProcessIdentity(const char *);
+
+/* filesystem path name separator */
 PCP_CALL extern int __pmPathSeparator(void);
+
+/* safely insert an atom value into a pmValue */
+PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
+
+/* struct timeval/timespec manipulations */
+PCP_CALL extern void __pmtimevalNow(struct timeval *);
+PCP_CALL extern void __pmtimevalInc(struct timeval *, const struct timeval *);
+PCP_CALL extern void __pmtimevalDec(struct timeval *, const struct timeval *);
+PCP_CALL extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
+PCP_CALL extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
+PCP_CALL extern double __pmtimevalToReal(const struct timeval *);
+PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
+PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
+PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
+
+/* == end == */
+
 
 typedef struct __pmnsTree __pmnsTree;	/* TODO remove when __pmLogCtl moves to libpcp.h */
 
@@ -86,8 +108,6 @@ PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
-PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
-PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 PCP_CALL extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
@@ -1042,63 +1062,6 @@ PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
-
-/* time utils */
-PCP_CALL extern time_t __pmMktime(struct tm *);
-
-/* reverse ctime and time interval parsing */
-PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
-PCP_CALL extern int __pmConvertTime(struct tm *, struct timeval *, struct timeval *);
-PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval *,
-			 struct timeval *, char **);
-
-/* manipulate internal timestamps */
-PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
-PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
-
-/*
- * struct timeval manipulations
- */
-PCP_CALL extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
-PCP_CALL extern void __pmtimevalInc(struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
-PCP_CALL extern void __pmtimevalDec(struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalToReal(const struct timeval *);
-PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
-PCP_CALL extern void __pmtimevalSleep(struct timeval);
-PCP_CALL extern void __pmtimevalPause(struct timeval);
-PCP_CALL extern void __pmtimevalNow(struct timeval *);
-
-typedef struct {
-    char		*label;		/* label to name tz */
-    char		*tz;		/* env $TZ */
-    int			handle;		/* handle from pmNewZone() */
-} pmTimeZone;
-
-/* safely insert an atom value into a pmValue */
-PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
-
-/* string conversion to value of given type, suitable for pmStore */
-PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
-
-/* work out local timezone */
-PCP_CALL extern char *__pmTimezone(void);			/* NOT thread-safe */
-PCP_CALL extern char *__pmTimezone_r(char *, int);
-
-/*
- * internals of argument parsing for special circumstances
- */
-PCP_CALL extern void __pmStartOptions(pmOptions *);
-PCP_CALL extern int  __pmGetLongOptions(pmOptions *);
-PCP_CALL extern void __pmAddOptArchive(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptArchiveList(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptContainer(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptHost(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptHostList(pmOptions *, char *);
-PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
-PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
-PCP_CALL extern void __pmEndOptions(pmOptions *);
 
 #ifdef __cplusplus
 }

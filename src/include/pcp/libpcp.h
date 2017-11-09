@@ -466,6 +466,48 @@ PCP_CALL extern struct __pmDSO *__pmLookupDSO(int);
 PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
 PCP_CALL extern char *__pmSpecLocalPMDA(const char *);
 
+/* internals of argument parsing for special circumstances */
+PCP_CALL extern void __pmStartOptions(pmOptions *);
+PCP_CALL extern int  __pmGetLongOptions(pmOptions *);
+PCP_CALL extern void __pmAddOptArchive(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptArchiveList(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptContainer(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptHost(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptHostList(pmOptions *, char *);
+PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
+PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
+PCP_CALL extern void __pmEndOptions(pmOptions *);
+
+/* real pmTimeZone declaration */
+typedef struct {
+    char		*label;		/* label to name tz */
+    char		*tz;		/* env $TZ */
+    int			handle;		/* handle from pmNewZone() */
+} pmTimeZone;
+
+/* work out local timezone */
+PCP_CALL extern char *__pmTimezone(void);		/* NOT thread-safe */
+PCP_CALL extern char *__pmTimezone_r(char *, int);
+
+/* string conversion to value of given type, suitable for pmStore */
+PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
+
+/* timeval-based delays */
+PCP_CALL extern void __pmtimevalSleep(struct timeval);
+PCP_CALL extern void __pmtimevalPause(struct timeval);
+
+/* manipulate internal timestamps */
+PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
+PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
+
+/* reverse ctime, time interval parsing, time conversions */
+PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
+PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval *,
+			 struct timeval *, char **);
+PCP_CALL extern int __pmConvertTime(struct tm *, struct timeval *, struct timeval *);
+PCP_CALL extern time_t __pmMktime(struct tm *);
+
 #ifdef __cplusplus
 }
 #endif

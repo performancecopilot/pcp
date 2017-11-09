@@ -25,6 +25,8 @@
 #include <qmc_metric.h>
 #include <qmc_context.h>
 
+#include "libpcp.h"
+
 // Temporary buffer
 static char buffer[256];
 

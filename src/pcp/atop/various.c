@@ -24,6 +24,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
 #include <pcp/impl.h>
+#include <pcp/libpcp.h>
 #include <stdarg.h>
 #include <ctype.h>
 #include <math.h>
