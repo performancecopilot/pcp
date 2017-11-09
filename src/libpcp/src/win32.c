@@ -35,10 +35,9 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "deprecated.h"
 #include <winbase.h>
 #include <psapi.h>
-
-static char	*appname = NULL;
 
 #define FILETIME_1970		116444736000000000ull	/* 1/1/1601-1/1/1970 */
 #define HECTONANOSEC_PER_SEC	10000000ull
@@ -142,48 +141,36 @@ __pmSetProcessIdentity(const char *username)
     return 0;	/* Not Yet Implemented */
 }
 
-int
+void
 pmSetProgname(const char *program)
 {
-    int	sts1, sts2;
-    const char *p
-    const char *name;
-    char *suffix = NULL;
-    int c;
-    WORD wVersionRequested = MAKEWORD(2, 2);
-    WSADATA wsaData;
+    char	*p, *suffix = NULL;
+    static int	setup;
+    WORD	wVersionRequested = MAKEWORD(2, 2);
+    WSADATA	wsaData;
 
     if (program == NULL) {
 	/* Restore the default application name */
-	if (appname != NULL)
-	    free(appname);
-	appname = NULL;
-	pmProgname = "pcp";		/* for deprecated use */
-	return 0;
+	pmProgname = "pcp";
+    } else {
+	/* Trim command name of leading directory components */
+	pmProgname = (char *)program;
+	for (p = pmProgname; *p; p++) {
+	    if (*p == '\\' || *p == '/') {
+		pmProgname = p + 1;
+		suffix = NULL;
+	    }
+	    else if (*p == '.')
+		suffix = p;
+	}
+	/* Drop the .exe suffix from the name if we found it */
+	if (suffix && strcmp(suffix, ".exe") == 0)
+	    *suffix = '\0';
     }
 
-    /* Trim command name of leading directory components */
-    for (name = p = program; *p; p++) {
-	if (*p == '\\' || *p == '/')
-	    name = p+1;
-	if (*p == '.')
-	    suffix = p;
-    }
-    if (suffix && strcmp(suffix, ".exe") == 0) {
-	c = *suffix;
-	*suffix = '\0';
-    }
-
-    /* strdup failure leaves appname set to NULL, which is the default */
-    appname = strdup(name);
-
-    if (appname == NULL) {
-	pmProgname = "pcp";		/* for deprecated use */
-	return -ENOMEM;
-    }
-    else {
-	pmProgname = appname;		/* for deprecated use */
-    }
+    if (setup)
+	return;
+    setup = 1;
 
     /* Deal with all files in binary mode - no EOL futzing */
     _fmode = O_BINARY;
@@ -192,7 +179,7 @@ pmSetProgname(const char *program)
      * If Windows networking is not setup, all networking calls fail;
      * this even includes gethostname(2), if you can believe that. :[
      */
-    sts1 = WSAStartup(wVersionRequested, &wsaData);
+    WSAStartup(wVersionRequested, &wsaData);
 
     /*
      * Here we are emulating POSIX signals using Event objects.
@@ -201,9 +188,7 @@ pmSetProgname(const char *program)
      * get a look-in, IOW.  Other signals (HUP/USR1) are handled
      * in a similar way, but only by processes that need them.
      */
-    sts2 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
-
-    return sts1 | sts2;
+    __pmSetSignalHandler(SIGTERM, sigterm_callback);
 }
 
 void
@@ -453,12 +438,6 @@ __pmProcessRunTimes(double *usr, double *sys)
     }
     CloseHandle(ph);
     return sts;
-}
-
-void
-__pmDumpStack(FILE *f)
-{
-   /* TODO: StackWalk64 API */
 }
 
 void

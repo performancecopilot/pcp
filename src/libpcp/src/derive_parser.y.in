@@ -112,7 +112,7 @@ initialize_mutex(void)
     char			errmsg[PM_MAXERRMSGLEN];
 
     if ((psts = pthread_mutex_lock(&init)) != 0) {
-	osstrerror_r(psts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
 	exit(4);
     }
@@ -124,17 +124,17 @@ initialize_mutex(void)
 	pthread_mutexattr_t    attr;
 
 	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    osstrerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
 	    exit(4);
 	}
 	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    osstrerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
 	    exit(4);
 	}
 	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
-	    osstrerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
 	    exit(4);
 	}
@@ -142,7 +142,7 @@ initialize_mutex(void)
 	done = 1;
     }
     if ((psts = pthread_mutex_unlock(&init)) != 0) {
-	osstrerror_r(psts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
 	exit(4);
     }

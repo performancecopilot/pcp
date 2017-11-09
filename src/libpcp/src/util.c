@@ -64,6 +64,7 @@
 #include "libpcp.h"
 #include "pmdbg.h"
 #include "internal.h"
+#include "deprecated.h"
 
 #if defined(HAVE_SYS_TIMES_H)
 #include <sys/times.h>
@@ -117,6 +118,12 @@ __pmIsUtilLock(void *lock)
     return lock == (void *)&util_lock;
 }
 #endif
+
+char *
+pmGetProgname(void)
+{
+    return pmProgname;
+}
 
 /*
  * if onoff == 1, logging is to syslog and stderr, else logging is
@@ -2648,15 +2655,9 @@ pmSetProgname(const char *program)
 	/* Trim command name of leading directory components */
 	pmProgname = (char *)program;
 	for (p = pmProgname; *p; p++)
-	    if (*p == __pmPathSeparator())
+	    if (*p == '/')
 		pmProgname = p+1;
     }
-}
-
-char *
-pmGetProgname(void)
-{
-    return pmProgname;
 }
 
 int
@@ -2688,6 +2689,7 @@ __pmMemoryUnmap(void *addr, size_t sz)
 {
     munmap(addr, sz);
 }
+#endif /* !IS_MINGW */
 
 #if HAVE_TRACE_BACK_STACK
 #include <libexc.h>
@@ -2812,5 +2814,3 @@ pmInDom_build(unsigned int domain, unsigned int serial)
     memcpy(&indom, &indom_int, sizeof(indom));
     return indom;
 }
-
-#endif /* !IS_MINGW */
