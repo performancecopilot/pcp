@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <pcp/mmv_stats.h>
 #include <pcp/mmv_dev.h>
 

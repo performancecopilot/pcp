@@ -20,7 +20,12 @@
 extern "C" {
 #endif
 
-PCP_CALL extern int __pmSetProcessIdentity(const char *);	/* TODO promote to PMAPI */
+/*
+ * functions to be promoted to pmapi.h and the __pm version added
+ * to deprecated.*
+ */
+PCP_CALL extern int __pmSetProcessIdentity(const char *);
+PCP_CALL extern int __pmPathSeparator(void);
 
 typedef struct __pmnsTree __pmnsTree;	/* TODO remove when __pmLogCtl moves to libpcp.h */
 
@@ -888,12 +893,6 @@ PCP_CALL extern int __pmGetUsername(char **);
 PCP_CALL extern int __pmShutdown(void);
 
 /*
- * Map platform error values to PMAPI error codes.
- */
-PCP_CALL extern int __pmMapErrno(int);
-PCP_CALL extern void __pmDumpErrTab(FILE *);
-
-/*
  * __pmLogInDom is used to hold the instance identifiers for an instance
  * domain internally ... if multiple sets are observed over time, these
  * are linked together in reverse chronological order
@@ -1087,36 +1086,6 @@ PCP_CALL extern char *__pmTimezone(void);			/* NOT thread-safe */
 PCP_CALL extern char *__pmTimezone_r(char *, int);
 
 /*
- * platform independent memory mapped file handling
- */
-PCP_CALL extern void *__pmMemoryMap(int, size_t, int);
-PCP_CALL extern void __pmMemoryUnmap(void *, size_t);
-
-/*
- * platform independent signal handling
- */
-typedef void (*__pmSignalHandler)(int);
-PCP_CALL extern int __pmSetSignalHandler(int, __pmSignalHandler);
-
-/*
- * platform independent environment and filesystem path access
- */
-typedef void (*__pmConfigCallback)(char *, char *, char *);
-PCP_DATA extern const __pmConfigCallback __pmNativeConfig;
-PCP_CALL extern void __pmConfig(__pmConfigCallback);
-PCP_CALL extern char *__pmNativePath(char *);
-PCP_CALL extern int __pmAbsolutePath(char *);
-PCP_CALL extern int __pmPathSeparator(void);
-PCP_CALL extern int __pmMakePath(const char *, mode_t);
-
-/*
- * discover configurable features of the shared libraries
- */
-typedef void (*__pmAPIConfigCallback)(const char *, const char *);
-PCP_CALL extern void __pmAPIConfig(__pmAPIConfigCallback);
-PCP_CALL extern const char *__pmGetAPIConfig(const char *);
-
-/*
  * internals of argument parsing for special circumstances
  */
 PCP_CALL extern void __pmStartOptions(pmOptions *);
@@ -1130,18 +1099,6 @@ PCP_CALL extern void __pmAddOptHostList(pmOptions *, char *);
 PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
 PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
 PCP_CALL extern void __pmEndOptions(pmOptions *);
-
-/*
- * Adding/deleting/clearing the list of DSO PMDAs supported for
- * PM_CONTEXT_LOCAL contexts
- */
-#define PM_LOCAL_ADD	1
-#define PM_LOCAL_DEL	2
-#define PM_LOCAL_CLEAR	3
-PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
-PCP_CALL extern char *__pmSpecLocalPMDA(const char *);
-struct __pmDSO;
-PCP_CALL extern struct __pmDSO *__pmLookupDSO(int);
 
 #ifdef __cplusplus
 }

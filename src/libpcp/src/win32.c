@@ -35,6 +35,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "deprecated.h"
 #include <winbase.h>
 #include <psapi.h>

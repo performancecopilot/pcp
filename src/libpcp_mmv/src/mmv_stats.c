@@ -20,6 +20,7 @@
 #include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "impl.h"
+#include "libpcp.h"
 
 static void
 mmv_stats_path(const char *fname, char *fullpath, size_t pathlen)

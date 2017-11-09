@@ -18,6 +18,7 @@
 #include <pcp/mmv_stats.h>
 #include <pcp/mmv_dev.h>
 #include <pcp/impl.h>
+#include <pcp/libpcp.h>
 #include <inttypes.h>
 #include <sys/stat.h>
 #include <strings.h>

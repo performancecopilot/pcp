@@ -14,6 +14,7 @@
 #include <pcp/mmv_stats.h>
 #include <pcp/mmv_dev.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 static mmv_disk_header_t hdr = {
     .magic = "MMV",
