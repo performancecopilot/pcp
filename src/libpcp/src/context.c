@@ -32,6 +32,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 #include <string.h>
 #include <assert.h>

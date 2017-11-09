@@ -14,6 +14,7 @@
 #include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 static int	quiet;
 static char	*mechanism;

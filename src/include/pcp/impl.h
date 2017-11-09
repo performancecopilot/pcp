@@ -16,6 +16,17 @@
 #ifndef PCP_IMPL_H
 #define PCP_IMPL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * This defines the routines, macros and data structures that are used
+ * in the Performance Metrics Collection Subsystem (PMCS) below the
+ * PMAPI.
+ */
+
+/* TODO .. move to libpcp.h when all refs to __pmMutex have gone */
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
  * global data structures and mutual exclusion when required.
@@ -30,16 +41,6 @@ typedef pthread_mutex_t __pmMutex;
 #else
 typedef void * __pmMutex;
 #endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*
- * This defines the routines, macros and data structures that are used
- * in the Performance Metrics Collection Subsystem (PMCS) below the
- * PMAPI.
- */
 
 /*
  * internal libpcp state ... PM_STATE_APPL means we are at or above the
@@ -1230,45 +1231,6 @@ PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern int __pmGetTimespec(struct timespec *);
 
 /*
- * Multi-thread support
- * Use PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
- */
-PCP_CALL extern void __pmInitLocks(void);
-PCP_CALL extern int __pmLock(void *, const char *, int);
-PCP_CALL extern int __pmUnlock(void *, const char *, int);
-PCP_CALL extern int __pmIsLocked(void *);
-#ifdef BUILD_WITH_LOCK_ASSERTS
-PCP_CALL extern void __pmCheckIsUnlocked(void *, char *, int);
-#endif /* BUILD_WITH_LOCK_ASSERTS */
-
-/*
- * Each of these scopes defines one or more PMAPI routines that will
- * not allow calls from more than one thread.
- */
-#define PM_SCOPE_DSO_PMDA	0
-#define PM_SCOPE_ACL		1
-#define PM_SCOPE_AF		2
-#define PM_SCOPE_LOGPORT	3
-#define PM_SCOPE_MAX		3
-PCP_CALL extern int __pmMultiThreaded(int);
-
-#define PM_INIT_LOCKS()		__pmInitLocks()
-#define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
-#define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
-#define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
-#define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
-
-#ifdef HAVE_PTHREAD_MUTEX_T
-/* the big libpcp lock */
-PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;
-/* mutex for calls to external routines that are not thread-safe */
-PCP_CALL extern pthread_mutex_t	__pmLock_extcall;
-#else
-PCP_CALL extern void *__pmLock_libpcp;			/* symbol exposure */
-PCP_CALL extern void *__pmLock_extcall;			/* symbol exposure */
-#endif
-
-/*
  * Service discovery with options.
  * The 4th argument is a pointer to a mask of flags for boolean options
  * and status. It is set and tested using the following bits.
@@ -1281,7 +1243,6 @@ PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
 					   const char *,
 					   const volatile sig_atomic_t *,
 					   char ***);
-
 
 #ifdef __cplusplus
 }

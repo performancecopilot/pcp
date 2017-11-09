@@ -8,6 +8,8 @@
 #include <qmc_desc.h>
 #include <qmc_indom.h>
 
+#include <pcp/libpcp.h>
+
 QTextStream cerr(stderr);
 QTextStream cout(stdout);
 

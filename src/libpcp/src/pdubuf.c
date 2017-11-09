@@ -21,6 +21,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "compiler.h"
 #include <assert.h>
 #include <search.h>
