@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMLOOKUPIPC 3 "PCP" "Performance Co-Pilot"
+.TH PMLOOKUPIPC 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmAddIPC\f1,
 \f3__pmLookupIPC\f1,
@@ -26,6 +26,8 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 int __pmAddIPC(int \fIfd\fP, __pmIPC \fIipc\fP);
 .br
@@ -41,6 +43,13 @@ void __pmResetIPC(int \fIfd\fP);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 IPC channels throughout the distributed PCP framework are affected by the
 PCP 2.0 (and later) PDU changes.  These functions are the interface to the libpcp IPC

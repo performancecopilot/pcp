@@ -33,7 +33,6 @@ extern "C" {
  */
 #define PM_STATE_APPL	0
 #define PM_STATE_PMCS	1
-
 PCP_CALL extern void __pmSetInternalState(int);
 PCP_CALL extern int __pmGetInternalState(void);
 
@@ -149,43 +148,49 @@ PCP_CALL extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
 PCP_CALL extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
 PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 
-/*
- * Generic access control routines
- */
-PCP_CALL extern int __pmAccAddOp(unsigned int);
+/* internal IPC protocol stuff */
+typedef int (*__pmConnectHostType)(int, int);
+PCP_CALL extern int __pmSetSocketIPC(int);
+PCP_CALL extern int __pmSetVersionIPC(int, int);
+PCP_CALL extern int __pmSetFeaturesIPC(int, int, int);
+PCP_CALL extern int __pmSetDataIPC(int, void *);
+PCP_CALL extern int __pmDataIPCSize(void);
+PCP_CALL extern int __pmLastVersionIPC(void);
+PCP_CALL extern int __pmVersionIPC(int);
+PCP_CALL extern int __pmSocketIPC(int);
+PCP_CALL extern int __pmFeaturesIPC(int);
+PCP_CALL extern int __pmDataIPC(int, void *);
+PCP_CALL extern void __pmOverrideLastFd(int);
+PCP_CALL extern void __pmPrintIPC(void);
+PCP_CALL extern void __pmResetIPC(int);
 
+/* Generic access control routines */
+PCP_CALL extern int __pmAccAddOp(unsigned int);
 PCP_CALL extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
 PCP_CALL extern int __pmAccAddUser(const char *, unsigned int, unsigned int, int);
 PCP_CALL extern int __pmAccAddGroup(const char *, unsigned int, unsigned int, int);
-
 PCP_CALL extern int __pmAccAddClient(__pmSockAddr *, unsigned int *);
 PCP_CALL extern int __pmAccAddAccount(const char *, const char *, unsigned int *);
 PCP_CALL extern void __pmAccDelClient(__pmSockAddr *);
 PCP_CALL extern void __pmAccDelAccount(const char *, const char *);
-
 PCP_CALL extern void __pmAccDumpHosts(FILE *);
 PCP_CALL extern void __pmAccDumpUsers(FILE *);
 PCP_CALL extern void __pmAccDumpGroups(FILE *);
 PCP_CALL extern void __pmAccDumpLists(FILE *);
-
 PCP_CALL extern int __pmAccSaveHosts(void);
 PCP_CALL extern int __pmAccSaveUsers(void);
 PCP_CALL extern int __pmAccSaveGroups(void);
 PCP_CALL extern int __pmAccSaveLists(void);
-
 PCP_CALL extern int __pmAccRestoreHosts(void);
 PCP_CALL extern int __pmAccRestoreUsers(void);
 PCP_CALL extern int __pmAccRestoreGroups(void);
 PCP_CALL extern int __pmAccRestoreLists(void);
-
 PCP_CALL extern void __pmAccFreeSavedHosts(void);
 PCP_CALL extern void __pmAccFreeSavedUsers(void);
 PCP_CALL extern void __pmAccFreeSavedGroups(void);
 PCP_CALL extern void __pmAccFreeSavedLists(void);
 
-/*
- * AF - general purpose asynchronous event management routines
- */
+/* AF - general purpose asynchronous event management routines */
 PCP_CALL extern int __pmAFsetup(const struct timeval *, const struct timeval *, void *, void (*)(int, void *));
 PCP_CALL extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));
 PCP_CALL extern int __pmAFunregister(int);
@@ -193,16 +198,12 @@ PCP_CALL extern void __pmAFblock(void);
 PCP_CALL extern void __pmAFunblock(void);
 PCP_CALL extern int __pmAFisempty(void);
 
-/*
- * private PDU protocol between pmlc and pmlogger
- */
+/* private PDU protocol between pmlc and pmlogger */
 #define LOG_PDU_VERSION2	2	/* private pdus & PCP 2.0 error codes */
 #define LOG_PDU_VERSION		LOG_PDU_VERSION2
-
 #define LOG_REQUEST_NEWVOLUME	1
 #define LOG_REQUEST_STATUS	2
 #define LOG_REQUEST_SYNC	3
-
 typedef struct {
     __pmTimeval  ls_start;	/* start time for log */
     __pmTimeval  ls_last;	/* last time log written */
@@ -219,11 +220,9 @@ typedef struct {
     char	ls_tzlogger[PM_TZ_MAXLEN];
 				/* $TZ at pmlogger */
 } __pmLoggerStatus;
-
 #define PDU_LOG_CONTROL		0x8000
 #define PDU_LOG_STATUS		0x8001
 #define PDU_LOG_REQUEST		0x8002
-
 PCP_CALL extern int __pmConnectLogger(const char *, int *, int *);
 PCP_CALL extern int __pmSendLogControl(int, const pmResult *, int, int, int);
 PCP_CALL extern int __pmDecodeLogControl(const __pmPDU *, pmResult **, int *, int *, int *);
@@ -235,16 +234,11 @@ PCP_CALL extern int __pmDecodeLogStatus(__pmPDU *, __pmLoggerStatus **);
 /* logger timeout helper function */
 PCP_CALL extern int __pmLoggerTimeout(void);
 
-/*
- * other interfaces shared by pmlc and pmlogger
- */
-
+/* other interfaces shared by pmlc and pmlogger */
 PCP_CALL extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
-
 #define PM_LOG_OFF		0	/* state */
 #define PM_LOG_MAYBE		1
 #define PM_LOG_ON		2
-
 #define PM_LOG_MANDATORY	11	/* control */
 #define PM_LOG_ADVISORY		12
 #define PM_LOG_ENQUIRE		13
@@ -266,23 +260,18 @@ PCP_CALL extern int __pmControlLog(int, const pmResult *, int, int, int, pmResul
         (val) = ((val) & ~0x8) | (((flag) & 0x1) << 3)
 #define PMLC_GET_INLOG(val) \
         (((val) & 0x8) >> 3)
-
 #define PMLC_SET_STATE(val, state) \
         (val) = ((val) & ~0xf) | ((state) & 0xf)
 #define PMLC_GET_STATE(val) \
         ((val) & 0xf)
-
 /* 28 bits of delta, 32 bits of state */
 #define PMLC_MAX_DELTA  0x0fffffff
-
 #define PMLC_SET_DELTA(val, delta) \
         (val) = ((val) & 0xf) | ((delta) << 4)
 #define PMLC_GET_DELTA(val) \
         ((((val) & ~0xf) >> 4) & PMLC_MAX_DELTA)
 
-/*
- * Optimized fetch bundling ("optfetch") services
- */
+/* Optimized fetch bundling ("optfetch") services */
 typedef struct __optreq {
     struct __optreq	*r_next;	/* next request */
     struct __fetchctl	*r_fetch;	/* back ptr */
@@ -291,7 +280,6 @@ typedef struct __optreq {
     int			*r_instlist;	/* request instances */
     void		*r_aux;		/* generic pointer to aux data */
 } optreq_t;
-
 typedef struct __pmidctl {
     struct __pmidctl	*p_next;	/* next pmid control */
     optreq_t		*p_rqp;		/* first request for this metric */
@@ -300,7 +288,6 @@ typedef struct __pmidctl {
     int			*p_instlist;	/* union over requests */
     void		*p_aux;		/* generic pointer to aux data */
 } pmidctl_t;
-
 typedef struct __indomctl {
     struct __indomctl	*i_next;	/* next indom control */
     pmidctl_t		*i_pmp;		/* first metric, in this group */
@@ -309,7 +296,6 @@ typedef struct __indomctl {
     int			*i_instlist;	/* arg for pmAddProfile */
     void		*i_aux;		/* generic pointer to aux data */
 } indomctl_t;
-
 typedef struct __fetchctl {
     struct __fetchctl	*f_next;	/* next fetch control */
     indomctl_t		*f_idp;		/* first indom, in this group */
@@ -320,12 +306,10 @@ typedef struct __fetchctl {
     pmID		*f_pmidlist;	/* arg for pmFetch() */
     void		*f_aux;		/* generic pointer to aux data */
 } fetchctl_t;
-
 /* states relevant to user */
 #define OPT_STATE_NEW		1	/* newly created group */
 #define OPT_STATE_PMID		2	/* list of pmids changed */
 #define OPT_STATE_PROFILE	4	/* instance profile changed */
-
 /* states used during optimization */
 #define OPT_STATE_UMASK		7	/* preserve user state bits */
 #define OPT_STATE_XREQ		8	/* things that may have changed */
@@ -333,10 +317,7 @@ typedef struct __fetchctl {
 #define OPT_STATE_XINDOM	32
 #define OPT_STATE_XFETCH	64
 #define OPT_STATE_XPROFILE	128
-
-/*
- * Objective function parameters
- */
+/* Objective function parameters */
 typedef struct {
     int		c_pmid;		/* cost per PMD for PMIDs in a fetch */
     int		c_indom;	/* cost per PMD for indoms in a fetch */
@@ -345,9 +326,7 @@ typedef struct {
     int		c_xtrainst;	/* cost of retrieving an unwanted metric inst */
     int		c_scope;	/* cost opt., 0 for incremental, 1 for global */
 } optcost_t;
-
 #define OPT_COST_INFINITY	0x7fffffff
-
 PCP_CALL extern void __pmOptFetchAdd(fetchctl_t **, optreq_t *);
 PCP_CALL extern int __pmOptFetchDel(fetchctl_t **, optreq_t *);
 PCP_CALL extern void __pmOptFetchRedo(fetchctl_t **);
@@ -370,9 +349,7 @@ PCP_CALL extern int __pmProcessExec(__pmExecCtl_t **, int, int);
 PCP_CALL extern int __pmProcessPipe(__pmExecCtl_t **, const char *, int, FILE **);
 PCP_CALL extern int __pmProcessPipeClose(FILE *);
 
-/*
- * other platform independent process management routines
- */
+/* other platform independent process management routines */
 PCP_CALL extern int __pmProcessExists(pid_t);
 PCP_CALL extern int __pmProcessTerminate(pid_t, int);
 PCP_CALL extern pid_t __pmProcessCreate(char **, int *, int *);
@@ -392,24 +369,19 @@ PCP_CALL extern int __pmGetTimespec(struct timespec *);
  */
 #define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
 #define PM_SERVICE_DISCOVERY_RESOLVE		0x2
-
 PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
 					   const char *,
 					   const char *,
 					   const volatile sig_atomic_t *,
 					   char ***);
 
-/*
- * Helper methods for packed arrays of event records
- */
+/* Helper methods for packed arrays of event records */
 PCP_CALL extern int __pmCheckEventRecords(pmValueSet *, int);
 PCP_CALL extern int __pmCheckHighResEventRecords(pmValueSet *, int);
 PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 
-/*
- * event tracing for monitoring time between events
- */
+/* event tracing for monitoring time between events */
 PCP_CALL extern void __pmEventTrace(const char *);		/* NOT thread-safe */
 PCP_CALL extern void __pmEventTrace_r(const char *, int *, double *, double *);
 

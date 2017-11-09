@@ -20,6 +20,10 @@
 extern "C" {
 #endif
 
+PCP_CALL extern int __pmSetProcessIdentity(const char *);	/* TODO promote to PMAPI */
+
+typedef struct __pmnsTree __pmnsTree;	/* TODO remove when __pmLogCtl moves to libpcp.h */
+
 /*
  * This defines the routines, macros and data structures that are used
  * in the Performance Metrics Collection Subsystem (PMCS) below the
@@ -221,8 +225,6 @@ PCP_CALL extern int __pmFerror(__pmFILE *);
 PCP_CALL extern void __pmClearerr(__pmFILE *);
 PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
-
-typedef struct __pmnsTree __pmnsTree;	/* REMOVE when __pmLogCtl moves to libpcp.h */
 
 /*
  * Log/Archive Control
@@ -1074,26 +1076,6 @@ typedef struct {
     int			handle;		/* handle from pmNewZone() */
 } pmTimeZone;
 
-/*
- * More IPC protocol stuff
- */
-
-typedef int (*__pmConnectHostType)(int, int);
-
-PCP_CALL extern int __pmSetSocketIPC(int);
-PCP_CALL extern int __pmSetVersionIPC(int, int);
-PCP_CALL extern int __pmSetFeaturesIPC(int, int, int);
-PCP_CALL extern int __pmSetDataIPC(int, void *);
-PCP_CALL extern int __pmDataIPCSize(void);
-PCP_CALL extern int __pmLastVersionIPC(void);
-PCP_CALL extern int __pmVersionIPC(int);
-PCP_CALL extern int __pmSocketIPC(int);
-PCP_CALL extern int __pmFeaturesIPC(int);
-PCP_CALL extern int __pmDataIPC(int, void *);
-PCP_CALL extern void __pmOverrideLastFd(int);
-PCP_CALL extern void __pmPrintIPC(void);
-PCP_CALL extern void __pmResetIPC(int);
-
 /* safely insert an atom value into a pmValue */
 PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
@@ -1103,8 +1085,6 @@ PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
 /* work out local timezone */
 PCP_CALL extern char *__pmTimezone(void);			/* NOT thread-safe */
 PCP_CALL extern char *__pmTimezone_r(char *, int);
-
-PCP_CALL extern int __pmSetProcessIdentity(const char *);	/* TODO promote to PMAPI */
 
 /*
  * platform independent memory mapped file handling
