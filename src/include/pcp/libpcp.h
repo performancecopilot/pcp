@@ -328,6 +328,9 @@ PCP_CALL extern pid_t __pmProcessCreate(char **, int *, int *);
 PCP_CALL extern int __pmProcessDataSize(unsigned long *);
 PCP_CALL extern int __pmProcessRunTimes(double *, double *);
 
+/* Anonymous metric registration (uses derived metrics support) */
+PCP_CALL extern int __pmRegisterAnon(const char *, int);
+
 /*
  * For QA apps ...
  */

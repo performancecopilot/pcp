@@ -1229,9 +1229,6 @@ PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 /* Get nanosecond precision timestamp from system clocks */
 PCP_CALL extern int __pmGetTimespec(struct timespec *);
 
-/* Anonymous metric registration (uses derived metrics support) */
-PCP_CALL extern int __pmRegisterAnon(const char *, int);
-
 /*
  * Multi-thread support
  * Use PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
