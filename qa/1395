@@ -1,0 +1,120 @@
+#!/bin/sh
+# PCP QA Test No. 1395
+# pmdaprometheus scalability testing
+# specifically scaling number of instances per nodes
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.python
+
+[ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
+[ -f $here/prometheus/prometheus_endpoint.python ] || _notrun "prometheus endpoint generator not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+mkdir -p $tmp
+totalendpoints=5 #total queue to work through
+endpoints=5 #prometheus endpoints
+iterations=5
+metrics=10
+instances=400
+
+_cleanup()
+{
+    cd $here
+    alive=`kill -s 0 $pid >/dev/null 2>&1`
+    pidstatus=$?
+    if [ $pidstatus == 0 ]
+    then
+	$sudo kill $pid 2>&1 >/dev/null
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+pmdaprometheus_remove()
+{
+    echo
+    echo "=== remove prometheus agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaprometheus_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/prometheus
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== prometheus agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+}
+
+
+_prepare_pmda prometheus
+trap "_cleanup _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+
+_save_config $PCP_PMDAS_DIR/prometheus/urls.d
+_save_config $PCP_VAR_DIR/config/pmda
+$sudo rm -f $PCP_PMDAS_DIR/prometheus/urls.d/*
+$sudo rm -f $PCP_VAR_DIR/config/pmda/*
+$sudo chmod 777 $PCP_PMDAS_DIR/prometheus/urls.d/
+
+pmdaprometheus_install
+
+$python $here/prometheus/prometheus_endpoint.python \
+	--output=$PCP_PMDAS_DIR/prometheus/urls.d/ \
+	--total $totalendpoints \
+	--endpoints $endpoints \
+	--metrics $metrics \
+	--instances $instances \
+	--limit $iterations >$tmp.endpoint 2>&1 &
+pid=$!
+sleep 3 #avoid racing (zoom zoom)
+
+if pminfo -b 1000000 -v prometheus > $tmp.info 2>$tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err
+
+if pminfo -b 1000000 -ftd prometheus.source1 > $tmp.info 2>$tmp.err
+   then
+    echo "Fetch and desc prometheus metrics: success"
+    cat $tmp.info
+else
+    echo "Fetch and desc prometheus metrics: failed"
+    cat $tmp.err
+fi
+
+for i in `seq 0 1 4`
+do
+    pminfo -b 10000000 -tf prometheus.source$i
+    pminfo -b 10000000 -tf prometheus.source$i
+    pminfo -b 10000000 -tf prometheus.source$i
+    pminfo -b 10000000 -tf prometheus.source$i
+    sleep 0.5
+done
+
+pmdaprometheus_remove
+$sudo rm -rf $PCP_VAR_DIR/config/pmda/pmda.$seq*
+$sudo rm -rf $PCP_VAR_DIR/config/pmda/144*
+_restore_config $PCP_PMDAS_DIR/prometheus/urls.d
+_restore_config $PCP_VAR_DIR/config/pmda
+
+# success, all done
+status=0
+exit

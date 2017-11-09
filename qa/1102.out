@@ -1,0 +1,820 @@
+QA output created by 1102
+Waiting for pmcd to terminate ...
+
+=== prometheus agent installation ===
+Fetch and desc prometheus metrics: success
+
+prometheus.source1.sample_summary0002_count
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 5454
+
+prometheus.source1.sample_summary0002_sum
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 4.17362031
+
+prometheus.source1.sample_summary0002
+    Data Type: double  InDom: 144.9218 0x24002402
+    Semantics: instant  Units: none
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000478869
+    inst [2 or "{'quantile': '0.5'}"] value 0.000957738
+    inst [3 or "{'quantile': '0.75'}"] value 0.001436607
+    inst [4 or "{'quantile': '1.0'}"] value 0.001915476
+    inst [5 or "{'quantile': '1.25'}"] value 0.002394345
+    inst [6 or "{'quantile': '1.5'}"] value 0.002873214
+    inst [7 or "{'quantile': '1.75'}"] value 0.003352083
+    inst [8 or "{'quantile': '2.0'}"] value 0.003830952
+    inst [9 or "{'quantile': '2.25'}"] value 0.004309821
+
+prometheus.source1.sample_counter0001
+    Data Type: double  InDom: 144.9217 0x24002401
+    Semantics: counter  Units: none
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 340410788
+    inst [2 or "{'baz': '1.4'}"] value 680821576
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 1021232360
+    inst [4 or "{'baz': '2.8'}"] value 1361643150
+    inst [5 or "{'baz': '3.5'}"] value 1702053940
+    inst [6 or "{'baz': '4.199999999999999'}"] value 2042464730
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 2382875520
+    inst [8 or "{'baz': '5.6'}"] value 2723286300
+    inst [9 or "{'baz': '6.3'}"] value 3063697090
+
+prometheus.source1.sample_gauge0000
+    Data Type: double  InDom: 144.9216 0x24002400
+    Semantics: instant  Units: none
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 12.1
+    inst [2 or "{'bar': '2'}"] value 24.2
+    inst [3 or "{'bar': '3'}"] value 36.3
+    inst [4 or "{'bar': '4'}"] value 48.4
+    inst [5 or "{'bar': '5'}"] value 60.5
+    inst [6 or "{'bar': '6'}"] value 72.59999999999999
+    inst [7 or "{'bar': '7'}"] value 84.7
+    inst [8 or "{'bar': '8'}"] value 96.8
+    inst [9 or "{'bar': '9'}"] value 108.9
+
+prometheus.source0.sample_summary0002_count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    value 2.78241354
+
+prometheus.source0.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000319246
+    inst [2 or "{'quantile': '0.5'}"] value 0.0006384920000000001
+    inst [3 or "{'quantile': '0.75'}"] value 0.000957738
+    inst [4 or "{'quantile': '1.0'}"] value 0.001276984
+    inst [5 or "{'quantile': '1.25'}"] value 0.00159623
+    inst [6 or "{'quantile': '1.5'}"] value 0.001915476
+    inst [7 or "{'quantile': '1.75'}"] value 0.002234722
+    inst [8 or "{'quantile': '2.0'}"] value 0.002553968
+    inst [9 or "{'quantile': '2.25'}"] value 0.002873214
+
+prometheus.source0.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 170205394
+    inst [2 or "{'baz': '1.4'}"] value 340410788
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 510616182
+    inst [4 or "{'baz': '2.8'}"] value 680821576
+    inst [5 or "{'baz': '3.5'}"] value 851026970
+    inst [6 or "{'baz': '4.199999999999999'}"] value 1021232360
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 1191437760
+    inst [8 or "{'baz': '5.6'}"] value 1361643150
+    inst [9 or "{'baz': '6.3'}"] value 1531848550
+
+prometheus.source0.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 0
+    inst [2 or "{'bar': '2'}"] value 0
+    inst [3 or "{'bar': '3'}"] value 0
+    inst [4 or "{'bar': '4'}"] value 0
+    inst [5 or "{'bar': '5'}"] value 0
+    inst [6 or "{'bar': '6'}"] value 0
+    inst [7 or "{'bar': '7'}"] value 0
+    inst [8 or "{'bar': '8'}"] value 0
+    inst [9 or "{'bar': '9'}"] value 0
+
+prometheus.source1.sample_summary0002_count
+    value 7272
+
+prometheus.source1.sample_summary0002_sum
+    value 5.564827080000001
+
+prometheus.source1.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.0006384920000000001
+    inst [2 or "{'quantile': '0.5'}"] value 0.001276984
+    inst [3 or "{'quantile': '0.75'}"] value 0.001915476
+    inst [4 or "{'quantile': '1.0'}"] value 0.002553968
+    inst [5 or "{'quantile': '1.25'}"] value 0.00319246
+    inst [6 or "{'quantile': '1.5'}"] value 0.003830952
+    inst [7 or "{'quantile': '1.75'}"] value 0.004469444
+    inst [8 or "{'quantile': '2.0'}"] value 0.005107936
+    inst [9 or "{'quantile': '2.25'}"] value 0.005746428
+
+prometheus.source1.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 510616182
+    inst [2 or "{'baz': '1.4'}"] value 1021232360
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 1531848550
+    inst [4 or "{'baz': '2.8'}"] value 2042464730
+    inst [5 or "{'baz': '3.5'}"] value 2553080910
+    inst [6 or "{'baz': '4.199999999999999'}"] value 3063697090
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 3574313270
+    inst [8 or "{'baz': '5.6'}"] value 4084929460
+    inst [9 or "{'baz': '6.3'}"] value 4595545640
+
+prometheus.source1.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 24.2
+    inst [2 or "{'bar': '2'}"] value 48.4
+    inst [3 or "{'bar': '3'}"] value 72.59999999999999
+    inst [4 or "{'bar': '4'}"] value 96.8
+    inst [5 or "{'bar': '5'}"] value 121
+    inst [6 or "{'bar': '6'}"] value 145.2
+    inst [7 or "{'bar': '7'}"] value 169.4
+    inst [8 or "{'bar': '8'}"] value 193.6
+    inst [9 or "{'bar': '9'}"] value 217.8
+
+prometheus.source0.sample_summary0002_count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    value 2.78241354
+
+prometheus.source0.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000319246
+    inst [2 or "{'quantile': '0.5'}"] value 0.0006384920000000001
+    inst [3 or "{'quantile': '0.75'}"] value 0.000957738
+    inst [4 or "{'quantile': '1.0'}"] value 0.001276984
+    inst [5 or "{'quantile': '1.25'}"] value 0.00159623
+    inst [6 or "{'quantile': '1.5'}"] value 0.001915476
+    inst [7 or "{'quantile': '1.75'}"] value 0.002234722
+    inst [8 or "{'quantile': '2.0'}"] value 0.002553968
+    inst [9 or "{'quantile': '2.25'}"] value 0.002873214
+
+prometheus.source0.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 170205394
+    inst [2 or "{'baz': '1.4'}"] value 340410788
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 510616182
+    inst [4 or "{'baz': '2.8'}"] value 680821576
+    inst [5 or "{'baz': '3.5'}"] value 851026970
+    inst [6 or "{'baz': '4.199999999999999'}"] value 1021232360
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 1191437760
+    inst [8 or "{'baz': '5.6'}"] value 1361643150
+    inst [9 or "{'baz': '6.3'}"] value 1531848550
+
+prometheus.source0.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 0
+    inst [2 or "{'bar': '2'}"] value 0
+    inst [3 or "{'bar': '3'}"] value 0
+    inst [4 or "{'bar': '4'}"] value 0
+    inst [5 or "{'bar': '5'}"] value 0
+    inst [6 or "{'bar': '6'}"] value 0
+    inst [7 or "{'bar': '7'}"] value 0
+    inst [8 or "{'bar': '8'}"] value 0
+    inst [9 or "{'bar': '9'}"] value 0
+
+prometheus.source1.sample_summary0002_count
+    value 9090
+
+prometheus.source1.sample_summary0002_sum
+    value 6.956033850000001
+
+prometheus.source1.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000798115
+    inst [2 or "{'quantile': '0.5'}"] value 0.00159623
+    inst [3 or "{'quantile': '0.75'}"] value 0.002394345
+    inst [4 or "{'quantile': '1.0'}"] value 0.00319246
+    inst [5 or "{'quantile': '1.25'}"] value 0.003990575
+    inst [6 or "{'quantile': '1.5'}"] value 0.00478869
+    inst [7 or "{'quantile': '1.75'}"] value 0.005586805
+    inst [8 or "{'quantile': '2.0'}"] value 0.00638492
+    inst [9 or "{'quantile': '2.25'}"] value 0.007183035
+
+prometheus.source1.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 680821576
+    inst [2 or "{'baz': '1.4'}"] value 1361643150
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 2042464730
+    inst [4 or "{'baz': '2.8'}"] value 2723286300
+    inst [5 or "{'baz': '3.5'}"] value 3404107880
+    inst [6 or "{'baz': '4.199999999999999'}"] value 4084929460
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 4765751030
+    inst [8 or "{'baz': '5.6'}"] value 5446572610
+    inst [9 or "{'baz': '6.3'}"] value 6127394180
+
+prometheus.source1.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 36.3
+    inst [2 or "{'bar': '2'}"] value 72.59999999999999
+    inst [3 or "{'bar': '3'}"] value 108.9
+    inst [4 or "{'bar': '4'}"] value 145.2
+    inst [5 or "{'bar': '5'}"] value 181.5
+    inst [6 or "{'bar': '6'}"] value 217.8
+    inst [7 or "{'bar': '7'}"] value 254.1
+    inst [8 or "{'bar': '8'}"] value 290.4
+    inst [9 or "{'bar': '9'}"] value 326.7
+
+prometheus.source0.sample_summary0002_count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    value 2.78241354
+
+prometheus.source0.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000319246
+    inst [2 or "{'quantile': '0.5'}"] value 0.0006384920000000001
+    inst [3 or "{'quantile': '0.75'}"] value 0.000957738
+    inst [4 or "{'quantile': '1.0'}"] value 0.001276984
+    inst [5 or "{'quantile': '1.25'}"] value 0.00159623
+    inst [6 or "{'quantile': '1.5'}"] value 0.001915476
+    inst [7 or "{'quantile': '1.75'}"] value 0.002234722
+    inst [8 or "{'quantile': '2.0'}"] value 0.002553968
+    inst [9 or "{'quantile': '2.25'}"] value 0.002873214
+
+prometheus.source0.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 170205394
+    inst [2 or "{'baz': '1.4'}"] value 340410788
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 510616182
+    inst [4 or "{'baz': '2.8'}"] value 680821576
+    inst [5 or "{'baz': '3.5'}"] value 851026970
+    inst [6 or "{'baz': '4.199999999999999'}"] value 1021232360
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 1191437760
+    inst [8 or "{'baz': '5.6'}"] value 1361643150
+    inst [9 or "{'baz': '6.3'}"] value 1531848550
+
+prometheus.source0.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 0
+    inst [2 or "{'bar': '2'}"] value 0
+    inst [3 or "{'bar': '3'}"] value 0
+    inst [4 or "{'bar': '4'}"] value 0
+    inst [5 or "{'bar': '5'}"] value 0
+    inst [6 or "{'bar': '6'}"] value 0
+    inst [7 or "{'bar': '7'}"] value 0
+    inst [8 or "{'bar': '8'}"] value 0
+    inst [9 or "{'bar': '9'}"] value 0
+
+prometheus.source1.sample_summary0002_count
+    value 10908
+
+prometheus.source1.sample_summary0002_sum
+    value 8.347240620000001
+
+prometheus.source1.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000957738
+    inst [2 or "{'quantile': '0.5'}"] value 0.001915476
+    inst [3 or "{'quantile': '0.75'}"] value 0.002873214
+    inst [4 or "{'quantile': '1.0'}"] value 0.003830952
+    inst [5 or "{'quantile': '1.25'}"] value 0.00478869
+    inst [6 or "{'quantile': '1.5'}"] value 0.005746428
+    inst [7 or "{'quantile': '1.75'}"] value 0.006704166
+    inst [8 or "{'quantile': '2.0'}"] value 0.007661904
+    inst [9 or "{'quantile': '2.25'}"] value 0.008619642
+
+prometheus.source1.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 851026970
+    inst [2 or "{'baz': '1.4'}"] value 1702053940
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 2553080910
+    inst [4 or "{'baz': '2.8'}"] value 3404107880
+    inst [5 or "{'baz': '3.5'}"] value 4255134850
+    inst [6 or "{'baz': '4.199999999999999'}"] value 5106161820
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 5957188790
+    inst [8 or "{'baz': '5.6'}"] value 6808215760
+    inst [9 or "{'baz': '6.3'}"] value 7659242730
+
+prometheus.source1.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 48.4
+    inst [2 or "{'bar': '2'}"] value 96.8
+    inst [3 or "{'bar': '3'}"] value 145.2
+    inst [4 or "{'bar': '4'}"] value 193.6
+    inst [5 or "{'bar': '5'}"] value 242
+    inst [6 or "{'bar': '6'}"] value 290.4
+    inst [7 or "{'bar': '7'}"] value 338.8
+    inst [8 or "{'bar': '8'}"] value 387.2
+    inst [9 or "{'bar': '9'}"] value 435.6
+
+prometheus.source2.sample_summary0002_count
+    value 7272
+
+prometheus.source2.sample_summary0002_sum
+    value 5.564827080000001
+
+prometheus.source2.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.0006384920000000001
+    inst [2 or "{'quantile': '0.5'}"] value 0.001276984
+    inst [3 or "{'quantile': '0.75'}"] value 0.001915476
+    inst [4 or "{'quantile': '1.0'}"] value 0.002553968
+    inst [5 or "{'quantile': '1.25'}"] value 0.00319246
+    inst [6 or "{'quantile': '1.5'}"] value 0.003830952
+    inst [7 or "{'quantile': '1.75'}"] value 0.004469444
+    inst [8 or "{'quantile': '2.0'}"] value 0.005107936
+    inst [9 or "{'quantile': '2.25'}"] value 0.005746428
+
+prometheus.source2.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 510616182
+    inst [2 or "{'baz': '1.4'}"] value 1021232360
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 1531848550
+    inst [4 or "{'baz': '2.8'}"] value 2042464730
+    inst [5 or "{'baz': '3.5'}"] value 2553080910
+    inst [6 or "{'baz': '4.199999999999999'}"] value 3063697090
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 3574313270
+    inst [8 or "{'baz': '5.6'}"] value 4084929460
+    inst [9 or "{'baz': '6.3'}"] value 4595545640
+
+prometheus.source2.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 24.2
+    inst [2 or "{'bar': '2'}"] value 48.4
+    inst [3 or "{'bar': '3'}"] value 72.59999999999999
+    inst [4 or "{'bar': '4'}"] value 96.8
+    inst [5 or "{'bar': '5'}"] value 121
+    inst [6 or "{'bar': '6'}"] value 145.2
+    inst [7 or "{'bar': '7'}"] value 169.4
+    inst [8 or "{'bar': '8'}"] value 193.6
+    inst [9 or "{'bar': '9'}"] value 217.8
+
+prometheus.source3.sample_summary0002_count
+    value 9090
+
+prometheus.source3.sample_summary0002_sum
+    value 6.956033850000001
+
+prometheus.source3.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000798115
+    inst [2 or "{'quantile': '0.5'}"] value 0.00159623
+    inst [3 or "{'quantile': '0.75'}"] value 0.002394345
+    inst [4 or "{'quantile': '1.0'}"] value 0.00319246
+    inst [5 or "{'quantile': '1.25'}"] value 0.003990575
+    inst [6 or "{'quantile': '1.5'}"] value 0.00478869
+    inst [7 or "{'quantile': '1.75'}"] value 0.005586805
+    inst [8 or "{'quantile': '2.0'}"] value 0.00638492
+    inst [9 or "{'quantile': '2.25'}"] value 0.007183035
+
+prometheus.source3.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 680821576
+    inst [2 or "{'baz': '1.4'}"] value 1361643150
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 2042464730
+    inst [4 or "{'baz': '2.8'}"] value 2723286300
+    inst [5 or "{'baz': '3.5'}"] value 3404107880
+    inst [6 or "{'baz': '4.199999999999999'}"] value 4084929460
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 4765751030
+    inst [8 or "{'baz': '5.6'}"] value 5446572610
+    inst [9 or "{'baz': '6.3'}"] value 6127394180
+
+prometheus.source3.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 36.3
+    inst [2 or "{'bar': '2'}"] value 72.59999999999999
+    inst [3 or "{'bar': '3'}"] value 108.9
+    inst [4 or "{'bar': '4'}"] value 145.2
+    inst [5 or "{'bar': '5'}"] value 181.5
+    inst [6 or "{'bar': '6'}"] value 217.8
+    inst [7 or "{'bar': '7'}"] value 254.1
+    inst [8 or "{'bar': '8'}"] value 290.4
+    inst [9 or "{'bar': '9'}"] value 326.7
+
+prometheus.source2.sample_summary0002_count
+    value 10908
+
+prometheus.source2.sample_summary0002_sum
+    value 8.347240620000001
+
+prometheus.source2.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000957738
+    inst [2 or "{'quantile': '0.5'}"] value 0.001915476
+    inst [3 or "{'quantile': '0.75'}"] value 0.002873214
+    inst [4 or "{'quantile': '1.0'}"] value 0.003830952
+    inst [5 or "{'quantile': '1.25'}"] value 0.00478869
+    inst [6 or "{'quantile': '1.5'}"] value 0.005746428
+    inst [7 or "{'quantile': '1.75'}"] value 0.006704166
+    inst [8 or "{'quantile': '2.0'}"] value 0.007661904
+    inst [9 or "{'quantile': '2.25'}"] value 0.008619642
+
+prometheus.source2.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 851026970
+    inst [2 or "{'baz': '1.4'}"] value 1702053940
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 2553080910
+    inst [4 or "{'baz': '2.8'}"] value 3404107880
+    inst [5 or "{'baz': '3.5'}"] value 4255134850
+    inst [6 or "{'baz': '4.199999999999999'}"] value 5106161820
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 5957188790
+    inst [8 or "{'baz': '5.6'}"] value 6808215760
+    inst [9 or "{'baz': '6.3'}"] value 7659242730
+
+prometheus.source2.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 48.4
+    inst [2 or "{'bar': '2'}"] value 96.8
+    inst [3 or "{'bar': '3'}"] value 145.2
+    inst [4 or "{'bar': '4'}"] value 193.6
+    inst [5 or "{'bar': '5'}"] value 242
+    inst [6 or "{'bar': '6'}"] value 290.4
+    inst [7 or "{'bar': '7'}"] value 338.8
+    inst [8 or "{'bar': '8'}"] value 387.2
+    inst [9 or "{'bar': '9'}"] value 435.6
+
+prometheus.source3.sample_summary0002_count
+    value 14544
+
+prometheus.source3.sample_summary0002_sum
+    value 11.12965416
+
+prometheus.source3.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.001276984
+    inst [2 or "{'quantile': '0.5'}"] value 0.002553968
+    inst [3 or "{'quantile': '0.75'}"] value 0.003830952
+    inst [4 or "{'quantile': '1.0'}"] value 0.005107936
+    inst [5 or "{'quantile': '1.25'}"] value 0.00638492
+    inst [6 or "{'quantile': '1.5'}"] value 0.007661904
+    inst [7 or "{'quantile': '1.75'}"] value 0.008938888000000001
+    inst [8 or "{'quantile': '2.0'}"] value 0.010215872
+    inst [9 or "{'quantile': '2.25'}"] value 0.011492856
+
+prometheus.source3.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 1191437760
+    inst [2 or "{'baz': '1.4'}"] value 2382875520
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 3574313270
+    inst [4 or "{'baz': '2.8'}"] value 4765751030
+    inst [5 or "{'baz': '3.5'}"] value 5957188790
+    inst [6 or "{'baz': '4.199999999999999'}"] value 7148626550
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 8340064310
+    inst [8 or "{'baz': '5.6'}"] value 9531502060
+    inst [9 or "{'baz': '6.3'}"] value 10722939800
+
+prometheus.source3.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 72.59999999999999
+    inst [2 or "{'bar': '2'}"] value 145.2
+    inst [3 or "{'bar': '3'}"] value 217.8
+    inst [4 or "{'bar': '4'}"] value 290.4
+    inst [5 or "{'bar': '5'}"] value 363
+    inst [6 or "{'bar': '6'}"] value 435.6
+    inst [7 or "{'bar': '7'}"] value 508.2
+    inst [8 or "{'bar': '8'}"] value 580.8
+    inst [9 or "{'bar': '9'}"] value 653.4
+
+prometheus.source2.sample_summary0002_count
+    value 14544
+
+prometheus.source2.sample_summary0002_sum
+    value 11.12965416
+
+prometheus.source2.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.001276984
+    inst [2 or "{'quantile': '0.5'}"] value 0.002553968
+    inst [3 or "{'quantile': '0.75'}"] value 0.003830952
+    inst [4 or "{'quantile': '1.0'}"] value 0.005107936
+    inst [5 or "{'quantile': '1.25'}"] value 0.00638492
+    inst [6 or "{'quantile': '1.5'}"] value 0.007661904
+    inst [7 or "{'quantile': '1.75'}"] value 0.008938888000000001
+    inst [8 or "{'quantile': '2.0'}"] value 0.010215872
+    inst [9 or "{'quantile': '2.25'}"] value 0.011492856
+
+prometheus.source2.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 1191437760
+    inst [2 or "{'baz': '1.4'}"] value 2382875520
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 3574313270
+    inst [4 or "{'baz': '2.8'}"] value 4765751030
+    inst [5 or "{'baz': '3.5'}"] value 5957188790
+    inst [6 or "{'baz': '4.199999999999999'}"] value 7148626550
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 8340064310
+    inst [8 or "{'baz': '5.6'}"] value 9531502060
+    inst [9 or "{'baz': '6.3'}"] value 10722939800
+
+prometheus.source2.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 72.59999999999999
+    inst [2 or "{'bar': '2'}"] value 145.2
+    inst [3 or "{'bar': '3'}"] value 217.8
+    inst [4 or "{'bar': '4'}"] value 290.4
+    inst [5 or "{'bar': '5'}"] value 363
+    inst [6 or "{'bar': '6'}"] value 435.6
+    inst [7 or "{'bar': '7'}"] value 508.2
+    inst [8 or "{'bar': '8'}"] value 580.8
+    inst [9 or "{'bar': '9'}"] value 653.4
+
+prometheus.source3.sample_summary0002_count
+    value 19998
+
+prometheus.source3.sample_summary0002_sum
+    value 15.30327447
+
+prometheus.source3.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.001755853
+    inst [2 or "{'quantile': '0.5'}"] value 0.003511706
+    inst [3 or "{'quantile': '0.75'}"] value 0.005267559
+    inst [4 or "{'quantile': '1.0'}"] value 0.007023412
+    inst [5 or "{'quantile': '1.25'}"] value 0.008779265
+    inst [6 or "{'quantile': '1.5'}"] value 0.010535118
+    inst [7 or "{'quantile': '1.75'}"] value 0.012290971
+    inst [8 or "{'quantile': '2.0'}"] value 0.014046824
+    inst [9 or "{'quantile': '2.25'}"] value 0.015802677
+
+prometheus.source3.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 1702053940
+    inst [2 or "{'baz': '1.4'}"] value 3404107880
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 5106161820
+    inst [4 or "{'baz': '2.8'}"] value 6808215760
+    inst [5 or "{'baz': '3.5'}"] value 8510269700
+    inst [6 or "{'baz': '4.199999999999999'}"] value 10212323600
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 11914377600
+    inst [8 or "{'baz': '5.6'}"] value 13616431500
+    inst [9 or "{'baz': '6.3'}"] value 15318485500
+
+prometheus.source3.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 108.9
+    inst [2 or "{'bar': '2'}"] value 217.8
+    inst [3 or "{'bar': '3'}"] value 326.7
+    inst [4 or "{'bar': '4'}"] value 435.6
+    inst [5 or "{'bar': '5'}"] value 544.5
+    inst [6 or "{'bar': '6'}"] value 653.4
+    inst [7 or "{'bar': '7'}"] value 762.3
+    inst [8 or "{'bar': '8'}"] value 871.2
+    inst [9 or "{'bar': '9'}"] value 980.1
+
+prometheus.source2.sample_summary0002_count
+    value 18180
+
+prometheus.source2.sample_summary0002_sum
+    value 13.9120677
+
+prometheus.source2.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.00159623
+    inst [2 or "{'quantile': '0.5'}"] value 0.00319246
+    inst [3 or "{'quantile': '0.75'}"] value 0.00478869
+    inst [4 or "{'quantile': '1.0'}"] value 0.00638492
+    inst [5 or "{'quantile': '1.25'}"] value 0.007981149999999999
+    inst [6 or "{'quantile': '1.5'}"] value 0.00957738
+    inst [7 or "{'quantile': '1.75'}"] value 0.01117361
+    inst [8 or "{'quantile': '2.0'}"] value 0.01276984
+    inst [9 or "{'quantile': '2.25'}"] value 0.01436607
+
+prometheus.source2.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 1531848550
+    inst [2 or "{'baz': '1.4'}"] value 3063697090
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 4595545640
+    inst [4 or "{'baz': '2.8'}"] value 6127394180
+    inst [5 or "{'baz': '3.5'}"] value 7659242730
+    inst [6 or "{'baz': '4.199999999999999'}"] value 9191091280
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 10722939800
+    inst [8 or "{'baz': '5.6'}"] value 12254788400
+    inst [9 or "{'baz': '6.3'}"] value 13786636900
+
+prometheus.source2.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 96.8
+    inst [2 or "{'bar': '2'}"] value 193.6
+    inst [3 or "{'bar': '3'}"] value 290.4
+    inst [4 or "{'bar': '4'}"] value 387.2
+    inst [5 or "{'bar': '5'}"] value 484
+    inst [6 or "{'bar': '6'}"] value 580.8
+    inst [7 or "{'bar': '7'}"] value 677.6
+    inst [8 or "{'bar': '8'}"] value 774.4
+    inst [9 or "{'bar': '9'}"] value 871.2
+
+prometheus.source3.sample_summary0002_count
+    value 25452
+
+prometheus.source3.sample_summary0002_sum
+    value 19.47689478
+
+prometheus.source3.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.002234722
+    inst [2 or "{'quantile': '0.5'}"] value 0.004469444
+    inst [3 or "{'quantile': '0.75'}"] value 0.006704166
+    inst [4 or "{'quantile': '1.0'}"] value 0.008938888000000001
+    inst [5 or "{'quantile': '1.25'}"] value 0.01117361
+    inst [6 or "{'quantile': '1.5'}"] value 0.013408332
+    inst [7 or "{'quantile': '1.75'}"] value 0.015643054
+    inst [8 or "{'quantile': '2.0'}"] value 0.017877776
+    inst [9 or "{'quantile': '2.25'}"] value 0.020112498
+
+prometheus.source3.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 2212670120
+    inst [2 or "{'baz': '1.4'}"] value 4425340240
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 6638010370
+    inst [4 or "{'baz': '2.8'}"] value 8850680490
+    inst [5 or "{'baz': '3.5'}"] value 11063350600
+    inst [6 or "{'baz': '4.199999999999999'}"] value 13276020700
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 15488690900
+    inst [8 or "{'baz': '5.6'}"] value 17701361000
+    inst [9 or "{'baz': '6.3'}"] value 19914031100
+
+prometheus.source3.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 145.2
+    inst [2 or "{'bar': '2'}"] value 290.4
+    inst [3 or "{'bar': '3'}"] value 435.6
+    inst [4 or "{'bar': '4'}"] value 580.8
+    inst [5 or "{'bar': '5'}"] value 726
+    inst [6 or "{'bar': '6'}"] value 871.2
+    inst [7 or "{'bar': '7'}"] value 1016.4
+    inst [8 or "{'bar': '8'}"] value 1161.6
+    inst [9 or "{'bar': '9'}"] value 1306.8
+
+prometheus.source4.sample_summary0002_count
+    value 10908
+
+prometheus.source4.sample_summary0002_sum
+    value 8.347240620000001
+
+prometheus.source4.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.000957738
+    inst [2 or "{'quantile': '0.5'}"] value 0.001915476
+    inst [3 or "{'quantile': '0.75'}"] value 0.002873214
+    inst [4 or "{'quantile': '1.0'}"] value 0.003830952
+    inst [5 or "{'quantile': '1.25'}"] value 0.00478869
+    inst [6 or "{'quantile': '1.5'}"] value 0.005746428
+    inst [7 or "{'quantile': '1.75'}"] value 0.006704166
+    inst [8 or "{'quantile': '2.0'}"] value 0.007661904
+    inst [9 or "{'quantile': '2.25'}"] value 0.008619642
+
+prometheus.source4.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 851026970
+    inst [2 or "{'baz': '1.4'}"] value 1702053940
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 2553080910
+    inst [4 or "{'baz': '2.8'}"] value 3404107880
+    inst [5 or "{'baz': '3.5'}"] value 4255134850
+    inst [6 or "{'baz': '4.199999999999999'}"] value 5106161820
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 5957188790
+    inst [8 or "{'baz': '5.6'}"] value 6808215760
+    inst [9 or "{'baz': '6.3'}"] value 7659242730
+
+prometheus.source4.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 48.4
+    inst [2 or "{'bar': '2'}"] value 96.8
+    inst [3 or "{'bar': '3'}"] value 145.2
+    inst [4 or "{'bar': '4'}"] value 193.6
+    inst [5 or "{'bar': '5'}"] value 242
+    inst [6 or "{'bar': '6'}"] value 290.4
+    inst [7 or "{'bar': '7'}"] value 338.8
+    inst [8 or "{'bar': '8'}"] value 387.2
+    inst [9 or "{'bar': '9'}"] value 435.6
+
+prometheus.source4.sample_summary0002_count
+    value 18180
+
+prometheus.source4.sample_summary0002_sum
+    value 13.9120677
+
+prometheus.source4.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.00159623
+    inst [2 or "{'quantile': '0.5'}"] value 0.00319246
+    inst [3 or "{'quantile': '0.75'}"] value 0.00478869
+    inst [4 or "{'quantile': '1.0'}"] value 0.00638492
+    inst [5 or "{'quantile': '1.25'}"] value 0.007981149999999999
+    inst [6 or "{'quantile': '1.5'}"] value 0.00957738
+    inst [7 or "{'quantile': '1.75'}"] value 0.01117361
+    inst [8 or "{'quantile': '2.0'}"] value 0.01276984
+    inst [9 or "{'quantile': '2.25'}"] value 0.01436607
+
+prometheus.source4.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 1531848550
+    inst [2 or "{'baz': '1.4'}"] value 3063697090
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 4595545640
+    inst [4 or "{'baz': '2.8'}"] value 6127394180
+    inst [5 or "{'baz': '3.5'}"] value 7659242730
+    inst [6 or "{'baz': '4.199999999999999'}"] value 9191091280
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 10722939800
+    inst [8 or "{'baz': '5.6'}"] value 12254788400
+    inst [9 or "{'baz': '6.3'}"] value 13786636900
+
+prometheus.source4.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 96.8
+    inst [2 or "{'bar': '2'}"] value 193.6
+    inst [3 or "{'bar': '3'}"] value 290.4
+    inst [4 or "{'bar': '4'}"] value 387.2
+    inst [5 or "{'bar': '5'}"] value 484
+    inst [6 or "{'bar': '6'}"] value 580.8
+    inst [7 or "{'bar': '7'}"] value 677.6
+    inst [8 or "{'bar': '8'}"] value 774.4
+    inst [9 or "{'bar': '9'}"] value 871.2
+
+prometheus.source4.sample_summary0002_count
+    value 25452
+
+prometheus.source4.sample_summary0002_sum
+    value 19.47689478
+
+prometheus.source4.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.002234722
+    inst [2 or "{'quantile': '0.5'}"] value 0.004469444
+    inst [3 or "{'quantile': '0.75'}"] value 0.006704166
+    inst [4 or "{'quantile': '1.0'}"] value 0.008938888000000001
+    inst [5 or "{'quantile': '1.25'}"] value 0.01117361
+    inst [6 or "{'quantile': '1.5'}"] value 0.013408332
+    inst [7 or "{'quantile': '1.75'}"] value 0.015643054
+    inst [8 or "{'quantile': '2.0'}"] value 0.017877776
+    inst [9 or "{'quantile': '2.25'}"] value 0.020112498
+
+prometheus.source4.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 2212670120
+    inst [2 or "{'baz': '1.4'}"] value 4425340240
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 6638010370
+    inst [4 or "{'baz': '2.8'}"] value 8850680490
+    inst [5 or "{'baz': '3.5'}"] value 11063350600
+    inst [6 or "{'baz': '4.199999999999999'}"] value 13276020700
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 15488690900
+    inst [8 or "{'baz': '5.6'}"] value 17701361000
+    inst [9 or "{'baz': '6.3'}"] value 19914031100
+
+prometheus.source4.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 145.2
+    inst [2 or "{'bar': '2'}"] value 290.4
+    inst [3 or "{'bar': '3'}"] value 435.6
+    inst [4 or "{'bar': '4'}"] value 580.8
+    inst [5 or "{'bar': '5'}"] value 726
+    inst [6 or "{'bar': '6'}"] value 871.2
+    inst [7 or "{'bar': '7'}"] value 1016.4
+    inst [8 or "{'bar': '8'}"] value 1161.6
+    inst [9 or "{'bar': '9'}"] value 1306.8
+
+prometheus.source4.sample_summary0002_count
+    value 32724
+
+prometheus.source4.sample_summary0002_sum
+    value 25.04172186
+
+prometheus.source4.sample_summary0002
+    inst [0 or "{'quantile': '0.0'}"] value 0
+    inst [1 or "{'quantile': '0.25'}"] value 0.002873214
+    inst [2 or "{'quantile': '0.5'}"] value 0.005746428
+    inst [3 or "{'quantile': '0.75'}"] value 0.008619642
+    inst [4 or "{'quantile': '1.0'}"] value 0.011492856
+    inst [5 or "{'quantile': '1.25'}"] value 0.01436607
+    inst [6 or "{'quantile': '1.5'}"] value 0.017239284
+    inst [7 or "{'quantile': '1.75'}"] value 0.020112498
+    inst [8 or "{'quantile': '2.0'}"] value 0.022985712
+    inst [9 or "{'quantile': '2.25'}"] value 0.025858926
+
+prometheus.source4.sample_counter0001
+    inst [0 or "{'baz': '0.0'}"] value 0
+    inst [1 or "{'baz': '0.7'}"] value 2893491700
+    inst [2 or "{'baz': '1.4'}"] value 5786983400
+    inst [3 or "{'baz': '2.0999999999999996'}"] value 8680475090
+    inst [4 or "{'baz': '2.8'}"] value 11573966800
+    inst [5 or "{'baz': '3.5'}"] value 14467458500
+    inst [6 or "{'baz': '4.199999999999999'}"] value 17360950200
+    inst [7 or "{'baz': '4.8999999999999995'}"] value 20254441900
+    inst [8 or "{'baz': '5.6'}"] value 23147933600
+    inst [9 or "{'baz': '6.3'}"] value 26041425300
+
+prometheus.source4.sample_gauge0000
+    inst [0 or "{'bar': '0'}"] value 0
+    inst [1 or "{'bar': '1'}"] value 193.6
+    inst [2 or "{'bar': '2'}"] value 387.2
+    inst [3 or "{'bar': '3'}"] value 580.8
+    inst [4 or "{'bar': '4'}"] value 774.4
+    inst [5 or "{'bar': '5'}"] value 968
+    inst [6 or "{'bar': '6'}"] value 1161.6
+    inst [7 or "{'bar': '7'}"] value 1355.2
+    inst [8 or "{'bar': '8'}"] value 1548.8
+    inst [9 or "{'bar': '9'}"] value 1742.4
+
+=== remove prometheus agent ===
+Culling the Performance Metrics Name Space ...
+prometheus ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check prometheus metrics have gone away ... OK
