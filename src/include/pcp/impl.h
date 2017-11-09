@@ -43,18 +43,6 @@ typedef void * __pmMutex;
 #endif
 
 /*
- * internal libpcp state ... PM_STATE_APPL means we are at or above the
- * PMAPI in a state where PMAPI calls can safely be made ... PM_STATE_PMCS
- * means we are in the PMCD, or a PMDA, or low-level PDU code, and
- * PMAPI calls are a bad idea.
- */
-#define PM_STATE_APPL	0
-#define PM_STATE_PMCS	1
-
-PCP_CALL extern void __pmSetInternalState(int);
-PCP_CALL extern int __pmGetInternalState(void);
-
-/*
  * PMCD connections come here by default, over-ride with $PMCD_PORT in
  * environment
  */
@@ -1051,30 +1039,6 @@ PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, __pmFILE *, __pmLogLabel *, in
 PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
-/* struct for maintaining information about pmlogger ports */
-typedef struct {
-    int		pid;		/* process id of logger */
-    int		port;		/* internet port for logger control */
-    char	*pmcd_host;	/* host pmlogger is collecting from */
-    char	*archive;	/* archive base pathname */
-    char	*name;		/* file name (minus dirname) */
-} __pmLogPort;
-
-/* Returns control port info for a pmlogger given its pid.
- * If pid == PM_LOG_ALL_PIDS, get all pmloggers' control ports.
- * If pid == PM_LOG_PRIMARY_PID, get primar logger's control port.
- * Note: do NOT free any part of result returned via the parameter.
- *
- * __pmLogFindPort(const char *hostname, int pid, __pmLogPort **result);
- */
-PCP_CALL extern int __pmLogFindPort(const char *, int, __pmLogPort **);
-
-#define PM_LOG_PRIMARY_PID	0	/* symbolic pid for primary logger */
-#define PM_LOG_PRIMARY_PORT	0	/* symbolic port for primary pmlogger */
-#define PM_LOG_ALL_PIDS		-1	/* symbolic pid for all pmloggers */
-#define PM_LOG_NO_PID		-2	/* not a valid pid for pmlogger */
-#define PM_LOG_NO_PORT		-2	/* not a valid port for pmlogger */
-
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
 
@@ -1090,12 +1054,6 @@ PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval
 /* manipulate internal timestamps */
 PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
 PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
-
-/* 32-bit file checksum */
-PCP_CALL extern __int32_t __pmCheckSum(FILE *);
-
-/* check for localhost */
-PCP_CALL extern int __pmIsLocalhost(const char *);
 
 /*
  * struct timeval manipulations
@@ -1115,12 +1073,6 @@ typedef struct {
     char		*tz;		/* env $TZ */
     int			handle;		/* handle from pmNewZone() */
 } pmTimeZone;
-
-/*
- * event tracing for monitoring time between events
- */
-PCP_CALL extern void __pmEventTrace(const char *);		/* NOT thread-safe */
-PCP_CALL extern void __pmEventTrace_r(const char *, int *, double *, double *);
 
 /*
  * More IPC protocol stuff
@@ -1200,14 +1152,6 @@ PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
 PCP_CALL extern void __pmEndOptions(pmOptions *);
 
 /*
- * helper functions to register client identity with pmcd for export
- * via pmcd.client.whoami
- */
-PCP_CALL extern char *__pmGetClientId(int, char **);
-PCP_CALL extern int __pmSetClientIdArgv(int, char **);
-PCP_CALL extern int __pmSetClientId(const char *);
-
-/*
  * Adding/deleting/clearing the list of DSO PMDAs supported for
  * PM_CONTEXT_LOCAL contexts
  */
@@ -1218,14 +1162,6 @@ PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
 PCP_CALL extern char *__pmSpecLocalPMDA(const char *);
 struct __pmDSO;
 PCP_CALL extern struct __pmDSO *__pmLookupDSO(int);
-
-/*
- * Helper methods for packed arrays of event records
- */
-PCP_CALL extern int __pmCheckEventRecords(pmValueSet *, int);
-PCP_CALL extern int __pmCheckHighResEventRecords(pmValueSet *, int);
-PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
-PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 
 #ifdef __cplusplus
 }

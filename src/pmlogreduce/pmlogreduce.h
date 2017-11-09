@@ -1,5 +1,6 @@
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 #define NUM_SEC_PER_DAY		86400
 

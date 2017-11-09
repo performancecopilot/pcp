@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 enum {
     pmcd_hostname,
