@@ -1151,15 +1151,7 @@ PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
 PCP_CALL extern char *__pmTimezone(void);			/* NOT thread-safe */
 PCP_CALL extern char *__pmTimezone_r(char *, int);
 
-/*
- * platform independent process routines
- */
-PCP_CALL extern int __pmProcessExists(pid_t);
-PCP_CALL extern int __pmProcessTerminate(pid_t, int);
-PCP_CALL extern pid_t __pmProcessCreate(char **, int *, int *);
-PCP_CALL extern int __pmProcessDataSize(unsigned long *);
-PCP_CALL extern int __pmProcessRunTimes(double *, double *);
-PCP_CALL extern int __pmSetProcessIdentity(const char *);
+PCP_CALL extern int __pmSetProcessIdentity(const char *);	/* TODO promote to PMAPI */
 
 /*
  * platform independent memory mapped file handling

@@ -22,6 +22,12 @@
 #include <sys/stat.h>
 
 /*
+ * internal routine from libpcp, defined in libpcp.h but not the
+ * public headers
+ */
+extern int __pmProcessRunTimes(double *, double *);
+
+/*
  * Simple PMDA
  *
  * This PMDA is a sample that illustrates how a simple PMDA might be

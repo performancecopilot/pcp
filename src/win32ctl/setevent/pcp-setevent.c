@@ -13,6 +13,7 @@
  */
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 enum {
     PCP_SIGHUP  = 1,

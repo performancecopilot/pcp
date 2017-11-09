@@ -56,6 +56,12 @@ static int need_dynamic;/* only do dynamic glop is someone asks for it */
 extern int	limbo(void);
 
 /*
+ * internal routine from libpcp, defined in libpcp.h but not the
+ * public headers
+ */
+extern int __pmProcessDataSize(unsigned long *);
+
+/*
  * all metrics supported in this PMD - one table entry for each
  */
 

@@ -14,6 +14,7 @@
  */
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "pmtime.h"
 
 static int

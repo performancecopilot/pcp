@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <pcp/libpcp.h>
 
 int
 main()

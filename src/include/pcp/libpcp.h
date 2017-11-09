@@ -320,6 +320,15 @@ PCP_CALL extern int __pmProcessPipe(__pmExecCtl_t **, const char *, int, FILE **
 PCP_CALL extern int __pmProcessPipeClose(FILE *);
 
 /*
+ * other platform independent process management routines
+ */
+PCP_CALL extern int __pmProcessExists(pid_t);
+PCP_CALL extern int __pmProcessTerminate(pid_t, int);
+PCP_CALL extern pid_t __pmProcessCreate(char **, int *, int *);
+PCP_CALL extern int __pmProcessDataSize(unsigned long *);
+PCP_CALL extern int __pmProcessRunTimes(double *, double *);
+
+/*
  * For QA apps ...
  */
 PCP_CALL extern void __pmDumpDebug(FILE *);
