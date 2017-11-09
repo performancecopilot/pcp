@@ -60,14 +60,14 @@ for an explanation of the
 structure.
 .PP
 The application must have previously issued a call to
-.BR __pmConnectLogger (3)
+.BR __pmConnectLogger (3i)
 to establish a control-port connection
 to the
 .BR pmlogger (1)
 instance to whom the control request is to be directed, and
 .I fd
 (the result from
-.BR __pmConnectLogger (3))
+.BR __pmConnectLogger (3i))
 identifies this connection.
 .PP
 Within
@@ -271,7 +271,7 @@ which is true for the only current user of this routine, namely
 .BR PMAPI (3),
 .BR pmFetch (3)
 and
-.BR __pmConnectLogger (3).
+.BR __pmConnectLogger (3i).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_TOOSMALL\f1
 The number of metrics in
