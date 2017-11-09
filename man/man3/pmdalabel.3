@@ -111,14 +111,17 @@ method has the following prototype:
 .nf
 .ft CW
 .ps -1
-int func(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **set)
+int func(pmInDom \fIindom\fP, unsigned int \fIinst\fP, pmLabelSet **\fIset\fP)
 .ps
 .ft
 .fi
 .PP
 The purpose of the
 .B pmdaLabelCallBack
-routine is to provide labels for individual instances of a given metric.
+routine is to return the label(s) for an individual instance
+.I inst
+of a given instance domain,
+.IR indom .
 Its successful return code differs significantly to
 .BR pmdaLabel ,
 as described below.
