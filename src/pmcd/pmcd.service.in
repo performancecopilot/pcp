@@ -2,7 +2,7 @@
 Description=Performance Metrics Collector Daemon
 Documentation=man:pmcd(8)
 Wants=avahi-daemon.service
-After=local-fs.target network.target avahi-daemon.service
+After=network-online.target avahi-daemon.service
 Before=zabbix-agent.service
  
 [Service]

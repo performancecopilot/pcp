@@ -1,7 +1,7 @@
 [Unit]
 Description=Performance Metrics Archive Logger
 Documentation=man:pmlogger(1)
-After=local-fs.target network.target pmcd.service
+After=network-online.target pmcd.service
 
 [Service]
 Type=oneshot

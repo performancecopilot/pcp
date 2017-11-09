@@ -68,7 +68,7 @@ attribute	{ return ATTR; }
 children	{ return PMNS_CHILDREN; }
 close		{ return CLOSE; }
 cluster		{ return CLUSTER; }
-context		{ return CONTEXT; }
+context		{ return CTXT; }
 debug		{ return DBG; }
 delete		{ return DEL; }
 desc		{ return DESC; }

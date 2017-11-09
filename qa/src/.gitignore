@@ -99,6 +99,7 @@ keycache
 keycache2
 killparent
 labels
+libpcp.h
 loadderived
 loadconfig2
 logcontrol
