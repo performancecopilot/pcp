@@ -370,6 +370,9 @@ PCP_CALL extern int __pmProcessRunTimes(double *, double *);
 /* Anonymous metric registration (uses derived metrics support) */
 PCP_CALL extern int __pmRegisterAnon(const char *, int);
 
+/* Get nanosecond precision timestamp from system clocks */
+PCP_CALL extern int __pmGetTimespec(struct timespec *);
+
 /*
  * Service discovery with options.
  * The 4th argument is a pointer to a mask of flags for boolean options

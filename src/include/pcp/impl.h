@@ -1227,9 +1227,6 @@ PCP_CALL extern int __pmCheckHighResEventRecords(pmValueSet *, int);
 PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 
-/* Get nanosecond precision timestamp from system clocks */
-PCP_CALL extern int __pmGetTimespec(struct timespec *);
-
 #ifdef __cplusplus
 }
 #endif
