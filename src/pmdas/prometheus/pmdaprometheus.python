@@ -164,7 +164,8 @@ class Metric(object):
                         self.values[inst] = float(value)
 
         def save(self):
-                self.indom_table.save()
+                if self.indom_table is not None:
+                        self.indom_table.save()
                         
         def fetch_inst(self,inst): # fetch instance
                 if not self.values:
