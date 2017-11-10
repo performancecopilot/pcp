@@ -3,6 +3,7 @@
  */
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 static __pmPDUHdr hdr;
 static char *target;

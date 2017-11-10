@@ -21,7 +21,7 @@ usr/share/man/man3/PCPIntro.3.gz
 usr/share/man/man3/__pmAddIPC.3.gz
 usr/share/man/man3/pmaddprofile.3.gz
 usr/share/man/man3/pmAddProfile.3.gz
-usr/share/man/man3/pmaf.3.gz
+usr/share/man/man3/__pmaf.3.gz
 usr/share/man/man3/__pmAFblock.3.gz
 usr/share/man/man3/__pmAFisempty.3.gz
 usr/share/man/man3/pmafm.3.gz
@@ -37,9 +37,9 @@ usr/share/man/man3/pmatomstr.3.gz
 usr/share/man/man3/pmAtomStr.3.gz
 usr/share/man/man3/pmAtomStr_r.3.gz
 usr/share/man/man3/pmClearDebug.3.gz
-usr/share/man/man3/pmconnectlogger.3.gz
+usr/share/man/man3/__pmconnectlogger.3.gz
 usr/share/man/man3/__pmConnectLogger.3.gz
-usr/share/man/man3/pmcontrollog.3.gz
+usr/share/man/man3/__pmcontrollog.3.gz
 usr/share/man/man3/__pmControlLog.3.gz
 usr/share/man/man3/__pmconverttime.3.gz
 usr/share/man/man3/__pmConvertTime.3.gz
@@ -180,7 +180,7 @@ usr/share/man/man3/pmloadderivedconfig.3.gz
 usr/share/man/man3/pmLoadDerivedConfig.3.gz
 usr/share/man/man3/pmloadnamespace.3.gz
 usr/share/man/man3/pmLoadNameSpace.3.gz
-usr/share/man/man3/pmlocalpmda.3.gz
+usr/share/man/man3/__pmlocalpmda.3.gz
 usr/share/man/man3/__pmLocalPMDA.3.gz
 usr/share/man/man3/pmlocaltime.3.gz
 usr/share/man/man3/pmLocaltime.3.gz
@@ -192,7 +192,7 @@ usr/share/man/man3/pmlookupindomarchive.3.gz
 usr/share/man/man3/pmLookupInDomArchive.3.gz
 usr/share/man/man3/pmlookupindomtext.3.gz
 usr/share/man/man3/pmLookupInDomText.3.gz
-usr/share/man/man3/pmlookupipc.3.gz
+usr/share/man/man3/__pmlookupipc.3.gz
 usr/share/man/man3/__pmLookupIPC.3.gz
 usr/share/man/man3/pmlookuplabels.3.gz
 usr/share/man/man3/pmLookupLabels.3.gz
@@ -249,9 +249,9 @@ usr/share/man/man3/pmprintvalue.3.gz
 usr/share/man/man3/pmPrintValue.3.gz
 usr/share/man/man3/__pmProcessAddArg.3.gz
 usr/share/man/man3/__pmProcessClosePipe.3.gz
-usr/share/man/man3/pmprocessexec.3.gz
+usr/share/man/man3/__pmprocessexec.3.gz
 usr/share/man/man3/__pmProcessExec.3.gz
-usr/share/man/man3/pmprocesspipe.3.gz
+usr/share/man/man3/__pmprocesspipe.3.gz
 usr/share/man/man3/__pmProcessPipe.3.gz
 usr/share/man/man3/__pmProcessUnpickArgs.3.gz
 usr/share/man/man3/pmreconnectcontext.3.gz
@@ -275,7 +275,7 @@ usr/share/man/man3/pmsetprogname.3.gz
 usr/share/man/man3/pmSetProgname.3.gz
 usr/share/man/man3/pmsortinstances.3.gz
 usr/share/man/man3/pmSortInstances.3.gz
-usr/share/man/man3/pmspeclocalpmda.3.gz
+usr/share/man/man3/__pmspeclocalpmda.3.gz
 usr/share/man/man3/__pmSpecLocalPMDA.3.gz
 usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmstore.3.gz

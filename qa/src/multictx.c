@@ -25,6 +25,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <string.h>
 
 typedef struct {

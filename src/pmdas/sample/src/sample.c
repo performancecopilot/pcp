@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <pcp/pmda.h>
 #include <pcp/deprecated.h>
 #include "percontext.h"
@@ -54,13 +55,6 @@ static int need_dynamic;/* only do dynamic glop is someone asks for it */
 
 /* from pmda.c: simulate PMDA busy */
 extern int	limbo(void);
-
-/*
- * internal routines from libpcp, defined in libpcp.h but not the
- * public headers
- */
-extern int __pmProcessDataSize(unsigned long *);
-extern int __pmGetTimespec(struct timespec *);
 
 /*
  * all metrics supported in this PMD - one table entry for each

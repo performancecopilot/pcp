@@ -4,6 +4,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <assert.h>
 #include <math.h>
 #include "localconfig.h"

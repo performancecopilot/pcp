@@ -14,6 +14,7 @@
 #include "pmapi.h"
 #include "pmafm.h"
 #include "impl.h"
+#include "libpcp.h"
 #include <sys/stat.h>
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>

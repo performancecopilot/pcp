@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 static char	**namelist;
 static pmID	*pmidlist;
