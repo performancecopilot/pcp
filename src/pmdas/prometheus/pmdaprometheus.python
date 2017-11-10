@@ -119,7 +119,7 @@ class Metric(object):
                 elif ('microseconds' in pieces): # not listed in https://prometheus.io/docs/practices/naming/
                         self.munits = pmUnits(0,1,0,0,1,0)
                 elif ('bytes' in pieces):
-                        self.munits = pmUnits(1,0,0,1,0,0)
+                        self.munits = pmUnits(1,0,0,0,0,0)
                 else:
                         self.munits = pmUnits(0,0,0,0,0,0) # default, dimensionless old-school count
 
