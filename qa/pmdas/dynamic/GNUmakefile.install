@@ -23,6 +23,8 @@ ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
 # #include <pcp/foo.h> works) when $(PCP_INC_DIR) may not be on
 # the default cpp include search path.
 CFLAGS		+= -I$(PCP_INC_DIR)/..
+else
+CFLAGS		+= -I../../src
 endif
 ifneq "$(PCP_LIB_DIR)" "/usr/lib"
 # for ld add -L<run-time-lib-dir> and include -rpath when

@@ -1,7 +1,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#include <pcp/libpcp.h>
 #include <pcp/pmda.h>
+#include "libpcp.h"
 
 static int mydomain = 29;
 
