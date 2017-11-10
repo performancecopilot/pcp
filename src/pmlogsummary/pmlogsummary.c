@@ -18,6 +18,7 @@
 #include <limits.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),

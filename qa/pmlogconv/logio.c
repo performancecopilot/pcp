@@ -23,6 +23,7 @@
 
 #include "pcp/pmapi.h"
 #include "pcp/impl.h"
+#include "pcp/libpcp.h"
 
 /*
  * raw read of next log record - largely stolen from __pmLogRead in libpcp

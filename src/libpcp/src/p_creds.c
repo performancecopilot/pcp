@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 
 #define LIMIT_CREDS	1024

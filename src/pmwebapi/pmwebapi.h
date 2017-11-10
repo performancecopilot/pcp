@@ -29,6 +29,7 @@ extern "C"
 {
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include <assert.h>
 #include <sys/stat.h>
 #include <time.h>

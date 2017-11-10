@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 /*
  * filter to copy archive.0 and strip mark records

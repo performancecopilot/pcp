@@ -18,6 +18,7 @@
 #include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 /*
  * raw read of next log record - largely stolen from __pmLogRead in libpcp

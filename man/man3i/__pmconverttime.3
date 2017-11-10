@@ -14,7 +14,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMCONVERTTIME 3 "PCP" "Performance Co-Pilot"
+.TH PMCONVERTTIME 3i "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmConvertTime\f1 \- convert \fBtm\fR structure to \fBtimeval\fR structure
 .SH "C SYNOPSIS"
@@ -22,6 +22,8 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 .ad l
 .hy 0
@@ -34,12 +36,19 @@ int __pmConvertTime(struct tm *\fItmin\fP, struct timeval *\fIorigin\fP, struct\
 .ad
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmConvertTime
 accepts a
 .B tm
 structure that has been filled in by
-.BR __pmParseCtime (3)
+.BR __pmParseCtime (3i)
 and a reference time point
 .BR origin ,
 and fills in the given
@@ -77,6 +86,6 @@ to establish a new current timezone that will effect
 .BR pmParseInterval (3),
 .BR pmParseTimeWindow (3),
 .BR pmUseZone (3),
-.BR __pmParseCtime (3)
+.BR __pmParseCtime (3i)
 and
-.BR __pmParseTime (3).
+.BR __pmParseTime (3i).

@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "symbol.h"
 #include "stats.h"
 

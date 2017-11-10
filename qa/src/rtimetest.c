@@ -14,6 +14,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 void
 set_tm(struct timeval *ntv, struct tm *ntm, struct tm *btm, int mon,

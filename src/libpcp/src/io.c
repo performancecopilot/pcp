@@ -21,6 +21,7 @@
 #include "config.h"
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 
 extern __pm_fops __pm_stdio;

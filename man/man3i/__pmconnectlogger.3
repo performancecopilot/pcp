@@ -44,7 +44,7 @@ different semantics at some point in the future.
 Each instance of the Performance Co-Pilot (PCP) archive logger program
 .BR pmlogger (1)
 supports a control port on which
-.BR __pmControlLog (3)
+.BR __pmControlLog (3i)
 requests are received, and responses sent.
 Optionally, the
 .BR pmlogger (1)
@@ -72,7 +72,7 @@ returns a non-negative integer, that is a file descriptor that may be used
 in subsequent communication with the
 .BR pmlogger (1)
 instance, e.g. for
-.BR __pmControlLog (3).
+.BR __pmControlLog (3i).
 .PP
 As the control port to
 .BR pmlogger (1)
@@ -101,7 +101,7 @@ again.
 .BR pmlogger (1),
 .BR PMAPI (3)
 and
-.BR __pmControlLog (3).
+.BR __pmControlLog (3i).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_PERMISSION\f1
 no permission to connect to the specified

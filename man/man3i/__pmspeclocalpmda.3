@@ -1,5 +1,5 @@
 '\"macro stdmacro
-.TH PMSPECLOCALPMDA 3 "" "Performance Co-Pilot"
+.TH PMSPECLOCALPMDA 3i "" "Performance Co-Pilot"
 .SH NAME
 \f3__pmSpecLocalPMDA\f1 \- process command-line argument for the table of DSO PMDAs
 .SH "C SYNOPSIS"
@@ -7,11 +7,20 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 char *__pmSpecLocalPMDA(const char *\fIspec\fP);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 PCP contexts of type
 .B PM_CONTEXT_LOCAL
@@ -59,7 +68,7 @@ To clear all entries, only the opcode is required.
 If
 .I spec
 is parsed successfully, then
-.BR __pmLocalPMDA (3)
+.BR __pmLocalPMDA (3i)
 is called with the extracted arguments.
 .SH "RETURN VALUE"
 On success,
@@ -113,6 +122,6 @@ and/or a pathname to the DSO that matches
 .IR foo/foo_pmda .
 .SH SEE ALSO
 .BR PMAPI (3),
-.BR __pmLocalPMDA (3)
+.BR __pmLocalPMDA (3i)
 and
 .BR pmNewContext (3).

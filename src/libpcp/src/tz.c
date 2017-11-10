@@ -26,6 +26,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 
 static char	*envtz;			/* buffer in env */

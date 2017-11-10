@@ -16,6 +16,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 
 /* MY_BUFLEN needs to big enough to hold "hostname port" */

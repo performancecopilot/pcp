@@ -62,7 +62,7 @@ an opaque pointer to data structures that are manipulated in
 .BR __pmProcessAddArg ,
 .B __pmProcessExec
 and the related
-.BR __pmProcessPipe (3)
+.BR __pmProcessPipe (3i)
 routines.
 .PP
 When called with
@@ -151,7 +151,7 @@ returns immediately (effectively running the command in the background).
 Nested calling of
 .B __pmProcessExec
 and/or
-.BR __pmProcessPipe (3)
+.BR __pmProcessPipe (3i)
 is not allowed.  Once
 .B __pmProcessAddArg
 is called with
@@ -163,11 +163,11 @@ to start a second registration sequence will be blocked until
 the first one is completed by calling
 .B __pmProcessExec
 or
-.BR __pmProcessPipe (3).
+.BR __pmProcessPipe (3i).
 .SH SEE ALSO
 .BR execvp(2),
 .BR fork (2),
-.BR __pmProcessPipe (3),
+.BR __pmProcessPipe (3i),
 .BR popen (3),
 .BR system (3)
 and

@@ -52,9 +52,9 @@ for executing commands in a separate process that is connected
 to the caller by a pipe.
 .PP
 Setting up the command and arguments is fully documented in
-.BR __pmProcessAddArg (3)
+.BR __pmProcessAddArg (3i)
 and is identical to the procedure used to setup
-.BR __pmProcessExec (3).
+.BR __pmProcessExec (3i).
 .PP
 Once all the command name and arguments have been registered
 calling
@@ -128,11 +128,11 @@ Once the caller determines all the work has been done,
 should be called.
 .PP
 Nested calling of
-.BR __pmProcessExec (3)
+.BR __pmProcessExec (3i)
 and/or
 .B __pmProcessPipe
 is not allowed.  Once
-.BR __pmProcessAddArg (3)
+.BR __pmProcessAddArg (3i)
 is called with
 .I handle
 set to
@@ -140,7 +140,7 @@ set to
 to start the registration and execution sequence any attempt
 to start a second registration sequence will be blocked until
 the first one is completed by calling
-.BR __pmProcessExec (3)
+.BR __pmProcessExec (3i)
 or
 .BR __pmProcessPipe .
 .SH SEE ALSO
@@ -149,8 +149,8 @@ or
 .BR pclose (2),
 .BR pipe (2),
 .BR popen (2),
-.BR __pmProcessAddArg (3),
-.BR __pmProcessExec (3)
+.BR __pmProcessAddArg (3i),
+.BR __pmProcessExec (3i)
 and
 .BR waitpid (3).
 .SH DIAGNOSTICS

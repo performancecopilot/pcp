@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <pcp/pmda.h>
 #include <pcp/deprecated.h>
 #include "percontext.h"

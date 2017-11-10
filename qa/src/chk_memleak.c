@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <pcp/libpcp.h>
 
 static int	vflag = 0;
 static int	tflag = 0;

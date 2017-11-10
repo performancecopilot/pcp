@@ -30,10 +30,10 @@ PMDAINIT = $(IAM)_init
 PMDADIR = $(PCP_PMDAS_DIR)/sample
 
 CFILES = pmda.c sample.c percontext.c events.c
-HFILES = percontext.h events.h
+HFILES = percontext.h events.h libpcp.h
 VERSION_SCRIPT = exports
 
-LDIRT = domain.h sample.log $(TARGETS) $(VERSION_SCRIPT)
+LDIRT = domain.h libpcp.h sample.log $(TARGETS) $(VERSION_SCRIPT)
 LCFLAGS += $(INVISIBILITY)
 LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
 LSRCFILES = GNUmakefile.install
@@ -44,7 +44,7 @@ pmda.o sample.o percontext.o: percontext.h
 sample.o events.o: events.h
 pmda.o: $(VERSION_SCRIPT)
 
-$(OBJECTS): domain.h
+$(OBJECTS): domain.h $(HFILES)
 
 domain.h: ../../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
@@ -63,3 +63,7 @@ include $(BUILDRULES)
 default_pcp:	default
 
 install_pcp:	install
+
+libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
+	rm -f libpcp.h
+	ln $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h

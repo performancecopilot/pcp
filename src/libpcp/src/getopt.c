@@ -17,6 +17,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "internal.h"
 #include <ctype.h>
 #include <dirent.h>

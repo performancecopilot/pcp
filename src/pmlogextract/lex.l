@@ -23,6 +23,7 @@
  */
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "logger.h"
 
 int lineno = 1;

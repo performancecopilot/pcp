@@ -19,6 +19,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 #include <pcp/pmda.h>
 #include "events.h"
 

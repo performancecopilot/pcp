@@ -16,6 +16,48 @@
 #ifndef PCP_IMPL_H
 #define PCP_IMPL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * functions to be promoted to pmapi.h and the __pm version added
+ * to deprecated.*
+ * === start ==
+ */
+
+/* platform independent set process identity */
+PCP_CALL extern int __pmSetProcessIdentity(const char *);
+
+/* filesystem path name separator */
+PCP_CALL extern int __pmPathSeparator(void);
+
+/* safely insert an atom value into a pmValue */
+PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
+
+/* struct timeval/timespec manipulations */
+PCP_CALL extern void __pmtimevalNow(struct timeval *);
+PCP_CALL extern void __pmtimevalInc(struct timeval *, const struct timeval *);
+PCP_CALL extern void __pmtimevalDec(struct timeval *, const struct timeval *);
+PCP_CALL extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
+PCP_CALL extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
+PCP_CALL extern double __pmtimevalToReal(const struct timeval *);
+PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
+PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
+PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
+
+/* == end == */
+
+
+typedef struct __pmnsTree __pmnsTree;	/* TODO remove when __pmLogCtl moves to libpcp.h */
+
+/*
+ * This defines the routines, macros and data structures that are used
+ * in the Performance Metrics Collection Subsystem (PMCS) below the
+ * PMAPI.
+ */
+
+/* TODO .. move to libpcp.h when all refs to __pmMutex have gone */
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
  * global data structures and mutual exclusion when required.
@@ -30,28 +72,6 @@ typedef pthread_mutex_t __pmMutex;
 #else
 typedef void * __pmMutex;
 #endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*
- * This defines the routines, macros and data structures that are used
- * in the Performance Metrics Collection Subsystem (PMCS) below the
- * PMAPI.
- */
-
-/*
- * internal libpcp state ... PM_STATE_APPL means we are at or above the
- * PMAPI in a state where PMAPI calls can safely be made ... PM_STATE_PMCS
- * means we are in the PMCD, or a PMDA, or low-level PDU code, and
- * PMAPI calls are a bad idea.
- */
-#define PM_STATE_APPL	0
-#define PM_STATE_PMCS	1
-
-PCP_CALL extern void __pmSetInternalState(int);
-PCP_CALL extern int __pmGetInternalState(void);
 
 /*
  * PMCD connections come here by default, over-ride with $PMCD_PORT in
@@ -88,8 +108,6 @@ PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
-PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
-PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 PCP_CALL extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
@@ -233,8 +251,6 @@ PCP_CALL extern void __pmClearerr(__pmFILE *);
 PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
 
-typedef struct __pmnsTree __pmnsTree;	/* REMOVE when __pmLogCtl moves to libpcp.h */
-
 /*
  * Log/Archive Control
  */
@@ -348,30 +364,6 @@ PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 
 PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
-
-/*
- * Version and capabilities information for PDU exchanges
- */
-
-#define UNKNOWN_VERSION	0
-#define PDU_VERSION2	2
-#define PDU_VERSION	PDU_VERSION2
-
-#define PDU_OVERRIDE2	-1002
-
-typedef struct {
-#ifdef HAVE_BITFIELDS_LTOR
-    unsigned int	zero     : 1;	/* ensure this is zero for 1.x compatibility */
-    unsigned int	version  : 7;	/* PDU_VERSION collector protocol preference */
-    unsigned int	licensed : 8;	/* ensure this is one for 2.x compatibility */
-    unsigned int	features : 16;	/* advertised (enabled) collector features */
-#else
-    unsigned int	features : 16;
-    unsigned int	licensed : 8;
-    unsigned int	version  : 7;
-    unsigned int	zero     : 1;
-#endif
-} __pmPDUInfo;
 
 /*
  * Host specification allowing one or more pmproxy host, and port numbers
@@ -648,233 +640,12 @@ PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 /* Archive context helper. */
 int __pmFindOrOpenArchive(__pmContext *, const char *, int);
 
-/*
- * Protocol data unit support
- * Note: int is OK here, because configure ensures int is a 32-bit integer
- */
-typedef struct {
-    int		len;		/* length of pdu_header + PDU */
-    int		type;		/* PDU type */
-    int		from;		/* pid of PDU originator */
-} __pmPDUHdr;
-
-typedef __uint32_t	__pmPDU;
-/*
- * round a size up to the next multiple of a __pmPDU size
- *
- * PM_PDU_SIZE is in units of __pmPDU size
- * PM_PDU_SIZE_BYTES is in units of bytes
- */
-#define PM_PDU_SIZE(x) (((x)+sizeof(__pmPDU)-1)/sizeof(__pmPDU))
-#define PM_PDU_SIZE_BYTES(x) (sizeof(__pmPDU)*PM_PDU_SIZE(x))
-
-/* Types of credential PDUs (c_type) */
-#define CVERSION        0x1
-
-typedef struct {
-#ifdef HAVE_BITFIELDS_LTOR
-    unsigned int	c_type: 8;	/* Credentials PDU type */
-    unsigned int	c_vala: 8;
-    unsigned int	c_valb: 8;
-    unsigned int	c_valc: 8;
-#else
-    unsigned int	c_valc: 8;
-    unsigned int	c_valb: 8;
-    unsigned int	c_vala: 8;
-    unsigned int	c_type: 8;
-#endif
-} __pmCred;
-
-/* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
-#define PDU_FLAG_SECURE		(1U<<0)
-#define PDU_FLAG_COMPRESS	(1U<<1)
-#define PDU_FLAG_AUTH		(1U<<2)
-#define PDU_FLAG_CREDS_REQD	(1U<<3)
-#define PDU_FLAG_SECURE_ACK	(1U<<4)
-#define PDU_FLAG_NO_NSS_INIT	(1U<<5)
-#define PDU_FLAG_CONTAINER	(1U<<6)
-#define PDU_FLAG_CERT_REQD	(1U<<7)
-#define PDU_FLAG_LABEL		(1U<<8)
-
-/* Credential CVERSION PDU elements look like this */
-typedef struct {
-#ifdef HAVE_BITFIELDS_LTOR
-    unsigned int	c_type: 8;	/* Credentials PDU type */
-    unsigned int	c_version: 8;	/* PCP protocol version */
-    unsigned int	c_flags: 16;	/* All feature requests */
-#else
-    unsigned int	c_flags: 16;
-    unsigned int	c_version: 8;
-    unsigned int	c_type: 8;
-#endif
-} __pmVersionCred;
-
 PCP_CALL extern void __pmIgnoreSignalPIPE(void);
-PCP_CALL extern int __pmXmitPDU(int, __pmPDU *);
-PCP_CALL extern int __pmGetPDU(int, int, int, __pmPDU **);
-PCP_CALL extern int __pmGetPDUCeiling(void);
-PCP_CALL extern int __pmSetPDUCeiling(int);
-
-PCP_DATA extern unsigned int *__pmPDUCntIn;
-PCP_DATA extern unsigned int *__pmPDUCntOut;
-PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
-
-PCP_CALL unsigned int __pmServerGetFeaturesFromPDU(__pmPDU *);
-
-/* timeout options for PDU handling */
-#define TIMEOUT_NEVER	 0
-#define TIMEOUT_DEFAULT	-1
-/*#define TIMEOUT_ASYNC -2*/
-#define TIMEOUT_CONNECT	-3
 
 PCP_CALL extern double __pmConnectTimeout(void);
 PCP_CALL extern int __pmSetConnectTimeout(double);
 PCP_CALL extern double __pmRequestTimeout(void);
 PCP_CALL extern int __pmSetRequestTimeout(double);
-
-/* mode options for __pmGetPDU */
-#define ANY_SIZE	0	/* replacement for old PDU_BINARY */
-#define LIMIT_SIZE	2	/* replacement for old PDU_CLIENT */
-
-PCP_CALL extern __pmPDU *__pmFindPDUBuf(int);
-PCP_CALL extern void __pmPinPDUBuf(void *);
-PCP_CALL extern int __pmUnpinPDUBuf(void *);
-PCP_CALL extern void __pmCountPDUBuf(int, int *, int *);
-
-#define PDU_START		0x7000
-#define PDU_ERROR		PDU_START
-#define PDU_RESULT		0x7001
-#define PDU_PROFILE		0x7002
-#define PDU_FETCH		0x7003
-#define PDU_DESC_REQ		0x7004
-#define PDU_DESC		0x7005
-#define PDU_INSTANCE_REQ	0x7006
-#define PDU_INSTANCE		0x7007
-#define PDU_TEXT_REQ		0x7008
-#define PDU_TEXT		0x7009
-#define PDU_CONTROL_REQ		0x700a
-#define PDU_CREDS		0x700c
-#define PDU_PMNS_IDS		0x700d
-#define PDU_PMNS_NAMES		0x700e
-#define PDU_PMNS_CHILD		0x700f
-#define PDU_PMNS_TRAVERSE	0x7010
-#define PDU_ATTR		0x7011
-#define PDU_AUTH		PDU_ATTR
-#define PDU_LABEL_REQ		0x7012
-#define PDU_LABEL		0x7013
-#define PDU_FINISH		0x7013
-#define PDU_MAX		 	(PDU_FINISH - PDU_START)
-
-/*
- * Unit of space allocation for PDU buffer.
- */
-#define PDU_CHUNK		1024
-
-/*
- * PDU encoding formats
- * These have been retired ...
- *  #define PDU_BINARY	0
- *  #define PDU_ASCII	1
- * And this has been replaced by LIMIT_SIZE for __pmGetPDU
- *  #define PDU_CLIENT	2
- */
-
-/*
- * Anonymous PDU sender, when context does not matter, e.g. PDUs from
- * a PMDA sent to PMCD
- */
-#define FROM_ANON	0
-
-PCP_CALL extern int __pmSendError(int, int, int);
-PCP_CALL extern int __pmDecodeError(__pmPDU *, int *);
-PCP_CALL extern int __pmSendXtendError(int, int, int, int);
-PCP_CALL extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
-PCP_CALL extern int __pmSendResult(int, int, const pmResult *);
-PCP_CALL extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
-PCP_CALL extern int __pmDecodeResult(__pmPDU *, pmResult **);
-PCP_CALL extern int __pmSendProfile(int, int, int, __pmProfile *);
-PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, __pmProfile **);
-PCP_CALL extern int __pmSendFetch(int, int, int, __pmTimeval *, int, pmID *);
-PCP_CALL extern int __pmDecodeFetch(__pmPDU *, int *, __pmTimeval *, int *, pmID **);
-PCP_CALL extern int __pmSendDescReq(int, int, pmID);
-PCP_CALL extern int __pmDecodeDescReq(__pmPDU *, pmID *);
-PCP_CALL extern int __pmSendDesc(int, int, pmDesc *);
-PCP_CALL extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
-PCP_CALL extern int __pmSendInstanceReq(int, int, const __pmTimeval *, pmInDom, int, const char *);
-PCP_CALL extern int __pmDecodeInstanceReq(__pmPDU *, __pmTimeval *, pmInDom *, int *, char **);
-PCP_CALL extern int __pmSendInstance(int, int, __pmInResult *);
-PCP_CALL extern int __pmDecodeInstance(__pmPDU *, __pmInResult **);
-PCP_CALL extern int __pmSendTextReq(int, int, int, int);
-PCP_CALL extern int __pmDecodeTextReq(__pmPDU *, int *, int *);
-PCP_CALL extern int __pmSendText(int, int, int, const char *);
-PCP_CALL extern int __pmDecodeText(__pmPDU *, int *, char **);
-PCP_CALL extern int __pmSendCreds(int, int, int, const __pmCred *);
-PCP_CALL extern int __pmDecodeCreds(__pmPDU *, int *, int *, __pmCred **);
-PCP_CALL extern int __pmSendIDList(int, int, int, const pmID *, int);
-PCP_CALL extern int __pmDecodeIDList(__pmPDU *, int, pmID *, int *);
-PCP_CALL extern int __pmSendNameList(int, int, int, char **, const int *);
-PCP_CALL extern int __pmDecodeNameList(__pmPDU *, int *, char ***, int **);
-PCP_CALL extern int __pmSendChildReq(int, int, const char *, int);
-PCP_CALL extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
-PCP_CALL extern int __pmSendTraversePMNSReq(int, int, const char *);
-PCP_CALL extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
-PCP_CALL extern int __pmSendAuth(int, int, int, const char *, int);
-PCP_CALL extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
-PCP_CALL extern int __pmSendAttr(int, int, int, const char *, int);
-PCP_CALL extern int __pmDecodeAttr(__pmPDU *, int *, char **, int *);
-PCP_CALL extern int __pmSendLabelReq(int, int, int, int);
-PCP_CALL extern int __pmDecodeLabelReq(__pmPDU *, int *, int *);
-PCP_CALL extern int __pmSendLabel(int, int, int, int, pmLabelSet *, int);
-PCP_CALL extern int __pmDecodeLabel(__pmPDU *, int *, int *, pmLabelSet **, int *);
-
-#if defined(HAVE_64BIT_LONG)
-
-/*
- * A pmValue contains the union of a 32-bit int and a pointer.  In the world
- * of 64-bit pointers, a pmValue is therefore larger than in the 32-bit world.
- * The structures below are used in all PDUs containing pmResults to ensure
- * 32-bit and 64-bit programs exchanging PDUs can communicate.
- * Note that a pmValue can only hold a 32-bit value in situ regardless of
- * whether the pointer size is 32 or 64 bits.
- */
-
-typedef struct {
-    int			inst;		/* instance identifier */
-    union {
-	unsigned int	pval;		/* offset into PDU buffer for value */
-	int		lval;		/* 32-bit value in situ */
-    } value;
-} __pmValue_PDU;
-
-typedef struct {
-    pmID		pmid;		/* metric identifier */
-    int			numval;		/* number of values */
-    int			valfmt;		/* value style */
-    __pmValue_PDU	vlist[1];	/* set of instances/values */
-} __pmValueSet_PDU;
-
-#elif defined(HAVE_32BIT_LONG)
-
-/* In the 32-bit world, structures may be used in PDUs as defined */
-
-typedef pmValue		__pmValue_PDU;
-typedef pmValueSet	__pmValueSet_PDU;
-
-#else
-bozo - unknown size of long !!!
-#endif
-
-/*
- * For the help text PDUs, the type (PM_TEXT_ONELINE or PM_TEXT_HELP)
- * is 'or'd with the following to encode the request for a PMID or
- * a pmInDom.  Default is to fallback to ONELINE if HELP unavailable;
- * the (internal) PM_TEXT_DIRECT flag disables this behaviour.
- * Note the values must therefore be (a) bit fields and (b) different
- *	to the public macros PM_TEXT_* in pmapi.h 
- */
-#define PM_TEXT_PMID	4
-#define PM_TEXT_INDOM	8
-#define PM_TEXT_DIRECT	16
 
 /*
  * no mem today, my love has gone away ....
@@ -895,12 +666,6 @@ PCP_CALL extern int __pmGetUsername(char **);
  * (local context PMDAs, any global NSS socket state, etc).
  */
 PCP_CALL extern int __pmShutdown(void);
-
-/*
- * Map platform error values to PMAPI error codes.
- */
-PCP_CALL extern int __pmMapErrno(int);
-PCP_CALL extern void __pmDumpErrTab(FILE *);
 
 /*
  * __pmLogInDom is used to hold the instance identifiers for an instance
@@ -1037,8 +802,6 @@ PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *, unsigned int, unsigned int, in
 PCP_CALL extern int __pmLogLookupText(__pmLogCtl *, unsigned int , unsigned int, char **);
 PCP_CALL extern int __pmLogPutText(__pmLogCtl *, unsigned int , unsigned int, char *, int);
 
-PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
-PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 PCP_CALL extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 PCP_CALL extern void __pmLogSetTime(__pmContext *);
@@ -1050,249 +813,8 @@ PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, __pmFILE *, __pmLogLabel *, in
 PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
-/* struct for maintaining information about pmlogger ports */
-typedef struct {
-    int		pid;		/* process id of logger */
-    int		port;		/* internet port for logger control */
-    char	*pmcd_host;	/* host pmlogger is collecting from */
-    char	*archive;	/* archive base pathname */
-    char	*name;		/* file name (minus dirname) */
-} __pmLogPort;
-
-/* Returns control port info for a pmlogger given its pid.
- * If pid == PM_LOG_ALL_PIDS, get all pmloggers' control ports.
- * If pid == PM_LOG_PRIMARY_PID, get primar logger's control port.
- * Note: do NOT free any part of result returned via the parameter.
- *
- * __pmLogFindPort(const char *hostname, int pid, __pmLogPort **result);
- */
-PCP_CALL extern int __pmLogFindPort(const char *, int, __pmLogPort **);
-
-#define PM_LOG_PRIMARY_PID	0	/* symbolic pid for primary logger */
-#define PM_LOG_PRIMARY_PORT	0	/* symbolic port for primary pmlogger */
-#define PM_LOG_ALL_PIDS		-1	/* symbolic pid for all pmloggers */
-#define PM_LOG_NO_PID		-2	/* not a valid pid for pmlogger */
-#define PM_LOG_NO_PORT		-2	/* not a valid port for pmlogger */
-
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
-
-/* time utils */
-PCP_CALL extern time_t __pmMktime(struct tm *);
-
-/* reverse ctime and time interval parsing */
-PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
-PCP_CALL extern int __pmConvertTime(struct tm *, struct timeval *, struct timeval *);
-PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval *,
-			 struct timeval *, char **);
-
-/* manipulate internal timestamps */
-PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
-PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
-
-/* 32-bit file checksum */
-PCP_CALL extern __int32_t __pmCheckSum(FILE *);
-
-/* check for localhost */
-PCP_CALL extern int __pmIsLocalhost(const char *);
-
-/*
- * struct timeval manipulations
- */
-PCP_CALL extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
-PCP_CALL extern void __pmtimevalInc(struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
-PCP_CALL extern void __pmtimevalDec(struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalToReal(const struct timeval *);
-PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
-PCP_CALL extern void __pmtimevalSleep(struct timeval);
-PCP_CALL extern void __pmtimevalPause(struct timeval);
-PCP_CALL extern void __pmtimevalNow(struct timeval *);
-
-typedef struct {
-    char		*label;		/* label to name tz */
-    char		*tz;		/* env $TZ */
-    int			handle;		/* handle from pmNewZone() */
-} pmTimeZone;
-
-/*
- * event tracing for monitoring time between events
- */
-PCP_CALL extern void __pmEventTrace(const char *);		/* NOT thread-safe */
-PCP_CALL extern void __pmEventTrace_r(const char *, int *, double *, double *);
-
-/*
- * More IPC protocol stuff
- */
-
-typedef int (*__pmConnectHostType)(int, int);
-
-PCP_CALL extern int __pmSetSocketIPC(int);
-PCP_CALL extern int __pmSetVersionIPC(int, int);
-PCP_CALL extern int __pmSetFeaturesIPC(int, int, int);
-PCP_CALL extern int __pmSetDataIPC(int, void *);
-PCP_CALL extern int __pmDataIPCSize(void);
-PCP_CALL extern int __pmLastVersionIPC(void);
-PCP_CALL extern int __pmVersionIPC(int);
-PCP_CALL extern int __pmSocketIPC(int);
-PCP_CALL extern int __pmFeaturesIPC(int);
-PCP_CALL extern int __pmDataIPC(int, void *);
-PCP_CALL extern void __pmOverrideLastFd(int);
-PCP_CALL extern void __pmPrintIPC(void);
-PCP_CALL extern void __pmResetIPC(int);
-
-/* safely insert an atom value into a pmValue */
-PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
-
-/* string conversion to value of given type, suitable for pmStore */
-PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
-
-/* work out local timezone */
-PCP_CALL extern char *__pmTimezone(void);			/* NOT thread-safe */
-PCP_CALL extern char *__pmTimezone_r(char *, int);
-
-/*
- * platform independent process routines
- */
-PCP_CALL extern int __pmProcessExists(pid_t);
-PCP_CALL extern int __pmProcessTerminate(pid_t, int);
-PCP_CALL extern pid_t __pmProcessCreate(char **, int *, int *);
-PCP_CALL extern int __pmProcessDataSize(unsigned long *);
-PCP_CALL extern int __pmProcessRunTimes(double *, double *);
-PCP_CALL extern int __pmSetProcessIdentity(const char *);
-
-/*
- * platform independent memory mapped file handling
- */
-PCP_CALL extern void *__pmMemoryMap(int, size_t, int);
-PCP_CALL extern void __pmMemoryUnmap(void *, size_t);
-
-/*
- * platform independent signal handling
- */
-typedef void (*__pmSignalHandler)(int);
-PCP_CALL extern int __pmSetSignalHandler(int, __pmSignalHandler);
-
-/*
- * platform independent environment and filesystem path access
- */
-typedef void (*__pmConfigCallback)(char *, char *, char *);
-PCP_DATA extern const __pmConfigCallback __pmNativeConfig;
-PCP_CALL extern void __pmConfig(__pmConfigCallback);
-PCP_CALL extern char *__pmNativePath(char *);
-PCP_CALL extern int __pmAbsolutePath(char *);
-PCP_CALL extern int __pmPathSeparator(void);
-PCP_CALL extern int __pmMakePath(const char *, mode_t);
-
-/*
- * discover configurable features of the shared libraries
- */
-typedef void (*__pmAPIConfigCallback)(const char *, const char *);
-PCP_CALL extern void __pmAPIConfig(__pmAPIConfigCallback);
-PCP_CALL extern const char *__pmGetAPIConfig(const char *);
-
-/*
- * internals of argument parsing for special circumstances
- */
-PCP_CALL extern void __pmStartOptions(pmOptions *);
-PCP_CALL extern int  __pmGetLongOptions(pmOptions *);
-PCP_CALL extern void __pmAddOptArchive(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptArchiveList(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptContainer(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptHost(pmOptions *, char *);
-PCP_CALL extern void __pmAddOptHostList(pmOptions *, char *);
-PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
-PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
-PCP_CALL extern void __pmEndOptions(pmOptions *);
-
-/*
- * helper functions to register client identity with pmcd for export
- * via pmcd.client.whoami
- */
-PCP_CALL extern char *__pmGetClientId(int, char **);
-PCP_CALL extern int __pmSetClientIdArgv(int, char **);
-PCP_CALL extern int __pmSetClientId(const char *);
-
-/*
- * Adding/deleting/clearing the list of DSO PMDAs supported for
- * PM_CONTEXT_LOCAL contexts
- */
-#define PM_LOCAL_ADD	1
-#define PM_LOCAL_DEL	2
-#define PM_LOCAL_CLEAR	3
-PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
-PCP_CALL extern char *__pmSpecLocalPMDA(const char *);
-struct __pmDSO;
-PCP_CALL extern struct __pmDSO *__pmLookupDSO(int);
-
-/*
- * Helper methods for packed arrays of event records
- */
-PCP_CALL extern int __pmCheckEventRecords(pmValueSet *, int);
-PCP_CALL extern int __pmCheckHighResEventRecords(pmValueSet *, int);
-PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
-PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
-
-/* Get nanosecond precision timestamp from system clocks */
-PCP_CALL extern int __pmGetTimespec(struct timespec *);
-
-/* Anonymous metric registration (uses derived metrics support) */
-PCP_CALL extern int __pmRegisterAnon(const char *, int);
-
-/*
- * Multi-thread support
- * Use PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
- */
-PCP_CALL extern void __pmInitLocks(void);
-PCP_CALL extern int __pmLock(void *, const char *, int);
-PCP_CALL extern int __pmUnlock(void *, const char *, int);
-PCP_CALL extern int __pmIsLocked(void *);
-#ifdef BUILD_WITH_LOCK_ASSERTS
-PCP_CALL extern void __pmCheckIsUnlocked(void *, char *, int);
-#endif /* BUILD_WITH_LOCK_ASSERTS */
-
-/*
- * Each of these scopes defines one or more PMAPI routines that will
- * not allow calls from more than one thread.
- */
-#define PM_SCOPE_DSO_PMDA	0
-#define PM_SCOPE_ACL		1
-#define PM_SCOPE_AF		2
-#define PM_SCOPE_LOGPORT	3
-#define PM_SCOPE_MAX		3
-PCP_CALL extern int __pmMultiThreaded(int);
-
-#define PM_INIT_LOCKS()		__pmInitLocks()
-#define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
-#define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
-#define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
-#define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
-
-#ifdef HAVE_PTHREAD_MUTEX_T
-/* the big libpcp lock */
-PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;
-/* mutex for calls to external routines that are not thread-safe */
-PCP_CALL extern pthread_mutex_t	__pmLock_extcall;
-#else
-PCP_CALL extern void *__pmLock_libpcp;			/* symbol exposure */
-PCP_CALL extern void *__pmLock_extcall;			/* symbol exposure */
-#endif
-
-/*
- * Service discovery with options.
- * The 4th argument is a pointer to a mask of flags for boolean options
- * and status. It is set and tested using the following bits.
- */
-#define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
-#define PM_SERVICE_DISCOVERY_RESOLVE		0x2
-
-PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
-					   const char *,
-					   const char *,
-					   const volatile sig_atomic_t *,
-					   char ***);
-
 
 #ifdef __cplusplus
 }
