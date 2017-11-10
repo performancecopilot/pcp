@@ -87,7 +87,7 @@ class Metric(object):
                         self.source.pmda.add_metric(self.mname, self.obj, self.description)
                         self.source.pmda.set_need_refresh()
                 except Exception as e:
-                        self.source.pmda.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
+                        self.source.pmda.err("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
                 self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
 
 
@@ -226,7 +226,7 @@ class PersistentNameTable(object):
                                         self.pmda.debug("saved %s, %d instances" % (self.store_file_name, len(self.instances)))
                                 self.need_save = False # reset only on success
                         except Exception as e:
-                                self.pmda.log("cannot save %s: %s" % (self.store_file_name, e))
+                                self.pmda.err("cannot save %s: %s" % (self.store_file_name, e))
                         
 
         def intern_lookup_value(self, name, prefix=False):
@@ -451,7 +451,7 @@ class Source(object):
 
                         m.store_inst(sp.labels,sp.value)
                 except Exception as e:
-                        self.pmda.log("cannot parse/store %s: %s" % (line, e))
+                        self.pmda.err("cannot parse/store %s: %s" % (line, e))
                 pass
 
 
@@ -534,7 +534,7 @@ class Source(object):
                 try:
                         url = open(self.path,'r').read().strip()
                 except Exception as e:
-                        self.pmda.log("cannot read %s: %s" % (self.path, e))
+                        self.pmda.err("cannot read %s: %s" % (self.path, e))
                         return
                 # fetch the URL
                 try:
@@ -547,11 +547,14 @@ class Source(object):
                         s = self.parse_lines(t)
                         # save metric & indom lookup tables changes, if any 
                         for n,m in self.metrics_by_name.items():
-                                m.save()
+                                try: # NB: must process whole list even if exceptions escape
+                                        m.save()
+                                except: # ... which they won't, this is just belt & suspenders
+                                        pass
                         self.pmids_table.save()
                         self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(t), s, url))
                 except Exception as e:
-                        self.pmda.log("cannot fetch %s: %s" % (url, e))
+                        self.pmda.err("cannot fetch %s: %s" % (url, e))
                         return
                 
         def fetch(self, item, inst):
@@ -650,7 +653,7 @@ class PrometheusPMDA(PMDA):
                                         continue
                                 name = file_split[0]
                                 if not nickname_regexp.match(name):
-                                        self.log("Bad nickname %s" % file)
+                                        self.err("Bad nickname %s" % file)
                                         continue
 
                                 if name in self.source_by_name:
@@ -666,7 +669,7 @@ class PrometheusPMDA(PMDA):
                                                 save_cluster_table = True
                                                 self.log("Found source %s cluster %d" % (name, cluster))
                                         except Exception as e:
-                                                self.log("Error allocating new cluster/source %s (%s)" % (name, e))
+                                                self.err("Error allocating new cluster/source %s (%s)" % (name, e))
                 if save_cluster_table:
                         self.cluster_table.save()
 
@@ -702,7 +705,7 @@ class PrometheusPMDA(PMDA):
                         self.assert_source_invariants(cluster=cluster)
                         self.source_by_cluster[cluster].refresh(self.timeout)
                 except Exception as e:
-                        self.log("Cannot refresh cluster %d: %s" % (cluster, e))
+                        self.err("Cannot refresh cluster %d: %s" % (cluster, e))
 
         def refresh_some_clusters_for_fetch(self,_clusters):
                 '''Called once per pmFetch batch handling, before
@@ -741,7 +744,10 @@ class PrometheusPMDA(PMDA):
         def log(self,s):
                 super(PrometheusPMDA,self).log(s)
                 # sys.stderr.write('log:' + s + '\n')
-                        
+
+        def err(self,s):
+                super(PrometheusPMDA,self).err(s)
+                # sys.stderr.write('log:' + s + '\n')
                         
 if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='Prometheus PMDA.',
