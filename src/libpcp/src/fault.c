@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "fault.h"
 /* need pmda.h and libpcp_pmda for the pmdaCache* routines */
 #include "pmda.h"

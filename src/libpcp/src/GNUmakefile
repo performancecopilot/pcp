@@ -31,7 +31,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	fault.c access.c getopt.c probe.c io.c io_stdio.c exec.c \
 	deprecated.c
 HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h jsmn.h
-XFILES = jsmn.h jsmn.c sort_r.h
+EXT_FILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
 GENERATED_HFILES = pmdbg.h
 
@@ -80,10 +80,10 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(EXT_FILES) $(LIBCONFIG) \
 	getdate.h derive_parser.y check.done $(GENERATED_HFILES)
 
-base default : $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
+base default : $(EXT_FILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done
 
 ifneq "$(SYMTARGET)" ""
@@ -135,7 +135,7 @@ ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
-$(XFILES):
+$(EXT_FILES):
 	$(LN_S) $(TOPDIR)/src/external/$@ .
 
 default_pcp : default
@@ -148,7 +148,7 @@ $(TOPDIR)/src/pmns/stdpmid:
 pmdbg.h : ../../include/pcp/pmapi.h ../../include/pcp/impl.h mk_pmdbg
 	./mk_pmdbg
 
-labels.o:	../../external/sort_r.h
+labels.o:	sort_r.h
 
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition
