@@ -19,6 +19,7 @@ trap "rm -f $tmp.* $tmp; exit" 0 1 2 3 15
 cat >$tmp.c <<End-of-File
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 int main()
 {
@@ -32,5 +33,5 @@ int main()
 }
 End-of-File
 
-cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. -L$PCP_LIB_DIR -lpcp -lpthread -ldl -lm
+cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. -I./src -L$PCP_LIB_DIR -lpcp -lpthread -ldl -lm
 $tmp
