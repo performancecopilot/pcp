@@ -36,4 +36,4 @@ initialize
 lock
 unlock
 unlock
-exerlock.c:49: unlock failed: Operation not permitted
+exerlock.c:50: unlock failed: Operation not permitted
