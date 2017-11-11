@@ -1142,14 +1142,18 @@ AS_IF([test "x$do_qt" != "xno"], [
 	enable_qt=false
     else
 	AC_MSG_CHECKING([Qt version])
-	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
-	if test "$QT_MAJOR" -lt 4; then
+	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
+	    echo WARNING: cannot extract Qt version number from ...
+	    $qmake --version
+	    echo Cannot include the Qt components in the build.
+	    enable_qt=false
+	elif test "$QT_MAJOR" -lt 4; then
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
-	fi
-	if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
+	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
 	    echo WARNING: Qt version 4.$QT_MINOR is too old.
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
