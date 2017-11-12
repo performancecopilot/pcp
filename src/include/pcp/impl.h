@@ -49,7 +49,7 @@ PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 /* == end == */
 
 
-typedef struct __pmnsTree __pmnsTree;	/* TODO remove when __pmLogCtl moves to libpcp.h */
+struct __pmnsTree;	/* TODO remove when __pmLogCtl moves to libpcp.h */
 
 /*
  * This defines the routines, macros and data structures that are used
@@ -278,7 +278,7 @@ typedef struct {
     __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
-    __pmnsTree	*l_pmns;        /* namespace from meta data */
+    struct __pmnsTree	*l_pmns;        /* namespace from meta data */
     int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
