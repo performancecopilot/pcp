@@ -8,6 +8,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 static int inst_bin[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
 static int inst_colour[] = { 0, 1, 2 };
