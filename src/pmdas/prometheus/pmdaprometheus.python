@@ -80,10 +80,9 @@ class Metric(object):
                 self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
                 if helpline: # it could be None!
                         unescaped = helpline.replace('\\\\', '\\').replace('\\n','\n')
-                        help_oneline = unescaped.split('\n')[0] # must have at least one entry
-                        help_text = unescaped
-                        # NB: don't bother unescape \\ and \n; we can only supply a oneline text
-                        # from python PMDAs.  We might as well pass it all through.
+                        split = unescaped.split('\n')
+                        help_oneline = split[0] # must have at least one entry
+                        help_text = '\n'.join(split[1:]) # may have other entries
                 else:
                         help_oneline = ''
                         help_text = ''
@@ -105,21 +104,38 @@ class Metric(object):
                 # Split the prometheus metric name by "_", to help
                 # decode convention for squishing unit/scale data.
                 pieces = self.name.split('_')
+                if self.pcpline:
+                        pcpline_pieces = self.pcpline.split(' ')
+                else:
+                        pcpline_pieces = []
                 
-                # XXX: pcpline semantics
-                if (self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
+                if (len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'instant'):
+                        self.msem = c_api.PM_SEM_INSTANT
+                elif (len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'counter'):
+                        self.msem = c_api.PM_SEM_COUNTER
+                elif (len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'discrete'):
+                        self.msem = c_api.PM_SEM_DISCRETE
+                elif (self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
                         self.msem = c_api.PM_SEM_COUNTER
                 elif (self.typeline == 'histogram' and 'bucket' in pieces):
                         self.msem = c_api.PM_SEM_COUNTER
                 else:
                         self.msem = c_api.PM_SEM_INSTANT
 
-                if self.pcpline:
-                        self.mname = 'prometheus.' + self.source.name + '.' + self.pcpline # XXX: split once it carries sem/units
+                if (len(pcpline_pieces) >= 1):
+                        self.mname = 'prometheus.' + self.source.name + '.' + pcpline_pieces[0]
                 else:
                         self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
+
+                # NB: ignore the PCP units suffix.
+                # we could do:
+                
+                # self.munits = cpmapi.pmParseUnitsStr(pcpline_pieces[2])
+                
+                # ... but we'd have to undo the base-scale conversion done by pmwebd.  So
+                # instead we use the inferred unit-scale (even though it doesn't match the
+                # original pcp source).  We don't preserve PM_TYPE_* either.
                         
-                # XXX: pcpline units
                 if ((self.typeline == 'histogram' or self.typeline == 'summary')
                     and 'count' in pieces): # regardless of UNIT; *_sum peer is has proper type
                         self.munits = pmUnits(0,0,1,0,0,0) # simple count
@@ -499,11 +515,11 @@ class Source(object):
                                 # the # metadata blocks must precede
                                 # the metric values; we can ignore
                                 # lp[2].
-                                if lp[1] == 'PCP': # XXX: extend, regularize, document
-                                        pcpline = lp[2] # XXX: skip trailing parts 
+                                if lp[1] == 'PCP':
+                                        pcpline = ' '.join(lp[2:])
                                 elif lp[1] == 'HELP':
                                         # assume lp[2] matches metric name
-                                        helpline = ' '.join(lp[3:]) # XXX unescape \\ \n
+                                        helpline = ' '.join(lp[3:])
                                 elif lp[1] == 'TYPE':
                                         # assume lp[2] matches metric name
                                         typeline = ' '.join(lp[3:])
