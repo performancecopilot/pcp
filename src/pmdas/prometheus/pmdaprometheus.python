@@ -102,8 +102,9 @@ class Metric(object):
                 pieces = self.name.split('_')
                 
                 # XXX: pcpline semantics
-                if (self.typeline == 'counter'
-                    or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
+                if (self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
+                        self.msem = c_api.PM_SEM_COUNTER
+                elif (self.typeline == 'histogram' and 'bucket' in pieces):
                         self.msem = c_api.PM_SEM_COUNTER
                 else:
                         self.msem = c_api.PM_SEM_INSTANT
@@ -114,7 +115,12 @@ class Metric(object):
                         self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
                         
                 # XXX: pcpline units
-                if ('seconds' in pieces):
+                if ((self.typeline == 'histogram' or self.typeline == 'summary')
+                    and 'count' in pieces): # regardless of UNIT; *_sum peer is has proper type
+                        self.munits = pmUnits(0,0,1,0,0,0) # simple count
+                elif (self.typeline == 'histogram' and 'bucket' in pieces): # ditto
+                        self.munits = pmUnits(0,0,1,0,0,0) # simple count                        
+                elif ('seconds' in pieces):
                         self.munits = pmUnits(0,1,0,0,3,0)
                 elif ('microseconds' in pieces): # not listed in https://prometheus.io/docs/practices/naming/
                         self.munits = pmUnits(0,1,0,0,1,0)
