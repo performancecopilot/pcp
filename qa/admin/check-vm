@@ -7,18 +7,24 @@
 _usage()
 {
     echo "Usage: $0 [options]"
+    echo "  -f  force, don't try to guess the version of Qt, ..."
     echo "  -p  generate list of likely packages that should be"
     echo "      installed with dnf or apt-get or yum or ..."
     echo "  -v  verbose (debugging)"
     exit 1
 }
 
-verbose=false
+force=false
 pkglist=false
-while getopts 'pv?' p
+verbose=false
+while getopts 'fpv?' p
 do
     case "$p"
     in
+	f)
+		force=true
+		;;
+
 	p)	# just list most likey package for yum, dnf, apt-get, ...
 		pkglist=true
 		;;
@@ -1216,6 +1222,9 @@ in
     vm21)
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-xlsxwriter zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
 	;;
+    vm27)
+	na='python3-libvirt python3-prometheus-client'
+	;;
 esac
 if [ -n "$na" ]
 then
@@ -1251,28 +1260,33 @@ then
     fi
 fi
 
-# If we are sure which version of Qt we're using, remove lines for
-# the other versions
-#
-# Logic from Makepkgs
-#
-cull=''
-unset QT_SELECT
-if which qtchooser >/dev/null 2>&1
+if $force
 then
-    if qtchooser -list-versions | grep '^5$' >/dev/null
+    :
+else
+    # If we are sure which version of Qt we're using, remove lines for
+    # the other versions
+    #
+    # Logic from Makepkgs
+    #
+    cull=''
+    unset QT_SELECT
+    if which qtchooser >/dev/null 2>&1
     then
-	cull=qt4
-    else
-	cull=qt5
+	if qtchooser -list-versions | grep '^5$' >/dev/null
+	then
+	    cull=qt4
+	else
+	    cull=qt5
+	fi
     fi
-fi
-if [ -n "$cull" ]
-then
-    #debug# echo "cull=$cull"
-    grep -vi "$cull" <$tmp.main >$tmp.tmp
-    #debug# diff $tmp.main $tmp.tmp
-    mv $tmp.tmp $tmp.main
+    if [ -n "$cull" ]
+    then
+	#debug# echo "cull=$cull"
+	grep -vi "$cull" <$tmp.main >$tmp.tmp
+	#debug# diff $tmp.main $tmp.tmp
+	mv $tmp.tmp $tmp.main
+    fi
 fi
 
 # main loop
