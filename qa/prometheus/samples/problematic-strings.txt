@@ -27,3 +27,7 @@ test2{instance=":"} 8
 test2{instance="}"} 9
 test2{instance="{"} 10
 
+# HELP test3 Yet Another Thing\nwith a long label\nvery long indeed\nand has a \\ or two \\
+# TYPE test3 gauge
+test3 0
+

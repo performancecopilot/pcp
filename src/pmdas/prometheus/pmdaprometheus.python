@@ -79,12 +79,17 @@ class Metric(object):
                         self.indom_table = None
                 self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
                 if helpline: # it could be None!
-                        self.description = helpline # XXX unescape
+                        unescaped = helpline.replace('\\\\', '\\').replace('\\n','\n')
+                        help_oneline = unescaped.split('\n')[0] # must have at least one entry
+                        help_text = unescaped
+                        # NB: don't bother unescape \\ and \n; we can only supply a oneline text
+                        # from python PMDAs.  We might as well pass it all through.
                 else:
-                        self.description = ''
+                        help_oneline = ''
+                        help_text = ''
 
                 try:
-                        self.source.pmda.add_metric(self.mname, self.obj, self.description)
+                        self.source.pmda.add_metric(self.mname, self.obj, help_oneline, help_text)
                         self.source.pmda.set_need_refresh()
                 except Exception as e:
                         self.source.pmda.err("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
