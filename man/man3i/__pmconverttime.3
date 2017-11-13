@@ -14,7 +14,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMCONVERTTIME 3i "PCP" "Performance Co-Pilot"
+.TH PMCONVERTTIME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmConvertTime\f1 \- convert \fBtm\fR structure to \fBtimeval\fR structure
 .SH "C SYNOPSIS"
@@ -48,7 +48,7 @@ different semantics at some point in the future.
 accepts a
 .B tm
 structure that has been filled in by
-.BR __pmParseCtime (3i)
+.BR __pmParseCtime (3)
 and a reference time point
 .BR origin ,
 and fills in the given
@@ -86,6 +86,6 @@ to establish a new current timezone that will effect
 .BR pmParseInterval (3),
 .BR pmParseTimeWindow (3),
 .BR pmUseZone (3),
-.BR __pmParseCtime (3i)
+.BR __pmParseCtime (3)
 and
-.BR __pmParseTime (3i).
+.BR __pmParseTime (3).

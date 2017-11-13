@@ -64,22 +64,6 @@ different semantics at some point in the future.' \
 	echo "$file: .SH CAVEAT added or updated"
     fi
 
-    if grep '^\.TH [^ ][^ ]* 3i ' <$file >/dev/null
-    then
-	$verbose && echo "$file: .TH macro OK"
-    else
-	sed -e '/^\.TH/s/ "*3"* / 3i /' <$file >$tmp.tmp
-	mv $tmp.tmp $file
-	echo "$file: .TH macro fixed"
-    fi
-
-    if grep '__pm.* (3)' <$file >/dev/null
-    then
-	sed -e '/__pm.* (3)/s/(3)/(3i)/' <$file >$tmp.tmp
-	mv $tmp.tmp $file
-	echo "$file: xref (3) -> (3i) fixed"
-    fi
-
     if grep '#include .*libpcp.h' $file >/dev/null
     then
 	$verbose && echo "$file: libpcp.h already in place"
