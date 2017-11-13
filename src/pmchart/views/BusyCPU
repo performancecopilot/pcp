@@ -153,11 +153,16 @@ if [ ! -s $tmp/found ]
 then
     # no processes qualify
     #
-    pmconfirm >/dev/null \
-	-header "pmchart view construction failure" \
-	-t "No qualifying processes were found!" \
-	-icon warning \
-	-B "OK"
+    if $dialog
+    then
+	pmconfirm >/dev/null \
+	    -header "pmchart view construction failure" \
+	    -t "No qualifying processes were found!" \
+	    -icon warning \
+	    -B "OK"
+    else
+	echo "pmchart view construction failure: No qualifying processes were found!"
+    fi
     exit
 fi
 
