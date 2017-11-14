@@ -56,7 +56,7 @@ remain fixed across releases, and they may not work, or may provide\
 different semantics at some point in the future.' \
     # end
 
-    if cmp $file $tmp.check >/dev/null
+    if diff $file $tmp.check >/dev/null
     then
 	$verbose && echo "$file: .SH CAVEAT OK"
     else
@@ -106,6 +106,31 @@ i\
 	    fi
 	else
 	    echo "Warning: $file: no place to add libpcp.h"
+	fi
+    fi
+
+    # and now impl.h is empty, cull include impl.h and preceding .br
+    #
+    line=`sed <$file -n -e '/include.*impl.h[">]/{
+=
+q
+}'`
+    if [ -n "$line" ]
+    then
+	$verbose && echo "$file: cull impl.h @ line $line"
+	rm -f $tmp.err
+	awk <$file >$tmp.tmp '
+NR == ('$line'-1)	{ if ($0 ~ /^\.br$/) next
+			  print "no .br at line",'$line'-1 >>"'$tmp.err'"
+			  next
+			}
+NR == '$line' 		{ next }
+			{ print }'
+	if [ -s $tmp.err ]
+	then
+	    echo "Error: $fail: `cat $tmp.err`"
+	else
+	    mv $tmp.tmp $file
 	fi
     fi
 
