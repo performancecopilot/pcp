@@ -16,6 +16,7 @@
 #include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 #include "trace.h"
 #include "trace_dev.h"
 
