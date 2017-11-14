@@ -44,6 +44,7 @@
 #include <lzma.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "libpcp.h"
 
 #define XZ_HEADER_MAGIC     "\xfd" "7zXZ\0"
 #define XZ_HEADER_MAGIC_LEN 6

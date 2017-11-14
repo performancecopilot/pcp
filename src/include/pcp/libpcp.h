@@ -531,6 +531,64 @@ PCP_CALL extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char *
 PCP_CALL extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 PCP_CALL extern void __pmFreeHostSpec(pmHostSpec *, int);
 
+/*
+ * unfortunately, in this version, PCP archives are limited to no
+ * more than 2 Gbytes ...
+ */
+typedef __uint32_t	__pm_off_t;
+
+/*
+ * PCP file. This abstracts i/o, allowing different handlers,
+ * e.g. for stdio pass-thru and transparent decompression (xz, gz, etc).
+ * This could conceivably be used for any kind of file within PCP, but
+ * is currently used only for archive files.
+ */
+typedef struct {
+    struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
+    __pm_off_t	position;	/* current uncompressed file position */
+    void	*priv;		/* private data, e.g. for fd, blk cache, etc */
+} __pmFILE;
+typedef struct __pm_fops {
+    void	*(*__pmopen)(__pmFILE *, const char *, const char *);
+    void        *(*__pmfdopen)(__pmFILE *, int, const char *);
+    int         (*__pmseek)(__pmFILE *, off_t, int);
+    void        (*__pmrewind)(__pmFILE *);
+    off_t       (*__pmtell)(__pmFILE *);
+    int         (*__pmfgetc)(__pmFILE *);
+    size_t	(*__pmread)(void *, size_t, size_t, __pmFILE *);
+    size_t	(*__pmwrite)(void *, size_t, size_t, __pmFILE *);
+    int         (*__pmflush)(__pmFILE *);
+    int         (*__pmfsync)(__pmFILE *);
+    int		(*__pmfileno)(__pmFILE *);
+    off_t       (*__pmlseek)(__pmFILE *, off_t, int);
+    int         (*__pmfstat)(__pmFILE *, struct stat *);
+    int		(*__pmfeof)(__pmFILE *);
+    int		(*__pmferror)(__pmFILE *);
+    void	(*__pmclearerr)(__pmFILE *);
+    int         (*__pmsetvbuf)(__pmFILE *, char *, int, size_t);
+    int		(*__pmclose)(__pmFILE *);
+} __pm_fops;
+
+/* Provide a stdio-like API for __pmFILE */
+PCP_CALL extern __pmFILE *__pmFopen(const char *, const char *);
+PCP_CALL extern __pmFILE *__pmFdopen(int, const char *);
+PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
+PCP_CALL extern void __pmRewind(__pmFILE *);
+PCP_CALL extern long __pmFtell(__pmFILE *);
+PCP_CALL extern int __pmFgetc(__pmFILE *);
+PCP_CALL extern size_t __pmFread(void *, size_t, size_t, __pmFILE *);
+PCP_CALL extern size_t __pmFwrite(void *, size_t, size_t, __pmFILE *);
+PCP_CALL extern int __pmFflush(__pmFILE *);
+PCP_CALL extern int __pmFsync(__pmFILE *);
+PCP_CALL extern off_t __pmLseek(__pmFILE *, off_t, int);
+PCP_CALL extern int __pmFstat(__pmFILE *, struct stat *);
+PCP_CALL extern int __pmFileno(__pmFILE *);
+PCP_CALL extern int __pmFeof(__pmFILE *);
+PCP_CALL extern int __pmFerror(__pmFILE *);
+PCP_CALL extern void __pmClearerr(__pmFILE *);
+PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
+PCP_CALL extern int __pmFclose(__pmFILE *);
+
 /* Control for connection to a PMCD */
 typedef struct {
     int			pc_fd;		/* socket for comm with pmcd */

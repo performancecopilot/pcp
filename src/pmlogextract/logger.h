@@ -22,6 +22,8 @@
 #define _LOGGER_H
 
 #include "pmapi.h"
+#include "impl.h"
+#include "libpcp.h"
 
 /*
  *  list of pdu's to write out at start of time window
