@@ -134,6 +134,21 @@ NR == '$line' 		{ next }
 	fi
     fi
 
+    # change #include <pcp/anything.h> to #include "anything.h"
+    #
+    sed <$file >$tmp.tmp \
+	-e '/#include/{
+s/<pcp\//"/
+s/>/"/
+}'
+    if diff $file $tmp.tmp >/dev/null
+    then
+	$verbose && echo "$file: #includes all OK"
+    else
+	echo "$file: change #includes"
+	mv $tmp.tmp $file
+    fi
+
 done
 
 exit
