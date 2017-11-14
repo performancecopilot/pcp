@@ -3,10 +3,10 @@ Case 1: should be error-free ...
 
 --- fd=1 ---
 stdout:
-This message on oldstream before __pmOpenLog() called
+This message on oldstream before pmOpenLog() called
 stderr:
 Starting with oldstream (stdout) fd=1, nextfd=3
-__pmOpenLog -> sts=1, log tmp.log newstream (stdout) fd=1, nextfd=3
+pmOpenLog -> sts=1, log tmp.log newstream (stdout) fd=1, nextfd=3
 log file:
 Log for chkopenlog on MYHOST started ...
 
@@ -17,12 +17,12 @@ Log finished ...
 --- fd=2 ---
 stdout:
 stderr:
-This message on oldstream before __pmOpenLog() called
+This message on oldstream before pmOpenLog() called
 Starting with oldstream (stderr) fd=2, nextfd=3
 log file:
 Log for chkopenlog on MYHOST started ...
 
-__pmOpenLog -> sts=1, log tmp.log newstream (stderr) fd=2, nextfd=3
+pmOpenLog -> sts=1, log tmp.log newstream (stderr) fd=2, nextfd=3
 [a helpful little message]
 
 Log finished ...
@@ -31,7 +31,7 @@ Log finished ...
 stdout:
 stderr:
 Starting with oldstream fd=3, nextfd=4
-__pmOpenLog -> sts=1, log tmp.log newstream fd=3, nextfd=4
+pmOpenLog -> sts=1, log tmp.log newstream fd=3, nextfd=4
 log file:
 Log for chkopenlog on MYHOST started ...
 
@@ -39,13 +39,13 @@ Log for chkopenlog on MYHOST started ...
 
 Log finished ...
 chk.fout:
-This message on oldstream before __pmOpenLog() called
+This message on oldstream before pmOpenLog() called
 
-Case 2: __pmOpenLog expected to have problems ...
+Case 2: pmOpenLog expected to have problems ...
 
 --- fd=1 ---
 stdout:
-This message on oldstream before __pmOpenLog() called
+This message on oldstream before pmOpenLog() called
 Log for chkopenlog on MYHOST started ...
 
 [a helpful little message]
@@ -54,19 +54,19 @@ Log finished ...
 stderr:
 Starting with oldstream (stdout) fd=1, nextfd=3
 chkopenlog: cannot open log "tmp.log" for writing : Permission denied
-__pmOpenLog -> sts=0, log tmp.log newstream (stdout) fd=1, nextfd=3
+pmOpenLog -> sts=0, log tmp.log newstream (stdout) fd=1, nextfd=3
 log file:
 THIS SHOULD NOT BE OVERWRITTEN
 
 --- fd=2 ---
 stdout:
 stderr:
-This message on oldstream before __pmOpenLog() called
+This message on oldstream before pmOpenLog() called
 Starting with oldstream (stderr) fd=2, nextfd=3
 chkopenlog: cannot open log "tmp.log" for writing : Permission denied
 Log for chkopenlog on MYHOST started ...
 
-__pmOpenLog -> sts=0, log tmp.log newstream (stderr) fd=2, nextfd=3
+pmOpenLog -> sts=0, log tmp.log newstream (stderr) fd=2, nextfd=3
 [a helpful little message]
 
 Log finished ...
@@ -78,11 +78,11 @@ stdout:
 stderr:
 Starting with oldstream fd=3, nextfd=4
 chkopenlog: cannot open log "tmp.log" for writing : Permission denied
-__pmOpenLog -> sts=0, log tmp.log newstream fd=3, nextfd=4
+pmOpenLog -> sts=0, log tmp.log newstream fd=3, nextfd=4
 log file:
 THIS SHOULD NOT BE OVERWRITTEN
 chk.fout:
-This message on oldstream before __pmOpenLog() called
+This message on oldstream before pmOpenLog() called
 Log for chkopenlog on MYHOST started ...
 
 [a helpful little message]

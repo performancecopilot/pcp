@@ -830,7 +830,7 @@ main(int argc, char **argv)
 	__pmSetProcessIdentity(username);
 
     if (Cflag == 0) {
-	__pmOpenLog("pmlogger", logfile, stderr, &sts);
+	pmOpenLog("pmlogger", logfile, stderr, &sts);
 	if (sts != 1) {
 	    fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmGetProgname(), logfile);
 	    /* continue on ... writing to stderr */

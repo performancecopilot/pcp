@@ -153,7 +153,7 @@ Options\n\
     }
 
     if (logfile != (char *)0) {
-	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}

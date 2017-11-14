@@ -266,7 +266,7 @@ PCP_3.0 {
     __pmNewPMNS;
     __pmNoMem;
     __pmNotifyErr;
-    __pmOpenLog;
+    pmOpenLog;
     __pmOptFetchAdd;
     __pmOptFetchDel;
     __pmOptFetchDump;

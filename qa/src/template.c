@@ -79,7 +79,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: at most one -l option allowed\n", pmGetProgname());
 		exit(EXIT_FAILURE);
 	    }
-	    __pmOpenLog(pmGetProgname(), opts.optarg, stderr, &sts);
+	    pmOpenLog(pmGetProgname(), opts.optarg, stderr, &sts);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), opts.optarg);
 		exit(EXIT_FAILURE);

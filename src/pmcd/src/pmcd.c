@@ -968,7 +968,7 @@ main(int argc, char *argv[])
      * Note that if this fails don't worry as messages will still
      * go to stderr.
      */
-    __pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+    pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));

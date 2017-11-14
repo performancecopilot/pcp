@@ -5679,7 +5679,7 @@ where <filename>N</filename> is in the range 0, 1, 2, 3, and so on.</para>
 <listitem><para>Use this command to check which files the utility is trying
 to open:</para>
 <para><literallayout class="monospaced"><userinput>ls mylog.*</userinput></literallayout></para>
-<para>Turn on the internal debug flag <literal>DBG_TRACE_LOG</literal> (<literal>-D</literal> 128) to see which files are being inspected by the <literal>__pmOpenLog</literal> routine as shown in the following example:<literallayout class="monospaced"><userinput>pmdumplog -D 128 -l mylog</userinput></literallayout></para>
+<para>Turn on the internal debug flag <literal>DBG_TRACE_LOG</literal> (<literal>-D</literal> 128) to see which files are being inspected by the <literal>pmOpenLog</literal> routine as shown in the following example:<literallayout class="monospaced"><userinput>pmdumplog -D 128 -l mylog</userinput></literallayout></para>
 <para>Locate the missing files and move them all to the same directory, or
 remove all of the files that are part of the archive, and recreate the archive
 log.</para>

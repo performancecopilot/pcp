@@ -54,7 +54,6 @@ PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 
 PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
 
-PCP_CALL extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
 
 /* standard error, warning and info wrapper for syslog(3) */
 PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);

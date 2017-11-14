@@ -1153,6 +1153,11 @@ PCP_CALL extern pmInDom pmInDom_build(unsigned int, unsigned int);
 PCP_CALL extern unsigned int pmInDom_domain(pmInDom);
 PCP_CALL extern unsigned int pmInDom_serial(pmInDom);
 
+/*
+ * Create a diagnostic log file (not an archive)
+ */
+PCP_CALL extern FILE *pmOpenLog(const char *, const char *, FILE *, int *);
+
 #ifdef __cplusplus
 }
 #endif

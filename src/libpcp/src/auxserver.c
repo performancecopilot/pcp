@@ -1134,6 +1134,6 @@ __pmServerStart(int argc, char **argv, int flags)
     if (flags & 1)
 	close(0);
     /* don't close other fd's -- we know that only good ones are open! */
-    /* don't chdir("/") -- we may still need to call __pmOpenLog() */
+    /* don't chdir("/") -- we may still need to call pmOpenLog() */
 }
 #endif

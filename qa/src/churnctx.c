@@ -307,7 +307,7 @@ Options:\n\
     }
 
     if (logfile != NULL) {
-	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}

@@ -223,7 +223,7 @@ usr/share/man/man3/pmnumberstr.3.gz
 usr/share/man/man3/pmNumberStr.3.gz
 usr/share/man/man3/pmNumberStr_r.3.gz
 usr/share/man/man3/pmopenlog.3.gz
-usr/share/man/man3/__pmOpenLog.3.gz
+usr/share/man/man3/pmOpenLog.3.gz
 usr/share/man/man3/__pmOverrideLastFd.3.gz
 usr/share/man/man3/__pmparsectime.3.gz
 usr/share/man/man3/__pmParseCtime.3.gz

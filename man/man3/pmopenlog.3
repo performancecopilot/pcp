@@ -15,18 +15,16 @@
 .\"
 .TH PMOPENLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3__pmOpenLog\f1 \- create a log file for diagnostics and debug output
+\f3pmOpenLog\f1 \- create a log file for diagnostics and debug output
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
-.br
-#include <pcp/impl.h>
 .sp
 .ad l
 .hy 0
 .in +8n
 .ti -8n
-FILE *__pmOpenLog(const char *\fIprogname\fP, const char *\fIlogname\fP, FILE\ *\fIoldstream\fP, int\ *\fIstatus\fP);
+FILE *pmOpenLog(const char *\fIprogname\fP, const char *\fIlogname\fP, FILE\ *\fIoldstream\fP, int\ *\fIstatus\fP);
 .sp
 .in
 .hy
@@ -34,7 +32,7 @@ FILE *__pmOpenLog(const char *\fIprogname\fP, const char *\fIlogname\fP, FILE\ *
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.B __pmOpenLog
+.B pmOpenLog
 reassigns the standard I/O stream
 .I oldstream
 to be associated with the file
@@ -43,7 +41,7 @@ If it already exists,
 .I logname
 will be removed and recreated if possible (to ensure correct ownership
 and permissions from the caller to
-.BR __pmOpenLog ).
+.BR pmOpenLog ).
 .PP
 On return, the function value is the new standard I/O stream.  In the
 event of an error, this will be

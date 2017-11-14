@@ -260,7 +260,7 @@ logonexit(void)
     PM_UNLOCK(util_lock);
 }
 
-/* common code shared by __pmRotateLog and __pmOpenLog */
+/* common code shared by __pmRotateLog and pmOpenLog */
 static FILE *
 logreopen(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
@@ -360,7 +360,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 }
 
 FILE *
-__pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
+pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     oldstream = logreopen(progname, logname, oldstream, status);
@@ -374,7 +374,7 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
     filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
     if (filelog == NULL) {
 	PM_UNLOCK(util_lock);
-	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
+	__pmNoMem("pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     filelog[nfilelog-1] = oldstream;

@@ -28,6 +28,7 @@
  * __pmInDomProfile		pmInDomProfile
  * __pmProfile			pmProfile
  * __pmInResult			pmInResult
+ * pmOpenLog()		pmOpenLog()
  *
  */
 
@@ -77,5 +78,6 @@ PCP_DATA extern int pmDebug;
 #define __pmProfile pmProfile
 #define __pmInDomProfile pmInDomProfile
 #define __pmInResult pmInResult
+#define pmOpenLog pmOpenLog
 
 #endif /* PCP_DEPRECATED_H */

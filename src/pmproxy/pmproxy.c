@@ -542,7 +542,7 @@ main(int argc, char *argv[])
 	maxpending = atoi(envstr);
     ParseOptions(argc, argv, &nport);
 
-    __pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+    pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
