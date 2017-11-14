@@ -54,22 +54,6 @@ PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
  * PMAPI.
  */
 
-/* TODO .. move to libpcp.h when all refs to __pmMutex have gone */
-/*
- * Thread-safe support ... #define to enable thread-safe protection of
- * global data structures and mutual exclusion when required.
- *
- * We require pthread.h and working mutex, the rest can be faked
- * by the libpcp itself.
- */
-#if defined(HAVE_PTHREAD_H) && defined(HAVE_PTHREAD_MUTEX_T)
-#define PM_MULTI_THREAD 1
-#include <pthread.h>
-typedef pthread_mutex_t __pmMutex;
-#else
-typedef void * __pmMutex;
-#endif
-
 /*
  * PMCD connections come here by default, over-ride with $PMCD_PORT in
  * environment
@@ -91,9 +75,6 @@ typedef void * __pmMutex;
 
 /* helper routine to print all names of a metric */
 PCP_CALL extern void __pmPrintMetricNames(FILE *, int, char **, char *);
-
-/* return true if the named pmns file has changed */
-PCP_CALL extern int __pmHasPMNSFileChanged(const char *);
 
 /* standard log file set up */
 PCP_CALL extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
@@ -118,41 +99,6 @@ PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
-
-/*
- * Hashed Data Structures for the Processing of Logs and Archives
- */
-typedef struct __pmHashNode {
-    struct __pmHashNode	*next;
-    unsigned int	key;
-    void		*data;
-} __pmHashNode;
-
-typedef struct __pmHashCtl {
-    int			nodes;
-    int			hsize;
-    __pmHashNode	**hash;
-    __pmHashNode	*next;
-    unsigned int	index;
-} __pmHashCtl;
-
-typedef enum {
-    PM_HASH_WALK_START = 0,
-    PM_HASH_WALK_NEXT,
-    PM_HASH_WALK_STOP,
-    PM_HASH_WALK_DELETE_NEXT,
-    PM_HASH_WALK_DELETE_STOP,
-} __pmHashWalkState;
-
-PCP_CALL extern void __pmHashInit(__pmHashCtl *);
-PCP_CALL extern int __pmHashPreAlloc(int, __pmHashCtl *);
-typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
-PCP_CALL extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
-PCP_CALL extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
-PCP_CALL extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
-PCP_CALL extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
-PCP_CALL extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
-PCP_CALL extern void __pmHashClear(__pmHashCtl *);
 
 /*
  * unfortunately, in this version, PCP archives are limited to no
@@ -294,84 +240,6 @@ PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 
-/*
- * Host specification allowing one or more pmproxy host, and port numbers
- * within the one string, i.e. pmcd host specifications of the form:
- *		host:port,port@proxy:port,port 
- */
-typedef struct {
-    char	*name;			/* hostname (always valid) */
-    int		*ports;			/* array of host port numbers */
-    int		nports;			/* number of ports in host port array */
-} pmHostSpec;
-
-PCP_CALL extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
-PCP_CALL extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
-PCP_CALL extern void __pmFreeHostSpec(pmHostSpec *, int);
-
-typedef enum {
-    PCP_ATTR_NONE	= 0,
-    PCP_ATTR_PROTOCOL	= 1,	/* either pcp:/pcps: protocol (libssl) */
-    PCP_ATTR_SECURE	= 2,	/* relaxed/enforced pcps mode (libssl) */
-    PCP_ATTR_COMPRESS	= 3,	/* compression flag, no value (libnss) */
-    PCP_ATTR_USERAUTH	= 4,	/* user auth flag, no value (libsasl) */
-    PCP_ATTR_USERNAME	= 5,	/* user login identity (libsasl) */
-    PCP_ATTR_AUTHNAME	= 6,	/* authentication name (libsasl) */
-    PCP_ATTR_PASSWORD	= 7,	/* passphrase-based secret (libsasl) */
-    PCP_ATTR_METHOD	= 8,	/* use authentication method (libsasl) */
-    PCP_ATTR_REALM	= 9,	/* realm to authenticate in (libsasl) */
-    PCP_ATTR_UNIXSOCK	= 10,	/* AF_UNIX socket + SO_PEERCRED (unix) */
-    PCP_ATTR_USERID	= 11,	/* uid - user identifier (posix) */
-    PCP_ATTR_GROUPID	= 12,	/* gid - group identifier (posix) */
-    PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket with localhost fallback */
-    PCP_ATTR_PROCESSID	= 14,	/* pid - process identifier (posix) */
-    PCP_ATTR_CONTAINER	= 15,	/* container name (linux) */
-    PCP_ATTR_EXCLUSIVE	= 16,	/* DEPRECATED exclusive socket tied to this context */
-} __pmAttrKey;
-
-PCP_CALL extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
-PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
-PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
-
-PCP_CALL extern int __pmParseHostAttrsSpec(
-    const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
-PCP_CALL extern int __pmUnparseHostAttrsSpec(
-    pmHostSpec *, int, __pmHashCtl *, char *, size_t);
-PCP_CALL extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
-PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
-
-/*
- * Control for connection to a PMCD
- */
-typedef struct {
-    int			pc_fd;		/* socket for comm with pmcd */
-					/* ... -1 means no connection */
-    pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
-    int			pc_nhosts;	/* number of pmHostSpec entries */
-    int			pc_timeout;	/* set if connect times out */
-    int			pc_tout_sec;	/* timeout for __pmGetPDU */
-    time_t		pc_again;	/* time to try again */
-} __pmPMCDCtl;
-
-PCP_CALL extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
-PCP_CALL extern int __pmConnectLocal(__pmHashCtl *);
-PCP_CALL extern int __pmAuxConnectPMCD(const char *);
-PCP_CALL extern int __pmAuxConnectPMCDPort(const char *, int);
-PCP_CALL extern int __pmAuxConnectPMCDUnixSocket(const char *);
-
-PCP_CALL extern int __pmAddHostPorts(pmHostSpec *, int *, int);
-PCP_CALL extern void __pmDropHostPort(pmHostSpec *);
-PCP_CALL extern void __pmConnectGetPorts(pmHostSpec *);
-
-/*
- * SSL/TLS/IPv6 support via NSS/NSPR.
- */
-PCP_CALL extern int __pmSecureServerSetup(const char *, const char *);
-PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);
-PCP_CALL extern void __pmSecureServerShutdown(void);
-PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
-PCP_CALL extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
-
 typedef fd_set __pmFdSet;
 typedef struct __pmSockAddr __pmSockAddr;
 typedef struct __pmHostEnt __pmHostEnt;
@@ -439,48 +307,6 @@ PCP_CALL extern char *	     __pmHostEntGetName(__pmHostEnt *);
 
 PCP_CALL extern __pmHostEnt * __pmGetAddrInfo(const char *);
 PCP_CALL extern char *	     __pmGetNameInfo(__pmSockAddr *);
-
-/*
- * Query server features - used for expressing protocol capabilities
- */
-typedef enum {
-    PM_SERVER_FEATURE_SECURE = 0,
-    PM_SERVER_FEATURE_COMPRESS,
-    PM_SERVER_FEATURE_IPV6,
-    PM_SERVER_FEATURE_AUTH,
-    PM_SERVER_FEATURE_CREDS_REQD,
-    PM_SERVER_FEATURE_UNIX_DOMAIN,
-    PM_SERVER_FEATURE_DISCOVERY,
-    PM_SERVER_FEATURE_CONTAINERS,
-    PM_SERVER_FEATURE_LOCAL,
-    PM_SERVER_FEATURE_CERT_REQD,
-    PM_SERVER_FEATURES
-} __pmServerFeature;
-
-PCP_CALL extern int __pmServerHasFeature(__pmServerFeature);
-PCP_CALL extern int __pmServerSetFeature(__pmServerFeature);
-PCP_CALL extern int __pmServerClearFeature(__pmServerFeature);
-PCP_CALL extern int __pmServerCreatePIDFile(const char *, int);
-PCP_CALL extern void __pmServerStart(int, char **, int);
-PCP_CALL extern int __pmServerAddPorts(const char *);
-PCP_CALL extern int __pmServerAddInterface(const char *);
-PCP_CALL extern void __pmServerSetLocalSocket(const char *);
-PCP_CALL extern int __pmServerSetLocalCreds(int,  __pmHashCtl *);
-PCP_CALL extern void __pmServerSetServiceSpec(const char *);
-typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
-PCP_CALL extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
-PCP_CALL extern int __pmServerAddToClientFdSet(__pmFdSet *, int);
-PCP_CALL extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
-PCP_CALL extern void __pmServerCloseRequestPorts(void);
-PCP_CALL extern void __pmServerDumpRequestPorts(FILE *);
-PCP_CALL extern char *__pmServerRequestPortString(int, char *, size_t);
-
-/* Service broadcasting, for servers. */
-typedef struct __pmServerPresence __pmServerPresence;
-PCP_CALL extern __pmServerPresence *__pmServerAdvertisePresence(const char *, int);
-PCP_CALL extern void __pmServerUnadvertisePresence(__pmServerPresence *);
-
-#define __PM_MODE_MASK	0xffff
 
 /*
  * Dump the current context (source details + instance profile),
