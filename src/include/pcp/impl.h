@@ -29,6 +29,12 @@ extern "C" {
 /* platform independent set process identity */
 PCP_CALL extern int __pmSetProcessIdentity(const char *);
 
+/*
+ * Startup handling:
+ * set default user for __pmSetProcessIdentity() ... default is "pcp"
+ */
+PCP_CALL extern int __pmGetUsername(char **);
+
 /* filesystem path name separator */
 PCP_CALL extern int __pmPathSeparator(void);
 
@@ -48,52 +54,19 @@ PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 
 PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
 
-/* == end == */
-
-/*
- * This defines the routines, macros and data structures that are used
- * in the Performance Metrics Collection Subsystem (PMCS) below the
- * PMAPI.
- */
-
-/*
- * PMCD connections come here by default, over-ride with $PMCD_PORT in
- * environment
- */
-#define SERVER_PORT 44321
-#define SERVER_PROTOCOL "pcp"
-/*
- * port that clients connect to pmproxy(1) on by default, over-ride with
- * $PMPROXY_PORT in environment
- */
-#define PROXY_PORT 44322
-#define PROXY_PROTOCOL "proxy"
-
-/*
- * port that clients connect to pmwebd(1) by default
- */
-#define PMWEBD_PORT 44323
-#define PMWEBD_PROTOCOL "http"
-
-/* standard log file set up */
 PCP_CALL extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
-PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
-/* make __pmNotifyErr also add entries to syslog */
-PCP_CALL extern void __pmSyslog(int);
+
 /* standard error, warning and info wrapper for syslog(3) */
 PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
-
-
-
 /*
- * Return the argument if it's a valid filename else return NULL
- * (note: this function could be replaced with a call to access(),
- * but is retained for historical reasons).
+ * no mem today, my love has gone away ....
  */
-PCP_CALL extern const char *__pmFindPMDA(const char *);
+PCP_CALL extern void __pmNoMem(const char *, size_t, int);
+#define PM_FATAL_ERR 1
+#define PM_RECOV_ERR 0
 
-
+/* == end == */
 
 /*
  * Internal interfaces for metadata labels (name:value pairs).
@@ -117,27 +90,6 @@ PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 
-PCP_CALL extern void __pmIgnoreSignalPIPE(void);
-
-/*
- * no mem today, my love has gone away ....
- */
-PCP_CALL extern void __pmNoMem(const char *, size_t, int);
-#define PM_FATAL_ERR 1
-#define PM_RECOV_ERR 0
-
-/*
- * Startup handling:
- * set default user for __pmSetProcessIdentity() ... default is "pcp"
- */
-PCP_CALL extern int __pmGetUsername(char **);
-
-/*
- * Cleanup handling:
- * shutdown various components in libpcp, releasing all resources
- * (local context PMDAs, any global NSS socket state, etc).
- */
-PCP_CALL extern int __pmShutdown(void);
 
 #ifdef __cplusplus
 }

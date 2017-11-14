@@ -36,6 +36,26 @@ extern "C" {
 #endif
 
 /*
+ * PMCD connections come here by default, over-ride with $PMCD_PORT in
+ * environment
+ */
+#define SERVER_PORT 44321
+#define SERVER_PROTOCOL "pcp"
+
+/*
+ * port that clients connect to pmproxy(1) on by default, over-ride with
+ * $PMPROXY_PORT in environment
+ */
+#define PROXY_PORT 44322
+#define PROXY_PROTOCOL "proxy"
+
+/*
+ * port that clients connect to pmwebd(1) by default
+ */
+#define PMWEBD_PORT 44323
+#define PMWEBD_PROTOCOL "http"
+
+/*
  * internal libpcp state ... PM_STATE_APPL means we are at or above the
  * PMAPI in a state where PMAPI calls can safely be made ... PM_STATE_PMCS
  * means we are in the PMCD, or a PMDA, or low-level PDU code, and
@@ -1333,11 +1353,9 @@ PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
 PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
-PCP_CALL extern void __pmDumpProfile(FILE *, int, const pmProfile *);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
-PCP_CALL extern void __pmPrintMetricNames(FILE *, int, char **, char *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 PCP_CALL extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
 PCP_CALL extern void __pmPrintIPC(void);
@@ -1346,12 +1364,36 @@ PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
 PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
 PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 
+/* log file rotation */
+PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
+
+/* make __pmNotifyErr also add entries to syslog */
+PCP_CALL extern void __pmSyslog(int);
+
 /*
  * Dump the instance profile, for a particular instance domain
  * If indom == PM_INDOM_NULL, then print all instance domains
  */
+PCP_CALL extern void __pmDumpProfile(FILE *, int, const pmProfile *);
 
 /* helper routine to print all names of a metric */
+PCP_CALL extern void __pmPrintMetricNames(FILE *, int, char **, char *);
+
+/*
+ * Return the argument if it's a valid filename else return NULL
+ * Note: this function could be replaced with a call to access(),
+ * but is retained for historical use in __pmConnectLocal()
+ */
+PCP_CALL extern const char *__pmFindPMDA(const char *);
+
+/*
+ * Cleanup handling:
+ * shutdown various components in libpcp, releasing all resources
+ * (local context PMDAs, any global NSS socket state, etc).
+ */
+PCP_CALL extern int __pmShutdown(void);
+
+PCP_CALL extern void __pmIgnoreSignalPIPE(void);
 
 #ifdef __cplusplus
 }
