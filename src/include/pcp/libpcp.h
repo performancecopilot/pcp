@@ -624,6 +624,24 @@ PCP_CALL extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 PCP_CALL extern void __pmDropHostPort(pmHostSpec *);
 PCP_CALL extern void __pmConnectGetPorts(pmHostSpec *);
 
+/* Internal interfaces for metadata labels (name:value pairs) */
+static inline int
+pmlabel_extrinsic(pmLabel *lp)
+{
+    return (lp->flags & PM_LABEL_OPTIONAL) != 0;
+}
+static inline int
+pmlabel_intrinsic(pmLabel *lp)
+{
+    return (lp->flags & PM_LABEL_OPTIONAL) == 0;
+}
+PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
+PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
+PCP_CALL extern int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
+PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
+PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
+PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
+
 /* internal archive data structures */
 /*
  * record header in the metadata log file ... len (by itself) also is
@@ -1349,6 +1367,8 @@ PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
+PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
+PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
 PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
