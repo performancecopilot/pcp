@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2010 Serge A. Zaitsev
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-#include <stdlib.h>
 #include "jsmn.h"
 
 /**
@@ -55,7 +32,7 @@ static void jsmn_fill_token(jsmntok_t *token, jsmntype_t type,
 /**
  * Fills next available token with JSON primitive.
  */
-static jsmnerr_t jsmn_parse_primitive(jsmn_parser *parser, const char *js,
+static int jsmn_parse_primitive(jsmn_parser *parser, const char *js,
 		size_t len, jsmntok_t *tokens, size_t num_tokens) {
 	jsmntok_t *token;
 	int start;
@@ -102,9 +79,9 @@ found:
 }
 
 /**
- * Filsl next token with JSON string.
+ * Fills next token with JSON string.
  */
-static jsmnerr_t jsmn_parse_string(jsmn_parser *parser, const char *js,
+static int jsmn_parse_string(jsmn_parser *parser, const char *js,
 		size_t len, jsmntok_t *tokens, size_t num_tokens) {
 	jsmntok_t *token;
 
@@ -171,12 +148,12 @@ static jsmnerr_t jsmn_parse_string(jsmn_parser *parser, const char *js,
 /**
  * Parse JSON string and fill tokens.
  */
-jsmnerr_t jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
+int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 		jsmntok_t *tokens, unsigned int num_tokens) {
-	jsmnerr_t r;
+	int r;
 	int i;
 	jsmntok_t *token;
-	int count = 0;
+	int count = parser->toknext;
 
 	for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++) {
 		char c;
@@ -221,6 +198,9 @@ jsmnerr_t jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 						break;
 					}
 					if (token->parent == -1) {
+						if(token->type != type || parser->toksuper == -1) {
+							return JSMN_ERROR_INVAL;
+						}
 						break;
 					}
 					token = &tokens[token->parent];
@@ -261,7 +241,7 @@ jsmnerr_t jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 				parser->toksuper = parser->toknext - 1;
 				break;
 			case ',':
-				if (tokens != NULL &&
+				if (tokens != NULL && parser->toksuper != -1 &&
 						tokens[parser->toksuper].type != JSMN_ARRAY &&
 						tokens[parser->toksuper].type != JSMN_OBJECT) {
 #ifdef JSMN_PARENT_LINKS
@@ -284,7 +264,7 @@ jsmnerr_t jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 			case '5': case '6': case '7' : case '8': case '9':
 			case 't': case 'f': case 'n' :
 				/* And they must not be keys of the object */
-				if (tokens != NULL) {
+				if (tokens != NULL && parser->toksuper != -1) {
 					jsmntok_t *t = &tokens[parser->toksuper];
 					if (t->type == JSMN_OBJECT ||
 							(t->type == JSMN_STRING && t->size != 0)) {
@@ -310,10 +290,12 @@ jsmnerr_t jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 		}
 	}
 
-	for (i = parser->toknext - 1; i >= 0; i--) {
-		/* Unmatched opened object or array */
-		if (tokens && tokens[i].start != -1 && tokens[i].end == -1) {
-			return JSMN_ERROR_PART;
+	if (tokens != NULL) {
+		for (i = parser->toknext - 1; i >= 0; i--) {
+			/* Unmatched opened object or array */
+			if (tokens[i].start != -1 && tokens[i].end == -1) {
+				return JSMN_ERROR_PART;
+			}
 		}
 	}
 

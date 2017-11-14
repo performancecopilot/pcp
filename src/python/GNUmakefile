@@ -29,6 +29,13 @@ ifeq ($(PCP_PLATFORM),darwin)
 # Universal binaries for Mac OS X
 ENV += ARCHFLAGS='-arch i386 -arch x86_64'
 endif
+ifeq ($(PCP_PLATFORM),mingw)
+ENV += CC="$(CC)"
+ENV += LD="$(LD)"
+ENV += LDSHARED="$(CC) -shared -fstack-protector"
+ENV += PYTHONCPREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/"
+EXTRA_PY_INCLUDES = :/usr/x86_64-w64-mingw32/sys-root/mingw/include:/usr/x86_64-w64-mingw32/sys-root/mingw/include/python2.7
+endif
 ifeq "$(HAVE_PYTHON_SETUPTOOLS)" "true"
 SETUP_PY = setup.py
 else
@@ -46,8 +53,8 @@ build_python2: $(SETUP_PY) $(CFILES)
 	touch build_python2
 
 install_python2: build_python2
-	$(PYTHON) $(SETUP_PY) install $(PY_INSTALL_OPTS)
-	$(PYTHON_INSTALL)
+	$(ENV) $(PYTHON) $(SETUP_PY) install $(PY_INSTALL_OPTS)
+	$(ENV) $(PYTHON_INSTALL)
 else
 build_python2:
 install_python2:
@@ -62,8 +69,8 @@ build_python3: $(SETUP_PY) $(CFILES)
 	touch build_python3
 
 install_python3: build_python3
-	$(PYTHON3) $(SETUP_PY) install $(PY3_INSTALL_OPTS)
-	$(PYTHON3_INSTALL)
+	$(ENV) $(PYTHON3) $(SETUP_PY) install $(PY3_INSTALL_OPTS)
+	$(ENV) $(PYTHON3_INSTALL)
 else
 build_python3:
 install_python3:
