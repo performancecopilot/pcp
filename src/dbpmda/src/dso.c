@@ -185,7 +185,7 @@ dodso(int pdu)
     pmDesc		*desc_list = NULL;
     pmResult		*result;
     pmLabelSet		*labelset = NULL;
-    __pmInResult	*inresult;
+    pmInResult	*inresult;
     int			i;
     int			j;
     char		*buffer;

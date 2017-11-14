@@ -186,7 +186,7 @@ out:
 }
 
 static int
-root_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+root_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     if (pmInDom_serial(indom) == CONTAINERS_INDOM)
 	root_refresh_container_indom();

@@ -385,6 +385,42 @@ PCP_CALL extern int pmAddProfile(pmInDom, int, int *);
  */
 PCP_CALL extern int pmDelProfile(pmInDom, int, int *);
 
+/*
+ * Profile entry (per instance domain)
+ * Only the PMDAs and pmcd need to know about this.
+ */
+typedef struct pmInDomProfile {
+    pmInDom	indom;			/* instance domain */
+    int		state;			/* include all or exclude all */
+    int		instances_len;		/* length of instances array */
+    int		*instances;		/* array of instances */
+} pmInDomProfile;
+
+/* Internal instance profile states: state in pmInDomProfile */
+#define PM_PROFILE_INCLUDE 0	/* include all, exclude some */
+#define PM_PROFILE_EXCLUDE 1	/* exclude all, include some */
+
+/*
+ * Instance profile for all domains
+ * Only the PMDAs and pmcd need to know about this.
+ */
+typedef struct pmProfile {
+    int			state;			/* default global state */
+    int			profile_len;		/* length of profile array */
+    pmInDomProfile	*profile;		/* array of instance profiles */
+} pmProfile;
+
+/*
+ * Result structure for instance domain queries
+ * Only the PMDAs and pmcd need to know about this.
+ */
+typedef struct pmInResult {
+    pmInDom	indom;		/* instance domain */
+    int		numinst;	/* may be 0 */
+    int		*instlist;	/* instance ids, may be NULL */
+    char	**namelist;	/* instance names, may be NULL */
+} pmInResult;
+
 /* 
  * ---------- Collection services ---------- 
  *
@@ -848,7 +884,6 @@ PCP_CALL extern int pmGetVersion(void);
 #define PM_OPTFLAG_QUIET	(1<<13)	/* silence getopt errors */
 
 struct pmOptions;
-#define __pmOptions pmOptions /* backwards-compatible */
 typedef int (*pmOptionOverride)(int, struct pmOptions *);
 
 typedef struct pmLongOptions {

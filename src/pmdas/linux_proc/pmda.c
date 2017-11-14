@@ -1655,7 +1655,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 }
 
 static int
-proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     unsigned int	serial = pmInDom_serial(indom);
     int			need_refresh[NUM_CLUSTERS] = { 0 };

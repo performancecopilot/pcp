@@ -365,7 +365,7 @@ rpm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * Called once for each pmGetInDom(3) operation
  */
 static int
-rpm_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
+rpm_instance(pmInDom id, int i, char *name, pmInResult **in, pmdaExt *pmda)
 {
     unsigned long long refresh;
 

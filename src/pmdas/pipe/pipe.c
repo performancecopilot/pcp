@@ -84,14 +84,14 @@ static pmdaMetric metrictab[] = {
 static const int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
 static int
-pipe_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+pipe_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     event_client_access(pmda->e_context);
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
 static int
-pipe_profile(__pmProfile *prof, pmdaExt *pmda)
+pipe_profile(pmProfile *prof, pmdaExt *pmda)
 {
     event_client_access(pmda->e_context);
     return 0;

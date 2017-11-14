@@ -93,7 +93,7 @@ check_processes(int context)
 
 static int
 bash_instance(pmInDom indom, int inst, char *name,
-		__pmInResult **result, pmdaExt *pmda)
+		pmInResult **result, pmdaExt *pmda)
 {
     check_processes(pmda->e_context);
     return pmdaInstance(indom, inst, name, result, pmda);

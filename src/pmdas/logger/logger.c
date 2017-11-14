@@ -148,7 +148,7 @@ static pmdaMetric static_metrictab[] = {
 static pmdaMetric *metrictab;
 
 static int
-logger_profile(__pmProfile *prof, pmdaExt *pmda)
+logger_profile(pmProfile *prof, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return 0;

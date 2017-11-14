@@ -513,7 +513,7 @@ preinstance(pmInDom indom)
 }
 
 int
-instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+instance(pmInDom indom, int a, char *b, pmInResult **rp, pmdaExt *pmda)
 {
     int sts;
 

@@ -1170,7 +1170,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-darwin_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			need_refresh[NUM_CLUSTERS] = { 0 };
 

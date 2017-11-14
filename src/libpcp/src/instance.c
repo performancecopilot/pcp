@@ -24,7 +24,7 @@ int
 pmLookupInDom(pmInDom indom, const char *name)
 {
     int			sts;
-    __pmInResult	*result;
+    pmInResult	*result;
     __pmContext		*ctxp;
 
     if (pmDebugOptions.pmapi) {
@@ -56,7 +56,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 			       ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_INSTANCE) {
-		    __pmInResult	*result;
+		    pmInResult	*result;
 		    if ((sts = __pmDecodeInstance(pb, &result)) >= 0) {
 			sts = result->instlist[0];
 			__pmFreeInResult(result);
@@ -124,7 +124,7 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 {
     int			need_unlock = 0;
     int			sts;
-    __pmInResult	*result;
+    pmInResult	*result;
 
     if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
@@ -161,7 +161,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_INSTANCE) {
-		    __pmInResult *result;
+		    pmInResult *result;
 		    if ((sts = __pmDecodeInstance(pb, &result)) >= 0) {
 			if ((*name = strdup(result->namelist[0])) == NULL)
 			    sts = -oserror();
@@ -231,7 +231,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 }
 
 static int
-inresult_to_lists(__pmInResult *result, int **instlist, char ***namelist)
+inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
 {
     int n, i, sts, need;
     char *p;
@@ -278,7 +278,7 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 {
     int			sts;
     int			i;
-    __pmInResult	*result;
+    pmInResult	*result;
     __pmContext		*ctxp;
     char		*p;
     int			need;
@@ -315,7 +315,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_INSTANCE) {
-		    __pmInResult	*result;
+		    pmInResult	*result;
 		    if ((sts = __pmDecodeInstance(pb, &result)) < 0) {
 			if (pinpdu > 0)
 			    __pmUnpinPDUBuf(pb);
@@ -405,7 +405,7 @@ pmapi_return:
 }
 
 void
-__pmDumpInResult(FILE *f, const __pmInResult *irp)
+__pmDumpInResult(FILE *f, const pmInResult *irp)
 {
     int		i;
     char	strbuf[20];
@@ -423,7 +423,7 @@ __pmDumpInResult(FILE *f, const __pmInResult *irp)
 }
 
 void
-__pmFreeInResult(__pmInResult *res)
+__pmFreeInResult(pmInResult *res)
 {
     int		i;
 

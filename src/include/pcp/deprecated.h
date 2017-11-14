@@ -19,10 +19,15 @@
  * in libpcp, they may be removed at some point in the future.
  *
  * Deprecated Symbol		Replacement
+ * ----------------------	----------------------	
  * __pmSetProgname()		pmSetProgname()
  * pmProgname			pmGetProgname()
  * __pmParseDebug()		pmSetDebug()
  * __pmSetDebugBits()		pmSetDebug()/pmClearDebug()
+ * __pmOptions			pmOptions
+ * __pmInDomProfile		pmInDomProfile
+ * __pmProfile			pmProfile
+ * __pmInResult			pmInResult
  *
  */
 
@@ -66,5 +71,11 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_HTTP		(1<<27) /* see http option below */
 /* not yet, and never will be, allocated, bits (1<<28) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* see desperate option below */
+
+/* backwards-compatibility support for renamed symbols and types */
+#define __pmOptions pmOptions
+#define __pmProfile pmProfile
+#define __pmInDomProfile pmInDomProfile
+#define __pmInResult pmInResult
 
 #endif /* PCP_DEPRECATED_H */

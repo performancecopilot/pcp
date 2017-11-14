@@ -44,7 +44,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		code;
     int		proto;
     pmResult	*rp;
-    __pmProfile	*profp;
+    pmProfile	*profp;
     int		ctxnum;
     int		fail = -1;
     __pmTimeval	now;
@@ -55,7 +55,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     pmInDom	indom;
     int		inst;
     char	*name;
-    __pmInResult	*inres;
+    pmInResult	*inres;
     pmLabelSet	*sets = NULL;
     int		nsets;
     int		control;

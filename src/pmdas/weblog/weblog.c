@@ -2209,7 +2209,7 @@ refresh(WebSproc* proc)
  * Mark servers that are required in the latest profile.
  */
 static int
-web_profile(__pmProfile *prof, pmdaExt *ext)
+web_profile(pmProfile *prof, pmdaExt *ext)
 {
     pmdaIndom	*idp = wl_indomTable;
     int		j;

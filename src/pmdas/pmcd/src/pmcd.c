@@ -245,7 +245,7 @@ static pmDesc	desctab[] = {
 };
 static int		ndesc = sizeof(desctab)/sizeof(desctab[0]);
 
-static __pmProfile	*_profile;	/* last received profile */
+static pmProfile	*_profile;	/* last received profile */
 
 /* there are four instance domains: pmlogger, register, PMDA, and pmie */
 #define INDOM_PMLOGGERS	1
@@ -397,7 +397,7 @@ init_pmdaroot_connect(void)
 }
 
 static int
-pmcd_profile(__pmProfile *prof, pmdaExt *pmda)
+pmcd_profile(pmProfile *prof, pmdaExt *pmda)
 {
     _profile = prof;	
     return 0;
@@ -535,13 +535,13 @@ refresh_pmie_indom(void)
 }
 
 static int
-pmcd_instance_reg(int inst, char *name, __pmInResult **result)
+pmcd_instance_reg(int inst, char *name, pmInResult **result)
 {
-    __pmInResult	*res;
+    pmInResult	*res;
     int			i;
     char		idx[12];
 
-    res = (__pmInResult *)malloc(sizeof(__pmInResult));
+    res = (pmInResult *)malloc(sizeof(pmInResult));
     if (res == NULL)
         return -oserror();
 
@@ -612,12 +612,12 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 }
 
 static int
-pmcd_instance_pool(int inst, char *name, __pmInResult **result)
+pmcd_instance_pool(int inst, char *name, pmInResult **result)
 {
-    __pmInResult	*res;
+    pmInResult	*res;
     int		i;
 
-    res = (__pmInResult *)malloc(sizeof(__pmInResult));
+    res = (pmInResult *)malloc(sizeof(pmInResult));
     if (res == NULL)
         return -oserror();
 
@@ -691,10 +691,10 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
 }
 
 static int
-pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			sts = 0;
-    __pmInResult	*res;
+    pmInResult	*res;
     int			getall = 0;
     int			getname = 0;	/* initialize to pander to gcc */
     int			nports = 0;	/* initialize to pander to gcc */
@@ -707,7 +707,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     else if (indom == bufindom)
 	return pmcd_instance_pool(inst, name, result);
     else if (indom == logindom || indom == pmdaindom || indom == pmieindom || indom == clientindom) {
-	res = (__pmInResult *)malloc(sizeof(__pmInResult));
+	res = (pmInResult *)malloc(sizeof(pmInResult));
 	if (res == NULL)
 	    return -oserror();
 	res->instlist = NULL;

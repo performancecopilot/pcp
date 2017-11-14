@@ -246,7 +246,7 @@ simple_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * _current_ contents of the NOW instance domain.
  */
 static int
-simple_instance(pmInDom indom, int foo, char *bar, __pmInResult **iresp, pmdaExt *pmda)
+simple_instance(pmInDom indom, int foo, char *bar, pmInResult **iresp, pmdaExt *pmda)
 {
     simple_timenow_check();
     return pmdaInstance(indom, foo, bar, iresp, pmda);

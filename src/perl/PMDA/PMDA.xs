@@ -269,7 +269,7 @@ preinstance(pmInDom indom)
 }
 
 int
-instance_wrapper(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+instance_wrapper(pmInDom indom, int a, char *b, pmInResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
 	pmns_refresh();

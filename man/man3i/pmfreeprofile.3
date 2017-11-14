@@ -21,11 +21,20 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
-void __pmFreeProfile(__pmProfile *\fIprof\fP);
+void __pmFreeProfile(pmProfile *\fIprof\fP);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmFreeProfile
 frees the storage for the PMAPI instance profile

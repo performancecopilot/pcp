@@ -399,7 +399,7 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-etw_profile(__pmProfile *prof, pmdaExt *pmda)
+etw_profile(pmProfile *prof, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return 0;

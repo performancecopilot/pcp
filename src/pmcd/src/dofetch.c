@@ -197,7 +197,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 {
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
-    __pmProfile		*profile;
+    pmProfile		*profile;
     pmResult		*result = NULL;
     int			sts = 0;
     static __pmTimeval	when = {0, 0};	/* Agents never see archive requests */
@@ -237,7 +237,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	hcp = &cPtr->profile;
 	hp = __pmHashSearch(ctxnum, hcp);
 	if (hp != NULL)
-	    profile = (__pmProfile *)hp->data;
+	    profile = (pmProfile *)hp->data;
 	else
 	    profile = NULL;
 	if (aPtr->ipcType == AGENT_DSO) {
@@ -358,7 +358,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     struct timeval	timeout;
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
-    __pmProfile		*profile;
+    pmProfile		*profile;
 
     if (nAgents > nDoms) {
 	if (results != NULL)
@@ -384,7 +384,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	hcp = &cip->profile;
 	hp = __pmHashSearch(ctxnum, hcp);
 	if (hp != NULL)
-	    profile = (__pmProfile *)hp->data;
+	    profile = (pmProfile *)hp->data;
     }
     if (ctxnum < 0 || profile == NULL) {
 	__pmUnpinPDUBuf(pb);

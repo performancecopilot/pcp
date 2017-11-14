@@ -1129,7 +1129,7 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 
 static int
 mmv_instance(pmInDom indom, int inst, char *name, 
-	     __pmInResult **result, pmdaExt *ep)
+	     pmInResult **result, pmdaExt *ep)
 {
     mmv_reload_maybe(ep);
     return pmdaInstance(indom, inst, name, result, ep);

@@ -125,7 +125,7 @@ typedef struct {
 } instance_t;
 
 int
-__pmSendInstance(int fd, int from, __pmInResult *result)
+__pmSendInstance(int fd, int from, pmInResult *result)
 {
     instance_t		*rp;
     instlist_t		*ip;
@@ -185,13 +185,13 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
 }
 
 int
-__pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
+__pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
 {
     int			i;
     int			j;
     instance_t		*rp;
     instlist_t		*ip;
-    __pmInResult	*res;
+    pmInResult	*res;
     int			sts;
     char		*p;
     char		*pdu_end;
@@ -204,7 +204,7 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
     if (pdu_end - (char *)pdubuf < sizeof(instance_t) - sizeof(__pmPDU))
 	return PM_ERR_IPC;
 
-    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+    if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -oserror();
     res->instlist = NULL;
     res->namelist = NULL;

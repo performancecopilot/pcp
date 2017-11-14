@@ -1335,7 +1335,7 @@ pdh_metric_t metricdesc[] = {
 int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
 static int
-windows_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+windows_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     windows_instance_refresh(indom);
     return pmdaInstance(indom, inst, name, result, pmda);

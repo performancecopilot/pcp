@@ -765,7 +765,7 @@ gfs2_instance_refresh(void)
 }
 
 static int
-gfs2_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+gfs2_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     gfs2_instance_refresh();
     return pmdaInstance(indom, inst, name, result, pmda);

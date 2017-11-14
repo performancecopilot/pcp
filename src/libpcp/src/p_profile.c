@@ -20,7 +20,7 @@
 #include "internal.h"
 
 /*
- * PDU used to transmit __pmProfile prior to pmFetch (PDU_PROFILE)
+ * PDU used to transmit pmProfile prior to pmFetch (PDU_PROFILE)
  */
 typedef struct {
     pmInDom	indom;
@@ -38,9 +38,9 @@ typedef struct {
 } profile_t;
 
 int
-__pmSendProfile(int fd, int from, int ctxid, __pmProfile *instprof)
+__pmSendProfile(int fd, int from, int ctxid, pmProfile *instprof)
 {
-    __pmInDomProfile	*prof, *p_end;
+    pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
     instprof_t		*pduInstProf;
     __pmPDU		*p;
@@ -106,10 +106,10 @@ __pmSendProfile(int fd, int from, int ctxid, __pmProfile *instprof)
 }
 
 int
-__pmDecodeProfile(__pmPDU *pdubuf, int *ctxidp, __pmProfile **resultp)
+__pmDecodeProfile(__pmPDU *pdubuf, int *ctxidp, pmProfile **resultp)
 {
-    __pmProfile		*instprof;
-    __pmInDomProfile	*prof, *p_end;
+    pmProfile		*instprof;
+    pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
     instprof_t		*pduInstProf;
     __pmPDU		*p = (__pmPDU *)pdubuf;
@@ -127,7 +127,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxidp, __pmProfile **resultp)
     if (ctxid < 0)
 	return PM_ERR_IPC;
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
-    if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
+    if ((instprof = (pmProfile *)malloc(sizeof(pmProfile))) == NULL)
 	return -oserror();
     instprof->state = ntohl(pduProfile->g_state);
     instprof->profile = NULL;
@@ -140,14 +140,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     p += sizeof(profile_t) / sizeof(__pmPDU);
 
     if (instprof->profile_len > 0) {
-	if (instprof->profile_len >= INT_MAX / sizeof(__pmInDomProfile) ||
+	if (instprof->profile_len >= INT_MAX / sizeof(pmInDomProfile) ||
 	    instprof->profile_len >= pduProfile->hdr.len) {
 	    sts = PM_ERR_IPC;
 	    goto fail;
 	}
 PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
-	if ((instprof->profile = (__pmInDomProfile *)calloc(
-	     instprof->profile_len, sizeof(__pmInDomProfile))) == NULL) {
+	if ((instprof->profile = (pmInDomProfile *)calloc(
+	     instprof->profile_len, sizeof(pmInDomProfile))) == NULL) {
 	    sts = -oserror();
 	    goto fail;
 	}

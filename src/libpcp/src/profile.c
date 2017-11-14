@@ -81,7 +81,7 @@ _union(int *list, int *list_len, int *arg, int arg_len)
 static void
 _setGlobalState(__pmContext *ctxp, int state)
 {
-    __pmInDomProfile	*p, *p_end;
+    pmInDomProfile	*p, *p_end;
 
     /* free everything and set the global state */
     if (ctxp->c_instprof->profile) {
@@ -101,15 +101,15 @@ _setGlobalState(__pmContext *ctxp, int state)
     ctxp->c_sent = 0;
 }
 
-static __pmInDomProfile *
+static pmInDomProfile *
 _newprof(pmInDom indom, __pmContext *ctxp)
 {
-    __pmInDomProfile	*p;
+    pmInDomProfile	*p;
 
     if (ctxp->c_instprof->profile == NULL) {
 	/* create a new profile for this inDom in the default state */
-	p = ctxp->c_instprof->profile = (__pmInDomProfile *)malloc(
-	    sizeof(__pmInDomProfile));
+	p = ctxp->c_instprof->profile = (pmInDomProfile *)malloc(
+	    sizeof(pmInDomProfile));
 	if (p == NULL)
 	    /* fail, no changes */
 	    return NULL;
@@ -118,8 +118,8 @@ _newprof(pmInDom indom, __pmContext *ctxp)
     else {
 	/* append a new profile to the end of the list */
 	ctxp->c_instprof->profile_len++;
-	p = (__pmInDomProfile *)realloc((void *)ctxp->c_instprof->profile, 
-	    ctxp->c_instprof->profile_len * sizeof(__pmInDomProfile));
+	p = (pmInDomProfile *)realloc((void *)ctxp->c_instprof->profile, 
+	    ctxp->c_instprof->profile_len * sizeof(pmInDomProfile));
 	if (p == NULL)
 	    /* fail, no changes */
 	    return NULL;
@@ -135,10 +135,10 @@ _newprof(pmInDom indom, __pmContext *ctxp)
     return p;
 }
 
-__pmInDomProfile *
-__pmFindProfile(pmInDom indom, const __pmProfile *prof)
+pmInDomProfile *
+__pmFindProfile(pmInDom indom, const pmProfile *prof)
 {
-    __pmInDomProfile	*p, *p_end;
+    pmInDomProfile	*p, *p_end;
 
     if (prof != NULL && prof->profile_len > 0)
 	/* search for the profile entry for this instance domain */
@@ -153,9 +153,9 @@ __pmFindProfile(pmInDom indom, const __pmProfile *prof)
 }
 
 int
-__pmInProfile(pmInDom indom, const __pmProfile *prof, int inst)
+__pmInProfile(pmInDom indom, const pmProfile *prof, int inst)
 {
-    __pmInDomProfile	*p;
+    pmInDomProfile	*p;
     int			*in, *in_end;
 
     if (prof == NULL)
@@ -176,9 +176,9 @@ __pmInProfile(pmInDom indom, const __pmProfile *prof, int inst)
 }
 
 void
-__pmFreeProfile(__pmProfile *prof)
+__pmFreeProfile(pmProfile *prof)
 {
-    __pmInDomProfile	*p, *p_end;
+    pmInDomProfile	*p, *p_end;
 
     if (prof != NULL) {
 	if (prof->profile != NULL) {
@@ -198,7 +198,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
 {
     int			sts;
     __pmContext		*ctxp;
-    __pmInDomProfile	*prof;
+    pmInDomProfile	*prof;
 
     if (indom == PM_INDOM_NULL && instlist != NULL)
 	/* semantic disconnect! */
@@ -276,7 +276,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
 {
     int			sts;
     __pmContext		*ctxp;
-    __pmInDomProfile	*prof;
+    pmInDomProfile	*prof;
 
     if (indom == PM_INDOM_NULL && instlist != NULL)
 	/* semantic disconnect! */
@@ -350,11 +350,11 @@ SUCCESS:
 }
 
 void
-__pmDumpProfile(FILE *f, int indom, const __pmProfile *pp)
+__pmDumpProfile(FILE *f, int indom, const pmProfile *pp)
 {
     int			j;
     int			k;
-    __pmInDomProfile	*prof;
+    pmInDomProfile	*prof;
     char		strbuf[20];
 
     fprintf(f, "Dump Instance Profile state=%s, %d profiles",

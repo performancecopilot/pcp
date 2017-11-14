@@ -283,7 +283,7 @@ __pmdaMetricSearch(pmdaExt *pmda, pmID pmid, pmdaMetric *mbuf, e_ext_t *extp)
  */
 
 int
-pmdaProfile(__pmProfile *prof, pmdaExt *pmda)
+pmdaProfile(pmProfile *prof, pmdaExt *pmda)
 {
     pmda->e_prof = prof;
     return 0;
@@ -294,12 +294,12 @@ pmdaProfile(__pmProfile *prof, pmdaExt *pmda)
  */
 
 int
-pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			i;
     int			namelen;
     int			err = 0;
-    __pmInResult  	*res;
+    pmInResult  	*res;
     pmdaIndom		*idp = NULL;	/* initialize to pander to gcc */
     int			have_cache = 0;
     int			myinst;
@@ -322,7 +322,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 	idp = &pmda->e_indoms[i];
     }
 
-    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+    if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
         return -oserror();
     res->indom = indom;
 

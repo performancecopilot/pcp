@@ -164,7 +164,7 @@ service_client(__pmPDU *pb)
 }
 
 static int
-summary_profile(__pmProfile *prof, pmdaExt * ex)
+summary_profile(pmProfile *prof, pmdaExt * ex)
 {
     /*
      * doesn't make sense since summary metrics 
@@ -174,7 +174,7 @@ summary_profile(__pmProfile *prof, pmdaExt * ex)
 }
 
 static int
-summary_instance(pmInDom indom, int inst, char *name, __pmInResult **result,
+summary_instance(pmInDom indom, int inst, char *name, pmInResult **result,
                  pmdaExt * ex)
 {
     return PM_ERR_INDOM;

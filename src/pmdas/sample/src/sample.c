@@ -563,7 +563,7 @@ static pmdaIndom indomtab[] = {
 
 static struct timeval	_then;		/* time we started */
 static time_t		_start;		/* ditto */
-static __pmProfile	*_profile;	/* last received profile */
+static pmProfile	*_profile;	/* last received profile */
 static int		_x;
 static __int32_t	_neg_32 = -10000;	/* sample.negative.*.m_32 */
 static __int64_t	_neg_64 = -10000;	/* sample.negative.*.m_64 */
@@ -1032,7 +1032,7 @@ startinst(pmInDom indom, int flag)
 /*
  * find next selected instance, if any
  *
- * EXCEPTION PCP 2.1.1: make use of __pmProfile much smarter, particularly when state for
+ * EXCEPTION PCP 2.1.1: make use of pmProfile much smarter, particularly when state for
  *	this indom is PM_PROFILE_EXCLUDE, then only need to consider inst
  *      values in the profile - this is a performance enhancement, and
  *      the simple method is functionally complete, particularly for
@@ -1184,7 +1184,7 @@ init_tables(int dom)
 }
 
 static int
-sample_profile(__pmProfile *prof, pmdaExt *ep)
+sample_profile(pmProfile *prof, pmdaExt *ep)
 {
     sample_inc_recv(ep->e_context);
     _profile = prof;	
@@ -1192,10 +1192,10 @@ sample_profile(__pmProfile *prof, pmdaExt *ep)
 }
 
 static int
-sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *ep)
+sample_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *ep)
 {
     int		i;
-    __pmInResult *res;
+    pmInResult *res;
     pmdaIndom	*idp;
     int		err = 0;
 
@@ -1222,7 +1222,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     if (idp->it_indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
 
-    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+    if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
         return -oserror();
     res->indom = indom;
 

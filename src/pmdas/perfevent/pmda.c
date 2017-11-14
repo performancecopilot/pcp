@@ -274,7 +274,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
 /*
  * store the instance profile away for the next fetch
  */
-static int perfevent_profile(__pmProfile *prof, pmdaExt *pmda)
+static int perfevent_profile(pmProfile *prof, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return 0;

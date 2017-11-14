@@ -54,11 +54,11 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmInDom		indom;
     int			inst;
     char		*iname;
-    __pmInResult	*inres;
+    pmInResult	*inres;
     pmLabelSet		*labels = NULL;
     char		*buffer;
-    __pmProfile  	*new_profile;
-    static __pmProfile	*profile = NULL;
+    pmProfile  		*new_profile;
+    static pmProfile	*profile = NULL;
     static int		first_time = 1;
     static pmdaExt	*pmda = NULL;
     int			pinpdu;

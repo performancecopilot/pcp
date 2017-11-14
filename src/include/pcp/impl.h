@@ -108,50 +108,14 @@ PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 PCP_CALL extern const char *__pmFindPMDA(const char *);
 
 /*
- * Internal instance profile states 
- */
-#define PM_PROFILE_INCLUDE 0	/* include all, exclude some */
-#define PM_PROFILE_EXCLUDE 1	/* exclude all, include some */
-
-/* Profile entry (per instance domain) */
-typedef struct __pmInDomProfile {
-    pmInDom	indom;			/* instance domain */
-    int		state;			/* include all or exclude all */
-    int		instances_len;		/* length of instances array */
-    int		*instances;		/* array of instances */
-} __pmInDomProfile;
-
-/* Instance profile for all domains */
-typedef struct __pmProfile {
-    int			state;			/* default global state */
-    int			profile_len;		/* length of profile array */
-    __pmInDomProfile	*profile;		/* array of instance profiles */
-} __pmProfile;
-
-/*
  * Dump the instance profile, for a particular instance domain
  * If indom == PM_INDOM_NULL, then print all instance domains
  */
-PCP_CALL extern void __pmDumpProfile(FILE *, int, const __pmProfile *);
+PCP_CALL extern void __pmDumpProfile(FILE *, int, const pmProfile *);
 
-/*
- * Result structure for instance domain queries
- * Only the PMDAs and pmcd need to know about this.
- */
-typedef struct __pmInResult {
-    pmInDom	indom;		/* instance domain */
-    int		numinst;	/* may be 0 */
-    int		*instlist;	/* instance ids, may be NULL */
-    char	**namelist;	/* instance names, may be NULL */
-} __pmInResult;
-PCP_CALL extern void __pmDumpInResult(FILE *, const __pmInResult *);
+PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
 
-/* instance profile methods */
-PCP_CALL extern int __pmProfileSetSent(void);
-PCP_CALL extern void __pmFreeProfile(__pmProfile *);
-PCP_CALL extern __pmInDomProfile *__pmFindProfile(pmInDom, const __pmProfile *);
-PCP_CALL extern int __pmInProfile(pmInDom, const __pmProfile *, int);
-PCP_CALL extern void __pmFreeInResult(__pmInResult *);
+PCP_CALL extern void __pmFreeInResult(pmInResult *);
 
 /*
  * Internal interfaces for metadata labels (name:value pairs).

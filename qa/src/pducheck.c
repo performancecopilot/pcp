@@ -119,8 +119,8 @@ _z(void)
     int			nsets;
     int			num;
     pmID		*pmidp;
-    __pmInResult	inres;
-    __pmInResult	*inresp;
+    pmInResult	inres;
+    pmInResult	*inresp;
     pmLabelSet		*labels;
     pmLabelSet		*rlabels;
     pmInDom		indom;
@@ -129,9 +129,9 @@ _z(void)
     pmDesc		*descp = &result_desc;
     int			ctxnum;
     __pmTimeval		now;
-    __pmProfile		curprof;
-    __pmInDomProfile	idp[2];
-    __pmProfile		*profp;
+    pmProfile		curprof;
+    pmInDomProfile	idp[2];
+    pmProfile		*profp;
     pmResult		*resp;
     int			code;
     int			nv;

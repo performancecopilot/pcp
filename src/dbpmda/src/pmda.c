@@ -349,7 +349,7 @@ dopmda(int pdu)
     pmDesc		*desc_list = NULL;
     pmResult		*result = NULL;
     pmLabelSet		*labelset = NULL;
-    __pmInResult	*inresult;
+    pmInResult	*inresult;
     __pmPDU		*pb;
     int			i;
     int			j;

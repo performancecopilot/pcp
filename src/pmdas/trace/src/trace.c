@@ -242,7 +242,7 @@ indomSortCheck(void)
  * _sorted_ contents of the instance domain.
  */
 static int
-traceInstance(pmInDom indom, int foo, char *bar, __pmInResult **iresp, pmdaExt
+traceInstance(pmInDom indom, int foo, char *bar, pmInResult **iresp, pmdaExt
  *pmda)
 {
     indomSortCheck();

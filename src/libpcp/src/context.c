@@ -1023,7 +1023,7 @@ INIT_CONTEXT:
     new->c_delta = 0;
     new->c_sent = 0;
     new->c_flags = (type & ~PM_CONTEXT_TYPEMASK);
-    if ((new->c_instprof = (__pmProfile *)calloc(1, sizeof(__pmProfile))) == NULL) {
+    if ((new->c_instprof = (pmProfile *)calloc(1, sizeof(pmProfile))) == NULL) {
 	/*
 	 * fail : nothing changed -- actually list is changed, but restoring
 	 * contexts_len should make it ok next time through
@@ -1284,7 +1284,7 @@ pmDupContext(void)
     char		hostspec[4096];
     __pmContext		*newcon, *oldcon;
     __pmMultiLogCtl	*newmlcp, *oldmlcp;
-    __pmInDomProfile	*q, *p, *p_end;
+    pmInDomProfile	*q, *p, *p_end;
     int			i;
     int			ctxnum;
 
@@ -1342,14 +1342,14 @@ pmDupContext(void)
 
     /* clone the per-domain profiles (if any) */
     if (oldcon->c_instprof->profile_len > 0) {
-	newcon->c_instprof->profile = (__pmInDomProfile *)malloc(
-	    oldcon->c_instprof->profile_len * sizeof(__pmInDomProfile));
+	newcon->c_instprof->profile = (pmInDomProfile *)malloc(
+	    oldcon->c_instprof->profile_len * sizeof(pmInDomProfile));
 	if (newcon->c_instprof->profile == NULL) {
 	    sts = -oserror();
 	    goto done_locked;
 	}
 	memcpy(newcon->c_instprof->profile, oldcon->c_instprof->profile,
-	    oldcon->c_instprof->profile_len * sizeof(__pmInDomProfile));
+	    oldcon->c_instprof->profile_len * sizeof(pmInDomProfile));
 	p = oldcon->c_instprof->profile;
 	p_end = p + oldcon->c_instprof->profile_len;
 	q = newcon->c_instprof->profile;

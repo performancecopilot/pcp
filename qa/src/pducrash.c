@@ -306,7 +306,7 @@ decode_error(const char *name)
 static void
 decode_profile(const char *name)
 {
-    __pmProfile		*outprofs;
+    pmProfile		*outprofs;
     int			sts, ctxnum;
     struct profile {
 	__pmPDUHdr	hdr;
@@ -564,7 +564,7 @@ decode_instance_req(const char *name)
 static void
 decode_instance(const char *name)
 {
-    __pmInResult	*inresult;
+    pmInResult	*inresult;
     int			sts;
     struct instance {
 	__pmPDUHdr	hdr;

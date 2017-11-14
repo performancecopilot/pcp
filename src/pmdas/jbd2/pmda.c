@@ -108,7 +108,7 @@ static pmdaMetric metrictab[] = {
 };
 
 static int
-jbd2_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+jbd2_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     refresh_jbd2(prefix, INDOM(JBD2_INDOM));
     return pmdaInstance(indom, inst, name, result, pmda);

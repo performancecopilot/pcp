@@ -703,7 +703,7 @@ freebsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * wrapper for pmdaInstance ... refresh required instance domain first
  */
 static int
-freebsd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+freebsd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     /*
      * indomtab[] instance names and ids are not used for some indoms,

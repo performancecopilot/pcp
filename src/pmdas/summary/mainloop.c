@@ -44,10 +44,10 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
     pmInDom		indom;
     int			inst;
     char		*name;
-    __pmInResult		*inres;
+    pmInResult		*inres;
     char		*buffer;
-    __pmProfile		*profile;
-    __pmProfile		*saveprofile = NULL;
+    pmProfile		*profile;
+    pmProfile		*saveprofile = NULL;
     static fd_set	readFds;
     int			maxfd;
     int			clientReady, pmcdReady;

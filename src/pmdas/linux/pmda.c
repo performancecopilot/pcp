@@ -5614,7 +5614,7 @@ done:
 }
 
 static int
-linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			need_refresh[NUM_REFRESHES] = {0};
     int			sts;

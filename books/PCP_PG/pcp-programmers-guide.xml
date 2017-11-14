@@ -2080,7 +2080,7 @@ For brevity, we have shown only the latest interface version (six) above, but al
     int         e_nmetrics;     /* number of metrics */
     int         e_nindoms;      /* number of instance domains */
     int         e_help;         /* help text comes via this handle */
-    __pmProfile *e_prof;        /* last received profile */
+    pmProfile   *e_prof;        /* last received profile */
     pmdaIoType  e_io;           /* connection type to pmcd */
     pmdaIndom   *e_indoms;      /* instance domain table */
     pmdaIndom   *e_idp;         /* instance domain expansion */

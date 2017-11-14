@@ -39,13 +39,11 @@ extern "C" {
 typedef enum {pmdaPipe, pmdaInet, pmdaUnix, pmdaUnknown, pmdaIPv6} pmdaIoType;
 
 /*
- * Forward declarations of structures so that inclusion of (internal) impl.h
- * header file is not mandated if this header file is included.
+ * Forward declarations of structures so that inclusion of (internal) libpcp.h
+ * header file is not required if this header file is included.
  */
 typedef struct __pmnsTree  pmdaNameSpace;
 typedef struct __pmHashCtl pmdaHashTable;
-typedef struct __pmProfile pmdaInProfile;
-typedef struct __pmInResult pmdaInResult;
 
 /*
  * Instance description: index and name
@@ -142,7 +140,7 @@ typedef struct pmdaExt {
     int		e_nmetrics;	/* number of metrics */
     int		e_nindoms;	/* number of instance domains */
     int		e_help;		/* help text comes via this handle */
-    pmdaInProfile *e_prof;	/* last received profile */
+    pmProfile   *e_prof;	/* last received profile */
     pmdaIoType	e_io;		/* connection type to pmcd */
     pmdaIndom	*e_indoms;	/* instance domain table */
     pmdaIndom	*e_idp;		/* used in instance domain expansion */
@@ -220,10 +218,10 @@ typedef struct pmdaInterface {
 
 	struct {
 	    pmdaExt *ext;
-	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
+	    int	    (*profile)(pmProfile *, pmdaExt *);
 	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	} any, two, three;
@@ -236,10 +234,10 @@ typedef struct pmdaInterface {
 
 	struct {
 	    pmdaExt *ext;
-	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
+	    int	    (*profile)(pmProfile *, pmdaExt *);
 	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
@@ -253,10 +251,10 @@ typedef struct pmdaInterface {
  */
 	struct {
 	    pmdaExt *ext;
-	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
+	    int	    (*profile)(pmProfile *, pmdaExt *);
 	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
@@ -271,10 +269,10 @@ typedef struct pmdaInterface {
  */
 	struct {
 	    pmdaExt *ext;
-	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
+	    int	    (*profile)(pmProfile *, pmdaExt *);
 	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
@@ -524,9 +522,9 @@ PMDA_CALL extern void pmdaSetLabelCallBack(pmdaInterface *, pmdaLabelCallBack);
  *      fills in labelsets, returns a count thereof or negative error code.
  */
 
-PMDA_CALL extern int pmdaProfile(pmdaInProfile *, pmdaExt *);
+PMDA_CALL extern int pmdaProfile(pmProfile *, pmdaExt *);
 PMDA_CALL extern int pmdaFetch(int, pmID *, pmResult **, pmdaExt *);
-PMDA_CALL extern int pmdaInstance(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+PMDA_CALL extern int pmdaInstance(pmInDom, int, char *, pmInResult **, pmdaExt *);
 PMDA_CALL extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 PMDA_CALL extern int pmdaText(int, int, char **, pmdaExt *);
 PMDA_CALL extern int pmdaStore(pmResult *, pmdaExt *);

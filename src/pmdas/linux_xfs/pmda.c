@@ -1337,7 +1337,7 @@ xfs_refresh(pmdaExt *pmda, int *need_refresh)
 }
 
 static int
-xfs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+xfs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			need_refresh[NUM_CLUSTERS] = { 0 };
     unsigned int	serial = pmInDom_serial(indom);

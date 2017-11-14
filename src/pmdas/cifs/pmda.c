@@ -239,7 +239,7 @@ cifs_instance_refresh(void)
 }
 
 static int
-cifs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+cifs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     cifs_instance_refresh();
     return pmdaInstance(indom, inst, name, result, pmda);

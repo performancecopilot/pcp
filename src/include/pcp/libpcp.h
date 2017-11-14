@@ -363,8 +363,8 @@ PCP_CALL extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
 PCP_CALL extern int __pmSendResult(int, int, const pmResult *);
 PCP_CALL extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
 PCP_CALL extern int __pmDecodeResult(__pmPDU *, pmResult **);
-PCP_CALL extern int __pmSendProfile(int, int, int, __pmProfile *);
-PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, __pmProfile **);
+PCP_CALL extern int __pmSendProfile(int, int, int, pmProfile *);
+PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, pmProfile **);
 PCP_CALL extern int __pmSendFetch(int, int, int, __pmTimeval *, int, pmID *);
 PCP_CALL extern int __pmDecodeFetch(__pmPDU *, int *, __pmTimeval *, int *, pmID **);
 PCP_CALL extern int __pmSendDescReq(int, int, pmID);
@@ -373,8 +373,8 @@ PCP_CALL extern int __pmSendDesc(int, int, pmDesc *);
 PCP_CALL extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
 PCP_CALL extern int __pmSendInstanceReq(int, int, const __pmTimeval *, pmInDom, int, const char *);
 PCP_CALL extern int __pmDecodeInstanceReq(__pmPDU *, __pmTimeval *, pmInDom *, int *, char **);
-PCP_CALL extern int __pmSendInstance(int, int, __pmInResult *);
-PCP_CALL extern int __pmDecodeInstance(__pmPDU *, __pmInResult **);
+PCP_CALL extern int __pmSendInstance(int, int, pmInResult *);
+PCP_CALL extern int __pmDecodeInstance(__pmPDU *, pmInResult **);
 PCP_CALL extern int __pmSendTextReq(int, int, int, int);
 PCP_CALL extern int __pmDecodeTextReq(__pmPDU *, int *, int *);
 PCP_CALL extern int __pmSendText(int, int, int, const char *);
@@ -811,7 +811,7 @@ typedef struct {
     __pmTimeval		c_origin;	/* pmFetch time origin / current time */
     int			c_delta;	/* for updating origin */
     int			c_sent;		/* profile has been sent to pmcd */
-    __pmProfile		*c_instprof;	/* instance profile */
+    pmProfile		*c_instprof;	/* instance profile */
     void		*c_dm;		/* derived metrics, if any */
     int			c_flags;	/* ctx flags (set via type/env/attrs) */
     __pmHashCtl		c_attrs;	/* various optional context attributes */
@@ -1318,6 +1318,12 @@ PCP_CALL extern double __pmConnectTimeout(void);
 PCP_CALL extern int __pmSetConnectTimeout(double);
 PCP_CALL extern double __pmRequestTimeout(void);
 PCP_CALL extern int __pmSetRequestTimeout(double);
+
+/* instance profile methods */
+PCP_CALL extern int pmProfileSetSent(void);
+PCP_CALL extern void __pmFreeProfile(pmProfile *);
+PCP_CALL extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *);
+PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
 
 #ifdef __cplusplus
 }

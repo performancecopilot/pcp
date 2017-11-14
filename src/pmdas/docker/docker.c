@@ -654,7 +654,7 @@ docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-docker_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
+docker_instance(pmInDom id, int i, char *name, pmInResult **in, pmdaExt *pmda)
 {
     int local_ready;
 

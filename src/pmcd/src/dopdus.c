@@ -130,7 +130,7 @@ int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
     __pmHashCtl	*hcp;
-    __pmProfile	*newProf;
+    pmProfile	*newProf;
     int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
@@ -139,7 +139,7 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
 	hcp = &cp->profile;
 	if ((hp = __pmHashSearch(ctxnum, hcp)) != NULL) {
 	    /* seen this context slot before for this client */
-	    __pmProfile	*profile = (__pmProfile *)hp->data;
+	    pmProfile	*profile = (pmProfile *)hp->data;
 	    if (profile != NULL)
 		__pmFreeProfile(profile);
 	    hp->data = (void *)newProf;
@@ -247,7 +247,7 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
     pmInDom		indom;
     int			inst;
     char		*name;
-    __pmInResult	*inresult = NULL;
+    pmInResult	*inresult = NULL;
     AgentInfo		*ap;
     int			fdfail = -1;
 

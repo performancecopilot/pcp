@@ -242,7 +242,7 @@ dm_indom(int serial)
 }
 
 static int
-dm_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+dm_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     dm_cache_instance_refresh();
     dm_thin_pool_instance_refresh();
