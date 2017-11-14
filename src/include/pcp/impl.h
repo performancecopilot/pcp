@@ -46,6 +46,8 @@ PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
 PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
 PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 
+PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
+
 /* == end == */
 
 /*
@@ -73,9 +75,6 @@ PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 #define PMWEBD_PORT 44323
 #define PMWEBD_PROTOCOL "http"
 
-/* helper routine to print all names of a metric */
-PCP_CALL extern void __pmPrintMetricNames(FILE *, int, char **, char *);
-
 /* standard log file set up */
 PCP_CALL extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
@@ -84,21 +83,8 @@ PCP_CALL extern void __pmSyslog(int);
 /* standard error, warning and info wrapper for syslog(3) */
 PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
-PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
-PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
-PCP_CALL extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
-PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
-PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
-PCP_CALL extern void __pmFreeResultValues(pmResult *);
-PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
-PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
-PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
-PCP_CALL extern void __pmDumpStack(FILE *);
 
-PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
-PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
-PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
-PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
+
 
 /*
  * Return the argument if it's a valid filename else return NULL
@@ -107,15 +93,7 @@ PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
  */
 PCP_CALL extern const char *__pmFindPMDA(const char *);
 
-/*
- * Dump the instance profile, for a particular instance domain
- * If indom == PM_INDOM_NULL, then print all instance domains
- */
-PCP_CALL extern void __pmDumpProfile(FILE *, int, const pmProfile *);
 
-PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
-
-PCP_CALL extern void __pmFreeInResult(pmInResult *);
 
 /*
  * Internal interfaces for metadata labels (name:value pairs).
@@ -125,21 +103,17 @@ pmlabel_extrinsic(pmLabel *lp)
 {
     return (lp->flags & PM_LABEL_OPTIONAL) != 0;
 }
-
 static inline int
 pmlabel_intrinsic(pmLabel *lp)
 {
     return (lp->flags & PM_LABEL_OPTIONAL) == 0;
 }
-
 PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
 PCP_CALL extern int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
 PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
-
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
-
 PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 

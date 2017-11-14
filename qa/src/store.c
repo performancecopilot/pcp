@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 void
 _compare(pmResult *orp, pmResult *nrp)

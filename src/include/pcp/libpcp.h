@@ -167,11 +167,9 @@ PCP_CALL extern __pmnsTree *__pmExportPMNS(void);
 
 /* for PMNS in archives */
 PCP_CALL extern int __pmNewPMNS(__pmnsTree **);
-PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
 PCP_CALL extern void __pmUsePMNS(__pmnsTree *); /* for debugging */
 PCP_CALL extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
 PCP_CALL extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
-PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 
 /* return true if the named pmns file has changed */
 PCP_CALL extern int __pmHasPMNSFileChanged(const char *);
@@ -421,7 +419,6 @@ PCP_CALL extern int __pmSocketIPC(int);
 PCP_CALL extern int __pmFeaturesIPC(int);
 PCP_CALL extern int __pmDataIPC(int, void *);
 PCP_CALL extern void __pmOverrideLastFd(int);
-PCP_CALL extern void __pmPrintIPC(void);
 PCP_CALL extern void __pmResetIPC(int);
 
 /* platform independent socket services */
@@ -529,7 +526,6 @@ typedef struct {
 } pmHostSpec;
 PCP_CALL extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
 PCP_CALL extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
-PCP_CALL extern void __pmFreeHostSpec(pmHostSpec *, int);
 
 /*
  * unfortunately, in this version, PCP archives are limited to no
@@ -865,7 +861,6 @@ PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
 PCP_CALL extern void __pmLogSetTime(__pmContext *);
 PCP_CALL extern void __pmLogCacheClear(__pmFILE *);
 PCP_CALL extern void __pmLogResetInterp(__pmContext *);
-PCP_CALL extern void __pmFreeInterpData(__pmContext *);
 PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
 PCP_CALL extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
 PCP_CALL extern int __pmLogChangeToNextArchive(__pmLogCtl **);
@@ -885,7 +880,6 @@ PCP_CALL __pmContext *__pmCurrentContext(void);
  * for a particular instance domain.
  * If indom == PM_INDOM_NULL, then print all instance domains
  */
-PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 
 /* pmFetch helper routines, hooks for derivations and local contexts */
 PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
@@ -1105,7 +1099,6 @@ PCP_CALL extern void __pmMemoryUnmap(void *, size_t);
 
 /* map platform error values to PMAPI error codes.  */
 PCP_CALL extern int __pmMapErrno(int);
-PCP_CALL extern void __pmDumpErrTab(FILE *);
 
 /* Anonymous metric registration (uses derived metrics support) */
 PCP_CALL extern int __pmRegisterAnon(const char *, int);
@@ -1136,8 +1129,6 @@ PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
 /* Helper methods for packed arrays of event records */
 PCP_CALL extern int __pmCheckEventRecords(pmValueSet *, int);
 PCP_CALL extern int __pmCheckHighResEventRecords(pmValueSet *, int);
-PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
-PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 
 /* event tracing for monitoring time between events */
 PCP_CALL extern void __pmEventTrace(const char *);		/* NOT thread-safe */
@@ -1182,7 +1173,6 @@ PCP_CALL extern int __pmIsLocalhost(const char *);
 PCP_CALL extern __int32_t __pmCheckSum(FILE *);
 
 /* for QA apps ...  */
-PCP_CALL extern void __pmDumpDebug(FILE *);
 
 /* DSO PMDA helpers */
 struct __pmDSO;			/* opaque, real definition in pmda.h */
@@ -1297,14 +1287,10 @@ typedef enum {
     PCP_ATTR_EXCLUSIVE	= 16,	/* DEPRECATED exclusive socket tied to this context */
 } __pmAttrKey;
 PCP_CALL extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
-PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
-PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 PCP_CALL extern int __pmParseHostAttrsSpec(
     const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
 PCP_CALL extern int __pmUnparseHostAttrsSpec(
     pmHostSpec *, int, __pmHashCtl *, char *, size_t);
-PCP_CALL extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
-PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
 
 /* SSL/TLS/IPv6 support via NSS/NSPR */
 PCP_CALL extern int __pmSecureServerSetup(const char *, const char *);
@@ -1321,9 +1307,51 @@ PCP_CALL extern int __pmSetRequestTimeout(double);
 
 /* instance profile methods */
 PCP_CALL extern int pmProfileSetSent(void);
-PCP_CALL extern void __pmFreeProfile(pmProfile *);
 PCP_CALL extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *);
 PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
+
+/* free malloc'd data structures */
+PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
+PCP_CALL extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
+PCP_CALL extern void __pmFreeHostSpec(pmHostSpec *, int);
+PCP_CALL extern void __pmFreeInResult(pmInResult *);
+PCP_CALL extern void __pmFreeInterpData(__pmContext *);
+PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
+PCP_CALL extern void __pmFreeProfile(pmProfile *);
+PCP_CALL extern void __pmFreeResultValues(pmResult *);
+
+/* diagnostics for formatting or printing miscellaneous data structures */
+PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
+PCP_CALL extern void __pmDumpDebug(FILE *);
+PCP_CALL extern void __pmDumpErrTab(FILE *);
+PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
+PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
+PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
+PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
+PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
+PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
+PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
+PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
+PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
+PCP_CALL extern void __pmDumpProfile(FILE *, int, const pmProfile *);
+PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
+PCP_CALL extern void __pmDumpStack(FILE *);
+PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
+PCP_CALL extern void __pmPrintMetricNames(FILE *, int, char **, char *);
+PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
+PCP_CALL extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
+PCP_CALL extern void __pmPrintIPC(void);
+PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
+PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
+PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
+PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
+
+/*
+ * Dump the instance profile, for a particular instance domain
+ * If indom == PM_INDOM_NULL, then print all instance domains
+ */
+
+/* helper routine to print all names of a metric */
 
 #ifdef __cplusplus
 }

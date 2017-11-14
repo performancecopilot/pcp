@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "libpcp.h"
 
 static int 	pmns_style = 1;
 static int	vflag;
