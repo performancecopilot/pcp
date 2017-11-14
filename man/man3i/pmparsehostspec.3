@@ -23,6 +23,8 @@
 #include <pcp/pmapi.h>
 .br
 #include <pcp/impl.h>
+.br
+#include <pcp/libpcp.h>
 .sp
 .ad l
 .hy 0
@@ -41,6 +43,13 @@ void __pmFreeHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP);
 .ad
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmParseHostSpec
 accepts a
