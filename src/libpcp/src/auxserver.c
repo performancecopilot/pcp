@@ -625,7 +625,7 @@ static int
 OpenRequestPorts(__pmFdSet *fdset, int backlog)
 {
     int i, fd, family, success = 0, maximum = -1;
-    int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
+    int with_ipv6 = strcmp(pmGetAPIConfig("ipv6"), "true") == 0;
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
@@ -1083,7 +1083,7 @@ __pmServerHasFeature(__pmServerFeature query)
 
     switch (query) {
     case PM_SERVER_FEATURE_IPV6:
-	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
+	sts = (strcmp(pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
     case PM_SERVER_FEATURE_LOCAL:
     case PM_SERVER_FEATURE_DISCOVERY:

@@ -138,14 +138,14 @@ main(int argc, char **argv)
     if (sflag) {
 	if (apiflag)
 	    for (c = opts.optind; c < argc; c++)
-		export_report(argv[c], __pmGetAPIConfig(argv[c]));
+		export_report(argv[c], pmGetAPIConfig(argv[c]));
 	else
 	    for (c = opts.optind; c < argc; c++)
 		export_report(argv[c], pmGetConfig(argv[c]));
     } else {
 	if (apiflag)
 	    for (c = opts.optind; c < argc; c++)
-		direct_report(argv[c], __pmGetAPIConfig(argv[c]));
+		direct_report(argv[c], pmGetAPIConfig(argv[c]));
 	else
 	    for (c = opts.optind; c < argc; c++)
 		direct_report(argv[c], pmGetConfig(argv[c]));

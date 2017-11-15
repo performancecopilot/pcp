@@ -462,7 +462,7 @@ __pmAPIConfig(__pmAPIConfigCallback formatter)
 }
 
 const char *
-__pmGetAPIConfig(const char *name)
+pmGetAPIConfig(const char *name)
 {
     int i;
 

@@ -759,6 +759,9 @@ PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE
 PCP_CALL extern char *pmGetConfig(const char *);
 PCP_CALL extern char *pmGetOptionalConfig(const char *);
 
+/* Ditto for library features */
+PCP_CALL extern const char *pmGetAPIConfig(const char *);
+
 PCP_CALL extern int pmGetVersion(void);
 
 /*

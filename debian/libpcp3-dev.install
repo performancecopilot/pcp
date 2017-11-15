@@ -93,6 +93,7 @@ usr/share/man/man3/pmfreeprofile.3.gz
 usr/share/man/man3/__pmFreeProfile.3.gz
 usr/share/man/man3/pmfreeresult.3.gz
 usr/share/man/man3/pmFreeResult.3.gz
+usr/share/man/man3/pmGetAPIConfig.3.gz
 usr/share/man/man3/pmgetarchiveend.3.gz
 usr/share/man/man3/pmGetArchiveEnd.3.gz
 usr/share/man/man3/pmgetarchivelabel.3.gz

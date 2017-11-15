@@ -23,3 +23,10 @@ __pmSetProgname(const char *program)
     pmSetProgname(program);
     return 0;
 }
+
+#undef __pmGetAPIConfig
+const char *
+__pmGetAPIConfig(const char *name)
+{
+    return pmGetAPIConfig(name);
+}

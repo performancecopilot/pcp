@@ -1149,7 +1149,6 @@ PCP_CALL extern int __pmGetTimespec(struct timespec *);
  */
 typedef void (*__pmAPIConfigCallback)(const char *, const char *);
 PCP_CALL extern void __pmAPIConfig(__pmAPIConfigCallback);
-PCP_CALL extern const char *__pmGetAPIConfig(const char *);
 
 /*
  * Service discovery with options.

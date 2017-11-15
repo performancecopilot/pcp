@@ -590,6 +590,7 @@ PCP_3.21 {
 
 PCP_3.22 {
   global:
+    pmGetAPIConfig;
     pmGetContextLabels;
     pmGetDomainLabels;
     pmGetInDomLabels;

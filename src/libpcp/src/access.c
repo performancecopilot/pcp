@@ -697,7 +697,7 @@ getHostAccessSpecs(const char *name, int *sts)
      * (if supported). "localhost" is covered by the inet and IPv6 wildcards.
      */
     if (strcmp(name, "*") == 0) {
-	const char *ipv6 = __pmGetAPIConfig("ipv6");
+	const char *ipv6 = pmGetAPIConfig("ipv6");
 
 	/* Use calloc so that the final entries are zeroed, if not used. */
 	specs = calloc(4, sizeof(*specs));
