@@ -201,6 +201,22 @@ class SimplePMDA(PMDA):
         self.replace_indom(self.now_indom, self.timeslices)
 
 
+    def simple_label(self, ident, type):
+        '''
+            return a JSON formatted labelset for given item of given type, as a string
+        '''
+        L1 = '"simple_label_arguments": "{}/{}"'.format(ident, type)
+        L2 = '"some_label": "some_value"'
+        return '{' + L1 + ',' + L2 + '}'
+
+    def simple_label_callback(self, indom, inst):
+        '''
+            return a JSON formatted labelset for an inst in given indom, as a string
+        '''
+        L1 = '"simple_label_callback_arguments":"{}/{}"'.format(indom, inst)
+        L2 = '"some label": "some value"'
+        return '{' + L1 + ',' + L2 + '}'
+
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
@@ -235,6 +251,8 @@ class SimplePMDA(PMDA):
         self.set_instance(self.simple_instance)
         self.set_fetch_callback(self.simple_fetch_callback)
         self.set_store_callback(self.simple_store_callback)
+        self.set_label(self.simple_label)
+        self.set_label_callback(self.simple_label_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
         self.simple_timenow_check()
 
