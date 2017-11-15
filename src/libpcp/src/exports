@@ -266,7 +266,7 @@ PCP_3.0 {
     __pmNewPMNS;
     __pmNoMem;
     __pmNotifyErr;
-    pmOpenLog;
+    __pmOpenLog;
     __pmOptFetchAdd;
     __pmOptFetchDel;
     __pmOptFetchDump;
@@ -590,42 +590,43 @@ PCP_3.21 {
 
 PCP_3.22 {
   global:
+    pmFreeLabelSets;
     pmGetAPIConfig;
+    pmGetClusterLabels;
     pmGetContextLabels;
     pmGetDomainLabels;
     pmGetInDomLabels;
-    pmGetClusterLabels;
-    pmGetItemLabels;
     pmGetInstancesLabels;
-    pmLookupLabels;
-    pmMergeLabels;
-    pmMergeLabelSets;
-    pmFreeLabelSets;
+    pmGetItemLabels;
     pmGetProgname;
-    pmSetProgname;
     pmID_build;
-    pmID_domain;
     pmID_cluster;
+    pmID_domain;
     pmID_item;
     pmInDom_build;
     pmInDom_domain;
     pmInDom_serial;
+    pmLookupLabels;
+    pmMergeLabels;
+    pmMergeLabelSets;
+    pmOpenLog;
+    pmSetProgname;
 
     __pmAddLabels;
-    __pmMergeLabels;
-    __pmParseLabels;
-    __pmParseLabelSet;
-    __pmGetContextLabels;
-    __pmGetDomainLabels;
+    __pmDecodeLabel;
+    __pmDecodeLabelReq;
     __pmDumpLabelSet;
     __pmDumpLabelSets;
+    __pmGetContextLabels;
+    __pmGetDomainLabels;
     __pmLogLookupLabel;
     __pmLogLookupText;
     __pmLogPutLabel;
     __pmLogPutText;
+    __pmMergeLabels;
+    __pmParseLabels;
+    __pmParseLabelSet;
+    __pmRecvLabel;
     __pmSendLabel;
     __pmSendLabelReq;
-    __pmRecvLabel;
-    __pmDecodeLabel;
-    __pmDecodeLabelReq;
 } PCP_3.21;

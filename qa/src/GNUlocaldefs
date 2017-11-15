@@ -156,7 +156,8 @@ MYFILES += \
 	pthread_barrier.h libpcp.h pv.c qa_test.c qa_timezone.c \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
-	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c
+	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
+	qa_libpcp_compat.c
 
 MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
 	memcachestats.pl

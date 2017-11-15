@@ -1,0 +1,14 @@
+QA output created by 1166
+=== binary compatibility checks ===
+__pmGetAPIConfig test: OK
+__pmOpenLog test: expect to see standard log format
+Log for 1166 on HOST started DATE
+
+G'day cobber
+
+=== source code compatibility checks ===
+__pmGetAPIConfig test: OK
+__pmOpenLog test: expect to see standard log format
+Log for 1166 on HOST started DATE
+
+G'day cobber

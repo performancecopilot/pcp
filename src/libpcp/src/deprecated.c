@@ -30,3 +30,11 @@ __pmGetAPIConfig(const char *name)
 {
     return pmGetAPIConfig(name);
 }
+
+#undef __pmOpenLog
+FILE *
+__pmOpenLog(const char *progname, const char *logname, FILE *oldstream, int *status)
+{
+    return pmOpenLog(progname, logname, oldstream, status);
+}
+
