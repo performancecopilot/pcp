@@ -174,7 +174,7 @@ find_cache(pmInDom indom, int *sts)
 
     if ((h = (hdr_t *)malloc(sizeof(hdr_t))) == NULL) {
 	char	strbuf[20];
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 	     "find_cache: indom %s: unable to allocate memory for hdr_t",
 	     pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	*sts = PM_ERR_GENERIC;
@@ -606,7 +606,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 
     if ((dup = strdup(name)) == NULL) {
 	char	strbuf[20];
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 	     "insert_cache: indom %s: unable to allocate %d bytes for name: %s\n",
 	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), (int)strlen(name), name);
 	*sts = PM_ERR_GENERIC;
@@ -642,7 +642,7 @@ retry:
 		     * 2^32-1 is the maximum number of instances we can have
 		     */
 		    char	strbuf[20];
-		    __pmNotifyErr(LOG_ERR, 
+		    pmNotifyErr(LOG_ERR, 
 			 "insert_cache: indom %s: too many instances",
 			 pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
 		    *sts = PM_ERR_GENERIC;
@@ -657,7 +657,7 @@ retry:
 
     if ((e = (entry_t *)malloc(sizeof(entry_t))) == NULL) {
 	char	strbuf[20];
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 	     "insert_cache: indom %s: unable to allocate memory for entry_t",
 	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
 	*sts = PM_ERR_GENERIC;
@@ -741,7 +741,7 @@ load_cache(hdr_t *h)
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
     if (fgets(buf, sizeof(buf), fp) == NULL) {
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
 	fclose(fp);
 	return PM_ERR_GENERIC;
@@ -749,7 +749,7 @@ load_cache(hdr_t *h)
     /* First grab the file version. */
     s = sscanf(buf, "%d ", &x);
     if (s != 1 || x <= 0 || x > CACHE_VERSION) {
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: illegal cache header record: %s",
 	     filename, buf);
 	fclose(fp);
@@ -771,7 +771,7 @@ load_cache(hdr_t *h)
 	    break;
     }
     if (s == 0 || h->ins_mode < 0 || h->ins_mode > 1 || h->maxinst < 0) {
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: illegal cache header record: %s",
 	     filename, buf);
 	fclose(fp);
@@ -818,7 +818,7 @@ load_cache(hdr_t *h)
 	     */
 	    keylen = (pend - p) / 2;
 	    if ((key = malloc(keylen)) == NULL) {
-		__pmNotifyErr(LOG_ERR, 
+		pmNotifyErr(LOG_ERR, 
 		     "load_cache: indom %s: unable to allocate memory for keylen=%d",
 		     pmInDomStr(h->indom), keylen);
 		fclose(fp);
@@ -840,7 +840,7 @@ load_cache(hdr_t *h)
 	}
 	if (*p == '\0') {
 bad:
-	    __pmNotifyErr(LOG_ERR, 
+	    pmNotifyErr(LOG_ERR, 
 		 "pmdaCacheOp: %s: illegal record: %s",
 		 filename, buf);
 	    if (key) free(key);
@@ -854,7 +854,7 @@ bad:
 	    return sts;
 	}
 	if (sts != 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 		"pmdaCacheOp: %s: loading instance %d (\"%s\") ignored, already in cache as %d (\"%s\")",
 		filename, inst, p, e->inst, e->name);
 	}
@@ -1000,7 +1000,7 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, cons
 	    e->keylen = keylen;
 	    if (keylen > 0) {
 		if ((e->key = malloc(keylen)) == NULL) {
-		    __pmNotifyErr(LOG_ERR, 
+		    pmNotifyErr(LOG_ERR, 
 			 "store: indom %s: unable to allocate memory for keylen=%d",
 			 pmInDomStr(indom), keylen);
 		    return PM_ERR_GENERIC;
@@ -1154,7 +1154,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	}
 	if (i == MAX_HASH_TRY) {
 	    /* failed after MAX_HASH_TRY rehash attempts ... */
-	    __pmNotifyErr(LOG_ERR, 
+	    pmNotifyErr(LOG_ERR, 
 		 "pmdaCacheStoreKey: indom %s: unable allocate a new id for instance \"%s\" based on a key of %d bytes\n",
 		 pmInDomStr(h->indom), name, keylen);
 	    return PM_ERR_GENERIC;

@@ -1168,6 +1168,11 @@ PCP_CALL extern void pmNoMem(const char *, size_t, int);
 #define PM_FATAL_ERR 1
 #define PM_RECOV_ERR 0
 
+/* standard error, warning and info wrapper for syslog(3) */
+PCP_CALL extern void pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
+/* make pmNotifyErr also add entries to syslog */
+PCP_CALL extern void pmSyslog(int);
+
 #ifdef __cplusplus
 }
 #endif

@@ -210,7 +210,7 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    struct timeslice *tsp;
 	    if ((sts = pmdaCacheLookup(*now_indom, inst, NULL, (void *)&tsp)) != PMDA_CACHE_ACTIVE) {
 		if (sts < 0)
-		    __pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+		    pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 		return PM_ERR_INST;
 	    }
 	    atom->l = tsp->tm_field;
@@ -271,7 +271,7 @@ simple_timenow_check(void)
     if (stat(mypath, &statbuf) == -1) {
 	if (oserror() != last_error) {
 	    last_error = oserror();
-	    __pmNotifyErr(LOG_ERR, "stat failed on %s: %s\n",
+	    pmNotifyErr(LOG_ERR, "stat failed on %s: %s\n",
 			  mypath, pmErrStr(-last_error));
 	}
 	simple_timenow_clear();
@@ -319,7 +319,7 @@ simple_timenow_clear(void)
 
     sts = pmdaCacheOp(*now_indom, PMDA_CACHE_INACTIVE);
     if (sts < 0)
-	__pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
+	pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
 	    pmInDomStr(*now_indom), pmErrStr(sts));
 #ifdef DESPERATE
     __pmdaCacheDump(stderr, *now_indom, 1);
@@ -342,12 +342,12 @@ simple_timenow_init(void)
     pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
-	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
+	pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
 		      mypath, pmErrStr(-oserror()));
 	return;
     }
     if ((p = fgets(&buf[0], SIMPLE_BUFSIZE, fp)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "fgets on %s found no data\n", mypath);
+	pmNotifyErr(LOG_ERR, "fgets on %s found no data\n", mypath);
 	fclose(fp);
 	return;
     }
@@ -360,7 +360,7 @@ simple_timenow_init(void)
 	    if (strcmp(timeslices[i].tm_name, q) == 0) {
 		sts = pmdaCacheStore(*now_indom, PMDA_CACHE_ADD, q, &timeslices[i]);
 		if (sts < 0) {
-		    __pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+		    pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 		    fclose(fp);
 		    return;
 		}
@@ -368,14 +368,14 @@ simple_timenow_init(void)
 	    }
 	}
 	if (i == num_timeslices)
-	    __pmNotifyErr(LOG_WARNING, "ignoring \"%s\" in %s", q, mypath);
+	    pmNotifyErr(LOG_WARNING, "ignoring \"%s\" in %s", q, mypath);
 	q = strtok(NULL, ",");
     }
 #ifdef DESPERATE
     __pmdaCacheDump(stderr, *now_indom, 1);
 #endif
     if (pmdaCacheOp(*now_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
-	__pmNotifyErr(LOG_WARNING, "\"timenow\" instance domain is empty");
+	pmNotifyErr(LOG_WARNING, "\"timenow\" instance domain is empty");
 
     fclose(fp);
 }

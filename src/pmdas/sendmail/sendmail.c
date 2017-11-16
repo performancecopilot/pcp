@@ -178,14 +178,14 @@ map_stats(void)
 	}
 
 	if ((fd = open(statsfile, O_RDONLY)) < 0) {
-	    __pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot open(\"%s\",...): %s",
+	    pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot open(\"%s\",...): %s",
 			pmGetProgname(), statsfile, osstrerror());
 	    return;
 	}
 	ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 	if (ptr == NULL) {
 	    if (!(notified & MAPSTATS_MAPFAIL)) {
-		__pmNotifyErr(LOG_ERR, "%s: map_stats: memmap of %s failed: %s",
+		pmNotifyErr(LOG_ERR, "%s: map_stats: memmap of %s failed: %s",
 			    pmGetProgname(), statsfile, osstrerror());
     	    }
 	    close(fd);
@@ -205,7 +205,7 @@ map_stats(void)
 	if (smstat->stat_magic != STAT_MAGIC || 
 	  smstat->stat_version != STAT_VERSION) {
 	    if (! (notified & MAPSTATS_NOTV2STRUCT)) {
-	    	__pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot find magic number in file %s; assuming version 1 format",
+	    	pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot find magic number in file %s; assuming version 1 format",
 			pmGetProgname(), statsfile);
 		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "%s: map_stats: smstat_s contents:\n", pmGetProgname());

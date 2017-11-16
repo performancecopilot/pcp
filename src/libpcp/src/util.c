@@ -20,7 +20,7 @@
  * pmState - no side-effects, don't bother locking
  *
  * dosyslog - no side-effects, other than non-determinism with concurrent
- *	attempts to set/clear the state in __pmSyslog() which locking will
+ *	attempts to set/clear the state in pmSyslog() which locking will
  *	not avoid
  *
  * pmProgname - most likely set in main(), not worth protecting here
@@ -131,7 +131,7 @@ pmGetProgname(void)
  * just to stderr (this is the default)
  */
 void
-__pmSyslog(int onoff)
+pmSyslog(int onoff)
 {
     dosyslog = onoff;
     if (dosyslog)
@@ -142,19 +142,26 @@ __pmSyslog(int onoff)
 
 /*
  * This is a wrapper around syslog(3) that writes similar messages to stderr,
- * but if __pmSyslog(1) is called, the messages will really go to syslog
+ * but if pmSyslog() is called, the messages will really go to syslog
  */
 void
-__pmNotifyErr(int priority, const char *message, ...)
+pmNotifyErr(int priority, const char *message, ...)
 {
     va_list		arg;
+
+    va_start(arg, message);
+    notifyerr(priority, message, arg);
+    va_end(arg);
+}
+
+void
+notifyerr(int priority, const char *message, va_list arg)
+{
     char		*p;
     char		*level;
     struct timeval	tv;
     char		ct_buf[26];
     time_t		now;
-
-    va_start(arg, message);
 
     gettimeofday(&tv, NULL);
 
@@ -162,8 +169,6 @@ __pmNotifyErr(int priority, const char *message, ...)
 	char	syslogmsg[2048];
 
 	vsnprintf(syslogmsg, sizeof(syslogmsg), message, arg);
-	va_end(arg);
-	va_start(arg, message);
 	syslog(priority, "%s", syslogmsg);
     }
 
@@ -208,7 +213,6 @@ __pmNotifyErr(int priority, const char *message, ...)
 		/* (unsigned long)tv.tv_usec, */
 		pmGetProgname(), (pid_t)getpid(), level);
     vpmprintf(message, arg);
-    va_end(arg);
     /* trailing \n if needed */
     for (p = (char *)message; *p; p++)
 	;
@@ -1120,7 +1124,7 @@ void
 pmNoMem(const char *where, size_t size, int fatal)
 {
     char	errmsg[PM_MAXERRMSGLEN];
-    __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
+    pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
 			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
     if (fatal)

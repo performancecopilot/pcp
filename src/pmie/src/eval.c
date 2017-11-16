@@ -123,11 +123,11 @@ host_state_changed(const char *host, int state) /* NB: host == connection string
     if (quiet)
 	; /* be quiet */
     else if (state == STATE_FAILINIT)
-	__pmNotifyErr(LOG_INFO, "Cannot connect to pmcd %s\n", host);
+	pmNotifyErr(LOG_INFO, "Cannot connect to pmcd %s\n", host);
     else if (state == STATE_RECONN && hsp->state != STATE_INIT)
-	__pmNotifyErr(LOG_INFO, "Re-established connection to pmcd %s\n", host);
+	pmNotifyErr(LOG_INFO, "Re-established connection to pmcd %s\n", host);
     else if (state == STATE_LOSTCONN)
-	__pmNotifyErr(LOG_INFO, "Lost connection to pmcd %s\n", host);
+	pmNotifyErr(LOG_INFO, "Lost connection to pmcd %s\n", host);
 
     hsp->state = state;
     return 1;
@@ -779,7 +779,7 @@ findEval(Expr *x)
 	break;
 
     default:
-	__pmNotifyErr(LOG_ERR, "findEval: internal error: bad op (%d) %s\n", x->op, opStrings(x->op));
+	pmNotifyErr(LOG_ERR, "findEval: internal error: bad op (%d) %s\n", x->op, opStrings(x->op));
 	dumpExpr(x);
 	exit(1);
     }
@@ -855,7 +855,7 @@ run(void)
     }
 
     if (!quiet)
-	__pmNotifyErr(LOG_INFO, "evaluator exiting\n");
+	pmNotifyErr(LOG_INFO, "evaluator exiting\n");
 }
 
 

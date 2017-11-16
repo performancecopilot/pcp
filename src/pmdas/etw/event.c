@@ -121,7 +121,7 @@ event_record_callback(PEVENT_RECORD event)
 	event_queue_unlock(entry);
 
     } else {
-	__pmNotifyErr(LOG_ERR, "failed to enqueue event %d:%d from provider %s",
+	pmNotifyErr(LOG_ERR, "failed to enqueue event %d:%d from provider %s",
 			eventid, version, strguid(guid));
     }
 }
@@ -160,9 +160,9 @@ retry_session:
     sts = StartTrace(&sys.session, KERNEL_LOGGER_NAME, &sys.properties);
     if (sts != ERROR_SUCCESS) {
 	if (retried) {
-	    __pmNotifyErr(LOG_ERR, "Cannot start session (in use)");
+	    pmNotifyErr(LOG_ERR, "Cannot start session (in use)");
 	} else if (sts == ERROR_ALREADY_EXISTS) {
-	    __pmNotifyErr(LOG_WARNING, "%s session in use, retry.. (flags=%lx)",
+	    pmNotifyErr(LOG_WARNING, "%s session in use, retry.. (flags=%lx)",
 				    KERNEL_LOGGER_NAME, sys.enabled);
 	    sys.properties.EnableFlags = 0;
 	    ControlTrace(sys.session, KERNEL_LOGGER_NAME,
@@ -176,7 +176,7 @@ retry_session:
     trace = OpenTrace(&sys.tracemode);
     if (trace == INVALID_PROCESSTRACE_HANDLE) {
 	sts = GetLastError();
-	__pmNotifyErr(LOG_ERR, "failed to open kernel trace: %s (%lu)",
+	pmNotifyErr(LOG_ERR, "failed to open kernel trace: %s (%lu)",
 			tdherror(sts), sts);
 	return sts;
     }
@@ -185,7 +185,7 @@ retry_session:
     if (sts == ERROR_CANCELLED)
 	sts = ERROR_SUCCESS;
     if (sts != ERROR_SUCCESS)
-	__pmNotifyErr(LOG_ERR, "failed to process kernel traces: %s (%lu)",
+	pmNotifyErr(LOG_ERR, "failed to process kernel traces: %s (%lu)",
 			tdherror(sts), sts);
     return sts;
 }
@@ -207,7 +207,7 @@ event_init(void)
 {
     HANDLE	thread;
 
-    __pmNotifyErr(LOG_INFO, "%s: Starting up tracing ...", __FUNCTION__);
+    pmNotifyErr(LOG_INFO, "%s: Starting up tracing ...", __FUNCTION__);
     thread = CreateThread(NULL, 0, event_trace_sys, &sys, 0, NULL);
     if (thread == NULL)
 	return -ECHILD;
@@ -224,7 +224,7 @@ event_startup(void)
 void __attribute__((destructor))
 event_shutdown(void)
 {
-    __pmNotifyErr(LOG_INFO, "%s: Shutting down tracing ...", __FUNCTION__);
+    pmNotifyErr(LOG_INFO, "%s: Shutting down tracing ...", __FUNCTION__);
     if (sys.session != INVALID_PROCESSTRACE_HANDLE) {
 	sys.properties.EnableFlags = 0;
 	ControlTrace(sys.session, 0, &sys.properties, EVENT_TRACE_CONTROL_STOP);

@@ -159,7 +159,7 @@ void systemd_refresh(void)
             break;
 
         if (rc < 0) {
-            __pmNotifyErr(LOG_ERR, "sd_journal_next failure: %s", strerror(-rc));
+            pmNotifyErr(LOG_ERR, "sd_journal_next failure: %s", strerror(-rc));
             break;
         }
 
@@ -167,7 +167,7 @@ void systemd_refresh(void)
            actual journal records. */
         rc = sd_journal_get_cursor(journald_context, &cursor);
         if (rc < 0) {
-            __pmNotifyErr(LOG_ERR, "sd_journal_get_cursor failure: %s",
+            pmNotifyErr(LOG_ERR, "sd_journal_get_cursor failure: %s",
                           strerror(-rc));
             break;
         }
@@ -205,7 +205,7 @@ void systemd_refresh(void)
                                   cursor, strlen(cursor)+1 /* \0 */, &timestamp);
         free(cursor); /* Already copied. */
         if (rc < 0) {
-            __pmNotifyErr(LOG_ERR, "pmdaEventQueueAppend failure: %s", pmErrStr(rc));
+            pmNotifyErr(LOG_ERR, "pmdaEventQueueAppend failure: %s", pmErrStr(rc));
             break;
         }
     }
@@ -228,7 +228,7 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
 
     assert (ugt == & ctxtab[pmdaGetContext()]);
     if (pmDebugOptions.appl0)
-        __pmNotifyErr(LOG_DEBUG, "filter (%d) uid=%d gid=%d data=%p bytes=%u\n",
+        pmNotifyErr(LOG_DEBUG, "filter (%d) uid=%d gid=%d data=%p bytes=%u\n",
                       pmdaGetContext(), ugt->uid, ugt->gid, data, (unsigned)size);
 
     /* The data/size pair gives the object in the event queue, i.e.,
@@ -248,7 +248,7 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
         return 0;
 
     if (pmDebugOptions.appl0)
-        __pmNotifyErr(LOG_DEBUG, "filter (%d) uid%s%d gid%s%d wildcard=%d\n",
+        pmNotifyErr(LOG_DEBUG, "filter (%d) uid%s%d gid%s%d wildcard=%d\n",
                       pmdaGetContext(),
                       ugt->uid_p?"=":"?", ugt->uid,
                       ugt->gid_p?"=":"?", ugt->gid,
@@ -265,19 +265,19 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
     /* OK, we need to take a look at the journal record in question. */
 
     if (pmDebugOptions.appl0)
-        __pmNotifyErr(LOG_DEBUG, "filter cursor=%s\n", (const char*) data);
+        pmNotifyErr(LOG_DEBUG, "filter cursor=%s\n", (const char*) data);
 
     (void) size; /* already known \0-terminated */
     rc = sd_journal_seek_cursor(journald_context_seeky, (char*) data);
     if (rc < 0) {
-        __pmNotifyErr(LOG_ERR, "filter cannot seek to cursor=%s\n",
+        pmNotifyErr(LOG_ERR, "filter cannot seek to cursor=%s\n",
                       (const char*) data);
         return 1; /* No point trying again in systemd_journal_decoder. */
     }
 
     rc = sd_journal_next(journald_context_seeky);
     if (rc < 0) {
-        __pmNotifyErr(LOG_ERR, "filter cannot advance to next\n");
+        pmNotifyErr(LOG_ERR, "filter cannot advance to next\n");
         return 1; /* No point trying again in systemd_journal_decoder. */
     }
 
@@ -522,7 +522,7 @@ systemd_contextAttributeCallBack(int context,
     }
 
     if (pmDebugOptions.appl0)
-        __pmNotifyErr(LOG_DEBUG, "attrib (%d) uid%s%d gid%s%d wildcard=%d\n",
+        pmNotifyErr(LOG_DEBUG, "attrib (%d) uid%s%d gid%s%d wildcard=%d\n",
                       context,
                       ctxtab[context].uid_p?"=":"?", ctxtab[context].uid,
                       ctxtab[context].gid_p?"=":"?", ctxtab[context].gid,
@@ -580,7 +580,7 @@ systemd_init(pmdaInterface *dp)
     /* XXX: SD_JOURNAL_{LOCAL|RUNTIME|SYSTEM}_ONLY */
     sts = sd_journal_open(& journald_context, 0);
     if (sts < 0) {
-        __pmNotifyErr(LOG_ERR, "sd_journal_open failure: %s",
+        pmNotifyErr(LOG_ERR, "sd_journal_open failure: %s",
                       strerror(-sts));
         dp->status = sts;
         return;
@@ -588,7 +588,7 @@ systemd_init(pmdaInterface *dp)
 
     sts = sd_journal_open(& journald_context_seeky, 0);
     if (sts < 0) {
-        __pmNotifyErr(LOG_ERR, "sd_journal_open #2 failure: %s",
+        pmNotifyErr(LOG_ERR, "sd_journal_open #2 failure: %s",
                       strerror(-sts));
         dp->status = sts;
         return;
@@ -596,21 +596,21 @@ systemd_init(pmdaInterface *dp)
 
     sts = sd_journal_seek_tail(journald_context);
     if (sts < 0) {
-        __pmNotifyErr(LOG_ERR, "sd_journal_seek_tail failure: %s",
+        pmNotifyErr(LOG_ERR, "sd_journal_seek_tail failure: %s",
                       strerror(-sts));
     }
 
     /* Work around RHBZ979487. */
     sts = sd_journal_previous_skip(journald_context, 1);
     if (sts < 0) {
-        __pmNotifyErr(LOG_ERR, "sd_journal_previous_skip failure: %s",
+        pmNotifyErr(LOG_ERR, "sd_journal_previous_skip failure: %s",
                       strerror(-sts));
     }
 
     /* Arrange to wake up for journal events. */
     journal_fd = sd_journal_get_fd(journald_context);
     if (journal_fd < 0) {
-        __pmNotifyErr(LOG_ERR, "sd_journal_get_fd failure: %s",
+        pmNotifyErr(LOG_ERR, "sd_journal_get_fd failure: %s",
                       strerror(-journal_fd));
         /* NB: not a fatal error; the select() loop will still time out and
            periodically poll.  This makes it ok for sd_journal_reliable_fd()
@@ -624,7 +624,7 @@ systemd_init(pmdaInterface *dp)
        just use different decoder callbacks. */
     queue_entries = pmdaEventNewQueue("systemd", maxmem);
     if (queue_entries < 0)
-        __pmNotifyErr(LOG_ERR, "pmdaEventNewQueue failure: %s",
+        pmNotifyErr(LOG_ERR, "pmdaEventNewQueue failure: %s",
                       pmErrStr(queue_entries));
 }
 
@@ -648,11 +648,11 @@ systemdMain(pmdaInterface *dispatch)
         memcpy(&readyfds, &fds, sizeof(readyfds));
         nready = select(maxfd+1, &readyfds, NULL, NULL, & select_timeout);
         if (pmDebugOptions.appl2)
-            __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
+            pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
                           nready, interval_expired);
         if (nready < 0) {
             if (neterror() != EINTR) {
-                __pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+                pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
                 exit(1);
             } else if (!interval_expired) {
                 continue;
@@ -661,12 +661,12 @@ systemdMain(pmdaInterface *dispatch)
 
         if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
             if (pmDebugOptions.appl0)
-                __pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
+                pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
             if (__pmdaMainPDU(dispatch) < 0) {
                 exit(1);        /* fatal if we lose pmcd */
             }
             if (pmDebugOptions.appl0)
-                __pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
+                pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
         }
         systemd_refresh();
     }

@@ -342,4 +342,6 @@ extern pid_t __pmProcessWait(pid_t, int, int *, int *) _PCP_HIDDEN;
 extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
 			 pmLabelSet **, int *) _PCP_HIDDEN;
 
+extern void notifyerr(int, const char *, va_list) _PCP_HIDDEN;
+
 #endif /* _LIBPCP_INTERNAL_H */

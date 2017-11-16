@@ -99,7 +99,7 @@ dynamic_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	!(cluster == 0 && item >= 1 && item <= 3))
 	return PM_ERR_INST;
 
-    __pmNotifyErr(LOG_DEBUG, "dynamic_fetch: %d.%d[%d]\n",
+    pmNotifyErr(LOG_DEBUG, "dynamic_fetch: %d.%d[%d]\n",
 		  cluster, item, inst);
 
     if (cluster == 0) {
@@ -214,7 +214,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			}
 			else {
 			    if (pmDebugOptions.appl0)
-				__pmNotifyErr(LOG_DEBUG, 
+				pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Adding instance %d (size = %d)\n",
 					      val, sizeInsts);
 
@@ -227,7 +227,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 		    else {
 			insts = (struct Dynamic*)realloc(insts, (val + 1) * sizeof(struct Dynamic));
 			if (insts == NULL) {
-			    __pmNotifyErr(LOG_ERR, 
+			    pmNotifyErr(LOG_ERR, 
 					  "dynamic_store: Unable to realloc %d bytes\n",
 					  (int)(val * sizeof(struct Dynamic)));
 			    sizeInsts = 0;
@@ -247,7 +247,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			    numInsts++;
 
 			    if (pmDebugOptions.appl0)
-				__pmNotifyErr(LOG_DEBUG, 
+				pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Adding instance %d (size = %d)\n",
 					      val, sizeInsts);
 			}
@@ -258,7 +258,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 		    val = vsp->vlist[0].value.lval;
 		    if (val < 0) {			/* delete all */
 			    if (pmDebugOptions.appl0)
-				__pmNotifyErr(LOG_DEBUG, 
+				pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Removing all instances\n");
 
 			for (i = 0; i < sizeInsts; i++) {
@@ -274,7 +274,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			}
 			else {
 			    if (pmDebugOptions.appl0)
-				__pmNotifyErr(LOG_DEBUG, 
+				pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Removing instance %d\n",
 					      val);
 			    insts[val].id = -1;
@@ -305,7 +305,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
     if (changed) {
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG, 
+	    pmNotifyErr(LOG_DEBUG, 
 			  "dynamic_store: Resizing to %d instances\n",
 			  numInsts);
 
@@ -313,7 +313,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 	    instids = (pmdaInstid *)realloc(instids, 
 					    numInsts * sizeof(pmdaInstid));
 	    if (instids == NULL) {
-		__pmNotifyErr(LOG_ERR, 
+		pmNotifyErr(LOG_ERR, 
 			      "dynamic_store: Could not realloc %d bytes\n",
 			      (int)(numInsts * sizeof(pmdaInstid)));
 		sts = PM_ERR_TOOBIG;
@@ -325,7 +325,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			instids[j].i_name = insts[i].name;
 
 			if (pmDebugOptions.appl1)
-			    __pmNotifyErr(LOG_DEBUG,
+			    pmNotifyErr(LOG_DEBUG,
 					  "dynamic_store: [%d] %d \"%s\"\n",
 					  j, instids[j].i_inst, 
 					  instids[j].i_name);

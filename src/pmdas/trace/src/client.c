@@ -41,7 +41,7 @@ acceptClient(int reqfd)
     addrlen = __pmSockAddrSize();
     fd = __pmAccept(reqfd, clients[i].addr, &addrlen);
     if (fd == -1) {
-	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
+	pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
 		reqfd, netstrerror());
 	return NULL;
     }
@@ -91,7 +91,7 @@ deleteClient(client_t *cp)
 
     if (i == nclients) {
 	if (pmDebugOptions.appl0) {
-	    __pmNotifyErr(LOG_ERR, "deleteClient: tried to delete non-existent client");
+	    pmNotifyErr(LOG_ERR, "deleteClient: tried to delete non-existent client");
 	}
 	return;
     }
@@ -112,7 +112,7 @@ deleteClient(client_t *cp)
     cp->status.padding = 0;
     cp->status.protocol = 1;	/* sync */
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
+	    pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
     cp->fd = -1;
 }
 

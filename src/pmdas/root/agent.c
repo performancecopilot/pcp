@@ -47,7 +47,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 
     *infd = -1;
     *outfd = -1;
-    __pmNotifyErr(LOG_INFO, "Starting %s agent: %s", label, argv);
+    pmNotifyErr(LOG_INFO, "Starting %s agent: %s", label, argv);
 
     transfer_argv = strtok(argv, delim);
     if (transfer_argv == NULL)
@@ -63,18 +63,18 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 
     if (pmDebugOptions.appl1) {
 	for (j = 0; j < i; j++)
-	    __pmNotifyErr(LOG_DEBUG, "arg[%d] %s", j, transfer_final[j]);
+	    pmNotifyErr(LOG_DEBUG, "arg[%d] %s", j, transfer_final[j]);
     }
 
     if (ipctype == ROOT_AGENT_PIPE) {
 	if (pipe1(inPipe) < 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 		    "%s: input pipe create failed for \"%s\" agent: %s\n",
 		    pmGetProgname(), label, osstrerror());
 	    return (pid_t)-1;
 	}
 	if (pipe1(outPipe) < 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 		    "%s: output pipe create failed for \"%s\" agent: %s\n",
 		    pmGetProgname(), label, osstrerror());
 	    close(inPipe[0]);
@@ -141,7 +141,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	}
     }
     if (pmDebugOptions.appl0) {
-	__pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%d infd=%d outfd=%d\n",
+	pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%d infd=%d outfd=%d\n",
 			label, childPid, *infd, *outfd);
     }
     return childPid;

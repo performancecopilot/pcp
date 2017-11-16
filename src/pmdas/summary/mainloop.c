@@ -54,7 +54,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
     int infd, outfd;
 
     if (dtp->comm.pmda_interface != PMDA_INTERFACE_2) {
-	__pmNotifyErr(LOG_CRIT, 
+	pmNotifyErr(LOG_CRIT, 
 		     "summaryMainLoop supports PMDA protocol version 2 only, "
 		     "not %d\n", dtp->comm.pmda_interface);
 	exit(1);
@@ -89,7 +89,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 	     */
 	    sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_NEVER, &pb_client);
 	    if (sts < 0)
-		__pmNotifyErr(LOG_ERR, "client __pmGetPDU: %s\n", pmErrStr(sts));
+		pmNotifyErr(LOG_ERR, "client __pmGetPDU: %s\n", pmErrStr(sts));
 	    if (sts <= 0)
 		/* End of File or error */
 		goto done;
@@ -103,7 +103,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 	    sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb_pmcd);
 
 	    if (sts < 0)
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: %s\n", pmErrStr(sts));
+		pmNotifyErr(LOG_ERR, "__pmGetPDU: %s\n", pmErrStr(sts));
 	    if (sts <= 0)
 		/* End of File or error */
 		goto done;
@@ -150,7 +150,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 			int st;
 			st =__pmSendResult(outfd, FROM_ANON, result);
 			if (st < 0) {
-			    __pmNotifyErr(LOG_ERR, 
+			    pmNotifyErr(LOG_ERR, 
 					  "Cannot send fetch result: %s\n",
 					  pmErrStr(st));
 			}

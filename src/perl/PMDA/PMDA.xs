@@ -849,7 +849,7 @@ error(self,message)
     PREINIT:
 	(void)self;
     CODE:
-	__pmNotifyErr(LOG_ERR, "%s", message);
+	pmNotifyErr(LOG_ERR, "%s", message);
 
 int
 set_user(self,username)
@@ -1205,7 +1205,7 @@ log(self,message)
     PREINIT:
 	(void)self;
     CODE:
-	__pmNotifyErr(LOG_INFO, "%s", message);
+	pmNotifyErr(LOG_INFO, "%s", message);
 
 void
 err(self,message)
@@ -1214,7 +1214,7 @@ err(self,message)
     PREINIT:
 	(void)self;
     CODE:
-	__pmNotifyErr(LOG_ERR, "%s", message);
+	pmNotifyErr(LOG_ERR, "%s", message);
 
 void
 connect_pmcd(self)

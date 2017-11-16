@@ -716,7 +716,7 @@ initMetric(Metric *m)
 			}
 		    }
 		    if (j == sts) {
-			__pmNotifyErr(LOG_ERR, "metric %s from %s does not "
+			pmNotifyErr(LOG_ERR, "metric %s from %s does not "
 				"(currently) have instance \"%s\"\n",
                                       mname, findsource(hname, hconn), m->inames[i]);
 			m->iids[i] = PM_IN_NULL;
@@ -1112,7 +1112,7 @@ taskFetch(Task *t)
 			}
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
+			pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
 				symName(f->host->name), pmErrStr(sts));
 			host_state_changed(symName(f->host->conn), STATE_LOSTCONN);
 			h->down = 1;

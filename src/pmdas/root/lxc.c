@@ -46,7 +46,7 @@ lxc_setup(container_engine_t *dp)
      dp->path[sizeof(dp->path)-1] = '\0';
 
     if (pmDebugOptions.attr)
-	__pmNotifyErr(LOG_DEBUG, "lxc_setup: using path: %s\n", dp->path);
+	pmNotifyErr(LOG_DEBUG, "lxc_setup: using path: %s\n", dp->path);
 }
 
 int
@@ -162,7 +162,7 @@ lxc_value_refresh(container_engine_t *dp, const char *name, container_t *values)
 
     pmsprintf(path, sizeof(path), "%s -n %s", lxc_info, name);
     if (pmDebugOptions.attr)
-	__pmNotifyErr(LOG_DEBUG, "lxc_values_refresh: pipe=%s\n", path);
+	pmNotifyErr(LOG_DEBUG, "lxc_values_refresh: pipe=%s\n", path);
     if ((sts = __pmProcessUnpickArgs(&argp, path)) < 0)
 	return sts;
     if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &pp)) < 0)

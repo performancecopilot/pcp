@@ -304,13 +304,13 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
     for (i = 0; i < nlabels-1; i++) {
 	if (namecmp(&lp[i], &lp[i+1], data) == 0) {
 	    if (pmDebugOptions.labels)
-		__pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
+		pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
 				(int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
 	}
 	if (verify_label_name(&lp[i], json) < 0) {
 	    if (pmDebugOptions.labels)
-		__pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
+		pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
 			    (int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
 	}
@@ -373,7 +373,7 @@ __pmParseLabels(const char *s, int slen,
 	case START:
 	    if (token->type != JSMN_OBJECT) {
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Root element must be JSON object");
+		    pmNotifyErr(LOG_ERR, "Root element must be JSON object");
 		sts = -EINVAL;
 		goto done;
 	    }
@@ -386,7 +386,7 @@ __pmParseLabels(const char *s, int slen,
 	case NAME:
 	    if (token->type != JSMN_STRING) {
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Label name must be JSON string");
+		    pmNotifyErr(LOG_ERR, "Label name must be JSON string");
 		sts = -EINVAL;
 		goto done;
 	    }
@@ -394,7 +394,7 @@ __pmParseLabels(const char *s, int slen,
 	    namelen = token->end - token->start;
 	    if (namelen >= MAXLABELNAMELEN) {	/* will the name fit too? */
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
+		    pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
 				(int)namelen, s + token->start);
 		sts = -E2BIG;
 		goto done;
@@ -402,7 +402,7 @@ __pmParseLabels(const char *s, int slen,
 
 	    if (nlabels >= maxlabels) {	/* will this one fit in the given array? */
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Too many labels (%d)", nlabels);
+		    pmNotifyErr(LOG_ERR, "Too many labels (%d)", nlabels);
 		sts = -E2BIG;
 		goto done;
 	    }
@@ -715,7 +715,7 @@ __pmGetContextLabels(pmLabelSet **set)
 	labels[i] = strndup(buf, length + 1);
     }
     if ((sts = pmMergeLabels(labels, num, buf, sizeof(buf))) < 0) {
-	__pmNotifyErr(LOG_WARNING, "Failed to merge %s labels file: %s",
+	pmNotifyErr(LOG_WARNING, "Failed to merge %s labels file: %s",
 			path, pmErrStr(sts));
     }
     for (i = 0; i < num; i++) {

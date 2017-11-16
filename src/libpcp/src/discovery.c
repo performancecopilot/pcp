@@ -79,7 +79,7 @@ __pmServiceDiscoveryParseTimeout (const char *s, struct timeval *timeout)
      */
     seconds = strtod(s, &end);
     if (*end != '\0' && *end != ',') {
-	__pmNotifyErr(LOG_ERR, "the timeout argument '%s' is not valid", s);
+	pmNotifyErr(LOG_ERR, "the timeout argument '%s' is not valid", s);
 	return strchrnul(s, ',');
     }
 
@@ -101,7 +101,7 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 	    options->resolve = 1;
 	else if (strncmp(optionsString, "timeout=", sizeof("timeout=") - 1) == 0) {
 #if ! PM_MULTI_THREAD
-	    __pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: Service discovery global timeout is not supported");
+	    pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: Service discovery global timeout is not supported");
 	    return -EOPNOTSUPP;
 #else
 	    optionsString += sizeof("timeout=") - 1;
@@ -110,7 +110,7 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 #endif
 	}
 	else {
-	    __pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: unrecognized option at '%s'", optionsString);
+	    pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: unrecognized option at '%s'", optionsString);
 	    return -EINVAL;
 	}
 	/* Locate the start of the next option. */
@@ -213,7 +213,7 @@ __pmDiscoverServicesWithOptions(const char *service,
 	     */
 	    strerror_r(sts, errmsg, sizeof(errmsg));
 #endif
-	    __pmNotifyErr(LOG_ERR, "Service discovery global timeout could not be set: %s",
+	    pmNotifyErr(LOG_ERR, "Service discovery global timeout could not be set: %s",
 			  errmsg);
 	    return -sts;
 	}

@@ -106,7 +106,7 @@ setup_gcard_indom(void)
 
     /* Initialize instance domain and instances. */
     if ((sts = localNvmlDeviceGetCount(&device_count)) != NVML_SUCCESS) {
-	__pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
+	pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
 			localNvmlErrStr(sts));
 	return sts;
     }
@@ -171,7 +171,7 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
     }
 
     if ((sts = localNvmlDeviceGetCount(&device_count)) != 0) {
-	__pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
+	pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
 			localNvmlErrStr(sts));
 	return sts;
     }
@@ -181,7 +181,7 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 	int	j;
 	pcp_nvinfo->nvinfo[i].cardid = i;
 	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
-	    __pmNotifyErr(LOG_ERR, "nvmlDeviceGetHandleByIndex: %s",
+	    pmNotifyErr(LOG_ERR, "nvmlDeviceGetHandleByIndex: %s",
 			localNvmlErrStr(sts));
 	    for (j = 0; j < NVIDIA_METRIC_COUNT; j++)
 		pcp_nvinfo->nvinfo[i].failed[j] = 1;
@@ -341,7 +341,7 @@ nvidia_init(pmdaInterface *dp)
 	 * This is OK, just continue on until it *is* installed;
 	 * until that time, simply report "no values available".
 	 */
-	__pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable");
+	pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable");
     }
 
     dp->version.any.fetch = nvidia_fetch;

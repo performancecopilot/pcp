@@ -44,7 +44,7 @@ int file_indexed (struct file_state *f_s, int type, int *base, void **vpp, int i
 	
     /* reload file if it hasn't been reloaded in x */
     if (refresh_file( f_s ) <0 ) {
-	__pmNotifyErr(LOG_ERR, "file_indexed: refresh_file error");
+	pmNotifyErr(LOG_ERR, "file_indexed: refresh_file error");
 	return -1;
     }
     /* file_indexed assumes that the file contains one line 

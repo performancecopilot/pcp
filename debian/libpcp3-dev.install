@@ -222,6 +222,8 @@ usr/share/man/man3/pmnewzone.3.gz
 usr/share/man/man3/pmNewZone.3.gz
 usr/share/man/man3/pmnomem.3.gz
 usr/share/man/man3/pmNoMem.3.gz
+usr/share/man/man3/pmnotifyerr.3.gz
+usr/share/man/man3/pmNotifyErr.3.gz
 usr/share/man/man3/pmnumberstr.3.gz
 usr/share/man/man3/pmNumberStr.3.gz
 usr/share/man/man3/pmNumberStr_r.3.gz
@@ -283,6 +285,7 @@ usr/share/man/man3/__pmSpecLocalPMDA.3.gz
 usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmstore.3.gz
 usr/share/man/man3/pmStore.3.gz
+usr/share/man/man3/pmSyslog.3.gz
 usr/share/man/man3/pmtime.3.gz
 usr/share/man/man3/pmTimeConnect.3.gz
 usr/share/man/man3/pmTimeDisconnect.3.gz

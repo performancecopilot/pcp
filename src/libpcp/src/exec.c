@@ -869,7 +869,7 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
 	    done = 1;
 	    if (endch != ' ') {
 		/* not a great error, but probably the best we can do */
-		__pmNotifyErr(LOG_WARNING,
+		pmNotifyErr(LOG_WARNING,
 			"__pmProcessUnpickArgs: unterminated quote (%c) in command: %s\n",
 			endch & 0xff, command);
 		sts = PM_ERR_GENERIC;

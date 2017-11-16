@@ -211,7 +211,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    s = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (s == 0) {
-		__pmNotifyErr(LOG_INFO, "DoStore: select timeout");
+		pmNotifyErr(LOG_INFO, "DoStore: select timeout");
 
 		/* Timeout, terminate agents that haven't responded */
 		for (i = 0; i < nAgents; i++) {
@@ -227,7 +227,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		if (neterror() == EINTR)
 		    goto retry;
 		/* this is not expected to happen! */
-		__pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n",
+		pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n",
 			netstrerror());
 		Shutdown();
 		exit(1);

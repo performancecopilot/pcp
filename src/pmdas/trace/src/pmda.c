@@ -93,7 +93,7 @@ parseAuth(char *spec)
 
     if (first) {
 	if (__pmAccAddOp(TR_OP_SEND) < 0) {
-	    __pmNotifyErr(LOG_ERR, "failed to add send auth operation");
+	    pmNotifyErr(LOG_ERR, "failed to add send auth operation");
 	    return -1;
 	}
 	first = 0;
@@ -111,7 +111,7 @@ parseAuth(char *spec)
 	    fprintf(stderr, "deny: host '%s'\n", p);
 	denyops = TR_OP_SEND;
 	if (__pmAccAddHost(p, specops, denyops, 0) < 0)
-	    __pmNotifyErr(LOG_ERR, "failed to add authorisation (%s)", p);
+	    pmNotifyErr(LOG_ERR, "failed to add authorisation (%s)", p);
 	free(p);
     }
     else if (strncasecmp(spec, "allow:", 6) == 0) {
@@ -134,7 +134,7 @@ parseAuth(char *spec)
 	    fprintf(stderr, "allow: host '%s', maxconn=%d\n", p, maxconn);
 	denyops = TR_OP_NONE;
 	if (__pmAccAddHost(p, specops, denyops, maxconn) < 0)
-	    __pmNotifyErr(LOG_ERR, "failed to add authorisation (%s)", p);
+	    pmNotifyErr(LOG_ERR, "failed to add authorisation (%s)", p);
 	free(p);
     }
     else {

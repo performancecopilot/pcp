@@ -636,41 +636,41 @@ main (int argc, char *argv[])
                 strstr(opts.optarg, "local:") != NULL)
                 localmode = 1;	// complete this check after arg parsing
             if ((ctx = pmNewContext (PM_CONTEXT_HOST, opts.optarg)) < 0) {
-                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
             if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, host %s, permanent\n",
+            pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, host %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
         case 'a':
             if ((ctx = pmNewContext (PM_CONTEXT_ARCHIVE, opts.optarg)) < 0) {
-                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
             if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, archive %s, permanent\n",
+            pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, archive %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
         case 'L':
             localmode = 1;	// complete this check after arg parsing
             if ((ctx = pmNewContext (PM_CONTEXT_LOCAL, NULL)) < 0) {
-                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
             if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, local, permanent\n",
+            pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, local, permanent\n",
                            perm_context - 1, ctx);
             break;
 

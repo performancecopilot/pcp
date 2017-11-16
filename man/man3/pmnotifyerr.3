@@ -1,0 +1,94 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNOTIFYERR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNotifyErr\f1,
+\f3pmSyslog\f1 \- standard handling of error messages
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmNotifyErr(int \fIpriority\fP, const char *\fImessage\fP, ...);
+.br
+void pmSyslog(int \fIonoff\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+These routines provide standard handling for error messages from
+within the internals of
+Performance Co-Pilot (PCP) daemons and Performance Metric Domain
+Agents (PMDAs).
+.PP
+.B pmNotifyErr
+is a
+.BR printf (3)
+style function that will format
+.I message
+(and any subsequent arguments)
+with a prefix that includes
+the current date and time from
+.BR ctime (3),
+the name of the application from
+.BR pmGetProgname (3),
+the process's id from
+.BR getpid (2)
+and the
+.IR priority .
+.PP
+.I priority
+should be one of the level
+.B LOG_
+macros defined for
+.BR syslog (3).
+Most typically this would be
+.BR LOG_INFO ,
+.B LOG_WARNING
+or
+.BR LOG_ERR .
+.PP
+.B pmNotifyErr
+writes to standard error, which for daemons and PMDAs has most likely
+been redirected to a log file using
+.BR pmOpenLog (3).
+Additionally
+.I message
+(and any subsequent arguments)
+may be sent forwarded to
+.BR syslog (3)
+if
+.B pmSyslog
+has previously been called with
+.I onoff
+having a non-zero value.
+.PP
+Forwarding to
+.BR syslog (3)
+can be disabled at any time by calling
+.B pmSyslog
+with
+.I onoff
+having a zero value, and this is the starting state for each PCP
+application.
+.SH SEE ALSO
+.BR getpid (2),
+.BR ctime (3),
+.BR PMAPI (3),
+.BR pmGetProgname (3),
+.BR pmOpenLog (3),
+.BR printf (3)
+and
+.BR syslog (3).

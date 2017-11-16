@@ -41,14 +41,14 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 
     pdhsts = PdhOpenQueryA(NULL, 0, &queryhdl);
     if (pdhsts != ERROR_SUCCESS) {
-	__pmNotifyErr(LOG_ERR, "windows_open: PdhOpenQueryA failed: %s\n",
+	pmNotifyErr(LOG_ERR, "windows_open: PdhOpenQueryA failed: %s\n",
 			pdherrstr(pdhsts));
 	return sts;
     }
 
     pdhsts = PdhAddCounterA(queryhdl, pat, vp->inst, &counthdl);
     if (pdhsts != ERROR_SUCCESS) {
-	__pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
+	pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
 				"@ pmid=%s pat=\"%s\": %s\n",
 			    pmIDStr(mp->desc.pmid), pat, pdherrstr(pdhsts));
 	PdhCloseQuery(queryhdl);
@@ -58,7 +58,7 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
     pdhsts = PdhCollectQueryData(queryhdl);
     if (pdhsts != ERROR_SUCCESS) {
 	if ((vp->flags & V_ERROR_SEEN) == 0) {
-	    __pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhCollectQueryData "
+	    pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhCollectQueryData "
 				   "failed for metric %s pat %s: %s\n",
 			pmIDStr(mp->desc.pmid), pat, pdherrstr(pdhsts));
 	    vp->flags |= V_ERROR_SEEN;
@@ -75,7 +75,7 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 
 	pdhsts = PdhGetFormattedCounterValue(counthdl, type, NULL, &fmt);
 	if (pdhsts != ERROR_SUCCESS) {
-	    __pmNotifyErr(LOG_ERR, "Error: PdhGetFormattedCounterValue "
+	    pmNotifyErr(LOG_ERR, "Error: PdhGetFormattedCounterValue "
 			"failed for metric %s inst %d: %s\n",
 			pmIDStr(mp->desc.pmid), vp->inst, pdherrstr(pdhsts));
 	    vp->flags = V_NONE;	/* no values for you! */
@@ -91,7 +91,7 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 
 	pdhsts = PdhGetRawCounterValue(counthdl, NULL, &raw);
 	if (pdhsts != ERROR_SUCCESS) {
-	    __pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhGetRawCounterValue "
+	    pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhGetRawCounterValue "
 				"failed for metric %s inst %d: %s\n",
 			pmIDStr(mp->desc.pmid), vp->inst, pdherrstr(pdhsts));
 	    vp->flags = V_NONE;	/* no values for you! */

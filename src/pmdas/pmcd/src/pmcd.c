@@ -466,7 +466,7 @@ refresh_pmie_indom(void)
 
 	    /* open the directory iterate through mmaping as we go */
 	    if ((pmiedir = opendir(fullpath)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
+		pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
 				fullpath, osstrerror());
 		return 0;
 	    }
@@ -482,7 +482,7 @@ refresh_pmie_indom(void)
 			 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep,
 			 dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
-		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
+		    pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
 				fullpath, osstrerror());
 		    continue;
 		}
@@ -498,7 +498,7 @@ refresh_pmie_indom(void)
 		    continue;
 		}
 		if ((fd = open(fullpath, O_RDONLY)) < 0) {
-		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
+		    pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
 				fullpath, osstrerror());
 		    free(endp);
 		    continue;
@@ -506,13 +506,13 @@ refresh_pmie_indom(void)
 		ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 		close(fd);
 		if (ptr == NULL) {
-		    __pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
+		    pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
 				fullpath, osstrerror());
 		    free(endp);
 		    continue;
 		}
 		else if (((pmiestats_t *)ptr)->version != 1) {
-		    __pmNotifyErr(LOG_WARNING, "incompatible pmie version: %s",
+		    pmNotifyErr(LOG_WARNING, "incompatible pmie version: %s",
 				fullpath);
 		    __pmMemoryUnmap(ptr, statbuf.st_size);
 		    free(endp);
@@ -1891,7 +1891,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		/*
 		 * send myself SIGHUP
 		 */
-		__pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
+		pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
 		raise(SIGHUP);
 #endif
 	    }

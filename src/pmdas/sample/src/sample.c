@@ -963,7 +963,7 @@ cntinst(pmInDom indom)
 	if (idp->it_indom == indom)
 	    return idp->it_numinst;
     }
-    __pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
+    pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
     return 0;
 }
 
@@ -1154,7 +1154,7 @@ init_tables(int dom)
 	if (direct_map && pmID_item(desctab[i].pmid) != i) {
 	    direct_map = 0;
 	    if (pmDebugOptions.appl0) {
-		__pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
+		pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
 	    }
 	}
     }

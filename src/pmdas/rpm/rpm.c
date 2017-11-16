@@ -334,7 +334,7 @@ notready(pmdaExt *pmda)
 	    break;
 
 	if (iterations++ > 30) { /* Complain every 30 seconds. */
-	    __pmNotifyErr(LOG_WARNING, "notready waited too long");
+	    pmNotifyErr(LOG_WARNING, "notready waited too long");
 	    iterations = 0; /* XXX: or exit? */
 	}
 	sleep(1);
@@ -388,7 +388,7 @@ rpm_extract_string(rpmtd td, Header h, int tag)
      * (which we never expect to see, for the metrics we export).
      */
     if (td->type == RPM_STRING_ARRAY_TYPE)
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		"rpm_extract_string: unexpected string array: %d", tag);
 
     return rpmtdGetString(td);
@@ -424,7 +424,7 @@ static void
 rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
 {
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
+	pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
 
     m->name = dict_insert(rpm_extract_string(td, h, RPMTAG_NAME));
     m->arch = dict_insert(rpm_extract_string(td, h, RPMTAG_ARCH));
@@ -477,7 +477,7 @@ rpm_update_cache(void *ptr)
     if (rpmReadConfigFiles_p == 0) {
 	int sts = rpmReadConfigFiles(NULL, NULL);
 	if (sts == -1)
-	    __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
+	    pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
 	rpmReadConfigFiles_p = 1;
     }
 
@@ -556,13 +556,13 @@ rpm_inotify(void *ptr)
      */
     fd = inotify_init();
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
+	pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
 	return NULL;
     }
 
     sts = inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
+	pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
 	close(fd);
 	return NULL;
     }
@@ -573,21 +573,21 @@ rpm_inotify(void *ptr)
 	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
 	if (pmDebugOptions.appl1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
+	    pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 
 	/*
 	 * No need to check the contents of the buffer; having
 	 * received an event at all indicates need to refresh.
 	 */
 	if (read_count <= 0) {
-	    __pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
+	    pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
 	    continue;
 	}
 
         rpm_update_cache(ptr);
 
 	if (pmDebugOptions.appl1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
+	    pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
 
     /* NOTREACHED */
@@ -632,11 +632,11 @@ rpm_init(pmdaInterface * dp)
     /* Monitor changes to the rpm database */
     sts = pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
     if (sts != 0) {
-	__pmNotifyErr(LOG_CRIT, "rpm_init: cannot spawn a new thread: errno=%d\n", sts);
+	pmNotifyErr(LOG_CRIT, "rpm_init: cannot spawn a new thread: errno=%d\n", sts);
 	dp->status = sts;
     }
     else
-	__pmNotifyErr(LOG_INFO, "Started rpm database monitoring thread\n");
+	pmNotifyErr(LOG_INFO, "Started rpm database monitoring thread\n");
 }
 
 static void

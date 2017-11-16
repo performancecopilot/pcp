@@ -187,7 +187,7 @@ vnops_update_stats(int fetch)
 				(void **)&cached) != PMDA_CACHE_ACTIVE) {
 	    rv = pmdaCacheStore(indom, PMDA_CACHE_ADD, key, k);
 	    if (rv < 0) {
-		__pmNotifyErr(LOG_WARNING,
+		pmNotifyErr(LOG_WARNING,
 			      "Cannot create instance for "
 			      "filesystem '%s': %s\n",
 			      key, pmErrStr(rv));

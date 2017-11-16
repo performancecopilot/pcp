@@ -407,7 +407,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
 
     /* Create the dynamic PMNS tree and populate it. */
     if ((sts = __pmNewPMNS(&pmns)) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
+	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	pmns = NULL;
 	return;
@@ -450,7 +450,7 @@ loggerMain(pmdaInterface *dispatch)
 
     /* arm interval timer */
     if (__pmAFregister(&interval, NULL, logger_timer) < 0) {
-	__pmNotifyErr(LOG_ERR, "registering event interval handler");
+	pmNotifyErr(LOG_ERR, "registering event interval handler");
 	exit(1);
     }
 
@@ -458,11 +458,11 @@ loggerMain(pmdaInterface *dispatch)
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
 	if (pmDebugOptions.appl2)
-	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
+	    pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
 			  nready, interval_expired);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+		pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
 	    } else if (!interval_expired) {
 		continue;
@@ -472,13 +472,13 @@ loggerMain(pmdaInterface *dispatch)
 	__pmAFblock();
 	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
+		pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
 	    }
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
+		pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
 	if (interval_expired) {
 	    interval_expired = 0;

@@ -167,14 +167,14 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 	if (chdir(queuedir) < 0) {
 	    if (warn == 0) {
-		__pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
+		pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
 		    queuedir, osstrerror());
 		warn = 1;
 	    }
 	}
 	else {
 	    if (warn == 1) {
-		__pmNotifyErr(LOG_INFO, "chdir(\"%s\") success\n", queuedir);
+		pmNotifyErr(LOG_INFO, "chdir(\"%s\") success\n", queuedir);
 		warn = 0;
 	    }
 
@@ -220,7 +220,7 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		free(list);
 	}
 	if (chdir(startdir) < 0) {
-	    __pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
+	    pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
 			startdir, osstrerror());
 	}
     }

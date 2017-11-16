@@ -1386,9 +1386,6 @@ PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 /* log file rotation */
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
 
-/* make __pmNotifyErr also add entries to syslog */
-PCP_CALL extern void __pmSyslog(int);
-
 /*
  * Dump the instance profile, for a particular instance domain
  * If indom == PM_INDOM_NULL, then print all instance domains

@@ -36,19 +36,19 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
 #endif
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
+	pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
 		  cmd);
 
     /* Create the pipes. */
 #if defined(HAVE_PIPE2)
     if ((pipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK)) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
 		      strerror(errno));
 	return -1;
     }
 #else
     if ((sts = pipe(pipe_fds)) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: pipe() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: pipe() returned %s", __FUNCTION__,
 		      strerror(errno));
 	return -1;
     }
@@ -56,13 +56,13 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
     /* Set the right flags on the pipes. */
     if (fcntl(pipe_fds[PARENT_END], F_SETFL, O_NDELAY) < 0 ||
 	fcntl(pipe_fds[CHILD_END], F_SETFL, O_NDELAY) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
 		      strerror(errno));
 	return -1;
     }
     if (fcntl(pipe_fds[PARENT_END], F_SETFD, O_CLOEXEC) < 0
 	|| fcntl(pipe_fds[CHILD_END], F_SETFD, O_CLOEXEC) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
 		      strerror(errno));
 	return -1;
     }
@@ -80,7 +80,7 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
 	 */
 	if (pipe_fds[CHILD_END] != STDOUT_FD) {
 	    if (dup2(pipe_fds[CHILD_END], STDOUT_FD) < 0) {
-		__pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
+		pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
 			      strerror(errno));
 		_exit(127);
 	    }
@@ -112,7 +112,7 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
 	    *ppid = child_pid;
     }
     else if (child_pid < 0) {		/* fork error */
-	__pmNotifyErr(LOG_ERR, "%s: fork() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: fork() returned %s", __FUNCTION__,
 		      strerror(errno));
 	close(pipe_fds[PARENT_END]);
 	close(pipe_fds[CHILD_END]);
@@ -129,20 +129,20 @@ stop_cmd(pid_t pid)
     int		sts, wstatus = 0;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "stop_cmd: killing pid %" FMT_PID, pid);
+	pmNotifyErr(LOG_INFO, "stop_cmd: killing pid %" FMT_PID, pid);
 
     /* Send the TERM signal. */
     sts = kill(pid, SIGTERM);
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "stop_cmd: kill returned %d", sts);
+	pmNotifyErr(LOG_INFO, "stop_cmd: kill returned %d", sts);
 
     /* Wait for the process to go away. */
     do {
 	wait_pid = waitpid(pid, &wstatus, 0);
 	wstatus = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0;
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "stop_cmd: waitpid pid=%d, sts=%d",
+	    pmNotifyErr(LOG_INFO, "stop_cmd: waitpid pid=%d, sts=%d",
 			    (int)wait_pid, wstatus);
     } while (wait_pid == -1 && errno == EINTR);
 
@@ -157,14 +157,14 @@ wait_cmd(pid_t pid)
     int		wstatus = 0;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "wait_cmd: checking pid %" FMT_PID, pid);
+	pmNotifyErr(LOG_INFO, "wait_cmd: checking pid %" FMT_PID, pid);
 
     /* Check whether the process has gone away. */
     wait_pid = waitpid(pid, &wstatus, WNOHANG);
     wstatus = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "wait_cmd: waitpid pid=%d, sts=%d",
+	pmNotifyErr(LOG_INFO, "wait_cmd: waitpid pid=%d, sts=%d",
 			(int)wait_pid, wstatus);
 
     /* Return process status. */

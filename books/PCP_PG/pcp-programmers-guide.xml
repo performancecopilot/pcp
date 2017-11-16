@@ -1808,7 +1808,7 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             sts = pmdaCacheLookup(*now_indom, inst, NULL, (void *)&amp;tsp);
             if (sts != PMDA_CACHE_ACTIVE) {
                 if (sts &lt; 0)
-                    __pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s",
+                    pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s",
                                   inst, pmErrStr(sts));
                 return PM_ERR_INST;
             }
@@ -2399,7 +2399,7 @@ main(int argc, char **argv)
             val = 0; 
         } 
         if (pmDebugOptions.appl0__) { 
-            __pmNotifyErr(LOG_DEBUG,
+            pmNotifyErr(LOG_DEBUG,
                   &quot;simple: %d stored into numfetch&quot;, val); 
         } 
         numfetch = val; 

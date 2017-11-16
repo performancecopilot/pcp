@@ -30,7 +30,7 @@ CheckError(AgentInfo *ap, int sts)
 
     if (sts == PM_ERR_PMDANOTREADY) {
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "%s agent (%s) sent NOT READY\n",
+	    pmNotifyErr(LOG_INFO, "%s agent (%s) sent NOT READY\n",
 			 ap->pmDomainLabel,
 			 ap->status.notReady ? "not ready" : "ready");
 	if (ap->status.notReady == 0) {
@@ -42,7 +42,7 @@ CheckError(AgentInfo *ap, int sts)
     }
     else if (sts == PM_ERR_PMDAREADY) {
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "%s agent (%s) sent unexpected READY\n",
+	    pmNotifyErr(LOG_INFO, "%s agent (%s) sent unexpected READY\n",
 			 ap->pmDomainLabel,
 			 ap->status.notReady ? "not ready" : "ready");
 	retSts = PM_ERR_IPC;

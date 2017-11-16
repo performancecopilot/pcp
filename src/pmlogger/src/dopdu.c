@@ -142,7 +142,7 @@ dumpcontrol(FILE *f, const pmResult *resp, int dovalue)
 void
 die(char *name, int sts)
 {
-    __pmNotifyErr(LOG_ERR, "%s error unrecoverable: %s\n", name, pmErrStr(sts));
+    pmNotifyErr(LOG_ERR, "%s error unrecoverable: %s\n", name, pmErrStr(sts));
     exit(1);
 }
 
@@ -1019,7 +1019,7 @@ do_control(__pmPDU *pb)
     if (sts < 0) {
 	fprintf(stderr, "Error: %s\n", pmErrStr(sts));
 	if ((sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			 "do_control: error sending Error PDU to client: %s\n",
 			 pmErrStr(sts));
 	pmFreeResult(request);
@@ -1226,7 +1226,7 @@ do_control(__pmPDU *pb)
     }
 
     if ((sts = __pmSendResult(clientfd, FROM_ANON, result)) < 0)
-		__pmNotifyErr(LOG_ERR,
+		pmNotifyErr(LOG_ERR,
 			     "do_control: error sending Error PDU to client: %s\n",
 			     pmErrStr(sts));
 
@@ -1319,7 +1319,7 @@ do_request(__pmPDU *pb)
     int		type;
 
     if ((sts = __pmDecodeLogRequest(pb, &type)) < 0) {
-	__pmNotifyErr(LOG_ERR, "do_request: error decoding PDU: %s\n", pmErrStr(sts));
+	pmNotifyErr(LOG_ERR, "do_request: error decoding PDU: %s\n", pmErrStr(sts));
 	return PM_ERR_IPC;
     }
 
@@ -1408,7 +1408,7 @@ do_creds(__pmPDU *pb)
     __pmCred	*credlist = NULL;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
-	__pmNotifyErr(LOG_ERR, "do_creds: error decoding PDU: %s\n", pmErrStr(sts));
+	pmNotifyErr(LOG_ERR, "do_creds: error decoding PDU: %s\n", pmErrStr(sts));
 		return PM_ERR_IPC;
     }
 

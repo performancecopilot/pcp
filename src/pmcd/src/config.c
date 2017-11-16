@@ -2088,7 +2088,7 @@ GetAgentDso(AgentInfo *aPtr)
 
     if (dso->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 	dso->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		 "Unknown PMDA interface version (%d) used by DSO %s\n",
 		 dso->dispatch.comm.pmda_interface, aPtr->pmDomainLabel);
 #if defined(HAVE_DLOPEN)
@@ -2100,7 +2100,7 @@ GetAgentDso(AgentInfo *aPtr)
     if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		 "Unsupported PMAPI version (%d) used by DSO %s\n",
 		 dso->dispatch.comm.pmapi_version, aPtr->pmDomainLabel);
 #if defined(HAVE_DLOPEN)

@@ -390,7 +390,7 @@ sigintproc(int sig)
     __pmSetSignalHandler(SIGINT, SIG_IGN);
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
     if (pmDebugOptions.desperate)
-	__pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmGetProgname());
+	pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmGetProgname());
     if (inrun)
 	doexit = sig;
     else {
@@ -430,7 +430,7 @@ logRotate(void)
 	remap_stdout_stderr();
 	logfp = fp;
     } else {
-	__pmNotifyErr(LOG_ERR, "pmie: log rotation failed\n");
+	pmNotifyErr(LOG_ERR, "pmie: log rotation failed\n");
     }
 }
 
@@ -445,7 +445,7 @@ static void
 sigbadproc(int sig)
 {
     if (pmDebugOptions.desperate) {
-	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
 	fprintf(stderr, "\nProcedure call traceback ...\n");
 	__pmDumpStack(stderr);
 	fflush(stderr);

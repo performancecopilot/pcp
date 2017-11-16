@@ -220,7 +220,7 @@ open_unix_socket(char *fname)
 void
 open_unix_socket(char *fname)
 {
-    __pmNotifyErr(LOG_CRIT, "UNIX domain sockets unsupported\n");
+    pmNotifyErr(LOG_CRIT, "UNIX domain sockets unsupported\n");
 }
 #endif
 

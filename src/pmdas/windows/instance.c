@@ -88,7 +88,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			    ok = 1;
 			}
 			else {
-			    __pmNotifyErr(LOG_ERR, "windows_check_instance: "
+			    pmNotifyErr(LOG_ERR, "windows_check_instance: "
 					"Error: DISK_INDOM malloc[%d] failed "
 					"path=%s\n", (int)(q - p + 1), path);
 			    return -1;
@@ -114,7 +114,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     */
 	    if (!ok) {
 		if (pmDebugOptions.libpmda)
-		    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		    pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized disk instance: %s\n", path);
 		free(name);
 		return -1;
@@ -148,7 +148,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized cpu instance: %s\n", path);
 		free(name);
 		return -1;
@@ -172,7 +172,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			ok = 1;
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+			pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 					"malloc[%d] failed for NETIF_INDOM "
 					"path=%s\n", (int)(q - p + 1), path);
 			return -1;
@@ -192,7 +192,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 			"unrecognized network interface instance: %s\n", path);
 		free(name);
 		return -1;
@@ -227,7 +227,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			ok = 1;
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+			pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed for LDISK_INDOM path=%s\n",
 				(int)(q - p + 1), path);
 			return -1;
@@ -239,7 +239,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 			"unrecognized logical disk instance: %s\n", path);
 		free(name);
 		return -1;
@@ -277,7 +277,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			ok = 1;
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+			pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed, SQL_INDOM path=%s\n",
 				(int)(q - p + 1), path);
 			return -1;
@@ -299,7 +299,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized SQLServer instance: %s\n", path);
 		free(name);
 		return -1;
@@ -337,7 +337,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			ok = 1;
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+			pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed, process/thread path=%s\n",
 				(int)(q - p + 1), path);
 			return -1;
@@ -349,7 +349,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+		pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized process/thread name: %s\n", path);
 		free(name);
 		return -1;
@@ -357,7 +357,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    break;
 
 	default:
-	    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+	    pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				   "pmInDom %s is unknown for metric %s\n",
 			pmInDomStr(mp->desc.indom), pmIDStr(mp->desc.pmid));
 	    return -1;

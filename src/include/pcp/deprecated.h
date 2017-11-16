@@ -31,7 +31,8 @@
  * __pmOpenLog()		pmOpenLog()
  * __pmGetAPIConfig()		pmGetAPIConfig()
  * __pmNoMem()			pmNoMem()
- *
+ * __pmNotifyErr()		pmNotifyErr()
+ * __pmSyslog()			pmSyslog()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -83,5 +84,7 @@ PCP_DATA extern int pmDebug;
 #define __pmOpenLog pmOpenLog
 #define __pmGetAPIConfig pmGetAPIConfig
 #define __pmNoMem pmNoMem
+#define __pmNotifyErr pmNotifyErr
+#define __pmSyslog pmSyslog
 
 #endif /* PCP_DEPRECATED_H */

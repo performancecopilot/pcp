@@ -89,7 +89,7 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
     pmsprintf(verify->instance, size, "%u %s", verify->pid, script);
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "process header v%d: inst='%s' ppid=%d",
+	pmNotifyErr(LOG_DEBUG, "process header v%d: inst='%s' ppid=%d",
 			verify->version, verify->instance, verify->parent);
 }
 
@@ -164,14 +164,14 @@ process_alloc(const char *bashname, bash_process_t *init, int numclients)
     bash_process_t *bashful = malloc(sizeof(bash_process_t));
 
     if (pmDebugOptions.appl1)
-	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s, queueid=%d", bashname, queueid);
+	pmNotifyErr(LOG_DEBUG, "process_alloc: %s, queueid=%d", bashname, queueid);
 
     if (!bashful) {
-	__pmNotifyErr(LOG_ERR, "process allocation out of memory");
+	pmNotifyErr(LOG_ERR, "process allocation out of memory");
 	return NULL;
     }
     if (queueid < 0) {
-	__pmNotifyErr(LOG_ERR, "attempt to dup queue for %s", bashname);
+	pmNotifyErr(LOG_ERR, "attempt to dup queue for %s", bashname);
 	free(bashful);
 	return NULL;
     }
@@ -197,7 +197,7 @@ process_alloc(const char *bashname, bash_process_t *init, int numclients)
     bashful->instance = init->instance;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "process_alloc: %s", bashful->instance);
+	pmNotifyErr(LOG_DEBUG, "process_alloc: %s", bashful->instance);
 
     return bashful;
 }
@@ -208,7 +208,7 @@ event_start(bash_process_t *bp, struct timeval *timestamp)
     int	start = memcmp(timestamp, &bp->startstat, sizeof(*timestamp));
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "check start event for %s (%d), %ld vs %ld",
+	pmNotifyErr(LOG_DEBUG, "check start event for %s (%d), %ld vs %ld",
 		bp->instance, start, (long int)bp->startstat.tv_sec, (long int)timestamp->tv_sec);
 
     return start == 0;
@@ -231,7 +231,7 @@ process_init(const char *bashname, bash_process_t **bp)
     pmdaEventClients(&atom);
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "process_init: %s (%d clients)",
+	pmNotifyErr(LOG_DEBUG, "process_init: %s (%d clients)",
 			bashname, atom.ul);
 
     if (process_verify(bashname, &init) < 0)
@@ -274,7 +274,7 @@ process_read(bash_process_t *process)
 #endif
 #endif
 	if (sts != 0) {
-	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
+	    pmNotifyErr(LOG_ERR, "event buffer allocation failure");
 	    return -1;
 	}
     }
@@ -300,7 +300,7 @@ multiread:
     if (bytes > bash_maxmem)
 	return 0;
     if (bytes < 0) {
-	__pmNotifyErr(LOG_ERR, "read failure on process %s: %s",
+	pmNotifyErr(LOG_ERR, "read failure on process %s: %s",
 		      process->instance, strerror(errno));
 	return -1;
     }
@@ -319,7 +319,7 @@ multiread:
     /* did we just do a full buffer read? */
     if (p == buffer) {
 	char msg[64];
-	__pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"", (int)
+	pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"", (int)
 			bytes, __pmdaEventPrint(p, bytes, msg, sizeof(msg)));
     } else if (j == bufsize - 1) {
 	offset = bufsize-1 - (p - buffer);
@@ -340,7 +340,7 @@ process_unlink(bash_process_t *process, const char *bashname)
     unlink(path);
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "process_unlink: removed %s", bashname);
+	pmNotifyErr(LOG_DEBUG, "process_unlink: removed %s", bashname);
 }
 
 static int
@@ -349,12 +349,12 @@ process_drained(bash_process_t *process)
     pmAtomValue value = { 0 };
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "process_queue_drained check on queue %d (pid %d)",
+	pmNotifyErr(LOG_DEBUG, "process_queue_drained check on queue %d (pid %d)",
 		      process->queueid, process->pid);
     if (pmdaEventQueueMemory(process->queueid, &value) < 0)
 	return 1;	/* error, consider it drained and cleanup */
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "process_queue_drained: %s (%llu)", value.ll?"n":"y", (long long)value.ull);
+	pmNotifyErr(LOG_DEBUG, "process_queue_drained: %s (%llu)", value.ll?"n":"y", (long long)value.ull);
     return value.ull == 0;
 }
 
@@ -375,7 +375,7 @@ process_done(bash_process_t *process, const char *bashname)
 	    pmdaEventQueueAppend(process->queueid, NULL, 0, &timestamp);
 
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "process_done: marked queueid %d (pid %d) done",
+		pmNotifyErr(LOG_DEBUG, "process_done: marked queueid %d (pid %d) done",
 					process->queueid, process->pid);
 	}
     }
@@ -395,7 +395,7 @@ event_refresh(pmInDom bash_indom)
     int i, id, sts, num = scandir(pidpath, &files, NULL, NULL);
 
     if (pmDebugOptions.appl0 && num > 2)
-	__pmNotifyErr(LOG_DEBUG, "event_refresh: phase1: %d files", num - 2);
+	pmNotifyErr(LOG_DEBUG, "event_refresh: phase1: %d files", num - 2);
 
     pmdaCacheOp(bash_indom, PMDA_CACHE_INACTIVE);
 

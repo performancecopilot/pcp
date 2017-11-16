@@ -72,7 +72,7 @@ docker_setup(container_engine_t *dp)
 	dp->state |= CONTAINER_STATE_SYSTEMD;
 
     if (pmDebugOptions.attr)
-	__pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s suffix\n", dp->path,
+	pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s suffix\n", dp->path,
 			(dp->state & CONTAINER_STATE_SYSTEMD)? "systemd" : "default");
 }
 
@@ -161,7 +161,7 @@ docker_fread(char *buffer, int buflen, void *data)
 
     if ((sts = fread(buffer, 1, buflen, fp)) > 0) {
 	if (pmDebugOptions.attr && pmDebugOptions.desperate)
-	    __pmNotifyErr(LOG_DEBUG, "docker_fread[%d bytes]: %.*s\n",
+	    pmNotifyErr(LOG_DEBUG, "docker_fread[%d bytes]: %.*s\n",
 			sts, sts, buffer);
 	return sts;
     }
@@ -258,7 +258,7 @@ docker_value_refresh(container_engine_t *dp,
     if (!docker_values_changed(path, values))
 	return 0;
     if (pmDebugOptions.attr)
-	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: file=%s\n", path);
+	pmNotifyErr(LOG_DEBUG, "docker_value_refresh: file=%s\n", path);
     if ((fp = fopen(path, "r")) == NULL)
 	return -oserror();
     sts = docker_values_parse(fp, name, values);
@@ -267,7 +267,7 @@ docker_value_refresh(container_engine_t *dp,
 	return sts;
 
     if (pmDebugOptions.attr)
-	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: uptodate=%d of %d\n",
+	pmNotifyErr(LOG_DEBUG, "docker_value_refresh: uptodate=%d of %d\n",
 	    values->uptodate, NUM_UPTODATE);
 
     return values->uptodate == NUM_UPTODATE ? 0 : PM_ERR_AGAIN;

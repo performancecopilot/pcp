@@ -122,14 +122,14 @@ static int
 getmyhostid(void)
 {
     if (gethostname(myhostname, MAXHOSTNAMELEN) < 0) {
-	__pmNotifyErr(LOG_ERR, "gethostname failure\n");
+	pmNotifyErr(LOG_ERR, "gethostname failure\n");
 	return -1;
     }
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
     if ((myhostid = __pmGetAddrInfo(myhostname)) == NULL) {
 	if ((myhostid = __pmGetAddrInfo("localhost")) == NULL) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			"__pmGetAddrInfo failure for both %s and localhost\n",
 			myhostname);
 	    return -1;
@@ -437,14 +437,14 @@ parseInetWildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
     if (*p == '.') {
         ++p;
 	if (*p != '*') {
-	    __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+	    pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
 	    return -EINVAL;
 	}
     }
     for (/**/; *p && *p != '*' ; p++) {
         n = (int)strtol(p, (char **)&p, 10);
 	if ((*p != '.' && *p != '*') || n < 0 || n > 255) {
-	    __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+	    pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
 	    return -EINVAL;
 	}
 	if (ipIx != 0) {
@@ -456,7 +456,7 @@ parseInetWildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
 	--level;
 	/* Check the wildcard level, 0 is exact match, 4 is most general */
 	if (level < 1) {
-	    __pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
+	    pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
 	    return -EINVAL;
 	}
     }
@@ -492,7 +492,7 @@ parseIPv6WildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
         ++p;
 	if (*p != '*') {
 	    if (*p != ':') {
-		__pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
+		pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
 		return -EINVAL;
 	    }
 	    ipIx = pmsprintf(ip, iplen, ":");
@@ -505,7 +505,7 @@ parseIPv6WildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
         /* Check for an empty region. There can only be one. */
         if (*p == ':') {
 	    if (emptyRegion) {
-	        __pmNotifyErr(LOG_ERR, "Too many empty regions in host pattern \"%s\"\n", name);
+	        pmNotifyErr(LOG_ERR, "Too many empty regions in host pattern \"%s\"\n", name);
 		return -EINVAL;
 	    }
 	    emptyRegion = 1;
@@ -515,7 +515,7 @@ parseIPv6WildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
 	else {
 	    n = (int)strtol(p, (char **)&p, 16);
 	    if ((*p != ':' && *p != '*') || n < 0 || n > 0xffff) {
-	        __pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
+	        pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
 		return -EINVAL;
 	    }
 	    if (ipIx != 0) {
@@ -528,7 +528,7 @@ parseIPv6WildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
 	--level;
 	/* Check the wildcard level, 0 is exact match, 8 is most general */
 	if (level < 1) {
-	    __pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
+	    pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
 	    return -EINVAL;
 	}
     }
@@ -569,7 +569,7 @@ parseWildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
     if (strchr(name, '.') != NULL)
         return parseInetWildCard(name, ip, iplen, mask, mlen);
 
-    __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+    pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
     return -EINVAL;
 }
 
@@ -587,12 +587,12 @@ setAccessSpecAddresses(struct accessSpec *spec, const char *addr, const char *ma
     /* Now create socket addresses for the address and mask. */
     spec->hostid = __pmStringToSockAddr(addr);
     if (spec->hostid == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
 	return -ENOMEM;
     }
     spec->hostmask = __pmStringToSockAddr(mask);
     if (spec->hostmask == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
 	__pmSockAddrFree(spec->hostid);
 	return -ENOMEM;
     }
@@ -631,7 +631,7 @@ getUnixSpec(const char *name, struct accessSpec *spec)
      * warning.
      */
     if (addrSize)
-	__pmNotifyErr(LOG_WARNING, "Ignoring the path in host pattern \"%s\"\n", name);
+	pmNotifyErr(LOG_WARNING, "Ignoring the path in host pattern \"%s\"\n", name);
 
     /* Set the address and mask. */
     rootPath[0] = __pmPathSeparator();
@@ -726,7 +726,7 @@ getHostAccessSpecs(const char *name, int *sts)
     /* If it is any other wildcard, make sure the '*' is at the end. */
     if ((p = strchr(name, '*')) != NULL) {
 	if (p[1] != '\0') {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			  "Wildcard in host pattern \"%s\" is not at the end\n",
 			  name);
 	    *sts = -EINVAL;
@@ -764,7 +764,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	    ++specIx;
 	}
 #else
-	__pmNotifyErr(LOG_WARNING, "Host pattern \"%s\" is not supported. Using \"localhost\"\n",
+	pmNotifyErr(LOG_WARNING, "Host pattern \"%s\" is not supported. Using \"localhost\"\n",
 		      name);
 #endif
 
@@ -787,7 +787,7 @@ getHostAccessSpecs(const char *name, int *sts)
     if (strcasecmp(name, "localhost") == 0) {
 	if (!gotmyhostid) {
 	    if (getmyhostid() < 0) {
-		__pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
+		pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
 		*sts = -EHOSTDOWN;
 		if (specs)
 		    free(specs);
@@ -843,7 +843,7 @@ getHostAccessSpecs(const char *name, int *sts)
 		specs[specIx].level = 0;
 	    }
 	    else {
-		__pmNotifyErr(LOG_ERR, "Unsupported socket address family: %d\n", family);
+		pmNotifyErr(LOG_ERR, "Unsupported socket address family: %d\n", family);
 		__pmSockAddrFree(myAddr);
 		continue;
 	    }
@@ -860,7 +860,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	strncpy(errmsg, hoststrerror(), PM_MAXERRMSGLEN);	/* THREADSAFE */
 	errmsg[sizeof(errmsg)-1] = '\0';
 	PM_UNLOCK(__pmLock_extcall);
-	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
+	pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 		      realname, errmsg);
     }
 
@@ -909,7 +909,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
     wildcard = (strcmp(name, "*") == 0);
     if (!wildcard) {
 	if ((sts = __pmGroupnameToID(name, &groupid)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "Failed to lookup group \"%s\": %s\n",
+	    pmNotifyErr(LOG_ERR, "Failed to lookup group \"%s\": %s\n",
 				name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return -EINVAL;
 	}
@@ -932,7 +932,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	if ((gp->maxcons && maxcons && gp->maxcons != maxcons) ||
 	    ((gp->specOps & specOps) &&
 	     ((gp->specOps & gp->denyOps) ^ (specOps & denyOps)))) {
-		__pmNotifyErr(LOG_ERR,
+		pmNotifyErr(LOG_ERR,
 			  "Permission clash for group %s with earlier statement\n",
 			  name);
 	    return -EINVAL;
@@ -968,7 +968,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	    userids = gp->userids;
 	    nusers = gp->nusers;
 	} else if ((sts = __pmGroupsUserIDs(name, &userids, &nusers)) < 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			"Failed to lookup users in group \"%s\": %s\n",
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return sts;
@@ -1027,7 +1027,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
     wildcard = (strcmp(name, "*") == 0);
     if (!wildcard) {
 	if ((sts = __pmUsernameToID(name, &userid)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "Failed to lookup user \"%s\": %s\n",
+	    pmNotifyErr(LOG_ERR, "Failed to lookup user \"%s\": %s\n",
 				name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return -EINVAL;
 	}
@@ -1050,7 +1050,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	if ((up->maxcons && maxcons && up->maxcons != maxcons) ||
 	    ((up->specOps & specOps) &&
 	     ((up->specOps & up->denyOps) ^ (specOps & denyOps)))) {
-		__pmNotifyErr(LOG_ERR,
+		pmNotifyErr(LOG_ERR,
 			  "Permission clash for user %s with earlier statement\n",
 			  name);
 		return -EINVAL;
@@ -1086,7 +1086,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    ngroups = up->ngroups;
 	    groupids = up->groupids;
 	} else if ((sts = __pmUsersGroupIDs(name, &groupids, &ngroups)) < 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			"Failed to lookup groups for user \"%s\": %s\n",
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return sts;
@@ -1187,7 +1187,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 		   than one address. */
 		if (prevName == NULL ||
 		    strcmp(prevName, spec->name) != 0 || strcmp(prevHost, hp->hostspec) != 0) {
-		    __pmNotifyErr(LOG_ERR,
+		    pmNotifyErr(LOG_ERR,
 				  "Permission clash for %s with earlier statement for %s\n",
 				  spec->name, hp->hostspec);
 		    if (prevName != NULL) {

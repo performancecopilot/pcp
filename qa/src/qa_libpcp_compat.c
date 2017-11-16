@@ -16,6 +16,8 @@
 extern const char *__pmGetAPIConfig(const char *);
 extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
 extern void __pmNoMem(const char *, size_t, int);
+extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
+extern void __pmSyslog(int);
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -99,6 +101,10 @@ main(int argc, char **argv)
     errno = ENOMEM;
     __pmNoMem("SEQ", (size_t)123456, PM_RECOV_ERR);
 
+    printf("__pmNotifyErr test: expect to see standard message format\n");
+    fflush(stdout);
+    __pmSyslog(0);
+    __pmNotifyErr(LOG_NOTICE, "Hullo %s! The answer is %d\n", "world", 42);
 
     return 0;
 }

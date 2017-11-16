@@ -340,7 +340,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 		    fd = ctxp->c_pmcd->pc_fd;
 		    if (version < 0) {
 			char	errmsg[PM_MAXERRMSGLEN];
-			__pmNotifyErr(LOG_ERR, 
+			pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: version lookup failed "
 				"(context=%d, fd=%d): %s", 
 				n, fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -350,7 +350,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 			pmns_location = PMNS_REMOTE;
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, 
+			pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: bad host PDU version "
 				"(context=%d, fd=%d, ver=%d)",
 				n, fd, version);
@@ -373,7 +373,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 			PM_TPD(curr_pmns) = ctxp->c_archctl->ac_log->l_pmns; 
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
+			pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
 				"version (context=%d, ver=%d)",
 				n, version); 
 			pmns_location = PM_ERR_NOPMNS;
@@ -381,7 +381,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 		    break;
 
 		default: 
-		    __pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bogus context "
+		    pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bogus context "
 				"type: %d", ctxp->c_type); 
 		    pmns_location = PM_ERR_NOPMNS;
 		    break;

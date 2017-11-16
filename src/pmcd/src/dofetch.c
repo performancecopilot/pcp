@@ -273,7 +273,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 				   aPtr->ipc.dso.dispatch.version.any.ext);
 	    if (sts >= 0) {
 		if (result == NULL) {
-		    __pmNotifyErr(LOG_WARNING,
+		    pmNotifyErr(LOG_WARNING,
 				 "\"%s\" agent (DSO) returned a null result\n",
 				 aPtr->pmDomainLabel);
 		    sts = PM_ERR_PMID;
@@ -281,7 +281,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 		}
 		else {
 		    if (result->numpmid != dpList->listSize) {
-			__pmNotifyErr(LOG_WARNING,
+			pmNotifyErr(LOG_WARNING,
 				     "\"%s\" agent (DSO) returned %d pmIDs (%d expected)\n",
 				     aPtr->pmDomainLabel,
 				     result->numpmid,dpList->listSize);
@@ -389,9 +389,9 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     if (ctxnum < 0 || profile == NULL) {
 	__pmUnpinPDUBuf(pb);
 	if (ctxnum < 0)
-	    __pmNotifyErr(LOG_ERR, "DoFetch: bad ctxnum=%d\n", ctxnum);
+	    pmNotifyErr(LOG_ERR, "DoFetch: bad ctxnum=%d\n", ctxnum);
 	else
-	    __pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);
+	    pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);
 	return PM_ERR_NOPROFILE;
     }
 
@@ -445,7 +445,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    sts = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (sts == 0) {
-		__pmNotifyErr(LOG_INFO, "DoFetch: select timeout");
+		pmNotifyErr(LOG_INFO, "DoFetch: select timeout");
 
 		/* Timeout, terminate agents with undelivered results */
 		for (i = 0; i < nAgents; i++) {
@@ -467,7 +467,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		if (neterror() == EINTR)
 		    goto retry;
 		/* this is not expected to happen! */
-		__pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n",
+		pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n",
 			netstrerror());
 		Shutdown();
 		exit(1);
@@ -492,7 +492,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			pmFreeResult(results[i]);
 			sts = PM_ERR_IPC;
 			if (pmDebugOptions.appl0)
-			    __pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
+			    pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
 					 ap->pmDomainLabel, aFreq[i], results[i]->numpmid);
 		    }
 	    }

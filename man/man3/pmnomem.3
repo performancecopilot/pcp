@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ is a convenience method that may be used when
 or a related memory allocation service fails.
 .PP
 A standard message is emitted using
-.BR __pmNotifyErr (3)
+.BR pmNotifyErr (3)
 with
 .I where
 used as a message prefix and the failing allocation
@@ -55,4 +55,4 @@ is called with an argument of 1.
 .BR malloc (3),
 .BR PMAPI (3)
 and
-.BR __pmNotifyErr (3).
+.BR pmNotifyErr (3).

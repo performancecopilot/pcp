@@ -44,7 +44,7 @@ netif_cache_inst(const char *ifname)
 			    (void **)&ist) != PMDA_CACHE_ACTIVE) {
 	ist = malloc(sizeof(*ist));
 	if (ist == NULL) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Out of memory for stats on network interface '%s'\n",
 			  ifname);
 	    return NULL;
@@ -52,7 +52,7 @@ netif_cache_inst(const char *ifname)
 
 	rv = pmdaCacheStore(indom, PMDA_CACHE_ADD, ifname, ist);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Cannot create instance for '%s': %s\n",
 			  ifname, pmErrStr(rv));
 	    free(ist);
@@ -154,7 +154,7 @@ netmib2_refresh(void)
     data_valid = 0;
 
     if (putmsg(afd, &ctrl, NULL, 0) == -1) {
-	__pmNotifyErr(LOG_ERR, "Failed to push message down stream: %s\n",
+	pmNotifyErr(LOG_ERR, "Failed to push message down stream: %s\n",
 		      osstrerror());
 	return;
     }
@@ -171,7 +171,7 @@ netmib2_refresh(void)
 
 	rv = getmsg(afd, &ctrl, NULL, &flags);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_ERR, "netmib2: failed to get a response: %s\n",
+	    pmNotifyErr(LOG_ERR, "netmib2: failed to get a response: %s\n",
 			  osstrerror());
 	    break;
 	}
@@ -186,14 +186,14 @@ netmib2_refresh(void)
 	if ((rv != MOREDATA) || (ctrl.len < sizeof(*omack)) ||
 	    (omack->PRIM_type != T_OPTMGMT_ACK) ||
 	    (omack->MGMT_flags != T_SUCCESS)) {
-	    __pmNotifyErr(LOG_ERR, "netmib2: Unexpected message received\n");
+	    pmNotifyErr(LOG_ERR, "netmib2: Unexpected message received\n");
 	    break;
 	}
 
 	memset(&data, 0, sizeof(data));
 	data.buf = malloc(oh->len);
 	if (data.buf == NULL) {
-	    __pmNotifyErr(LOG_ERR, "netmib2: Out of memory\n");
+	    pmNotifyErr(LOG_ERR, "netmib2: Out of memory\n");
 	    break;
 	}
 
@@ -202,7 +202,7 @@ netmib2_refresh(void)
 
 	rv = getmsg(afd, NULL, &data, &flags);
 	if (rv) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			  "net2mib: Failed to get additional data: %s\n",
 			  osstrerror());
 	    break;
@@ -310,13 +310,13 @@ netmib2_init(int first)
 
     afd = open("/dev/arp", O_RDWR);
     if (afd < 0) {
-	__pmNotifyErr(LOG_ERR, "Cannot open /dev/arp: %s\n", osstrerror());
+	pmNotifyErr(LOG_ERR, "Cannot open /dev/arp: %s\n", osstrerror());
 	return;
     }
 
     for (i = 0; i < 3; i++ ) {
 	if (ioctl(afd, I_PUSH, mods[i]) < 0) {
-	    __pmNotifyErr(LOG_ERR, "Cannot push %s into /dev/arp: %s\n",
+	    pmNotifyErr(LOG_ERR, "Cannot push %s into /dev/arp: %s\n",
 			  mods[i], osstrerror());
 	    close(afd);
 	    afd = -1;

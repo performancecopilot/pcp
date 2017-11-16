@@ -60,7 +60,7 @@ renameService(__pmServerPresence *s)
      */
     ++s->avahi->collisions;
     if (s->avahi->collisions >= 65535) {
-	__pmNotifyErr(LOG_ERR, "Too many service name collisions for Avahi service %s",
+	pmNotifyErr(LOG_ERR, "Too many service name collisions for Avahi service %s",
 		      s->avahi->serviceTag);
 	return -EBUSY;
     }
@@ -71,7 +71,7 @@ renameService(__pmServerPresence *s)
     char *n = avahi_alternative_service_name(s->avahi->serviceName);
 
     if (pmDebugOptions.discovery)
-	__pmNotifyErr(LOG_INFO, "Avahi service name collision, renaming service '%s' to '%s'",
+	pmNotifyErr(LOG_INFO, "Avahi service name collision, renaming service '%s' to '%s'",
 		      s->avahi->serviceName, n);
     avahi_free(s->avahi->serviceName);
     s->avahi->serviceName = n;
@@ -112,7 +112,7 @@ createServices(AvahiClient *c)
     if (group == NULL) {
 	if ((group = avahi_entry_group_new(c, entryGroupCallback, NULL)) == NULL) {
 	    if (pmDebugOptions.discovery)
-		__pmNotifyErr(LOG_ERR, "avahi_entry_group_new failed: %s",
+		pmNotifyErr(LOG_ERR, "avahi_entry_group_new failed: %s",
 			  avahi_strerror(avahi_client_errno(c)));
 	    return;
 	}
@@ -129,7 +129,7 @@ createServices(AvahiClient *c)
 	    continue; /* empty table entry */
 
 	if (pmDebugOptions.discovery)
-	    __pmNotifyErr(LOG_INFO, "Adding %s Avahi service on port %d",
+	    pmNotifyErr(LOG_INFO, "Adding %s Avahi service on port %d",
 			  s->avahi->serviceName, s->port);
 
 	/* Loop until no collisions */
@@ -156,7 +156,7 @@ createServices(AvahiClient *c)
 		continue; /* try again */
 	    }
 
-	    __pmNotifyErr(LOG_ERR, "Failed to add %s Avahi service on port %d: %s",
+	    pmNotifyErr(LOG_ERR, "Failed to add %s Avahi service on port %d: %s",
 			  s->avahi->serviceName, s->port, avahi_strerror(ret));
 	    goto fail;
 	}
@@ -164,7 +164,7 @@ createServices(AvahiClient *c)
 
     /* Tell the server to register the services. */
     if ((ret = avahi_entry_group_commit(group)) < 0) {
-	__pmNotifyErr(LOG_ERR, "Failed to commit avahi entry group: %s",
+	pmNotifyErr(LOG_ERR, "Failed to commit avahi entry group: %s",
 		      avahi_strerror(ret));
 	goto fail;
     }
@@ -189,7 +189,7 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 	case AVAHI_ENTRY_GROUP_ESTABLISHED:
 	    /* The entry group has been established successfully. */
 	    if (pmDebugOptions.discovery)
-		__pmNotifyErr(LOG_INFO, "Avahi services successfully established.");
+		pmNotifyErr(LOG_INFO, "Avahi services successfully established.");
 	    break;
 
 	case AVAHI_ENTRY_GROUP_COLLISION:
@@ -204,7 +204,7 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 
 	case AVAHI_ENTRY_GROUP_FAILURE:
 	    /* Some kind of failure happened. */
-	    __pmNotifyErr(LOG_ERR, "Avahi entry group failure: %s",
+	    pmNotifyErr(LOG_ERR, "Avahi entry group failure: %s",
 			  avahi_strerror(avahi_client_errno(avahi_entry_group_get_client(g))));
 	    break;
 
@@ -242,7 +242,7 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 	    break;
 
 	case AVAHI_CLIENT_FAILURE:
-	    __pmNotifyErr(LOG_ERR, "Avahi client failure: %s",
+	    pmNotifyErr(LOG_ERR, "Avahi client failure: %s",
 			  avahi_strerror(avahi_client_errno(c)));
 	    if (avahi_client_errno (c) == AVAHI_ERR_DISCONNECTED) {
 		int error;
@@ -285,7 +285,7 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 	     * advertised if/when the daemon is started.
 	     */
 	    if (pmDebugOptions.discovery)
-		__pmNotifyErr(LOG_INFO,
+		pmNotifyErr(LOG_INFO,
 			      "The Avahi daemon is not running. "
 			      "Avahi services will be established when the daemon is started");
 	    break;
@@ -374,7 +374,7 @@ publishService(__pmServerPresence *s)
     if (threadedPoll == NULL) {
 	/* Allocate main loop object. */
 	if ((threadedPoll = avahi_threaded_poll_new()) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "Failed to create avahi threaded poll object.");
+	    pmNotifyErr(LOG_ERR, "Failed to create avahi threaded poll object.");
 	    goto fail;
 	}
 
@@ -389,7 +389,7 @@ publishService(__pmServerPresence *s)
 
 	/* Check whether creating the client object succeeded. */
 	if (! client) {
-	    __pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
+	    pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
 			  avahi_strerror(error));
 	    goto fail;
 	}
@@ -465,7 +465,7 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 	return;
 
     if (pmDebugOptions.discovery)
-	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s' on port %d",
+	pmNotifyErr(LOG_INFO, "Removing Avahi service '%s' on port %d",
 		      s->avahi->serviceName , s->port);
 
     /* Remove and cleanup the service. */
@@ -674,7 +674,7 @@ discoveryTimeout(void)
 	    if (*end_ptr != '\0' || def_timeout < 0.0) {
 		char	*fromenv = strdup(timeout_str);
 		PM_UNLOCK(__pmLock_extcall);
-		__pmNotifyErr(LOG_WARNING,
+		pmNotifyErr(LOG_WARNING,
 			      "ignored bad AVAHI_DISCOVERY_TIMEOUT = '%s'\n",
 			      fromenv);
 	    }
@@ -759,7 +759,7 @@ __pmAvahiDiscoverServices(const char *service,
 	timeoutBegin += strlen(",timeout="); /* skip over it */
 	timeout = strtod (timeoutBegin, & timeoutEnd);
 	if ((*timeoutEnd != '\0' && *timeoutEnd != ',') || (timeout < 0.0)) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "ignored bad avahi timeout = '%*s'\n",
 			  (int)(timeoutEnd-timeoutBegin), timeoutBegin);
 	    timeout = discoveryTimeout();

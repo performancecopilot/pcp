@@ -380,7 +380,7 @@ SetupRequestPorts(void)
 		break;
 	}
 	if (n < nport) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 		"%s: duplicate client request port (%d) will be ignored\n",
                      pmGetProgname(), portlist[n]);
 	    portlist[n] = -1;
@@ -493,7 +493,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	}
 	else {
 	    if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+		pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 			      port, address);
 		goto fail;
 	    }
@@ -507,14 +507,14 @@ OpenRequestSocket(int port, const char *address, int *family,
 	else if (*family == AF_INET6)
 	    fd = __pmCreateIPv6Socket();
 	else {
-	    __pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address family: %d\n",
+	    pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address family: %d\n",
 			  port, address, *family);
 	    goto fail;
 	}
     }
 
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmCreateSocket: %s\n",
+	pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmCreateSocket: %s\n",
 		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
@@ -524,7 +524,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 #ifndef IS_MINGW
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		       (__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
 		      port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
@@ -532,7 +532,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 #else
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		       (__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
 		      port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
@@ -542,7 +542,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     /* and keep alive please - bad networks eat fds */
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
 		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
@@ -569,10 +569,10 @@ OpenRequestSocket(int port, const char *address, int *family,
     __pmSockAddrFree(myAddr);
     myAddr = NULL;
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
+	pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
 		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	if (neterror() == EADDRINUSE)
-	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmGetProgname());
+	    pmNotifyErr(LOG_ERR, "%s may already be running\n", pmGetProgname());
 	goto fail;
     }
 
@@ -584,7 +584,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	 */
 	sts = chmod(address, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	if (sts != 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s, %s) chmod(%s): %s\n",
 		port, address, AddressFamily(*family), address, netstrerror_r(errmsg, sizeof(errmsg)));
 	    goto fail;
@@ -593,7 +593,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmListen: %s\n",
+	pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmListen: %s\n",
 		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
@@ -697,7 +697,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	    success = 1;
 	}
 #else
-	__pmNotifyErr(LOG_ERR, "%s: unix domain sockets are not supported\n",
+	pmNotifyErr(LOG_ERR, "%s: unix domain sockets are not supported\n",
 		      pmGetProgname());
 #endif
     }
@@ -706,7 +706,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
     if (success)
 	return maximum;
 
-    __pmNotifyErr(LOG_ERR, "%s: can't open any request ports, exiting\n",
+    pmNotifyErr(LOG_ERR, "%s: can't open any request ports, exiting\n",
 		pmGetProgname());
     return -1;
 }
@@ -743,7 +743,7 @@ __pmServerCloseRequestPorts(void)
 	/* We must remove the socket file. */
 	if (unlink(localSocketPath) != 0 && oserror() != ENOENT) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
+	    pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
 			  pmGetProgname(), localSocketPath, getuid(), geteuid(),
 			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
@@ -1118,7 +1118,7 @@ __pmServerStart(int argc, char **argv, int flags)
 #endif
 
     if ((childpid = fork()) < 0)
-	__pmNotifyErr(LOG_ERR, "__pmServerStart: fork");
+	pmNotifyErr(LOG_ERR, "__pmServerStart: fork");
 	/* but keep going */
     else if (childpid > 0) {
 	/* parent, let her exit, but avoid ugly "Log finished" messages */
@@ -1128,7 +1128,7 @@ __pmServerStart(int argc, char **argv, int flags)
 
     /* not a process group leader, lose controlling tty */
     if (setsid() == -1)
-	__pmNotifyErr(LOG_WARNING, "__pmServerStart: setsid");
+	pmNotifyErr(LOG_WARNING, "__pmServerStart: setsid");
 	/* but keep going */
 
     if (flags & 1)

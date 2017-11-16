@@ -173,7 +173,7 @@ mounts_config_file_check(void)
     if (stat(mypath, &statbuf) == -1) {
 	if (oserror() != last_error) {
 	    last_error = oserror();
-	    __pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n",
+	    pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n",
 			mypath, pmErrStr(last_error));
 	}
     } else {
@@ -240,7 +240,7 @@ mounts_grab_config_info(void)
     pmsprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "mounts.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
-	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
+	pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
 			  mypath, pmErrStr(-oserror()));
 	if (mounts) {
 	    free(mounts);
@@ -258,7 +258,7 @@ mounts_grab_config_info(void)
 	    *q = '\0';
 	} else {
 	    /* This means the line was too long */
-	    __pmNotifyErr(LOG_WARNING, "line %d in the config file too long\n",
+	    pmNotifyErr(LOG_WARNING, "line %d in the config file too long\n",
 			mount_number+1);
 	}
 	size = (mount_number + 1) * sizeof(pmdaInstid);
@@ -273,7 +273,7 @@ mounts_grab_config_info(void)
 
 done:
     if (mounts == NULL)
-	__pmNotifyErr(LOG_WARNING, "\"mounts\" instance domain is empty");
+	pmNotifyErr(LOG_WARNING, "\"mounts\" instance domain is empty");
     indomtab[MOUNTS_INDOM].it_set = mounts;
     indomtab[MOUNTS_INDOM].it_numinst = mount_number;
     mount_list = realloc(mount_list, (mount_number)*sizeof(mountinfo));

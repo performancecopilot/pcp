@@ -229,7 +229,7 @@ check_access(pmInDom aclops, pipe_client *client, pipe_command *cmd)
 	return sts;
 
     if (pmDebugOptions.auth) {
-	__pmNotifyErr(LOG_DEBUG, "check_access: access %s for %s"
+	pmNotifyErr(LOG_DEBUG, "check_access: access %s for %s"
 				 " (uid=%s,gid=%s operation=%d denyops=%u)",
 		(denyops & operation) ? "denied":"granted", cmd->identifier,
 		client->uid, client->gid, operation, denyops);
@@ -249,7 +249,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
     int			i, sts;
 
     if (pmDebugOptions.appl0)
-        __pmNotifyErr(LOG_DEBUG, "event_init: %s[%d] starting: %s [%s] maxmem=%ld",
+        pmNotifyErr(LOG_DEBUG, "event_init: %s[%d] starting: %s [%s] maxmem=%ld",
 		cmd->identifier, cmd->inst, cmd->command, params, (long)maxmem);
 
     assert(ctxtab_size > context);	/* event_client_access ensures this */
@@ -279,7 +279,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
     groot->active = 1;
 
     if (pmDebugOptions.appl0)
-        __pmNotifyErr(LOG_DEBUG, "event_init: %s started: pid=%d fd=%d qid=%d",
+        pmNotifyErr(LOG_DEBUG, "event_init: %s started: pid=%d fd=%d qid=%d",
 		cmd->identifier, groot->pid, groot->fd, groot->queueid);
 
     return 0;
@@ -305,7 +305,7 @@ event_create(struct pipe_groot *pipe)
     static int		bufsize;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "event_create: fd=%d", pipe->fd);
+	pmNotifyErr(LOG_INFO, "event_create: fd=%d", pipe->fd);
 
     /*
      * Using a static (global) event buffer to hold initial read.
@@ -328,7 +328,7 @@ event_create(struct pipe_groot *pipe)
 #endif
 #endif
 	if (sts != 0) {
-	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
+	    pmNotifyErr(LOG_ERR, "event buffer allocation failure");
 	    return -1;
 	}
     }
@@ -340,7 +340,7 @@ multiread:
     bytes = read(pipe->fd, buffer + offset, bufsize - 1 - offset);
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "event_create: read %d bytes on fd=%d",
+	pmNotifyErr(LOG_INFO, "event_create: read %d bytes on fd=%d",
 			(int)bytes, pipe->fd);
 
     /*
@@ -359,7 +359,7 @@ multiread:
     if (bytes > maxmem)
 	return 0;
     if (bytes < 0) {
-	__pmNotifyErr(LOG_ERR, "read failure on client fd %d: %s",
+	pmNotifyErr(LOG_ERR, "read failure on client fd %d: %s",
 		      pipe->fd, strerror(errno));
 	return -1;
     }
@@ -378,7 +378,7 @@ multiread:
 	bytes = (s+1) - p;
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "event_create: append %d bytes to queue=%d",
+	    pmNotifyErr(LOG_INFO, "event_create: append %d bytes to queue=%d",
 			(int)bytes, (int)pipe->queueid);
 
 	pmdaEventQueueAppend(pipe->queueid, p, bytes, &timestamp);
@@ -387,7 +387,7 @@ multiread:
     /* did we just do a full buffer read? */
     if (p == buffer) {
 	char msg[64];
-	__pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"", (int)
+	pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"", (int)
 			bytes, __pmdaEventPrint(p, bytes, msg, sizeof(msg)));
     } else if (j == bufsize - 1) {
 	offset = bufsize-1 - (p - buffer);
@@ -574,7 +574,7 @@ event_decoder(int eventarray, void *buffer, size_t size,
     int			sts;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "event_decoder on queue %s", groot->qname);
+	pmNotifyErr(LOG_DEBUG, "event_decoder on queue %s", groot->qname);
 
     if (groot->count++ == 0)
 	flag |= PM_EVENT_FLAG_START;
@@ -750,7 +750,7 @@ event_config(const char *fname)
     int			sts = 0;
 
     if ((config = fopen(fname, "r")) == NULL) {
-	__pmNotifyErr(LOG_ERR, "event_config: %s: %s", fname, strerror(errno));
+	pmNotifyErr(LOG_ERR, "event_config: %s: %s", fname, strerror(errno));
 	return -1;
     }
 
@@ -758,7 +758,7 @@ event_config(const char *fname)
 	if (fgets(line, sizeof(line), config) == NULL) {
 	    if (feof(config))
 		break;
-	    __pmNotifyErr(LOG_ERR, "event_config: fgets: %s", strerror(errno));
+	    pmNotifyErr(LOG_ERR, "event_config: fgets: %s", strerror(errno));
 	    sts = -1;
 	    break;
 	}
@@ -795,7 +795,7 @@ event_config(const char *fname)
 	return sts;
     }
     if (cmdtab_size == initial_size) {
-	__pmNotifyErr(LOG_ERR, "event_config: no commands found in %s", fname);
+	pmNotifyErr(LOG_ERR, "event_config: no commands found in %s", fname);
 	cmdtab_size = 0;
 	free(cmdtab);
 	return -1;
@@ -812,7 +812,7 @@ event_config_dir(const char *dname)
     int			i, n, sts = 0;
 
     if ((n = scandir(dname, &list, NULL, NULL)) < 0) {
-	__pmNotifyErr(LOG_ERR, "event_config_dir: %s - %s",
+	pmNotifyErr(LOG_ERR, "event_config_dir: %s - %s",
 			dname, osstrerror());
 	return n;
     }
@@ -864,7 +864,7 @@ event_acl(pmInDom aclops)
 	    ngroups++;
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG, "event_acl: added op %s[%u]",
+	    pmNotifyErr(LOG_DEBUG, "event_acl: added op %s[%u]",
 			pa->identifier, pa->operation);
     }
 
@@ -873,7 +873,7 @@ event_acl(pmInDom aclops)
 	if ((i = pmdaCacheOp(aclops, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
 	if ((sts = __pmAccAddOp(1 << i)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddOp[%d] - %s",
+	    pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddOp[%d] - %s",
 			i, pmErrStr(sts));
 	    exit(1);
 	}
@@ -899,14 +899,14 @@ event_acl(pmInDom aclops)
 
 	if (pa->user) {
 	    if ((sts = __pmAccAddUser(pa->name, specOps, denyOps, 0)) < 0) {
-		__pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddUser[%s] - %s",
+		pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddUser[%s] - %s",
 				pa->name, pmErrStr(sts));
 		exit(1);
 	    }
 	}
 	if (pa->group) {
 	    if ((sts = __pmAccAddGroup(pa->name, specOps, denyOps, 0)) < 0) {
-		__pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddGroup[%s] - %s",
+		pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddGroup[%s] - %s",
 				pa->name, pmErrStr(sts));
 		exit(1);
 	    }
@@ -940,7 +940,7 @@ event_indom(pmInDom pipe_indom)
 	pmdaCacheLookupName(pipe_indom, pc->identifier, &pc->inst, NULL);
 
 	if (pmDebugOptions.appl0)
-            __pmNotifyErr(LOG_DEBUG, "event_indom: added %s[%d]", pc->identifier, pc->inst);
+            pmNotifyErr(LOG_DEBUG, "event_indom: added %s[%d]", pc->identifier, pc->inst);
     }
 
     pmdaCacheOp(pipe_indom, PMDA_CACHE_SAVE);

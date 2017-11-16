@@ -170,17 +170,17 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
     passfile[MAXPATHLEN-1] = '\0';
 
     if (passfile[0] == '\0') {
-	__pmNotifyErr(LOG_ERR, "Password sought but no password file given");
+	pmNotifyErr(LOG_ERR, "Password sought but no password file given");
 	return NULL;
     }
     if (retry) {
-	__pmNotifyErr(LOG_ERR, "Retry attempted during password extraction");
+	pmNotifyErr(LOG_ERR, "Retry attempted during password extraction");
 	return NULL;	/* no soup^Wretries for you */
     }
 
     sts = secure_file_contents(passfile, &password, &length);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "Cannot read password file \"%s\": %s",
+	pmNotifyErr(LOG_ERR, "Cannot read password file \"%s\": %s",
 			passfile, pmErrStr(sts));
 	return NULL;
     }
@@ -328,7 +328,7 @@ __pmSecureServerInit(void)
 	/* this is the default case on some platforms, so no log spam */
 	if (access(path, R_OK|X_OK) < 0) {
 	    if (pmDebugOptions.context)
-		__pmNotifyErr(LOG_INFO,
+		pmNotifyErr(LOG_INFO,
 			      "Cannot access system security database: %s",
 			      secure_server.database_path);
 	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
@@ -358,7 +358,7 @@ __pmSecureServerInit(void)
     }
 
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
+	pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
 			pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
@@ -373,7 +373,7 @@ __pmSecureServerInit(void)
     /* Configure SSL session cache for multi-process server, using defaults */
     secsts = SSL_ConfigMPServerSIDCache(1, 0, 0, NULL);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
+	pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
 		pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	secure_server.init_failed = 1;
@@ -415,7 +415,7 @@ __pmSecureServerInit(void)
 	    secure_server.certificate_KEA = NSS_FindCertKEAType(dbcert);
 	    secure_server.private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
 	    if (!secure_server.private_key) {
-		__pmNotifyErr(LOG_ERR, "Unable to extract %s private key",
+		pmNotifyErr(LOG_ERR, "Unable to extract %s private key",
 				secure_server.cert_nickname);
 		CERT_DestroyCertificate(dbcert);
 		secure_server.certificate_verified = 0;
@@ -424,7 +424,7 @@ __pmSecureServerInit(void)
 		goto done;
 	    }
 	} else {
-	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", secure_server.cert_nickname);
+	    pmNotifyErr(LOG_ERR, "Unable to find a valid %s", secure_server.cert_nickname);
 	    CERT_DestroyCertificate(dbcert);
 	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	    secure_server.init_failed = 1;
@@ -434,7 +434,7 @@ __pmSecureServerInit(void)
 
     if (! secure_server.certificate_verified) {
 	if (pmDebugOptions.context) {
-	    __pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
+	    pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
 			  secure_server.cert_nickname, secure_server.database_path);
 	}
 	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
@@ -497,14 +497,14 @@ __pmSecureServerNegotiation(int fd, int *strength)
     PM_UNLOCK(secureserver_lock);
 
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",
+	pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",
 			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 
     secsts = SSL_ResetHandshake(sslsocket, PR_TRUE /*server*/);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to reset secure handshake: %s",
+	pmNotifyErr(LOG_ERR, "Unable to reset secure handshake: %s",
 			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
@@ -514,7 +514,7 @@ __pmSecureServerNegotiation(int fd, int *strength)
     timer = PR_MillisecondsToInterval(msec);
     secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
+	pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
 			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
@@ -551,7 +551,7 @@ __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
 	    return -ENOMEM;
 	return 0;
     }
-    __pmNotifyErr(LOG_ERR, "Authenticated user %s not found\n", username);
+    pmNotifyErr(LOG_ERR, "Authenticated user %s not found\n", username);
     return -ESRCH;
 }
 
@@ -567,7 +567,7 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
     if (sts == SASL_OK && username) {
 	int len = strlen(username);
 
-	__pmNotifyErr(LOG_INFO,
+	pmNotifyErr(LOG_INFO,
 			"Successful authentication for user \"%s\"\n",
 			username);
 	if ((username = strdup(username)) == NULL) {
@@ -576,7 +576,7 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
 	    return -ENOMEM;
 	}
     } else {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 			"Authentication complete, but no username\n");
 	return -ESRCH;
     }
@@ -595,7 +595,7 @@ __pmAuthServerSetProperties(sasl_conn_t *conn, int ssf)
     /* set external security strength factor */
     saslsts = sasl_setprop(conn, SASL_SSF_EXTERNAL, &ssf);
     if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
-	__pmNotifyErr(LOG_ERR, "SASL setting external SSF to %d: %s",
+	pmNotifyErr(LOG_ERR, "SASL setting external SSF to %d: %s",
 			ssf, sasl_errstring(saslsts, NULL, NULL));
 	return __pmSecureSocketsError(saslsts);
     }
@@ -606,7 +606,7 @@ __pmAuthServerSetProperties(sasl_conn_t *conn, int ssf)
     props.max_ssf = UINT_MAX;
     saslsts = sasl_setprop(conn, SASL_SEC_PROPS, &props);
     if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
-	__pmNotifyErr(LOG_ERR, "SASL setting security properties: %s",
+	pmNotifyErr(LOG_ERR, "SASL setting security properties: %s",
 			sasl_errstring(saslsts, NULL, NULL));
 	return __pmSecureSocketsError(saslsts);
     }
@@ -640,7 +640,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
                             (unsigned int *)&length,
                             &count);
     if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
-	__pmNotifyErr(LOG_ERR, "Generating client mechanism list: %s",
+	pmNotifyErr(LOG_ERR, "Generating client mechanism list: %s",
 			sasl_errstring(saslsts, NULL, NULL));
 	return __pmSecureSocketsError(saslsts);
     }
@@ -701,7 +701,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 
     while (saslsts == SASL_CONTINUE) {
 	if (!payload) {
-	    __pmNotifyErr(LOG_ERR, "No SASL data to send");
+	    pmNotifyErr(LOG_ERR, "No SASL data to send");
 	    sts = -EINVAL;
 	    break;
 	}

@@ -1,8 +1,4 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
- * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -54,9 +50,6 @@ PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 
 PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
 
-
-/* standard error, warning and info wrapper for syslog(3) */
-PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 #ifdef __cplusplus
 }

@@ -201,7 +201,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 	    p = vp->value.pval->vbuf;
 
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "store: ctx=%d inst=%u value=\"%s\"",
+		pmNotifyErr(LOG_DEBUG, "store: ctx=%d inst=%u value=\"%s\"",
 				pmda->e_context, inst, p);
 
 	    /* see if pipe command exists &| is active - start it if not */
@@ -220,7 +220,7 @@ static void
 pipe_end_contextCallBack(int context)
 {
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "end_context on ctx-%d", context);
+	pmNotifyErr(LOG_DEBUG, "end_context on ctx-%d", context);
 
     pmdaEventEndClient(context);
 
@@ -310,7 +310,7 @@ pipe_setfd(int fd)
     if (fd > maxfd)
 	maxfd = fd;
     if (pmDebugOptions.appl2)
-        __pmNotifyErr(LOG_DEBUG, "select: adding fd=%d", fd);
+        pmNotifyErr(LOG_DEBUG, "select: adding fd=%d", fd);
     FD_SET(fd, &fds);
     return fd;
 }
@@ -319,7 +319,7 @@ int
 pipe_clearfd(int fd)
 {
     if (pmDebugOptions.appl2)
-        __pmNotifyErr(LOG_DEBUG, "select: clearing fd=%d", fd);
+        pmNotifyErr(LOG_DEBUG, "select: clearing fd=%d", fd);
     FD_CLR(fd, &fds);
     return fd;
 }
@@ -351,17 +351,17 @@ pipeMain(pmdaInterface *dispatch)
 	memcpy(&readyfds, &fds, sizeof(readyfds));
         nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
         if (pmDebugOptions.appl2)
-            __pmNotifyErr(LOG_DEBUG, "select: nready=%d", nready);
+            pmNotifyErr(LOG_DEBUG, "select: nready=%d", nready);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+		pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
 	    }
 	}
 	if (nready > 0) {
 	    if (FD_ISSET(pmcdfd, &readyfds)) {
 		if (pmDebugOptions.appl0)
-		    __pmNotifyErr(LOG_DEBUG,
+		    pmNotifyErr(LOG_DEBUG,
 				"processing pmcd PDU [fd=%d]", pmcdfd);
 		if (__pmdaMainPDU(dispatch) < 0)
 		    break;

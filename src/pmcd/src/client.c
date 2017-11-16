@@ -85,7 +85,7 @@ AcceptNewClient(int reqfd)
     fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
-	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
+	    pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
 	 	          "Permission Denied\n", reqfd);
 	}
     	else if (neterror() == ECONNABORTED) {
@@ -97,7 +97,7 @@ AcceptNewClient(int reqfd)
 	     * unexpected ... ignore the client (we used to kill off pmcd
 	     * but that seems way too extreme)
 	     */
-	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): Unexpected error from __pmAccept: %d: %s\n",
+	    pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): Unexpected error from __pmAccept: %d: %s\n",
 			    reqfd, neterror(), netstrerror());
 	}
 	client[i].fd = -1;
@@ -182,7 +182,7 @@ DeleteClient(ClientInfo *cp)
 
     if (i == nClients) {
 	if (pmDebugOptions.appl0) {
-	    __pmNotifyErr(LOG_ERR, "DeleteClient: tried to delete non-existent client\n");
+	    pmNotifyErr(LOG_ERR, "DeleteClient: tried to delete non-existent client\n");
 	    Shutdown();
 	    exit(1);
 	}

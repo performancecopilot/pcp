@@ -801,7 +801,7 @@ reset_hotproc_timer(void)
     __pmAFunregister(hotproc_timer_id);
     sts = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "error registering hotproc timer: %s",
+	pmNotifyErr(LOG_ERR, "error registering hotproc timer: %s",
 			pmErrStr(sts));
 	exit(1);
     }

@@ -51,7 +51,7 @@ instprint(__pmHashTable *t, void *e)
 {
     instdata_t	*i = (instdata_t *)e;
 
-    __pmNotifyErr(LOG_DEBUG, "Instance history table entry\n"
+    pmNotifyErr(LOG_DEBUG, "Instance history table entry\n"
 	"Name:      '%s'\n type:     %d\n inst:     %d\n",
 	i->tag, i->type, i->instid);
 }
@@ -87,7 +87,7 @@ dataprint(__pmHashTable *t, void *e)
 {
     hashdata_t	*h = (hashdata_t *)e;
 
-    __pmNotifyErr(LOG_DEBUG, "PMDA hash table entry\n"
+    pmNotifyErr(LOG_DEBUG, "PMDA hash table entry\n"
 	"Name:      '%s'\n filedes:  %d\n"
 	" type:     %d\n length:   %d\n"
 	" padding:  %d\n count:    %d\n"

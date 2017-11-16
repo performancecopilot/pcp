@@ -166,7 +166,7 @@ root_container_search(const char *query)
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
 		continue;
 	    if (pmDebugOptions.attr)
-		__pmNotifyErr(LOG_DEBUG, "container search: %s/%s (%d->%d)\n",
+		pmNotifyErr(LOG_DEBUG, "container search: %s/%s (%d->%d)\n",
 				query, name, best, fuzzy);
 	    best = fuzzy;
 	    found = cp;
@@ -176,10 +176,10 @@ root_container_search(const char *query)
 out:
     if (pmDebugOptions.attr) {
 	if (found) /* query must be non-NULL */
-	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
+	    pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
 				name, query, best, found->pid);
 	else /* query may be NULL */
-	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query ? query : "NULL");
+	    pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query ? query : "NULL");
     }
 
     return found;
@@ -216,13 +216,13 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE) {
 	    if (pmDebugOptions.attr) {
-		__pmNotifyErr(LOG_DEBUG, "pmdaCacheLookup(indom=%s, inst=%d, ...) returns %d: %s\n", pmInDomStr(containers), inst, sts, pmErrStr(sts));
+		pmNotifyErr(LOG_DEBUG, "pmdaCacheLookup(indom=%s, inst=%d, ...) returns %d: %s\n", pmInDomStr(containers), inst, sts, pmErrStr(sts));
 	    }
 	    return PM_ERR_INST;
 	}
 	if ((sts = root_refresh_container_values(name, cp)) < 0) {
 	    if (pmDebugOptions.attr) {
-		__pmNotifyErr(LOG_DEBUG, "root_refresh_container_values(name=%s, ...) returns %d: %s\n", name, sts, pmErrStr(sts));
+		pmNotifyErr(LOG_DEBUG, "root_refresh_container_values(name=%s, ...) returns %d: %s\n", name, sts, pmErrStr(sts));
 	    }
 	    return PM_ERR_INST;
 	}
@@ -304,12 +304,12 @@ root_setup_socket(void)
      * from unix(7).
      */
     if ((fd = __pmCreateUnixSocket()) < 0) {
-	__pmNotifyErr(LOG_ERR, "setup: __pmCreateUnixSocket failed: %s\n",
+	pmNotifyErr(LOG_ERR, "setup: __pmCreateUnixSocket failed: %s\n",
 			netstrerror());
 	exit(1);
     }
     if ((socket_addr = __pmSockAddrAlloc()) == NULL) {
-	__pmNotifyErr(LOG_ERR, "setup: __pmSockAddrAlloc out of memory\n");
+	pmNotifyErr(LOG_ERR, "setup: __pmSockAddrAlloc out of memory\n");
 	__pmCloseSocket(fd);
 	exit(1);
     }
@@ -321,7 +321,7 @@ root_setup_socket(void)
     memcpy(path, socket_path, sizeof(path));	/* dirname copy */
     sts = __pmMakePath(dirname(path), S_IRWXU);
     if (sts < 0 && oserror() != EEXIST) {
-	__pmNotifyErr(LOG_ERR, "setup: __pmMakePath failed on %s: %s\n",
+	pmNotifyErr(LOG_ERR, "setup: __pmMakePath failed on %s: %s\n",
 			dirname(socket_path), osstrerror());
 	__pmSockAddrFree(socket_addr);
 	__pmCloseSocket(fd);
@@ -334,7 +334,7 @@ root_setup_socket(void)
 
     sts = __pmBind(fd, (void *)socket_addr, __pmSockAddrSize());
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "setup: __pmBind failed: %s\n", netstrerror());
+	pmNotifyErr(LOG_ERR, "setup: __pmBind failed: %s\n", netstrerror());
 	__pmCloseSocket(fd);
 	unlink(socket_path);
 	exit(1);
@@ -342,7 +342,7 @@ root_setup_socket(void)
 
     sts = __pmListen(fd, backlog);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "setup: __pmListen failed: %s\n", netstrerror());
+	pmNotifyErr(LOG_ERR, "setup: __pmListen failed: %s\n", netstrerror());
 	__pmCloseSocket(fd);
 	unlink(socket_path);
 	exit(1);
@@ -364,7 +364,7 @@ root_close_socket(void)
     if (socket_fd >= 0) {
 	__pmCloseSocket(socket_fd);
 	if (unlink(socket_path) != 0 && oserror() != ENOENT) {
-	    __pmNotifyErr(LOG_ERR, "%s: cannot unlink %s: %s",
+	    pmNotifyErr(LOG_ERR, "%s: cannot unlink %s: %s",
 			  pmGetProgname(), socket_path,
 			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
@@ -451,13 +451,13 @@ root_accept_client(void)
     addrlen = __pmSockAddrSize();
     if ((fd = __pmAccept(socket_fd, socket_addr, &addrlen)) < 0) {
 	if (neterror() == EPERM) {
-	    __pmNotifyErr(LOG_NOTICE, "root_accept_client(%d): %s\n",
+	    pmNotifyErr(LOG_NOTICE, "root_accept_client(%d): %s\n",
 			fd, osstrerror());
 	    root_client[i].fd = -1;
 	    root_delete_client(&root_client[i]);
 	    return NULL;
 	} else {
-	    __pmNotifyErr(LOG_ERR, "root_accept_client(%d): accept: %s\n",
+	    pmNotifyErr(LOG_ERR, "root_accept_client(%d): accept: %s\n",
 			fd, osstrerror());
 	    root_close_socket();
 	    exit(1);
@@ -482,7 +482,7 @@ root_check_new_client(__pmFdSet *fdset)
 
     /* send server capabilities */
     if ((sts = __pmdaSendRootPDUInfo(cp->fd, features, 0)) < 0) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		"new_client: failed to ACK new client connection: %s\n",
 		pmErrStr(sts));
 	root_delete_client(cp);
@@ -548,7 +548,7 @@ root_hostname_request(root_client_t *cp, void *pdu, int pdulen)
 	    sts = 0;
 	} else {
 	    if (pmDebugOptions.attr)
-		__pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
+		pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
 	    sts = PM_ERR_NOCONTAINER;
 	}
     }
@@ -556,7 +556,7 @@ root_hostname_request(root_client_t *cp, void *pdu, int pdulen)
 	length = sizeof(buffer);
 	sts = root_hostname(pid, buffer, &length);
 	if (pmDebugOptions.attr)
-	    __pmNotifyErr(LOG_DEBUG, "pid=%d container=%s hostname=%s\n",
+	    pmNotifyErr(LOG_DEBUG, "pid=%d container=%s hostname=%s\n",
 			pid, namelen ? name : "", sts < 0 ? "?" : buffer);
     }
 
@@ -583,7 +583,7 @@ root_processid_request(root_client_t *cp, void *pdu, int pdulen)
 	sts = 0;
     } else {
 	if (pmDebugOptions.attr)
-	    __pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
+	    pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
 	sts = PM_ERR_NOCONTAINER;
     }
     return __pmdaSendRootPDUContainer(cp->fd, PDUROOT_PROCESSID,
@@ -606,7 +606,7 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
     root_refresh_container_indom();
     if ((container = root_container_search(name)) == NULL) {
 	if (pmDebugOptions.attr)
-	    __pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
+	    pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
 	sts = PM_ERR_NOCONTAINER;
     } else {
 	sts = 0;
@@ -615,7 +615,7 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
 	cgroup = &container->cgroup[1];
 	length = strlen(cgroup);
 	if (pmDebugOptions.attr)
-	    __pmNotifyErr(LOG_DEBUG, "container %s cgroup=%s\n", name, cgroup);
+	    pmNotifyErr(LOG_DEBUG, "container %s cgroup=%s\n", name, cgroup);
     }
     return __pmdaSendRootPDUContainer(cp->fd, PDUROOT_CGROUPNAME,
 			pid, cgroup, length, sts);
@@ -641,7 +641,7 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 
     sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
     if (pmDebugOptions.appl0) {
-	__pmNotifyErr(LOG_DEBUG, "Sent %s PMDA process to pmcd: "
+	pmNotifyErr(LOG_DEBUG, "Sent %s PMDA process to pmcd: "
 			"pid=%" FMT_PID " infd=%d outfd=%d sts=%d\n",
 			name, pid, infd, outfd, bad);
     }
@@ -680,27 +680,27 @@ root_recvpdu(int fd, __pmdaRootPDUHdr **hdr)
     int			bytes;
 
     if ((bytes = recv(fd, (void *)&buffer, sizeof(buffer), 0)) < 0) {
-	__pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
+	pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
 	return bytes;
     }
     if (bytes == 0)	/* client disconnected */
 	return 0;
     if (bytes < sizeof(__pmdaRootPDUHdr)) {
-	__pmNotifyErr(LOG_ERR, "root_recvpdu: %d bytes too small\n", bytes);
+	pmNotifyErr(LOG_ERR, "root_recvpdu: %d bytes too small\n", bytes);
 	return -EINVAL;
     }
     if (pdu->version > ROOT_PDU_VERSION) {
-	__pmNotifyErr(LOG_ERR, "root_recvpdu: client sent newer version (%d)\n",
+	pmNotifyErr(LOG_ERR, "root_recvpdu: client sent newer version (%d)\n",
 			pdu->version);
 	return -EOPNOTSUPP;
     }
     if (pdu->length < sizeof(__pmdaRootPDUHdr)) {
-	__pmNotifyErr(LOG_ERR, "root_recvpdu: PDU length (%d) is too small\n",
+	pmNotifyErr(LOG_ERR, "root_recvpdu: PDU length (%d) is too small\n",
 			pdu->length);
 	return -E2BIG;
     }
     if (pdu->status < 0) {
-	__pmNotifyErr(LOG_ERR, "root_recvpdu: client sent bad status (%d)\n",
+	pmNotifyErr(LOG_ERR, "root_recvpdu: client sent bad status (%d)\n",
 			pdu->status);
 	return pdu->status;
     }
@@ -751,7 +751,7 @@ root_handle_client_input(__pmFdSet *fds)
 	}
 
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "bad protocol exchange (fd=%d,type=%x)\n",
+	    pmNotifyErr(LOG_ERR, "bad protocol exchange (fd=%d,type=%x)\n",
 				cp->fd, php->type);
 	    root_delete_client(cp);
 	}
@@ -779,7 +779,7 @@ root_main(pmdaInterface *dp)
 	if (sts > 0) {
 	    if (__pmFD_ISSET(pmcd_fd, &readable_fds)) {
 		if (pmDebugOptions.appl0)
-		    __pmNotifyErr(LOG_DEBUG, "pmcd request [fd=%d]", pmcd_fd);
+		    pmNotifyErr(LOG_DEBUG, "pmcd request [fd=%d]", pmcd_fd);
 		if (__pmdaMainPDU(dp) < 0)
 		    exit(1);        /* it's fatal if we lose pmcd */
 	    }
@@ -788,7 +788,7 @@ root_main(pmdaInterface *dp)
 	    root_handle_client_input(&readable_fds);
 	}
 	else if (sts == -1 && oserror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "root_main select: %s\n", osstrerror());
+	    pmNotifyErr(LOG_ERR, "root_main select: %s\n", osstrerror());
 	    continue;
 	}
     }
@@ -799,7 +799,7 @@ root_check_user(void)
 {
 #ifdef HAVE_GETUID
     if (getuid() != 0) {
-	__pmNotifyErr(LOG_ERR, "must be run as root %d\n", getuid());
+	pmNotifyErr(LOG_ERR, "must be run as root %d\n", getuid());
 	exit(1);
     }
 #endif

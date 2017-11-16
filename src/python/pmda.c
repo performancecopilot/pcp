@@ -119,7 +119,7 @@ pmns_refresh(void)
         __pmFreePMNS(pmns);
 
     if ((sts = __pmNewPMNS(&pmns)) < 0) {
-        __pmNotifyErr(LOG_ERR, "failed to create namespace root: %s",
+        pmNotifyErr(LOG_ERR, "failed to create namespace root: %s",
                       pmErrStr(sts));
         return;
     }
@@ -138,7 +138,7 @@ pmns_refresh(void)
             fprintf(stderr, "pmns_refresh: adding metric %s(%s)\n",
                     name, pmIDStr(pmid));
         if ((sts = __pmAddPMNSNode(pmns, pmid, name)) < 0) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
                     "failed to add metric %s(%s) to namespace: %s",
                     name, pmIDStr(pmid), pmErrStr(sts));
         } else {
@@ -169,7 +169,7 @@ namespace_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 	Py_INCREF(pmns_dict);
 
         if (!PyDict_Check(pmns_dict)) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
                 "attempted to refresh namespace with non-dict type");
             Py_DECREF(pmns_dict);
             pmns_dict = NULL;
@@ -203,7 +203,7 @@ pmid_oneline_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 	Py_INCREF(pmid_oneline_dict);
 
         if (!PyDict_Check(pmid_oneline_dict)) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
                 "attempted to refresh pmid oneline help with non-dict type");
             Py_DECREF(pmid_oneline_dict);
             pmid_oneline_dict = NULL;
@@ -235,7 +235,7 @@ pmid_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 	Py_INCREF(pmid_longtext_dict);
 
         if (!PyDict_Check(pmid_longtext_dict)) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
                 "attempted to refresh pmid long help with non-dict type");
             Py_DECREF(pmid_longtext_dict);
             pmid_longtext_dict = NULL;
@@ -267,7 +267,7 @@ indom_oneline_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 	Py_INCREF(indom_oneline_dict);
 
         if (!PyDict_Check(indom_oneline_dict)) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
                 "attempted to refresh indom oneline help with non-dict type");
             Py_DECREF(indom_oneline_dict);
             indom_oneline_dict = NULL;
@@ -299,7 +299,7 @@ indom_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 	Py_INCREF(indom_longtext_dict);
 
         if (!PyDict_Check(indom_longtext_dict)) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
                 "attempted to refresh indom long help with non-dict type");
             Py_DECREF(indom_longtext_dict);
             indom_longtext_dict = NULL;
@@ -340,7 +340,7 @@ pmns_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *
 static int
 callback_error(const char *name)
 {
-    __pmNotifyErr(LOG_ERR, "%s: callback failed", name);
+    pmNotifyErr(LOG_ERR, "%s: callback failed", name);
     /* force the stacktrace out now if there is one */
     if (PyErr_Occurred())
 	PyErr_Print();
@@ -386,7 +386,7 @@ refresh_all_clusters(int numclusters, int *clusters)
     int i;
     list = PyList_New(numclusters);
     if (list == NULL){
-        __pmNotifyErr(LOG_ERR, "refresh: Unable to allocate memory");
+        pmNotifyErr(LOG_ERR, "refresh: Unable to allocate memory");
         return 1;
     }
     for (i = 0; i < numclusters; i++) {
@@ -479,13 +479,13 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
         }
 
         if (PyArg_Parse(result, "s:label", &s) == 0 || s == NULL) {
-            __pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
+            pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
             Py_DECREF(result);
             return -EINVAL;
         }
 
         if ((sts = __pmAddLabels(lp, s, type)) < 0)
-            __pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+            pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
         Py_DECREF(result);
 
@@ -536,7 +536,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 
     arglist = Py_BuildValue("(iiI)", pmid->cluster, pmid->item, inst);
     if (arglist == NULL) {
-        __pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
+        pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
         return -EINVAL;
     }
     result = PyEval_CallObject(fetch_cb_func, arglist);
@@ -544,7 +544,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     if (result == NULL)
 	return callback_error("fetch_callback");
     else if (PyTuple_Check(result)) {
-        __pmNotifyErr(LOG_ERR, "non-tuple returned from fetch callback");
+        pmNotifyErr(LOG_ERR, "non-tuple returned from fetch callback");
         Py_DECREF(result);
 	return -EINVAL;
     }
@@ -582,7 +582,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
                 sts = PMDA_FETCH_DYNAMIC;
             break;
         default:
-            __pmNotifyErr(LOG_ERR, "unsupported metric type in fetch callback");
+            pmNotifyErr(LOG_ERR, "unsupported metric type in fetch callback");
             sts = -ENOTSUP;
 	    rc = code = 1;		/* Don't fall into code below. */
 	    break;
@@ -598,7 +598,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	PyErr_Clear();
 
         if (!PyArg_Parse(result, "(ii):fetch_cb_error", &sts, &code)) {
-            __pmNotifyErr(LOG_ERR, "extracting error code in fetch callback");
+            pmNotifyErr(LOG_ERR, "extracting error code in fetch callback");
             sts = -EINVAL;
         }
 	/* If we got a code of 1, that's means the fetch
@@ -607,7 +607,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	 * value and instead got a numeric value. So, force an
 	 * error. */
 	else if (code == 1) {
-            __pmNotifyErr(LOG_ERR, "forcing error code in fetch callback");
+            pmNotifyErr(LOG_ERR, "forcing error code in fetch callback");
 	    sts = PM_ERR_TYPE;
 	}
     }
@@ -627,7 +627,7 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 
     arglist = Py_BuildValue("(II)", indom, inst);
     if (arglist == NULL) {
-        __pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
+        pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
         return -EINVAL;
     }
     result = PyEval_CallObject(label_cb_func, arglist);
@@ -637,13 +637,13 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
         return -EAGAIN; /* exception thrown */
     }
     if (PyArg_Parse(result, "s:label_callback", &s) == 0 || s == NULL) {
-        __pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
+        pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
         Py_DECREF(result);
         return -EINVAL;
     }
 
     if ((sts = __pmAddLabels(lp, s, PM_LABEL_INSTANCES)) < 0)
-        __pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+        pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
     Py_DECREF(result);
     return sts;
@@ -680,7 +680,7 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
             arglist = Py_BuildValue("(iiIs)", cluster, item, inst, av.cp);
             break;
         default:
-            __pmNotifyErr(LOG_ERR, "unsupported type in store callback");
+            pmNotifyErr(LOG_ERR, "unsupported type in store callback");
             return -EINVAL;
     }
     result = PyEval_CallObject(store_cb_func, arglist);
@@ -690,7 +690,7 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
     rc = PyArg_Parse(result, "i:store_callback", &code);
     Py_DECREF(result);
     if (rc == 0) {
-        __pmNotifyErr(LOG_ERR, "store callback gave bad status (int expected)");
+        pmNotifyErr(LOG_ERR, "store callback gave bad status (int expected)");
         return -EINVAL;
     }
     return code;
@@ -792,10 +792,10 @@ attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
         char buffer[256];
 
         if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-            __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
+            pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
         } else {
             buffer[sizeof(buffer)-1] = '\0';
-            __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+            pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
         }
     }
     /* handle connection attributes - need per-connection state code */
@@ -1069,7 +1069,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	Py_INCREF(metric_list);
 
         if (!PyList_Check(indom_list) || !PyList_Check(metric_list)) {
-            __pmNotifyErr(LOG_ERR,
+            pmNotifyErr(LOG_ERR,
 			  "pmda_dispatch failed to get metrics/indoms (non-list types)");
 	    PyErr_SetString(PyExc_TypeError,
 			    "pmda_dispatch failed to get metrics/indoms (non-list types)");
@@ -1081,7 +1081,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	}
     }
     else {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		      "pmda_dispatch failed to get metric/indom lists");
 	PyErr_SetString(PyExc_TypeError,
 			"pmda_dispatch failed to get metric/indom lists");
@@ -1121,7 +1121,7 @@ pmda_log(PyObject *self, PyObject *args, PyObject *keywords)
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "s:pmda_log", keyword_list, &message))
         return NULL;
-    __pmNotifyErr(LOG_INFO, "%s", message);
+    pmNotifyErr(LOG_INFO, "%s", message);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1135,7 +1135,7 @@ pmda_err(PyObject *self, PyObject *args, PyObject *keywords)
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "s:pmda_err", keyword_list, &message))
         return NULL;
-    __pmNotifyErr(LOG_ERR, "%s", message);
+    pmNotifyErr(LOG_ERR, "%s", message);
     Py_INCREF(Py_None);
     return Py_None;
 }

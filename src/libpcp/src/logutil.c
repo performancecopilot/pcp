@@ -1327,14 +1327,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	assert(tmp >= 0);
 	ti.ti_meta = (__pm_off_t)tmp;
 	if (tmp != ti.ti_meta) {
-	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
+	    pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
 	    return;
 	}
 	tmp = __pmFtell(lcp->l_mfp);
 	assert(tmp >= 0);
 	ti.ti_log = (__pm_off_t)tmp;
 	if (tmp != ti.ti_log) {
-	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
+	    pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
 	    return;
 	}
     }
@@ -1361,7 +1361,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	pmflush();
     }
     if (__pmFflush(lcp->l_tifp) != 0)
-	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
+	pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
 }
 
 static int
@@ -2381,7 +2381,7 @@ more:
 	    if (sts < 0) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
+		pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
 			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		pmFreeResult(newres);
 		break;
@@ -2840,7 +2840,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	physend = (__pm_off_t)sbuf.st_size;
 	if (sizeof(off_t) > sizeof(__pm_off_t)) {
 	    if (physend != sbuf.st_size) {
-		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
+		pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
 			" (meta) too big (%"PRIi64" bytes)\n",
 			(uint64_t)sbuf.st_size);
 		sts = PM_ERR_TOOBIG;

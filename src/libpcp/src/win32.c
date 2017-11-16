@@ -207,7 +207,7 @@ __pmServerStart(int argc, char **argv, int flags)
     for (i = 0; i < argc; i++)
 	total += strlen(argv[i]) + 1;
     if ((cmdline = malloc(total)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
+	pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
 	exit(1);
     }
     for (sz = i = 0; i < argc; i++)
@@ -227,7 +227,7 @@ __pmServerStart(int argc, char **argv, int flags)
 		NULL,		/* current directory */
 		&siStartInfo,	/* STARTUPINFO pointer */
 		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
-	__pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+	pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
 	/* but keep going */
     }
     else {

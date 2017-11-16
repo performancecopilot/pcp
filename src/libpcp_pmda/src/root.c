@@ -56,7 +56,7 @@ pmdaRootConnect(const char *path)
 
     /* Create client socket connection */
     if ((fd = __pmCreateUnixSocket()) < 0) {
-	__pmNotifyErr(LOG_ERR, "pmdaRootConnect: cannot create socket %s: %s\n",
+	pmNotifyErr(LOG_ERR, "pmdaRootConnect: cannot create socket %s: %s\n",
 			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
 	__pmSockAddrFree(addr);
 	return fd;
@@ -66,7 +66,7 @@ pmdaRootConnect(const char *path)
     __pmSockAddrFree(addr);
     if (sts < 0) {
 	if (sts != -EPERM || pmDebugOptions.libpmda)
-	    __pmNotifyErr(LOG_INFO,
+	    pmNotifyErr(LOG_INFO,
 			"pmdaRootConnect: cannot connect to %s: %s\n",
 			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
 	__pmCloseSocket(fd);
@@ -75,7 +75,7 @@ pmdaRootConnect(const char *path)
 
     /* Check server connection information */
     if ((sts = __pmdaRecvRootPDUInfo(fd, &version, &features)) < 0) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 			"pmdaRootConnect: cannot verify %s server: %s\n",
 			socketpath, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	__pmCloseSocket(fd);
@@ -83,7 +83,7 @@ pmdaRootConnect(const char *path)
     }
 
     if (pmDebugOptions.libpmda)
-	__pmNotifyErr(LOG_INFO,
+	pmNotifyErr(LOG_INFO,
 		"pmdaRootConnect: %s server fd=%d version=%d features=0x%x\n",
 			socketpath, fd, version, features);
     return fd;

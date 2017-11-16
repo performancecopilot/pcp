@@ -131,13 +131,13 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	unsigned int type = id / NUM_LOCKSTATS;
 	unsigned int stat = id % NUM_LOCKSTATS;
 	if (strcmp(typestr, locktype[type]) != 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			"unexpected sbstat type \"%s\" (want %s at line %u)",
 			typestr, locktype[type], id);
 	    break;	/* eh? */
 	}
 	if (strcmp(statstr, stattype[stat]) != 0) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 			"unexpected sbstat stat \"%s\" (want %s at line %u)",
 			statstr, stattype[stat], id);
 	    break;	/* wha? */
@@ -155,7 +155,7 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	}
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO,
+	    pmNotifyErr(LOG_INFO,
 			"got expected sbstat type \"%s\", stat \"%s\" at line %u",
 			typestr, statstr, id);
 
@@ -189,7 +189,7 @@ refresh_sbstats(pmdaExt *pmda, __pmnsTree **tree)
     if (sbstats_tree) {
 	*tree = sbstats_tree;
     } else if ((sts = __pmNewPMNS(&sbstats_tree)) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: failed to create sbstats names: %s\n",
+	pmNotifyErr(LOG_ERR, "%s: failed to create sbstats names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
     } else {

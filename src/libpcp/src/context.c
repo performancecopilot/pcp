@@ -161,7 +161,7 @@ waitawhile(__pmPMCDCtl *ctl)
 	}
 	PM_UNLOCK(contexts_lock);
 	if (bad) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			 "pmReconnectContext: ignored bad PMCD_RECONNECT_TIMEOUT = '%s'\n",
 			 q);
 	}

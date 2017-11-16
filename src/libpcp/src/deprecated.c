@@ -14,8 +14,11 @@
  * License for more details.
  */
 
+#include <stdarg.h>
 #include "pmapi.h"
+#include "libpcp.h"
 #include "deprecated.h"
+#include "internal.h"
 
 int
 __pmSetProgname(const char *program)
@@ -43,4 +46,22 @@ void
 __pmNoMem(const char *where, size_t size, int fatal)
 {
     return pmNoMem(where, size, fatal);
+}
+
+#undef __pmNotifyErr
+void
+__pmNotifyErr(int priority, const char *message, ...)
+{
+    va_list	arg;
+
+    va_start(arg, message);
+    notifyerr(priority, message, arg);
+    va_end(arg);
+}
+
+#undef __pmSyslog
+void
+__pmSyslog(int onoff)
+{
+    pmSyslog(onoff);
 }

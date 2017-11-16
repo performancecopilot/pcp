@@ -401,7 +401,7 @@ static int setup_perfevents()
     perfif = manager_init(buffer);
     if( 0 == perfif )
     {
-        __pmNotifyErr(LOG_ERR, "Unable to create perf instance\n");
+        pmNotifyErr(LOG_ERR, "Unable to create perf instance\n");
         return -1;
     }
 
@@ -409,7 +409,7 @@ static int setup_perfevents()
     if( ret < 0 )
     {
         err_desc = perf_strerror(ret);
-        __pmNotifyErr(LOG_ERR, "Error reading event counters perf_get returned %s\n",err_desc);
+        pmNotifyErr(LOG_ERR, "Error reading event counters perf_get returned %s\n",err_desc);
         return -1;
     }
 
@@ -450,7 +450,7 @@ static int setup_metrics()
 
     if( (NULL == dynamic_metric_infotab) || (NULL == metrictab) || (NULL == indomtab) )
     {
-        __pmNotifyErr(LOG_ERR, "Error allocating memory for %d metrics (%d counters)\n",
+        pmNotifyErr(LOG_ERR, "Error allocating memory for %d metrics (%d counters)\n",
                       nummetrics, nhwcounters);
         free(dynamic_metric_infotab);
         free(metrictab);
@@ -573,7 +573,7 @@ static int setup_pmns()
 
     if ((sts = __pmNewPMNS(&pmns)) < 0)
     {
-        __pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(sts));
+        pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(sts));
         pmns = NULL;
         return -1;
     }
@@ -672,7 +672,7 @@ perfevent_init(pmdaInterface *dp)
         return;
     }
 
-    __pmNotifyErr(LOG_INFO, "perfevent version " VERSION " initialised\n");
+    pmNotifyErr(LOG_INFO, "perfevent version " VERSION " initialised\n");
 }
 
 static void usage(void)

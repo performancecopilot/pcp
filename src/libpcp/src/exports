@@ -610,8 +610,10 @@ PCP_3.22 {
     pmMergeLabels;
     pmMergeLabelSets;
     pmNoMem;
+    pmNotifyErr;
     pmOpenLog;
     pmSetProgname;
+    pmSyslog;
 
     __pmAddLabels;
     __pmDecodeLabel;

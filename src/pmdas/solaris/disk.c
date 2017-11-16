@@ -41,14 +41,14 @@ getDiskCtl(pmInDom dindom, const char *name)
     if ((rv == PMDA_CACHE_INACTIVE) && ctl) {
 	rv = pmdaCacheStore(dindom, PMDA_CACHE_ADD, name, ctl);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Cannot reactivate cached data for disk '%s': %s\n",
 			  name, pmErrStr(rv));
 	    return NULL;
 	}
     } else {
 	if ((ctl = (ctl_t *)calloc(1, sizeof(ctl_t))) == NULL) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Out of memory to keep state for disk '%s'\n",
 			  name);
 	   return NULL;
@@ -56,7 +56,7 @@ getDiskCtl(pmInDom dindom, const char *name)
 
 	rv = pmdaCacheStore(dindom, PMDA_CACHE_ADD, name, ctl);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Cannot cache data for disk '%s': %s\n",
 			  name, pmErrStr(rv));
 	    free(ctl);
@@ -199,7 +199,7 @@ fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
 
     if ((kstat_read(kc, ctl->ksp, &ctl->iostat) == -1)) {
 	if (ctl->err == 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Error: disk_fetch(pmid=%s disk=%s ...) - "
 			   "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n",
 			   pmIDStr(mdesc->m_desc.pmid), diskname,
@@ -212,7 +212,7 @@ fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
 
     ctl->fetched = 1;
     if (ctl->err != 0) {
-	__pmNotifyErr(LOG_INFO,
+	pmNotifyErr(LOG_INFO,
 		      "Success: disk_fetch(pmid=%s disk=%s ...) "
 		      "after %d errors as previously reported\n",
 		      pmIDStr(mdesc->m_desc.pmid), diskname, ctl->err);

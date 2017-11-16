@@ -83,7 +83,7 @@ process_config_file_check(void)
     if (stat(mypath, &statbuf) == -1) {
 	if (oserror() != last_error) {
 	    last_error = oserror();
-	    __pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n", 
+	    pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n", 
 			mypath, pmErrStr(-oserror()));
 	}
     } else {
@@ -155,7 +155,7 @@ process_grab_config_info(void)
     pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
-	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
+	pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
 		mypath, pmErrStr(-oserror()));
 	if (processes != NULL) {
 	    free(processes);
@@ -173,7 +173,7 @@ process_grab_config_info(void)
 	    *q = '\0';
 	} else {
 	    /* This means the line was too long */
-	    __pmNotifyErr(LOG_WARNING, "line %d in config file too long\n",
+	    pmNotifyErr(LOG_WARNING, "line %d in config file too long\n",
 			process_number + 1);
 	}
 	size = (process_number + 1) * sizeof(pmdaInstid);
@@ -188,7 +188,7 @@ process_grab_config_info(void)
 
 done:
     if (processes == NULL)
-	__pmNotifyErr(LOG_WARNING, "\"process\" instance domain is empty");
+	pmNotifyErr(LOG_WARNING, "\"process\" instance domain is empty");
 
     indomtab[PROC_INDOM].it_set = processes;
     indomtab[PROC_INDOM].it_numinst = process_number;
