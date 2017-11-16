@@ -314,9 +314,9 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
 	if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_DESC) {
 	    if ((sts = __pmDecodeDesc(pb, desc)) >= 0) {
 		if (print)
-		    __pmPrintDesc(stdout, desc);
+		    pmPrintDesc(stdout, desc);
 		    else if (pmDebugOptions.pdu)
-			__pmPrintDesc(stdout, desc);
+			pmPrintDesc(stdout, desc);
             }
 	    else
 		printf("Error: __pmDecodeDesc() failed: %s\n", pmErrStr(sts));

@@ -18,7 +18,7 @@ sample.event.records
     inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 
-=== __pmPrintDesc ===
+=== pmPrintDesc ===
 
 sample.event.records
     Data Type: event record array  InDom: 29.10 HEX
@@ -38,7 +38,7 @@ sample.event.no_indom_records
 sample.event.no_indom_records
     value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 
-=== __pmPrintDesc ===
+=== pmPrintDesc ===
 
 sample.event.no_indom_records
     Data Type: event record array  InDom: PM_INDOM_NULL 0xffffffff

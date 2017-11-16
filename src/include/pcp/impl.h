@@ -48,8 +48,6 @@ PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
 PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
 PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 
-PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
-
 
 #ifdef __cplusplus
 }

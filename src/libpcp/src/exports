@@ -614,6 +614,7 @@ PCP_3.22 {
     pmOpenLog;
     pmSetProgname;
     pmSyslog;
+    pmPrintDesc;
 
     __pmAddLabels;
     __pmDecodeLabel;

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 
 #ifdef BINARY_COMPAT_TEST
 /*
@@ -18,6 +19,7 @@ extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
 extern void __pmNoMem(const char *, size_t, int);
 extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 extern void __pmSyslog(int);
+extern void __pmPrintDesc(FILE *, const pmDesc *);
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -42,6 +44,14 @@ static pmOptions opts = {
     .short_options = "D:",
     .long_options = NULL,
     .short_usage = "[options]",
+};
+
+static pmDesc desc = {
+    .pmid = 0,
+    .type = PM_TYPE_U64,
+    .indom = PM_INDOM_NULL,
+    .sem = PM_SEM_COUNTER,
+    .units = PMDA_PMUNITS(1, -1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0),
 };
 
 int
@@ -105,6 +115,10 @@ main(int argc, char **argv)
     fflush(stdout);
     __pmSyslog(0);
     __pmNotifyErr(LOG_NOTICE, "Hullo %s! The answer is %d\n", "world", 42);
+
+    printf("__pmPrintDesc test:\n");
+    __pmPrintDesc(stdout, &desc);
+    fflush(stdout);
 
     return 0;
 }

@@ -33,6 +33,7 @@
  * __pmNoMem()			pmNoMem()
  * __pmNotifyErr()		pmNotifyErr()
  * __pmSyslog()			pmSyslog()
+ * __pmPrintDesc()		pmPrintDesc()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -86,5 +87,6 @@ PCP_DATA extern int pmDebug;
 #define __pmNoMem pmNoMem
 #define __pmNotifyErr pmNotifyErr
 #define __pmSyslog pmSyslog
+#define __pmPrintDesc pmPrintDesc
 
 #endif /* PCP_DEPRECATED_H */

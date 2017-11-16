@@ -655,7 +655,7 @@ report(void)
 	    myoneline(pmidlist[i], PM_TEXT_PMID);
 	putchar('\n');
 	if (p_desc)
-	    __pmPrintDesc(stdout, &desc);
+	    pmPrintDesc(stdout, &desc);
 	if (p_help)
 	    myhelptext(pmidlist[i], PM_TEXT_PMID);
 	if (p_value)

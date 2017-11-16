@@ -1401,7 +1401,7 @@ __dmdumpexpr(node_t *np, int level)
 	if (np->info->mul_scale != 1)
 	    fprintf(stderr, " mul_scale: %d", np->info->mul_scale);
 	fputc('\n', stderr);
-	__pmPrintDesc(stderr, &np->desc);
+	pmPrintDesc(stderr, &np->desc);
 	if (np->info->ivlist) {
 	    int		j;
 	    int		max;

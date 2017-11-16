@@ -65,3 +65,10 @@ __pmSyslog(int onoff)
 {
     pmSyslog(onoff);
 }
+
+#undef __pmPrintDesc
+void
+__pmPrintDesc(FILE *f, const pmDesc *desc)
+{
+    pmPrintDesc(f, desc);
+}

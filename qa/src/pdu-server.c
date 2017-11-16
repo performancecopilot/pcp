@@ -181,7 +181,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_DESC: ");
-		__pmPrintDesc(stderr, &desc);
+		pmPrintDesc(stderr, &desc);
 	    }
 	    if ((e = __pmSendDesc(fd, mypid, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: SendDesc: %s\n", pmGetProgname(), pmErrStr(e));

@@ -1262,7 +1262,7 @@ __pmPrintTimespec(FILE *f, const __pmTimespec *tp)
  * descriptor
  */
 void
-__pmPrintDesc(FILE *f, const pmDesc *desc)
+pmPrintDesc(FILE *f, const pmDesc *desc)
 {
     const char		*type;
     const char		*sem;

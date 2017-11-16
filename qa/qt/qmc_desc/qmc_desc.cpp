@@ -70,7 +70,7 @@ main(int argc, char* argv[])
     }
 
     printf("hinv.ncpu\n");
-    __pmPrintDesc(stdout, &hinv_ncpu_desc);
+    pmPrintDesc(stdout, &hinv_ncpu_desc);
     fflush(stdout);
     fflush(stderr);
     if (system("pminfo -d hinv.ncpu") < 0) {

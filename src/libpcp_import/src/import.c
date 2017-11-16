@@ -79,7 +79,7 @@ pmiDump(void)
 	    fprintf(f, "  metric[%d] name=%s pmid=%s\n",
 		m, current->metric[m].name,
 		pmIDStr_r(current->metric[m].pmid, strbuf, sizeof(strbuf)));
-	    __pmPrintDesc(f, &current->metric[m].desc);
+	    pmPrintDesc(f, &current->metric[m].desc);
 	}
     }
     if (current->nindom == 0)

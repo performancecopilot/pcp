@@ -888,7 +888,7 @@ write_rec(reclist_t *rec)
 		len = ntohl(*namelen);
 		name = (char *)((void *)rec->pdu + sizeof(__pmLogHdr) + sizeof(pmDesc) + sizeof(int) + sizeof(int));
 		fprintf(stderr, "PMID: %s name: %*.*s\n", pmIDStr(desc.pmid), len, len, name);
-		__pmPrintDesc(stderr, &desc);
+		pmPrintDesc(stderr, &desc);
 	    }
 	    else if (type == TYPE_INDOM) {
 		__pmTimeval	*tvp;

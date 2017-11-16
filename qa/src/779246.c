@@ -38,7 +38,7 @@ dometric(void)
 	printf("pmLookupDesc: %s\n", pmErrStr(n));
 	return 1;
     }
-    __pmPrintDesc(stdout, &desc);
+    pmPrintDesc(stdout, &desc);
 
     if ((n = pmFetch(1, &pmid, &result)) < 0)
 	printf("pmFetch: %s\n", pmErrStr(n));

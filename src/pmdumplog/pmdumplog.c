@@ -451,7 +451,7 @@ dumpDesc(__pmContext *ctxp)
 		printf(")\n");
 		free(names);
 	    }
-	    __pmPrintDesc(stdout, dp);
+	    pmPrintDesc(stdout, dp);
 	}
     }
 }

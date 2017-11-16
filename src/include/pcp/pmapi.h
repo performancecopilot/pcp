@@ -1173,6 +1173,8 @@ PCP_CALL extern void pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 /* make pmNotifyErr also add entries to syslog */
 PCP_CALL extern void pmSyslog(int);
 
+PCP_CALL extern void pmPrintDesc(FILE *, const pmDesc *);
+
 #ifdef __cplusplus
 }
 #endif
