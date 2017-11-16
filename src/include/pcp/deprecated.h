@@ -30,6 +30,7 @@
  * __pmInResult			pmInResult
  * __pmOpenLog()		pmOpenLog()
  * __pmGetAPIConfig()		pmGetAPIConfig()
+ * __pmNoMem()			pmNoMem()
  *
  */
 
@@ -81,5 +82,6 @@ PCP_DATA extern int pmDebug;
 #define __pmInResult pmInResult
 #define __pmOpenLog pmOpenLog
 #define __pmGetAPIConfig pmGetAPIConfig
+#define __pmNoMem pmNoMem
 
 #endif /* PCP_DEPRECATED_H */

@@ -126,7 +126,7 @@ GetNextLine(void)
 	szLineBuf = LINEBUF_SIZE;
 	linebuf = (char *)malloc(szLineBuf);
 	if (linebuf == NULL) {
-	    __pmNoMem("pmcd config: GetNextLine init", szLineBuf, PM_FATAL_ERR);
+	    pmNoMem("pmcd config: GetNextLine init", szLineBuf, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
     }
@@ -194,7 +194,7 @@ GetNextLine(void)
 	    if ((linebuf = realloc(linebuf, szLineBuf)) == NULL) {
 		static char	fallback[2];
 
-		__pmNoMem("pmcd config: GetNextLine", szLineBuf, PM_RECOV_ERR);
+		pmNoMem("pmcd config: GetNextLine", szLineBuf, PM_RECOV_ERR);
 		linebuf = fallback;
 		linebuf[0] = '\0';
 		scanError = 1;
@@ -455,7 +455,7 @@ BuildCmdLine(char **argv)
     if ((cmdLine = (char *)malloc(cmdLen)) == NULL) {
 	fprintf(stderr, "pmcd config[line %d]: Error: failed to build command line\n",
 		nLines);
-	__pmNoMem("pmcd config: BuildCmdLine", cmdLen, PM_RECOV_ERR);
+	pmNoMem("pmcd config: BuildCmdLine", cmdLen, PM_RECOV_ERR);
 	return NULL;
     }
     for (i = 0, p = cmdLine; argv[i] != NULL; i++) {
@@ -504,7 +504,7 @@ BuildArgv(void)
 	if (result_new == NULL || result[nArgs] == NULL) {
 	    fprintf(stderr, "pmcd config[line %d]: Error: failed to build argument list\n",
 		    nLines);
-	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
+	    pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
 		     PM_RECOV_ERR);
 	    if (result != NULL) {
 		while (nArgs >= 0) {
@@ -537,7 +537,7 @@ GetNewAgent(void)
     if (agent == NULL) {
 	agent = (AgentInfo*)malloc(sizeof(AgentInfo) * MIN_AGENTS_ALLOC);
 	if (agent == NULL) {
-	    __pmNoMem("GetNewAgentIndex: malloc", sizeof(AgentInfo) * MIN_AGENTS_ALLOC, PM_FATAL_ERR);
+	    pmNoMem("GetNewAgentIndex: malloc", sizeof(AgentInfo) * MIN_AGENTS_ALLOC, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	szAgents = MIN_AGENTS_ALLOC;
@@ -547,7 +547,7 @@ GetNewAgent(void)
 	agent = (AgentInfo*)
 	    realloc(agent, sizeof(AgentInfo) * 2 * szAgents);
 	if (agent == NULL) {
-	    __pmNoMem("GetNewAgentIndex: realloc", sizeof(AgentInfo) * 2 * szAgents, PM_FATAL_ERR);
+	    pmNoMem("GetNewAgentIndex: realloc", sizeof(AgentInfo) * 2 * szAgents, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	for (i = 0; i < nAgents; i++)
@@ -612,7 +612,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     if ((entryPoint = CopyToken()) == NULL) {
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO entry point\n",
 			 nLines);
-	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
 
@@ -633,7 +633,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     if ((pathName = CopyToken()) == NULL) {
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO pathname\n",
 			nLines);
-	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     __pmNativePath(pathName);
@@ -699,7 +699,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	if ((socketName = CopyToken()) == NULL) {
 	    fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy port name\n",
 			 nLines);
-	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	    pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
     FindNextToken();
@@ -969,12 +969,12 @@ ParseNames(char ***namesp, const char *nametype)
 	    szNames += 8;
 	    need = szNames * (int)sizeof(char**);
 	    if ((names = (char **)realloc(names, need)) == NULL) {
-		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
+		pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	}
 	if ((names[nnames++] = CopyToken()) == NULL) {
-	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
+	    pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	FindNextToken();
@@ -1274,7 +1274,7 @@ ReadConfigFile(FILE *configFile)
 	    break;
 
 	if ((pmDomainLabel = CopyToken()) == NULL) {
-	    __pmNoMem("pmcd config: domain label", tokenend - token + 1, PM_FATAL_ERR);
+	    pmNoMem("pmcd config: domain label", tokenend - token + 1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 
@@ -2002,7 +2002,7 @@ GetAgentDso(AgentInfo *aPtr)
 	free(dso->pathName);
 	dso->pathName = strdup(name);
 	if (dso->pathName == NULL) {
-	    __pmNoMem("pmcd config: pathName", strlen(name), PM_FATAL_ERR);
+	    pmNoMem("pmcd config: pathName", strlen(name), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	dso->xlatePath = 1;

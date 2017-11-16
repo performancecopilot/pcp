@@ -403,7 +403,7 @@ root_new_client(void)
 	sz = sizeof(root_client_t) * root_client_size;
 	root_client = (root_client_t *)realloc(root_client, sz);
 	if (root_client == NULL) {
-	    __pmNoMem("root_new_client", sz, PM_RECOV_ERR);
+	    pmNoMem("root_new_client", sz, PM_RECOV_ERR);
 	    root_close_socket();
 	    exit(1);
 	}

@@ -123,7 +123,7 @@ myvaluesetdump(pmValueSet *xvsp, int idx, int *flagsp)
 	/* first time for this pmid */
 	hp = (DescHash *)malloc(sizeof(DescHash));
 	if (hp == NULL) {
-	    __pmNoMem("DescHash", sizeof(DescHash), PM_FATAL_ERR);
+	    pmNoMem("DescHash", sizeof(DescHash), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	if ((sts = pmNameID(xvsp->pmid, &hp->name)) < 0) {

@@ -235,7 +235,7 @@ cache_metric_metadata(SOURCE *sp, metric_t *metric,
 	    name = namelist[j];
 	    length = strlen(name) + 1;
 	    if ((name = strndup(name, length)) == NULL)
-		__pmNoMem("cache_metric_metadata.name", length, PM_FATAL_ERR);
+		pmNoMem("cache_metric_metadata.name", length, PM_FATAL_ERR);
 	    if (value->name) free(value->name);
 	    value->name = name;
 	    break;
@@ -249,7 +249,7 @@ cache_metric_metadata(SOURCE *sp, metric_t *metric,
 	    if (length == 0)
 		continue;
 	    if ((labels = labelsetdup(labels)) == NULL)
-		__pmNoMem("cache_metric_metadata.labels", length, PM_FATAL_ERR);
+		pmNoMem("cache_metric_metadata.labels", length, PM_FATAL_ERR);
 	    if (value->labels) pmFreeLabelSets(value->labels, 1);
 	    value->labels = labels;
 	    break;
@@ -325,11 +325,11 @@ new_value(SOURCE	*sp,
     size = (pos + 1) * sizeof(value_t *);
     metric->vlist = (value_t **)realloc(metric->vlist, size);
     if (metric->vlist == NULL)
-	__pmNoMem("new_value.vlist", size, PM_FATAL_ERR);
+	pmNoMem("new_value.vlist", size, PM_FATAL_ERR);
     size = sizeof(value_t);
     metric->vlist[pos] = value = (value_t *)calloc(1, size);
     if (value == NULL)
-	__pmNoMem("new_value.vlist[inst]", size, PM_FATAL_ERR);
+	pmNoMem("new_value.vlist[inst]", size, PM_FATAL_ERR);
     value->inst = vp->inst;
     if (metric->desc.sem != PM_SEM_COUNTER)
 	value->count = 1;
@@ -346,7 +346,7 @@ new_domain(SOURCE *sp, int domain, context_t *context)
     int			sts;
 
     if ((domainp = calloc(1, sizeof(domain_t))) == NULL)
-	__pmNoMem("newDomain", sizeof(domain_t), PM_FATAL_ERR);
+	pmNoMem("newDomain", sizeof(domain_t), PM_FATAL_ERR);
     domainp->domain = domain;
     domainp->context = context;
     if ((sts = pmGetDomainLabels(domain, &domainp->labels)) < 0) {
@@ -369,7 +369,7 @@ new_cluster(SOURCE *sp, int cluster, domain_t *domain)
     int			sts;
 
     if ((clusterp = calloc(1, sizeof(cluster_t))) == NULL)
-	__pmNoMem("newCluster", sizeof(cluster_t), PM_FATAL_ERR);
+	pmNoMem("newCluster", sizeof(cluster_t), PM_FATAL_ERR);
     clusterp->cluster = cluster;
     clusterp->domain = domain;
     if ((sts = pmGetClusterLabels(cluster, &clusterp->labels)) < 0) {
@@ -396,7 +396,7 @@ new_indom(SOURCE *sp, pmInDom indom, domain_t *domain)
     int			sts;
 
     if ((indomp = calloc(1, sizeof(indom_t))) == NULL)
-	__pmNoMem("new_indom", sizeof(indom_t), PM_FATAL_ERR);
+	pmNoMem("new_indom", sizeof(indom_t), PM_FATAL_ERR);
     indomp->indom = indom;
     indomp->domain = domain;
     if ((sts = pmGetInDomLabels(indom, &indomp->labels)) < 0) {
@@ -446,7 +446,7 @@ new_metric(SOURCE	*sp,
 	return NULL;
     }
     if ((mapids = calloc(sts, sizeof(int))) == NULL)
-	__pmNoMem("mapids", sts * sizeof(int), PM_FATAL_ERR);
+	pmNoMem("mapids", sts * sizeof(int), PM_FATAL_ERR);
     metric->names = names;
     metric->mapids = mapids;
     metric->numnames = sts;

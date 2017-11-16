@@ -100,7 +100,7 @@ expand_papi_info(int size)
 	size_t new_size = (size + 1) * sizeof(papi_m_user_tuple);
 	papi_info = realloc(papi_info, new_size);
 	if (papi_info == NULL)
-	    __pmNoMem("papi_info tuple", new_size, PM_FATAL_ERR);
+	    pmNoMem("papi_info tuple", new_size, PM_FATAL_ERR);
 	while (number_of_events <= size)
 	    memset(&papi_info[number_of_events++], 0, sizeof(papi_m_user_tuple));
     }
@@ -113,7 +113,7 @@ expand_values(int size)	 // XXX: collapse into expand_papi_info()
 	size_t new_size = (size + 1) * sizeof(long_long);
 	values = realloc(values, new_size);
 	if (values == NULL)
-	    __pmNoMem("values", new_size, PM_FATAL_ERR);
+	    pmNoMem("values", new_size, PM_FATAL_ERR);
 	while (size_of_active_counters <= size) {
 	    memset(&values[size_of_active_counters++], 0, sizeof(long_long));
 	    if (pmDebugOptions.appl0) {
@@ -132,7 +132,7 @@ enlarge_ctxtab(int context)
 	size_t need = (context + 1) * sizeof(struct uid_tuple);
 	ctxtab = realloc(ctxtab, need);
 	if (ctxtab == NULL)
-	    __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
+	    pmNoMem("papi ctx table", need, PM_FATAL_ERR);
 	/* Blank out new entries. */
 	while (ctxtab_size <= context)
 	    memset(&ctxtab[ctxtab_size++], 0, sizeof(struct uid_tuple));

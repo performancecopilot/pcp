@@ -110,7 +110,7 @@ __pmPMCDAddPorts(int **ports, int nports)
     if ((env = getenv("PMCD_PORT")) != NULL)		/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
-	 * on the fatal __pmNoMem() path)
+	 * on the fatal pmNoMem() path)
 	 */
 	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);
@@ -144,7 +144,7 @@ __pmProxyAddPorts(int **ports, int nports)
     if ((env = getenv("PMPROXY_PORT")) != NULL)		/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
-	 * on the fatal __pmNoMem() path)
+	 * on the fatal pmNoMem() path)
 	 */
 	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);
@@ -178,7 +178,7 @@ __pmWebdAddPorts(int **ports, int nports)
     if ((env = getenv("PMWEBD_PORT")) != NULL)		/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
-	 * on the fatal __pmNoMem() path)
+	 * on the fatal pmNoMem() path)
 	 */
 	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);
@@ -203,7 +203,7 @@ __pmAddPorts(const char *portstr, int **ports, int nports)
      * It is the responsibility of the caller to free this memory.
      *
      * If sufficient memory cannot be allocated, then this function
-     * calls __pmNoMem() and does not return.
+     * calls pmNoMem() and does not return.
      */
     char	*endptr, *p = (char *)portstr;
     size_t	size;
@@ -219,7 +219,7 @@ __pmAddPorts(const char *portstr, int **ports, int nports)
 
 	size = (nports + 1) * sizeof(int);
 	if ((*ports = (int *)realloc(*ports, size)) == NULL)
-	    __pmNoMem("__pmAddPorts: cannot grow port list", size, PM_FATAL_ERR);
+	    pmNoMem("__pmAddPorts: cannot grow port list", size, PM_FATAL_ERR);
 	(*ports)[nports++] = port;
 	if (*endptr == '\0')
 	    break;
@@ -244,9 +244,9 @@ __pmServerAddInterface(const char *address)
     /* one (of possibly several) IP addresses for client requests */
     intflist = (char **)realloc(intflist, nintf * sizeof(char *));
     if (intflist == NULL)
-	__pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
+	pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
     if ((intf = strdup(address)) == NULL)
-	__pmNoMem("AddInterface: cannot strdup interface", strlen(address), PM_FATAL_ERR);
+	pmNoMem("AddInterface: cannot strdup interface", strlen(address), PM_FATAL_ERR);
     intflist[nintf++] = intf;
     return nintf;
 }
@@ -336,7 +336,7 @@ GrowRequestPorts(void)
     need = szReqPorts * sizeof(ReqPortInfo);
     reqPorts = (ReqPortInfo*)realloc(reqPorts, need);
     if (reqPorts == NULL) {
-	__pmNoMem("GrowRequestPorts: can't grow request port array",
+	pmNoMem("GrowRequestPorts: can't grow request port array",
 		need, PM_FATAL_ERR);
     }
 }
@@ -460,7 +460,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 
     if (isUnix) {
 	if ((myAddr = __pmSockAddrAlloc()) == NULL) {
-	    __pmNoMem("OpenRequestSocket: can't allocate socket address",
+	    pmNoMem("OpenRequestSocket: can't allocate socket address",
 		      sizeof(*myAddr), PM_FATAL_ERR);
 	}
 
@@ -479,14 +479,14 @@ OpenRequestSocket(int port, const char *address, int *family,
 	 */
 	if (address == NULL || strcmp(address, "INADDR_ANY") == 0) {
 	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
-		__pmNoMem("OpenRequestSocket: can't allocate socket address",
+		pmNoMem("OpenRequestSocket: can't allocate socket address",
 			  sizeof(*myAddr), PM_FATAL_ERR);
 	    }
 	    __pmSockAddrInit(myAddr, *family, INADDR_ANY, 0);
 	}
 	else if (strcmp(address, "INADDR_LOOPBACK") == 0) {
 	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
-		__pmNoMem("OpenRequestSocket: can't allocate socket address",
+		pmNoMem("OpenRequestSocket: can't allocate socket address",
 			  sizeof(*myAddr), PM_FATAL_ERR);
 	    }
 	    __pmSockAddrInit(myAddr, *family, INADDR_LOOPBACK, 0);

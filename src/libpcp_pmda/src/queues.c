@@ -121,7 +121,7 @@ pmdaEventNewActiveQueue(const char *name, size_t maxmemory, unsigned int numclie
 	size = (numqueues + 1) * sizeof(event_queue_t);
 	queues = realloc(queues, size);
 	if (!queues)
-	    __pmNoMem("pmdaEventNewQueue", size, PM_FATAL_ERR);
+	    pmNoMem("pmdaEventNewQueue", size, PM_FATAL_ERR);
 	/* realloc moves tailq tqh_last pointer - reset 'em */
 	for (i = 0; i < numqueues; i++)
 	    TAILQ_INIT(&queues[i].tailq);
@@ -387,7 +387,7 @@ client_queue_lookup(int context, int handle, int accessq)
     size = (handle + 1) * sizeof(struct event_clientq);
     client->clientq = realloc(client->clientq, size);
     if (!client->clientq)
-	__pmNoMem("client_queue_lookup", size, PM_FATAL_ERR);
+	pmNoMem("client_queue_lookup", size, PM_FATAL_ERR);
 
     /* ensure any new clientq's up to this one are initialised */
     size -= client->nclientq * sizeof(struct event_clientq);
@@ -524,7 +524,7 @@ pmdaEventNewClient(int context)
 	size = (numclients + 1) * sizeof(event_client_t);
 	clients = realloc(clients, size);
 	if (!clients)
-	    __pmNoMem("pmdaEventNewClient", size, PM_FATAL_ERR);
+	    pmNoMem("pmdaEventNewClient", size, PM_FATAL_ERR);
 	numclients++;
     }
 

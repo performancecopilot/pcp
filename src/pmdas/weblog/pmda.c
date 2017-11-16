@@ -599,7 +599,7 @@ main(int argc, char **argv)
 		wl_regexTable = (WebRegex*)realloc(wl_regexTable,
 					   regexTableSize * sizeof(WebRegex));
 		if (wl_regexTable == (WebRegex*)0) {
-		    __pmNoMem("main.wl_regexInst", 
+		    pmNoMem("main.wl_regexInst", 
 			     (wl_numRegex + 1) * sizeof(WebRegex),
 			     PM_FATAL_ERR);
 		}
@@ -719,7 +719,7 @@ main(int argc, char **argv)
 
 	    wl_regexTable[wl_numRegex].regex = malloc(sizeof(*wl_regexTable[wl_numRegex].regex));
 	    if(wl_regexTable[wl_numRegex].regex == NULL) {
-		__pmNoMem("main.wl_regex", 
+		pmNoMem("main.wl_regex", 
 			  sizeof(*wl_regexTable[wl_numRegex].regex),
 			  PM_FATAL_ERR);
 	    }
@@ -747,7 +747,7 @@ main(int argc, char **argv)
 		wl_regexTable = (WebRegex*)realloc(wl_regexTable,
 					   regexTableSize * sizeof(WebRegex));
 		if (wl_regexTable == (WebRegex*)0) {
-		    __pmNoMem("main.wl_regexInst", 
+		    pmNoMem("main.wl_regexInst", 
 			     (wl_numRegex + 1) * sizeof(WebRegex),
 			     PM_FATAL_ERR);
 		}
@@ -828,7 +828,7 @@ main(int argc, char **argv)
 		wl_serverInst = (pmdaInstid*)realloc(wl_serverInst,
 					 serverTableSize * sizeof(pmdaInstid));
 		if (wl_serverInst == (pmdaInstid*)0) {
-		    __pmNoMem("main.wl_serverInst", 
+		    pmNoMem("main.wl_serverInst", 
 			     (wl_numServers + 1) * sizeof(pmdaInstid),
 			     PM_FATAL_ERR);
 		}
@@ -836,7 +836,7 @@ main(int argc, char **argv)
 		wl_servers = (WebServer*)realloc(wl_servers,
 					 serverTableSize * sizeof(WebServer));
 		if (wl_servers == (WebServer*)0) {
-		    __pmNoMem("main.wl_servers", 
+		    pmNoMem("main.wl_servers", 
 			     (wl_numServers + 1) * sizeof(WebServer),
 			     PM_FATAL_ERR);
 		}
@@ -1056,7 +1056,7 @@ main(int argc, char **argv)
 		   "wl_numServers = %d, wl_sprocThresh = %d",
 		   wl_numServers,
 		   wl_sprocThresh);
-	__pmNoMem("main.wl_sproc", 
+	pmNoMem("main.wl_sproc", 
 		  (wl_numSprocs+1) * sizeof(WebSproc),
 		  PM_FATAL_ERR);
     }

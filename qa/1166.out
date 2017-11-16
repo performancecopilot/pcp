@@ -5,6 +5,8 @@ __pmOpenLog test: expect to see standard log format
 Log for 1166 on HOST started DATE
 
 G'day cobber
+__pmNoMem test: expect to see a message
+[DATE] qa_libpcp_compat(PID) Warning: SEQ: malloc(123456) failed: Cannot allocate memory
 
 === source code compatibility checks ===
 __pmGetAPIConfig test: OK
@@ -12,3 +14,5 @@ __pmOpenLog test: expect to see standard log format
 Log for 1166 on HOST started DATE
 
 G'day cobber
+__pmNoMem test: expect to see a message
+[DATE] qa_libpcp_compat(PID) Warning: SEQ: malloc(123456) failed: Cannot allocate memory

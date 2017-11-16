@@ -355,7 +355,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
     /* Create the dynamic metric info table based on the logfile table */
     size = sizeof(struct dynamic_metric_info) * numdynamics * numloggers;
     if ((dynamic_metric_infotab = malloc(size)) == NULL) {
-	__pmNoMem("logger_init(dynamic)", size, PM_FATAL_ERR);
+	pmNoMem("logger_init(dynamic)", size, PM_FATAL_ERR);
 	return;
     }
     pinfo = dynamic_metric_infotab;
@@ -373,7 +373,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
     size = sizeof(pmdaMetric) * nummetrics;
     if ((metrictab = malloc(size)) == NULL) {
 	free(dynamic_metric_infotab);
-	__pmNoMem("logger_init(static)", size, PM_FATAL_ERR);
+	pmNoMem("logger_init(static)", size, PM_FATAL_ERR);
 	return;
     }
     memcpy(metrictab, static_metrictab, sizeof(static_metrictab));

@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <errno.h>
 #include <pcp/pmapi.h>
 
 #ifdef BINARY_COMPAT_TEST
@@ -14,6 +15,7 @@
  */
 extern const char *__pmGetAPIConfig(const char *);
 extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
+extern void __pmNoMem(const char *, size_t, int);
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -48,7 +50,6 @@ main(int argc, char **argv)
     FILE	*f;
     int		sts;
 
-    pmSetProgname(argv[0]);
     setlinebuf(stdout);
     setlinebuf(stderr);
 
@@ -67,7 +68,10 @@ main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
+    pmSetProgname("qa_libpcp_compat");
+
     printf("__pmGetAPIConfig test: ");
+    fflush(stdout);
     p = __pmGetAPIConfig("lock_asserts");
     if (p != NULL &&
         (strcmp(p, "false") == 0 || strcmp(p, "true") == 0))
@@ -80,6 +84,7 @@ main(int argc, char **argv)
 	printf("Error: failed to create " TMP ".tmp\n");
 	exit(1);
     }
+    fflush(stdout);
     __pmOpenLog(SEQ, TMP ".log", f, &sts);
     if (sts != 1) {
 	printf("__pmOpenLog failed: status=%d\n", sts);
@@ -88,6 +93,12 @@ main(int argc, char **argv)
     fprintf(f, "G'day cobber\n");
     fflush(f);
     system("cat " TMP ".log");
+
+    printf("__pmNoMem test: expect to see a message\n");
+    fflush(stdout);
+    errno = ENOMEM;
+    __pmNoMem("SEQ", (size_t)123456, PM_RECOV_ERR);
+
 
     return 0;
 }

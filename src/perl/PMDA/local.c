@@ -65,7 +65,7 @@ local_timer(double timeout, scalar_t *callback, int cookie)
     __pmtimevalFromReal(timeout, &delta);
 
     if ((timers = realloc(timers, size)) == NULL)
-	__pmNoMem("timers resize", size, PM_FATAL_ERR);
+	pmNoMem("timers resize", size, PM_FATAL_ERR);
     timers[ntimers].id = -1;	/* not yet registered */
     timers[ntimers].delta = delta;
     timers[ntimers].cookie = cookie;
@@ -101,7 +101,7 @@ local_file(int type, int fd, scalar_t *callback, int cookie)
     int size = sizeof(*files) * (nfiles + 1);
 
     if ((files = realloc(files, size)) == NULL)
-	__pmNoMem("files resize", size, PM_FATAL_ERR);
+	pmNoMem("files resize", size, PM_FATAL_ERR);
     files[nfiles].type = type;
     files[nfiles].fd = fd;
     files[nfiles].cookie = cookie;

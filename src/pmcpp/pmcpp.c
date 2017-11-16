@@ -316,13 +316,13 @@ directive(void)
 	/* OP_DEFINE case */
 	macro = (macro_t *)realloc(macro, (nmacro+1)*sizeof(macro_t));
 	if (macro == NULL) {
-	    __pmNoMem("pmcpp: macro[]", (nmacro+1)*sizeof(macro_t), PM_FATAL_ERR);
+	    pmNoMem("pmcpp: macro[]", (nmacro+1)*sizeof(macro_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	macro[nmacro].namelen = namelen;
 	macro[nmacro].name = (char *)malloc(namelen+1);
 	if (macro[nmacro].name == NULL) {
-	    __pmNoMem("pmcpp: name", namelen+1, PM_FATAL_ERR);
+	    pmNoMem("pmcpp: name", namelen+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	strncpy(macro[nmacro].name, name, namelen);
@@ -330,7 +330,7 @@ directive(void)
 	macro[nmacro].valuelen = valuelen;
 	macro[nmacro].value = (char *)malloc(valuelen+1);
 	if (macro[nmacro].value == NULL) {
-	    __pmNoMem("pmcpp: value", valuelen+1, PM_FATAL_ERR);
+	    pmNoMem("pmcpp: value", valuelen+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	if (value && valuelen)
@@ -464,7 +464,7 @@ do_macro(void)
 				    obuflen *= 2;
 				sofar = op - obuf;
 				if ((obuf = (char *)realloc(obuf, obuflen)) == NULL) {
-				    __pmNoMem("pmcpp: obuf realloc", obuflen, PM_FATAL_ERR);
+				    pmNoMem("pmcpp: obuf realloc", obuflen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
 				if (debug)
@@ -627,7 +627,7 @@ main(int argc, char **argv)
     /* input buffer starts at 256 chars, but will expand if needed */
     ibuflen = 256;
     if ((ibuf = (char *)malloc(ibuflen)) == NULL) {
-	__pmNoMem("pmcpp: ibuf alloc", ibuflen, PM_FATAL_ERR);
+	pmNoMem("pmcpp: ibuf alloc", ibuflen, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
 
@@ -640,7 +640,7 @@ main(int argc, char **argv)
     nincdir = 2;
     incdir = (incdir_t *)malloc(nincdir*sizeof(incdir_t));
     if (incdir == NULL) {
-	__pmNoMem("pmcpp: incdir[]", nincdir*sizeof(incdir_t), PM_FATAL_ERR);
+	pmNoMem("pmcpp: incdir[]", nincdir*sizeof(incdir_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     incdir[0].dirname = NULL;
@@ -663,7 +663,7 @@ main(int argc, char **argv)
 	    while (strlen(opts.optarg)+9 >= ibuflen) {
 		ibuflen *= 2;
 		if ((ibuf = (char *)realloc(ibuf, ibuflen)) == NULL) {
-		    __pmNoMem("pmcpp: ibuf -D realloc", ibuflen, PM_FATAL_ERR);
+		    pmNoMem("pmcpp: ibuf -D realloc", ibuflen, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		if (debug)
@@ -679,7 +679,7 @@ main(int argc, char **argv)
 	    nincdir++;
 	    incdir = (incdir_t *)realloc(incdir, nincdir*sizeof(incdir_t));
 	    if (incdir == NULL) {
-		__pmNoMem("pmcpp: realloc incdir[]", nincdir*sizeof(incdir_t), PM_FATAL_ERR);
+		pmNoMem("pmcpp: realloc incdir[]", nincdir*sizeof(incdir_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    incdir[nincdir-2].dirname = opts.optarg;
@@ -732,7 +732,7 @@ main(int argc, char **argv)
 	 */
 	dirbuf = strdup(currfile->fname);
 	if (dirbuf == NULL) {
-	    __pmNoMem("pmcpp: dir name alloc", strlen(currfile->fname)+1, PM_FATAL_ERR);
+	    pmNoMem("pmcpp: dir name alloc", strlen(currfile->fname)+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	incdir[0].dirname = dirname(dirbuf);
@@ -798,7 +798,7 @@ more:
 	    int	sofar = ip - ibuf;
 	    ibuflen *= 2;
 	    if ((ibuf = (char *)realloc(ibuf, ibuflen)) == NULL) {
-		__pmNoMem("pmcpp: ibuf realloc", ibuflen, PM_FATAL_ERR);
+		pmNoMem("pmcpp: ibuf realloc", ibuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    if (debug)
@@ -909,7 +909,7 @@ more:
 		currfile->fname = strdup(p);
 		*pend = c;
 		if (currfile->fname == NULL) {
-		    __pmNoMem("pmcpp: include file name alloc", strlen(p)+1, PM_FATAL_ERR);
+		    pmNoMem("pmcpp: include file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		if (!Pflag) {
@@ -976,7 +976,7 @@ more:
 		currfile->fname = strdup("<shell>");
 		*pend = c;
 		if (currfile->fname == NULL) {
-		    __pmNoMem("pmcpp: shell file name alloc", strlen(p)+1, PM_FATAL_ERR);
+		    pmNoMem("pmcpp: shell file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		if (!Pflag) {

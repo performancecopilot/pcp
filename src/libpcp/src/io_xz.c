@@ -414,7 +414,7 @@ xz_open(__pmFILE *f, const char *path, const char *mode)
 
   xz = malloc(sizeof *xz);
   if (xz == NULL) {
-      __pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
+      pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
       return NULL;
   }
 
@@ -442,7 +442,7 @@ xz_fdopen(__pmFILE *f, int fd, const char *mode)
 
   xz = malloc(sizeof *xz);
   if (xz == NULL) {
-      __pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
+      pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
       return NULL;
   }
 

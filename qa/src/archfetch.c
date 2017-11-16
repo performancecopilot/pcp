@@ -142,7 +142,7 @@ Options:\n\
     while (optind < argc) {
 	pmidlist = (pmID *)realloc(pmidlist, (numpmid+1)*sizeof(pmidlist[0]));
 	if (pmidlist == NULL) {
-	    __pmNoMem("pmidlist[]", (numpmid+1)*sizeof(pmidlist[0]), PM_FATAL_ERR);
+	    pmNoMem("pmidlist[]", (numpmid+1)*sizeof(pmidlist[0]), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	sts = pmLookupName(1, &argv[optind], &pmidlist[numpmid]);

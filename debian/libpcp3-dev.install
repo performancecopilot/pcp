@@ -220,6 +220,8 @@ usr/share/man/man3/pmnewcontextzone.3.gz
 usr/share/man/man3/pmNewContextZone.3.gz
 usr/share/man/man3/pmnewzone.3.gz
 usr/share/man/man3/pmNewZone.3.gz
+usr/share/man/man3/pmnomem.3.gz
+usr/share/man/man3/pmNoMem.3.gz
 usr/share/man/man3/pmnumberstr.3.gz
 usr/share/man/man3/pmNumberStr.3.gz
 usr/share/man/man3/pmNumberStr_r.3.gz

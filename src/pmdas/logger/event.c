@@ -232,7 +232,7 @@ event_config(const char *fname)
 	len = (numlogfiles + 1) * sizeof(event_logfile_t);
 	logfiles = realloc(logfiles, len);
 	if (logfiles == NULL) {
-	    __pmNoMem("event_config", len, PM_FATAL_ERR);
+	    pmNoMem("event_config", len, PM_FATAL_ERR);
 	    sts = -1;
 	    break;
 	}

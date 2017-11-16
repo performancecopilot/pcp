@@ -403,7 +403,7 @@ void enlarge_ctxtab(int context)
         size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
         ctxtab = realloc (ctxtab, need);
         if (ctxtab == NULL)
-            __pmNoMem("systemd ctx table", need, PM_FATAL_ERR);
+            pmNoMem("systemd ctx table", need, PM_FATAL_ERR);
         /* Blank out new entries. */
         while (ctxtab_size <= context)
             memset (& ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));

@@ -222,7 +222,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
      * archive name has changed.
      */
     if ((save_curlog_name = strdup(acp->ac_log->l_name)) == NULL) {
-	__pmNoMem("__pmLogFetchInterp.save_curlog_name",
+	pmNoMem("__pmLogFetchInterp.save_curlog_name",
 		  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
     }
     save_curvol = acp->ac_log->l_curvol;
@@ -262,7 +262,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	}
 	if (lfup->l_name == NULL) {
 	    if ((lfup->l_name = strdup(acp->ac_log->l_name)) == NULL) {
-		__pmNoMem("__pmLogFetchInterp.l_name",
+		pmNoMem("__pmLogFetchInterp.l_name",
 			  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
 	    }
 	}
@@ -973,7 +973,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (hp == NULL) {
 	    /* first time we've been asked for this one in this context */
 	    if ((pcp = (pmidcntl_t *)malloc(sizeof(pmidcntl_t))) == NULL) {
-		__pmNoMem("__pmLogFetchInterp.pmidcntl_t", sizeof(pmidcntl_t), PM_FATAL_ERR);
+		pmNoMem("__pmLogFetchInterp.pmidcntl_t", sizeof(pmidcntl_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    pcp->valfmt = -1;
@@ -997,7 +997,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (pcp->desc.indom == PM_INDOM_NULL) {
 		    sts = 1;
 		    if ((instlist = (int *)malloc(sizeof(int))) == NULL) {
-			__pmNoMem("__pmLogFetchInterp.instlist", sizeof(int), PM_FATAL_ERR);
+			pmNoMem("__pmLogFetchInterp.instlist", sizeof(int), PM_FATAL_ERR);
 		    }
 		    instlist[0] = PM_IN_NULL;
 		}
@@ -1014,7 +1014,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		for (i = 0; i < sts; i++) {
 		    if ((icp = (instcntl_t *)malloc(sizeof(instcntl_t))) == NULL) {
-			__pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
+			pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
 		    }
 		    icp->metric = pcp;
 		    icp->inst = instlist[i];
@@ -1497,7 +1497,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 
 	if (rp->vset[j] == NULL) {
-	    __pmNoMem("__pmLogFetchInterp.vset", sizeof(pmValueSet), PM_FATAL_ERR);
+	    pmNoMem("__pmLogFetchInterp.vset", sizeof(pmValueSet), PM_FATAL_ERR);
 	}
 
 	rp->vset[j]->pmid = pmidlist[j];

@@ -134,13 +134,13 @@ roomtemp_init(pmdaInterface *dp)
 	if ((p = nextsensor()) == NULL)
 	    break;
 	if ((sntab = (sn_t *)realloc(sntab, (i+1) * sizeof(sn_t))) == NULL) {
-	    __pmNoMem("roomtemp_init: realloc sntab", (i+1) * sizeof(sn_t), PM_FATAL_ERR);
+	    pmNoMem("roomtemp_init: realloc sntab", (i+1) * sizeof(sn_t), PM_FATAL_ERR);
 	}
 	if ((device = (pmdaInstid *)realloc(device, (i+1) * sizeof(pmdaInstid))) == NULL) {
-	    __pmNoMem("roomtemp_init: realloc device", (i+1) * sizeof(pmdaInstid), PM_FATAL_ERR);
+	    pmNoMem("roomtemp_init: realloc device", (i+1) * sizeof(pmdaInstid), PM_FATAL_ERR);
 	}
 	if ((device[i].i_name = (char *)malloc(17)) == NULL) {
-	    __pmNoMem("roomtemp_init: malloc name", 17, PM_FATAL_ERR);
+	    pmNoMem("roomtemp_init: malloc name", 17, PM_FATAL_ERR);
 	}
 	memcpy(sntab[i].sn, p, 8);	/* SN for later fetch */
 	device[i].i_inst = i;		/* internal name is ordinal number */

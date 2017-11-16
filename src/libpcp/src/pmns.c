@@ -1784,7 +1784,7 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
 	     */
 	    xname = strdup(namelist[i]);
 	    if (xname == NULL) {
-		__pmNoMem("pmLookupName", strlen(namelist[i])+1, PM_RECOV_ERR);
+		pmNoMem("pmLookupName", strlen(namelist[i])+1, PM_RECOV_ERR);
 		sts = -oserror();
 		continue;
 	    }
@@ -2089,12 +2089,12 @@ stitch_list(int *num, char ***offspring, int **statuslist, int x_num, char **x_o
 	}
     }
     if ((n_offspring = (char **)malloc(need)) == NULL) {
-	__pmNoMem("pmGetChildrenStatus: n_offspring", need, PM_FATAL_ERR);
+	pmNoMem("pmGetChildrenStatus: n_offspring", need, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     if (statuslist != NULL) {
 	if ((n_statuslist = (int *)malloc(n_num*sizeof(n_statuslist[0]))) == NULL) {
-	    __pmNoMem("pmGetChildrenStatus: n_statuslist", n_num*sizeof(n_statuslist[0]), PM_FATAL_ERR);
+	    pmNoMem("pmGetChildrenStatus: n_statuslist", n_num*sizeof(n_statuslist[0]), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
     }
@@ -2206,7 +2206,7 @@ getchildren(__pmContext *ctxp, int needlocks, const char *name, char ***offsprin
 		char	*xname = strdup(name);
 		char	*xp;
 		if (xname == NULL) {
-		    __pmNoMem("pmGetChildrenStatus", strlen(name)+1, PM_RECOV_ERR);
+		    pmNoMem("pmGetChildrenStatus", strlen(name)+1, PM_RECOV_ERR);
 		    num = -oserror();
 		    goto report;
 		}
@@ -2853,7 +2853,7 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 	for (j = 0; j < nchildren; j++) {
 	    size_t size = strlen(name) + 1 + strlen(enfants[j]) + 1;
 	    if ((newname = (char *)malloc(size)) == NULL) {
-		__pmNoMem("pmTraversePMNS_local: newname", size, PM_FATAL_ERR);
+		pmNoMem("pmTraversePMNS_local: newname", size, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    if (*name == '\0')
@@ -2876,7 +2876,7 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 	    *sz_namelist = 128;
 	    *namelist = (char **)malloc(*sz_namelist * sizeof((*namelist)[0]));
 	    if (*namelist == NULL) {
-		__pmNoMem("pmTraversePMNS_local: initial namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
+		pmNoMem("pmTraversePMNS_local: initial namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	}
@@ -2885,7 +2885,7 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 	    *sz_namelist *= 2;
 	    namelist_new = (char **)realloc(*namelist, *sz_namelist * sizeof((*namelist)[0]));
 	    if (namelist_new == NULL) {
-		__pmNoMem("pmTraversePMNS_local: double namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
+		pmNoMem("pmTraversePMNS_local: double namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    *namelist = namelist_new;

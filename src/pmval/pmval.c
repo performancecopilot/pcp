@@ -120,7 +120,7 @@ initinsts(Context *x)
 	    np = x->inames;
 	    ip = (int *)malloc(n * sizeof(int));
 	    if (ip == NULL) {
-		__pmNoMem("pmval.ip", n * sizeof(int), PM_FATAL_ERR);
+		pmNoMem("pmval.ip", n * sizeof(int), PM_FATAL_ERR);
 	    }
 	    x->iids = ip;
 	    for (i = 0; i < n; i++) {
@@ -164,7 +164,7 @@ initinsts(Context *x)
 	/* build InstPair list and sort */
 	pp = (InstPair *)malloc(n * sizeof(InstPair));
 	if (pp == NULL) {
-	    __pmNoMem("pmval.pp", n * sizeof(InstPair), PM_FATAL_ERR);
+	    pmNoMem("pmval.pp", n * sizeof(InstPair), PM_FATAL_ERR);
 	}
 	x->ipairs = pp;
 	for (i = 0; i < n; i++) {
@@ -837,10 +837,10 @@ initfilters(Context *x, int conntype)
     count = x->inum ? x->inum : 1;
     length = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
     if ((vset = (pmValueSet *)calloc(1, length)) == NULL)
-	__pmNoMem("store vset", length, PM_FATAL_ERR);
+	pmNoMem("store vset", length, PM_FATAL_ERR);
     length = sizeof(pmResult);
     if ((result = (pmResult *)calloc(1, length)) == NULL)
-	__pmNoMem("store result", length, PM_FATAL_ERR);
+	pmNoMem("store result", length, PM_FATAL_ERR);
 
     result->vset[0] = vset;
     result->numpmid = 1;
@@ -940,7 +940,7 @@ main(int argc, char *argv[])
 		context.inames =
 		    (char **)realloc(context.inames, idx1 * (sizeof (char *)));
 		if (context.inames == NULL)
-		    __pmNoMem("pmval.ip", idx1 * sizeof(char *), PM_FATAL_ERR);
+		    pmNoMem("pmval.ip", idx1 * sizeof(char *), PM_FATAL_ERR);
 		*(context.inames + idx1 - 1) = subopt;
 		subopt = getinstance(NULL);
 	    }

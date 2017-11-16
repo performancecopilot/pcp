@@ -40,7 +40,7 @@ NewClient(void)
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
-	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
+	    pmNoMem("NewClient", sz, PM_RECOV_ERR);
 	    Shutdown();
 	    exit(1);
 	}
@@ -50,7 +50,7 @@ NewClient(void)
     }
     client[i].addr = __pmSockAddrAlloc();
     if (client[i].addr == NULL) {
-        __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
+        pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
 	Shutdown();
 	exit(1);
     }
@@ -168,7 +168,7 @@ AcceptNewClient(int reqfd)
 	    *bp = '\0';
 	    client[i].pmcd_hostname = strdup(buf);
 	    if (client[i].pmcd_hostname == NULL)
-		__pmNoMem("PMCD.hostname", strlen(buf), PM_FATAL_ERR);
+		pmNoMem("PMCD.hostname", strlen(buf), PM_FATAL_ERR);
 	    bp++;
 	    client[i].pmcd_port = (int)strtoul(bp, &endp, 10);
 	    if (*endp != '\0') {

@@ -60,7 +60,7 @@ pmdaTreeRebuildHash(__pmnsTree *tree, int numpmid)
 	if (tree->htab) {
 	    __pmdaTreeReindexHash(tree, tree->root);
 	} else {
-	    __pmNoMem("pmdaTreeRebuildHash",
+	    pmNoMem("pmdaTreeRebuildHash",
 			htabsize * sizeof(__pmnsNode *), PM_RECOV_ERR);
 	    tree->htabsize = 0;
 	}

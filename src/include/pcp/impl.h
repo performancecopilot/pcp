@@ -58,13 +58,6 @@ PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
 /* standard error, warning and info wrapper for syslog(3) */
 PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
-/*
- * no mem today, my love has gone away ....
- */
-PCP_CALL extern void __pmNoMem(const char *, size_t, int);
-#define PM_FATAL_ERR 1
-#define PM_RECOV_ERR 0
-
 #ifdef __cplusplus
 }
 #endif

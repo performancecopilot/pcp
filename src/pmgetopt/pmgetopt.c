@@ -62,7 +62,7 @@ command(pmOptions *opts, char *buffer)
 	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: getopt command: '%s'\n", pmGetProgname(), start);
 	if ((opts->short_options = strdup(start)) == NULL)
-	    __pmNoMem("short_options", strlen(start), PM_FATAL_ERR);
+	    pmNoMem("short_options", strlen(start), PM_FATAL_ERR);
 	return 0;
     }
 
@@ -71,7 +71,7 @@ command(pmOptions *opts, char *buffer)
 	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: usage command: '%s'\n", pmGetProgname(), start);
 	if ((opts->short_usage = strdup(start)) == NULL)
-	    __pmNoMem("short_usage", strlen(start), PM_FATAL_ERR);
+	    pmNoMem("short_usage", strlen(start), PM_FATAL_ERR);
 	return 0;
     }
 
@@ -94,7 +94,7 @@ append_option(pmOptions *opts, pmLongOptions *longopt)
     /* space for existing entries, new entry and the sentinal */
     size = (count + 1) * sizeof(pmLongOptions) + sizeof(pmLongOptions);
     if ((entry = realloc(opts->long_options, size)) == NULL)
-	__pmNoMem("append", size, PM_FATAL_ERR);
+	pmNoMem("append", size, PM_FATAL_ERR);
     opts->long_options = entry;
     entry += count++;
     /* if not first entry: find current sentinal, overwrite with new option */
@@ -111,7 +111,7 @@ append_text(pmOptions *opts, char *buffer, size_t length)
     if (pmDebugOptions.desperate)
 	fprintf(stderr, "%s: append: '%s'\n", pmGetProgname(), buffer);
     if ((text.message = strdup(buffer)) == NULL)
-	__pmNoMem("append_text", length, PM_FATAL_ERR);
+	pmNoMem("append_text", length, PM_FATAL_ERR);
     return append_option(opts, &text);
 }
 
@@ -207,14 +207,14 @@ options(pmOptions *opts, char *buffer, size_t length)
 	    finish = skip_nonwhitespace(token);
 	    *finish = '\0';
 	    if ((option.argname = strdup(token)) == NULL)
-		__pmNoMem("argname", strlen(token), PM_FATAL_ERR);
+		pmNoMem("argname", strlen(token), PM_FATAL_ERR);
 	    option.has_arg = 1;
 	} /* else e.g. --label  dump the archive label */
 	if ((option.long_opt = strdup(start + 2)) == NULL)
-	    __pmNoMem("longopt", strlen(start), PM_FATAL_ERR);
+	    pmNoMem("longopt", strlen(start), PM_FATAL_ERR);
 	token = skip_whitespace(finish + 1);
 	if ((option.message = strdup(token)) == NULL)
-	    __pmNoMem("message", strlen(token), PM_FATAL_ERR);
+	    pmNoMem("message", strlen(token), PM_FATAL_ERR);
 	return append_option(opts, &option);
     }
 
@@ -242,16 +242,16 @@ options(pmOptions *opts, char *buffer, size_t length)
 	    finish = skip_nonwhitespace(token);
 	    *finish = '\0';
 	    if ((option.argname = strdup(token)) == NULL)
-		__pmNoMem("argname", strlen(token), PM_FATAL_ERR);
+		pmNoMem("argname", strlen(token), PM_FATAL_ERR);
 	} else {
 	    finish = skip_nonwhitespace(start);
 	    *finish = '\0';
 	}
 	if ((option.long_opt = strdup(start)) == NULL)
-	    __pmNoMem("longopt", strlen(start), PM_FATAL_ERR);
+	    pmNoMem("longopt", strlen(start), PM_FATAL_ERR);
 	start = skip_whitespace(finish + 1);
 	if ((option.message = strdup(start)) == NULL)
-	    __pmNoMem("message", strlen(start), PM_FATAL_ERR);
+	    pmNoMem("message", strlen(start), PM_FATAL_ERR);
 	return append_option(opts, &option);
     }
 
@@ -269,7 +269,7 @@ options(pmOptions *opts, char *buffer, size_t length)
 	finish = skip_nonwhitespace(token);
 	*finish = '\0';
 	if ((option.argname = strdup(token)) == NULL)
-	    __pmNoMem("argname", strlen(token), PM_FATAL_ERR);
+	    pmNoMem("argname", strlen(token), PM_FATAL_ERR);
 	/* e.g. -X=N  offset resulting values by N units */
 	start = skip_whitespace(finish + 2);
     } else {
@@ -277,7 +277,7 @@ options(pmOptions *opts, char *buffer, size_t length)
 	start = skip_whitespace(start + 3);
     }
     if ((option.message = strdup(start)) == NULL)
-	__pmNoMem("message", strlen(start), PM_FATAL_ERR);
+	pmNoMem("message", strlen(start), PM_FATAL_ERR);
     return append_option(opts, &option);
 }
 
@@ -292,7 +292,7 @@ build_short_options(pmOptions *opts)
     /* allocate for maximal case - every entry has a short opt and an arg */
     size = 1 + sizeof(char) * 2 * count;
     if ((shortopts = malloc(size)) == NULL)
-	__pmNoMem("shortopts", size, PM_FATAL_ERR);
+	pmNoMem("shortopts", size, PM_FATAL_ERR);
 
     for (entry = opts->long_options; entry && entry->long_opt; entry++) {
 	if ((opt = entry->short_opt) == 0)

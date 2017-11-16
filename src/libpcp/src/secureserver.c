@@ -571,7 +571,7 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
 			"Successful authentication for user \"%s\"\n",
 			username);
 	if ((username = strdup(username)) == NULL) {
-	    __pmNoMem("__pmAuthServerSetAttributes",
+	    pmNoMem("__pmAuthServerSetAttributes",
 			len, PM_RECOV_ERR);
 	    return -ENOMEM;
 	}

@@ -117,13 +117,13 @@ setup_gcard_indom(void)
     size = device_count * sizeof(pmdaInstid);
     pcp_nvinfo.nvindom->it_set = (pmdaInstid *)malloc(size);
     if (!pcp_nvinfo.nvindom->it_set) {
-	__pmNoMem("gcard indom", size, PM_RECOV_ERR);
+	pmNoMem("gcard indom", size, PM_RECOV_ERR);
 	return -ENOMEM;
     }
 
     size = device_count * sizeof(nvinfo_t);
     if ((pcp_nvinfo.nvinfo = (nvinfo_t *)malloc(size)) == NULL) {
-	__pmNoMem("gcard values", size, PM_RECOV_ERR);
+	pmNoMem("gcard values", size, PM_RECOV_ERR);
 	free(pcp_nvinfo.nvindom->it_set);
 	return -ENOMEM;
     }
@@ -133,7 +133,7 @@ setup_gcard_indom(void)
 	pcp_nvinfo.nvindom->it_set[i].i_inst = i;
 	pmsprintf(gpuname, sizeof(gpuname), "gpu%d", i);
 	if ((name = strdup(gpuname)) == NULL) {
-	    __pmNoMem("gcard instname", strlen(gpuname), PM_RECOV_ERR);
+	    pmNoMem("gcard instname", strlen(gpuname), PM_RECOV_ERR);
 	    while (--i)
 		free(pcp_nvinfo.nvindom->it_set[i].i_name);
 	    free(pcp_nvinfo.nvindom->it_set);

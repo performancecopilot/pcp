@@ -352,7 +352,7 @@ addArchive(pmOptions *opts, char *arg)
     return;
 
  noMem:
-    __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+    pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
     /*NOTREACHED*/
 }
 
@@ -435,7 +435,7 @@ __pmAddOptHost(pmOptions *opts, char *arg)
 	opts->hosts = hosts;
 	opts->nhosts++;
     } else {
-	__pmNoMem("pmGetOptions(host)", size, PM_FATAL_ERR);
+	pmNoMem("pmGetOptions(host)", size, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
 }
@@ -529,7 +529,7 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 
 	    length = strlen(dir) + 1 + strlen(log) + 1;
 	    if ((p = (char *)malloc(length)) == NULL)
-		__pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
+		pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
 	    pmsprintf(p, length, "%s%c%s", dir, sep, log);
 	    __pmAddOptArchive(opts, p);
 	    free(p);
@@ -591,10 +591,10 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 			opts->hosts = hosts;
 			opts->nhosts++;
 		    } else {
-			__pmNoMem("pmGetOptions(host)", length, PM_FATAL_ERR);
+			pmNoMem("pmGetOptions(host)", length, PM_FATAL_ERR);
 		    }
 		} else {
-		    __pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);
+		    pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 	    }
@@ -637,11 +637,11 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
 		    opts->hosts = hosts;
 		    opts->nhosts++;
 		} else {
-		    __pmNoMem("pmGetOptions(host)", length, PM_FATAL_ERR);
+		    pmNoMem("pmGetOptions(host)", length, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 	    } else {
-		__pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);
+		pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);
 	    }
 	next:
 	    start = (*end == '\0') ? end : end + 1;

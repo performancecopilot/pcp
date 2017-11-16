@@ -54,7 +54,7 @@ pmcd_init_trace(int n)
     if (trace != NULL)
 	free(trace);
     if ((trace = (tracebuf *)malloc(n * sizeof(tracebuf))) == NULL) {
-	 __pmNoMem("pmcd_init_trace", n * sizeof(tracebuf), PM_RECOV_ERR);
+	 pmNoMem("pmcd_init_trace", n * sizeof(tracebuf), PM_RECOV_ERR);
 	 return;
     }
     pmcd_trace_nbufs = n;

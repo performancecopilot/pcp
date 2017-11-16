@@ -510,7 +510,7 @@ initArchive(Archive *a)
 	return 0;
     }
     if ((a->hname = strdup(tmp)) == NULL)
-	__pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
+	pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 
     /* get the goodies from archive label */
     if ((sts = pmGetArchiveLabel(&label)) < 0) {

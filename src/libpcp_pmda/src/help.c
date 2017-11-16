@@ -60,7 +60,7 @@ pmdaOpenHelp(const char *fname)
 	sts = numhelp++;
 	tmp_tab = (help_t *)realloc(tab, numhelp * sizeof(tab[0]));
 	if (tmp_tab == NULL) {
-	    __pmNoMem("pmdaOpenHelp", numhelp * sizeof(tab[0]), PM_RECOV_ERR);
+	    pmNoMem("pmdaOpenHelp", numhelp * sizeof(tab[0]), PM_RECOV_ERR);
 	    tab = NULL;
 	    numhelp = 0;
 	    return -oserror();

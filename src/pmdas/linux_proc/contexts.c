@@ -57,7 +57,7 @@ proc_ctx_growtab(int ctx)
     need = (ctx + 1) * sizeof(ctxtab[0]);
     ctxtab = (proc_perctx_t *)realloc(ctxtab, need);
     if (ctxtab == NULL)
-        __pmNoMem("proc ctx table", need, PM_FATAL_ERR);
+        pmNoMem("proc ctx table", need, PM_FATAL_ERR);
     while (num_ctx <= ctx)
 	proc_ctx_clear(num_ctx++);
 }

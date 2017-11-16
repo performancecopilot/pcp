@@ -429,7 +429,7 @@ do_sysctl(mib_t *mp, size_t xpect)
 	    mp->m_data = realloc(mp->m_data, mp->m_datalen);
 	    if (mp->m_data == NULL) {
 		fprintf(stderr, "Error: %s: buffer alloc failed for sysctl metric \"%s\"\n", mp->m_pcpname, mp->m_name);
-		__pmNoMem("do_sysctl", mp->m_datalen, PM_FATAL_ERR);
+		pmNoMem("do_sysctl", mp->m_datalen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	}
@@ -844,7 +844,7 @@ netbsd_init(pmdaInterface *dp)
 			map[i].m_mib = (int *)malloc(map[i].m_miblen*sizeof(map[i].m_mib[0]));
 			if (map[i].m_mib == NULL) {
 			    fprintf(stderr, "Error: %s (%s): failed mib alloc for sysctl metric \"%s\"\n", map[i].m_pcpname, pmIDStr(metrictab[m].m_desc.pmid), map[i].m_name);
-			    __pmNoMem("netbsd_init: mib", map[i].m_miblen*sizeof(map[i].m_mib[0]), PM_FATAL_ERR);
+			    pmNoMem("netbsd_init: mib", map[i].m_miblen*sizeof(map[i].m_mib[0]), PM_FATAL_ERR);
 			    /*NOTREACHED*/
 			}
 			memcpy(map[i].m_mib, mib, map[i].m_miblen*sizeof(map[i].m_mib[0]));
@@ -910,7 +910,7 @@ netbsd_init(pmdaInterface *dp)
     indomtab[CPU_INDOM].it_numinst = ncpu;
     indomtab[CPU_INDOM].it_set = (pmdaInstid *)malloc(ncpu * sizeof(pmdaInstid));
     if (indomtab[CPU_INDOM].it_set == NULL) {
-	__pmNoMem("netbsd_init: CPU_INDOM it_set", ncpu * sizeof(pmdaInstid), PM_FATAL_ERR);
+	pmNoMem("netbsd_init: CPU_INDOM it_set", ncpu * sizeof(pmdaInstid), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     for (i = 0; i < ncpu; i++) {
@@ -918,7 +918,7 @@ netbsd_init(pmdaInterface *dp)
 	pmsprintf(iname, sizeof(iname), "cpu%d", i);
 	indomtab[CPU_INDOM].it_set[i].i_name = strdup(iname);
 	if (indomtab[CPU_INDOM].it_set[i].i_name == NULL) {
-	    __pmNoMem("netbsd_init: CPU_INDOM strdup iname", strlen(iname), PM_FATAL_ERR);
+	    pmNoMem("netbsd_init: CPU_INDOM strdup iname", strlen(iname), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
     }

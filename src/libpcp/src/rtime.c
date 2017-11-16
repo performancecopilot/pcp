@@ -201,7 +201,7 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
     char	*q;
 
     if ((*rslt = malloc(need)) == NULL)
-	__pmNoMem("__pmParseTime", need, PM_FATAL_ERR);
+	pmNoMem("__pmParseTime", need, PM_FATAL_ERR);
     q = *rslt;
 
     for (p = spec; *p != '\0'; p++)

@@ -33,7 +33,7 @@ parseAlloc(const char *func, size_t need)
     void    *tmp;
 
     if ((tmp = malloc(need)) == NULL)
-	__pmNoMem(func, need, PM_FATAL_ERR);
+	pmNoMem(func, need, PM_FATAL_ERR);
     return tmp;
 }
 

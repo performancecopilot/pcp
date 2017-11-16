@@ -95,7 +95,7 @@ refresh_cgroup_devices(void)
 	if (pmdaCacheLookupName(diskindom, namebuf, &inst, (void **)&dev) < 0 ||
 	    dev == NULL) {
 	    if (!(dev = (device_t *)malloc(sizeof(device_t)))) {
-		__pmNoMem("device", sizeof(device_t), PM_RECOV_ERR);
+		pmNoMem("device", sizeof(device_t), PM_RECOV_ERR);
 		continue;
 	    }
 	    dev->major = major;

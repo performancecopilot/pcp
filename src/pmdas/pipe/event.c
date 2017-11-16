@@ -44,7 +44,7 @@ enlarge_ctxtab(int context)
 	needs = (context + 1) * sizeof(struct pipe_client);
 	ctxtab = realloc(ctxtab, needs);
 	if (ctxtab == NULL)
-	    __pmNoMem("client ctx table", needs, PM_FATAL_ERR);
+	    pmNoMem("client ctx table", needs, PM_FATAL_ERR);
 
 	/* Initialise new entries to zero, esp. "active" field */
 	while (ctxtab_size <= context) {
@@ -54,7 +54,7 @@ enlarge_ctxtab(int context)
 	    needs = cmdtab_size * sizeof(struct pipe_groot);
 	    groots = calloc(cmdtab_size, sizeof(struct pipe_groot));
 	    if (groots == NULL)
-		__pmNoMem("client groots", needs, PM_FATAL_ERR);
+		pmNoMem("client groots", needs, PM_FATAL_ERR);
 
 	    memset(client, 0, sizeof(pipe_client));
 	    client->pipes = groots;
@@ -75,7 +75,7 @@ enlarge_cmdtab(void)
     pipe_command *pc;
 
     if ((cmdtab = realloc(cmdtab, needed)) == NULL)
-	__pmNoMem("command table", needed, PM_FATAL_ERR);
+	pmNoMem("command table", needed, PM_FATAL_ERR);
     pc = &cmdtab[cmdtab_size++];
     memset(pc, 0, sizeof(*pc));
     return pc;
@@ -89,7 +89,7 @@ enlarge_acltab(void)
     pipe_acl	*pa;
 
     if ((acltab = realloc(acltab, needed)) == NULL)
-	__pmNoMem("access control table", needed, PM_FATAL_ERR);
+	pmNoMem("access control table", needed, PM_FATAL_ERR);
     pa = &acltab[acltab_size++];
     memset(pa, 0, sizeof(*pa));
     return pa;
@@ -106,9 +106,9 @@ add_parameter(const char *start, const char *end,
 
     size = end - start + 1;
     if (param == NULL)
-	__pmNoMem("param", size, PM_FATAL_ERR);
+	pmNoMem("param", size, PM_FATAL_ERR);
     if ((params = realloc(params, length)) == NULL)
-	__pmNoMem("param table", length, PM_FATAL_ERR);
+	pmNoMem("param table", length, PM_FATAL_ERR);
     params[count-1] = param;
 
     *paramtab = params;

@@ -30,12 +30,12 @@ __pmServerAdvertisePresence(const char *serviceSpec, int port)
 
     /* Allocate a server presence and copy the given data. */
     if ((s = malloc(sizeof(*s))) == NULL) {
-	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
+	pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
 		  sizeof(*s), PM_FATAL_ERR);
     }
     s->serviceSpec = strdup(serviceSpec);
     if (s->serviceSpec == NULL) {
-	__pmNoMem("__pmServerAdvertisePresence: can't allocate service spec",
+	pmNoMem("__pmServerAdvertisePresence: can't allocate service spec",
 		  strlen(serviceSpec) + 1, PM_FATAL_ERR);
     }
     s->port = port;
@@ -301,7 +301,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
     if (host == NULL) {
 	host = __pmSockAddrToString(info->address);
 	if (host == NULL) {
-	    __pmNoMem("__pmAddDiscoveredService: can't allocate host buffer",
+	    pmNoMem("__pmAddDiscoveredService: can't allocate host buffer",
 		      0, PM_FATAL_ERR);
 	}
     }
@@ -318,7 +318,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
 	size += 2;
     url = malloc(size);
     if (url == NULL) {
-	__pmNoMem("__pmAddDiscoveredService: can't allocate new entry",
+	pmNoMem("__pmAddDiscoveredService: can't allocate new entry",
 		  size, PM_FATAL_ERR);
     }
     if (isIPv6)

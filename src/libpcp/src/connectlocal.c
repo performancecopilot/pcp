@@ -101,7 +101,7 @@ build_dsotab(void)
 	return -oserror();
     }
     if ((config = malloc(sbuf.st_size+1)) == NULL) {
-	__pmNoMem("build_dsotbl:", sbuf.st_size+1, PM_RECOV_ERR);
+	pmNoMem("build_dsotbl:", sbuf.st_size+1, PM_RECOV_ERR);
 	fclose(configFile);
 	return -oserror();
     }
@@ -507,7 +507,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
     switch (op) {
 	case PM_LOCAL_ADD:
 	    if ((dsotab = (__pmDSO *)realloc(dsotab, (numdso+1)*sizeof(__pmDSO))) == NULL) {
-		__pmNoMem("__pmLocalPMDA realloc", (numdso+1)*sizeof(__pmDSO), PM_FATAL_ERR);
+		pmNoMem("__pmLocalPMDA realloc", (numdso+1)*sizeof(__pmDSO), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    dsotab[numdso].domain = domain;
@@ -518,7 +518,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    else {
 		if ((dsotab[numdso].name = strdup(name)) == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("__pmLocalPMDA name", strlen(name)+1, PM_RECOV_ERR);
+		    pmNoMem("__pmLocalPMDA name", strlen(name)+1, PM_RECOV_ERR);
 		    return sts;
 		}
 	    }
@@ -529,7 +529,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    else {
 		if ((dsotab[numdso].init = strdup(init)) == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("__pmLocalPMDA init", strlen(init)+1, PM_RECOV_ERR);
+		    pmNoMem("__pmLocalPMDA init", strlen(init)+1, PM_RECOV_ERR);
 		    return sts;
 		}
 	    }
@@ -611,7 +611,7 @@ __pmSpecLocalPMDA(const char *spec)
 
     if ((arg = sbuf = strdup(spec)) == NULL) {
 	sts = -oserror();
-	__pmNoMem("__pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
+	pmNoMem("__pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
 	return "strdup failed";
     }
     if (strncmp(arg, "add", 3) == 0) {

@@ -327,7 +327,7 @@ addService(__pmServerPresence *s)
 	size = szActiveServices * sizeof(*activeServices);
 	activeServices = realloc(activeServices, size);
 	if (activeServices == NULL) {
-	    __pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service table",
+	    pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service table",
 		  size, PM_FATAL_ERR);
 	}
     }
@@ -422,7 +422,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
     /* Allocate the avahi server presence. */
     s->avahi = malloc(sizeof(*s->avahi));
     if (s->avahi == NULL) {
-	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate avahi service data",
+	pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate avahi service data",
 		  sizeof(*s->avahi), PM_FATAL_ERR);
     }
 
@@ -439,7 +439,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
     if (size > AVAHI_LABEL_MAX)
 	size = AVAHI_LABEL_MAX;
     if ((s->avahi->serviceName = avahi_malloc(size)) == NULL) {
-	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
+	pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
 		  size, PM_FATAL_ERR);
     }
     pmsprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
@@ -447,7 +447,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 
     size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */
     if ((s->avahi->serviceTag = avahi_malloc(size)) == NULL) {
-	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service tag",
+	pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service tag",
 		  size, PM_FATAL_ERR);
     }
     pmsprintf(s->avahi->serviceTag, size, "_%s._tcp", s->serviceSpec);

@@ -38,3 +38,9 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream, int *sta
     return pmOpenLog(progname, logname, oldstream, status);
 }
 
+#undef __pmNoMem
+void
+__pmNoMem(const char *where, size_t size, int fatal)
+{
+    return pmNoMem(where, size, fatal);
+}

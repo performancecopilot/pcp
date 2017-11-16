@@ -127,14 +127,14 @@ __pmProcessAddArg(__pmExecCtl_t **handle, const char *arg)
 	PM_LOCK(exec_lock);
 	/* first call in a sequence */
 	if ((ep = (__pmExecCtl_t *)malloc(sizeof(__pmExecCtl_t))) == NULL) {
-	    __pmNoMem("__pmProcessAddArg: __pmExecCtl_t malloc", sizeof(__pmExecCtl_t), PM_RECOV_ERR);
+	    pmNoMem("__pmProcessAddArg: __pmExecCtl_t malloc", sizeof(__pmExecCtl_t), PM_RECOV_ERR);
 	    PM_UNLOCK(exec_lock);
 	    return -ENOMEM;
 	}
 	ep->argc = 0;
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	if ((ep->argv = (char **)malloc(sizeof(ep->argv[0]))) == NULL) {
-	    __pmNoMem("__pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
+	    pmNoMem("__pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
 	    cleanup(ep);
 	    *handle = NULL;
 	    PM_UNLOCK(exec_lock);
@@ -149,7 +149,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
      * ep->argc+2 ... +1 for this one, +2 for NULL @ end of args
      */
     if ((tmp_argv = (char **)realloc(ep->argv, sizeof(ep->argv[0])*(ep->argc+2))) == NULL) {
-	__pmNoMem("__pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+2), PM_RECOV_ERR);
+	pmNoMem("__pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+2), PM_RECOV_ERR);
 	cleanup(ep);
 	*handle = NULL;
 	PM_UNLOCK(exec_lock);
@@ -162,7 +162,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     if ((ep->argv[ep->argc-1] = strdup(arg)) == NULL) {
-	__pmNoMem("__pmProcessAddArg: arg strdup", strlen(arg)+1, PM_RECOV_ERR);
+	pmNoMem("__pmProcessAddArg: arg strdup", strlen(arg)+1, PM_RECOV_ERR);
 	ep->argc--;
 	cleanup(ep);
 	PM_UNLOCK(exec_lock);
@@ -599,7 +599,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 		 * cause problems for __pmProcessPipeClose(), but it will
 		 * just return early with an error without waiting
 		 */
-		__pmNoMem("__pmProcessPipe: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
+		pmNoMem("__pmProcessPipe: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
 		PM_UNLOCK(exec_lock);
 		return -ENOMEM;
 	    }
@@ -712,7 +712,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 		 * cause problems for __pmProcessPipeClose(), but it will
 		 * just return early with an error without waiting
 		 */
-		__pmNoMem("__pmProcessPipe: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
+		pmNoMem("__pmProcessPipe: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
 		PM_UNLOCK(exec_lock);
 		return -ENOMEM;
 	    }
@@ -847,7 +847,7 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
     int		endch = ' ';
 
     if (str == NULL) {
-	__pmNoMem("__pmProcessUnpickArgs", strlen(command)+1, PM_RECOV_ERR);
+	pmNoMem("__pmProcessUnpickArgs", strlen(command)+1, PM_RECOV_ERR);
 	return -ENOMEM;
     }
 

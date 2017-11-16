@@ -1657,7 +1657,7 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
-	__pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+	pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
 
     /*
      * A mark record has numpmid == 0 and the timestamp set to one millisecond
@@ -2300,7 +2300,7 @@ more:
 
 	    i = (int)sizeof(pmResult) + numpmid * (int)sizeof(pmValueSet *);
 	    if ((newres = (pmResult *)malloc(i)) == NULL) {
-		__pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
+		pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
 	    }
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
@@ -2312,7 +2312,7 @@ more:
 		    /* first time we've been asked for this one */
 		    if ((pcp = (pmid_ctl *)malloc(sizeof(pmid_ctl))) == NULL) {
 			PM_UNLOCK(logutil_lock);
-			__pmNoMem("__pmLogFetch.pmid_ctl", sizeof(pmid_ctl), PM_FATAL_ERR);
+			pmNoMem("__pmLogFetch.pmid_ctl", sizeof(pmid_ctl), PM_FATAL_ERR);
 			/* NOTREACHED */
 		    }
 		    pcp->pc_pmid = pmidlist[j];

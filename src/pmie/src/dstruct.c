@@ -360,7 +360,7 @@ alloc(size_t size)
     void *p;
 
     if ((p = malloc(size)) == NULL) {
-	__pmNoMem("pmie.alloc", size, PM_FATAL_ERR);
+	pmNoMem("pmie.alloc", size, PM_FATAL_ERR);
     }
     return p;
 }
@@ -372,7 +372,7 @@ zalloc(size_t size)
     void *p;
 
     if ((p = calloc(1, size)) == NULL) {
-	__pmNoMem("pmie.zalloc", size, PM_FATAL_ERR);
+	pmNoMem("pmie.zalloc", size, PM_FATAL_ERR);
     }
     return p;
 }
@@ -395,7 +395,7 @@ aalloc(size_t align, size_t size)
 #endif
 #endif
     if (sts != 0) {
-	__pmNoMem("pmie.aalloc", size, PM_FATAL_ERR);
+	pmNoMem("pmie.aalloc", size, PM_FATAL_ERR);
     }
     return p;
 }
@@ -407,7 +407,7 @@ ralloc(void *p, size_t size)
     void *q;
 
     if ((q = realloc(p, size)) == NULL) {
-	__pmNoMem("pmie.ralloc", size, PM_FATAL_ERR);
+	pmNoMem("pmie.ralloc", size, PM_FATAL_ERR);
     }
     return q;
 }
@@ -418,7 +418,7 @@ sdup(const char *p)
     char *q;
 
     if ((q = strdup(p)) == NULL) {
-	__pmNoMem("pmie.sdup", strlen(p), PM_FATAL_ERR);
+	pmNoMem("pmie.sdup", strlen(p), PM_FATAL_ERR);
     }
     return q;
 }

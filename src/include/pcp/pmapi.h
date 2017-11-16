@@ -1161,6 +1161,13 @@ PCP_CALL extern unsigned int pmInDom_serial(pmInDom);
  */
 PCP_CALL extern FILE *pmOpenLog(const char *, const char *, FILE *, int *);
 
+/*
+ * no mem today, my love has gone away ....
+ */
+PCP_CALL extern void pmNoMem(const char *, size_t, int);
+#define PM_FATAL_ERR 1
+#define PM_RECOV_ERR 0
+
 #ifdef __cplusplus
 }
 #endif

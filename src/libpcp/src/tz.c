@@ -407,7 +407,7 @@ pmNewZone(const char *tz)
     zone = (char **)realloc(zone, nzone * sizeof(char *));
     if (zone == NULL) {
 	PM_UNLOCK(__pmLock_extcall);
-	__pmNoMem("pmNewZone", nzone * sizeof(char *), PM_FATAL_ERR);
+	pmNoMem("pmNewZone", nzone * sizeof(char *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     zone[curzone] = strdup(envtz);

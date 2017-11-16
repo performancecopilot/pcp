@@ -109,12 +109,12 @@ ConnectPMCD(void)
 	     */
 	    srchost = strdup(lasthost);
 	    if (srchost == NULL)
-		__pmNoMem("Error copying host name", strlen(lasthost), PM_FATAL_ERR);
+		pmNoMem("Error copying host name", strlen(lasthost), PM_FATAL_ERR);
 	}
 	else {
 	    srchost = strdup(lsp->ls_fqdn);
 	    if (srchost == NULL)
-		__pmNoMem("Error copying host name", strlen(lsp->ls_fqdn), PM_FATAL_ERR);
+		pmNoMem("Error copying host name", strlen(lsp->ls_fqdn), PM_FATAL_ERR);
 	}
     }
 
@@ -161,7 +161,7 @@ ConnectLogger(char *hostname, int *pid, int *port)
     else {
 	logger_fd = sts;
 	if ((lasthost = strdup(hostname)) == NULL) {
-	    __pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
+	    pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
 	}
 	return 0;
     }

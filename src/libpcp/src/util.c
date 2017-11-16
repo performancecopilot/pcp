@@ -374,7 +374,7 @@ pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
     filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
     if (filelog == NULL) {
 	PM_UNLOCK(util_lock);
-	__pmNoMem("pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
+	pmNoMem("pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     filelog[nfilelog-1] = oldstream;
@@ -626,7 +626,7 @@ __pmStringListAdd(char *item, int numElements, char ***list)
     newSize = ptrSize + sizeof(**list) + dataSize + strlen(item) + 1;
     newList = realloc(*list, newSize);
     if (newList == NULL) {
-	__pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
+	pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
 
@@ -1117,7 +1117,7 @@ pmPrintValue(FILE *f,			/* output stream */
 }
 
 void
-__pmNoMem(const char *where, size_t size, int fatal)
+pmNoMem(const char *where, size_t size, int fatal)
 {
     char	errmsg[PM_MAXERRMSGLEN];
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
@@ -1951,7 +1951,7 @@ __pmSetClientId(const char *id)
     pmvb = (pmValueBlock *)calloc(1, PM_VAL_HDR_SIZE+vblen);
     if (pmvb == NULL) {
 	PM_UNLOCK(ctxp->c_lock);
-	__pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
+	pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
 	return -ENOMEM;
     }
     pmvb->vtype = PM_TYPE_STRING;

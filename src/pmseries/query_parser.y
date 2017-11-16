@@ -513,7 +513,7 @@ newnode(int type)
     node_t	*np;
 
     if ((np = (node_t *)calloc(1, sizeof(node_t))) == NULL) {
-	__pmNoMem("pmSeries: newnode", sizeof(node_t), PM_FATAL_ERR);
+	pmNoMem("pmSeries: newnode", sizeof(node_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     np->type = type;
@@ -782,7 +782,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	if (p == NULL) {
 	    lp->yy_tokbuflen = 128;
 	    if ((p = (char *)malloc(lp->yy_tokbuflen)) == NULL) {
-		__pmNoMem("pmSeries: alloc token buffer",
+		pmNoMem("pmSeries: alloc token buffer",
 				lp->yy_tokbuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -792,7 +792,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	    len = p - lp->yy_tokbuf;
 	    lp->yy_tokbuflen *= 2;
 	    if (!(p = (char *)realloc(lp->yy_tokbuf, lp->yy_tokbuflen))) {
-		__pmNoMem("pmSeries: realloc token buffer",
+		pmNoMem("pmSeries: realloc token buffer",
 				lp->yy_tokbuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }

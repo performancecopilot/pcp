@@ -178,7 +178,7 @@ process_grab_config_info(void)
 	}
 	size = (process_number + 1) * sizeof(pmdaInstid);
 	if ((processes = realloc(processes, size)) == NULL)
-	    __pmNoMem("process", size, PM_FATAL_ERR);
+	    pmNoMem("process", size, PM_FATAL_ERR);
 	processes[process_number].i_name = malloc(strlen(process_name) + 1);
 	strcpy(processes[process_number].i_name, process_name);
 	processes[process_number].i_inst = process_number;

@@ -325,7 +325,7 @@ grow_ctxtab(int ctx)
 {
     ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
     if (ctxtab == NULL) {
-	__pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+	pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     while (num_ctx <= ctx) {
@@ -489,11 +489,11 @@ refresh_pmie_indom(void)
 		if (statbuf.st_size != sizeof(pmiestats_t))
 		    continue;
 		if  ((endp = strdup(dp->d_name)) == NULL) {
-		    __pmNoMem("pmie iname", strlen(dp->d_name), PM_RECOV_ERR);
+		    pmNoMem("pmie iname", strlen(dp->d_name), PM_RECOV_ERR);
 		    continue;
 		}
 		if ((pmies = (pmie_t *)realloc(pmies, size)) == NULL) {
-		    __pmNoMem("pmie instlist", size, PM_RECOV_ERR);
+		    pmNoMem("pmie instlist", size, PM_RECOV_ERR);
 		    free(endp);
 		    continue;
 		}
@@ -752,7 +752,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 	if (getall || !getname) {
 	    if ((res->instlist = (int *)malloc(res->numinst * sizeof(int))) == NULL) {
 		sts = -oserror();
-		__pmNoMem("pmcd_instance instlist", res->numinst * sizeof(int), PM_RECOV_ERR);
+		pmNoMem("pmcd_instance instlist", res->numinst * sizeof(int), PM_RECOV_ERR);
 		__pmFreeInResult(res);
 		return sts;
 	    }
@@ -760,7 +760,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 	if (getall || getname) {
 	    if ((res->namelist = (char **)malloc(res->numinst * sizeof(char *))) == NULL) {
 		sts = -oserror();
-		__pmNoMem("pmcd_instance namelist", res->numinst * sizeof(char *), PM_RECOV_ERR);
+		pmNoMem("pmcd_instance namelist", res->numinst * sizeof(char *), PM_RECOV_ERR);
 		free(res->instlist);
 		__pmFreeInResult(res);
 		return sts;
@@ -779,7 +779,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[i] = strdup(ports[i].name);
 		if (res->namelist[i] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmGetInDom",
+		    pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(ports[i].name), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -799,7 +799,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 	    else {
 		res->namelist[0] = strdup(ports[i].name);
 		if (res->namelist[0] == NULL) {
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(ports[i].name), PM_RECOV_ERR);
 		    sts = -oserror();
 		}
@@ -825,7 +825,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[i] = strdup(pmies[i].name);
 		if (res->namelist[i] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmie_instance pmGetInDom",
+		    pmNoMem("pmie_instance pmGetInDom",
 			     strlen(pmies[i].name), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -846,7 +846,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[0] = strdup(pmies[i].name);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(pmies[i].name), PM_RECOV_ERR);
 		}
 	    }
@@ -871,7 +871,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[i] = strdup(agent[i].pmDomainLabel);
 		if (res->namelist[i] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmGetInDom",
+		    pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(agent[i].pmDomainLabel), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -892,7 +892,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[0] = strdup(agent[i].pmDomainLabel);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(agent[i].pmDomainLabel), PM_RECOV_ERR);
 		}
 	    }
@@ -922,7 +922,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[k] = strdup(buf);
 		if (res->namelist[k] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmGetInDom",
+		    pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(buf), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -946,7 +946,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 		res->namelist[0] = strdup(buf);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(buf), PM_RECOV_ERR);
 		}
 	    }

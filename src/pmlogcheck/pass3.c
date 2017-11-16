@@ -168,11 +168,11 @@ newHashInst(pmValue *vp,
     size = (pos+1)*sizeof(instData*);
     checkdata->instlist = (instData**) realloc(checkdata->instlist, size);
     if (!checkdata->instlist)
-	__pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
+	pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
     size = sizeof(instData);
     checkdata->instlist[pos] = (instData*) malloc(size);
     if (!checkdata->instlist[pos])
-	__pmNoMem("newHashInst.instlist[pos]", size, PM_FATAL_ERR);
+	pmNoMem("newHashInst.instlist[pos]", size, PM_FATAL_ERR);
     checkdata->instlist[pos]->inst = vp->inst;
     checkdata->instlist[pos]->lastval = av.d;
     checkdata->instlist[pos]->lasttime = *timestamp;

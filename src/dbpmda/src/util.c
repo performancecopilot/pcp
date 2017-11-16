@@ -47,7 +47,7 @@ void
 reset_profile(void)
 {
     if ((profile = (pmProfile *)realloc(profile, sizeof(pmProfile))) == NULL) {
-	__pmNoMem("reset_profile", sizeof(pmProfile), PM_FATAL_ERR);
+	pmNoMem("reset_profile", sizeof(pmProfile), PM_FATAL_ERR);
 	exit(1);
     }
     ctxp->c_instprof = profile;

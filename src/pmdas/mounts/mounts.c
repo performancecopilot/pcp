@@ -263,7 +263,7 @@ mounts_grab_config_info(void)
 	}
 	size = (mount_number + 1) * sizeof(pmdaInstid);
 	if ((mounts = realloc(mounts, size)) == NULL)
-	    __pmNoMem("process", size, PM_FATAL_ERR);
+	    pmNoMem("process", size, PM_FATAL_ERR);
 	mounts[mount_number].i_name = malloc(strlen(mount_name) + 1);
 	strcpy(mounts[mount_number].i_name, mount_name);
 	mounts[mount_number].i_inst = mount_number;

@@ -598,7 +598,7 @@ abstime(char *str)
 
 	/* length includes @-prefix and a null terminator */
 	if ((arg = malloc(length)) == NULL)
-		__pmNoMem("abstime", length, PM_FATAL_ERR);
+		pmNoMem("abstime", length, PM_FATAL_ERR);
 	pmsprintf(arg, length, "@%s", str);
 	arg[length-1] = '\0';
 	return arg;

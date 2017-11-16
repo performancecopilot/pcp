@@ -62,7 +62,7 @@ refresh_filesys_metrics(void)
 	    free(stats);
 	stats = (struct statvfs *)malloc(nfilesys*sizeof(struct statvfs));
 	if (stats == NULL) {
-	    __pmNoMem("refresh_filesys_metrics: stats", nfilesys*sizeof(struct statvfs), PM_FATAL_ERR);
+	    pmNoMem("refresh_filesys_metrics: stats", nfilesys*sizeof(struct statvfs), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	/* fetch all the available data */

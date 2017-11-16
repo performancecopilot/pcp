@@ -513,7 +513,7 @@ GetProxyHostname(void)
         if (!hostname) {	/* no reverse DNS lookup for local hostname */
             hostname = strdup(host);
             if (!hostname)	/* out of memory, we're having a bad day!?! */
-                __pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
+                pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
         }
         __pmHostEntFree(hep);
     }

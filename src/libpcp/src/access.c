@@ -645,7 +645,7 @@ getUnixSpec(const char *name, struct accessSpec *spec)
      */
     spec->name = strdup("unix:");
     if (spec->name == NULL)
-	__pmNoMem("Unix host pattern name buffer", sizeof("unix:"), PM_FATAL_ERR);
+	pmNoMem("Unix host pattern name buffer", sizeof("unix:"), PM_FATAL_ERR);
     spec->level = 1;
 
     return 0; /* ok */
@@ -702,7 +702,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	/* Use calloc so that the final entries are zeroed, if not used. */
 	specs = calloc(4, sizeof(*specs));
 	if (specs == NULL)
-	    __pmNoMem("Access Spec List", 4 * sizeof(*specs), PM_FATAL_ERR);
+	    pmNoMem("Access Spec List", 4 * sizeof(*specs), PM_FATAL_ERR);
 
 	/* The inet general wildcard. */
 	specIx = 0;
@@ -754,7 +754,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	specSize = 2;
 	specs = calloc(specSize, sizeof(*specs));
 	if (specs == NULL)
-	    __pmNoMem("Access Spec List", specSize * sizeof(*specs), PM_FATAL_ERR);
+	    pmNoMem("Access Spec List", specSize * sizeof(*specs), PM_FATAL_ERR);
 
 	/* Process the equivalent unix domain socket spec. */
 	if ((*sts = getUnixSpec(strchr(name, ':') + 1, &specs[specIx])) >= 0) {
@@ -777,7 +777,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	 */
 	specs = calloc(2, sizeof(*specs));
 	if (specs == NULL)
-	    __pmNoMem("Access Spec List", 2 * sizeof(*specs), PM_FATAL_ERR);
+	    pmNoMem("Access Spec List", 2 * sizeof(*specs), PM_FATAL_ERR);
 	*sts = getWildCardSpec(name, &specs[0]);
 	return specs;
     }
@@ -813,7 +813,7 @@ getHostAccessSpecs(const char *name, int *sts)
 		need = specSize * sizeof(*specs);
 		specs = realloc(specs, need);
 		if (specs == NULL) {
-		    __pmNoMem("Access Spec List", need, PM_FATAL_ERR);
+		    pmNoMem("Access Spec List", need, PM_FATAL_ERR);
 		}
 	    }
 	    /* No more addresses? */
@@ -948,7 +948,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	    need = szgrouplist * sizeof(groupinfo);
 	    grouplist = (groupinfo *)realloc(grouplist, need);
 	    if (grouplist == NULL)
-		__pmNoMem("AddGroup enlarge", need, PM_FATAL_ERR);
+		pmNoMem("AddGroup enlarge", need, PM_FATAL_ERR);
 	}
 	/* insert a permanent initial entry for '*' group wildcard */
 	if (ngroups == 0) {
@@ -973,7 +973,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return sts;
 	} else if ((groupname = strdup(name)) == NULL) {
-	    __pmNoMem("AddGroup name", strlen(name)+1, PM_FATAL_ERR);
+	    pmNoMem("AddGroup name", strlen(name)+1, PM_FATAL_ERR);
 	}
 	gp = &grouplist[i];
 	gp->groupname = groupname;
@@ -1066,7 +1066,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    need = szuserlist * sizeof(userinfo);
 	    userlist = (userinfo *)realloc(userlist, need);
 	    if (userlist == NULL) {
-		__pmNoMem("AddUser enlarge", need, PM_FATAL_ERR);
+		pmNoMem("AddUser enlarge", need, PM_FATAL_ERR);
 	    }
 	}
 	/* insert a permanent initial entry for '*' user wildcard */
@@ -1091,7 +1091,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return sts;
 	} else if ((username = strdup(name)) == NULL) {
-	    __pmNoMem("AddUser name", strlen(name)+1, PM_FATAL_ERR);
+	    pmNoMem("AddUser name", strlen(name)+1, PM_FATAL_ERR);
 	}
 	up = &userlist[i];
 	up->username = username;
@@ -1213,7 +1213,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 		need = szhostlist * sizeof(hostinfo);
 		hostlist = (hostinfo *)realloc(hostlist, need);
 		if (hostlist == NULL) {
-		    __pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
+		    pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
 		}
 	    }
 
@@ -1266,7 +1266,7 @@ getClientIds(const __pmSockAddr *hostid, int *sts)
     if (! __pmSockAddrIsLoopBack(hostid)) {
 	clientIds = calloc(2, sizeof(*clientIds));
 	if (clientIds == NULL)
-	    __pmNoMem("Client Ids", 2 * sizeof(*clientIds), PM_FATAL_ERR);
+	    pmNoMem("Client Ids", 2 * sizeof(*clientIds), PM_FATAL_ERR);
 	clientIds[0] = __pmSockAddrDup(hostid);
 	return clientIds;
     }
@@ -1302,7 +1302,7 @@ getClientIds(const __pmSockAddr *hostid, int *sts)
 	    need = clientSize * sizeof(*clientIds);
 	    clientIds = realloc(clientIds, need);
 	    if (clientIds == NULL) {
-		__pmNoMem("Client Ids", need, PM_FATAL_ERR);
+		pmNoMem("Client Ids", need, PM_FATAL_ERR);
 	    }
 	}
 	/* No more addresses? */

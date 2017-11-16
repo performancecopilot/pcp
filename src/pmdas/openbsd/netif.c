@@ -154,7 +154,7 @@ refresh_netif_metrics(void)
 	    free(buf);
 	buf = (char *)malloc(new_buflen);
 	if (buf == NULL) {
-	    __pmNoMem("refresh_disk_metrics: stats", new_buflen, PM_FATAL_ERR);
+	    pmNoMem("refresh_disk_metrics: stats", new_buflen, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	buflen = new_buflen;

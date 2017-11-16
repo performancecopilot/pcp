@@ -183,7 +183,7 @@ Options:\n\
 
     ctl = (ctl_t *)malloc(numctl * sizeof(ctl[0]));
     if (ctl == NULL) {
-	__pmNoMem("ctl", numctl*sizeof(ctl[0]), PM_FATAL_ERR);
+	pmNoMem("ctl", numctl*sizeof(ctl[0]), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
 

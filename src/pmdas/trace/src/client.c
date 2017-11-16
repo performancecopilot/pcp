@@ -68,13 +68,13 @@ newClient(void)
 	clientsize = clientsize ? clientsize * 2 : MIN_CLIENTS_ALLOC;
 	clients = (client_t *) realloc(clients, sizeof(client_t)*clientsize);
 	if (clients == NULL)
-	    __pmNoMem("newClient", sizeof(client_t)*clientsize, PM_FATAL_ERR);
+	    pmNoMem("newClient", sizeof(client_t)*clientsize, PM_FATAL_ERR);
 	for (j = i; j < clientsize; j++)
 	    clients[j].addr = NULL;
     }
     clients[i].addr = __pmSockAddrAlloc();
     if (clients[i].addr == NULL)
-	__pmNoMem("newClient", __pmSockAddrSize(), PM_FATAL_ERR);
+	pmNoMem("newClient", __pmSockAddrSize(), PM_FATAL_ERR);
     if (i >= nclients)
 	nclients = i + 1;
     return i;

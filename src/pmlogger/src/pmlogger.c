@@ -619,7 +619,7 @@ main(int argc, char **argv)
 		char *sysconf = pmGetConfig("PCP_VAR_DIR");
 		int sz = strlen(sysconf)+strlen("/config/pmlogger/")+strlen(opts.optarg)+1;
 		if ((configfile = (char *)malloc(sz)) == NULL)
-		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
+		    pmNoMem("config file name", sz, PM_FATAL_ERR);
 		pmsprintf(configfile, sz,
 			"%s%c" "config%c" "pmlogger%c" "%s",
 			sysconf, sep, sep, sep, opts.optarg);

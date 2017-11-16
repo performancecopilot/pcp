@@ -576,7 +576,7 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 		     */
 		    rp->argv = (char **)realloc(rp->argv, (rp->argc+11)*sizeof(rp->argv[0]));
 		    if (rp->argv == NULL) {
-			__pmNoMem("pmRecordControl: argv[]", (rp->argc+11)*sizeof(rp->argv[0]), PM_FATAL_ERR);
+			pmNoMem("pmRecordControl: argv[]", (rp->argc+11)*sizeof(rp->argv[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    for (i = rp->argc; i > 0; i--)

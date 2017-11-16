@@ -127,7 +127,7 @@ main(int argc, char **argv)
 	    }
 	    size = (ngroups + 1) * sizeof(*grp);
 	    if ((groups = realloc(groups, size)) == NULL)
-		__pmNoMem("gid realloc", size, PM_FATAL_ERR);
+		pmNoMem("gid realloc", size, PM_FATAL_ERR);
 	    groups[ngroups] = *grp;
 	    for (c = 0, name = grp->gr_mem[0]; name; c++, name++)
 		groups[ngroups].gr_mem[c] = strdup(name);
@@ -144,7 +144,7 @@ main(int argc, char **argv)
 	    }
 	    size = (nusers + 1) * sizeof(*usr);
 	    if ((users = realloc(users, size)) == NULL)
-		__pmNoMem("uid realloc", size, PM_FATAL_ERR);
+		pmNoMem("uid realloc", size, PM_FATAL_ERR);
 	    memset(&users[nusers], 0, sizeof(*usr));
 	    users[nusers].pw_name = strdup(usr->pw_name);
 	    users[nusers].pw_uid = usr->pw_uid;

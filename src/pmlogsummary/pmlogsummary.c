@@ -421,18 +421,18 @@ newHashInst(pmValue *vp,
     size = (pos+1) * sizeof(instData *);
     avedata->instlist = (instData **) realloc(avedata->instlist, size);
     if (avedata->instlist == NULL)
-	__pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
+	pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
     size = sizeof(instData);
     avedata->instlist[pos] = instdata = (instData *) malloc(size);
     if (instdata == NULL)
-	__pmNoMem("newHashInst.instlist[inst]", size, PM_FATAL_ERR);
+	pmNoMem("newHashInst.instlist[inst]", size, PM_FATAL_ERR);
     if (nbins == 0)
 	instdata->bin = NULL;
     else {	/* we are doing binning ... make space for the bins */
 	size = nbins * sizeof(unsigned int);
 	instdata->bin = (unsigned int *)malloc(size);
 	if (instdata->bin == NULL)
-	    __pmNoMem("newHashInst.instlist[inst].bin", size, PM_FATAL_ERR);
+	    pmNoMem("newHashInst.instlist[inst].bin", size, PM_FATAL_ERR);
 	memset(instdata->bin, 0, size);
     }
     instdata->inst = vp->inst;

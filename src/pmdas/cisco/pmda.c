@@ -180,14 +180,14 @@ main(int argc, char **argv)
      * command line arguments.
      */
     if ((_router = (pmdaInstid *)malloc(n_intf * sizeof(pmdaInstid))) == NULL) {
-        __pmNoMem("main.router", n_intf * sizeof(pmdaInstid), PM_FATAL_ERR);
+        pmNoMem("main.router", n_intf * sizeof(pmdaInstid), PM_FATAL_ERR);
     }
     if ((intf = (intf_t *)malloc(n_intf * sizeof(intf_t))) == NULL) {
-        __pmNoMem("main.intf", n_intf * sizeof(intf_t), PM_FATAL_ERR);
+        pmNoMem("main.intf", n_intf * sizeof(intf_t), PM_FATAL_ERR);
     }
     /* pre-allocated cisco[] to avoid realloc and ptr movement */
     if ((cisco = (cisco_t *)malloc(n_intf * sizeof(cisco_t))) == NULL) {
-	__pmNoMem("main.cisco", n_intf * sizeof(cisco_t), PM_FATAL_ERR);
+	pmNoMem("main.cisco", n_intf * sizeof(cisco_t), PM_FATAL_ERR);
     }
 
     indomtab[CISCO_INDOM].it_numinst = n_intf;
@@ -242,7 +242,7 @@ main(int argc, char **argv)
 	    q++;
 	    intf[n].interface = (char *)malloc(strlen("FastEthernet")+strlen(q)+1);
 	    if ((intf[n].interface = (char *)malloc(strlen("FastEthernet")+strlen(q)+1)) == NULL) {
-		__pmNoMem("main.cisco", strlen("FastEthernet")+strlen(q)+1, PM_FATAL_ERR);
+		pmNoMem("main.cisco", strlen("FastEthernet")+strlen(q)+1, PM_FATAL_ERR);
 	    }
 	    strcpy(intf[n].interface, "FastEthernet");
 	    strcat(intf[n].interface, q);

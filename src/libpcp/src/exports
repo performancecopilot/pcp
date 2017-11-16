@@ -609,6 +609,7 @@ PCP_3.22 {
     pmLookupLabels;
     pmMergeLabels;
     pmMergeLabelSets;
+    pmNoMem;
     pmOpenLog;
     pmSetProgname;
 

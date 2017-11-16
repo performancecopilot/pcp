@@ -54,7 +54,7 @@ refresh_percpu_metrics(void)
 	    fprintf(stderr, "Info: refresh_percpu_metrics: ncpu=%d\n", ncpu);
 	stats = (uint64_t *)malloc(buflen);
 	if (stats == NULL) {
-	    __pmNoMem("refresh_percpu_metrics: stats", buflen, PM_FATAL_ERR);
+	    pmNoMem("refresh_percpu_metrics: stats", buflen, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
     }

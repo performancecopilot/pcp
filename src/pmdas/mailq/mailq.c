@@ -88,7 +88,7 @@ mailq_histogram(char *option)
 	numhisto++;
 	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
 	if (histo == NULL)
-	    __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+	    pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
 	histo[numhisto-1].delay = tv.tv_sec;
 	q = strtok(NULL, ",");
     }
@@ -328,7 +328,7 @@ main(int argc, char **argv)
 	numhisto = 7;
 	histo = (histo_t *)malloc(numhisto * sizeof(histo[0]));
 	if (histo == NULL) {
-	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+	     pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
 	}
 	histo[0].delay = 7 * 24 * 3600;
 	histo[1].delay = 3 * 24 * 3600;
@@ -343,7 +343,7 @@ main(int argc, char **argv)
 	numhisto++;
 	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
 	if (histo == NULL) {
-	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+	     pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
 	}
 	histo[numhisto-1].delay = 0;
 	qsort(histo, numhisto, sizeof(histo[0]), compare_delay);
@@ -351,7 +351,7 @@ main(int argc, char **argv)
 
     _delay = (pmdaInstid *)malloc(numhisto * sizeof(_delay[0]));
     if (_delay == NULL)
-	__pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
+	pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
 
     for (i = 0; i < numhisto; i++) {
 	time_t	tmp;
@@ -384,7 +384,7 @@ main(int argc, char **argv)
 	}
 	_delay[i].i_name = strdup(namebuf);
 	if (_delay[i].i_name == NULL) {
-	     __pmNoMem("_delay[i].i_name", strlen(namebuf), PM_FATAL_ERR);
+	     pmNoMem("_delay[i].i_name", strlen(namebuf), PM_FATAL_ERR);
 	}
     }
 

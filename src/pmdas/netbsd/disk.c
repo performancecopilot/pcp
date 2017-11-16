@@ -71,7 +71,7 @@ refresh_disk_metrics(void)
 	    free(stats);
 	stats = (struct io_sysctl *)malloc(buflen);
 	if (stats == NULL) {
-	    __pmNoMem("refresh_disk_metrics: stats", buflen, PM_FATAL_ERR);
+	    pmNoMem("refresh_disk_metrics: stats", buflen, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	/* fetch all the available data */

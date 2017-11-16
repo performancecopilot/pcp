@@ -24,17 +24,17 @@ dometric(const char *name)
 
     namelist = (char **)realloc(namelist, numpmid*sizeof(char *));
     if (namelist == NULL) {
-	__pmNoMem("dometric: namelist", numpmid*sizeof(char *), PM_FATAL_ERR);
+	pmNoMem("dometric: namelist", numpmid*sizeof(char *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     pmidlist = (pmID *)realloc(pmidlist, numpmid*sizeof(pmID));
     if (pmidlist == NULL) {
-	__pmNoMem("dometric: pmidlist", numpmid*sizeof(pmID), PM_FATAL_ERR);
+	pmNoMem("dometric: pmidlist", numpmid*sizeof(pmID), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     namelist[numpmid-1] = strdup(name);
     if (namelist[numpmid-1] == NULL) {
-	__pmNoMem("dometric: namelist[]", strlen(name)+1, PM_FATAL_ERR);
+	pmNoMem("dometric: namelist[]", strlen(name)+1, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
 }
