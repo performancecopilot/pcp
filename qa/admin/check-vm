@@ -7,7 +7,7 @@
 _usage()
 {
     echo "Usage: $0 [options]"
-    echo "  -f  force, don't try to guess the version of Qt, ..."
+    echo "  -f  force, don't try to guess the version of Python, Qt, ..."
     echo "  -p  generate list of likely packages that should be"
     echo "      installed with dnf or apt-get or yum or ..."
     echo "  -v  verbose (debugging)"
@@ -1219,6 +1219,9 @@ in
     vm19)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel'
 	;;
+    vm20)
+	na='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch'
+	;;
     vm21)
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-xlsxwriter zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
 	;;
@@ -1238,32 +1241,32 @@ s;\[.*;[N/A on host '"`hostname`"'];
     done
 fi
 
-# If we are sure which version of Python we're using, remove lines
-# for the other versions
-#
-if [ -n "$PCP_PYTHON_PROG" ]
-then
-    if which "$PCP_PYTHON_PROG" >/dev/null 2>&1
-    then
-	pyver=`$PCP_PYTHON_PROG --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
-	if [ -z "$pyver" ]
-	then
-	    echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
-	else
-	    #debug# echo "pyver=$pyver"
-	    sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
-/\/python'"$pyver"'[./]/!d
-}'
-	    #debug# diff $tmp.main $tmp.tmp
-	    mv $tmp.tmp $tmp.main
-	fi
-    fi
-fi
-
 if $force
 then
     :
 else
+    # If we are sure which version of Python we're using, remove lines
+    # for the other versions
+    #
+    if [ -n "$PCP_PYTHON_PROG" ]
+    then
+	if which "$PCP_PYTHON_PROG" >/dev/null 2>&1
+	then
+	    pyver=`$PCP_PYTHON_PROG --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
+	    if [ -z "$pyver" ]
+	    then
+		echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
+	    else
+		#debug# echo "pyver=$pyver"
+		sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
+    /\/python'"$pyver"'[./]/!d
+    }'
+		#debug# diff $tmp.main $tmp.tmp
+		mv $tmp.tmp $tmp.main
+	    fi
+	fi
+    fi
+
     # If we are sure which version of Qt we're using, remove lines for
     # the other versions
     #
@@ -1406,6 +1409,7 @@ do
 	then
 	    echo "$apps" \
 	    | sed -n \
+		-e '/N\/A on host/d' \
 		-e 's/QA optional//' \
 		-e 's/[ 	]*\[[ 	()]*]//' \
 		-e '/[ 	]\[/{
