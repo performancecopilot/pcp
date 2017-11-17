@@ -395,7 +395,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	setup_event_derived_metrics();
 	for (r = 0; r < nrecords; r++) {
 	    printf("    --- event record [%d] timestamp ", r);
-	    __pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmPrintStamp(stdout, &res[r]->timestamp);
 	    if (dump_nparams(res[r]->numpmid) < 0)
 		continue;
 	    flags = 0;

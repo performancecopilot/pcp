@@ -1247,7 +1247,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	{
 	  // adjust stopping time to the next multiple of period
 	  struct timeval now_tv;
-	  __pmtimevalNow (&now_tv);
+	  pmtimevalNow (&now_tv);
 	  time_t period_s = period_tv.tv_sec;
 	  if (period_s < 1) period_s = 1; // at least one second
 	  time_t period_end = ((now_tv.tv_sec + 1 + period_s) / period_s) * period_s - 1;
@@ -1275,7 +1275,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       if (rc == 0)
 	{
 	  struct timeval now_tv;
-	  __pmtimevalNow (&now_tv);
+	  pmtimevalNow (&now_tv);
 	  time_t period_s = period_tv.tv_sec;
 	  if (period_s < 1) period_s = 1; // at least one second
 	  time_t prior_period_start = ((now_tv.tv_sec + 1 - period_s) / period_s) * period_s;
@@ -1552,7 +1552,7 @@ pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
   if (rc == 0)
     {
       struct timeval now_tv;
-      __pmtimevalNow (&now_tv);
+      pmtimevalNow (&now_tv);
       for (unsigned i=0; i<the_blob.gl_pathc; i++)
         {
           if (quit) break;

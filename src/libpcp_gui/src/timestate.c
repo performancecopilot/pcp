@@ -60,7 +60,7 @@ static void timeControlPosition(struct timeval position)
 
 static void timeControlInterval(struct timeval delta)
 {
-    printf("new interval:  %1.2f sec\n", __pmtimevalToReal(&delta));
+    printf("new interval:  %1.2f sec\n", pmtimevalToReal(&delta));
 }
 
 static void timeControlResume()
@@ -139,7 +139,7 @@ pmTimeStateSetup(
 	pmtime->end = last;
     } else {
 	pmtime->source = PM_SOURCE_HOST;
-	__pmtimevalNow(&pmtime->position);
+	pmtimevalNow(&pmtime->position);
     }
     if (tz == NULL) {
 	char	tzbuf[PM_TZ_MAXLEN];

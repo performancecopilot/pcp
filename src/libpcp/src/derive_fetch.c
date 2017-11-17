@@ -778,7 +778,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    /* rate() conversion, type will be DOUBLE */
 		    struct timeval	stampdiff;
 		    stampdiff = np->info->stamp;
-		    __pmtimevalDec(&stampdiff, &np->info->last_stamp);
+		    pmtimevalDec(&stampdiff, &np->info->last_stamp);
 		    switch (np->left->desc.type) {
 			case PM_TYPE_32:
 			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l);
@@ -805,7 +805,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			     */
 			    return PM_ERR_CONV;
 		    }
-		    np->info->ivlist[k].value.d /= __pmtimevalToReal(&stampdiff);
+		    np->info->ivlist[k].value.d /= pmtimevalToReal(&stampdiff);
 		    /*
 		     * check_expr() ensures dimTime is 0 or 1 at bind time
 		     */

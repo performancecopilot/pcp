@@ -706,7 +706,7 @@ pmiWrite(int sec, int usec)
 	return current->last_sts = PMI_ERR_NODATA;
 
     if (sec < 0) {
-	__pmtimevalNow(&current->result->timestamp);
+	pmtimevalNow(&current->result->timestamp);
     }
     else {
 	current->result->timestamp.tv_sec = sec;

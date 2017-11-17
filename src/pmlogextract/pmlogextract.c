@@ -402,7 +402,7 @@ newvolume(char *base, __pmTimeval *tvp)
 	stamp.tv_sec = ntohl(tvp->tv_sec);
 	stamp.tv_usec = ntohl(tvp->tv_usec);
 	fprintf(stderr, "%s: New log volume %d, at ", pmGetProgname(), nextvol);
-	__pmPrintStamp(stderr, &stamp);
+	pmPrintStamp(stderr, &stamp);
 	fputc('\n', stderr);
     }
     else {

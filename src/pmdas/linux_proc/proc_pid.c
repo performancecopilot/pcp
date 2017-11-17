@@ -479,7 +479,7 @@ hotproc_eval_procs(void)
 	    continue;
 	}
 
-	__pmtimevalNow(&p_timestamp);
+	pmtimevalNow(&p_timestamp);
 
 	/* Collect all the stat/status/statm info */
 	statentry = fetch_proc_pid_stat(pid, hotproc_poss_pid, &sts);
@@ -738,7 +738,7 @@ hotproc_eval_procs(void)
 
     hot_numprocs[current] = np;
 
-    __pmtimevalNow(&ts);
+    pmtimevalNow(&ts);
     refresh_time[current] = ts.tv_sec + ts.tv_usec / 1000000;
 
     double hptime = (ts.tv_sec - p_timestamp.tv_sec) + (ts.tv_usec - p_timestamp.tv_usec)/1000000.0;

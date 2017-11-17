@@ -99,7 +99,7 @@ void TimeControl::init(int port, bool live,
 	memset(&my.archivePacket->start, 0, sizeof(struct timeval));
 	memset(&my.archivePacket->end, 0, sizeof(struct timeval));
     } else {
-	__pmtimevalNow(&now);
+	pmtimevalNow(&now);
 	my.archivePacket->position = *position;
 	my.archivePacket->start = *starttime;
 	my.archivePacket->end = *endtime;
@@ -372,7 +372,7 @@ void TimeControl::protocolMessage(bool live,
 #if DESPERATE
     console->post(PmChart::DebugProtocol,
 		  "TimeControl::protocolMessage: recv pos=%s state=%d",
-		  timeString(__pmtimevalToReal(&packet->position)), *state);
+		  timeString(pmtimevalToReal(&packet->position)), *state);
 #endif
 
     switch (*state) {

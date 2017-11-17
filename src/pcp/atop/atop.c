@@ -650,8 +650,8 @@ engine(void)
 		*/
 		pretime  = curtime;	/* timestamp for previous sample */
 		curtime  = cursstat->stamp; /* timestamp for this sample */
-		timed = __pmtimevalToReal(&curtime);
-		delta = timed - __pmtimevalToReal(&pretime);
+		timed = pmtimevalToReal(&curtime);
+		delta = timed - pmtimevalToReal(&pretime);
 
 		deviatsyst(cursstat, presstat, devsstat, delta);
 
@@ -693,7 +693,7 @@ engine(void)
 		                     nprocexit, noverflow, sampcnt==0);
 
 		if (rawreadflag)
-			__pmtimevalInc(&curtime, &interval);
+			pmtimevalInc(&curtime, &interval);
 
 		/*
 		** release dynamically allocated memory

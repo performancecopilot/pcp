@@ -313,7 +313,7 @@ main(int argc, char **argv)
 	    }
 	    else {
 		when = resvec[resnum - 1]->timestamp;
-		__pmtimevalInc(&when, &microsec);
+		pmtimevalInc(&when, &microsec);
 	    }
 	    if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
 		printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
@@ -348,7 +348,7 @@ main(int argc, char **argv)
 		i = 0;
 	    if (i > 0) {
 		when = resvec[i]->timestamp;
-		__pmtimevalInc(&when, &microsec);
+		pmtimevalInc(&when, &microsec);
 	    }
 	    else {
 		when = resvec[0]->timestamp;

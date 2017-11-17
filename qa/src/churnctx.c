@@ -458,7 +458,7 @@ Options:\n\
 		    exit(1);
 		}
 	    }
-	    __pmtimevalInc(&appStart, &delta);
+	    pmtimevalInc(&appStart, &delta);
 	}
 
 	if (nmetric > 0) {

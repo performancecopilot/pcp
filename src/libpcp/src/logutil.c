@@ -1309,7 +1309,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     if (tp == NULL) {
 	struct timeval	tmp;
 
-	__pmtimevalNow(&tmp);
+	pmtimevalNow(&tmp);
 	ti.ti_stamp.tv_sec = (__int32_t)tmp.tv_sec;
 	ti.ti_stamp.tv_usec = (__int32_t)tmp.tv_usec;
     }
@@ -2059,7 +2059,7 @@ again:
 	if (sts >= 0) {
 	    __pmTimeval	tmp;
 	    fprintf(stderr, "@");
-	    __pmPrintStamp(stderr, &(*result)->timestamp);
+	    pmPrintStamp(stderr, &(*result)->timestamp);
 	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
@@ -2083,7 +2083,7 @@ again:
 
     if (pmDebugOptions.pdu) {
 	fprintf(stderr, "__pmLogRead timestamp=");
-	__pmPrintStamp(stderr, &(*result)->timestamp);
+	pmPrintStamp(stderr, &(*result)->timestamp);
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", &pb[3], &pb[head/sizeof(__pmPDU)+3]);
 	fputc('\n', stderr);
 	dumpbuf(rlen, &pb[3]);		/* see above to explain "3" */
@@ -2220,7 +2220,7 @@ more:
 		    fprintf(stderr, "__pmLogFetch: ctx=%d skip reverse %d to ",
 			pmWhichContext(), nskip);
 		    if (*result  != NULL)
-			__pmPrintStamp(stderr, &(*result)->timestamp);
+			pmPrintStamp(stderr, &(*result)->timestamp);
 		    else
 			fprintf(stderr, "unknown time");
 		    fprintf(stderr, ", found=%d\n", found);
@@ -2252,7 +2252,7 @@ more:
 	    if (nskip) {
 		fprintf(stderr, "__pmLogFetch: ctx=%d skip %d to ",
 		    pmWhichContext(), nskip);
-		    __pmPrintStamp(stderr, &(*result)->timestamp);
+		    pmPrintStamp(stderr, &(*result)->timestamp);
 		    fputc('\n', stderr);
 		}
 #ifdef DESPERATE

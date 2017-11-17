@@ -1746,7 +1746,7 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection,
                                      << " over " << number_of_jobs << " archive(s)"
                                      << ", timespan [" << t_start << "-" << t_end
                                      << " by " << t_step << "]"
-                                     << ", in " << __pmtimevalSub (&finish,&start)*1000 << "ms "
+                                     << ", in " << pmtimevalSub (&finish,&start)*1000 << "ms "
                                      << endl;
     }
 

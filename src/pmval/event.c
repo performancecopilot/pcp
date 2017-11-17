@@ -233,7 +233,7 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	}
 	else {
 	    numpmid = res[r]->numpmid;
-	    __pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmPrintStamp(stdout, &res[r]->timestamp);
 	}
 
 	printf(" --- event record [%d]", r);

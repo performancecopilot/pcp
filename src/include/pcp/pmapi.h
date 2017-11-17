@@ -1175,6 +1175,16 @@ PCP_CALL extern void pmSyslog(int);
 
 PCP_CALL extern void pmPrintDesc(FILE *, const pmDesc *);
 
+/* struct timeval manipulations */
+PCP_CALL extern void pmtimevalNow(struct timeval *);
+PCP_CALL extern void pmtimevalInc(struct timeval *, const struct timeval *);
+PCP_CALL extern void pmtimevalDec(struct timeval *, const struct timeval *);
+PCP_CALL extern double pmtimevalAdd(const struct timeval *, const struct timeval *);
+PCP_CALL extern double pmtimevalSub(const struct timeval *, const struct timeval *);
+PCP_CALL extern double pmtimevalToReal(const struct timeval *);
+PCP_CALL extern void pmtimevalFromReal(double, struct timeval *);
+PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
+
 #ifdef __cplusplus
 }
 #endif

@@ -556,8 +556,8 @@ do_work(task_t *tp)
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
 	struct timeval	now;
 
-	__pmtimevalNow(&now);
-	__pmPrintStamp(stderr, &now);
+	pmtimevalNow(&now);
+	pmPrintStamp(stderr, &now);
 	fprintf(stderr, " do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d\n", tp, tp->t_afid, parse_done, exit_samples);
     }
 
@@ -947,10 +947,10 @@ do_work(task_t *tp)
 	    }
 	    else
 		fprintf(stderr, "every %.3f sec: %d bytes ",
-		    __pmtimevalToReal(&tp->t_delta), pdu_bytes);
+		    pmtimevalToReal(&tp->t_delta), pdu_bytes);
 	    fprintf(stderr, "or %.2f Mbytes/day\n",
 		((double)pdu_bytes * 24 * 60 * 60) /
-		(1024 * 1024 * __pmtimevalToReal(&tp->t_delta)));
+		(1024 * 1024 * pmtimevalToReal(&tp->t_delta)));
 	}
     }
 

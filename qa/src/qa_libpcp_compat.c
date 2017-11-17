@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
+#include <sys/time.h>
 
 #ifdef BINARY_COMPAT_TEST
 /*
@@ -20,6 +21,14 @@ extern void __pmNoMem(const char *, size_t, int);
 extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 extern void __pmSyslog(int);
 extern void __pmPrintDesc(FILE *, const pmDesc *);
+extern void __pmtimevalNow(struct timeval *);
+extern void __pmtimevalInc(struct timeval *, const struct timeval *);
+extern void __pmtimevalDec(struct timeval *, const struct timeval *);
+extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
+extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
+extern double __pmtimevalToReal(const struct timeval *);
+extern void __pmtimevalFromReal(double, struct timeval *);
+extern void __pmPrintStamp(FILE *, const struct timeval *);
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -57,10 +66,14 @@ static pmDesc desc = {
 int
 main(int argc, char **argv)
 {
-    int		c;
-    const char *p;
-    FILE	*f;
-    int		sts;
+    int			c;
+    const char 		*p;
+    FILE		*f;
+    int			sts;
+    struct timeval	a;
+    struct timeval	b;
+    double		s;
+    double		t;
 
     setlinebuf(stdout);
     setlinebuf(stderr);
@@ -118,6 +131,33 @@ main(int argc, char **argv)
 
     printf("__pmPrintDesc test:\n");
     __pmPrintDesc(stdout, &desc);
+    fflush(stdout);
+
+    printf("__pmtimeval* tests:\n");
+    a.tv_sec = 233;
+    a.tv_usec = 967000;
+    b.tv_sec = 1000;
+    b.tv_usec = 600000;
+    t = __pmtimevalAdd(&a, &b);
+    printf("Add (expect 1234.567000): %.6f\n", t);
+    __pmtimevalInc(&a, &b);
+    printf("Inc (expect 1234.567000): %d.%06d\n", (int)a.tv_sec, (int)a.tv_usec);
+    __pmtimevalInc(&a, &b);
+    t = __pmtimevalSub(&a, &b);
+    printf("Sub (expect 1234.567000): %.6f\n", t);
+    __pmtimevalDec(&a, &b);
+    printf("Dec (expect 1234.567000): %d.%06d\n", (int)a.tv_sec, (int)a.tv_usec);
+    __pmtimevalNow(&b);
+    gettimeofday(&a, NULL);
+    t = __pmtimevalSub(&a, &b);
+    if (t < 0.01) printf("Now: OK\n");
+    else printf("Now: expected delta < 0.01, got %.6f\n", t);
+    a.tv_sec = 1*3600 + 2*60 + 3;
+    a.tv_usec = 456000;
+    pmNewZone("UTC");
+    printf("Stamp: (expect 01:02:03.456) ");
+    __pmPrintStamp(stdout, &a);
+    putchar('\n');
     fflush(stdout);
 
     return 0;

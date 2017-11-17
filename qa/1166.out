@@ -12,6 +12,13 @@ __pmNotifyErr test: expect to see standard message format
 __pmPrintDesc test:
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / sec
+__pmtimeval* tests:
+Add (expect 1234.567000): 1234.567000
+Inc (expect 1234.567000): 1234.567000
+Sub (expect 1234.567000): 1234.567000
+Dec (expect 1234.567000): 1234.567000
+Now: OK
+Stamp: (expect 01:02:03.456) 01:02:03.456
 
 === source code compatibility checks ===
 __pmGetAPIConfig test: OK
@@ -26,3 +33,10 @@ __pmNotifyErr test: expect to see standard message format
 __pmPrintDesc test:
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / sec
+__pmtimeval* tests:
+Add (expect 1234.567000): 1234.567000
+Inc (expect 1234.567000): 1234.567000
+Sub (expect 1234.567000): 1234.567000
+Dec (expect 1234.567000): 1234.567000
+Now: OK
+Stamp: (expect 01:02:03.456) 01:02:03.456

@@ -59,7 +59,7 @@ int QmcTime::timevalNonZero(struct timeval *a)
 //
 void QmcTime::timevalAdd(struct timeval *a, struct timeval *b)
 {
-    __pmtimevalInc(a, b);
+    pmtimevalInc(a, b);
 }
 
 //
@@ -67,7 +67,7 @@ void QmcTime::timevalAdd(struct timeval *a, struct timeval *b)
 //
 void QmcTime::timevalSub(struct timeval *a, struct timeval *b)
 {
-    __pmtimevalDec(a, b);
+    pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
 	/* clip negative values at zero */
 	a->tv_sec = 0;
@@ -91,7 +91,7 @@ int QmcTime::timevalCompare(struct timeval *a, struct timeval *b)
 //
 void QmcTime::secondsToTimeval(double value, struct timeval *tv)
 {
-    __pmtimevalFromReal(value, tv);
+    pmtimevalFromReal(value, tv);
 }
 
 //
@@ -99,7 +99,7 @@ void QmcTime::secondsToTimeval(double value, struct timeval *tv)
 //
 double QmcTime::secondsFromTimeval(struct timeval *tv)
 {
-    return __pmtimevalToReal(tv);
+    return pmtimevalToReal(tv);
 }
 
 //

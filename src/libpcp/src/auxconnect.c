@@ -750,8 +750,8 @@ __pmSetConnectTimeout(double timeout)
 	return -EINVAL;
 
     PM_LOCK(auxconnect_lock);
-    /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
-    __pmtimevalFromReal(timeout, &conn_wait);
+    /* THREADSAFE - no locks acquired in pmtimevalFromReal() */
+    pmtimevalFromReal(timeout, &conn_wait);
     conn_wait_done = 1;
     PM_UNLOCK(auxconnect_lock);
     return 0;
@@ -783,16 +783,16 @@ __pmConnectTimeout(void)
 	    }
 	    else {
 		PM_UNLOCK(__pmLock_extcall);
-		/* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
-		__pmtimevalFromReal(timeout, &conn_wait);
+		/* THREADSAFE - no locks acquired in pmtimevalFromReal() */
+		pmtimevalFromReal(timeout, &conn_wait);
 	    }
 	}
 	else
 	    PM_UNLOCK(__pmLock_extcall);
     }
 
-    /* THREADSAFE - no locks acquired in __pmtimevalToReal() */
-    timeout = __pmtimevalToReal(&conn_wait);
+    /* THREADSAFE - no locks acquired in pmtimevalToReal() */
+    timeout = pmtimevalToReal(&conn_wait);
     PM_UNLOCK(auxconnect_lock);
 
     return timeout;

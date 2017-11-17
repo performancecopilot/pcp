@@ -130,7 +130,7 @@ void PmTimeLive::play()
 {
     console->post("PmTimeLive::play");
     setControl(PmTime::ForwardState);
-    __pmtimevalNow(&my.pmtime.position);
+    pmtimevalNow(&my.pmtime.position);
     displayPosition();
     emit vcrModePulse(&my.pmtime, 0);
     if (!my.timer->isActive())
@@ -148,13 +148,13 @@ void PmTimeLive::stop()
     console->post("PmTimeLive::stop stopped time");
     setControl(PmTime::StoppedState);
     my.timer->stop();
-    __pmtimevalNow(&my.pmtime.position);
+    pmtimevalNow(&my.pmtime.position);
     emit vcrModePulse(&my.pmtime, 0);
 }
 
 void PmTimeLive::updateTime()
 {
-    __pmtimevalNow(&my.pmtime.position);
+    pmtimevalNow(&my.pmtime.position);
     displayPosition();
     emit timePulse(&my.pmtime);
 }

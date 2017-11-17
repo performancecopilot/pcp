@@ -681,7 +681,7 @@ series_cache_update(SOURCE *sp, pmResult *result, int metadata)
 
 	    timediff = result->timestamp;
 	    tsub(&timediff, &value->lasttime);
-	    diff = __pmtimevalToReal(&timediff);
+	    diff = pmtimevalToReal(&timediff);
 	    wrap = 0;
 
 	    if (metric->desc.sem == PM_SEM_COUNTER) {

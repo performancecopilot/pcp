@@ -435,7 +435,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			ignore_mark_records = 0;
 		    }
 		    else {
-			ignore_mark_gap = __pmtimevalToReal(&gap);
+			ignore_mark_gap = pmtimevalToReal(&gap);
 			ignore_mark_records = 1;
 		    }
 		}

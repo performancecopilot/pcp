@@ -1169,7 +1169,7 @@ rawwrite(pmOptions *opts, const char *name,
 	int		sts;
 
 	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
-	interval = __pmtimevalToReal(delta);
+	interval = pmtimevalToReal(delta);
 	duration = interval * nsamples;
 
 	if (midnightflag)
@@ -1252,7 +1252,7 @@ rawwrite(pmOptions *opts, const char *name,
 		cleanstop(1);
 	}
 
-	__pmtimevalFromReal(duration, &elapsed);
+	pmtimevalFromReal(duration, &elapsed);
 	__pmtimevalSleep(elapsed);
 
 	if ((sts = pmRecordControl(NULL, PM_REC_OFF, "")) < 0)

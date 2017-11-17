@@ -80,8 +80,8 @@ __pmSetRequestTimeout(double timeout)
 
     PM_LOCK(pdu_lock);
     req_wait_done = 1;
-    /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
-    __pmtimevalFromReal(timeout, &req_wait);
+    /* THREADSAFE - no locks acquired in pmtimevalFromReal() */
+    pmtimevalFromReal(timeout, &req_wait);
     PM_UNLOCK(pdu_lock);
     return 0;
 }
@@ -110,14 +110,14 @@ __pmRequestTimeout(void)
 			      timeout_str);
 	    }
 	    else
-		__pmtimevalFromReal(timeout, &req_wait);
+		pmtimevalFromReal(timeout, &req_wait);
 	    free(timeout_str);
 	}
 	else
 	    PM_UNLOCK(__pmLock_extcall);
 	PM_LOCK(pdu_lock);
     }
-    timeout = __pmtimevalToReal(&req_wait);
+    timeout = pmtimevalToReal(&req_wait);
     PM_UNLOCK(pdu_lock);
     return timeout;
 }

@@ -167,7 +167,7 @@ main(int argc, char **argv)
 	    sts = pmdaEventQueueAppend(queueid, event, size, &tv);
 	    fprintf(stderr, "add event(%s,%d) -> %d ", name, (int)size, sts);
 	    if (sts < 0) fprintf(stderr, "%s", pmErrStr(sts));
-	    else __pmPrintStamp(stderr, &tv);
+	    else pmPrintStamp(stderr, &tv);
 	    fputc('\n', stderr);
 	    break;
 
@@ -187,7 +187,7 @@ main(int argc, char **argv)
 	    fprintf(stderr, "add queue#%d event(%s,%d) -> %d ",
 		    queueid, name, (int)size, sts);
 	    if (sts < 0) fprintf(stderr, "%s", pmErrStr(sts));
-	    else __pmPrintStamp(stderr, &tv);
+	    else pmPrintStamp(stderr, &tv);
 	    fputc('\n', stderr);
 	    break;
 

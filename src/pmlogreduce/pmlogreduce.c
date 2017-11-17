@@ -151,7 +151,7 @@ parseargs(int argc, char *argv[])
 		opts.errors++;
 	    }
 	    else
-		targ = __pmtimevalToReal(&interval);
+		targ = pmtimevalToReal(&interval);
 	    break;
 
 	case 'v':	/* number of samples per volume */

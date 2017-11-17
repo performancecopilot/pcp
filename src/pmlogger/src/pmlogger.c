@@ -71,7 +71,7 @@ run_done(int sts, char *msg)
     if (pmDebugOptions.log && pmDebugOptions.desperate) {
 	fprintf(stderr, "run_done(%d, %s) last_log_offset=%d last_stamp=",
 		sts, msg, last_log_offset);
-	__pmPrintStamp(stderr, &last_stamp);
+	pmPrintStamp(stderr, &last_stamp);
 	fputc('\n', stderr);
     }
 
@@ -246,7 +246,7 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
 static void
 tsub(struct timeval *a, struct timeval *b)
 {
-    __pmtimevalDec(a, b);
+    pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
         /* clip negative values at zero */
         a->tv_sec = 0;
@@ -958,7 +958,7 @@ main(int argc, char **argv)
 	pmID		pmid;
 	pmResult	*resp;
 
-	__pmtimevalNow(&epoch);
+	pmtimevalNow(&epoch);
 	sts = pmUseContext(ctx);
 
 	if (sts >= 0)
@@ -1279,7 +1279,7 @@ newvolume(int vol_switch_type)
 	    /*
 	     * nothing has been logged as yet, force out the label records
 	     */
-	    __pmtimevalNow(&last_stamp);
+	    pmtimevalNow(&last_stamp);
 	    logctl.l_label.ill_start.tv_sec = (__int32_t)last_stamp.tv_sec;
 	    logctl.l_label.ill_start.tv_usec = (__int32_t)last_stamp.tv_usec;
 	    logctl.l_label.ill_vol = PM_LOG_VOL_TI;

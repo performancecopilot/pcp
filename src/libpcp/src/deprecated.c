@@ -72,3 +72,59 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 {
     pmPrintDesc(f, desc);
 }
+
+#undef __pmtimevalNow
+void
+__pmtimevalNow(struct timeval *tv)
+{
+    return pmtimevalNow(tv);
+}
+
+#undef __pmtimevalInc
+void
+__pmtimevalInc(struct timeval *ap, const struct timeval *bp)
+{
+    pmtimevalInc(ap, bp);
+}
+
+#undef __pmtimevalDec
+void
+__pmtimevalDec(struct timeval *ap, const struct timeval *bp)
+{
+    pmtimevalDec(ap, bp);
+}
+
+#undef __pmtimevalAdd
+double
+__pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
+{
+    return pmtimevalAdd(ap, bp);
+}
+
+#undef __pmtimevalSub
+double
+__pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
+{
+    return pmtimevalSub(ap, bp);
+}
+
+#undef __pmtimevalToReal
+double
+__pmtimevalToReal(const struct timeval *val)
+{
+    return pmtimevalToReal(val);
+}
+
+#undef __pmtimevalFromReal
+void
+__pmtimevalFromReal(double secs, struct timeval *val)
+{
+    pmtimevalFromReal(secs, val);
+}
+
+#undef __pmPrintStamp
+void
+__pmPrintStamp(FILE *f, const struct timeval *tp)
+{
+    pmPrintStamp(f, tp);
+}

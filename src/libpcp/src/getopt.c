@@ -65,9 +65,9 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
 	*end = logend;
     } else {
 	/* must now check if this archive pre- or post- dates others */
-	if (__pmtimevalSub(begin, &label.ll_start) > 0.0)
+	if (pmtimevalSub(begin, &label.ll_start) > 0.0)
 	    *begin = label.ll_start;
-	if (__pmtimevalSub(end, &logend) < 0.0)
+	if (pmtimevalSub(end, &logend) < 0.0)
 	    *end = logend;
     }
     return 0;
@@ -89,7 +89,7 @@ __pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
-	__pmtimevalNow(begin);
+	pmtimevalNow(begin);
 	end->tv_sec = INT_MAX;
 	end->tv_usec = 0;
     } else if (opts->narchives == 1) {

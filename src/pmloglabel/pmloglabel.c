@@ -398,7 +398,7 @@ main(int argc, char *argv[])
 	printf("  commencing %s ", ddmm);
 	tv.tv_sec = golden.ill_start.tv_sec;
 	tv.tv_usec = golden.ill_start.tv_usec;
-	__pmPrintStamp(stdout, &tv);
+	pmPrintStamp(stdout, &tv);
 	printf(" %4.4s\n", yr);
 	if (__pmLogChangeVol(&logctl, 0) < 0)
 	    printf("  ending     UNKNOWN\n");
@@ -409,7 +409,7 @@ main(int argc, char *argv[])
 	    ddmm[10] = '\0';
 	    yr = &ddmm[20];
 	    printf("  ending     %s ", ddmm);
-	    __pmPrintStamp(stdout, &tv);
+	    pmPrintStamp(stdout, &tv);
 	    printf(" %4.4s\n", yr);
 	}
 	if (Lflag) {

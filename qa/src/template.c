@@ -146,13 +146,13 @@ main(int argc, char **argv)
     if (opts.align_optarg != NULL || opts.start_optarg != NULL ||
         opts.finish_optarg != NULL || opts.origin_optarg != NULL) {
 	printf("Start time: ");
-	__pmPrintStamp(stdout, &opts.start);
+	pmPrintStamp(stdout, &opts.start);
 	putchar('\n');
 	printf("Origin time: ");
-	__pmPrintStamp(stdout, &opts.origin);
+	pmPrintStamp(stdout, &opts.origin);
 	putchar('\n');
 	printf("Finish time: ");
-	__pmPrintStamp(stdout, &opts.finish);
+	pmPrintStamp(stdout, &opts.finish);
 	putchar('\n');
     }
 

@@ -39,7 +39,7 @@ stop_timing(void)
     getrusage(RUSAGE_SELF, &final_rsrc);
 
     /* accumulate the totals as we go */
-    user += __pmtimevalSub(&final_rsrc.ru_utime, &start_rsrc.ru_utime);
-    kernel += __pmtimevalSub(&final_rsrc.ru_stime, &start_rsrc.ru_stime);
-    elapsed += __pmtimevalSub(&final_time, &start_time);
+    user += pmtimevalSub(&final_rsrc.ru_utime, &start_rsrc.ru_utime);
+    kernel += pmtimevalSub(&final_rsrc.ru_stime, &start_rsrc.ru_stime);
+    elapsed += pmtimevalSub(&final_time, &start_time);
 }

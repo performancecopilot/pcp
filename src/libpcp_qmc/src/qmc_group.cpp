@@ -377,8 +377,8 @@ QmcGroup::updateBounds()
 	    my.contexts[i]->source().type() == PM_CONTEXT_ARCHIVE) {
 	    startTv = my.contexts[i]->source().start();
 	    endTv = my.contexts[i]->source().end();
-	    startReal = __pmtimevalToReal(&startTv);
-	    endReal = __pmtimevalToReal(&endTv);
+	    startReal = pmtimevalToReal(&startTv);
+	    endReal = pmtimevalToReal(&endTv);
 	    if (startReal < newStart)
 		newStart = startReal;
 	    if (endReal > newEnd)
@@ -386,8 +386,8 @@ QmcGroup::updateBounds()
 	}
     }
 
-    __pmtimevalFromReal(newStart, &my.timeStart);
-    __pmtimevalFromReal(newEnd, &my.timeEnd);
+    pmtimevalFromReal(newStart, &my.timeStart);
+    pmtimevalFromReal(newEnd, &my.timeEnd);
     my.timeEndReal = newEnd;
 
     if (pmDebugOptions.pmc) {

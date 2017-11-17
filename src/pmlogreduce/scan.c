@@ -81,7 +81,7 @@ doscan(struct timeval *end)
 	if (pmDebugOptions.appl2) {
 	    if (nr == 0) {
 		fprintf(stderr, "scan starts at ");
-		__pmPrintStamp(stderr, &rp->timestamp);
+		pmPrintStamp(stderr, &rp->timestamp);
 		fprintf(stderr, "\n");
 	    }
 	}
@@ -194,7 +194,7 @@ doscan(struct timeval *end)
 		    ;
 		}
 		if (pmDebugOptions.appl1) {
-		    __pmPrintStamp(stderr, &rp->timestamp);
+		    pmPrintStamp(stderr, &rp->timestamp);
 		    fprintf(stderr, ": seen %s (%s) inst %d\n",
 			namelist[i], pmIDStr(pmidlist[i]),
 			vsp->vlist[j].inst);
@@ -207,7 +207,7 @@ doscan(struct timeval *end)
     }
     if (pmDebugOptions.appl2) {
 	fprintf(stderr, "scan ends at ");
-	__pmPrintStamp(stderr, &last_tv);
+	pmPrintStamp(stderr, &last_tv);
 	if (sts == PM_ERR_EOL)
 	    fprintf(stderr, " [EOL]");
 	fprintf(stderr, " (%d records)\n", nr);
@@ -216,7 +216,7 @@ doscan(struct timeval *end)
     if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
 	fprintf(stderr,
 	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmGetProgname());
-	__pmPrintStamp(stderr, &last_tv);
+	pmPrintStamp(stderr, &last_tv);
 	fprintf(stderr,
 	    " failed: %s\n", pmErrStr(sts));
 	exit(1);

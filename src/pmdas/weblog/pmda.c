@@ -328,7 +328,7 @@ receivePDUs(pmdaInterface *dispatch)
     for (;;) {
 
 	FD_SET(fileno(stdin), &rfds);
-	__pmtimevalNow(&timeout);
+	pmtimevalNow(&timeout);
 	timeout.tv_usec = 0;
 	interval = (time_t)wl_refreshDelay - (timeout.tv_sec % (time_t)wl_refreshDelay);
 	timeout.tv_sec = interval;
@@ -473,7 +473,7 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
     __pmGetUsername(&wl_username);
 
-    __pmtimevalNow(&start);
+    pmtimevalNow(&start);
 
     wl_isDSO = 0;
 
@@ -1171,8 +1171,8 @@ main(int argc, char **argv)
 	}
     }
 
-    __pmtimevalNow(&end);
-    startTime = __pmtimevalSub(&end, &start);
+    pmtimevalNow(&end);
+    startTime = pmtimevalSub(&end, &start);
     if (pmDebugOptions.appl0)
 	logmessage(LOG_DEBUG, "Agent started in %f seconds", startTime);
 

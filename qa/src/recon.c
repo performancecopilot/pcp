@@ -117,7 +117,7 @@ Options:\n\
 	    fprintf(stderr, "pmReconnectContext: success\n");
 	    gettimeofday(&now, (struct timezone *)0);
 	    /* roundup to the nearest second, now that pmcd stop is much quicker */
-	    fprintf(stderr, "delay: %.0f secs\n", __pmtimevalSub(&now, &then) + 0.5);
+	    fprintf(stderr, "delay: %.0f secs\n", pmtimevalSub(&now, &then) + 0.5);
 	    break;
 	}
 	__pmtimevalSleep(delay);

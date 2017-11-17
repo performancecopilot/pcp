@@ -937,7 +937,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    return 0;
 		if (v->extra < 0) {	/* inside a timed section */
 		    struct timeval tv; 
-		    __pmtimevalNow(&tv); 
+		    pmtimevalNow(&tv); 
 		    atom->ll += (tv.tv_sec * 1e6 + tv.tv_usec) + v->extra;
 		}
 		break;

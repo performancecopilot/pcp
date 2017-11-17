@@ -3393,7 +3393,7 @@ void dump_event_record(pmResult *res, int r)
 {
     int         p;
 
-    __pmPrintStamp(stdout, &amp;res[r]-&gt;timestamp);
+    pmPrintStamp(stdout, &amp;res[r]-&gt;timestamp);
     if (res[r]-&gt;numpmid == 0)
        	printf(" ==&gt; No parameters\n");
     for (p = 0; p &lt; res[r]-&gt;numpmid; p++) {

@@ -126,7 +126,7 @@ AcceptNewClient(int reqfd)
      * we won't have a problem
      */
     client[i].seq = seq++;
-    __pmtimevalNow(&now);
+    pmtimevalNow(&now);
     client[i].start = now.tv_sec;
 
     if (pmDebugOptions.appl0)

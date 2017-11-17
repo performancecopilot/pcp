@@ -1270,7 +1270,7 @@ sendstatus(void)
 	else
 	    memcpy(&ls.ls_start, &logctl.l_label.ill_start, sizeof(ls.ls_start));
 	memcpy(&ls.ls_last, &last_stamp, sizeof(ls.ls_last));
-	__pmtimevalNow(&now);
+	pmtimevalNow(&now);
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;

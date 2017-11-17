@@ -281,7 +281,7 @@ pmParseInterval(
     }
 
     /* convert into seconds and microseconds */
-    __pmtimevalFromReal(sec, rslt);
+    pmtimevalFromReal(sec, rslt);
     return 0;
 }
 

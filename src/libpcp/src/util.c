@@ -790,7 +790,7 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
     save_debug();
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
-    __pmPrintStamp(f, &resp->timestamp);
+    pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
@@ -904,7 +904,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	if (highres)
 	    __pmPrintHighResStamp(f, &tsstamp);
 	else
-	    __pmPrintStamp(f, &tvstamp);
+	    pmPrintStamp(f, &tvstamp);
 
 	if (nrecords > 1) {
 	    fprintf(f, "...");
@@ -918,7 +918,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 		tvp = (__pmTimeval *)base;
 		tvstamp.tv_sec = tvp->tv_sec;
 		tvstamp.tv_usec = tvp->tv_usec;
-		__pmPrintStamp(f, &tvstamp);
+		pmPrintStamp(f, &tvstamp);
 	    }
 	}
     }
@@ -1191,7 +1191,7 @@ __pmTimevalCmp(const __pmTimeval *a, const __pmTimeval *b)
 
 /*
  * Difference for two of the internal timestamps ...
- * Same as __pmtimevalSub() in tv.c, just with __pmTimeval args
+ * Same as pmtimevalSub() in tv.c, just with __pmTimeval args
  * rather than struct timeval args.
  */
 double
@@ -1204,7 +1204,7 @@ __pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
  * print timeval timestamp in HH:MM:SS.XXX format
  */
 void
-__pmPrintStamp(FILE *f, const struct timeval *tp)
+pmPrintStamp(FILE *f, const struct timeval *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1341,8 +1341,8 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     struct timeval tv;
     double now;
 
-    __pmtimevalNow(&tv);
-    now = __pmtimevalToReal(&tv);
+    pmtimevalNow(&tv);
+    now = pmtimevalToReal(&tv);
     if (*first) {
 	*first = 0;
 	*sum = 0;

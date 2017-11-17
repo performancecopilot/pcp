@@ -37,15 +37,6 @@ PCP_CALL extern int __pmPathSeparator(void);
 /* safely insert an atom value into a pmValue */
 PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
-/* struct timeval/timespec manipulations */
-PCP_CALL extern void __pmtimevalNow(struct timeval *);
-PCP_CALL extern void __pmtimevalInc(struct timeval *, const struct timeval *);
-PCP_CALL extern void __pmtimevalDec(struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
-PCP_CALL extern double __pmtimevalToReal(const struct timeval *);
-PCP_CALL extern void __pmtimevalFromReal(double, struct timeval *);
-PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
 PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 
 

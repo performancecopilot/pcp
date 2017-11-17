@@ -145,7 +145,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    ctxnum, now.tv_sec, now.tv_usec);
 		foo.tv_sec = now.tv_sec;
 		foo.tv_usec = now.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " numpmid=%d\n+ PMIDs:", numpmid);
 		for (j = 0; j < numpmid; j++)
 		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));
@@ -201,7 +201,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    now.tv_sec, now.tv_usec);
 		foo.tv_sec = now.tv_sec;
 		foo.tv_usec = now.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " indom=%s", pmInDomStr(indom));
 		if (inst == PM_IN_NULL)
 		    fprintf(stderr, " inst=PM_IN_NULL");
@@ -506,17 +506,17 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    lsp->ls_start.tv_sec, lsp->ls_start.tv_usec);
 		foo.tv_sec = lsp->ls_start.tv_sec;
 		foo.tv_usec = lsp->ls_start.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, "\nlast=%d.%06d ",
 		    lsp->ls_last.tv_sec, lsp->ls_last.tv_usec);
 		foo.tv_sec = lsp->ls_last.tv_sec;
 		foo.tv_usec = lsp->ls_last.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " now=%d.%06d ",
 		    lsp->ls_timenow.tv_sec, lsp->ls_timenow.tv_usec);
 		foo.tv_sec = lsp->ls_timenow.tv_sec;
 		foo.tv_usec = lsp->ls_timenow.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, "\nstate=%d vol=%d size=%lld host=%s tz=\"%s\" tzlogger=\"%s\"\n",
 		    lsp->ls_state, lsp->ls_vol, (long long)lsp->ls_size,
 		    lsp->ls_hostname, lsp->ls_tz, lsp->ls_tzlogger);

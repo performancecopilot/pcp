@@ -37,7 +37,7 @@ onevent(int afid, void *data)
 	fputc('\n', stderr);
     }
 
-    elapsed = __pmtimevalSub(&now, &start);
+    elapsed = pmtimevalSub(&now, &start);
 
     if (afid == reg[2])
 	printf("event %d callback\n", afid);

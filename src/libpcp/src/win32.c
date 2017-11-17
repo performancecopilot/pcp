@@ -442,7 +442,7 @@ __pmProcessRunTimes(double *usr, double *sys)
 }
 
 void
-__pmtimevalNow(struct timeval *tv)
+pmtimevalNow(struct timeval *tv)
 {
     struct timespec ts;
     union {

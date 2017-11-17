@@ -368,7 +368,7 @@ dopmda(int pdu)
     int			pinpdu;
 
     if (timer != 0)
-	__pmtimevalNow(&start);
+	pmtimevalNow(&start);
   
     switch (pdu) {
 
@@ -819,8 +819,8 @@ dopmda(int pdu)
     }
 
     if (sts >= 0 && timer != 0) {
-	__pmtimevalNow(&end);
-	printf("Timer: %f seconds\n", __pmtimevalSub(&end, &start));
+	pmtimevalNow(&end);
+	printf("Timer: %f seconds\n", pmtimevalSub(&end, &start));
     }
 }
 

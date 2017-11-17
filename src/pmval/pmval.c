@@ -247,7 +247,7 @@ getvals(Context *x,		/* in - full pm description */
 
 	    if (r->numpmid == 0) {
 		if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
-		    __pmPrintStamp(stdout, &r->timestamp);
+		    pmPrintStamp(stdout, &r->timestamp);
 		printf("  Archive logging suspended\n");
 		reporting = 0;
 		pmFreeResult(r);
@@ -286,7 +286,7 @@ getvals(Context *x,		/* in - full pm description */
     if (opts.guiflag)
 	pmTimeStateAck(&controls, pmtime);
 
-    if (__pmtimevalToReal(&r->timestamp) > __pmtimevalToReal(&opts.finish)) {
+    if (pmtimevalToReal(&r->timestamp) > pmtimevalToReal(&opts.finish)) {
 	pmFreeResult(r);
 	return -2;
     }
@@ -294,7 +294,7 @@ getvals(Context *x,		/* in - full pm description */
     e = r->vset[i]->numval;
     if (e == 0) {
 	if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-	    __pmPrintStamp(stdout, &r->timestamp);
+	    pmPrintStamp(stdout, &r->timestamp);
 	    printf("  ");
 	}
 	if (!rawEvents)
@@ -422,7 +422,7 @@ footer:
     else printf("samples:   %d\n", opts.samples);
     if ((opts.samples > 1) &&
 	(opts.context != PM_CONTEXT_ARCHIVE || amode == PM_MODE_INTERP))
-	printf("interval:  %1.2f sec\n", __pmtimevalToReal(&opts.interval));
+	printf("interval:  %1.2f sec\n", pmtimevalToReal(&opts.interval));
 }
 
 /* Print instance identifier names as column labels. */
@@ -678,7 +678,7 @@ printrates(Context *x,
 
     /* compute delta from timestamps and convert units */
     delta = x->scale *
-	    (__pmtimevalToReal(&stamp1) - __pmtimevalToReal(&stamp2));
+	    (pmtimevalToReal(&stamp1) - pmtimevalToReal(&stamp2));
 
     /* null instance domain */
     if (x->desc.indom == PM_INDOM_NULL) {
@@ -1110,10 +1110,10 @@ main(int argc, char *argv[])
 	amode != PM_MODE_FORW) {
 	double start, finish, origin, delta;
 
-	start  = __pmtimevalToReal(&opts.start);
-	finish = __pmtimevalToReal(&opts.finish);
-	origin = __pmtimevalToReal(&opts.origin);
-	delta  = __pmtimevalToReal(&opts.interval);
+	start  = pmtimevalToReal(&opts.start);
+	finish = pmtimevalToReal(&opts.finish);
+	origin = pmtimevalToReal(&opts.origin);
+	delta  = pmtimevalToReal(&opts.interval);
 
 	opts.samples = (int) ((finish - origin) / delta);
 	if (opts.samples < 0)
@@ -1202,7 +1202,7 @@ main(int argc, char *argv[])
 		    printlabels(&context);
 		if (rawEvents) {
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-			__pmPrintStamp(stdout, &rslt2->timestamp);
+			pmPrintStamp(stdout, &rslt2->timestamp);
 			printf("  ");
 		    }
 		    printevents(&context, rslt2->vset[idx2], cols);
@@ -1212,14 +1212,14 @@ main(int argc, char *argv[])
 		else if (rawCounter || (context.desc.sem != PM_SEM_COUNTER)) {
 		    /* not doing rate conversion, report this value immediately */
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
-			__pmPrintStamp(stdout, &rslt2->timestamp);
+			pmPrintStamp(stdout, &rslt2->timestamp);
 		    printvals(&context, rslt2->vset[idx2], cols);
 		    reporting = 1;
 		    continue;
 		}
 		else if (no_values || reporting) {
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-			__pmPrintStamp(stdout, &rslt2->timestamp);
+			pmPrintStamp(stdout, &rslt2->timestamp);
 			printf("  ");
 		    }
 		    printf("No values available\n");
@@ -1269,7 +1269,7 @@ main(int argc, char *argv[])
 
 	/* print values */
 	if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-	    __pmPrintStamp(stdout, &rslt1->timestamp);
+	    pmPrintStamp(stdout, &rslt1->timestamp);
 	    if (rawEvents)
 		printf("  ");
 	}

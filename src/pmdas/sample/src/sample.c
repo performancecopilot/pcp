@@ -1762,8 +1762,8 @@ doit:
 			atom.ul = time(NULL) - _start;
 			break;
 		    case 3:		/* milliseconds */
-			__pmtimevalNow(&now);
-			atom.d = 1000 * __pmtimevalSub(&now, &_then);
+			pmtimevalNow(&now);
+			atom.d = 1000 * pmtimevalSub(&now, &_then);
 			break;
 		    case 4:		/* load */
 			atom.l = 42;
@@ -2174,8 +2174,8 @@ doit:
 			}
 			break;
 		    case 72: /* const_rate.value */
-			__pmtimevalNow(&now);
-			atom.ul = const_rate_value + const_rate_gradient * __pmtimevalSub(&now, &const_rate_timestamp);
+			pmtimevalNow(&now);
+			atom.ul = const_rate_value + const_rate_gradient * pmtimevalSub(&now, &const_rate_timestamp);
 			const_rate_timestamp = now;
 			const_rate_value = atom.ul;
 			break;
@@ -2999,7 +2999,7 @@ sample_init(pmdaInterface *dp)
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 
-    __pmtimevalNow(&_then);
+    pmtimevalNow(&_then);
     _start = time(NULL);
     init_tables(dp->domain);
     init_events(dp->domain);

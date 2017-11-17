@@ -78,7 +78,7 @@ dumpLabel(void)
     ddmm[10] = '\0';
     yr = &ddmm[20];
     fprintf(stderr, "  commencing %s ", ddmm);
-    __pmPrintStamp(stderr, &label.ll_start);
+    pmPrintStamp(stderr, &label.ll_start);
     fprintf(stderr, " %4.4s\n", yr);
 
     if (opts.finish.tv_sec == INT_MAX) {
@@ -90,7 +90,7 @@ dumpLabel(void)
         ddmm[10] = '\0';
         yr = &ddmm[20];
         fprintf(stderr, "  ending     %s ", ddmm);
-        __pmPrintStamp(stderr, &opts.finish);
+        pmPrintStamp(stderr, &opts.finish);
         fprintf(stderr, " %4.4s\n", yr);
     }
 }

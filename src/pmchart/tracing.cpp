@@ -30,10 +30,10 @@ TracingItem::TracingItem(Chart *chart,
     my.minSpanID = 0;
     my.maxSpanID = 1;
     limit = mp->context()->source().start();
-    my.minSpanTime = __pmtimevalToReal(&limit);
+    my.minSpanTime = pmtimevalToReal(&limit);
     if (mp->context()->source().isArchive()) {
 	limit = mp->context()->source().end();
-	my.maxSpanTime = __pmtimevalToReal(&limit);
+	my.maxSpanTime = pmtimevalToReal(&limit);
     }
     else
 	my.maxSpanTime = my.minSpanTime * 1.1;
@@ -99,7 +99,7 @@ TracingItem::curve(void)
 
 TracingEvent::TracingEvent(QmcEventRecord const &record, pmID pmid, int inst)
 {
-    my.timestamp = __pmtimevalToReal(record.timestamp());
+    my.timestamp = pmtimevalToReal(record.timestamp());
     my.missed = record.missed();
     my.flags = record.flags();
     my.pmid = pmid;

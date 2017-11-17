@@ -109,7 +109,7 @@ USAGE:
     }
     pmDestroyContext(sts);
 
-    delta = __pmtimevalSub(&after, &before);
+    delta = pmtimevalSub(&after, &before);
     printf("%s: metric %s %.2lf fetches/second\n",
     pmGetProgname(), metric, (double)iterations / delta);
 

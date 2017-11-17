@@ -594,7 +594,7 @@ newstarttime(PARSER *lp, const char *string)
 	tp->starts = strdup(string);
 #if 0
     if (!lp->yy_error)
-fprintf(stderr, "START: %.64g\n", __pmtimevalToReal(result));
+fprintf(stderr, "START: %.64g\n", pmtimevalToReal(result));
     else
 fprintf(stderr, "ERROR (start: %s): %s\n", string, lp->yy_errstr);
 #endif
@@ -610,7 +610,7 @@ newendtime(PARSER *lp, const char *string)
 	tp->ends = strdup(string);
 #if 0
     if (!lp->yy_error)
-fprintf(stderr, "END: %.64g\n", __pmtimevalToReal(result));
+fprintf(stderr, "END: %.64g\n", pmtimevalToReal(result));
     else
 fprintf(stderr, "ERROR (end: %s): %s\n", string, lp->yy_errstr);
 #endif
@@ -647,7 +647,7 @@ newaligntime(PARSER *lp, const char *string)
 	tp->aligns = strdup(string);
 #if 0
     if (!lp->yy_error)
-fprintf(stderr, "ALIGN: %.64g\n", __pmtimevalToReal(result));
+fprintf(stderr, "ALIGN: %.64g\n", pmtimevalToReal(result));
     else
 fprintf(stderr, "ERROR (align: %s): %s\n", string, lp->yy_errstr);
 #endif

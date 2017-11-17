@@ -96,7 +96,7 @@ newvolume(char *base, __pmTimeval *tvp)
 	stamp.tv_usec = tvp->tv_usec;
 	fprintf(stderr, "%s: New log volume %d, at ",
 		pmGetProgname(), nextvol);
-	__pmPrintStamp(stderr, &stamp);
+	pmPrintStamp(stderr, &stamp);
 	fputc('\n', stderr);
 	return;
     }

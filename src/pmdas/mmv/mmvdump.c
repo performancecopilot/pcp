@@ -386,7 +386,7 @@ dump_value(void *addr, size_t size, mmv_disk_value_t *vals, int i, int toc, int 
 	printf(" = \"%s\"", string->payload);
 	break;
     case MMV_TYPE_ELAPSED:
-	__pmtimevalNow(&tv);
+	pmtimevalNow(&tv);
 	t = vals[i].value.ll;
 	if (vals[i].extra < 0)
 	    t += ((tv.tv_sec*1e6 + tv.tv_usec) + vals[i].extra);

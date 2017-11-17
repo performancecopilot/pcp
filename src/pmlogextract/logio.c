@@ -117,7 +117,7 @@ again:
 		__pmTimeval		*tvp = (__pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
 		stamp.tv_sec = ntohl(tvp->tv_sec);
 		stamp.tv_usec = ntohl(tvp->tv_usec);
-		__pmPrintStamp(stderr, &stamp);
+		pmPrintStamp(stderr, &stamp);
 	    }
 	    else
 		fprintf(stderr, "unknown time");
@@ -134,7 +134,7 @@ again:
 	    fprintf(stderr, " timestamp=");
 	    stamp.tv_sec = ntohl(tvp->tv_sec);
 	    stamp.tv_usec = ntohl(tvp->tv_usec);
-	    __pmPrintStamp(stderr, &stamp);
+	    pmPrintStamp(stderr, &stamp);
 	}
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", lpb, &lpb[ntohl(head)/sizeof(__pmPDU) - 1]);
 	fputc('\n', stderr);

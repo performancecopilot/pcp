@@ -236,14 +236,14 @@ refresh(void *dummy)
 
     for ( ; ; ) {
 	cycles++;
-	__pmtimevalNow(&startcycle);
+	pmtimevalNow(&startcycle);
 	if (pmDebugOptions.appl1)
 	    fprintf(stderr, "\nStart cycle @ %s", ctime(&startcycle.tv_sec));
 	for (i = 0; i < numcmd; i++) {
 	    if (pmDebugOptions.appl1)
 		fprintf(stderr, "[%s] %s ->\n", cmdlist[i].tag, cmdlist[i].cmd);
 	    getrusage(RUSAGE_CHILDREN, &cpu_then);
-	    __pmtimevalNow(&then);
+	    pmtimevalNow(&then);
 	    fflush(stderr);
 	    fflush(stdout);
 	    shpid = fork();
@@ -282,7 +282,7 @@ refresh(void *dummy)
 	    timedout = 0;
 	    alarm(timeout);
 	    waitpid(shpid, &sts, 0);
-	    __pmtimevalNow(&now);
+	    pmtimevalNow(&now);
 	    getrusage(RUSAGE_CHILDREN, &cpu_now);
 	    alarm(0);
 
@@ -344,7 +344,7 @@ refresh(void *dummy)
 		break;
 	 }
 
-	__pmtimevalNow(&now);
+	pmtimevalNow(&now);
 	if (cycletime) {
 	    waittime = (int)cycletime - now.tv_sec + startcycle.tv_sec;
 	    if (waittime < 0) {

@@ -197,7 +197,7 @@ dodso(int pdu)
     pmID		pmid;
 
     if (timer != 0)
-	__pmtimevalNow(&start);
+	pmtimevalNow(&start);
 
     switch (pdu) {
 
@@ -503,7 +503,7 @@ dodso(int pdu)
     }
   
     if (sts >= 0 && timer != 0) {
-	__pmtimevalNow(&end);
-	printf("Timer: %f seconds\n", __pmtimevalSub(&end, &start));
+	pmtimevalNow(&end);
+	printf("Timer: %f seconds\n", pmtimevalSub(&end, &start));
     }
 }

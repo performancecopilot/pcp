@@ -76,7 +76,7 @@ void RecordDialog::allGadgetsRadioButton_clicked()
 
 void RecordDialog::deltaUnitsComboBox_activated(int value)
 {
-    double delta = __pmtimevalToReal(pmtime->liveInterval());
+    double delta = pmtimevalToReal(pmtime->liveInterval());
     my.units = (QmcTime::DeltaUnits)value;
     deltaLineEdit->setText(QmcTime::deltaString(delta, my.units));
 }

@@ -594,13 +594,13 @@ fixstamp(struct timeval *tvp)
 {
     if (global.flags & GLOBAL_CHANGE_TIME) {
 	if (global.time.tv_sec > 0) {
-	    __pmtimevalInc(tvp, &global.time);
+	    pmtimevalInc(tvp, &global.time);
 	    return 1;
 	}
 	else if (global.time.tv_sec < 0) {
 	    /*
 	     * parser makes tv_sec < 0 and tv_usec >= 0 ...
-	     * so cannot use __pmtimevalDec() here
+	     * so cannot use pmtimevalDec() here
 	     */
 	    tvp->tv_sec += global.time.tv_sec;
 	    tvp->tv_usec -= global.time.tv_usec;
@@ -1106,7 +1106,7 @@ main(int argc, char **argv)
 	    fprintf(stderr, "Log: read ");
 	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
 	    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
-	    __pmPrintStamp(stderr, &stamp);
+	    pmPrintStamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, in_offset);
 	}
 

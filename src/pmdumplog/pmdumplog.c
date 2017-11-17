@@ -307,7 +307,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
 
 	for (r = 0; r < nrecords; r++) {
 	    printf("              --- event record [%d] timestamp ", r);
-	    __pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmPrintStamp(stdout, &res[r]->timestamp);
 	    if (dump_nparams(res[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -373,13 +373,13 @@ dump_result(pmResult *resp)
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
-	__pmPrintStamp(stdout, &resp->timestamp);
+	pmPrintStamp(stdout, &resp->timestamp);
 	printf(" %4.4s", yr);
 	if (xflag >= 2)
-	    printf(" (%.6f)", __pmtimevalSub(&resp->timestamp, &label.ll_start));
+	    printf(" (%.6f)", pmtimevalSub(&resp->timestamp, &label.ll_start));
     }
     else
-	__pmPrintStamp(stdout, &resp->timestamp);
+	pmPrintStamp(stdout, &resp->timestamp);
 
     if (resp->numpmid == 0) {
 	printf("  <mark>\n");
@@ -478,7 +478,7 @@ dumpInDom(__pmContext *ctxp)
 			;
 		tv.tv_sec = idp->stamp.tv_sec;
 		tv.tv_usec = idp->stamp.tv_usec;
-		__pmPrintStamp(stdout, &tv);
+		pmPrintStamp(stdout, &tv);
 		printf(" %d instances\n", idp->numinst);
 		for (j = 0; j < idp->numinst; j++) {
 		    printf("                 %d or \"%s\"\n",
@@ -513,7 +513,7 @@ dumpTI(__pmContext *ctxp)
 	tip = &ctxp->c_archctl->ac_log->l_ti[i];
 	tv.tv_sec = tip->ti_stamp.tv_sec;
 	tv.tv_usec = tip->ti_stamp.tv_usec;
-	__pmPrintStamp(stdout, &tv);
+	pmPrintStamp(stdout, &tv);
 	printf("    %4d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
 	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
@@ -589,7 +589,7 @@ dumpLabel(int verbose)
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
-    __pmPrintStamp(stdout, &label.ll_start);
+    pmPrintStamp(stdout, &label.ll_start);
     printf(" %4.4s\n", yr);
 
     if (opts.finish.tv_sec == INT_MAX) {
@@ -601,7 +601,7 @@ dumpLabel(int verbose)
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
-	__pmPrintStamp(stdout, &opts.finish);
+	pmPrintStamp(stdout, &opts.finish);
 	printf(" %4.4s\n", yr);
     }
 

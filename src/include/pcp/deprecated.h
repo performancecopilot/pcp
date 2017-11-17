@@ -34,6 +34,14 @@
  * __pmNotifyErr()		pmNotifyErr()
  * __pmSyslog()			pmSyslog()
  * __pmPrintDesc()		pmPrintDesc()
+ * __pmtimevalNow()		pmtimevalNow()
+ * __pmtimevalAdd()		pmtimevalAdd()
+ * __pmtimevalSub()		pmtimevalSub()
+ * __pmtimevalInc()		pmtimevalInc()
+ * __pmtimevalDec()		pmtimevalDec()
+ * __pmtimevalToReal()		pmtimevalToReal()
+ * __pmtimevalFromReal()	pmtimevalFromReal()
+ * __pmPrintStamp()		pmPrintStamp()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -88,5 +96,13 @@ PCP_DATA extern int pmDebug;
 #define __pmNotifyErr pmNotifyErr
 #define __pmSyslog pmSyslog
 #define __pmPrintDesc pmPrintDesc
+#define __pmtimevalNow pmtimevalNow
+#define __pmtimevalAdd pmtimevalAdd
+#define __pmtimevalSub pmtimevalSub
+#define __pmtimevalInc pmtimevalInc
+#define __pmtimevalDec pmtimevalDec
+#define __pmtimevalToReal pmtimevalToReal
+#define __pmtimevalFromReal pmtimevalFromReal
+#define __pmPrintStamp pmPrintStamp
 
 #endif /* PCP_DEPRECATED_H */

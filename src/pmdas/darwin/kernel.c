@@ -95,8 +95,8 @@ refresh_uptime(unsigned int *uptime)
 	    return -oserror();
     }
 
-    __pmtimevalNow(&timediff);
-    __pmtimevalDec(&timediff, &boottime);
+    pmtimevalNow(&timediff);
+    pmtimevalDec(&timediff, &boottime);
     *uptime = timediff.tv_sec;
     return 0;
 }

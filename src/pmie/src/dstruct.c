@@ -124,8 +124,8 @@ getReal(void)
 {
     struct timeval t;
 
-    __pmtimevalNow(&t);
-    return __pmtimevalToReal(&t);
+    pmtimevalNow(&t);
+    return pmtimevalToReal(&t);
 }
 
 

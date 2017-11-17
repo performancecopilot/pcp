@@ -290,7 +290,7 @@ findFetch(Host *h, Metric *m)
 	    int tmp_mode = PM_MODE_INTERP;
 	    getDoubleAsXTB(&h->task->delta, &tmp_ival, &tmp_mode);
 
-	    __pmtimevalFromReal(start, &tv);
+	    pmtimevalFromReal(start, &tv);
 	    if ((sts = pmSetMode(tmp_mode, &tv, tmp_ival)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(),
 			pmErrStr(sts));
@@ -520,7 +520,7 @@ initArchive(Archive *a)
 	pmDestroyContext(handle);
 	return 0;
     }
-    a->first = __pmtimevalToReal(&label.ll_start);
+    a->first = pmtimevalToReal(&label.ll_start);
     if ((sts = pmGetArchiveEnd(&tv)) < 0) {
 	fprintf(stderr, "%s: archive %s is corrupted\n"
 		"pmGetArchiveEnd failed: %s\n",
@@ -528,7 +528,7 @@ initArchive(Archive *a)
 	pmDestroyContext(handle);
 	return 0;
     }
-    a->last = __pmtimevalToReal(&tv);
+    a->last = pmtimevalToReal(&tv);
 
     /* check for duplicate host */
     b = archives;
@@ -1153,7 +1153,7 @@ taskFetch(Task *t)
 			    if (m->desc.pmid == r->vset[i]->pmid) {
 				if (r->vset[i]->numval > 0) {
 				    m->vset = r->vset[i];
-				    m->stamp = __pmtimevalToReal(&r->timestamp);
+				    m->stamp = pmtimevalToReal(&r->timestamp);
 				}
 				break;
 			    }

@@ -80,7 +80,7 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
     }
 
     ans->numpmid = numpmid;
-    __pmtimevalNow(&ans->timestamp);
+    pmtimevalNow(&ans->timestamp);
     for (j = 0; j < numpmid; j++)
 	ans->vset[j] = NULL;
 

@@ -84,7 +84,7 @@ __pmServiceDiscoveryParseTimeout (const char *s, struct timeval *timeout)
     }
 
     /* Set the specified timeout. */
-    __pmtimevalFromReal(seconds, timeout);
+    pmtimevalFromReal(seconds, timeout);
 
     return end;
 }
