@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1191
-# Exercise the prometheus PMDA
+# pmdaprometheus sample exporter snapshot ingestion
 #
-# Copyright (c) 2017 Ronak Jain.  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -16,11 +16,21 @@ echo "QA output created by $seq"
 
 [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
 
-$python -c "import requests"
-[ $? -eq 0 ] || _notrun "python requests module not installed"
-
-status=1    # failure is the default!
+status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
+mkdir -p $tmp
+
+_cleanup()
+{
+    cd $here
+    alive=`kill -s 0 $pid >/dev/null 2>&1`
+    pidstatus=$?
+    if [ $pidstatus == 0 ]
+    then
+	$sudo kill $pid 2>&1 >/dev/null
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
 
 pmdaprometheus_remove()
 {
@@ -44,16 +54,27 @@ pmdaprometheus_install()
 }
 
 _prepare_pmda prometheus
-# note: _restore_auto_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+trap "_cleanup _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
-_save_config $PCP_PMDAS_DIR/prometheus/metadata
-$sudo rm -f $PCP_PMDAS_DIR/prometheus/metadata/*
+_save_config $PCP_PMDAS_DIR/prometheus/urls.d
+_save_config $PCP_VAR_DIR/config/pmda
+$sudo rm -f $PCP_PMDAS_DIR/prometheus/urls.d/*
+$sudo rm -f $PCP_VAR_DIR/config/pmda/*
+$sudo chmod 777 $PCP_PMDAS_DIR/prometheus/urls.d/
 
-# real QA test starts here
 pmdaprometheus_install
 
-if pminfo -v prometheus > $tmp.info 2> $tmp.err
+
+# add all the sample text files as urls.
+for file in $here/prometheus/samples/*.txt
+do
+    urlbase=`basename $file .txt | tr .- _`
+    echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/urls.d/$urlbase.url
+done
+
+sleep 2 #avoid racing (zoom zoom)
+
+if pminfo -dtTf prometheus  > $tmp.info 2> $tmp.err
 then
     :
 else
@@ -64,7 +85,9 @@ cat $tmp.info $tmp.err
 
 pmdaprometheus_remove
 
-_restore_config $PCP_PMDAS_DIR/prometheus/metadata
+_restore_config $PCP_PMDAS_DIR/prometheus/urls.d
+_restore_config $PCP_VAR_DIR/config/pmda
 
+# success, all done
 status=0
 exit
