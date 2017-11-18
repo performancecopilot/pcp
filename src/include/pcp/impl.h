@@ -34,9 +34,6 @@ PCP_CALL extern int __pmGetUsername(char **);
 /* filesystem path name separator */
 PCP_CALL extern int __pmPathSeparator(void);
 
-/* safely insert an atom value into a pmValue */
-PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
-
 #ifdef __cplusplus
 }
 #endif

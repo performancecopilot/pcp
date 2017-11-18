@@ -924,6 +924,9 @@ PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
 PCP_CALL extern int __pmFinishResult(__pmContext *, int, pmResult **);
 PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
+/* safely insert an atom value into a pmValue */
+PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
+
 /* Archive context helper. */
 int __pmFindOrOpenArchive(__pmContext *, const char *, int);
 
