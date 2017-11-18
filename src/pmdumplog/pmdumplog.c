@@ -275,7 +275,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
 
 	for (r = 0; r < nrecords; r++) {
 	    printf("              --- event record [%d] timestamp ", r);
-	    __pmPrintHighResStamp(stdout, &hr[r]->timestamp);
+	    pmPrintHighResStamp(stdout, &hr[r]->timestamp);
 	    if (dump_nparams(hr[r]->numpmid) < 0)
 		continue;
 	    flags = 0;

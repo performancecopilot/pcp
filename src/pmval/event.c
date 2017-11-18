@@ -229,7 +229,7 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	printf("  ");
 	if (highres) {
 	    numpmid = hres[r]->numpmid;
-	    __pmPrintHighResStamp(stdout, &hres[r]->timestamp);
+	    pmPrintHighResStamp(stdout, &hres[r]->timestamp);
 	}
 	else {
 	    numpmid = res[r]->numpmid;

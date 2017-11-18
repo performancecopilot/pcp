@@ -623,6 +623,7 @@ PCP_3.22 {
     pmtimevalToReal;
     pmtimevalFromReal;
     pmPrintStamp;
+    pmPrintHighResStamp;
 
     __pmAddLabels;
     __pmDecodeLabel;

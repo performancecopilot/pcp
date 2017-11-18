@@ -815,7 +815,7 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
     save_debug();
     fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",
 	hresp, (int)hresp->timestamp.tv_sec, (int)hresp->timestamp.tv_nsec);
-    __pmPrintHighResStamp(f, &hresp->timestamp);
+    pmPrintHighResStamp(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
@@ -902,7 +902,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	fputc(' ', f);
 
 	if (highres)
-	    __pmPrintHighResStamp(f, &tsstamp);
+	    pmPrintHighResStamp(f, &tsstamp);
 	else
 	    pmPrintStamp(f, &tvstamp);
 
@@ -912,7 +912,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 		tsp = (__pmTimespec *)base;
 		tsstamp.tv_sec = tsp->tv_sec;
 		tsstamp.tv_nsec = tsp->tv_nsec;
-		__pmPrintHighResStamp(f, &tsstamp);
+		pmPrintHighResStamp(f, &tsstamp);
 	    }
 	    else {
 		tvp = (__pmTimeval *)base;
@@ -1218,7 +1218,7 @@ pmPrintStamp(FILE *f, const struct timeval *tp)
  * print high resolution timestamp in HH:MM:SS.XXXXXXXXX format
  */
 void
-__pmPrintHighResStamp(FILE *f, const struct timespec *tp)
+pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 {
     struct tm	tmp;
     time_t	now;

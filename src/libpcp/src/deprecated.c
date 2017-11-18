@@ -128,3 +128,10 @@ __pmPrintStamp(FILE *f, const struct timeval *tp)
 {
     pmPrintStamp(f, tp);
 }
+
+#undef __pmPrintHighResStamp
+void
+__pmPrintHighResStamp(FILE *f, const struct timespec *tp)
+{
+    pmPrintHighResStamp(f, tp);
+}

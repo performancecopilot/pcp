@@ -22,7 +22,8 @@
 \f3pmtimevalSub\f1,
 \f3pmtimevalToReal\f1,
 \f3pmtimevalFromReal\f1,
-\f3pmPrintStamp\f1 \- helper routines for time stored as a struct timeval 
+\f3pmPrintStamp\f1,
+\f3pmPrintHighResStamp\f1 \- helper routines for time stored as a struct timeval 
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -42,6 +43,8 @@ double pmtimevalToReal(const struct timeval *\fIval\fP);
 void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
 .br
 void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
+.br
+void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -86,13 +89,16 @@ and returning the equivalent time in
 .IR val .
 .PP
 .B pmPrintStamp
-prints the time from
+prints the timestamp from
 .I tp
 on the stream
 .I f
 in the local time (as returned by
 .BR pmLocaltime (3))
 in the format HH:MM:SS.XXX.
+.B pmPrintHighResStamp
+performs a similar service, but for a struct timespec and reports
+the timestamp to nanosecond precision.
 .SH SEE ALSO
 .BR gettimeofday (2),
 .BR time (2),

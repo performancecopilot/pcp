@@ -251,6 +251,7 @@ usr/share/man/man3/pmParseUnitsStr.3.gz
 usr/share/man/man3/pmprintdesc.3.gz
 usr/share/man/man3/pmPrintDesc.3.gz
 usr/share/man/man3/pmprintf.3.gz
+usr/share/man/man3/pmPrintHighResStamp.3.gz
 usr/share/man/man3/__pmPrintIPC.3.gz
 usr/share/man/man3/pmPrintStamp.3.gz
 usr/share/man/man3/pmprintvalue.3.gz

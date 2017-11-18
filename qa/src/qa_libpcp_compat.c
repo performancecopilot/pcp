@@ -29,6 +29,7 @@ extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
 extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
 extern void __pmPrintStamp(FILE *, const struct timeval *);
+extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -72,6 +73,7 @@ main(int argc, char **argv)
     int			sts;
     struct timeval	a;
     struct timeval	b;
+    struct timespec	x;
     double		s;
     double		t;
 
@@ -157,6 +159,11 @@ main(int argc, char **argv)
     pmNewZone("UTC");
     printf("Stamp: (expect 01:02:03.456) ");
     __pmPrintStamp(stdout, &a);
+    putchar('\n');
+    x.tv_sec = 2*3600 + 1*60;
+    x.tv_nsec = 123456789;
+    printf("HighResStamp: (expect 02:01:00.123456789) ");
+    __pmPrintHighResStamp(stdout, &x);
     putchar('\n');
     fflush(stdout);
 

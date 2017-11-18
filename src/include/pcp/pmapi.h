@@ -1184,6 +1184,7 @@ PCP_CALL extern double pmtimevalSub(const struct timeval *, const struct timeval
 PCP_CALL extern double pmtimevalToReal(const struct timeval *);
 PCP_CALL extern void pmtimevalFromReal(double, struct timeval *);
 PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
+PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 
 #ifdef __cplusplus
 }

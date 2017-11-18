@@ -37,9 +37,6 @@ PCP_CALL extern int __pmPathSeparator(void);
 /* safely insert an atom value into a pmValue */
 PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
-PCP_CALL extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
-
-
 #ifdef __cplusplus
 }
 #endif
