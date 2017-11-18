@@ -182,7 +182,7 @@ main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
 
-    sep = __pmPathSeparator();
+    sep = pmPathSeparator();
     setlinebuf(stderr);
 
     __pmAddOptArchive(&opts, argv[opts.optind]);

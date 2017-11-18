@@ -239,7 +239,7 @@ __pmValidCertificate(CERTCertDBHandle *db, CERTCertificate *cert, PRTime stamp)
 static char *
 serverdb(char *path, size_t size, char *db_method)
 {
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     char *nss_method = getenv("PCP_SECURE_DB_METHOD");
 
     if (nss_method == NULL)

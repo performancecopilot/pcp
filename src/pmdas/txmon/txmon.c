@@ -263,7 +263,7 @@ pmdaOptions	opts = {
 int
 main(int argc, char **argv)
 {
-    int			n, sep = __pmPathSeparator();
+    int			n, sep = pmPathSeparator();
     char		*p;
     pmdaInterface	dispatch;
     size_t		index_size;

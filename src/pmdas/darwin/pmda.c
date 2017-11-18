@@ -1204,7 +1204,7 @@ darwin_init(pmdaInterface *dp)
     int		sts;
 
     if (_isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	char helppath[MAXPATHLEN];
 	pmsprintf(helppath, MAXPATHLEN, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -1254,7 +1254,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     int			errflag = 0;
     char		helppath[MAXPATHLEN];
 

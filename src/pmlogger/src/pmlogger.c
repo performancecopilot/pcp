@@ -406,7 +406,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 #if HAVE_MKSTEMP
-	pmsprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
+	pmsprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), pmPathSeparator());
 	msg = tmp;
 	fd = mkstemp(tmp);
 #else
@@ -598,7 +598,7 @@ main(int argc, char **argv)
     char		*exit_msg;
 
     __pmGetUsername(&username);
-    sep = __pmPathSeparator();
+    sep = pmPathSeparator();
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
 	delta.tv_sec = atoi(endnum);
 

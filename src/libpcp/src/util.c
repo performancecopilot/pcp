@@ -2073,10 +2073,10 @@ __pmMakePath(const char *dir, mode_t mode)
     path[sizeof(path)-1] = '\0';
 
     for (p = path+1; *p != '\0'; p++) {
-	if (*p == __pmPathSeparator()) {
+	if (*p == pmPathSeparator()) {
 	    *p = '\0';
 	    mkdir2(path, mode);
-	    *p = __pmPathSeparator();
+	    *p = pmPathSeparator();
 	}
     }
     return mkdir2(path, mode);

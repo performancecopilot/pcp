@@ -263,7 +263,7 @@ hostopt		: AT NAME	{ hostname = strdup($2); }
 			     * Find out is a path was specified.
 			     * Skip any initial path separators.
 			     */
-			    for (p = hostname + prefix_len; *p == __pmPathSeparator(); ++p)
+			    for (p = hostname + prefix_len; *p == pmPathSeparator(); ++p)
 				;
 			    if (*p != '\0')
 				is_socket_path = 1;

@@ -395,7 +395,7 @@ static int setup_perfevents()
     char buffer[MAXPATHLEN];
     const char *err_desc;
     int ret;
-    int	sep = __pmPathSeparator();
+    int	sep = pmPathSeparator();
     pmsprintf(buffer, sizeof(buffer), "%s%c" PMDANAME "%c" PMDANAME ".conf", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
     perfif = manager_init(buffer);
@@ -628,7 +628,7 @@ perfevent_init(pmdaInterface *dp)
 {
     if (isDSO)
     {
-        int sep = __pmPathSeparator();
+        int sep = pmPathSeparator();
         pmsprintf(mypath, sizeof(mypath), "%s%c" PMDANAME "%c" "help", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_5, PMDANAME " DSO", mypath);
     }
@@ -698,7 +698,7 @@ static void usage(void)
 int main(int argc, char **argv)
 {
     int			c, err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
 
     isDSO = 0;

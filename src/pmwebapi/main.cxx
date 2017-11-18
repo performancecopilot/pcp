@@ -350,7 +350,7 @@ server_dump_configuration ()
 {
     char *cwd;
     char cwdpath[MAXPATHLEN];
-    char sep = __pmPathSeparator ();
+    char sep = pmPathSeparator ();
 
     // Assume timestamp() already just called, so we
     // don't have to repeat.

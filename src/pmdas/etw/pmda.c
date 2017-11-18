@@ -488,7 +488,7 @@ void
 etw_init(pmdaInterface *dp, const char *configfile)
 {
     char	helppath[MAXPATHLEN];
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "etw" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

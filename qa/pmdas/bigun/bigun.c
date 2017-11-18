@@ -39,7 +39,7 @@ void
 bigun_init(pmdaInterface *dp)
 {
     int		i;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	helppath[MAXPATHLEN];
 
     /*

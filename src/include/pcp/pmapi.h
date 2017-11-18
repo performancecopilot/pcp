@@ -1186,6 +1186,13 @@ PCP_CALL extern void pmtimevalFromReal(double, struct timeval *);
 PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
 PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 
+/* filesystem path name separator */
+PCP_CALL extern int pmPathSeparator(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif

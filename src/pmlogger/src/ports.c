@@ -478,7 +478,7 @@ GetPorts(char *file)
 	    if (getcwd(path, MAXPATHLEN) == NULL)
 		fprintf(mapstream, "\n");
 	    else
-		fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
+		fprintf(mapstream, "%s%c%s\n", path, pmPathSeparator(), archBase);
 	}
 
 	/* and finally, the annotation from -m or -x */
@@ -503,7 +503,7 @@ void
 init_ports(void)
 {
     int		i, j, n, sts;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     int		extlen, baselen;
     char	path[MAXPATHLEN];
     char	pidfile[MAXPATHLEN];

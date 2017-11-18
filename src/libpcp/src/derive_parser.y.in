@@ -214,7 +214,7 @@ __dminit_component(const char *name, int descend, int recover)
 	     */
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
-	    pmsprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
+	    pmsprintf(path, sizeof(path), "%s%c%s", name, pmPathSeparator(), dp->d_name);
 	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
 		sts = localsts;
 		goto finish;

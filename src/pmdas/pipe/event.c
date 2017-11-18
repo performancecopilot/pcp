@@ -808,7 +808,7 @@ event_config_dir(const char *dname)
 {
     struct dirent	**list;
     char		path[MAXPATHLEN];
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			i, n, sts = 0;
 
     if ((n = scandir(dname, &list, NULL, NULL)) < 0) {

@@ -182,7 +182,7 @@ __pmCloseSocket(int fd)
 static char *
 dbpath(char *path, size_t size, char *db_method)
 {
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     const char *empty_homedir = "";
     char *homedir = getenv("HOME");
     char *nss_method = getenv("PCP_SECURE_DB_METHOD");

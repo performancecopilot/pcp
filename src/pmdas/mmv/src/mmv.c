@@ -483,7 +483,7 @@ map_stats(pmdaExt *pmda)
     char name[64];
     int need_reload = 0;
     int i, j, k, sts, num;
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
 
     if (pmns)
 	__pmFreePMNS(pmns);
@@ -1206,7 +1206,7 @@ __PMDA_INIT_CALL
 mmv_init(pmdaInterface *dp)
 {
     int	m;
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
 
     if (isDSO) {
 	pmdaDSO(dp, PMDA_INTERFACE_4, "mmv", NULL);

@@ -36,7 +36,7 @@ static void setupEnvironment(void)
     char *value;
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
-    confirm.append(QChar(__pmPathSeparator()));
+    confirm.append(QChar(pmPathSeparator()));
     confirm.append("pmquery");
     if ((value = strdup((const char *)confirm.toLatin1())) != NULL)
 	putenv(value);

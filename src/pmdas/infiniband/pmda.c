@@ -322,7 +322,7 @@ void
 ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 {
     char defconf[MAXPATHLEN];
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     int i;
 
     if (dp->status != 0)
@@ -375,7 +375,7 @@ int
 main(int argc, char **argv)
 {
     int err = 0;
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
     char *confpath = NULL;

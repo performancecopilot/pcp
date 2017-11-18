@@ -72,7 +72,7 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     char		*endnum;
     pmdaInterface	dispatch;
     int			n;

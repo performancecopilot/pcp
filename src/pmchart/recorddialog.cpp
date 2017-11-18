@@ -33,7 +33,7 @@ void RecordDialog::languageChange()
 
 void RecordDialog::init(Tab *tab)
 {
-    QChar	sep(__pmPathSeparator());
+    QChar	sep(pmPathSeparator());
     QString	pmlogger = QDir::toNativeSeparators(QDir::homePath());
     QString	view, folio, archive;
 
@@ -85,7 +85,7 @@ void RecordDialog::viewPushButton_clicked()
 {
     RecordFileDialog view(this);
 
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
     pmlogger.append(sep);
     pmlogger.append(".pcp");
@@ -102,7 +102,7 @@ void RecordDialog::folioPushButton_clicked()
 {
     RecordFileDialog folio(this);
 
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
     pmlogger.append(sep);
     pmlogger.append(".pcp");
@@ -119,7 +119,7 @@ void RecordDialog::archivePushButton_clicked()
 {
     RecordFileDialog archive(this);
 
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
     pmlogger.append(sep);
     pmlogger.append(".pcp");
@@ -306,7 +306,7 @@ void RecordDialog::buttonOk_clicked()
 void RecordDialog::startLoggers()
 {
     QString pmlogger = pmGetConfig("PCP_BINADM_DIR");
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     pmlogger.append(sep);
     pmlogger.append("pmlogger");
 

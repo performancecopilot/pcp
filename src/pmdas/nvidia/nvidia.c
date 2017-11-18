@@ -313,7 +313,7 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static void
 initializeHelpPath()
 {
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     pmsprintf(mypath, sizeof(mypath), "%s%c" "nvidia" "%c" "help",
             pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 }

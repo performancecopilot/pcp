@@ -208,7 +208,7 @@ void
 HostDialog::nssGuiStart()
 {
     QString	dbpath = QDir::toNativeSeparators(QDir::homePath());
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
 
     dbpath.append(sep).append(".pki").append(sep).append("nssdb");
     dbpath.prepend("sql:");	// only use sqlite NSS databases

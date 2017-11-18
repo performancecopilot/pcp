@@ -103,7 +103,7 @@ delpmns(__pmnsNode *base, char *name)
 int
 main(int argc, char **argv)
 {
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     int		sts;
     int		c;
     char	*p;

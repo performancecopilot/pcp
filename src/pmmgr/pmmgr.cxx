@@ -264,7 +264,7 @@ pmmgr_configurable::get_config_multi(const string& file) const
 {
   vector<string> lines;
 
-  string complete_filename = config_directory + (char)__pmPathSeparator() + file;
+  string complete_filename = config_directory + (char)pmPathSeparator() + file;
   ifstream f (complete_filename.c_str());
   while (f.good()) {
     string line;
@@ -287,7 +287,7 @@ pmmgr_configurable::get_config_multi(const string& file) const
 bool
 pmmgr_configurable::get_config_exists(const string& file) const
 {
-  string complete_filename = config_directory + (char)__pmPathSeparator() + file;
+  string complete_filename = config_directory + (char)pmPathSeparator() + file;
   ifstream f (complete_filename.c_str());
   return (f.good());
 }
@@ -891,13 +891,13 @@ pmmgr_job_spec::poll()
 
   // XXX: getting a bit duplicative
   string default_log_dir =
-    string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+    string(pmGetConfig("PCP_LOG_DIR")) + (char)pmPathSeparator() + "pmmgr";
   string log_dir = get_config_single ("log-directory");
   if (log_dir == "") log_dir = default_log_dir;
-  else if(log_dir[0] != '/') log_dir = config_directory + (char)__pmPathSeparator() + log_dir;
+  else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
   glob_t the_blob;
-  string glob_pattern = log_dir + (char)__pmPathSeparator() + "*";
+  string glob_pattern = log_dir + (char)pmPathSeparator() + "*";
   rc = glob (glob_pattern.c_str(),
 	     GLOB_NOESCAPE
 #ifdef GLOB_ONLYDIR
@@ -1151,29 +1151,29 @@ std::string
 pmmgr_pmlogger_daemon::daemon_command_line()
 {
   string default_log_dir =
-    string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+    string(pmGetConfig("PCP_LOG_DIR")) + (char)pmPathSeparator() + "pmmgr";
   string log_dir = get_config_single ("log-directory");
   if (log_dir == "") log_dir = default_log_dir;
-  else if(log_dir[0] != '/') log_dir = config_directory + (char)__pmPathSeparator() + log_dir;
+  else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
   (void) mkdir2 (log_dir.c_str(), 0777); // implicitly consults umask(2)
 
-  string host_log_dir = log_dir + (char)__pmPathSeparator() + hostid;
+  string host_log_dir = log_dir + (char)pmPathSeparator() + hostid;
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
   string pmlogger_command =
-	string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogger";
+	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmlogger";
   string pmlogger_options = sh_quote(pmlogger_command);
   pmlogger_options += " " + get_config_single ("pmlogger") + " ";
 
   // run pmlogconf if requested
   if (get_config_exists("pmlogconf"))
     {
-      string pmlogconf_output_file = host_log_dir + (char)__pmPathSeparator() + "config.pmlogger";
+      string pmlogconf_output_file = host_log_dir + (char)pmPathSeparator() + "config.pmlogger";
       (void) unlink (pmlogconf_output_file.c_str());
       string pmlogconf_command =
-	string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogconf";
+	string(pmGetConfig("PCP_BINADM_DIR")) + (char)pmPathSeparator() + "pmlogconf";
       string pmlogconf_options =
 	sh_quote(pmlogconf_command)
 	+ " -c -r -h " + sh_quote(spec)
@@ -1195,22 +1195,22 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   pmlogger_options += " -r";
 
   // collect subsidiary pmlogger diagnostics
-  pmlogger_options += " -l " + sh_quote(host_log_dir + (char)__pmPathSeparator() + "pmlogger.log");
+  pmlogger_options += " -l " + sh_quote(host_log_dir + (char)pmPathSeparator() + "pmlogger.log");
 
   // do log merging
   if (get_config_exists ("pmlogmerge"))
     {
       string pmlogextract_command =
-	string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogextract";
+	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmlogextract";
 
       string pmlogcheck_command =
-	string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogcheck";
+	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmlogcheck";
 
       string pmlogrewrite_command =
-	string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogrewrite";
+	string(pmGetConfig("PCP_BINADM_DIR")) + (char)pmPathSeparator() + "pmlogrewrite";
 
       string pmlogreduce_command =
-	string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogreduce";
+	string(pmGetConfig("PCP_BINADM_DIR")) + (char)pmPathSeparator() + "pmlogreduce";
 
       string pmlogextract_options = sh_quote(pmlogextract_command);
 
@@ -1270,7 +1270,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       // on it.)
       vector<string> mergeable_archives; // those to merge
       glob_t the_blob;
-      string glob_pattern = host_log_dir + (char)__pmPathSeparator() + "archive-*.index";
+      string glob_pattern = host_log_dir + (char)pmPathSeparator() + "archive-*.index";
       rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
       if (rc == 0)
 	{
@@ -1406,7 +1406,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                   assert (pos != string::npos); // by glob
                   preserved_name.replace(pos, 8, "corrupt-");
 
-                  string rename_cmd = string(pmGetConfig("PCP_BIN_DIR"))+(char)__pmPathSeparator()+"pmlogmv";
+                  string rename_cmd = string(pmGetConfig("PCP_BIN_DIR"))+(char)pmPathSeparator()+"pmlogmv";
                   rename_cmd += " " + sh_quote(base_name) + " " + sh_quote(preserved_name);
 		  (void) wrap_system(rename_cmd);
 
@@ -1429,11 +1429,11 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	}
 
       // remove too-old reduced archives too
-      glob_pattern = host_log_dir + (char)__pmPathSeparator() + "reduced-*.index";
+      glob_pattern = host_log_dir + (char)pmPathSeparator() + "reduced-*.index";
       logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60);
 
       // remove too-old corrupt archives too
-      glob_pattern = host_log_dir + (char)__pmPathSeparator() + "corrupt-*.index";
+      glob_pattern = host_log_dir + (char)pmPathSeparator() + "corrupt-*.index";
       logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60);
 
       string timestr = "archive";
@@ -1446,7 +1446,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  if (rc > 0)
 	    timestr += timestr2;
 	}
-      string merged_archive_name = host_log_dir + (char)__pmPathSeparator() + timestr;
+      string merged_archive_name = host_log_dir + (char)pmPathSeparator() + timestr;
 
       if (mergeable_archives.size() > 1) // 1 or 0 are not worth merging!
 	{
@@ -1515,7 +1515,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
     }
 
   // last argument
-  pmlogger_options += " " + sh_quote(host_log_dir + (char)__pmPathSeparator() + timestr);
+  pmlogger_options += " " + sh_quote(host_log_dir + (char)pmPathSeparator() + timestr);
 
   return pmlogger_options;
 }
@@ -1597,19 +1597,19 @@ std::string
 pmmgr_pmie_daemon::daemon_command_line()
 {
   string default_log_dir =
-    string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+    string(pmGetConfig("PCP_LOG_DIR")) + (char)pmPathSeparator() + "pmmgr";
   string log_dir = get_config_single ("log-directory");
   if (log_dir == "") log_dir = default_log_dir;
-  else if(log_dir[0] != '/') log_dir = config_directory + (char)__pmPathSeparator() + log_dir;
+  else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
   (void) mkdir2 (log_dir.c_str(), 0777); // implicitly consults umask(2)
 
-  string host_log_dir = log_dir + (char)__pmPathSeparator() + hostid;
+  string host_log_dir = log_dir + (char)pmPathSeparator() + hostid;
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
   string pmie_command =
-	string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmie";
+	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmie";
   string pmie_options = sh_quote (pmie_command);
 
   pmie_options += " " + get_config_single ("pmie") + " ";
@@ -1617,9 +1617,9 @@ pmmgr_pmie_daemon::daemon_command_line()
   // run pmieconf if requested
   if (get_config_exists ("pmieconf"))
     {
-      string pmieconf_output_file = host_log_dir + (char)__pmPathSeparator() + "config.pmie";
+      string pmieconf_output_file = host_log_dir + (char)pmPathSeparator() + "config.pmie";
       string pmieconf_command =
-	string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmieconf";
+	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmieconf";
 
       // NB: pmieconf doesn't take a host name as an argument, unlike pmlogconf
       string pmieconf_options =
@@ -1642,7 +1642,7 @@ pmmgr_pmie_daemon::daemon_command_line()
   pmie_options += " -f";
 
   // collect subsidiary pmlogger diagnostics
-  pmie_options += " -l " + sh_quote(host_log_dir + (char)__pmPathSeparator() + "pmie.log");
+  pmie_options += " -l " + sh_quote(host_log_dir + (char)pmPathSeparator() + "pmie.log");
 
   return pmie_options;
 }
@@ -1652,14 +1652,14 @@ std::string
 pmmgr_monitor_daemon::daemon_command_line()
 {
   string default_log_dir =
-    string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+    string(pmGetConfig("PCP_LOG_DIR")) + (char)pmPathSeparator() + "pmmgr";
   string log_dir = get_config_single ("log-directory");
   if (log_dir == "") log_dir = default_log_dir;
-  else if(log_dir[0] != '/') log_dir = config_directory + (char)__pmPathSeparator() + log_dir;
+  else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
   (void) mkdir2 (log_dir.c_str(), 0777); // implicitly consults umask(2)
 
-  string host_log_dir = log_dir + (char)__pmPathSeparator() + hostid;
+  string host_log_dir = log_dir + (char)pmPathSeparator() + hostid;
   (void) mkdir2 (host_log_dir.c_str(), 0777);
 
   stringstream monitor_command;
@@ -1757,7 +1757,7 @@ int main (int argc, char *argv[])
   setup_signals();
 
   string default_config_dir =
-    string(pmGetConfig("PCP_SYSCONF_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+    string(pmGetConfig("PCP_SYSCONF_DIR")) + (char)pmPathSeparator() + "pmmgr";
   vector<pmmgr_job_spec*> js;
 
   int c;

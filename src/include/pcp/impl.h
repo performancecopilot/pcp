@@ -31,11 +31,4 @@ PCP_CALL extern int __pmSetProcessIdentity(const char *);
  */
 PCP_CALL extern int __pmGetUsername(char **);
 
-/* filesystem path name separator */
-PCP_CALL extern int __pmPathSeparator(void);
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* PCP_IMPL_H */

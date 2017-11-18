@@ -150,7 +150,7 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		*endnum;
     int			err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			c = 0;
     int			sts;
 

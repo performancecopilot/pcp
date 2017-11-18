@@ -988,7 +988,7 @@ rawlocalhost(pmOptions *opts)
 void
 rawfolio(pmOptions *opts)
 {
-	int		sep = __pmPathSeparator();
+	int		sep = pmPathSeparator();
 	char		path[MAXPATHLEN];
 	char		*logdir;
 
@@ -1039,7 +1039,7 @@ rawarchive(pmOptions *opts, const char *name)
 	char		tmp[MAXPATHLEN];
 	char		path[MAXPATHLEN];
 	char		*logdir, *py, *host;
-	int		sep = __pmPathSeparator();
+	int		sep = pmPathSeparator();
 	int		sts, len = (name? strlen(name) : 0);
 
 	if (len == 0)

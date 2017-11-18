@@ -420,7 +420,7 @@ main(int argc, char **argv)
     char		*endnum;
     pmdaInterface	desc;
     long		minmem;
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
 
     pmSetProgname(argv[0]);
 

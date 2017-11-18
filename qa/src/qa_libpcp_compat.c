@@ -30,6 +30,7 @@ extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
 extern void __pmPrintStamp(FILE *, const struct timeval *);
 extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
+extern int __pmPathSeparator(void);
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -166,6 +167,11 @@ main(int argc, char **argv)
     __pmPrintHighResStamp(stdout, &x);
     putchar('\n');
     fflush(stdout);
+
+    printf("__pmPathSeparator test: ");
+    c = __pmPathSeparator();
+    if (c == '/' || c == '\\') printf("OK\n");
+    else printf(" FAIL %c (%02x) is not slash or backslash\n", 0xff & c, 0xff & c);
 
     return 0;
 }

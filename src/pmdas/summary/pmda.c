@@ -30,7 +30,7 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     char		**commandArgv;
     pmdaInterface	dispatch;
     int			i;

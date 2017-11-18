@@ -303,7 +303,7 @@ __pmStringToSockAddr(const char *cp)
 	    int sts;
 	    /* Determine the address family. */
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-	    if (*cp == __pmPathSeparator()) {
+	    if (*cp == pmPathSeparator()) {
 		if (strlen(cp) >= sizeof(addr->sockaddr.local.sun_path))
 		    sts = -1; /* too long */
 		else {
@@ -1041,7 +1041,7 @@ __pmPMCDLocalSocketDefault(void)
 	else {
 	    PM_UNLOCK(__pmLock_extcall);
 	    pmsprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
-		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+		     pmGetConfig("PCP_RUN_DIR"), pmPathSeparator());
 	}
     }
     PM_UNLOCK(auxconnect_lock);

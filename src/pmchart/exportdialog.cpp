@@ -47,7 +47,7 @@ void ExportDialog::languageChange()
 
 void ExportDialog::init()
 {
-    QChar	sep(__pmPathSeparator());
+    QChar	sep(pmPathSeparator());
     QString	imgfile = QDir::toNativeSeparators(QDir::homePath());
 
     my.quality = 0;

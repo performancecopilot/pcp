@@ -41,7 +41,7 @@ create_mapping(const char *fname, int testcase, size_t size)
 {
     char path[MAXPATHLEN];
     void *mapping = NULL;
-    int fd, sep = __pmPathSeparator();
+    int fd, sep = pmPathSeparator();
 
     pmsprintf(path, sizeof(path), "%s%c" "mmv" "%c%s-%d",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname, testcase);

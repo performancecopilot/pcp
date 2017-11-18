@@ -480,7 +480,7 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
     } else {
 	size_t length;
 	char *p, *log, *dir;
-	int line, sep = __pmPathSeparator();
+	int line, sep = pmPathSeparator();
 
 	if (fgets(buffer, sizeof(buffer)-1, fp) == NULL) {
 	    pmprintf("%s: archive folio %s has no header\n", pmGetProgname(), arg);

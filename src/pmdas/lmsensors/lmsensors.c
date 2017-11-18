@@ -926,7 +926,7 @@ pmdaOptions     opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	desc;
     char		mypath[MAXPATHLEN];
 

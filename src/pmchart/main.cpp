@@ -127,7 +127,7 @@ void setupEnvironment(void)
     char *value;
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
-    confirm.append(QChar(__pmPathSeparator()));
+    confirm.append(QChar(pmPathSeparator()));
     confirm.append("pmquery");
     if ((value = strdup((const char *)confirm.toLatin1())) != NULL)
 	putenv(value);
@@ -376,7 +376,7 @@ static void readSettings(void)
 
 static void readSchemes(void)
 {
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     QString schemes = pmGetConfig("PCP_VAR_DIR");
     schemes.append(sep).append("config");
     schemes.append(sep).append("pmchart");

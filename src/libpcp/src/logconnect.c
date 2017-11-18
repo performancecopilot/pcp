@@ -191,9 +191,9 @@ connectLoggerLocal(const char *local_socket)
      * initial path separators.
      * pmsprintf is guaranteed to add a nul byte.
      */
-    while (*local_socket == __pmPathSeparator())
+    while (*local_socket == pmPathSeparator())
 	++local_socket;
-    pmsprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
+    pmsprintf(socket_path, sizeof(socket_path), "%c%s", pmPathSeparator(), local_socket);
     __pmSockAddrSetPath(myAddr, socket_path);
 
     /* Attempt to connect */

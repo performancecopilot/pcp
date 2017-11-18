@@ -76,7 +76,7 @@ process_config_file_check(void)
 {
     struct stat statbuf;
     static int last_error;
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -150,7 +150,7 @@ process_grab_config_info(void)
     char *q;
     size_t size;
     int process_number = 0;
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -344,7 +344,7 @@ void
 process_init(pmdaInterface *dp)
 {
     if (isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "process DSO", mypath);
@@ -384,7 +384,7 @@ pmdaOptions	opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	desc;
 
     isDSO = 0;

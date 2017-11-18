@@ -263,7 +263,7 @@ simple_timenow_check(void)
 {
     struct stat		statbuf;
     static int		last_error = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
 
     /* stat the file & check modification time has changed */
     pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
@@ -334,7 +334,7 @@ simple_timenow_init(void)
 {
     int		i;
     int		sts;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     FILE	*fp;
     char	*p, *q;
     char	buf[SIMPLE_BUFSIZE];
@@ -470,7 +470,7 @@ void
 simple_init(pmdaInterface *dp)
 {
     if (isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "simple DSO", mypath);
@@ -497,7 +497,7 @@ simple_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
 
     isDSO = 0;

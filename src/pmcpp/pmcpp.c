@@ -622,7 +622,7 @@ main(int argc, char **argv)
     char	*ip;
 
     currfile = &file_ctl[0];
-    sep = __pmPathSeparator();
+    sep = pmPathSeparator();
 
     /* input buffer starts at 256 chars, but will expand if needed */
     ibuflen = 256;

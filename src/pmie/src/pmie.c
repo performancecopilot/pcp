@@ -202,7 +202,7 @@ load(char *fname)
     Symbol	s;
     Expr	*d;
     int		sts = 0;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	config[MAXPATHLEN+1];
 
     /* search for configfile on configuration file path */
@@ -332,7 +332,7 @@ startmonitor(void)
 
     /* try to create the port file directory. OK if it already exists */
     pmsprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
-	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
+	     pmGetConfig("PCP_TMP_DIR"), pmPathSeparator(), PMIE_SUBDIR);
     if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 	if (oserror() != EEXIST) {
 	    fprintf(stderr, "%s: warning cannot create stats file dir %s: %s\n",
@@ -343,7 +343,7 @@ startmonitor(void)
 
     /* create and initialize memory mapped performance data file */
     pmsprintf(perffile, sizeof(perffile),
-		"%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), (pid_t)getpid());
+		"%s%c%" FMT_PID, pmie_dir, pmPathSeparator(), (pid_t)getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {

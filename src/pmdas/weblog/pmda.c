@@ -450,7 +450,7 @@ main(int argc, char **argv)
     int			argCount = 0;
     int			checkOnly = 0;
     int			sts = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			n = 0;
     int			serverTableSize = 0;
     int			regexTableSize = 0;

@@ -1562,7 +1562,7 @@ windows_init(pmdaInterface *dp)
     static pmdaMetric	*metrictab;
     char		helppath[MAXPATHLEN];
     int			metrictab_sz = metricdesc_sz;
-    int			i, sep = __pmPathSeparator();
+    int			i, sep = pmPathSeparator();
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

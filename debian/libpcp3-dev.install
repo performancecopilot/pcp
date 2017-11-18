@@ -248,6 +248,8 @@ usr/share/man/man3/pmparsetimewindow.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz
 usr/share/man/man3/pmparseunitsstr.3.gz
 usr/share/man/man3/pmParseUnitsStr.3.gz
+usr/share/man/man3/pmpathseparator.3.gz
+usr/share/man/man3/pmPathSeparator.3.gz
 usr/share/man/man3/pmprintdesc.3.gz
 usr/share/man/man3/pmPrintDesc.3.gz
 usr/share/man/man3/pmprintf.3.gz

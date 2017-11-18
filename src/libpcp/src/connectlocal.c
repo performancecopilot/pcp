@@ -343,10 +343,10 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	 */
 	if ((path = __pmFindPMDA(dp->name)) == NULL) {
 	    pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
-			pmdas, __pmPathSeparator(), dp->name);
+			pmdas, pmPathSeparator(), dp->name);
 	    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 		pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
-			    pmdas, __pmPathSeparator(), dp->name, DSO_SUFFIX);
+			    pmdas, pmPathSeparator(), dp->name, DSO_SUFFIX);
 		if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 		    pmsprintf(pathbuf, sizeof(pathbuf), "%s.%s", dp->name, DSO_SUFFIX);
 		    if ((path = __pmFindPMDA(pathbuf)) == NULL) {

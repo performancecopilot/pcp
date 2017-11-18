@@ -138,11 +138,11 @@ process_verify(const char *bashname, bash_process_t *verify)
     if (*endnum != '\0' || verify->pid < 1)
 	return -1;
 
-    pmsprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c.%s", pidpath, pmPathSeparator(), bashname);
     if (process_head_verify(path, verify) < 0)
 	return -1;
 
-    pmsprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c%s", pidpath, pmPathSeparator(), bashname);
     if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 	return -1;
     if (fstat(fd, &stat) < 0 || !S_ISFIFO(stat.st_mode)) {
@@ -334,9 +334,9 @@ process_unlink(bash_process_t *process, const char *bashname)
 {
     char path[MAXPATHLEN];
 
-    pmsprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c%s", pidpath, pmPathSeparator(), bashname);
     unlink(path);
-    pmsprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c.%s", pidpath, pmPathSeparator(), bashname);
     unlink(path);
 
     if (pmDebugOptions.appl0)
@@ -430,7 +430,7 @@ event_refresh(pmInDom bash_indom)
 void
 event_init(void)
 {
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     pcptmpdir = pmGetConfig("PCP_TMP_DIR");
     pmsprintf(pidpath, sizeof(pidpath), "%s%c%s", pcptmpdir, sep, prefix);
 }

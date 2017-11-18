@@ -278,7 +278,7 @@ pidonexit(void)
 
     if (serviceSpec) {
 	pmsprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
-	    pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), serviceSpec);
+	    pmGetConfig("PCP_RUN_DIR"), pmPathSeparator(), serviceSpec);
 	unlink(pidpath);
     }
 }
@@ -293,7 +293,7 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
 	__pmServerSetServiceSpec(spec);
 
     pmsprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
-	     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), spec);
+	     pmGetConfig("PCP_RUN_DIR"), pmPathSeparator(), spec);
 
     if ((pidfile = fopen(pidpath, "w")) == NULL) {
 	if (verbose)

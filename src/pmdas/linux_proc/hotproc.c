@@ -22,7 +22,7 @@ hotproc_init(void)
 {
     char    h_configfile[MAXPATHLEN];
     FILE    *conf;
-    int	    sep = __pmPathSeparator();
+    int	    sep = pmPathSeparator();
 
     pmsprintf(h_configfile, sizeof(h_configfile),
 	    "%s%c" "proc" "%c" "hotproc.conf",

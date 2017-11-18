@@ -243,7 +243,7 @@ jbd2_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "jbd2 DSO", helppath);
@@ -287,7 +287,7 @@ pmdaOptions     opts = {
 int
 main(int argc, char **argv)
 {
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		help[MAXPATHLEN];
 

@@ -255,7 +255,7 @@ static void
 pipe_init(pmdaInterface *dp, const char *configfile, int checkonly)
 {
     char	confdir[MAXPATHLEN], config[MAXPATHLEN];
-    int		numpipes, sep = __pmPathSeparator();
+    int		numpipes, sep = pmPathSeparator();
 
     /* Global pointer to line parameter for event record encoder. */
     paramline = &metrictab[PIPE_LINE].m_desc.pmid;
@@ -430,7 +430,7 @@ main(int argc, char **argv)
     char		*endnum;
     pmdaInterface	desc;
     long		minmem;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			c, Cflag = 0;
 
     pmSetProgname(argv[0]);

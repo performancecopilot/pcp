@@ -547,8 +547,8 @@ parseSocketPath(
      * Make sure that the path is absolute. parseProtocolSpec() removes the
      * (optional) "//" from "local://some/path".
      */
-    if (*path != __pmPathSeparator()) {
-	absolute_path[0] = __pmPathSeparator();
+    if (*path != pmPathSeparator()) {
+	absolute_path[0] = pmPathSeparator();
 	strncpy(absolute_path + 1, path, len);
 	if (len < sizeof(absolute_path)-1)
 	    absolute_path[++len] = '\0';

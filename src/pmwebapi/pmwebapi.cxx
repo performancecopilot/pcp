@@ -256,7 +256,7 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
         string archivefile = params["archivefile"];
         if (archivefile != "") {
             if (!__pmAbsolutePath ((char *) archivefile.c_str ())) {
-                archivefile = archivesdir + (char) __pmPathSeparator () + archivefile;
+                archivefile = archivesdir + (char) pmPathSeparator () + archivefile;
             }
 
             if (cursed_path_p (archivesdir, archivefile)) {

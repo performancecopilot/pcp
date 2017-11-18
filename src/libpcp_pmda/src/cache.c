@@ -724,7 +724,7 @@ load_cache(hdr_t *h)
     char	buf[1024];	/* input line buffer, is this big enough? */
     char	*p;
     int		sts;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	strbuf[20];
 
     if (vdp == NULL) {
@@ -879,7 +879,7 @@ save_cache(hdr_t *h, int hstate)
     entry_t	*e;
     int		cnt;
     time_t	now;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     int		state = h->hstate & ~CACHE_STRINGS;
     char	strbuf[20];
 

@@ -605,7 +605,7 @@ rpm_init(pmdaInterface * dp)
     int		sts;
 
     if (isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	char helppath[MAXPATHLEN];
 
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
@@ -666,7 +666,7 @@ int
 main(int argc, char **argv)
 {
     int c, err = 0;
-    int Cflag = 0, sep = __pmPathSeparator();
+    int Cflag = 0, sep = pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
 

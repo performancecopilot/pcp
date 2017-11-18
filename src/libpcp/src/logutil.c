@@ -1058,7 +1058,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     int		sts;
     int		blen;
     int		exists = 0;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	*base;
     char	*tbuf;
     char	*tp;

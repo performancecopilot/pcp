@@ -34,7 +34,7 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
 	this, SLOT(dirListView_selectionChanged()));
 
     QDir dir;
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     QString home = my.userDir = QDir::toNativeSeparators(QDir::homePath());
     my.userDir.append(sep);
     my.userDir.append(".pcp");
@@ -190,7 +190,7 @@ bool SaveViewDialog::saveViewFile(const QString &filename)
 void SaveViewDialog::savePushButton_clicked()
 {
     QString msg, filename;
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
 
     if (fileNameLineEdit->isModified()) {
 	filename = fileNameLineEdit->text().trimmed();

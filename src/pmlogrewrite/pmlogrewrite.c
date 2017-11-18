@@ -256,7 +256,7 @@ parseargs(int argc, char *argv[])
 {
     int			c;
     int			sts;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     struct stat		sbuf;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
@@ -945,7 +945,7 @@ main(int argc, char **argv)
 	mode_t	cur_umask;
 	int	tmp_f1;			/* fd for first temp basename */
 	int	tmp_f2;			/* fd for second temp basename */
-	int	sep = __pmPathSeparator();
+	int	sep = pmPathSeparator();
 
 #if HAVE_MKSTEMP
 	strncpy(path, argv[argc-1], sizeof(path));

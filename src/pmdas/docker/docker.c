@@ -865,7 +865,7 @@ docker_init(pmdaInterface *dp)
     int         i, sts;
     int        *loop = (int*)1;
     if (isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "docker DSO", mypath);
@@ -926,7 +926,7 @@ static pmdaOptions opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     int			qaflag = 0;
     int			c, err = 0;

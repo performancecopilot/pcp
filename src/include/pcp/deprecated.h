@@ -43,7 +43,7 @@
  * __pmtimevalFromReal()	pmtimevalFromReal()
  * __pmPrintStamp()		pmPrintStamp()
  * __pmPrintHighResStamp()	pmPrintHighResStamp()
- *
+ * __pmPathSeparator()		pmPathSeparator()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -107,5 +107,6 @@ PCP_DATA extern int pmDebug;
 #define __pmtimevalFromReal pmtimevalFromReal
 #define __pmPrintStamp pmPrintStamp
 #define __pmPrintHighResStamp pmPrintHighResStamp
+#define __pmPathSeparator pmPathSeparator
 
 #endif /* PCP_DEPRECATED_H */

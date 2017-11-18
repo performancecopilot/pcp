@@ -126,7 +126,7 @@ main(int argc, char **argv)
 		     * Find out is a path was specified.
 		     * Skip any initial path separators.
 		     */
-		    for (p = host + prefix_len; *p == __pmPathSeparator(); ++p)
+		    for (p = host + prefix_len; *p == pmPathSeparator(); ++p)
 			;
 		    if (*p != '\0')
 			is_socket_path = 1;

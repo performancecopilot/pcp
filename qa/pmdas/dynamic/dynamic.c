@@ -387,7 +387,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			err = 0;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];

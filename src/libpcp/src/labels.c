@@ -678,7 +678,7 @@ labelfile(const char *path, const char *file, char *buf, int buflen)
     char		lf[MAXPATHLEN];
     size_t		bytes;
 
-    pmsprintf(lf, sizeof(lf), "%s%c%s", path, __pmPathSeparator(), file);
+    pmsprintf(lf, sizeof(lf), "%s%c%s", path, pmPathSeparator(), file);
     if ((fp = fopen(lf, "r")) == NULL)
 	return 0;
     bytes = fread(buf, 1, buflen-1, fp);
@@ -698,7 +698,7 @@ __pmGetContextLabels(pmLabelSet **set)
     int			i, num, sts = 0;
 
     pmsprintf(path, MAXPATHLEN, "%s%clabels",
-		pmGetConfig("PCP_SYSCONF_DIR"), __pmPathSeparator());
+		pmGetConfig("PCP_SYSCONF_DIR"), pmPathSeparator());
     if ((num = scandir(path, &list, NULL, alphasort)) < 0)
 	return -oserror();
 

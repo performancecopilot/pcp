@@ -51,7 +51,7 @@ mmv_noinit(const char *filename)
 {
     char path[MAXPATHLEN];
     size_t size = mmv_filesize();
-    int fd, sep = __pmPathSeparator();
+    int fd, sep = pmPathSeparator();
     void *addr = NULL;
     int sts;
 

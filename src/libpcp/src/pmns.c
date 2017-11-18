@@ -550,7 +550,7 @@ lex(int reset)
 	    }
 	    else {
 		/* the normal case ... */
-		int	sep = __pmPathSeparator();
+		int	sep = pmPathSeparator();
 		char	*bin_dir = pmGetOptionalConfig("PCP_BINADM_DIR");
 		char	path[MAXPATHLEN];
 
@@ -1359,7 +1359,7 @@ getfname(const char *filename)
 	}
 	else {
 	    static char repname[MAXPATHLEN];
-	    int sep = __pmPathSeparator();
+	    int sep = pmPathSeparator();
 
 	    if ((def_pmns = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 		return NULL;

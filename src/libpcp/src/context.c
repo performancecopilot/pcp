@@ -289,7 +289,7 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	     * from the context structure.
 	     */
 	    name = ctxp->c_pmcd->pc_hosts[0].name;
-	    if (!name || name[0] == __pmPathSeparator() || /* AF_UNIX */
+	    if (!name || name[0] == pmPathSeparator() || /* AF_UNIX */
 		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */
 		gethostname(buf, buflen);
 	    else
@@ -618,7 +618,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     if (dirname != NULL) {
 	strcpy(list + *listsize, dirname);
 	*listsize += dirsize;
-	list[*listsize - 1] = __pmPathSeparator();
+	list[*listsize - 1] = pmPathSeparator();
     }
     memcpy(list + *listsize, item, itemsize);
     *listsize += itemsize + 1;

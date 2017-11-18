@@ -270,7 +270,7 @@ pmdaOptions	opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			c;
     int			i;
     char		namebuf[30];

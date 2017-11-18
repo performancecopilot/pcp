@@ -480,7 +480,7 @@ apache_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     pmdaInterface	pmda;
     char		helppath[MAXPATHLEN];
 

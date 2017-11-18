@@ -657,7 +657,7 @@ redo_dynamic(void)
 {
     int			err;
     int			i;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     static struct stat	lastsbuf;
     struct stat		statbuf;
     pmdaIndom		*idp = &indomtab[DYNAMIC_INDOM];
@@ -2971,7 +2971,7 @@ sample_init(pmdaInterface *dp)
     int		i;
 
     if (_isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "sample DSO", helppath);

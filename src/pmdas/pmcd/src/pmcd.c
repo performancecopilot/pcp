@@ -451,7 +451,7 @@ refresh_pmie_indom(void)
     void		*ptr;
     DIR			*pmiedir;
     int			fd;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
 
     pmsprintf(fullpath, sizeof(fullpath), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
@@ -1056,7 +1056,7 @@ tzinfo(void)
 static int
 extract_service(const char *path, char *name)
 {
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	fullpath[MAXPATHLEN];
     char	buffer[64];
     FILE	*fp;
@@ -1974,7 +1974,7 @@ __PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
  
     pmsprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

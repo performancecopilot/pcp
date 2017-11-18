@@ -801,7 +801,7 @@ netbsd_init(pmdaInterface *dp)
 
     if (isDSO) {
 	char	mypath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "netbsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_5, "netbsd DSO", mypath);
@@ -950,7 +950,7 @@ int
 main(int argc, char **argv)
 {
     int			c, err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		mypath[MAXPATHLEN];
 

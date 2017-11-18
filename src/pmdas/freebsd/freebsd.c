@@ -763,7 +763,7 @@ freebsd_init(pmdaInterface *dp)
 
     if (isDSO) {
 	char	mypath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_5, "freebsd DSO", mypath);
@@ -914,7 +914,7 @@ int
 main(int argc, char **argv)
 {
     int			c, err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		mypath[MAXPATHLEN];
 

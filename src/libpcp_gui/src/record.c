@@ -357,7 +357,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     /* construct full pathname */
     rp->public.logfile = malloc(MAXPATHLEN);
     if (rp->public.logfile != NULL) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	if (dir != NULL && __pmAbsolutePath(dir))
 	    strcpy(rp->public.logfile, dir);
 	else {
@@ -599,7 +599,7 @@ for (i = 0; i < rp->argc+11; i++) fprintf(stderr, " %s", rp->argv[i]);
 fputc('\n', stderr);
 #endif
 		    pmsprintf(loggerpath, sizeof(loggerpath), "%s%cpmlogger",
-			pmGetConfig("PCP_BINADM_DIR"), __pmPathSeparator());
+			pmGetConfig("PCP_BINADM_DIR"), pmPathSeparator());
 		    execv(loggerpath, rp->argv);
 
 		    /* this is really bad! */

@@ -99,7 +99,7 @@ main(int argc, char **argv)
     int			n = 0;
     int			i;
     int			err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			line;
     int                 numcmd = 0;
     int                 parseonly = 0;

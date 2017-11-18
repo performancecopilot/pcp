@@ -680,7 +680,7 @@ main(int argc, char **argv)
     else
 	pmsprintf(file, MAXPATHLEN, "%s%cmmv%ctest",
 		pmGetConfig("PCP_TMP_DIR"),
-		__pmPathSeparator(), __pmPathSeparator());
+		pmPathSeparator(), pmPathSeparator());
     file[MAXPATHLEN-1] = '\0';
 
     if ((fd = open(file, O_RDONLY)) < 0)

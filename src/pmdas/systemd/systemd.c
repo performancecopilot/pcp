@@ -721,7 +721,7 @@ main(int argc, char **argv)
     char                *endnum;
     pmdaInterface       desc;
     long                minmem;
-    int                 c, err = 0, sep = __pmPathSeparator();
+    int                 c, err = 0, sep = pmPathSeparator();
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;

@@ -135,3 +135,10 @@ __pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 {
     pmPrintHighResStamp(f, tp);
 }
+
+#undef __pmPathSeparator
+int
+__pmPathSeparator(void)
+{
+    return pmPathSeparator();
+}

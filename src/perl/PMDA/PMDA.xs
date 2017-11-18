@@ -634,7 +634,7 @@ new(CLASS,name,domain)
 	logfile = local_strdup_suffix(name, ".log");
 	pmdaname = local_strdup_prefix("pmda", name);
 	pmSetProgname(pmdaname);
-	sep = __pmPathSeparator();
+	sep = pmPathSeparator();
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL) {
 	    if (pmSetDebug(p) < 0)
 		fprintf(stderr, "unrecognized debug options specification (%s)\n", p);

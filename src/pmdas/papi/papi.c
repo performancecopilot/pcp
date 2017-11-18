@@ -898,7 +898,7 @@ papi_init(pmdaInterface *dp)
     int sts;
 
     if (isDSO) {
-	int	sep = __pmPathSeparator();
+	int	sep = pmPathSeparator();
 
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 		 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -954,7 +954,7 @@ static pmdaOptions opts = {
 int
 main(int argc, char **argv)
 {
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
     pmdaInterface dispatch;
 
     isDSO = 0;

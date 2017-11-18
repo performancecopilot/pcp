@@ -85,7 +85,7 @@ done(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     char		helppath[MAXPATHLEN];
     char		*username;
 

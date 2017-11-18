@@ -144,12 +144,12 @@ dos_formatter(char *var, char *prefix, char *val)
 
 PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
 char *__pmNativePath(char *path) { return dos_native_path(path); }
-int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
+int pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 int __pmAbsolutePath(char *path) { return posix_style() ? path[0] == '/' : dos_absolute_path(path); }
 #else
 char *__pmNativePath(char *path) { return path; }
 int __pmAbsolutePath(char *path) { return path[0] == '/'; }
-int __pmPathSeparator() { return '/'; }
+int pmPathSeparator() { return '/'; }
 
 /*
  * Called with __pmLock_extcall held, so putenv() is thread-safe.

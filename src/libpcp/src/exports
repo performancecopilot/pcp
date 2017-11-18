@@ -612,18 +612,19 @@ PCP_3.22 {
     pmNoMem;
     pmNotifyErr;
     pmOpenLog;
+    pmPathSeparator;
+    pmPrintDesc;
+    pmPrintHighResStamp;
+    pmPrintStamp;
     pmSetProgname;
     pmSyslog;
-    pmPrintDesc;
-    pmtimevalNow;
-    pmtimevalInc;
-    pmtimevalDec;
     pmtimevalAdd;
+    pmtimevalDec;
+    pmtimevalFromReal;
+    pmtimevalInc;
+    pmtimevalNow;
     pmtimevalSub;
     pmtimevalToReal;
-    pmtimevalFromReal;
-    pmPrintStamp;
-    pmPrintHighResStamp;
 
     __pmAddLabels;
     __pmDecodeLabel;

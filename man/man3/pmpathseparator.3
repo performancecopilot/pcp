@@ -1,0 +1,37 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPATHEPARATOR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmPathSeparator\f1 \- return the filesystem path separator character
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmPathSeparator(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmPathSeparator
+is a convenience method that returns ``/'' in  the civilized world.
+For Windows platforms you may get ``/'' or ``\e'' depending on the
+run-time environment.
+.PP
+The most common use scenario is to use
+.B pmPathSeparator
+to construct the full pathname for a file
+from a known directory name and a relative
+file name.

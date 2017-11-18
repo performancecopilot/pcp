@@ -20,6 +20,7 @@ Dec (expect 1234.567000): 1234.567000
 Now: OK
 Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
+__pmPathSeparator test: OK
 
 === source code compatibility checks ===
 __pmGetAPIConfig test: OK
@@ -42,3 +43,4 @@ Dec (expect 1234.567000): 1234.567000
 Now: OK
 Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
+__pmPathSeparator test: OK

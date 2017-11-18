@@ -249,7 +249,7 @@ static void stomp_parse(void)
 {
     char config[MAXPATHLEN+1];
     FILE *f;
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
 
     if (stompfile)
 	strncat(config, stompfile, sizeof(config)-1);
