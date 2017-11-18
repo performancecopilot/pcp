@@ -1193,8 +1193,4 @@ PCP_CALL extern int pmPathSeparator(void);
 }
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* PCP_PMAPI_H */
