@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include <sys/stat.h>
 #include <sys/file.h>
 #ifdef HAVE_GRP_H

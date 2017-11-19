@@ -6,7 +6,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 static void
 dometric(const char *name)

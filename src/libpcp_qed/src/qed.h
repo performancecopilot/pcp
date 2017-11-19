@@ -21,7 +21,6 @@
 //
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 class QedLED;
 class QedLine;

@@ -17,7 +17,6 @@
 
 #include <inttypes.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 #if defined(HAVE_PTHREAD_H)

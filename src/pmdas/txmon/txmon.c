@@ -16,7 +16,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>

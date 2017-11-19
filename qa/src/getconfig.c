@@ -7,7 +7,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 int
 main(int argc, char *argv[])

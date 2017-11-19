@@ -22,7 +22,6 @@
 /* pinched from pmlogextract and libpcp */
 
 #include "pcp/pmapi.h"
-#include "pcp/impl.h"
 #include "pcp/libpcp.h"
 
 /*

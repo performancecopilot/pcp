@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmlc.h"
 
 /* this pmResult is built after parsing the current statement.  The action

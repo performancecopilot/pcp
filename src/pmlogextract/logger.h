@@ -22,7 +22,6 @@
 #define _LOGGER_H
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 /*

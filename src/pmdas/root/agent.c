@@ -14,7 +14,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "root.h"
 #if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>

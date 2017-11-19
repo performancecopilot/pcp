@@ -15,7 +15,6 @@
 
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "deprecated.h"
 #include "pmda.h"

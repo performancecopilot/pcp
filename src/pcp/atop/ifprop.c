@@ -18,7 +18,6 @@
 ** See the GNU General Public License for more details.
 */
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 #include "atop.h"
 #include "ifprop.h"

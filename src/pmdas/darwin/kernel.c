@@ -19,7 +19,6 @@
 #include <sys/mount.h>
 #include <mach/mach.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 
 #include "darwin.h"

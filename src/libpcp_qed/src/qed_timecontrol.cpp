@@ -17,7 +17,6 @@
 #include <QApplication>
 #include <QHostAddress>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 #include "qed_timecontrol.h"
 #include "qed_console.h"

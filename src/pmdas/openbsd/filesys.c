@@ -19,7 +19,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "openbsd.h"
 #include <sys/param.h>

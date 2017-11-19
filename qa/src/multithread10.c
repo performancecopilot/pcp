@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <strings.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h> /* for pmPathSeparator */
 #include <pthread.h>
 
 

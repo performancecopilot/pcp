@@ -12,7 +12,6 @@
 #define HOST handle == 0 ? "local:" : host
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 #define NUMCTX 10
 

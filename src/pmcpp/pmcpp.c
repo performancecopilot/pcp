@@ -49,7 +49,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>

@@ -23,7 +23,6 @@
 
 #include <sys/types.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include <fcntl.h>
 #include <unistd.h>

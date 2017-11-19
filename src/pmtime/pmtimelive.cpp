@@ -19,7 +19,6 @@
 #include <QValidator>
 #include <QActionGroup>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "pmtime.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"

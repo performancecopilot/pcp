@@ -14,7 +14,6 @@
 */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 #include "atop.h"
 #include "photosyst.h"

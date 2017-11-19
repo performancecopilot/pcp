@@ -25,7 +25,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "domain.h"
 #include <ctype.h>

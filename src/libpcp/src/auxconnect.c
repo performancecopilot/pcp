@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #ifdef HAVE_NET_IF_H
 #include <net/if.h>

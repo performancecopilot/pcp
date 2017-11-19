@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 
 /*
  * test program to calibrate system call rates ... just compile

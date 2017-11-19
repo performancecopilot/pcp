@@ -8,7 +8,6 @@
 #include <sys/time.h>
 #include <pthread.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 /*
  * do iter host cycles and 10*iter archive cycles

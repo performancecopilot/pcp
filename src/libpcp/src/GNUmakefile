@@ -100,7 +100,6 @@ derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
-		$(TOPDIR)/src/include/pcp/impl.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h \
 		$(GENERATED_HFILES)
 
@@ -145,7 +144,7 @@ install_pcp : install
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
 
-pmdbg.h : ../../include/pcp/pmapi.h ../../include/pcp/impl.h mk_pmdbg
+pmdbg.h : ../../include/pcp/pmapi.h mk_pmdbg
 	./mk_pmdbg
 
 labels.o:	sort_r.h

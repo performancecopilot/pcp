@@ -15,7 +15,6 @@
 #define SERIES_LOAD_H
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 #undef HASHSIZE

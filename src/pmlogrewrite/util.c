@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logger.h"
 #include <assert.h>

@@ -1032,7 +1032,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 } __pmID_int;</programlisting>
             </example>
           </para>
-          <para>For additional information, see the <filename>&lt;pcp/impl.h&gt;</filename> file.</para>
+          <para>For additional information, see the <filename>&lt;pcp/libpcp.h&gt;</filename> file.</para>
           <para>
             <indexterm id="IG31340177122">
               <primary>PMDA_PMID macro</primary>
@@ -6598,7 +6598,7 @@ except Exception, error:
             <primary>compiling and linking</primary>
           </indexterm>Typical PMAPI applications require the following line to include the function prototype and data structure definitions used by the PMAPI. </para>
         <programlisting>#include &lt;pcp/pmapi.h&gt;</programlisting>
-        <para>Some applications may also require these header files: <filename>&lt;pcp/impl.h&gt;</filename> and <filename>&lt;pcp/pmda.h&gt;</filename>.</para>
+        <para>Some applications may also require these header files: <filename>&lt;pcp/libpcp.h&gt;</filename> and <filename>&lt;pcp/pmda.h&gt;</filename>.</para>
         <para>The run-time environment of the PMAPI is mostly found in the <filename>libpcp</filename> library; so to link a generic PMAPI application requires something akin to the following command:</para>
         <literallayout class="monospaced">
           <userinput>cc</userinput> <replaceable>mycode</replaceable><userinput>.c -lpcp</userinput></literallayout>

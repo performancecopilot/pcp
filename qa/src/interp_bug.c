@@ -5,7 +5,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 #define N_PMID_A sizeof(metrics_a)/sizeof(metrics_a[0])

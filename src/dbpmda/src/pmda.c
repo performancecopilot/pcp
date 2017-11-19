@@ -15,7 +15,6 @@
 
 #include <sys/stat.h>
 #include "pmapi.h"
-#include "impl.h"
 
 #ifdef HAVE_VALUES_H
 #include <values.h>

@@ -16,7 +16,6 @@
 #define _XOPEN_SOURCE 600
 #endif
 #include "pmmgr.h"
-#include "impl.h"
 #include "libpcp.h"
 
 #include <sys/stat.h>

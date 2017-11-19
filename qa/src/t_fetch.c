@@ -6,7 +6,6 @@
 */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 #define StuffDom(metric, newdom) pmID_build(newdom, pmID_cluster(metric), pmID_item(metric))
 

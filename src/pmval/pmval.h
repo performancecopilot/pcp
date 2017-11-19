@@ -19,7 +19,6 @@
 #define PMVAL_H
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmtime.h"
 

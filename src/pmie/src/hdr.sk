@@ -24,7 +24,6 @@
  ***********************************************************************/
 
 #include "pmapi.h"
-#include "impl.h"
 #if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
 #endif

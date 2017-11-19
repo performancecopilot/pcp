@@ -6,7 +6,6 @@
 
 #include <unistd.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 /* default is the "no" dimension case */
 pmUnits		units = {0, 0, 0, 0, 0, 0};

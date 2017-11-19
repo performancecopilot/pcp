@@ -124,7 +124,6 @@ fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 labels.o:	sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
-		$(TOPDIR)/src/include/pcp/impl.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h
 
 .NOTPARALLEL:

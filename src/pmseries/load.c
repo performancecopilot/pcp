@@ -23,7 +23,6 @@
 #include "load.h"
 #include "util.h"
 #include "sha1.h"
-#include "impl.h"
 
 typedef struct {
     redisContext	*redis;

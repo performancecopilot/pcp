@@ -16,7 +16,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include <math.h>
 #include <ctype.h>
 #include <limits.h>

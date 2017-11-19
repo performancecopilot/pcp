@@ -14,7 +14,6 @@
 
 #include <stdarg.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>

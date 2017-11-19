@@ -7,7 +7,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 
 static pmUnits	iu = PMDA_PMUNITS( 0, 1, 1, 0, PM_TIME_SEC, 0 );

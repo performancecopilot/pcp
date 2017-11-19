@@ -15,7 +15,6 @@
 #include <ctype.h>
 #include <signal.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "summary.h"

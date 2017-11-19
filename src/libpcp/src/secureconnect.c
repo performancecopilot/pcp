@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #define SOCKET_INTERNAL
 #include "internal.h"

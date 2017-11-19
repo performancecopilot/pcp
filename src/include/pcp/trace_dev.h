@@ -41,7 +41,7 @@ extern "C" {
 #define TRACE_LAST_TYPE		TRACE_TYPE_COUNTER
 
 /*
- * Protocol data unit (PDU) support snarfed from impl.h, pdu.c and pdubuf.c
+ * Protocol data unit (PDU) support snarfed from libpcp.h, pdu.c and pdubuf.c
  */
 typedef struct {
     int	len;		/* length of pdu_header + PDU */

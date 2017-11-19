@@ -12,18 +12,15 @@
 #ifndef PCP_IMPL_H
 #define PCP_IMPL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
- * functions to be promoted to pmapi.h and the __pm version added
- * to deprecated.*
- * === start ==
+ * This header used to provide declarations for internal data structures
+ * and methods for the libpcp library.
+ *
+ * The library has been refactored and this header is no longer used,
+ * but the empty file is included to ease compatibility issues for those
+ * building PCP apps from source outside the PCP tree.
+ *
+ * - Ken McDonell, 19 Nov 2017
  */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* PCP_IMPL_H */

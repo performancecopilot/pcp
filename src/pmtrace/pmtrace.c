@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "trace.h"
 
 typedef enum { UNKNOWN, COUNTER, OBSERVE, TRANSACT } trace_t;

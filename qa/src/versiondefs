@@ -13,6 +13,3 @@ IRIX	= IRIX$(OS_REL:S/./_/g)
 #
 IRIX_OBJECT	!= ../src/get-irix-object
 
-# Stuff that varies ...
-HAVE_DEV_IN_LIBPCP	!= sed -n '/^\#ifdef HAVE_DEV_IN_LIBPCP/s/\#ifdef /-D/p' /usr/include/pcp/impl.h
-

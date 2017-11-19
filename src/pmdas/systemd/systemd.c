@@ -19,7 +19,6 @@
 #define _POSIX_C_SOURCE 200112L  /* for strtoull */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"

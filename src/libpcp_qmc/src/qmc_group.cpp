@@ -18,7 +18,6 @@
 #include <math.h>
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/libpcp.h>
 #include "qmc_group.h"
 #include "qmc_source.h"

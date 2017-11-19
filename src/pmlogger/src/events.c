@@ -16,7 +16,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "logger.h"
 
 /*

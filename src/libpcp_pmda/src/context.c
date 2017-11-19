@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 
 static int	last_ctx = -1;	/* not thread safe! */

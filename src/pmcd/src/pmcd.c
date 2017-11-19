@@ -14,7 +14,6 @@
  */
 
 #include "pmcd.h"
-#include "impl.h"
 #include "libpcp.h"
 #include <sys/stat.h>
 #include <assert.h>

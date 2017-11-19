@@ -22,7 +22,6 @@
 #include <IOKit/IOBSD.h>
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 
 #include "disk.h"

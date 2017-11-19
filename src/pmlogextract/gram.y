@@ -17,7 +17,6 @@
  *  pmlogextract parser
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logger.h"
 

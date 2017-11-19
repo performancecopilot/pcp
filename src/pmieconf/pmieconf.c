@@ -16,7 +16,6 @@
 #include <ctype.h>
 #include <sys/param.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "rules.h"
 
 #define MAXSYMLEN	(MAXPATHLEN+1)

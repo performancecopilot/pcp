@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <unistd.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logcheck.h"
 

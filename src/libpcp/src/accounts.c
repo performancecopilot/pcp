@@ -14,7 +14,6 @@
 
 #include <limits.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 #if defined(HAVE_PWD_H)

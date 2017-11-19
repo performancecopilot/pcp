@@ -13,7 +13,6 @@
  */
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 
 static int lineno;
 static int count;

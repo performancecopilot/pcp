@@ -19,7 +19,6 @@
 
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "deprecated.h"
 #include "../libpcp/src/pmdbg.h"
 

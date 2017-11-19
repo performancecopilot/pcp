@@ -8,7 +8,6 @@
 #include <syslog.h>
 #include <errno.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 #include <pcp/pmda.h>
 #include "domain.h"

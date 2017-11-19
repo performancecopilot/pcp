@@ -7,7 +7,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 static int	nmetric;		/* for metric ... args */

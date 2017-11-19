@@ -19,7 +19,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 

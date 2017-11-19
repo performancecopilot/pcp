@@ -15,7 +15,6 @@
 #define _XOPEN_SOURCE 600
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmwebapi.h"
 
 #include <iostream>

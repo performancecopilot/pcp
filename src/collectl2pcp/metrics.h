@@ -16,7 +16,6 @@
 
 #include <ctype.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include <pcp/import.h>
 

@@ -13,7 +13,6 @@
  */
 
 #include "pcp/pmapi.h"
-#include "pcp/impl.h"
 #include "pcp/libpcp.h"
 
 #define PM_LOG_VERS01 1

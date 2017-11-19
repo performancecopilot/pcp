@@ -26,7 +26,6 @@
 #include <sys/stat.h> 
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 #include "fault.h"

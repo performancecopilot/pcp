@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <sys/param.h>
 #include "pcp/pmapi.h"
-#include "pcp/impl.h"
 #include "pcp/libpcp.h"
 
 #define LOG 0

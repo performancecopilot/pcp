@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include <values.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 
 void

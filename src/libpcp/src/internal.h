@@ -17,7 +17,7 @@
 
 /*
  * Routines and data structures used within libpcp source files,
- * but which we do not want to expose via impl.h or pmapi.h.
+ * but which we do not want to expose via pmapi.h or libpcp.h.
  */
 
 #include "compiler.h"

@@ -16,7 +16,6 @@
 #include <QtGui/QIcon>
 #include "qmc_time.h"
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 //
 // Map icon type name to QIcon

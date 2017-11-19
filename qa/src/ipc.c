@@ -8,7 +8,6 @@
 #include <sys/sem.h>
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 #define SEMAPHORES /* comment this to NOT test semaphores */

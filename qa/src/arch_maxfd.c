@@ -6,7 +6,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
 #endif

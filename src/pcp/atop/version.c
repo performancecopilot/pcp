@@ -12,7 +12,6 @@
 ** See the GNU General Public License for more details.
 */
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 char *
 getstrvers(void)

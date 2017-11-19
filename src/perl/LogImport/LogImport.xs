@@ -2,7 +2,6 @@
 #include "perl.h"
 #include "XSUB.h"
 #include <pmapi.h>
-#include <impl.h>
 #include <libpcp.h>
 #include <import.h>
 
@@ -11,7 +10,7 @@ MODULE = PCP::LogImport              PACKAGE = PCP::LogImport
 # helper methods
 #
 
-# name here is a little odd ... follows impl.h definition rather
+# name here is a little odd ... follows libpcp.h definition rather
 # than pmi* naming so calls from C and Perl are the same
 pmID
 pmID_build(domain, cluster, item)
@@ -34,7 +33,7 @@ pmid_build(domain, cluster, item)
     OUTPUT:
 	RETVAL
 
-# name here is a little odd ... follows impl.h definition rather
+# name here is a little odd ... follows libpcp.h definition rather
 # than pmi* naming so calls from C and Perl are the same
 pmInDom
 pmInDom_build(domain, serial)

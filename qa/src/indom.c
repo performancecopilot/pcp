@@ -3,7 +3,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 static int	type;
 static int	inst;

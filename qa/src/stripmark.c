@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 /*

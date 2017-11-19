@@ -25,7 +25,6 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 #define DEFAULT_HELP_VERSION 2

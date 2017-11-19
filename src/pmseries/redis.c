@@ -13,7 +13,6 @@
  */
 #include <hiredis/hiredis.h>
 #include "redis.h"
-#include "impl.h"
 #include "util.h"
 
 #define PCP_SCHEMA_VERSION 1

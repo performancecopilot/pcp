@@ -14,7 +14,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "indom.h"
 #include "dmstats.h"

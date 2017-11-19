@@ -23,7 +23,6 @@
 #include <sys/time.h>
 #include <sys/utsname.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "ksym.h"
 #include "indom.h"
 

@@ -11,7 +11,6 @@
 
 #include <ctype.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 #define MAX_LOOP 1000

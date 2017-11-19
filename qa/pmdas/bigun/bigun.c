@@ -6,7 +6,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 
 static pmdaMetric metrics[] = {

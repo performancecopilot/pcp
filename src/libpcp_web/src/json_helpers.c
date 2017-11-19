@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmjson.h"
 #include "pmda.h"
 #include "jsmn.h"

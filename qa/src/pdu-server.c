@@ -14,7 +14,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>

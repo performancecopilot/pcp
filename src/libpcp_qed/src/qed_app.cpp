@@ -15,7 +15,6 @@
 
 #include <math.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "qed_app.h"
 #include "qed_console.h"
 

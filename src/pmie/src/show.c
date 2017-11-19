@@ -20,7 +20,6 @@
 #include <ctype.h>
 #include <assert.h>
 #include "show.h"
-#include "impl.h"
 #include "dstruct.h"
 #include "lexicon.h"
 #include "pragmatics.h"

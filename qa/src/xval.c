@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 static int type[] = {
     PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_EVENT, PM_TYPE_HIGHRES_EVENT };

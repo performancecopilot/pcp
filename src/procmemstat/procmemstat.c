@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmnsmap.h"
 
 static const char	*scale = "kbytes";

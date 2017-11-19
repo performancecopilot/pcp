@@ -14,7 +14,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 extern int	errno;

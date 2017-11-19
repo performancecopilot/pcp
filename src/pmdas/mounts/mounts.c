@@ -17,7 +17,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "domain.h"
 #include <dirent.h>

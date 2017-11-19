@@ -19,7 +19,6 @@
 #include <sys/stat.h>
 #include "mmv_stats.h"
 #include "mmv_dev.h"
-#include "impl.h"
 #include "libpcp.h"
 
 static void

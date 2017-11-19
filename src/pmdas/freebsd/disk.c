@@ -19,7 +19,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include <devstat.h>
 #include "freebsd.h"

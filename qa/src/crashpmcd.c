@@ -2,7 +2,6 @@
  * Crashes pmcd on IRIX. Linux seems to be OK. PV 935490.
  */
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 static __pmPDUHdr hdr;

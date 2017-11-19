@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 static int gold;	/* boolean flag - do we have a golden label yet? */

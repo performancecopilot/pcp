@@ -6,7 +6,6 @@
 
 #include <unistd.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 static void checkMetric(const char *);
 

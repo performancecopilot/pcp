@@ -24,7 +24,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "util.h"
 
 void

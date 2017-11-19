@@ -5,7 +5,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmafm.h>
 
 /*

@@ -68,32 +68,12 @@ different semantics at some point in the future.' \
     then
 	$verbose && echo "$file: libpcp.h already in place"
     else
-	if grep '#include .*impl.h' $file >/dev/null
-	then
-	    sed <$file >$tmp.tmp \
-		-e '/#include .*impl.h/{
-p
-s/impl.h/libpcp.h/
-i\
-.br
-}'
-	    if diff $file $tmp.tmp >/dev/null
-	    then
-		$verbose && echo "Botch: $file: failed to add libpcp.h after impl.h"
-	    else
-		echo "$file: add libpcp.h after impl.h"
-		mv $tmp.tmp $file
-	    fi
-	elif grep '#include .*pmapi.h' $file >/dev/null
+	if grep '#include .*pmapi.h' $file >/dev/null
 	then
 	    sed <$file >$tmp.tmp \
 		-e '/#include .*pmapi.h/{
 p
-s/pmapi.h/impl.h/
-i\
-.br
-p
-s/impl.h/libpcp.h/
+s/pmapi.h/libpcp.h/
 i\
 .br
 }'
@@ -101,7 +81,7 @@ i\
 	    then
 		$verbose && echo "Botch: $file: failed to add libpcp.h after pmapi.h"
 	    else
-		echo "$file: add impl.h and libpcp.h after pmapi.h"
+		echo "$file: add libpcp.h after pmapi.h"
 		mv $tmp.tmp $file
 	    fi
 	else
