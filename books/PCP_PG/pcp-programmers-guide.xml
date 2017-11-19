@@ -2183,7 +2183,7 @@ void trivial_init(pmdaInterface *dp)
         pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;trivial DSO&#x201D;,
                 &#x201C;${PCP_PMDAS_DIR}/trivial/help&#x201D;);
     else
-        __pmSetProcessIdentity(username);
+        pmSetProcessIdentity(username);
 
     if (dp-&gt;status != 0)
         return;
@@ -2233,7 +2233,7 @@ void simple_init(pmdaInterface *dp)
         pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
                 &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
     else
-        __pmSetProcessIdentity(username);
+        pmSetProcessIdentity(username);
 
     if (dp-&gt;status != 0)
         return;
@@ -2322,7 +2322,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&amp;username);
+    pmGetUsername(&amp;username);
     pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
                &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 

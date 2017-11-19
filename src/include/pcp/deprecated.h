@@ -44,6 +44,8 @@
  * __pmPrintStamp()		pmPrintStamp()
  * __pmPrintHighResStamp()	pmPrintHighResStamp()
  * __pmPathSeparator()		pmPathSeparator()
+ * __pmGetUsername()		pmGetUsername()
+ * __pmSetProcessIdentity()	pmSetProcessIdentity()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -108,5 +110,7 @@ PCP_DATA extern int pmDebug;
 #define __pmPrintStamp pmPrintStamp
 #define __pmPrintHighResStamp pmPrintHighResStamp
 #define __pmPathSeparator pmPathSeparator
+#define __pmGetUsername pmGetUsername
+#define __pmSetProcessIdentity pmSetProcessIdentity
 
 #endif /* PCP_DEPRECATED_H */

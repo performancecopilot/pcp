@@ -81,7 +81,7 @@ main(int argc, char **argv)
     char		helptext[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&pmdausername);
+    pmGetUsername(&pmdausername);
 
     pmsprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -169,7 +169,7 @@ main(int argc, char **argv)
     /* force errors from here on into the log */
     if (!parse_only) {
 	pmdaOpenLog(&dispatch);
-	__pmSetProcessIdentity(pmdausername);
+	pmSetProcessIdentity(pmdausername);
     } else {
 	dispatch.version.two.text = NULL;
 	dispatch.version.two.ext->e_helptext = NULL;

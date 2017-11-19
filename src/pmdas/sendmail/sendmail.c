@@ -446,7 +446,7 @@ sendmail_init(pmdaInterface *dp)
 	return;
 
     if (username)
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
 
     do_sendmail_cf();
     map_stats();
@@ -485,7 +485,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "sendmail" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

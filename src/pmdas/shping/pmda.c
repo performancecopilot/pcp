@@ -112,7 +112,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "shping" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -245,7 +245,7 @@ main(int argc, char **argv)
 #endif
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     shping_init(&dispatch);
     pmdaConnect(&dispatch);

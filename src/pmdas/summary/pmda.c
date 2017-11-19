@@ -42,7 +42,7 @@ main(int argc, char **argv)
     char		*username;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
     pmsprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",
@@ -103,7 +103,7 @@ main(int argc, char **argv)
     pmdaOpenLog(& dispatch);
 
     /* switch to alternate user account now */
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     /* initialize */
     summary_init(&dispatch);

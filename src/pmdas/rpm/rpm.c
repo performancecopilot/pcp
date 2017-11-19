@@ -613,7 +613,7 @@ rpm_init(pmdaInterface * dp)
 	pmdaDSO(dp, PMDA_INTERFACE_5, "rpm DSO", helppath);
     }
     else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -673,7 +673,7 @@ main(int argc, char **argv)
     isDSO = 0;
     pmSetProgname(argv[0]);
     __pmProcessDataSize(NULL);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

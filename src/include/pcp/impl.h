@@ -22,15 +22,6 @@ extern "C" {
  * === start ==
  */
 
-/* platform independent set process identity */
-PCP_CALL extern int __pmSetProcessIdentity(const char *);
-
-/*
- * Startup handling:
- * set default user for __pmSetProcessIdentity() ... default is "pcp"
- */
-PCP_CALL extern int __pmGetUsername(char **);
-
 #ifdef __cplusplus
 }
 #endif

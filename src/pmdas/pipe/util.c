@@ -93,7 +93,7 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
 	}
 
 	/* Switch to user account under which command is to run. */
-	__pmSetProcessIdentity(usr);
+	pmSetProcessIdentity(usr);
 
 	/*
 	 * Insert a short delay to let the PMDA complete other PDU

@@ -3525,7 +3525,7 @@ main(int argc, char **argv)
 	username = opts.username;
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     proc_init(&dispatch);
     pmdaConnect(&dispatch);

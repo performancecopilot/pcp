@@ -858,7 +858,7 @@ set_user(self,username)
     PREINIT:
 	(void)self;
     CODE:
-	RETVAL = __pmSetProcessIdentity(username);
+	RETVAL = pmSetProcessIdentity(username);
     OUTPUT:
 	RETVAL
 

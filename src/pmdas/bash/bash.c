@@ -375,7 +375,7 @@ void
 bash_init(pmdaInterface *dp)
 {
     if (username)
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
 
     if (dp->status != 0)
 	return;

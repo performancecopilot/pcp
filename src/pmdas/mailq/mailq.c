@@ -237,7 +237,7 @@ mailq_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
     dp->version.two.fetch = mailq_fetch;
     pmdaSetFetchCallBack(dp, mailq_fetchCallBack);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
@@ -277,7 +277,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     if (getcwd(startdir, sizeof(startdir)) == NULL) {
 	fprintf(stderr, "%s: getcwd() failed: %s\n",

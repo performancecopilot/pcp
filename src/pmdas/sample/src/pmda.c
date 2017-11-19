@@ -91,7 +91,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -106,7 +106,7 @@ main(int argc, char **argv)
     pmdaOpenLog(&dispatch);
     if (opts.username)
 	username = opts.username;
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     sample_init(&dispatch);
     pmdaSetCheckCallBack(&dispatch, check);

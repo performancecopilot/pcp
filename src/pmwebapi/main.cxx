@@ -540,7 +540,7 @@ main (int argc, char *argv[])
 
     umask (022);
     char * username_str;
-    __pmGetUsername (&username_str);
+    pmGetUsername (&username_str);
     __pmServerSetFeature (PM_SERVER_FEATURE_DISCOVERY);
 
     opts.short_options = "A:a:c:CD:h:Ll:NM:Pp:R:GJi:It:U:vx:d:SX46?";
@@ -754,7 +754,7 @@ main (int argc, char *argv[])
     /* lose root privileges if we have them */
     if (geteuid () == 0)
 #endif
-        __pmSetProcessIdentity (username_str);
+        pmSetProcessIdentity (username_str);
 
     /* tell the world we have arrived */
     __pmServerCreatePIDFile (PM_SERVER_WEBD_SPEC, 0);
@@ -762,7 +762,7 @@ main (int argc, char *argv[])
         presence = __pmServerAdvertisePresence (PM_SERVER_WEBD_SPEC, port);
 
     // (re)create log file, redirect stdout/stderr
-    // NB: must be done after __pmSetProcessIdentity() for proper file permissions
+    // NB: must be done after pmSetProcessIdentity() for proper file permissions
     if (logfile != "") {
         int
         fd;

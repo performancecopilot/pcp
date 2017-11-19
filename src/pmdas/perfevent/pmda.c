@@ -647,7 +647,7 @@ perfevent_init(pmdaInterface *dp)
 
     if(!isDSO)
     {
-        __pmSetProcessIdentity(username);
+        pmSetProcessIdentity(username);
     }
 
     if(setup_metrics() < 0 )
@@ -703,7 +703,7 @@ int main(int argc, char **argv)
 
     isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "perfevent" "%c" "help",
              pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

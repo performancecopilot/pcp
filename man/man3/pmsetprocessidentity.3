@@ -1,0 +1,56 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSETPROCESSIDENTITY 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSetProcessIdentity\f1 \- set process user and group id
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+pmSetProcessIdentity(const char *\fIusername\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmSetProcessIdentity
+provides a platform-independent method to set the user id
+of a process to that matching
+.IR username .
+.PP
+If possible (when the caller is already running as root)
+.B pmSetProcessIdentity
+will set the group id of the process to that of the matching
+user, e.g. using
+.I username
+and
+.BR getpwnam (3).
+.PP
+A return value of 0 indicates success, otherwise the return
+value is an error code that may be decoded with
+.BR pmErrStr (3).
+.PP
+.BR pmSetProcessIdentity
+is most often used in conjunction with
+.BR pmGetUsername (3)
+at process start up.
+.SH SEE ALSO
+.BR getpwnam (3),
+.BR PMAPI (3),
+.BR pmErrStr (3),
+.BR pmGetUsername (3),
+.BR setgid (3)
+and
+.BR setuid (3).

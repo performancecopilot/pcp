@@ -1762,7 +1762,7 @@ int main (int argc, char *argv[])
 
   int c;
   char* username_str;
-  __pmGetUsername(& username_str);
+  pmGetUsername(& username_str);
   string username = username_str;
   char* output_filename = NULL;
 
@@ -1835,10 +1835,10 @@ int main (int argc, char *argv[])
     /* lose root privileges if we have them */
     if (geteuid () == 0)
 #endif
-      __pmSetProcessIdentity(username.c_str());
+      pmSetProcessIdentity(username.c_str());
 
   // (re)create log file, redirect stdout/stderr
-  // NB: must be done after __pmSetProcessIdentity() for proper file permissions
+  // NB: must be done after pmSetProcessIdentity() for proper file permissions
   if (output_filename)
     {
       int fd;

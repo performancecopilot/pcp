@@ -471,7 +471,7 @@ main(int argc, char **argv)
     double		startTime;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&wl_username);
+    pmGetUsername(&wl_username);
 
     pmtimevalNow(&start);
 
@@ -555,7 +555,7 @@ main(int argc, char **argv)
 	 * on into the logfile
 	 */
 	pmdaOpenLog(&desc);
-	__pmSetProcessIdentity(wl_username);
+	pmSetProcessIdentity(wl_username);
     }
 
     /*

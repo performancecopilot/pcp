@@ -89,7 +89,7 @@ trivial_init(pmdaInterface *dp)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "trivial DSO", mypath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -112,7 +112,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "trivial" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

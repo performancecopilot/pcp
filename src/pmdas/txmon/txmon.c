@@ -214,7 +214,7 @@ txmon_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     dp->version.two.store = txmon_store;
 
@@ -271,7 +271,7 @@ main(int argc, char **argv)
     stat_t		*sp;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

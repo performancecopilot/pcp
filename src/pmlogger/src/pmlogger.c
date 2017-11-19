@@ -597,7 +597,7 @@ main(int argc, char **argv)
     int			exit_code = 0;
     char		*exit_msg;
 
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     sep = pmPathSeparator();
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
 	delta.tv_sec = atoi(endnum);
@@ -827,7 +827,7 @@ main(int argc, char **argv)
 
     /* if we are running as a daemon, change user early */
     if (isdaemon)
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
 
     if (Cflag == 0) {
 	pmOpenLog("pmlogger", logfile, stderr, &sts);

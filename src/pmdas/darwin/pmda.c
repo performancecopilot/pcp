@@ -1210,7 +1210,7 @@ darwin_init(pmdaInterface *dp)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "darwin DSO", helppath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -1260,7 +1260,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, MAXPATHLEN, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

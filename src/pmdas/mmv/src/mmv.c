@@ -1211,7 +1211,7 @@ mmv_init(pmdaInterface *dp)
     if (isDSO) {
 	pmdaDSO(dp, PMDA_INTERFACE_4, "mmv", NULL);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     pcptmpdir = pmGetConfig("PCP_TMP_DIR");
@@ -1278,7 +1278,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     if (strncmp(pmGetProgname(), "pmda", 4) == 0 && strlen(pmGetProgname()) > 4)
 	prefix = pmGetProgname() + 4;

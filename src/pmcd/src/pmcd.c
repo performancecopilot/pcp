@@ -909,7 +909,7 @@ main(int argc, char *argv[])
 
     umask(022);
     __pmProcessDataSize(NULL);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
     __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
     __pmServerSetFeature(PM_SERVER_FEATURE_CONTAINERS);
@@ -997,7 +997,7 @@ main(int argc, char *argv[])
     if (run_daemon) {
 	if (__pmServerCreatePIDFile(PM_SERVER_SERVICE_SPEC, PM_FATAL_ERR) < 0)
 	    DontStart();
-	if (__pmSetProcessIdentity(username) < 0)
+	if (pmSetProcessIdentity(username) < 0)
 	    DontStart();
     }
 

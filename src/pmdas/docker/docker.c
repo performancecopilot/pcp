@@ -870,7 +870,7 @@ docker_init(pmdaInterface *dp)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "docker DSO", mypath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)

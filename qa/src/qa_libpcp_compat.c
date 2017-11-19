@@ -31,6 +31,9 @@ extern void __pmtimevalFromReal(double, struct timeval *);
 extern void __pmPrintStamp(FILE *, const struct timeval *);
 extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 extern int __pmPathSeparator(void);
+extern int __pmGetUsername(char **);
+extern int __pmSetProcessIdentity(const char *);
+
 #else
 /*
  * for source compatibility, deprecated.h should handle everything
@@ -72,6 +75,7 @@ main(int argc, char **argv)
     const char 		*p;
     FILE		*f;
     int			sts;
+    char		*u;
     struct timeval	a;
     struct timeval	b;
     struct timespec	x;
@@ -171,7 +175,19 @@ main(int argc, char **argv)
     printf("__pmPathSeparator test: ");
     c = __pmPathSeparator();
     if (c == '/' || c == '\\') printf("OK\n");
-    else printf(" FAIL %c (%02x) is not slash or backslash\n", 0xff & c, 0xff & c);
+    else printf("FAIL %c (%02x) is not slash or backslash\n", 0xff & c, 0xff & c);
+
+    printf("__pmGetUsername test: ");
+    u = NULL;
+    sts = __pmGetUsername(&u);
+    if (u != NULL) printf("OK\n");
+    else printf("FAIL sts=%d u==NULL\n", sts);
+
+    printf("__pmSetProcessIdentity test: (expect failure)\n");
+    fflush(stdout);
+    sts = __pmSetProcessIdentity("no-such-user");
+    if (sts == 0) printf("OK\n");
+    else printf("FAIL sts=%d\n", sts);
 
     return 0;
 }

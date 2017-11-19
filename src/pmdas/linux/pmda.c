@@ -8032,7 +8032,7 @@ linux_init(pmdaInterface *dp)
 	pmdaDSO(dp, PMDA_INTERFACE_7, "linux DSO", helppath);
     } else {
 	if (username)
-	    __pmSetProcessIdentity(username);
+	    pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)

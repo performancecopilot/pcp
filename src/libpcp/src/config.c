@@ -327,7 +327,7 @@ pmGetOptionalConfig(const char *name)
 }
 
 int
-__pmGetUsername(char **username)
+pmGetUsername(char **username)
 {
     char *user = pmGetOptionalConfig("PCP_USER");
     if (user && user[0] != '\0') {

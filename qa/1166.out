@@ -21,6 +21,9 @@ Now: OK
 Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
 __pmPathSeparator test: OK
+__pmGetUsername test: OK
+__pmSetProcessIdentity test: (expect failure)
+[DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
 
 === source code compatibility checks ===
 __pmGetAPIConfig test: OK
@@ -44,3 +47,6 @@ Now: OK
 Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
 __pmPathSeparator test: OK
+__pmGetUsername test: OK
+__pmSetProcessIdentity test: (expect failure)
+[DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to

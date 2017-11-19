@@ -142,3 +142,17 @@ __pmPathSeparator(void)
 {
     return pmPathSeparator();
 }
+
+#undef __pmGetUsername
+int
+__pmGetUsername(char **username)
+{
+    return pmGetUsername(username);
+}
+
+#undef __pmSetProcessIdentity
+int
+__pmSetProcessIdentity(const char *username)
+{
+    return pmSetProcessIdentity(username);
+}

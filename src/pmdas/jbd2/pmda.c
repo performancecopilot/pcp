@@ -248,7 +248,7 @@ jbd2_init(pmdaInterface *dp)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "jbd2 DSO", helppath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -293,7 +293,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(help, sizeof(help), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

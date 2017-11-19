@@ -775,7 +775,7 @@ main(int argc, char **argv)
 
     /* The systemwide journal may be accessed by the adm user (group);
        root access is not necessary. */
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
     desc.comm.flags |= PDU_FLAG_AUTH;
     pmdaConnect(&desc);
     // After this point, systemd_init is allowed to take some extra time.

@@ -126,6 +126,8 @@ usr/share/man/man3/pmgetopt_r.3.gz
 usr/share/man/man3/pmgetpmnslocation.3.gz
 usr/share/man/man3/pmGetPMNSLocation.3.gz
 usr/share/man/man3/pmGetProgname.3.gz
+usr/share/man/man3/pmgetusername.3.gz
+usr/share/man/man3/pmGetUsername.3.gz
 usr/share/man/man3/pmgetversion.3.gz
 usr/share/man/man3/pmGetVersion.3.gz
 usr/share/man/man3/pmiaddinstance.3.gz
@@ -282,6 +284,8 @@ usr/share/man/man3/pmSetDebug.3.gz
 usr/share/man/man3/__pmSetDebugBits.3.gz
 usr/share/man/man3/pmsetmode.3.gz
 usr/share/man/man3/pmSetMode.3.gz
+usr/share/man/man3/pmsetprocessidentity.3.gz
+usr/share/man/man3/pmSetProcessIdentity.3.gz
 usr/share/man/man3/pmsetprogname.3.gz
 usr/share/man/man3/pmSetProgname.3.gz
 usr/share/man/man3/pmsortinstances.3.gz

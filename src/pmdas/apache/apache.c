@@ -464,7 +464,7 @@ apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void 
 apache_init(pmdaInterface *dp)
 {
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     if ((http_client = pmhttpNewClient()) == NULL) {
 	pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
@@ -485,7 +485,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

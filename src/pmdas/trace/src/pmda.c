@@ -155,7 +155,7 @@ main(int argc, char **argv)
     int			sts;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -226,7 +226,7 @@ main(int argc, char **argv)
     debuglibrary();
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
     traceInit(&dispatch);
     pmdaConnect(&dispatch);
     traceMain(&dispatch);

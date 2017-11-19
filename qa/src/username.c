@@ -9,7 +9,7 @@
 #include "localconfig.h"
 
 #if PCP_VER < 3611
-#define __pmSetProcessIdentity(x) (exit(1), 1)
+#define pmSetProcessIdentity(x) (exit(1), 1)
 #endif
 
 static void
@@ -27,7 +27,7 @@ main(int argc, char* argv[])
     pmSetProgname(argv[0]);
     if (argc != 2)
 	usage();
-    sts = __pmSetProcessIdentity(argv[1]);
+    sts = pmSetProcessIdentity(argv[1]);
     pause();
     return sts;
 }

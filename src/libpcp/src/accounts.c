@@ -599,7 +599,7 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 #endif
 
 int
-__pmSetProcessIdentity(const char *username)
+pmSetProcessIdentity(const char *username)
 {
     gid_t gid;
     uid_t uid;

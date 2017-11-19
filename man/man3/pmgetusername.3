@@ -1,0 +1,59 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMGETUSERAME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetUsername\f1 \- fetch special PCP username
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmGetUsername(char **\fIusername\fP)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Within the Performance Co-Pilot (PCP) some applications use a
+special (non-root) username to allow access, e.g. to write log files
+into protected directories.
+.PP
+.B pmGetUsername
+returns the name via
+.IR username .
+.PP
+The variable name
+.B PCP_USER
+is fetched using
+.BR pmGetOptionalConfig (3).
+If this succeeds,
+.B pmGetUsername
+returns 1.
+Otherwise.
+.I username
+is set to the default value of
+.B pcp
+and
+.B pmGetUsername
+returns 0.
+.PP
+.B pmGetUsername
+is most often used in conjunction with
+.BR pmSetProcessIdentity (3)
+at process start up.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetOptionalConfig (3)
+and
+.BR pmSetProcessIdentity (3).

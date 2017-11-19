@@ -651,7 +651,7 @@ getargs(int argc, char *argv[])
 
     if (isdaemon) {			/* daemon mode */
 	/* done before opening log to get permissions right */
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
 
 #if defined(HAVE_TERMIO_SIGNALS)
 	signal(SIGTTOU, SIG_IGN);
@@ -922,7 +922,7 @@ interact(void)
 int
 main(int argc, char **argv)
 {
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     setlinebuf(stdout);
 
     /* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */

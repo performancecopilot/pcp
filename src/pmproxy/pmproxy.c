@@ -529,7 +529,7 @@ main(int argc, char *argv[])
     char	*envstr;
 
     umask(022);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
     __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
 
@@ -574,7 +574,7 @@ main(int argc, char *argv[])
     maxReqPortFd = maxSockFd = sts;
 
     /* lose root privileges if we have them */
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);

@@ -1189,6 +1189,15 @@ PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 /* filesystem path name separator */
 PCP_CALL extern int pmPathSeparator(void);
 
+/* platform independent set process identity */
+PCP_CALL extern int pmSetProcessIdentity(const char *);
+
+/*
+ * get special PCP user name (for pmSetProcessIdentity() use) ...
+ * default is "pcp"
+ */
+PCP_CALL extern int pmGetUsername(char **);
+
 #ifdef __cplusplus
 }
 #endif

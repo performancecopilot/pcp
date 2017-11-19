@@ -153,12 +153,12 @@ setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *name;
     char *keyword_list[] = {"name", NULL};
-    extern int __pmSetProcessIdentity(const char *);
+    extern int pmSetProcessIdentity(const char *);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "s:pmSetProcessIdentity", keyword_list, &name))
         return NULL;
-    return Py_BuildValue("i", __pmSetProcessIdentity(name));
+    return Py_BuildValue("i", pmSetProcessIdentity(name));
 }
 
 static PyObject *

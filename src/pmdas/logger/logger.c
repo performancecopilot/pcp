@@ -346,7 +346,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
     char name[MAXPATHLEN * 2];
     dynamic_metric_info_t *pinfo;
 
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     /* Read and parse config file. */
     if ((numloggers = event_config(configfile)) < 0)
@@ -536,7 +536,7 @@ main(int argc, char **argv)
     int			c, err = 0, sep = pmPathSeparator();
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
