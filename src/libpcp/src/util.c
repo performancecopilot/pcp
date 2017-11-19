@@ -833,8 +833,8 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 {
     struct timespec	tsstamp;
     struct timeval	tvstamp;
-    __pmTimespec 	*tsp;
-    __pmTimeval 	*tvp;
+    pmTimespec 	*tsp;
+    pmTimeval 	*tvp;
     unsigned int	flags;
     size_t		size;
     char		*base;
@@ -848,7 +848,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	pmHighResEventArray *hreap = (pmHighResEventArray *)val->value.pval;
 	nrecords = hreap->ea_nrecords;
 	base = (char *)&hreap->ea_record[0];
-	tsp = (__pmTimespec *)base;
+	tsp = (pmTimespec *)base;
 	tsstamp.tv_sec = tsp->tv_sec;
 	tsstamp.tv_nsec = tsp->tv_nsec;
     }
@@ -856,7 +856,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	pmEventArray *eap = (pmEventArray *)val->value.pval;
 	nrecords = eap->ea_nrecords;
 	base = (char *)&eap->ea_record[0];
-	tvp = (__pmTimeval *)base;
+	tvp = (pmTimeval *)base;
 	tvstamp.tv_sec = tvp->tv_sec;
 	tvstamp.tv_usec = tvp->tv_usec;
     }
@@ -908,13 +908,13 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	if (nrecords > 1) {
 	    fprintf(f, "...");
 	    if (highres) {
-		tsp = (__pmTimespec *)base;
+		tsp = (pmTimespec *)base;
 		tsstamp.tv_sec = tsp->tv_sec;
 		tsstamp.tv_nsec = tsp->tv_nsec;
 		pmPrintHighResStamp(f, &tsstamp);
 	    }
 	    else {
-		tvp = (__pmTimeval *)base;
+		tvp = (pmTimeval *)base;
 		tvstamp.tv_sec = tvp->tv_sec;
 		tvstamp.tv_usec = tvp->tv_usec;
 		pmPrintStamp(f, &tvstamp);
@@ -1175,10 +1175,10 @@ __pmGetTimespec(struct timespec *ts)
 }
 
 /*
- * a : b for __pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
+ * a : b for pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
  */
 int
-__pmTimevalCmp(const __pmTimeval *a, const __pmTimeval *b)
+pmTimevalCmp(const pmTimeval *a, const pmTimeval *b)
 {
     int res = (int)(a->tv_sec - b->tv_sec);
 
@@ -1190,11 +1190,11 @@ __pmTimevalCmp(const __pmTimeval *a, const __pmTimeval *b)
 
 /*
  * Difference for two of the internal timestamps ...
- * Same as pmtimevalSub() in tv.c, just with __pmTimeval args
+ * Same as pmtimevalSub() in tv.c, just with pmTimeval args
  * rather than struct timeval args.
  */
 double
-__pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
+pmTimevalSub(const pmTimeval *ap, const pmTimeval *bp)
 {
      return (double)(ap->tv_sec - bp->tv_sec + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000);
 }
@@ -1228,11 +1228,11 @@ pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 }
 
 /*
- * print __pmTimeval timestamp in HH:MM:SS.XXX format
- * (__pmTimeval variant used in PDUs, archives and internally)
+ * print pmTimeval timestamp in HH:MM:SS.XXX format
+ * (pmTimeval variant used in PDUs, archives and internally)
  */
 void
-__pmPrintTimeval(FILE *f, const __pmTimeval *tp)
+__pmPrintTimeval(FILE *f, const pmTimeval *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1243,11 +1243,11 @@ __pmPrintTimeval(FILE *f, const __pmTimeval *tp)
 }
 
 /*
- * print __pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format
- * (__pmTimespec variant used in events, archives and internally)
+ * print pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format
+ * (pmTimespec variant used in events, archives and internally)
  */
 void
-__pmPrintTimespec(FILE *f, const __pmTimespec *tp)
+__pmPrintTimespec(FILE *f, const pmTimespec *tp)
 {
     struct tm	tmp;
     time_t	now;

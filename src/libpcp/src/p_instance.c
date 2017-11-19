@@ -24,14 +24,14 @@
 typedef struct {
     __pmPDUHdr		hdr;
     pmInDom		indom;
-    __pmTimeval		when;			/* desired time */
+    pmTimeval		when;			/* desired time */
     int			inst;			/* may be PM_IN_NULL */
     int			namelen;		/* chars in name[], may be 0 */
     char		name[sizeof(int)];	/* may be missing */
 } instance_req_t;
 
 int
-__pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom, 
+__pmSendInstanceReq(int fd, int from, const pmTimeval *when, pmInDom indom, 
 		    int inst, const char *name)
 {
     instance_req_t	*pp;
@@ -72,7 +72,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
 }
 
 int
-__pmDecodeInstanceReq(__pmPDU *pdubuf, __pmTimeval *when, pmInDom *indom, int *inst, char **name)
+__pmDecodeInstanceReq(__pmPDU *pdubuf, pmTimeval *when, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
     char		*pdu_end;

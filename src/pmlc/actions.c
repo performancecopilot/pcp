@@ -28,9 +28,9 @@ static time_t	tmp;		/* for pmCtime */
 
 /* PCP 1.x pmlogger returns one of these when a status request is made */
 typedef struct {
-    __pmTimeval  ls_start;	/* start time for log */
-    __pmTimeval  ls_last;	/* last time log written */
-    __pmTimeval  ls_timenow;	/* current time */
+    pmTimeval  ls_start;	/* start time for log */
+    pmTimeval  ls_last;	/* last time log written */
+    pmTimeval  ls_timenow;	/* current time */
     int		ls_state;	/* state of log (from __pmLogCtl) */
     int		ls_vol;		/* current volume number of log */
     __int64_t	ls_size;	/* size of current volume */
@@ -563,9 +563,9 @@ void Status(int pid, int primary)
     static char		localzone[] = "local"; 
     static char		*zonename = localzone;
     char		*tzlogger;
-    __pmTimeval		*start;
-    __pmTimeval		*last;
-    __pmTimeval		*timenow;
+    pmTimeval		*start;
+    pmTimeval		*last;
+    pmTimeval		*timenow;
     char		*hostname;
     int			state;
     int			vol;

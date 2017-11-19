@@ -193,11 +193,11 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	    else
 		__pmFseek(acp->ac_log->l_mfp, cp->head_posn, SEEK_SET);
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
-		__pmTimeval	tmp;
+		pmTimeval	tmp;
 		double		t_this;
 		tmp.tv_sec = (__int32_t)cp->rp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)cp->rp->timestamp.tv_usec;
-		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(acp));
+		t_this = pmTimevalSub(&tmp, __pmLogStartTime(acp));
 		fprintf(stderr, "hit cache[%d] t=%.6f\n",
 		    (int)(cp - cache), t_this);
 		nr_cache[mode]++;
@@ -400,14 +400,14 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     pmidcntl_t	*pcp;
     instcntl_t	*icp;
     double	t_this;
-    __pmTimeval	tmp;
+    pmTimeval	tmp;
     int		changed;
     static int	ignore_mark_records = -1;
     static double	ignore_mark_gap = 0;
 
     tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
     tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+    t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 
     if (logrp->numpmid == 0) {
 	if (ignore_mark_records == -1) {
@@ -494,7 +494,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 	    }
 	    tmp.tv_sec = (__int32_t)peek->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)peek->timestamp.tv_usec;
-	    t_next = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_next = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    pmFreeResult(peek);
 
 	    /* backup -> should be <next> record */
@@ -537,7 +537,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 	    }
 	    tmp.tv_sec = (__int32_t)peek->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)peek->timestamp.tv_usec;
-	    t_prior = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_prior = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    pmFreeResult(peek);
 
 	    /* backup -> should be <prior> record */
@@ -814,7 +814,7 @@ static int
 do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 {
     pmResult	*logrp;
-    __pmTimeval	tmp;
+    pmTimeval	tmp;
     double	t_this;
     int		sts;
 
@@ -826,7 +826,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this > t_req)
 		break;
 
@@ -845,7 +845,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this < t_req)
 		break;
 
@@ -900,7 +900,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		done_roll;
     int		seen_mark;
     static int	dowrap = -1;
-    __pmTimeval	tmp;
+    pmTimeval	tmp;
     struct timeval delta_tv;
 
     PM_LOCK(__pmLock_extcall);
@@ -913,7 +913,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
     PM_UNLOCK(__pmLock_extcall);
 
-    t_req = __pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
+    t_req = pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
 
     if (pmDebugOptions.interp) {
 	fprintf(stderr, "__pmLogFetchInterp @ ");
@@ -937,7 +937,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
     if (t_req > ctxp->c_archctl->ac_end + 0.001) {
 	struct timeval	end;
-	__pmTimeval	tmp;
+	pmTimeval	tmp;
 
 	/*
 	 * Past end of the current archive ... see if it has grown since we
@@ -946,7 +946,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (__pmGetArchiveEnd_ctx(ctxp, &end) >= 0) {
 	    tmp.tv_sec = (__int32_t)end.tv_sec;
 	    tmp.tv_usec = (__int32_t)end.tv_usec;
-	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    ctxp->c_archctl->ac_end = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	}
 	/* Check if request time is past the end of this archive
 	 * and there are no subsequent archives
@@ -1094,7 +1094,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
 		tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+		t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this <= t_req) {
 		    break;
 		}
@@ -1111,7 +1111,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
 		tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+		t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this > t_req) {
 		    break;
 		}
@@ -1232,7 +1232,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_log->l_mfp);
@@ -1363,7 +1363,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_log->l_mfp);
@@ -1970,7 +1970,7 @@ __pmLogResetInterp(__pmContext *ctxp)
     if (hcp->hsize == 0)
 	return;
 
-    t_req = __pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
+    t_req = pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
 
     for (k = 0; k < hcp->hsize; k++) {
 	for (hp = hcp->hash[k]; hp != NULL; hp = hp->next) {

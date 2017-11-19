@@ -139,7 +139,7 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
  */
 
 static char *
-StrTimeval(__pmTimeval *tp)
+StrTimeval(pmTimeval *tp)
 {
     if (tp == NULL) {
 	static char *null_timeval = "<null timeval>";
@@ -157,7 +157,7 @@ StrTimeval(__pmTimeval *tp)
 }
 
 static int
-addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst, 
+addindom(__pmLogCtl *lcp, pmInDom indom, const pmTimeval *tp, int numinst, 
          int *instlist, char **namelist, int *indom_buf, int allinbuf)
 {
     __pmLogInDom	*idp;
@@ -175,7 +175,7 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
 
     if (pmDebugOptions.logmeta)
 	fprintf(stderr, "addindom( ..., %s, %s, numinst=%d)\n",
-	    pmInDomStr(indom), StrTimeval((__pmTimeval *)tp), numinst);
+	    pmInDomStr(indom), StrTimeval((pmTimeval *)tp), numinst);
 
 
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
@@ -360,7 +360,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	else if (h.type == TYPE_INDOM) {
 	    int			*tbuf;
 	    pmInDom		indom;
-	    __pmTimeval		*when;
+	    pmTimeval		*when;
 	    int			numinst;
 	    int			*instlist;
 	    char		**namelist;
@@ -389,7 +389,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	    }
 
 	    k = 0;
-	    when = (__pmTimeval *)&tbuf[k];
+	    when = (pmTimeval *)&tbuf[k];
 	    when->tv_sec = ntohl(when->tv_sec);
 	    when->tv_usec = ntohl(when->tv_usec);
 	    k += sizeof(*when)/sizeof(int);

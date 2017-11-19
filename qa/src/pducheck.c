@@ -127,7 +127,7 @@ _z(void)
     pmDesc		result_desc;
     pmDesc		*descp = &result_desc;
     int			ctxnum;
-    __pmTimeval		now;
+    pmTimeval		now;
     pmProfile		curprof;
     pmInDomProfile	idp[2];
     pmProfile		*profp;
@@ -489,7 +489,7 @@ _z(void)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendFetch(fd[1], mypid, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
+    if ((e = __pmSendFetch(fd[1], mypid, 43, (pmTimeval *)0, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
@@ -641,7 +641,7 @@ _z(void)
     now.tv_sec = 60 * 60 * 60;		/* 60 hrs after the epoch */
     now.tv_usec = 654321;		/* plus a gnat */
     for (i = 0; i < n; i++) {
-	__pmTimeval	tmp;
+	pmTimeval	tmp;
 	if ((e = __pmSendInstanceReq(fd[1], mypid, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
 	    fatal = 1;

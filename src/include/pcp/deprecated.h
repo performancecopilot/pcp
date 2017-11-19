@@ -46,6 +46,8 @@
  * __pmPathSeparator()		pmPathSeparator()
  * __pmGetUsername()		pmGetUsername()
  * __pmSetProcessIdentity()	pmSetProcessIdentity()
+ * __pmTimeval			pmTimeval
+ * __pmTimespec			pmTimespec
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -112,5 +114,7 @@ PCP_DATA extern int pmDebug;
 #define __pmPathSeparator pmPathSeparator
 #define __pmGetUsername pmGetUsername
 #define __pmSetProcessIdentity pmSetProcessIdentity
+#define __pmTimeval pmTimeval
+#define __pmTimespec pmTimespec
 
 #endif /* PCP_DEPRECATED_H */

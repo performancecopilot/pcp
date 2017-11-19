@@ -90,7 +90,7 @@ run_done(int sts, char *msg)
      * _before_ the last log record
      */
     if (last_stamp.tv_sec != 0) {
-	__pmTimeval	tmp;
+	pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
 	__pmFseek(logctl.l_mfp, last_log_offset, SEEK_SET);

@@ -97,7 +97,7 @@ doscan(struct timeval *end)
 		__pmPDU		len;
 		__pmPDU		type;
 		__pmPDU		from;
-		__pmTimeval	timestamp;
+		pmTimeval	timestamp;
 		int		numpmid;	/* zero PMIDs to follow */
 		__pmPDU		trailer;
 	    } markrec;

@@ -31,7 +31,7 @@
 #include "./lex.h"
 #include "./gram.h"
 
-static __pmTimeval	now;
+static pmTimeval	now;
 
 int			infd;
 int			outfd;

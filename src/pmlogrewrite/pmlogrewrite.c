@@ -870,7 +870,7 @@ main(int argc, char **argv)
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		needti = 0;
     int		doneti = 0;
-    __pmTimeval	tstamp = { 0 };		/* for last log record */
+    pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
     int		seen_event = 0;
@@ -1202,7 +1202,7 @@ main(int argc, char **argv)
 	    }
 	    else if (stsmeta == TYPE_INDOM) {
 		struct timeval	stamp;
-		__pmTimeval	*tvp = (__pmTimeval *)&inarch.metarec[2];
+		pmTimeval	*tvp = (pmTimeval *)&inarch.metarec[2];
 		stamp.tv_sec = ntohl(tvp->tv_sec);
 		stamp.tv_usec = ntohl(tvp->tv_usec);
 		if (fixstamp(&stamp)) {

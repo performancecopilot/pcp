@@ -265,7 +265,7 @@ Options:\n\
 		continue;
 	    }
 	    else {
-		__pmTimeval	now;
+		pmTimeval	now;
 		int		iter;
 		__pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
 		PM_UNLOCK(ctxp->c_lock);

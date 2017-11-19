@@ -109,7 +109,7 @@ again:
 	    fprintf(stderr, "@");
 	    if (sts >= 0) {
 		struct timeval	stamp;
-		__pmTimeval		*tvp = (__pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
+		pmTimeval		*tvp = (pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
 		stamp.tv_sec = ntohl(tvp->tv_sec);
 		stamp.tv_usec = ntohl(tvp->tv_usec);
 		pmPrintStamp(stderr, &stamp);
@@ -123,7 +123,7 @@ again:
     if (pmDebugOptions.pdu) {
 	int		i, j;
 	struct timeval	stamp;
-	__pmTimeval	*tvp = (__pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
+	pmTimeval	*tvp = (pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
 	fprintf(stderr, "_pmLogGet");
 	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM) {
 	    fprintf(stderr, " timestamp=");

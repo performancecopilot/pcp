@@ -199,7 +199,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     pmProfile		*profile;
     pmResult		*result = NULL;
     int			sts = 0;
-    static __pmTimeval	when = {0, 0};	/* Agents never see archive requests */
+    static pmTimeval	when = {0, 0};	/* Agents never see archive requests */
     int			bad = 0;
     int			i;
 
@@ -341,7 +341,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     int			i, j;
     int 		sts;
     int			ctxnum;
-    __pmTimeval		when;
+    pmTimeval		when;
     int			nPmids;
     pmID		*pmidList;
     static pmResult	*endResult = NULL;

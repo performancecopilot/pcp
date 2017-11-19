@@ -221,7 +221,7 @@ setavail(pmResult *resp)
  * It is a merger of __pmLogGetIndom and searchindom.
  */
 static int
-__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int **instlist, char ***namelist)
+__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -296,7 +296,7 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 }
 
 static int
-manageLabels(pmDesc *desc, const __pmTimeval *tp, int only_instances)
+manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
 {
     int		i = 0;
     int		len;
@@ -549,8 +549,8 @@ do_work(task_t *tp)
     int			numinst;
     int			*instlist;
     char		**namelist;
-    __pmTimeval		tmp;
-    __pmTimeval		resp_tval;
+    pmTimeval		tmp;
+    pmTimeval		resp_tval;
     unsigned long	peek_offset;
 
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
@@ -796,7 +796,7 @@ do_work(task_t *tp)
 		 * the timestamp of the retrieved indom is also returned. The timestamp
 		 * is then used to decide if the indom needs to be refreshed.
 		 */
-		__pmTimeval indom_tval;
+		pmTimeval indom_tval;
 		numinst = __localLogGetInDom(&logctl, desc.indom, &indom_tval, &instlist, &namelist);
 		if (numinst < 0)
 		    needindom = 1;
@@ -824,7 +824,7 @@ do_work(task_t *tp)
 		 * of the target instance domain.
 		 */
 		if (needindom == 0 && lfp->lf_resp != (pmResult *)0 &&
-		    __pmTimevalSub(&resp_tval, &indom_tval) < 0 )
+		    pmTimevalSub(&resp_tval, &indom_tval) < 0 )
 		    needindom = check_inst(vsp, i, lfp->lf_resp);
 
 		if (needindom) {
@@ -987,7 +987,7 @@ putmark(void)
 {
     struct {
 	__pmPDU		hdr;
-	__pmTimeval	timestamp;	/* when returned */
+	pmTimeval	timestamp;	/* when returned */
 	int		numpmid;	/* zero PMIDs to follow */
 	__pmPDU		tail;
     } mark;

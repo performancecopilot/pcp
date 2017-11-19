@@ -1291,7 +1291,7 @@ cleanup:
 }
 
 void
-__pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
+__pmLogPutIndex(const __pmLogCtl *lcp, const pmTimeval *tp)
 {
     __pmLogTI	ti;
     __pmLogTI	oti;
@@ -1395,12 +1395,12 @@ logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
 
     if (lcp->l_state == PM_LOG_STATE_NEW) {
 	int		i;
-	__pmTimeval	*tvp;
+	pmTimeval	*tvp;
 	/*
 	 * first result, do the label record
 	 */
 	i = sizeof(__pmPDUHdr) / sizeof(__pmPDU);
-	tvp = (__pmTimeval *)&pb[i];
+	tvp = (pmTimeval *)&pb[i];
 	lcp->l_label.ill_start.tv_sec = ntohl(tvp->tv_sec);
 	lcp->l_label.ill_start.tv_usec = ntohl(tvp->tv_usec);
 	lcp->l_label.ill_vol = PM_LOG_VOL_TI;
@@ -1496,7 +1496,7 @@ paranoidCheck(int len, __pmPDU *pb)
 
     struct result_t {			/* from p_result.c */
 	__pmPDUHdr		hdr;
-	__pmTimeval		timestamp;	/* when returned */
+	pmTimeval		timestamp;	/* when returned */
 	int			numpmid;	/* no. of PMIDs to follow */
 	__pmPDU			data[1];	/* zero or more */
     }			*pp;
@@ -2056,12 +2056,12 @@ again:
     if (pmDebugOptions.log) {
 	head -= sizeof(head) + sizeof(trail);
 	if (sts >= 0) {
-	    __pmTimeval	tmp;
+	    pmTimeval	tmp;
 	    fprintf(stderr, "@");
 	    pmPrintStamp(stderr, &(*result)->timestamp);
 	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
+	    fprintf(stderr, " (t=%.6f)", pmTimevalSub(&tmp, &lcp->l_label.ill_start));
 	}
 	else {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -2155,7 +2155,7 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     __pmHashNode	*hp;
     pmid_ctl	*pcp;
     int		nskip;
-    __pmTimeval	tmp;
+    pmTimeval	tmp;
     int		ctxp_mode;
     ctx_ctl_t	ctx_ctl = { NULL, 0 };
 
@@ -2198,7 +2198,7 @@ more:
 		nskip++;
 		tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-		tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
+		tdiff = pmTimevalSub(&tmp, &ctxp->c_origin);
 		if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
 		    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
 		    pmFreeResult(*result);
@@ -2238,7 +2238,7 @@ more:
 	    break;
 	tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-	tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
+	tdiff = pmTimevalSub(&tmp, &ctxp->c_origin);
 	if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
 	    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
 		nskip++;
@@ -2468,7 +2468,7 @@ __pmLogSetTime(__pmContext *ctxp)
 {
     __pmArchCtl	*acp = ctxp->c_archctl;
     __pmLogCtl	*lcp = acp->ac_log;
-    __pmTimeval	save_origin;
+    pmTimeval	save_origin;
     int		save_mode;
     double	t_hi;
     int		mode;
@@ -2490,7 +2490,7 @@ __pmLogSetTime(__pmContext *ctxp)
      * We're looking for the first archive which starts after the origin.
      */
     for (i = 0; i < acp->ac_num_logs; ++i) {
-	t_hi = __pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
+	t_hi = pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
 	if (t_hi >= 0)
 	    break; /* found it! */
     }
@@ -2554,7 +2554,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    break;
 		}
 	    }
-	    t_hi = __pmTimevalSub(&tip->ti_stamp, &ctxp->c_origin);
+	    t_hi = pmTimevalSub(&tip->ti_stamp, &ctxp->c_origin);
 	    if (t_hi > 0) {
 		j = i;
 		break;
@@ -2612,8 +2612,8 @@ __pmLogSetTime(__pmContext *ctxp)
 	     * choose closest index point.  if toobig, [j] is not
 	     * really valid (log truncated or incomplete)
 	     */
-	    t_hi = __pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
-	    t_lo = __pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
+	    t_hi = pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
+	    t_lo = pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
 	    if (t_hi <= t_lo && !toobig) {
 		j = VolSkip(lcp, mode, j);
 		if (j < 0)
@@ -2686,7 +2686,7 @@ __pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
 
     /*
      * we have to copy the structure to hide the differences
-     * between the internal __pmTimeval and the external struct timeval
+     * between the internal pmTimeval and the external struct timeval
      */
     rlp = &lcp->l_label;
     lp->ll_magic = rlp->ill_magic;
@@ -3168,8 +3168,8 @@ LogChangeToNextArchive(__pmContext *ctxp)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     __pmArchCtl	*acp;
-    __pmTimeval prev_endtime;
-    __pmTimeval	save_origin;
+    pmTimeval prev_endtime;
+    pmTimeval	save_origin;
     int		save_mode;
 
     /*
@@ -3218,7 +3218,7 @@ LogChangeToNextArchive(__pmContext *ctxp)
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (__pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0) {
+    if (pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0) {
 	return PM_ERR_LOGOVERLAP;
     }
 
@@ -3265,8 +3265,8 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
     __pmArchCtl		*acp;
     struct timeval	current_endtime;
-    __pmTimeval		prev_starttime;
-    __pmTimeval		save_origin;
+    pmTimeval		prev_starttime;
+    pmTimeval		save_origin;
     int			save_mode;
     int			sts;
 
@@ -3326,7 +3326,7 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (__pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
+    if (pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
     }
@@ -3362,7 +3362,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     return sts;
 }
 
-__pmTimeval *
+pmTimeval *
 __pmLogStartTime(__pmArchCtl *acp)
 {
     return &acp->ac_log_list[0]->ml_starttime;

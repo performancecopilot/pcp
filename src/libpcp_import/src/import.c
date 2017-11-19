@@ -746,7 +746,7 @@ pmiPutMark(void)
     __pmLogCtl *lcp;
     struct {
 	__pmPDU		hdr;
-	__pmTimeval	timestamp;	/* when returned */
+	pmTimeval	timestamp;	/* when returned */
 	int		numpmid;	/* zero PMIDs to follow */
 	__pmPDU		tail;
     } mark;

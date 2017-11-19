@@ -243,7 +243,7 @@ int
 DoInstance(ClientInfo *cp, __pmPDU *pb)
 {
     int			sts, s;
-    __pmTimeval		when;
+    pmTimeval		when;
     pmInDom		indom;
     int			inst;
     char		*name;

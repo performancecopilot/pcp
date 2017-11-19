@@ -394,13 +394,13 @@ decode_profile(const char *name)
 static void
 decode_fetch(const char *name)
 {
-    __pmTimeval		when;
+    pmTimeval		when;
     pmID		*pmidlist;
     int			sts, ctx, count;
     struct fetch {
 	__pmPDUHdr	hdr;
 	int		ctxnum;
-	__pmTimeval	when;
+	pmTimeval	when;
 	int		numpmid;
 	pmID		pmidlist[0];
     } *fetch;
@@ -498,14 +498,14 @@ decode_desc(const char *name)
 static void
 decode_instance_req(const char *name)
 {
-    __pmTimeval		when;
+    pmTimeval		when;
     pmInDom		indom;
     int			inst, sts;
     char		*resname;
     struct instance_req {
 	__pmPDUHdr	hdr;
 	pmInDom		indom;
-	__pmTimeval	when;
+	pmTimeval	when;
 	int		inst;
 	int		namelen;
 	char		name[0];
@@ -1055,7 +1055,7 @@ decode_result(const char *name)
     pmResult		*resp;
     struct result {
 	__pmPDUHdr	hdr;
-	__pmTimeval	stamp;
+	pmTimeval	stamp;
 	int		numpmid;
 	__pmPDU		data[0];
     } *result;

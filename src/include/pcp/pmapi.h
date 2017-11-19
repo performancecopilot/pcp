@@ -603,15 +603,15 @@ PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
  * PDUs, internally within libpcp and for (external) archive logs
  */
-typedef struct __pmTimeval {
+typedef struct pmTimeval {
     __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
     __int32_t	tv_usec;	/* and microseconds */
-} __pmTimeval;
+} pmTimeval;
 
-typedef struct __pmTimespec {
+typedef struct pmTimespec {
     __int64_t	tv_sec;		/* seconds since Jan. 1, 1970 */
     __int64_t	tv_nsec;	/* and nanoseconds */
-} __pmTimespec;
+} pmTimespec;
 
 /*
  * Label Record at the start of every log file - as exported above
@@ -620,7 +620,7 @@ typedef struct __pmTimespec {
  *	it may vary on different hosts ... we use PM_LOG_MAXHOSTLEN instead, and
  *	size this to be the same as MAXHOSTNAMELEN in IRIX 5.3
  * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
- *	for internal use that has a __pmTimeval in place of the struct timeval.
+ *	for internal use that has a pmTimeval in place of the struct timeval.
  */
 #define PM_TZ_MAXLEN	40
 #define PM_LOG_MAXHOSTLEN		64
@@ -984,14 +984,14 @@ typedef struct pmEventParameter {
 } pmEventParameter;
 
 typedef struct pmEventRecord {
-    __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
+    pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
 typedef struct pmHighResEventRecord {
-    __pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
+    pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];

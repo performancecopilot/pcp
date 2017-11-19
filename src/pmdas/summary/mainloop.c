@@ -37,7 +37,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
     pmID		*pmidlist;
     pmResult		*result;
     int			ctxnum;
-    __pmTimeval		when;
+    pmTimeval		when;
     int			ident;
     int			type;
     pmInDom		indom;

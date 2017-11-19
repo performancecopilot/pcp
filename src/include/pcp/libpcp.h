@@ -383,14 +383,14 @@ PCP_CALL extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
 PCP_CALL extern int __pmDecodeResult(__pmPDU *, pmResult **);
 PCP_CALL extern int __pmSendProfile(int, int, int, pmProfile *);
 PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, pmProfile **);
-PCP_CALL extern int __pmSendFetch(int, int, int, __pmTimeval *, int, pmID *);
-PCP_CALL extern int __pmDecodeFetch(__pmPDU *, int *, __pmTimeval *, int *, pmID **);
+PCP_CALL extern int __pmSendFetch(int, int, int, pmTimeval *, int, pmID *);
+PCP_CALL extern int __pmDecodeFetch(__pmPDU *, int *, pmTimeval *, int *, pmID **);
 PCP_CALL extern int __pmSendDescReq(int, int, pmID);
 PCP_CALL extern int __pmDecodeDescReq(__pmPDU *, pmID *);
 PCP_CALL extern int __pmSendDesc(int, int, pmDesc *);
 PCP_CALL extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
-PCP_CALL extern int __pmSendInstanceReq(int, int, const __pmTimeval *, pmInDom, int, const char *);
-PCP_CALL extern int __pmDecodeInstanceReq(__pmPDU *, __pmTimeval *, pmInDom *, int *, char **);
+PCP_CALL extern int __pmSendInstanceReq(int, int, const pmTimeval *, pmInDom, int, const char *);
+PCP_CALL extern int __pmDecodeInstanceReq(__pmPDU *, pmTimeval *, pmInDom *, int *, char **);
 PCP_CALL extern int __pmSendInstance(int, int, pmInResult *);
 PCP_CALL extern int __pmDecodeInstance(__pmPDU *, pmInResult **);
 PCP_CALL extern int __pmSendTextReq(int, int, int, int);
@@ -686,7 +686,7 @@ typedef struct __pmLogHdr {
  */
 typedef struct __pmLogInDom {
     struct __pmLogInDom	*next;
-    __pmTimeval		stamp;
+    pmTimeval		stamp;
     int			numinst;
     int			*instlist;
     char		**namelist;
@@ -729,7 +729,7 @@ typedef struct __pmLogText {
  */
 typedef struct __pmLogLabelSet {
     struct __pmLogLabelSet *next;
-    __pmTimeval		stamp;
+    pmTimeval		stamp;
     int			type;
     int			ident;
     int			nsets;
@@ -743,7 +743,7 @@ typedef struct __pmLogLabelSet {
 typedef struct {
     int		ill_magic;	/* PM_LOG_MAGIC | log format version no. */
     int		ill_pid;			/* PID of logger */
-    __pmTimeval	ill_start;			/* start of this log */
+    pmTimeval	ill_start;			/* start of this log */
     int		ill_vol;			/* current log volume no. */
     char	ill_hostname[PM_LOG_MAXHOSTLEN];/* name of collection host */
     char	ill_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
@@ -754,7 +754,7 @@ typedef struct {
  * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
-    __pmTimeval	ti_stamp;	/* now */
+    pmTimeval	ti_stamp;	/* now */
     int		ti_vol;		/* current log volume no. */
     __pm_off_t	ti_meta;	/* end of meta data file */
     __pm_off_t	ti_log;		/* end of metrics log file */
@@ -784,7 +784,7 @@ typedef struct {
     __pmLogLabel l_label;	/* (when reading) log label */
     __pm_off_t	l_physend;	/* (when reading) offset to physical EOF */
 				/*                for last volume */
-    __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
+    pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
     struct __pmnsTree	*l_pmns;        /* namespace from meta data */
@@ -800,7 +800,7 @@ typedef struct {
  */
 typedef struct {
     char		*ml_name;	/* external log base name */
-    __pmTimeval		ml_starttime;	/* start time of the archive */
+    pmTimeval		ml_starttime;	/* start time of the archive */
     char		*ml_hostname;	/* name of collection host */
     char		*ml_tz;		/* $TZ at collection host */
 } __pmMultiLogCtl;
@@ -842,7 +842,7 @@ typedef struct {
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
-    __pmTimeval		c_origin;	/* pmFetch time origin / current time */
+    pmTimeval		c_origin;	/* pmFetch time origin / current time */
     int			c_delta;	/* for updating origin */
     int			c_sent;		/* profile has been sent to pmcd */
     pmProfile		*c_instprof;	/* instance profile */
@@ -868,11 +868,11 @@ PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *)
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmLogCtl *);
 PCP_CALL extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
-PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const __pmTimeval *, int, int *, char **);
+PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const pmTimeval *, int, int *, char **);
 PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);
-PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
-PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimeval *);
+PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const pmTimeval *);
+PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *, unsigned int, unsigned int, int, pmLabelSet *, const pmTimeval *);
 PCP_CALL extern int __pmLogPutText(__pmLogCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **);
@@ -886,16 +886,16 @@ PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **,
 PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
 PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 PCP_CALL extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
-PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **, char ***);
+PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, pmTimeval *, int **, char ***);
 PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 PCP_CALL extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
 #define PMLOGPUTINDOM_DUP       1
-PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
-PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *, unsigned int, unsigned int, pmLabelSet **, const __pmTimeval *);
+PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, pmTimeval *, const char *);
+PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *, unsigned int, unsigned int, pmLabelSet **, const pmTimeval *);
 PCP_CALL extern int __pmLogLookupText(__pmLogCtl *, unsigned int , unsigned int, char **);
-PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
-PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
+PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, pmTimeval *, int, char **);
+PCP_CALL extern pmTimeval *__pmLogStartTime(__pmArchCtl *);
 PCP_CALL extern void __pmLogSetTime(__pmContext *);
 PCP_CALL extern void __pmLogCacheClear(__pmFILE *);
 PCP_CALL extern void __pmLogResetInterp(__pmContext *);
@@ -971,9 +971,9 @@ PCP_CALL extern int __pmAFisempty(void);
 #define LOG_REQUEST_STATUS	2
 #define LOG_REQUEST_SYNC	3
 typedef struct {
-    __pmTimeval  ls_start;	/* start time for log */
-    __pmTimeval  ls_last;	/* last time log written */
-    __pmTimeval  ls_timenow;	/* current time */
+    pmTimeval  ls_start;	/* start time for log */
+    pmTimeval  ls_last;	/* last time log written */
+    pmTimeval  ls_timenow;	/* current time */
     int		ls_state;	/* state of log (from __pmLogCtl) */
     int		ls_vol;		/* current volume number of log */
     __int64_t	ls_size;	/* size of current volume */
@@ -1259,8 +1259,8 @@ PCP_CALL extern void __pmtimevalSleep(struct timeval);
 PCP_CALL extern void __pmtimevalPause(struct timeval);
 
 /* manipulate internal timestamps */
-PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
-PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
+PCP_CALL extern int pmTimevalCmp(const pmTimeval *, const pmTimeval *);
+PCP_CALL extern double pmTimevalSub(const pmTimeval *, const pmTimeval *);
 
 /* reverse ctime, time interval parsing, time conversions */
 PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
@@ -1378,8 +1378,8 @@ PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
-PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
-PCP_CALL extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
+PCP_CALL extern void __pmPrintTimeval(FILE *, const pmTimeval *);
+PCP_CALL extern void __pmPrintTimespec(FILE *, const pmTimespec *);
 PCP_CALL extern void __pmPrintIPC(void);
 PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */

@@ -80,7 +80,7 @@ writelabel(void)
  *  switch output volumes
  */
 void
-newvolume(char *base, __pmTimeval *tvp)
+newvolume(char *base, pmTimeval *tvp)
 {
     __pmFILE		*newfp;
     int			nextvol = logctl.l_curvol + 1;

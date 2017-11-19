@@ -46,7 +46,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     pmProfile	*profp;
     int		ctxnum;
     int		fail = -1;
-    __pmTimeval	now;
+    pmTimeval	now;
     int		numpmid;
     pmID	*pmidp;
     pmID	pmid;

@@ -32,7 +32,7 @@ main(int argc, char **argv)
     pmResult	*rp;
     __pmLogCtl	ctl = { 0 };
     __pmPDU	*pdp;
-    __pmTimeval	epoch = { 0, 0 };
+    pmTimeval	epoch = { 0, 0 };
     int		numinst;
     int		*ilist;
     char	**nlist;

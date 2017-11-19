@@ -53,7 +53,7 @@ typedef struct {
 #define MODE_REWRITE	1
 #define MODE_SKIP	2
 
-extern __pmTimeval	current;	/* most recent timestamp overall */
+extern pmTimeval	current;	/* most recent timestamp overall */
 extern char		*iname;		/* name of input archive */
 extern pmLogLabel	ilabel;		/* input archive label */
 extern int		numpmid;	/* all metrics from the input archive */
@@ -75,7 +75,7 @@ extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
 extern int	_pmLogPut(__pmFILE *, __pmPDU *);
 extern void	newlabel(void);
 extern void	writelabel(void);
-extern void	newvolume(char *, __pmTimeval *);
+extern void	newvolume(char *, pmTimeval *);
 
 extern pmResult *rewrite(pmResult *);
 extern void	rewrite_free(void);

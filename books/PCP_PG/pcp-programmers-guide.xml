@@ -3317,7 +3317,7 @@ in <xref linkend="id5198719"/>.</para>
         <title>
           <command>pmEventArray</command> and <command>pmEventRecord</command> Structures</title>
         <programlisting>typedef struct {
-    __pmTimeval      er_timestamp;  /* 2 x 32-bit timestamp format */
+    pmTimeval      er_timestamp;  /* 2 x 32-bit timestamp format */
     unsigned int     er_flags;      /* event record characteristics */
     int              er_nparams;    /* number of ea_param[] entries */
     pmEventParameter er_param[1];

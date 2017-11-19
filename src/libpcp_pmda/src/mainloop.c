@@ -47,7 +47,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmResult		*result;
     int			ctxnum;
     int			length;
-    __pmTimeval		when;
+    pmTimeval		when;
     int			ident;
     int			type;
     pmInDom		indom;

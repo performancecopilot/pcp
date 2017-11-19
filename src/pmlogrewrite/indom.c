@@ -192,7 +192,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
 
 typedef struct {
     __pmLogHdr	hdr;
-    __pmTimeval	stamp;
+    pmTimeval	stamp;
     pmInDom	indom;
     int		numinst;
     char	other[1];
@@ -202,7 +202,7 @@ typedef struct {
  * reverse the logic of __pmLogPutInDom()
  */
 static void
-_pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, int **instlist, char ***inamelist)
+_pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, pmTimeval *tp, int *numinst, int **instlist, char ***inamelist)
 {
     indom_t	*idp;
     int		i;
@@ -305,7 +305,7 @@ do_indom(void)
 {
     long	out_offset;
     pmInDom	indom;
-    __pmTimeval	stamp;
+    pmTimeval	stamp;
     int		numinst;
     int		*instlist;
     char	**inamelist;

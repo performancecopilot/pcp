@@ -95,7 +95,7 @@ do_size(pmResult *rp)
      * start with sizes of the header len, timestamp, numpmid, and
      * trailer len
      */
-    nbyte = sizeof(int) + sizeof(__pmTimeval) + sizeof(int);
+    nbyte = sizeof(int) + sizeof(pmTimeval) + sizeof(int);
     						/* len + timestamp + len */
     nbyte += sizeof(int);
     							/* numpmid */
