@@ -147,8 +147,8 @@ do_logue(int type)
 		if (getcwd(path, MAXPATHLEN) == NULL)
 		    atom.cp = archBase;
 		else {
-		    strcat(path, "/");
-		    strcat(path, archBase);
+		    strncat(path, "/", MAXPATHLEN);
+		    strncat(path, archBase, MAXPATHLEN-1);
 		    atom.cp = path;
 		}
 	    }
@@ -230,7 +230,7 @@ do_logue(int type)
 		 * with the string value immediately following
 		 */
 		instname[0] = (char *)&instname[1];
-		strcpy(instname[0], path);
+		strncpy(instname[0], path, strlen(path)+1);
 		/*
 		 * Note.	DO NOT free instid and instname ... they get hidden
 		 *		away in addindom() below __pmLogPutInDom()

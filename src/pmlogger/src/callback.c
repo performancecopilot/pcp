@@ -493,7 +493,7 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
 		for (j = 0; j < numnames; j++) {
 		    names[j] = data;
 		    if (j == numnames - 1) {
-			strcpy(data, tp->t_namelist[i]);
+			strncpy(data, tp->t_namelist[i], str_len);
 		    }
 		    data += (strlen(names[j]) + 1);
 		}
