@@ -20,6 +20,7 @@
  * but which we do not want to expose via pmapi.h or libpcp.h.
  */
 
+#include <stdarg.h>
 #include "compiler.h"
 #include "derive.h"
 
