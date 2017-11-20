@@ -557,7 +557,7 @@ init_ports(void)
     ctlfile = (char *)malloc(n);
     if (ctlfile == NULL)
 	pmNoMem("port file name", n, PM_FATAL_ERR);
-    strncpy(ctlfile, path, n);
+    strcpy(ctlfile, path);
 
     /* try to create the port file directory. OK if it already exists */
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
@@ -846,7 +846,7 @@ control_req(int ctlfd)
     }
     else {
 	/* this is safe, due to strlen() test above */
-	strncpy(pmlc_host, hostName, sizeof(pmlc_host));
+	strcpy(pmlc_host, hostName);
     }
     if (hostName != NULL)
 	free(hostName);

@@ -294,9 +294,9 @@ add_msg(char **bp, int nchar, char *p)
     }
     *bp = tmp_bp;
     if (nchar == 0)
-	strncpy(*bp, p, add_len+1);
+	strcpy(*bp, p);
     else
-	strncat(&(*bp)[nchar-1], p, add_len+1);
+	strcat(&(*bp)[nchar-1], p);
 
     return nchar+add_len;
 }
@@ -454,7 +454,7 @@ do_dialog(char cmd)
 failed:
 	    fprintf(stderr, "Dialog:\n");
 	    fputs(p, stderr);
-	    strncpy(lbuf, "Yes", 100+MAXPATHLEN);
+	    strcpy(lbuf, "Yes");
 	}
 	else {
 	    /* strip at first newline */
@@ -470,7 +470,7 @@ failed:
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
 	fprintf(stderr, "Reason? %s\n", osstrerror());
-	strncpy(lbuf, "Yes", 100+MAXPATHLEN);
+	strcpy(lbuf, "Yes");
     }
 
     free(p);
@@ -967,7 +967,7 @@ main(int argc, char **argv)
 	    sts = pmFetch(1, &pmid, &resp);
 	if (sts >= 0) {
 	    if (resp->vset[0]->numval > 0) { /* pmcd.timezone present */
-		strncpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf, sizeof(logctl.l_label.ill_tz));
+		strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
 		/* prefer to use remote time to avoid clock drift problems */
 		epoch = resp->timestamp;		/* struct assignment */
 		if (! use_localtime)
