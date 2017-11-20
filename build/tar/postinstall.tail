@@ -212,6 +212,8 @@ chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 #
 # from src/pmcd/GNUmakefile
 _do_dir "root:$grp" 700 $PCP_TMP_DIR/pmcd
+# from GNUmakefile
+_do_dir "root:$grp" 755 $PCP_SYSCONF_DIR/labels
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #

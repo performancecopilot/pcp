@@ -1,12 +1,19 @@
 Instructions for installing Performance Co-Pilot (PCP) from a tarball package
 
-If PCP is delivered as a tarball, there will be 2 compressed tar files
-in this directory
+If PCP is delivered as a tarball, there will be 2 compressed tar files:
 
 pcp-<version_number>-<build>.src.tar.gz		all of the source
 pcp-<version_number>-<build>.tar.gz		a binary distribution
 
-To install or upgrade, run the following commands as "root":
+<version_number> is something like 4.0.0
+<build> is an integer.
+
+The first tar file is built in build/tar.
+
+The second is built in pcp-<version_number>-<build>/build/tar.
+
+To install or upgrade, run the following commands as "root" in the
+directory where the binary distribution is:
 
     # ./preinstall
     # here=`pwd`
