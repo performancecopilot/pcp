@@ -54,7 +54,6 @@
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
-#include "libpcp.h"
 
 /* Zabbix includes.  */
 #include "module.h"
