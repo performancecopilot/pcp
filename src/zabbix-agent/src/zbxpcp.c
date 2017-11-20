@@ -50,6 +50,7 @@
 
 /* PCP includes.  */
 #include "pmapi.h"
+#include "libpcp.h"
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
