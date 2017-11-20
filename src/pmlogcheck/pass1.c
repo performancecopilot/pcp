@@ -122,7 +122,7 @@ pass1(__pmContext *ctxp, char *archname)
 	    index_state = STATE_BAD;
 	}
 	if (log_label.ill_start.tv_sec != 0) {
-	    if (pmTimevalSub(&tip->ti_stamp, &log_label.ill_start) < 0) {
+	    if (__pmTimevalSub(&tip->ti_stamp, &log_label.ill_start) < 0) {
 		fprintf(stderr, "%s.index[entry %d]: timestamp (%d.%06d) less than log label timestamp (%d.%06d)\n",
 			archname, i,
 			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec,
@@ -131,7 +131,7 @@ pass1(__pmContext *ctxp, char *archname)
 	    }
 	}
 	if (lastp != NULL) {
-	    if (pmTimevalSub(&tip->ti_stamp, &lastp->ti_stamp) < 0) {
+	    if (__pmTimevalSub(&tip->ti_stamp, &lastp->ti_stamp) < 0) {
 		fprintf(stderr, "%s.index[entry %d]: timestamp (%d.%06d) went backwards in time (from %d.%06d at [entry %d])\n",
 			archname, i,
 			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec,

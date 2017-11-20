@@ -1178,7 +1178,7 @@ __pmGetTimespec(struct timespec *ts)
  * a : b for pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
  */
 int
-pmTimevalCmp(const pmTimeval *a, const pmTimeval *b)
+__pmTimevalCmp(const pmTimeval *a, const pmTimeval *b)
 {
     int res = (int)(a->tv_sec - b->tv_sec);
 
@@ -1194,7 +1194,7 @@ pmTimevalCmp(const pmTimeval *a, const pmTimeval *b)
  * rather than struct timeval args.
  */
 double
-pmTimevalSub(const pmTimeval *ap, const pmTimeval *bp)
+__pmTimevalSub(const pmTimeval *ap, const pmTimeval *bp)
 {
      return (double)(ap->tv_sec - bp->tv_sec + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000);
 }

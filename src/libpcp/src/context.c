@@ -797,7 +797,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	tmpTime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
 	ignore = 0;
 	for (i = 0; i < acp->ac_num_logs; i++) {
-	    tdiff = pmTimevalSub(&tmpTime, &acp->ac_log_list[i]->ml_starttime);
+	    tdiff = __pmTimevalSub(&tmpTime, &acp->ac_log_list[i]->ml_starttime);
 	    if (tdiff < 0.0) /* found insertion point */
 		break;
 	    if (tdiff == 0.0) {

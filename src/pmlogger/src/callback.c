@@ -824,7 +824,7 @@ do_work(task_t *tp)
 		 * of the target instance domain.
 		 */
 		if (needindom == 0 && lfp->lf_resp != (pmResult *)0 &&
-		    pmTimevalSub(&resp_tval, &indom_tval) < 0 )
+		    __pmTimevalSub(&resp_tval, &indom_tval) < 0 )
 		    needindom = check_inst(vsp, i, lfp->lf_resp);
 
 		if (needindom) {

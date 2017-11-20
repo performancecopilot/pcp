@@ -1259,8 +1259,8 @@ PCP_CALL extern void __pmtimevalSleep(struct timeval);
 PCP_CALL extern void __pmtimevalPause(struct timeval);
 
 /* manipulate internal timestamps */
-PCP_CALL extern int pmTimevalCmp(const pmTimeval *, const pmTimeval *);
-PCP_CALL extern double pmTimevalSub(const pmTimeval *, const pmTimeval *);
+PCP_CALL extern int __pmTimevalCmp(const pmTimeval *, const pmTimeval *);
+PCP_CALL extern double __pmTimevalSub(const pmTimeval *, const pmTimeval *);
 
 /* reverse ctime, time interval parsing, time conversions */
 PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);

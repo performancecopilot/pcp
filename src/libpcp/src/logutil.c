@@ -2061,7 +2061,7 @@ again:
 	    pmPrintStamp(stderr, &(*result)->timestamp);
 	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-	    fprintf(stderr, " (t=%.6f)", pmTimevalSub(&tmp, &lcp->l_label.ill_start));
+	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
 	}
 	else {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -2198,7 +2198,7 @@ more:
 		nskip++;
 		tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-		tdiff = pmTimevalSub(&tmp, &ctxp->c_origin);
+		tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
 		if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
 		    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
 		    pmFreeResult(*result);
@@ -2238,7 +2238,7 @@ more:
 	    break;
 	tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-	tdiff = pmTimevalSub(&tmp, &ctxp->c_origin);
+	tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
 	if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
 	    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
 		nskip++;
@@ -2490,7 +2490,7 @@ __pmLogSetTime(__pmContext *ctxp)
      * We're looking for the first archive which starts after the origin.
      */
     for (i = 0; i < acp->ac_num_logs; ++i) {
-	t_hi = pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
+	t_hi = __pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
 	if (t_hi >= 0)
 	    break; /* found it! */
     }
@@ -2554,7 +2554,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    break;
 		}
 	    }
-	    t_hi = pmTimevalSub(&tip->ti_stamp, &ctxp->c_origin);
+	    t_hi = __pmTimevalSub(&tip->ti_stamp, &ctxp->c_origin);
 	    if (t_hi > 0) {
 		j = i;
 		break;
@@ -2612,8 +2612,8 @@ __pmLogSetTime(__pmContext *ctxp)
 	     * choose closest index point.  if toobig, [j] is not
 	     * really valid (log truncated or incomplete)
 	     */
-	    t_hi = pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
-	    t_lo = pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
+	    t_hi = __pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
+	    t_lo = __pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
 	    if (t_hi <= t_lo && !toobig) {
 		j = VolSkip(lcp, mode, j);
 		if (j < 0)
@@ -3218,7 +3218,7 @@ LogChangeToNextArchive(__pmContext *ctxp)
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0) {
+    if (__pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0) {
 	return PM_ERR_LOGOVERLAP;
     }
 
@@ -3326,7 +3326,7 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
+    if (__pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
     }

@@ -124,7 +124,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     sts = 0;
     idp_prev = NULL;
     for (idp_cached = (__pmLogInDom *)hp->data; idp_cached; idp_cached = idp_cached->next) {
-	timecmp = pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+	timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
 
 	/*
 	 * If the time of the current cached item is before our time,
@@ -153,7 +153,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		idp_cached = idp_cached->next;
 		if (idp_cached == NULL)
 		    break;
-		timecmp = pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+		timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
 	    } while (timecmp == 0);
 
 	    if (sts == PMLOGPUTINDOM_DUP) {
@@ -268,7 +268,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
     sts = 0;
     idp_prev = NULL;
     for (idp_cached = (__pmLogLabelSet *)hp->data; idp_cached; idp_cached = idp_cached->next) {
-	timecmp = pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+	timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
 
 	/*
 	 * If the time of the current cached item is before our time,
@@ -936,7 +936,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
 	    /*
 	     * need first one at or earlier than the requested time
 	     */
-	    if (pmTimevalCmp(&idp->stamp, tp) <= 0)
+	    if (__pmTimevalCmp(&idp->stamp, tp) <= 0)
 		break;
 	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "request @ ");
@@ -1054,7 +1054,7 @@ __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
     ls = (__pmLogLabelSet *)hp->data;
     if (tp != NULL) {
 	for ( ; ls != NULL; ls = ls->next) {
-	    if (pmTimevalCmp(&ls->stamp, tp) <= 0)
+	    if (__pmTimevalCmp(&ls->stamp, tp) <= 0)
 		break;
 	}
 	if (ls == NULL)
