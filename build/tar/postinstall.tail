@@ -197,7 +197,7 @@ do
     chmod 755 $PCP_SYSCONF_DIR/$daemon
     if [ -f $PCP_SYSCONF_DIR/$daemon/config.default ]
     then
-	if [ -f $PCP_VAR_DIR/config/$daemon/config.default
+	if [ -f $PCP_VAR_DIR/config/$daemon/config.default ]
 	then
 	    mv $PCP_SYSCONF_DIR/$daemon/config.default $PCP_VAR_DIR/config/$daemon/config.default.old
 	else
