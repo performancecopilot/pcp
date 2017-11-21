@@ -1,4 +1,7 @@
 #! /bin/sh
+#
+# RETIRED 22 Nov 2017
+#
 # PCP QA Test No. 162
 # namespace only Install/Remove for pmdas
 #
