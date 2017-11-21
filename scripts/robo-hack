@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# run hack on source files and QA app files identified by hunter
+#
+# input looks like ...
+# ...
+# Source ...
+# src/pcp/atop/atop.c:	__pmEndOptions(&opts);
+# ...
+# QA ...
+# qa/src/somefile.c:  text
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+sed -e 's/:.*//' \
+| awk >$tmp.list '
+BEGIN		{ want = 0 }
+NF == 0		{ next }
+$1 == "Source" && $2 == "..."	{ want = 1; next }
+$1 == "QA" && $2 == "..."	{ want = 1; next }
+$1 == "Man" && $2 == "pages"	{ want = 0; next }
+$1 == "Other" && $2 == "..."	{ want = 0; next }
+NF == 1 && want == 1		{ print }'
+
+cat $tmp.list \
+| sort \
+| uniq \
+| while read file
+do
+    echo $file:
+    if [ ! -f "$file" ]
+    then
+	echo "Botch: $file: not found"
+	exit 1
+    fi
+
+    if hack -v "$file"
+    then
+	:
+    else
+	echo "Oops!"
+	exit 1
+    fi
+done
+
+exit 0
