@@ -1,14 +1,6 @@
 QA output created by 162
 
 === Install -n for cisco ===
-You will need to choose an appropriate configuration for installation of
-the "cisco" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 cisco.bandwidth
@@ -19,41 +11,17 @@ cisco.rate_in
 cisco.rate_out
 
 === Install -n for mailq ===
-You will need to choose an appropriate configuration for installation of
-the "mailq" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 mailq.deferred
 mailq.length
 
 === Install -n for news ===
-You will need to choose an appropriate configuration for installation of
-the "news" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 news
 
 === Install -n for sample ===
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 ======================
 = sample daemon PMDA =
 ======================
@@ -225,14 +193,6 @@ sample.write_me
 sample.xmit_pdu
 
 === Install -n for sendmail ===
-You will need to choose an appropriate configuration for installation of
-the "sendmail" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 sendmail.permailer.bytes_from
@@ -246,14 +206,6 @@ sendmail.total.msgs_from
 sendmail.total.msgs_to
 
 === Install -n for simple ===
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 simple.color
@@ -263,14 +215,6 @@ simple.time.sys
 simple.time.user
 
 === Install -n for summary ===
-You will need to choose an appropriate configuration for installation of
-the "summary" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 summary.cpu.busy
@@ -310,27 +254,11 @@ trace.transact.rate
 trace.transact.total_time
 
 === Install -n for trivial ===
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 trivial.time
 
 === Install -n for txmon ===
-You will need to choose an appropriate configuration for installation of
-the "txmon" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] 
 Updating the Performance Metrics Name Space (PMNS) ...
 Skipping PMDA install and PMCD re-configuration
 txmon.ave_time

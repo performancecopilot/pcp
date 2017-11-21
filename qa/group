@@ -509,7 +509,7 @@ collectl
 159 pmda.cisco local pmda.install
 160 libpcp local
 161 pmlogger local
-162 pmda pmda.proc local pmda.shping pmda.install
+162:retired pmda pmda.proc local pmda.shping pmda.install
 163 archive local
 164:retired diskstat local pmval pmdumplog
 165 pmval local
