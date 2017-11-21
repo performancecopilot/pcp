@@ -45,7 +45,7 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream, int *sta
 void
 __pmNoMem(const char *where, size_t size, int fatal)
 {
-    return pmNoMem(where, size, fatal);
+    pmNoMem(where, size, fatal);
 }
 
 #undef __pmNotifyErr
@@ -77,7 +77,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 void
 __pmtimevalNow(struct timeval *tv)
 {
-    return pmtimevalNow(tv);
+    pmtimevalNow(tv);
 }
 
 #undef __pmtimevalInc
@@ -155,4 +155,11 @@ int
 __pmSetProcessIdentity(const char *username)
 {
     return pmSetProcessIdentity(username);
+}
+
+#undef pmFreeHighResResult
+void
+pmFreeHighResResult(pmHighResResult *result)
+{
+    __pmFreeHighResResult(result);
 }

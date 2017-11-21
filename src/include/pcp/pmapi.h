@@ -645,7 +645,6 @@ PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
 
 /* Free result buffer */
 PCP_CALL extern void pmFreeResult(pmResult *);
-PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
 
 /* Value extract from pmValue and type conversion */
 PCP_CALL extern int pmExtractValue(int, const pmValue *, int, pmAtomValue *, int);

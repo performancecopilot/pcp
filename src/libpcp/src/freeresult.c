@@ -74,10 +74,10 @@ pmFreeResult(pmResult *result)
 }
 
 void
-pmFreeHighResResult(pmHighResResult *result)
+__pmFreeHighResResult(pmHighResResult *result)
 {
     if (pmDebugOptions.pdubuf)
-	fprintf(stderr, "pmFreeHighResResult(" PRINTF_P_PFX "%p)\n", result);
+	fprintf(stderr, "__pmFreeHighResResult(" PRINTF_P_PFX "%p)\n", result);
     if (result->numpmid)
 	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
     free(result);

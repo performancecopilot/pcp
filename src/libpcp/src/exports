@@ -633,6 +633,7 @@ PCP_3.22 {
     __pmDecodeLabelReq;
     __pmDumpLabelSet;
     __pmDumpLabelSets;
+    __pmFreeHighResResult;
     __pmGetContextLabels;
     __pmGetDomainLabels;
     __pmLogLookupLabel;
@@ -645,4 +646,5 @@ PCP_3.22 {
     __pmRecvLabel;
     __pmSendLabel;
     __pmSendLabelReq;
+
 } PCP_3.21;
