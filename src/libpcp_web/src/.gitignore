@@ -1,6 +1,10 @@
 jsmn.c
 jsmn.h
+sha1.c
+sha1.h
 http_parser.c
 http_parser.h
+query_parser.tab.c
+query_parser.tab.h
 libpcp_web.so
 libpcp_web.so.1

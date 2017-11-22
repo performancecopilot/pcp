@@ -14,8 +14,8 @@
 #ifndef REDIS_SERIES_H
 #define REDIS_SERIES_H
 
-#include <hiredis/hiredis.h>
 #include "load.h"
+#include <hiredis/hiredis.h>
 
 extern redisContext *redis_init(void);
 extern void redis_stop(redisContext *);

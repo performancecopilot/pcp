@@ -19,13 +19,19 @@
 #include <ctype.h>
 
 #include "series.h"
+#include "query.h"
 #include "redis.h"
 #include "load.h"
 #include "util.h"
 #include "sha1.h"
 
+#include "libpcp.h"
+
 typedef struct {
     redisContext	*redis;
+
+    settings_t		*settings;
+    void		*arg;
 
     int			verbose;
     context_t		context;
@@ -35,9 +41,14 @@ typedef struct {
     __pmHashCtl		indomhash;
     __pmHashCtl		pmidhash;
 
-    __pmHashCtl		errorhash;	/* PMIDs where errors have been seen */
-    __pmHashCtl		wanthash;	/* PMIDs found from query whitelist */
+    __pmHashCtl		errorhash;	/* PMIDs where errors observed */
+    __pmHashCtl		wanthash;	/* PMIDs from query whitelist */
 } SOURCE;
+
+#define ERRSIZE		PM_MAXERRMSGLEN
+#define MSGSIZE		(ERRSIZE + 128)
+#define loadmsg(SP, level, message)		\
+	((SP)->settings->on_info((level), (message), (SP)->arg))
 
 static void
 series_cache_addvalue(SOURCE *sp, metric_t *metric, value_t *value)
@@ -79,16 +90,21 @@ cache_prepare(const char *name, void *arg)
 {
     SOURCE		*sp = (SOURCE *)arg;
     char		*hname;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     pmID		pmid;
     int			sts;
 
-    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0)
-	fprintf(stderr, "%s: failed to lookup metric name (pmid=%s): %s\n",
-		pmGetProgname(), name, pmErrStr(sts));
-    else if ((hname = strdup(name)) == NULL)
-	fprintf(stderr, "%s: failed dup metric name (%s): out of memory\n",
-		pmGetProgname(), name);
-    else {
+    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
+	pmsprintf(msg, sizeof(msg), 
+		"failed to lookup metric name (pmid=%s): %s",
+		name, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_WARNING, msg);
+    } else if ((hname = strdup(name)) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+		"cache metric name", (long long)strlen(name)+1);
+	loadmsg(sp, PMSERIES_ERROR, msg);
+    } else {
 	if (sp->verbose || pmDebugOptions.series)
 	    fprintf(stderr, "cache_prepare: caching PMID=%s name=%s\n",
 			pmIDStr(pmid), hname);
@@ -131,14 +147,14 @@ cache_value_metadata(SOURCE *sp, metric_t *metric, value_t *value)
     SHA1Final(hash, &shactx);
 
     for (nbytes = off = 0; nbytes < sizeof(hash); nbytes++)
-	off += pmsprintf(value->hash + off, sizeof(value->hash) - off, "%02x",
+	off += pmsprintf(value->hash+off, sizeof(value->hash)-off, "%02x",
 			hash[nbytes]);
-    value->hash[off] = '\0';
+    value->hash[PMSIDSZ] = '\0';
 
     if (sp->verbose || pmDebugOptions.series) {
 	fprintf(stderr, "Cache insert:\nNAME(S): ");
 	__pmPrintMetricNames(stderr, metric->numnames, metric->names, " or ");
-	fprintf(stderr, "\nSHA1=%.*s\n%s\n", HASHSIZE, value->hash, identifier);
+	fprintf(stderr, "\nSHA1=%.*s\n%s\n", PMSIDSZ, value->hash, identifier);
     }
 
     series_cache_metadata(sp, metric, value);
@@ -216,12 +232,13 @@ labelsetdup(pmLabelSet *lp)
  */
 static void
 cache_metric_metadata(SOURCE *sp, metric_t *metric,
-             int ninst, int *instlist, char **namelist,
-             int nsets, pmLabelSet *labelsets)
+	int ninst, int *instlist, char **namelist,
+	int nsets, pmLabelSet *labelsets)
 {
     pmLabelSet		*labels;
     value_t		*value;
     size_t		length;
+    char		msg[MSGSIZE];
     char		*name;
     int			i, j;
 
@@ -233,8 +250,12 @@ cache_metric_metadata(SOURCE *sp, metric_t *metric,
 		continue;
 	    name = namelist[j];
 	    length = strlen(name) + 1;
-	    if ((name = strndup(name, length)) == NULL)
-		pmNoMem("cache_metric_metadata.name", length, PM_FATAL_ERR);
+	    if ((name = strndup(name, length)) == NULL) {
+	        pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+			"cache_metric_metadata name", (long long)length);
+		loadmsg(sp, PMSERIES_ERROR, msg);
+		continue;
+	    }
 	    if (value->name) free(value->name);
 	    value->name = name;
 	    break;
@@ -247,8 +268,12 @@ cache_metric_metadata(SOURCE *sp, metric_t *metric,
 	    length = labelsetlen(labels);
 	    if (length == 0)
 		continue;
-	    if ((labels = labelsetdup(labels)) == NULL)
-		pmNoMem("cache_metric_metadata.labels", length, PM_FATAL_ERR);
+	    if ((labels = labelsetdup(labels)) == NULL) {
+		pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+			"cache_metric_metadata labels", (long long)length);
+		loadmsg(sp, PMSERIES_ERROR, msg);
+		continue;
+	    }
 	    if (value->labels) pmFreeLabelSets(value->labels, 1);
 	    value->labels = labels;
 	    break;
@@ -273,13 +298,17 @@ new_values_names(SOURCE *sp, metric_t *metric)
     int			sts;
     int			ninst = 0;
     int			nsets = 0;
+    char		indommsg[20];
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     pmInDom		indom = metric->desc.indom;
     pmLabelSet		*labelset = NULL;
 
     if (indom != PM_INDOM_NULL) {
 	if ((sts = pmGetInDom(indom, &instlist, &namelist)) < 0) {
-	    fprintf(stderr, "failed to get InDom %s instances: %s\n",
-		    pmInDomStr(indom), pmErrStr(sts));
+	    pmsprintf(msg, sizeof(msg), "failed to get InDom %s instances: %s",
+			pmInDomStr_r(indom, indommsg, sizeof(indommsg)),
+			pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	    return;
 	}
 	ninst = sts;
@@ -301,7 +330,7 @@ new_values_names(SOURCE *sp, metric_t *metric)
     if (instlist) free(instlist);
 }
 
-static void
+static int
 new_value(SOURCE	*sp,
 	pmValue		*vp,
 	struct metric	*metric,	/* updated by this function */
@@ -311,24 +340,40 @@ new_value(SOURCE	*sp,
 {
     int			sts;
     int			type = metric->desc.type;
-    value_t		*value;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
+    value_t		*value, **vpp;
     size_t		size;
     pmAtomValue		av;
 
     if ((sts = pmExtractValue(valfmt, vp, type, &av, metric->outype)) < 0) {
-	pmiderr(sp, metric->desc.pmid, "failed to extract value: %s\n",
-		pmErrStr(sts));
-	fprintf(stderr, "%s: possibly corrupt archive?\n", pmGetProgname());
-	return;
+	pmiderr(sp, metric->desc.pmid, "failed to extract value: %s",
+		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	pmsprintf(msg, sizeof(msg), "possibly corrupt archive %s",
+		sp->context.source);
+	loadmsg(sp, PMSERIES_CORRUPT, msg);
+	return -ESRCH;
     }
     size = (pos + 1) * sizeof(value_t *);
-    metric->vlist = (value_t **)realloc(metric->vlist, size);
-    if (metric->vlist == NULL)
-	pmNoMem("new_value.vlist", size, PM_FATAL_ERR);
+    if ((vpp = (value_t **)realloc(metric->vlist, size)) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+			"new value vlist", (long long)size);
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	free(metric->vlist);
+	metric->vlist = NULL;
+	return -ENOMEM;
+    }
+    metric->vlist = vpp;
     size = sizeof(value_t);
     metric->vlist[pos] = value = (value_t *)calloc(1, size);
-    if (value == NULL)
-	pmNoMem("new_value.vlist[inst]", size, PM_FATAL_ERR);
+    if (value == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+			"new value vlist[inst]", (long long)size);
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	free(metric->vlist);
+	metric->vlist = NULL;
+	return -ENOMEM;
+    }
     value->inst = vp->inst;
     if (metric->desc.sem != PM_SEM_COUNTER)
 	value->count = 1;
@@ -336,16 +381,23 @@ new_value(SOURCE	*sp,
     value->firsttime = *timestamp;
     value->lasttime = *timestamp;
     metric->listsize++;
+    return 0;
 }
 
 static domain_t *
 new_domain(SOURCE *sp, int domain, context_t *context)
 {
     domain_t		*domainp;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     int			sts;
 
-    if ((domainp = calloc(1, sizeof(domain_t))) == NULL)
-	pmNoMem("newDomain", sizeof(domain_t), PM_FATAL_ERR);
+    if ((domainp = calloc(1, sizeof(domain_t))) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+		"new domain", (long long)sizeof(domain_t));
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	return NULL;
+    }
     domainp->domain = domain;
     domainp->context = context;
     if ((sts = pmGetDomainLabels(domain, &domainp->labels)) < 0) {
@@ -355,8 +407,10 @@ new_domain(SOURCE *sp, int domain, context_t *context)
 	/* continue on with no labels for this domain */
     }
     if (__pmHashAdd(domain, (void *)domainp, &sp->domainhash) < 0) {
-	fprintf(stderr, "%s: failed to store domain labels (domain=%d): %s\n",
-		pmGetProgname(), domain, pmErrStr(sts));
+	pmsprintf(msg, sizeof(msg), 
+		"failed to store domain labels (domain=%d): %s",
+		domain, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_WARNING, msg);
     }
     return domainp;
 }
@@ -365,10 +419,16 @@ static cluster_t *
 new_cluster(SOURCE *sp, int cluster, domain_t *domain)
 {
     cluster_t		*clusterp;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     int			sts;
 
-    if ((clusterp = calloc(1, sizeof(cluster_t))) == NULL)
-	pmNoMem("newCluster", sizeof(cluster_t), PM_FATAL_ERR);
+    if ((clusterp = calloc(1, sizeof(cluster_t))) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+		"new cluster", (long long)sizeof(cluster_t));
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	return NULL;
+    }
     clusterp->cluster = cluster;
     clusterp->domain = domain;
     if ((sts = pmGetClusterLabels(cluster, &clusterp->labels)) < 0) {
@@ -376,14 +436,15 @@ new_cluster(SOURCE *sp, int cluster, domain_t *domain)
 	    fprintf(stderr,
 		    "%s: failed to get cluster (%u.%u) labels: %s\n",
 		    pmGetProgname(), pmID_domain(cluster), pmID_cluster(cluster),
-		    pmErrStr(sts));
+		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	/* continue on with no labels for this cluster */
     }
     if (__pmHashAdd(cluster, (void *)clusterp, &sp->clusterhash) < 0) {
-	fprintf(stderr,
-		"%s: failed to store cluster labels (cluster=%u.%u): %s\n",
-		pmGetProgname(), pmID_domain(cluster), pmID_cluster(cluster),
-		pmErrStr(sts));
+	pmsprintf(msg, sizeof(msg), 
+		"failed to store cluster labels (cluster=%u.%u): %s",
+		pmID_domain(cluster), pmID_cluster(cluster),
+		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_WARNING, msg);
     }
     return clusterp;
 }
@@ -392,10 +453,16 @@ static indom_t *
 new_indom(SOURCE *sp, pmInDom indom, domain_t *domain)
 {
     indom_t		*indomp;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     int			sts;
 
-    if ((indomp = calloc(1, sizeof(indom_t))) == NULL)
-	pmNoMem("new_indom", sizeof(indom_t), PM_FATAL_ERR);
+    if ((indomp = calloc(1, sizeof(indom_t))) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+		"new indom", (long long)sizeof(indom_t));
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	return NULL;
+    }
     indomp->indom = indom;
     indomp->domain = domain;
     if ((sts = pmGetInDomLabels(indom, &indomp->labels)) < 0) {
@@ -405,8 +472,9 @@ new_indom(SOURCE *sp, pmInDom indom, domain_t *domain)
 	/* continue on with no labels for this indom */
     }
     if (__pmHashAdd(indom, (void *)indomp, &sp->indomhash) < 0) {
-	fprintf(stderr, "%s: failed to store indom (%s) labels: %s\n",
-		pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
+	pmsprintf(msg, sizeof(msg), "failed to store indom (%s) labels: %s",
+		pmInDomStr(indom), pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_WARNING, msg);
     }
     return indomp;
 }
@@ -424,28 +492,38 @@ new_metric(SOURCE	*sp,
     metric_t		*metric;
     double		powerof;
     pmID		pmid = desc->pmid;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     char		**names;
     int			*mapids;
     int			cluster, domain, sts, i;
 
-    if ((metric = (metric_t *)calloc(1, sizeof(metric_t))) == NULL)
+    if ((metric = (metric_t *)calloc(1, sizeof(metric_t))) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+			"new metric", (long long)sizeof(metric_t));
+	loadmsg(sp, PMSERIES_ERROR, msg);
 	return NULL;
-
+    }
     metric->desc = *desc;
     if (desc->sem != PM_SEM_COUNTER)
 	metric->outype = desc->type;
     else
 	metric->outype = PM_TYPE_DOUBLE;
 
-    if ((sts = pmNameAll(pmid, &names)) < 0)
-	fprintf(stderr, "%s: failed to lookup metric %s names: %s\n",
-		pmGetProgname(), pmIDStr(pmid), pmErrStr(sts));
+    if ((sts = pmNameAll(pmid, &names)) < 0) {
+	pmsprintf(msg, sizeof(msg), "failed to lookup metric %s names: %s",
+		pmIDStr(pmid), pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_WARNING, msg);
+    } else if ((mapids = calloc(sts, sizeof(int))) == NULL) {
+	pmsprintf(msg, sizeof(msg), "out of memory (%s, %lld bytes)",
+		"mapids", (long long)sts * sizeof(int));
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	sts = -ENOMEM;
+    }
     if (sts <= 0) {
 	free(metric);
 	return NULL;
     }
-    if ((mapids = calloc(sts, sizeof(int))) == NULL)
-	pmNoMem("mapids", sts * sizeof(int), PM_FATAL_ERR);
     metric->names = names;
     metric->mapids = mapids;
     metric->numnames = sts;
@@ -560,7 +638,7 @@ free_metric(metric_t *metric)
 }
 
 static void
-series_cache_update(SOURCE *sp, pmResult *result, int metadata)
+series_cache_update(SOURCE *sp, pmResult *result, pmseries_flags flags)
 {
     int			i, j, k;
     int			sts;
@@ -754,23 +832,26 @@ series_cache_update(SOURCE *sp, pmResult *result, int metadata)
 	    value->lastval = av;
 	    value->lasttime = result->timestamp;
 
-	    if (!metadata)
+	    if (!(flags & PMSERIES_METADATA))
 		series_cache_addvalue(sp, metric, value);
 	}
     }
 }
 
 static int
-series_cache_load(SOURCE *sp, timing_t *tp, int metadata)
+series_cache_load(SOURCE *sp, timing_t *tp, pmseries_flags flags)
 {
     struct timeval	*finish = &tp->end;
     pmResult		*result;
+    char		msg[MSGSIZE];
+    char		pmmsg[ERRSIZE];
     int			sts, count = 0;
 
     if ((sts = pmSetMode(PM_MODE_FORW, &tp->start, 0)) < 0) {
-	fprintf(stderr, "%s: pmSetMode failed: %s\n",
-		pmGetProgname(), pmErrStr(sts));
-	exit(EXIT_FAILURE);
+	pmsprintf(msg, sizeof(msg), "pmSetMode failed: %s",
+		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	return sts;
     }
 
     /* TODO: support the other context types */
@@ -778,7 +859,7 @@ series_cache_load(SOURCE *sp, timing_t *tp, int metadata)
 	return -ENOTSUP;
 
     /* TODO: support fetch interpolation (if tp->delta) */
-    /* TODO: support a tail-f-mode of archive operation */
+    /* TODO: support a tail-f-mode of operation as well */
 
     for ( ; ; ) {
 	if ((sts = pmFetchArchive(&result)) < 0)
@@ -787,7 +868,7 @@ series_cache_load(SOURCE *sp, timing_t *tp, int metadata)
 	if (finish->tv_sec > result->timestamp.tv_sec ||
 	    (finish->tv_sec == result->timestamp.tv_sec &&
 	     finish->tv_usec >= result->timestamp.tv_usec)) {
-	    series_cache_update(sp, result, metadata);
+	    series_cache_update(sp, result, flags);
 	    pmFreeResult(result);
 	    count++;
 	}
@@ -798,13 +879,16 @@ series_cache_load(SOURCE *sp, timing_t *tp, int metadata)
 	}
     }
 
-    if (pmDebugOptions.series)
-	printf("Processed %d archive records\n", count);
+    pmsprintf(msg, sizeof(msg), "processed %d archive records from %s",
+		count, sp->context.source);
+    loadmsg(sp, PMSERIES_INFO, msg);
 
     if (sts == PM_ERR_EOL)
 	sts = 0;
     else {
-	fprintf(stderr, "%s: fetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
+	pmsprintf(msg, sizeof(msg), "fetch failed: %s",
+		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_ERROR, msg);
 	sts = 1;
     }
     return sts;
@@ -864,22 +948,26 @@ static int
 load_prepare_metrics(SOURCE *sp)
 {
     const char	**metrics = sp->context.metrics;
-    int		i, sts = 0;
+    char	msg[MSGSIZE];
+    char	pmmsg[ERRSIZE];
+    int		i, sts, errors = 0;
 
     for (i = 0; i < sp->context.nmetrics; i++) {
 	if ((sts = pmTraversePMNS_r(metrics[i], cache_prepare, sp)) >= 0)
 	    continue;
-	fprintf(stderr, "%s: PMNS traversal failed for %s: %s\n",
-			pmGetProgname(), metrics[i], pmErrStr(sts));
-	break;
+	pmsprintf(msg, sizeof(msg), "PMNS traversal failed for %s: %s",
+			metrics[i], pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_WARNING, msg);
+	errors++;
     }
-    return sts;
+    return (errors && errors == sp->context.nmetrics) ? -ESRCH : 0;
 }
 
-static void
+static int
 load_prepare_timing(SOURCE *sp, timing_t *tp)
 {
     /* TODO - handle timezones and so on correctly */
+    return 0;
 }
 
 static void
@@ -902,8 +990,6 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
 	    np->subtype = N_INSTANCE;
 	else if ((name = series_metric_name(np->value, length)) != NULL)
 	    np->subtype = N_METRIC;
-	else if ((name = series_note_name(np->value, length)) != NULL)
-	    np->subtype = N_NOTE;
 	else {
 	    if ((name = series_label_name(np->value, length)) == NULL)
 		name = np->value;
@@ -917,7 +1003,7 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
 	    break;
 	if (np->left->type == N_NAME) {
 	    subtype = np->left->subtype;
-	    if (subtype == N_NOTE || subtype == N_LABEL)
+	    if (subtype == N_LABEL)
 		 set_context_source(sp, np->right->value);
 	}
 	if (np->left->type == N_METRIC)
@@ -930,48 +1016,73 @@ static int
 load_resolve_source(SOURCE *sp)
 {
     context_t	*cp = &sp->context;
+    char	pmmsg[ERRSIZE];
+    char	msg[MSGSIZE];
     int		sts;
 
     if ((sts = pmNewContext(cp->type, cp->source)) < 0) {
 	if (cp->type == PM_CONTEXT_HOST)
-            fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		    pmGetProgname(), cp->source, pmErrStr(sts));
+	    pmsprintf(msg, sizeof(msg), 
+		    "cannot connect to PMCD on host \"%s\": %s",
+		    cp->source, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	else if (sp->context.type == PM_CONTEXT_LOCAL)
-	    fprintf(stderr, "%s: Cannot make standalone connection on localhost: %s\n",
-		    pmGetProgname(), pmErrStr(sts));
+	    pmsprintf(msg, sizeof(msg), 
+		    "cannot make standalone connection on localhost: %s",
+		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	else
-	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		    pmGetProgname(), cp->source, pmErrStr(sts));
-    }
-    cp->context = sts;
+	    pmsprintf(msg, sizeof(msg), "cannot open archive \"%s\": %s",
+		    cp->source, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	loadmsg(sp, PMSERIES_ERROR, msg);
+	sts = -ESRCH;
+    } else {
+	cp->context = sts;
 
-    if ((sts = pmGetContextLabels(&cp->labels)) < 0) {
-	if (default_labelset(cp->context, &cp->labels) < 0) {
-	    fprintf(stderr, "%s: failed to get context labels: %s\n",
-		    pmGetProgname(), pmErrStr(sts));
-	    exit(EXIT_FAILURE);
+	if ((sts = pmGetContextLabels(&cp->labels)) < 0 &&
+	    (default_labelset(cp->context, &cp->labels) < 0)) {
+	    pmsprintf(msg, sizeof(msg), "failed to get context labels: %s",
+		    pmErrStr(sts));
+	    loadmsg(sp, PMSERIES_ERROR, msg);
+	    sts = -ESRCH;
 	}
     }
-    return 0;
+    return sts;
+}
+
+void
+load_destroy_source(SOURCE *sp)
+{
+    context_t	*cp = &sp->context;
+
+    pmDestroyContext(cp->context);
+    cp->context = -1;
 }
 
 int
-series_source(node_t *root, timing_t *timing, int metadata)
+series_source(pmSeriesSettings *settings,
+	node_t *root, timing_t *timing, pmseries_flags flags, void *arg)
 {
-    SOURCE	source = { 0 }, *sp = &source;
+    SOURCE	source = { .settings = settings, .arg = arg };
+    char	msg[MSGSIZE];
+    int		sts;
 
-    sp->redis = redis_init();
-    load_prepare_source(sp, root, 0);
-    if (!sp->context.type) {
-	fprintf(stderr, "%s: Found no context to load\n", pmGetProgname());
+    source.redis = redis_init();
+
+    load_prepare_source(&source, root, 0);
+    if (source.context.type) {
+	pmsprintf(msg, sizeof(msg), "found no context to load");
+	loadmsg(&source, PMSERIES_ERROR, msg);
 	return -ESRCH;
     }
-    load_resolve_source(sp);
+    if ((sts = load_resolve_source(&source)) < 0)
+	return sts;
 
     /* metric and time-based filtering */
-    load_prepare_metrics(sp);
-    load_prepare_timing(sp, timing);
+    if ((sts = load_prepare_metrics(&source)) < 0 ||
+	(sts = load_prepare_timing(&source, timing)) < 0) {
+	load_destroy_source(&source);
+	return sts;
+    }
 
-    series_cache_load(sp, timing, metadata);
+    series_cache_load(&source, timing, flags);
     return 0;
 }
