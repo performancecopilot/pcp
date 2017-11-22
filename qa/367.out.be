@@ -207,14 +207,20 @@ Dump Instance Profile state=EXCLUDE, 2 profiles
 024:        0      400        0 
 [SERVER]pmGetPDU: LABEL_REQ fd=<n> len=20 from=CLIENT
 000:       14     7012   CLIENT cdab3412  4000000 
++ PDU_LABEL_REQ: ident=305441741 type=0x4: INDOM 72.3451853
 [SERVER]pmXmitPDU: LABEL_REQ fd=<n> len=20
 000:       14     7012   SERVER cdab3412  4000000 
 [SERVER]pmGetPDU: LABEL fd=<n> len=77 from=CLIENT
-000:       4d     7013   CLIENT 3412cdab 10000000        0  1000000 ffffffff 
+000:       4d     7013   CLIENT 3412cd7b 10000000        0  1000000 ffffffff 
 008:  1000000 34000000 19000000    b0200    90f00 6574227b 7265706d 72757461 
 016: 223a2265 636c6563 22737569 7e7e7e7d 
++ PDU_LABEL: ident=2077037108 type=0x10[0] pmLabelSet dump from ADDR inst=-1 nlabels=1
+pmLabelSet ADDR json:
+    {"temperature":"celcius"}
+pmLabelSet ADDR index:
+    [0] name(2,11) : value(15,9) [?]
 [SERVER]pmXmitPDU: LABEL fd=<n> len=77
-000:       4d     7013   SERVER 3412cdab 10000000        0  1000000 ffffffff 
+000:       4d     7013   SERVER 3412cd7b 10000000        0  1000000 ffffffff 
 008:  1000000 34000000 19000000    b0200    90f00 6574227b 7265706d 72757461 
 016: 223a2265 636c6563 22737569 7e7e7e7d 
 [SERVER]pmGetPDU: TEXT_REQ fd=<n> len=20 from=CLIENT

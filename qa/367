@@ -229,6 +229,8 @@ s/482d5a54   455245/545a2d48 45524500/
 }' \
     -e '/_pmSendRequest/s/type=50331648/type=3/' \
     -e '/Semantics: counter/s/count x 10\^-1\^5/Mbyte \/ hour/' \
+    -e '/PDU_LABEL:/s/from 0x[0-91f][0-9a-f]* /from ADDR /' \
+    -e '/^pmLabelSet /s/ 0x[0-91f][0-9a-f]* / ADDR /' \
 | $PCP_AWK_PROG '
 /PDU_LOG_CONTROL/	{ fix = 2 }
 /pmResult/ && fix > 0	{ fix--; $6 = "NOW"; $7 = "TODAY" }

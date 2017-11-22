@@ -810,7 +810,7 @@ _z(void)
 /* PDU_LABEL */
 #define TEMP "{\"temperature\":\"celcius\"}"
     __pmParseLabelSet(TEMP, strlen(TEMP), PM_LABEL_ITEM, &labels);
-    if ((e = __pmSendLabel(fd[1], mypid, 0xabcd1234, PM_LABEL_ITEM, labels, 1)) < 0) {
+    if ((e = __pmSendLabel(fd[1], mypid, 0x7bcd1234, PM_LABEL_ITEM, labels, 1)) < 0) {
 	fprintf(stderr, "Error: SendLabel: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
@@ -839,9 +839,9 @@ _z(void)
 		goto cleanup;
 	    }
 	    else {
-		if (ident != 0xabcd1234)
+		if (ident != 0x7bcd1234)
 		    fprintf(stderr, "Botch: Label: ident: got: 0x%x expect: 0x%x\n",
-			ident, 0xabcd1234);
+			ident, 0x7bcd1234);
 		if (type != PM_LABEL_ITEM)
 		    fprintf(stderr, "Botch: Label: type: got: 0x%x expect: 0x%x\n",
 			type, PM_LABEL_ITEM);
