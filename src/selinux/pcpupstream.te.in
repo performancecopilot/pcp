@@ -31,6 +31,7 @@ require {
 	type saslauthd_t; # pcp-lio
 	type modules_object_t; # pcp-lio
 	@PCP_NSFS_T@
+	type nfsd_fs_t; #RHBZ1515928
 	type pcp_pmie_exec_t; # pmdasummary
 	@PCP_SYSTEMCTL_UNIT_FILE_T@
 	@PCP_SYSTEMCTL_EXEC_T@
@@ -168,6 +169,10 @@ allow pcp_pmcd_t haproxy_t:unix_stream_socket connectto;
 #type=AVC msg=audit(1508779244.425:386): avc:  denied  { write } for  pid=2967 comm="pmdaxfs" name="stats_clear" dev="proc" ino=87731 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=file
 #RHBZ1505888
 allow pcp_pmcd_t sysctl_fs_t:file write;
+
+#RHBZ1515928
+allow pcp_pmcd_t nfsd_fs_t:dir search;
+allow pcp_pmcd_t nfsd_fs_t:file { getattr open read };
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
