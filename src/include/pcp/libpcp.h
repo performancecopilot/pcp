@@ -1414,6 +1414,9 @@ PCP_CALL extern int __pmShutdown(void);
 
 PCP_CALL extern void __pmIgnoreSignalPIPE(void);
 
+/* free high resolution timestamp variant of pmResult */
+PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
+
 #ifdef __cplusplus
 }
 #endif

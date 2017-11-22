@@ -33,7 +33,9 @@ _filter()
 	    -e '/^Aborted$/d' \
 	# end
     else
-	cat
+	sed \
+	    -e '/^exerlock.c:[0-9][0-9]*:/s/:[0-9][0-9]*:/:N:/' \
+	# end
     fi
 }
 

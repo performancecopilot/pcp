@@ -1,0 +1,127 @@
+#!/bin/sh
+# short-term editing tasks for PCP
+#
+
+sts=1
+tmp=/var/tmp/$$
+trap "rm -f $tmp.tmp; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo "Usage: hack [-p pattern] [-v] [file ...]"
+    exit
+}
+
+pattern=""
+verbose=false
+while getopts "p:v?" c
+do
+    case $c
+    in
+	p)
+	    pattern="$OPTARG"
+	    ;;
+	v)
+	    verbose=true
+	    ;;
+	?)
+	    _usage
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+[ $# -eq 0 ] && set -- *.c *.cxx *.h *.y *.l *.in
+
+for file
+do
+    case $file
+    in
+	'*'.*)
+	    ;;
+
+	qa/[0-9][0-9][0-9][0-9]*|qa/[0-9][0-9][0-9]*)
+	    ;;
+
+	*)
+	    if [ ! -f "$file" ]
+	    then
+		echo "Warning: $file: file not found"
+		exit
+	    fi
+
+	    if [ -z "$pattern" ]
+	    then
+		do_me=true
+	    else
+		do_me=false
+		grep "$pattern" $file >/dev/null && do_me=true
+	    fi
+
+	    if $do_me
+	    then
+		if grep '^#include .*libpcp.h' $file >/dev/null
+		then
+		    $verbose && echo "$file: libpcp.h already in place"
+		else
+		    if grep '^#include .*impl.h' $file >/dev/null
+		    then
+			sed <$file >$tmp.tmp \
+			    -e '/^#include .*impl.h/{
+p
+s/impl.h/libpcp.h/
+}'
+			if diff $file $tmp.tmp >/dev/null
+			then
+			    $verbose && echo "Botch: $file: failed to add libpcp.h after impl.h"
+			else
+			    echo "$file: add libpcp.h after impl.h"
+			    mv $tmp.tmp $file
+			fi
+		    elif grep '^#include .*pmapi.h' $file >/dev/null
+		    then
+			sed <$file >$tmp.tmp \
+			    -e '/^#include .*pmapi.h/{
+p
+s/pmapi.h/impl.h/
+p
+s/impl.h/libpcp.h/
+}'
+			if diff $file $tmp.tmp >/dev/null
+			then
+			    $verbose && echo "Botch: $file: failed to add libpcp.h after pmapi.h"
+			else
+			    echo "$file: add impl.h and libpcp.h after pmapi.h"
+			    mv $tmp.tmp $file
+			fi
+		    else
+			echo "Warning: $file: no place to add libpcp.h"
+			exit
+		    fi
+		fi
+	    else
+		$verbose && echo "$file: skipped (no match for $pattern)"
+	    fi
+	    ;;
+    esac
+
+    case $file
+    in
+	qa/src/*.c|qa/qt/*/*.cpp)
+		sed <$file >$tmp.tmp \
+		    -e '/include <pcp\/libpcp.h>/{
+s/<pcp\//"/
+s/>/"/
+}'
+		if diff $file $tmp.tmp >/dev/null
+		then
+		    :
+		else
+		    echo "$file: QA special fix for libpcp.h"
+		    mv $tmp.tmp $file
+		fi
+		;;
+    esac
+done
+
+sts=0

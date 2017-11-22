@@ -325,6 +325,7 @@ usr/share/man/man3/pmunloadnamespace.3.gz
 usr/share/man/man3/pmUnloadNameSpace.3.gz
 usr/share/man/man3/pmunpackeventrecords.3.gz
 usr/share/man/man3/pmUnpackEventRecords.3.gz
+usr/share/man/man3/pmUnpackHighResEventRecords.3.gz
 usr/share/man/man3/__pmUnparseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmUnparseHostSpec.3.gz
 usr/share/man/man3/pmUsageMessage.3.gz

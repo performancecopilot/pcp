@@ -134,7 +134,7 @@ indom_changed(Metric *m)
 		else {
 		    if (archives) {
 			if ((sts = pmNameInDomArchive(m->desc.indom, m->iids[new], &m->inames[new])) < 0) {
-			    __pmNotifyErr(LOG_ERR, "metric %s from %s: instance domain not "
+			    pmNotifyErr(LOG_ERR, "metric %s from %s: instance domain not "
 				"available in archive\npmNameInDomArchive failed: %s\n",
 				symName(m->mname), findsource(symName(m->hname),symName(m->hconn)), pmErrStr(sts));
 			}
@@ -142,7 +142,7 @@ indom_changed(Metric *m)
 		    else {
 			if (numinst == -1) {
 			    if ((sts = pmGetInDom(m->desc.indom, &get_iids, &get_inames)) < 0) {
-				__pmNotifyErr(LOG_ERR, "metric %s from %s: instance domain not (currently) available\n"
+				pmNotifyErr(LOG_ERR, "metric %s from %s: instance domain not (currently) available\n"
 				    "pmGetInDom failed: %s\n",
 				    symName(m->mname), findsource(symName(m->hname),symName(m->hconn)), pmErrStr(sts));
 			    }

@@ -48,6 +48,7 @@
  * __pmSetProcessIdentity()	pmSetProcessIdentity()
  * __pmTimeval			pmTimeval
  * __pmTimespec			pmTimespec
+ * pmFreeHighResResult()	__pmFreeHighResResult()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -116,5 +117,6 @@ PCP_DATA extern int pmDebug;
 #define __pmSetProcessIdentity pmSetProcessIdentity
 #define __pmTimeval pmTimeval
 #define __pmTimespec pmTimespec
+#define pmFreeHighResResult __pmFreeHighResResult
 
 #endif /* PCP_DEPRECATED_H */
