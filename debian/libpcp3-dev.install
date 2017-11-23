@@ -10,6 +10,7 @@ usr/include/pcp/platform_defs.h
 usr/include/pcp/platformsz.h
 usr/include/pcp/pmapi.h
 usr/include/pcp/pmdbg.h
+usr/include/pcp/series.h
 usr/lib/libpcp.a
 usr/lib/libpcp.so
 usr/lib/pcp/bin/install-sh
