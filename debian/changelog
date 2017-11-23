@@ -1,3 +1,12 @@
+pcp (3.12.2-2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Default to building with Qt5 (closes: #875093)
+  * Add missing Qt5 svg dependency (closes: #881649)
+  * Switch from native to quilt form (closes: #881650)
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 23 Nov 2017 10:48:29 +1100
+
 pcp (3.12.2) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

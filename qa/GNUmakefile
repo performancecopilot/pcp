@@ -23,7 +23,6 @@ endif
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio prometheus
 endif
-LCONFIG = localconfig
 
 # No implicit rules here, thank you
 #
@@ -33,10 +32,10 @@ LCONFIG = localconfig
 #
 %.out: %
 
-default_pcp default: new remake check qa_outfiles $(OTHERS) $(SUBDIRS) $(LCONFIG)
+default_pcp default: new remake check qa_outfiles localconfig $(OTHERS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-setup: $(SUBDIRS) $(LCONFIG) qa_hosts
+setup: $(SUBDIRS) localconfig qa_hosts
 	$(SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
