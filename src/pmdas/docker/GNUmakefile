@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016 Red Hat.
+# Copyright (c) 2016-2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,11 +22,7 @@ LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT = $(IAM)_init
 
-LLDLIBS = $(PCP_PMDALIB) $(PCP_WEBLIB) $(LIB_FOR_PTHREADS)
-LLDFLAGS = -L$(TOPDIR)/src/libpcp_web/src
-#LCFLAGS = -I.
-LCFLAGS = -I$(TOPDIR)/src/libpcp_web/src
-LCFLAGS += -g
+LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_PTHREADS)
 
 CFILES	= docker.c
 DFILES	= help
