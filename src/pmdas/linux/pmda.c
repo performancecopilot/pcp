@@ -5081,6 +5081,31 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.pgscan_direct */
+    { &_pm_proc_vmstat.pgscan_direct,
+    {PMDA_PMID(28,146), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgscan_direct_throttle */
+    { &_pm_proc_vmstat.pgscan_direct_throttle,
+    {PMDA_PMID(28,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgscan_kswapd */
+    { &_pm_proc_vmstat.pgscan_kswapd,
+    {PMDA_PMID(28,148), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_direct */
+    { &_pm_proc_vmstat.pgsteal_direct,
+    {PMDA_PMID(28,149), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_kswapd */
+    { &_pm_proc_vmstat.pgsteal_kswapd,
+    {PMDA_PMID(28,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */

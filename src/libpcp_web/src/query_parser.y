@@ -16,9 +16,10 @@
  */
 
 #include <ctype.h>
-#include "series.h"
-#include "util.h"
+#include "query.h"
 #include "load.h"
+#include "util.h"
+#include "libpcp.h"
 
 typedef struct PARSER {
     char	*yy_input;
@@ -31,6 +32,7 @@ typedef struct PARSER {
     meta_t	yy_meta;
     node_t	*yy_np;
     series_t	yy_series;
+    settings_t	*yy_settings;
 } PARSER;
 
 typedef union {
@@ -1198,30 +1200,40 @@ series_dumpexpr(node_t *np, int level)
     series_dumpexpr(np->right, level+1);
 }
 
-int
-series_query(const char *query /*, cb, arg */)
+void
+pmSeriesQuery(pmSeriesSettings *settings,
+	const char *query, pmseries_flags flags, void *arg)
 {
-    PARSER	yp = { 0 };
+    int		sts;
+    PARSER	yp = { .yy_settings = settings };
     series_t	*sp = &yp.yy_series;
 
     yp.yy_input = (char *)query;
-    if (series_parse(&yp))
-	return yp.yy_error;
-    if (pmDebugOptions.series)
-	series_dumpexpr(sp->expr, 0);
-    return series_solve(sp->expr, &sp->time /*, cb, arg */);
+    if (series_parse(&yp)) {
+	sts = yp.yy_error;
+    } else {
+	if (pmDebugOptions.series)
+	    series_dumpexpr(sp->expr, 0);
+	sts = series_solve(settings, sp->expr, &sp->time, flags, arg);
+    }
+    settings->on_done(sts, arg);
 }
 
-int
-series_load(const char *query, int meta /*, cb, arg */)
+void
+pmSeriesLoad(pmSeriesSettings *settings,
+	const char *source, pmseries_flags flags, void *arg)
 {
-    PARSER	yp = { 0 };
+    int		sts;
+    PARSER	yp = { .yy_settings = settings };
     series_t	*sp = &yp.yy_series;
 
-    yp.yy_input = (char *)query;
-    if (series_parse(&yp))
-	return yp.yy_error;
-//    if (pmDebugOptions.series)
-	series_dumpexpr(sp->expr, 0);
-    return series_source(sp->expr, &sp->time, meta /*, cb, arg */);
+    yp.yy_input = (char *)source;
+    if (series_parse(&yp)) {
+	sts = yp.yy_error;
+    } else {
+	if (pmDebugOptions.series)
+	    series_dumpexpr(sp->expr, 0);
+	sts = series_source(settings, sp->expr, &sp->time, flags, arg);
+    }
+    settings->on_done(sts, arg);
 }

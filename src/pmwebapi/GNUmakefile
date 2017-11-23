@@ -21,7 +21,6 @@ CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx util.cxx
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MICROHTTPD) $(LIB_FOR_PTHREADS) 
 LDIRT = pmwebd.log pmwebd.service
-SUBDIRS = webapps
 
 LCFLAGS += $(LIBMICROHTTPDCFLAGS)
 LCFLAGS += -Wextra
@@ -53,11 +52,6 @@ include $(BUILDRULES)
 
 ifeq "$(ENABLE_WEBAPI)" "true"
 build-me::	$(CXXMDTARGET) pmwebd.service
-
-ifeq "$(HAVE_WEBAPPS)" "true"
-build-me::	$(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-endif
 
 pmwebd.service:	pmwebd.service.in
 	$(SED) <$< >$@ \

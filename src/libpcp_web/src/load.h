@@ -15,12 +15,7 @@
 #define SERIES_LOAD_H
 
 #include "pmapi.h"
-#include "libpcp.h"
-
-#undef HASHSIZE
-#define HASHSIZE	40	/* SHA1: 40 for convenience, could be 20 */
-#undef HBUFSIZE
-#define HBUFSIZE	HASHSIZE+2
+#include "series.h"
 
 typedef struct context {
     int			type;
@@ -68,9 +63,9 @@ typedef struct value {
     int			inst;		/* instance ID or PM_IN_NULL */
     char		*name;		/* instance name or NULL */
     pmLabelSet		*labels;	/* instance labels of NULL */
-    char		hash[HBUFSIZE];	/* SHA1 of mandatory metadata */
+    char		hash[PMSIDSZ+1];/* SHA1 of mandatory metadata */
     unsigned int	cached:1;	/* metadata is already cached */
-    unsigned int	marked:1;	/* seen since last "mark" record? */
+    unsigned int	marked:1;	/* seen since last "mark" record */
     unsigned int	markcount;	/* num mark records seen (move?) */
     unsigned int	count;		/* total number of samples */
     struct timeval	firsttime;	/* time of first sample */

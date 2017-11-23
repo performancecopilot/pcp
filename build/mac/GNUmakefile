@@ -17,10 +17,8 @@ include $(TOPDIR)/src/include/builddefs
 
 LDIRDIRT = pcp-*
 LDIRT = $(wildcard pcp*.pkg) $(wildcard pcp*.dmg) \
-	idb installer-files info description
+	idb installer-files info description uninstall-pcp
 SUBDIRS = English.lproj installer-resources
-LSRCFILES = StartupParameters.plist build-installer \
-	    installer-description installer-info install-pcp uninstall-pcp
 
 default install install_pcp default_pcp :
 

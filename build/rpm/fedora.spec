@@ -448,7 +448,7 @@ HTTP (PMWEBAPI) protocol.
 # pcp-webjs and pcp-webapp packages
 #
 %package webjs
-License: ASL2.0 and MIT and CC-BY
+License: ASL2.0 and MIT and CC-BY and GPLv3
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.11.9
 %if !%{disable_noarch}
@@ -496,7 +496,7 @@ Grafana can render time series dashboards at the browser via flot.js
 server via png (less interactive, faster).
 
 %package webapp-graphite
-License: ASL2.0
+License: ASL2.0 and GPLv3
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.10.4
 %if !%{disable_noarch}

@@ -82,6 +82,11 @@ test.  But we can do a few things:
   - menu bar zoom-out or "last 30d" and beyond for maximum archive
     scaning burden
 - check pmwebd.log for plausible metric-digestion times
+- check host-select.js and multi-chart.js for different span12s,height,style url
+  combinations
+- check host-select.js host-name rendering for all four pmwebd -J x -X permutations,
+  and the multichart links from them, including for several different -A nestedness
+- check all-hosts $host templating operation
 
 bonus:
 

@@ -21,3 +21,13 @@ PCP_WEB_1.2 {
   global:
     pmjsonGet;
 } PCP_WEB_1.1;
+
+PCP_WEB_1.3 {
+  global:
+    pmSeriesDesc;
+    pmSeriesInstance;
+    pmSeriesLabel;
+    pmSeriesMetric;
+    pmSeriesQuery;
+    pmSeriesLoad;
+} PCP_WEB_1.2;
