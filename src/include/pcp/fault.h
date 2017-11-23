@@ -34,6 +34,11 @@ extern int __pmFault_arm;
 #endif
 #define malloc(x) __pmFault_malloc(x)
 extern void *__pmFault_malloc(size_t);
+#ifdef calloc
+#undef calloc
+#endif
+#define calloc(x,y) __pmFault_calloc(x,y)
+extern void *__pmFault_calloc(size_t, size_t);
 #ifdef realloc
 #undef realloc
 #endif

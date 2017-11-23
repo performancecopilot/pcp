@@ -809,7 +809,11 @@ _z(void)
 
 /* PDU_LABEL */
 #define TEMP "{\"temperature\":\"celcius\"}"
-    __pmParseLabelSet(TEMP, strlen(TEMP), PM_LABEL_ITEM, &labels);
+    if ((e = __pmParseLabelSet(TEMP, strlen(TEMP), PM_LABEL_ITEM, &labels)) < 0) {
+	fprintf(stderr, "Error: __pmParseLabelSet: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
     if ((e = __pmSendLabel(fd[1], mypid, 0x7bcd1234, PM_LABEL_ITEM, labels, 1)) < 0) {
 	fprintf(stderr, "Error: SendLabel: %s\n", pmErrStr(e));
 	fatal = 1;

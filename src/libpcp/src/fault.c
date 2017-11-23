@@ -298,6 +298,19 @@ void
 }
 
 void
+*__pmFault_calloc(size_t nmemb, size_t size)
+{
+    if (__pmFault_arm == PM_FAULT_ALLOC) {
+	__pmFault_arm = 0;
+	errno = ENOMEM;
+	return NULL;
+    }
+    else 
+#undef calloc
+	return calloc(nmemb, size);
+}
+
+void
 *__pmFault_realloc(void *ptr, size_t size)
 {
     if (__pmFault_arm == PM_FAULT_ALLOC) {
