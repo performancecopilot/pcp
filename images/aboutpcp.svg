@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -16,8 +17,7 @@
    height="100"
    id="svg11300"
    sodipodi:version="0.32"
-   inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/pcp/images"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
    sodipodi:docname="aboutpcp.svg"
    version="1.0">
   <defs
@@ -233,8 +233,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.828427"
-     inkscape:cx="20.235807"
-     inkscape:cy="29.490907"
+     inkscape:cx="45.816972"
+     inkscape:cy="43.633043"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="false"
@@ -247,7 +247,8 @@
      inkscape:object-paths="false"
      inkscape:guide-bbox="false"
      width="76px"
-     height="100px" />
+     height="100px"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata4">
     <rdf:RDF>
@@ -258,7 +259,7 @@
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/LGPL/2.1/">
@@ -293,7 +294,7 @@
          sodipodi:cy="19.008621"
          sodipodi:rx="8.6620579"
          sodipodi:ry="8.6620579"
-         d="M 39.774755 19.008621 A 8.6620579 8.6620579 0 1 1  22.45064,19.008621 A 8.6620579 8.6620579 0 1 1  39.774755 19.008621 z" />
+         d="m 39.774755,19.008621 a 8.6620579,8.6620579 0 0 1 -8.662057,8.662058 8.6620579,8.6620579 0 0 1 -8.662058,-8.662058 8.6620579,8.6620579 0 0 1 8.662058,-8.662058 8.6620579,8.6620579 0 0 1 8.662057,8.662058 z" />
       <rect
          y="11.176847"
          x="10.835502"
@@ -449,26 +450,26 @@
            y="34.918526" />
         <text
            xml:space="preserve"
-           style="font-size:4px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:white;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:sans-serif;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
            x="9.8232231"
            y="38.308506"
-           id="text3058"
-           sodipodi:linespacing="125%"><tspan
+           id="text3058"><tspan
              sodipodi:role="line"
              id="tspan3060"
              x="9.8232231"
-             y="38.308506">PERFORMANCE</tspan></text>
+             y="38.308506"
+             style="font-size:4px;line-height:1.25;font-family:sans-serif">PERFORMANCE</tspan></text>
         <text
            xml:space="preserve"
-           style="font-size:6px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:white;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:sans-serif;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
            x="11.31371"
            y="43.303299"
-           id="text3062"
-           sodipodi:linespacing="100%"><tspan
+           id="text3062"><tspan
              sodipodi:role="line"
              id="tspan3064"
              x="11.31371"
-             y="43.303299">CO-PILOT</tspan></text>
+             y="43.303299"
+             style="font-size:6px;line-height:1;font-family:sans-serif">CO-PILOT</tspan></text>
       </g>
       <g
          transform="matrix(0.996195,-8.715574e-2,8.715574e-2,0.996195,-29.12787,8.170297)"
