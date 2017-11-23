@@ -31,7 +31,9 @@ typedef std::string pmmgr_hostid; // a unique id for a pmcd
 
 
 // Instances of pmmgr_configurable represent a configurable object,
-// which reads one or more lines of djb-style directories. 
+// which reads one or more lines of djb-style directories.  Configuration
+// files may have a mini search path, so that families of subtargets may
+// share some but not all configuration files.
 class pmmgr_configurable
 {
 protected:
@@ -39,8 +41,11 @@ protected:
   virtual ~pmmgr_configurable() {}
 
   std::vector<std::string> get_config_multi(const std::string&) const;
+  std::vector<std::string> get_config_multi(const std::string&, const pmmgr_hostid&) const;
   std::string get_config_single(const std::string&) const;
+  std::string get_config_single(const std::string&, const pmmgr_hostid&) const;
   bool get_config_exists(const std::string&) const;
+  bool get_config_exists(const std::string&, const pmmgr_hostid&) const;
 
   // private: maybe?
   std::string config_directory;
@@ -68,6 +73,11 @@ protected:
   int pid;
   time_t last_restart_attempt;
 
+  // accessors for hostid-suffixed configurations 
+  std::vector<std::string> get_config_multi(const std::string&) const;
+  std::string get_config_single(const std::string&) const;
+  bool get_config_exists(const std::string&) const;
+    
   virtual std::string daemon_command_line() = 0;
 };
 
@@ -107,12 +117,11 @@ protected:
 
 
 
-
-
-// An instance of a pmmgr_job_spec represents a pmmgr
-// configuration item to monitor some set of pcp target patterns
-// (which collectively map to a varying set of pmcd's), and a
-// corresponding set of daemons to keep running for each of them.
+// An instance of a pmmgr_job_spec represents a pmmgr configuration
+// directory (specified by pmmgr -c DIR) to monitor some set of pcp
+// target patterns (which collectively map to a varying set of
+// pmcd's), and a corresponding set of daemons to keep running for
+// each of them.
 //
 // The pmcds are identified by a configurable algorithm that collects
 // site-specific metrics into a single string, which is then sanitized
@@ -140,7 +149,7 @@ private:
   void parallel_do(int num_threads, void * (*fn)(void *), void *data) const;
 
 public:
-  pmmgr_hostid compute_hostid (const pcp_context_spec&) const;
+  std::set<pmmgr_hostid> compute_hostids (const pcp_context_spec&) const;
   std::set<std::string> find_containers (const pcp_context_spec&) const;
 };
 

@@ -64,13 +64,16 @@ attempts to make a brief
 connection to each target, in order to check for the existence of an actual
 running
 .B pmcd
-instance, and to extract a host-id.  The host-id is treated as a
+instance, and to extract a hostid.  The hostid is treated as a
 unique identifier for the instance, so that redundant connection paths to the
 same server can be filtered out.
 Once the final list of live
 .B pmcd
-instances is identified, along with their unique host-ids, pmmgr ensures that
-any requested pcp client daemons are started (or restarted) for them.  If any
+instances is identified, along with their unique hostids,
+.B pmmgr
+ensures that
+any requested pcp client daemons are started (or restarted) for them.
+If any
 .B pmcd
 instances disappear from the list, its pcp client daemons are stopped.
 This entire cycle repeats every poll interval.
@@ -109,6 +112,7 @@ redirects standard output and error to the given log file, which is created anew
 .B \-v
 adds more verbose tracing to standard output.
 .SH CONFIGURATION
+.SS FILES
 A
 .B pmmgr
 configuration identifies which hosts should be monitored, which
@@ -116,10 +120,23 @@ daemons should be maintained for them, and what options those daemons
 should be run with.
 .B pmmgr
 uses a small number of files in a configuration directory,
-instead of lines in a text file.
+instead of lines in a single text file.
 The individual files carry zero or more lines of 100% pure configuration
 text, and no comments.  (If desired, a configuration may be commented
-upon with any other file, such as a free-form README.)
+upon within other files, such as a free-form README.)
+.PP
+Some of the configuration files are forked into pairs: per-hostid and
+common.  This permits numerous almost-identical-configuration targets
+to be managed from the same configuration directory.  For these files,
+marked with \fB*\fR below, \fBpmmgr\fP will \fIconcatenate\fP a
+per-hostid file (if it exists) and a common file (if it exists) in
+order to form the complete configuration item.
+.PP
+For example, for \fBpmie\fP configuration for target hostid \fBfoo\fP,
+.B pmmgr
+will search files named \fIpmie.foo\fP then \fIpmie\fP.  For
+single-line configuration items, the first file & line found will
+"win"; for multi-line configuration items, they all "win".
 .SS TARGET SELECTION
 This set of configuration files identifies where
 .B pmmgr
@@ -128,18 +145,21 @@ for
 .B pmcd
 instances, how to uniquely identify them, and where state
 such as log files should be kept for each.  Ideally, a persistent and
-unique host-id string is computed for each potential target pmcd from
-specified metric values.  This host-id is also used as a subdirectory
+unique hostid string is computed for each potential target pmcd from
+specified metric values.  This hostid is also used as a subdirectory
 name for locating daemon data.
 .TP
 .I hostid\-static
-This file contains a single line specifying the static string that should be
-used for the host-id value.  Specifying a value in this file overrides the
+This file contains one or more lines specifying the static string that
+should be used as multiple distinct hostids for the same target
+\fBpmcd\fP.  Treatment of the distinct hostids may be customized using
+per-hostid configuration files.
+Specifying values in this file overrides the
 .I hostid\-metrics
 file specified below.  It should be noted that using this option will cause
-all target pmcds to be assigned the same hostid.  Thus, this is useful in
-monitoring single hosts, or if each monitored host has its own configuration
-directory.
+all target pmcds to be assigned the same set of hostids.  Thus, this is
+useful in monitoring single hosts or if each monitored host has its own
+configuration directory.
 .TP
 .I hostid\-metrics
 This file contains one or more lines of metric specifications in the format
@@ -148,7 +168,7 @@ accepted by
 Metrics without instance specifiers mean all instances of that metric.
 These are used to generate the
 .IR unique
-host-id string for each
+hostid string for each
 .B pmcd
 server that
 .B pmmgr
@@ -160,13 +180,13 @@ The default is the single metric
 .BR pmcd.hostname ,
 which is sufficient if all the hosts discovered have unique hostname(2).  If
 they don't, you should add other pcp metric specifications to set them apart
-at your site.  The more you add, the longer the host-id string, but the more
+at your site.  The more you add, the longer the hostid string, but the more
 likely that accidental duplication is prevented.
 .P
-However, it may be desirable for a host-id to also be
+However, it may be desirable for a hostid to also be
 .IR persistent ,
 so that if the target host goes offline and later returns, the new
-host-id matches the previous one, because then old and new histories can be joined.
+hostid matches the previous one, because then old and new histories can be joined.
 This argues against using metrics whose values vary from boot to boot.
 .P
 Some candidate metrics to consider:
@@ -174,7 +194,7 @@ Some candidate metrics to consider:
 .IR network.interface.ipv6_addr ", " kernel.uname.nodename
 .TP
 .I log\-directory
-This file contains the path of a directory beneath which the per-host-id
+This file contains the path of a directory beneath which the per-hostid
 subdirectories are to be created by
 .BR pmmgr .
 If it is not a full path, it
@@ -209,11 +229,14 @@ five seconds each time).  Consider including
 to quickly scan the given IP address range.
 .TP
 .I target\-kubectl\-pod
-If this file exists, pmmgr is assumed to run within a kubernetes cluster.
+If this file exists,
+.B pmmgr
+is assumed to run within a kubernetes cluster.
 The line of the configuration file is appended to a
 .B kubectl get pod
 command line to discover IP addresses of all matching pods running nearby.
-.B pmmgr extracts the
+.B pmmgr
+extracts the
 .B .status.podIP
 field from the kubernetes pod object(s) and tries to connect to each at
 the default pmcd port number.  Use options like
@@ -227,7 +250,7 @@ If this file exists,
 will scan each host that is found for
 running containers.  For each running container, it will create
 independent subtargets for running requested daemons.
-The host-id string for these subtargets is the host's host-id
+The hostid string for these subtargets is the host's hostid
 string, followed by a double-hyphen, then the full unique container
 instance-name string.
 .TP
@@ -261,14 +284,17 @@ restarts, and
 intervals).
 The default value is
 .IR 90days .
+
 .SS PMLOGGER CONFIGURATION
 This group of configuration options controls a
 .BR pmlogger
 daemon for each host.  This may include generating its configuration,
 and managing its archives.
 .TP
-.I pmlogger
-If and only if this file exists, pmmgr will maintain a
+.I pmlogger*
+If and only if this file exists,
+.B pmmgr
+will maintain a
 .BR pmlogger
 daemon for each
 targeted host.
@@ -282,14 +308,14 @@ The default is to maintain
 .BR "no pmlogger"
 (and no other configuration in this section is processed).
 .TP
-.I pmlogger\-timefmt
+.I pmlogger\-timefmt*
 Specify a time format to use in the archive\-* name for
 .B pmlogger
 generated archives. The default is "%Y%m%d.%H%M%S". Expected to be in 
 .BR strftime (3)
 format.
 .TP
-.I pmlogconf
+.I pmlogconf*
 If and only if this file exists,
 .B pmmgr
 will run
@@ -342,7 +368,7 @@ one merged archive of recent history, and one current archive being
 written-to by
 .BR pmlogger .
 .TP
-.I pmlogmerge
+.I pmlogmerge*
 If this file exists,
 .B pmmgr
 will run
@@ -360,7 +386,7 @@ the merged archive \fIlags\fR the present time.
 The default is
 .IR 24hours .
 .TP
-.I pmlogmerge\-granular
+.I pmlogmerge\-granular*
 If this file also exists,
 .B pmmgr
 will merge only a subset of preexisting
@@ -372,7 +398,7 @@ control file.
 The default is
 .BR "no granularity" .
 .TP
-.I pmlogcheck\-corrupt\-gc
+.I pmlogcheck\-corrupt\-gc*
 Before archives are considered for merging, they are processed through
 .B pmlogcheck
 to check for corruption.
@@ -386,7 +412,7 @@ The default is
 To store corrupt archives indefinitely, set this to a large
 quantity like "99999weeks".
 .TP
-.I pmlogmerge\-rewrite
+.I pmlogmerge\-rewrite*
 If this file exists,
 .B pmmgr
 will run
@@ -395,7 +421,7 @@ will run
 merging it.  This will naturally require more disk I/O.  The default is
 .BR "no rewriting" .
 .TP
-.I pmlogmerge\-retain
+.I pmlogmerge\-retain*
 .B pmmgr
 reduces/deletes any original-resolution archives after a time
 period specified by this file, as measured by the file mtime.
@@ -407,7 +433,7 @@ The default is
 To store archives indefinitely, set this to a large quantity
 like "99999weeks".
 .TP
-.I pmlogreduce
+.I pmlogreduce*
 If this file exists, then prior to removing archives that
 expire past the
 .I pmlogmerge\-retain
@@ -418,7 +444,7 @@ file contains space-separated options, they are passed onto
 pmlogreduce.  (By default, pmlogreduce down-samples to a
 600-second interval.)
 .TP
-.I pmlogreduce\-retain
+.I pmlogreduce\-retain*
 If this file exists, then reduced archives (identified by the
 \fBreduced-*\fR pattern) are deleted after a time period
 specified by this file, as measured from the file mtime.
@@ -485,20 +511,24 @@ This group of configuration options controls a
 daemon for each host.
 This may include generating a custom configuration.
 .TP
-.I pmie
-If and only if this file exists, pmmgr will maintain a
+.I pmie*
+If and only if this file exists,
+.B pmmgr
+will maintain a
 .B pmie
 daemon for each targeted
 .BR pmcd .
 This file contains one line of additional space-separated options
 for the
 .B pmie
-daemon.  (pmmgr already adds \-h, \-f, \-l, and perhaps \-c.)
+daemon.  (\c
+.B pmmgr
+already adds \-h, \-f, \-l, and perhaps \-c.)
 The default is to maintain
 .BR "no pmie"
 (and no other configuration in this section is processed).
 .TP
-.I pmieconf
+.I pmieconf*
 If and only if this file exists,
 .B pmmgr
 will run
@@ -532,7 +562,7 @@ or
 .B pcp2influxdb
 without needing a specialized system service.
 .TP
-.I monitor
+.I monitor*
 If this file exists, then for each line in this file, a new background process will
 be invoked.  (It is restarted if it exits.)  The line specifies the beginning of the
 command line (including the program name);

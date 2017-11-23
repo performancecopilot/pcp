@@ -273,13 +273,17 @@ pmmgr_configurable::get_config_multi(const string& file) const
       lines.push_back(line);
     if (! f.good())
       break;
-    // NB: an empty line is not necessarily a problem
-    #if 0
-    if (line == "")
-      timestamp(obatched(cerr)) << "file '" << file << "' parse warning: empty line ignored" << endl;
-    #endif
   }
 
+  return lines;
+}
+
+vector<string>
+pmmgr_configurable::get_config_multi(const string& file, const pmmgr_hostid& suffix) const
+{
+  vector<string> lines = get_config_multi (file + '.' + suffix);
+  vector<string> lines2 = get_config_multi (file);
+  lines.insert(lines.end(),lines2.begin(), lines2.end());
   return lines;
 }
 
@@ -293,20 +297,34 @@ pmmgr_configurable::get_config_exists(const string& file) const
 }
 
 
+bool
+pmmgr_configurable::get_config_exists(const string& file, const pmmgr_hostid& suffix) const
+{
+  return get_config_exists(file + '.' + suffix) || get_config_exists(file);
+}
+
+
 string
 pmmgr_configurable::get_config_single(const string& file) const
 {
   vector<string> lines = get_config_multi (file);
-  if (lines.size() == 1)
-    return lines[0];
-  else if (lines.size() > 1)
-    {
-      timestamp(obatched(cerr)) << "file '" << file << "' parse warning: ignored extra lines" << endl;
-      return "";
-    }
+  if (lines.size() >= 1)
+    return lines[0]; // ignore subsequent lines
   else
     return ""; // even an empty or nonexistent file comes back with a ""
 }
+
+
+string
+pmmgr_configurable::get_config_single(const string& file, const pmmgr_hostid& suffix) const
+{
+  vector<string> lines = get_config_multi (file, suffix);
+  if (lines.size() >= 1)
+    return lines[0]; // ignore subsequent lines
+  else
+    return ""; // even an empty or nonexistent file comes back with a ""
+}
+
 
 ostream& // NB: return by value!
 pmmgr_configurable::timestamp(ostream& o) const
@@ -352,19 +370,24 @@ pmmgr_job_spec::parse_metric_spec (const string& spec) const
 // NB: note: this function needs to be reentrant/concurrency-aware, since
 // multiple threads may be running it at the same time against the same
 // pmmgr_job_spec object!
-pmmgr_hostid
-pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
+set<pmmgr_hostid>
+pmmgr_job_spec::compute_hostids (const pcp_context_spec& ctx) const
 {
-  // static hostid takes precedence
-  string hostid_static = get_config_single ("hostid-static");
-  if (hostid_static != "")
-    return pmmgr_hostid (hostid_static);
+  set<pmmgr_hostid> hostids;
+
+  // static hostids take precedence
+  vector<string> hostid_static = get_config_multi ("hostid-static");
+  if (hostid_static.size() != 0) {
+    hostids.insert(hostid_static.begin(), hostid_static.end());
+    return hostids;
+  }
 
   pmFG fg;
   int sts = pmCreateFetchGroup (&fg, PM_CONTEXT_HOST, ctx.c_str());
-  if (sts < 0)
-    return "";
-
+  if (sts < 0) {
+    return hostids; // empty
+  }
+  
   // parse all the hostid metric specifications
   vector<string> hostid_specs = get_config_multi("hostid-metrics");
   if (hostid_specs.size() == 0)
@@ -433,7 +456,8 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
 	}
     }
 
-    return pmmgr_hostid (sanitized);
+  hostids.insert(pmmgr_hostid (sanitized));
+  return hostids;
 }
 
 
@@ -554,14 +578,13 @@ pmmgr_pmcd_search_thread (void *a)
       }
 
       // NB: this may take seconds! $PMCD_CONNECT_TIMEOUT
-      pmmgr_hostid hostid = t->job->compute_hostid (spec);
+      set<pmmgr_hostid> hostids = t->job->compute_hostids (spec);
 
-      if (hostid != "") // verified existence/liveness
-	{
-          locker update_output (& t->lock);
-
-          t->output.insert (make_pair (hostid, spec));
-        }
+      locker update_output (& t->lock);
+      for (set<pmmgr_hostid>::iterator it = hostids.begin();
+           it != hostids.end();
+           it++)
+        t->output.insert (make_pair (*it, spec));
     }
 
   return 0;
@@ -946,15 +969,19 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
 {
   timestamp(obatched(cout)) << "new hostid " << hid << " at " << string(spec) << endl;
 
-  if (get_config_exists("pmlogger"))
+  if (get_config_exists("pmlogger", hid))
     daemons.insert(make_pair(hid, new pmmgr_pmlogger_daemon(config_directory, hid, spec)));
 
-  if (get_config_exists("pmie"))
+  if (get_config_exists("pmie", hid))
     daemons.insert(make_pair(hid, new pmmgr_pmie_daemon(config_directory, hid, spec)));
 
-  vector<string> lines = get_config_multi ("monitor");
+  vector<string> lines = get_config_multi ("monitor", hid);
   for (unsigned i=0; i<lines.size(); i++)
     daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines[i], i, hid, spec)));
+
+  vector<string> lines2 = get_config_multi ("monitor-host-env", hid);
+  for (unsigned i=0; i<lines2.size(); i++)
+    daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines2[i], i, hid, spec)));
 }
 
 
@@ -1008,6 +1035,24 @@ pmmgr_daemon::pmmgr_daemon(const std::string& config_directory,
   pid(0),
   last_restart_attempt(0)
 {
+}
+
+vector<string>
+pmmgr_daemon::get_config_multi(const string& file) const
+{
+  return pmmgr_configurable::get_config_multi(file, hostid);
+}
+
+bool
+pmmgr_daemon::get_config_exists(const string& file) const
+{
+  return pmmgr_configurable::get_config_exists(file, hostid);
+}
+
+string
+pmmgr_daemon::get_config_single(const string& file) const
+{
+  return pmmgr_configurable::get_config_single(file, hostid);
 }
 
 
