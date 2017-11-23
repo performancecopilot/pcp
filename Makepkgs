@@ -542,6 +542,10 @@ prepare_debian_control()
 {
     echo
     echo "== Preparing source tree for dpkg-buildpackage"
+    parent=`realpath ..`
+    source="$parent/pcp_${VERSION}.orig.tar.gz"
+    mv "$SRCTAR" "$source"
+    echo "Wrote: $source"
     rm -f $tmp/failed debian/control
     if $verbose ; then
 	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
