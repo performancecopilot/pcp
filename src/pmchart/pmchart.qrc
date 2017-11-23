@@ -1,7 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>images/aboutpcp.png</file>
-    <file>images/aboutpmchart.png</file>
     <file>images/camera-video.png</file>
     <file>images/camera-video-close.png</file>
     <file>images/document-new.png</file>

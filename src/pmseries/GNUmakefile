@@ -17,8 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmseries.c
 CMDTARGET = pmseries$(EXECSUFFIX)
-LLDLIBS	= $(PCP_WEBLIB) $(PCP_PMDALIB) $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
-LLDFLAGS = -L$(TOPDIR)/src/libpcp_web/src
+LLDLIBS	= $(PCP_WEBLIB) $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
 
 default:	$(CMDTARGET)
 

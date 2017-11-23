@@ -101,7 +101,9 @@ on_series_info(pmseries_level level, const char *message, void *arg)
  */
 
 typedef struct series_load_data {
-    int			status;
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int        nseries;	/* count of series seen */
 } series_load_data;
 
 static int
@@ -130,10 +132,10 @@ series_load_all(pmSeriesSettings *settings, const char *query)
  */
 
 typedef struct series_query_data {
-    int			status;
-    unsigned int        series;
-    unsigned int        buflen;
-    char                buffer[BUFSIZ];
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int        nseries;	/* count of series seen */
+    unsigned int        nvalues;	/* values observed for current series */
 } series_query_data;
 
 static int
@@ -141,18 +143,25 @@ on_series_match(pmSeriesID *sid, void *arg)
 {
     series_query_data	*dp = (series_query_data *)arg;
 
-    printf("%.*s\n", PMSIDSZ, sid->name);
-    dp->series++;
+    printf("%s\n", sid->name);
+    dp->series = *sid;
+    dp->nseries++;
     return 0;
 }
 
 static int
 on_series_value(pmSeriesID *sid, const char *stamp, const char *value, void *arg)
 {
-    series_query_data	*rp = (series_query_data *)arg;
+    series_query_data	*dp = (series_query_data *)arg;
 
-    (void)rp;
-    printf("[%.*s] time=%s value=%s\n", PMSIDSZ, sid->name, stamp, value);
+    if (dp->nvalues == 0 || memcmp(&dp->series, sid, PMSIDSZ) != 0) {
+	printf("\n%s\n", sid->name);
+	dp->series = *sid;
+	dp->nvalues = 0;
+    }
+
+    printf("    [%s] %s\n", stamp, value);
+    dp->nvalues++;
     return 0;
 }
 
@@ -178,10 +187,32 @@ series_query_meta(pmSeriesSettings *settings, const char *query)
  *  pmSeriesDesc call, callback and data structure
  */
 
-typedef struct series_desc {
-    int			status;
-    unsigned int        series;
-} series_desc;
+typedef struct series_desc_data {
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int        nseries;	/* count of series seen */
+} series_desc_data;
+
+static char *
+pmid2hex(const char *pmid, char *buf, size_t buflen)
+{
+    unsigned int	domain, cluster, item;
+    char		*c, *i;
+
+    strncpy(buf, pmid, buflen);
+    buf[buflen-1] = '\0';
+    if ((c = index(buf, '.')) == NULL ||
+	((i = index(c+1, '.')) == NULL)) {
+	pmsprintf(buf, buflen, "0xffffffff");
+    } else {
+	*c = *i = '\0';
+	domain = atoi(buf);
+	cluster = atoi(c+1);
+	item = atoi(i+1);
+	pmsprintf(buf, buflen, "0x%x", pmID_build(domain, cluster, item));
+    }
+    return buf;
+}
 
 static char *
 indom2hex(const char *indom, char *buf, size_t buflen)
@@ -222,19 +253,25 @@ static int
 on_series_desc(pmSeriesID *series, const char *pmid, const char *indom,
 	const char *semantics, const char *type, const char *units, void *arg)
 {
-    series_desc		*dp = (series_desc *)arg;
-    char		inbuf[64], hexbuf[32], typebuf[32];
+    series_desc_data	*dp = (series_desc_data *)arg;
+    char		inbuf[64], phexbuf[32], ihexbuf[32], typebuf[32];
 
     typestr(type, typebuf, sizeof(typebuf));
-    indom2hex(indom, hexbuf, sizeof(hexbuf));
+    pmid2hex(pmid, phexbuf, sizeof(phexbuf));
+    indom2hex(indom, ihexbuf, sizeof(ihexbuf));
+
     pmsprintf(inbuf, sizeof(inbuf), "%s %s",
-		    indom[0] == '\0' ? "PM_INDOM_NULL" : indom, hexbuf);
-    printf("\n%s\n"
-	   "    PMID: %s\n"
+		    indom[0] == '\0' ? "PM_INDOM_NULL" : indom, ihexbuf);
+
+    if (dp->series.name[0] == '\0' || memcmp(&dp->series, series, PMSIDSZ))
+	printf("\n%s\n", series->name);
+    printf("    PMID: %s %s\n"
 	   "    Data Type: %s  InDom: %s\n"
 	   "    Semantics: %s  Units: %s\n",
-	    series->name, pmid, typebuf, inbuf, semantics, units);
-    dp->series++;
+	    pmid, phexbuf, typebuf, inbuf, semantics, units);
+
+    dp->series = *series;
+    dp->nseries++;
     return 0;
 }
 
@@ -243,10 +280,10 @@ series_descriptor(pmSeriesSettings *settings, const char *query)
 {
     int			nseries, sts;
     pmSeriesID		*series = NULL;
-    series_desc		data;
+    series_desc_data	data;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
-	fprintf(stderr, "%s: cannot find series identifiers in '%s': %s\n",
+	fprintf(stderr, "%s: no series identifiers in string '%s': %s\n",
 		pmGetProgname(), query, pmErrStr(sts));
 	return 2;
     }
@@ -260,8 +297,9 @@ series_descriptor(pmSeriesSettings *settings, const char *query)
  */
 
 typedef struct series_inst_data {
-    int			status;
-    unsigned int        series;
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int        nseries;	/* count of series seen */
 } series_inst_data;
 
 static int
@@ -271,8 +309,13 @@ on_series_instance(pmSeriesID *series, int inst, const char *name, void *arg)
 
     if (inst == PM_IN_NULL)
 	return 0;
-    printf("\n%s\n    Instance: [%d or \"%s\"]\n", series->name, inst, name);
-    ip->series++;
+
+    if (ip->series.name[0] == '\0')
+	printf("\n%s\n", series->name);
+    printf("    Instance: [%d or \"%s\"]\n", inst, name);
+
+    ip->series = *series;
+    ip->nseries++;
     return 0;
 }
 
@@ -298,8 +341,9 @@ series_instance(pmSeriesSettings *settings, const char *query)
  */
 
 typedef struct series_labelset {
-    int			status;
-    unsigned int        series;
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int        nseries;	/* count of series seen */
 } series_labelset;
 
 static int
@@ -307,8 +351,12 @@ on_series_labels(pmSeriesID *series, const char *label, void *arg)
 {
     series_labelset	*lp = (series_labelset *)arg;
 
-    printf("\n%s\n    Label Names: %s\n", series->name, label);
-    lp->series++;
+    if (lp->series.name[0] == '\0')
+	printf("\n%s\n", series->name);
+    printf("    Labels: %s\n", label);
+
+    lp->series = *series;
+    lp->nseries++;
     return 0;
 }
 
@@ -334,9 +382,10 @@ series_labels(pmSeriesSettings *settings, const char *query)
  */
 
 typedef struct series_metrics {
-    int			status;
-    unsigned int        series;
-    pmSeriesID		previous;
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int        nseries;	/* count of series seen */
+    unsigned int        nnames;		/* count of metric names */
 } series_metrics;
 
 static int
@@ -344,15 +393,16 @@ on_series_metric(pmSeriesID *series, const char *name, void *arg)
 {
     series_metrics	*mp = (series_metrics *)arg;
 
-    if (mp->series && memcmp(&mp->previous, series, PMSIDSZ) == 0) {
+    if (mp->nnames && memcmp(&mp->series, series, PMSIDSZ) == 0) {
 	printf(", %s", name);
     } else {
-	if (mp->series)
-	    printf("\n");
-	printf("\n%s\n    Metric Names: %s\n", series->name, name);
+	if (mp->series.name[0] == '\0' || memcmp(&mp->series, series, PMSIDSZ))
+	    printf("\n%s\n", series->name);
+	printf("    Metrics: %s\n", name);
+	mp->series = *series;
+	mp->nseries++;
     }
-    memcpy(&mp->previous, series, PMSIDSZ);
-    mp->series++;
+    mp->nnames++;
     return 0;
 }
 
@@ -395,12 +445,18 @@ series_meta_all(pmSeriesSettings *settings, const char *query)
 	return 1;
     }
     for (i = sts = 0; i < nseries; i++) {
-	const char *name = (const char *)series[i].name;
-	printf("%s\n", name);
-	sts |= series_metric(settings, name);
-	sts |= series_instance(settings, name);
-	sts |= series_descriptor(settings, name);
-	sts |= series_labels(settings, name);
+	series_desc_data	desc_data = {.series = series[i]};
+	series_inst_data	inst_data = {.series = series[i]};
+	series_metrics		metrics_data = {.series = series[i]};
+	series_labelset		labelset_data = {.series = series[i]};
+
+	printf("\n%s\n", series[i].name);
+	pmSeriesMetric(settings, 1, &series[i], (void *)&metrics_data);
+	pmSeriesLabel(settings, 1, &series[i], (void *)&labelset_data);
+	pmSeriesInstance(settings, 1, &series[i], (void *)&inst_data);
+	pmSeriesDesc(settings, 1, &series[i], (void *)&desc_data);
+	sts |= desc_data.status | inst_data.status |
+	       metrics_data.status | labelset_data.status;
     }
     series_free(nseries, series);
     if (sts)
