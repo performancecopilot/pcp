@@ -147,30 +147,33 @@ fi
 }
 
 %global selinux_handle_policy() %{expand:
-if [ "%1" -eq 1 ]
+if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
 then
-    PCP_SELINUX_DIR=@pcp_selinux_dir@
-    if [ -f "$PCP_SELINUX_DIR/%2" ]
+    if [ "%1" -eq 1 ]
     then
-	if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	PCP_SELINUX_DIR=@pcp_selinux_dir@
+	if [ -f "$PCP_SELINUX_DIR/%2" ]
 	then
-	    (semodule -X 400 -i $PCP_SELINUX_DIR/%2)
-	else
-	    (semodule -i $PCP_SELINUX_DIR/%2)
-	fi #semodule -X flag check
-    fi
-elif [ "%1" -eq 0 ]
-then
-    if semodule -l | grep %2 >/dev/null 2>&1
+	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    then
+		(semodule -X 400 -i $PCP_SELINUX_DIR/%2)
+	    else
+		(semodule -i $PCP_SELINUX_DIR/%2)
+	    fi #semodule -X flag check
+	fi
+    elif [ "%1" -eq 0 ]
     then
-	if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	if semodule -l | grep %2 >/dev/null 2>&1
 	then
-	    (semodule -X 400 -r %2 >/dev/null)
-	else
-	    (semodule -r %2 >/dev/null)
-	fi #semodule -X flag check
+	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    then
+		(semodule -X 400 -r %2 >/dev/null)
+	    else
+		(semodule -r %2 >/dev/null)
+	    fi #semodule -X flag check
+	fi
     fi
-fi
+fi # check for an active selinux install
 }
 
 Requires: pcp-libs = @package_version@
