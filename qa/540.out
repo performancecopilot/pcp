@@ -94,7 +94,7 @@ realloc() fails for pipe map
 __pmProcessPipe(..., "r", ...) -> -12: Cannot allocate memory
 === std err ===
 __pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
-[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+[DATE] exectest(PID) Warning: __pmProcessPipe: argv realloc: malloc(N) failed: Cannot allocate memory
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/exectest -Dexec -p -- echo hullo world

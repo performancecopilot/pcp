@@ -28,5 +28,5 @@ __pmProcessPipe(..., "r", ...) -> -38: Function not implemented
 
 realloc() fails for pipe map
 __pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
-[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+[DATE] exectest(PID) Warning: __pmProcessPipe: argv realloc: malloc(N) failed: Cannot allocate memory
 __pmProcessPipe(..., "r", ...) -> -12: Cannot allocate memory
