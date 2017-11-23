@@ -19,8 +19,7 @@ echo "QA output created by $seq"
 $sudo ipcs -m | grep -iq deadbeef && \
     _notrun "Cannot run with SHM key 0xdeadbeef already in use"
 
-echo >$tmp.input 'b
-pigs
+echo >$tmp.input 'pigs
 can
 fly
 '

@@ -160,11 +160,6 @@ cd $PCP_PMDAS_DIR/simple
 echo "sec,min,hour" >$tmp.simple.conf
 $sudo cp $tmp.simple.conf simple.conf
 
-# Install the simple namespace, I don't bother to remove it again
-#
-$sudo ./Install -N < /dev/null | _filter_ins 2>&1
-echo "Namespace installed"
-
 if $sudo $PCP_MAKE_PROG > $tmp.make 2>&1
 then
     echo "PMDA built"

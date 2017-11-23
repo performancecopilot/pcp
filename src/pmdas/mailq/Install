@@ -25,91 +25,87 @@ pmda_interface=2
 #
 pmdaSetup
 
-if $do_pmda
+dso_opt=false
+socket_opt=false
+pipe_opt=true
+
+mqueue=""
+chk=""
+
+if [ -f /etc/sendmail.cf ]
 then
-
-    dso_opt=false
-    socket_opt=false
-    pipe_opt=true
-
-    mqueue=""
-    chk=""
-
-    if [ -f /etc/sendmail.cf ]
-    then
-	chk=`sed -n '/^O *QueueDirectory *= */s///p' /etc/sendmail.cf`
-	[ -z "$chk" ] && chk=`sed -n '/^O *Q *\//s//\//p' /etc/sendmail.cf`
-    fi
-
-    if [ ! -z "$chk" -a -d "$chk" ]
-    then
-	mqueue="$chk"
-    else
-	mqueue=/var/spool/mqueue
-    fi
-
-    while true
-    do
-	$PCP_ECHO_PROG $PCP_ECHO_N 'Mail queue directory ['"$mqueue"'] '"$PCP_ECHO_C"
-	read ans
-	[ -z "$ans" ] && break
-	if [ -d "$ans" ]
-	then
-	    mqueue="$ans"
-	    break
-	fi
-	echo "Error: \"$ans\" is not a directory"
-    done
-
-    echo
-    regex=""
-    $PCP_ECHO_PROG $PCP_ECHO_N 'Mail basename regex ['"$regex"'] '"$PCP_ECHO_C"
-    read regex
-    [ -z "$regex" ] || args="$args -r $regex"
-
-    echo
-    args="$args $mqueue"
-
-    while true
-    do
-	echo 'The default delay thresholds for grouping the pending mail items are:'
-	echo '    1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days'
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N 'Do you wish to use the default delay thresholds [y]? '"$PCP_ECHO_C"
-	read ans
-	if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
-	then
-	    break
-	else
-	    bucketlist=''
-	    while true
-	    do
-		$PCP_ECHO_PROG $PCP_ECHO_N 'Threshold? [return if no more] '"$PCP_ECHO_C"
-		read ans
-		[ -z "$ans" ] && break
-		# strip blanks so args in pmcd.conf get passed correctly to
-		# the mailqpmda binary
-		#
-		ans=`echo "$ans" | sed -e 's/ //g'`
-		if [ -z "$bucketlist" ]
-		then
-		    bucketlist="$ans"
-		else
-		    bucketlist="$bucketlist,$ans"
-		fi
-	    done
-	    if [ ! -z "$bucketlist" ]
-	    then
-		args="$args -b $bucketlist"
-		break
-	    fi
-	    echo
-	    echo 'Error: you must specify at least one threshold'
-	    echo
-	fi
-    done
-    echo
+    chk=`sed -n '/^O *QueueDirectory *= */s///p' /etc/sendmail.cf`
+    [ -z "$chk" ] && chk=`sed -n '/^O *Q *\//s//\//p' /etc/sendmail.cf`
 fi
+
+if [ ! -z "$chk" -a -d "$chk" ]
+then
+    mqueue="$chk"
+else
+    mqueue=/var/spool/mqueue
+fi
+
+while true
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N 'Mail queue directory ['"$mqueue"'] '"$PCP_ECHO_C"
+    read ans
+    [ -z "$ans" ] && break
+    if [ -d "$ans" ]
+    then
+	mqueue="$ans"
+	break
+    fi
+    echo "Error: \"$ans\" is not a directory"
+done
+
+echo
+regex=""
+$PCP_ECHO_PROG $PCP_ECHO_N 'Mail basename regex ['"$regex"'] '"$PCP_ECHO_C"
+read regex
+[ -z "$regex" ] || args="$args -r $regex"
+
+echo
+args="$args $mqueue"
+
+while true
+do
+    echo 'The default delay thresholds for grouping the pending mail items are:'
+    echo '    1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days'
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N 'Do you wish to use the default delay thresholds [y]? '"$PCP_ECHO_C"
+    read ans
+    if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
+    then
+	break
+    else
+	bucketlist=''
+	while true
+	do
+	    $PCP_ECHO_PROG $PCP_ECHO_N 'Threshold? [return if no more] '"$PCP_ECHO_C"
+	    read ans
+	    [ -z "$ans" ] && break
+	    # strip blanks so args in pmcd.conf get passed correctly to
+	    # the mailqpmda binary
+	    #
+	    ans=`echo "$ans" | sed -e 's/ //g'`
+	    if [ -z "$bucketlist" ]
+	    then
+		bucketlist="$ans"
+	    else
+		bucketlist="$bucketlist,$ans"
+	    fi
+	done
+	if [ ! -z "$bucketlist" ]
+	then
+	    args="$args -b $bucketlist"
+	    break
+	fi
+	echo
+	echo 'Error: you must specify at least one threshold'
+	echo
+    fi
+done
+echo
 
 pmdaInstall
 exit

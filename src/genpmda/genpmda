@@ -210,13 +210,6 @@ fi
 
 cat <<EOFEOF >>$oflag/Install
 #
-# override "choose mode"
-__choose_mode()
-{
-    do_pmda=true
-}
-
-#
 # override "choose IPC method"
 __choose_ipc()
 {

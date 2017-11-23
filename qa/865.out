@@ -1,12 +1,5 @@
 QA output created by 865
-You will need to choose an appropriate configuration for installation of
-the "slow" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Startup delay (secs) [0]? Fetch delay (secs) [0]? Updating the Performance Metrics Name Space (PMNS) ...
+Startup delay (secs) [0]? Fetch delay (secs) [0]? Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check slow metrics have appeared ... 1 metrics and 1 values

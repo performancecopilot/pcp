@@ -31,11 +31,6 @@ if ! test -d $path; then
     exit
 fi
 
-__choose_mode()
-{
-    do_pmda=true
-}
-
 __choose_ipc()
 {
     ipc_type=pipe

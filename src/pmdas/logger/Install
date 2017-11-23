@@ -50,117 +50,114 @@ _parsedefaults()
 }
 
 # Get logfile(s) to monitor
-if $do_pmda
-then
-    # set options from $PCP_PMCDCONF_PATH, if possible
-    #
-    ans=`$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+# set options from $PCP_PMCDCONF_PATH, if possible
+#
+ans=`$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
 $1 == "'$iam'"	{ printf "%s",$6
-		  for (i=7;i<=NF;i++) printf " %s",$i
-		  print ""
-	        }'`
-    if [ ! -z "$ans" ]
-    then
-	_parsedefaults $ans
-    fi
+	      for (i=7;i<=NF;i++) printf " %s",$i
+	      print ""
+	    }'`
+if [ ! -z "$ans" ]
+then
+    _parsedefaults $ans
+fi
 
-    # go figure out which configuration file to use ...
-    #
-    #default_configfile=./sample.conf
-    default_configfile=''
-    pmdaChooseConfigFile
-    if [ ! -f "$configfile" ]
+# go figure out which configuration file to use ...
+#
+#default_configfile=./sample.conf
+default_configfile=''
+pmdaChooseConfigFile
+if [ ! -f "$configfile" ]
+then
+    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to enter logfile names and paths manually? [y] ""$PCP_ECHO_C"
+    read ans
+    if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
     then
-	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to enter logfile names and paths manually? [y] ""$PCP_ECHO_C"
-	read ans
-	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
+	configfile="$configdir/$iam.conf"
+	if [ -f "$configfile" ]
 	then
-	    configfile="$configdir/$iam.conf"
-	    if [ -f "$configfile" ]
-	    then
-		    echo "Removing old configuration file \"$configfile\""
-		    rm -f "$configfile"
-		    if [ -f "$configfile" ]
-		    then
-			    echo "Cannot remove \"$configfile\""
-			    status=1
-			    exit
-		    fi
-	    fi
+		echo "Removing old configuration file \"$configfile\""
+		rm -f "$configfile"
+		if [ -f "$configfile" ]
+		then
+			echo "Cannot remove \"$configfile\""
+			status=1
+			exit
+		fi
+	fi
 
-	    echo
-	    echo \
+	echo
+	echo \
 'Enter the PMNS name and logfile path.  If the  path ends in "|", the
 filename is interpreted as a command which will output data.
 
 An empty line terminates the logfile selection process and there must
 be at least one logfile specified.  '
 
-	    args=""
-	    touch "$configfile"
-	    if [ ! -f "$configfile" ]
-	    then
-		echo "Installation aborted."
-		status=1
-		exit
-	    fi
+	args=""
+	touch "$configfile"
+	if [ ! -f "$configfile" ]
+	then
+	    echo "Installation aborted."
+	    status=1
+	    exit
+	fi
 
-	    while [ ! -s "$configfile" ]
+	while [ ! -s "$configfile" ]
+	do
+	    while true
 	    do
-		while true
-		do
-		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile PMNS name: ""$PCP_ECHO_C"
-		    read name
-		    [ -z "$name" ] && break
+		$PCP_ECHO_PROG $PCP_ECHO_N "Logfile PMNS name: ""$PCP_ECHO_C"
+		read name
+		[ -z "$name" ] && break
 
-		    # Check name for invalid chars.
-		    if ! echo $name | grep "^[A-Za-z][_A-Za-z0-9]*$" > /dev/null
-		    then
-			echo \
+		# Check name for invalid chars.
+		if ! echo $name | grep "^[A-Za-z][_A-Za-z0-9]*$" > /dev/null
+		then
+		    echo \
 "Invalid characters in PMNS name: \"$name\".
 Names must start with an alphabetic character ([a-zA-Z]).  The rest of
 the characters in the name must be alphanumeric ([a-zA-Z0-9]) or an
 underscore ('_')."
-			continue
-		    fi
+		    continue
+		fi
 
-		    # Make sure name isn't already in the logfile.
-		    if grep "^${name}[ \t]" "$configfile" >/dev/null
-		    then
-			echo "Sorry, logfile PMNS name \"$name\" already specified.  Please try again."
-			continue
-		    fi
+		# Make sure name isn't already in the logfile.
+		if grep "^${name}[ \t]" "$configfile" >/dev/null
+		then
+		    echo "Sorry, logfile PMNS name \"$name\" already specified.  Please try again."
+		    continue
+		fi
 
-		    $PCP_ECHO_PROG $PCP_ECHO_N "Logfile pathname: ""$PCP_ECHO_C"
-		    read pathname
-		    [ -z "$pathname" ] && break
-		    if grep "[ \t]${pathname}$" "$configfile" >/dev/null
-		    then
-			echo "Sorry, pathname \"$pathname\" already specified.  Please try again."
-			continue
-		    fi
+		$PCP_ECHO_PROG $PCP_ECHO_N "Logfile pathname: ""$PCP_ECHO_C"
+		read pathname
+		[ -z "$pathname" ] && break
+		if grep "[ \t]${pathname}$" "$configfile" >/dev/null
+		then
+		    echo "Sorry, pathname \"$pathname\" already specified.  Please try again."
+		    continue
+		fi
 
-		    $PCP_ECHO_PROG $PCP_ECHO_N "Restricted access [n]: ""$PCP_ECHO_C"
-		    read restrict
-		    if [ "$restrict" = "y" -o "$restrict" = "yes" ]; then
-			restrict="y"
-		    else
-			restrict="n"
-		    fi
+		$PCP_ECHO_PROG $PCP_ECHO_N "Restricted access [n]: ""$PCP_ECHO_C"
+		read restrict
+		if [ "$restrict" = "y" -o "$restrict" = "yes" ]; then
+		    restrict="y"
+		else
+		    restrict="n"
+		fi
 
-		    echo "$name $restrict $pathname" >>"$configfile"
-		done
+		echo "$name $restrict $pathname" >>"$configfile"
 	    done
-	else
-	    echo ""
-	    echo "Error: Abandoning installation as no configuration file was specified."
-	    status=1
-	    exit
-	fi
+	done
+    else
+	echo ""
+	echo "Error: Abandoning installation as no configuration file was specified."
+	status=1
+	exit
     fi
-
-    args="$configfile"
 fi
+
+args="$configfile"
 
 pmdaInstall
 exit

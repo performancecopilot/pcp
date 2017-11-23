@@ -1,13 +1,6 @@
 QA output created by 1196
 === no-error case ===
-You will need to choose an appropriate configuration for installation of
-the "whacko" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Installing files ...
+Installing files ...
 make: Nothing to be done for 'install'.
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
@@ -29,14 +22,7 @@ Error: whacko: Unknown metric name
     inst [30 or "sampledso"] value 0
 
 === domain number clash case ... will clobber and remove sample PMDA ===
-You will need to choose an appropriate configuration for installation of
-the "whacko" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Installing files ...
+Installing files ...
 make: Nothing to be done for 'install'.
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
@@ -57,14 +43,7 @@ Error: whacko: Unknown metric name
     inst [30 or "sampledso"] value 0
 
 === domain name clash case ... will clobber and remove sample PMDA ===
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Installing files ...
+Installing files ...
 make: Nothing to be done for 'install'.
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...

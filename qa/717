@@ -26,6 +26,12 @@ _cleanup()
     then
 	:
     else
+	# remake the non-python PMDA and help text
+	$sudo make >>$here/$seq.full
+
+	# reset the clock back to the start state
+	echo sec,min,hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
+
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
 	_restore_auto_restart pmcd
@@ -54,7 +60,6 @@ $sudo ./Remove >/dev/null 2>&1
 echo
 echo "=== $iam agent installation ==="
 cat << End-of-File | $sudo ./Install >$tmp.out 2>&1
-both
 python
 End-of-File
 # Check simple metrics have appeared ... X metrics and Y values
@@ -94,9 +99,6 @@ echo hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
 check 3 onetime
 echo > $tmp.conf && $sudo mv $tmp.conf simple.conf
 check 4 notime
-
-# reset the clock back to the start state
-echo sec,min,hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
 
 echo "=== remove $iam agent ==="
 $sudo ./Remove >$tmp.out 2>&1

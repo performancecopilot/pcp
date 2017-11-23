@@ -28,7 +28,6 @@ $sudo rm -rf $tmp.*
 # for QA the default install for mmv PMDA is as a dso, not a daemon
 #
 cat <<End-of-File >$tmp.input
-b
 dso
 End-of-File
 

@@ -1866,16 +1866,7 @@ of the interactions:</para>
 <example id="Z929138022sdc">
 <title>PMNS Installation Output
 </title>
-<literallayout class="monospaced">You will need to choose an appropriate configuration for
-installation of the &#x201C;cisco&#x201D; Performance Metrics Domain Agent (PMDA).
-
-  collector collect performance statistics on this system
-  monitor   allow this system to monitor local and/or remote systems
-  both      collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] <userinput>collector</userinput>
-
-Cisco hostname or IP address? [return to quit] <userinput>wanmelb</userinput>
+<literallayout class="monospaced">Cisco hostname or IP address? [return to quit] <userinput>wanmelb</userinput>
 
 A user-level password may be required for Cisco &#x201C;show int&#x201D; command.
     If you are unsure, try the command
@@ -6320,15 +6311,7 @@ summary.fs.cache_hit:  84.51</literallayout>
 use this command:</para>
 <literallayout class="monospaced"><userinput>./Install</userinput></literallayout>
 <para>You see the following output:</para>
-<literallayout class="monospaced">You need to choose an appropriate configuration for installation of
-the &#x201C;summary&#x201D; Performance Metrics Domain Agent (PMDA).
-
-collector collect performance statistics on this system
-monitor   allow this system to monitor local and/or remote systems
-both      collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] <userinput>both</userinput>
-Interval between summary expression evaluation (seconds)? [10] <userinput>10</userinput>
+<literallayout class="monospaced">Interval between summary expression evaluation (seconds)? [10] <userinput>10</userinput>
 Updating the Performance Metrics Name Space...
 Installing pmchart view(s) ...
 Terminate PMDA if already installed ...

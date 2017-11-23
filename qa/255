@@ -96,9 +96,9 @@ _filter_init()
 _cleanup()
 {
     echo ""
-    echo "=== Removing broken_pmda namespace ==="
+    echo "=== Removing broken_pmda ==="
     cd $here/pmdas/broken
-    $sudo ./broken_Remove -N
+    $sudo ./broken_Remove
     cd $here
     sleep 4
     _wait_for_pmcd
@@ -161,10 +161,15 @@ _remove_cron $tmp.cron $sudo
 #
 echo "=== Install broken namespace ==="
 cd $here/pmdas/broken
-$sudo ./broken_Install -N < /dev/null | _filter_ins 2>&1
-# ensure help text built (-N above skips this)
-$sudo $PCP_MAKE_PROG broken_v2.dir > /dev/null 2>&1
-cd $here
+if pmnsmerge $PCP_VAR_DIR/pmns/root ./root $tmp.pmns
+then
+    :
+else
+    echo "Error: pmnsmerge failed!"
+    exit
+fi
+$sudo cp $tmp.pmns $PCP_VAR_DIR/pmns/root
+$sudo $signal -a -s HUP pmcd >/dev/null 2>&1
 echo "=== Broken PMNS ==="
 if pminfo broken
 then
@@ -184,11 +189,6 @@ cd $PCP_PMDAS_DIR/simple
 [ -f simple.conf ] && $sudo mv simple.conf simple.conf.$seq
 echo "sec,min,hour" >$tmp.simple.conf
 $sudo cp $tmp.simple.conf simple.conf
-
-# Install the simple namespace, I don't bother to remove it again
-#
-$sudo ./Install -N < /dev/null | _filter_ins 2>&1
-echo "Namespace installed"
 
 if $sudo $PCP_MAKE_PROG > $tmp.make 2>&1
 then

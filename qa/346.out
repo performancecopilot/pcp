@@ -5,13 +5,6 @@ Culling the Performance Metrics Name Space ...
 mailq ... not found in Name Space, this is OK
 Updating the PMCD control file, and notifying PMCD ...
 Check mailq metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "mailq" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 The default delay thresholds for grouping the pending mail items are:
     1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days
 

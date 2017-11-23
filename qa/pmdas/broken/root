@@ -1,0 +1,10 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ * - used in qa/255
+ */
+
+#include <stdpmid>
+
+root { broken }
+
+#include "broken_pmns"

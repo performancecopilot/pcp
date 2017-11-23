@@ -24,18 +24,15 @@ daemon_opt=false
 
 pmdaSetup
 
-if $do_pmda
-then
-    while true
-    do
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "DTS log filename? ""$PCP_ECHO_C"
-	read logfile
-	[ ! -z "$logfile" ] && break
-	echo
-    done
-    args="$args logfile"
-fi
+while true
+do
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "DTS log filename? ""$PCP_ECHO_C"
+    read logfile
+    [ ! -z "$logfile" ] && break
+    echo
+done
+args="$args logfile"
 
 pmdaInstall
 exit

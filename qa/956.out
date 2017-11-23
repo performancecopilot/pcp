@@ -1,13 +1,6 @@
 QA output created by 956
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
-You will need to choose an appropriate configuration for installation of
-the "dynamic" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...

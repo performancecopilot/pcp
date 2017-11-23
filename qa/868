@@ -13,11 +13,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+_cleanup()
+{
+    cd $PCP_VAR_DIR/pmdas/sample
+    ./Install </dev/null >>$here/$seq.full
+    cd $here
+    rm -rf $tmp.*
+}
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -36,7 +42,7 @@ End-of-File
 
 echo
 echo "=== Duplicate names in the PMNS ==="
-$sudo sh $tmp.sh -N
+$sudo sh $tmp.sh
 
 cat >$tmp.sh <<'End-of-File'
 #!/bin/sh
@@ -54,7 +60,7 @@ End-of-File
 
 echo
 echo "=== Bad path for pmda_dir ==="
-$sudo sh $tmp.sh -N
+$sudo sh $tmp.sh
 
 # success, all done
 status=0

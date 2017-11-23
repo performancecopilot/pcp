@@ -1,14 +1,7 @@
 QA output created by 349
 
 === summary agent installation ===
-You will need to choose an appropriate configuration for installation of
-the "summary" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Interval between summary expression evaluation (seconds)? [10] Updating the Performance Metrics Name Space (PMNS) ...
+Interval between summary expression evaluation (seconds)? [10] Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...

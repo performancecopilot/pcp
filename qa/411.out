@@ -1,12 +1,4 @@
 QA output created by 411
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
 Install simple as a daemon or dso agent? [daemon] 
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] 
 Installing files ...

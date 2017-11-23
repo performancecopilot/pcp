@@ -43,7 +43,6 @@ trap "cd $here; rm -rf $tmp $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 cd $here/pmdas/slow
 $PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
 cat <<End-of-File | $sudo ./Install
-both
 0
 3
 End-of-File

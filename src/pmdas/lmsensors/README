@@ -41,17 +41,6 @@ Installation
     and choose both the "collector" and "monitor" installation
     configuration options -- everything else is automated.
 
- +  Alternatively, to install just the Performance Metrics Name Space
-    for the lmsensors metrics on the local system, but not the lmsensors PMDA
-    (presumably because the local system is running PCP 1.x and you
-    wish to connect to a remote system where PCP 2.0 and the lmsensors PMDA
-    is running), make sure the Performance Metrics Domain defined in
-    ./domain.h matches the domain chosen for the lmsensors PMDA on the
-    remote system (check the second field in the corresponding line of
-    the $PCP_PMCDCONF_PATH file on the remote system), then
-
-	# ./Install -N
-
 De-installation
 ===============
 

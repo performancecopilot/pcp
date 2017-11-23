@@ -1,6 +1,4 @@
 QA output created by 603
-Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
-
 Use the default installation [y]? 
 Trace period (in seconds) [60]? 
 Number of buckets [5]? 
@@ -35,8 +33,6 @@ Note: some warnings are expected until trace API calls are made - refer to
       the man pages for pmtrace(1) and pmdatrace(3) for further details.
 === Attempting bad local access ===
 pmtrace: point error: Cannot connect to PMDA - permission denied
-
-Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
 
 Use the default installation [y]? 
 Trace period (in seconds) [60]? 
@@ -79,8 +75,6 @@ Note: some warnings are expected until trace API calls are made - refer to
 pmtrace: point error: Cannot connect to PMDA - connection limit reached
 === Attempting bad remote access ===
 pmtrace: observation error: Cannot connect to PMDA - permission denied
-
-Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
 
 Use the default installation [y]? 
 Updating the Performance Metrics Name Space (PMNS) ...

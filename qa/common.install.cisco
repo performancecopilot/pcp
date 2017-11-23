@@ -82,7 +82,6 @@ End-of-File
 
 #    *.engr.*)
 #	cat <<End-of-File | $sudo ./Install >>$_here/$1.out
-#both
 #b43-11-cisco6-168.corp
 #
 #

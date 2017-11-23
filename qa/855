@@ -61,7 +61,6 @@ pmdanetfilter_install()
 }
 # use a temp config file to point at the fake /proc system (newer heirarchy)
 cat >$tmp.input <<EOF
-b
 $tmp/proc/sys/net/
 EOF
 

@@ -6,14 +6,6 @@ simple ... not found in Name Space, this is OK
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check simple metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] pipe
 Installing files ...
@@ -30,14 +22,6 @@ simple ... done
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check simple metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
 Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
@@ -49,14 +33,6 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
 Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
@@ -75,14 +51,6 @@ simple ... done
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check simple metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
 Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
@@ -94,14 +62,6 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
 Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
@@ -120,14 +80,6 @@ simple ... done
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check simple metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] dso
 Installing files ...
 [...install files, make output...]
@@ -136,14 +88,6 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] dso
 Installing files ...
 [...install files, make output...]

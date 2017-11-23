@@ -9,15 +9,6 @@ Check cisco metrics have gone away ... OK
 Error: cisco: Unknown metric name
 
 === install agent ===
-You will need to choose an appropriate configuration for installation of
-the "cisco" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
-
 Cisco hostname or IP address? [return to quit Cisco selection] 
 A username and/or user-level password may be required for the Cisco
 "show interface" command.
@@ -92,15 +83,6 @@ Wait 20 seconds for the cisco agent to initialize ...
 Check cisco metrics have appeared ... 6 metrics and SOME values
 
 === re-install agent ===
-You will need to choose an appropriate configuration for installation of
-the "cisco" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] 
-
 Cisco hostname or IP address? [return to quit Cisco selection] 
 A username and/or user-level password may be required for the Cisco
 "show interface" command.

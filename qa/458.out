@@ -1,12 +1,5 @@
 QA output created by 458
-You will need to choose an appropriate configuration for installation of
-the "logger" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Possible configuration files to choose from:
+Possible configuration files to choose from:
 [1] PCP_VAR_DIR/config/logger/logger.conf
 [2] Specify your own configuration file.
 [3] None of the above (abandon configuration file selection).
