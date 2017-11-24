@@ -1,9 +1,15 @@
 #!/bin/sh
 #
-# Rebuild in a git tree ...
-# - turn off gcc optimization so gdb has a chance
-# - so we can use libs here for testing
-# - make and install over installed libs
+# Rebuild core libraries and QA apps in a git tree ...
+# - run configure the same way Makepkgs does
+# - turn off gcc optimization so gdb has a better chance
+#   (be aware that this may hide gcc optimizations in the real
+#   package builds)
+# - make and install libraries over the installed libraries
+#   (if any)
+# - build enough libraries so "make" in the qa directory works
+# - using gdb for apps outside the qa directory should work well
+#   once thos apps are rebuilt
 #
 
 if [ ! -d .git ]
@@ -18,12 +24,12 @@ echo "Disable gcc optimization ..."
 sed -i -e '/CFLAGS_OPT/s/-O2/-O0/' src/include/builddefs
 
 # others that could be added to the list below ...
-# src/libapp src/libpcp_qed src/libpcp_qmc src/libpcp_qwt
+# src/libapp src/libpcp_qed src/libpcp_qwt
 #
 here=`pwd`
-for dir in src/libpcp/src src/libpcp_pmda/src src/libpcp_pmcd/src \
-	src/libpcp_gui/src src/libpcp_web/src src/libpcp_mmv \
-	src/libpcp_import/src src/libpcp_trace
+for dir in src/libpcp src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
+	src/libpcp_web src/libpcp_mmv src/libpcp_import src/libpcp_trace \
+	src/libpcp_qmc src/libpcp_fault
 do
     echo "=== $dir ==="
     cd $dir
@@ -43,4 +49,12 @@ cd qa
 cd src
 make clean_exec
 cd ..
-make
+if make
+then
+    :
+else
+    echo "Error: make failed!"
+    exit 1
+fi
+
+exit 0
