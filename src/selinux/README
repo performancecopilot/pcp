@@ -1,5 +1,28 @@
 PCP SELinux Module
 
+== TL;DR ==
+
+Dammit Jim, I'm a developer, not a selinux expert!
+
+Ok ok, AVC denials are logged in /var/log/audit/audit.log Pull out the
+relevant errors, and either, forward that along with the bug/pull
+request for us to add/fix, or run:
+
+cat /var/log/audit/audit.log | audit2allow -w
+
+which will verify that the avc is not already covered in the pcp
+policy file, and then:
+
+cat /var/log/audit/audit.log | audit2allow -M mypolicy
+semodule -i mypolicy.pp
+
+Be careful you understand what context accesses you're allowing with
+this policy, and that they *should* be allowed.
+
+If you choose the latter, please be a good samaritan and forward the
+relevant avc denials upstream for the community to apply and ship the
+updated policy package.
+
 == Building ==
 
 make -f /usr/share/selinux/devel/Makefile
