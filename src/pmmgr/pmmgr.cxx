@@ -33,6 +33,7 @@ extern "C" {
 #include <unistd.h>
 #include <glob.h>
 #include <sys/wait.h>
+#include <sys/vfs.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -1145,6 +1146,46 @@ void pmmgr_daemon::poll()
     }
 }
 
+double
+pmmgr_pmlogger_daemon::retention_factor (const std::string& logpath)
+{
+  struct statfs logpartition;
+  double percentage_full;
+  (void) statfs(logpath.c_str(), &logpartition);
+  percentage_full = ((double)logpartition.f_bavail / (double)logpartition.f_blocks);
+  if (get_config_exists ("disk-space-fullness") || get_config_exists ("pmlogger-retention-multiplier"))
+    {
+      double fullness_ratio = 0;
+      double fullness_ratio_default = 0.75;
+      string spacefullness = get_config_single ("disk-space-fullness");
+      if (spacefullness == "") fullness_ratio = fullness_ratio_default;
+      else
+	{
+	  fullness_ratio = strtof (spacefullness.c_str(), NULL);
+	  if (fullness_ratio > 100 || fullness_ratio < 0) fullness_ratio = fullness_ratio_default;
+	  else if (fullness_ratio <= 100 && fullness_ratio > 1) fullness_ratio/=100;
+	}
+      if (percentage_full >= fullness_ratio)
+	{
+	  double multiplier = 0;
+	  double multiplier_default = 0.5;
+	  string minretentionmultiplier = get_config_single ("pmlogger-retention-multiplier");
+	  if (minretentionmultiplier == "") multiplier = multiplier_default;
+	  else
+	    {
+	      multiplier = strtod (minretentionmultiplier.c_str(), NULL);
+	      if (multiplier > 100 || multiplier < 0) multiplier = multiplier_default;
+	      else if (multiplier <= 100 && multiplier > 1) multiplier/=100;
+	    }
+	  timestamp(obatched(cout)) << "retention factor: " <<
+	    ((percentage_full/(1-fullness_ratio)) * multiplier) << endl;
+	  return ((multiplier * (percentage_full / (1 - fullness_ratio))) < 0);
+	}
+      else
+	return 1;
+    }
+  return 1;
+}
 
 std::string
 pmmgr_pmlogger_daemon::daemon_command_line()
@@ -1223,7 +1264,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  timestamp(obatched(cerr)) << "pmlogmerge-retain '" << retention << "' parse error: " << errmsg << endl;
 	  free (errmsg);
 	  retention = "14days";
-	  retention_tv.tv_sec = 14*24*60*60;
+	  retention_tv.tv_sec = 14*24*60*60*retention_factor(host_log_dir);
 	  retention_tv.tv_usec = 0;
 	}
       pmlogextract_options += " -S -" + sh_quote(retention);
@@ -1429,7 +1470,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
       // remove too-old reduced archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "reduced-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60);
+      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60*retention_factor(host_log_dir));
 
       // remove too-old corrupt archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "corrupt-*.index";

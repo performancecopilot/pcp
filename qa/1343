@@ -1,0 +1,200 @@
+#!/bin/sh
+# PCP QA Test No. 1343
+# pmmgr log ENOSPC functionality
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which mkfs.xfs >/dev/null 2>&1 || _notrun "XFS utilities not installed"
+which losetup >/dev/null 2>&1 || _notrun "No losetup binary installed"
+which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+
+_cleanup()
+{
+    device=`$sudo losetup -a | grep "$tmp.xfsfile" | cut -f1 -d":"`
+    cd $here
+    $sudo rm -rf $tmp.xfsmount/*
+    $sudo umount $tmp.xfsmount >/dev/null 2>&1
+    # dodge kernel race conditions (losetup -d)
+    for i in 1 2 3 4 5
+    do
+	loopcount=`$sudo losetup -a | grep "$tmp.xfsfile" | wc -l`
+	[ $loopcount -eq 0 ] && break
+	( $sudo losetup -d $device ) >/dev/null 2>&1
+	sync
+	sleep $i
+    done
+    # restart pmcd and primary pmlogger
+    _service pcp restart >>$seq.full 2>&1
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed -e 's,^\[.*\],TIMESTAMP,' \
+        -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
+        -e 's,'$tmp.xfsmount',TMPDIR,' |
+	$PCP_AWK_PROG '/retention factor: / { if ($6 >= 0 && $6 <= 1) $6 = "X" }
+		      		  	    { print }'
+}
+
+status=1	# failure is the default!
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+PMCD_WAIT_TIMEOUT=1
+PMCD_CONNECT_TIMEOUT=1
+PMCD_RECONNECT_TIMEOUT=1
+export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
+
+# real QA test starts here
+echo "creating a filesystem"
+mkfs.xfs -dfile,size=256m,name=$tmp.xfsfile > /dev/null || exit 1
+
+echo "creating a mount point"
+mkdir -p $tmp.xfsmount || exit 1
+
+echo "mounting xfs filesystem"
+$sudo mount -t xfs -o loop,prjquota $tmp.xfsfile $tmp.xfsmount
+$sudo chmod 777 $tmp.xfsmount
+ls -ld $tmp.xfsmount >>$seq.full
+
+echo "pmmgr plain startup" | tee -a $seq.full
+echo 'local:' >$tmp.xfsmount/target-host
+echo 'localhost' >>$tmp.xfsmount/target-host
+echo 'pcp://localhost:44321/' >>$tmp.xfsmount/target-host
+echo 'localhost6' >>$tmp.xfsmount/target-host
+echo 'pcp://localhost6:44321/' >>$tmp.xfsmount/target-host
+echo 0 > $tmp.xfsmount/target-threads
+
+pmmgr -v -v -p 6 -l $tmp.out -c $tmp.xfsmount >$tmp.valout 2>$tmp.valerr &
+pid=$!
+echo "pid=$pid" >>$seq.full
+
+date >>$seq.full
+echo "look for pmmgr starting no daemons" | tee -a $seq.full
+_service pmcd restart >>$seq.full 2>&1
+_wait_for_pmcd
+sleep 10
+_service pmcd stop >>$seq.full 2>&1
+sleep 10 # pmmgr daemon shutdown
+ls -1 $tmp.xfsmount # should be almost empty
+
+echo "add control files to start pmlogger" | tee -a $seq.full
+#echo 1 > $tmp.xfsmount/target-threads
+echo '-t 1' >$tmp.xfsmount/pmlogger
+touch $tmp.xfsmount/pmlogconf
+echo "$tmp.xfsmount/" >$tmp.xfsmount/log-directory  # same dir
+touch $tmp.xfsmount/pmlogrewrite
+touch $tmp.xfsmount/pmlogmerge
+echo barf >$tmp.xfsmount/pmlogmerge-retain # to trigger actual retention_factor usage
+echo '0.1' >$tmp.xfsmount/disk-space-fullness
+echo '0.5' >$tmp.xfsmount/pmlogger-retention-multiplier
+
+echo "restart pmlogger to create a bunch of archives to merge" | tee -a $seq.full
+for x in 1 2 3 4 5
+do
+    echo restart $x `date` >>$seq.full
+    rm -f $tmp.xfsmount/$hostname/config.pmlogger
+    _service pmcd start >>$seq.full 2>&1
+    _wait_for_pmcd
+    i=0;
+    # wait up to 300ish seconds for pm*conf to run
+    while [ $i -lt 50 ]; do
+	rm -f $tmp.ok
+        i=`expr $i + 1`
+	echo "pmlogger probe #$i `date`" >>$seq.full
+        ls -l $tmp.xfsmount/$hostname/config.pmlogger >>$seq.full 2>/dev/null
+        # NB: shan't check through pminfo pmcd.*, since these daemons run unprivileged
+        # under the pcpqa userid and may not have permission to write into the
+        # pmcd-pmda pid directories.
+        if [ -s $tmp.xfsmount/$hostname/config.pmlogger ]; then
+	    # our babies have been born ...
+	    touch $tmp.ok
+	    break
+	fi
+        sleep 3
+    done
+    if [ ! -f $tmp.ok ]
+    then
+	echo "Arrg, failed to start pmlogger at iteration $x"
+	ls -lR $tmp.xfsmount
+    fi
+
+    _service pmcd stop >>$seq.full 2>&1
+    sleep 10 # pmmgr daemon shutdown
+    [ -f $tmp.xfsmount/$hostname/pmlogger.log ] && mv $tmp.xfsmount/$hostname/pmlogger.log $tmp.xfsmount/$hostname/pmlogger-$x.log
+done
+
+echo "add log-merging/rewriting" | tee -a $seq.full
+echo '-t 2 -c '$tmp.xfsmount/$hostname/config.pmlogger >$tmp.xfsmount/pmlogger
+#echo 20sec >$tmp.xfsmount/pmlogmerge
+echo barf >$tmp.xfsmount/pmlogmerge-retain
+rm $tmp.xfsmount/pmlogconf
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
+sleep 20 # enough time to get new daemons started up, logs rotated/merged
+_service pmcd stop >>$seq.full 2>&1
+sleep 10 # pmmgr daemon shutdown
+
+date >>$seq.full
+echo "recheck the directories past retain/merge" | tee -a $seq.full
+# there should be only two; one merged and one just-written-to
+count=`ls -1 $tmp.xfsmount/$hostname/*.meta | wc -l`
+if [ $count -lt 3 ]; then
+    echo less than three
+else
+    echo "count=$count archives created, expecting less than three"
+    ls -l $tmp.xfsmount/$hostname/*.meta
+fi
+
+ls -lR $tmp.xfsmount >>$seq.full # for reference
+for f in $tmp.xfsmount/$hostname/*.meta; do
+    echo == $f == >>$seq.full
+    pmloglabel -L $f >>$seq.full
+done
+
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
+
+echo "kill pmmgr" | tee -a $seq.full
+kill $pid
+sleep 4
+if kill -0 $pid >/dev/null 2>&1
+then
+    echo "pmmgr (pid=$pid) did not die, try harder ..." >>$seq.full
+    kill -KILL $pid >/dev/null 2>&1
+    if kill -0 $pid >/dev/null 2>&1
+    then
+	echo "pmmgr (pid=$pid) will not die!" >>$seq.full
+    fi
+fi
+pid=
+
+echo >>$seq.full
+echo "collecting recent daemon logs:" >>$seq.full
+for log in $tmp.xfsmount/$hostname/*.log
+do
+    if [ -f "$log" ]
+    then
+	echo "-- $log --" >>$seq.full
+	cat $log >>$seq.full
+    fi
+done
+cat $tmp.out | grep "retention" | _filter
+# success, all done
+status=0
+exit

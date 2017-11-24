@@ -429,6 +429,28 @@ The default is
 .BR 90days .
 To store reduced archives indefinitely, set this to a large
 quantity like "99999weeks".
+.TP
+.I disk\-space\-fullness
+If this file exists, then
+.B pmmgr
+will track the disk space available
+where pmlogger archives are kept.  If that partition fills up
+past the configured percentage,
+.B pmmgr
+will linearly reduce the duration logs are kept via the
+.I pmlogger\-retention\-multiplier
+variable.
+
+Values must be greater than zero, and expressed either a value
+between 0 and 1, or decimal value between 1 and 100.
+.TP
+.I pmlogger\-retention\-multiplier
+If expressed, this variable scales the rate at which logs are culled when
+.I disk\-space\-fullness
+has been surpassed.  A lower percentage will cull logs more quickly (in
+favour of preserving disk space), while a higher percentage will opt to
+retain more pcp archives.
+
 .SS PMIE CONFIGURATION
 This group of configuration options controls a
 .BR pmie
