@@ -1160,49 +1160,108 @@ void pmmgr_daemon::poll()
 double
 pmmgr_pmlogger_daemon::retention_factor (const std::string& logpath)
 {
-  double percentage_full;
-  const double fullness_ratio_default = 0.75;
-  double fullness_ratio = 0;
-  string spacefullness = "";
-  spacefullness = get_config_single ("disk-full-threshold");
-  if (spacefullness == "") fullness_ratio = fullness_ratio_default;
+  // NB: all doubles used here are fractions between [0.0 and 1.0], not percentages.
+  // Literals used in double arithmetic get decimal points as reminder of FP arithmetic.
+  
+  // ---------- find the fullness threshold 
+  const double full_threshold_default = 0.75;
+  double full_threshold = 0.;
+  string full_threshold_str = get_config_single ("disk-full-threshold");
+  if (full_threshold_str == "")
+    full_threshold = full_threshold_default;
   else
     {
-      fullness_ratio = strtof (spacefullness.c_str(), NULL);
-      if (fullness_ratio > 100 || fullness_ratio < 0) fullness_ratio = fullness_ratio_default;
-      else if (fullness_ratio <= 100 && fullness_ratio > 1) fullness_ratio/=100;
-      else if (fullness_ratio == 1) return 1;
+      full_threshold = strtod (full_threshold_str.c_str(), NULL);
+      if (full_threshold > 100. || full_threshold < 0.) full_threshold = full_threshold_default;
+      else if (full_threshold <= 100. && full_threshold > 1.) full_threshold/=100.;
     }
+
+  // ---------- find the actual fullness
   struct statfs logpartition;
   int rc = statfs(logpath.c_str(), &logpartition);
   if (rc == -1)
     {
-      timestamp(obatched(cerr)) << "statfs for log retention failed: errno=" << errno
-				<< "" << logpath << endl;
-      return 1;
+      timestamp(obatched(cerr)) << "statfs " << logpath << " for log retention failed: errno=" << errno << endl;
+      return 1.;
     }
-  percentage_full = (1-((double)logpartition.f_bavail / (double)logpartition.f_blocks));
-  if (percentage_full >= fullness_ratio)
-    {
-      double multiplier = 0;
-      const double multiplier_default = 0.5;
-      string minretentionmultiplier = get_config_single ("disk-full-retention");
-      if (minretentionmultiplier == "") multiplier = multiplier_default;
-      else
-	{
-	  multiplier = strtod (minretentionmultiplier.c_str(), NULL);
-	  if (multiplier > 100 || multiplier < 0) multiplier = multiplier_default;
-	  else if (multiplier <= 100 && multiplier > 1) multiplier/=100;
-	  else if (multiplier == 0) return 0;
-	}
-      double percent_threshold = ((percentage_full - fullness_ratio) / (1 - fullness_ratio));
-      double retention_factor = (1 - (percent_threshold * (1 - multiplier)));
-      timestamp(obatched(cerr)) << "retention factor: " << retention_factor << endl;
-      return retention_factor;
-    }
+  if (logpartition.f_blocks == 0) // avoid division by zero, if hypothetically possible for a filesystem
+    return 1.;
+  double fraction_full = (1.-((double)logpartition.f_bavail / (double)logpartition.f_blocks));
+  
+  if (fraction_full <= full_threshold) // not too full
+    return 1.;
+  // red alert: this filesystem is officially too full
+  
+  // ---------- find the retention parameter
+  double full_retention = 0.;
+  const double full_retention_default = 0.5;
+  string full_retention_str = get_config_single ("disk-full-retention");
+  if (full_retention_str == "")
+    full_retention = full_retention_default;
   else
-    return 1;
+    {
+      full_retention = strtod (full_retention_str.c_str(), NULL);
+      if (full_retention > 100. || full_retention < 0.) full_retention = full_retention_default;
+      else if (full_retention <= 100. && full_retention > 1.) full_retention/=100.;
+    }
+
+  // ---------- compute how much overfull (above fraction_full, below 100%) the disk is 
+
+  const double epsilon = 0.0001; // a minimum value for FP calculations to avoid div-by-zero edge cases
+
+  // fraction_full   full_threshold -> normalized_overfull
+  // 0.500001       0.5               0.0
+  // 0.75           0.5               0.5
+  // 1.             0.5               1.
+  // 1.             0.0               1.
+  // 1.             1.                1.  (asymptote)
+  double normalized_overfull =
+    (epsilon + fraction_full - full_threshold) /
+    (epsilon + 1. - full_threshold);
+
+  /*
+  set xlabel "fraction-full"
+  set ylabel "full-threshold"
+  set isosamples 2,100
+  eps=0.0001
+  nt(x,y)=x>y ? (eps+x-y)/(eps+1-y) : 0 
+  splot [0:1] [0:1] nt(x,y) title "normalized-overfull"
+  */
+
+  // ---------- compute the final retention factor
+
+  // normalized_overfull   full_retention ->  retention_factor
+  // 1.                   0.0                 0.0
+  // 0.75                 0.0                 0.25
+  // 0.5                  0.0                 0.5
+  // 0.0                  0.0                 1.0
+  // 1.                   0.5                 0.5
+  // 0.75                 0.5                 0.625
+  // 0.5                  0.5                 0.75
+  // 0.0                  0.5                 1.0
+  // 1.                   1.0                 1.0
+  // 0.75                 1.0                 1.0
+  // 0.5                  1.0                 1.0
+  // 0.0                  1.0                 1.0
+  
+  double retention_factor =
+    (normalized_overfull * full_retention) + (1.-normalized_overfull);
+
+  /*
+  set xlabel "normalized-overfull"
+  set ylabel "full-retention"
+  rf(x,y) = (x*y) + (1-x)
+  splot [0:1] [0:1] rf(x,y) title "retention-factor"
+  */
+     
+  timestamp(obatched(cerr)) << "log directory " << logpath << " "
+                            << (int)(fraction_full*100.) << "% full, "
+                            << "adjusting to "
+                            << (int)(retention_factor*100.) << "% retention times" << endl;
+
+  return retention_factor;
 }
+
 
 std::string
 pmmgr_pmlogger_daemon::daemon_command_line()
