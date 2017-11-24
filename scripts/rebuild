@@ -70,7 +70,7 @@ done
 echo "=== qa ==="
 cd qa
 cd src
-$PCP_MAKE_PROG clean_exec
+$PCP_MAKE_PROG clean-exec
 cd ..
 if $PCP_MAKE_PROG
 then
