@@ -96,7 +96,7 @@ PCP_DATA extern int pmDebug;
  * DO NOT USE
  * Like __pmHandleToPtr(pmWhichContext()), but with no locking
  */
-PCP_CALL __pmContext *__pmCurrentContext(void);
+PCP_CALL struct __pmContext *__pmCurrentContext(void);
 
 /* backwards-compatibility support for renamed symbols and types */
 #define __pmOptions pmOptions
