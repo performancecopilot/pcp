@@ -163,3 +163,22 @@ pmFreeHighResResult(pmHighResResult *result)
 {
     __pmFreeHighResResult(result);
 }
+
+/*
+ * Don't use this function ... the return value is a pointer to a context
+ * that is NOT LOCKED,
+ */
+#ifdef PM_MULTI_THREAD
+#ifdef HAVE___THREAD
+/* using a gcc construct here to make curr_handle thread-private */
+extern __thread __pmContext	*curr_ctxp;
+#endif
+#else
+extern __pmContext	*curr_ctxp;
+#endif
+__pmContext *
+__pmCurrentContext(void)
+{
+    PM_INIT_LOCKS();
+    return PM_TPD(curr_ctxp);
+}

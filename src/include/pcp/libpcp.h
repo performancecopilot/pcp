@@ -910,8 +910,6 @@ PCP_DATA extern int __pmLogReads;
 
 /* Convert opaque context handle to __pmContext pointer */
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
-/* Like __pmHandleToPtr(pmWhichContext()), but with no locking */
-PCP_CALL __pmContext *__pmCurrentContext(void);
 
 /*
  * Dump the current context (source details + instance profile),

@@ -342,19 +342,6 @@ pmWhichContext(void)
     return sts;
 }
 
-/*
- * Don't use this function ... the return value is a pointer to a context
- * that is NOT LOCKED,
- * TODO - when libpcp version changes, cull this function.
- */
-__pmContext *
-__pmCurrentContext(void)
-{
-    PM_INIT_LOCKS();
-
-    return PM_TPD(curr_ctxp);
-}
-
 int
 __pmConvertTimeout(int timeo)
 {
