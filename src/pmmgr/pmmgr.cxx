@@ -1146,45 +1146,62 @@ void pmmgr_daemon::poll()
     }
 }
 
+/* A - disk-full-threshold
+ * B - disk-full-retention
+ * diskspace free  0..A - return 1 (no scaling)
+ * diskspace free  A..100 - determine percentage above 'A'
+ * ie: A = 0.2 and diskspace 80% full, we're at 75% of the threshold<->full space
+ * (80 - A) / (100 - A) = 60/80 = 75%
+ * At this point we'll be reducing logs at 75% of the 'B' value
+ * ((75%) * (100 - 'B'))
+ * B = 50 (50% log reduction rate)
+ * We'll be reducing the log retention by 37.5% (ie. return 0.625)
+ */
 double
 pmmgr_pmlogger_daemon::retention_factor (const std::string& logpath)
 {
-  struct statfs logpartition;
   double percentage_full;
-  (void) statfs(logpath.c_str(), &logpartition);
-  percentage_full = ((double)logpartition.f_bavail / (double)logpartition.f_blocks);
-  if (get_config_exists ("disk-space-fullness") || get_config_exists ("pmlogger-retention-multiplier"))
+  const double fullness_ratio_default = 0.75;
+  double fullness_ratio = 0;
+  string spacefullness = "";
+  spacefullness = get_config_single ("disk-full-threshold");
+  if (spacefullness == "") fullness_ratio = fullness_ratio_default;
+  else
     {
-      double fullness_ratio = 0;
-      double fullness_ratio_default = 0.75;
-      string spacefullness = get_config_single ("disk-space-fullness");
-      if (spacefullness == "") fullness_ratio = fullness_ratio_default;
-      else
-	{
-	  fullness_ratio = strtof (spacefullness.c_str(), NULL);
-	  if (fullness_ratio > 100 || fullness_ratio < 0) fullness_ratio = fullness_ratio_default;
-	  else if (fullness_ratio <= 100 && fullness_ratio > 1) fullness_ratio/=100;
-	}
-      if (percentage_full >= fullness_ratio)
-	{
-	  double multiplier = 0;
-	  double multiplier_default = 0.5;
-	  string minretentionmultiplier = get_config_single ("pmlogger-retention-multiplier");
-	  if (minretentionmultiplier == "") multiplier = multiplier_default;
-	  else
-	    {
-	      multiplier = strtod (minretentionmultiplier.c_str(), NULL);
-	      if (multiplier > 100 || multiplier < 0) multiplier = multiplier_default;
-	      else if (multiplier <= 100 && multiplier > 1) multiplier/=100;
-	    }
-	  timestamp(obatched(cout)) << "retention factor: " <<
-	    ((percentage_full/(1-fullness_ratio)) * multiplier) << endl;
-	  return ((multiplier * (percentage_full / (1 - fullness_ratio))) < 0);
-	}
-      else
-	return 1;
+      fullness_ratio = strtof (spacefullness.c_str(), NULL);
+      if (fullness_ratio > 100 || fullness_ratio < 0) fullness_ratio = fullness_ratio_default;
+      else if (fullness_ratio <= 100 && fullness_ratio > 1) fullness_ratio/=100;
+      else if (fullness_ratio == 1) return 1;
     }
-  return 1;
+  struct statfs logpartition;
+  int rc = statfs(logpath.c_str(), &logpartition);
+  if (rc == -1)
+    {
+      timestamp(obatched(cerr)) << "statfs for log retention failed: errno=" << errno
+				<< "" << logpath << endl;
+      return 1;
+    }
+  percentage_full = (1-((double)logpartition.f_bavail / (double)logpartition.f_blocks));
+  if (percentage_full >= fullness_ratio)
+    {
+      double multiplier = 0;
+      const double multiplier_default = 0.5;
+      string minretentionmultiplier = get_config_single ("disk-full-retention");
+      if (minretentionmultiplier == "") multiplier = multiplier_default;
+      else
+	{
+	  multiplier = strtod (minretentionmultiplier.c_str(), NULL);
+	  if (multiplier > 100 || multiplier < 0) multiplier = multiplier_default;
+	  else if (multiplier <= 100 && multiplier > 1) multiplier/=100;
+	  else if (multiplier == 0) return 0;
+	}
+      double percent_threshold = ((percentage_full - fullness_ratio) / (1 - fullness_ratio));
+      double retention_factor = (1 - (percent_threshold * (1 - multiplier)));
+      timestamp(obatched(cerr)) << "retention factor: " << retention_factor << endl;
+      return retention_factor;
+    }
+  else
+    return 1;
 }
 
 std::string
@@ -1264,11 +1281,12 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  timestamp(obatched(cerr)) << "pmlogmerge-retain '" << retention << "' parse error: " << errmsg << endl;
 	  free (errmsg);
 	  retention = "14days";
-	  retention_tv.tv_sec = 14*24*60*60*retention_factor(host_log_dir);
+	  retention_tv.tv_sec = 14*24*60*60;
 	  retention_tv.tv_usec = 0;
 	}
+      retention_tv.tv_sec *= retention_factor(host_log_dir);
       pmlogextract_options += " -S -" + sh_quote(retention);
-
+      
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
       string period = get_config_single ("pmlogmerge");

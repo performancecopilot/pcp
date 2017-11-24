@@ -17,8 +17,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CONFIGS = pmie pmieconf pmlogconf pmlogger \
 	pmlogmerge pmlogmerge-rewrite pmlogmerge-granular pmlogreduce \
-	README target-discovery.example-avahi disk-space-fullness \
-	pmlogger-retention-multiplier
+	README target-discovery.example-avahi disk-full-retention \
+	disk-full-threshold
 
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
 

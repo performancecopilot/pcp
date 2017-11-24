@@ -62,7 +62,7 @@ export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 # real QA test starts here
 echo "creating a filesystem"
-mkfs.xfs -dfile,size=256m,name=$tmp.xfsfile > /dev/null || exit 1
+mkfs.xfs -dfile,size=16m,name=$tmp.xfsfile > /dev/null || exit 1
 
 echo "creating a mount point"
 mkdir -p $tmp.xfsmount || exit 1
@@ -101,8 +101,8 @@ echo "$tmp.xfsmount/" >$tmp.xfsmount/log-directory  # same dir
 touch $tmp.xfsmount/pmlogrewrite
 touch $tmp.xfsmount/pmlogmerge
 echo barf >$tmp.xfsmount/pmlogmerge-retain # to trigger actual retention_factor usage
-echo '0.1' >$tmp.xfsmount/disk-space-fullness
-echo '0.5' >$tmp.xfsmount/pmlogger-retention-multiplier
+echo '0.1' >$tmp.xfsmount/disk-full-threshold
+echo '0.5' >$tmp.xfsmount/disk-full-retention
 
 echo "restart pmlogger to create a bunch of archives to merge" | tee -a $seq.full
 for x in 1 2 3 4 5
