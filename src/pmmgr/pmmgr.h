@@ -79,7 +79,7 @@ protected:
   double retention_factor(const std::string& logpath);
   std::string daemon_command_line();
   void logans_run_archive_glob(const std::string& glob,
-                               const std::string& carousel_config, time_t carousel_default);
+                               const std::string& carousel_config, time_t carousel_default, double rf);
 };
 
 

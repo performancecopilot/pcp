@@ -1278,6 +1278,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
+  double rf = retention_factor(host_log_dir); // assess fullness of that space
+  assert (rf >= 0.0 && rf <= 1.0);
+
   string pmlogger_command =
 	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmlogger";
   string pmlogger_options = sh_quote(pmlogger_command);
@@ -1343,7 +1346,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  retention_tv.tv_sec = 14*24*60*60;
 	  retention_tv.tv_usec = 0;
 	}
-      retention_tv.tv_sec *= retention_factor(host_log_dir);
+      retention_tv.tv_sec *= rf;
       pmlogextract_options += " -S -" + sh_quote(retention);
       
       // Arrange our new pmlogger to kill itself after the given
@@ -1547,11 +1550,11 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
       // remove too-old reduced archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "reduced-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60*retention_factor(host_log_dir));
+      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60, rf);
 
       // remove too-old corrupt archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "corrupt-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60);
+      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60, rf);
 
       string timestr = "archive";
       time_t now2 = time(NULL);
@@ -1641,7 +1644,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 void
 pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
                                                const std::string& carousel_config,
-                                               time_t carousel_default)
+                                               time_t carousel_default,
+                                               double rf)
 {
   int rc;
   struct timeval retention_tv;
@@ -1664,6 +1668,9 @@ pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
       retention_tv.tv_usec = 0;
     }
 
+  // penalize if disk getting full
+  retention_tv.tv_sec *= rf;
+  
   glob_t the_blob;
   rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
   if (rc == 0)
