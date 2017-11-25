@@ -99,7 +99,12 @@ fi
 $sudo cp $tmp.pmns $PCP_VAR_DIR/pmns/root
 $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
 # ensure everything is built
-$sudo $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+if [ -f GNUmakefile.install ]
+then
+    $sudo $PCP_MAKE_PROG -f GNUmakefile.install >>$here/$seq.full 2>&1
+else
+    $sudo $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+fi
 cd $here
 
 # Remove the PMDA
