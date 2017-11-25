@@ -239,7 +239,6 @@ pkg_add?	gmake		[gmake]
 # optional executables
 #
 dpkg?	chrpath			[chrpath]
-dpkg?	sysv-rc-conf		[sysv-rc-conf]
 rpm?	rpmbuild		[rpm-build]
 urpmi?	rpmbuild		[rpm-build]
 
