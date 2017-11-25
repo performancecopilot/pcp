@@ -20,7 +20,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 
-__int32_t
+static __int32_t
 __pmCheckSum(FILE *f)
 {
     __int32_t	sum = 0x19700520;

@@ -22,6 +22,9 @@
 #include "fault.h"
 #include "jsmn.h"
 
+static int __pmMergeLabels(const char *, const char *, char *, int);
+static int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
+
 void
 pmFreeLabelSets(pmLabelSet *sets, int nsets)
 {
@@ -332,7 +335,7 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
  * produce "clean" JSONB form into the given buffer.  The labels
  * array indexes into this sanitized buffer.
  */
-int
+static int
 __pmParseLabels(const char *s, int slen,
 		pmLabel *labels, int maxlabels, char *buffer, int *buflen)
 {
@@ -567,7 +570,7 @@ done:
     return sts;
 }
 
-int
+static int
 __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
 {
     pmLabel	alabels[MAXLABELS], blabels[MAXLABELS];

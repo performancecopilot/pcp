@@ -356,7 +356,7 @@ __pmCheckEventRecords(pmValueSet *vsp, int idx)
     return check_event_records(vsp, idx, 0);
 }
 
-int
+static int
 __pmCheckHighResEventRecords(pmValueSet *vsp, int idx)
 {
     return check_event_records(vsp, idx, 1);

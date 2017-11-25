@@ -291,13 +291,6 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
     return lfup->sts;
 }
 
-void
-__pmLogCacheClear(__pmFILE *mfp)
-{
-    /* retired ... functionality moved to __pmFreeInterpData() */
-    return;
-}
-
 /*
  * prior == 1 for ?_prior fields, else use ?_next fields
  */

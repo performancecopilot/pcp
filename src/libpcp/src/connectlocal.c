@@ -44,6 +44,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "internal.h"
 #include "pmda.h"
 #include <ctype.h>
 #include <sys/stat.h>
