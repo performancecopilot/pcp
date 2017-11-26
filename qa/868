@@ -23,9 +23,13 @@ _cleanup()
 
 # make may not be called make in this line ...
 # make: Nothing to be done for 'install'.
+# and who knows for quoting around install ...
 _filter()
 {
-    sed -e '/Nothing to be done for/s/^[^:]*/make/'
+    sed \
+	-e '/Nothing to be done for/s/^[^:]*/make/' \
+	-e "s/ [^ ]*install[^ ]*/ install/" \
+    #
 }
 
 status=1	# failure is the default!
