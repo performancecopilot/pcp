@@ -1938,6 +1938,7 @@ pcp_selinux_systemd_exec=false
 pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
 pcp_selinux_sock_file_getattr=false
+pcp_selinux_hostname_exec_map=false
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -1998,6 +1999,13 @@ do
 	then
 	    pcp_selinux_sock_file_getattr=true
 	fi
+	hostname_exec_map_a=`eval seinfo -x --class=file -- $policy_file | grep map | awk '{ print $1 }'`
+	hostname_exec_map_b=`eval seinfo -x --common file -- $policy_file 2>/dev/null | grep map | awk '{ print $1 }'`
+	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x" 
+	then
+	    pcp_selinux_hostname_exec_map=true
+	fi
+
     fi
 done  
 ])
@@ -2012,6 +2020,7 @@ AC_SUBST(pcp_selinux_systemd_exec)
 AC_SUBST(pcp_selinux_unreserved_port)
 AC_SUBST(pcp_selinux_tracefs)
 AC_SUBST(pcp_selinux_sock_file_getattr)
+AC_SUBST(pcp_selinux_hostname_exec_map)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

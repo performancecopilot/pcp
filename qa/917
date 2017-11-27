@@ -35,6 +35,8 @@ unreserved_port_t=`seinfo -t | grep "unreserved_port_t$"`
 tracefs_t=`seinfo -t | grep "tracefs_t$"`
 class_status=`seinfo -x --class=system | grep "status$"`
 sock_file_getattr=`seinfo -x --class=sock_file | grep "getattr$"`
+hostname_exec_map_a=`seinfo -x --class=file | grep "map$"`
+hostname_exec_map_b=`seinfo -x --common=file 2>/dev/null | grep "map$"`
 
 _filter_semodule()
 {
@@ -65,6 +67,8 @@ _filter_outfile()
 	-v unreserved_port_t="$unreserved_port_t" \
 	-v tracefs_t="$tracefs_t" \
 	-v sock_file_getattr="$sock_file_getattr" \
+	-v hostname_exec_map_a="$hostname_exec_map_a" \
+	-v hostname_exec_map_b="$hostname_exec_map_b" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
@@ -94,6 +98,9 @@ _filter_outfile()
            !/system.*status/ ;
 	else if (sock_file_getattr == "" && /gpmctl_t/)
 	   !/gpmctl_t/ ;
+	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
+	     printf("  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };\n")
+	   }
 	else
 	   print;
     }'

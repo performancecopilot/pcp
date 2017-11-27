@@ -266,6 +266,7 @@ PCP_SELINUX_SYSTEMD_EXEC = @pcp_selinux_systemd_exec@
 PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
 PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
 PCP_SELINUX_SOCK_FILE_GETATTR = @pcp_selinux_sock_file_getattr@
+PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@

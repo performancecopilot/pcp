@@ -50,7 +50,7 @@ require {
 	type proc_net_t; #RHBZ1517656
 	type postfix_spool_t; #RHBZ1517862
 	class lnk_file { read getattr };
-	class file { append create execute execute_no_trans getattr ioctl lock open read write };
+	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
 	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner };
@@ -213,7 +213,7 @@ allow pcp_pmlogger_t dey_sapi_port_t:tcp_socket name_connect;
 allow pcp_pmlogger_t user_home_dir_t:dir search;
 
 #============= pcp_pmie_t ==============
-allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
+allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read @PCP_HOSTNAME_EXEC_MAP@ };
 
 #type=AVC msg=audit(1498847682.537:15753): avc:  denied  { sys_ptrace } for  pid=30881 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
 allow pcp_pmie_t self:capability { chown kill net_admin sys_ptrace };
