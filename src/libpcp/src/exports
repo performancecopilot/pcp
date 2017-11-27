@@ -85,7 +85,6 @@ PCP_3.0 {
     __pmAccAddHost;
     __pmAccAddOp;
     __pmAccAddUser;
-    __pmAccDelAccount;
     __pmAccDelClient;
     __pmAccDumpGroups;
     __pmAccDumpHosts;

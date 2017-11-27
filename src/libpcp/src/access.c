@@ -1660,26 +1660,6 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
 }
 
 static void
-__pmAccDelAccount(const char *userid, const char *groupid)
-{
-    __pmUserID	uid;
-    __pmGroupID	gid;
-
-    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
-	return;
-
-    __pmUserIDFromString(userid, &uid);
-    __pmGroupIDFromString(groupid, &gid);
-
-    /* Decrement the count of current connections for this user and group
-     * in the user and groups access lists.  Must walk the supplementary
-     * ID lists as well as the primary ID ACLs.
-     */
-    updateUserAccountConnections(uid, 1, -1);
-    updateGroupAccountConnections(gid, 1, -1);
-}
-
-static void
 getAccMinMaxBits(int *minbitp, int *maxbitp)
 {
     unsigned int	mask = all_ops;
