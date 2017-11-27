@@ -118,7 +118,6 @@ PCP_3.0 {
     __pmAuxConnectPMCDUnixSocket;
     __pmBind;
     __pmCheckEventRecords;
-    __pmCheckSum;
     __pmCloseSocket;
     __pmConfig;
     __pmConnect;

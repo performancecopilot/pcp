@@ -157,7 +157,6 @@ discovery.o
     group			# single-threaded server scope
     done_default		# guarded by __pmLock_extcall mutex
     def_timeout			# guarded by __pmLock_extcall mutex
-checksum.o
 config.o
     ?__pmNativeConfig		# const
     config_lock		# local mutex
