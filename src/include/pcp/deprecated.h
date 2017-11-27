@@ -92,6 +92,12 @@ PCP_DATA extern int pmDebug;
 /* not yet, and never will be, allocated, bits (1<<28) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* see desperate option below */
 
+/*
+ * DO NOT USE
+ * Like __pmHandleToPtr(pmWhichContext()), but with no locking
+ */
+PCP_CALL struct __pmContext *__pmCurrentContext(void);
+
 /* backwards-compatibility support for renamed symbols and types */
 #define __pmOptions pmOptions
 #define __pmProfile pmProfile

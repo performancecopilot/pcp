@@ -131,7 +131,7 @@ configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
 #       ... Makepkgs uses the latter mechanism to refine the configure
 #       options
 #
-configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd
+configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
@@ -276,7 +276,7 @@ binary-arch: checkroot build-stamp
 	# VirtualBox may install a libGL.so that has no dependency
 	# information ... this kills the packaging, so this hack
 	# is a workaround. [seen on bozo-vm Nov 2017]
-	if test -d /var/lib/VBoxGuestAdditions/lib; then dh_shlibdeps -a -- --ignore-missing-info; else dh_shlibdeps -a; fi
+	if test -d /var/lib/VBoxGuestAdditions/lib; then dh_shlibdeps -a -v -- --ignore-missing-info; else dh_shlibdeps -a -v; fi
 	dh_gencontrol -a $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums -a
 	dh_builddeb -a

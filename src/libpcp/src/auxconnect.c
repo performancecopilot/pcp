@@ -45,7 +45,7 @@ __pmIsAuxconnectLock(void *lock)
 }
 #endif
 
-__pmHostEnt *
+static __pmHostEnt *
 __pmHostEntAlloc(void)
 {
     return calloc(1, sizeof(__pmHostEnt));

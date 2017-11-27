@@ -19,6 +19,14 @@
 #include "libpcp.h"
 #include "internal.h"
 
+static int __pmAccSaveUsers(void);
+static int __pmAccSaveGroups(void);
+static int __pmAccRestoreUsers(void);
+static int __pmAccRestoreGroups(void);
+static void __pmAccFreeSavedHosts(void);
+static void __pmAccFreeSavedUsers(void);
+static void __pmAccFreeSavedGroups(void);
+
 /* Host access control list */
 
 typedef struct {
@@ -187,7 +195,7 @@ __pmAccSaveHosts(void)
     return 0;
 }
 
-int
+static int
 __pmAccSaveUsers(void)
 {
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
@@ -205,7 +213,7 @@ __pmAccSaveUsers(void)
     return 0;
 }
 
-int
+static int
 __pmAccSaveGroups(void)
 {
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
@@ -313,7 +321,7 @@ __pmAccRestoreHosts(void)
     return 0;
 }
 
-int
+static int
 __pmAccRestoreUsers(void)
 {
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
@@ -329,7 +337,7 @@ __pmAccRestoreUsers(void)
     return 0;
 }
 
-int
+static int
 __pmAccRestoreGroups(void)
 {
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
@@ -357,7 +365,7 @@ __pmAccFreeSavedLists(void)
     __pmAccFreeSavedGroups();
 }
 
-void
+static void
 __pmAccFreeSavedHosts(void)
 {
     int		i;
@@ -376,7 +384,7 @@ __pmAccFreeSavedHosts(void)
     saved &= ~HOSTS_SAVED;
 }
 
-void
+static void
 __pmAccFreeSavedUsers(void)
 {
     int		i;
@@ -397,7 +405,7 @@ __pmAccFreeSavedUsers(void)
     saved &= ~USERS_SAVED;
 }
 
-void
+static void
 __pmAccFreeSavedGroups(void)
 {
     int		i;
@@ -1651,7 +1659,7 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     return 1;
 }
 
-void
+static void
 __pmAccDelAccount(const char *userid, const char *groupid)
 {
     __pmUserID	uid;

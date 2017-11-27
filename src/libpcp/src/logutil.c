@@ -550,7 +550,7 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
     return sts;
 }
 
-int
+static int
 __pmLogLoadIndex(__pmLogCtl *lcp)
 {
     int		sts = 0;
@@ -3131,11 +3131,6 @@ LogCheckForNextArchive(__pmContext *ctxp, int mode, pmResult **result)
     return sts;
 }
 
-/*
- * TODO - when libpcp version changes, cull this function from impl.h
- * ... and move declaration to internal.h or drop the function entirely
- * if not used outside this source file
- */
 int
 __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 {
@@ -3225,11 +3220,6 @@ LogChangeToNextArchive(__pmContext *ctxp)
     return 0;
 }
 
-/*
- * TODO - when libpcp version changes, cull this function from impl.h
- * ... and move declaration to internal.h or drop the function entirely
- * if not used outside this source file
- */
 int
 __pmLogChangeToNextArchive(__pmLogCtl **lcp)
 {
@@ -3335,11 +3325,6 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
     return 0;
 }
 
-/*
- * TODO - when libpcp version changes, cull this function from impl.h
- * ... and move declaration to internal.h or drop the function entirely
- * if not used outside this source file
- */
 int
 __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
 {

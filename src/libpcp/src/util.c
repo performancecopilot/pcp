@@ -1246,7 +1246,7 @@ __pmPrintTimeval(FILE *f, const pmTimeval *tp)
  * print pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format
  * (pmTimespec variant used in events, archives and internally)
  */
-void
+static void
 __pmPrintTimespec(FILE *f, const pmTimespec *tp)
 {
     struct tm	tmp;
@@ -1334,7 +1334,7 @@ pmPrintDesc(FILE *f, const pmDesc *desc)
 /*
  * print times between events
  */
-void
+static void
 __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
     struct timeval tv;
@@ -1353,7 +1353,7 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     *last = now;
 }
 
-void
+static void
 __pmEventTrace(const char *event)
 {
     static double last;

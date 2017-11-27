@@ -239,7 +239,6 @@ pkg_add?	gmake		[gmake]
 # optional executables
 #
 dpkg?	chrpath			[chrpath]
-dpkg?	sysv-rc-conf		[sysv-rc-conf]
 rpm?	rpmbuild		[rpm-build]
 urpmi?	rpmbuild		[rpm-build]
 
@@ -1220,7 +1219,7 @@ in
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel'
 	;;
     vm20)
-	na='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch'
+	na='sysv-rc-conf'
 	;;
     vm21)
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-xlsxwriter zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'

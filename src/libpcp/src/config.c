@@ -17,6 +17,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "internal.h"
 #include "pmda.h"
 #ifdef HAVE_STRINGS_H
 #include <strings.h>

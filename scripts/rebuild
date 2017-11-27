@@ -1,39 +1,68 @@
 #!/bin/sh
 #
-# Rebuild in a git tree ...
-# - turn off gcc optimization so gdb has a chance
-# - so we can use libs here for testing
-# - make and install over installed libs
+# Rebuild core libraries and QA apps in a git tree ...
+# - run configure the same way Makepkgs does
+# - turn off gcc optimization so gdb has a better chance
+#   (be aware that this may hide gcc optimizations in the real
+#   package builds)
+# - make and install libraries over the installed libraries
+#   (if any)
+# - build enough libraries so "make" in the qa directory works
+# - using gdb for apps outside the qa directory should work well
+#   once thos apps are rebuilt
 #
+
+tmp=/var/tmp/$$
+sts=1		# failure is the default until the end
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 if [ ! -d .git ]
 then
     echo "Error: need to be at the top of the git tree, bozo!"
-    exit 1
+    exit
 fi
 
 qa/admin/myconfigure
+if [ -f src/include/pcp.conf ]
+then
+    . src/include/pcp.conf
+else
+    echo "Error: myconfigure failed to make src/include/pcp.conf"
+    exit
+fi
+if [ -z "$PCP_MAKE_PROG" ]
+then
+    echo "Error: myconfigure failed to set \$PCP_MAKE_PROG"
+    exit
+fi
 
 echo "Disable gcc optimization ..."
-sed -i -e '/CFLAGS_OPT/s/-O2/-O0/' src/include/builddefs
+sed -e '/CFLAGS_OPT/s/-O2/-O0/' src/include/builddefs >$tmp.out
+if diff src/include/builddefs $tmp.out >/dev/null
+then
+    echo "Warning: failed to change CFLAGS_OPTS from -O2 to -O0"
+    grep CFLAGS_OPT src/include/builddefs
+else
+    sudo cp $tmp.out src/include/builddefs
+fi
 
 # others that could be added to the list below ...
-# src/libapp src/libpcp_qed src/libpcp_qmc src/libpcp_qwt
+# src/libapp src/libpcp_qed src/libpcp_qwt
 #
 here=`pwd`
-for dir in src/libpcp/src src/libpcp_pmda/src src/libpcp_pmcd/src \
-	src/libpcp_gui/src src/libpcp_web/src src/libpcp_mmv \
-	src/libpcp_import/src src/libpcp_trace
+for dir in src/libpcp src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
+	src/libpcp_web src/libpcp_mmv src/libpcp_import src/libpcp_trace \
+	src/libpcp_qmc src/libpcp_fault
 do
     echo "=== $dir ==="
     cd $dir
-    make clean
-    if make
+    $PCP_MAKE_PROG clean
+    if $PCP_MAKE_PROG
     then
-	sudo make install
+	sudo $PCP_MAKE_PROG install
     else
 	echo "Error: make failed!"
-	exit 1
+	exit
     fi
     cd $here
 done
@@ -41,6 +70,16 @@ done
 echo "=== qa ==="
 cd qa
 cd src
-make clean_exec
+$PCP_MAKE_PROG clean-exec
 cd ..
-make
+if $PCP_MAKE_PROG
+then
+    :
+else
+    echo "Error: make failed!"
+    exit
+fi
+
+# success
+#
+sts=0

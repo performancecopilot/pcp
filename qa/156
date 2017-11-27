@@ -65,12 +65,11 @@ fi
 cd $home/$iam
 unset ROOT MAKEFLAGS
 
-if [ ! -f dynamic.indom ]
-then
-    echo "1 one" >$tmp.indom
-    echo "2 two" >>$tmp.indom
-    $sudo cp $tmp.indom dynamic.indom
-fi
+# force dynamic.indom to be what we expect ...
+#
+echo "1 one" >$tmp.indom
+echo "2 two" >>$tmp.indom
+$sudo cp $tmp.indom dynamic.indom
 
 # make sure sample agent is running again at the end, so other QA tests
 # continue to work

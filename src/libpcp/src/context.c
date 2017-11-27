@@ -342,19 +342,6 @@ pmWhichContext(void)
     return sts;
 }
 
-/*
- * Don't use this function ... the return value is a pointer to a context
- * that is NOT LOCKED,
- * TODO - when libpcp version changes, cull this function.
- */
-__pmContext *
-__pmCurrentContext(void)
-{
-    PM_INIT_LOCKS();
-
-    return PM_TPD(curr_ctxp);
-}
-
 int
 __pmConvertTimeout(int timeo)
 {
@@ -1722,3 +1709,19 @@ __pmIsContextLock(void *lock)
 }
 #endif
 #endif
+
+/*
+ * Stuff from here on is deprecated ... definitions in deprecated.h
+ * not libpcp.h
+ */
+
+/*
+ * Don't use this function ... the return value is a pointer to a context
+ * that is NOT LOCKED,
+ */
+__pmContext *
+__pmCurrentContext(void)
+{
+    PM_INIT_LOCKS();
+    return PM_TPD(curr_ctxp);
+}

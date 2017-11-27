@@ -64,7 +64,6 @@ extern "C" {
 #define PM_STATE_APPL	0
 #define PM_STATE_PMCS	1
 PCP_CALL extern void __pmSetInternalState(int);
-PCP_CALL extern int __pmGetInternalState(void);
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
@@ -88,10 +87,6 @@ typedef void * __pmMutex;
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
-PCP_CALL extern int __pmIsLocked(void *);
-#ifdef BUILD_WITH_LOCK_ASSERTS
-PCP_CALL extern void __pmCheckIsUnlocked(void *, char *, int);
-#endif /* BUILD_WITH_LOCK_ASSERTS */
 
 /*
  * Each of these scopes defines one or more PMAPI routines that will
@@ -108,16 +103,12 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
-#define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
 
 #ifdef HAVE_PTHREAD_MUTEX_T
 /* the big libpcp lock */
-PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;
-/* mutex for calls to external routines that are not thread-safe */
-PCP_CALL extern pthread_mutex_t	__pmLock_extcall;
+PCP_DATA extern pthread_mutex_t	__pmLock_libpcp;
 #else
-PCP_CALL extern void *__pmLock_libpcp;			/* symbol exposure */
-PCP_CALL extern void *__pmLock_extcall;			/* symbol exposure */
+PCP_DATA extern void *__pmLock_libpcp;			/* symbol exposure */
 #endif
 
 /*
@@ -182,10 +173,10 @@ typedef struct __pmnsTree {
     int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
-/* used by pmnsmerge... */
+/* used by pmnsmerge/pmnsdel */
 PCP_CALL extern __pmnsTree *__pmExportPMNS(void); 
 
-/* for PMNS in archives */
+/* for PMNS in archives and PMDA use */
 PCP_CALL extern int __pmNewPMNS(__pmnsTree **);
 PCP_CALL extern void __pmUsePMNS(__pmnsTree *); /* for debugging */
 PCP_CALL extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
@@ -370,7 +361,6 @@ bozo - unknown size of long !!!
 /* PDU type independent send-receive routines */
 PCP_CALL extern int __pmXmitPDU(int, __pmPDU *);
 PCP_CALL extern int __pmGetPDU(int, int, int, __pmPDU **);
-PCP_CALL extern int __pmGetPDUCeiling(void);
 PCP_CALL extern int __pmSetPDUCeiling(int);
 
 /* PDU type specfic send-encode-decode routines */
@@ -430,14 +420,8 @@ PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 typedef int (*__pmConnectHostType)(int, int);
 PCP_CALL extern int __pmSetSocketIPC(int);
 PCP_CALL extern int __pmSetVersionIPC(int, int);
-PCP_CALL extern int __pmSetFeaturesIPC(int, int, int);
-PCP_CALL extern int __pmSetDataIPC(int, void *);
-PCP_CALL extern int __pmDataIPCSize(void);
-PCP_CALL extern int __pmLastVersionIPC(void);
 PCP_CALL extern int __pmVersionIPC(int);
 PCP_CALL extern int __pmSocketIPC(int);
-PCP_CALL extern int __pmFeaturesIPC(int);
-PCP_CALL extern int __pmDataIPC(int, void *);
 PCP_CALL extern void __pmOverrideLastFd(int);
 PCP_CALL extern void __pmResetIPC(int);
 
@@ -454,7 +438,6 @@ PCP_CALL extern int __pmConnect(int, void *, __pmSockLen);
 PCP_CALL extern int __pmAccept(int, void *, __pmSockLen *);
 PCP_CALL extern void __pmCloseSocket(int);
 PCP_CALL extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
-PCP_CALL extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
 PCP_CALL extern ssize_t __pmWrite(int, const void *, size_t);
 PCP_CALL extern ssize_t __pmRead(int, void *, size_t);
 PCP_CALL extern ssize_t __pmSend(int, const void *, size_t, int);
@@ -481,12 +464,9 @@ PCP_CALL extern size_t	     __pmSockAddrSize(void);
 PCP_CALL extern void	     __pmSockAddrInit(__pmSockAddr *, int, int, int);
 PCP_CALL extern int	     __pmSockAddrCompare(const __pmSockAddr *, const __pmSockAddr *);
 PCP_CALL extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
-PCP_CALL extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 PCP_CALL extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
-PCP_CALL extern int	     __pmSockAddrGetPort(const __pmSockAddr *);
-PCP_CALL extern void	     __pmSockAddrSetScope(__pmSockAddr *, int);
 PCP_CALL extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 PCP_CALL extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 PCP_CALL extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
@@ -496,10 +476,7 @@ PCP_CALL extern char *	     __pmSockAddrToString(const __pmSockAddr *);
 PCP_CALL extern char *	     __pmGetNameInfo(__pmSockAddr *);
 PCP_CALL extern __pmSockAddr *__pmStringToSockAddr(const char *);
 PCP_CALL extern __pmSockAddr *__pmLoopBackAddress(int);
-PCP_CALL extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int);
-PCP_CALL extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int);
 PCP_CALL extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, void **);
-PCP_CALL extern __pmHostEnt * __pmHostEntAlloc(void);
 PCP_CALL extern __pmHostEnt * __pmGetAddrInfo(const char *);
 PCP_CALL extern void	     __pmHostEntFree(__pmHostEnt *);
 PCP_CALL extern char *	     __pmHostEntGetName(__pmHostEnt *);
@@ -525,7 +502,6 @@ typedef enum {
     PM_HASH_WALK_DELETE_STOP,
 } __pmHashWalkState;
 PCP_CALL extern void __pmHashInit(__pmHashCtl *);
-PCP_CALL extern int __pmHashPreAlloc(int, __pmHashCtl *);
 typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
 PCP_CALL extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
 PCP_CALL extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
@@ -615,14 +591,7 @@ typedef struct {
     int			pc_tout_sec;	/* timeout for __pmGetPDU */
     time_t		pc_again;	/* time to try again */
 } __pmPMCDCtl;
-PCP_CALL extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
-PCP_CALL extern int __pmConnectLocal(__pmHashCtl *);
-PCP_CALL extern int __pmAuxConnectPMCD(const char *);
 PCP_CALL extern int __pmAuxConnectPMCDPort(const char *, int);
-PCP_CALL extern int __pmAuxConnectPMCDUnixSocket(const char *);
-PCP_CALL extern int __pmAddHostPorts(pmHostSpec *, int *, int);
-PCP_CALL extern void __pmDropHostPort(pmHostSpec *);
-PCP_CALL extern void __pmConnectGetPorts(pmHostSpec *);
 
 /* Internal interfaces for metadata labels (name:value pairs) */
 static inline int
@@ -636,8 +605,6 @@ pmlabel_intrinsic(pmLabel *lp)
     return (lp->flags & PM_LABEL_OPTIONAL) == 0;
 }
 PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
-PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
-PCP_CALL extern int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
 PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
@@ -859,10 +826,6 @@ typedef struct {
 #define __PM_MODE_MASK	0xffff
 
 /* internal archive routines */
-PCP_CALL extern int __pmLogOpen(const char *, __pmContext *);
-PCP_CALL extern const char *__pmLogName_r(const char *, int, char *, int);
-PCP_CALL extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
-PCP_CALL extern char *__pmLogBaseName(char *);
 PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
@@ -875,9 +838,7 @@ PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const pmTimeval *);
 PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *, unsigned int, unsigned int, int, pmLabelSet *, const pmTimeval *);
 PCP_CALL extern int __pmLogPutText(__pmLogCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
-PCP_CALL extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **);
 PCP_CALL extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
-PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
 PCP_CALL extern int __pmLogLoadMeta(__pmLogCtl *);
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
@@ -885,9 +846,7 @@ PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, __pmFILE *, pmResult **, int)
 PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **, int);
 PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
 PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
-PCP_CALL extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, pmTimeval *, int **, char ***);
-PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 PCP_CALL extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
 #define PMLOGPUTINDOM_DUP       1
@@ -895,23 +854,12 @@ PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, pmTimeval *, const
 PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *, unsigned int, unsigned int, pmLabelSet **, const pmTimeval *);
 PCP_CALL extern int __pmLogLookupText(__pmLogCtl *, unsigned int , unsigned int, char **);
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, pmTimeval *, int, char **);
-PCP_CALL extern pmTimeval *__pmLogStartTime(__pmArchCtl *);
-PCP_CALL extern void __pmLogSetTime(__pmContext *);
-PCP_CALL extern void __pmLogCacheClear(__pmFILE *);
-PCP_CALL extern void __pmLogResetInterp(__pmContext *);
-PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
-PCP_CALL extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
-PCP_CALL extern int __pmLogChangeToNextArchive(__pmLogCtl **);
-PCP_CALL extern int __pmLogChangeToPreviousArchive(__pmLogCtl **);
-PCP_CALL extern void __pmArchCtlFree(__pmArchCtl *);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
 PCP_DATA extern int __pmLogReads;
 
 /* Convert opaque context handle to __pmContext pointer */
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
-/* Like __pmHandleToPtr(pmWhichContext()), but with no locking */
-PCP_CALL __pmContext *__pmCurrentContext(void);
 
 /*
  * Dump the current context (source details + instance profile),
@@ -938,22 +886,14 @@ PCP_CALL extern int __pmAccAddGroup(const char *, unsigned int, unsigned int, in
 PCP_CALL extern int __pmAccAddClient(__pmSockAddr *, unsigned int *);
 PCP_CALL extern int __pmAccAddAccount(const char *, const char *, unsigned int *);
 PCP_CALL extern void __pmAccDelClient(__pmSockAddr *);
-PCP_CALL extern void __pmAccDelAccount(const char *, const char *);
 PCP_CALL extern void __pmAccDumpHosts(FILE *);
 PCP_CALL extern void __pmAccDumpUsers(FILE *);
 PCP_CALL extern void __pmAccDumpGroups(FILE *);
 PCP_CALL extern void __pmAccDumpLists(FILE *);
 PCP_CALL extern int __pmAccSaveHosts(void);
-PCP_CALL extern int __pmAccSaveUsers(void);
-PCP_CALL extern int __pmAccSaveGroups(void);
 PCP_CALL extern int __pmAccSaveLists(void);
 PCP_CALL extern int __pmAccRestoreHosts(void);
-PCP_CALL extern int __pmAccRestoreUsers(void);
-PCP_CALL extern int __pmAccRestoreGroups(void);
 PCP_CALL extern int __pmAccRestoreLists(void);
-PCP_CALL extern void __pmAccFreeSavedHosts(void);
-PCP_CALL extern void __pmAccFreeSavedUsers(void);
-PCP_CALL extern void __pmAccFreeSavedGroups(void);
 PCP_CALL extern void __pmAccFreeSavedLists(void);
 
 /* AF - general purpose asynchronous event management routines */
@@ -1168,11 +1108,6 @@ PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
 
 /* Helper methods for packed arrays of event records */
 PCP_CALL extern int __pmCheckEventRecords(pmValueSet *, int);
-PCP_CALL extern int __pmCheckHighResEventRecords(pmValueSet *, int);
-
-/* event tracing for monitoring time between events */
-PCP_CALL extern void __pmEventTrace(const char *);		/* NOT thread-safe */
-PCP_CALL extern void __pmEventTrace_r(const char *, int *, double *, double *);
 
 /*
  * helper functions to register client identity with pmcd for export
@@ -1209,21 +1144,7 @@ PCP_CALL extern int __pmLogFindPort(const char *, int, __pmLogPort **);
 /* check for localhost */
 PCP_CALL extern int __pmIsLocalhost(const char *);
 
-/* 32-bit file checksum */
-PCP_CALL extern __int32_t __pmCheckSum(FILE *);
-
-/* for QA apps ...  */
-
 /* DSO PMDA helpers */
-struct __pmDSO;			/* opaque, real definition in pmda.h */
-PCP_CALL extern struct __pmDSO *__pmLookupDSO(int);
-/*
- * Adding/deleting/clearing the list of DSO PMDAs supported for
- * PM_CONTEXT_LOCAL contexts
- */
-#define PM_LOCAL_ADD	1
-#define PM_LOCAL_DEL	2
-#define PM_LOCAL_CLEAR	3
 PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
 PCP_CALL extern char *__pmSpecLocalPMDA(const char *);
 
@@ -1259,7 +1180,6 @@ PCP_CALL extern void __pmtimevalSleep(struct timeval);
 PCP_CALL extern void __pmtimevalPause(struct timeval);
 
 /* manipulate internal timestamps */
-PCP_CALL extern int __pmTimevalCmp(const pmTimeval *, const pmTimeval *);
 PCP_CALL extern double __pmTimevalSub(const pmTimeval *, const pmTimeval *);
 
 /* reverse ctime, time interval parsing, time conversions */
@@ -1295,7 +1215,6 @@ PCP_CALL extern int __pmServerSetLocalCreds(int,  __pmHashCtl *);
 PCP_CALL extern void __pmServerSetServiceSpec(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
 PCP_CALL extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
-PCP_CALL extern int __pmServerAddToClientFdSet(__pmFdSet *, int);
 PCP_CALL extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
 PCP_CALL extern void __pmServerCloseRequestPorts(void);
 PCP_CALL extern void __pmServerDumpRequestPorts(FILE *);
@@ -1333,7 +1252,6 @@ PCP_CALL extern int __pmUnparseHostAttrsSpec(
     pmHostSpec *, int, __pmHashCtl *, char *, size_t);
 
 /* SSL/TLS/IPv6 support via NSS/NSPR */
-PCP_CALL extern int __pmSecureServerSetup(const char *, const char *);
 PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);
 PCP_CALL extern void __pmSecureServerShutdown(void);
 PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
@@ -1346,8 +1264,6 @@ PCP_CALL extern double __pmRequestTimeout(void);
 PCP_CALL extern int __pmSetRequestTimeout(double);
 
 /* instance profile methods */
-PCP_CALL extern int pmProfileSetSent(void);
-PCP_CALL extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *);
 PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
 
 /* free malloc'd data structures */
@@ -1355,7 +1271,6 @@ PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
 PCP_CALL extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
 PCP_CALL extern void __pmFreeHostSpec(pmHostSpec *, int);
 PCP_CALL extern void __pmFreeInResult(pmInResult *);
-PCP_CALL extern void __pmFreeInterpData(__pmContext *);
 PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
 PCP_CALL extern void __pmFreeProfile(pmProfile *);
 PCP_CALL extern void __pmFreeResultValues(pmResult *);
@@ -1369,9 +1284,7 @@ PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
-PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
-PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
 PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
@@ -1379,7 +1292,6 @@ PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const pmTimeval *);
-PCP_CALL extern void __pmPrintTimespec(FILE *, const pmTimespec *);
 PCP_CALL extern void __pmPrintIPC(void);
 PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
