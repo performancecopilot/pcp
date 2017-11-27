@@ -193,7 +193,7 @@ binary-indep: checkroot build-stamp
 	dh_perl -i -p $(pcp_import_sheet)
 	dh_perl -i -p $(pcp_import_iostat)
 	dh_installdeb -i
-	dh_gencontrol -i $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
+	dh_gencontrol -i $(SUBSTVARS)
 	dh_md5sums -i
 	dh_builddeb -i
 
