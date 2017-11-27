@@ -48,6 +48,7 @@ require {
 	type dey_sapi_port_t; #RHBZ1447585
 	type gpmctl_t; #RHBZ1517656
 	type proc_net_t; #RHBZ1517656
+	type postfix_spool_t; #RHBZ1517862
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -179,6 +180,9 @@ allow pcp_pmcd_t nfsd_fs_t:file { getattr open read };
 
 #RHBZ1517656
 @PCP_SOCK_FILE_GETATTR_RULE@
+
+#RHBZ1517862
+allow pcp_pmcd_t postfix_spool_t:dir read;
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
