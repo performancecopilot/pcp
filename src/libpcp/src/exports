@@ -168,8 +168,6 @@ PCP_3.0 {
     __pmDumpResult;
     __pmDumpStatusList;
     __pmEncodeResult;
-    __pmEventTrace;
-    __pmEventTrace_r;
     __pmExportPMNS;
     __pmFaultInject;
     __pmFaultSummary;

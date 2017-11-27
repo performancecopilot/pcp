@@ -1331,38 +1331,6 @@ pmPrintDesc(FILE *f, const pmDesc *desc)
 	fprintf(f, "%s\n", units);
 }
 
-/*
- * print times between events
- */
-static void
-__pmEventTrace_r(const char *event, int *first, double *sum, double *last)
-{
-    struct timeval tv;
-    double now;
-
-    pmtimevalNow(&tv);
-    now = pmtimevalToReal(&tv);
-    if (*first) {
-	*first = 0;
-	*sum = 0;
-	*last = now;
-    }
-    *sum += now - *last;
-    fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
-			pmGetProgname(), now-*last, *sum, event);
-    *last = now;
-}
-
-static void
-__pmEventTrace(const char *event)
-{
-    static double last;
-    static double sum;
-    static int first = 1;
-
-    __pmEventTrace_r(event, &first, &sum, &last);
-}
-
 #define DEBUG_CLEAR 0
 #define DEBUG_SET 1
 #define DEBUG_OLD 0

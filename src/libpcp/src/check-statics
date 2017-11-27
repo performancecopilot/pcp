@@ -488,9 +488,6 @@ util.o
     fname			# guarded by __pmLock_libpcp mutex
     msgsize			# guarded by __pmLock_libpcp mutex
     ?base			# no unsafe side-effects, see notes in util.c
-    first			# __pmEventType deprecated by __pmEventType_r
-    last			# __pmEventType deprecated by __pmEventType_r
-    sum				# __pmEventType deprecated by __pmEventType_r
     ?bp				# const
     ?dp_h			# const
     ?dp_l			# const
