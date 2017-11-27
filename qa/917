@@ -34,6 +34,7 @@ cap_userns_ptrace=`seinfo --class=cap_userns -x 2>&1 | grep "sys_ptrace$"`
 unreserved_port_t=`seinfo -t | grep "unreserved_port_t$"`
 tracefs_t=`seinfo -t | grep "tracefs_t$"`
 class_status=`seinfo -x --class=system | grep "status$"`
+sock_file_getattr=`seinfo -x --class=sock_file | grep "getattr$"`
 
 _filter_semodule()
 {
@@ -63,6 +64,7 @@ _filter_outfile()
 	-v cap_userns_ptrace="$cap_userns_ptrace" \
 	-v unreserved_port_t="$unreserved_port_t" \
 	-v tracefs_t="$tracefs_t" \
+	-v sock_file_getattr="$sock_file_getattr" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
@@ -90,6 +92,8 @@ _filter_outfile()
 	   !/tracefs_t/ ;
         else if (class_status == "" && /system.*status/)
            !/system.*status/ ;
+	else if (sock_file_getattr == "" && /gpmctl_t/)
+	   !/gpmctl_t/ ;
 	else
 	   print;
     }'

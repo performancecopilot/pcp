@@ -58,6 +58,8 @@ $(IAM).te: $(IAM).te.in
 		-e 's;@PCP_TRACEFS_FS_RULE@;'$(PCP_TRACEFS_FS_RULE)';' \
 		-e 's;@PCP_TRACEFS_DIR_RULE@;'$(PCP_TRACEFS_DIR_RULE)';' \
 		-e 's;@PCP_TRACEFS_FILE_RULE@;'$(PCP_TRACEFS_FILE_RULE)';' \
+		-e 's;@PCP_SOCK_FILE_GETATTR@;'$(PCP_SOCK_FILE_GETATTR)';' \
+		-e 's;@PCP_SOCK_FILE_GETATTR_RULE@;'$(PCP_SOCK_FILE_GETATTR_RULE)';' \
 
 	# END
 	make -f /usr/share/selinux/devel/Makefile

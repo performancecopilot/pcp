@@ -1937,6 +1937,7 @@ pcp_selinux_systemd_unit_file=false
 pcp_selinux_systemd_exec=false
 pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
+pcp_selinux_sock_file_getattr=false
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -1992,7 +1993,11 @@ do
 	then
 	    pcp_selinux_tracefs=true
 	fi
-
+	sock_file_getattr=`eval seinfo -x --class=sock_file -- $policy_file | grep getattr | awk '{ print $1 }'`
+	if test "x$sock_file_getattr" != "x"
+	then
+	    pcp_selinux_sock_file_getattr=true
+	fi
     fi
 done  
 ])
@@ -2006,6 +2011,7 @@ AC_SUBST(pcp_selinux_systemd_unit_file)
 AC_SUBST(pcp_selinux_systemd_exec)
 AC_SUBST(pcp_selinux_unreserved_port)
 AC_SUBST(pcp_selinux_tracefs)
+AC_SUBST(pcp_selinux_sock_file_getattr)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
