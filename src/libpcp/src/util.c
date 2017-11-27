@@ -1243,21 +1243,6 @@ __pmPrintTimeval(FILE *f, const pmTimeval *tp)
 }
 
 /*
- * print pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format
- * (pmTimespec variant used in events, archives and internally)
- */
-static void
-__pmPrintTimespec(FILE *f, const pmTimespec *tp)
-{
-    struct tm	tmp;
-    time_t	now;
-
-    now = (time_t)tp->tv_sec;
-    pmLocaltime(&now, &tmp);
-    fprintf(f, "%02d:%02d:%02d.%09ld", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (long)tp->tv_nsec);
-}
-
-/*
  * descriptor
  */
 void
