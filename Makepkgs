@@ -514,11 +514,12 @@ debian_buildpackage()
     # sign if --signed and $DEB_SIGN_KEYID set in the environment
     # (always for an upload to Debian servers so its source only)
     $signed && [ -n "$DEB_SIGN_KEYID" ] && sign='-S'
+    opts="$sign -r$SUDO -sa"
     rm -f $tmp/failed
     if $verbose ; then
-	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	(dpkg-buildpackage $opts || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
     else
-	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	(dpkg-buildpackage $opts || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian buildpackage
 }
