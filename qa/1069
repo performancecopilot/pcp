@@ -137,8 +137,13 @@ echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
 pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 | _archive_filter
 
-echo "== exercise empty delimiter corner case"
+echo "== exercise delimiters corner cases"
 pmrep -s 1 -t 1 $log2 -l '' -w 16 -U hinv.machine
+echo '[testing]' > $tmp.dconfig
+echo 'delimiter = " "' >> $tmp.dconfig
+echo 'mem.util.free = freemem' >> $tmp.dconfig
+echo 'mem.util.used = usedmem' >> $tmp.dconfig
+pmrep -s 2 -t 2 $log2 -c $tmp.dconfig -p :testing | _archive_filter
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample

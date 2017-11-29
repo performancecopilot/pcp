@@ -70,11 +70,10 @@ options follows:
 .RE
 .\}
 .P
-The data types used are string (no quotes needed), integer, and bool
-(with values of
-.I yes
-or
-.IR no ).
+The supported value data types are string, integer, and boolean.
+String values need not to be quoted expect when whitespace needs to
+be included in the value (for instance, for the column separator);
+double quotes from quoted strings will be removed.
 .P
 A line comment starts with a hash sign (``#'') or a semicolon (``;'').
 Inline comments are not supported.
@@ -140,32 +139,32 @@ Derived metric specifications. Corresponding command line option is
 Undefined by default.
 .RE
 .P
-daemonize (bool)
+daemonize (boolean)
 .RS 4
 Indicates whether to daemonize on startup. Corresponding command line option is
 \fB--daemonize\fR.  Defaults to \fBno\fR.
 .RE
 .P
-header (bool)
+header (boolean)
 .RS 4
 Indicates whether to print headers. Corresponding command line option
 is \fB-H\fR. Defaults to \fByes\fR.
 .RE
 .P
-unitinfo (bool)
+unitinfo (boolean)
 .RS 4
 Indicates whether to include unit information as part of headers.
 Corresponding command line option is \fB-U\fR. Defaults to \fByes\fR.
 .RE
 .P
-globals (bool)
+globals (boolean)
 .RS 4
 Indicates whether to include metrics from the \fB[global]\fR section
 (see below) for reporting. Corresponding command line option is
 \fB-G\fR. Defaults to \fByes\fR.
 .RE
 .P
-timestamp (bool)
+timestamp (boolean)
 .RS 4
 Indicates whether to print the timestamp. Corresponding command line
 option is \fB-p\fR. Defaults to \fBno\fR.
@@ -186,7 +185,7 @@ option is \fB-o\fR. Follows the time syntax described in
 Defaults to \fB1s\fR.
 .RE
 .P
-delay (bool)
+delay (boolean)
 .RS 4
 Indicates whether to pause between samples when replaying from an
 archive rather than replaying at full speed. Corresponding command line
@@ -249,14 +248,14 @@ Indicates the column separator. Corresponding command line option is
 .BR pmrep (1).
 .RE
 .P
-extcsv (bool)
+extcsv (boolean)
 .RS 4
 Indicates whether to write extended CSV output similar to
 .BR sadf (1).
 Corresponding command line option is \fB-k\fR. Defaults to \fBno\fR.
 .RE
 .P
-extheader (bool)
+extheader (boolean)
 .RS 4
 Indicates whether to print extended header. Corresponding command line
 option is \fB-x\fR. Defaults to \fBno\fR.
@@ -274,7 +273,7 @@ Indicates the format string for formatting the timestamp. Corresponding
 command line option is \fB-f\fR. Defaults to \fB%H:%M:%S\fR.
 .RE
 .P
-interpol (bool)
+interpol (boolean)
 .RS 4
 Indicates whether to interpolate reported archive values. Corresponding
 command line option is \fB-u\fR. See

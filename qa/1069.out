@@ -544,9 +544,13 @@ rattle,2,2000-05-01 20:36:47 UTC+10,380434,380433679.314
 rattle,2,2000-05-01 20:36:49 UTC+10,380436,380435679.381
 rattle,2,2000-05-01 20:36:51 UTC+10,380438,380437679.382
 rattle,2,2000-05-01 20:36:53 UTC+10,380440,380439679.413
-== exercise empty delimiter corner case
+== exercise delimiters corner cases
        h.machine
            linux
+         freemem usedmem
+           Kbyte   Kbyte
+00:47:01   38220 6068648
+00:47:03   38220 6068648
 == exercise CSV and alternate delimiters
 Time,"sample.seconds","sample.milliseconds"
 2000-05-01 20:36:45,,

@@ -120,6 +120,8 @@ class pmConfig(object):
             try:
                 setattr(self.util, name, int(value))
             except ValueError:
+                if value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1]
                 setattr(self.util, name, value)
 
     def read_section_options(self, config, section):
