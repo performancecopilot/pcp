@@ -741,7 +741,8 @@ class PMReporter(object):
         for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if self.instances and inst not in self.pmconfig.insts[i][0]:
+                    if (self.instances or self.metrics[metric][1][0]) and \
+                       inst not in self.pmconfig.insts[i][0]:
                         continue
                     try:
                         value = val()
@@ -807,7 +808,8 @@ class PMReporter(object):
         for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if self.instances and inst not in self.pmconfig.insts[i][0]:
+                    if (self.instances or self.metrics[metric][1][0]) and \
+                       inst not in self.pmconfig.insts[i][0]:
                         continue
                     try:
                         value = val()
@@ -902,7 +904,8 @@ class PMReporter(object):
             res[metric] = []
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if self.instances and inst not in self.pmconfig.insts[i][0]:
+                    if (self.instances or self.metrics[metric][1][0]) and \
+                       inst not in self.pmconfig.insts[i][0]:
                         continue
                     try:
                         if inst != PM_IN_NULL and not name:

@@ -209,7 +209,10 @@ class pmConfig(object):
                 metrics[key] = [value]
                 for index in range(0, 6):
                     if len(metrics[key]) <= index:
-                        metrics[key].append(None)
+                        if index == 2:
+                            metrics[key].append([None])
+                        else:
+                            metrics[key].append(None)
             else:
                 # Additional info
                 key, spec = key.rsplit(".")
@@ -222,7 +225,10 @@ class pmConfig(object):
                     else:
                         self.util.derived += "@" + metrics[key][0] + "=" + value
                 else:
-                    metrics[key][self.metricspec.index(spec)+1] = value
+                    if self.metricspec.index(spec) == 1:
+                        metrics[key][self.metricspec.index(spec)+1] = [value]
+                    else:
+                        metrics[key][self.metricspec.index(spec)+1] = value
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metrics set """
@@ -397,8 +403,6 @@ class pmConfig(object):
             try:
                 l = len(self.pmids)
                 self._tmp = metrics[metric][1]
-                if not 'append' in dir(self._tmp):
-                    self._tmp = [self._tmp]
                 self.util.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found
@@ -435,7 +439,10 @@ class pmConfig(object):
             # Fill in all fields for easier checking later
             for index in range(0, 6):
                 if len(self.util.metrics[metric]) <= index:
-                    self.util.metrics[metric].append(None)
+                    if index == 1:
+                        self.util.metrics[metric].append([None])
+                    else:
+                        self.util.metrics[metric].append(None)
 
             # Label
             if not self.util.metrics[metric][0]:
