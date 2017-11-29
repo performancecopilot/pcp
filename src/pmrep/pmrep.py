@@ -126,6 +126,7 @@ class PMReporter(object):
         self.localtz = None
         self.prev_ts = None
         self.runtime = -1
+        self.found_insts = []
 
         # Performance metrics store
         # key - metric name
@@ -508,6 +509,12 @@ class PMReporter(object):
         l = len(str(index-1)) + 2
         self.format = self.format[:-l]
 
+        # Collect the instances in play
+        for i in range(len(self.metrics)):
+            for instance in self.pmconfig.insts[i][1]:
+                if instance not in self.found_insts:
+                    self.found_insts.append(instance)
+
     def write_ext_header(self):
         """ Write extended header """
         comm = "#" if self.output == OUTPUT_CSV else ""
@@ -639,11 +646,11 @@ class PMReporter(object):
             del names[-1]
             del units[-1]
             del insts[-1]
-            self.writer.write(self.format.format(*tuple(names)) + "\n")
+            self.writer.write(self.format.format(*names) + "\n")
             if prnti == 1:
-                self.writer.write(self.format.format(*tuple(insts)) + "\n")
+                self.writer.write(self.format.format(*insts) + "\n")
             if self.unitinfo:
-                self.writer.write(self.format.format(*tuple(units)) + "\n")
+                self.writer.write(self.format.format(*units) + "\n")
 
     def write_archive(self, timestamp):
         """ Write an archive record """
@@ -866,7 +873,7 @@ class PMReporter(object):
                     line.append(self.delimiter)
 
         del line[-1]
-        #self.writer.write('{}'.join(fmt).format(*tuple(line)) + "\n")
+        #self.writer.write('{}'.join(fmt).format(*line) + "\n")
         index = 0
         nfmt = ""
         for f in fmt:
@@ -878,20 +885,13 @@ class PMReporter(object):
             index += 1
         l = len(str(index-1)) + 2
         nfmt = nfmt[:-l]
-        self.writer.write(nfmt.format(*tuple(line)) + "\n")
+        self.writer.write(nfmt.format(*line) + "\n")
 
     def write_stdout_colxrow(self, timestamp):
         """ Write a line to columns and rows swapped stdout """
         if timestamp is None:
             # Silent goodbye
             return
-
-        # Collect the instances in play
-        insts = []
-        for i in range(len(self.metrics)):
-            for instance in self.pmconfig.insts[i][1]:
-                if instance not in insts:
-                    insts.append(instance)
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = OrderedDict()
@@ -918,7 +918,7 @@ class PMReporter(object):
 
         # Painfully iterate over what we have, the logic below
         # being that we need to construct each line independently
-        for instance in insts:
+        for instance in self.found_insts:
             # Split on dummies
             fmt = re.split("{\\d+}", self.format)
 
@@ -1007,7 +1007,7 @@ class PMReporter(object):
                 index += 1
             l = len(str(index-1)) + 2
             nfmt = nfmt[:-l]
-            output += nfmt.format(*tuple(line)) + "\n"
+            output += nfmt.format(*line) + "\n"
 
         self.writer.write(output)
 
