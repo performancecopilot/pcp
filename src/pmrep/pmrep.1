@@ -379,13 +379,13 @@ to change this.
 The list may consist of one or more comma-separated instances.
 The instance name may be quoted with single (') or double (")
 quotes for those cases where the instance name contains commas
-or white space. Note that on the command line when specifying
+or whitespace. Note that on the command line when specifying
 more than one instance, all the names must be quoted.
 .PP
 Multiple
 .B \-i
 options are allowed as an alternative way of specifying more than
-one instance of interest.
+one instance of interest. Regular expressions can also be used.
 .PP
 As an example, the following would report the same instances:
 .EX
@@ -733,6 +733,16 @@ interface:
 .ft CW
 .nf
 $ pmrep -i wlan0 -v network.interface.out
+.fi
+.ft P
+.RE
+.PP
+Display metrics containing information about I/O issued by
+.IR firefox :
+.RS +4
+.ft CW
+.nf
+$ pmrep -i '.*firefox.*' -I -v proc.io
 .fi
 .ft P
 .RE

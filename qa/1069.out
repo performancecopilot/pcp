@@ -806,6 +806,18 @@ Requested global instances:
                                          1 minute          5 minute               sda
       count/s             Kbyte                                               count/s
           N/A             38220             0.820             0.700               N/A
+  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read
+       sda       sdb       sdc       hdc       sdd       sde
+   count/s   count/s   count/s   count/s   count/s   count/s
+       N/A       N/A       N/A       N/A       N/A       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+      read      read      read      read      read
+       sda       sdb       sdc       sdd       sde
+   count/s   count/s   count/s   count/s   count/s
+       N/A       N/A       N/A       N/A       N/A
 === more instance handling
 No matching instances found.
 
