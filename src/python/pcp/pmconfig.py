@@ -165,7 +165,7 @@ class pmConfig(object):
 
     def parse_metric_spec_instances(self, spec):
         """ Parse instances from metric spec """
-        insts = [None]
+        insts = []
         if spec.count(",") < 2:
             return spec + ",,", insts
         # User may supply quoted or unquoted instance specification
@@ -185,7 +185,8 @@ class pmConfig(object):
                 insts = self.parse_instances(inststr)
             spec = spec.replace(inststr, "")
         else:
-            insts = [s]
+            if s:
+                insts = [s]
         if spec.count(",") < 2:
             spec += ",,"
         return spec, insts
@@ -212,7 +213,7 @@ class pmConfig(object):
                 for index in range(0, 6):
                     if len(metrics[key]) <= index:
                         if index == 2:
-                            metrics[key].append([None])
+                            metrics[key].append([])
                         else:
                             metrics[key].append(None)
             else:
@@ -326,7 +327,7 @@ class pmConfig(object):
                     desc.contents.type == pmapi.c_api.PM_TYPE_DOUBLE or
                     desc.contents.type == pmapi.c_api.PM_TYPE_STRING):
                 raise pmapi.pmErr(pmapi.c_api.PM_ERR_TYPE)
-            instances = self.util.instances if not self._tmp[0] else self._tmp
+            instances = self.util.instances if not self._tmp else self._tmp
             if self.util.omit_flat and instances and not inst[1][0]:
                 return
             if instances and inst[1][0]:
@@ -442,7 +443,7 @@ class pmConfig(object):
             for index in range(0, 6):
                 if len(self.util.metrics[metric]) <= index:
                     if index == 1:
-                        self.util.metrics[metric].append([None])
+                        self.util.metrics[metric].append([])
                     else:
                         self.util.metrics[metric].append(None)
 
@@ -453,6 +454,13 @@ class pmConfig(object):
                 for m in metric.split("."):
                     name += m[0] + "."
                 self.util.metrics[metric][0] = name[:-2] + m # pylint: disable=undefined-loop-variable
+
+            # Instance(s)
+            if not self.util.metrics[metric][1] and self.util.instances:
+                if self.insts[i][0][0] != pmapi.c_api.PM_IN_NULL:
+                    self.util.metrics[metric][1] = self.util.instances
+            if self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
+                self.util.metrics[metric][1] = []
 
             # Rawness
             # As a special service for pmrep(1) utility we hardcode
