@@ -112,6 +112,9 @@ archive
 # multi-archive support in libpcp, includes interp.c
 multi-archive
 
+# xz decompression support in libpcp
+decompress-xz
+
 # getopt support - libpcp, pmgetopt, python
 getopt
 
@@ -936,6 +939,7 @@ collectl
 586 other local
 587 pmcd #754795 local pmda.install pmda.trivial
 589 remote
+591 pminfo archive multi-archive decompress-xz local
 592 pmda.sample local
 593 pmlogger #779495 local pmstore
 594 pmda.sample #779246 #782029 local
@@ -983,6 +987,9 @@ collectl
 668 pmmgr local containers pmdumplog
 669 pmmgr local pmlogcheck
 670 libpcp local
+677 pmprobe archive multi-archive decompress-xz local
+684 pmstat archive multi-archive decompress-xz local
+689 pmclient archive multi-archive decompress-xz local sanity
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
@@ -1394,10 +1401,12 @@ collectl
 1112 pmda.linux local
 1113 pcp python local
 1114 archive pmval multi-archive local
+1119 pmlogsummary archive multi-archive decompress-xz local
 1120:reserved pmda.prometheus local
 1121 pmda.linux local
 1122 pmie local
 1123 pmchart local
+1125 archive multi-archive collectl decompress-xz local
 1128 pmie local
 1129 derive local
 1130 pcp2elasticsearch python pcp2xxx local
@@ -1406,6 +1415,7 @@ collectl
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local
 1137 derive pmrep local
+1138 archive pmval multi-archive decompress-xz local
 1140 pidstat local
 1141 selinux local
 1159 pmlogger local pmdumplog
@@ -1422,11 +1432,18 @@ collectl
 1202 pmdadm local
 1225 pmwebapi local
 1227 derive local
+1238 pmiostat archive multi-archive decompress-xz local
+1242 pmrep archive multi-archive decompress-xz local
 1245 libpcp local
 1257 libpcp python local
+1264 archive multi-archive collectl decompress-xz local
 1276 pmmgr containers local
+1289 pmval archive multi-archive decompress-xz local
+1324 pmclient archive multi-archive decompress-xz local
 1330:reserved pmda.prometheus local
 1331 verify local
+1238:reserved pmiostat archive multi-archive decompress-xz local
+1242:reserved pmrep archive multi-archive decompress-xz local
 1354 pmval archive local
 1359 libpcp local
 1385:reserved pmda.prometheus local

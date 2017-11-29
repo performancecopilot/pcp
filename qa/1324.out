@@ -1,0 +1,1393 @@
+QA output created by 1324
+Running pmlogextract archives/multi-xz/20150508.11.44 archives/multi-xz/20150508.11.46 archives/multi-xz/20150508.11.50 archives/multi-xz/20150508.11.57 TMP.44+46+50+57.pmlogextract
+Running pmclient_fg -z -a TMP.44+46+50+57.pmlogextract
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:44:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   188.293     -1     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:46:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:47:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+  nan     2   -1.00   329.242     -1     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    0.97   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:49:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:50:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   333.859     -1     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:51:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.75     2    0.98   297.695     75     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:52:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.72     2    0.98   237.500    103     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:54:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.78     2    0.98   183.031     10     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:55:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   177.637      6     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.79     2    0.96   137.555      3     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:56:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:57:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+  nan     1   -1.00   264.969     -1     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+pmclient_fg: pmFetchGroup: End of PCP archive log
+Running pmclient_fg -z -a archives/multi-xz/20150508.11.44,archives/multi-xz/20150508.11.46,archives/multi-xz/20150508.11.50,archives/multi-xz/20150508.11.57
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:44:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   188.293     -1     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:46:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:47:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+  nan     2   -1.00   329.242     -1     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    0.97   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:49:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:50:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   333.859     -1     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:51:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.75     2    0.98   297.695     75     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:52:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.72     2    0.98   237.500    103     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:54:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.78     2    0.98   183.031     10     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:55:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   177.637      6     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.79     2    0.96   137.555      3     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:56:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:57:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+  nan     1   -1.00   264.969     -1     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+pmclient_fg: pmFetchGroup: End of PCP archive log
+Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.44+46+50+57.pmclient_fg.txt
+Running pmclient_fg -z -a archives/multi-xz
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:44:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   188.293     -1     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:46:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:47:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+  nan     2   -1.00   329.242     -1     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    0.97   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:49:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:50:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   333.859     -1     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:51:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.75     2    0.98   297.695     75     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:52:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.72     2    0.98   237.500    103     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:54:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.78     2    0.98   183.031     10     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:55:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   177.637      6     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.79     2    0.96   137.555      3     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:56:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:57:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+  nan     1   -1.00   264.969     -1     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+pmclient_fg: pmFetchGroup: End of PCP archive log
+Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.archives/multi-xz.pmclient_fg.txt
+Running pmlogextract archives/multi-xz-1k/20150508.11.44 archives/multi-xz-1k/20150508.11.46 archives/multi-xz-1k/20150508.11.50 archives/multi-xz-1k/20150508.11.57 TMP.44+46+50+57.pmlogextract
+Running pmclient_fg -z -a TMP.44+46+50+57.pmlogextract
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:44:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   188.293     -1     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:46:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:47:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+  nan     2   -1.00   329.242     -1     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    0.97   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:49:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:50:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   333.859     -1     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:51:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.75     2    0.98   297.695     75     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:52:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.72     2    0.98   237.500    103     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:54:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.78     2    0.98   183.031     10     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:55:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   177.637      6     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.79     2    0.96   137.555      3     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:56:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:57:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+  nan     1   -1.00   264.969     -1     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+pmclient_fg: pmFetchGroup: End of PCP archive log
+Running pmclient_fg -z -a archives/multi-xz-1k/20150508.11.44,archives/multi-xz-1k/20150508.11.46,archives/multi-xz-1k/20150508.11.50,archives/multi-xz-1k/20150508.11.57
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:44:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   188.293     -1     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:46:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:47:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+  nan     2   -1.00   329.242     -1     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    0.97   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:49:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:50:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   333.859     -1     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:51:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.75     2    0.98   297.695     75     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:52:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.72     2    0.98   237.500    103     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:54:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.78     2    0.98   183.031     10     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:55:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   177.637      6     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.79     2    0.96   137.555      3     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:56:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:57:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+  nan     1   -1.00   264.969     -1     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+pmclient_fg: pmFetchGroup: End of PCP archive log
+Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.44+46+50+57.pmclient_fg.txt
+Running pmclient_fg -z -a archives/multi-xz-1k
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:44:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   188.293     -1     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.78     2    0.99   188.293     10     3.14    3.09
+ 0.78     2    0.99   188.293      9     3.14    3.09
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:46:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ 0.00     2   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:47:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+  nan     2   -1.00   329.242     -1     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    1.00   329.242      2     2.90    3.08
+ 0.75     3    0.97   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:49:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      1     3.03    3.08
+ 0.76     0    0.99   320.168      2     3.03    3.08
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:50:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+ 0.00     0   -1.00       nan     -1      nan     nan
+  nan     0   -1.00   333.859     -1     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:51:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.80     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     26     3.01    3.08
+ 0.79     2    0.97   333.859     27     3.01    3.08
+ 0.75     2    0.98   297.695     75     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:52:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.69     2    0.98   297.695    157     3.09    3.09
+ 0.72     2    0.98   237.500    103     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:54:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.79     0    0.97   237.500     11     3.34    3.12
+ 0.78     2    0.98   183.031     10     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ 0.78     2    0.99   183.031      8     3.27    3.13
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:55:24 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.78     2    0.99   177.637      6     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.78     2    1.00   177.637      3     3.35    3.15
+ 0.79     2    0.96   137.555      3     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:56:39 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.81     1    0.95   137.555      2     3.30    3.15
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:57:54 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+ 0.00     1   -1.00       nan     -1      nan     nan
+  nan     1   -1.00   264.969     -1     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+ 0.76     2    0.89   264.969      5     3.16    3.17
+pmclient_fg: pmFetchGroup: End of PCP archive log
+Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.archives/multi-xz-1k.pmclient_fg.txt
