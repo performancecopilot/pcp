@@ -33,4 +33,26 @@ Diff of outputs start (only path / minor timestamp diff expected):
             k.a.c.guest    k.a.c.idle    k.a.c.intr  k.a.c.i.hard  k.a.c.i.soft    k.a.c.nice   k.a.c.steal     k.a.c.sys    k.a.c.user  k.a.c.w.tota        k.a.hz  k.a.idletime  k.a.i.errors      k.a.intr   k.a.lastpid      k.a.load      k.a.load      k.a.load    k.a.nprocs    k.a.nusers   k.a.pswitch  k.a.runnable   k.a.sysfork    k.a.uptime   k.p.c.guest   k.p.c.guest    k.p.c.idle    k.p.c.idle    k.p.c.intr    k.p.c.intr  k.p.c.i.hard  k.p.c.i.hard  k.p.c.i.soft  k.p.c.i.soft    k.p.c.nice    k.p.c.nice   k.p.c.steal   k.p.c.steal     k.p.c.sys     k.p.c.sys    k.p.c.user    k.p.c.user  k.p.c.w.tota  k.p.c.w.tota     k.p.i.LOC     k.p.i.LOC   k.p.i.line0   k.p.i.line0   k.p.i.line1   k.p.i.line1  k.p.i.line12  k.p.i.line12  k.p.i.line15  k.p.i.line15  k.p.i.line15  k.p.i.line15  k.p.i.line16  k.p.i.line16   k.p.i.line2   k.p.i.line2   k.p.i.line6   k.p.i.line6   k.p.i.line8   k.p.i.line8   k.p.c.guest    k.p.c.idle    k.p.c.intr  k.p.c.i.hard  k.p.c.i.soft    k.p.c.nice   k.p.c.steal     k.p.c.sys    k.p.c.user  k.p.c.w.tota    k.u.distro   k.u.machine  k.u.nodename   k.u.release   k.u.sysname   k.u.version
                                                                                                                                                                                                                                  1 minute      5 minute     15 minute                                                                                              cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1         node0         node0         node0         node0         node0         node0         node0         node0         node0         node0                                                                                    
 Diff of outputs end
+=== pmrep archive creation with filtering
+Recording 1 metrics to /tmp/1072.new_archive3:
+5 samples(s) with 1.0 sec interval ~ 4 sec duration.
+
+  archive: temp-archive
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:28:01 2013
+      end: Sat Jul  6 00:32:01 2013
+  metrics: 1 (2 instances)
+  samples: 5 (requested)
+ interval: N/A
+ duration: 00:04:00
+
+          d.d.write_by  d.d.write_by
+                   sda           sdc
+               Kbyte/s       Kbyte/s
+00:28:01           N/A           N/A
+00:29:01        7.8663        1.1999
+00:30:01        6.8669        1.2667
+00:31:01       22.1338        2.8667
+00:32:01        6.8666        2.2000
 == done

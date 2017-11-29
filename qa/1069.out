@@ -818,7 +818,7 @@ Requested global instances:
        sda       sdb       sdc       sdd       sde
    count/s   count/s   count/s   count/s   count/s
        N/A       N/A       N/A       N/A       N/A
-| sd.* | sd.* | sd.* | sd.* | sd.*
+| sd.* | sd.* | sd.* | sd.* | sd.* 
 |   sda|   sdb|   sdc|   sdd|   sde
 |count/|count/|count/|count/|count/
 |   N/A|   N/A|   N/A|   N/A|   N/A

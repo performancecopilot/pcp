@@ -668,6 +668,7 @@ class PMReporter(object):
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
             self.pmi.pmiSetTimezone(self.context.get_current_tz(self.opts))
             for i, metric in enumerate(self.metrics):
+                self.recorded[metric] = []
                 self.pmi.pmiAddMetric(metric,
                                       self.pmconfig.pmids[i],
                                       self.pmconfig.descs[i].contents.type,
@@ -676,8 +677,6 @@ class PMReporter(object):
                                       self.pmconfig.descs[i].contents.units)
                 ins = 0 if self.pmconfig.insts[i][0][0] == PM_IN_NULL else len(self.pmconfig.insts[i][0])
                 for j in range(ins):
-                    if metric not in self.recorded:
-                        self.recorded[metric] = []
                     self.recorded[metric].append(self.pmconfig.insts[i][0][j])
                     try:
                         self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, self.pmconfig.insts[i][1][j], self.pmconfig.insts[i][0][j])
@@ -694,6 +693,8 @@ class PMReporter(object):
                         if inst != PM_IN_NULL and not name:
                             continue
                         value = val()
+                        if self.metrics[metric][1] and inst not in self.recorded[metric]:
+                            continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                             self.recorded[metric].append(inst)
                             try:

@@ -73,7 +73,14 @@ echo "Diff of outputs start (only path / minor timestamp diff expected):"
 diff -u $tmp.a1-out $tmp.a1-out-new | grep -v +++ | grep -v -- ---
 diff -u $tmp.a2-out $tmp.a2-out-new | grep -v +++ | grep -v -- ---
 echo "Diff of outputs end"
-rm -f $tmp.a1-out* $tmp.a2-out* $tmp.new_archive
+
+echo "=== pmrep archive creation with filtering"
+pmrep -u -s 5 -o archive -F $tmp.new_archive3 -z $log2 -i 'sda' -i '.*sdc.*' \
+   disk.dev.write_bytes | _pid_filter
+pmrep -u -s 5 -p -P 4 -w 12 -x -z -a $tmp.new_archive3 disk.dev.write_bytes | \
+  _path_filter | _archive_filter | _pid_filter
+
+rm -f $tmp.a1-out* $tmp.a2-out* $tmp.new_archive*
 
 # success, all done
 echo "== done"
