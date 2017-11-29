@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2017 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -244,6 +244,12 @@ static void
 __pmSetStartTime(pmOptions *opts, char *arg)
 {
     opts->start_optarg = arg;
+}
+
+static void
+__pmSetFinishTime(pmOptions *opts, char *arg)
+{
+    opts->finish_optarg = arg;
 }
 
 static void
@@ -716,26 +722,10 @@ __pmSetSampleCount(pmOptions *opts, char *arg)
 {
     char *endnum;
 
-    if (opts->finish_optarg) {
-	pmprintf("%s: at most one of -T and -s allowed\n", pmGetProgname());
+    opts->samples = (int)strtol(arg, &endnum, 10);
+    if (*endnum != '\0' || opts->samples < 0) {
+	pmprintf("%s: -s requires numeric argument\n", pmGetProgname());
 	opts->errors++;
-    } else {
-	opts->samples = (int)strtol(arg, &endnum, 10);
-	if (*endnum != '\0' || opts->samples < 0) {
-	    pmprintf("%s: -s requires numeric argument\n", pmGetProgname());
-	    opts->errors++;
-	}
-    }
-}
-
-static void
-__pmSetFinishTime(pmOptions *opts, char *arg)
-{
-    if (opts->samples) {
-	pmprintf("%s: at most one of -T and -s allowed\n", pmGetProgname());
-	opts->errors++;
-    } else {
-	opts->finish_optarg = arg;
     }
 }
 
