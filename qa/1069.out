@@ -879,6 +879,8 @@ No metrics specified.
 
 == handle options/global/metricset section corner cases / issues
 Unknown option mem.util.free in [options].
+  yes  freemem
+         Kbyte
 
   archive: QAPATH/archives/20130706
      host: billing02

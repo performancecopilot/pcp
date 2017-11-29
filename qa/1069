@@ -322,6 +322,11 @@ echo 'interval = 2s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No metrics in options allowed
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used | _archive_filter
+echo '[testing]' > $tmp.cconfig
+echo 'colxrow = yes' >> $tmp.cconfig
+echo 'mem.util.free = freemem' >> $tmp.cconfig
+# colxrow boolean value handling
+pmrep -s 1 -C $log2 -c $tmp.cconfig :testing | _archive_filter
 echo '[options]' > $tmp.cconfig
 echo 'interval = 2s' >> $tmp.cconfig
 echo '[global]' >> $tmp.cconfig

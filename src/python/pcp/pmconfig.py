@@ -91,12 +91,15 @@ class pmConfig(object):
 
     def set_attr(self, name, value):
         """ Set options read from file """
+        if name == 'colxrow':
+            # As a special service for pmrep(1) utility we handle
+            # its config colxrow parameter here with minimal impact.
+            self.util.colxrow = value
+            return
         if value in ('true', 'True', 'y', 'yes', 'Yes'):
             value = 1
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
-        if name == 'source':
-            self.util.source = value
         if name == 'speclocal':
             if not self.util.speclocal or not self.util.speclocal.startswith("K:"):
                 self.util.speclocal = value
