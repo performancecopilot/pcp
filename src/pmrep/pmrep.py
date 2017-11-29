@@ -457,8 +457,8 @@ class PMReporter(object):
             index += 2
         else:
             tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
-            #self.format = "{:" + str(len(tstamp)) + "}{}"
-            self.format = "{" + str(index) + ":" + str(len(tstamp)) + "}"
+            #self.format = "{:<" + str(len(tstamp)) + "}{}"
+            self.format = "{" + str(index) + ":<" + str(len(tstamp)) + "}"
             index += 1
             self.format += "{" + str(index) + "}"
             index += 1
@@ -489,9 +489,9 @@ class PMReporter(object):
 
         # Instance name
         if self.colxrow:
-            self.format += "{2:<" + str(len(self.colxrow)) + "." + str(len(self.colxrow)) + "}{3}"
+            self.format += "{2:>" + str(len(self.colxrow)) + "." + str(len(self.colxrow)) + "}{3}"
         else:
-            self.format += "{2:<" + str(8) + "." + str(8) + "}{3}"
+            self.format += "{2:>" + str(8) + "." + str(8) + "}{3}"
         index += 2
 
         # Metrics
