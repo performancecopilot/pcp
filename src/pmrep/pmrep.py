@@ -840,9 +840,6 @@ class PMReporter(object):
                         else:
                             #fmt[k] = "{:" + str(l) + "d}"
                             fmt[k] = "{X:" + str(l) + "d}"
-                    elif isinstance(value, str):
-                        if len(value) > l:
-                            value = pmconfig.TRUNC
 
                     if isinstance(value, float) and \
                        not math.isinf(value) and \

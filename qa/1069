@@ -299,6 +299,10 @@ pmrep -C $log2 -u -U -q MB -I mem.util
 pmrep -C $log2 -u    -i sda mem.util.free disk.dev mem.util
 pmrep -C $log2 -u -v -i sda mem.util.free disk.dev mem.util
 
+echo "== output value truncation"
+pmrep -s 1 $log2 -w 3 hinv.machine
+pmrep -s 1 $log2 -w 3 mem.util.free
+
 echo "== handle empty/invalid/multiple metricsets in config file"
 echo '[fail]' > $tmp.econfig
 echo 'failure = yes' >> $tmp.econfig

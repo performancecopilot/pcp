@@ -840,6 +840,13 @@ pmrep: Impossible value or scale conversion
   d.d.avactive  d.d.read  d.d.write  d.d.total  d.d.read_bytes  d.d.write_bytes
            sda       sda        sda        sda             sda              sda
           ms/s   count/s    count/s    count/s         Kbyte/s          Kbyte/s
+== output value truncation
+  h.m
+     
+  lin
+  m.u
+  Kby
+  xxx
 == handle empty/invalid/multiple metricsets in config file
 Invalid metric yes (PM_ERR_NAME Unknown metric name).
 Unknown option mem.util.free in [options].
