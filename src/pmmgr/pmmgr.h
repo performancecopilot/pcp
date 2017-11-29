@@ -48,6 +48,8 @@ protected:
   std::ostream& timestamp(std::ostream&) const;
   int wrap_system(const std::string& cmd);
   std::string wrap_popen(const std::string& cmd);
+
+  double retention_factor(const std::string& logpath);
 };
 
 
@@ -76,7 +78,6 @@ public:
   pmmgr_pmlogger_daemon(const std::string& config_directory, 
                         const pmmgr_hostid& hostid, const pcp_context_spec& spec);
 protected:
-  double retention_factor(const std::string& logpath);
   std::string daemon_command_line();
   void logans_run_archive_glob(const std::string& glob,
                                const std::string& carousel_config, time_t carousel_default, double rf);

@@ -896,6 +896,10 @@ pmmgr_job_spec::poll()
   if (log_dir == "") log_dir = default_log_dir;
   else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
+  // adjust for ENOSPC retention-factor
+  double rf = retention_factor (log_dir);
+  tv.tv_sec *= rf;
+  
   glob_t the_blob;
   string glob_pattern = log_dir + (char)pmPathSeparator() + "*";
   rc = glob (glob_pattern.c_str(),
@@ -1158,7 +1162,7 @@ void pmmgr_daemon::poll()
  * We'll be reducing the log retention by 37.5% (ie. return 0.625)
  */
 double
-pmmgr_pmlogger_daemon::retention_factor (const std::string& logpath)
+pmmgr_configurable::retention_factor (const std::string& logpath)
 {
   // NB: all doubles used here are fractions between [0.0 and 1.0], not percentages.
   // Literals used in double arithmetic get decimal points as reminder of FP arithmetic.
