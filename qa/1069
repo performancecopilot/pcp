@@ -137,7 +137,7 @@ echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
 pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 | _archive_filter
 
-echo "== exercise delimiters corner cases"
+echo "== exercise delimiter corner cases"
 pmrep -s 1 -t 1 $log2 -l '' -w 16 -U hinv.machine
 echo '[testing]' > $tmp.dconfig
 echo 'delimiter = " "' >> $tmp.dconfig
@@ -260,6 +260,11 @@ echo 'instances = sd.*' >> $tmp.iconfig
 echo 'disk.dev.read = read,,,,8' >> $tmp.iconfig
 echo 'disk.dev.write = write,vd.*,,,8' >> $tmp.iconfig
 pmrep -s 1 $log2 -c $tmp.iconfig :test
+echo '[test]' > $tmp.iconfig
+echo 'test = disk.dev.read' >> $tmp.iconfig
+echo 'test.label = " sd.* "' >> $tmp.iconfig
+echo 'test.instances = "sd.*"' >> $tmp.iconfig
+pmrep -s 1 $log2 -c $tmp.iconfig -l '|' :test
 
 echo "=== more instance handling"
 cat << EOF > $tmp.iiconfig

@@ -544,7 +544,7 @@ rattle,2,2000-05-01 20:36:47 UTC+10,380434,380433679.314
 rattle,2,2000-05-01 20:36:49 UTC+10,380436,380435679.381
 rattle,2,2000-05-01 20:36:51 UTC+10,380438,380437679.382
 rattle,2,2000-05-01 20:36:53 UTC+10,380440,380439679.413
-== exercise delimiters corner cases
+== exercise delimiter corner cases
        h.machine
            linux
          freemem usedmem
@@ -818,6 +818,10 @@ Requested global instances:
        sda       sdb       sdc       sdd       sde
    count/s   count/s   count/s   count/s   count/s
        N/A       N/A       N/A       N/A       N/A
+| sd.* | sd.* | sd.* | sd.* | sd.*
+|   sda|   sdb|   sdc|   sdd|   sde
+|count/|count/|count/|count/|count/
+|   N/A|   N/A|   N/A|   N/A|   N/A
 === more instance handling
 No matching instances found.
 

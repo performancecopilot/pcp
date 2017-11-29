@@ -120,7 +120,7 @@ class pmConfig(object):
             try:
                 setattr(self.util, name, int(value))
             except ValueError:
-                if value.startswith('"') and value.endswith('"'):
+                if value.startswith('"') and value.endswith('"'): # pylint: disable=no-member
                     value = value[1:-1]
                 setattr(self.util, name, value)
 
@@ -222,6 +222,8 @@ class pmConfig(object):
                 if key not in metrics:
                     sys.stderr.write("Undeclared metric key %s.\n" % key)
                     sys.exit(1)
+                if value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1]
                 if spec == "formula":
                     if self.util.derived is None:
                         self.util.derived = metrics[key][0] + "=" + value
