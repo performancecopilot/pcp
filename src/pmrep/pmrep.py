@@ -738,9 +738,11 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
-        for _, metric in enumerate(self.metrics):
+        for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if self.instances and inst not in self.pmconfig.insts[i][0]:
+                        continue
                     try:
                         value = val()
                         if isinstance(value, float):
@@ -802,9 +804,11 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
-        for _, metric in enumerate(self.metrics):
+        for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if self.instances and inst not in self.pmconfig.insts[i][0]:
+                        continue
                     try:
                         value = val()
                         if isinstance(value, float):
@@ -894,10 +898,12 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = OrderedDict()
-        for _, metric in enumerate(self.metrics):
+        for i, metric in enumerate(self.metrics):
             res[metric] = []
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if self.instances and inst not in self.pmconfig.insts[i][0]:
+                        continue
                     try:
                         if inst != PM_IN_NULL and not name:
                             res[metric].append(['', '', NO_VAL])
