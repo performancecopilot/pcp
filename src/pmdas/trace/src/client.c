@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "trace_dev.h"
 #include "client.h"
@@ -41,7 +40,7 @@ acceptClient(int reqfd)
     addrlen = __pmSockAddrSize();
     fd = __pmAccept(reqfd, clients[i].addr, &addrlen);
     if (fd == -1) {
-	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
+	pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
 		reqfd, netstrerror());
 	return NULL;
     }
@@ -68,13 +67,13 @@ newClient(void)
 	clientsize = clientsize ? clientsize * 2 : MIN_CLIENTS_ALLOC;
 	clients = (client_t *) realloc(clients, sizeof(client_t)*clientsize);
 	if (clients == NULL)
-	    __pmNoMem("newClient", sizeof(client_t)*clientsize, PM_FATAL_ERR);
+	    pmNoMem("newClient", sizeof(client_t)*clientsize, PM_FATAL_ERR);
 	for (j = i; j < clientsize; j++)
 	    clients[j].addr = NULL;
     }
     clients[i].addr = __pmSockAddrAlloc();
     if (clients[i].addr == NULL)
-	__pmNoMem("newClient", __pmSockAddrSize(), PM_FATAL_ERR);
+	pmNoMem("newClient", __pmSockAddrSize(), PM_FATAL_ERR);
     if (i >= nclients)
 	nclients = i + 1;
     return i;
@@ -91,7 +90,7 @@ deleteClient(client_t *cp)
 
     if (i == nclients) {
 	if (pmDebugOptions.appl0) {
-	    __pmNotifyErr(LOG_ERR, "deleteClient: tried to delete non-existent client");
+	    pmNotifyErr(LOG_ERR, "deleteClient: tried to delete non-existent client");
 	}
 	return;
     }
@@ -112,7 +111,7 @@ deleteClient(client_t *cp)
     cp->status.padding = 0;
     cp->status.protocol = 1;	/* sync */
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
+	    pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
     cp->fd = -1;
 }
 

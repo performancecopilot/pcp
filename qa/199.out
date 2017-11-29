@@ -6,13 +6,6 @@ trivial ... not found in Name Space, this is OK
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check trivial metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -27,13 +20,6 @@ trivial ... done
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check trivial metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -41,13 +27,6 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check trivial metrics have appeared ... 1 metrics and 1 values
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -62,13 +41,6 @@ trivial ... done
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check trivial metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -76,13 +48,6 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check trivial metrics have appeared ... 1 metrics and 1 values
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -97,13 +62,6 @@ trivial ... done
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check trivial metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -111,13 +69,6 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check trivial metrics have appeared ... 1 metrics and 1 values
-You will need to choose an appropriate configuration for installation of
-the "trivial" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...

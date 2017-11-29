@@ -131,7 +131,7 @@ configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
 #       ... Makepkgs uses the latter mechanism to refine the configure
 #       options
 #
-configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd
+configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
@@ -168,7 +168,7 @@ clean:
 	-rm -f build-stamp .census
 	$(MAKE) realclean
 	-rm -rf $(alldir)
-	-rm -f debian/*substvars debian/files* debian/*.debhelper
+	-rm -f debian/*substvars debian/files* debian/*.debhelper qa/localconfig
 	dh_autotools-dev_restoreconfig
 	dh_clean
 
@@ -193,7 +193,7 @@ binary-indep: checkroot build-stamp
 	dh_perl -i -p $(pcp_import_sheet)
 	dh_perl -i -p $(pcp_import_iostat)
 	dh_installdeb -i
-	dh_gencontrol -i $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
+	dh_gencontrol -i $(SUBSTVARS)
 	dh_md5sums -i
 	dh_builddeb -i
 
@@ -231,8 +231,10 @@ binary-arch: checkroot build-stamp
 	# Note: --no-automatic-dbgsym not defined for all releases up to
 	# 	and including Debian 8 (jessie), but defined after that
 	# 	... expect a warning on older releases, but no other ill
-	# 	effects from the unknown option
-	dh_strip -a --no-automatic-dbgsym
+	# 	... expect a warning on older releases, but no other ill
+	# 	effects from the unknown option ... until dh_strip started
+	# 	aborting on Ubuntu 14.04 (vm00) on 23 Nov 2017
+	if dh_strip -a --no-automatic-dbgsym; then :; else dh_strip -a; fi
 	dh_compress -a
 	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
 	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
@@ -271,7 +273,10 @@ binary-arch: checkroot build-stamp
 	dh_perl -a -p $(libpcp_import_perl)
 	dh_perl -a -p $(pcp_logsummary_perl)
 	dh_installdeb -a
-	dh_shlibdeps -a 2>/dev/null	# qmake doesn't allow a library list
+	# VirtualBox may install a libGL.so that has no dependency
+	# information ... this kills the packaging, so this hack
+	# is a workaround. [seen on bozo-vm Nov 2017]
+	if test -d /var/lib/VBoxGuestAdditions/lib; then dh_shlibdeps -a -v -- --ignore-missing-info; else dh_shlibdeps -a -v; fi
 	dh_gencontrol -a $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums -a
 	dh_builddeb -a

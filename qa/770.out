@@ -20,9 +20,6 @@ force second alloc fail - instprof->profile
 +++++++++++++++++++++++++++
 + Mode: PDU_BINARY Pass 0 +
 +++++++++++++++++++++++++++
-+++++++++++++++++++++++++++
-+ Mode: PDU_BINARY Pass 1 +
-+++++++++++++++++++++++++++
 Error: DecodeProfile: Cannot allocate memory
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -37,9 +34,6 @@ force third alloc fail - instprof->profile->instances
 === std err ===
 +++++++++++++++++++++++++++
 + Mode: PDU_BINARY Pass 0 +
-+++++++++++++++++++++++++++
-+++++++++++++++++++++++++++
-+ Mode: PDU_BINARY Pass 1 +
 +++++++++++++++++++++++++++
 Error: DecodeProfile: Cannot allocate memory
 === filtered valgrind report ===

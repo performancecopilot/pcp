@@ -6,7 +6,7 @@
 
 #include <unistd.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 #define N_PMID_A sizeof(metrics_a)/sizeof(metrics_a[0])
 #define N_PMID_B sizeof(metrics_b)/sizeof(metrics_b[0])
@@ -182,7 +182,7 @@ Options\n\
     }
 
     if (logfile != (char *)0) {
-	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}
@@ -299,7 +299,7 @@ Options\n\
     start.tv_sec += 2;
 
     printf("Start at: ");
-    __pmPrintStamp(stdout, &start);
+    pmPrintStamp(stdout, &start);
     printf("\n\n");
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
@@ -319,7 +319,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	__pmPrintStamp(stdout, &result->timestamp);
+	pmPrintStamp(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_A) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -360,7 +360,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	__pmPrintStamp(stdout, &result->timestamp);
+	pmPrintStamp(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_B) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -402,7 +402,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	__pmPrintStamp(stdout, &result->timestamp);
+	pmPrintStamp(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_C) {
 	    printf("Error: expected %d (got %d) value sets\n",

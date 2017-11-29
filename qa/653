@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 653
-# checks __pmSetProcessIdentity function in libpcp
+# checks pmSetProcessIdentity function in libpcp
 #
 # Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
 #

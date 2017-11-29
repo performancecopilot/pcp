@@ -57,7 +57,7 @@
 #include <ctype.h>
 #include <sys/wait.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 #ifdef HAVE_PROCFS
 #ifdef IS_NETBSD

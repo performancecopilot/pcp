@@ -24,7 +24,6 @@
 #include <sys/utsname.h>
 #include <mach/mach.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "domain.h"
 
@@ -1170,7 +1169,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-darwin_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			need_refresh[NUM_CLUSTERS] = { 0 };
 
@@ -1204,13 +1203,13 @@ darwin_init(pmdaInterface *dp)
     int		sts;
 
     if (_isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	char helppath[MAXPATHLEN];
 	pmsprintf(helppath, MAXPATHLEN, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "darwin DSO", helppath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -1254,13 +1253,13 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     int			errflag = 0;
     char		helppath[MAXPATHLEN];
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, MAXPATHLEN, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

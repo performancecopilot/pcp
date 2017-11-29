@@ -14,7 +14,6 @@
 #include "showboundsdialog.h"
 #include <QMessageBox>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/libpcp.h>
 #include "pmtime.h"
 

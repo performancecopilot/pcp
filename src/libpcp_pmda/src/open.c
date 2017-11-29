@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "libdefs.h"
@@ -50,7 +49,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     if (sockname != NULL) {	/* Translate port name to port num */
 	service = getservbyname(sockname, NULL);
 	if (service == NULL) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: getservbyname(%s): %s\n", 
+	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: getservbyname(%s): %s\n", 
 		    sockname, netstrerror());
 	    exit(1);
 	}
@@ -60,7 +59,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     if (family != AF_INET6) {
 	sfd = __pmCreateSocket();
 	if (sfd < 0) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet socket: %s\n",
+	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet socket: %s\n",
 			  netstrerror());
 	    exit(1);
 	}
@@ -68,7 +67,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     else {
 	sfd = __pmCreateIPv6Socket();
 	if (sfd < 0) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: ipv6 socket: %s\n",
+	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: ipv6 socket: %s\n",
 			  netstrerror());
 	    exit(1);
 	}
@@ -80,7 +79,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
      */
     if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(reuseaddr): %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(reuseaddr): %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -88,21 +87,21 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
     if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(excladdruse): %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(excladdruse): %s\n",
 			netstrerror());
 	exit(1);
     }
 #endif
 
     if ((myaddr =__pmSockAddrAlloc()) == NULL) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: sock addr alloc failed\n");
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: sock addr alloc failed\n");
 	exit(1);
     }
     __pmSockAddrInit(myaddr, family, INADDR_LOOPBACK, port);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
 	__pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: bind: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: bind: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -110,7 +109,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     sts = __pmListen(sfd, 1);	/* Max. 1 pending connection request (pmcd) */
     if (sts == -1) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: listen: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: listen: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -123,7 +122,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     }
     if (sts < 0) {
         __pmSockAddrFree(myaddr);
-        __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: select: %s\n",
+        pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: select: %s\n",
                         pmErrStr(sts));
         exit(1);
     }
@@ -131,7 +130,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     addrlen = __pmSockAddrSize();
     if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: accept: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: accept: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -175,21 +174,21 @@ socket_ownership(char *sockname)
 
     setoserror(0);
     if ((pw = getpwnam(username)) == NULL)
-	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: getpwnam(%s) failed: %s\n",
+	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 
     sts = chmod(sockname, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (sts == -1 && pmDebugOptions.libpmda)
-	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chmod(%s,...) failed: %s\n",
+	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chmod(%s,...) failed: %s\n",
 			sockname, osstrerror());
     if (pw != NULL) {
 	sts = chown(sockname, pw->pw_uid, pw->pw_gid);
 	if (sts == -1 && pmDebugOptions.libpmda)
-	    __pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) failed: %s\n",
+	    pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) failed: %s\n",
 			    sockname, osstrerror());
     }
     else if (pmDebugOptions.libpmda)
-	    __pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) skipped\n",
+	    pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) skipped\n",
 			    sockname);
 }
 
@@ -208,7 +207,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 
     sfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sfd < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unix domain socket: %s",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unix domain socket: %s",
 		     netstrerror());
 	exit(1);
     }
@@ -218,13 +217,13 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
      * connection because the reference count is non-zero.
      */
     if ((sts = unlink(sockname)) == 0)
-    	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: Unix domain socket '%s' existed, unlinked it\n",
+    	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: Unix domain socket '%s' existed, unlinked it\n",
 		     sockname);
     else if (sts < 0 && oserror() != ENOENT) {
 	/* If can't unlink socket, give up.  We might end up with an
 	 * unwanted connection to some other socket (from outer space)
 	 */
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unlinking Unix domain socket '%s': %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unlinking Unix domain socket '%s': %s\n",
 		     sockname, osstrerror());
 	exit(1);
     }
@@ -234,7 +233,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(myaddr.sun_path);
     sts = bind(sfd, (struct sockaddr*) &myaddr, len);
     if (sts < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -242,14 +241,14 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
 			netstrerror());
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
     if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -260,7 +259,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 static void
 __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
-    __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: UNIX domain sockets unsupported\n");
+    pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: UNIX domain sockets unsupported\n");
     exit(1);
 }
 #endif
@@ -344,7 +343,7 @@ pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *di
     }
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaGetOptions: "
+	pmNotifyErr(LOG_CRIT, "pmdaGetOptions: "
 		     "PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	opts->errors++;
@@ -508,7 +507,7 @@ pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 	metric = &pmda->e_metrics[m];
 
 	if (__pmHashAdd(metric->m_desc.pmid, metric, hashp) < 0) {
-	    __pmNotifyErr(LOG_WARNING, "pmdaRehash: PMDA %s: "
+	    pmNotifyErr(LOG_WARNING, "pmdaRehash: PMDA %s: "
 			"Hashed mapping for metrics disabled @ metric[%d] %s\n",
 			pmda->e_name, m,
 			pmIDStr_r(metric->m_desc.pmid, buf, sizeof(buf)));
@@ -518,7 +517,7 @@ pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
     if (m == pmda->e_nmetrics) {
 	pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
 	if (pmDebugOptions.libpmda)
-	    __pmNotifyErr(LOG_DEBUG, "pmdaRehash: PMDA %s: successful rebuild\n",
+	    pmNotifyErr(LOG_DEBUG, "pmdaRehash: PMDA %s: successful rebuild\n",
 			pmda->e_name);
     }
     else {
@@ -544,7 +543,7 @@ pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 	pmda->e_direct = 0;
 	if ((pmda->e_flags & PMDA_EXT_FLAG_DIRECT) ||
 	    pmDebugOptions.libpmda)
-	    __pmNotifyErr(LOG_WARNING, "pmdaDirect: PMDA %s: "
+	    pmNotifyErr(LOG_WARNING, "pmdaDirect: PMDA %s: "
 		"Direct mapping for metrics disabled @ metrics[%d] %s\n",
 		pmda->e_name, m,
 		pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, buf, sizeof(buf)));
@@ -558,7 +557,7 @@ pmdaSetFlags(pmdaInterface *dispatch, int flags)
     pmdaExt	*pmda;
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaSetFlags: PMDA interface version %d not supported (domain=%d)",
+	pmNotifyErr(LOG_CRIT, "pmdaSetFlags: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
@@ -584,7 +583,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     pmdaExt	        *pmda = NULL;
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA interface version %d not supported (domain=%d)",
+	pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
@@ -593,31 +592,31 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 
     if (dispatch->version.any.fetch == pmdaFetch &&
 	pmda->e_fetchCallBack == (pmdaFetchCallBack)0) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
+	pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
 
     /* parameter sanity checks */
     if (nmetrics < 0) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
+	pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if (nindoms < 0) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nindoms (%d) should be non-negative", pmda->e_name, nindoms);
+	pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nindoms (%d) should be non-negative", pmda->e_name, nindoms);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if ((nmetrics == 0 && metrics != NULL) ||
         (nmetrics != 0 && metrics == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: metrics (" PRINTF_P_PFX "%p) not consistent with nmetrics (%d)", pmda->e_name, metrics, nmetrics);
+	pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: metrics (" PRINTF_P_PFX "%p) not consistent with nmetrics (%d)", pmda->e_name, metrics, nmetrics);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if ((nindoms == 0 && indoms != NULL) ||
         (nindoms != 0 && indoms == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: indoms (" PRINTF_P_PFX "%p) not consistent with nindoms (%d)", pmda->e_name, indoms, nindoms);
+	pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: indoms (" PRINTF_P_PFX "%p) not consistent with nindoms (%d)", pmda->e_name, indoms, nindoms);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
@@ -656,7 +655,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 			if (pmDebugOptions.libpmda) {
 			    char	strbuf[20];
 			    char	st2buf[20];
-			    __pmNotifyErr(LOG_DEBUG, 
+			    pmNotifyErr(LOG_DEBUG, 
 				    "pmdaInit: PMDA %s: Metric %s(%d) matched to indom %s(%d)\n",
 				    pmda->e_name,
 				    pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m,
@@ -667,7 +666,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 		}
 		if (i == pmda->e_nindoms) {
 		    char	strbuf[20];
-		    __pmNotifyErr(LOG_CRIT, 
+		    pmNotifyErr(LOG_CRIT, 
 				 "pmdaInit: PMDA %s: Undefined instance domain serial (%d) specified in metric %s(%d)\n",
 				 pmda->e_name, mindomp->serial, 
 				 pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m);
@@ -682,19 +681,19 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     if (pmda->e_helptext != NULL) {
 	pmda->e_help = pmdaOpenHelp(pmda->e_helptext);
 	if (pmda->e_help < 0) {
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
+	    pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
 		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
 	}
 	else if (pmDebugOptions.libpmda) {
-	    __pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened\n", pmda->e_name, pmda->e_helptext);
+	    pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened\n", pmda->e_name, pmda->e_helptext);
 	}
     }
     else {
 	if (dispatch->version.two.text == pmdaText)
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified for pmdaText", pmda->e_name); 
+	    pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified for pmdaText", pmda->e_name); 
 	else
 	    if (pmDebugOptions.libpmda)
-		__pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
+		pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
     }
 
     /*
@@ -711,14 +710,14 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	pmdaDirect(pmda, metrics, nmetrics);
 
     if (pmDebugOptions.libpmda) {
-    	__pmNotifyErr(LOG_INFO, "name        = %s\n", pmda->e_name);
-        __pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
+    	pmNotifyErr(LOG_INFO, "name        = %s\n", pmda->e_name);
+        pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
         if (dispatch->comm.flags)
-    	    __pmNotifyErr(LOG_INFO, "comm flags  = %x\n", dispatch->comm.flags);
-	__pmNotifyErr(LOG_INFO, "ext flags  = %x\n", pmda->e_flags);
-    	__pmNotifyErr(LOG_INFO, "num metrics = %d\n", pmda->e_nmetrics);
-    	__pmNotifyErr(LOG_INFO, "num indom   = %d\n", pmda->e_nindoms);
-    	__pmNotifyErr(LOG_INFO, "metric map  = %s\n",
+    	    pmNotifyErr(LOG_INFO, "comm flags  = %x\n", dispatch->comm.flags);
+	pmNotifyErr(LOG_INFO, "ext flags  = %x\n", pmda->e_flags);
+    	pmNotifyErr(LOG_INFO, "num metrics = %d\n", pmda->e_nmetrics);
+    	pmNotifyErr(LOG_INFO, "num indom   = %d\n", pmda->e_nindoms);
+    	pmNotifyErr(LOG_INFO, "metric map  = %s\n",
 		(pmda->e_flags & PMDA_EXT_FLAG_HASHED) ? "hashed" :
 		(pmda->e_direct ? "direct" : "linear"));
     }
@@ -743,18 +742,18 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
     handshake.c_version = PDU_VERSION;
     handshake.c_flags = flags;
     if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, (__pmCred *)&handshake)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if (sts == PDU_CREDS) {
 	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
+	    pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    __pmUnpinPDUBuf(pb);
 	    return -1;
 	}
@@ -766,7 +765,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 		vflag = 1;
 		break;
 	    default:
-		__pmNotifyErr(LOG_WARNING, "__pmdaSetupPDU: PMDA %s: unexpected creds PDU\n", agentname);
+		pmNotifyErr(LOG_WARNING, "__pmdaSetupPDU: PMDA %s: unexpected creds PDU\n", agentname);
 	    }
 	}
 	if (vflag) {
@@ -777,7 +776,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 	    free(credlist);
     }
     else
-	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure\n", agentname);
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure\n", agentname);
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -797,19 +796,19 @@ pmdaConnect(pmdaInterface *dispatch)
 
     if (dispatch->version.any.ext == NULL ||
 	(dispatch->version.any.ext->e_flags & PMDA_EXT_SETUPDONE) != PMDA_EXT_SETUPDONE) {
-	__pmNotifyErr(LOG_CRIT, "pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first");
+	pmNotifyErr(LOG_CRIT, "pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first");
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
 
     if ((dispatch->version.any.ext->e_flags & PMDA_EXT_CONNECTED) == PMDA_EXT_CONNECTED) {
-	__pmNotifyErr(LOG_CRIT, "pmdaConnect: called more than once");
+	pmNotifyErr(LOG_CRIT, "pmdaConnect: called more than once");
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA interface version %d not supported (domain=%d)",
+	pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
@@ -824,7 +823,7 @@ pmdaConnect(pmdaInterface *dispatch)
 	    pmda->e_outfd = fileno(stdout);
 
 	    if (pmDebugOptions.libpmda) {
-	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 	    break;
@@ -835,7 +834,7 @@ pmdaConnect(pmdaInterface *dispatch)
 			   &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
@@ -847,7 +846,7 @@ pmdaConnect(pmdaInterface *dispatch)
 			   &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened ipv6 connection, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened ipv6 connection, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
@@ -858,13 +857,13 @@ pmdaConnect(pmdaInterface *dispatch)
 	    __pmdaOpenUnix(pmda->e_sockname, &(pmda->e_infd), &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	__pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
 	    break;
 	default:
-	    __pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA %s: Illegal iotype: %d\n", pmda->e_name, pmda->e_io);
+	    pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA %s: Illegal iotype: %d\n", pmda->e_name, pmda->e_io);
 	    exit(1);
     }
 
@@ -888,7 +887,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
     e_ext_t	*extp;
 
     if (!HAVE_ANY(version)) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaSetup: %s PMDA: interface version %d not supported (domain=%d)",
+	pmNotifyErr(LOG_CRIT, "__pmdaSetup: %s PMDA: interface version %d not supported (domain=%d)",
 		     name, version, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
@@ -896,7 +895,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
 
     pmda = (pmdaExt *)calloc(1, sizeof(pmdaExt));
     if (pmda == NULL) {
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for pmdaExt structure (%d bytes)",
 		     name, (int)sizeof(pmdaExt));
 	dispatch->status = PM_ERR_GENERIC;
@@ -942,7 +941,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
 
     extp = (e_ext_t *)calloc(1, sizeof(*extp));
     if (extp == NULL) {
-	__pmNotifyErr(LOG_ERR, 
+	pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for e_ext_t structure (%d bytes)",
 		     name, (int)sizeof(*extp));
 	free(pmda);
@@ -1007,7 +1006,7 @@ pmdaOpenLog(pmdaInterface *dispatch)
     if (dispatch->status < 0)
 	return;
 
-    __pmOpenLog(dispatch->version.any.ext->e_name, 
+    pmOpenLog(dispatch->version.any.ext->e_name, 
 		dispatch->version.any.ext->e_logfile, stderr, &c);
     if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	setlinebuf(stderr);

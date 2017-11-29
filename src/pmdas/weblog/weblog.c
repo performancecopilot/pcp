@@ -2209,7 +2209,7 @@ refresh(WebSproc* proc)
  * Mark servers that are required in the latest profile.
  */
 static int
-web_profile(__pmProfile *prof, pmdaExt *ext)
+web_profile(pmProfile *prof, pmdaExt *ext)
 {
     pmdaIndom	*idp = wl_indomTable;
     int		j;
@@ -2247,7 +2247,7 @@ probe(void)
     WebSproc		*sprocData = (WebSproc*)0;
     struct timeval	theTime;
 
-    __pmtimevalNow(&theTime);
+    pmtimevalNow(&theTime);
 
     wl_timeOfRefresh = theTime.tv_sec;
 
@@ -2385,10 +2385,10 @@ refreshAll(void)
     	logmessage(LOG_DEBUG, "Starting a refreshAll\n");
     }
 
-    __pmtimevalNow(&before);
+    pmtimevalNow(&before);
     probe();
 
-    __pmtimevalNow(&after);
+    pmtimevalNow(&after);
     wl_catchupTime = (after.tv_sec - before.tv_sec) * 1000;
     wl_catchupTime += (after.tv_usec - before.tv_usec) / 1000;
 

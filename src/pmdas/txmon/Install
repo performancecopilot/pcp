@@ -23,11 +23,9 @@ pmda_interface=2
 
 pmdaSetup
 
-if $do_pmda
-then
-    # special txmon PMDA args
-    #
-    echo 'Welcome to the Install script for the demonstration "txmon" PMDA.
+# special txmon PMDA args
+#
+echo 'Welcome to the Install script for the demonstration "txmon" PMDA.
 This PMDA will establish a shared memory segment with one statistics
 structure per transaction type.
 
@@ -35,20 +33,19 @@ You must define the names of the transaction types (the names are
 arbitrary strings with no embedded white space, e.g. mytx#1).
 '
 
-    args=""
-    while true
-    do
-	$PCP_ECHO_PROG $PCP_ECHO_N "Name for transaction type? [return if no more] ""$PCP_ECHO_C"
-	read ans
-	[ -z "$ans" ] && break
-	args="$args $ans"
-    done
-    if [ -z "$args" ]
-    then
-	echo "You need to specify at least one transaction type name!"
-	status=1
-	exit
-    fi
+args=""
+while true
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "Name for transaction type? [return if no more] ""$PCP_ECHO_C"
+    read ans
+    [ -z "$ans" ] && break
+    args="$args $ans"
+done
+if [ -z "$args" ]
+then
+    echo "You need to specify at least one transaction type name!"
+    status=1
+    exit
 fi
 
 pmdaInstall

@@ -40,7 +40,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logger.h"
 #include <assert.h>
@@ -695,7 +694,7 @@ do_result(void)
 	    fprintf(stderr, "Log: write ");
 	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
 	    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
-	    __pmPrintStamp(stderr, &stamp);
+	    pmPrintStamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, out_offset);
 	}
     }

@@ -18,47 +18,6 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# Override function from pmdaproc.sh
-__choose_mode()
-{
-    if [ -n "$QUIET_INSTALL" ] ; then
-	do_pmda=true
-    else
-	__def=m
-	$do_pmda && __def=b
-	echo \
-'You will need to choose an appropriate configuration for installation of
-the "'$iam'" Performance Metrics Domain Agent (PMDA).
-
-  collector     collect performance statistics on this system
-  monitor       allow this system to monitor local and/or remote systems
-  both          collector and monitor configuration for this system
-'
-	while true
-	do
-	    $PCP_ECHO_PROG $PCP_ECHO_N 'Please enter c(ollector) or m(onitor) or b(oth) ['$__def'] '"$PCP_ECHO_C"
-	    read ans
-	    case "$ans"
-	    in
-		"") break
-			;;
-		c|collector|b|both)
-			do_pmda=true
-			break
-			;;
-		m|monitor)
-			do_pmda=false
-			break
-			;;
-		*)  echo "Sorry, that is not acceptable response ..."
-                    ;;
-	    esac
-	done
-	echo
-
-    fi 
-}
-
 iam=weblog
 pmda_interface=2
 
@@ -217,482 +176,478 @@ _default_config ()
 #
 # --- end functions ---
 
-if $do_pmda
-then
+[ ! -d $configDir ] && mkdir -p $configDir
 
-    [ ! -d $configDir ] && mkdir -p $configDir
-
-    if [ -n "$QUIET_INSTALL" ] ; then
+if [ -n "$QUIET_INSTALL" ] ; then
+    _default_config
+    if [ $? -eq 0 ] ; then
+	pmdaInstall
+	status=$?
+    else
+	status=1
+    fi
+    exit
+else
+    echo "----------------------------------------------------------------"
+    echo
+    echo "The default installation of the weblog PMDA will search for known"
+    echo "Web server configurations on this host and will setup the weblog"
+    echo "PMDA to monitor all associated Web server log files."
+    echo
+    echo "Otherwise, you will be prompted for the required information."
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "Do you want a default weblog PMDA installation [y] ""$PCP_ECHO_C"
+    read ans
+    echo
+    if [ "X$ans" = X -o "X$ans" = Xy -o "X$ans" = XY ]
+    then
 	_default_config
 	if [ $? -eq 0 ] ; then
 	    pmdaInstall
 	    status=$?
+	    exit
 	else
-	    status=1
+	    echo
+	    echo "Unable to find any Web servers!"
+	    echo "Reverting to detailed installation..."
 	fi
-	exit
+    fi
+
+    echo "----------------------------------------------------------------"
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "Checking for a previous PMDA installation ...""$PCP_ECHO_C"
+
+    # weblogs -> weblog can be removed once all 1.0 betas are known to
+    # have gone away
+    ans=`$PCP_AWK_PROG < $PCP_PMCDCONF_PATH '
+	$1 == "'$iam'"	{
+	     printf "%s",$6
+	     for (i=7;i<=NF;i++) printf " %s",$i
+	     print ""
+	}'`
+    if [ -n "$ans" ]
+    then
+	echo " found"
+	_parseDefaults $ans
     else
-	echo "----------------------------------------------------------------"
-	echo
-	echo "The default installation of the weblog PMDA will search for known"
-	echo "Web server configurations on this host and will setup the weblog"
-	echo "PMDA to monitor all associated Web server log files."
-	echo
-	echo "Otherwise, you will be prompted for the required information."
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "Do you want a default weblog PMDA installation [y] ""$PCP_ECHO_C"
-	read ans
-	echo
-	if [ "X$ans" = X -o "X$ans" = Xy -o "X$ans" = XY ]
-	then
-	    _default_config
-	    if [ $? -eq 0 ] ; then
-		pmdaInstall
-		status=$?
-		exit
-	    else
-		echo
-		echo "Unable to find any Web servers!"
-		echo "Reverting to detailed installation..."
-	    fi
-	fi
+	echo " appears to be a first-time install"
+    fi
 
-	echo "----------------------------------------------------------------"
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "Checking for a previous PMDA installation ...""$PCP_ECHO_C"
-
-	# weblogs -> weblog can be removed once all 1.0 betas are known to
-	# have gone away
-	ans=`$PCP_AWK_PROG < $PCP_PMCDCONF_PATH '
-	    $1 == "'$iam'"	{
-		 printf "%s",$6
-		 for (i=7;i<=NF;i++) printf " %s",$i
-		 print ""
-	    }'`
-	if [ -n "$ans" ]
+    if [ -n "$configFile" ]
+    then
+	if [ -f "$configFile" ]
 	then
-	    echo " found"
-	    _parseDefaults $ans
-	else
-	    echo " appears to be a first-time install"
-	fi
-
-	if [ -n "$configFile" ]
-	then
-	    if [ -f "$configFile" ]
+	    if [ $PCP_PLATFORM = linux ] && \
+		egrep '^regex ' $configFile > /dev/null
 	    then
-		if [ $PCP_PLATFORM = linux ] && \
-                    egrep '^regex ' $configFile > /dev/null
+		echo "Warning: previous configuration file \"$configFile\""
+		echo "         appears to be an incompatible version."
+		$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to automatically update the configuration file? [y] ""$PCP_ECHO_C"
+		read ans
+		if [ "X$ans" = X -o "$ans" = "y" -o "$ans" = "Y" ]
 		then
-		    echo "Warning: previous configuration file \"$configFile\""
-		    echo "         appears to be an incompatible version."
-		    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to automatically update the configuration file? [y] ""$PCP_ECHO_C"
-		    read ans
-		    if [ "X$ans" = X -o "$ans" = "y" -o "$ans" = "Y" ]
+		    ./weblogconv.sh $configFile $__tmp.conf
+		    if ./pmdaweblog -C $__tmp.conf > /dev/null 2>&1
 		    then
-			./weblogconv.sh $configFile $__tmp.conf
-			if ./pmdaweblog -C $__tmp.conf > /dev/null 2>&1
+			cp $__tmp.conf $configFile
+		    else
+			echo "Warning: automatic conversion failed."
+			echo "You can either continue, and use the default configuration file or exit"
+			echo "this install procedure to manually update your existing configuration."
+			$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to continue with the default configuration? [n] ""$PCP_ECHO_C"
+			read ans
+			if [ "$ans" = "y" -o "$ans" = "Y" ]
 			then
-			    cp $__tmp.conf $configFile
+			    configFile=""
 			else
-			    echo "Warning: automatic conversion failed."
-			    echo "You can either continue, and use the default configuration file or exit"
-			    echo "this install procedure to manually update your existing configuration."
-			    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to continue with the default configuration? [n] ""$PCP_ECHO_C"
-			    read ans
-			    if [ "$ans" = "y" -o "$ans" = "Y" ]
-			    then
-				configFile=""
-			    else
-				status=1
-				exit
-			    fi
+			    status=1
+			    exit
 			fi
 		    fi
-		else
-		    echo "Using previous configuration file \"$configFile\""
 		fi
 	    else
-		echo "Warning: previous configuration file \"$configFile\" no longer"
-		echo "         exists, reverting to default"
+		echo "Using previous configuration file \"$configFile\""
+	    fi
+	else
+	    echo "Warning: previous configuration file \"$configFile\" no longer"
+	    echo "         exists, reverting to default"
+	    configFile=""
+	fi
+    fi
+
+    if [ "X$configFile" = X -a -f $configDir/$iam.conf ]
+    then
+	configFile=$configDir/$iam.conf
+	echo "Using previous configuration file \"$configFile\""
+    fi
+
+    if [ "X$configFile" != X ]
+    then
+	if [ -f $configFile ]
+	then
+	    echo "The inital configuration file contains the following Web server details:"
+	    echo
+	    cat $configFile | _parse_server | ${PAGER-more}
+	    echo
+	    echo "------------------------------------------------------------------------------"
+
+	    if ./pmdaweblog -C $configFile >$__tmp.out 2>&1
+	    then
+		:
+	    else
+		echo "Warning: parsing this configuration file produced the following errors,"
+		echo "         and this file will be ignored."
+
+		cat $__tmp.out
+		echo
+		if [ "X$configFile" = "X$__tmp.default" ]
+		then
+		    echo "Arrgh ... this is the default configuration, I cannot recover from here!"
+		    status=1
+		    exit
+		fi
 		configFile=""
 	    fi
 	fi
+    fi
 
-	if [ "X$configFile" = X -a -f $configDir/$iam.conf ]
+    echo
+    echo "A configuration file can be automatically generated. This can"
+    echo "be used to compare or replace an existing configuration file."
+    echo 
+	
+    if [ "X$configFile" = X ]
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you want a configuration file to be automatically generated [y] ""$PCP_ECHO_C"
+	read ans
+	if [ "X$ans" = X ]
 	then
-	    configFile=$configDir/$iam.conf
-	    echo "Using previous configuration file \"$configFile\""
+	    ans="y"
 	fi
-
-	if [ "X$configFile" != X ]
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you want a configuration file to be automatically generated [n] ""$PCP_ECHO_C"
+	read ans
+	if [ "X$ans" = X ]
 	then
-	    if [ -f $configFile ]
+	    ans="n"
+	fi
+    fi
+
+    if [ "X$ans" = "Xy" -o "X$ans" = "XY" ]
+    then
+	echo
+	echo "Now scanning for Web servers ..."
+	echo
+
+	if [ ! -x ./server.sh ]
+	then
+	    echo "Unable to scan for Web servers as ./server.sh is missing!"
+	else
+	    rm -f $__tmp.conf
+	    touch $__tmp.conf
+	    _defaultRegex $__tmp.conf
+	    ./server.sh -l $__tmp.conf
+	    if egrep "^server" $__tmp.conf > /dev/null 2>&1
 	    then
-		echo "The inital configuration file contains the following Web server details:"
 		echo
-		cat $configFile | _parse_server | ${PAGER-more}
+		echo "This is a possible configuration file for your system:"
+		echo
+		cat $__tmp.conf | _parse_server | ${PAGER-more}
 		echo
 		echo "------------------------------------------------------------------------------"
+		echo
 
-		if ./pmdaweblog -C $configFile >$__tmp.out 2>&1
+		if ./pmdaweblog -C $__tmp.conf > /dev/null 2>&1
+		then
+		    if [ "X$configFile" = X ]
+		    then
+			$PCP_ECHO_PROG $PCP_ECHO_N "Would you like to use this configuration file [y] ""$PCP_ECHO_C"
+			read ans
+			if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
+			then
+			    cp $__tmp.conf $configDir/$iam.conf
+			    configFile=$configDir/$iam.conf
+			fi
+		    else
+			echo "Would you like to replace your existing configuration file with"
+			$PCP_ECHO_PROG $PCP_ECHO_N "the generated file [n] ""$PCP_ECHO_C"
+			read ans
+			if [ "X$ans" != "Xn" -a "X$and" != "XN" -a "X$ans" != X ]
+			then
+			    cp $__tmp.conf $configFile
+			fi
+		    fi
+		else
+		    echo "Automated configuration file generation is broken!"
+		    if [ "X$configFile" = X ]
+		    then
+			echo "Please consult the manual on how to create a configuration file."
+			echo "Installation failed."
+			status=1
+			exit
+		    else
+			echo "Ignoring this file."
+		    fi
+		fi
+	    else
+		echo
+		echo "I could not find any Web servers."
+	    fi
+	    echo
+	fi
+    fi
+
+    echo "------------------------------------------------------------------------------"
+
+    echo
+    if [ "X$configFile" = X ]
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you want to specify some Web servers [n]: ""$PCP_ECHO_C"
+	serverAdded="false"
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you want to specify some more Web servers [n]: ""$PCP_ECHO_C"
+	serverAdded="true"
+    fi
+
+    read ans
+    while [ "X$ans" = "Xy" -o "X$ans" = "XY" ]
+    do
+	if [ "X$configFile" = X ]
+	then
+	    if [ "X$configFile" = X -a -f $configDir/$iam.conf ]
+	    then
+		echo "Replacing existing configuration file $configDir/$iam.conf"
+		rm -f $configDir/$iam.conf
+	    else
+		echo "Creating configuration file $configDir/$iam.conf"
+	    fi
+	    _defaultRegex $configDir/$iam.conf
+	    configFile="$configDir/$iam.conf"
+	fi
+
+	echo
+	serverName=`hostname`
+	$PCP_ECHO_PROG $PCP_ECHO_N "The name of the Web server [$serverName]: ""$PCP_ECHO_C"
+	read ans
+	if [ "X$ans" = X ]
+	then
+	    serverName=`hostname`
+	else
+	    serverName=$ans
+	fi
+
+	echo
+	accessPath=""
+	while [ "X$accessPath" = X ]
+	do
+	    $PCP_ECHO_PROG $PCP_ECHO_N "The path to the access log:
+	    ""$PCP_ECHO_C"
+	    read accessPath
+	    if [ "X$accessPath" != X ]
+	    then
+		if [ -f $accessPath ]
 		then
 		    :
 		else
-		    echo "Warning: parsing this configuration file produced the following errors,"
-		    echo "         and this file will be ignored."
-
-		    cat $__tmp.out
-		    echo
-		    if [ "X$configFile" = "X$__tmp.default" ]
-		    then
-			echo "Arrgh ... this is the default configuration, I cannot recover from here!"
-			status=1
-			exit
-		    fi
-		    configFile=""
+		    echo "$accessPath does not exist or is not a regular file"
+		    accessPath=""
 		fi
 	    fi
-	fi
-
-	echo
-	echo "A configuration file can be automatically generated. This can"
-	echo "be used to compare or replace an existing configuration file."
-	echo 
-	    
-	if [ "X$configFile" = X ]
-	then
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Do you want a configuration file to be automatically generated [y] ""$PCP_ECHO_C"
-	    read ans
-	    if [ "X$ans" = X ]
-	    then
-		ans="y"
-	    fi
-	else
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Do you want a configuration file to be automatically generated [n] ""$PCP_ECHO_C"
-	    read ans
-	    if [ "X$ans" = X ]
-	    then
-		ans="n"
-	    fi
-	fi
-
-	if [ "X$ans" = "Xy" -o "X$ans" = "XY" ]
-	then
-	    echo
-	    echo "Now scanning for Web servers ..."
-	    echo
-
-	    if [ ! -x ./server.sh ]
-	    then
-		echo "Unable to scan for Web servers as ./server.sh is missing!"
-	    else
-		rm -f $__tmp.conf
-		touch $__tmp.conf
-		_defaultRegex $__tmp.conf
-		./server.sh -l $__tmp.conf
-		if egrep "^server" $__tmp.conf > /dev/null 2>&1
-		then
-		    echo
-		    echo "This is a possible configuration file for your system:"
-		    echo
-		    cat $__tmp.conf | _parse_server | ${PAGER-more}
-		    echo
-		    echo "------------------------------------------------------------------------------"
-		    echo
-
-		    if ./pmdaweblog -C $__tmp.conf > /dev/null 2>&1
-		    then
-			if [ "X$configFile" = X ]
-			then
-			    $PCP_ECHO_PROG $PCP_ECHO_N "Would you like to use this configuration file [y] ""$PCP_ECHO_C"
-			    read ans
-			    if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
-			    then
-				cp $__tmp.conf $configDir/$iam.conf
-				configFile=$configDir/$iam.conf
-			    fi
-			else
-			    echo "Would you like to replace your existing configuration file with"
-			    $PCP_ECHO_PROG $PCP_ECHO_N "the generated file [n] ""$PCP_ECHO_C"
-			    read ans
-			    if [ "X$ans" != "Xn" -a "X$and" != "XN" -a "X$ans" != X ]
-			    then
-				cp $__tmp.conf $configFile
-			    fi
-			fi
-		    else
-			echo "Automated configuration file generation is broken!"
-			if [ "X$configFile" = X ]
-			then
-			    echo "Please consult the manual on how to create a configuration file."
-			    echo "Installation failed."
-			    status=1
-			    exit
-			else
-			    echo "Ignoring this file."
-			fi
-		    fi
-		else
-		    echo
-		    echo "I could not find any Web servers."
-		fi
-		echo
-	    fi
-	fi
-
-	echo "------------------------------------------------------------------------------"
-
-	echo
-	if [ "X$configFile" = X ]
-	then
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Do you want to specify some Web servers [n]: ""$PCP_ECHO_C"
-	    serverAdded="false"
-	else
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Do you want to specify some more Web servers [n]: ""$PCP_ECHO_C"
-	    serverAdded="true"
-	fi
-
-	read ans
-	while [ "X$ans" = "Xy" -o "X$ans" = "XY" ]
-	do
-	    if [ "X$configFile" = X ]
-	    then
-		if [ "X$configFile" = X -a -f $configDir/$iam.conf ]
-		then
-		    echo "Replacing existing configuration file $configDir/$iam.conf"
-		    rm -f $configDir/$iam.conf
-		else
-		    echo "Creating configuration file $configDir/$iam.conf"
-		fi
-		_defaultRegex $configDir/$iam.conf
-		configFile="$configDir/$iam.conf"
-	    fi
-
-	    echo
-	    serverName=`hostname`
-	    $PCP_ECHO_PROG $PCP_ECHO_N "The name of the Web server [$serverName]: ""$PCP_ECHO_C"
-	    read ans
-	    if [ "X$ans" = X ]
-	    then
-		serverName=`hostname`
-	    else
-		serverName=$ans
-	    fi
-
-	    echo
-	    accessPath=""
-	    while [ "X$accessPath" = X ]
-	    do
-		$PCP_ECHO_PROG $PCP_ECHO_N "The path to the access log:
-		""$PCP_ECHO_C"
-		read accessPath
-		if [ "X$accessPath" != X ]
-		then
-		    if [ -f $accessPath ]
-		    then
-			:
-		    else
-			echo "$accessPath does not exist or is not a regular file"
-			accessPath=""
-		    fi
-		fi
-	    done
-
-	    echo
-	    errorPath=""
-	    while [ "X$errorPath" = X ]
-	    do
-		$PCP_ECHO_PROG $PCP_ECHO_N "The path to the error log:
-		""$PCP_ECHO_C"
-		read errorPath
-		if [ "X$errorPath" != X ]
-		then
-		    if [ -f $errorPath ]
-		    then
-			:
-		    else
-			echo "$errorPath does not exist or is not a regular file"
-			errorPath=""
-		    fi
-		fi
-	    done
-
-	    echo
-	    echo "The configuration file contains these specifications:"
-	    echo
-	    ${PAGER-more} $configFile
-	    echo
-	    echo "Does the configuration file contain appropriate regular expressions"
-	    $PCP_ECHO_PROG $PCP_ECHO_N "for the \"$serverName\" Web server [y]: ""$PCP_ECHO_C"
-	    read ans
-	    echo
-	    if [ "X$ans" = "Xn" -o "X$ans" = "XN" ]
-	    then
-		$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to quit the installation to add new regular expressions [y]: ""$PCP_ECHO_C"
-		read ans
-		if [ "$Xans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
-		then
-		    echo "Edit $configFile and then rerun this Install script."
-		    status=1
-		    exit
-		echo
-		    echo "Skipping $serverName ..."
-		fi
-	    else
-		accessRegex=""
-		while [ "X$accessRegex" = X ]
-		do
-		    if egrep "^regex_posix CERN " $configFile > /dev/null 2>&1
-		    then
-			$PCP_ECHO_PROG $PCP_ECHO_N "The regex for the access log [CERN]: ""$PCP_ECHO_C"
-			accessRegex="CERN"
-		    else
-			$PCP_ECHO_PROG $PCP_ECHO_N "The regex for the access log: ""$PCP_ECHO_C"
-			accessRegex=""
-		    fi
-		    read ans
-		    if [ "X$ans" != X ]
-		    then
-			accessRegex=$ans
-		    fi
-		    if [ "X$accessRegex" != X ]
-		    then
-			if egrep "^regex_posix $accessRegex " $configFile > /dev/null 2>&1
-			then
-			    :
-			else
-			    echo "Could not find $accessRegex in $configFile"
-			    accessRegex=""
-			fi
-		    fi
-		done
-
-		echo
-		errorRegex=""
-		while [ "X$errorRegex" = X ]
-		do
-		    if egrep "^regex_posix CERN_err " $configFile > /dev/null 2>&1
-		    then
-			$PCP_ECHO_PROG $PCP_ECHO_N "The regex for the error log [CERN_err]: ""$PCP_ECHO_C"
-			errorRegex="CERN_err"
-		    else
-			$PCP_ECHO_PROG $PCP_ECHO_N "The regex for the error log: ""$PCP_ECHO_C"
-			errorRegex=""
-		    fi
-		    read ans
-		    if [ "X$ans" != X ]
-		    then
-			errorRegex=$ans
-		    fi
-		    if [ "X$errorRegex" != X ]
-		    then
-			if egrep "^regex_posix $errorRegex " $configFile > /dev/null 2>&1
-			then
-			    :
-			else
-			    echo "Could not find $errorRegex in $configFile"
-			    errorRegex=""
-			fi
-		    fi
-		done
-		
-		echo
-		echo "You have specified the following Web server:"
-		echo
-		server="server $serverName on $accessRegex $accessPath $errorRegex $errorPath"
-		echo "$server"
-		echo
-		$PCP_ECHO_PROG $PCP_ECHO_N "Is this correct [y]:
-		""$PCP_ECHO_C"
-		read ans
-		if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
-		then
-		    echo >> $configFile
-		    echo "# User configured server called \"$serverName\"" >> $configFile
-		    echo $server >> $configFile
-		    serverAdded="true"
-		fi
-	    fi
-
-	    echo
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to specify another Web Server [n]: ""$PCP_ECHO_C"
-	    read ans
-	    echo
 	done
 
-	if [ "$serverAdded" = "false" ]
-	then
-	    rm -f $configFile
-	    configFile=""
-	fi
-
-	if [ "X$configFile" = X ]
-	then
-	    echo "Please consult the manual on how to create a configuration file."
-	    echo "Installation failed as no servers were specified."
-	    status=1
-	    exit
-	fi
-
 	echo
-	echo "You may modify the configuration file by hand and add servers"
-	echo "that are not currently listed, change their names, etc."
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to exit and modify the configuration file [n] ""$PCP_ECHO_C"
-	read ans
-	if [ "X$ans" != "Xn" -a "X$ans" != "XN" -a "X$ans" != X ]
-	then
-	    echo
-	    echo "Edit $configFile and then rerun this Install script."
-	    status=1
-	    exit
-	fi
-
-	echo
-	echo "------------------------------------------------------------------------------"
-
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "The delay in seconds between forced reads of the log files [$delay] ""$PCP_ECHO_C"
-	read ans
-	if [ "X$ans" != X ]
-	then
-	    delay=$ans
-	fi
-
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "Number of seconds of inactivity before checking for log rotation [$chkDelay] ""$PCP_ECHO_C"
-	read ans
-	if [ "X$ans" != X ]
-	then
-	    chkDelay=$ans
-	fi
-
-	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "The maximum number of servers per agent process [$maxserv] ""$PCP_ECHO_C"
-	read ans
-	if [ "X$ans" != X ]
-	then
-	    maxserv=$ans
-	fi
-
-	if [ "$do_debug" = true ]
-	then
-	    echo
-	    $PCP_ECHO_PROG $PCP_ECHO_N "the Debugging Flag (see pmdbg(1)) [$debugFlag] ""$PCP_ECHO_C"
-	    read ans
-	    if [ "X$ans" != X ]
+	errorPath=""
+	while [ "X$errorPath" = X ]
+	do
+	    $PCP_ECHO_PROG $PCP_ECHO_N "The path to the error log:
+	    ""$PCP_ECHO_C"
+	    read errorPath
+	    if [ "X$errorPath" != X ]
 	    then
-		    debugFlag=$ans
+		if [ -f $errorPath ]
+		then
+		    :
+		else
+		    echo "$errorPath does not exist or is not a regular file"
+		    errorPath=""
+		fi
+	    fi
+	done
+
+	echo
+	echo "The configuration file contains these specifications:"
+	echo
+	${PAGER-more} $configFile
+	echo
+	echo "Does the configuration file contain appropriate regular expressions"
+	$PCP_ECHO_PROG $PCP_ECHO_N "for the \"$serverName\" Web server [y]: ""$PCP_ECHO_C"
+	read ans
+	echo
+	if [ "X$ans" = "Xn" -o "X$ans" = "XN" ]
+	then
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to quit the installation to add new regular expressions [y]: ""$PCP_ECHO_C"
+	    read ans
+	    if [ "$Xans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
+	    then
+		echo "Edit $configFile and then rerun this Install script."
+		status=1
+		exit
+	    echo
+		echo "Skipping $serverName ..."
+	    fi
+	else
+	    accessRegex=""
+	    while [ "X$accessRegex" = X ]
+	    do
+		if egrep "^regex_posix CERN " $configFile > /dev/null 2>&1
+		then
+		    $PCP_ECHO_PROG $PCP_ECHO_N "The regex for the access log [CERN]: ""$PCP_ECHO_C"
+		    accessRegex="CERN"
+		else
+		    $PCP_ECHO_PROG $PCP_ECHO_N "The regex for the access log: ""$PCP_ECHO_C"
+		    accessRegex=""
+		fi
+		read ans
+		if [ "X$ans" != X ]
+		then
+		    accessRegex=$ans
+		fi
+		if [ "X$accessRegex" != X ]
+		then
+		    if egrep "^regex_posix $accessRegex " $configFile > /dev/null 2>&1
+		    then
+			:
+		    else
+			echo "Could not find $accessRegex in $configFile"
+			accessRegex=""
+		    fi
+		fi
+	    done
+
+	    echo
+	    errorRegex=""
+	    while [ "X$errorRegex" = X ]
+	    do
+		if egrep "^regex_posix CERN_err " $configFile > /dev/null 2>&1
+		then
+		    $PCP_ECHO_PROG $PCP_ECHO_N "The regex for the error log [CERN_err]: ""$PCP_ECHO_C"
+		    errorRegex="CERN_err"
+		else
+		    $PCP_ECHO_PROG $PCP_ECHO_N "The regex for the error log: ""$PCP_ECHO_C"
+		    errorRegex=""
+		fi
+		read ans
+		if [ "X$ans" != X ]
+		then
+		    errorRegex=$ans
+		fi
+		if [ "X$errorRegex" != X ]
+		then
+		    if egrep "^regex_posix $errorRegex " $configFile > /dev/null 2>&1
+		    then
+			:
+		    else
+			echo "Could not find $errorRegex in $configFile"
+			errorRegex=""
+		    fi
+		fi
+	    done
+	    
+	    echo
+	    echo "You have specified the following Web server:"
+	    echo
+	    server="server $serverName on $accessRegex $accessPath $errorRegex $errorPath"
+	    echo "$server"
+	    echo
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Is this correct [y]:
+	    ""$PCP_ECHO_C"
+	    read ans
+	    if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
+	    then
+		echo >> $configFile
+		echo "# User configured server called \"$serverName\"" >> $configFile
+		echo $server >> $configFile
+		serverAdded="true"
 	    fi
 	fi
 
-	args="-D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to specify another Web Server [n]: ""$PCP_ECHO_C"
+	read ans
+	echo
+    done
 
-	echo
-	echo "------------------------------------------------------------------------------"
-	echo
+    if [ "$serverAdded" = "false" ]
+    then
+	rm -f $configFile
+	configFile=""
     fi
+
+    if [ "X$configFile" = X ]
+    then
+	echo "Please consult the manual on how to create a configuration file."
+	echo "Installation failed as no servers were specified."
+	status=1
+	exit
+    fi
+
+    echo
+    echo "You may modify the configuration file by hand and add servers"
+    echo "that are not currently listed, change their names, etc."
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to exit and modify the configuration file [n] ""$PCP_ECHO_C"
+    read ans
+    if [ "X$ans" != "Xn" -a "X$ans" != "XN" -a "X$ans" != X ]
+    then
+	echo
+	echo "Edit $configFile and then rerun this Install script."
+	status=1
+	exit
+    fi
+
+    echo
+    echo "------------------------------------------------------------------------------"
+
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "The delay in seconds between forced reads of the log files [$delay] ""$PCP_ECHO_C"
+    read ans
+    if [ "X$ans" != X ]
+    then
+	delay=$ans
+    fi
+
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "Number of seconds of inactivity before checking for log rotation [$chkDelay] ""$PCP_ECHO_C"
+    read ans
+    if [ "X$ans" != X ]
+    then
+	chkDelay=$ans
+    fi
+
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "The maximum number of servers per agent process [$maxserv] ""$PCP_ECHO_C"
+    read ans
+    if [ "X$ans" != X ]
+    then
+	maxserv=$ans
+    fi
+
+    if [ "$do_debug" = true ]
+    then
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N "the Debugging Flag (see pmdbg(1)) [$debugFlag] ""$PCP_ECHO_C"
+	read ans
+	if [ "X$ans" != X ]
+	then
+		debugFlag=$ans
+	fi
+    fi
+
+    args="-D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
+
+    echo
+    echo "------------------------------------------------------------------------------"
+    echo
 fi
 
 pmdaInstall

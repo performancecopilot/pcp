@@ -14,7 +14,7 @@ global pmindom_domain[2]
 global pmindom_serial[2]
 global pdu_types[25]
 
-# from impl.h
+# from libpcp.h
 global PDU_ERROR	=	0x7000
 global PDU_RESULT	=	0x7001
 global PDU_PROFILE	=	0x7002

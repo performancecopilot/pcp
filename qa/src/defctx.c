@@ -8,7 +8,7 @@
 
 #include <unistd.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 int
 main(int argc, char **argv)

@@ -17,14 +17,6 @@ Check sampledso metrics have gone away ... OK
 Error: sample: Unknown metric name
 
 === pipe agent ===
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 ======================
 = sample daemon PMDA =
 ======================
@@ -61,14 +53,6 @@ sample.event.param_float: No value(s) available
 sample.event.param_double: No value(s) available
 sample.event.param_string: No value(s) available
 sample.event.param_aggregate: No value(s) available
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 ======================
 = sample daemon PMDA =
 ======================
@@ -107,14 +91,6 @@ sample.event.param_string: No value(s) available
 sample.event.param_aggregate: No value(s) available
 
 === socket Internet agent ===
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 ======================
 = sample daemon PMDA =
 ======================
@@ -153,14 +129,6 @@ sample.event.param_float: No value(s) available
 sample.event.param_double: No value(s) available
 sample.event.param_string: No value(s) available
 sample.event.param_aggregate: No value(s) available
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 ======================
 = sample daemon PMDA =
 ======================
@@ -201,14 +169,6 @@ sample.event.param_string: No value(s) available
 sample.event.param_aggregate: No value(s) available
 
 === socket Unix agent ===
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 ======================
 = sample daemon PMDA =
 ======================
@@ -247,14 +207,6 @@ sample.event.param_float: No value(s) available
 sample.event.param_double: No value(s) available
 sample.event.param_string: No value(s) available
 sample.event.param_aggregate: No value(s) available
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] both
 ======================
 = sample daemon PMDA =
 ======================
@@ -306,14 +258,7 @@ Check sampledso metrics have gone away ... OK
 Error: sample: Unknown metric name
 
 Reinstall PMDA ...
-You will need to choose an appropriate configuration for installation of
-the "sample" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] ======================
+======================
 = sample daemon PMDA =
 ======================
 Installing files ...

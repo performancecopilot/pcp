@@ -14,7 +14,6 @@
  */
 #include <stdarg.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "qed_console.h"
 
 QedConsole *console;

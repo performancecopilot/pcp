@@ -19,7 +19,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "openbsd.h"
 #include <sys/swap.h>
@@ -42,7 +41,7 @@ refresh_swap_metrics(void)
 	    free(stats);
 	stats = (struct swapent *)malloc(sts*sizeof(stats[0]));
 	if (stats == NULL) {
-	    __pmNoMem("refresh_swap_metrics", sts*sizeof(stats[0]), PM_FATAL_ERR);
+	    pmNoMem("refresh_swap_metrics", sts*sizeof(stats[0]), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	if (pmDebugOptions.appl0) {

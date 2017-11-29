@@ -20,7 +20,7 @@
  * pmState - no side-effects, don't bother locking
  *
  * dosyslog - no side-effects, other than non-determinism with concurrent
- *	attempts to set/clear the state in __pmSyslog() which locking will
+ *	attempts to set/clear the state in pmSyslog() which locking will
  *	not avoid
  *
  * pmProgname - most likely set in main(), not worth protecting here
@@ -60,7 +60,6 @@
 #include <assert.h>
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "deprecated.h"
 #include "pmdbg.h"
@@ -131,7 +130,7 @@ pmGetProgname(void)
  * just to stderr (this is the default)
  */
 void
-__pmSyslog(int onoff)
+pmSyslog(int onoff)
 {
     dosyslog = onoff;
     if (dosyslog)
@@ -142,19 +141,26 @@ __pmSyslog(int onoff)
 
 /*
  * This is a wrapper around syslog(3) that writes similar messages to stderr,
- * but if __pmSyslog(1) is called, the messages will really go to syslog
+ * but if pmSyslog() is called, the messages will really go to syslog
  */
 void
-__pmNotifyErr(int priority, const char *message, ...)
+pmNotifyErr(int priority, const char *message, ...)
 {
     va_list		arg;
+
+    va_start(arg, message);
+    notifyerr(priority, message, arg);
+    va_end(arg);
+}
+
+void
+notifyerr(int priority, const char *message, va_list arg)
+{
     char		*p;
     char		*level;
     struct timeval	tv;
     char		ct_buf[26];
     time_t		now;
-
-    va_start(arg, message);
 
     gettimeofday(&tv, NULL);
 
@@ -162,8 +168,6 @@ __pmNotifyErr(int priority, const char *message, ...)
 	char	syslogmsg[2048];
 
 	vsnprintf(syslogmsg, sizeof(syslogmsg), message, arg);
-	va_end(arg);
-	va_start(arg, message);
 	syslog(priority, "%s", syslogmsg);
     }
 
@@ -208,7 +212,6 @@ __pmNotifyErr(int priority, const char *message, ...)
 		/* (unsigned long)tv.tv_usec, */
 		pmGetProgname(), (pid_t)getpid(), level);
     vpmprintf(message, arg);
-    va_end(arg);
     /* trailing \n if needed */
     for (p = (char *)message; *p; p++)
 	;
@@ -260,7 +263,7 @@ logonexit(void)
     PM_UNLOCK(util_lock);
 }
 
-/* common code shared by __pmRotateLog and __pmOpenLog */
+/* common code shared by __pmRotateLog and pmOpenLog */
 static FILE *
 logreopen(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
@@ -360,7 +363,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 }
 
 FILE *
-__pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
+pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     oldstream = logreopen(progname, logname, oldstream, status);
@@ -374,7 +377,7 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
     filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
     if (filelog == NULL) {
 	PM_UNLOCK(util_lock);
-	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
+	pmNoMem("pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     filelog[nfilelog-1] = oldstream;
@@ -626,7 +629,7 @@ __pmStringListAdd(char *item, int numElements, char ***list)
     newSize = ptrSize + sizeof(**list) + dataSize + strlen(item) + 1;
     newList = realloc(*list, newSize);
     if (newList == NULL) {
-	__pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
+	pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
 
@@ -786,7 +789,7 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
     save_debug();
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
-    __pmPrintStamp(f, &resp->timestamp);
+    pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
@@ -811,7 +814,7 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
     save_debug();
     fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",
 	hresp, (int)hresp->timestamp.tv_sec, (int)hresp->timestamp.tv_nsec);
-    __pmPrintHighResStamp(f, &hresp->timestamp);
+    pmPrintHighResStamp(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
@@ -830,8 +833,8 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 {
     struct timespec	tsstamp;
     struct timeval	tvstamp;
-    __pmTimespec 	*tsp;
-    __pmTimeval 	*tvp;
+    pmTimespec 	*tsp;
+    pmTimeval 	*tvp;
     unsigned int	flags;
     size_t		size;
     char		*base;
@@ -845,7 +848,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	pmHighResEventArray *hreap = (pmHighResEventArray *)val->value.pval;
 	nrecords = hreap->ea_nrecords;
 	base = (char *)&hreap->ea_record[0];
-	tsp = (__pmTimespec *)base;
+	tsp = (pmTimespec *)base;
 	tsstamp.tv_sec = tsp->tv_sec;
 	tsstamp.tv_nsec = tsp->tv_nsec;
     }
@@ -853,7 +856,7 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	pmEventArray *eap = (pmEventArray *)val->value.pval;
 	nrecords = eap->ea_nrecords;
 	base = (char *)&eap->ea_record[0];
-	tvp = (__pmTimeval *)base;
+	tvp = (pmTimeval *)base;
 	tvstamp.tv_sec = tvp->tv_sec;
 	tvstamp.tv_usec = tvp->tv_usec;
     }
@@ -898,23 +901,23 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	fputc(' ', f);
 
 	if (highres)
-	    __pmPrintHighResStamp(f, &tsstamp);
+	    pmPrintHighResStamp(f, &tsstamp);
 	else
-	    __pmPrintStamp(f, &tvstamp);
+	    pmPrintStamp(f, &tvstamp);
 
 	if (nrecords > 1) {
 	    fprintf(f, "...");
 	    if (highres) {
-		tsp = (__pmTimespec *)base;
+		tsp = (pmTimespec *)base;
 		tsstamp.tv_sec = tsp->tv_sec;
 		tsstamp.tv_nsec = tsp->tv_nsec;
-		__pmPrintHighResStamp(f, &tsstamp);
+		pmPrintHighResStamp(f, &tsstamp);
 	    }
 	    else {
-		tvp = (__pmTimeval *)base;
+		tvp = (pmTimeval *)base;
 		tvstamp.tv_sec = tvp->tv_sec;
 		tvstamp.tv_usec = tvp->tv_usec;
-		__pmPrintStamp(f, &tvstamp);
+		pmPrintStamp(f, &tvstamp);
 	    }
 	}
     }
@@ -1117,10 +1120,10 @@ pmPrintValue(FILE *f,			/* output stream */
 }
 
 void
-__pmNoMem(const char *where, size_t size, int fatal)
+pmNoMem(const char *where, size_t size, int fatal)
 {
     char	errmsg[PM_MAXERRMSGLEN];
-    __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
+    pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
 			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
     if (fatal)
@@ -1172,10 +1175,10 @@ __pmGetTimespec(struct timespec *ts)
 }
 
 /*
- * a : b for __pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
+ * a : b for pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
  */
 int
-__pmTimevalCmp(const __pmTimeval *a, const __pmTimeval *b)
+__pmTimevalCmp(const pmTimeval *a, const pmTimeval *b)
 {
     int res = (int)(a->tv_sec - b->tv_sec);
 
@@ -1187,11 +1190,11 @@ __pmTimevalCmp(const __pmTimeval *a, const __pmTimeval *b)
 
 /*
  * Difference for two of the internal timestamps ...
- * Same as __pmtimevalSub() in tv.c, just with __pmTimeval args
+ * Same as pmtimevalSub() in tv.c, just with pmTimeval args
  * rather than struct timeval args.
  */
 double
-__pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
+__pmTimevalSub(const pmTimeval *ap, const pmTimeval *bp)
 {
      return (double)(ap->tv_sec - bp->tv_sec + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000);
 }
@@ -1200,7 +1203,7 @@ __pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
  * print timeval timestamp in HH:MM:SS.XXX format
  */
 void
-__pmPrintStamp(FILE *f, const struct timeval *tp)
+pmPrintStamp(FILE *f, const struct timeval *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1214,7 +1217,7 @@ __pmPrintStamp(FILE *f, const struct timeval *tp)
  * print high resolution timestamp in HH:MM:SS.XXXXXXXXX format
  */
 void
-__pmPrintHighResStamp(FILE *f, const struct timespec *tp)
+pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1225,11 +1228,11 @@ __pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 }
 
 /*
- * print __pmTimeval timestamp in HH:MM:SS.XXX format
- * (__pmTimeval variant used in PDUs, archives and internally)
+ * print pmTimeval timestamp in HH:MM:SS.XXX format
+ * (pmTimeval variant used in PDUs, archives and internally)
  */
 void
-__pmPrintTimeval(FILE *f, const __pmTimeval *tp)
+__pmPrintTimeval(FILE *f, const pmTimeval *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1240,25 +1243,10 @@ __pmPrintTimeval(FILE *f, const __pmTimeval *tp)
 }
 
 /*
- * print __pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format
- * (__pmTimespec variant used in events, archives and internally)
- */
-void
-__pmPrintTimespec(FILE *f, const __pmTimespec *tp)
-{
-    struct tm	tmp;
-    time_t	now;
-
-    now = (time_t)tp->tv_sec;
-    pmLocaltime(&now, &tmp);
-    fprintf(f, "%02d:%02d:%02d.%09ld", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (long)tp->tv_nsec);
-}
-
-/*
  * descriptor
  */
 void
-__pmPrintDesc(FILE *f, const pmDesc *desc)
+pmPrintDesc(FILE *f, const pmDesc *desc)
 {
     const char		*type;
     const char		*sem;
@@ -1326,38 +1314,6 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	fprintf(f, "none\n");
     else
 	fprintf(f, "%s\n", units);
-}
-
-/*
- * print times between events
- */
-void
-__pmEventTrace_r(const char *event, int *first, double *sum, double *last)
-{
-    struct timeval tv;
-    double now;
-
-    __pmtimevalNow(&tv);
-    now = __pmtimevalToReal(&tv);
-    if (*first) {
-	*first = 0;
-	*sum = 0;
-	*last = now;
-    }
-    *sum += now - *last;
-    fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
-			pmGetProgname(), now-*last, *sum, event);
-    *last = now;
-}
-
-void
-__pmEventTrace(const char *event)
-{
-    static double last;
-    static double sum;
-    static int first = 1;
-
-    __pmEventTrace_r(event, &first, &sum, &last);
 }
 
 #define DEBUG_CLEAR 0
@@ -1951,7 +1907,7 @@ __pmSetClientId(const char *id)
     pmvb = (pmValueBlock *)calloc(1, PM_VAL_HDR_SIZE+vblen);
     if (pmvb == NULL) {
 	PM_UNLOCK(ctxp->c_lock);
-	__pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
+	pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
 	return -ENOMEM;
     }
     pmvb->vtype = PM_TYPE_STRING;
@@ -2069,10 +2025,10 @@ __pmMakePath(const char *dir, mode_t mode)
     path[sizeof(path)-1] = '\0';
 
     for (p = path+1; *p != '\0'; p++) {
-	if (*p == __pmPathSeparator()) {
+	if (*p == pmPathSeparator()) {
 	    *p = '\0';
 	    mkdir2(path, mode);
-	    *p = __pmPathSeparator();
+	    *p = pmPathSeparator();
 	}
     }
     return mkdir2(path, mode);

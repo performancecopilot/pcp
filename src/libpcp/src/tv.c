@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include <sys/time.h>
 
@@ -21,7 +20,7 @@
  * real additive time, *ap plus *bp
  */
 double
-__pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
+pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
 {
      return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_usec + bp->tv_usec) / (long double)1000000;
 }
@@ -30,7 +29,7 @@ __pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
  * struct additive time, *ap = *ap + *bp
  */
 void
-__pmtimevalInc(struct timeval *ap, const struct timeval *bp)
+pmtimevalInc(struct timeval *ap, const struct timeval *bp)
 {
      ap->tv_sec += bp->tv_sec;
      ap->tv_usec += bp->tv_usec;
@@ -44,7 +43,7 @@ __pmtimevalInc(struct timeval *ap, const struct timeval *bp)
  * real time difference, *ap minus *bp
  */
 double
-__pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
+pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 {
      return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000;
 }
@@ -53,7 +52,7 @@ __pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
  * struct subtractive time, *ap = *ap - *bp
  */
 void
-__pmtimevalDec(struct timeval *ap, const struct timeval *bp)
+pmtimevalDec(struct timeval *ap, const struct timeval *bp)
 {
      ap->tv_sec -= bp->tv_sec;
      ap->tv_usec -= bp->tv_usec;
@@ -67,7 +66,7 @@ __pmtimevalDec(struct timeval *ap, const struct timeval *bp)
  * convert a timeval to a double (units = seconds)
  */
 double
-__pmtimevalToReal(const struct timeval *val)
+pmtimevalToReal(const struct timeval *val)
 {
     return val->tv_sec + ((long double)val->tv_usec / (long double)1000000);
 }
@@ -76,7 +75,7 @@ __pmtimevalToReal(const struct timeval *val)
  * convert double (units == seconds) to a timeval
  */
 void
-__pmtimevalFromReal(double secs, struct timeval *val)
+pmtimevalFromReal(double secs, struct timeval *val)
 {
     val->tv_sec = (time_t)secs;
     val->tv_usec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + (long double)0.5);
@@ -113,7 +112,7 @@ tospec(struct timeval *tv, struct timespec *ts)
 
 #if !defined(IS_MINGW)
 void
-__pmtimevalNow(struct timeval *tv)
+pmtimevalNow(struct timeval *tv)
 {
     gettimeofday(tv, NULL);
 }
@@ -128,8 +127,8 @@ __pmtimevalPause(struct timeval sched)
     struct timespec delay;	/* interval to sleep */
     struct timespec left;	/* remaining sleep time */
 
-    __pmtimevalNow(&curr);
-    __pmtimevalDec(&sched, &curr);
+    pmtimevalNow(&curr);
+    pmtimevalDec(&sched, &curr);
     tospec(&sched, &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);

@@ -20,7 +20,6 @@
 #include <sys/stat.h>
 #include <assert.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logger.h"
 
@@ -254,7 +253,7 @@ typedef struct {
     __pmPDU		len;
     __pmPDU		type;
     __pmPDU		from;
-    __pmTimeval		timestamp;	/* when returned */
+    pmTimeval		timestamp;	/* when returned */
     int			numpmid;	/* zero PMIDs to follow */
 } mark_t;
 
@@ -295,8 +294,8 @@ static reclist_t	*rlog;		/* log records to be written */
 static reclist_t	*rdesc;		/* meta desc records to be written */
 static reclist_t	*rindom;	/* meta indom records to be written */
 
-static __pmTimeval	curlog;		/* most recent timestamp in log */
-static __pmTimeval	current;	/* most recent timestamp overall */
+static pmTimeval	curlog;		/* most recent timestamp in log */
+static pmTimeval	current;	/* most recent timestamp overall */
 
 /* time window stuff */
 static struct timeval logstart_tval = {0,0};	/* extracted log start */
@@ -304,9 +303,9 @@ static struct timeval logend_tval = {0,0};	/* extracted log end */
 static struct timeval winstart_tval = {0,0};	/* window start tval*/
 static struct timeval winend_tval = {0,0};	/* window end tval*/
 
-static __pmTimeval 	winstart = {-1,0};	/* window start time */
-static __pmTimeval	winend = {-1,0};	/* window end time */
-static __pmTimeval	logend = {-1,0};	/* log end time */
+static pmTimeval 	winstart = {-1,0};	/* window start time */
+static pmTimeval	winend = {-1,0};	/* window end time */
+static pmTimeval	logend = {-1,0};	/* log end time */
 
 /* command line args */
 char	*configfile = NULL;		/* -c arg - name of config file */
@@ -326,11 +325,11 @@ char	*Oarg = NULL;			/* -O arg - non-existent */
 /*--- START FUNCTIONS -------------------------------------------------------*/
 
 /*
- * return -1, 0 or 1 as the __pmTimeval's compare
+ * return -1, 0 or 1 as the pmTimeval's compare
  * a < b, a == b or a > b
  */
 static int
-tvcmp(__pmTimeval a, __pmTimeval b)
+tvcmp(pmTimeval a, pmTimeval b)
 {
     if (a.tv_sec < b.tv_sec)
 	return -1;
@@ -387,7 +386,7 @@ _report(__pmFILE *fp)
  *  switch output volumes
  */
 static void
-newvolume(char *base, __pmTimeval *tvp)
+newvolume(char *base, pmTimeval *tvp)
 {
     __pmFILE		*newfp;
     int			nextvol = logctl.l_curvol + 1;
@@ -402,7 +401,7 @@ newvolume(char *base, __pmTimeval *tvp)
 	stamp.tv_sec = ntohl(tvp->tv_sec);
 	stamp.tv_usec = ntohl(tvp->tv_usec);
 	fprintf(stderr, "%s: New log volume %d, at ", pmGetProgname(), nextvol);
-	__pmPrintStamp(stderr, &stamp);
+	pmPrintStamp(stderr, &stamp);
 	fputc('\n', stderr);
     }
     else {
@@ -888,21 +887,21 @@ write_rec(reclist_t *rec)
 		len = ntohl(*namelen);
 		name = (char *)((void *)rec->pdu + sizeof(__pmLogHdr) + sizeof(pmDesc) + sizeof(int) + sizeof(int));
 		fprintf(stderr, "PMID: %s name: %*.*s\n", pmIDStr(desc.pmid), len, len, name);
-		__pmPrintDesc(stderr, &desc);
+		pmPrintDesc(stderr, &desc);
 	    }
 	    else if (type == TYPE_INDOM) {
-		__pmTimeval	*tvp;
-		__pmTimeval	when;
+		pmTimeval	*tvp;
+		pmTimeval	when;
 		int		k = 2;
 		pmInDom		indom;
 		int		numinst;
 		int		*instlist;
 		int		inst;
 
-		tvp = (__pmTimeval *)&rec->pdu[k];
+		tvp = (pmTimeval *)&rec->pdu[k];
 		when.tv_sec = ntohl(tvp->tv_sec);
 		when.tv_usec = ntohl(tvp->tv_usec);
-		k += sizeof(__pmTimeval)/sizeof(rec->pdu[0]);
+		k += sizeof(pmTimeval)/sizeof(rec->pdu[0]);
 		indom = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
 		fprintf(stderr, "INDOM: %s when: ", pmInDomStr(indom));
 		__pmPrintTimeval(stderr, &when);
@@ -1088,7 +1087,7 @@ _createmark(void)
 }
 
 void
-checklogtime(__pmTimeval *this, int i)
+checklogtime(pmTimeval *this, int i)
 {
     if ((curlog.tv_sec == 0 && curlog.tv_usec == 0) ||
 	(curlog.tv_sec > this->tv_sec ||
@@ -1272,7 +1271,7 @@ nextlog(void)
     int		i;
     int		eoflog = 0;	/* number of log files at eof */
     int		sts;
-    __pmTimeval	curtime;
+    pmTimeval	curtime;
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;
@@ -1529,11 +1528,11 @@ parseconfig(void)
  *  we are outside of time window & exit ... return -1
  */
 static int
-checkwinend(__pmTimeval now)
+checkwinend(pmTimeval now)
 {
     int		i;
     int		sts;
-    __pmTimeval	tmptime;
+    pmTimeval	tmptime;
     inarch_t	*iap;
     __pmPDU	*markpdu;	/* mark b/n time windows */
 
@@ -1610,12 +1609,12 @@ checkwinend(__pmTimeval now)
  *
  */
 void
-writerlist(rlist_t **rlready, __pmTimeval mintime)
+writerlist(rlist_t **rlready, pmTimeval mintime)
 {
     int		sts;
     int		needti = 0;	/* need to flush/update */
-    __pmTimeval	titime  = {0,0};/* time of last temporal index write */
-    __pmTimeval	restime;	/* time of result */
+    pmTimeval	titime  = {0,0};/* time of last temporal index write */
+    pmTimeval	restime;	/* time of result */
     rlist_t	*elm;		/* element of rlready to be written out */
     __pmPDU	*pb;		/* pdu buffer */
     unsigned long	peek_offset;
@@ -1669,7 +1668,7 @@ fprintf(stderr, " break!\n");
         /* switch volumes if required */
         if (varg > 0) {
             if (written > 0 && (written % varg) == 0) {
-                newvolume(outarchname, (__pmTimeval *)&pb[3]);
+                newvolume(outarchname, (pmTimeval *)&pb[3]);
 	    }
         }
 	/*
@@ -1679,7 +1678,7 @@ fprintf(stderr, " break!\n");
 	peek_offset = __pmFtell(logctl.l_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
-	    newvolume(outarchname, (__pmTimeval *)&pb[3]);
+	    newvolume(outarchname, (pmTimeval *)&pb[3]);
 	}
 
 	/* write out the descriptor and instance domain pdu's first
@@ -1800,11 +1799,11 @@ main(int argc, char **argv)
 
     char	*msg;
 
-    __pmTimeval 	now = {0,0};	/* the current time */
-    __pmTimeval 	mintime = {0,0};
-    __pmTimeval 	tmptime = {0,0};
+    pmTimeval 	now = {0,0};	/* the current time */
+    pmTimeval 	mintime = {0,0};
+    pmTimeval 	tmptime = {0,0};
 
-    __pmTimeval		tstamp;		/* temporary timestamp */
+    pmTimeval		tstamp;		/* temporary timestamp */
     inarch_t		*iap;		/* ptr to archive control */
     rlist_t		*rlready;	/* list of results ready for writing */
     struct timeval	unused;

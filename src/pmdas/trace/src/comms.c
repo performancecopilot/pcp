@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "trace.h"
@@ -62,7 +61,7 @@ traceMain(pmdaInterface *dispatch)
 
     /* arm interval timer */
     if ((afid = __pmAFregister(&interval, NULL, alarming)) < 0) {
-	__pmNotifyErr(LOG_ERR, "error registering asynchronous event handler");
+	pmNotifyErr(LOG_ERR, "error registering asynchronous event handler");
 	exit(1);
     }
 
@@ -74,7 +73,7 @@ traceMain(pmdaInterface *dispatch)
 	    continue;
 	else if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+		pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
 	    }
 	    continue;
@@ -83,7 +82,7 @@ traceMain(pmdaInterface *dispatch)
 	__pmAFblock();
 	if (FD_ISSET(pmcdfd, &readyfds)) {
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
+		pmNotifyErr(LOG_DEBUG, "processing pmcd request [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
@@ -103,7 +102,7 @@ traceMain(pmdaInterface *dispatch)
 		if (sts < 0) {
 		    if (pmDebugOptions.appl0) {
 			char *hostAddr = __pmSockAddrToString(cp->addr);
-			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: connect refused, denyOps=0x%x: %s",
+			pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: connect refused, denyOps=0x%x: %s",
 				 hostAddr, cp->fd, cp->denyOps, pmtraceerrstr(sts));
 			free(hostAddr);
 		    }
@@ -112,7 +111,7 @@ traceMain(pmdaInterface *dispatch)
 		else {
 		    if (pmDebugOptions.appl0) {
 			char *hostAddr = __pmSockAddrToString(cp->addr);
-			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: new connection, denyOps=0x%x",
+			pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: new connection, denyOps=0x%x",
 				 hostAddr, cp->fd, cp->denyOps);
 			free(hostAddr);
 		    }
@@ -126,7 +125,7 @@ traceMain(pmdaInterface *dispatch)
 	    if (clients[i].denyOps & TR_OP_SEND) {
 		if (pmDebugOptions.appl0) {
 		    char *hostAddr = __pmSockAddrToString(clients[i].addr);
-		    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: send denied, denyOps=0x%x",
+		    pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: send denied, denyOps=0x%x",
 			    hostAddr, clients[i].fd, clients[i].denyOps);
 		    free(hostAddr);
 		}
@@ -140,7 +139,7 @@ traceMain(pmdaInterface *dispatch)
 		    if ((pdutype = readData(clients[i].fd, &protocol)) < 0) {
 			if (pmDebugOptions.appl0) {
 			    char *hostAddr = __pmSockAddrToString(clients[i].addr);
-			    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: close connection",
+			    pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: close connection",
 				hostAddr, clients[i].fd);
 			    free(hostAddr);
 			}
@@ -152,7 +151,7 @@ traceMain(pmdaInterface *dispatch)
 			if (clients[i].status.connected) {
 			    if (pmDebugOptions.appl0) {
 				char *hostAddr = __pmSockAddrToString(clients[i].addr);
-				__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: %s ACK (type=%d)",
+				pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: %s ACK (type=%d)",
 				    hostAddr, clients[i].fd,
 				    protocol ? "sending" : "no", pdutype);
 				free(hostAddr);
@@ -161,7 +160,7 @@ traceMain(pmdaInterface *dispatch)
 				sts = __pmtracesendack(clients[i].fd, pdutype);
 				if (sts < 0) {
 				    char *hostAddr = __pmSockAddrToString(clients[i].addr);
-				    __pmNotifyErr(LOG_ERR, "client %s [fd=%d]: ACK send failed (type=%d): %s",
+				    pmNotifyErr(LOG_ERR, "client %s [fd=%d]: ACK send failed (type=%d): %s",
 				        hostAddr, clients[i].fd,
 					pdutype, pmtraceerrstr(sts));
 				    free(hostAddr);
@@ -204,20 +203,20 @@ getcport(void)
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: socket: %s", netstrerror());
+	pmNotifyErr(LOG_ERR, "getcport: socket: %s", netstrerror());
 	exit(1);
     }
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
 				    (__pmSockLen)sizeof(i)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
+	pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
 		netstrerror());
 	exit(1);
     }
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
 				    (__pmSockLen)sizeof(noLinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
+	pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
 		netstrerror());
 	exit(1);
     }
@@ -225,7 +224,7 @@ getcport(void)
     /* ignore dead client connections */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
 				    (__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
+	pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
 		netstrerror());
 	exit(1);
     }
@@ -233,7 +232,7 @@ getcport(void)
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
     if (setsockopt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
 				    (__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
+	pmNotifyErr(LOG_ERR, "getcport: setsockopt(excladdruse): %s",
 		netstrerror());
 	exit(1);
     }
@@ -249,7 +248,7 @@ getcport(void)
 
 	    ctlport = (int)strtol(env_str, &end_ptr, 0);
 	    if (*end_ptr != '\0' || ctlport < 0) {
-		__pmNotifyErr(LOG_WARNING, "env port is bogus (%s)", env_str);
+		pmNotifyErr(LOG_WARNING, "env port is bogus (%s)", env_str);
 		ctlport = TRACE_PORT;
 	    }
 	}
@@ -265,12 +264,12 @@ getcport(void)
 
     sts = bind(fd, (const struct sockaddr *)&myAddr, sizeof(myAddr));
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
+	pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "listen: %s", netstrerror());
+	pmNotifyErr(LOG_ERR, "listen: %s", netstrerror());
 	exit(1);
     }
 

@@ -1,5 +1,4 @@
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 static struct timeval	start;
@@ -37,7 +36,7 @@ onevent(int afid, void *data)
 	fputc('\n', stderr);
     }
 
-    elapsed = __pmtimevalSub(&now, &start);
+    elapsed = pmtimevalSub(&now, &start);
 
     if (afid == reg[2])
 	printf("event %d callback\n", afid);

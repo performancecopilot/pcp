@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmnsutil.h"
 
@@ -103,7 +102,7 @@ delpmns(__pmnsNode *base, char *name)
 int
 main(int argc, char **argv)
 {
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     int		sts;
     int		c;
     char	*p;

@@ -16,7 +16,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -214,7 +213,7 @@ txmon_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     dp->version.two.store = txmon_store;
 
@@ -263,7 +262,7 @@ pmdaOptions	opts = {
 int
 main(int argc, char **argv)
 {
-    int			n, sep = __pmPathSeparator();
+    int			n, sep = pmPathSeparator();
     char		*p;
     pmdaInterface	dispatch;
     size_t		index_size;
@@ -271,7 +270,7 @@ main(int argc, char **argv)
     stat_t		*sp;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

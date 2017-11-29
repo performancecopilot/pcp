@@ -457,8 +457,8 @@ class PMReporter(object):
             index += 2
         else:
             tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
-            #self.format = "{:" + str(len(tstamp)) + "}{}"
-            self.format = "{" + str(index) + ":" + str(len(tstamp)) + "}"
+            #self.format = "{:<" + str(len(tstamp)) + "}{}"
+            self.format = "{" + str(index) + ":<" + str(len(tstamp)) + "}"
             index += 1
             self.format += "{" + str(index) + "}"
             index += 1
@@ -489,9 +489,9 @@ class PMReporter(object):
 
         # Instance name
         if self.colxrow:
-            self.format += "{2:<" + str(len(self.colxrow)) + "." + str(len(self.colxrow)) + "}{3}"
+            self.format += "{2:>" + str(len(self.colxrow)) + "." + str(len(self.colxrow)) + "}{3}"
         else:
-            self.format += "{2:<" + str(8) + "." + str(8) + "}{3}"
+            self.format += "{2:>" + str(8) + "." + str(8) + "}{3}"
         index += 2
 
         # Metrics
@@ -604,7 +604,9 @@ class PMReporter(object):
                     # Mark metrics with instance domain but without instances
                     if self.pmconfig.descs[i].contents.indom != PM_IN_NULL and self.pmconfig.insts[i][1][0] is None:
                         name += "-"
-                    name = name.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
+                    if self.delimiter:
+                        name = name.replace(self.delimiter, " ")
+                    name = name.replace("\n", " ").replace("\"", " ")
                     self.writer.write(self.delimiter + "\"" + name + "\"")
             self.writer.write("\n")
 
@@ -736,9 +738,12 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
-        for _, metric in enumerate(self.metrics):
+        for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if (self.instances or self.metrics[metric][1][0]) and \
+                       inst not in self.pmconfig.insts[i][0]:
+                        continue
                     try:
                         value = val()
                         if isinstance(value, float):
@@ -756,7 +761,9 @@ class PMReporter(object):
                 if metric + str(self.pmconfig.insts[i][0][j]) in res:
                     value = res[metric + str(self.pmconfig.insts[i][0][j])]
                     if isinstance(value, str):
-                        value = value.replace(self.delimiter, "_").replace("\n", " ").replace('"', " ")
+                        if self.delimiter:
+                            value = value.replace(self.delimiter, "_")
+                        value = value.replace("\n", " ").replace('"', " ")
                         line += str('"' + value + '"')
                     else:
                         line += str(value)
@@ -798,16 +805,19 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
-        for _, metric in enumerate(self.metrics):
+        for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if (self.instances or self.metrics[metric][1][0]) and \
+                       inst not in self.pmconfig.insts[i][0]:
+                        continue
                     try:
                         value = val()
                         if isinstance(value, float):
                             value = round(value, self.precision)
                         elif isinstance(value, str):
                             value = value.replace("\n", "\\n")
-                            if not self.delimiter.isspace():
+                            if self.delimiter and not self.delimiter.isspace():
                                 value = value.replace(self.delimiter, "_")
                         res[metric + str(inst)] = value
                     except:
@@ -830,9 +840,6 @@ class PMReporter(object):
                         else:
                             #fmt[k] = "{:" + str(l) + "d}"
                             fmt[k] = "{X:" + str(l) + "d}"
-                    elif isinstance(value, str):
-                        if len(value) > l:
-                            value = pmconfig.TRUNC
 
                     if isinstance(value, float) and \
                        not math.isinf(value) and \
@@ -890,10 +897,13 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = OrderedDict()
-        for _, metric in enumerate(self.metrics):
+        for i, metric in enumerate(self.metrics):
             res[metric] = []
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if (self.instances or self.metrics[metric][1][0]) and \
+                       inst not in self.pmconfig.insts[i][0]:
+                        continue
                     try:
                         if inst != PM_IN_NULL and not name:
                             res[metric].append(['', '', NO_VAL])
@@ -945,7 +955,7 @@ class PMReporter(object):
                         value = inst[2]
                         if isinstance(value, str):
                             value = value.replace("\n", "\\n")
-                            if not self.delimiter.isspace():
+                            if self.delimiter and not self.delimiter.isspace():
                                 value = value.replace(self.delimiter, "_")
                         found = 1
                         break

@@ -55,11 +55,8 @@ sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <pmns >$__tmp.pmns
 pmns_source=$__tmp.pmns
 pmns_name=sampledso
 
-if $do_pmda
-then
-    sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <help >dsohelp
-    help_source=dsohelp
-fi
+sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <help >dsohelp
+help_source=dsohelp
 
 dso_opt=true
 daemon_opt=false

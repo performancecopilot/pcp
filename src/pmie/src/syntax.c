@@ -20,7 +20,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "pmapi.h"
-#include "impl.h"
 
 #include <stdlib.h>
 #include <stdio.h>

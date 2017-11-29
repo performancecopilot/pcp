@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 
@@ -24,13 +23,13 @@
 typedef struct {
     __pmPDUHdr		hdr;
     int			ctxid;		/* context slot index from the client */
-    __pmTimeval      	when;		/* desired time */
+    pmTimeval      	when;		/* desired time */
     int			numpmid;	/* no. PMIDs to follow */
     pmID		pmidlist[1];	/* one or more */
 } fetch_t;
 
 int
-__pmSendFetch(int fd, int from, int ctxid, __pmTimeval *when, int numpmid, pmID *pmidlist)
+__pmSendFetch(int fd, int from, int ctxid, pmTimeval *when, int numpmid, pmID *pmidlist)
 {
     size_t	need;
     fetch_t	*pp;
@@ -69,7 +68,7 @@ __pmSendFetch(int fd, int from, int ctxid, __pmTimeval *when, int numpmid, pmID 
 }
 
 int
-__pmDecodeFetch(__pmPDU *pdubuf, int *ctxidp, __pmTimeval *when, int *numpmidp, pmID **pmidlist)
+__pmDecodeFetch(__pmPDU *pdubuf, int *ctxidp, pmTimeval *when, int *numpmidp, pmID **pmidlist)
 {
     fetch_t	*pp;
     char	*pduend;

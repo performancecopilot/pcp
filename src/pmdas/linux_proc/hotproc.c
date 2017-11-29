@@ -12,7 +12,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "config.h"
 
 extern int conf_gen;
@@ -22,7 +21,7 @@ hotproc_init(void)
 {
     char    h_configfile[MAXPATHLEN];
     FILE    *conf;
-    int	    sep = __pmPathSeparator();
+    int	    sep = pmPathSeparator();
 
     pmsprintf(h_configfile, sizeof(h_configfile),
 	    "%s%c" "proc" "%c" "hotproc.conf",

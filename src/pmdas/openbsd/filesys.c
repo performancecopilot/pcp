@@ -19,7 +19,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "openbsd.h"
 #include <sys/param.h>
@@ -63,7 +62,7 @@ refresh_filesys_metrics(void)
 	    free(stats);
 	stats = (struct statfs *)malloc(nfilesys*sizeof(struct statfs));
 	if (stats == NULL) {
-	    __pmNoMem("refresh_filesys_metrics: stats", nfilesys*sizeof(struct statfs), PM_FATAL_ERR);
+	    pmNoMem("refresh_filesys_metrics: stats", nfilesys*sizeof(struct statfs), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	/* fetch all the available data */

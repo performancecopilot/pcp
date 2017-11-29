@@ -49,7 +49,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 	    if (rv != PMDA_CACHE_INACTIVE || zps == NULL) {
 		zps = malloc(sizeof(*zps));
 		if (zps == NULL) {
-		    __pmNotifyErr(LOG_WARNING,
+		    pmNotifyErr(LOG_WARNING,
 				  "Cannot allocate memory to hold stats for "
 				  "zpool '%s'\n",
 				  zpname);
@@ -59,7 +59,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 
 	    rv = pmdaCacheStore(zpindom, PMDA_CACHE_ADD, zpname, zps);
 	    if (rv < 0) {
-		__pmNotifyErr(LOG_WARNING,
+		pmNotifyErr(LOG_WARNING,
 			      "Cannot add '%s' to the cache "
 			      "for instance domain %s: %s\n",
 			      zpname, pmInDomStr(zpindom), pmErrStr(rv));
@@ -71,7 +71,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 
 	rv = nvlist_lookup_nvlist(cfg, ZPOOL_CONFIG_VDEV_TREE, &vdt);
 	if (rv != 0) {
-	    __pmNotifyErr(LOG_ERR, "Cannot get vdev tree for '%s': %d %d\n",
+	    pmNotifyErr(LOG_ERR, "Cannot get vdev tree for '%s': %d %d\n",
 			  zpname, rv, oserror());
 	    zps->vdev_stats_fresh = 0;
 	} else {
@@ -87,7 +87,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 		memcpy(&zps->vds, vds, sizeof(zps->vds));
 		zps->vdev_stats_fresh = 1;
 	    } else {
-		__pmNotifyErr(LOG_ERR,
+		pmNotifyErr(LOG_ERR,
 			      "Cannot get zpool stats for '%s': %d %d\n",
 			      zpname, rv, oserror());
 		zps->vdev_stats_fresh = 0;

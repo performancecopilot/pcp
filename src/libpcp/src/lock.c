@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 #ifdef HAVE_EXECINFO_H
@@ -385,7 +384,7 @@ __pmInitLocks(void)
     if (pthread_getspecific(__pmTPDKey) == NULL) {
 	__pmTPD	*tpd = (__pmTPD *)malloc(sizeof(__pmTPD));
 	if (tpd == NULL) {
-	    __pmNoMem("__pmInitLocks: __pmTPD", sizeof(__pmTPD), PM_FATAL_ERR);
+	    pmNoMem("__pmInitLocks: __pmTPD", sizeof(__pmTPD), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	if ((psts = pthread_setspecific(__pmTPDKey, tpd)) != 0) {

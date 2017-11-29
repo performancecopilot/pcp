@@ -30,7 +30,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 #include "fault.h"
@@ -80,8 +79,8 @@ __pmSetRequestTimeout(double timeout)
 
     PM_LOCK(pdu_lock);
     req_wait_done = 1;
-    /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
-    __pmtimevalFromReal(timeout, &req_wait);
+    /* THREADSAFE - no locks acquired in pmtimevalFromReal() */
+    pmtimevalFromReal(timeout, &req_wait);
     PM_UNLOCK(pdu_lock);
     return 0;
 }
@@ -105,19 +104,19 @@ __pmRequestTimeout(void)
 	    timeout = strtod(timeout_str, &end_ptr);
 	    PM_UNLOCK(__pmLock_extcall);
 	    if (*end_ptr != '\0' || timeout < 0.0) {
-		__pmNotifyErr(LOG_WARNING,
+		pmNotifyErr(LOG_WARNING,
 			      "ignored bad PMCD_REQUEST_TIMEOUT = '%s'\n",
 			      timeout_str);
 	    }
 	    else
-		__pmtimevalFromReal(timeout, &req_wait);
+		pmtimevalFromReal(timeout, &req_wait);
 	    free(timeout_str);
 	}
 	else
 	    PM_UNLOCK(__pmLock_extcall);
 	PM_LOCK(pdu_lock);
     }
-    timeout = __pmtimevalToReal(&req_wait);
+    timeout = pmtimevalToReal(&req_wait);
     PM_UNLOCK(pdu_lock);
     return timeout;
 }
@@ -227,7 +226,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 			PM_UNLOCK(pdu_lock);
 		    }
 
-		    __pmNotifyErr(LOG_WARNING, 
+		    pmNotifyErr(LOG_WARNING, 
 				  "pduread: timeout (after %d.%03d "
 				  "sec) while attempting to read %d "
 				  "bytes out of %d in %s on fd=%d",
@@ -239,7 +238,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    else if (status < 0) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		status = -neterror();
-		__pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
+		pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
 			fd, status, netstrerror_r(errmsg, sizeof(errmsg)));
 		setoserror(neterror());
 		return status;
@@ -441,7 +440,7 @@ PM_FAULT_RETURN(PM_FAULT_TIMEOUT);
 		len = 0;
 	    } else {
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	}
 	else if (len >= (int)sizeof(php->len)) {
@@ -460,12 +459,12 @@ PM_FAULT_RETURN(PM_FAULT_TIMEOUT);
 	}
 	else if (len < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
+	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 	else if (len > 0) {
-	    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
+	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -484,7 +483,7 @@ check_read_len:
 	 * PDU length indicates insufficient bytes for a PDU header
 	 * ... looks like DOS attack like PV 935490
 	 */
-	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
+	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
     }
@@ -495,7 +494,7 @@ check_read_len:
 	 * (note, pmcd and pmdas have to be able to _send_ large PDUs,
 	 * e.g. for a pmResult or instance domain enquiry)
 	 */
-	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
+	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
 		      fd, php->len, ceiling);
 
 	__pmUnpinPDUBuf(pdubuf);
@@ -539,19 +538,19 @@ check_read_len:
 	    }
 	    else if (len < 0) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	    else
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
+		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
 	    /*
 	     * only report header fields if you've read enough bytes
 	     */
 	    if (len > 0)
 		have += len;
 	    if (have >= (int)(sizeof(php->len)+sizeof(php->type)+sizeof(php->from)))
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
+		pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
 	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
-		__pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
+		pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -564,7 +563,7 @@ check_read_len:
 	 * PDU type is bad ... could be a possible mem leak attack like
 	 * https://bugzilla.redhat.com/show_bug.cgi?id=841319
 	 */
-	__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU type=%d in hdr", fd, php->type);
+	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU type=%d in hdr", fd, php->type);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
     }

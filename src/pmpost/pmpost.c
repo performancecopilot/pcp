@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include <sys/stat.h>
 #include <sys/file.h>
 #ifdef HAVE_GRP_H
@@ -115,7 +114,7 @@ main(int argc, char **argv)
     }
 
     pmsprintf(notices, sizeof(notices), "%s%c" "NOTICES",
-		pmGetConfig("PCP_LOG_DIR"), __pmPathSeparator());
+		pmGetConfig("PCP_LOG_DIR"), pmPathSeparator());
 
     setup_group();
     dir = dirname(strdup(notices));

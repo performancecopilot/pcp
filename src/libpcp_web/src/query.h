@@ -14,9 +14,8 @@
 #ifndef SERIES_QUERY_H
 #define SERIES_QUERY_H
 
-#include <pcp/pmapi.h>
-
-extern int pmSeries(const char *, const char * /*, cb, arg */);
+#include "pmapi.h"
+#include "series.h"
 
 /*
  * Time series querying
@@ -67,11 +66,11 @@ typedef struct series {
     timing_t		time;
 } series_t;
 
-extern int series_query(const char *);
-extern int series_solve(node_t *, timing_t *);
+typedef pmSeriesSettings settings_t;
+typedef pmseries_flags flags_t;
 
-extern int series_load(const char *, int);
-extern int series_source(node_t *, timing_t *, int);
+extern int series_solve(settings_t *, node_t *, timing_t *, flags_t, void *);
+extern int series_source(settings_t *, node_t *, timing_t *, flags_t, void *);
 
 extern char *series_instance_name(char *, size_t);
 extern char *series_metric_name(char *, size_t);
@@ -126,6 +125,5 @@ extern char *series_note_name(char *, size_t);
 #define N_METRIC	201
 #define N_INSTANCE	202
 #define N_LABEL		203
-#define N_NOTE		204
 
 #endif	/* SERIES_QUERY_H */

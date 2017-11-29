@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 int
 main(int argc, char *argv[])
@@ -30,7 +29,7 @@ main(int argc, char *argv[])
 	exit(sts == 0 ? 1 : sts);
     }
 
-    fprintf(fout, "This message on oldstream before __pmOpenLog() called\n");
+    fprintf(fout, "This message on oldstream before pmOpenLog() called\n");
 
 
 #define whatis(f) (f == (stderr) ? " (stderr)" : (f == (stdout) ? " (stdout)" : (f == NULL ? " (NULL)" : "")))
@@ -44,8 +43,8 @@ main(int argc, char *argv[])
     close(nextfd);
 
     nextfd = open("/dev/null", 0);
-    f = __pmOpenLog("chkopenlog", argv[2], fout, &sts);
-    fprintf(stderr, "__pmOpenLog -> sts=%d, log %s newstream%s fd=%d, nextfd=%d\n",
+    f = pmOpenLog("chkopenlog", argv[2], fout, &sts);
+    fprintf(stderr, "pmOpenLog -> sts=%d, log %s newstream%s fd=%d, nextfd=%d\n",
 	sts, argv[2], whatis(f), f != NULL ? fileno(f) : -1, nextfd);
     if (f != NULL)
 	fprintf(f, "[a helpful little message]\n");

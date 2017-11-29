@@ -16,7 +16,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmnsmap.h"
 
@@ -168,7 +167,7 @@ get_sample(info_t *ip)
     /* if the second or later sample, pick the results apart */
     if (prp !=  NULL) {
 
-	dt = __pmtimevalSub(&crp->timestamp, &prp->timestamp);
+	dt = pmtimevalSub(&crp->timestamp, &prp->timestamp);
 
 	/*
 	 * But first ... is all the data present?

@@ -137,6 +137,14 @@ echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
 pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 | _archive_filter
 
+echo "== exercise delimiters corner cases"
+pmrep -s 1 -t 1 $log2 -l '' -w 16 -U hinv.machine
+echo '[testing]' > $tmp.dconfig
+echo 'delimiter = " "' >> $tmp.dconfig
+echo 'mem.util.free = freemem' >> $tmp.dconfig
+echo 'mem.util.used = usedmem' >> $tmp.dconfig
+pmrep -s 2 -t 2 $log2 -c $tmp.dconfig -p :testing | _archive_filter
+
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' sample | \
@@ -245,6 +253,13 @@ echo "kernel.all.load = load,\"'1 minute','5 minute','15 min'\",,,16" >> $tmp.ic
 echo 'disk.dev.read = read,sda,,,16' >> $tmp.iconfig
 echo 'disk.dev.write = write,wrong,,,16' >> $tmp.iconfig
 pmrep -s 1 $log2 -c $tmp.iconfig :test
+pmrep -s 1 -i "'.*'" $log2 disk.dev.read
+pmrep -s 1 -i "'.*sda.*'" $log2 disk.dev.read
+echo '[test]' > $tmp.iconfig
+echo 'instances = sd.*' >> $tmp.iconfig
+echo 'disk.dev.read = read,,,,8' >> $tmp.iconfig
+echo 'disk.dev.write = write,vd.*,,,8' >> $tmp.iconfig
+pmrep -s 1 $log2 -c $tmp.iconfig :test
 
 echo "=== more instance handling"
 cat << EOF > $tmp.iiconfig
@@ -296,6 +311,10 @@ pmrep -C $log2 -u -U -q MB -I mem.util
 pmrep -C $log2 -u    -i sda mem.util.free disk.dev mem.util
 pmrep -C $log2 -u -v -i sda mem.util.free disk.dev mem.util
 
+echo "== output value truncation"
+pmrep -s 1 $log2 -w 3 hinv.machine
+pmrep -s 1 $log2 -w 3 mem.util.free
+
 echo "== handle empty/invalid/multiple metricsets in config file"
 echo '[fail]' > $tmp.econfig
 echo 'failure = yes' >> $tmp.econfig
@@ -319,6 +338,11 @@ echo 'interval = 2s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No metrics in options allowed
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used | _archive_filter
+echo '[testing]' > $tmp.cconfig
+echo 'colxrow = yes' >> $tmp.cconfig
+echo 'mem.util.free = freemem' >> $tmp.cconfig
+# colxrow boolean value handling
+pmrep -s 1 -C $log2 -c $tmp.cconfig :testing | _archive_filter
 echo '[options]' > $tmp.cconfig
 echo 'interval = 2s' >> $tmp.cconfig
 echo '[global]' >> $tmp.cconfig

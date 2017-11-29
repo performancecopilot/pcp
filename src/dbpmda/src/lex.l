@@ -15,7 +15,6 @@
 
 %{
 #include "pmapi.h"
-#include "impl.h"
 
 static int lineno;
 static int using_readline;

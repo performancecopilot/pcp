@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include <ctype.h>
@@ -479,7 +478,7 @@ hotproc_eval_procs(void)
 	    continue;
 	}
 
-	__pmtimevalNow(&p_timestamp);
+	pmtimevalNow(&p_timestamp);
 
 	/* Collect all the stat/status/statm info */
 	statentry = fetch_proc_pid_stat(pid, hotproc_poss_pid, &sts);
@@ -738,7 +737,7 @@ hotproc_eval_procs(void)
 
     hot_numprocs[current] = np;
 
-    __pmtimevalNow(&ts);
+    pmtimevalNow(&ts);
     refresh_time[current] = ts.tv_sec + ts.tv_usec / 1000000;
 
     double hptime = (ts.tv_sec - p_timestamp.tv_sec) + (ts.tv_usec - p_timestamp.tv_usec)/1000000.0;
@@ -801,7 +800,7 @@ reset_hotproc_timer(void)
     __pmAFunregister(hotproc_timer_id);
     sts = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "error registering hotproc timer: %s",
+	pmNotifyErr(LOG_ERR, "error registering hotproc timer: %s",
 			pmErrStr(sts));
 	exit(1);
     }

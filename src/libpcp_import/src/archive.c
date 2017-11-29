@@ -14,12 +14,11 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "import.h"
 #include "private.h"
 
-static __pmTimeval	stamp;
+static pmTimeval	stamp;
 
 int
 _pmi_put_result(pmi_context *current, pmResult *result)

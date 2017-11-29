@@ -18,7 +18,6 @@
     <file>images/edit-clear.png</file>
     <file>images/internet-web-browser.png</file>
     <file>images/pmtime.png</file>
-    <file>images/aboutpmtime.png</file>
     <file>images/aboutpcp.png</file>
 </qresource>
 </RCC>

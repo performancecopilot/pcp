@@ -15,7 +15,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "domain.h"
 #include "convert.h"
@@ -108,7 +107,7 @@ static pmdaMetric metrictab[] = {
 };
 
 static int
-jbd2_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+jbd2_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     refresh_jbd2(prefix, INDOM(JBD2_INDOM));
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -243,12 +242,12 @@ jbd2_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "jbd2 DSO", helppath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -287,13 +286,13 @@ pmdaOptions     opts = {
 int
 main(int argc, char **argv)
 {
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		help[MAXPATHLEN];
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(help, sizeof(help), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

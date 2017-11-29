@@ -15,13 +15,15 @@
 #include <assert.h>
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "internal.h"
 #include "sort_r.h"
 #include "fault.h"
 #include "jsmn.h"
+
+static int __pmMergeLabels(const char *, const char *, char *, int);
+static int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
 
 void
 pmFreeLabelSets(pmLabelSet *sets, int nsets)
@@ -304,13 +306,13 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
     for (i = 0; i < nlabels-1; i++) {
 	if (namecmp(&lp[i], &lp[i+1], data) == 0) {
 	    if (pmDebugOptions.labels)
-		__pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
+		pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
 				(int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
 	}
 	if (verify_label_name(&lp[i], json) < 0) {
 	    if (pmDebugOptions.labels)
-		__pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
+		pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
 			    (int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
 	}
@@ -333,7 +335,7 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
  * produce "clean" JSONB form into the given buffer.  The labels
  * array indexes into this sanitized buffer.
  */
-int
+static int
 __pmParseLabels(const char *s, int slen,
 		pmLabel *labels, int maxlabels, char *buffer, int *buflen)
 {
@@ -373,7 +375,7 @@ __pmParseLabels(const char *s, int slen,
 	case START:
 	    if (token->type != JSMN_OBJECT) {
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Root element must be JSON object");
+		    pmNotifyErr(LOG_ERR, "Root element must be JSON object");
 		sts = -EINVAL;
 		goto done;
 	    }
@@ -386,7 +388,7 @@ __pmParseLabels(const char *s, int slen,
 	case NAME:
 	    if (token->type != JSMN_STRING) {
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Label name must be JSON string");
+		    pmNotifyErr(LOG_ERR, "Label name must be JSON string");
 		sts = -EINVAL;
 		goto done;
 	    }
@@ -394,7 +396,7 @@ __pmParseLabels(const char *s, int slen,
 	    namelen = token->end - token->start;
 	    if (namelen >= MAXLABELNAMELEN) {	/* will the name fit too? */
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
+		    pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
 				(int)namelen, s + token->start);
 		sts = -E2BIG;
 		goto done;
@@ -402,7 +404,7 @@ __pmParseLabels(const char *s, int slen,
 
 	    if (nlabels >= maxlabels) {	/* will this one fit in the given array? */
 		if (pmDebugOptions.labels)
-		    __pmNotifyErr(LOG_ERR, "Too many labels (%d)", nlabels);
+		    pmNotifyErr(LOG_ERR, "Too many labels (%d)", nlabels);
 		sts = -E2BIG;
 		goto done;
 	    }
@@ -568,7 +570,7 @@ done:
     return sts;
 }
 
-int
+static int
 __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
 {
     pmLabel	alabels[MAXLABELS], blabels[MAXLABELS];
@@ -678,7 +680,7 @@ labelfile(const char *path, const char *file, char *buf, int buflen)
     char		lf[MAXPATHLEN];
     size_t		bytes;
 
-    pmsprintf(lf, sizeof(lf), "%s%c%s", path, __pmPathSeparator(), file);
+    pmsprintf(lf, sizeof(lf), "%s%c%s", path, pmPathSeparator(), file);
     if ((fp = fopen(lf, "r")) == NULL)
 	return 0;
     bytes = fread(buf, 1, buflen-1, fp);
@@ -698,7 +700,7 @@ __pmGetContextLabels(pmLabelSet **set)
     int			i, num, sts = 0;
 
     pmsprintf(path, MAXPATHLEN, "%s%clabels",
-		pmGetConfig("PCP_SYSCONF_DIR"), __pmPathSeparator());
+		pmGetConfig("PCP_SYSCONF_DIR"), pmPathSeparator());
     if ((num = scandir(path, &list, NULL, alphasort)) < 0)
 	return -oserror();
 
@@ -715,7 +717,7 @@ __pmGetContextLabels(pmLabelSet **set)
 	labels[i] = strndup(buf, length + 1);
     }
     if ((sts = pmMergeLabels(labels, num, buf, sizeof(buf))) < 0) {
-	__pmNotifyErr(LOG_WARNING, "Failed to merge %s labels file: %s",
+	pmNotifyErr(LOG_WARNING, "Failed to merge %s labels file: %s",
 			path, pmErrStr(sts));
     }
     for (i = 0; i < num; i++) {

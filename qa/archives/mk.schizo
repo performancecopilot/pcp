@@ -13,7 +13,6 @@ cd ../pmdas/schizo
 for version in A B
 do
     cat <<End-of-File | sudo ./Install
-both
 $version
 End-of-File
     cat <<End-of-File | pmlogger -l $tmp.log -t 2sec -s 4 -r ../../archives/schizo-$version

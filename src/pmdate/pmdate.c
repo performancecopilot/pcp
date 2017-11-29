@@ -19,7 +19,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 
 #define usage "Usage: pmdate { +valueS | -valueS } ... format\n\
 \n\

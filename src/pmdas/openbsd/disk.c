@@ -25,7 +25,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "openbsd.h"
 #include <sys/param.h>
@@ -71,7 +70,7 @@ refresh_disk_metrics(void)
 	    free(stats);
 	stats = (struct diskstats *)malloc(buflen);
 	if (stats == NULL) {
-	    __pmNoMem("refresh_disk_metrics: stats", buflen, PM_FATAL_ERR);
+	    pmNoMem("refresh_disk_metrics: stats", buflen, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	/* fetch all the available data */

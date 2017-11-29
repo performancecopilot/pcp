@@ -332,7 +332,7 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     etw_event_t	*etw;
     int		sts = PMDA_FETCH_STATIC;
 
-    __pmNotifyErr(LOG_WARNING, "called %s, mdesc=%p", __FUNCTION__, mdesc);
+    pmNotifyErr(LOG_WARNING, "called %s, mdesc=%p", __FUNCTION__, mdesc);
 
     switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_KERNEL_PROCESS:
@@ -399,7 +399,7 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-etw_profile(__pmProfile *prof, pmdaExt *pmda)
+etw_profile(pmProfile *prof, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return 0;
@@ -408,7 +408,7 @@ etw_profile(__pmProfile *prof, pmdaExt *pmda)
 static int
 etw_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    __pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
+    pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
     pmdaEventNewClient(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
@@ -423,7 +423,7 @@ etw_store(pmResult *result, pmdaExt *pmda)
 static void
 etw_end_contextCallBack(int context)
 {
-    __pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
+    pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
     pmdaEventEndClient(context);
 }
 
@@ -471,10 +471,10 @@ event_table_init(void)
 	etw_event_t *e = &eventtab[i];
 
 	if (!mutex) {
-	    __pmNotifyErr(LOG_WARNING, "failed to create mutex for event %s",
+	    pmNotifyErr(LOG_WARNING, "failed to create mutex for event %s",
 				    e->pmnsname);
 	} else if ((id = pmdaEventNewQueue(e->pmnsname, DEFAULT_MAXMEM)) < 0) {
-	    __pmNotifyErr(LOG_WARNING, "failed to create queue for event %s",
+	    pmNotifyErr(LOG_WARNING, "failed to create queue for event %s",
 				    e->pmnsname);
 	} else {
 	    e->queueid = id;
@@ -488,7 +488,7 @@ void
 etw_init(pmdaInterface *dp, const char *configfile)
 {
     char	helppath[MAXPATHLEN];
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "etw" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

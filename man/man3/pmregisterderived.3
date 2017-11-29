@@ -31,6 +31,10 @@ int pmRegisterDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
 .PP
 Derived metrics provide a way of extending the Performance Metrics
 Name Space (PMNS) with new metrics defined at the PCP client-side using

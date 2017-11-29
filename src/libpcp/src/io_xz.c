@@ -43,7 +43,7 @@
 #include <fcntl.h>
 #include <lzma.h>
 #include "pmapi.h"
-#include "impl.h"
+#include "libpcp.h"
 
 #define XZ_HEADER_MAGIC     "\xfd" "7zXZ\0"
 #define XZ_HEADER_MAGIC_LEN 6
@@ -413,7 +413,7 @@ xz_open(__pmFILE *f, const char *path, const char *mode)
 
   xz = malloc(sizeof *xz);
   if (xz == NULL) {
-      __pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
+      pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
       return NULL;
   }
 
@@ -441,7 +441,7 @@ xz_fdopen(__pmFILE *f, int fd, const char *mode)
 
   xz = malloc(sizeof *xz);
   if (xz == NULL) {
-      __pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
+      pmNoMem("xz_open", sizeof(*xz), PM_FATAL_ERR);
       return NULL;
   }
 

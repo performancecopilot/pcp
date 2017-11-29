@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "libdefs.h"
@@ -43,7 +42,7 @@ __pmdaCntInst(pmInDom indom, pmdaExt *pmda)
 	}
 	if (i == pmda->e_nindoms) {
 	    char	strbuf[20];
-	    __pmNotifyErr(LOG_WARNING, "__pmdaCntInst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	    pmNotifyErr(LOG_WARNING, "__pmdaCntInst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	}
     }
 
@@ -283,7 +282,7 @@ __pmdaMetricSearch(pmdaExt *pmda, pmID pmid, pmdaMetric *mbuf, e_ext_t *extp)
  */
 
 int
-pmdaProfile(__pmProfile *prof, pmdaExt *pmda)
+pmdaProfile(pmProfile *prof, pmdaExt *pmda)
 {
     pmda->e_prof = prof;
     return 0;
@@ -294,12 +293,12 @@ pmdaProfile(__pmProfile *prof, pmdaExt *pmda)
  */
 
 int
-pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			i;
     int			namelen;
     int			err = 0;
-    __pmInResult  	*res;
+    pmInResult  	*res;
     pmdaIndom		*idp = NULL;	/* initialize to pander to gcc */
     int			have_cache = 0;
     int			myinst;
@@ -322,7 +321,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 	idp = &pmda->e_indoms[i];
     }
 
-    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+    if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
         return -oserror();
     res->indom = indom;
 
@@ -534,7 +533,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    /* dynamic name metrics may often vanish, avoid log spam */
 	    if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_4) {
 		char	strbuf[20];
-		__pmNotifyErr(LOG_ERR,
+		pmNotifyErr(LOG_ERR,
 			"pmdaFetch: Requested metric %s is not defined",
 			 pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
 	    }
@@ -588,13 +587,13 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 		pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf));
 		if (sts == PM_ERR_PMID) {
-		    __pmNotifyErr(LOG_ERR, 
+		    pmNotifyErr(LOG_ERR, 
 		        "pmdaFetch: PMID %s not handled by fetch callback\n",
 				strbuf);
 		}
 		else if (sts == PM_ERR_INST) {
 		    if (pmDebugOptions.libpmda) {
-			__pmNotifyErr(LOG_ERR,
+			pmNotifyErr(LOG_ERR,
 			    "pmdaFetch: Instance %d of PMID %s not handled by fetch callback\n",
 				    inst, strbuf);
 		    }
@@ -604,13 +603,13 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			 sts == PM_ERR_AGAIN ||
 			 sts == PM_ERR_NYI) {
 		    if (pmDebugOptions.libpmda) {
-			__pmNotifyErr(LOG_ERR,
+			pmNotifyErr(LOG_ERR,
 			     "pmdaFetch: Unavailable metric PMID %s[%d]\n",
 				    strbuf, inst);
 		    }
 		}
 		else {
-		    __pmNotifyErr(LOG_ERR,
+		    pmNotifyErr(LOG_ERR,
 			"pmdaFetch: Fetch callback error from metric PMID %s[%d]: %s\n",
 				strbuf, inst, pmErrStr(sts));
 		}
@@ -635,7 +634,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    if ((lsts = __pmStuffValue(&atom, &vset->vlist[j], type)) == PM_ERR_TYPE) {
 			char	strbuf[20];
 			char	st2buf[20];
-			__pmNotifyErr(LOG_ERR, 
+			pmNotifyErr(LOG_ERR, 
 				     "pmdaFetch: Descriptor type (%s) for metric %s is bad",
 				     pmTypeStr_r(type, strbuf, sizeof(strbuf)),
 				     pmIDStr_r(dp->pmid, st2buf, sizeof(st2buf)));
@@ -652,7 +651,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			else {
 			    char	strbuf[20];
 			    char	st2buf[20];
-			    __pmNotifyErr(LOG_WARNING,
+			    pmNotifyErr(LOG_WARNING,
 					  "pmdaFetch: Attempt to free value for metric %s of wrong type %s\n",
 					  pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)),
 					  pmTypeStr_r(type, st2buf, sizeof(st2buf)));
@@ -713,7 +712,7 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	return 0;
     }
 
-    __pmNotifyErr(LOG_ERR, "pmdaDesc: Requested metric %s is not defined",
+    pmNotifyErr(LOG_ERR, "pmdaDesc: Requested metric %s is not defined",
 			pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
     return PM_ERR_PMID;
 }
@@ -848,7 +847,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    if ((sts = (*(pmda->e_labelCallBack))(ident, inst, &lp)) < 0) {
 		pmInDomStr_r(ident, idbuf, sizeof(idbuf));
 		pmErrStr_r(sts, errbuf, sizeof(errbuf));
-		__pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
+		pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
 				"InDom %s[%d]: %s\n", idbuf, inst, errbuf);
 	    }
 	    if ((lp->nlabels = sts) > 0)
@@ -904,7 +903,7 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
 	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
 
     if ((sts = __pmAddLabels(lsp, buf, 0)) < 0) {
-	__pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
+	pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }
     return sts;
@@ -934,7 +933,7 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
 	fprintf(stderr, "pmdaAddNotes: %s\n", buf);
 
     if ((sts = __pmAddLabels(lsp, buf, PM_LABEL_OPTIONAL)) < 0) {
-	__pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,
+	pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }
     return sts;
@@ -987,10 +986,10 @@ pmdaAttribute(int ctx, int attr, const char *value, int size, pmdaExt *pmda)
     if (pmDebugOptions.attr || pmDebugOptions.auth) {
 	char buffer[256];
 	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    __pmNotifyErr(LOG_ERR, "Bad attr: ctx=%d, attr=%d\n", ctx, attr);
+	    pmNotifyErr(LOG_ERR, "Bad attr: ctx=%d, attr=%d\n", ctx, attr);
 	} else {
 	    buffer[sizeof(buffer)-1] = '\0';
-	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+	    pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
 	}
     }
     return 0;

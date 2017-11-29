@@ -262,7 +262,7 @@ bool OpenViewDialog::openView(const char *path)
     int			version;
     QString		errmsg;
     QRegExp		regex;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			sts = 0;
 
     if (strcmp(path, "-") == 0) {

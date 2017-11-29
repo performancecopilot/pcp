@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "pmhttp.h"
 #include "domain.h"
@@ -215,7 +214,7 @@ static int refreshData(void)
     len = pmhttpClientFetch(http_client, url, res, sizeof(res), NULL, 0);
     if (len < 0) {
 	if (pmDebugOptions.appl1)
-	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
+	    pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; /* failed */
     }
 
@@ -318,7 +317,7 @@ static int refreshData(void)
 		    break;
 		default:
 		    if (pmDebugOptions.appl1) {
-			__pmNotifyErr(LOG_WARNING,
+			pmNotifyErr(LOG_WARNING,
 				"Unknown scoreboard character '%c'\n", *s3);
 		    }
 		}
@@ -326,7 +325,7 @@ static int refreshData(void)
 	     }
 	}
 	else if (pmDebugOptions.appl1) {
-	    __pmNotifyErr(LOG_WARNING, "Unknown value name '%s'!\n", s2);
+	    pmNotifyErr(LOG_WARNING, "Unknown value name '%s'!\n", s2);
 	}
     }
 
@@ -464,10 +463,10 @@ apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void 
 apache_init(pmdaInterface *dp)
 {
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     if ((http_client = pmhttpNewClient()) == NULL) {
-	__pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
+	pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
 	exit(1);
     }
     pmsprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
@@ -480,12 +479,12 @@ apache_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     pmdaInterface	pmda;
     char		helppath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

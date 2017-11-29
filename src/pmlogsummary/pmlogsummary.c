@@ -17,7 +17,6 @@
 #include <stdarg.h>
 #include <limits.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 static pmLongOptions longopts[] = {
@@ -120,7 +119,7 @@ tsub(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    __pmtimevalDec(a, b);
+    pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
 	/* clip negative values at zero */
 	a->tv_sec = 0;
@@ -134,7 +133,7 @@ tadd(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    __pmtimevalInc(a, b);
+    pmtimevalInc(a, b);
     return 0;
 }
 
@@ -170,12 +169,12 @@ printstamp(struct timeval *stamp, int delimiter)
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	printf("%c'%s", delimiter, ddmm);
-	__pmPrintStamp(stdout, stamp);
+	pmPrintStamp(stdout, stamp);
 	printf(" %4.4s\'", yr);
     }
     else {
 	printf("%c", delimiter);
-	__pmPrintStamp(stdout, stamp);
+	pmPrintStamp(stdout, stamp);
     }
 }
 
@@ -200,7 +199,7 @@ printlabel(void)
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
-    __pmPrintStamp(stdout, &opts.start);
+    pmPrintStamp(stdout, &opts.start);
     printf(" %4.4s\n", yr);
 
     if (opts.finish.tv_sec == INT_MAX) {
@@ -212,7 +211,7 @@ printlabel(void)
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
-	__pmPrintStamp(stdout, &opts.finish);
+	pmPrintStamp(stdout, &opts.finish);
 	printf(" %4.4s\n", yr);
     }
 }
@@ -279,13 +278,13 @@ printsummary(const char *name)
 		tsub(&timediff, &instdata->lasttime);
 		val = instdata->lastval;
 		instdata->stocave += val;
-		instdata->timeave += val*__pmtimevalToReal(&timediff);
+		instdata->timeave += val*pmtimevalToReal(&timediff);
 		instdata->lasttime = opts.finish;
 		instdata->count++;
 	    }
 	    metrictimespan = instdata->lasttime;
 	    tsub(&metrictimespan, &instdata->firsttime);
-	    metricspan = __pmtimevalToReal(&metrictimespan);
+	    metricspan = pmtimevalToReal(&metrictimespan);
 	    /* counter metric doesn't cover 90% of log */
 	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
 
@@ -421,18 +420,18 @@ newHashInst(pmValue *vp,
     size = (pos+1) * sizeof(instData *);
     avedata->instlist = (instData **) realloc(avedata->instlist, size);
     if (avedata->instlist == NULL)
-	__pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
+	pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
     size = sizeof(instData);
     avedata->instlist[pos] = instdata = (instData *) malloc(size);
     if (instdata == NULL)
-	__pmNoMem("newHashInst.instlist[inst]", size, PM_FATAL_ERR);
+	pmNoMem("newHashInst.instlist[inst]", size, PM_FATAL_ERR);
     if (nbins == 0)
 	instdata->bin = NULL;
     else {	/* we are doing binning ... make space for the bins */
 	size = nbins * sizeof(unsigned int);
 	instdata->bin = (unsigned int *)malloc(size);
 	if (instdata->bin == NULL)
-	    __pmNoMem("newHashInst.instlist[inst].bin", size, PM_FATAL_ERR);
+	    pmNoMem("newHashInst.instlist[inst].bin", size, PM_FATAL_ERR);
 	memset(instdata->bin, 0, size);
     }
     instdata->inst = vp->inst;
@@ -570,7 +569,7 @@ markrecord(pmResult *result)
 		    tsub(&timediff, &instdata->lasttime);
 		    val = instdata->lastval;
 		    instdata->stocave += val;
-		    instdata->timeave += val*__pmtimevalToReal(&timediff);
+		    instdata->timeave += val*pmtimevalToReal(&timediff);
 		    instdata->lasttime = result->timestamp;
 		    instdata->count++;
 		}
@@ -668,7 +667,7 @@ calcbinning(pmResult *result)
 
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
-		diff = __pmtimevalToReal(&timediff);
+		diff = pmtimevalToReal(&timediff);
 		wrap = 0;
 		if (avedata->desc.sem == PM_SEM_COUNTER) {
 		    diff *= avedata->scale;
@@ -805,7 +804,7 @@ calcaverage(pmResult *result)
 		    continue;
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
-		diff = __pmtimevalToReal(&timediff);
+		diff = pmtimevalToReal(&timediff);
 		wrap = 0;
 		if (avedata->desc.sem == PM_SEM_COUNTER) {
 		    diff *= avedata->scale;
@@ -869,7 +868,7 @@ calcaverage(pmResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    __pmPrintStamp(stderr, &result->timestamp);
+				    pmPrintStamp(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (rate > instdata->max) {
@@ -877,7 +876,7 @@ calcaverage(pmResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    __pmPrintStamp(stderr, &result->timestamp);
+				    pmPrintStamp(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (numnames > 0) free(names);
@@ -927,7 +926,7 @@ calcaverage(pmResult *result)
 
 			metrictimespan = result->timestamp;
 			tsub(&metrictimespan, &instdata->firsttime);
-			metricspan = __pmtimevalToReal(&metrictimespan);
+			metricspan = pmtimevalToReal(&metrictimespan);
 			numnames = pmNameAll(avedata->desc.pmid, &names);
 			fprintf(stderr, "++ ");
 			__pmPrintMetricNames(stderr, numnames, names, " or ");
@@ -1111,7 +1110,7 @@ main(int argc, char *argv[])
     if (lflag)
 	printlabel();
 
-    logspan = __pmtimevalToReal(&opts.finish) - __pmtimevalToReal(&opts.start);
+    logspan = pmtimevalToReal(&opts.finish) - pmtimevalToReal(&opts.start);
 
     /* check which timestamp print format we should be using */
     timespan = opts.finish;

@@ -23,31 +23,28 @@ pmda_interface=2
 
 pmdaSetup
 
-if $do_pmda
+if [ ! -x $PCP_BIN_DIR/pmie ]
 then
-    if [ ! -x $PCP_BIN_DIR/pmie ]
-    then
-	echo \
+    echo \
 'Error: The "summary" PMDA requires the pmie(1) application but this
-       does not appear to be installed.'
-	status=1
-	exit
-    fi
-
-    while true
-    do
-	$PCP_ECHO_PROG $PCP_ECHO_N "Interval between summary expression evaluation (seconds)? [10] ""$PCP_ECHO_C"
-	read delta
-	[ -z "$delta" ] && delta=10
-	[ -z "`echo $delta | tr -d '[0-9]'`" ] && break
-	echo "Error: interval \"$delta\" must be an integer, please try again"
-    done
-    # Use localhost (inet socket) by default now as local: may pass pmdasummary
-    # user account ($PCP_USER) credentials, which may not always be appropriate
-    #
-    args="$PCP_BIN_DIR/pmie -h localhost -x -t $delta $PCP_PMDAS_DIR/summary/expr.pmie"
-    check_delay=15
+   does not appear to be installed.'
+    status=1
+    exit
 fi
+
+while true
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "Interval between summary expression evaluation (seconds)? [10] ""$PCP_ECHO_C"
+    read delta
+    [ -z "$delta" ] && delta=10
+    [ -z "`echo $delta | tr -d '[0-9]'`" ] && break
+    echo "Error: interval \"$delta\" must be an integer, please try again"
+done
+# Use localhost (inet socket) by default now as local: may pass pmdasummary
+# user account ($PCP_USER) credentials, which may not always be appropriate
+#
+args="$PCP_BIN_DIR/pmie -h localhost -x -t $delta $PCP_PMDAS_DIR/summary/expr.pmie"
+check_delay=15
 
 pmdaInstall
 exit

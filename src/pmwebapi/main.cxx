@@ -350,7 +350,7 @@ server_dump_configuration ()
 {
     char *cwd;
     char cwdpath[MAXPATHLEN];
-    char sep = __pmPathSeparator ();
+    char sep = pmPathSeparator ();
 
     // Assume timestamp() already just called, so we
     // don't have to repeat.
@@ -540,7 +540,7 @@ main (int argc, char *argv[])
 
     umask (022);
     char * username_str;
-    __pmGetUsername (&username_str);
+    pmGetUsername (&username_str);
     __pmServerSetFeature (PM_SERVER_FEATURE_DISCOVERY);
 
     opts.short_options = "A:a:c:CD:h:Ll:NM:Pp:R:GJi:It:U:vx:d:SX46?";
@@ -636,41 +636,41 @@ main (int argc, char *argv[])
                 strstr(opts.optarg, "local:") != NULL)
                 localmode = 1;	// complete this check after arg parsing
             if ((ctx = pmNewContext (PM_CONTEXT_HOST, opts.optarg)) < 0) {
-                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
             if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, host %s, permanent\n",
+            pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, host %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
         case 'a':
             if ((ctx = pmNewContext (PM_CONTEXT_ARCHIVE, opts.optarg)) < 0) {
-                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
             if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, archive %s, permanent\n",
+            pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, archive %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
         case 'L':
             localmode = 1;	// complete this check after arg parsing
             if ((ctx = pmNewContext (PM_CONTEXT_LOCAL, NULL)) < 0) {
-                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
             if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, local, permanent\n",
+            pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, local, permanent\n",
                            perm_context - 1, ctx);
             break;
 
@@ -754,7 +754,7 @@ main (int argc, char *argv[])
     /* lose root privileges if we have them */
     if (geteuid () == 0)
 #endif
-        __pmSetProcessIdentity (username_str);
+        pmSetProcessIdentity (username_str);
 
     /* tell the world we have arrived */
     __pmServerCreatePIDFile (PM_SERVER_WEBD_SPEC, 0);
@@ -762,7 +762,7 @@ main (int argc, char *argv[])
         presence = __pmServerAdvertisePresence (PM_SERVER_WEBD_SPEC, port);
 
     // (re)create log file, redirect stdout/stderr
-    // NB: must be done after __pmSetProcessIdentity() for proper file permissions
+    // NB: must be done after pmSetProcessIdentity() for proper file permissions
     if (logfile != "") {
         int
         fd;

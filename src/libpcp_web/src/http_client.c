@@ -14,7 +14,7 @@
 
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
+#include "libpcp.h"
 #include "pmhttp.h"
 #include "http_client.h"
 #include "http_parser.h"
@@ -98,7 +98,7 @@ http_client_connectunix(const char *path, struct timeval *timeout)
 
 #else
     if (pmDebugOptions.http)
-	__pmNotifyErr(LOG_ERR, "HTTP connect unix(%s) not supported\n", path);
+	pmNotifyErr(LOG_ERR, "HTTP connect unix(%s) not supported\n", path);
     return -EOPNOTSUPP;
 #endif
 }
@@ -324,7 +324,7 @@ http_client_get(http_client *cp)
     //    strncpy(host, "localhost", sizeof("localhost"));
     //    host[sizeof("localhost")] = '\0';
     //    strncpy(path, "/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json", sizeof("/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json"));
-    //    __pmNotifyErr(LOG_DEBUG, "hit here: %s", cp->type_buffer);
+    //    pmNotifyErr(LOG_DEBUG, "hit here: %s", cp->type_buffer);
     
     protocol = url + up->field_data[UF_SCHEMA].off;
     length = up->field_data[UF_SCHEMA].len;

@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmcd.h"
 
@@ -85,7 +84,7 @@ AcceptNewClient(int reqfd)
     fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
-	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
+	    pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
 	 	          "Permission Denied\n", reqfd);
 	}
     	else if (neterror() == ECONNABORTED) {
@@ -97,7 +96,7 @@ AcceptNewClient(int reqfd)
 	     * unexpected ... ignore the client (we used to kill off pmcd
 	     * but that seems way too extreme)
 	     */
-	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): Unexpected error from __pmAccept: %d: %s\n",
+	    pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): Unexpected error from __pmAccept: %d: %s\n",
 			    reqfd, neterror(), netstrerror());
 	}
 	client[i].fd = -1;
@@ -126,7 +125,7 @@ AcceptNewClient(int reqfd)
      * we won't have a problem
      */
     client[i].seq = seq++;
-    __pmtimevalNow(&now);
+    pmtimevalNow(&now);
     client[i].start = now.tv_sec;
 
     if (pmDebugOptions.appl0)
@@ -150,7 +149,7 @@ NewClient(void)
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
-	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
+	    pmNoMem("NewClient", sz, PM_RECOV_ERR);
 	    Shutdown();
 	    exit(1);
 	}
@@ -159,7 +158,7 @@ NewClient(void)
     }
     client[i].addr = __pmSockAddrAlloc();
     if (client[i].addr == NULL) {
-        __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
+        pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
 	Shutdown();
 	exit(1);
     }
@@ -173,7 +172,7 @@ DeleteClient(ClientInfo *cp)
 {
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
-    __pmProfile		*profile;
+    pmProfile		*profile;
     int			i;
 
     for (i = 0; i < nClients; i++)
@@ -182,7 +181,7 @@ DeleteClient(ClientInfo *cp)
 
     if (i == nClients) {
 	if (pmDebugOptions.appl0) {
-	    __pmNotifyErr(LOG_ERR, "DeleteClient: tried to delete non-existent client\n");
+	    pmNotifyErr(LOG_ERR, "DeleteClient: tried to delete non-existent client\n");
 	    Shutdown();
 	    exit(1);
 	}
@@ -208,7 +207,7 @@ DeleteClient(ClientInfo *cp)
     hcp = &cp->profile;
     for (i = 0; i < hcp->hsize; i++) {
 	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {
-	    profile = (__pmProfile *)hp->data;
+	    profile = (pmProfile *)hp->data;
 	    if (profile != NULL) {
 		__pmFreeProfile(profile);
 		hp->data = NULL;

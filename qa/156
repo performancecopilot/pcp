@@ -65,12 +65,11 @@ fi
 cd $home/$iam
 unset ROOT MAKEFLAGS
 
-if [ ! -f dynamic.indom ]
-then
-    echo "1 one" >$tmp.indom
-    echo "2 two" >>$tmp.indom
-    $sudo cp $tmp.indom dynamic.indom
-fi
+# force dynamic.indom to be what we expect ...
+#
+echo "1 one" >$tmp.indom
+echo "2 two" >>$tmp.indom
+$sudo cp $tmp.indom dynamic.indom
 
 # make sure sample agent is running again at the end, so other QA tests
 # continue to work
@@ -87,12 +86,10 @@ _check_pmda_gone $iam
 
 echo
 echo "=== pipe agent ==="
-echo 'both
-pipe' | $sudo ./Install -e >$tmp.out 2>&1
+echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
-echo 'both
-pipe' | $sudo ./Install -e >$tmp.out 2>&1
+echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 
@@ -108,8 +105,7 @@ then
     exit 1
 fi
 
-echo 'both
-socket
+echo 'socket
 Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
@@ -118,8 +114,7 @@ pminfo -v sample || echo "... failed!"
 # use next port this time
 port2=`expr $port1 + 1`
 
-echo 'both
-socket
+echo 'socket
 Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
@@ -127,14 +122,12 @@ pminfo -v sample || echo "... failed!"
 
 echo
 echo "=== socket Unix agent ==="
-echo 'both
-socket
+echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
-echo 'both
-socket
+echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out

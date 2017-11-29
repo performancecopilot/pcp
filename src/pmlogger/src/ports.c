@@ -478,7 +478,7 @@ GetPorts(char *file)
 	    if (getcwd(path, MAXPATHLEN) == NULL)
 		fprintf(mapstream, "\n");
 	    else
-		fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
+		fprintf(mapstream, "%s%c%s\n", path, pmPathSeparator(), archBase);
 	}
 
 	/* and finally, the annotation from -m or -x */
@@ -503,7 +503,7 @@ void
 init_ports(void)
 {
     int		i, j, n, sts;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     int		extlen, baselen;
     char	path[MAXPATHLEN];
     char	pidfile[MAXPATHLEN];
@@ -556,7 +556,7 @@ init_ports(void)
     n = baselen + extlen + 1;
     ctlfile = (char *)malloc(n);
     if (ctlfile == NULL)
-	__pmNoMem("port file name", n, PM_FATAL_ERR);
+	pmNoMem("port file name", n, PM_FATAL_ERR);
     strcpy(ctlfile, path);
 
     /* try to create the port file directory. OK if it already exists */
@@ -588,7 +588,7 @@ init_ports(void)
 	n = baselen + 9;	/* separator + "primary" + null */
 	linkfile = (char *)malloc(n);
 	if (linkfile == NULL)
-	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
+	    pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
 	pmsprintf(linkfile, n, "%s%cprimary", path, sep);
 
 #ifndef IS_MINGW

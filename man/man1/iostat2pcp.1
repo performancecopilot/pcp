@@ -22,7 +22,7 @@
 \&\fBiostat2pcp\fR reads a text file created with
 \&\fBiostat\fR(1) (\fIinfile\fR) and translates this into a Performance
 Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
-If \fIinfile\fR is \*(L"\-\*(R" then \fIiostat2pcp\fR reads from
+If \fIinfile\fR is ``\-'' then \fIiostat2pcp\fR reads from
 standard input, allowing easy preprocessing of the \fIiostat\fR(1) output
 with \fIsed\fR(1) or similar.
 .PP
@@ -90,7 +90,7 @@ and minutes West of \s-1UTC\s0).  Note in particular that \fBneither\fR the \fBz
 \&\s-1EST+5\s0 is allowed for the \fB\-Z\fR option.
 This option is ignored if \s-1ISO\s0 timestamps are found in the input stream.
 If the timezone is not specified and cannot be deduced, it defaults to
-\&\*(L"\s-1UTC\s0\*(R".
+\&``\s-1UTC\s0''.
 .PP
 Some additional diagnostic output is generated with the \fB\-v\fR option.
 .PP

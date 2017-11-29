@@ -15,7 +15,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
@@ -239,7 +238,7 @@ cifs_instance_refresh(void)
 }
 
 static int
-cifs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+cifs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     cifs_instance_refresh();
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -362,7 +361,7 @@ cifs_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "cifs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "CIFS DSO", helppath);
@@ -403,7 +402,7 @@ static pmdaOptions opts = {
 int
 main(int argc, char **argv)
 {
-    int	sep = __pmPathSeparator();
+    int	sep = pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
 

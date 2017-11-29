@@ -12,7 +12,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
@@ -76,7 +75,7 @@ resolve_symbols(void)
 	return 0;
     if ((nvml_dso = dlopen("libnvidia-ml." DSOSUFFIX, RTLD_NOW)) == NULL)
 	return NVML_ERROR_LIBRARY_NOT_FOUND;
-    __pmNotifyErr(LOG_INFO, "Successfully loaded NVIDIA NVML library");
+    pmNotifyErr(LOG_INFO, "Successfully loaded NVIDIA NVML library");
     for (i = 0; i < NVML_SYMBOL_COUNT; i++)
 	nvml_symtab[i].handle = dlsym(nvml_dso, nvml_symtab[i].symbol);
     return 0;

@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 int
 main(int argc, char **argv)
@@ -114,7 +113,7 @@ Options\n\
     }
 
     if (logfile != (char *)0) {
-	__pmOpenLog(cmd, logfile, stderr, &sts);
+	pmOpenLog(cmd, logfile, stderr, &sts);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Could not open logfile\n", pmGetProgname());
 	}

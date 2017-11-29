@@ -30,8 +30,7 @@ VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
 
-LLDLIBS		= $(PCP_PMDALIB) $(PCP_WEBLIB)
-LLDFLAGS	= -L$(TOPDIR)/src/libpcp_web/src
+LLDLIBS		= $(PCP_WEBLIB)
 
 default:	$(CMDTARGET) $(HELPTARGETS) pmns
 ifneq "$(TARGET_OS)" "mingw"

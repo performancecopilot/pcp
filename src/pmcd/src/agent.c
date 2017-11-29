@@ -110,7 +110,7 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	}
     }
 
-    __pmNotifyErr(LOG_INFO, "CleanupAgent ...\n");
+    pmNotifyErr(LOG_INFO, "CleanupAgent ...\n");
     fprintf(stderr, "Cleanup \"%s\" agent (dom %d):", aPtr->pmDomainLabel, aPtr->pmDomainId);
 
     if (why == AT_EXIT) {

@@ -489,7 +489,7 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
     if (interrupt_tree) {
 	*tree = interrupt_tree;
     } else if ((sts = __pmNewPMNS(&interrupt_tree)) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: failed to create interrupt names: %s\n",
+	pmNotifyErr(LOG_ERR, "%s: failed to create interrupt names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
     } else if ((sts = refresh_interrupt_values()) < 0) {
@@ -522,7 +522,7 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
     if (softirqs_tree) {
 	*tree = softirqs_tree;
     } else if ((sts = __pmNewPMNS(&softirqs_tree)) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: failed to create softirqs names: %s\n",
+	pmNotifyErr(LOG_ERR, "%s: failed to create softirqs names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
     } else if ((sts = refresh_softirqs_values()) < 0) {

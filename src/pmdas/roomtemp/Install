@@ -22,32 +22,29 @@ iam=roomtemp
 pmda_interface=2
 pmdaSetup
 
-if $do_pmda
+if [ -c /dev/ttyf1 ]
 then
-    if [ -c /dev/ttyf1 ]
-    then
-	# reasonable first guess for IRIX
-	#
-	tty=/dev/ttyf1
-    elif [ -c /dev/ttyS0 ]
-    then
-	# reasonable first guess for COM port on a Linux laptop
-	#
-	tty=/dev/ttyS0
-    fi
-
-    while true
-    do
-	$PCP_ECHO_PROG $PCP_ECHO_N "Serial line for Dallas device?  ""$PCP_ECHO_C"
-	[ ! -z "$tty" ] && $PCP_ECHO_PROG $PCP_ECHO_N "[$tty] ""$PCP_ECHO_C"
-	read ans
-	[ ! -z "$ans" ] && tty="$ans"
-	[ ! -z "$tty" ] && break
-	echo
-	echo "Ahem, you must answer the question ..."
-    done
-    args="$tty"
+    # reasonable first guess for IRIX
+    #
+    tty=/dev/ttyf1
+elif [ -c /dev/ttyS0 ]
+then
+    # reasonable first guess for COM port on a Linux laptop
+    #
+    tty=/dev/ttyS0
 fi
+
+while true
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "Serial line for Dallas device?  ""$PCP_ECHO_C"
+    [ ! -z "$tty" ] && $PCP_ECHO_PROG $PCP_ECHO_N "[$tty] ""$PCP_ECHO_C"
+    read ans
+    [ ! -z "$ans" ] && tty="$ans"
+    [ ! -z "$tty" ] && break
+    echo
+    echo "Ahem, you must answer the question ..."
+done
+args="$tty"
 
 pmdaInstall
 exit

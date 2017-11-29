@@ -34,7 +34,6 @@
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "deprecated.h"
 #include <winbase.h>
@@ -136,7 +135,7 @@ sigterm_callback(int sig)
 }
 
 int
-__pmSetProcessIdentity(const char *username)
+pmSetProcessIdentity(const char *username)
 {
     (void)username;
     return 0;	/* Not Yet Implemented */
@@ -207,7 +206,7 @@ __pmServerStart(int argc, char **argv, int flags)
     for (i = 0; i < argc; i++)
 	total += strlen(argv[i]) + 1;
     if ((cmdline = malloc(total)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
+	pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
 	exit(1);
     }
     for (sz = i = 0; i < argc; i++)
@@ -227,7 +226,7 @@ __pmServerStart(int argc, char **argv, int flags)
 		NULL,		/* current directory */
 		&siStartInfo,	/* STARTUPINFO pointer */
 		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
-	__pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+	pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
 	/* but keep going */
     }
     else {
@@ -334,7 +333,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	int length = strlen(command);
 	/* add 1space or 1null */
 	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
-	    __pmNoMem("__pmProcessCreate", sz + length + 1, PM_FATAL_ERR);
+	    pmNoMem("__pmProcessCreate", sz + length + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	strcpy(&cmdline[sz], command);
@@ -442,7 +441,7 @@ __pmProcessRunTimes(double *usr, double *sys)
 }
 
 void
-__pmtimevalNow(struct timeval *tv)
+pmtimevalNow(struct timeval *tv)
 {
     struct timespec ts;
     union {

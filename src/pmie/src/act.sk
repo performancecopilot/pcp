@@ -107,7 +107,7 @@ actShell(Expr *x)
 	sts = system((char *)arg1->ring);
 	need_wait = 1;
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "spawn for shell failed\n");
+	    pmNotifyErr(LOG_ERR, "spawn for shell failed\n");
 	    *(Boolean *)x->ring = B_FALSE;
 	}
 	else {
@@ -151,7 +151,7 @@ actShell(Expr *x)
 	    x->smpls[0].stamp = now;
 	}
 	else {
-	    __pmNotifyErr(LOG_ERR, "fork for shell failed\n");
+	    pmNotifyErr(LOG_ERR, "fork for shell failed\n");
 	    *(Boolean *)x->ring = B_FALSE;
 	}
 #endif
@@ -187,7 +187,7 @@ actAlarm(Expr *x)
 	 */
 	alarmv[0] = pmGetConfig("PCP_XCONFIRM_PROG");
 	if (strcmp(alarmv[0], "") == 0) {
-	    __pmNotifyErr(LOG_ERR, "PCP_XCONFIRM_PROG not found, using echo(1)\n");
+	    pmNotifyErr(LOG_ERR, "PCP_XCONFIRM_PROG not found, using echo(1)\n");
 	    alarmv[0] = "/bin/echo";
 	}
     }
@@ -227,7 +227,7 @@ actAlarm(Expr *x)
 	alarmv[10] = (char *)arg1->ring;
 	sts = spawnvp(_P_DETACH, alarmv[0], (const char * const *)alarmv);
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
+	    pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
 	    *(Boolean *)x->ring = B_FALSE;
 	}
 	else {
@@ -260,7 +260,7 @@ actAlarm(Expr *x)
 	    x->smpls[0].stamp = now;
 	}
 	else {
-	    __pmNotifyErr(LOG_ERR, "fork for alarm failed\n");
+	    pmNotifyErr(LOG_ERR, "fork for alarm failed\n");
 	    *(Boolean *)x->ring = B_FALSE;
 	}
 #endif

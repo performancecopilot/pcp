@@ -15,7 +15,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "pmjson.h"
@@ -631,7 +630,7 @@ notready(void)
 	else
 	    sleep(1);
 	if (iterations++ > 30) { /* Complain every 30 seconds. */
-	    __pmNotifyErr(LOG_WARNING, "notready waited too long");
+	    pmNotifyErr(LOG_WARNING, "notready waited too long");
 	    iterations = 0; /* XXX: or exit? */
 	}
     }
@@ -654,7 +653,7 @@ docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-docker_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
+docker_instance(pmInDom id, int i, char *name, pmInResult **in, pmdaExt *pmda)
 {
     int local_ready;
 
@@ -707,7 +706,7 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
 			&http_data.json[0], sizeof(http_data.json),
 			json_query, strlen(json_query))) < 0) {
 	if (pmDebugOptions.appl1)
-	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
+	    pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; // failed
     }
     http_data.json_len = strlen(http_data.json);
@@ -824,7 +823,7 @@ refresh_insts(char *path)
     while ((drp = readdir(rundir)) != NULL) {
 	if (*(local_path = &drp->d_name[0]) == '.') {
 	    if (pmDebugOptions.attr)
-		__pmNotifyErr(LOG_DEBUG, "%s: skipping %s\n",
+		pmNotifyErr(LOG_DEBUG, "%s: skipping %s\n",
 			      pmGetProgname(), drp->d_name);
 	    continue;
 	}
@@ -865,19 +864,19 @@ docker_init(pmdaInterface *dp)
     int         i, sts;
     int        *loop = (int*)1;
     if (isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "docker DSO", mypath);
     } else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
 	return;
     
     if ((http_client = pmhttpNewClient()) == NULL) {
-	__pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
+	pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
 	exit(1);
     }
 
@@ -898,11 +897,11 @@ docker_init(pmdaInterface *dp)
     docker_setup();
     sts = pthread_create(&docker_query_thread, NULL, docker_background_loop, loop);
     if (sts != 0) {
-	__pmNotifyErr(LOG_DEBUG, "docker_init: Cannot spawn new thread: %d\n", sts);
+	pmNotifyErr(LOG_DEBUG, "docker_init: Cannot spawn new thread: %d\n", sts);
 	dp->status = sts;
     }
     else
-	__pmNotifyErr(LOG_DEBUG, "docker_init: properly spawned new thread");
+	pmNotifyErr(LOG_DEBUG, "docker_init: properly spawned new thread");
     
 }
  
@@ -926,7 +925,7 @@ static pmdaOptions opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     int			qaflag = 0;
     int			c, err = 0;

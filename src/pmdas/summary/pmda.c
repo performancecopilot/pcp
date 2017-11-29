@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include <sys/stat.h>
@@ -30,7 +29,7 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     char		**commandArgv;
     pmdaInterface	dispatch;
     int			i;
@@ -42,7 +41,7 @@ main(int argc, char **argv)
     char		*username;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
     pmsprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",
@@ -103,7 +102,7 @@ main(int argc, char **argv)
     pmdaOpenLog(& dispatch);
 
     /* switch to alternate user account now */
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     /* initialize */
     summary_init(&dispatch);

@@ -99,7 +99,7 @@ main(int argc, char **argv)
     int			n = 0;
     int			i;
     int			err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			line;
     int                 numcmd = 0;
     int                 parseonly = 0;
@@ -112,7 +112,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "shping" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -195,7 +195,7 @@ main(int argc, char **argv)
 	if (parseonly)
 	    continue;
 	if ((cmdlist = (cmd_t *)realloc(cmdlist, numcmd * sizeof(cmd_t))) == NULL) {
-	    __pmNoMem("main:cmdlist", numcmd * sizeof(cmd_t), 
+	    pmNoMem("main:cmdlist", numcmd * sizeof(cmd_t), 
 		     PM_FATAL_ERR);
 	}
 
@@ -233,7 +233,7 @@ main(int argc, char **argv)
     /* set up indom description */
     indomtab.it_numinst = numcmd;
     if ((indomtab.it_set = (pmdaInstid *)malloc(numcmd*sizeof(pmdaInstid))) == NULL) {
-	__pmNoMem("main.indomtab", numcmd * sizeof(pmdaInstid), PM_FATAL_ERR);
+	pmNoMem("main.indomtab", numcmd * sizeof(pmdaInstid), PM_FATAL_ERR);
     }
     for (i = 0; i < numcmd; i++) {
 	indomtab.it_set[i].i_inst = i;
@@ -245,7 +245,7 @@ main(int argc, char **argv)
 #endif
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     shping_init(&dispatch);
     pmdaConnect(&dispatch);

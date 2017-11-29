@@ -42,7 +42,7 @@ DontStart(void)
     FILE	*tty;
     FILE	*log;
 
-    __pmNotifyErr(LOG_ERR, "pmproxy not started due to errors!\n");
+    pmNotifyErr(LOG_ERR, "pmproxy not started due to errors!\n");
 
     if ((tty = fopen(fatalfile, "w")) != NULL) {
 	fflush(stderr);
@@ -382,14 +382,14 @@ Shutdown(void)
 	    __pmCloseSocket(client[i].fd);
     __pmServerCloseRequestPorts();
     __pmSecureServerShutdown();
-    __pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
+    pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
 }
 
 void
 SignalShutdown(void)
 {
-    __pmNotifyErr(LOG_INFO, "pmproxy caught SIGINT or SIGTERM\n");
+    pmNotifyErr(LOG_INFO, "pmproxy caught SIGINT or SIGTERM\n");
     Shutdown();
     exit(0);
 }
@@ -452,7 +452,7 @@ ClientLoop(void)
 	    HandleInput(&readableFds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
+	    pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
 	    break;
 	}
 	if (timeToDie) {
@@ -482,7 +482,7 @@ static void
 SigBad(int sig)
 {
     if (pmDebugOptions.desperate) {
-	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
 	fprintf(stderr, "\nDumping to core ...\n");
 	fflush(stderr);
     }
@@ -499,21 +499,21 @@ GetProxyHostname(void)
     char        host[MAXHOSTNAMELEN];
 
     if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-        __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmGetProgname());
+        pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmGetProgname());
         DontStart();
     }
     host[MAXHOSTNAMELEN-1] = '\0';
 
     hep = __pmGetAddrInfo(host);
     if (hep == NULL) {
-        __pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmGetProgname());
+        pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmGetProgname());
         DontStart();
     } else {
         hostname = __pmHostEntGetName(hep);
         if (!hostname) {	/* no reverse DNS lookup for local hostname */
             hostname = strdup(host);
             if (!hostname)	/* out of memory, we're having a bad day!?! */
-                __pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
+                pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
         }
         __pmHostEntFree(hep);
     }
@@ -529,7 +529,7 @@ main(int argc, char *argv[])
     char	*envstr;
 
     umask(022);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
     __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
 
@@ -542,7 +542,7 @@ main(int argc, char *argv[])
 	maxpending = atoi(envstr);
     ParseOptions(argc, argv, &nport);
 
-    __pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+    pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
@@ -574,7 +574,7 @@ main(int argc, char *argv[])
     maxReqPortFd = maxSockFd = sts;
 
     /* lose root privileges if we have them */
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);

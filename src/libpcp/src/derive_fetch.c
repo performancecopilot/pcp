@@ -21,7 +21,6 @@
 #include <inttypes.h>
 #include <assert.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 
@@ -36,7 +35,7 @@ get_pmids(node_t *np, int *cnt, pmID **list)
     if (np->type == N_NAME) {
 	(*cnt)++;
 	if ((*list = (pmID *)realloc(*list, (*cnt)*sizeof(pmID))) == NULL) {
-	    __pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
+	    pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	(*list)[*cnt-1] = np->info->pmid;
@@ -137,7 +136,7 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
 	fputc('\n', stderr);
     }
     if ((list = (pmID *)malloc((numpmid+xtracnt)*sizeof(pmID))) == NULL) {
-	__pmNoMem("__dmprefetch: alloc list", (numpmid+xtracnt)*sizeof(pmID), PM_FATAL_ERR);
+	pmNoMem("__dmprefetch: alloc list", (numpmid+xtracnt)*sizeof(pmID), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     for (m = 0; m < numpmid; m++) {
@@ -636,7 +635,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		if (np->info->ivlist == NULL) {
 		    /* initialize ivlist[] for singular instance first time through */
 		    if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
-			__pmNoMem("eval_expr: count ivlist", sizeof(val_t), PM_FATAL_ERR);
+			pmNoMem("eval_expr: count ivlist", sizeof(val_t), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    np->info->ivlist[0].inst = PM_IN_NULL;
@@ -666,7 +665,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		/* initialize ivlist[] for singular instance first time through */
 		np->info->numval = 1;
 		if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
-		    __pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
+		    pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		np->info->ivlist[0].inst = PM_INDOM_NULL;
@@ -711,7 +710,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: delta()/rate() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		pmNoMem("eval_expr: delta()/rate() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -778,7 +777,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    /* rate() conversion, type will be DOUBLE */
 		    struct timeval	stampdiff;
 		    stampdiff = np->info->stamp;
-		    __pmtimevalDec(&stampdiff, &np->info->last_stamp);
+		    pmtimevalDec(&stampdiff, &np->info->last_stamp);
 		    switch (np->left->desc.type) {
 			case PM_TYPE_32:
 			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l);
@@ -805,7 +804,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			     */
 			    return PM_ERR_CONV;
 		    }
-		    np->info->ivlist[k].value.d /= __pmtimevalToReal(&stampdiff);
+		    np->info->ivlist[k].value.d /= pmtimevalToReal(&stampdiff);
 		    /*
 		     * check_expr() ensures dimTime is 0 or 1 at bind time
 		     */
@@ -844,7 +843,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -883,7 +882,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: N_NEG ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		pmNoMem("eval_expr: N_NEG ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -943,7 +942,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    numval = np->right->right->info->numval;
 		np->info->numval = numval;
 		if ((np->info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
-		    __pmNoMem("eval_expr: N_QUEST ivlist", numval*sizeof(val_t), PM_FATAL_ERR);
+		    pmNoMem("eval_expr: N_QUEST ivlist", numval*sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		/*
@@ -1066,7 +1065,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: N_RESCALE ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		pmNoMem("eval_expr: N_RESCALE ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -1105,7 +1104,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->info->ivlist == NULL) {
 		/* initialize ivlist[] for singular instance first time through */
 		if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
-		    __pmNoMem("eval_expr: aggr ivlist", sizeof(val_t), PM_FATAL_ERR);
+		    pmNoMem("eval_expr: aggr ivlist", sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		np->info->ivlist[0].inst = PM_IN_NULL;
@@ -1304,7 +1303,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    if (np->info->numval <= 0)
 			return np->info->numval;
 		    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-			__pmNoMem("eval_expr: metric ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+			pmNoMem("eval_expr: metric ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    for (i = 0; i < np->info->numval; i++) {
@@ -1342,7 +1341,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				    return PM_ERR_LOGREC;
 				need = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
 				if ((np->info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
-				    __pmNoMem("eval_expr: string value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
+				    pmNoMem("eval_expr: string value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
 				memcpy((void *)np->info->ivlist[i].value.cp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, need);
@@ -1355,7 +1354,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
 				if ((np->info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
-				    __pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
+				    pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
 				memcpy(np->info->ivlist[i].value.vbp, (void *)rp->vset[j]->vlist[i].value.pval, rp->vset[j]->vlist[i].value.pval->vlen);
@@ -1430,7 +1429,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    np->info->numval = np->right->info->numval;
 	    }
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -1589,7 +1588,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
     newrp = (pmResult *)malloc(sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *));
     if (newrp == NULL) {
-	__pmNoMem("__dmpostfetch: newrp", sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *), PM_FATAL_ERR);
+	pmNoMem("__dmpostfetch: newrp", sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     newrp->timestamp = rp->timestamp;
@@ -1664,7 +1663,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	}
 	if (need > 0) {
 	    if ((newrp->vset[j] = (pmValueSet *)malloc(need)) == NULL) {
-		__pmNoMem("__dmpostfetch: vset", need, PM_FATAL_ERR);
+		pmNoMem("__dmpostfetch: vset", need, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	}
@@ -1683,7 +1682,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    need = rp->vset[j]->vlist[i].value.pval->vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
-			__pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    memcpy((void *)vp, (void *)rp->vset[j]->vlist[i].value.pval, need);
@@ -1710,7 +1709,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_U64:
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			__pmNoMem("__dmpostfetch: 64-bit int value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostfetch: 64-bit int value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
@@ -1722,7 +1721,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_FLOAT:
 		    need = PM_VAL_HDR_SIZE + sizeof(float);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			__pmNoMem("__dmpostfetch: float value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostfetch: float value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
@@ -1734,7 +1733,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_DOUBLE:
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			__pmNoMem("__dmpostfetch: double value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostfetch: double value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
@@ -1747,7 +1746,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
-			__pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
@@ -1763,7 +1762,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    need = cp->mlist[m].expr->info->ivlist[i].vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
-			__pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    memcpy((void *)vp, cp->mlist[m].expr->info->ivlist[i].value.vbp, cp->mlist[m].expr->info->ivlist[i].vlen);

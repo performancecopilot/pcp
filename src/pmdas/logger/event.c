@@ -45,12 +45,12 @@ event_init(pmID pmid)
 	    fd = open(logfiles[i].pathname, O_RDONLY|O_NONBLOCK);
 	    if (fd < 0) {
 		if (logfiles[i].fd >= 0)	/* log once only */
-		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
+		    pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfiles[i].pathname, strerror(errno));
 	    } else {
 		if (fstat(fd, &logfiles[i].pathstat) < 0)
 		    if (logfiles[i].fd >= 0)	/* log once only */
-			__pmNotifyErr(LOG_ERR, "fstat: %s - %s",
+			pmNotifyErr(LOG_ERR, "fstat: %s - %s",
 				    logfiles[i].pathname, strerror(errno));
 		lseek(fd, 0, SEEK_END);
 	    }
@@ -62,7 +62,7 @@ event_init(pmID pmid)
 	    fd = start_cmd(cmd, &logfiles[i].pid);
 	    if (fd < 0) {
 		if (logfiles[i].fd >= 0)	/* log once only */
-		    __pmNotifyErr(LOG_ERR, "pipe: %s - %s",
+		    pmNotifyErr(LOG_ERR, "pipe: %s - %s",
 					logfiles[i].pathname, strerror(errno));
 	    } else {
 		if (fd > maxfd)
@@ -82,7 +82,7 @@ event_shutdown(void)
 {
     int i;
 
-    __pmNotifyErr(LOG_INFO, "%s: Shutting down...", __FUNCTION__);
+    pmNotifyErr(LOG_INFO, "%s: Shutting down...", __FUNCTION__);
 
     for (i = 0; i < numlogfiles; i++) {
 	if (logfiles[i].pid != 0) {
@@ -125,7 +125,7 @@ event_config(const char *fname)
 
     configFile = fopen(fname, "r");
     if (configFile == NULL) {
-	__pmNotifyErr(LOG_ERR, "event_config: %s: %s", fname, strerror(errno));
+	pmNotifyErr(LOG_ERR, "event_config: %s: %s", fname, strerror(errno));
 	return -1;
     }
 
@@ -133,7 +133,7 @@ event_config(const char *fname)
 	if (fgets(line, sizeof(line), configFile) == NULL) {
 	    if (feof(configFile))
 		break;
-	    __pmNotifyErr(LOG_ERR, "event_config: fgets: %s", strerror(errno));
+	    pmNotifyErr(LOG_ERR, "event_config: fgets: %s", strerror(errno));
 	    sts = -1;
 	    break;
 	}
@@ -147,7 +147,7 @@ event_config(const char *fname)
 	if (len == 0)			/* Ignore empty strings. */
 	    continue;
 	if (line[len - 1] != '\n') { /* String must be too long */
-	    __pmNotifyErr(LOG_ERR, "event_config: config line too long: '%s'",
+	    pmNotifyErr(LOG_ERR, "event_config: config line too long: '%s'",
 			  line);
 	    sts = -1;
 	    break;
@@ -177,7 +177,7 @@ event_config(const char *fname)
 	/* If we're at the end, we didn't find any whitespace, so
 	 * we've only got a NAME, with no ACCESS/PATHNAME. */
 	if (*ptr == '\0') {
-	    __pmNotifyErr(LOG_ERR, "event_config: badly formatted "
+	    pmNotifyErr(LOG_ERR, "event_config: badly formatted "
 				   " configuration file line: '%s'", line);
 	    sts = -1;
 	    break;
@@ -187,14 +187,14 @@ event_config(const char *fname)
 
 	/* Make sure NAME isn't too long. */
 	if (strlen(name) > MAXPATHLEN) {
-	    __pmNotifyErr(LOG_ERR, "event_config: name too long: '%s'", name);
+	    pmNotifyErr(LOG_ERR, "event_config: name too long: '%s'", name);
 	    sts = -1;
 	    break;
 	}
 
 	/* Make sure NAME is valid. */
 	if (valid_pmns_name(name) == 0) {
-	    __pmNotifyErr(LOG_ERR, "event_config: invalid name: '%s'", name);
+	    pmNotifyErr(LOG_ERR, "event_config: invalid name: '%s'", name);
 	    sts = -1;
 	    break;
 	}
@@ -210,7 +210,7 @@ event_config(const char *fname)
 	/* If we're at the end, we didn't find any whitespace, so
 	 * we've only got NAME and ACCESS with no/PATHNAME. */
 	if (*ptr == '\0') {
-	    __pmNotifyErr(LOG_ERR, "event_config: badly formatted "
+	    pmNotifyErr(LOG_ERR, "event_config: badly formatted "
 				   " configuration file line: '%s'", line);
 	    sts = -1;
 	    break;
@@ -223,7 +223,7 @@ event_config(const char *fname)
 
 	/* Make sure PATHNAME (the rest of the line) isn't too long. */
 	if (strlen(ptr) > MAXPATHLEN) {
-	    __pmNotifyErr(LOG_ERR, "event_config: path is too long: '%s'", ptr);
+	    pmNotifyErr(LOG_ERR, "event_config: path is too long: '%s'", ptr);
 	    sts = -1;
 	    break;
 	}
@@ -232,7 +232,7 @@ event_config(const char *fname)
 	len = (numlogfiles + 1) * sizeof(event_logfile_t);
 	logfiles = realloc(logfiles, len);
 	if (logfiles == NULL) {
-	    __pmNoMem("event_config", len, PM_FATAL_ERR);
+	    pmNoMem("event_config", len, PM_FATAL_ERR);
 	    sts = -1;
 	    break;
 	}
@@ -247,7 +247,7 @@ event_config(const char *fname)
 	numlogfiles++;
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "event_config: new logfile %s (%s)",
+	    pmNotifyErr(LOG_INFO, "event_config: new logfile %s (%s)",
 				logfile->pathname, logfile->pmnsname);
     }
 
@@ -257,7 +257,7 @@ event_config(const char *fname)
 	return sts;
     }
     if (numlogfiles == 0) {
-	__pmNotifyErr(LOG_ERR, "event_config: no valid log files found");
+	pmNotifyErr(LOG_ERR, "event_config: no valid log files found");
 	return -1;
     }
     return numlogfiles;
@@ -295,7 +295,7 @@ event_create(event_logfile_t *logfile)
 #endif
 #endif
 	if (sts != 0) {
-	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
+	    pmNotifyErr(LOG_ERR, "event buffer allocation failure");
 	    return -1;
 	}
     }
@@ -321,7 +321,7 @@ multiread:
     if (bytes > maxmem)
 	return 0;
     if (bytes < 0) {
-	__pmNotifyErr(LOG_ERR, "read failure on %s: %s",
+	pmNotifyErr(LOG_ERR, "read failure on %s: %s",
 		      logfile->pathname, strerror(errno));
 	return -1;
     }
@@ -343,7 +343,7 @@ multiread:
     /* did we just do a full buffer read? */
     if (p == buffer) {
 	char msg[64];
-	__pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"", (int)
+	pmNotifyErr(LOG_ERR, "Ignoring long (%d bytes) line: \"%s\"", (int)
 			bytes, __pmdaEventPrint(p, bytes, msg, sizeof(msg)));
     } else if (j == bufsize - 1) {
 	offset = bufsize-1 - (p - buffer);
@@ -380,7 +380,7 @@ event_refresh(void)
 		    close(logfile->fd);
 		fd = open(logfile->pathname, O_RDONLY|O_NONBLOCK);
 		if (fd < 0 && logfile->fd >= 0)	/* log once */
-		    __pmNotifyErr(LOG_ERR, "open: %s - %s",
+		    pmNotifyErr(LOG_ERR, "open: %s - %s",
 				logfile->pathname, strerror(errno));
 		logfile->fd = fd;
 	    } else {

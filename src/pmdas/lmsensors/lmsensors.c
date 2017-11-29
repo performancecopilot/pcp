@@ -24,7 +24,6 @@
 #include <fcntl.h>
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmda.h"
 #include "domain.h"
 #include "lmsensors.h"
@@ -899,7 +898,7 @@ lmsensors_init(pmdaInterface *dp)
 {
     get_chips();
 
-    __pmSetProcessIdentity(username);
+    pmSetProcessIdentity(username);
     pmdaSetFetchCallBack(dp, lmsensors_fetchCallBack);
     pmdaInit(dp, NULL, 0, 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
@@ -926,12 +925,12 @@ pmdaOptions     opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	desc;
     char		mypath[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "lmsensors" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

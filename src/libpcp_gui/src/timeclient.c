@@ -13,7 +13,6 @@
  * License for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmtime.h"
 

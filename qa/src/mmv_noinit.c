@@ -13,7 +13,6 @@
 #include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 #include <pcp/mmv_dev.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 static mmv_disk_header_t hdr = {
@@ -51,7 +50,7 @@ mmv_noinit(const char *filename)
 {
     char path[MAXPATHLEN];
     size_t size = mmv_filesize();
-    int fd, sep = __pmPathSeparator();
+    int fd, sep = pmPathSeparator();
     void *addr = NULL;
     int sts;
 

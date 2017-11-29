@@ -305,28 +305,33 @@ fi
 }
 
 %global selinux_handle_policy() %{expand:
-if [ "%1" -eq 1 ]
+if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
 then
-    PCP_SELINUX_DIR=%{_selinuxdir}
-    if [ -f "$PCP_SELINUX_DIR/%2" ]
+    if [ "%1" -eq 1 ]
     then
-	%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-            (semodule -X 400 -i %{_selinuxdir}/%2)
-	%else
-            (semodule -i %{_selinuxdir}/%2)
-	%endif #distro version check
-    fi
-elif [ "%1" -eq 0 ]
-then
-    if semodule -l | grep %2 >/dev/null 2>&1
+	PCP_SELINUX_DIR=%{_selinuxdir}
+	if [ -f "$PCP_SELINUX_DIR/%2" ]
+	then
+	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    then
+		(semodule -X 400 -i %{_selinuxdir}/%2)
+	    else
+		(semodule -i %{_selinuxdir}/%2)
+	    fi #semodule -X flag check
+	fi
+    elif [ "%1" -eq 0 ]
     then
-	%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-	    (semodule -X 400 -r %2 >/dev/null)
-	%else
-	    (semodule -r %2 >/dev/null)
-	%endif #distro version check
+	if semodule -l | grep %2 >/dev/null 2>&1
+	then
+	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    then
+		(semodule -X 400 -r %2 >/dev/null)
+	    else
+		(semodule -r %2 >/dev/null)
+	    fi #semodule -X flag check
+	fi
     fi
-fi
+fi # check for an active selinux install
 }
 
 %description
@@ -448,7 +453,7 @@ HTTP (PMWEBAPI) protocol.
 # pcp-webjs and pcp-webapp packages
 #
 %package webjs
-License: ASL2.0 and MIT and CC-BY
+License: ASL2.0 and MIT and CC-BY and GPLv3
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.11.9
 %if !%{disable_noarch}
@@ -496,7 +501,7 @@ Grafana can render time series dashboards at the browser via flot.js
 server via png (less interactive, faster).
 
 %package webapp-graphite
-License: ASL2.0
+License: ASL2.0 and GPLv3
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.10.4
 %if !%{disable_noarch}

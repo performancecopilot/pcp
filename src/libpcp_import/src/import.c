@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "import.h"
 #include "domain.h"
@@ -79,7 +78,7 @@ pmiDump(void)
 	    fprintf(f, "  metric[%d] name=%s pmid=%s\n",
 		m, current->metric[m].name,
 		pmIDStr_r(current->metric[m].pmid, strbuf, sizeof(strbuf)));
-	    __pmPrintDesc(f, &current->metric[m].desc);
+	    pmPrintDesc(f, &current->metric[m].desc);
 	}
     }
     if (current->nindom == 0)
@@ -220,7 +219,7 @@ pmiStart(const char *archive, int inherit)
     ncontext++;
     context_tab = (pmi_context *)realloc(context_tab, ncontext*sizeof(context_tab[0]));
     if (context_tab == NULL) {
-	__pmNoMem("pmiStart: context_tab", ncontext*sizeof(context_tab[0]), PM_FATAL_ERR);
+	pmNoMem("pmiStart: context_tab", ncontext*sizeof(context_tab[0]), PM_FATAL_ERR);
     }
     old_current = &context_tab[c];
     current = &context_tab[ncontext-1];
@@ -228,7 +227,7 @@ pmiStart(const char *archive, int inherit)
     current->state = CONTEXT_START;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
-	__pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);
+	pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);
     }
     current->hostname = NULL;
     current->timezone = NULL;
@@ -240,7 +239,7 @@ pmiStart(const char *archive, int inherit)
 	    int		m;
 	    current->metric = (pmi_metric *)malloc(current->nmetric*sizeof(pmi_metric));
 	    if (current->metric == NULL) {
-		__pmNoMem("pmiStart: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
+		pmNoMem("pmiStart: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
 	    }
 	    for (m = 0; m < current->nmetric; m++) {
 		current->metric[m].name = old_current->metric[m].name;
@@ -256,7 +255,7 @@ pmiStart(const char *archive, int inherit)
 	    int		i;
 	    current->indom = (pmi_indom *)malloc(current->nindom*sizeof(pmi_indom));
 	    if (current->indom == NULL) {
-		__pmNoMem("pmiStart: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
+		pmNoMem("pmiStart: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
 	    }
 	    for (i = 0; i < current->nindom; i++) {
 		int		j;
@@ -266,16 +265,16 @@ pmiStart(const char *archive, int inherit)
 		if (old_current->indom[i].ninstance > 0) {
 		    current->indom[i].name = (char **)malloc(current->indom[i].ninstance*sizeof(char *));
 		    if (current->indom[i].name == NULL) {
-			__pmNoMem("pmiStart: name", current->indom[i].ninstance*sizeof(char *), PM_FATAL_ERR);
+			pmNoMem("pmiStart: name", current->indom[i].ninstance*sizeof(char *), PM_FATAL_ERR);
 		    }
 		    current->indom[i].inst = (int *)malloc(current->indom[i].ninstance*sizeof(int));
 		    if (current->indom[i].inst == NULL) {
-			__pmNoMem("pmiStart: inst", current->indom[i].ninstance*sizeof(int), PM_FATAL_ERR);
+			pmNoMem("pmiStart: inst", current->indom[i].ninstance*sizeof(int), PM_FATAL_ERR);
 		    }
 		    current->indom[i].namebuflen = old_current->indom[i].namebuflen;
 		    current->indom[i].namebuf = (char *)malloc(old_current->indom[i].namebuflen);
 		    if (current->indom[i].namebuf == NULL) {
-			__pmNoMem("pmiStart: namebuf", old_current->indom[i].namebuflen, PM_FATAL_ERR);
+			pmNoMem("pmiStart: namebuf", old_current->indom[i].namebuflen, PM_FATAL_ERR);
 		    }
 		    np = current->indom[i].namebuf;
 		    for (j = 0; j < current->indom[i].ninstance; j++) {
@@ -300,7 +299,7 @@ pmiStart(const char *archive, int inherit)
 	    int		h;
 	    current->handle = (pmi_handle *)malloc(current->nhandle*sizeof(pmi_handle));
 	    if (current->handle == NULL) {
-		__pmNoMem("pmiStart: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
+		pmNoMem("pmiStart: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
 	    }
 	    for (h = 0; h < current->nhandle; h++) {
 		current->handle[h].midx = old_current->handle[h].midx;
@@ -350,7 +349,7 @@ pmiSetHostname(const char *value)
 	return PM_ERR_NOCONTEXT;
     current->hostname = strdup(value);
     if (current->hostname == NULL) {
-	__pmNoMem("pmiSetHostname", strlen(value)+1, PM_FATAL_ERR);
+	pmNoMem("pmiSetHostname", strlen(value)+1, PM_FATAL_ERR);
     }
     return current->last_sts = 0;
 }
@@ -362,7 +361,7 @@ pmiSetTimezone(const char *value)
 	return PM_ERR_NOCONTEXT;
     current->timezone = strdup(value);
     if (current->timezone == NULL) {
-	__pmNoMem("pmiSetTimezone", strlen(value)+1, PM_FATAL_ERR);
+	pmNoMem("pmiSetTimezone", strlen(value)+1, PM_FATAL_ERR);
     }
     return current->last_sts = 0;
 }
@@ -453,7 +452,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     size = current->nmetric * sizeof(pmi_metric);
     current->metric = (pmi_metric *)realloc(current->metric, size);
     if (current->metric == NULL) {
-	__pmNoMem("pmiAddMetric: pmi_metric", size, PM_FATAL_ERR);
+	pmNoMem("pmiAddMetric: pmi_metric", size, PM_FATAL_ERR);
     }
     mp = &current->metric[current->nmetric-1];
     if (pmid != PM_ID_NULL) {
@@ -471,7 +470,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     }
     mp->name = strdup(name);
     if (mp->name == NULL) {
-	__pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_FATAL_ERR);
+	pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_FATAL_ERR);
     }
     mp->desc.pmid = mp->pmid;
     mp->desc.type = type;
@@ -505,7 +504,7 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
 	current->nindom++;
 	current->indom = (pmi_indom *)realloc(current->indom, current->nindom*sizeof(pmi_indom));
 	if (current->indom == NULL) {
-	    __pmNoMem("pmiAddInstance: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
+	    pmNoMem("pmiAddInstance: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
 	}
 	current->indom[i].indom = indom;
 	current->indom[i].ninstance = 0;
@@ -540,15 +539,15 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
     idp->ninstance++;
     idp->name = (char **)realloc(idp->name, idp->ninstance*sizeof(char *));
     if (idp->name == NULL) {
-	__pmNoMem("pmiAddInstance: name", idp->ninstance*sizeof(char *), PM_FATAL_ERR);
+	pmNoMem("pmiAddInstance: name", idp->ninstance*sizeof(char *), PM_FATAL_ERR);
     }
     idp->inst = (int *)realloc(idp->inst, idp->ninstance*sizeof(int));
     if (idp->inst == NULL) {
-	__pmNoMem("pmiAddInstance: inst", idp->ninstance*sizeof(int), PM_FATAL_ERR);
+	pmNoMem("pmiAddInstance: inst", idp->ninstance*sizeof(int), PM_FATAL_ERR);
     }
     idp->namebuf = (char *)realloc(idp->namebuf, idp->namebuflen+strlen(instance)+1);
     if (idp->namebuf == NULL) {
-	__pmNoMem("pmiAddInstance: namebuf", idp->namebuflen+strlen(instance)+1, PM_FATAL_ERR);
+	pmNoMem("pmiAddInstance: namebuf", idp->namebuflen+strlen(instance)+1, PM_FATAL_ERR);
     }
     strcpy(&idp->namebuf[idp->namebuflen], instance);
     idp->namebuflen += strlen(instance)+1;
@@ -659,7 +658,7 @@ pmiGetHandle(const char *name, const char *instance)
     current->nhandle++;
     current->handle = (pmi_handle *)realloc(current->handle, current->nhandle*sizeof(pmi_handle));
     if (current->handle == NULL) {
-	__pmNoMem("pmiGetHandle: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
+	pmNoMem("pmiGetHandle: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
     }
     hp = &current->handle[current->nhandle-1];
     hp->midx = tmp.midx;
@@ -706,7 +705,7 @@ pmiWrite(int sec, int usec)
 	return current->last_sts = PMI_ERR_NODATA;
 
     if (sec < 0) {
-	__pmtimevalNow(&current->result->timestamp);
+	pmtimevalNow(&current->result->timestamp);
     }
     else {
 	current->result->timestamp.tv_sec = sec;
@@ -747,7 +746,7 @@ pmiPutMark(void)
     __pmLogCtl *lcp;
     struct {
 	__pmPDU		hdr;
-	__pmTimeval	timestamp;	/* when returned */
+	pmTimeval	timestamp;	/* when returned */
 	int		numpmid;	/* zero PMIDs to follow */
 	__pmPDU		tail;
     } mark;

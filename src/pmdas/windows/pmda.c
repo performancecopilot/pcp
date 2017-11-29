@@ -1335,7 +1335,7 @@ pdh_metric_t metricdesc[] = {
 int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
 static int
-windows_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+windows_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     windows_instance_refresh(indom);
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -1562,7 +1562,7 @@ windows_init(pmdaInterface *dp)
     static pmdaMetric	*metrictab;
     char		helppath[MAXPATHLEN];
     int			metrictab_sz = metricdesc_sz;
-    int			i, sep = __pmPathSeparator();
+    int			i, sep = pmPathSeparator();
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

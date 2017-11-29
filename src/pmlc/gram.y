@@ -19,7 +19,6 @@
 #include <sys/time.h>
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "./pmlc.h"
 
@@ -263,7 +262,7 @@ hostopt		: AT NAME	{ hostname = strdup($2); }
 			     * Find out is a path was specified.
 			     * Skip any initial path separators.
 			     */
-			    for (p = hostname + prefix_len; *p == __pmPathSeparator(); ++p)
+			    for (p = hostname + prefix_len; *p == pmPathSeparator(); ++p)
 				;
 			    if (*p != '\0')
 				is_socket_path = 1;
@@ -299,7 +298,7 @@ tzspec		: LOCAL		{ tztype = TZ_LOCAL; }
 		    if (tz != NULL)
 			free(tz);
 		    if ((tz = strdup($1)) == NULL) {
-			__pmNoMem("setting up timezone",
+			pmNoMem("setting up timezone",
 				 strlen($1), PM_FATAL_ERR);
 		    }
 		}

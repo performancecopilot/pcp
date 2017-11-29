@@ -16,7 +16,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "indom.h"
@@ -1337,7 +1336,7 @@ xfs_refresh(pmdaExt *pmda, int *need_refresh)
 }
 
 static int
-xfs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+xfs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			need_refresh[NUM_CLUSTERS] = { 0 };
     unsigned int	serial = pmInDom_serial(indom);
@@ -1571,7 +1570,7 @@ xfs_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "XFS DSO", helppath);
@@ -1615,7 +1614,7 @@ pmdaOptions     opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 

@@ -23,7 +23,6 @@ $sudo rm -rf $tmp.* $seq.full
 # for QA the default install for jbd2 PMDA is as dso not a daemon
 #
 cat <<End-of-File >$tmp.input
-b
 dso
 End-of-File
 

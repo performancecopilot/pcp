@@ -15,7 +15,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
@@ -765,7 +764,7 @@ gfs2_instance_refresh(void)
 }
 
 static int
-gfs2_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+gfs2_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     gfs2_instance_refresh();
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -1045,7 +1044,7 @@ static pmdaOptions opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 

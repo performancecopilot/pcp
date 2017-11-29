@@ -1,0 +1,177 @@
+#!/bin/sh
+#
+# Hunt for __pmFoo stuff that is the target of migration
+#
+
+if [ -z "$1" ]
+then
+    echo >&2 "Usage: hunter <__pmFoo>"
+    exit 1
+fi
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+out=/tmp/hunted
+rm -f $out
+
+# exact match
+tail="[^a-zA-Z0-9_]"
+# prefix match
+tail=""
+
+full=true
+full=false
+
+rm -f $tmp.*
+
+find src man qa books -type f \
+| while read file
+do
+    if $full
+    then
+	echo "$file"
+    else
+	case "$file"
+	in
+	    # known to be already fixed completely
+	    #
+	    src/pmlogger/src/*|src/dbpmda/src/*|src/pmval/*.c)
+		;;
+
+	    # ones already fixed indirectly thru a local header
+	    #
+	    src/pmcd/src/*.c|src/pmcd/src/client.h|src/pmcd/src/pmcd.h)
+		;;
+	    src/pmdas/weblog/pmda.c|src/pmdas/weblog/sproc.c|src/pmdas/weblog/weblog.c)
+		;;
+	    src/pmproxy/client.c|src/pmproxy/pmproxy.c)
+		;;
+	    src/pmie/src/andor.c|src/pmie/src/dstruct.c|src/pmie/src/eval.c|src/pmie/src/grammar.y|src/pmie/src/lexicon.c|src/pmie/src/match_inst.c|src/pmie/src/pmie.c|src/pmie/src/pragmatics.c|src/pmie/src/show.c|src/pmie/src/symbol.c|src/pmie/src/syntax.c|src/pmie/src/systemlog.c)
+		;;
+	    src/pmwebapi/main.cxx|src/pmwebapi/pmgraphite.cxx|src/pmwebapi/pmresapi.cxx|src/pmwebapi/pmwebapi.cxx|src/pmwebapi/util.cxx)
+		;;
+	    src/pmchart/*.cpp)
+		;;
+	    src/pmlogreduce/domentric.c|src/pmlogreduce/indom.c|src/pmlogreduce/logio.c|src/pmlogreduce/pmlogreduce.c|src/pmlogreduce/rewrite.c|src/pmlogreduce/scan.c|src/pmlogreduce/util.c)
+		;;
+	    src/pmlogreduce_new/indom.c|src/pmlogreduce_new/logio.c|src/pmlogreduce_new/pmlogreduce.c|src/pmlogreduce_new/rewrite.c|src/pmlogreduce_new/scan.c|src/pmlogreduce_new/util.c)
+		;;
+	    src/pmseries/load.c|src/pmseries/pmseries.c|src/pmseries/query_parser.y|src/pmseries/series.c)
+		# load.h
+		;;
+	    src/libpcp_pmcd/src/trace.c)
+		# ../../pmcd/src/pmcd.h
+		;;
+	    src/pmdas/linux/*.c)
+		# linux.h
+		;;
+	    src/pmdas/pipe/pipe.c)
+		# event.h
+		;;
+	    src/perl/PMDA/local.c|src/perl/PMDA/PMDA.c|src/perl/PMDA/PMDA.xs)
+		# local.h
+		;;
+	    src/pmdas/trace/src/client.h)
+		# all includers include libpcp.h first
+		;;
+	    src/pmdas/cisco/cisco.c|src/pmdas/cisco/interface.c|src/pmdas/cisco/pmda.c|src/pmdas/cisco/probe.c|src/pmdas/cisco/telnet.c)
+		# cisco.h
+		;;
+	    src/libpcp_pmcd/src/client.c|src/libpcp_pmcd/src/data.c|src/libpcp_pmcd/src/trace.c)
+		# ../../../src/pmcd/src/pmcd.h
+		;;
+
+	    # special ones to skip
+	    qa/src/libpcp.h|src/libpcp/src/internal.h)
+		;;
+	    qa/valgrind-*)
+		;;
+
+	    *)
+		echo "$file"
+		;;
+	esac
+    fi
+done \
+| while read file
+do
+    case $file
+    in
+	*.c|*.h|*.cpp|*.cxx|*.in|*.y|*.l|*.xs|*/|*.[1-8])
+	    sed -e 's/$/ /' -e 's/^/ /' $file \
+	    | egrep "[^a-zA-Z_0-9]$1$tail" \
+	    | sed -e "s@^ @$file:@" -e 's/ $//' >>$tmp.out
+	    ;;
+    esac
+done
+
+grep /include/ $tmp.out >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo | tee -a $out
+    echo "Header files ..." | tee -a $out
+    cat $tmp.tmp | tee -a $out
+    grep -v /include/ $tmp.out >$tmp.tmp; mv $tmp.tmp $tmp.out
+fi
+
+grep '^src/' $tmp.out >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo | tee -a $out
+    echo "Source ..." | tee -a $out
+    cat $tmp.tmp \
+    | while read line
+    do
+	if $full
+	then
+	    echo "$line" | tee -a $out
+	else
+	    file=`echo "$line" | sed -e 's/:.*//'`
+	    if grep "include.*libpcp.h" <$file >/dev/null
+	    then
+		# done already
+		:
+	    else
+		echo "$line" | tee -a $out
+	    fi
+	fi
+    done
+    grep -v '^src/' $tmp.out >$tmp.tmp; mv $tmp.tmp $tmp.out
+fi
+
+grep '^man/man' $tmp.out >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo | tee -a $out
+    echo "Man pages ..." | tee -a $out
+    cat $tmp.tmp | tee -a $out
+    grep -v '^man/man' $tmp.out >$tmp.tmp; mv $tmp.tmp $tmp.out
+fi
+
+grep '^qa/' $tmp.out >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo | tee -a $out
+    echo "QA ..." | tee -a $out
+    cat $tmp.tmp \
+    | while read line
+    do
+	file=`echo "$line" | sed -e 's/:.*//'`
+	if grep "include.*libpcp.h" <$file >/dev/null
+	then
+	    # done already
+	    :
+	else
+	    echo "$line" | tee -a $out
+	fi
+    done
+    grep -v '^qa/' $tmp.out >$tmp.tmp; mv $tmp.tmp $tmp.out
+fi
+
+if [ -s $tmp.out ]
+then
+    echo | tee -a $out
+    echo "Others ..." | tee -a $out
+    cat $tmp.out | tee -a $out
+fi

@@ -134,9 +134,9 @@ static int lcnt;
 
 #define print_parse_err(loglevel, fmt, args...) \
     if (fconf) { \
-	__pmNotifyErr(loglevel, "%s(%d): " fmt, confpath, lcnt, args); \
+	pmNotifyErr(loglevel, "%s(%d): " fmt, confpath, lcnt, args); \
     } else { \
-	__pmNotifyErr(loglevel, fmt, args); \
+	pmNotifyErr(loglevel, fmt, args); \
     }
 
 static void
@@ -168,7 +168,7 @@ monitor_guid(pmdaIndom *itab, char *name, long long guid, int rport,
     }
     
     if ((ps = (port_state_t *)calloc(1, sizeof(port_state_t))) == NULL) {
-	__pmNotifyErr (LOG_ERR, "Out of memory to save state for %s\n", name);
+	pmNotifyErr (LOG_ERR, "Out of memory to save state for %s\n", name);
 	return;
     }
 
@@ -180,7 +180,7 @@ monitor_guid(pmdaIndom *itab, char *name, long long guid, int rport,
 
     if ((inst = pmdaCacheStore(itab[IB_PORT_INDOM].it_indom,
 			    PMDA_CACHE_ADD, name, ps)) < 0) {
-	__pmNotifyErr(LOG_ERR, "Cannot add %s to the cache - %s\n",
+	pmNotifyErr(LOG_ERR, "Cannot add %s to the cache - %s\n",
 			name, pmErrStr(inst));
 	free (ps);
 	return;
@@ -267,7 +267,7 @@ openumadport (hca_state_t *hst, umad_port_t *port, void *arg)
 
     if ((hndl = mad_rpc_open_port(port->ca_name, port->portnum, mgmt_classes,
                                   ARRAYSZ(mgmt_classes))) == NULL) {
-	__pmNotifyErr(LOG_ERR, "Cannot open port handle for %s:%d\n",
+	pmNotifyErr(LOG_ERR, "Cannot open port handle for %s:%d\n",
 			port->ca_name, port->portnum);
     }
     lp = &hst->lports[port->portnum];
@@ -305,7 +305,7 @@ parse_config(pmdaIndom *itab)
 
 	    if (sscanf(p, "%[^ \t]%llx%d via %[^:]:%d",
                        name, &guid, &rport, local, &lport) != 5) {
-		__pmNotifyErr (LOG_ERR, "%s(%d): cannot parse the line\n",
+		pmNotifyErr (LOG_ERR, "%s(%d): cannot parse the line\n",
 			       confpath, lcnt);
 		continue;
 	    }
@@ -328,7 +328,7 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
 	return -EINVAL;
 
     if (umad_init()) {
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		"umad_init() failed.  No IB kernel support or incorrect ABI version\n");
 	return -EIO;
     }
@@ -346,7 +346,7 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
     strcpy(confpath, cp);
     if (access(confpath, F_OK) == 0) {
 	if (writeconf) {
-	    __pmNotifyErr(LOG_ERR,
+	    pmNotifyErr(LOG_ERR,
 		    "Config file exists and writeconf arg was given to pmdaib.  Aborting.");
 	    exit(1);
 	}
@@ -373,7 +373,7 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
 				    st[i].ca.ca_name, &st[i].ca);
 
 	    if (e < 0) {
-		__pmNotifyErr(LOG_ERR, 
+		pmNotifyErr(LOG_ERR, 
 			"Cannot add instance for %s to the cache - %s\n",
 			 st[i].ca.ca_name, pmErrStr(e));
 		continue;
@@ -403,7 +403,7 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
 	exit(0);
 
     if (!portcount) {
-	__pmNotifyErr(LOG_INFO, "No IB ports found to monitor");
+	pmNotifyErr(LOG_INFO, "No IB ports found to monitor");
     }
 
     itab[IB_CNT_INDOM].it_set = (pmdaInstid *)calloc(ARRAYSZ(mad_cnt_descriptors), 
@@ -560,7 +560,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				   &closure)) != PMDA_CACHE_ACTIVE) {
 	    if (st == PMDA_CACHE_INACTIVE)
 		st = PM_ERR_INST;
-	    __pmNotifyErr (LOG_ERR, "Cannot find instance %d in indom %s: %s\n",
+	    pmNotifyErr (LOG_ERR, "Cannot find instance %d in indom %s: %s\n",
 			   inst, pmInDomStr(mdesc->m_desc.indom), pmErrStr(st));
 	    return st;
 	}
@@ -590,7 +590,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (lp->needsupdate) {
 		umad_release_port(lp->ump);
 		if (umad_get_port(lp->ca_name, lp->portnum, lp->ump) != 0) {
-		    __pmNotifyErr (LOG_ERR, 
+		    pmNotifyErr (LOG_ERR, 
 				   "Cannot get state of the port %s:%d\n",
 				   lp->ump->ca_name, lp->ump->portnum);
 		    return 0;
@@ -612,7 +612,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		memset (&pst->portid, 0, sizeof (pst->portid));
 		if (ib_resolve_guid_via (&pst->portid, &pst->guid, &sm,
 					 pst->timeout, lp->hndl) < 0) {
-			__pmNotifyErr (LOG_ERR, 
+			pmNotifyErr (LOG_ERR, 
 				       "Cannot resolve GUID 0x%llx for %s "
 				       "via  %s:%d\n", 
 					(unsigned long long)pst->guid,
@@ -629,7 +629,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (!smp_query_via (pst->portinfo, &pst->portid,
 				    IB_ATTR_PORT_INFO, 0, pst->timeout,
 				    lp->hndl)) {
-		    __pmNotifyErr (LOG_ERR,
+		    pmNotifyErr (LOG_ERR,
 				   "Cannot get port info for %s via %s:%d\n",
 				   name, lp->ump->ca_name, lp->ump->portnum);
 		    return 0;
@@ -646,7 +646,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		memset (pst->perfdata, 0, sizeof (pst->perfdata));
 		if (!port_perf_query(pst->perfdata, &pst->portid,
 				 pst->remport, pst->timeout, lp->hndl)) {
-		    __pmNotifyErr (LOG_ERR,
+		    pmNotifyErr (LOG_ERR,
 				   "Cannot get performance counters for %s "
 				   "via %s:%d\n",
 				   name, lp->ump->ca_name, lp->ump->portnum);
@@ -672,7 +672,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		memset(sw_info, 0, sizeof(sw_info));
 		if (!smp_query_via(sw_info, &sw_port_id, IB_ATTR_PORT_INFO, 0,
 			pst->timeout, lp->hndl)) {
-		    __pmNotifyErr(LOG_ERR, 
+		    pmNotifyErr(LOG_ERR, 
 			    "Cannot get switch port info for %s via %s:%d.\n",
 			    name, lp->ump->ca_name, lp->ump->portnum);
 		    return 0;
@@ -688,7 +688,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		memset(pst->switchperfdata, 0, sizeof(pst->switchperfdata));
 		if (!pma_query_via(pst->switchperfdata, &sw_port_id, sw_port,
 			pst->timeout, IB_GSI_PORT_COUNTERS_EXT, lp->hndl)) {
-		    __pmNotifyErr(LOG_ERR, 
+		    pmNotifyErr(LOG_ERR, 
 			    "Cannot query performance counters of switch LID %d, port %d.\n",
 			    sw_lid, sw_port);
 		    return 0;
@@ -740,7 +740,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (hca->ca.node_type < ARRAYSZ(node_types)) {
 	    	atom->cp = node_types[hca->ca.node_type];
 	    } else {
-		__pmNotifyErr (LOG_INFO, "Unknown node type %d for %s\n", 
+		pmNotifyErr (LOG_INFO, "Unknown node type %d for %s\n", 
 			 hca->ca.node_type, hca->ca.ca_name);
 		atom->cp = "Unknown";
 	    }
@@ -773,7 +773,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (st < ARRAYSZ(port_phystates)) {
 	    	atom->cp = port_phystates[st];
 	    } else {
-		__pmNotifyErr (LOG_INFO, "Unknown port PHY state %d on %s\n",
+		pmNotifyErr (LOG_INFO, "Unknown port PHY state %d on %s\n",
 			       st, name);
 	        atom->cp = "Unknown";
 	    }
@@ -792,7 +792,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (st < ARRAYSZ(port_states)) {
 	    	atom->cp = port_states[st];
 	    } else {
-		__pmNotifyErr (LOG_INFO, "Unknown port state %d on %s\n",
+		pmNotifyErr (LOG_INFO, "Unknown port state %d on %s\n",
 			       st, name);
 	        atom->cp = "Unknown";
 	    }
@@ -811,7 +811,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 atom->cp = "10.0 Gbps";
                 break;
 	    default:
-		__pmNotifyErr (LOG_INFO, "Unknown link speed %d on %s\n",
+		pmNotifyErr (LOG_INFO, "Unknown link speed %d on %s\n",
 				st, name);
                 atom->cp  = "Unknown";
                 break;

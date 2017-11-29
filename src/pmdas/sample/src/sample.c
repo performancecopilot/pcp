@@ -16,7 +16,6 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 #include <pcp/pmda.h>
 #include <pcp/deprecated.h>
@@ -563,7 +562,7 @@ static pmdaIndom indomtab[] = {
 
 static struct timeval	_then;		/* time we started */
 static time_t		_start;		/* ditto */
-static __pmProfile	*_profile;	/* last received profile */
+static pmProfile	*_profile;	/* last received profile */
 static int		_x;
 static __int32_t	_neg_32 = -10000;	/* sample.negative.*.m_32 */
 static __int64_t	_neg_64 = -10000;	/* sample.negative.*.m_64 */
@@ -657,7 +656,7 @@ redo_dynamic(void)
 {
     int			err;
     int			i;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     static struct stat	lastsbuf;
     struct stat		statbuf;
     pmdaIndom		*idp = &indomtab[DYNAMIC_INDOM];
@@ -963,7 +962,7 @@ cntinst(pmInDom indom)
 	if (idp->it_indom == indom)
 	    return idp->it_numinst;
     }
-    __pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
+    pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
     return 0;
 }
 
@@ -1032,7 +1031,7 @@ startinst(pmInDom indom, int flag)
 /*
  * find next selected instance, if any
  *
- * EXCEPTION PCP 2.1.1: make use of __pmProfile much smarter, particularly when state for
+ * EXCEPTION PCP 2.1.1: make use of pmProfile much smarter, particularly when state for
  *	this indom is PM_PROFILE_EXCLUDE, then only need to consider inst
  *      values in the profile - this is a performance enhancement, and
  *      the simple method is functionally complete, particularly for
@@ -1154,7 +1153,7 @@ init_tables(int dom)
 	if (direct_map && pmID_item(desctab[i].pmid) != i) {
 	    direct_map = 0;
 	    if (pmDebugOptions.appl0) {
-		__pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
+		pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
 	    }
 	}
     }
@@ -1184,7 +1183,7 @@ init_tables(int dom)
 }
 
 static int
-sample_profile(__pmProfile *prof, pmdaExt *ep)
+sample_profile(pmProfile *prof, pmdaExt *ep)
 {
     sample_inc_recv(ep->e_context);
     _profile = prof;	
@@ -1192,10 +1191,10 @@ sample_profile(__pmProfile *prof, pmdaExt *ep)
 }
 
 static int
-sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *ep)
+sample_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *ep)
 {
     int		i;
-    __pmInResult *res;
+    pmInResult *res;
     pmdaIndom	*idp;
     int		err = 0;
 
@@ -1222,7 +1221,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     if (idp->it_indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
 
-    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+    if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
         return -oserror();
     res->indom = indom;
 
@@ -1762,8 +1761,8 @@ doit:
 			atom.ul = time(NULL) - _start;
 			break;
 		    case 3:		/* milliseconds */
-			__pmtimevalNow(&now);
-			atom.d = 1000 * __pmtimevalSub(&now, &_then);
+			pmtimevalNow(&now);
+			atom.d = 1000 * pmtimevalSub(&now, &_then);
 			break;
 		    case 4:		/* load */
 			atom.l = 42;
@@ -2174,8 +2173,8 @@ doit:
 			}
 			break;
 		    case 72: /* const_rate.value */
-			__pmtimevalNow(&now);
-			atom.ul = const_rate_value + const_rate_gradient * __pmtimevalSub(&now, &const_rate_timestamp);
+			pmtimevalNow(&now);
+			atom.ul = const_rate_value + const_rate_gradient * pmtimevalSub(&now, &const_rate_timestamp);
 			const_rate_timestamp = now;
 			const_rate_value = atom.ul;
 			break;
@@ -2971,7 +2970,7 @@ sample_init(pmdaInterface *dp)
     int		i;
 
     if (_isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "sample DSO", helppath);
@@ -2999,7 +2998,7 @@ sample_init(pmdaInterface *dp)
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 
-    __pmtimevalNow(&_then);
+    pmtimevalNow(&_then);
     _start = time(NULL);
     init_tables(dp->domain);
     init_events(dp->domain);

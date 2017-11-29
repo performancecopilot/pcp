@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include <inttypes.h>
 #include <assert.h>
 #include <ctype.h>
@@ -1012,7 +1011,7 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    break;
 		}
 		if ((oval->cp = (char *) malloc(len + 1)) == NULL) {
-		    __pmNoMem("pmExtractValue.string", len + 1, PM_FATAL_ERR);
+		    pmNoMem("pmExtractValue.string", len + 1, PM_FATAL_ERR);
 		}
 		memcpy(oval->cp, ival->value.pval->vbuf, len);
 		oval->cp[len] = '\0';
@@ -1055,7 +1054,7 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    break;
 		}
 		if ((oval->vbp = (pmValueBlock *) malloc(len)) == NULL) {
-		    __pmNoMem("pmExtractValue.aggr", len, PM_FATAL_ERR);
+		    pmNoMem("pmExtractValue.aggr", len, PM_FATAL_ERR);
 		}
 		memcpy(oval->vbp, ival->value.pval, len);
 		break;

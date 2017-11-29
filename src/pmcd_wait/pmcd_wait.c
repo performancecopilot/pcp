@@ -15,7 +15,6 @@
 
 #include <limits.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 /* possible exit states */

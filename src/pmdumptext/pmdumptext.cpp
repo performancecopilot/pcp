@@ -341,7 +341,7 @@ dumpTime(struct timeval const &curPos)
     char	*p;
 
     if (timeOffsetFlag) {
-	double	o = __pmtimevalSub(&curPos, &logStartTime);
+	double	o = pmtimevalSub(&curPos, &logStartTime);
 	if (o < 10)
 	    pmsprintf(buffer, sizeof(buffer), "%.2f ", o);
 	else if (o < 100)
@@ -633,7 +633,7 @@ dumpHeader()
 static int
 getXTBintervalFromTimeval(int *mode, struct timeval *tval)
 {
-    double tmp_ival = __pmtimevalToReal(tval);
+    double tmp_ival = pmtimevalToReal(tval);
 
     if (tmp_ival > SECS_IN_24_DAYS) {
 	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_SEC);
@@ -648,14 +648,14 @@ getXTBintervalFromTimeval(int *mode, struct timeval *tval)
 static struct timeval
 tadd(struct timeval t1, struct timeval t2)
 {
-    __pmtimevalInc(&t1, &t2);
+    pmtimevalInc(&t1, &t2);
     return t1;
 }
 
 static struct timeval
 tsub(struct timeval t1, struct timeval t2)
 {
-    __pmtimevalDec(&t1, &t2);
+    pmtimevalDec(&t1, &t2);
     return t1;
 }
 
@@ -675,7 +675,7 @@ sleeptill(struct timeval sched)
     struct timespec delay;	/* interval to sleep */
     struct timespec left;	/* remaining sleep time */
 
-    __pmtimevalNow(&curr);
+    pmtimevalNow(&curr);
     tospec(tsub(sched, curr), &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
@@ -1078,7 +1078,7 @@ main(int argc, char *argv[])
     }
 
     if (isLive) {
-	__pmtimevalNow(&logStartTime);
+	pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = INT_MAX;
 	logEndTime.tv_usec = INT_MAX;
     }
@@ -1087,7 +1087,7 @@ main(int argc, char *argv[])
 
 	logStartTime = group->logStart();
 	logEndTime = group->logEnd();
-	if (__pmtimevalToReal(&logEndTime) <= __pmtimevalToReal(&logStartTime)) {
+	if (pmtimevalToReal(&logEndTime) <= pmtimevalToReal(&logStartTime)) {
 	    logEndTime.tv_sec = INT_MAX;
 	    logEndTime.tv_usec = INT_MAX;	
 	}
@@ -1095,8 +1095,8 @@ main(int argc, char *argv[])
 
     if (pmDebugOptions.appl0) {
         cerr << "main: start = "
-             << __pmtimevalToReal(&logStartTime) << ", end = "
-             << __pmtimevalToReal(&logEndTime)
+             << pmtimevalToReal(&logStartTime) << ", end = "
+             << pmtimevalToReal(&logEndTime)
              << endl;
     }
 
@@ -1110,15 +1110,15 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    pos = __pmtimevalToReal(&opts.origin);
-    endTime = __pmtimevalToReal(&opts.finish);
-    delay = (int)(__pmtimevalToReal(&opts.interval) * 1000.0);
+    pos = pmtimevalToReal(&opts.origin);
+    endTime = pmtimevalToReal(&opts.finish);
+    delay = (int)(pmtimevalToReal(&opts.interval) * 1000.0);
 
     if (endTime < pos && opts.finish_optarg == NULL)
 	endTime = DBL_MAX;
 
     if (pmDebugOptions.appl0) {
-	cerr << "main: realStartTime = " << __pmtimevalToReal(&opts.start)
+	cerr << "main: realStartTime = " << pmtimevalToReal(&opts.start)
 	     << ", endTime = " << endTime << ", pos = " << pos 
 	     << ", delay = " << delay << endl;
     }
@@ -1257,7 +1257,7 @@ main(int argc, char *argv[])
 	if (isLive)
 	    sleeptill(opts.origin);
 
-	pos = __pmtimevalToReal(&opts.origin);
+	pos = pmtimevalToReal(&opts.origin);
 	lines++;
 	if (repeatLines > 0 && repeatLines == lines) {
 	    cout << endl;

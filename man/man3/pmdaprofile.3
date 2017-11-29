@@ -20,11 +20,9 @@
 .ft 3
 #include <pcp/pmapi.h>
 .br
-#include <pcp/impl.h>
-.br
 #include <pcp/pmda.h>
 .sp
-int pmdaProfile(__pmProfile *\fIprof\fP, pmdaExt *\fIpmda\fP);
+int pmdaProfile(pmProfile *\fIprof\fP, pmdaExt *\fIpmda\fP);
 .sp
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
@@ -33,7 +31,7 @@ As part of the Performance Metrics Domain Agent (PMDA) API (see
 .BR PMDA (3)),
 .B pmdaProfile
 is the default callback which handles the receipt of a 
-.B __pmProfile
+.B pmProfile
 from 
 .BR pmcd (1).
 A profile describes the instances that 

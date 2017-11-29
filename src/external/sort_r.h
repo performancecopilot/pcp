@@ -26,11 +26,11 @@ void sort_r(void *base, size_t nel, size_t width,
      defined __FreeBSD__ || defined __DragonFly__)
 #  define _SORT_R_BSD
 #  define _SORT_R_INLINE inline
-#elif (defined __NetBSD__)
+#elif (defined __NetBSD__ || defined __OpenBSD__)
   /* we may be using __GNU__ but we don't have any qsort_r in libc */
 #  define _SORT_R_INLINE
 #elif (defined _GNU_SOURCE || defined __gnu_hurd__ || defined __GNU__ || \
-       defined __linux__ || defined __GLIBC__)
+       defined __linux__ || defined __MINGW32__ || defined __GLIBC__)
 #  define _SORT_R_LINUX
 #  define _SORT_R_INLINE inline
 #elif (defined _WIN32 || defined _WIN64 || defined __WINDOWS__)

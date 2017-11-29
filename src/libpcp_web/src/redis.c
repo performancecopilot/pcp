@@ -13,7 +13,6 @@
  */
 #include <hiredis/hiredis.h>
 #include "redis.h"
-#include "impl.h"
 #include "util.h"
 
 #define PCP_SCHEMA_VERSION 1
@@ -340,7 +339,7 @@ void
 redis_series_addvalue(redisContext *redis, metric_t *metric, value_t *value)
 {
     redisReply	*reply;
-    double	timestamp = __pmtimevalToReal(&value->lasttime);
+    double	timestamp = pmtimevalToReal(&value->lasttime);
 
     reply = redisCommand(redis, "ZADD pcp:values:series:%s %.64g %s",
 		value->hash, timestamp, value_atomstr(metric, value));

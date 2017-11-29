@@ -16,7 +16,6 @@
 #define _PROXY_H
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 /* The table of clients, used by pmproxy */

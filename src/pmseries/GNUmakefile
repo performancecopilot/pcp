@@ -15,32 +15,17 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= load.c redis.c sha1.c util.c series.c pmseries.c
-HFILES	= load.h redis.h sha1.h util.h series.h
-XFILES	= sha1.c sha1.h
-YFILES	= query_parser.y
-
+CFILES	= pmseries.c
 CMDTARGET = pmseries$(EXECSUFFIX)
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_HIREDIS)
-LDIRT	= $(XFILES) $(CMDTARGET) $(YFILES:%.y=%.tab.?)
+LLDLIBS	= $(PCP_WEBLIB) $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
 
-default_pcp default:	build-me
+default:	$(CMDTARGET)
+
+install:	default
+	#$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 include $(BUILDRULES)
 
-ifeq "$(HAVE_HIREDIS)" "true"
-build-me:	$(XFILES) $(CMDTARGET)
-install_pcp install:
-install:	default
-	#$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-else
-build-me:
-install_pcp install:
-endif
+default_pcp : default
 
-$(XFILES):
-	$(LN_S) $(TOPDIR)/src/external/$@ .
-
-.NOTPARALLEL:
-query_parser.tab.h query_parser.tab.c: query_parser.y series.h
-	$(YACC) -d -b `basename $< .y` $<
+install_pcp : install

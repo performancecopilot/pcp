@@ -103,7 +103,7 @@ dometric(const char *name)
 	    }
 	    else {
 		fprintf(stderr, "Cannot rate convert \"%s\" yet,", namelist[numpmid]);
-		__pmPrintDesc(stderr, &mp->idesc);
+		pmPrintDesc(stderr, &mp->idesc);
 		exit(1);
 	    }
 	    break;
@@ -123,9 +123,9 @@ dometric(const char *name)
 	__pmPrintMetricNames(stderr, numnames, names, " or ");
 	fprintf(stderr, "\" (%s)\n", pmIDStr(pmidlist[numpmid]));
 	fprintf(stderr, "input descriptor:\n");
-	__pmPrintDesc(stderr, &mp->idesc);
+	pmPrintDesc(stderr, &mp->idesc);
 	fprintf(stderr, "output descriptor (added to archive):\n");
-	__pmPrintDesc(stderr, &mp->odesc);
+	pmPrintDesc(stderr, &mp->odesc);
     }
 
     if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, numnames, names)) < 0) {

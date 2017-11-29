@@ -31,7 +31,7 @@ do
 done
 
 echo
-echo "=== __pmPrintDesc ==="
+echo "=== pmPrintDesc ==="
 pminfo -d sample.event.records \
 | sed -e 's/0x[0-9a-f][0-9a-f]*/HEX/'
 
@@ -46,7 +46,7 @@ do
 done
 
 echo
-echo "=== __pmPrintDesc ==="
+echo "=== pmPrintDesc ==="
 pminfo -d sample.event.no_indom_records
 
 # success, all done

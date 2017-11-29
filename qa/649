@@ -18,7 +18,7 @@ username=`id -u -n`
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
 # for QA the default install for mmv PMDA is as a dso, not a daemon
-( echo b && echo dso ) >$tmp.input
+echo dso >$tmp.input
 
 _cleanup()
 {

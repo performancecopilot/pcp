@@ -62,10 +62,10 @@ local_timer(double timeout, scalar_t *callback, int cookie)
     int size = sizeof(*timers) * (ntimers + 1);
     delta_t delta;
 
-    __pmtimevalFromReal(timeout, &delta);
+    pmtimevalFromReal(timeout, &delta);
 
     if ((timers = realloc(timers, size)) == NULL)
-	__pmNoMem("timers resize", size, PM_FATAL_ERR);
+	pmNoMem("timers resize", size, PM_FATAL_ERR);
     timers[ntimers].id = -1;	/* not yet registered */
     timers[ntimers].delta = delta;
     timers[ntimers].cookie = cookie;
@@ -101,7 +101,7 @@ local_file(int type, int fd, scalar_t *callback, int cookie)
     int size = sizeof(*files) * (nfiles + 1);
 
     if ((files = realloc(files, size)) == NULL)
-	__pmNoMem("files resize", size, PM_FATAL_ERR);
+	pmNoMem("files resize", size, PM_FATAL_ERR);
     files[nfiles].type = type;
     files[nfiles].fd = fd;
     files[nfiles].cookie = cookie;
@@ -118,12 +118,12 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
     __pmExecCtl_t *argp = NULL;
 
     if ((sts = __pmProcessUnpickArgs(&argp, pipe)) < 0) {
-	__pmNotifyErr(LOG_ERR, "__pmProcessUnpickArgs failed (%s): %s", pipe, pmErrStr(sts));
+	pmNotifyErr(LOG_ERR, "__pmProcessUnpickArgs failed (%s): %s", pipe, pmErrStr(sts));
 	exit(1);
     }
 
     if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {
-	__pmNotifyErr(LOG_ERR, "__pmProcessPipe failed (%s): %s", pipe, pmErrStr(sts));
+	pmNotifyErr(LOG_ERR, "__pmProcessPipe failed (%s): %s", pipe, pmErrStr(sts));
 	exit(1);
     }
 
@@ -143,11 +143,11 @@ local_tail(char *file, scalar_t *callback, int cookie)
     int me;
 
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, osstrerror());
+	pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, osstrerror());
 	exit(1);
     }
     if (fstat(fd, &stats) < 0) {
-	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, osstrerror());
+	pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, osstrerror());
 	exit(1);
     }
     lseek(fd, 0L, SEEK_END);
@@ -168,7 +168,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     int		 me, fd = -1;
 
     if ((servinfo = __pmGetAddrInfo(host)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo (%s): %s", host, netstrerror());
+	pmNotifyErr(LOG_ERR, "__pmGetAddrInfo (%s): %s", host, netstrerror());
 	exit(1);
     }
     /* Loop over the addresses resolved for this host name until one of them
@@ -182,7 +182,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 	else if (__pmSockAddrIsIPv6(myaddr))
 	    fd = __pmCreateIPv6Socket();
 	else {
-	    __pmNotifyErr(LOG_ERR, "invalid address family: %d\n",
+	    pmNotifyErr(LOG_ERR, "invalid address family: %d\n",
 			  __pmSockAddrGetFamily(myaddr));
 	    fd = -1;
 	}
@@ -206,7 +206,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     __pmHostEntFree(servinfo);
 
     if (sts < 0) {
-        __pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
+        pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
 	exit(1);
     }
 
@@ -289,7 +289,7 @@ local_log_rotated(files_t *file)
     close(file->fd);
     file->fd = open(file->me.tail.path, O_RDONLY | O_NDELAY);
     if (file->fd < 0) {
-	__pmNotifyErr(LOG_ERR, "open failed after log rotate (%s): %s",
+	pmNotifyErr(LOG_ERR, "open failed after log rotate (%s): %s",
 			file->me.tail.path, osstrerror());
 	return;
     }
@@ -321,7 +321,7 @@ local_reconnector(files_t *file)
 	else if (__pmSockAddrIsIPv6(myaddr))
 	    fd = __pmCreateIPv6Socket();
 	else {
-	    __pmNotifyErr(LOG_ERR, "invalid address family: %d\n",
+	    pmNotifyErr(LOG_ERR, "invalid address family: %d\n",
 			  __pmSockAddrGetFamily(myaddr));
 	    fd = -1;
 	}
@@ -398,7 +398,7 @@ local_pmdaMain(pmdaInterface *self)
 	nready = __pmSelectRead(nfds, &readyfds, &timeout);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failed: %s\n",
+		pmNotifyErr(LOG_ERR, "select failed: %s\n",
 				netstrerror());
 		exit(1);
 	    }
@@ -435,14 +435,14 @@ multiread:
 		    files[i].fd = -1;
 		    continue;
 		}
-		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
+		pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
 				local_filetype(files[i].type), osstrerror());
 		exit(1);
 	    }
 	    if (bytes == 0) {
 		if (files[i].type == FILE_TAIL)
 		    continue;
-		__pmNotifyErr(LOG_ERR, "No data to read - %s may be closed\n",
+		pmNotifyErr(LOG_ERR, "No data to read - %s may be closed\n",
 				local_filetype(files[i].type));
 		exit(1);
 	    }
@@ -457,14 +457,14 @@ multiread:
 		if (*s != '\n')
 		    continue;
 		*s = '\0';
-		/*__pmNotifyErr(LOG_INFO, "Input callback: %s\n", p);*/
+		/*pmNotifyErr(LOG_INFO, "Input callback: %s\n", p);*/
 		input_callback(files[i].callback, files[i].cookie, p);
 		p = s + 1;
 	    }
 	    if (files[i].type == FILE_TAIL) {
 		/* did we just do a full buffer read? */
 		if (p == buffer) {
-		    __pmNotifyErr(LOG_ERR, "Ignoring long line: \"%s\"\n", p);
+		    pmNotifyErr(LOG_ERR, "Ignoring long line: \"%s\"\n", p);
 		} else if (j == sizeof(buffer) - 1) {
 		    offset = sizeof(buffer)-1 - (p - buffer);
 		    memmove(buffer, p, offset); 

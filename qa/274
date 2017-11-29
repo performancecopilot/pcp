@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+signal=$PCP_BINADM_DIR/pmsignal
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 $sudo rm -f $here/$seq.full
@@ -86,18 +87,31 @@ BEGIN   { found = false }
 # real QA test starts here
 unset ROOT MAKEFLAGS
 
-# Install the PMDA
+echo "=== Install broken namespace ==="
 cd $here/pmdas/broken
-$sudo ./broken_Install -N < /dev/null | _filter_ins
-# ensure help text built (-N above skips this)
-$sudo $PCP_MAKE_PROG broken_v2.dir > /dev/null 2>&1
+if pmnsmerge $PCP_VAR_DIR/pmns/root ./root $tmp.pmns
+then
+    :
+else
+    echo "Error: pmnsmerge failed!"
+    exit
+fi
+$sudo cp $tmp.pmns $PCP_VAR_DIR/pmns/root
+$sudo $signal -a -s HUP pmcd >/dev/null 2>&1
+# ensure everything is built
+if [ -f GNUmakefile.install ]
+then
+    $sudo $PCP_MAKE_PROG -f GNUmakefile.install >>$here/$seq.full 2>&1
+else
+    $sudo $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+fi
 cd $here
 
 # Remove the PMDA
 _remove()
 {
     cd $here/pmdas/broken
-    $sudo ./broken_Remove -N
+    $sudo ./broken_Remove
     cd $here
 }
 

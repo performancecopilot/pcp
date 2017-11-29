@@ -35,7 +35,7 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
 	this, SLOT(dirListView_selectionChanged()));
 
     QDir dir;
-    QChar sep(__pmPathSeparator());
+    QChar sep(pmPathSeparator());
     QString sys = my.systemDir = pmGetConfig("PCP_VAR_DIR");
     my.systemDir.append(sep);
     my.systemDir.append("config");

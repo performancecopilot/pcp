@@ -9,7 +9,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 extern int	errno;
 

@@ -40,7 +40,7 @@ NewClient(void)
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
-	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
+	    pmNoMem("NewClient", sz, PM_RECOV_ERR);
 	    Shutdown();
 	    exit(1);
 	}
@@ -50,7 +50,7 @@ NewClient(void)
     }
     client[i].addr = __pmSockAddrAlloc();
     if (client[i].addr == NULL) {
-        __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
+        pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
 	Shutdown();
 	exit(1);
     }
@@ -80,7 +80,7 @@ AcceptNewClient(int reqfd)
     addrlen = __pmSockAddrSize();
     fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
-	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept failed: %s",
+	pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept failed: %s",
 			reqfd, netstrerror());
 	Shutdown();
 	exit(1);
@@ -127,7 +127,7 @@ AcceptNewClient(int reqfd)
     if (!ok) {
 	if (pmDebugOptions.context) {
 	    abufp = __pmSockAddrToString(client[i].addr);
-	    __pmNotifyErr(LOG_INFO, "Bad version string from client at %s",
+	    pmNotifyErr(LOG_INFO, "Bad version string from client at %s",
 			abufp);
 	    free(abufp);
 	    fprintf(stderr, "AcceptNewClient: bad version string was \"");
@@ -141,7 +141,7 @@ AcceptNewClient(int reqfd)
 
     if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	abufp = __pmSockAddrToString(client[i].addr);
-	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
+	pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
 			"string (%s) to client at %s\n", MY_VERSION, abufp);
 	free(abufp);
 	DeleteClient(&client[i]);
@@ -168,12 +168,12 @@ AcceptNewClient(int reqfd)
 	    *bp = '\0';
 	    client[i].pmcd_hostname = strdup(buf);
 	    if (client[i].pmcd_hostname == NULL)
-		__pmNoMem("PMCD.hostname", strlen(buf), PM_FATAL_ERR);
+		pmNoMem("PMCD.hostname", strlen(buf), PM_FATAL_ERR);
 	    bp++;
 	    client[i].pmcd_port = (int)strtoul(bp, &endp, 10);
 	    if (*endp != '\0') {
 		abufp = __pmSockAddrToString(client[i].addr);
-		__pmNotifyErr(LOG_WARNING, "AcceptNewClient: bad pmcd port "
+		pmNotifyErr(LOG_WARNING, "AcceptNewClient: bad pmcd port "
 				"\"%s\" from client at %s", bp, abufp);
 		free(abufp);
 		DeleteClient(&client[i]);
@@ -185,7 +185,7 @@ AcceptNewClient(int reqfd)
 
     if (client[i].pmcd_hostname == NULL) {
 	abufp = __pmSockAddrToString(client[i].addr);
-	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to get PMCD "
+	pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to get PMCD "
 				"hostname (%s) from client at %s", buf, abufp);
 	free(abufp);
 	DeleteClient(&client[i]);

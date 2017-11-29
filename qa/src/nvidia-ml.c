@@ -12,7 +12,6 @@
  * for more details.
  */
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "localnvml.h"
 
 /*

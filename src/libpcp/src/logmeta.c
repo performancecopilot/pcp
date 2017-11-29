@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "fault.h"
 #include "internal.h"
@@ -25,7 +24,7 @@
 #define LENSIZE	4
 
 static void
-StrTimeval(const __pmTimeval *tp)
+StrTimeval(const pmTimeval *tp)
 {
     if (tp == NULL)
 	fprintf(stderr, "<null timeval>");
@@ -76,7 +75,7 @@ sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
  * Filter out duplicates.
  */
 static int
-addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst, 
+addindom(__pmLogCtl *lcp, pmInDom indom, const pmTimeval *tp, int numinst, 
          int *instlist, char **namelist, int *indom_buf, int allinbuf)
 {
     __pmLogInDom	*idp, *idp_prev;
@@ -98,7 +97,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if (pmDebugOptions.logmeta) {
 	char    strbuf[20];
 	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
-	StrTimeval((__pmTimeval *)tp);
+	StrTimeval((pmTimeval *)tp);
 	fprintf(stderr, ", numinst=%d)\n", numinst);
     }
 
@@ -210,7 +209,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 
 static int
 addlabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets,
-		pmLabelSet *labelsets, const __pmTimeval *tp)
+		pmLabelSet *labelsets, const pmTimeval *tp)
 {
     __pmLogLabelSet	*idp, *idp_prev;
     __pmLogLabelSet	*idp_cached;
@@ -231,7 +230,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 
     if (pmDebugOptions.logmeta) {
 	fprintf(stderr, "addlabel( ..., %u, %u, ", type, ident);
-	StrTimeval((__pmTimeval *)tp);
+	StrTimeval((pmTimeval *)tp);
 	fprintf(stderr, ", nsets=%d)\n", nsets);
     }
 
@@ -546,7 +545,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	else if (h.type == TYPE_INDOM) {
 	    int			*tbuf;
 	    pmInDom		indom;
-	    __pmTimeval		*when;
+	    pmTimeval		*when;
 	    int			numinst;
 	    int			*instlist;
 	    char		**namelist;
@@ -577,7 +576,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    }
 
 	    k = 0;
-	    when = (__pmTimeval *)&tbuf[k];
+	    when = (pmTimeval *)&tbuf[k];
 	    when->tv_sec = ntohl(when->tv_sec);
 	    when->tv_usec = ntohl(when->tv_usec);
 	    k += sizeof(*when)/sizeof(int);
@@ -633,7 +632,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    int			inst;
 	    int			jsonlen;
 	    int			nlabels;
-	    __pmTimeval		stamp;
+	    pmTimeval		stamp;
 	    pmLabelSet		*labelsets = NULL;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
@@ -657,7 +656,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    }
 
 	    k = 0;
-	    stamp = *((__pmTimeval *)&tbuf[k]);
+	    stamp = *((pmTimeval *)&tbuf[k]);
 	    stamp.tv_sec = ntohl(stamp.tv_sec);
 	    stamp.tv_usec = ntohl(stamp.tv_usec);
 	    k += sizeof(stamp);
@@ -916,7 +915,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
 }
 
 static __pmLogInDom *
-searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
+searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -965,7 +964,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
  * time
  */
 int
-__pmLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int **instlist, char ***namelist)
+__pmLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
 {
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
 
@@ -979,7 +978,7 @@ __pmLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int **instlist,
 }
 
 int
-__pmLogLookupInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, 
+__pmLogLookupInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, 
 		   const char *name)
 {
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
@@ -1012,7 +1011,7 @@ __pmLogLookupInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp,
 }
 
 int
-__pmLogNameInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int inst, char **name)
+__pmLogNameInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int inst, char **name)
 {
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
     int		i;
@@ -1039,7 +1038,7 @@ __pmLogNameInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int inst, char
  */
 int
 __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
-		pmLabelSet **label, const __pmTimeval *tp)
+		pmLabelSet **label, const pmTimeval *tp)
 {
     __pmHashCtl		*label_hash;
     __pmHashNode	*hp;
@@ -1067,7 +1066,7 @@ __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
 
 int
 __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
-		int nsets, pmLabelSet *labelsets, const __pmTimeval *tp)
+		int nsets, pmLabelSet *labelsets, const pmTimeval *tp)
 {
     int		sts = 0;
     int		i;
@@ -1081,7 +1080,7 @@ __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
     pmLabel	label;
     typedef struct {
 	__pmLogHdr	hdr;
-	__pmTimeval	stamp;
+	pmTimeval	stamp;
 	int		type;
 	int		ident;
 	int		nsets;
@@ -1240,7 +1239,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
 }
 
 int
-__pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, 
+__pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const pmTimeval *tp, 
 		int numinst, int *instlist, char **namelist)
 {
     int		sts = 0;
@@ -1251,7 +1250,7 @@ __pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp,
     int		len;
     typedef struct {			/* skeletal external record */
 	__pmLogHdr	hdr;
-	__pmTimeval	stamp;
+	pmTimeval	stamp;
 	pmInDom		indom;
 	int		numinst;
 	char		data[0];	/* inst[] then stridx[] then strings */
@@ -1532,11 +1531,11 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	    numinst++;
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 	    if ((ilist = (int *)realloc(ilist, numinst*sizeof(ilist[0]))) == NULL) {
-		__pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
+		pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
 	    }
 PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 	    if ((nlist = (char **)realloc(nlist, numinst*sizeof(nlist[0]))) == NULL) {
-		__pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
+		pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
 	    }
 	    ilist[numinst-1] = idp->instlist[j];
 	    nlist[numinst-1] = idp->namelist[j];
@@ -1545,7 +1544,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
     }
 PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);
     if ((olist = (char **)malloc(numinst*sizeof(olist[0]) + strsize)) == NULL) {
-	__pmNoMem("pmGetInDomArchive: olist", numinst*sizeof(olist[0]) + strsize, PM_FATAL_ERR);
+	pmNoMem("pmGetInDomArchive: olist", numinst*sizeof(olist[0]) + strsize, PM_FATAL_ERR);
     }
     p = (char *)olist;
     p += numinst * sizeof(olist[0]);

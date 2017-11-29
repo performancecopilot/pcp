@@ -16,7 +16,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "libdefs.h"
@@ -63,7 +62,7 @@ pmdaDynamicPMNS(const char *prefix,
     struct dynamic *tmp_dynamic;
 
     if ((tmp_dynamic = (struct dynamic *)realloc(dynamic, size)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic metrics");
+	pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic metrics");
 	return;
     }
     dynamic = tmp_dynamic;

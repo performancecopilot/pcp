@@ -2,7 +2,6 @@
 /* Build via: cc -g -Wall -lpcp -o mmv_ondisk mmv_ondisk.c */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/mmv_stats.h>
 #include <pcp/mmv_dev.h>
 #include <sys/mman.h>

@@ -21,7 +21,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 #include <assert.h>
@@ -75,7 +74,7 @@ addpmid(fetchctl_t *fp, pmID pmid)
     fp->f_pmidlist = (pmID *)realloc(fp->f_pmidlist, fp->f_numpmid*sizeof(pmID));
     if (fp->f_pmidlist == NULL) {
 	PM_UNLOCK(optfetch_lock);
-	__pmNoMem("addpmid", fp->f_numpmid*sizeof(pmID), PM_FATAL_ERR);
+	pmNoMem("addpmid", fp->f_numpmid*sizeof(pmID), PM_FATAL_ERR);
     }
 
     for (j = fp->f_numpmid-1; j > i; j--)
@@ -112,7 +111,7 @@ addinst(int *numinst, int **instlist, optreq_t *new)
     ilist = (int *)realloc(*instlist, (numi + new->r_numinst)*sizeof(int));
     if (ilist == NULL) {
 	PM_UNLOCK(optfetch_lock);
-	__pmNoMem("addinst.up", (numi + new->r_numinst)*sizeof(int), PM_FATAL_ERR);
+	pmNoMem("addinst.up", (numi + new->r_numinst)*sizeof(int), PM_FATAL_ERR);
     }
 
     for (j = 0; j < new->r_numinst; j++) {
@@ -136,7 +135,7 @@ addinst(int *numinst, int **instlist, optreq_t *new)
     ilist = (int *)realloc(ilist, numi*sizeof(int));
     if (ilist == NULL) {
 	PM_UNLOCK(optfetch_lock);
-	__pmNoMem("addinst.down", numi*sizeof(int), PM_FATAL_ERR);
+	pmNoMem("addinst.down", numi*sizeof(int), PM_FATAL_ERR);
     }
     
     *numinst = numi;
@@ -384,7 +383,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     /* add new fetch as first option ... will be reclaimed later if not used */
     if ((fp = (fetchctl_t *)calloc(1, sizeof(fetchctl_t))) == NULL) {
 	PM_UNLOCK(optfetch_lock);
-	__pmNoMem("optAddFetch.fetch", sizeof(fetchctl_t), PM_FATAL_ERR);
+	pmNoMem("optAddFetch.fetch", sizeof(fetchctl_t), PM_FATAL_ERR);
     }
     fp->f_next = *root;
     *root = fp;
@@ -412,7 +411,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	if (change & OPT_STATE_XINDOM) {
 	    if ((idp = (indomctl_t *)calloc(1, sizeof(indomctl_t))) == NULL) {
 		PM_UNLOCK(optfetch_lock);
-		__pmNoMem("optAddFetch.indomctl", sizeof(indomctl_t), PM_FATAL_ERR);
+		pmNoMem("optAddFetch.indomctl", sizeof(indomctl_t), PM_FATAL_ERR);
 	    }
 	    idp->i_indom = indom;
 	    idp->i_next = fp->f_idp;
@@ -422,7 +421,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	if (change & OPT_STATE_XPMID) {
 	    if ((pmp = (pmidctl_t *)calloc(1, sizeof(pmidctl_t))) == NULL) {
 		PM_UNLOCK(optfetch_lock);
-		__pmNoMem("optAddFetch.pmidctl", sizeof(pmidctl_t), PM_FATAL_ERR);
+		pmNoMem("optAddFetch.pmidctl", sizeof(pmidctl_t), PM_FATAL_ERR);
 	    }
 	    pmp->p_next = idp->i_pmp;
 	    idp->i_pmp = pmp;

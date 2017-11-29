@@ -54,8 +54,6 @@ Options:
   -U units    export observation values using the given units
   -V units    export counter values using the given units
 
-Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
-
 Use the default installation [y]? 
 Trace period (in seconds) [60]? 
 Number of buckets [5]? 
@@ -137,8 +135,6 @@ Note: some warnings are expected until trace API calls are made - refer to
 trace.observe.value
     Data Type: double  InDom: 10.2 0x2800002
     Semantics: instant  Units: byte / sec
-Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
-
 Use the default installation [y]? 
 Trace period (in seconds) [60]? 
 Number of buckets [5]? 
@@ -193,8 +189,6 @@ Note: some warnings are expected until trace API calls are made - refer to
 trace.counter.value
     Data Type: double  InDom: 10.3 0x2800003
     Semantics: counter  Units: byte count x 10^-4 / nanosec^2
-Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
-
 Use the default installation [y]? 
 Trace period (in seconds) [60]? 
 Number of buckets [5]? 

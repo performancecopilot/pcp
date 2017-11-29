@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 int
@@ -185,8 +184,8 @@ Options\n\
 	}
 	if (prev) {
 	    struct timeval tmp = result->timestamp;
-	    __pmtimevalDec(&tmp, &prev->timestamp);
-	    tdiff = __pmtimevalToReal(&tmp);
+	    pmtimevalDec(&tmp, &prev->timestamp);
+	    tdiff = pmtimevalToReal(&tmp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
 	    for (j = 0; j < numpmid; j++) {
 		printf("%s: ", name[j]);
@@ -231,8 +230,8 @@ Options\n\
 			} else {
 			    for (r = 0; r < sts; r++) {
 				struct timeval tmp = records[r]->timestamp;
-				__pmtimevalDec(&tmp, &prev->timestamp);
-				tdiff = __pmtimevalToReal(&tmp);
+				pmtimevalDec(&tmp, &prev->timestamp);
+				tdiff = pmtimevalToReal(&tmp);
 				printf("\nevent %d, offset time=%.3f secs, param ids:", j+1, tdiff);
 				for (param = 0; param < records[r]->numpmid; param++)
 				    printf(" %s", pmIDStr(records[r]->vset[param]->pmid));

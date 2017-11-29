@@ -123,7 +123,7 @@ myvaluesetdump(pmValueSet *xvsp, int idx, int *flagsp)
 	/* first time for this pmid */
 	hp = (DescHash *)malloc(sizeof(DescHash));
 	if (hp == NULL) {
-	    __pmNoMem("DescHash", sizeof(DescHash), PM_FATAL_ERR);
+	    pmNoMem("DescHash", sizeof(DescHash), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	if ((sts = pmNameID(xvsp->pmid, &hp->name)) < 0) {
@@ -229,11 +229,11 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	printf("  ");
 	if (highres) {
 	    numpmid = hres[r]->numpmid;
-	    __pmPrintHighResStamp(stdout, &hres[r]->timestamp);
+	    pmPrintHighResStamp(stdout, &hres[r]->timestamp);
 	}
 	else {
 	    numpmid = res[r]->numpmid;
-	    __pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmPrintStamp(stdout, &res[r]->timestamp);
 	}
 
 	printf(" --- event record [%d]", r);

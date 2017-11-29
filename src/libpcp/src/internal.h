@@ -17,9 +17,10 @@
 
 /*
  * Routines and data structures used within libpcp source files,
- * but which we do not want to expose via impl.h or pmapi.h.
+ * but which we do not want to expose via pmapi.h or libpcp.h.
  */
 
+#include <stdarg.h>
 #include "compiler.h"
 #include "derive.h"
 
@@ -319,6 +320,7 @@ extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HID
 extern int pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
 extern int __pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
 extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
+extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
 
 #ifdef BUILD_WITH_LOCK_ASSERTS
 #include <assert.h>
@@ -341,5 +343,87 @@ extern pid_t __pmProcessWait(pid_t, int, int *, int *) _PCP_HIDDEN;
 #define MAXLABELVALUELEN	((1<<16)-1)
 extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
 			 pmLabelSet **, int *) _PCP_HIDDEN;
+
+extern void notifyerr(int, const char *, va_list) _PCP_HIDDEN;
+
+/*
+ * migrated from libpcp.h to here, only used in libpcp
+ */
+extern int __pmGetInternalState(void) _PCP_HIDDEN;
+#ifdef HAVE_PTHREAD_MUTEX_T
+/* mutex for calls to external routines that are not thread-safe */
+extern pthread_mutex_t	__pmLock_extcall;
+#else
+extern void *__pmLock_extcall;			/* symbol exposure */
+#endif /* HAVE_PTHREAD_MUTEX_T */
+extern int __pmIsLocked(void *) _PCP_HIDDEN;
+#define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
+#ifdef BUILD_WITH_LOCK_ASSERTS
+extern void __pmCheckIsUnlocked(void *, char *, int) _PCP_HIDDEN;
+#endif /* BUILD_WITH_LOCK_ASSERTS */
+
+extern int __pmGetPDUCeiling(void) _PCP_HIDDEN;
+
+extern int __pmSetFeaturesIPC(int, int, int) _PCP_HIDDEN;
+extern int __pmSetDataIPC(int, void *) _PCP_HIDDEN;
+extern int __pmDataIPCSize(void) _PCP_HIDDEN;
+extern int __pmLastVersionIPC(void) _PCP_HIDDEN;
+extern int __pmFeaturesIPC(int) _PCP_HIDDEN;
+extern int __pmDataIPC(int, void *) _PCP_HIDDEN;
+
+extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *) _PCP_HIDDEN;
+extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *) _PCP_HIDDEN;
+extern int	     __pmSockAddrGetPort(const __pmSockAddr *) _PCP_HIDDEN;
+extern void	     __pmSockAddrSetScope(__pmSockAddr *, int) _PCP_HIDDEN;
+extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int) _PCP_HIDDEN;
+extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int) _PCP_HIDDEN;
+
+extern int __pmHashPreAlloc(int, __pmHashCtl *) _PCP_HIDDEN;
+
+extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *) _PCP_HIDDEN;
+
+extern int __pmConnectLocal(__pmHashCtl *) _PCP_HIDDEN;
+extern int __pmAuxConnectPMCD(const char *) _PCP_HIDDEN;
+extern int __pmAuxConnectPMCDUnixSocket(const char *) _PCP_HIDDEN;
+extern int __pmAddHostPorts(pmHostSpec *, int *, int) _PCP_HIDDEN;
+extern void __pmDropHostPort(pmHostSpec *) _PCP_HIDDEN;
+extern void __pmConnectGetPorts(pmHostSpec *) _PCP_HIDDEN;
+
+extern int __pmLogOpen(const char *, __pmContext *) _PCP_HIDDEN;
+extern const char *__pmLogName_r(const char *, int, char *, int) _PCP_HIDDEN;
+extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-safe */
+extern char *__pmLogBaseName(char *) _PCP_HIDDEN;
+extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;
+extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
+extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;
+extern pmTimeval *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
+extern void __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
+extern void __pmLogResetInterp(__pmContext *) _PCP_HIDDEN;
+extern void __pmArchCtlFree(__pmArchCtl *) _PCP_HIDDEN;
+extern int __pmLogChangeArchive(__pmContext *, int) _PCP_HIDDEN;
+extern int __pmLogChangeToNextArchive(__pmLogCtl **) _PCP_HIDDEN;
+extern int __pmLogChangeToPreviousArchive(__pmLogCtl **) _PCP_HIDDEN;
+
+/* DSO PMDA helpers */
+struct __pmDSO;			/* opaque, real definition in pmda.h */
+extern struct __pmDSO *__pmLookupDSO(int) _PCP_HIDDEN;
+/*
+ * Adding/deleting/clearing the list of DSO PMDAs supported for
+ * PM_CONTEXT_LOCAL contexts
+ */
+#define PM_LOCAL_ADD	1
+#define PM_LOCAL_DEL	2
+#define PM_LOCAL_CLEAR	3
+
+extern int __pmTimevalCmp(const pmTimeval *, const pmTimeval *) _PCP_HIDDEN;
+
+extern int __pmSecureServerSetup(const char *, const char *) _PCP_HIDDEN;
+
+extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *) _PCP_HIDDEN;
+
+extern void __pmFreeInterpData(__pmContext *) _PCP_HIDDEN;
+
+extern void __pmDumpLabelSet(FILE *, const pmLabelSet *) _PCP_HIDDEN;
+extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

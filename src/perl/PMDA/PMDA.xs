@@ -269,7 +269,7 @@ preinstance(pmInDom indom)
 }
 
 int
-instance_wrapper(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+instance_wrapper(pmInDom indom, int a, char *b, pmInResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
 	pmns_refresh();
@@ -634,7 +634,7 @@ new(CLASS,name,domain)
 	logfile = local_strdup_suffix(name, ".log");
 	pmdaname = local_strdup_prefix("pmda", name);
 	pmSetProgname(pmdaname);
-	sep = __pmPathSeparator();
+	sep = pmPathSeparator();
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL) {
 	    if (pmSetDebug(p) < 0)
 		fprintf(stderr, "unrecognized debug options specification (%s)\n", p);
@@ -849,7 +849,7 @@ error(self,message)
     PREINIT:
 	(void)self;
     CODE:
-	__pmNotifyErr(LOG_ERR, "%s", message);
+	pmNotifyErr(LOG_ERR, "%s", message);
 
 int
 set_user(self,username)
@@ -858,7 +858,7 @@ set_user(self,username)
     PREINIT:
 	(void)self;
     CODE:
-	RETVAL = __pmSetProcessIdentity(username);
+	RETVAL = pmSetProcessIdentity(username);
     OUTPUT:
 	RETVAL
 
@@ -1205,7 +1205,7 @@ log(self,message)
     PREINIT:
 	(void)self;
     CODE:
-	__pmNotifyErr(LOG_INFO, "%s", message);
+	pmNotifyErr(LOG_INFO, "%s", message);
 
 void
 err(self,message)
@@ -1214,7 +1214,7 @@ err(self,message)
     PREINIT:
 	(void)self;
     CODE:
-	__pmNotifyErr(LOG_ERR, "%s", message);
+	pmNotifyErr(LOG_ERR, "%s", message);
 
 void
 connect_pmcd(self)

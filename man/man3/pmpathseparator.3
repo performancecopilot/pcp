@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -13,30 +13,25 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMFREEPROFILE 3 "PCP" "Performance Co-Pilot"
+.TH PMPATHEPARATOR 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3__pmFreeProfile\f1 \- free a PMAPI instance profile
+\f3pmPathSeparator\f1 \- return the filesystem path separator character
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
-.br
-#include <pcp/impl.h>
 .sp
-void __pmFreeProfile(__pmProfile *\fIprof\fP);
+int pmPathSeparator(void);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.B __pmFreeProfile
-frees the storage for the PMAPI instance profile
-.IR prof ,
-assuming the
-storage was allocated using
-.BR malloc (3)
-according to the scheme used in
-.BR __pmDecodeProfile (3).
-.SH SEE ALSO
-.BR malloc (3),
-.BR PMAPI (3)
-and
-.BR __pmDecodeProfile (3).
+.B pmPathSeparator
+is a convenience method that returns ``/'' in  the civilized world.
+For Windows platforms you may get ``/'' or ``\e'' depending on the
+run-time environment.
+.PP
+The most common use scenario is to use
+.B pmPathSeparator
+to construct the full pathname for a file
+from a known directory name and a relative
+file name.

@@ -36,8 +36,6 @@ _filter_make()
 
 cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 foo
-both
-foo
 daemon
 foo
 socket

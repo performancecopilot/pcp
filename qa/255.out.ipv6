@@ -1,15 +1,6 @@
 QA output created by 255
 === Removing potential cron conflicts ===
 === Install broken namespace ===
-You will need to choose an appropriate configuration for installation of
-the "broken" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] Updating the Performance Metrics Name Space (PMNS) ...
-Skipping PMDA install and PMCD re-configuration
 === Broken PMNS ===
 broken.valid.one
 broken.valid.two
@@ -26,16 +17,6 @@ broken.no.instfetch
 broken.no.instances
 broken.bogus.one
 === Building simple agent ===
-You will need to choose an appropriate configuration for installation of
-the "simple" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] Updating the Performance Metrics Name Space (PMNS) ...
-Skipping PMDA install and PMCD re-configuration
-Namespace installed
 PMDA built
 Help generated
 === Replacing pmcd.options ===
@@ -98,10 +79,12 @@ broken.valid.three: pmLookupDesc: Unknown or illegal metric identifier
 broken.valid.two: pmLookupDesc: Unknown or illegal metric identifier
 broken was removed
 
-=== Removing broken_pmda namespace ===
+=== Removing broken_pmda ===
 Culling the Performance Metrics Name Space ...
 broken ... done
-Skipping PMDA removal and PMCD re-configuration
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check broken metrics have gone away ... OK
 === Resetting pmcd.conf back to original state ===
 === Resetting pmcd.options back to original state ===
 === Restart PMCD ===

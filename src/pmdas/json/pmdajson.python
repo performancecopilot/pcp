@@ -35,8 +35,8 @@ import shlex
 # functions.
 from six import iteritems, text_type
 
-MAX_CLUSTER = 0xfff             # 12 bits, see pcp/impl.h
-MAX_METRIC = 0x3ff              # 10 bits, see pcp/impl.h
+MAX_CLUSTER = 0xfff             # 12 bits, see pcp/libpcp.h
+MAX_METRIC = 0x3ff              # 10 bits, see pcp/libpcp.h
 MAX_INDOM = 0x7fffffff
 
 NOBODY_UID = -1

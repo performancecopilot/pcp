@@ -13,17 +13,15 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMPROCESSPIPE 3i "PCP" "Performance Co-Pilot"
+.TH PMPROCESSPIPE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmProcessPipe\f1,
 \f3__pmProcessClosePipe\f1 \- support for process execution at the end of a pipe
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 .br
-#include <pcp/impl.h>
-.br
-#include <pcp/libpcp.h>
+#include "libpcp.h"
 .sp
 int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
 .br
@@ -52,9 +50,9 @@ for executing commands in a separate process that is connected
 to the caller by a pipe.
 .PP
 Setting up the command and arguments is fully documented in
-.BR __pmProcessAddArg (3i)
+.BR __pmProcessAddArg (3)
 and is identical to the procedure used to setup
-.BR __pmProcessExec (3i).
+.BR __pmProcessExec (3).
 .PP
 Once all the command name and arguments have been registered
 calling
@@ -128,11 +126,11 @@ Once the caller determines all the work has been done,
 should be called.
 .PP
 Nested calling of
-.BR __pmProcessExec (3i)
+.BR __pmProcessExec (3)
 and/or
 .B __pmProcessPipe
 is not allowed.  Once
-.BR __pmProcessAddArg (3i)
+.BR __pmProcessAddArg (3)
 is called with
 .I handle
 set to
@@ -140,7 +138,7 @@ set to
 to start the registration and execution sequence any attempt
 to start a second registration sequence will be blocked until
 the first one is completed by calling
-.BR __pmProcessExec (3i)
+.BR __pmProcessExec (3)
 or
 .BR __pmProcessPipe .
 .SH SEE ALSO
@@ -149,8 +147,8 @@ or
 .BR pclose (2),
 .BR pipe (2),
 .BR popen (2),
-.BR __pmProcessAddArg (3i),
-.BR __pmProcessExec (3i)
+.BR __pmProcessAddArg (3),
+.BR __pmProcessExec (3)
 and
 .BR waitpid (3).
 .SH DIAGNOSTICS

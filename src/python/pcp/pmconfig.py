@@ -91,12 +91,15 @@ class pmConfig(object):
 
     def set_attr(self, name, value):
         """ Set options read from file """
+        if name == 'colxrow':
+            # As a special service for pmrep(1) utility we handle
+            # its config colxrow parameter here with minimal impact.
+            self.util.colxrow = value
+            return
         if value in ('true', 'True', 'y', 'yes', 'Yes'):
             value = 1
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
-        if name == 'source':
-            self.util.source = value
         if name == 'speclocal':
             if not self.util.speclocal or not self.util.speclocal.startswith("K:"):
                 self.util.speclocal = value
@@ -117,6 +120,8 @@ class pmConfig(object):
             try:
                 setattr(self.util, name, int(value))
             except ValueError:
+                if value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1]
                 setattr(self.util, name, value)
 
     def read_section_options(self, config, section):
@@ -206,7 +211,10 @@ class pmConfig(object):
                 metrics[key] = [value]
                 for index in range(0, 6):
                     if len(metrics[key]) <= index:
-                        metrics[key].append(None)
+                        if index == 2:
+                            metrics[key].append([None])
+                        else:
+                            metrics[key].append(None)
             else:
                 # Additional info
                 key, spec = key.rsplit(".")
@@ -219,7 +227,10 @@ class pmConfig(object):
                     else:
                         self.util.derived += "@" + metrics[key][0] + "=" + value
                 else:
-                    metrics[key][self.metricspec.index(spec)+1] = value
+                    if self.metricspec.index(spec) == 1:
+                        metrics[key][self.metricspec.index(spec)+1] = [value]
+                    else:
+                        metrics[key][self.metricspec.index(spec)+1] = value
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metrics set """
@@ -267,10 +278,10 @@ class pmConfig(object):
                     for key in config.options(spec):
                         if key not in self.util.keys:
                             self.parse_metric_info(parsemet, key, config.get(spec, key))
-                            for metric in parsemet:
-                                name = parsemet[metric][:1][0]
-                                confmet[name] = parsemet[metric][1:]
-                            tempmet[spec] = confmet
+                    for metric in parsemet:
+                        name = parsemet[metric][:1][0]
+                        confmet[name] = parsemet[metric][1:]
+                    tempmet[spec] = confmet
                 else:
                     raise IOError("Metricset definition '%s' not found." % metric)
 
@@ -394,8 +405,6 @@ class pmConfig(object):
             try:
                 l = len(self.pmids)
                 self._tmp = metrics[metric][1]
-                if not 'append' in dir(self._tmp):
-                    self._tmp = [self._tmp]
                 self.util.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found
@@ -432,7 +441,10 @@ class pmConfig(object):
             # Fill in all fields for easier checking later
             for index in range(0, 6):
                 if len(self.util.metrics[metric]) <= index:
-                    self.util.metrics[metric].append(None)
+                    if index == 1:
+                        self.util.metrics[metric].append([None])
+                    else:
+                        self.util.metrics[metric].append(None)
 
             # Label
             if not self.util.metrics[metric][0]:

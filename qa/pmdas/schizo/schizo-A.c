@@ -8,7 +8,6 @@
 #include <syslog.h>
 #include <errno.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include "domain.h"
 
@@ -69,7 +68,7 @@ schizo_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
 
-    __pmNotifyErr(LOG_DEBUG, "schizo_fetch: %d.%d[%d]\n",
+    pmNotifyErr(LOG_DEBUG, "schizo_fetch: %d.%d[%d]\n",
 		  cluster, item, inst);
 
     if (cluster == 0) {
@@ -146,7 +145,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			err = 0;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];

@@ -16,7 +16,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
@@ -274,7 +273,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
 /*
  * store the instance profile away for the next fetch
  */
-static int perfevent_profile(__pmProfile *prof, pmdaExt *pmda)
+static int perfevent_profile(pmProfile *prof, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return 0;
@@ -395,13 +394,13 @@ static int setup_perfevents()
     char buffer[MAXPATHLEN];
     const char *err_desc;
     int ret;
-    int	sep = __pmPathSeparator();
+    int	sep = pmPathSeparator();
     pmsprintf(buffer, sizeof(buffer), "%s%c" PMDANAME "%c" PMDANAME ".conf", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
     perfif = manager_init(buffer);
     if( 0 == perfif )
     {
-        __pmNotifyErr(LOG_ERR, "Unable to create perf instance\n");
+        pmNotifyErr(LOG_ERR, "Unable to create perf instance\n");
         return -1;
     }
 
@@ -409,7 +408,7 @@ static int setup_perfevents()
     if( ret < 0 )
     {
         err_desc = perf_strerror(ret);
-        __pmNotifyErr(LOG_ERR, "Error reading event counters perf_get returned %s\n",err_desc);
+        pmNotifyErr(LOG_ERR, "Error reading event counters perf_get returned %s\n",err_desc);
         return -1;
     }
 
@@ -450,7 +449,7 @@ static int setup_metrics()
 
     if( (NULL == dynamic_metric_infotab) || (NULL == metrictab) || (NULL == indomtab) )
     {
-        __pmNotifyErr(LOG_ERR, "Error allocating memory for %d metrics (%d counters)\n",
+        pmNotifyErr(LOG_ERR, "Error allocating memory for %d metrics (%d counters)\n",
                       nummetrics, nhwcounters);
         free(dynamic_metric_infotab);
         free(metrictab);
@@ -573,7 +572,7 @@ static int setup_pmns()
 
     if ((sts = __pmNewPMNS(&pmns)) < 0)
     {
-        __pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(sts));
+        pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(sts));
         pmns = NULL;
         return -1;
     }
@@ -628,7 +627,7 @@ perfevent_init(pmdaInterface *dp)
 {
     if (isDSO)
     {
-        int sep = __pmPathSeparator();
+        int sep = pmPathSeparator();
         pmsprintf(mypath, sizeof(mypath), "%s%c" PMDANAME "%c" "help", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_5, PMDANAME " DSO", mypath);
     }
@@ -647,7 +646,7 @@ perfevent_init(pmdaInterface *dp)
 
     if(!isDSO)
     {
-        __pmSetProcessIdentity(username);
+        pmSetProcessIdentity(username);
     }
 
     if(setup_metrics() < 0 )
@@ -672,7 +671,7 @@ perfevent_init(pmdaInterface *dp)
         return;
     }
 
-    __pmNotifyErr(LOG_INFO, "perfevent version " VERSION " initialised\n");
+    pmNotifyErr(LOG_INFO, "perfevent version " VERSION " initialised\n");
 }
 
 static void usage(void)
@@ -698,12 +697,12 @@ static void usage(void)
 int main(int argc, char **argv)
 {
     int			c, err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
 
     isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "perfevent" "%c" "help",
              pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

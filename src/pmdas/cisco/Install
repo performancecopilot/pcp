@@ -31,81 +31,79 @@ pollrate=120		# poll each Cisco interface once every 120 seconds
 
 # special cisco PMDA args
 
-if $do_pmda
-then
-    args="-r$pollrate"
-    default="wanptg"
-    while true
+args="-r$pollrate"
+default="wanptg"
+while true
+do
+    no_host=true
+    while $no_host
     do
-	no_host=true
-	while $no_host
-	do
-	    echo
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco hostname or IP address? [return to quit Cisco selection] ""$PCP_ECHO_C"
-	    read host
-	    [ "X$host" = X ] && break
-	    echo '
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N "Cisco hostname or IP address? [return to quit Cisco selection] ""$PCP_ECHO_C"
+	read host
+	[ "X$host" = X ] && break
+	echo '
 A username and/or user-level password may be required for the Cisco
 "show interface" command.
-    If you are unsure, try the command
-	$ telnet '$host'
-    and if the prompt "Username:" appears, then a username is required,
-    and if the prompt "Password:" appears, a user-level password is required,
-    otherwise respond with an empty line for the next two questions.
-    Once logged in, we need to know the termination string for the command
-    line prompt (one or more unique characters at the end of the prompt) -
-    the default is ">", but if this is not correct, enter the prompt
-    termination string also.
+If you are unsure, try the command
+    $ telnet '$host'
+and if the prompt "Username:" appears, then a username is required,
+and if the prompt "Password:" appears, a user-level password is required,
+otherwise respond with an empty line for the next two questions.
+Once logged in, we need to know the termination string for the command
+line prompt (one or more unique characters at the end of the prompt) -
+the default is ">", but if this is not correct, enter the prompt
+termination string also.
 '
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco username? ""$PCP_ECHO_C"
-	    read username
-	    userarg=""
-	    [ "X$username" != X ] && userarg="-U$username"
-	    $PCP_ECHO_PROG $PCP_ECHO_N "User-level Cisco password? ""$PCP_ECHO_C"
-	    read passwd
-	    passarg=""
-	    [ "X$passwd" != X ] && passarg="-P$passwd"
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Cisco command line prompt termination? [>] ""$PCP_ECHO_C"
-	    read prompt
-	    promptarg=""
-	    [ "X$prompt" != X ] && promptarg="-s'$prompt'"
-	    echo "Probing Cisco for list of interfaces ..."
-	    for try in 1 2 3
-	    do
-		intf=`eval ./probe $userarg $passarg $promptarg $host 2>$__tmp.err`
-		[ ! -z "$intf" ] && break
-		sleep 2
-	    done
-	    if [ -z "$intf" ]
-	    then
-		echo '
+	$PCP_ECHO_PROG $PCP_ECHO_N "Cisco username? ""$PCP_ECHO_C"
+	read username
+	userarg=""
+	[ "X$username" != X ] && userarg="-U$username"
+	$PCP_ECHO_PROG $PCP_ECHO_N "User-level Cisco password? ""$PCP_ECHO_C"
+	read passwd
+	passarg=""
+	[ "X$passwd" != X ] && passarg="-P$passwd"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Cisco command line prompt termination? [>] ""$PCP_ECHO_C"
+	read prompt
+	promptarg=""
+	[ "X$prompt" != X ] && promptarg="-s'$prompt'"
+	echo "Probing Cisco for list of interfaces ..."
+	for try in 1 2 3
+	do
+	    intf=`eval ./probe $userarg $passarg $promptarg $host 2>$__tmp.err`
+	    [ ! -z "$intf" ] && break
+	    sleep 2
+	done
+	if [ -z "$intf" ]
+	then
+	    echo '
 There appears to be a problem ... after three attempts could not get
 interfaces.  Output at the last attempt was:'
-		sed -e 's/^/    /' <$__tmp.err
-		echo '
+	    sed -e 's/^/    /' <$__tmp.err
+	    echo '
 You may wish to try the following commands to identify the configured
 interfaces for this Cisco.
-	$ telnet '$host'
-	....> terminal length 0
-	....> show interface
-	....> quit
+    $ telnet '$host'
+    ....> terminal length 0
+    ....> show interface
+    ....> quit
 '
-	    else
-		no_host=false
-	    fi
-	done
-	[ "X$host" = X ] && break
-
-	if [ -z "$username" ]
-	then
-	    login=""
 	else
-	    login="@$username"
+	    no_host=false
 	fi
-	[ ! -z "$passwd" ] && login="$login?$passwd"
-	[ ! -z "$prompt" ] && login="$login!$prompt"
+    done
+    [ "X$host" = X ] && break
 
-	echo '
+    if [ -z "$username" ]
+    then
+	login=""
+    else
+	login="@$username"
+    fi
+    [ ! -z "$passwd" ] && login="$login?$passwd"
+    [ ! -z "$prompt" ] && login="$login!$prompt"
+
+    echo '
 Enter interfaces to monitor, one per line in the format tX where "t" is
 a type and one of "e" (Ethernet), "E" (FastEthernet), "f" (Fddi), "s"
 (Serial), "a" (ATM), "B" (ISDN BRI) or "h" (HSSC) and "X" is an
@@ -113,42 +111,41 @@ interface identifier which is either an integer (e.g.  4000 Series
 routers) or two integers separated by a slash (e.g. 7000 Series
 routers).'
 
-	while true
-	do
-	    echo
-	    echo 'The currently unselected interfaces for the Cisco "'$host'" are:'
-	    echo "$intf" | fmt | sed -e 's/^/    /'
-	    echo 'Enter "*" to select all, "quit" to terminate selections for this Cisco.'
+    while true
+    do
+	echo
+	echo 'The currently unselected interfaces for the Cisco "'$host'" are:'
+	echo "$intf" | fmt | sed -e 's/^/    /'
+	echo 'Enter "*" to select all, "quit" to terminate selections for this Cisco.'
 
-	    first=`echo "$intf" | sed -e 's/ .*//'`
-	    [ -z "$first" ] && first=quit
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Interface? [$first] ""$PCP_ECHO_C"
-	    read ans
-	    [ "X$ans" = Xquit ] && break
-	    if [ "X$ans" = "X*" ]
-	    then
-		# do them all
-		for ans in `echo "$intf"`
-		do
-		    args="$args $host:$ans$login"
-		    login=''
-		done
-		break
-	    fi
-	    [ -z "$ans" ] && ans="$first"
-	    if echo " $intf" | grep " $ans" >/dev/null
-	    then
-		sed_ans=`echo $ans | sed -e 's;/;\\\\/;g'`
-		intf=`echo " $intf" | sed -e "s/ $sed_ans//" -e 's/^ //'`
-	    else
-		echo "Warning: $ans is not in the list, I hope you know what you're doing"
-	    fi
-	    args="$args $host:$ans$login"
-	    login=''
-	    [ -z "$intf" ] && break
-	done
+	first=`echo "$intf" | sed -e 's/ .*//'`
+	[ -z "$first" ] && first=quit
+	$PCP_ECHO_PROG $PCP_ECHO_N "Interface? [$first] ""$PCP_ECHO_C"
+	read ans
+	[ "X$ans" = Xquit ] && break
+	if [ "X$ans" = "X*" ]
+	then
+	    # do them all
+	    for ans in `echo "$intf"`
+	    do
+		args="$args $host:$ans$login"
+		login=''
+	    done
+	    break
+	fi
+	[ -z "$ans" ] && ans="$first"
+	if echo " $intf" | grep " $ans" >/dev/null
+	then
+	    sed_ans=`echo $ans | sed -e 's;/;\\\\/;g'`
+	    intf=`echo " $intf" | sed -e "s/ $sed_ans//" -e 's/^ //'`
+	else
+	    echo "Warning: $ans is not in the list, I hope you know what you're doing"
+	fi
+	args="$args $host:$ans$login"
+	login=''
+	[ -z "$intf" ] && break
     done
-fi
+done
 
 pmdaInstall
 

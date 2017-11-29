@@ -94,7 +94,7 @@ netlink_update_stats(int fetch)
 				    (void **)&cached) != PMDA_CACHE_ACTIVE) {
 		rv = pmdaCacheStore(indom, PMDA_CACHE_ADD, k->ks_name, k);
 		if (rv < 0) {
-		    __pmNotifyErr(LOG_WARNING,
+		    pmNotifyErr(LOG_WARNING,
 				  "Cannot create instance for "
 				  "network link '%s': %s\n",
 				  k->ks_name, pmErrStr(rv));

@@ -15,7 +15,6 @@
 #define _XOPEN_SOURCE 600
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmwebapi.h"
 
 #include <iostream>
@@ -35,7 +34,7 @@ using namespace std;
 
 
 // Print a string to cout/cerr progress reports, similar to the
-// stuff produced by __pmNotifyErr
+// stuff produced by pmNotifyErr
 ostream & timestamp (ostream & o)
 {
     time_t now;

@@ -24,7 +24,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_attr.c p_label.c \
 	pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
 	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
-	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
+	rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
@@ -43,7 +43,7 @@ CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 LLDLIBS	+= $(LIBPCP_CFLAGS)
-LLDLIBS	+= $(LIBPCP_LDLIBS)
+LLDLIBS	+= $(LIBPCP_LDLIBS) $(PCP_PMDALIB)
 
 ifeq "$(ENABLE_SECURE)" "true"
 LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
@@ -124,7 +124,6 @@ fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 labels.o:	sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
-		$(TOPDIR)/src/include/pcp/impl.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h
 
 .NOTPARALLEL:

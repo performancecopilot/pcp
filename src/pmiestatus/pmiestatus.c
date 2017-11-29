@@ -13,7 +13,6 @@
  */
 #include <sys/stat.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "stats.h"
 
 int

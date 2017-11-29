@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include <rpc/rpc.h>
 
 #define AUTOFSD_PROGRAM 100099UL

@@ -14,7 +14,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
@@ -44,10 +43,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		code;
     int		proto;
     pmResult	*rp;
-    __pmProfile	*profp;
+    pmProfile	*profp;
     int		ctxnum;
     int		fail = -1;
-    __pmTimeval	now;
+    pmTimeval	now;
     int		numpmid;
     pmID	*pmidp;
     pmID	pmid;
@@ -55,7 +54,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     pmInDom	indom;
     int		inst;
     char	*name;
-    __pmInResult	*inres;
+    pmInResult	*inres;
     pmLabelSet	*sets = NULL;
     int		nsets;
     int		control;
@@ -145,7 +144,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    ctxnum, now.tv_sec, now.tv_usec);
 		foo.tv_sec = now.tv_sec;
 		foo.tv_usec = now.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " numpmid=%d\n+ PMIDs:", numpmid);
 		for (j = 0; j < numpmid; j++)
 		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));
@@ -181,7 +180,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_DESC: ");
-		__pmPrintDesc(stderr, &desc);
+		pmPrintDesc(stderr, &desc);
 	    }
 	    if ((e = __pmSendDesc(fd, mypid, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: SendDesc: %s\n", pmGetProgname(), pmErrStr(e));
@@ -201,7 +200,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    now.tv_sec, now.tv_usec);
 		foo.tv_sec = now.tv_sec;
 		foo.tv_usec = now.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " indom=%s", pmInDomStr(indom));
 		if (inst == PM_IN_NULL)
 		    fprintf(stderr, " inst=PM_IN_NULL");
@@ -506,17 +505,17 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    lsp->ls_start.tv_sec, lsp->ls_start.tv_usec);
 		foo.tv_sec = lsp->ls_start.tv_sec;
 		foo.tv_usec = lsp->ls_start.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, "\nlast=%d.%06d ",
 		    lsp->ls_last.tv_sec, lsp->ls_last.tv_usec);
 		foo.tv_sec = lsp->ls_last.tv_sec;
 		foo.tv_usec = lsp->ls_last.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " now=%d.%06d ",
 		    lsp->ls_timenow.tv_sec, lsp->ls_timenow.tv_usec);
 		foo.tv_sec = lsp->ls_timenow.tv_sec;
 		foo.tv_usec = lsp->ls_timenow.tv_usec;
-		__pmPrintStamp(stderr, &foo);
+		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, "\nstate=%d vol=%d size=%lld host=%s tz=\"%s\" tzlogger=\"%s\"\n",
 		    lsp->ls_state, lsp->ls_vol, (long long)lsp->ls_size,
 		    lsp->ls_hostname, lsp->ls_tz, lsp->ls_tzlogger);

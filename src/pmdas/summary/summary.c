@@ -15,7 +15,6 @@
 #include <ctype.h>
 #include <signal.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "summary.h"
@@ -88,7 +87,7 @@ service_client(__pmPDU *pb)
 
 	nmeta++;
 	if ((meta = (meta_t *)realloc(meta, nmeta * sizeof(meta_t))) == NULL) {
-	    __pmNoMem("service_client: meta realloc", nmeta * sizeof(meta_t), PM_FATAL_ERR);
+	    pmNoMem("service_client: meta realloc", nmeta * sizeof(meta_t), PM_FATAL_ERR);
 	}
 	memcpy(&meta[nmeta-1].desc, &desc, sizeof(pmDesc));
 
@@ -104,7 +103,7 @@ service_client(__pmPDU *pb)
 	    int		need;
 	    need = (int)sizeof(pmResult) - (int)sizeof(pmValueSet *);
 	    if ((cachedResult = (pmResult *)malloc(need)) == NULL) {
-		__pmNoMem("service_client: result malloc", need, PM_FATAL_ERR);
+		pmNoMem("service_client: result malloc", need, PM_FATAL_ERR);
 	    }
 	    cachedResult->numpmid = 0;
 	}
@@ -128,10 +127,10 @@ service_client(__pmPDU *pb)
 		need = (int)sizeof(pmResult) +
 		    (cachedResult->numpmid-1) * (int)sizeof(pmValueSet *);
 		if ((cachedResult = (pmResult *)realloc(cachedResult, need)) == NULL) {
-		    __pmNoMem("service_client: result realloc", need, PM_FATAL_ERR);
+		    pmNoMem("service_client: result realloc", need, PM_FATAL_ERR);
 		}
 		if ((cachedResult->vset[j] = (pmValueSet *)malloc(sizeof(pmValueSet))) == NULL) {
-		    __pmNoMem("service_client: vset[]", sizeof(pmValueSet), PM_FATAL_ERR);
+		    pmNoMem("service_client: vset[]", sizeof(pmValueSet), PM_FATAL_ERR);
 		}
 		cachedResult->vset[j]->pmid = resp->vset[i]->pmid;
 		cachedResult->vset[j]->numval = 0;
@@ -164,7 +163,7 @@ service_client(__pmPDU *pb)
 }
 
 static int
-summary_profile(__pmProfile *prof, pmdaExt * ex)
+summary_profile(pmProfile *prof, pmdaExt * ex)
 {
     /*
      * doesn't make sense since summary metrics 
@@ -174,7 +173,7 @@ summary_profile(__pmProfile *prof, pmdaExt * ex)
 }
 
 static int
-summary_instance(pmInDom indom, int inst, char *name, __pmInResult **result,
+summary_instance(pmInDom indom, int inst, char *name, pmInResult **result,
                  pmdaExt * ex)
 {
     return PM_ERR_INDOM;

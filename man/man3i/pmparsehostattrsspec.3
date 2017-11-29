@@ -20,9 +20,9 @@
 \f3__pmFreeAttrsSpec\f1 \- host and attributes specification parser
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 .br
-#include <pcp/impl.h>
+#include "libpcp.h"
 .sp
 .ad l
 .hy 0
@@ -44,6 +44,13 @@ void __pmFreeAttrsSpec(__pmHashCtl\ *\fIattrs\fP);
 .ad
 cc ... \-lpcp
 .ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmParseHostAttrsSpec
 accepts a

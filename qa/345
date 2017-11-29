@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 
 grep 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h >/dev/null ||
     _notrun "No derived metric support"
-grep __pmLocalPMDA $PCP_INC_DIR/impl.h >/dev/null ||
+grep __pmLocalPMDA src/libpcp.h >/dev/null ||
     _notrun "No libpcp support for __pmLocalPMDA"
 
 status=0	# success is the default!

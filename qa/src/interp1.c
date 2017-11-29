@@ -7,7 +7,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 int
@@ -201,7 +200,7 @@ Options\n\
 	    break;
 	}
 	if (prev) {
-	    tdiff = __pmtimevalSub(&result->timestamp, &prev->timestamp);
+	    tdiff = pmtimevalSub(&result->timestamp, &prev->timestamp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
 	    for (j = 0; j < numpmid; j++) {
 		printf("%s: ", name[j]);

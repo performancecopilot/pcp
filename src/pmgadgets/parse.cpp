@@ -14,7 +14,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <setjmp.h>
 #include <values.h>
 #include "global.h"

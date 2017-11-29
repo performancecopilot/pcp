@@ -16,7 +16,8 @@
 .TH PMGETCONFIG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetConfig\f1,
-\f3pmGetOptionalConfig\f1 \- return values for Performance Co-Pilot configuration variables
+\f3pmGetOptionalConfig\f1,
+\f3pmGetAPIConfig\f1 \- return values for Performance Co-Pilot configuration variables
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -24,12 +25,9 @@
 char *pmGetConfig(const char *\fIvariable\fP);
 .br
 char *pmGetOptionalConfig(const char *\fIvariable\fP);
-.sp
-#include <pcp/impl.h>
 .br
-#include <pcp/libpcp.h>
 .br
-char *__pmGetAPIConfig(const char *\fIfeature\fP);
+char *pmGetAPIConfig(const char *\fIfeature\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -69,8 +67,8 @@ in the environment to a new location,
 as described in
 .BR pcp.conf (5).
 .PP
-The internal
-.B __pmGetAPIConfig
+The
+.B pmGetAPIConfig
 function reports on features of the PCP library.
 It can be used to query support for multi-threading, security extensions,
 and other features.
@@ -103,7 +101,7 @@ then a fatal error message is printed and the process will
 because the PCP configuration/installation is deemed fatally flawed.
 .PP
 The
-.B __pmGetAPIConfig
+.B pmGetAPIConfig
 routine returns NULL on failure to lookup the requested
 .IR feature .
 It does not modify the environment, and returns a pointer to a static

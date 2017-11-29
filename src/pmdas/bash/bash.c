@@ -93,7 +93,7 @@ check_processes(int context)
 
 static int
 bash_instance(pmInDom indom, int inst, char *name,
-		__pmInResult **result, pmdaExt *pmda)
+		pmInResult **result, pmdaExt *pmda)
 {
     check_processes(pmda->e_context);
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -149,7 +149,7 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	    trace->flags |= PM_EVENT_FLAG_START;
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG,
+	    pmNotifyErr(LOG_DEBUG,
 		"event parsed: flags: %x time: %d line: %d func: '%s' cmd: '%s'",
 		trace->flags, time, trace->line, trace->function, trace->command);
     }
@@ -167,7 +167,7 @@ bash_trace_decoder(int eventarray,
     int			sts, count = 0;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%ld bytes]", (long)size);
+	pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%ld bytes]", (long)size);
 
     if (bash_trace_parser(process, &trace, timestamp, (const char *)buffer, size))
 	return 0;
@@ -269,7 +269,7 @@ bash_store_metric(pmValueSet *vsp, int context)
 	return PM_ERR_PERMISSION;
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "bash_store_metric walking bash set");
+	pmNotifyErr(LOG_DEBUG, "bash_store_metric walking bash set");
 
     pmdaCacheOp(processes, PMDA_CACHE_WALK_REWIND);
     while ((sts = pmdaCacheOp(processes, PMDA_CACHE_WALK_NEXT)) != -1) {
@@ -280,7 +280,7 @@ bash_store_metric(pmValueSet *vsp, int context)
 	if ((sts = pmdaEventSetAccess(context, bp->queueid, 1)) < 0)
 	    return sts;
 	if (pmDebugOptions.appl0)
-            __pmNotifyErr(LOG_DEBUG,
+            pmNotifyErr(LOG_DEBUG,
 			"Access granted client=%d bash=%d queueid=%d",
                         context, bp->pid, bp->queueid);
     }
@@ -295,12 +295,12 @@ bash_store(pmResult *result, pmdaExt *pmda)
 
     check_processes(context);
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "bash_store called (%d)", result->numpmid);
+	pmNotifyErr(LOG_DEBUG, "bash_store called (%d)", result->numpmid);
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet	*vsp = result->vset[i];
 
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_DEBUG, "bash_store_metric called");
+	    pmNotifyErr(LOG_DEBUG, "bash_store_metric called");
 	if ((sts = bash_store_metric(vsp, context)) < 0)
 	    return sts;
     }
@@ -333,7 +333,7 @@ bash_main(pmdaInterface *dispatch)
 
     /* arm interval timer */
     if (__pmAFregister(&bash_interval, NULL, timer_expired) < 0) {
-	__pmNotifyErr(LOG_ERR, "registering event interval handler");
+	pmNotifyErr(LOG_ERR, "registering event interval handler");
 	exit(1);
     }
 
@@ -341,11 +341,11 @@ bash_main(pmdaInterface *dispatch)
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
 	if (pmDebugOptions.appl2)
-            __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
+            pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
                           nready, bash_interval_expired);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
+		pmNotifyErr(LOG_ERR, "select failure: %s", netstrerror());
 		exit(1);
 	    } else if (!bash_interval_expired) {
 		continue;
@@ -355,13 +355,13 @@ bash_main(pmdaInterface *dispatch)
 	__pmAFblock();
 	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
+		pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);        /* fatal if we lose pmcd */
 	    }
 	    if (pmDebugOptions.appl0)
-		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
+		pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
 	if (bash_interval_expired) {
 	    bash_interval_expired = 0;
@@ -375,7 +375,7 @@ void
 bash_init(pmdaInterface *dp)
 {
     if (username)
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
 
     if (dp->status != 0)
 	return;
@@ -420,7 +420,7 @@ main(int argc, char **argv)
     char		*endnum;
     pmdaInterface	desc;
     long		minmem;
-    int			c, sep = __pmPathSeparator();
+    int			c, sep = pmPathSeparator();
 
     pmSetProgname(argv[0]);
 

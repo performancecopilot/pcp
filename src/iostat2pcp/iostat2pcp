@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -45,7 +46,9 @@ my %options;		# for command line arguments
 my $sample = -1;
 my $interval = undef;
 my $in_dev = 0;		# in Device: group
-my $dev_style;		# "d" for standard -d Device: data, "x" for -x Device: data
+my $dev_style;		# "d" for standard -d Device: data,
+			# "x0" for -x Device: data starting with rrqm/s
+			# "x1" for -x Device data starting with r/s
 			# Note -x and -d are mutually exclusive to iostat
 my $in_cpu = 0;		# in avg-cpu: group
 my $stamp;		# timestamp from -t output lines
@@ -290,7 +293,7 @@ sub sample_done()
 	    }
 	    else {
 		pmiDump();
-		print "[$line] $_\n";
+		print STDERR "[$line] $_\n";
 		die "Device: no first handle for instance \"" . $instance . "\", check Handles in dump above";
 	    }
 	    if ($dev_style eq "d") {
@@ -555,7 +558,10 @@ while (<INFILE>) {
 	($stamp_style >= 1 && $stamp_style <= 4) and next;
     }
 
-    if (/^Device:/) {
+    # section tag used to be Device: but as of 11.5.7 or thereabouts
+    # this appears to have become just Device (no colon)
+    #
+    if (/^Device:/ || /^Device/) {
 	$in_cpu = 0;
 	$in_dev = 1;
 	$header = 1;
@@ -590,21 +596,31 @@ while (<INFILE>) {
 		# Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
 		# Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
 		# Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+		# Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
 		if (/tps/) {
 		    $dev_style = "d";	# -d option
 		    if (/Blk_read/) { $dev_thru_scale = 0.5; }
 		    elsif (/kB_read/) { $dev_thru_scale = 1; }
 		    elsif (/MB_read/) { $dev_thru_scale = 1024; }
 		    else {
-			print "[$line] $_\n";
+			print STDERR "[$line] $_\n";
 			die "Device: cannot determine thruput scale";
 		    }
 		    def_multi("disk.dev.total", $dev_indom);
 		    def_multi("disk.dev.read_bytes", $dev_indom);
 		    def_multi("disk.dev.write_bytes", $dev_indom);
 		}
+		elsif (/Device: *rrqm\/s/) {
+		    $dev_style = "x0";	# assume old-style -x option
+		}
+		elsif (/^Device *r\/s/) {
+		    $dev_style = "x1";	# assume new-style -x option
+		}
 		else {
-		    $dev_style = "x";	# assume -x option
+		    print STDERR "[$line] $_\n";
+		    die "Device: cannot decode header style (not -d and not -x)";
+		}
+		if ($dev_style eq "x0" || $dev_style eq "x1") {
 		    $dev_thru_scale = 0.5;	# assume 512-byte sectors
 		    def_multi("disk.dev.read_merge", $dev_indom);
 		    def_multi("disk.dev.write_merge", $dev_indom);
@@ -630,7 +646,7 @@ while (<INFILE>) {
 	# no -d or -z and no activity
 	my @part = split(/\s+/, $_);
 	if ($#part != 5) {
-	    print "[$line] $_\n";
+	    print STDERR "[$line] $_\n";
 	    die "Device: number of values? expected 6, found " . ($#part+1) . "\n";
 	}
 	if ($part[4] != 0) {
@@ -650,7 +666,7 @@ while (<INFILE>) {
 	    my @part = split(/\s+/, $_);
 	    # $part[0] is empty white space before first value
 	    if ($#part != 6) {
-		print "[$line] $_\n";
+		print STDERR "[$line] $_\n";
 		die "avg-cpu: number of values? expected 7, found " . ($#part+1) . "\n";
 	    }
 	    put($part[1]/100);	# user
@@ -669,6 +685,10 @@ while (<INFILE>) {
 	    # or
 	    # Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
 	    # sda               0.33     1.32    1.26    2.65    33.94    25.02    30.17     0.09   24.10   24.35   23.98   5.81   2.27
+	    # or
+	    # Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
+	    # sda              7.84    3.88    170.60    288.84     0.46     6.70   5.51  63.33    2.56    8.60   0.05    21.77    74.49   1.38   1.62
+	    #
 
 	    my @part = split(/\s+/, $_);
 	    my @thisval;
@@ -686,15 +706,22 @@ while (<INFILE>) {
 	    }
 	    if ($dev_style eq "d") {
 		if ($#part != 5) {
-		    print "[$line] $_\n";
+		    print STDERR "[$line] $_\n";
 		    die "Device: number of values? expected 6, found " . ($#part+1) . "\n";
 		}
 		$instance = $part[0];
 	    }
-	    else {
+	    elsif ($dev_style eq "x0") {
 		if ($#part != 11 and $#part != 13) {
-		    print "[$line] $_\n";
-		    die "Device: number of values? expected 12 or 14, found " . ($#part+1) . "\n";
+		    print STDERR "[$line] $_\n";
+		    die "Device: (old -x format) number of values? expected 12 or 14, found " . ($#part+1) . "\n";
+		}
+		$instance = $part[0];
+	    }
+	    else {
+		if ($#part != 15) {
+		    print STDERR "[$line] $_\n";
+		    die "Device: (new -x format) number of values? expected 12 or 14 or 16, found " . ($#part+1) . "\n";
 		}
 		$instance = $part[0];
 	    }
@@ -719,7 +746,7 @@ while (<INFILE>) {
 		    def_metric_inst("disk.dev.read_bytes", $dev_indom, $instance);
 		    def_metric_inst("disk.dev.write_bytes", $dev_indom, $instance);
 		    def_metric_inst("disk.dev.avactive", $dev_indom, $instance);
-		    if ($#part == 13) {
+		    if (($dev_style eq "x0" && $#part == 13) || ($dev_style eq "x1")) {
 			def_metric_inst("disk.dev.read_rawactive", $dev_indom, $instance);
 			def_metric_inst("disk.dev.write_rawactive", $dev_indom, $instance);
 		    }
@@ -749,7 +776,7 @@ while (<INFILE>) {
 		}
 		else {
 		    pmiDump();
-		    print "[$line] $_\n";
+		    print STDERR "[$line] $_\n";
 		    die "Device: no first handle for instance \"" . $instance . "\", check Handles in dump above";
 		}
 		# disk.dev.read_merge
@@ -761,14 +788,22 @@ while (<INFILE>) {
 		# disk.dev.avactive
 		# disk.dev.read_rawactive
 		# disk.dev.write_rawactive
-		@thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[9]);
-		if ($#part == 13) {
-		    push @thisval, $part[10];
-		    push @thisval, $part[11];
+		if ($dev_style eq "x0") {
+		    @thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[9]);
+		    if ($#part == 13) {
+			push @thisval, $part[10];
+			push @thisval, $part[11];
+		    }
+		}
+		else {
+		    # let's assume the new svctm $part[14] is close to the
+		    # old await that is no longer reported
+		    #
+		    @thisval = ($part[5], $part[6], $part[1], $part[2], $part[3] * $dev_thru_scale, $part[4] * $dev_thru_scale, $part[14], $part[9], $part[10]);
 		}
 		if (!exists($dev_prev{$instance})) {
 		    # first time seen for this instance
-		    $dev_prev{$instance} = [0,0,0,0,0,0,0];
+		    $dev_prev{$instance} = [0,0,0,0,0,0,0,0,0];
 		}
 		for (my $i = 0; $i <= $#thisval; $i++) {
 		    # all these are instantaneous

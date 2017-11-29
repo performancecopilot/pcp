@@ -12,7 +12,6 @@
  * License for more details.
  */
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,

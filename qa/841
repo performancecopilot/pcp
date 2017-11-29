@@ -53,7 +53,6 @@ do
     esac
     date >>$here/$seq.full
     cat <<End-of-File | $sudo ./Install
-both
 $start
 End-of-File
     date >>$here/$seq.full

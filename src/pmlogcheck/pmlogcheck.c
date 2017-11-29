@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <unistd.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logcheck.h"
 
@@ -78,7 +77,7 @@ dumpLabel(void)
     ddmm[10] = '\0';
     yr = &ddmm[20];
     fprintf(stderr, "  commencing %s ", ddmm);
-    __pmPrintStamp(stderr, &label.ll_start);
+    pmPrintStamp(stderr, &label.ll_start);
     fprintf(stderr, " %4.4s\n", yr);
 
     if (opts.finish.tv_sec == INT_MAX) {
@@ -90,7 +89,7 @@ dumpLabel(void)
         ddmm[10] = '\0';
         yr = &ddmm[20];
         fprintf(stderr, "  ending     %s ", ddmm);
-        __pmPrintStamp(stderr, &opts.finish);
+        pmPrintStamp(stderr, &opts.finish);
         fprintf(stderr, " %4.4s\n", yr);
     }
 }
@@ -182,7 +181,7 @@ main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
 
-    sep = __pmPathSeparator();
+    sep = pmPathSeparator();
     setlinebuf(stderr);
 
     __pmAddOptArchive(&opts, argv[opts.optind]);

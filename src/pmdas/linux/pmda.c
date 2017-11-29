@@ -5081,6 +5081,31 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.pgscan_direct */
+    { &_pm_proc_vmstat.pgscan_direct,
+    {PMDA_PMID(28,146), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgscan_direct_throttle */
+    { &_pm_proc_vmstat.pgscan_direct_throttle,
+    {PMDA_PMID(28,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgscan_kswapd */
+    { &_pm_proc_vmstat.pgscan_kswapd,
+    {PMDA_PMID(28,148), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_direct */
+    { &_pm_proc_vmstat.pgsteal_direct,
+    {PMDA_PMID(28,149), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_kswapd */
+    { &_pm_proc_vmstat.pgsteal_kswapd,
+    {PMDA_PMID(28,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
@@ -5614,7 +5639,7 @@ done:
 }
 
 static int
-linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			need_refresh[NUM_REFRESHES] = {0};
     int			sts;
@@ -7708,7 +7733,7 @@ linux_grow_ctxtab(int ctx)
     /* expand and initialize the per client context table */
     ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
     if (ctxtab == NULL) {
-	__pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+	pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     while (num_ctx <= ctx) {
@@ -8026,13 +8051,13 @@ linux_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_7, "linux DSO", helppath);
     } else {
 	if (username)
-	    __pmSetProcessIdentity(username);
+	    pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -8176,7 +8201,7 @@ pmdaOptions	opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 

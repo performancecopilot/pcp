@@ -10,7 +10,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <sys/wait.h>
 
 void

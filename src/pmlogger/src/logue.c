@@ -72,7 +72,7 @@ do_logue(int type)
     pmResult	*res_pmcd = NULL;	/* for values from pmcd */
     __pmPDU	*pb;
     pmAtomValue	atom;
-    __pmTimeval	tmp;
+    pmTimeval	tmp;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
     int		free_cp;

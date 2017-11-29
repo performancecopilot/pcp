@@ -512,7 +512,7 @@ collectl
 159 pmda.cisco local pmda.install
 160 libpcp local
 161 pmlogger local
-162 pmda pmda.proc local pmda.shping pmda.install
+162:retired pmda pmda.proc local pmda.shping pmda.install
 163 archive local
 164:retired diskstat local pmval pmdumplog
 165 pmval local
@@ -1419,6 +1419,7 @@ collectl
 1140 pidstat local
 1141 selinux local
 1159 pmlogger local pmdumplog
+1166 libpcp local
 1174 threads valgrind local
 1182 libpcp local
 1186 pmie local
@@ -1441,6 +1442,8 @@ collectl
 1324 pmclient archive multi-archive decompress-xz local
 1330:reserved pmda.prometheus local
 1331 verify local
+1238:reserved pmiostat archive multi-archive decompress-xz local
+1242:reserved pmrep archive multi-archive decompress-xz local
 1354 pmval archive local
 1359 libpcp local
 1385:reserved pmda.prometheus local

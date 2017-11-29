@@ -9,8 +9,12 @@
 -  handle too wide unit display (like count/s when width is 5) if needed
 
 -  per-metric precision support (?)
--  (re)add runtime directive to config file (?)
--  generalized zabbix_interval (limit writes to target) (?)
+-  generalized zabbix_interval (write to target in batches) (?)
+-  add support merging colums in colxrow output; for example in case of:
+[test]
+colxrow = test
+kernel.all.cpu.user = %%usr
+kernel.percpu.cpu.user = %%usr
 
 -----
 

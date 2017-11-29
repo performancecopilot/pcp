@@ -117,7 +117,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'U':		/* run under alternate user account */
-	    __pmSetProcessIdentity(opts.optarg);
+	    pmSetProcessIdentity(opts.optarg);
 	    break;
 
 	default:

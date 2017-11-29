@@ -19,11 +19,36 @@
  * in libpcp, they may be removed at some point in the future.
  *
  * Deprecated Symbol		Replacement
+ * ----------------------	----------------------	
  * __pmSetProgname()		pmSetProgname()
  * pmProgname			pmGetProgname()
  * __pmParseDebug()		pmSetDebug()
  * __pmSetDebugBits()		pmSetDebug()/pmClearDebug()
- *
+ * __pmOptions			pmOptions
+ * __pmInDomProfile		pmInDomProfile
+ * __pmProfile			pmProfile
+ * __pmInResult			pmInResult
+ * __pmOpenLog()		pmOpenLog()
+ * __pmGetAPIConfig()		pmGetAPIConfig()
+ * __pmNoMem()			pmNoMem()
+ * __pmNotifyErr()		pmNotifyErr()
+ * __pmSyslog()			pmSyslog()
+ * __pmPrintDesc()		pmPrintDesc()
+ * __pmtimevalNow()		pmtimevalNow()
+ * __pmtimevalAdd()		pmtimevalAdd()
+ * __pmtimevalSub()		pmtimevalSub()
+ * __pmtimevalInc()		pmtimevalInc()
+ * __pmtimevalDec()		pmtimevalDec()
+ * __pmtimevalToReal()		pmtimevalToReal()
+ * __pmtimevalFromReal()	pmtimevalFromReal()
+ * __pmPrintStamp()		pmPrintStamp()
+ * __pmPrintHighResStamp()	pmPrintHighResStamp()
+ * __pmPathSeparator()		pmPathSeparator()
+ * __pmGetUsername()		pmGetUsername()
+ * __pmSetProcessIdentity()	pmSetProcessIdentity()
+ * __pmTimeval			pmTimeval
+ * __pmTimespec			pmTimespec
+ * pmFreeHighResResult()	__pmFreeHighResResult()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -66,5 +91,38 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_HTTP		(1<<27) /* see http option below */
 /* not yet, and never will be, allocated, bits (1<<28) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* see desperate option below */
+
+/*
+ * DO NOT USE
+ * Like __pmHandleToPtr(pmWhichContext()), but with no locking
+ */
+PCP_CALL struct __pmContext *__pmCurrentContext(void);
+
+/* backwards-compatibility support for renamed symbols and types */
+#define __pmOptions pmOptions
+#define __pmProfile pmProfile
+#define __pmInDomProfile pmInDomProfile
+#define __pmInResult pmInResult
+#define __pmOpenLog pmOpenLog
+#define __pmGetAPIConfig pmGetAPIConfig
+#define __pmNoMem pmNoMem
+#define __pmNotifyErr pmNotifyErr
+#define __pmSyslog pmSyslog
+#define __pmPrintDesc pmPrintDesc
+#define __pmtimevalNow pmtimevalNow
+#define __pmtimevalAdd pmtimevalAdd
+#define __pmtimevalSub pmtimevalSub
+#define __pmtimevalInc pmtimevalInc
+#define __pmtimevalDec pmtimevalDec
+#define __pmtimevalToReal pmtimevalToReal
+#define __pmtimevalFromReal pmtimevalFromReal
+#define __pmPrintStamp pmPrintStamp
+#define __pmPrintHighResStamp pmPrintHighResStamp
+#define __pmPathSeparator pmPathSeparator
+#define __pmGetUsername pmGetUsername
+#define __pmSetProcessIdentity pmSetProcessIdentity
+#define __pmTimeval pmTimeval
+#define __pmTimespec pmTimespec
+#define pmFreeHighResResult __pmFreeHighResResult
 
 #endif /* PCP_DEPRECATED_H */

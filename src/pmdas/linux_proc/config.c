@@ -24,7 +24,6 @@
 #include <regex.h>
 
 #include "pmapi.h"
-#include "impl.h"
 
 #include "gram_node.h"
 #include "gram.tab.h"

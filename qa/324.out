@@ -6,14 +6,6 @@ txmon ... not found in Name Space, this is OK
 Updating the PMCD control file, and notifying PMCD ...
 Removing files ...
 Check txmon metrics have gone away ... OK
-You will need to choose an appropriate configuration for installation of
-the "txmon" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] b
 Welcome to the Install script for the demonstration "txmon" PMDA.
 This PMDA will establish a shared memory segment with one statistics
 structure per transaction type.

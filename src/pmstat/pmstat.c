@@ -15,7 +15,6 @@
 
 #include "pmtime.h"
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 
@@ -220,7 +219,7 @@ saveContextHostName(struct statsrc *s)
 	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
 		pmGetProgname(), ctx);
     if ((name = strdup(name)) == NULL)
-	__pmNoMem("context name", length + 1, PM_FATAL_ERR);
+	pmNoMem("context name", length + 1, PM_FATAL_ERR);
     return name;
 }
 
@@ -420,7 +419,7 @@ main(int argc, char *argv[])
 		}
 	    }
 	} else {
-	    __pmNoMem("contexts", nameCount * sizeof(struct statsrc *), PM_FATAL_ERR);
+	    pmNoMem("contexts", nameCount * sizeof(struct statsrc *), PM_FATAL_ERR);
 	}
     } else {
 	/*

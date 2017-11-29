@@ -6,7 +6,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 
 static pmdaMetric metrics[] = {
@@ -39,7 +38,7 @@ void
 bigun_init(pmdaInterface *dp)
 {
     int		i;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	helppath[MAXPATHLEN];
 
     /*

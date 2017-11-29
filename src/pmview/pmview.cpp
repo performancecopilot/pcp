@@ -304,7 +304,7 @@ void PmView::helpManual()
 {
     bool ok;
     QString documents("file://");
-    QString separator = QString(__pmPathSeparator());
+    QString separator = QString(pmPathSeparator());
     documents.append(pmGetConfig("PCP_HTML_DIR"));
     documents.append(separator).append("index.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
@@ -318,7 +318,7 @@ void PmView::helpTutorial()
 {
     bool ok;
     QString documents("file://");
-    QString separator = QString(__pmPathSeparator());
+    QString separator = QString(pmPathSeparator());
     documents.append(pmGetConfig("PCP_HTML_DIR"));
     documents.append(separator).append("tutorial.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));

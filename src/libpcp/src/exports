@@ -85,7 +85,6 @@ PCP_3.0 {
     __pmAccAddHost;
     __pmAccAddOp;
     __pmAccAddUser;
-    __pmAccDelAccount;
     __pmAccDelClient;
     __pmAccDumpGroups;
     __pmAccDumpHosts;
@@ -119,7 +118,6 @@ PCP_3.0 {
     __pmAuxConnectPMCDUnixSocket;
     __pmBind;
     __pmCheckEventRecords;
-    __pmCheckSum;
     __pmCloseSocket;
     __pmConfig;
     __pmConnect;
@@ -169,8 +167,6 @@ PCP_3.0 {
     __pmDumpResult;
     __pmDumpStatusList;
     __pmEncodeResult;
-    __pmEventTrace;
-    __pmEventTrace_r;
     __pmExportPMNS;
     __pmFaultInject;
     __pmFaultSummary;
@@ -466,7 +462,6 @@ PCP_3.7 {
     __pmDumpHighResEventRecords;
     __pmDumpHighResResult;
     __pmPrintHighResStamp;
-    __pmPrintTimespec;
     __pmGetTimespec;
 } PCP_3.6;
 
@@ -590,41 +585,61 @@ PCP_3.21 {
 
 PCP_3.22 {
   global:
+    pmFreeLabelSets;
+    pmGetAPIConfig;
+    pmGetClusterLabels;
     pmGetContextLabels;
     pmGetDomainLabels;
     pmGetInDomLabels;
-    pmGetClusterLabels;
-    pmGetItemLabels;
     pmGetInstancesLabels;
-    pmLookupLabels;
-    pmMergeLabels;
-    pmMergeLabelSets;
-    pmFreeLabelSets;
+    pmGetItemLabels;
     pmGetProgname;
-    pmSetProgname;
+    pmGetUsername;
     pmID_build;
-    pmID_domain;
     pmID_cluster;
+    pmID_domain;
     pmID_item;
     pmInDom_build;
     pmInDom_domain;
     pmInDom_serial;
+    pmLookupLabels;
+    pmMergeLabels;
+    pmMergeLabelSets;
+    pmNoMem;
+    pmNotifyErr;
+    pmOpenLog;
+    pmPathSeparator;
+    pmPrintDesc;
+    pmPrintHighResStamp;
+    pmPrintStamp;
+    pmSetProcessIdentity;
+    pmSetProgname;
+    pmSyslog;
+    pmtimevalAdd;
+    pmtimevalDec;
+    pmtimevalFromReal;
+    pmtimevalInc;
+    pmtimevalNow;
+    pmtimevalSub;
+    pmtimevalToReal;
 
     __pmAddLabels;
-    __pmMergeLabels;
-    __pmParseLabels;
-    __pmParseLabelSet;
-    __pmGetContextLabels;
-    __pmGetDomainLabels;
+    __pmDecodeLabel;
+    __pmDecodeLabelReq;
     __pmDumpLabelSet;
     __pmDumpLabelSets;
+    __pmFreeHighResResult;
+    __pmGetContextLabels;
+    __pmGetDomainLabels;
     __pmLogLookupLabel;
     __pmLogLookupText;
     __pmLogPutLabel;
     __pmLogPutText;
+    __pmMergeLabels;
+    __pmParseLabels;
+    __pmParseLabelSet;
+    __pmRecvLabel;
     __pmSendLabel;
     __pmSendLabelReq;
-    __pmRecvLabel;
-    __pmDecodeLabel;
-    __pmDecodeLabelReq;
+
 } PCP_3.21;

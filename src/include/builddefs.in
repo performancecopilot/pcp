@@ -55,6 +55,7 @@ endif
 
 LIBPCP_ABIDIR ?= src
 PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
+		 -L$(TOPDIR)/src/libpcp_web/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
 # backward compatibility
 PCP_LIBS = $(PCPLIB_LDFLAGS)
@@ -264,6 +265,8 @@ PCP_SELINUX_SYSTEMD_UNIT_FILE = @pcp_selinux_systemd_unit_file@
 PCP_SELINUX_SYSTEMD_EXEC = @pcp_selinux_systemd_exec@
 PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
 PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
+PCP_SELINUX_SOCK_FILE_GETATTR = @pcp_selinux_sock_file_getattr@
+PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
@@ -896,7 +899,7 @@ endif
 PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
 PCP_TRACELIB = -lpcp_trace $(PCPLIB)
-PCP_WEBLIB = -lpcp_web $(PCPLIB)
+PCP_WEBLIB = -lpcp_web $(PCP_PMDALIB)
 
 ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))

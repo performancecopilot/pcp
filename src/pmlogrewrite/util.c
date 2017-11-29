@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "logger.h"
 #include <assert.h>
@@ -158,12 +157,12 @@ _pmLogRename(const char *old, const char *new)
 		nfound++;
 		found = (char **)realloc(found, nfound*sizeof(found[0]));
 		if (found == NULL) {
-		    __pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
+		    pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
 		    abandon();
 		    /*NOTREACHED*/
 		}
 		if ((found[nfound-1] = strdup(p)) == NULL) {
-		    __pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
+		    pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
 		    abandon();
 		    /*NOTREACHED*/
 		}
@@ -229,7 +228,7 @@ _pmLogRemove(const char *name)
     path[sizeof(path)-1] = '\0';
     dname = strdup(dirname(path));
     if (dname == NULL) {
-	__pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
+	pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
 	abandon();
 	/*NOTREACHED*/
     }
@@ -243,7 +242,7 @@ _pmLogRemove(const char *name)
     path[sizeof(path)-1] = '\0';
     base = strdup(basename(path));
     if (base == NULL) {
-	__pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);
+	pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);
 	abandon();
 	/*NOTREACHED*/
     }

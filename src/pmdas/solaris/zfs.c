@@ -77,7 +77,7 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
     } else if ((rv == PMDA_CACHE_INACTIVE) && zdata) {
 	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zdata);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Cannot reactivate cached data for '%s': %s\n",
 			  fsname, pmErrStr(rv));
 	    zfs_close(zf);
@@ -88,7 +88,7 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
 	zf = zdata->zh;
     } else {
 	if ((zdata = calloc(1, sizeof(*zdata))) == NULL) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Out of memory for data of %s\n", fsname);
 	    zfs_close(zf);
 	    return 0;
@@ -96,7 +96,7 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
 	zdata->zh = zf;
 	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zdata);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING,
+	    pmNotifyErr(LOG_WARNING,
 			  "Cannot cache data for '%s': %s\n",
 			  fsname, pmErrStr(rv));
 	    zfs_close(zf);

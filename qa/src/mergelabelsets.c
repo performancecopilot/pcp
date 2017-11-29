@@ -7,7 +7,6 @@
 #include <ctype.h>
 #include <assert.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 #define LOCATION \
     "{\"datacenter\":\"torquay\",\"environment\":\"production\"}"

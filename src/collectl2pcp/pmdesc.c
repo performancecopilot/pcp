@@ -15,7 +15,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 
 static char *semStr[] = { "0", "PM_SEM_COUNTER", "2", "PM_SEM_INSTANT", "PM_SEM_DISCRETE" };

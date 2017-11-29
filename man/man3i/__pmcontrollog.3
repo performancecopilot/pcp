@@ -13,15 +13,13 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMCONTROLLOG 3i "PCP" "Performance Co-Pilot"
+.TH PMCONTROLLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmControlLog\f1 \- enable, disable or enquire about logging of performance
 metrics
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
-.br
-#include "impl.h"
 .br
 #include "libpcp.h"
 .sp
@@ -60,14 +58,14 @@ for an explanation of the
 structure.
 .PP
 The application must have previously issued a call to
-.BR __pmConnectLogger (3i)
+.BR __pmConnectLogger (3)
 to establish a control-port connection
 to the
 .BR pmlogger (1)
 instance to whom the control request is to be directed, and
 .I fd
 (the result from
-.BR __pmConnectLogger (3i))
+.BR __pmConnectLogger (3))
 identifies this connection.
 .PP
 Within
@@ -216,7 +214,7 @@ and
 .IR delta .
 .PP
 Macros defined in
-.B <pcp/impl.h>
+.B libpcp.h
 may be used to extract the state and logging interval from the returned metric
 values.
 .B PMLC_GET_ON
@@ -271,7 +269,7 @@ which is true for the only current user of this routine, namely
 .BR PMAPI (3),
 .BR pmFetch (3)
 and
-.BR __pmConnectLogger (3i).
+.BR __pmConnectLogger (3).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_TOOSMALL\f1
 The number of metrics in

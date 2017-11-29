@@ -11,7 +11,6 @@
 
 #include <ctype.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 #define MAX_LOOP 1000
@@ -117,7 +116,7 @@ Options:\n\
 	    fprintf(stderr, "pmReconnectContext: success\n");
 	    gettimeofday(&now, (struct timezone *)0);
 	    /* roundup to the nearest second, now that pmcd stop is much quicker */
-	    fprintf(stderr, "delay: %.0f secs\n", __pmtimevalSub(&now, &then) + 0.5);
+	    fprintf(stderr, "delay: %.0f secs\n", pmtimevalSub(&now, &then) + 0.5);
 	    break;
 	}
 	__pmtimevalSleep(delay);

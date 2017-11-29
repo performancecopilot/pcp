@@ -13,7 +13,6 @@
  */
 #include "pmapi.h"
 #include "pmafm.h"
-#include "impl.h"
 #include "libpcp.h"
 #include <sys/stat.h>
 #ifdef HAVE_SYS_WAIT_H
@@ -357,7 +356,7 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     /* construct full pathname */
     rp->public.logfile = malloc(MAXPATHLEN);
     if (rp->public.logfile != NULL) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	if (dir != NULL && __pmAbsolutePath(dir))
 	    strcpy(rp->public.logfile, dir);
 	else {
@@ -576,7 +575,7 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 		     */
 		    rp->argv = (char **)realloc(rp->argv, (rp->argc+11)*sizeof(rp->argv[0]));
 		    if (rp->argv == NULL) {
-			__pmNoMem("pmRecordControl: argv[]", (rp->argc+11)*sizeof(rp->argv[0]), PM_FATAL_ERR);
+			pmNoMem("pmRecordControl: argv[]", (rp->argc+11)*sizeof(rp->argv[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    for (i = rp->argc; i > 0; i--)
@@ -599,7 +598,7 @@ for (i = 0; i < rp->argc+11; i++) fprintf(stderr, " %s", rp->argv[i]);
 fputc('\n', stderr);
 #endif
 		    pmsprintf(loggerpath, sizeof(loggerpath), "%s%cpmlogger",
-			pmGetConfig("PCP_BINADM_DIR"), __pmPathSeparator());
+			pmGetConfig("PCP_BINADM_DIR"), pmPathSeparator());
 		    execv(loggerpath, rp->argv);
 
 		    /* this is really bad! */

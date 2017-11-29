@@ -23,7 +23,6 @@
 */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/libpcp.h>
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
@@ -588,7 +587,7 @@ reportraw(double curtime, double numsecs,
 		/*
 		** initialize variables for new report
 		*/
-		__pmtimevalFromReal(curtime, &pretime);
+		pmtimevalFromReal(curtime, &pretime);
 
 		curline   = 1;
 		headline  = 0;
@@ -616,7 +615,7 @@ reportraw(double curtime, double numsecs,
 		if (usecolors)
 			printf(COLSETHEAD);
 
-		timed = __pmtimevalToReal(&pretime);
+		timed = pmtimevalToReal(&pretime);
 		printf("%s  ", convtime(timed, timebuf, sizeof(timebuf)-1));
 
 		(pridef[prinow].prihead)(osvers, osrel, ossub);
@@ -673,7 +672,7 @@ reportraw(double curtime, double numsecs,
 		printf("......................... logging restarted "
 		       ".........................\n");
 
-		__pmtimevalFromReal(curtime, &pretime);
+		pmtimevalFromReal(curtime, &pretime);
 		curline++;
 
 		/*
@@ -796,7 +795,7 @@ reportraw(double curtime, double numsecs,
 			cleanstop(1);
 	}
 
-	__pmtimevalFromReal(curtime, &pretime);
+	pmtimevalFromReal(curtime, &pretime);
 
 	return '\0';
 }

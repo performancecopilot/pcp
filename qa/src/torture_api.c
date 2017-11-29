@@ -7,7 +7,7 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 static int	_op;  /* number of api operations */
 static int	_err; /* number of api errors */
@@ -248,7 +248,7 @@ load_namespace(char *namespace)
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);
-    printf("Name space load: %.2f msec\n", __pmtimevalSub(&now, &then)*1000);
+    printf("Name space load: %.2f msec\n", pmtimevalSub(&now, &then)*1000);
 }
 
 void 

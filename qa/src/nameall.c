@@ -8,7 +8,7 @@
 
 #include <ctype.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 static int 	pmns_style = 1;
 static int	vflag;
@@ -115,7 +115,7 @@ load_namespace(char *namespace)
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);
-    printf("Name space load: %.2f msec\n", __pmtimevalSub(&now, &then)*1000);
+    printf("Name space load: %.2f msec\n", pmtimevalSub(&now, &then)*1000);
 }
 
 void 

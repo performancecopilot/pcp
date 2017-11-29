@@ -13,15 +13,13 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMPARSEDEBUG 3d "PCP" "Performance Co-Pilot"
+.TH PMPARSEDEBUG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmParseDebug\f1,
 \f3__pmSetDebugBits\f1 \- manipulate old-style PCP debugging control bit-fields
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
-.br
-#include <pcp/impl.h>
 .br
 #include <pcp/deprecated.h>
 .sp
@@ -59,11 +57,13 @@ for turning on all bits except the sign bit in the result, i.e. \c
 from
 .IR <limits.h> .
 .PP
-For example the debug flag
-.B DBG_TRACE_FETCH
-is defined in
-.I /usr/include/pcp/impl.h
-and may be specified in
+For example the debug option
+.B fetch
+is defined in the output from
+.BR pmdbg (3)
+with the
+.B \-L
+option and may be specified in
 .I spec
 as
 .BR 2 ,

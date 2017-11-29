@@ -13,7 +13,6 @@
  */
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "util.h"
 
 /* time manipulation */
@@ -22,7 +21,7 @@ tsub(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    __pmtimevalDec(a, b);
+    pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
 	/* clip negative values at zero */
 	a->tv_sec = 0;
@@ -36,7 +35,7 @@ tadd(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    __pmtimevalInc(a, b);
+    pmtimevalInc(a, b);
     return 0;
 }
 
@@ -52,7 +51,7 @@ fputstamp(struct timeval *stamp, int delimiter, FILE *out)
     ddmm[11] = '\0';
     yr = &ddmm[20];
     fprintf(out, "%c'%s", delimiter, ddmm);
-    __pmPrintStamp(out, stamp);
+    pmPrintStamp(out, stamp);
     fprintf(out, " %4.4s\'", yr);
 }
 

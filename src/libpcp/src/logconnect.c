@@ -15,7 +15,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 
@@ -48,7 +47,7 @@ __pmLoggerTimeout(void)
 		char	*fromenv = strdup(timeout_str);
 		timeout = TIMEOUT_NEVER;
 		PM_UNLOCK(__pmLock_extcall);
-		__pmNotifyErr(LOG_WARNING,
+		pmNotifyErr(LOG_WARNING,
 			      "ignored bad PMLOGGER_REQUEST_TIMEOUT = '%s'\n",
 			      fromenv);
 		free(fromenv);
@@ -180,7 +179,7 @@ connectLoggerLocal(const char *local_socket)
     /* Set up the socket address. */
     myAddr = __pmSockAddrAlloc();
     if (myAddr == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmConnectLogger: out of memory\n");
+	pmNotifyErr(LOG_ERR, "__pmConnectLogger: out of memory\n");
 	__pmCloseSocket(fd);
 	return -ENOMEM;
     }
@@ -191,9 +190,9 @@ connectLoggerLocal(const char *local_socket)
      * initial path separators.
      * pmsprintf is guaranteed to add a nul byte.
      */
-    while (*local_socket == __pmPathSeparator())
+    while (*local_socket == pmPathSeparator())
 	++local_socket;
-    pmsprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
+    pmsprintf(socket_path, sizeof(socket_path), "%c%s", pmPathSeparator(), local_socket);
     __pmSockAddrSetPath(myAddr, socket_path);
 
     /* Attempt to connect */
@@ -348,7 +347,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		else if (__pmSockAddrIsIPv6(myAddr))
 		    fd = __pmCreateIPv6Socket();
 		else {
-		    __pmNotifyErr(LOG_ERR, 
+		    pmNotifyErr(LOG_ERR, 
 				  "__pmConnectLogger : invalid address family %d\n",
 				  __pmSockAddrGetFamily(myAddr));
 		    fd = -1;

@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmcd.h"
 #include <assert.h>
@@ -53,7 +52,7 @@ SplitResult(pmResult *res)
 	aFreq = (int *)malloc((nAgents + 1) * sizeof(int));
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (aFreq == NULL || resIndex == NULL) {
-	    __pmNoMem("SplitResult.freq", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    pmNoMem("SplitResult.freq", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
 	}
     }
 
@@ -82,7 +81,7 @@ SplitResult(pmResult *res)
     need = nGood + 1 + ((aFreq[nAgents]) ? 1 : 0);
     need *= sizeof(pmResult *);
     if ((results = (pmResult **) malloc(need)) == NULL) {
-	__pmNoMem("SplitResult.results", need, PM_FATAL_ERR);
+	pmNoMem("SplitResult.results", need, PM_FATAL_ERR);
     }
     j = 0;
     for (i = 0; i <= nAgents; i++)
@@ -90,7 +89,7 @@ SplitResult(pmResult *res)
 	    need = (int)sizeof(pmResult) + (aFreq[i] - 1) * (int)sizeof(pmValueSet *);
 	    results[j] = (pmResult *) malloc(need);
 	    if (results[j] == NULL) {
-		__pmNoMem("SplitResult.domain", need, PM_FATAL_ERR);
+		pmNoMem("SplitResult.domain", need, PM_FATAL_ERR);
 	    }
 	    results[j]->numpmid = aFreq[i];
 	    j++;
@@ -98,7 +97,7 @@ SplitResult(pmResult *res)
 
     /* Make the "end of list" pmResult */
     if ((results[j] = (pmResult *) malloc(sizeof(pmResult))) == NULL) {
-	__pmNoMem("SplitResult.domain", sizeof(pmResult), PM_FATAL_ERR);
+	pmNoMem("SplitResult.domain", sizeof(pmResult), PM_FATAL_ERR);
     }
     results[j]->numpmid = 0;
 
@@ -211,7 +210,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    s = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (s == 0) {
-		__pmNotifyErr(LOG_INFO, "DoStore: select timeout");
+		pmNotifyErr(LOG_INFO, "DoStore: select timeout");
 
 		/* Timeout, terminate agents that haven't responded */
 		for (i = 0; i < nAgents; i++) {
@@ -227,7 +226,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		if (neterror() == EINTR)
 		    goto retry;
 		/* this is not expected to happen! */
-		__pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n",
+		pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n",
 			netstrerror());
 		Shutdown();
 		exit(1);

@@ -20,7 +20,7 @@
 
 .de SAMPLE
 .br
-.RS
+.RS 2n
 .nf
 .nh
 ..
@@ -326,7 +326,8 @@ kernel:pernode:cpu:intr_seconds_total{instance="node0"} 25603.540000000001
 # PCP filesys.blocksize instant byte
 # HELP filesys:blocksize_bytes Size of each block on mounted filesystem (Bytes)
 # TYPE filesys:blocksize_bytes gauge
-filesys:blocksize_bytes{instance="/dev/mapper/docker-253:0-83713-9a130460b46163fcf4443710db3159dea6bb5ec2aaca108515839a7a28c191ce"} 4096
+filesys:blocksize_bytes{instance="/dev/mapper/docker-253:0-83713-\e
+9a130460b46163fcf4443710db3159dea6bb5ec2aaca108515839a7a28c191ce"} 4096
 filesys:blocksize_bytes{instance="/dev/mapper/VolGroup00-root17"} 4096
 .ESAMPLE
 

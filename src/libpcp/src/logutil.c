@@ -23,7 +23,6 @@
 #include <assert.h>
 #include <sys/stat.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 
@@ -551,7 +550,7 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
     return sts;
 }
 
-int
+static int
 __pmLogLoadIndex(__pmLogCtl *lcp)
 {
     int		sts = 0;
@@ -1058,7 +1057,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     int		sts;
     int		blen;
     int		exists = 0;
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	*base;
     char	*tbuf;
     char	*tp;
@@ -1292,7 +1291,7 @@ cleanup:
 }
 
 void
-__pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
+__pmLogPutIndex(const __pmLogCtl *lcp, const pmTimeval *tp)
 {
     __pmLogTI	ti;
     __pmLogTI	oti;
@@ -1309,7 +1308,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     if (tp == NULL) {
 	struct timeval	tmp;
 
-	__pmtimevalNow(&tmp);
+	pmtimevalNow(&tmp);
 	ti.ti_stamp.tv_sec = (__int32_t)tmp.tv_sec;
 	ti.ti_stamp.tv_usec = (__int32_t)tmp.tv_usec;
     }
@@ -1327,14 +1326,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	assert(tmp >= 0);
 	ti.ti_meta = (__pm_off_t)tmp;
 	if (tmp != ti.ti_meta) {
-	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
+	    pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
 	    return;
 	}
 	tmp = __pmFtell(lcp->l_mfp);
 	assert(tmp >= 0);
 	ti.ti_log = (__pm_off_t)tmp;
 	if (tmp != ti.ti_log) {
-	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
+	    pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
 	    return;
 	}
     }
@@ -1361,7 +1360,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	pmflush();
     }
     if (__pmFflush(lcp->l_tifp) != 0)
-	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
+	pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
 }
 
 static int
@@ -1396,12 +1395,12 @@ logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
 
     if (lcp->l_state == PM_LOG_STATE_NEW) {
 	int		i;
-	__pmTimeval	*tvp;
+	pmTimeval	*tvp;
 	/*
 	 * first result, do the label record
 	 */
 	i = sizeof(__pmPDUHdr) / sizeof(__pmPDU);
-	tvp = (__pmTimeval *)&pb[i];
+	tvp = (pmTimeval *)&pb[i];
 	lcp->l_label.ill_start.tv_sec = ntohl(tvp->tv_sec);
 	lcp->l_label.ill_start.tv_usec = ntohl(tvp->tv_usec);
 	lcp->l_label.ill_vol = PM_LOG_VOL_TI;
@@ -1497,7 +1496,7 @@ paranoidCheck(int len, __pmPDU *pb)
 
     struct result_t {			/* from p_result.c */
 	__pmPDUHdr		hdr;
-	__pmTimeval		timestamp;	/* when returned */
+	pmTimeval		timestamp;	/* when returned */
 	int			numpmid;	/* no. of PMIDs to follow */
 	__pmPDU			data[1];	/* zero or more */
     }			*pp;
@@ -1657,7 +1656,7 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
-	__pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+	pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
 
     /*
      * A mark record has numpmid == 0 and the timestamp set to one millisecond
@@ -2057,9 +2056,9 @@ again:
     if (pmDebugOptions.log) {
 	head -= sizeof(head) + sizeof(trail);
 	if (sts >= 0) {
-	    __pmTimeval	tmp;
+	    pmTimeval	tmp;
 	    fprintf(stderr, "@");
-	    __pmPrintStamp(stderr, &(*result)->timestamp);
+	    pmPrintStamp(stderr, &(*result)->timestamp);
 	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
@@ -2083,7 +2082,7 @@ again:
 
     if (pmDebugOptions.pdu) {
 	fprintf(stderr, "__pmLogRead timestamp=");
-	__pmPrintStamp(stderr, &(*result)->timestamp);
+	pmPrintStamp(stderr, &(*result)->timestamp);
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", &pb[3], &pb[head/sizeof(__pmPDU)+3]);
 	fputc('\n', stderr);
 	dumpbuf(rlen, &pb[3]);		/* see above to explain "3" */
@@ -2156,7 +2155,7 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     __pmHashNode	*hp;
     pmid_ctl	*pcp;
     int		nskip;
-    __pmTimeval	tmp;
+    pmTimeval	tmp;
     int		ctxp_mode;
     ctx_ctl_t	ctx_ctl = { NULL, 0 };
 
@@ -2220,7 +2219,7 @@ more:
 		    fprintf(stderr, "__pmLogFetch: ctx=%d skip reverse %d to ",
 			pmWhichContext(), nskip);
 		    if (*result  != NULL)
-			__pmPrintStamp(stderr, &(*result)->timestamp);
+			pmPrintStamp(stderr, &(*result)->timestamp);
 		    else
 			fprintf(stderr, "unknown time");
 		    fprintf(stderr, ", found=%d\n", found);
@@ -2252,7 +2251,7 @@ more:
 	    if (nskip) {
 		fprintf(stderr, "__pmLogFetch: ctx=%d skip %d to ",
 		    pmWhichContext(), nskip);
-		    __pmPrintStamp(stderr, &(*result)->timestamp);
+		    pmPrintStamp(stderr, &(*result)->timestamp);
 		    fputc('\n', stderr);
 		}
 #ifdef DESPERATE
@@ -2300,7 +2299,7 @@ more:
 
 	    i = (int)sizeof(pmResult) + numpmid * (int)sizeof(pmValueSet *);
 	    if ((newres = (pmResult *)malloc(i)) == NULL) {
-		__pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
+		pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
 	    }
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
@@ -2312,7 +2311,7 @@ more:
 		    /* first time we've been asked for this one */
 		    if ((pcp = (pmid_ctl *)malloc(sizeof(pmid_ctl))) == NULL) {
 			PM_UNLOCK(logutil_lock);
-			__pmNoMem("__pmLogFetch.pmid_ctl", sizeof(pmid_ctl), PM_FATAL_ERR);
+			pmNoMem("__pmLogFetch.pmid_ctl", sizeof(pmid_ctl), PM_FATAL_ERR);
 			/* NOTREACHED */
 		    }
 		    pcp->pc_pmid = pmidlist[j];
@@ -2381,7 +2380,7 @@ more:
 	    if (sts < 0) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
+		pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
 			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		pmFreeResult(newres);
 		break;
@@ -2469,7 +2468,7 @@ __pmLogSetTime(__pmContext *ctxp)
 {
     __pmArchCtl	*acp = ctxp->c_archctl;
     __pmLogCtl	*lcp = acp->ac_log;
-    __pmTimeval	save_origin;
+    pmTimeval	save_origin;
     int		save_mode;
     double	t_hi;
     int		mode;
@@ -2687,7 +2686,7 @@ __pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
 
     /*
      * we have to copy the structure to hide the differences
-     * between the internal __pmTimeval and the external struct timeval
+     * between the internal pmTimeval and the external struct timeval
      */
     rlp = &lcp->l_label;
     lp->ll_magic = rlp->ill_magic;
@@ -2840,7 +2839,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	physend = (__pm_off_t)sbuf.st_size;
 	if (sizeof(off_t) > sizeof(__pm_off_t)) {
 	    if (physend != sbuf.st_size) {
-		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
+		pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
 			" (meta) too big (%"PRIi64" bytes)\n",
 			(uint64_t)sbuf.st_size);
 		sts = PM_ERR_TOOBIG;
@@ -3132,11 +3131,6 @@ LogCheckForNextArchive(__pmContext *ctxp, int mode, pmResult **result)
     return sts;
 }
 
-/*
- * TODO - when libpcp version changes, cull this function from impl.h
- * ... and move declaration to internal.h or drop the function entirely
- * if not used outside this source file
- */
 int
 __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 {
@@ -3169,8 +3163,8 @@ LogChangeToNextArchive(__pmContext *ctxp)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     __pmArchCtl	*acp;
-    __pmTimeval prev_endtime;
-    __pmTimeval	save_origin;
+    pmTimeval prev_endtime;
+    pmTimeval	save_origin;
     int		save_mode;
 
     /*
@@ -3226,11 +3220,6 @@ LogChangeToNextArchive(__pmContext *ctxp)
     return 0;
 }
 
-/*
- * TODO - when libpcp version changes, cull this function from impl.h
- * ... and move declaration to internal.h or drop the function entirely
- * if not used outside this source file
- */
 int
 __pmLogChangeToNextArchive(__pmLogCtl **lcp)
 {
@@ -3266,8 +3255,8 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
     __pmArchCtl		*acp;
     struct timeval	current_endtime;
-    __pmTimeval		prev_starttime;
-    __pmTimeval		save_origin;
+    pmTimeval		prev_starttime;
+    pmTimeval		save_origin;
     int			save_mode;
     int			sts;
 
@@ -3336,11 +3325,6 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
     return 0;
 }
 
-/*
- * TODO - when libpcp version changes, cull this function from impl.h
- * ... and move declaration to internal.h or drop the function entirely
- * if not used outside this source file
- */
 int
 __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
 {
@@ -3363,7 +3347,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     return sts;
 }
 
-__pmTimeval *
+pmTimeval *
 __pmLogStartTime(__pmArchCtl *acp)
 {
     return &acp->ac_log_list[0]->ml_starttime;

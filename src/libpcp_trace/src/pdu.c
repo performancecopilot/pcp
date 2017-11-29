@@ -15,7 +15,7 @@
 
 #include <signal.h>
 #include "pmapi.h"
-#include "impl.h"
+#include "libpcp.h"
 #include "trace.h"
 #include "trace_dev.h"
 
@@ -135,7 +135,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		    return status;
 		}
 		else {
-		    __pmtimevalFromReal(def_timeout, &def_wait);
+		    pmtimevalFromReal(def_timeout, &def_wait);
 		}
 	    }
 	    done_default = 1;

@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <strings.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h> /* for __pmPathSeparator */
 #include <pthread.h>
 
 
@@ -41,7 +40,7 @@ thread_fn(void *data)
     int rc, rc2;
     pmAtomValue ncpu;
 
-    if (rindex (work->host_or_archive_name, __pmPathSeparator()) != NULL) /* path name? */
+    if (rindex (work->host_or_archive_name, pmPathSeparator()) != NULL) /* path name? */
         rc = pmCreateFetchGroup(&fg, PM_CONTEXT_ARCHIVE, work->host_or_archive_name);
     else
         rc = pmCreateFetchGroup(&fg, PM_CONTEXT_HOST, work->host_or_archive_name);

@@ -1032,7 +1032,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 } __pmID_int;</programlisting>
             </example>
           </para>
-          <para>For additional information, see the <filename>&lt;pcp/impl.h&gt;</filename> file.</para>
+          <para>For additional information, see the <filename>&lt;pcp/libpcp.h&gt;</filename> file.</para>
           <para>
             <indexterm id="IG31340177122">
               <primary>PMDA_PMID macro</primary>
@@ -1808,7 +1808,7 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             sts = pmdaCacheLookup(*now_indom, inst, NULL, (void *)&amp;tsp);
             if (sts != PMDA_CACHE_ACTIVE) {
                 if (sts &lt; 0)
-                    __pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s",
+                    pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s",
                                   inst, pmErrStr(sts));
                 return PM_ERR_INST;
             }
@@ -2080,7 +2080,7 @@ For brevity, we have shown only the latest interface version (six) above, but al
     int         e_nmetrics;     /* number of metrics */
     int         e_nindoms;      /* number of instance domains */
     int         e_help;         /* help text comes via this handle */
-    __pmProfile *e_prof;        /* last received profile */
+    pmProfile   *e_prof;        /* last received profile */
     pmdaIoType  e_io;           /* connection type to pmcd */
     pmdaIndom   *e_indoms;      /* instance domain table */
     pmdaIndom   *e_idp;         /* instance domain expansion */
@@ -2183,7 +2183,7 @@ void trivial_init(pmdaInterface *dp)
         pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;trivial DSO&#x201D;,
                 &#x201C;${PCP_PMDAS_DIR}/trivial/help&#x201D;);
     else
-        __pmSetProcessIdentity(username);
+        pmSetProcessIdentity(username);
 
     if (dp-&gt;status != 0)
         return;
@@ -2233,7 +2233,7 @@ void simple_init(pmdaInterface *dp)
         pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
                 &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
     else
-        __pmSetProcessIdentity(username);
+        pmSetProcessIdentity(username);
 
     if (dp-&gt;status != 0)
         return;
@@ -2322,7 +2322,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     pmSetProgname(argv[0]);
-    __pmGetUsername(&amp;username);
+    pmGetUsername(&amp;username);
     pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
                &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 
@@ -2399,7 +2399,7 @@ main(int argc, char **argv)
             val = 0; 
         } 
         if (pmDebugOptions.appl0__) { 
-            __pmNotifyErr(LOG_DEBUG,
+            pmNotifyErr(LOG_DEBUG,
                   &quot;simple: %d stored into numfetch&quot;, val); 
         } 
         numfetch = val; 
@@ -2800,16 +2800,7 @@ exit</programlisting>
             </tbody>
           </tgroup>
         </table>
-        <para>In addition, the variables <literal>do_pmda</literal> and <literal>do_check</literal> will be set to reflect the intention to install the PMDA (as opposed to install just the PMNS) and to check the availability of the metrics once the PMDA is installed. By default, each variable is <literal>true</literal>; however, the command-line options <literal>-N</literal> and <literal>-Q</literal> to <filename>Install</filename> may be used to set the variables to <literal>false</literal>, as follows: <literal>do_pmda</literal> (<command>-N</command>) and <literal>do_check</literal> (<literal>-N</literal> or <literal>-Q</literal>).</para>
-        <para>The variables may also have their assignments changed by the user's response to the common prompt as shown in <xref linkend="Z976309844sdc"/>:</para>
-        <example id="Z976309844sdc">
-          <title>Changing Variable Assignments</title>
-          <programlisting>You will need to choose an appropriate configuration for installation 
-of the ... Performance Metrics Domain Agent (PMDA).
-  collector   collect performance statistics on this system
-  monitor     allow this system to monitor local and/or remote systems
-  both        collector and monitor configuration for this system</programlisting>
-        </example>
+        <para>In addition, the variable <literal>do_check</literal> will be set to reflect the intention to check the availability of the metrics once the PMDA is installed. By default this variable is <literal>true</literal> however the command-line option <literal>-Q</literal> to <filename>Install</filename> may be used to set the variable to <literal>false</literal>.</para>
         <para>Obviously, for anything but the most trivial PMDA, after calling the <filename>pmdaSetup</filename> procedure, the <filename>Install</filename> script should also prompt for any PMDA-specific parameters, which are typically accumulated in the <replaceable>args</replaceable> variable and used by the <literal>pmdainstall</literal> procedure.</para>
         <para>The detailed operation of the <filename>pmdainstall</filename> procedure involves the following tasks:</para>
         <itemizedlist>
@@ -2855,21 +2846,6 @@ of the ... Performance Metrics Domain Agent (PMDA).
             <primary>examples</primary>
             <secondary>Install script</secondary>
           </indexterm>The files <filename>${PCP_PMDAS_DIR}/*/Install</filename> provide a wealth of examples that may be used to construct a new PMDA <filename>Install</filename> script.</para>
-      </section>
-      <section id="id5197100">
-        <title>Upgrading a PMNS to Include Metrics from a New PMDA</title>
-        <para>
-          <indexterm id="IG31340177244">
-            <primary>new PMDA</primary>
-          </indexterm>
-          <indexterm id="IG31340177245">
-            <primary>PMNS</primary>
-            <secondary>upgrade</secondary>
-          </indexterm>
-          <indexterm id="IG31340177246">
-            <primary>PMDA</primary>
-            <secondary> Install script</secondary>
-          </indexterm>When invoked with a <literal>-N</literal> command-line option, the PMDA <filename>Install</filename> script may be used to update the PMNS without installing the PMDA. This functionality is rarely, if ever, used in modern versions of PCP, but allows one to populate the local PMNS with the names of the performance metrics from a PMDA installed on a remote host. The <literal>-N</literal> option can also install <command>pmchart</command> views useful on a monitoring system, although this also is rarely used now with each platforms package management tools handling this task.</para>
       </section>
       <section id="Z976310185sdc">
         <title>Removing a PMDA</title>
@@ -3317,7 +3293,7 @@ in <xref linkend="id5198719"/>.</para>
         <title>
           <command>pmEventArray</command> and <command>pmEventRecord</command> Structures</title>
         <programlisting>typedef struct {
-    __pmTimeval      er_timestamp;  /* 2 x 32-bit timestamp format */
+    pmTimeval      er_timestamp;  /* 2 x 32-bit timestamp format */
     unsigned int     er_flags;      /* event record characteristics */
     int              er_nparams;    /* number of ea_param[] entries */
     pmEventParameter er_param[1];
@@ -3393,7 +3369,7 @@ void dump_event_record(pmResult *res, int r)
 {
     int         p;
 
-    __pmPrintStamp(stdout, &amp;res[r]-&gt;timestamp);
+    pmPrintStamp(stdout, &amp;res[r]-&gt;timestamp);
     if (res[r]-&gt;numpmid == 0)
        	printf(" ==&gt; No parameters\n");
     for (p = 0; p &lt; res[r]-&gt;numpmid; p++) {
@@ -6598,7 +6574,7 @@ except Exception, error:
             <primary>compiling and linking</primary>
           </indexterm>Typical PMAPI applications require the following line to include the function prototype and data structure definitions used by the PMAPI. </para>
         <programlisting>#include &lt;pcp/pmapi.h&gt;</programlisting>
-        <para>Some applications may also require these header files: <filename>&lt;pcp/impl.h&gt;</filename> and <filename>&lt;pcp/pmda.h&gt;</filename>.</para>
+        <para>Some applications may also require these header files: <filename>&lt;pcp/libpcp.h&gt;</filename> and <filename>&lt;pcp/pmda.h&gt;</filename>.</para>
         <para>The run-time environment of the PMAPI is mostly found in the <filename>libpcp</filename> library; so to link a generic PMAPI application requires something akin to the following command:</para>
         <literallayout class="monospaced">
           <userinput>cc</userinput> <replaceable>mycode</replaceable><userinput>.c -lpcp</userinput></literallayout>

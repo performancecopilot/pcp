@@ -25,7 +25,7 @@ Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
 .PP
 The input spreadsheet can be in any of the common formats, provided
 the appropriate Perl modules have been installed (see the \fB\s-1CAVEATS\s0\fR
-section below).  The spreadsheet must be \*(L"normalized\*(R"
+section below).  The spreadsheet must be ``normalized''
 so that each row contains data for the same time interval, and one
 of the columns contains the date and time for the data in each
 row.
@@ -73,12 +73,12 @@ The  \fBsheet\fR tag supports the following optional attributes:
 .IX Item "heading"
 Specifies the number of
 heading rows to skip at the start of the spreadsheet before processing data.
-Example: heading=\*(L"1\*(R".
+Example: heading=``1''.
 .IP "\fBhostname\fR" 10
 .IX Item "hostname"
 Set the source hostname in the \s-1PCP\s0 archive (the
 default is to use the hostname of the local host).
-Example: hostname=\*(L"some.where.com\*(R".
+Example: hostname=``some.where.com''.
 .IP "\fBtimezone\fR" 10
 .IX Item "timezone"
 Set the source timezone in the \s-1PCP\s0 archive (the
@@ -87,7 +87,7 @@ format +HHMM (for hours and minutes East of \s-1UTC\s0) or \-HHMM (for hours
 and minutes West of \s-1UTC\s0).  Note in particular that \fBneither\fR the \fBzoneinfo\fR
 (aka Olson) format, e.g. Europe/Paris, nor the Posix \fB\s-1TZ\s0\fR format, e.g.
 \&\s-1EST+5\s0 is allowed.
-Example: timezone=\*(L"+1100\*(R".
+Example: timezone=``+1100''.
 .IP "\fBdatefmt\fR" 10
 .IX Item "datefmt"
 The format of the date imported from the spreadsheet may be specified
@@ -96,7 +96,7 @@ values that specify the
 order of the year (\fBY\fR), month (\fBM\fR) and day (\fBD\fR) fields in a date.
 The supported variants are \fB\s-1DMY\s0\fR (the default),
 \&\fB\s-1MDY\s0\fR and \fB\s-1YMD\s0\fR.
-Example: datefmt=\*(L"\s-1YMD\s0\*(R".
+Example: datefmt=``\s-1YMD\s0''.
 .PP
 A \fB<sheet>\fR element contains
 one or more metric specifications of
@@ -111,7 +111,7 @@ for more details of PMIDs.  If omitted, the \s-1PMID\s0 will be automatically
 assigned by \fBpmiAddMetric\fR(3).
 The value \fB\s-1PM_ID_NULL\s0\fR may be used to explicitly nominate
 the default behaviour.
-Examples: pmid=\*(L"60.0.2\*(R", pmid=\*(L"\s-1PM_ID_NULL\s0\*(R".
+Examples: pmid=``60.0.2'', pmid=``\s-1PM_ID_NULL\s0''.
 .IP "\fBindom\fR" 10
 .IX Item "indom"
 Each metric may have one or more values.  If a metric \fBalways\fR
@@ -119,8 +119,8 @@ has one value, it is singular and the Instance Domain should be set to
 \&\fB\s-1PM_INDOM_NULL\s0\fR.
 Otherwise \fBindom\fR should be specified as 2 numbers separated by a period (.)
 to set the \fBdomain\fR and \fBordinal\fR fields of the Instance Domain, see
-the \fB_\|_pmInDom_int\fR typedef in \fI<pcp/impl.h>\fR.
-Examples: indom=\*(L"\s-1PM_INDOM_NULL\s0\*(R", indom=\*(L"60.3\*(R", indom=\*(L"\s-1PMI_DOMAIN\s0.4\*(R".
+the \fB_\|__pmInDom_int\fR typedef in libpcp.h.
+Examples: indom=``\s-1PM_INDOM_NULL\s0'', indom=``60.3'', indom=``\s-1PMI_DOMAIN\s0.4''.
 .Sp
 More than
 one metric can share the same Instance Domain when the metrics have defined
@@ -139,22 +139,22 @@ and count (events, messages, packets, etc.) is specified with a 6\-tuple.
 These values are passed to the \fBpmiUnits\fR(3) function to generate a
 \&\fIpmUnits\fR structure.  Refer to \fBpmLookupDesc\fR(3) for a full description
 of all the fields of this structure.
-The default is to assign no scale or dimension to the metric, i.e. units=\*(L"0,0,0,0,0,0\*(R".
-Examples: units=\*(L"0,1,0,0,PM_TIME_MSEC,0\*(R" (milliseconds),
-units=\*(L"1,\-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0\*(R" (Mbytes/sec),
-units=\*(L"0,1,\-1,0,PM_TIME_USEC,PM_COUNT_ONE\*(R" (microseconds/event).
+The default is to assign no scale or dimension to the metric, i.e. units=``0,0,0,0,0,0''.
+Examples: units=``0,1,0,0,PM_TIME_MSEC,0'' (milliseconds),
+units=``1,\-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0'' (Mbytes/sec),
+units=``0,1,\-1,0,PM_TIME_USEC,PM_COUNT_ONE'' (microseconds/event).
 .IP "\fBtype\fR" 10
 .IX Item "type"
 Defines the data type for the metric.
 Refer to \fBpmLookupDesc\fR(3) for a full description
 of the possible type values; the default is \fB\s-1PM_TYPE_FLOAT\s0\fR.
-Examples: type=\*(L"\s-1PM_TYPE_32\s0\*(R", type=\*(L"\s-1PM_TYPE_U64\s0\*(R", type=\*(L"\s-1PM_TYPE_STRING\s0\*(R".
+Examples: type=``\s-1PM_TYPE_32\s0'', type=``\s-1PM_TYPE_U64\s0'', type=``\s-1PM_TYPE_STRING\s0''.
 .IP "\fBsem\fR" 10
 .IX Item "sem"
 Defines the semantics of the metric.
 Refer to \fBpmLookupDesc\fR(3) for a full description
 of the possible values; the default is \fB\s-1PM_SEM_INSTANT\s0\fR.
-Examples: sem=\*(L"\s-1PM_SEM_COUNTER\s0\*(R", type=\*(L"\s-1PM_SEM_DISCRETE\s0\*(R".
+Examples: sem=``\s-1PM_SEM_COUNTER\s0'', type=``\s-1PM_SEM_DISCRETE\s0''.
 .PP
 The remaining specifications define the data columns \fBin order\fR using
 \&\fBexactly\fR one \fB<datetime>\fR\fB</datetime>\fR element,

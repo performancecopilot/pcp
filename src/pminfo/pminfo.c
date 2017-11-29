@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include <ctype.h>
 #include <limits.h>
@@ -375,7 +374,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	setup_event_derived_metrics();
 	for (r = 0; r < nrecords; r++) {
 	    printf("    --- event record [%d] timestamp ", r);
-	    __pmPrintHighResStamp(stdout, &hr[r]->timestamp);
+	    pmPrintHighResStamp(stdout, &hr[r]->timestamp);
 	    if (dump_nparams(hr[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -395,7 +394,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	setup_event_derived_metrics();
 	for (r = 0; r < nrecords; r++) {
 	    printf("    --- event record [%d] timestamp ", r);
-	    __pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmPrintStamp(stdout, &res[r]->timestamp);
 	    if (dump_nparams(res[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -655,7 +654,7 @@ report(void)
 	    myoneline(pmidlist[i], PM_TEXT_PMID);
 	putchar('\n');
 	if (p_desc)
-	    __pmPrintDesc(stdout, &desc);
+	    pmPrintDesc(stdout, &desc);
 	if (p_help)
 	    myhelptext(pmidlist[i], PM_TEXT_PMID);
 	if (p_value)

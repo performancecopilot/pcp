@@ -7,7 +7,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 static int inst_bin[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
@@ -169,15 +168,16 @@ main(int argc, char **argv)
 	/*
 	 * integrity assertions ...
 	 */
-	ctxp = __pmCurrentContext();
+	ctxp = __pmHandleToPtr(pmWhichContext());
 	if (ctxp == NULL) {
-	    fprintf(stderr, "__pmCurrentContext: returns NULL, sts %d\n", sts);
+	    fprintf(stderr, "__pmHandleToPtr: returns NULL, ctx %d, pmWhichContext() %d\n", sts, pmWhichContext());
 	    exit(1);
 	}
 	if (ctxp->c_handle != sts) {
-	    fprintf(stderr, "__pmCurrentContext: c_handle %d != sts %d\n", ctxp->c_handle, sts);
+	    fprintf(stderr, "__pmHandleToPtr: c_handle %d != ctx %d\n", ctxp->c_handle, sts);
 	    exit(1);
 	}
+	PM_UNLOCK(ctxp->c_lock);
 
 	if ((sts = pmLookupDesc(metrics[0], &desc)) < 0) {
 	    fprintf(stderr, "pmLookupDesc: context=%d bin: %s\n", handle[i], pmErrStr(sts));

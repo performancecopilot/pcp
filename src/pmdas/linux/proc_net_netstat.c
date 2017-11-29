@@ -346,7 +346,7 @@ refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 	    else if (strncmp(buf, "TcpExt:", 7) == 0)
 		get_fields(netstat_tcp_fields, header, buf);
 	    else
-		__pmNotifyErr(LOG_ERR, "Unrecognised netstat row: %s\n", buf);
+		pmNotifyErr(LOG_ERR, "Unrecognised netstat row: %s\n", buf);
 	}
     }
     fclose(fp);

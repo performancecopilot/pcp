@@ -15,7 +15,6 @@
 
 #include <math.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "qed_app.h"
 #include "qed_console.h"
 
@@ -165,7 +164,7 @@ int QedApp::getopts(const char *options)
 // a := a + b for struct timevals
 void QedApp::timevalAdd(struct timeval *a, struct timeval *b)
 {
-    __pmtimevalInc(a, b);
+    pmtimevalInc(a, b);
 }
 
 //
@@ -182,13 +181,13 @@ int QedApp::timevalCmp(struct timeval *a, struct timeval *b)
 // convert timeval to seconds
 double QedApp::timevalToSeconds(struct timeval t)
 {
-    return __pmtimevalToReal(&t);
+    return pmtimevalToReal(&t);
 }
 
 // conversion from seconds (double precision) to struct timeval
 void QedApp::timevalFromSeconds(double value, struct timeval *tv)
 {
-    __pmtimevalFromReal(value, tv);
+    pmtimevalFromReal(value, tv);
 }
 
 // debugging, display seconds-since-epoch in human readable format

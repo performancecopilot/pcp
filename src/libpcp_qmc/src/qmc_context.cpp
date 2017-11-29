@@ -327,7 +327,7 @@ QmcContext::fetch(bool update)
 	if (sts >= 0) {
 	    my.previousTime = my.currentTime;
 	    my.currentTime = result->timestamp;
-	    my.delta = __pmtimevalSub(&my.currentTime, &my.previousTime);
+	    my.delta = pmtimevalSub(&my.currentTime, &my.previousTime);
 	    for (i = 0; i < my.metrics.size(); i++) {
 		QmcMetric *metric = my.metrics[i];
 		if (metric->status() < 0)

@@ -31,7 +31,7 @@ extern pmdaInterface	dispatch;
 extern int		infd;
 extern int		outfd;
 
-__pmProfile		*profile;
+pmProfile		*profile;
 int			profile_changed;
 int			timer;
 int			get_desc;
@@ -46,12 +46,12 @@ static int		argc;
 void
 reset_profile(void)
 {
-    if ((profile = (__pmProfile *)realloc(profile, sizeof(__pmProfile))) == NULL) {
-	__pmNoMem("reset_profile", sizeof(__pmProfile), PM_FATAL_ERR);
+    if ((profile = (pmProfile *)realloc(profile, sizeof(pmProfile))) == NULL) {
+	pmNoMem("reset_profile", sizeof(pmProfile), PM_FATAL_ERR);
 	exit(1);
     }
     ctxp->c_instprof = profile;
-    memset(profile, 0, sizeof(__pmProfile));
+    memset(profile, 0, sizeof(pmProfile));
     profile->state = PM_PROFILE_INCLUDE;        /* default global state */
     profile_changed = 1;
 }
@@ -223,7 +223,7 @@ watch(char *fname)
 }
 
 void
-printindom(FILE *f, __pmInResult *irp)
+printindom(FILE *f, pmInResult *irp)
 {
     int		i;
 
@@ -585,7 +585,7 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
         resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
-    __pmPrintStamp(f, &resp->timestamp);
+    pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++) {
 	pmValueSet	*vsp = resp->vset[i];

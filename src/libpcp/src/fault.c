@@ -13,8 +13,8 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
+#include "internal.h"
 #include "fault.h"
 /* need pmda.h and libpcp_pmda for the pmdaCache* routines */
 #include "pmda.h"
@@ -296,6 +296,19 @@ void
     else 
 #undef malloc
 	return malloc(size);
+}
+
+void
+*__pmFault_calloc(size_t nmemb, size_t size)
+{
+    if (__pmFault_arm == PM_FAULT_ALLOC) {
+	__pmFault_arm = 0;
+	errno = ENOMEM;
+	return NULL;
+    }
+    else 
+#undef calloc
+	return calloc(nmemb, size);
 }
 
 void

@@ -15,7 +15,6 @@
 
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 
@@ -25,14 +24,14 @@
 typedef struct {
     __pmPDUHdr		hdr;
     pmInDom		indom;
-    __pmTimeval		when;			/* desired time */
+    pmTimeval		when;			/* desired time */
     int			inst;			/* may be PM_IN_NULL */
     int			namelen;		/* chars in name[], may be 0 */
     char		name[sizeof(int)];	/* may be missing */
 } instance_req_t;
 
 int
-__pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom, 
+__pmSendInstanceReq(int fd, int from, const pmTimeval *when, pmInDom indom, 
 		    int inst, const char *name)
 {
     instance_req_t	*pp;
@@ -73,7 +72,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
 }
 
 int
-__pmDecodeInstanceReq(__pmPDU *pdubuf, __pmTimeval *when, pmInDom *indom, int *inst, char **name)
+__pmDecodeInstanceReq(__pmPDU *pdubuf, pmTimeval *when, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
     char		*pdu_end;
@@ -125,7 +124,7 @@ typedef struct {
 } instance_t;
 
 int
-__pmSendInstance(int fd, int from, __pmInResult *result)
+__pmSendInstance(int fd, int from, pmInResult *result)
 {
     instance_t		*rp;
     instlist_t		*ip;
@@ -185,13 +184,13 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
 }
 
 int
-__pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
+__pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
 {
     int			i;
     int			j;
     instance_t		*rp;
     instlist_t		*ip;
-    __pmInResult	*res;
+    pmInResult	*res;
     int			sts;
     char		*p;
     char		*pdu_end;
@@ -204,7 +203,7 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
     if (pdu_end - (char *)pdubuf < sizeof(instance_t) - sizeof(__pmPDU))
 	return PM_ERR_IPC;
 
-    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+    if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -oserror();
     res->instlist = NULL;
     res->namelist = NULL;

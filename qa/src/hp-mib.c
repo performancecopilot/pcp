@@ -5,7 +5,7 @@
 /* short test program for hp-mib metrics */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 static char *metrics[] = {
     "proc.nprocs",

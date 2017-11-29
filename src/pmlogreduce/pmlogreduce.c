@@ -46,7 +46,7 @@
 /*
  * globals defined in pmlogreduce.h
  */
-__pmTimeval	current;		/* most recent timestamp overall */
+pmTimeval	current;		/* most recent timestamp overall */
 char		*iname;			/* name of input archive */
 pmLogLabel	ilabel;			/* input archive label */
 int		numpmid;		/* all metrics from the input archive */
@@ -151,7 +151,7 @@ parseargs(int argc, char *argv[])
 		opts.errors++;
 	    }
 	    else
-		targ = __pmtimevalToReal(&interval);
+		targ = pmtimevalToReal(&interval);
 	    break;
 
 	case 'v':	/* number of samples per volume */
@@ -417,7 +417,7 @@ main(int argc, char **argv)
 	/* switch volumes if required */
 	if (varg > 0) {
 	    if (written > 0 && (written % varg) == 0) {
-		__pmTimeval	next_stamp;
+		pmTimeval	next_stamp;
 		next_stamp.tv_sec = irp->timestamp.tv_sec;
 		next_stamp.tv_usec = irp->timestamp.tv_usec;
 		newvolume(oname, &next_stamp);
@@ -430,7 +430,7 @@ main(int argc, char **argv)
 	peek_offset = __pmFtell(logctl.l_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
-	    __pmTimeval	next_stamp;
+	    pmTimeval	next_stamp;
 	    next_stamp.tv_sec = irp->timestamp.tv_sec;
 	    next_stamp.tv_usec = irp->timestamp.tv_usec;
 	    newvolume(oname, &next_stamp);

@@ -8,7 +8,7 @@
 
 #include <ctype.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 
 static int	vflag;
 static int	numpmid;

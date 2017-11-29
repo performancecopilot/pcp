@@ -24,7 +24,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "util.h"
 
 void
@@ -72,21 +71,21 @@ start_cmd(const char *cmd, pid_t *ppid)
      */
 
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
+	pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
 		  cmd);
 
     /* Create the pipes. */
 #if defined(HAVE_PIPE2)
     rc = pipe2(pipe_fds, O_CLOEXEC|O_NONBLOCK);
     if (rc < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: pipe2() returned %s", __FUNCTION__,
 		      strerror(-rc));
 	return rc;
     }
 #else
     rc = pipe(pipe_fds);
     if (rc < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: pipe() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: pipe() returned %s", __FUNCTION__,
 		      strerror(-rc));
 	return rc;
     }
@@ -94,13 +93,13 @@ start_cmd(const char *cmd, pid_t *ppid)
     /* Set the right flags on the pipes. */
     if (fcntl(pipe_fds[PARENT_END], F_SETFL, O_NDELAY) < 0
 	|| fcntl(pipe_fds[CHILD_END], F_SETFL, O_NDELAY) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
 		      strerror(-rc));
 	return rc;
     }
     if (fcntl(pipe_fds[PARENT_END], F_SETFD, O_CLOEXEC) < 0
 	|| fcntl(pipe_fds[CHILD_END], F_SETFD, O_CLOEXEC) < 0) {
-	__pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: fcntl() returned %s", __FUNCTION__,
 		      strerror(-rc));
 	return rc;
     }
@@ -116,7 +115,7 @@ start_cmd(const char *cmd, pid_t *ppid)
 	 * when we call exec(). */
 	if (pipe_fds[CHILD_END] != STDOUT_FD) {
 	    if (dup2(pipe_fds[CHILD_END], STDOUT_FD) < 0) {
-		__pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
+		pmNotifyErr(LOG_ERR, "%s: dup2() returned %s", __FUNCTION__,
 			      strerror(errno));
 		_exit(127);
 	    }
@@ -143,7 +142,7 @@ start_cmd(const char *cmd, pid_t *ppid)
     else if (child_pid < 0) {		/* fork error */
 	int errno_save = errno;
 
-	__pmNotifyErr(LOG_ERR, "%s: fork() returned %s", __FUNCTION__,
+	pmNotifyErr(LOG_ERR, "%s: fork() returned %s", __FUNCTION__,
 		      strerror(errno_save));
 	close (pipe_fds[PARENT_END]);
 	close (pipe_fds[CHILD_END]);
@@ -161,16 +160,16 @@ stop_cmd(pid_t pid)
     pid_t wait_pid;
     int wstatus;
 
-    __pmNotifyErr(LOG_INFO, "%s: killing pid %" FMT_PID, __FUNCTION__, pid);
+    pmNotifyErr(LOG_INFO, "%s: killing pid %" FMT_PID, __FUNCTION__, pid);
 
     /* Send the TERM signal. */
     rc = kill(pid, SIGTERM);
-    __pmNotifyErr(LOG_INFO, "%s: kill returned %d", __FUNCTION__, rc);
+    pmNotifyErr(LOG_INFO, "%s: kill returned %d", __FUNCTION__, rc);
 
     /* Wait for the process to go away. */
     do {
 	wait_pid = waitpid (pid, &wstatus, 0);
-	__pmNotifyErr(LOG_INFO, "%s: waitpid returned %d", __FUNCTION__,
+	pmNotifyErr(LOG_INFO, "%s: waitpid returned %d", __FUNCTION__,
 		      (int)wait_pid);
     } while (wait_pid == -1 && errno == EINTR);
 

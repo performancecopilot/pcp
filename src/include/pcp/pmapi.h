@@ -385,6 +385,42 @@ PCP_CALL extern int pmAddProfile(pmInDom, int, int *);
  */
 PCP_CALL extern int pmDelProfile(pmInDom, int, int *);
 
+/*
+ * Profile entry (per instance domain)
+ * Only the PMDAs and pmcd need to know about this.
+ */
+typedef struct pmInDomProfile {
+    pmInDom	indom;			/* instance domain */
+    int		state;			/* include all or exclude all */
+    int		instances_len;		/* length of instances array */
+    int		*instances;		/* array of instances */
+} pmInDomProfile;
+
+/* Internal instance profile states: state in pmInDomProfile */
+#define PM_PROFILE_INCLUDE 0	/* include all, exclude some */
+#define PM_PROFILE_EXCLUDE 1	/* exclude all, include some */
+
+/*
+ * Instance profile for all domains
+ * Only the PMDAs and pmcd need to know about this.
+ */
+typedef struct pmProfile {
+    int			state;			/* default global state */
+    int			profile_len;		/* length of profile array */
+    pmInDomProfile	*profile;		/* array of instance profiles */
+} pmProfile;
+
+/*
+ * Result structure for instance domain queries
+ * Only the PMDAs and pmcd need to know about this.
+ */
+typedef struct pmInResult {
+    pmInDom	indom;		/* instance domain */
+    int		numinst;	/* may be 0 */
+    int		*instlist;	/* instance ids, may be NULL */
+    char	**namelist;	/* instance names, may be NULL */
+} pmInResult;
+
 /* 
  * ---------- Collection services ---------- 
  *
@@ -567,15 +603,15 @@ PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
  * PDUs, internally within libpcp and for (external) archive logs
  */
-typedef struct __pmTimeval {
+typedef struct pmTimeval {
     __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
     __int32_t	tv_usec;	/* and microseconds */
-} __pmTimeval;
+} pmTimeval;
 
-typedef struct __pmTimespec {
+typedef struct pmTimespec {
     __int64_t	tv_sec;		/* seconds since Jan. 1, 1970 */
     __int64_t	tv_nsec;	/* and nanoseconds */
-} __pmTimespec;
+} pmTimespec;
 
 /*
  * Label Record at the start of every log file - as exported above
@@ -584,7 +620,7 @@ typedef struct __pmTimespec {
  *	it may vary on different hosts ... we use PM_LOG_MAXHOSTLEN instead, and
  *	size this to be the same as MAXHOSTNAMELEN in IRIX 5.3
  * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
- *	for internal use that has a __pmTimeval in place of the struct timeval.
+ *	for internal use that has a pmTimeval in place of the struct timeval.
  */
 #define PM_TZ_MAXLEN	40
 #define PM_LOG_MAXHOSTLEN		64
@@ -609,7 +645,6 @@ PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
 
 /* Free result buffer */
 PCP_CALL extern void pmFreeResult(pmResult *);
-PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
 
 /* Value extract from pmValue and type conversion */
 PCP_CALL extern int pmExtractValue(int, const pmValue *, int, pmAtomValue *, int);
@@ -722,6 +757,9 @@ PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE
  */
 PCP_CALL extern char *pmGetConfig(const char *);
 PCP_CALL extern char *pmGetOptionalConfig(const char *);
+
+/* Ditto for library features */
+PCP_CALL extern const char *pmGetAPIConfig(const char *);
 
 PCP_CALL extern int pmGetVersion(void);
 
@@ -848,7 +886,6 @@ PCP_CALL extern int pmGetVersion(void);
 #define PM_OPTFLAG_QUIET	(1<<13)	/* silence getopt errors */
 
 struct pmOptions;
-#define __pmOptions pmOptions /* backwards-compatible */
 typedef int (*pmOptionOverride)(int, struct pmOptions *);
 
 typedef struct pmLongOptions {
@@ -946,14 +983,14 @@ typedef struct pmEventParameter {
 } pmEventParameter;
 
 typedef struct pmEventRecord {
-    __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
+    pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
 typedef struct pmHighResEventRecord {
-    __pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
+    pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
@@ -1117,6 +1154,48 @@ PCP_CALL extern unsigned int pmID_item(pmID);
 PCP_CALL extern pmInDom pmInDom_build(unsigned int, unsigned int);
 PCP_CALL extern unsigned int pmInDom_domain(pmInDom);
 PCP_CALL extern unsigned int pmInDom_serial(pmInDom);
+
+/*
+ * Create a diagnostic log file (not an archive)
+ */
+PCP_CALL extern FILE *pmOpenLog(const char *, const char *, FILE *, int *);
+
+/*
+ * no mem today, my love has gone away ....
+ */
+PCP_CALL extern void pmNoMem(const char *, size_t, int);
+#define PM_FATAL_ERR 1
+#define PM_RECOV_ERR 0
+
+/* standard error, warning and info wrapper for syslog(3) */
+PCP_CALL extern void pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
+/* make pmNotifyErr also add entries to syslog */
+PCP_CALL extern void pmSyslog(int);
+
+PCP_CALL extern void pmPrintDesc(FILE *, const pmDesc *);
+
+/* struct timeval manipulations */
+PCP_CALL extern void pmtimevalNow(struct timeval *);
+PCP_CALL extern void pmtimevalInc(struct timeval *, const struct timeval *);
+PCP_CALL extern void pmtimevalDec(struct timeval *, const struct timeval *);
+PCP_CALL extern double pmtimevalAdd(const struct timeval *, const struct timeval *);
+PCP_CALL extern double pmtimevalSub(const struct timeval *, const struct timeval *);
+PCP_CALL extern double pmtimevalToReal(const struct timeval *);
+PCP_CALL extern void pmtimevalFromReal(double, struct timeval *);
+PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
+PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
+
+/* filesystem path name separator */
+PCP_CALL extern int pmPathSeparator(void);
+
+/* platform independent set process identity */
+PCP_CALL extern int pmSetProcessIdentity(const char *);
+
+/*
+ * get special PCP user name (for pmSetProcessIdentity() use) ...
+ * default is "pcp"
+ */
+PCP_CALL extern int pmGetUsername(char **);
 
 #ifdef __cplusplus
 }

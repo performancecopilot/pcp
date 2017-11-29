@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <sys/param.h>
 #include "pcp/pmapi.h"
-#include "pcp/impl.h"
 #include "pcp/libpcp.h"
 
 #define LOG 0
@@ -26,7 +25,7 @@ typedef struct {		/* input archive control */
 static __pmLogCtl	logctl;		/* output archive control */
 
 static inarch_t		inarch;
-static __pmTimeval	current;	/* most recently output timestamp */
+static pmTimeval	current;	/* most recently output timestamp */
 
 static __pmHashCtl	pmid_done;
 
@@ -87,7 +86,7 @@ nextrec(void)
 {
     int		sts;
     int		pick = PM_ERR_EOL;
-    __pmTimeval	*this;
+    pmTimeval	*this;
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
 
@@ -139,7 +138,7 @@ nextrec(void)
     }
 
     if (!inarch.eof[LOG]) {
-	this = (__pmTimeval *)&inarch.pb[LOG][1];
+	this = (pmTimeval *)&inarch.pb[LOG][1];
 	    inarch.pick[LOG] = 1;
 	    pick = 0;
 	    current.tv_sec = ntohl(this->tv_sec);
@@ -147,7 +146,7 @@ nextrec(void)
     }
 
     if (!inarch.eof[META]) {
-	this = (__pmTimeval *)&inarch.pb[META][2];
+	this = (pmTimeval *)&inarch.pb[META][2];
 	if (ntohl(this->tv_sec) < current.tv_sec ||
 	    (ntohl(this->tv_sec) == current.tv_sec && ntohl(this->tv_usec) <= current.tv_usec)) {
 		inarch.pick[LOG] = 0;

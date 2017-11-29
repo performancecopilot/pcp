@@ -17,7 +17,6 @@
 
 #include <unistd.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 static char	**namelist;
@@ -77,15 +76,15 @@ dometric(const char *name)
 	listsize = listsize == 0 ? 16 : listsize * 2;
 	size = listsize * sizeof(pmidlist[0]);
 	if ((pmidlist = (pmID *)realloc(pmidlist, size)) == NULL)
-	    __pmNoMem("realloc pmidlist", size, PM_FATAL_ERR);
+	    pmNoMem("realloc pmidlist", size, PM_FATAL_ERR);
 	size = listsize * sizeof(namelist[0]);
 	if ((namelist = (char **)realloc(namelist, size)) == NULL)
-	    __pmNoMem("realloc namelist", size, PM_FATAL_ERR);
+	    pmNoMem("realloc namelist", size, PM_FATAL_ERR);
     }
 
     namelist[numpmid]= strdup(name);
     if (namelist[numpmid] == NULL)
-	__pmNoMem("strdup name", strlen(name), PM_FATAL_ERR);
+	pmNoMem("strdup name", strlen(name), PM_FATAL_ERR);
 
     numpmid++;
 }

@@ -17,7 +17,6 @@
 #define _PMCD_H
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 
@@ -110,7 +109,7 @@ PMCD_DATA extern int		nAgents;	/* Number of agents in array */
 /*
  * DomainId-to-AgentIndex map
  * 9 bits of DomainId, max value is 510 because 511 is special (see
- * DYNAMIC_PMID in impl.h)
+ * DYNAMIC_PMID in libpcp.h)
  */
 #define MAXDOMID	510
 extern int		mapdom[];	/* the map */

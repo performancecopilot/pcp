@@ -3,7 +3,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 /* Be careful when changing LIMIT.  Also change malloc and pmsprintf! */
 

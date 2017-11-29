@@ -26,12 +26,11 @@
 #include <sys/param.h>
 #include <sys/types.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "rules.h"
 #include "stats.h" 
 
-#define SEP __pmPathSeparator()
+#define SEP pmPathSeparator()
 
 
 #define PMIE_FILE	"pmieconf-pmie"
@@ -2292,7 +2291,7 @@ lookup_processes(int *count, char ***processes)
     pmiestats_t		*stats;
     struct dirent	*dp;
     struct stat		statbuf;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
 
     pmsprintf(proc, sizeof(proc), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);

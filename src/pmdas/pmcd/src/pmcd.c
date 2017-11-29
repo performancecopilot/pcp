@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "deprecated.h"
 #include "pmda.h"
@@ -245,7 +244,7 @@ static pmDesc	desctab[] = {
 };
 static int		ndesc = sizeof(desctab)/sizeof(desctab[0]);
 
-static __pmProfile	*_profile;	/* last received profile */
+static pmProfile	*_profile;	/* last received profile */
 
 /* there are four instance domains: pmlogger, register, PMDA, and pmie */
 #define INDOM_PMLOGGERS	1
@@ -325,7 +324,7 @@ grow_ctxtab(int ctx)
 {
     ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
     if (ctxtab == NULL) {
-	__pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+	pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     while (num_ctx <= ctx) {
@@ -397,7 +396,7 @@ init_pmdaroot_connect(void)
 }
 
 static int
-pmcd_profile(__pmProfile *prof, pmdaExt *pmda)
+pmcd_profile(pmProfile *prof, pmdaExt *pmda)
 {
     _profile = prof;	
     return 0;
@@ -451,7 +450,7 @@ refresh_pmie_indom(void)
     void		*ptr;
     DIR			*pmiedir;
     int			fd;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
 
     pmsprintf(fullpath, sizeof(fullpath), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
@@ -466,7 +465,7 @@ refresh_pmie_indom(void)
 
 	    /* open the directory iterate through mmaping as we go */
 	    if ((pmiedir = opendir(fullpath)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
+		pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
 				fullpath, osstrerror());
 		return 0;
 	    }
@@ -482,23 +481,23 @@ refresh_pmie_indom(void)
 			 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep,
 			 dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
-		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
+		    pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
 				fullpath, osstrerror());
 		    continue;
 		}
 		if (statbuf.st_size != sizeof(pmiestats_t))
 		    continue;
 		if  ((endp = strdup(dp->d_name)) == NULL) {
-		    __pmNoMem("pmie iname", strlen(dp->d_name), PM_RECOV_ERR);
+		    pmNoMem("pmie iname", strlen(dp->d_name), PM_RECOV_ERR);
 		    continue;
 		}
 		if ((pmies = (pmie_t *)realloc(pmies, size)) == NULL) {
-		    __pmNoMem("pmie instlist", size, PM_RECOV_ERR);
+		    pmNoMem("pmie instlist", size, PM_RECOV_ERR);
 		    free(endp);
 		    continue;
 		}
 		if ((fd = open(fullpath, O_RDONLY)) < 0) {
-		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
+		    pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
 				fullpath, osstrerror());
 		    free(endp);
 		    continue;
@@ -506,13 +505,13 @@ refresh_pmie_indom(void)
 		ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 		close(fd);
 		if (ptr == NULL) {
-		    __pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
+		    pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
 				fullpath, osstrerror());
 		    free(endp);
 		    continue;
 		}
 		else if (((pmiestats_t *)ptr)->version != 1) {
-		    __pmNotifyErr(LOG_WARNING, "incompatible pmie version: %s",
+		    pmNotifyErr(LOG_WARNING, "incompatible pmie version: %s",
 				fullpath);
 		    __pmMemoryUnmap(ptr, statbuf.st_size);
 		    free(endp);
@@ -535,13 +534,13 @@ refresh_pmie_indom(void)
 }
 
 static int
-pmcd_instance_reg(int inst, char *name, __pmInResult **result)
+pmcd_instance_reg(int inst, char *name, pmInResult **result)
 {
-    __pmInResult	*res;
+    pmInResult	*res;
     int			i;
     char		idx[12];
 
-    res = (__pmInResult *)malloc(sizeof(__pmInResult));
+    res = (pmInResult *)malloc(sizeof(pmInResult));
     if (res == NULL)
         return -oserror();
 
@@ -612,12 +611,12 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 }
 
 static int
-pmcd_instance_pool(int inst, char *name, __pmInResult **result)
+pmcd_instance_pool(int inst, char *name, pmInResult **result)
 {
-    __pmInResult	*res;
+    pmInResult	*res;
     int		i;
 
-    res = (__pmInResult *)malloc(sizeof(__pmInResult));
+    res = (pmInResult *)malloc(sizeof(pmInResult));
     if (res == NULL)
         return -oserror();
 
@@ -691,10 +690,10 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
 }
 
 static int
-pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int			sts = 0;
-    __pmInResult	*res;
+    pmInResult	*res;
     int			getall = 0;
     int			getname = 0;	/* initialize to pander to gcc */
     int			nports = 0;	/* initialize to pander to gcc */
@@ -707,7 +706,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     else if (indom == bufindom)
 	return pmcd_instance_pool(inst, name, result);
     else if (indom == logindom || indom == pmdaindom || indom == pmieindom || indom == clientindom) {
-	res = (__pmInResult *)malloc(sizeof(__pmInResult));
+	res = (pmInResult *)malloc(sizeof(pmInResult));
 	if (res == NULL)
 	    return -oserror();
 	res->instlist = NULL;
@@ -752,7 +751,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	if (getall || !getname) {
 	    if ((res->instlist = (int *)malloc(res->numinst * sizeof(int))) == NULL) {
 		sts = -oserror();
-		__pmNoMem("pmcd_instance instlist", res->numinst * sizeof(int), PM_RECOV_ERR);
+		pmNoMem("pmcd_instance instlist", res->numinst * sizeof(int), PM_RECOV_ERR);
 		__pmFreeInResult(res);
 		return sts;
 	    }
@@ -760,7 +759,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	if (getall || getname) {
 	    if ((res->namelist = (char **)malloc(res->numinst * sizeof(char *))) == NULL) {
 		sts = -oserror();
-		__pmNoMem("pmcd_instance namelist", res->numinst * sizeof(char *), PM_RECOV_ERR);
+		pmNoMem("pmcd_instance namelist", res->numinst * sizeof(char *), PM_RECOV_ERR);
 		free(res->instlist);
 		__pmFreeInResult(res);
 		return sts;
@@ -779,7 +778,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[i] = strdup(ports[i].name);
 		if (res->namelist[i] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmGetInDom",
+		    pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(ports[i].name), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -799,7 +798,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    else {
 		res->namelist[0] = strdup(ports[i].name);
 		if (res->namelist[0] == NULL) {
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(ports[i].name), PM_RECOV_ERR);
 		    sts = -oserror();
 		}
@@ -825,7 +824,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[i] = strdup(pmies[i].name);
 		if (res->namelist[i] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmie_instance pmGetInDom",
+		    pmNoMem("pmie_instance pmGetInDom",
 			     strlen(pmies[i].name), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -846,7 +845,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[0] = strdup(pmies[i].name);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(pmies[i].name), PM_RECOV_ERR);
 		}
 	    }
@@ -871,7 +870,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[i] = strdup(agent[i].pmDomainLabel);
 		if (res->namelist[i] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmGetInDom",
+		    pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(agent[i].pmDomainLabel), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -892,7 +891,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[0] = strdup(agent[i].pmDomainLabel);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(agent[i].pmDomainLabel), PM_RECOV_ERR);
 		}
 	    }
@@ -922,7 +921,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[k] = strdup(buf);
 		if (res->namelist[k] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmGetInDom",
+		    pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(buf), PM_RECOV_ERR);
 		    /* ensure pmFreeInResult only gets valid pointers */
 		    res->numinst = i;
@@ -946,7 +945,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->namelist[0] = strdup(buf);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
-		    __pmNoMem("pmcd_instance pmNameInDom",
+		    pmNoMem("pmcd_instance pmNameInDom",
 			     strlen(buf), PM_RECOV_ERR);
 		}
 	    }
@@ -1056,7 +1055,7 @@ tzinfo(void)
 static int
 extract_service(const char *path, char *name)
 {
-    int		sep = __pmPathSeparator();
+    int		sep = pmPathSeparator();
     char	fullpath[MAXPATHLEN];
     char	buffer[64];
     FILE	*fp;
@@ -1891,7 +1890,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		/*
 		 * send myself SIGHUP
 		 */
-		__pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
+		pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
 		raise(SIGHUP);
 #endif
 	    }
@@ -1974,7 +1973,7 @@ __PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];
-    int sep = __pmPathSeparator();
+    int sep = pmPathSeparator();
  
     pmsprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

@@ -8,7 +8,6 @@
 #include <ctype.h>
 #include <assert.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 enum {
@@ -95,7 +94,7 @@ store_container(pmID pmid, char *name)
     vlen = PM_VAL_HDR_SIZE + strlen(name) + 1;
     pmvb = (pmValueBlock *)calloc(1, vlen);
     if (pmvb == NULL)
-	__pmNoMem("store_container", vlen, PM_FATAL_ERR);
+	pmNoMem("store_container", vlen, PM_FATAL_ERR);
     pmvb->vtype = PM_TYPE_STRING;
     pmvb->vlen = vlen;
     strcpy(pmvb->vbuf, name);
@@ -161,7 +160,7 @@ main(int argc, char **argv)
 	case 'x':	/* exclude instance from returned values */
 	    excludesize = (nexcludes + 1) * sizeof(int);
 	    if ((excludes = realloc(excludes, excludesize)) == NULL)
-		__pmNoMem("excludes", excludesize, PM_FATAL_ERR);
+		pmNoMem("excludes", excludesize, PM_FATAL_ERR);
 	    excludes[nexcludes++] = atoi(optarg);
 	    break;
 

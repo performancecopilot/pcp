@@ -7,7 +7,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 static int	nmetric;		/* for metric ... args */
@@ -55,7 +54,7 @@ dometric(const char *new_name)
 	indom = desc[nmetric-1].indom;
 	inst = (int *)malloc(ninst*sizeof(inst[0]));
 	if (instname == NULL) {
-	    __pmNoMem("inst", ninst*sizeof(inst[0]), PM_FATAL_ERR);
+	    pmNoMem("inst", ninst*sizeof(inst[0]), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	for (j = 0; j < ninst; j++) {
@@ -173,7 +172,7 @@ main(int argc, char **argv)
 		ninst++;
 		instname = (char **)realloc(instname, ninst*sizeof(instname[0]));
 		if (instname == NULL) {
-		    __pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
+		    pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 		*q = '\0';
@@ -182,7 +181,7 @@ main(int argc, char **argv)
 	    }
 	    ninst++;
 	    if (instname == NULL) {
-		__pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
+		pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    instname[ninst-1] = strdup(optarg);
@@ -307,7 +306,7 @@ Options:\n\
     }
 
     if (logfile != NULL) {
-	__pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}
@@ -458,7 +457,7 @@ Options:\n\
 		    exit(1);
 		}
 	    }
-	    __pmtimevalInc(&appStart, &delta);
+	    pmtimevalInc(&appStart, &delta);
 	}
 
 	if (nmetric > 0) {

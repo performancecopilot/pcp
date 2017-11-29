@@ -21,7 +21,7 @@ extern int tadd(struct timeval *, struct timeval *);
 
 static inline double tv2real(struct timeval *tv)
 {
-    return __pmtimevalToReal(tv);
+    return pmtimevalToReal(tv);
 }
 
 extern void fputstamp(struct timeval *, int, FILE *);

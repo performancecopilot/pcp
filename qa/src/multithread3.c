@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "libpcp.h"
 #include <pthread.h>
 
 #ifndef HAVE_PTHREAD_BARRIER_T

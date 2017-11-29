@@ -1,9 +1,12 @@
+#!/bin/sh
+# PCP QA Test No. 927
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
 # New derived metric features:
 # - floating point constants
 # - relational operators
 # - boolean operators
-#
-# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`

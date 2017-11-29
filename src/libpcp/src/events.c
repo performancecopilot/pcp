@@ -24,7 +24,6 @@
  */
 #include <inttypes.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 #include "fault.h"
@@ -357,7 +356,7 @@ __pmCheckEventRecords(pmValueSet *vsp, int idx)
     return check_event_records(vsp, idx, 0);
 }
 
-int
+static int
 __pmCheckHighResEventRecords(pmValueSet *vsp, int idx)
 {
     return check_event_records(vsp, idx, 1);
@@ -671,7 +670,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 bail:
     while (r >= 0) {
 	if ((*rap)[r] != NULL)
-	    pmFreeHighResResult((*rap)[r]);
+	    __pmFreeHighResResult((*rap)[r]);
 	r--;
     }
     free(*rap);
@@ -699,6 +698,6 @@ pmFreeHighResEventResult(pmHighResResult **rset)
     if (rset == NULL)
 	return;
     for (r = 0; rset[r] != NULL; r++)
-	pmFreeHighResResult(rset[r]);
+	__pmFreeHighResResult(rset[r]);
     free(rset);
 }

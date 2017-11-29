@@ -16,9 +16,10 @@
  */
 
 #include <ctype.h>
-#include "series.h"
-#include "util.h"
+#include "query.h"
 #include "load.h"
+#include "util.h"
+#include "libpcp.h"
 
 typedef struct PARSER {
     char	*yy_input;
@@ -31,6 +32,7 @@ typedef struct PARSER {
     meta_t	yy_meta;
     node_t	*yy_np;
     series_t	yy_series;
+    settings_t	*yy_settings;
 } PARSER;
 
 typedef union {
@@ -513,7 +515,7 @@ newnode(int type)
     node_t	*np;
 
     if ((np = (node_t *)calloc(1, sizeof(node_t))) == NULL) {
-	__pmNoMem("pmSeries: newnode", sizeof(node_t), PM_FATAL_ERR);
+	pmNoMem("pmSeries: newnode", sizeof(node_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     np->type = type;
@@ -594,7 +596,7 @@ newstarttime(PARSER *lp, const char *string)
 	tp->starts = strdup(string);
 #if 0
     if (!lp->yy_error)
-fprintf(stderr, "START: %.64g\n", __pmtimevalToReal(result));
+fprintf(stderr, "START: %.64g\n", pmtimevalToReal(result));
     else
 fprintf(stderr, "ERROR (start: %s): %s\n", string, lp->yy_errstr);
 #endif
@@ -610,7 +612,7 @@ newendtime(PARSER *lp, const char *string)
 	tp->ends = strdup(string);
 #if 0
     if (!lp->yy_error)
-fprintf(stderr, "END: %.64g\n", __pmtimevalToReal(result));
+fprintf(stderr, "END: %.64g\n", pmtimevalToReal(result));
     else
 fprintf(stderr, "ERROR (end: %s): %s\n", string, lp->yy_errstr);
 #endif
@@ -647,7 +649,7 @@ newaligntime(PARSER *lp, const char *string)
 	tp->aligns = strdup(string);
 #if 0
     if (!lp->yy_error)
-fprintf(stderr, "ALIGN: %.64g\n", __pmtimevalToReal(result));
+fprintf(stderr, "ALIGN: %.64g\n", pmtimevalToReal(result));
     else
 fprintf(stderr, "ERROR (align: %s): %s\n", string, lp->yy_errstr);
 #endif
@@ -782,7 +784,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	if (p == NULL) {
 	    lp->yy_tokbuflen = 128;
 	    if ((p = (char *)malloc(lp->yy_tokbuflen)) == NULL) {
-		__pmNoMem("pmSeries: alloc token buffer",
+		pmNoMem("pmSeries: alloc token buffer",
 				lp->yy_tokbuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -792,7 +794,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	    len = p - lp->yy_tokbuf;
 	    lp->yy_tokbuflen *= 2;
 	    if (!(p = (char *)realloc(lp->yy_tokbuf, lp->yy_tokbuflen))) {
-		__pmNoMem("pmSeries: realloc token buffer",
+		pmNoMem("pmSeries: realloc token buffer",
 				lp->yy_tokbuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -1198,30 +1200,40 @@ series_dumpexpr(node_t *np, int level)
     series_dumpexpr(np->right, level+1);
 }
 
-int
-series_query(const char *query /*, cb, arg */)
+void
+pmSeriesQuery(pmSeriesSettings *settings,
+	const char *query, pmseries_flags flags, void *arg)
 {
-    PARSER	yp = { 0 };
+    int		sts;
+    PARSER	yp = { .yy_settings = settings };
     series_t	*sp = &yp.yy_series;
 
     yp.yy_input = (char *)query;
-    if (series_parse(&yp))
-	return yp.yy_error;
-    if (pmDebugOptions.series)
-	series_dumpexpr(sp->expr, 0);
-    return series_solve(sp->expr, &sp->time /*, cb, arg */);
+    if (series_parse(&yp)) {
+	sts = yp.yy_error;
+    } else {
+	if (pmDebugOptions.series)
+	    series_dumpexpr(sp->expr, 0);
+	sts = series_solve(settings, sp->expr, &sp->time, flags, arg);
+    }
+    settings->on_done(sts, arg);
 }
 
-int
-series_load(const char *query, int meta /*, cb, arg */)
+void
+pmSeriesLoad(pmSeriesSettings *settings,
+	const char *source, pmseries_flags flags, void *arg)
 {
-    PARSER	yp = { 0 };
+    int		sts;
+    PARSER	yp = { .yy_settings = settings };
     series_t	*sp = &yp.yy_series;
 
-    yp.yy_input = (char *)query;
-    if (series_parse(&yp))
-	return yp.yy_error;
-//    if (pmDebugOptions.series)
-	series_dumpexpr(sp->expr, 0);
-    return series_source(sp->expr, &sp->time, meta /*, cb, arg */);
+    yp.yy_input = (char *)source;
+    if (series_parse(&yp)) {
+	sts = yp.yy_error;
+    } else {
+	if (pmDebugOptions.series)
+	    series_dumpexpr(sp->expr, 0);
+	sts = series_source(settings, sp->expr, &sp->time, flags, arg);
+    }
+    settings->on_done(sts, arg);
 }

@@ -1,0 +1,107 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMTIMEVAL 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmtimevalNow\f1,
+\f3pmtimevalInc\f1,
+\f3pmtimevalDec\f1,
+\f3pmtimevalAdd\f1,
+\f3pmtimevalSub\f1,
+\f3pmtimevalToReal\f1,
+\f3pmtimevalFromReal\f1,
+\f3pmPrintStamp\f1,
+\f3pmPrintHighResStamp\f1 \- helper routines for time stored as a struct timeval 
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmtimevalNow(struct timeval *\fItv\fP);
+.br
+void pmtimevalInc(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+.br
+void pmtimevalDec(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+.br
+double pmtimevalAdd(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+.br
+double pmtimevalSub(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+.br
+double pmtimevalToReal(const struct timeval *\fIval\fP);
+.br
+void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
+.br
+void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
+.br
+void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmtimevalNow
+is a platform-independent method that returns the current system time
+since the Epoch in
+.IR tv .
+.PP
+.B pmtimevalInc
+adds the time in
+.I ap
+to the time in
+.I bp
+and stores the result in
+.IR ap .
+Similarly
+.B pmtimevalDec
+subtracts the time in
+.I bp
+from the time in
+.I ap
+and stores the result in
+.IR ap .
+.PP
+.B pmtimevalAdd
+(and
+.BR pmtimevalSub )
+add (and subtract) times and return the result as a double value.
+The time in the
+.I ap
+argument is not changed.
+.PP
+.B pmtimevalToReal
+converts the time in
+.I tp
+to an equivalent double value.
+.B pmtimevalFromReal
+provides the reverse conversion, taking the time in
+.I secs
+and returning the equivalent time in
+.IR val .
+.PP
+.B pmPrintStamp
+prints the timestamp from
+.I tp
+on the stream
+.I f
+in the local time (as returned by
+.BR pmLocaltime (3))
+in the format HH:MM:SS.XXX.
+.B pmPrintHighResStamp
+performs a similar service, but for a struct timespec and reports
+the timestamp to nanosecond precision.
+.SH SEE ALSO
+.BR gettimeofday (2),
+.BR time (2),
+.BR PMAPI (3)
+and
+.BR pmLocaltime (3).

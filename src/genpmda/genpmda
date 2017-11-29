@@ -158,7 +158,6 @@ cat <<EOFEOF >$oflag/pmda.c
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
@@ -210,13 +209,6 @@ EOFEOF
 fi
 
 cat <<EOFEOF >>$oflag/Install
-#
-# override "choose mode"
-__choose_mode()
-{
-    do_pmda=true
-}
-
 #
 # override "choose IPC method"
 __choose_ipc()
@@ -281,7 +273,6 @@ BEGIN {
     printf "/* Generated code, do not edit! */\n\n" >mt_c
     printf "/* Generated code, do not edit! */\n\n" >mt_h
     printf "#include \"pmapi.h\"\n" >>mt_c
-    printf "#include \"impl.h\"\n" >>mt_c
     printf "#include \"pmda.h\"\n" >>mt_c
     printf "#include \"metrictab.h\"\n\n" >>mt_c
     printf "#include \"clusters.h\"\n\n" >>mt_c
@@ -300,7 +291,6 @@ BEGIN {
     printf "#include <sys/stat.h>\n" >>init_c
     printf "#include <fcntl.h>\n" >>init_c
     printf "#include \"pmapi.h\"\n" >>init_c
-    printf "#include \"impl.h\"\n" >>init_c
     printf "#include \"pmda.h\"\n" >>init_c
     printf "#include \"'$oflag'/domain.h\"\n" >>init_c
     printf "#include \"'$oflag'/metrictab.h\"\n" >>init_c
@@ -610,7 +600,6 @@ END {
 	printf "#include <sys/stat.h>\n" >>fetch_c
 	printf "#include <fcntl.h>\n" >>fetch_c
 	printf "#include \"pmapi.h\"\n" >>fetch_c
-	printf "#include \"impl.h\"\n" >>fetch_c
 	printf "#include \"pmda.h\"\n" >>fetch_c
 	printf "#include \"'$oflag'/domain.h\"\n" >>fetch_c
 	printf "#include \"'$oflag'/metrictab.h\"\n" >>fetch_c

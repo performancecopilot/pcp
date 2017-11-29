@@ -26,7 +26,6 @@
 
 #include <Python.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/libpcp.h>
 #include <pcp/deprecated.h>
 
@@ -138,14 +137,14 @@ timevalToReal(PyObject *self, PyObject *args, PyObject *keywords)
     struct timeval ctv;
     long seconds, useconds;
     char *keyword_list[] = {"seconds", "useconds", NULL};
-    extern double __pmtimevalToReal(const struct timeval *);
+    extern double pmtimevalToReal(const struct timeval *);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "ll:pmtimevalToReal", keyword_list, &seconds, &useconds))
         return NULL;
     ctv.tv_sec = seconds;
     ctv.tv_usec = useconds;
-    return Py_BuildValue("d", __pmtimevalToReal(&ctv));
+    return Py_BuildValue("d", pmtimevalToReal(&ctv));
 }
 
 static PyObject *
@@ -153,12 +152,12 @@ setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *name;
     char *keyword_list[] = {"name", NULL};
-    extern int __pmSetProcessIdentity(const char *);
+    extern int pmSetProcessIdentity(const char *);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "s:pmSetProcessIdentity", keyword_list, &name))
         return NULL;
-    return Py_BuildValue("i", __pmSetProcessIdentity(name));
+    return Py_BuildValue("i", pmSetProcessIdentity(name));
 }
 
 static PyObject *

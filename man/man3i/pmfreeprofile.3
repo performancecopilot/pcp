@@ -1,0 +1,49 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFREEPROFILE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmFreeProfile\f1 \- free a PMAPI instance profile
+.SH "C SYNOPSIS"
+.ft 3
+#include "pmapi.h"
+.br
+#include "libpcp.h"
+.sp
+void __pmFreeProfile(pmProfile *\fIprof\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.B __pmFreeProfile
+frees the storage for the PMAPI instance profile
+.IR prof ,
+assuming the
+storage was allocated using
+.BR malloc (3)
+according to the scheme used in
+.BR __pmDecodeProfile (3).
+.SH SEE ALSO
+.BR malloc (3),
+.BR PMAPI (3)
+and
+.BR __pmDecodeProfile (3).

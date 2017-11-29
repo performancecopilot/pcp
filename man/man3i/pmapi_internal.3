@@ -14,14 +14,12 @@
 .\" for more details.
 .\" 
 .\" 
-.TH PMAPI_INTERNAL 3i "PCP" "Performance Co-Pilot"
+.TH PMAPI_INTERNAL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3PMAPI_INTERNAL\f1 \- internal details for the Performance Metrics Application Programming Interface
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
-.br
-#include "impl.h"
 .br
 #include "libpcp.h"
 .sp
@@ -56,12 +54,12 @@ thread is detected.
 1.
 The interval timer services use global state with semantics that demand
 it is only used in the context of a single thread, so
-.BR __pmAFregister (3i),
-.BR __pmAFunregister (3i),
-.BR __pmAFblock (3i),
-.B __pmAFunblock (3i)
+.BR __pmAFregister (3),
+.BR __pmAFunregister (3),
+.BR __pmAFblock (3),
+.B __pmAFunblock (3)
 and
-.BR __pmAFisempty (3i).
+.BR __pmAFisempty (3).
 .TP 4n
 2.
 The following access control manipulation

@@ -16,7 +16,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 
 static pmLongOptions longopts[] = {
@@ -99,7 +98,7 @@ main(int argc, char **argv)
 		n = numinst * sizeof(char *);
 		instnames = (char **)realloc(instnames, n);
 		if (instnames == NULL)
-		    __pmNoMem("pmstore.instnames", n, PM_FATAL_ERR);
+		    pmNoMem("pmstore.instnames", n, PM_FATAL_ERR);
 		instnames[numinst-1] = subopt;
 		subopt = strtok(NULL, WHITESPACE);
 	    }

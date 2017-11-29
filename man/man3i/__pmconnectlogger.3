@@ -13,14 +13,12 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMCONNECTLOGGER 3i "PCP" "Performance Co-Pilot"
+.TH PMCONNECTLOGGER 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmConnectLogger\f1 \- connect to a performance metrics logger control port
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
-.br
-#include "impl.h"
 .br
 #include "libpcp.h"
 .br
@@ -44,7 +42,7 @@ different semantics at some point in the future.
 Each instance of the Performance Co-Pilot (PCP) archive logger program
 .BR pmlogger (1)
 supports a control port on which
-.BR __pmControlLog (3i)
+.BR __pmControlLog (3)
 requests are received, and responses sent.
 Optionally, the
 .BR pmlogger (1)
@@ -72,7 +70,7 @@ returns a non-negative integer, that is a file descriptor that may be used
 in subsequent communication with the
 .BR pmlogger (1)
 instance, e.g. for
-.BR __pmControlLog (3i).
+.BR __pmControlLog (3).
 .PP
 As the control port to
 .BR pmlogger (1)
@@ -101,7 +99,7 @@ again.
 .BR pmlogger (1),
 .BR PMAPI (3)
 and
-.BR __pmControlLog (3i).
+.BR __pmControlLog (3).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_PERMISSION\f1
 no permission to connect to the specified

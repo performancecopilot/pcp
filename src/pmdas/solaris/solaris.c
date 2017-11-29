@@ -107,7 +107,7 @@ __PMDA_INIT_CALL
 solaris_init(pmdaInterface *dp)
 {
     if (_isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "solaris" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "Solaris DSO", mypath);
@@ -152,7 +152,7 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     pmdaInterface	desc;
     int			c;
     char		*namespace = PM_NS_DEFAULT;

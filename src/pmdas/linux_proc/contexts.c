@@ -13,7 +13,7 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
+#include "libpcp.h"
 #include "pmda.h"
 #include "contexts.h"
 
@@ -56,7 +56,7 @@ proc_ctx_growtab(int ctx)
     need = (ctx + 1) * sizeof(ctxtab[0]);
     ctxtab = (proc_perctx_t *)realloc(ctxtab, need);
     if (ctxtab == NULL)
-        __pmNoMem("proc ctx table", need, PM_FATAL_ERR);
+        pmNoMem("proc ctx table", need, PM_FATAL_ERR);
     while (num_ctx <= ctx)
 	proc_ctx_clear(num_ctx++);
 }
@@ -161,7 +161,7 @@ proc_ctx_access(int ctx)
 	accessible++;
 	if (basegid != pp->gid) {
 	    if (setresgid(pp->gid,pp->gid,-1) < 0) {
-		__pmNotifyErr(LOG_ERR, "set*gid(%d) access failed: %s\n",
+		pmNotifyErr(LOG_ERR, "set*gid(%d) access failed: %s\n",
 			      pp->gid, osstrerror());
 		accessible--;
 	    }
@@ -171,7 +171,7 @@ proc_ctx_access(int ctx)
 	accessible++;
 	if (baseuid != pp->uid) {
 	    if (setresuid(pp->uid,pp->uid,-1) < 0) {
-		__pmNotifyErr(LOG_ERR, "set*uid(%d) access failed: %s\n",
+		pmNotifyErr(LOG_ERR, "set*uid(%d) access failed: %s\n",
 			      pp->uid, osstrerror());
 		accessible--;
 	    }
@@ -193,12 +193,12 @@ proc_ctx_revert(int ctx)
 
     if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
 	if (setresuid(baseuid,baseuid,-1) < 0)
-	    __pmNotifyErr(LOG_ERR, "set*uid(%d) revert failed: %s\n",
+	    pmNotifyErr(LOG_ERR, "set*uid(%d) revert failed: %s\n",
 			  baseuid, osstrerror());
     }
     if ((pp->state & CTX_GROUPID) && basegid != pp->gid) {
 	if (setresgid(basegid,basegid,-1) < 0)
-	    __pmNotifyErr(LOG_ERR, "set*gid(%d) revert failed: %s\n",
+	    pmNotifyErr(LOG_ERR, "set*gid(%d) revert failed: %s\n",
 			  basegid, osstrerror());
     }
     return 0;

@@ -4,7 +4,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 int
@@ -266,7 +265,7 @@ Options:\n\
 		continue;
 	    }
 	    else {
-		__pmTimeval	now;
+		pmTimeval	now;
 		int		iter;
 		__pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
 		PM_UNLOCK(ctxp->c_lock);

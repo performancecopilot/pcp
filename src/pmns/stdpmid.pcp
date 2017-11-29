@@ -141,6 +141,6 @@ SIMPLE		253
 MEMORY_PYTHON	255
 ### MORE FREE SLOTS 256..510 ###
 #
-# 511 is REALLY reserved ... see DYNAMIC_PMID in impl.h
+# 511 is REALLY reserved ... see DYNAMIC_PMID in libpcp.h
 #
 RESERVED_DO_NOT_USE	511

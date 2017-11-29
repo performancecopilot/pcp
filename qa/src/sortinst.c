@@ -9,6 +9,9 @@
 #include <regex.h>
 #include <unistd.h>
 
+#include <pcp/pmapi.h>
+#include "libpcp.h"
+
 /*
  * sort instances based on instance name from pminfo/__pmDumpResult
  * output like

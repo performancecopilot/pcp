@@ -34,15 +34,15 @@ _filter()
 
 # real QA test starts here
 echo "---"
-pmrep -z -p -u -a $A -w 32 kernel.all.uptime
+pmrep -z -p -u -a $A -w 40 kernel.all.uptime
 echo "---"
-pmrep -z -p -u -a $A -w 32 sample.float.one
-echo "---"
-# -s 10 can be removed when Python 2 support is dropped
-pmrep -z -p -u -a $A -w 32 -s 10 kernel.uname.release
+pmrep -z -p -u -a $A -w 40 sample.float.one
 echo "---"
 # -s 10 can be removed when Python 2 support is dropped
-pmrep -z -p -u -a $A -w 32 -s 10 -l \; kernel.uname.release
+pmrep -z -p -u -a $A -w 40 -s 10 kernel.uname.release
+echo "---"
+# -s 10 can be removed when Python 2 support is dropped
+pmrep -z -p -u -a $A -w 40 -s 10 -l \; kernel.uname.release
 echo "---"
 pmrep -z -p -u -a $A kernel.uname.release -o csv | sed -e 's,XXX.*XXX,XXX,g'
 echo "---"

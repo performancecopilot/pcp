@@ -17,7 +17,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "pmlc.h"
 
 /* this pmResult is built after parsing the current statement.  The action
@@ -85,7 +84,7 @@ addindom(pmInDom newindom, int *resptr)
 	sz_indoms += 4;
 	i = sz_indoms * sizeof(indom_t);
 	if ((indom = (indom_t *)realloc(indom, i)) == NULL) {
-	    __pmNoMem("expanding instance domain array", i, PM_FATAL_ERR);
+	    pmNoMem("expanding instance domain array", i, PM_FATAL_ERR);
 	}
     }
     ip = &indom[n_indoms];
@@ -222,7 +221,7 @@ endmetrics(void)
 	need = sizeof(pmResult) + (n_metrics - 1) * sizeof(pmValueSet *);
 	/* - 1 because a pmResult already contains one pmValueSet ptr */
 	if ((logreq = (pmResult *)malloc(need)) == NULL) {
-	    __pmNoMem("building result to send", need, PM_FATAL_ERR);
+	    pmNoMem("building result to send", need, PM_FATAL_ERR);
 	}
 	sz_logreq = n_metrics;
     }
@@ -232,7 +231,7 @@ endmetrics(void)
 	if (mp->status.has_insts && mp->n_insts > 1)
 	    need += (mp->n_insts - 1) * sizeof(pmValue);
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
-	    __pmNoMem("building result value set", need , PM_FATAL_ERR);
+	    pmNoMem("building result value set", need , PM_FATAL_ERR);
 	}
 	logreq->vset[i] = vsp;
 	vsp->pmid = mp->pmid;
@@ -286,7 +285,7 @@ addmetric(const char *name)
 	    sz_metrics += 4;
 	    need = sz_metrics * sizeof(metric_t);
 	    if ((metric = (metric_t *)realloc(metric, need)) == NULL) {
-		__pmNoMem("expanding metric array", need, PM_FATAL_ERR);
+		pmNoMem("expanding metric array", need, PM_FATAL_ERR);
 	    }
 	}
 	mp = &metric[i];
@@ -491,7 +490,7 @@ addinst(char *name, int instid)
 			fprintf(stderr, "%s inst %s: ", mp->name, name);
 		    else
 			fprintf(stderr, "%s inst %d: ", mp->name, instid);
-		    __pmNoMem("expanding instance array", need, PM_FATAL_ERR);
+		    pmNoMem("expanding instance array", need, PM_FATAL_ERR);
 		}
 		mp->inst[j] = inst;
 	    }

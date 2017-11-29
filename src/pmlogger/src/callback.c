@@ -153,7 +153,7 @@ setavail(pmResult *resp)
 		continue;
 	    php = (pmidhist_t *)calloc(1, sizeof(pmidhist_t));
 	    if (php == (pmidhist_t *)0) {
-		__pmNoMem("setavail: new pmid hist entry calloc",
+		pmNoMem("setavail: new pmid hist entry calloc",
 			 sizeof(pmidhist_t), PM_FATAL_ERR);
 	    }
 	    php->ph_pmid = pmid;
@@ -165,7 +165,7 @@ setavail(pmResult *resp)
 	    php->ph_numinst = vsp->numval;
 	    ihp = (insthist_t *)calloc(vsp->numval, sizeof(insthist_t));
 	    if (ihp == (insthist_t *)0) {
-		__pmNoMem("setavail: inst list calloc",
+		pmNoMem("setavail: inst list calloc",
 			 vsp->numval * sizeof(insthist_t), PM_FATAL_ERR);
 	    }
 	    php->ph_instlist = ihp;
@@ -200,7 +200,7 @@ setavail(pmResult *resp)
 
 		tmp_instlist = (insthist_t *)realloc(php->ph_instlist, need);
 		if (tmp_instlist == NULL) {
-		    __pmNoMem("setavail: inst list realloc", need, PM_FATAL_ERR);
+		    pmNoMem("setavail: inst list realloc", need, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 		php->ph_instlist = tmp_instlist;
@@ -221,7 +221,7 @@ setavail(pmResult *resp)
  * It is a merger of __pmLogGetIndom and searchindom.
  */
 static int
-__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int **instlist, char ***namelist)
+__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -296,7 +296,7 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 }
 
 static int
-manageLabels(pmDesc *desc, const __pmTimeval *tp, int only_instances)
+manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
 {
     int		i = 0;
     int		len;
@@ -482,7 +482,7 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
 		numnames++;
 		tmp_names = (char **)realloc(names, numnames * sizeof(names[0]) + str_len);
 		if (tmp_names == NULL) {
-		    __pmNoMem("lookupTaskCacheNames: names realloc", numnames * sizeof(names[0]) + str_len, PM_FATAL_ERR);
+		    pmNoMem("lookupTaskCacheNames: names realloc", numnames * sizeof(names[0]) + str_len, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 		names = tmp_names;
@@ -549,15 +549,15 @@ do_work(task_t *tp)
     int			numinst;
     int			*instlist;
     char		**namelist;
-    __pmTimeval		tmp;
-    __pmTimeval		resp_tval;
+    pmTimeval		tmp;
+    pmTimeval		resp_tval;
     unsigned long	peek_offset;
 
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
 	struct timeval	now;
 
-	__pmtimevalNow(&now);
-	__pmPrintStamp(stderr, &now);
+	pmtimevalNow(&now);
+	pmPrintStamp(stderr, &now);
 	fprintf(stderr, " do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d\n", tp, tp->t_afid, parse_done, exit_samples);
     }
 
@@ -573,7 +573,7 @@ do_work(task_t *tp)
     if (acp == (AFctl_t *)0) {
 	acp = (AFctl_t *)calloc(1, sizeof(AFctl_t));
 	if (acp == (AFctl_t *)0) {
-	    __pmNoMem("log_callback: new AFctl_t entry calloc",
+	    pmNoMem("log_callback: new AFctl_t entry calloc",
 		     sizeof(AFctl_t), PM_FATAL_ERR);
 	}
 	acp->ac_afid = tp->t_afid;
@@ -614,7 +614,7 @@ do_work(task_t *tp)
 	    else {
 		lfp = (lastfetch_t *)calloc(1, sizeof(lastfetch_t));
 		if (lfp == (lastfetch_t *)0) {
-		    __pmNoMem("log_callback: new lastfetch_t entry calloc",
+		    pmNoMem("log_callback: new lastfetch_t entry calloc",
 			     sizeof(lastfetch_t), PM_FATAL_ERR);
 		}
 		lfp->lf_next = acp->ac_fetch;
@@ -796,7 +796,7 @@ do_work(task_t *tp)
 		 * the timestamp of the retrieved indom is also returned. The timestamp
 		 * is then used to decide if the indom needs to be refreshed.
 		 */
-		__pmTimeval indom_tval;
+		pmTimeval indom_tval;
 		numinst = __localLogGetInDom(&logctl, desc.indom, &indom_tval, &instlist, &namelist);
 		if (numinst < 0)
 		    needindom = 1;
@@ -947,10 +947,10 @@ do_work(task_t *tp)
 	    }
 	    else
 		fprintf(stderr, "every %.3f sec: %d bytes ",
-		    __pmtimevalToReal(&tp->t_delta), pdu_bytes);
+		    pmtimevalToReal(&tp->t_delta), pdu_bytes);
 	    fprintf(stderr, "or %.2f Mbytes/day\n",
 		((double)pdu_bytes * 24 * 60 * 60) /
-		(1024 * 1024 * __pmtimevalToReal(&tp->t_delta)));
+		(1024 * 1024 * pmtimevalToReal(&tp->t_delta)));
 	}
     }
 
@@ -987,7 +987,7 @@ putmark(void)
 {
     struct {
 	__pmPDU		hdr;
-	__pmTimeval	timestamp;	/* when returned */
+	pmTimeval	timestamp;	/* when returned */
 	int		numpmid;	/* zero PMIDs to follow */
 	__pmPDU		tail;
     } mark;

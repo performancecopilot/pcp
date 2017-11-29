@@ -12,7 +12,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "impl.h"
 #include <wtypes.h>
 #include <winnt.h>
 #include <winsvc.h>

@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "pmcd.h"
 
@@ -65,7 +64,7 @@ SplitPmidList(int nPmids, pmID *pmidList)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	aFreq = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (resIndex == NULL || aFreq == NULL) {
-	    __pmNoMem("SplitPmidList.resIndex", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    pmNoMem("SplitPmidList.resIndex", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
 	}
     }
 
@@ -120,7 +119,7 @@ doit:
 	    free(result);
 	result = (DomPmidList *)malloc(resultSize);
 	if (result == NULL) {
-	    __pmNoMem("SplitPmidList.result", resultSize, PM_FATAL_ERR);
+	    pmNoMem("SplitPmidList.result", resultSize, PM_FATAL_ERR);
 	}
 	currentSize = resultSize;
     }
@@ -177,13 +176,13 @@ MakeBadResult(int npmids, pmID *list, int sts)
 	/* npmids - 1 because there is already 1 pmValueSet* in a pmResult */
     result = (pmResult *)malloc(need);
     if (result == NULL) {
-	__pmNoMem("MakeBadResult.result", need, PM_FATAL_ERR);
+	pmNoMem("MakeBadResult.result", need, PM_FATAL_ERR);
     }
     result->numpmid = npmids;
     for (i = 0; i < npmids; i++) {
 	vSet = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (vSet == NULL) {
-	    __pmNoMem("MakeBadResult.vSet", sizeof(pmValueSet), PM_FATAL_ERR);
+	    pmNoMem("MakeBadResult.vSet", sizeof(pmValueSet), PM_FATAL_ERR);
 	}
 	result->vset[i] = vSet;
 	vSet->pmid = list[i];
@@ -197,10 +196,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 {
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
-    __pmProfile		*profile;
+    pmProfile		*profile;
     pmResult		*result = NULL;
     int			sts = 0;
-    static __pmTimeval	when = {0, 0};	/* Agents never see archive requests */
+    static pmTimeval	when = {0, 0};	/* Agents never see archive requests */
     int			bad = 0;
     int			i;
 
@@ -237,7 +236,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	hcp = &cPtr->profile;
 	hp = __pmHashSearch(ctxnum, hcp);
 	if (hp != NULL)
-	    profile = (__pmProfile *)hp->data;
+	    profile = (pmProfile *)hp->data;
 	else
 	    profile = NULL;
 	if (aPtr->ipcType == AGENT_DSO) {
@@ -273,7 +272,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 				   aPtr->ipc.dso.dispatch.version.any.ext);
 	    if (sts >= 0) {
 		if (result == NULL) {
-		    __pmNotifyErr(LOG_WARNING,
+		    pmNotifyErr(LOG_WARNING,
 				 "\"%s\" agent (DSO) returned a null result\n",
 				 aPtr->pmDomainLabel);
 		    sts = PM_ERR_PMID;
@@ -281,7 +280,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 		}
 		else {
 		    if (result->numpmid != dpList->listSize) {
-			__pmNotifyErr(LOG_WARNING,
+			pmNotifyErr(LOG_WARNING,
 				     "\"%s\" agent (DSO) returned %d pmIDs (%d expected)\n",
 				     aPtr->pmDomainLabel,
 				     result->numpmid,dpList->listSize);
@@ -342,7 +341,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     int			i, j;
     int 		sts;
     int			ctxnum;
-    __pmTimeval		when;
+    pmTimeval		when;
     int			nPmids;
     pmID		*pmidList;
     static pmResult	*endResult = NULL;
@@ -358,7 +357,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     struct timeval	timeout;
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
-    __pmProfile		*profile;
+    pmProfile		*profile;
 
     if (nAgents > nDoms) {
 	if (results != NULL)
@@ -368,7 +367,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	results = (pmResult **)malloc((nAgents + 1) * sizeof (pmResult *));
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (results == NULL || resIndex == NULL) {
-	    __pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
 	}
 	nDoms = nAgents;
     }
@@ -384,14 +383,14 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	hcp = &cip->profile;
 	hp = __pmHashSearch(ctxnum, hcp);
 	if (hp != NULL)
-	    profile = (__pmProfile *)hp->data;
+	    profile = (pmProfile *)hp->data;
     }
     if (ctxnum < 0 || profile == NULL) {
 	__pmUnpinPDUBuf(pb);
 	if (ctxnum < 0)
-	    __pmNotifyErr(LOG_ERR, "DoFetch: bad ctxnum=%d\n", ctxnum);
+	    pmNotifyErr(LOG_ERR, "DoFetch: bad ctxnum=%d\n", ctxnum);
 	else
-	    __pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);
+	    pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);
 	return PM_ERR_NOPROFILE;
     }
 
@@ -401,7 +400,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    free(endResult);
 	need = (int)sizeof(pmResult) + (nPmids - 1) * (int)sizeof(pmValueSet *);
 	if ((endResult = (pmResult *)malloc(need)) == NULL) {
-	    __pmNoMem("DoFetch.endResult", need, PM_FATAL_ERR);
+	    pmNoMem("DoFetch.endResult", need, PM_FATAL_ERR);
 	}
 	maxnpmids = nPmids;
     }
@@ -445,7 +444,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    sts = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (sts == 0) {
-		__pmNotifyErr(LOG_INFO, "DoFetch: select timeout");
+		pmNotifyErr(LOG_INFO, "DoFetch: select timeout");
 
 		/* Timeout, terminate agents with undelivered results */
 		for (i = 0; i < nAgents; i++) {
@@ -467,7 +466,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		if (neterror() == EINTR)
 		    goto retry;
 		/* this is not expected to happen! */
-		__pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n",
+		pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n",
 			netstrerror());
 		Shutdown();
 		exit(1);
@@ -492,7 +491,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			pmFreeResult(results[i]);
 			sts = PM_ERR_IPC;
 			if (pmDebugOptions.appl0)
-			    __pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
+			    pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
 					 ap->pmDomainLabel, aFreq[i], results[i]->numpmid);
 		    }
 	    }
@@ -542,7 +541,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     }
 
     endResult->numpmid = nPmids;
-    __pmtimevalNow(&endResult->timestamp);
+    pmtimevalNow(&endResult->timestamp);
     /* The order of the pmIDs in the per-domain results is the same as in the
      * original request, but on a per-domain basis.  resIndex is an array of
      * indices (one per agent) of the next metric to be retrieved from each

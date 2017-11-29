@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 
 /*
@@ -65,7 +64,7 @@ main(int argc, char *argv[])
 			(int)(htonl(*len)-sizeof(*len)), nb);
 	    exit(1);
 	}
-	if (htonl(*len) > sizeof(__pmPDUHdr) - sizeof(*len) + sizeof(__pmTimeval) + sizeof(int)) {
+	if (htonl(*len) > sizeof(__pmPDUHdr) - sizeof(*len) + sizeof(pmTimeval) + sizeof(int)) {
 	    sts = write(out, buf, htonl(*len));
 	    if (sts != htonl(*len)) {
 		fprintf(stderr, "Error: write %d returns %d\n", htonl(*len), sts);

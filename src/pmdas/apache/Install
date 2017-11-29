@@ -22,31 +22,21 @@
 iam=apache
 pmda_interface=3
 
-# Override interactive dialog from pmdaSetup in pmdaproc.sh
-__choose_mode()
-{
-    echo "Installing the \"$iam\" Performance Metrics Domain Agent (PMDA) ..."
-    echo
-}
-
 pmdaSetup
 
-if $do_pmda
+args=""
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Apache port number [80]? ""$PCP_ECHO_C"
+read value
+
+if [ "X$value" = "X" ]
 then
-    args=""
-
-    $PCP_ECHO_PROG $PCP_ECHO_N "Apache port number [80]? ""$PCP_ECHO_C"
-    read value
-
-    if [ "X$value" = "X" ]
-    then
-	:
-    elif [ "X`expr 0 + $value 2>/dev/null`" != "X$value" ]
-    then
-	echo "-- Sorry, port number must be numeric (not $value), ignored --" >&2
-    else
-	args="$args -P $value"
-    fi
+    :
+elif [ "X`expr 0 + $value 2>/dev/null`" != "X$value" ]
+then
+    echo "-- Sorry, port number must be numeric (not $value), ignored --" >&2
+else
+    args="$args -P $value"
 fi
 
 pmdaInstall

@@ -23,7 +23,6 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
-#include <pcp/impl.h>
 #include <pcp/libpcp.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -598,7 +597,7 @@ abstime(char *str)
 
 	/* length includes @-prefix and a null terminator */
 	if ((arg = malloc(length)) == NULL)
-		__pmNoMem("abstime", length, PM_FATAL_ERR);
+		pmNoMem("abstime", length, PM_FATAL_ERR);
 	pmsprintf(arg, length, "@%s", str);
 	arg[length-1] = '\0';
 	return arg;
@@ -988,7 +987,7 @@ rawlocalhost(pmOptions *opts)
 void
 rawfolio(pmOptions *opts)
 {
-	int		sep = __pmPathSeparator();
+	int		sep = pmPathSeparator();
 	char		path[MAXPATHLEN];
 	char		*logdir;
 
@@ -1039,7 +1038,7 @@ rawarchive(pmOptions *opts, const char *name)
 	char		tmp[MAXPATHLEN];
 	char		path[MAXPATHLEN];
 	char		*logdir, *py, *host;
-	int		sep = __pmPathSeparator();
+	int		sep = pmPathSeparator();
 	int		sts, len = (name? strlen(name) : 0);
 
 	if (len == 0)
@@ -1169,7 +1168,7 @@ rawwrite(pmOptions *opts, const char *name,
 	int		sts;
 
 	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
-	interval = __pmtimevalToReal(delta);
+	interval = pmtimevalToReal(delta);
 	duration = interval * nsamples;
 
 	if (midnightflag)
@@ -1252,7 +1251,7 @@ rawwrite(pmOptions *opts, const char *name,
 		cleanstop(1);
 	}
 
-	__pmtimevalFromReal(duration, &elapsed);
+	pmtimevalFromReal(duration, &elapsed);
 	__pmtimevalSleep(elapsed);
 
 	if ((sts = pmRecordControl(NULL, PM_REC_OFF, "")) < 0)

@@ -71,7 +71,7 @@ run_done(int sts, char *msg)
     if (pmDebugOptions.log && pmDebugOptions.desperate) {
 	fprintf(stderr, "run_done(%d, %s) last_log_offset=%d last_stamp=",
 		sts, msg, last_log_offset);
-	__pmPrintStamp(stderr, &last_stamp);
+	pmPrintStamp(stderr, &last_stamp);
 	fputc('\n', stderr);
     }
 
@@ -90,7 +90,7 @@ run_done(int sts, char *msg)
      * _before_ the last log record
      */
     if (last_stamp.tv_sec != 0) {
-	__pmTimeval	tmp;
+	pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
 	__pmFseek(logctl.l_mfp, last_log_offset, SEEK_SET);
@@ -246,7 +246,7 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
 static void
 tsub(struct timeval *a, struct timeval *b)
 {
-    __pmtimevalDec(a, b);
+    pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
         /* clip negative values at zero */
         a->tv_sec = 0;
@@ -406,7 +406,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 #if HAVE_MKSTEMP
-	pmsprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
+	pmsprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), pmPathSeparator());
 	msg = tmp;
 	fd = mkstemp(tmp);
 #else
@@ -597,8 +597,8 @@ main(int argc, char **argv)
     int			exit_code = 0;
     char		*exit_msg;
 
-    __pmGetUsername(&username);
-    sep = __pmPathSeparator();
+    pmGetUsername(&username);
+    sep = pmPathSeparator();
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
 	delta.tv_sec = atoi(endnum);
 
@@ -619,7 +619,7 @@ main(int argc, char **argv)
 		char *sysconf = pmGetConfig("PCP_VAR_DIR");
 		int sz = strlen(sysconf)+strlen("/config/pmlogger/")+strlen(opts.optarg)+1;
 		if ((configfile = (char *)malloc(sz)) == NULL)
-		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
+		    pmNoMem("config file name", sz, PM_FATAL_ERR);
 		pmsprintf(configfile, sz,
 			"%s%c" "config%c" "pmlogger%c" "%s",
 			sysconf, sep, sep, sep, opts.optarg);
@@ -827,10 +827,10 @@ main(int argc, char **argv)
 
     /* if we are running as a daemon, change user early */
     if (isdaemon)
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
 
     if (Cflag == 0) {
-	__pmOpenLog("pmlogger", logfile, stderr, &sts);
+	pmOpenLog("pmlogger", logfile, stderr, &sts);
 	if (sts != 1) {
 	    fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmGetProgname(), logfile);
 	    /* continue on ... writing to stderr */
@@ -958,7 +958,7 @@ main(int argc, char **argv)
 	pmID		pmid;
 	pmResult	*resp;
 
-	__pmtimevalNow(&epoch);
+	pmtimevalNow(&epoch);
 	sts = pmUseContext(ctx);
 
 	if (sts >= 0)
@@ -1279,7 +1279,7 @@ newvolume(int vol_switch_type)
 	    /*
 	     * nothing has been logged as yet, force out the label records
 	     */
-	    __pmtimevalNow(&last_stamp);
+	    pmtimevalNow(&last_stamp);
 	    logctl.l_label.ill_start.tv_sec = (__int32_t)last_stamp.tv_sec;
 	    logctl.l_label.ill_start.tv_usec = (__int32_t)last_stamp.tv_usec;
 	    logctl.l_label.ill_vol = PM_LOG_VOL_TI;

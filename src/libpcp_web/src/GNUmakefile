@@ -15,12 +15,23 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES 		= jsmn.c json_helpers.c http_client.c http_parser.c
-HFILES		= jsmn.h private.h http_client.h http_parser.h
-XFILES		= jsmn.c jsmn.h http_parser.c http_parser.h
+CFILES = jsmn.c http_client.c http_parser.c json_helpers.c
+HFILES = jsmn.h http_client.h http_parser.h private.h
+XFILES = jsmn.c jsmn.h http_parser.c http_parser.h
 
-LLDLIBS		= -lpcp -lpcp_pmda
-LCFLAGS		= -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0 -DPCP_INTERNAL
+LLDLIBS = $(PCPLIB) $(PCP_PMDALIB)
+LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
+LCFLAGS += -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0
+
+ifeq "$(HAVE_HIREDIS)" "true"
+CFILES += query.c redis.c load.c sha1.c util.c
+HFILES += query.h redis.h load.h sha1.h util.h
+YFILES += query_parser.y
+XFILES += sha1.c sha1.h
+LLDLIBS += $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
+else
+CFILES += noseries.c
+endif
 
 STATICLIBTARGET = libpcp_web.a
 
@@ -29,7 +40,7 @@ LIBTARGET = libpcp_web.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_web.$(DSOSUFFIX)
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES)
+LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 
 default: $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -55,6 +66,10 @@ endif
 
 $(XFILES):
 	$(LN_S) $(TOPDIR)/src/external/$@ $@
+
+.NOTPARALLEL:
+query_parser.tab.h query_parser.tab.c: query_parser.y query.h
+	$(YACC) -d -b `basename $< .y` $<
 
 default_pcp:	default
 

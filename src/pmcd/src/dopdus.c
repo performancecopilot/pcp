@@ -30,7 +30,7 @@ CheckError(AgentInfo *ap, int sts)
 
     if (sts == PM_ERR_PMDANOTREADY) {
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "%s agent (%s) sent NOT READY\n",
+	    pmNotifyErr(LOG_INFO, "%s agent (%s) sent NOT READY\n",
 			 ap->pmDomainLabel,
 			 ap->status.notReady ? "not ready" : "ready");
 	if (ap->status.notReady == 0) {
@@ -42,7 +42,7 @@ CheckError(AgentInfo *ap, int sts)
     }
     else if (sts == PM_ERR_PMDAREADY) {
 	if (pmDebugOptions.appl0)
-	    __pmNotifyErr(LOG_INFO, "%s agent (%s) sent unexpected READY\n",
+	    pmNotifyErr(LOG_INFO, "%s agent (%s) sent unexpected READY\n",
 			 ap->pmDomainLabel,
 			 ap->status.notReady ? "not ready" : "ready");
 	retSts = PM_ERR_IPC;
@@ -130,7 +130,7 @@ int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
     __pmHashCtl	*hcp;
-    __pmProfile	*newProf;
+    pmProfile	*newProf;
     int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
@@ -139,7 +139,7 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
 	hcp = &cp->profile;
 	if ((hp = __pmHashSearch(ctxnum, hcp)) != NULL) {
 	    /* seen this context slot before for this client */
-	    __pmProfile	*profile = (__pmProfile *)hp->data;
+	    pmProfile	*profile = (pmProfile *)hp->data;
 	    if (profile != NULL)
 		__pmFreeProfile(profile);
 	    hp->data = (void *)newProf;
@@ -243,11 +243,11 @@ int
 DoInstance(ClientInfo *cp, __pmPDU *pb)
 {
     int			sts, s;
-    __pmTimeval		when;
+    pmTimeval		when;
     pmInDom		indom;
     int			inst;
     char		*name;
-    __pmInResult	*inresult = NULL;
+    pmInResult	*inresult = NULL;
     AgentInfo		*ap;
     int			fdfail = -1;
 

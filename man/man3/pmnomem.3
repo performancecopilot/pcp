@@ -1,0 +1,58 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNOMEM 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNoMem\f1 \- report out of memory conditions
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmNoMem(const char *\fIwhere\fP, size_t \fIsize\fP, int \fIfatal\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.BR pmNoMem
+is a convenience method that may be used when
+.BR malloc (3)
+or a related memory allocation service fails.
+.PP
+A standard message is emitted using
+.BR pmNotifyErr (3)
+with
+.I where
+used as a message prefix and the failing allocation
+.I size
+is also reported.
+.PP
+If
+.I fatal
+is zero (and
+.B PM_RECOV_ERR
+is zero),
+.B pmNoMem
+returns (the allocation failure is assumed to be recoverable
+by the caller), else (and
+.B PM_FATAL_ERR
+is a good value to use in this case)
+.BR exit (2)
+is called with an argument of 1.
+.SH SEE ALSO
+.BR exit (2),
+.BR malloc (3),
+.BR PMAPI (3)
+and
+.BR pmNotifyErr (3).

@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include <ctype.h>
 
@@ -114,7 +113,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 
     if ((p = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL)
 	return PM_ERR_GENERIC;
-    lendir = pmsprintf(dir, sizeof(dir), "%s%cpmlogger", p, __pmPathSeparator());
+    lendir = pmsprintf(dir, sizeof(dir), "%s%cpmlogger", p, pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
      * directory.  Anticipate that this will usually be an exact match for
@@ -185,7 +184,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
      */
     strcpy(namebuf, dir);
     p = namebuf + lendir;
-    *p++ = __pmPathSeparator();
+    *p++ = pmPathSeparator();
 
     /* open the file, try to read the port number and add the port to the
      * logport array if successful.

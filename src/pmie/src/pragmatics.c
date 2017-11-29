@@ -26,7 +26,6 @@
 #include <math.h>
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "dstruct.h"
 #include "eval.h"
@@ -290,7 +289,7 @@ findFetch(Host *h, Metric *m)
 	    int tmp_mode = PM_MODE_INTERP;
 	    getDoubleAsXTB(&h->task->delta, &tmp_ival, &tmp_mode);
 
-	    __pmtimevalFromReal(start, &tv);
+	    pmtimevalFromReal(start, &tv);
 	    if ((sts = pmSetMode(tmp_mode, &tv, tmp_ival)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(),
 			pmErrStr(sts));
@@ -510,7 +509,7 @@ initArchive(Archive *a)
 	return 0;
     }
     if ((a->hname = strdup(tmp)) == NULL)
-	__pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
+	pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 
     /* get the goodies from archive label */
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
@@ -520,7 +519,7 @@ initArchive(Archive *a)
 	pmDestroyContext(handle);
 	return 0;
     }
-    a->first = __pmtimevalToReal(&label.ll_start);
+    a->first = pmtimevalToReal(&label.ll_start);
     if ((sts = pmGetArchiveEnd(&tv)) < 0) {
 	fprintf(stderr, "%s: archive %s is corrupted\n"
 		"pmGetArchiveEnd failed: %s\n",
@@ -528,7 +527,7 @@ initArchive(Archive *a)
 	pmDestroyContext(handle);
 	return 0;
     }
-    a->last = __pmtimevalToReal(&tv);
+    a->last = pmtimevalToReal(&tv);
 
     /* check for duplicate host */
     b = archives;
@@ -716,7 +715,7 @@ initMetric(Metric *m)
 			}
 		    }
 		    if (j == sts) {
-			__pmNotifyErr(LOG_ERR, "metric %s from %s does not "
+			pmNotifyErr(LOG_ERR, "metric %s from %s does not "
 				"(currently) have instance \"%s\"\n",
                                       mname, findsource(hname, hconn), m->inames[i]);
 			m->iids[i] = PM_IN_NULL;
@@ -1112,7 +1111,7 @@ taskFetch(Task *t)
 			}
 		    }
 		    else {
-			__pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
+			pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
 				symName(f->host->name), pmErrStr(sts));
 			host_state_changed(symName(f->host->conn), STATE_LOSTCONN);
 			h->down = 1;
@@ -1153,7 +1152,7 @@ taskFetch(Task *t)
 			    if (m->desc.pmid == r->vset[i]->pmid) {
 				if (r->vset[i]->numval > 0) {
 				    m->vset = r->vset[i];
-				    m->stamp = __pmtimevalToReal(&r->timestamp);
+				    m->stamp = pmtimevalToReal(&r->timestamp);
 				}
 				break;
 			    }

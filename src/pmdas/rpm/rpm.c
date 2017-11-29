@@ -23,7 +23,6 @@
 #include <rpm/rpmts.h>
 #include <rpm/rpmdb.h>
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/libpcp.h>
 #include <pcp/pmda.h>
 #include "domain.h"
@@ -334,7 +333,7 @@ notready(pmdaExt *pmda)
 	    break;
 
 	if (iterations++ > 30) { /* Complain every 30 seconds. */
-	    __pmNotifyErr(LOG_WARNING, "notready waited too long");
+	    pmNotifyErr(LOG_WARNING, "notready waited too long");
 	    iterations = 0; /* XXX: or exit? */
 	}
 	sleep(1);
@@ -365,7 +364,7 @@ rpm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * Called once for each pmGetInDom(3) operation
  */
 static int
-rpm_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
+rpm_instance(pmInDom id, int i, char *name, pmInResult **in, pmdaExt *pmda)
 {
     unsigned long long refresh;
 
@@ -388,7 +387,7 @@ rpm_extract_string(rpmtd td, Header h, int tag)
      * (which we never expect to see, for the metrics we export).
      */
     if (td->type == RPM_STRING_ARRAY_TYPE)
-	__pmNotifyErr(LOG_ERR,
+	pmNotifyErr(LOG_ERR,
 		"rpm_extract_string: unexpected string array: %d", tag);
 
     return rpmtdGetString(td);
@@ -424,7 +423,7 @@ static void
 rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
 {
     if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
+	pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
 
     m->name = dict_insert(rpm_extract_string(td, h, RPMTAG_NAME));
     m->arch = dict_insert(rpm_extract_string(td, h, RPMTAG_ARCH));
@@ -477,7 +476,7 @@ rpm_update_cache(void *ptr)
     if (rpmReadConfigFiles_p == 0) {
 	int sts = rpmReadConfigFiles(NULL, NULL);
 	if (sts == -1)
-	    __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
+	    pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
 	rpmReadConfigFiles_p = 1;
     }
 
@@ -556,13 +555,13 @@ rpm_inotify(void *ptr)
      */
     fd = inotify_init();
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
+	pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
 	return NULL;
     }
 
     sts = inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
+	pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
 	close(fd);
 	return NULL;
     }
@@ -573,21 +572,21 @@ rpm_inotify(void *ptr)
 	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
 	if (pmDebugOptions.appl1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
+	    pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 
 	/*
 	 * No need to check the contents of the buffer; having
 	 * received an event at all indicates need to refresh.
 	 */
 	if (read_count <= 0) {
-	    __pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
+	    pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
 	    continue;
 	}
 
         rpm_update_cache(ptr);
 
 	if (pmDebugOptions.appl1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
+	    pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
 
     /* NOTREACHED */
@@ -605,7 +604,7 @@ rpm_init(pmdaInterface * dp)
     int		sts;
 
     if (isDSO) {
-	int sep = __pmPathSeparator();
+	int sep = pmPathSeparator();
 	char helppath[MAXPATHLEN];
 
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
@@ -613,7 +612,7 @@ rpm_init(pmdaInterface * dp)
 	pmdaDSO(dp, PMDA_INTERFACE_5, "rpm DSO", helppath);
     }
     else {
-	__pmSetProcessIdentity(username);
+	pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -632,11 +631,11 @@ rpm_init(pmdaInterface * dp)
     /* Monitor changes to the rpm database */
     sts = pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
     if (sts != 0) {
-	__pmNotifyErr(LOG_CRIT, "rpm_init: cannot spawn a new thread: errno=%d\n", sts);
+	pmNotifyErr(LOG_CRIT, "rpm_init: cannot spawn a new thread: errno=%d\n", sts);
 	dp->status = sts;
     }
     else
-	__pmNotifyErr(LOG_INFO, "Started rpm database monitoring thread\n");
+	pmNotifyErr(LOG_INFO, "Started rpm database monitoring thread\n");
 }
 
 static void
@@ -666,14 +665,14 @@ int
 main(int argc, char **argv)
 {
     int c, err = 0;
-    int Cflag = 0, sep = __pmPathSeparator();
+    int Cflag = 0, sep = pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
 
     isDSO = 0;
     pmSetProgname(argv[0]);
     __pmProcessDataSize(NULL);
-    __pmGetUsername(&username);
+    pmGetUsername(&username);
 
     pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

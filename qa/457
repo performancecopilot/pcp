@@ -75,7 +75,6 @@ pipe	n	$tmp.pipe|
 
 # and PMDA Install script
 cat >$tmp.input <<End-of-File
-b
 1
 End-of-File
 

@@ -9,7 +9,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "libpcp.h"
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
@@ -119,8 +118,8 @@ _z(void)
     int			nsets;
     int			num;
     pmID		*pmidp;
-    __pmInResult	inres;
-    __pmInResult	*inresp;
+    pmInResult	inres;
+    pmInResult	*inresp;
     pmLabelSet		*labels;
     pmLabelSet		*rlabels;
     pmInDom		indom;
@@ -128,10 +127,10 @@ _z(void)
     pmDesc		result_desc;
     pmDesc		*descp = &result_desc;
     int			ctxnum;
-    __pmTimeval		now;
-    __pmProfile		curprof;
-    __pmInDomProfile	idp[2];
-    __pmProfile		*profp;
+    pmTimeval		now;
+    pmProfile		curprof;
+    pmInDomProfile	idp[2];
+    pmProfile		*profp;
     pmResult		*resp;
     int			code;
     int			nv;
@@ -490,7 +489,7 @@ _z(void)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendFetch(fd[1], mypid, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
+    if ((e = __pmSendFetch(fd[1], mypid, 43, (pmTimeval *)0, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
@@ -642,7 +641,7 @@ _z(void)
     now.tv_sec = 60 * 60 * 60;		/* 60 hrs after the epoch */
     now.tv_usec = 654321;		/* plus a gnat */
     for (i = 0; i < n; i++) {
-	__pmTimeval	tmp;
+	pmTimeval	tmp;
 	if ((e = __pmSendInstanceReq(fd[1], mypid, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
 	    fatal = 1;
@@ -810,8 +809,12 @@ _z(void)
 
 /* PDU_LABEL */
 #define TEMP "{\"temperature\":\"celcius\"}"
-    __pmParseLabelSet(TEMP, strlen(TEMP), PM_LABEL_ITEM, &labels);
-    if ((e = __pmSendLabel(fd[1], mypid, 0xabcd1234, PM_LABEL_ITEM, labels, 1)) < 0) {
+    if ((e = __pmParseLabelSet(TEMP, strlen(TEMP), PM_LABEL_ITEM, &labels)) < 0) {
+	fprintf(stderr, "Error: __pmParseLabelSet: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    if ((e = __pmSendLabel(fd[1], mypid, 0x7bcd1234, PM_LABEL_ITEM, labels, 1)) < 0) {
 	fprintf(stderr, "Error: SendLabel: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
@@ -840,9 +843,9 @@ _z(void)
 		goto cleanup;
 	    }
 	    else {
-		if (ident != 0xabcd1234)
+		if (ident != 0x7bcd1234)
 		    fprintf(stderr, "Botch: Label: ident: got: 0x%x expect: 0x%x\n",
-			ident, 0xabcd1234);
+			ident, 0x7bcd1234);
 		if (type != PM_LABEL_ITEM)
 		    fprintf(stderr, "Botch: Label: type: got: 0x%x expect: 0x%x\n",
 			type, PM_LABEL_ITEM);

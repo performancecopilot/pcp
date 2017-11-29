@@ -31,7 +31,7 @@ typedef struct {
 
 typedef struct {
     __pmPDUHdr		hdr;
-    __pmTimeval		timestamp;	/* when returned */
+    pmTimeval		timestamp;	/* when returned */
     int			numpmid;	/* no. of PMIDs to follow */
     __pmPDU		data[1];	/* zero or more */
 } result_t;

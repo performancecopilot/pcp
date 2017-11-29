@@ -16,7 +16,6 @@
 #include <limits.h>
 #include <ctype.h>
 #include "pmapi.h"
-#include "impl.h"
 #include "libpcp.h"
 #include "internal.h"
 
@@ -201,7 +200,7 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
     char	*q;
 
     if ((*rslt = malloc(need)) == NULL)
-	__pmNoMem("__pmParseTime", need, PM_FATAL_ERR);
+	pmNoMem("__pmParseTime", need, PM_FATAL_ERR);
     q = *rslt;
 
     for (p = spec; *p != '\0'; p++)
@@ -281,7 +280,7 @@ pmParseInterval(
     }
 
     /* convert into seconds and microseconds */
-    __pmtimevalFromReal(sec, rslt);
+    pmtimevalFromReal(sec, rslt);
     return 0;
 }
 

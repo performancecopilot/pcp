@@ -328,7 +328,7 @@ receivePDUs(pmdaInterface *dispatch)
     for (;;) {
 
 	FD_SET(fileno(stdin), &rfds);
-	__pmtimevalNow(&timeout);
+	pmtimevalNow(&timeout);
 	timeout.tv_usec = 0;
 	interval = (time_t)wl_refreshDelay - (timeout.tv_sec % (time_t)wl_refreshDelay);
 	timeout.tv_sec = interval;
@@ -450,7 +450,7 @@ main(int argc, char **argv)
     int			argCount = 0;
     int			checkOnly = 0;
     int			sts = 0;
-    int			sep = __pmPathSeparator();
+    int			sep = pmPathSeparator();
     int			n = 0;
     int			serverTableSize = 0;
     int			regexTableSize = 0;
@@ -471,9 +471,9 @@ main(int argc, char **argv)
     double		startTime;
 
     pmSetProgname(argv[0]);
-    __pmGetUsername(&wl_username);
+    pmGetUsername(&wl_username);
 
-    __pmtimevalNow(&start);
+    pmtimevalNow(&start);
 
     wl_isDSO = 0;
 
@@ -555,7 +555,7 @@ main(int argc, char **argv)
 	 * on into the logfile
 	 */
 	pmdaOpenLog(&desc);
-	__pmSetProcessIdentity(wl_username);
+	pmSetProcessIdentity(wl_username);
     }
 
     /*
@@ -599,7 +599,7 @@ main(int argc, char **argv)
 		wl_regexTable = (WebRegex*)realloc(wl_regexTable,
 					   regexTableSize * sizeof(WebRegex));
 		if (wl_regexTable == (WebRegex*)0) {
-		    __pmNoMem("main.wl_regexInst", 
+		    pmNoMem("main.wl_regexInst", 
 			     (wl_numRegex + 1) * sizeof(WebRegex),
 			     PM_FATAL_ERR);
 		}
@@ -719,7 +719,7 @@ main(int argc, char **argv)
 
 	    wl_regexTable[wl_numRegex].regex = malloc(sizeof(*wl_regexTable[wl_numRegex].regex));
 	    if(wl_regexTable[wl_numRegex].regex == NULL) {
-		__pmNoMem("main.wl_regex", 
+		pmNoMem("main.wl_regex", 
 			  sizeof(*wl_regexTable[wl_numRegex].regex),
 			  PM_FATAL_ERR);
 	    }
@@ -747,7 +747,7 @@ main(int argc, char **argv)
 		wl_regexTable = (WebRegex*)realloc(wl_regexTable,
 					   regexTableSize * sizeof(WebRegex));
 		if (wl_regexTable == (WebRegex*)0) {
-		    __pmNoMem("main.wl_regexInst", 
+		    pmNoMem("main.wl_regexInst", 
 			     (wl_numRegex + 1) * sizeof(WebRegex),
 			     PM_FATAL_ERR);
 		}
@@ -828,7 +828,7 @@ main(int argc, char **argv)
 		wl_serverInst = (pmdaInstid*)realloc(wl_serverInst,
 					 serverTableSize * sizeof(pmdaInstid));
 		if (wl_serverInst == (pmdaInstid*)0) {
-		    __pmNoMem("main.wl_serverInst", 
+		    pmNoMem("main.wl_serverInst", 
 			     (wl_numServers + 1) * sizeof(pmdaInstid),
 			     PM_FATAL_ERR);
 		}
@@ -836,7 +836,7 @@ main(int argc, char **argv)
 		wl_servers = (WebServer*)realloc(wl_servers,
 					 serverTableSize * sizeof(WebServer));
 		if (wl_servers == (WebServer*)0) {
-		    __pmNoMem("main.wl_servers", 
+		    pmNoMem("main.wl_servers", 
 			     (wl_numServers + 1) * sizeof(WebServer),
 			     PM_FATAL_ERR);
 		}
@@ -1056,7 +1056,7 @@ main(int argc, char **argv)
 		   "wl_numServers = %d, wl_sprocThresh = %d",
 		   wl_numServers,
 		   wl_sprocThresh);
-	__pmNoMem("main.wl_sproc", 
+	pmNoMem("main.wl_sproc", 
 		  (wl_numSprocs+1) * sizeof(WebSproc),
 		  PM_FATAL_ERR);
     }
@@ -1171,8 +1171,8 @@ main(int argc, char **argv)
 	}
     }
 
-    __pmtimevalNow(&end);
-    startTime = __pmtimevalSub(&end, &start);
+    pmtimevalNow(&end);
+    startTime = pmtimevalSub(&end, &start);
     if (pmDebugOptions.appl0)
 	logmessage(LOG_DEBUG, "Agent started in %f seconds", startTime);
 

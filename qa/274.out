@@ -1,13 +1,5 @@
 QA output created by 274
-You will need to choose an appropriate configuration for installation of
-the "broken" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [m] Updating the Performance Metrics Name Space (PMNS) ...
-Skipping PMDA install and PMCD re-configuration
+=== Install broken namespace ===
 dbpmda> open pipe pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
 Start broken_pmda_2_0 PMDA: ./pmdas/broken/broken_pmda_2_0 -D47104 -l logfile
 dbpmda> status
@@ -306,4 +298,6 @@ dbpmda> close
 dbpmda> quit
 Culling the Performance Metrics Name Space ...
 broken ... done
-Skipping PMDA removal and PMCD re-configuration
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check broken metrics have gone away ... OK
