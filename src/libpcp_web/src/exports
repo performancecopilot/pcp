@@ -30,4 +30,5 @@ PCP_WEB_1.3 {
     pmSeriesMetric;
     pmSeriesQuery;
     pmSeriesLoad;
+    pmSeriesLevelStr;
 } PCP_WEB_1.2;

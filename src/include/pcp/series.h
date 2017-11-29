@@ -60,5 +60,6 @@ extern void pmSeriesMetric(pmSeriesSettings *, int, pmSeriesID *, void *);
 extern void pmSeriesInstance(pmSeriesSettings *, int, pmSeriesID *, void *);
 extern void pmSeriesQuery(pmSeriesSettings *, const char *, pmseries_flags, void *);
 extern void pmSeriesLoad(pmSeriesSettings *, const char *, pmseries_flags, void *);
+extern const char *pmSeriesLevelStr(pmseries_level);
 
 #endif /* PCP_SERIES_H */

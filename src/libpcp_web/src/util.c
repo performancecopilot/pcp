@@ -195,3 +195,25 @@ value_labels(metric_t *metric, value_t *value)
 	return NULL;
     return lbuf;
 }
+
+const char *
+pmSeriesLevelStr(pmseries_level level)
+{
+    switch (level) {
+    case PMSERIES_INFO:
+	return "Info";
+    case PMSERIES_WARNING:
+	return "Warning";
+    case PMSERIES_ERROR:
+	return "Error";
+    case PMSERIES_REQUEST:
+	return "Bad request";
+    case PMSERIES_RESPONSE:
+	return "Bad response";
+    case PMSERIES_CORRUPT:
+	return "Corrupt TSDB";
+    default:
+	break;
+    }
+    return "Unknown";
+}

@@ -15,6 +15,31 @@
 #include "series.h"
 #include "pmapi.h"
 
+typedef struct series_data {
+    int			status;		/* command exit status */
+    pmSeriesID		series;		/* current time series */
+    unsigned int	colour;		/* enable coloured output */
+    unsigned int        nnames;		/* count of metric names */
+    unsigned int        nseries;	/* count of series seen */
+    unsigned int        nvalues;	/* values observed in current series */
+} series_data;
+
+/* determine whether colour should be used in diagnostics */
+static int
+series_info_colours(void)
+{
+    if (getenv("FAKETTY"))
+	return 0;
+    return isatty(fileno(stdout));
+}
+
+static void
+series_data_init(series_data *dp)
+{
+    memset(dp, 0, sizeof(series_data));
+    dp->colour = series_info_colours();
+}
+
 static int
 series_split(const char *string, pmSeriesID **series)
 {
@@ -64,84 +89,85 @@ series_free(int nseries, pmSeriesID *series)
 	free(series);
 }
 
+#define ANSI_RESET	"\x1b[0m"
+#define ANSI_FG_BLACK	"\x1b[30m"
+#define ANSI_FG_RED	"\x1b[31m"
+#define ANSI_FG_GREEN	"\x1b[32m"
+#define ANSI_FG_YELLOW	"\x1b[33m"
+#define ANSI_FG_CYAN	"\x1b[36m"
+#define ANSI_BG_RED	"\x1b[41m"
+#define ANSI_BG_WHITE	"\x1b[47m"
+
 static void
 on_series_info(pmseries_level level, const char *message, void *arg)
 {
-    const char	*prefix;
+    series_data		*dp = (series_data *)arg;
+    const char		*colour, *levels = pmSeriesLevelStr(level);
+    FILE		*stream = stderr;
 
-    (void)arg;
     switch (level) {
     case PMSERIES_INFO:
-	prefix = "INFO";
+	colour = ANSI_FG_GREEN;
+	stream = stdout;
 	break;
     case PMSERIES_WARNING:
-	prefix = "WARN";
+	colour = ANSI_FG_YELLOW;
 	break;
     case PMSERIES_ERROR:
-	prefix = "ERR";
+	colour = ANSI_FG_RED;
 	break;
     case PMSERIES_REQUEST:
-	prefix = "REQ";
+	colour = ANSI_BG_WHITE ANSI_FG_RED;
 	break;
     case PMSERIES_RESPONSE:
-	prefix = "RES";
+	colour = ANSI_BG_WHITE ANSI_FG_RED;
 	break;
     case PMSERIES_CORRUPT:
-	prefix = "BAD";
+	colour = ANSI_BG_RED ANSI_FG_BLACK;
 	break;
     default:
-	prefix = "?";
+	colour = ANSI_FG_CYAN;
 	break;
     }
-    fprintf(stderr, "[%s] %s\n", prefix, message);
+    if (dp->colour)
+	fprintf(stream, "%s: [%s%s%s] %s\n",
+		pmGetProgname(), colour, levels, ANSI_RESET, message);
+    else
+	fprintf(stream, "%s: [%s] %s\n", pmGetProgname(), levels, message);
 }
 
 /*
- *  pmSeriesLoad call, callbacks and data structure
+ *  pmSeriesLoad calls and associated callbacks
  */
-
-typedef struct series_load_data {
-    int			status;		/* command exit status */
-    pmSeriesID		series;		/* current time series */
-    unsigned int        nseries;	/* count of series seen */
-} series_load_data;
-
-static int
-series_load(pmSeriesSettings *settings, const char *query, int flags)
-{
-    series_load_data	data = {0};
-
-    pmSeriesLoad(settings, query, flags, (void *)&data);
-    return data.status;
-}
 
 static int
 series_load_meta(pmSeriesSettings *settings, const char *query)
 {
-    return series_load(settings, query, PMSERIES_METADATA);
+    series_data		data;
+
+    series_data_init(&data);
+    pmSeriesLoad(settings, query, PMSERIES_METADATA, (void *)&data);
+    return data.status;
 }
 
 static int
 series_load_all(pmSeriesSettings *settings, const char *query)
 {
-    return series_load(settings, query, 0);
+    series_data		data;
+
+    series_data_init(&data);
+    pmSeriesLoad(settings, query, 0, (void *)&data);
+    return data.status;
 }
 
 /*
- *  pmSeriesQuery call, callbacks and data structure
+ *  pmSeriesQuery calls and associated callbacks
  */
-
-typedef struct series_query_data {
-    int			status;		/* command exit status */
-    pmSeriesID		series;		/* current time series */
-    unsigned int        nseries;	/* count of series seen */
-    unsigned int        nvalues;	/* values observed for current series */
-} series_query_data;
 
 static int
 on_series_match(pmSeriesID *sid, void *arg)
 {
-    series_query_data	*dp = (series_query_data *)arg;
+    series_data		*dp = (series_data *)arg;
 
     printf("%s\n", sid->name);
     dp->series = *sid;
@@ -152,7 +178,7 @@ on_series_match(pmSeriesID *sid, void *arg)
 static int
 on_series_value(pmSeriesID *sid, const char *stamp, const char *value, void *arg)
 {
-    series_query_data	*dp = (series_query_data *)arg;
+    series_data		*dp = (series_data *)arg;
 
     if (dp->nvalues == 0 || memcmp(&dp->series, sid, PMSIDSZ) != 0) {
 	printf("\n%s\n", sid->name);
@@ -168,30 +194,25 @@ on_series_value(pmSeriesID *sid, const char *stamp, const char *value, void *arg
 static int
 series_query(pmSeriesSettings *settings, const char *query)
 {
-    series_query_data		data = {0};
-
+    series_data data;
+    series_data_init(&data);
     pmSeriesQuery(settings, query, 0, (void *)&data);
     return data.status;
 }
 
+
 static int
 series_query_meta(pmSeriesSettings *settings, const char *query)
 {
-    series_query_data		data = {0};
-
+    series_data data;
+    series_data_init(&data);
     pmSeriesQuery(settings, query, PMSERIES_METADATA, (void *)&data);
     return data.status;
 }
 
 /*
- *  pmSeriesDesc call, callback and data structure
+ *  pmSeriesDesc calls, callbacks
  */
-
-typedef struct series_desc_data {
-    int			status;		/* command exit status */
-    pmSeriesID		series;		/* current time series */
-    unsigned int        nseries;	/* count of series seen */
-} series_desc_data;
 
 static char *
 pmid2hex(const char *pmid, char *buf, size_t buflen)
@@ -253,7 +274,7 @@ static int
 on_series_desc(pmSeriesID *series, const char *pmid, const char *indom,
 	const char *semantics, const char *type, const char *units, void *arg)
 {
-    series_desc_data	*dp = (series_desc_data *)arg;
+    series_data		*dp = (series_data *)arg;
     char		inbuf[64], phexbuf[32], ihexbuf[32], typebuf[32];
 
     typestr(type, typebuf, sizeof(typebuf));
@@ -263,15 +284,15 @@ on_series_desc(pmSeriesID *series, const char *pmid, const char *indom,
     pmsprintf(inbuf, sizeof(inbuf), "%s %s",
 		    indom[0] == '\0' ? "PM_INDOM_NULL" : indom, ihexbuf);
 
-    if (dp->series.name[0] == '\0' || memcmp(&dp->series, series, PMSIDSZ))
+    if (memcmp(&dp->series, series, PMSIDSZ)) {
 	printf("\n%s\n", series->name);
+	dp->series = *series;
+	dp->nseries++;
+    }
     printf("    PMID: %s %s\n"
 	   "    Data Type: %s  InDom: %s\n"
 	   "    Semantics: %s  Units: %s\n",
 	    pmid, phexbuf, typebuf, inbuf, semantics, units);
-
-    dp->series = *series;
-    dp->nseries++;
     return 0;
 }
 
@@ -280,42 +301,37 @@ series_descriptor(pmSeriesSettings *settings, const char *query)
 {
     int			nseries, sts;
     pmSeriesID		*series = NULL;
-    series_desc_data	data;
+    series_data		data;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: no series identifiers in string '%s': %s\n",
 		pmGetProgname(), query, pmErrStr(sts));
 	return 2;
     }
+    series_data_init(&data);
     pmSeriesDesc(settings, nseries, series, (void *)&data);
     series_free(nseries, series);
     return data.status;
 }
 
 /*
- *  pmSeriesInstance call, callback and data structure
+ *  pmSeriesInstance calls, callbacks
  */
-
-typedef struct series_inst_data {
-    int			status;		/* command exit status */
-    pmSeriesID		series;		/* current time series */
-    unsigned int        nseries;	/* count of series seen */
-} series_inst_data;
 
 static int
 on_series_instance(pmSeriesID *series, int inst, const char *name, void *arg)
 {
-    series_inst_data	*ip = (series_inst_data *)arg;
+    series_data		*ip = (series_data *)arg;
 
     if (inst == PM_IN_NULL)
 	return 0;
 
-    if (ip->series.name[0] == '\0')
+    if (memcmp(&ip->series, series, PMSIDSZ)) {
 	printf("\n%s\n", series->name);
+	ip->series = *series;
+	ip->nseries++;
+    }
     printf("    Instance: [%d or \"%s\"]\n", inst, name);
-
-    ip->series = *series;
-    ip->nseries++;
     return 0;
 }
 
@@ -324,39 +340,34 @@ series_instance(pmSeriesSettings *settings, const char *query)
 {
     int			nseries, sts;
     pmSeriesID		*series = NULL;
-    series_inst_data	data = {0};
+    series_data		data;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: cannot find series identifiers in '%s': %s\n",
 		pmGetProgname(), query, pmErrStr(sts));
 	return 1;
     }
+    series_data_init(&data);
     pmSeriesInstance(settings, nseries, series, (void *)&data);
     series_free(nseries, series);
     return data.status;
 }
 
 /*
- *  pmSeriesLabel call, callback and data structure
+ *  pmSeriesLabel calls, callbacks
  */
-
-typedef struct series_labelset {
-    int			status;		/* command exit status */
-    pmSeriesID		series;		/* current time series */
-    unsigned int        nseries;	/* count of series seen */
-} series_labelset;
 
 static int
 on_series_labels(pmSeriesID *series, const char *label, void *arg)
 {
-    series_labelset	*lp = (series_labelset *)arg;
+    series_data		*lp = (series_data *)arg;
 
-    if (lp->series.name[0] == '\0')
+    if (memcmp(&lp->series, series, PMSIDSZ)) {
 	printf("\n%s\n", series->name);
+	lp->series = *series;
+	lp->nseries++;
+    }
     printf("    Labels: %s\n", label);
-
-    lp->series = *series;
-    lp->nseries++;
     return 0;
 }
 
@@ -365,42 +376,37 @@ series_labels(pmSeriesSettings *settings, const char *query)
 {
     int			nseries, sts;
     pmSeriesID		*series = NULL;
-    series_labelset	data = {0};
+    series_data		data;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: cannot find series identifiers in '%s': %s\n",
 		pmGetProgname(), query, pmErrStr(sts));
 	return 2;
     }
+    series_data_init(&data);
     pmSeriesLabel(settings, nseries, series, (void *)&data);
     series_free(nseries, series);
     return data.status;
 }
 
 /*
- *  pmSeriesMetric call, callback and data structure
+ *  pmSeriesMetric calls, callbacks
  */
-
-typedef struct series_metrics {
-    int			status;		/* command exit status */
-    pmSeriesID		series;		/* current time series */
-    unsigned int        nseries;	/* count of series seen */
-    unsigned int        nnames;		/* count of metric names */
-} series_metrics;
 
 static int
 on_series_metric(pmSeriesID *series, const char *name, void *arg)
 {
-    series_metrics	*mp = (series_metrics *)arg;
+    series_data		*mp = (series_data *)arg;
 
     if (mp->nnames && memcmp(&mp->series, series, PMSIDSZ) == 0) {
 	printf(", %s", name);
     } else {
-	if (mp->series.name[0] == '\0' || memcmp(&mp->series, series, PMSIDSZ))
+	if (memcmp(&mp->series, series, PMSIDSZ)) {
 	    printf("\n%s\n", series->name);
+	    mp->series = *series;
+	    mp->nseries++;
+	}
 	printf("    Metrics: %s\n", name);
-	mp->series = *series;
-	mp->nseries++;
     }
     mp->nnames++;
     return 0;
@@ -411,13 +417,14 @@ series_metric(pmSeriesSettings *settings, const char *query)
 {
     int			nseries, sts;
     pmSeriesID		*series = NULL;
-    series_metrics	data = {0};
+    series_data		data;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: cannot find series identifiers in '%s': %s\n",
 		pmGetProgname(), query, pmErrStr(sts));
 	return 2;
     }
+    series_data_init(&data);
     pmSeriesMetric(settings, nseries, series, (void *)&data);
     series_free(nseries, series);
     return data.status;
@@ -437,6 +444,7 @@ static int
 series_meta_all(pmSeriesSettings *settings, const char *query)
 {
     int			nseries, sts, i;
+    int			colour = series_info_colours();
     pmSeriesID		*series = NULL;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
@@ -445,10 +453,10 @@ series_meta_all(pmSeriesSettings *settings, const char *query)
 	return 1;
     }
     for (i = sts = 0; i < nseries; i++) {
-	series_desc_data	desc_data = {.series = series[i]};
-	series_inst_data	inst_data = {.series = series[i]};
-	series_metrics		metrics_data = {.series = series[i]};
-	series_labelset		labelset_data = {.series = series[i]};
+	series_data	desc_data = {.series = series[i], .colour = colour};
+	series_data	inst_data = {.series = series[i], .colour = colour};
+	series_data	metrics_data = {.series = series[i], .colour = colour};
+	series_data	labelset_data = {.series = series[i], .colour = colour};
 
 	printf("\n%s\n", series[i].name);
 	pmSeriesMetric(settings, 1, &series[i], (void *)&metrics_data);
