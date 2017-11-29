@@ -276,10 +276,10 @@ class pmConfig(object):
                     for key in config.options(spec):
                         if key not in self.util.keys:
                             self.parse_metric_info(parsemet, key, config.get(spec, key))
-                            for metric in parsemet:
-                                name = parsemet[metric][:1][0]
-                                confmet[name] = parsemet[metric][1:]
-                            tempmet[spec] = confmet
+                    for metric in parsemet:
+                        name = parsemet[metric][:1][0]
+                        confmet[name] = parsemet[metric][1:]
+                    tempmet[spec] = confmet
                 else:
                     raise IOError("Metricset definition '%s' not found." % metric)
 
