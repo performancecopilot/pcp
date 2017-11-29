@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 1324
+# Test libpcp multi-archive support using pmclient_fg
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$multi_archive_contexts || _notrun "Multi-archive support is not available"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tmpx=`echo $tmp`
+    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+	-e "s|$tmpx|TMP|g" \
+	-e 's/-nan/ nan/g' \
+    # end
+}
+
+# real QA test starts here
+TOOL=pmclient_fg
+mkdir -p $tmp.archives
+
+for DIR in archives/multi-xz archives/multi-xz-1k
+do
+    # Check that running pmclient_fg on a set of archives performs identically
+    # to running it on the archive created by combining those same archives
+    # using pmlogextract.
+
+    # First, run pmlogextract against the archives.
+    IN="$DIR/20150508.11.44 $DIR/20150508.11.46 $DIR/20150508.11.50 $DIR/20150508.11.57"
+    OUT=$tmp.44+46+50+57.pmlogextract
+    rm -f $OUT.*
+    echo "Running pmlogextract $IN $OUT" | _filter | tee $seq.full
+    pmlogextract $IN $OUT 2>&1 >> $seq.full
+    [ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
+
+    # Now run pmclient_fg against the extracted archive.
+    IN=$OUT
+    OUTBASE=$OUT.$TOOL.txt
+    echo "Running $TOOL -z -a $IN" | _filter
+    $TOOL -z -a $IN 2>&1 | _filter | tee $OUTBASE
+
+    # Now, run pmclient_fg against the set of archives.
+    IN=$DIR/20150508.11.44,$DIR/20150508.11.46,$DIR/20150508.11.50,$DIR/20150508.11.57
+    OUT=$tmp.44+46+50+57.$TOOL.txt
+    echo "Running $TOOL -z -a $IN" | _filter
+    $TOOL -z -a $IN 2>&1 | _filter | tee $OUT
+
+    # Make sure the output is the same
+    echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
+    diff $OUTBASE $OUT 2>&1 >> $seq.full
+    [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
+
+    # Now do it again, specifying the set of archives using the directory name
+    IN=$DIR
+    OUT=$tmp.$DIR.$TOOL.txt
+    echo "Running $TOOL -z -a $IN" | _filter
+    $TOOL -z -a $IN 2>&1 | _filter | tee $OUT
+
+    # Make sure the output is the same
+    echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
+    diff $OUTBASE $OUT 2>&1 >> $seq.full
+    [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
+done
+
+# success, all done
+status=0
+exit
