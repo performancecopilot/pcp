@@ -6,7 +6,7 @@ endif
 PATH    = $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = multi
+SUBDIRS = multi multi-xz multi-xz-1k
 
 LDIRT = pmlogger.log
 

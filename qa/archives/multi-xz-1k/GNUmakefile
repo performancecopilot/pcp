@@ -2,9 +2,9 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives/multi-xz-1k
-SRCARCH = $(shell echo *.[0-9])
-SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH))
-SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
+SRCARCH = $(shell echo *.[0-9].xz)
+SRCMETA = $(patsubst %.0.xz,%.meta,$(SRCARCH))
+SRCIDX = $(patsubst %.0.xz,%.index,$(SRCARCH))
 
 default setup default_pcp:
 
