@@ -216,14 +216,16 @@ Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
+%if 0%{?fedora} < 27
+# F27 re-introduced split-out debuginfo packages
 Obsoletes: pcp-gui-debuginfo
+%endif
 Obsoletes: pcp-pmda-nvidia
 
 # Obsoletes for distros that already have single install pmda's with compat package
 Obsoletes: pcp-compat
 
 Requires: pcp-libs = %{version}-%{release}
-Obsoletes: pcp-gui-debuginfo
 
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
