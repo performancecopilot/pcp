@@ -63,3 +63,10 @@ pmSeriesLoad(pmSeriesSettings *s, const char *q, pmseries_flags f, void *a)
     (void)q; (void)f;
     noseries(s, a);
 }
+
+const char *
+pmSeriesLevelStr(pmseries_level level)
+{
+    (void)level;
+    return NULL;
+}
