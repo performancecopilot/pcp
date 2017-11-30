@@ -12,15 +12,4 @@ add log-merging/rewriting
 recheck the directories past retain/merge
 less than three
 kill pmmgr
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
-TIMESTAMP pmmgr(PID/TID): TMPDIR: retention factor: X
+Log retention adjustments made

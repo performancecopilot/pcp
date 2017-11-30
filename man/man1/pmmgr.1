@@ -450,7 +450,35 @@ If expressed, this variable scales the rate at which logs are culled when
 has been surpassed.  A lower percentage will cull logs more quickly (in
 favour of preserving disk space), while a higher percentage will opt to
 retain more pcp archives.
-
+.TS
+box,center;
+c|c|c.
+Normalized Full Threshold	\fRFull Retention	\fRFinal Retention Factor
+_
+1\fR	\fR0.0	\fR0.0\fR
+_
+0.75\fR	\fR0.0	\fR0.25\fR
+_
+0.5\fR	\fR0.0	\fR0.5\fR
+_
+0.0\fR	\fR0.0	\fR1.0\fR
+_
+1\fR	\fR0.5	\fR0.5\fR
+_
+0.75\fR	\fR0.5	\fR0.625\fR
+_
+0.5\fR	\fR0.5	\fR0.75\fR
+_
+0.0\fR	\fR0.5	\fR1.0\fR
+_
+1\fR	\fR1.0	\fR1.0\fR
+_
+0.75\fR	\fR1.0	\fR1.0\fR
+_
+0.5\fR	\fR1.0	\fR1.0\fR
+_
+0.0\fR	\fR1.0	\fR1.0\fR
+.TE
 .SS PMIE CONFIGURATION
 This group of configuration options controls a
 .BR pmie

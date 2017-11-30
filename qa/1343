@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 which mkfs.xfs >/dev/null 2>&1 || _notrun "XFS utilities not installed"
 which losetup >/dev/null 2>&1 || _notrun "No losetup binary installed"
 which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+hostname=`hostname`
 
 _cleanup()
 {
@@ -44,13 +45,15 @@ _filter()
 {
     sed -e 's,^\[.*\],TIMESTAMP,' \
         -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
-        -e 's,'$tmp.xfsmount',TMPDIR,' |
-	$PCP_AWK_PROG '/retention factor: / { if ($6 >= 0 && $6 <= 1) $6 = "X" }
+	-e 's,'$tmp.xfsmount',TMPDIR,g' \
+	-e 's,'$hostname',HOST,' \
+	-e 's,'%',,g' |
+	$PCP_AWK_PROG '/retention times/ { if ($7 >= 0 && $7 <= 100) $7 = "X%"
+		      		  	   if ($11 >= 0 && $11 <= 100) $11 = "Y%"
+					 }
 		      		  	    { print }'
 }
-
 status=1	# failure is the default!
-hostname=`hostname`
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
@@ -61,8 +64,23 @@ PMCD_RECONNECT_TIMEOUT=1
 export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 # real QA test starts here
+# create a super aggressive pmlogconf file to ensure big logs/diskspace usage
+cat <<'End-of-File' >$tmp.config
+log advisory on 1 second {
+	kernel
+	network
+	disk
+	proc
+	mem
+}
+[access]
+allow .* : all;
+allow local:* : enquire;
+
+End-of-File
+
 echo "creating a filesystem"
-mkfs.xfs -dfile,size=16m,name=$tmp.xfsfile > /dev/null || exit 1
+mkfs.xfs -dfile,size=512m,name=$tmp.xfsfile > /dev/null || exit 1
 
 echo "creating a mount point"
 mkdir -p $tmp.xfsmount || exit 1
@@ -94,37 +112,37 @@ sleep 10 # pmmgr daemon shutdown
 ls -1 $tmp.xfsmount # should be almost empty
 
 echo "add control files to start pmlogger" | tee -a $seq.full
-#echo 1 > $tmp.xfsmount/target-threads
-echo '-t 1' >$tmp.xfsmount/pmlogger
-touch $tmp.xfsmount/pmlogconf
+echo '-t 2 -c '$tmp.config >$tmp.xfsmount/pmlogger
+#touch $tmp.xfsmount/pmlogconf
 echo "$tmp.xfsmount/" >$tmp.xfsmount/log-directory  # same dir
 touch $tmp.xfsmount/pmlogrewrite
 touch $tmp.xfsmount/pmlogmerge
-echo barf >$tmp.xfsmount/pmlogmerge-retain # to trigger actual retention_factor usage
+touch $tmp.xfsmount/pmlogreduce
+echo "60 seconds" >$tmp.xfsmount/pmlogmerge-retain
 echo '0.1' >$tmp.xfsmount/disk-full-threshold
-echo '0.5' >$tmp.xfsmount/disk-full-retention
+echo '0.25' >$tmp.xfsmount/disk-full-retention
 
 echo "restart pmlogger to create a bunch of archives to merge" | tee -a $seq.full
 for x in 1 2 3 4 5
 do
     echo restart $x `date` >>$seq.full
-    rm -f $tmp.xfsmount/$hostname/config.pmlogger
+#    rm -f $tmp.xfsmount/$hostname/config.pmlogger
     _service pmcd start >>$seq.full 2>&1
     _wait_for_pmcd
+
     i=0;
     # wait up to 300ish seconds for pm*conf to run
-    while [ $i -lt 50 ]; do
+    while [ $i -lt 25 ]; do
 	rm -f $tmp.ok
         i=`expr $i + 1`
 	echo "pmlogger probe #$i `date`" >>$seq.full
         ls -l $tmp.xfsmount/$hostname/config.pmlogger >>$seq.full 2>/dev/null
+
         # NB: shan't check through pminfo pmcd.*, since these daemons run unprivileged
         # under the pcpqa userid and may not have permission to write into the
         # pmcd-pmda pid directories.
-        if [ -s $tmp.xfsmount/$hostname/config.pmlogger ]; then
-	    # our babies have been born ...
+        if [ -s $tmp.xfsmount/$hostname/pmlogger.log ]; then
 	    touch $tmp.ok
-	    break
 	fi
         sleep 3
     done
@@ -140,10 +158,9 @@ do
 done
 
 echo "add log-merging/rewriting" | tee -a $seq.full
-echo '-t 2 -c '$tmp.xfsmount/$hostname/config.pmlogger >$tmp.xfsmount/pmlogger
+echo '-t 2 -c '$tmp.config >$tmp.xfsmount/pmlogger
 #echo 20sec >$tmp.xfsmount/pmlogmerge
-echo barf >$tmp.xfsmount/pmlogmerge-retain
-rm $tmp.xfsmount/pmlogconf
+#rm $tmp.xfsmount/pmlogconf
 _service pmcd start >>$seq.full 2>&1
 _wait_for_pmcd
 sleep 20 # enough time to get new daemons started up, logs rotated/merged
@@ -153,7 +170,7 @@ sleep 10 # pmmgr daemon shutdown
 date >>$seq.full
 echo "recheck the directories past retain/merge" | tee -a $seq.full
 # there should be only two; one merged and one just-written-to
-count=`ls -1 $tmp.xfsmount/$hostname/*.meta | wc -l`
+count=`ls -1 $tmp.xfsmount/$hostname/*.meta | grep -v reduced| wc -l`
 if [ $count -lt 3 ]; then
     echo less than three
 else
@@ -194,7 +211,16 @@ do
 	cat $log >>$seq.full
     fi
 done
-cat $tmp.out | grep "retention" | _filter
+# the exact number of adjustments made can be finkey, so lets just
+# make sure that some occured
+retention_count=`cat $tmp.out | grep "retention" | wc -l`
+echo $retention_count >> $seq.full
+if [ $retention_count -gt 0 ]
+then
+    echo "Log retention adjustments made"
+else
+    echo "No log retention adjustments made"
+fi
 # success, all done
 status=0
 exit
