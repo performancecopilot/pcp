@@ -2241,6 +2241,9 @@ doit:
 			    case PM_TYPE_DOUBLE:
 				atom.d = 42;
 				break;
+			    case PM_TYPE_STRING:
+				atom.cp = "42";
+				break;
 			    default:
 				/* do nothing in other cases ... return garbage */
 				break;
