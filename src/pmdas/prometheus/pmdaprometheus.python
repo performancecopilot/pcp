@@ -671,7 +671,7 @@ class PrometheusPMDA(PMDA):
                 self.log("walking %s, ctime %s" % (self.config_dir, self.config_dir_ctime))
                 save_cluster_table = False
                 for root, dirs, files in os.walk(self.config_dir):
-                        for file in files:
+                        for file in sorted(files): # sorted for indom cluster consistency
                                 # compute nickname for source:
                                 # the part of the filename before .url
                                 file_split = os.path.splitext(file)
