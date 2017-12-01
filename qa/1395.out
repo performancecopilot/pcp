@@ -15,7 +15,7 @@ prometheus.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000
     value 5.564827080000001
 
 prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
-    Data Type: double  InDom: 144.5122 0x24001402
+    Data Type: double  InDom: 144.6146 0x24001802
     Semantics: instant  Units: none
     inst [0 or "0 quantile:'0.0'"] value 0
     inst [1 or "1 quantile:'0.25'"] value 0.0006384920000000001
@@ -419,7 +419,7 @@ prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [399 or "399 quantile:'99.75'"] value 0.254758308
 
 prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
-    Data Type: double  InDom: 144.5121 0x24001401
+    Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
     inst [0 or "0 baz:'0.0'"] value 0
     inst [1 or "1 baz:'0.7'"] value 510616182
@@ -823,7 +823,7 @@ prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [399 or "399 baz:'279.29999999999995'"] value 203735857000
 
 prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
-    Data Type: double  InDom: 144.5120 0x24001400
+    Data Type: double  InDom: 144.6144 0x24001800
     Semantics: instant  Units: none
     inst [0 or "0 bar:'0'"] value 0
     inst [1 or "1 bar:'1'"] value 24.2

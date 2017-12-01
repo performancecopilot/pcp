@@ -15,7 +15,7 @@ prometheus.source1.sample_summary0002_sum
     value 4.17362031
 
 prometheus.source1.sample_summary0002
-    Data Type: double  InDom: 144.5122 0x24001402
+    Data Type: double  InDom: 144.6146 0x24001802
     Semantics: instant  Units: none
     inst [0 or "0 quantile:'0.0'"] value 0
     inst [1 or "1 quantile:'0.25'"] value 0.000478869
@@ -29,7 +29,7 @@ prometheus.source1.sample_summary0002
     inst [9 or "9 quantile:'2.25'"] value 0.004309821
 
 prometheus.source1.sample_counter0001
-    Data Type: double  InDom: 144.5121 0x24001401
+    Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
     inst [0 or "0 baz:'0.0'"] value 0
     inst [1 or "1 baz:'0.7'"] value 340410788
@@ -43,7 +43,7 @@ prometheus.source1.sample_counter0001
     inst [9 or "9 baz:'6.3'"] value 3063697090
 
 prometheus.source1.sample_gauge0000
-    Data Type: double  InDom: 144.5120 0x24001400
+    Data Type: double  InDom: 144.6144 0x24001800
     Semantics: instant  Units: none
     inst [0 or "0 bar:'0'"] value 0
     inst [1 or "1 bar:'1'"] value 12.1

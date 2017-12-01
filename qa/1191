@@ -66,7 +66,7 @@ pmdaprometheus_install
 
 
 # add all the sample text files as urls.
-for file in $here/prometheus/samples/*.txt
+ls -1 $here/prometheus/samples/*.txt | sort | while read file
 do
     urlbase=`basename $file .txt | tr .- _`
     echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/urls.d/$urlbase.url
@@ -74,7 +74,8 @@ done
 
 sleep 2 #avoid racing (zoom zoom)
 
-if pminfo -dtTf prometheus  > $tmp.info 2> $tmp.err
+metrics=`pminfo prometheus | LC_COLLATE=POSIX sort`
+if pminfo -dtTf $metrics  > $tmp.info 2> $tmp.err
 then
     :
 else

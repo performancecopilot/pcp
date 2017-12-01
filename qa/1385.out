@@ -4,30 +4,6 @@ Waiting for pmcd to terminate ...
 === prometheus agent installation ===
 Fetch and desc prometheus metrics: success
 
-prometheus.source0.sample_summary0002_count
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-    value 3636
-
-prometheus.source0.sample_summary0002_sum
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-    value 2.78241354
-
-prometheus.source0.sample_summary0002
-    Data Type: double  InDom: 144.5122 0x24001402
-    Semantics: instant  Units: none
-    inst [0 or "0 quantile:'0.0'"] value 0
-    inst [1 or "1 quantile:'0.25'"] value 0.000319246
-    inst [2 or "2 quantile:'0.5'"] value 0.0006384920000000001
-    inst [3 or "3 quantile:'0.75'"] value 0.000957738
-    inst [4 or "4 quantile:'1.0'"] value 0.001276984
-    inst [5 or "5 quantile:'1.25'"] value 0.00159623
-    inst [6 or "6 quantile:'1.5'"] value 0.001915476
-    inst [7 or "7 quantile:'1.75'"] value 0.002234722
-    inst [8 or "8 quantile:'2.0'"] value 0.002553968
-    inst [9 or "9 quantile:'2.25'"] value 0.002873214
-
 prometheus.source0.sample_counter0001
     Data Type: double  InDom: 144.5121 0x24001401
     Semantics: counter  Units: none
@@ -55,6 +31,30 @@ prometheus.source0.sample_gauge0000
     inst [7 or "7 bar:'7'"] value 0
     inst [8 or "8 bar:'8'"] value 0
     inst [9 or "9 bar:'9'"] value 0
+
+prometheus.source0.sample_summary0002
+    Data Type: double  InDom: 144.5122 0x24001402
+    Semantics: instant  Units: none
+    inst [0 or "0 quantile:'0.0'"] value 0
+    inst [1 or "1 quantile:'0.25'"] value 0.000319246
+    inst [2 or "2 quantile:'0.5'"] value 0.0006384920000000001
+    inst [3 or "3 quantile:'0.75'"] value 0.000957738
+    inst [4 or "4 quantile:'1.0'"] value 0.001276984
+    inst [5 or "5 quantile:'1.25'"] value 0.00159623
+    inst [6 or "6 quantile:'1.5'"] value 0.001915476
+    inst [7 or "7 quantile:'1.75'"] value 0.002234722
+    inst [8 or "8 quantile:'2.0'"] value 0.002553968
+    inst [9 or "9 quantile:'2.25'"] value 0.002873214
+
+prometheus.source0.sample_summary0002_count
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 2.78241354
 
 prometheus.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 3636

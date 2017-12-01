@@ -83,7 +83,8 @@ $python $here/prometheus/prometheus_endpoint.python \
 pid=$!
 sleep 3 #avoid racing (zoom zoom)
 
-if pminfo -b 10000000 -v prometheus > $tmp.info 2> $tmp.err
+metrics=`pminfo prometheus | LC_COLLATE=POSIX sort`
+if pminfo -b 10000000 -v $metrics > $tmp.info 2> $tmp.err
 then
     :
 else
@@ -92,7 +93,7 @@ else
 fi
 cat $tmp.info $tmp.err
 #sleep 120
-if pminfo -b 10000000 -fd prometheus > $tmp.info 2>$tmp.err
+if pminfo -b 10000000 -fd $metrics > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc prometheus metrics: success"
     cat $tmp.info

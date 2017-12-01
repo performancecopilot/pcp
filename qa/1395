@@ -82,7 +82,8 @@ $python $here/prometheus/prometheus_endpoint.python \
 pid=$!
 sleep 3 #avoid racing (zoom zoom)
 
-if pminfo -b 1000000 -v prometheus > $tmp.info 2>$tmp.err
+metrics=`pminfo prometheus | LC_COLLATE=POSIX sort`
+if pminfo -b 1000000 -v $metrics > $tmp.info 2>$tmp.err
 then
     :
 else
