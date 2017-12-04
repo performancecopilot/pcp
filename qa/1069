@@ -423,6 +423,13 @@ echo 'mem.util.free = freemem' >> $tmp.pconfig
 # Test overriding metricset specific settings (#357)
 pmrep -s 3 $log2 -p -c $tmp.pconfig -U -t 2s :testing
 
+echo "== exercise signal handling"
+pmrep -T 6sec -t 3 sample.long.one > $tmp.bgout 2>&1 &
+pid=$!
+pmsleep 4
+$PCP_BINADM_DIR/pmsignal -s TERM $pid
+cat $tmp.bgout
+
 # success, all done
 echo "== done"
 status=0
