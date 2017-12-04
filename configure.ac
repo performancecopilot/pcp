@@ -120,7 +120,7 @@ AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-    [do_books=no])
+    [do_books=check])
 
 AC_ARG_WITH([books-brand],
     [AC_HELP_STRING([--with-books-brand=BRAND],
