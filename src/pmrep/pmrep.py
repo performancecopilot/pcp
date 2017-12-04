@@ -692,7 +692,6 @@ class PMReporter(object):
                     try:
                         if inst != PM_IN_NULL and not name:
                             continue
-                        value = val()
                         if self.metrics[metric][1] and inst not in self.recorded[metric]:
                             continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
@@ -702,6 +701,7 @@ class PMReporter(object):
                             except pmi.pmiErr as error:
                                 if error.args[0] == PMI_ERR_DUPINSTNAME:
                                     pass
+                        value = val()
                         if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
                             self.pmi.pmiPutValue(metric, name, value)
                         elif self.pmconfig.descs[i].contents.type == PM_TYPE_FLOAT or \
