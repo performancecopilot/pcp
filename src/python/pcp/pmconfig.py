@@ -453,7 +453,7 @@ class pmConfig(object):
             sys.exit(1)
 
         # Finalize the metrics set
-        incompat_metrics = {}
+        incompat_metrics = OrderedDict()
         for i, metric in enumerate(self.util.metrics):
             # Fill in all fields for easier checking later
             for index in range(0, 6):
@@ -559,12 +559,12 @@ class pmConfig(object):
                     raise
 
         # Remove all traces of incompatible metrics
-        for metric in incompat_metrics:
+        for metric in reversed(incompat_metrics):
             del self.pmids[incompat_metrics[metric]]
             del self.descs[incompat_metrics[metric]]
             del self.insts[incompat_metrics[metric]]
             del self.util.metrics[metric]
-        incompat_metrics = {}
+        del incompat_metrics
 
         # Verify that we have valid metrics
         if not self.util.metrics:
