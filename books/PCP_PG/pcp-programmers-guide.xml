@@ -730,7 +730,7 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
             <primary>protocol data units</primary>
             <see>PDU</see>
           </indexterm>All PMDAs are launched and controlled by the PMCD process on the local host. PMCD receives requests from the monitoring tools and forwards them to the PMDAs. Responses, when required, are returned through PMCD to the clients. The requests fall into a small number of categories, and the PMDA must handle each request type. For a DSO PMDA, each request type corresponds to a method in the agent. For a daemon PMDA, each request translates to a message or  protocol data unit (PDU) that may be sent to a PMDA from PMCD.</para>
-        <para>For a daemon PMDA, the following request PDUs must be supported:<variablelist><varlistentry><term><literal>PDU_FETCH</literal></term><listitem><para><indexterm id="IG3134017782"><primary>pmFetch man page</primary></indexterm><indexterm id="IG3134017783"><primary>PDU_FETCH</primary></indexterm>Request for metric values (see the <command>pmFetch(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PROFILE</literal></term><listitem><para><indexterm id="IG3134017784"><primary>pmAddProfile function</primary></indexterm><indexterm id="IG3134017785"><primary>PDU_PROFILE</primary></indexterm>A list of instances required for the corresponding metrics in subsequent fetches (see the <command>pmAddProfile(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_INSTANCE_REQ</literal></term><listitem><para><indexterm id="IG3134017786"><primary>pmGetInDom function</primary></indexterm><indexterm id="IG3134017787"><primary>PDU_INSTANCE_REQ</primary></indexterm> Request for a particular instance domain for instance descriptions (see the <command>pmGetInDom(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_DESC_REQ</literal></term><listitem><para><indexterm id="IG3134017788"><primary>pmLookupDesc function</primary></indexterm><indexterm id="IG3134017789"><primary>PDU_DESC_REQ</primary></indexterm>Request for metadata describing metrics (see the <command>pmLookupDesc(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_TEXT_REQ</literal></term><listitem><para><indexterm id="IG3134017790"><primary>pmLookupText function</primary></indexterm><indexterm id="IG3134017791"><primary>PDU_TEXT_REQ</primary></indexterm><indexterm id="IG3134017792"><primary>help text</primary><secondary>PDU_TEXT_REQ</secondary></indexterm>Request for metric help text (see the <command>pmLookupText(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_RESULT</literal></term><listitem><para><indexterm id="IG3134017793"><primary>pmstore function</primary></indexterm><indexterm id="IG3134017794"><primary>PDU_RESULT</primary></indexterm>Values to store into metrics (see the <command>pmStore(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
+        <para>For a daemon PMDA, the following request PDUs must be supported:<variablelist><varlistentry><term><literal>PDU_FETCH</literal></term><listitem><para><indexterm id="IG3134017782"><primary>pmFetch man page</primary></indexterm><indexterm id="IG3134017783"><primary>PDU_FETCH</primary></indexterm>Request for metric values (see the <command>pmFetch(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PROFILE</literal></term><listitem><para><indexterm id="IG3134017784"><primary>pmAddProfile function</primary></indexterm><indexterm id="IG3134017785"><primary>PDU_PROFILE</primary></indexterm>A list of instances required for the corresponding metrics in subsequent fetches (see the <command>pmAddProfile(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_INSTANCE_REQ</literal></term><listitem><para><indexterm id="IG3134017786"><primary>pmGetInDom function</primary></indexterm><indexterm id="IG3134017787"><primary>PDU_INSTANCE_REQ</primary></indexterm> Request for a particular instance domain for instance descriptions (see the <command>pmGetInDom(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_DESC_REQ</literal></term><listitem><para><indexterm id="IG3134017788"><primary>pmLookupDesc function</primary></indexterm><indexterm id="IG3134017789"><primary>PDU_DESC_REQ</primary></indexterm>Request for metadata describing metrics (see the <command>pmLookupDesc(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_TEXT_REQ</literal></term><listitem><para><indexterm id="IG3134017790"><primary>pmLookupText function</primary></indexterm><indexterm id="IG3134017791"><primary>PDU_TEXT_REQ</primary></indexterm><indexterm id="IG3134017792"><primary>help text</primary><secondary>PDU_TEXT_REQ</secondary></indexterm>Request for metric help text (see the <command>pmLookupText(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_RESULT</literal></term><listitem><para><indexterm id="IG3134017794"><primary>PDU_RESULT</primary></indexterm>Values to store into metrics (see the <command>pmStore(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
         <para>The following request PDUs may optionally be supported:<variablelist><varlistentry><term><literal>PDU_PMNS_NAMES</literal></term><listitem><para><indexterm id="IG3134017782nat"><primary>pmLookupName function</primary></indexterm><indexterm id="IG3134017783nat"><primary>PDU_PMNS_NAMES</primary></indexterm>Request for metric names, given one or more identifiers (see the <command>pmLookupName(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_CHILD</literal></term><listitem><para><indexterm id="IG3134017784nat"><primary>pmGetChildren function</primary></indexterm><indexterm id="IG3134017785nat"><primary>PDU_PMNS_CHILD</primary></indexterm>A list of immediate descendent nodes of a given namespace node (see the <command>pmGetChildren(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_TRAVERSE</literal></term><listitem><para><indexterm id="IG3134017786nat"><primary>pmTraversePMNS function</primary></indexterm><indexterm id="IG3134017787nat"><primary>PDU_PMNS_TRAVERSE</primary></indexterm>Request for a particular sub-tree of a given namespace node (see the <command>pmTraversePMNS(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_IDS</literal></term><listitem><para><indexterm id="IG3134017788nat"><primary>pmNameID function</primary></indexterm><indexterm id="IG3134017789nat"><primary>PDU_PMNS_IDS</primary></indexterm>Perform a reverse name lookup, mapping a metric identifier to a name (see the <command>pmNameID(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_AUTH</literal></term><listitem><para><indexterm id="IG3134017790nat"><primary>__pmParseHostAttrsSpec function</primary></indexterm><indexterm id="IG3134017791nat"><primary>PDU_AUTH</primary></indexterm>Handle connection attributes (key/value pairs), such as client credentials and other authentication information (see the <command>__pmParseHostAttrsSpec(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
         <para>Each PMDA is associated with a unique domain number that is encoded in the domain field of metric and instance identifiers, and PMCD uses the domain number to determine which PMDA can handle the components of any given client request.</para>
       </section>
@@ -942,9 +942,6 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
         <para>
           <indexterm id="IG31340177116">
             <primary>storage of metrics</primary>
-          </indexterm>
-          <indexterm id="IG31340177117">
-            <primary>pmstore function</primary>
           </indexterm>In addition, the metrics should describe how the PMDA has been configured. For example, if the PMDA was periodically probing a system to measure quality of service, there should be metrics for the delay between probes, the number of probes attempted, plus probe success and failure counters. It may also be appropriate to allow values to be  stored (see the <command>pmstore(1)</command> man page) into the delay metric, so that the delay used by the PMDA can be altered dynamically.</para>
         <section id="id5189689">
           <title>Data Structures</title>
@@ -1825,9 +1822,6 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
           <para>
             <indexterm id="IG31340177194">
               <primary>simple.store metric</primary>
-            </indexterm>
-            <indexterm id="IG31340177195">
-              <primary id="Z980104423sdc">pmstore function</primary>
             </indexterm>The simple PMDA permits some of the metrics it supports to be modified by <command>pmStore</command> as shown in <xref linkend="Z964111850sdc"/>. For additional information, see the <command>pmstore(1)</command> and <command>pmStore(3)</command> man pages.</para>
           <example id="Z964111850sdc">
             <title>
@@ -7460,7 +7454,7 @@ trace.transact.rate</literallayout>
         <para>
           <indexterm id="IG31340177532">
             <primary>state flags</primary>
-          </indexterm> <indexterm id="IG31340177533"><primary>flags</primary><secondary>state</secondary></indexterm> <indexterm id="IG31340177534"><primary>pmtracestate call</primary></indexterm> <indexterm id="IG31340177535"><primary>libpcp_trace library</primary><secondary id="Z980104750sdc">functions</secondary></indexterm>The <xref linkend="id5215745"/> are used to customize the operation of the <filename>libpcp_trace</filename> routines. These are registered through the <command>pmtracestate</command> call, and they can be set either individually or together.</para>
+          </indexterm> <indexterm id="IG31340177533"><primary>flags</primary><secondary>state</secondary></indexterm> <indexterm id="IG31340177534"><primary>pmtracestate call</primary></indexterm> <indexterm id="IG31340177535"><primary>libpcp_trace library</primary></indexterm>The <xref linkend="id5215745"/> are used to customize the operation of the <filename>libpcp_trace</filename> routines. These are registered through the <command>pmtracestate</command> call, and they can be set either individually or together.</para>
         <table frame="topbot" id="id5215745">
           <title>State Flags</title>
           <tgroup cols="2" colsep="0" rowsep="0">
@@ -8114,9 +8108,6 @@ trace.transact.rate</literallayout>
       <primaryie>new metrics <link linkend="IG31340177160">Management of Evolution within a PMDA</link> <link linkend="IG31340177452">Initializing New Metrics</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>new PMDA <link linkend="IG31340177244">Upgrading a PMNS to Include Metrics from a New PMDA</link></primaryie>
-    </indexentry>
-    <indexentry>
       <primaryie>newhelp man page <link linkend="IG31340177159">PMDA Help Text</link></primaryie>
     </indexentry>
     <indexentry>
@@ -8349,8 +8340,6 @@ trace.transact.rate</literallayout>
       <secondaryie>evolution <link linkend="IG31340177161">Management of Evolution within a PMDA</link></secondaryie>
       <secondaryie>help text <link linkend="IG31340177157">PMDA Help Text</link></secondaryie>
       <secondaryie>initialization <link linkend="IG31340177207">Initializing a PMDA</link></secondaryie>
-      <secondaryie>Install script <link linkend="IG31340177240">Installing a PMDA</link> <link linkend="IG31340177246">Upgrading a PMNS to Include Metrics from a New PMDA</link></secondaryie>
-      <secondaryie>integration <link linkend="IG31340177237">Integration of a PMDA</link></secondaryie>
       <secondaryie>interface <link linkend="IG31340177178">PMDA Interface</link></secondaryie>
       <secondaryie>introduction <link linkend="IG313401773">Programming Performance Co-Pilot</link></secondaryie>
       <secondaryie>man page <link linkend="IG3134017720">Distributed Collection</link></secondaryie>
@@ -8577,7 +8566,6 @@ trace.transact.rate</literallayout>
       <primaryie>PMNS</primaryie>
       <secondaryie>acronym <link linkend="IG31340177577">Acronyms</link></secondaryie>
       <secondaryie>distributed <link linkend="IG3134017729">Distributed PMNS</link></secondaryie>
-      <secondaryie>upgrade <link linkend="IG31340177245">Upgrading a PMNS to Include Metrics from a New PMDA</link></secondaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmns man page <link linkend="IG31340177154">Name Space</link></primaryie>
@@ -8616,7 +8604,7 @@ trace.transact.rate</literallayout>
       <primaryie>pmSortInstances function <link linkend="IG31340177439"><command>pmSortInstances</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>pmstore function <link linkend="IG3134017793">Overview</link> <link linkend="IG31340177117">Metrics</link> <link linkend="IG31340177171">Management of Evolution within a PMDA</link> <link linkend="IG31340177195"><literal>simple_store</literal> in the Simple PMDA</link> <link linkend="IG31340177235">Debugging Information</link> <link linkend="IG31340177276">Performance Metrics Values</link> <link linkend="IG31340177344">PMAPI Context Services</link> <link linkend="IG31340177392"><command>pmStore</command> Function</link> <link linkend="IG31340177393"><command>pmStore</command> Function</link></primaryie>
+      <primaryie>pmstore function <link linkend="IG31340177171">Management of Evolution within a PMDA</link> <link linkend="IG31340177235">Debugging Information</link> <link linkend="IG31340177276">Performance Metrics Values</link> <link linkend="IG31340177344">PMAPI Context Services</link> <link linkend="IG31340177392"><command>pmStore</command> Function</link> <link linkend="IG31340177393"><command>pmStore</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>PMTRACE_STATE_API flag <link linkend="IG31340177538">Configuring the Trace Library</link></primaryie>
