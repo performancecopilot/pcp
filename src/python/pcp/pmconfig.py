@@ -36,6 +36,8 @@ from pcp import pmapi
 # Common defaults (for applicable utils)
 TRUNC = "xxx"
 VERSION = 1
+CURR_INSTS = False
+MAX_INSTS = 1024
 
 class pmConfig(object):
     """ Config reader and validator """
@@ -380,7 +382,17 @@ class pmConfig(object):
             label = label.replace(" / ", "/")
         return label
 
-    def validate_metrics(self, instances=1024):
+    class pmfg_items_to_indom(object): # pylint: disable=too-few-public-methods
+        """ Helper to provide consistent interface with pmfg items and indoms """
+        def __init__(self, items):
+            """ Initialize an instance with items """
+            self._items = items
+
+        def __call__(self):
+            """ Retrieve the items """
+            return self._items
+
+    def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
         """ Validate the metrics set """
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
@@ -547,10 +559,31 @@ class pmConfig(object):
             if self.util.metrics[metric][4] < len(TRUNC):
                 self.util.metrics[metric][4] = len(TRUNC) # Forced minimum
 
-            # Add fetchgroup item
+            # Add fetchgroup items
             try:
+                items = []
+                max_insts = max(1, max_insts)
                 scale = self.util.metrics[metric][2][0]
-                self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, instances)
+                if curr_insts and self.util.metrics[metric][1]:
+                    mitems = 0
+                    vanished = []
+                    for j in range(0, len(self.insts[i][1])):
+                        if mitems < max_insts:
+                            try:
+                                items.append((self.insts[i][0][j], self.insts[i][1][j], self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])))
+                                mitems += 1
+                            except:
+                                vanished.append(j)
+                        else:
+                            del self.insts[i][0][-1]
+                            del self.insts[i][1][-1]
+                    if mitems > 0:
+                        for v in reversed(vanished):
+                            del self.insts[i][0][v]
+                            del self.insts[i][1][v]
+                    self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
+                else:
+                    self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
             except:
                 if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                     # Schedule the metric for removal
