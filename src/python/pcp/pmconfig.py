@@ -24,6 +24,7 @@ try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
+import signal
 import time
 import csv
 import sys
@@ -59,6 +60,19 @@ class pmConfig(object):
 
         # Pass data with pmTraversePMNS
         self._tmp = []
+
+    def set_signal_handler(self):
+        """ Set default signal handler """
+        def handler(signum, frame):
+            """ Default signal handler """
+            self.util.finalize()
+            sys.exit(0)
+        for sig in "SIGHUP", "SIGTERM":
+            try:
+                signum = getattr(signal, sig)
+                signal.signal(signum, handler)
+            except:
+                pass
 
     def set_config_file(self, default_config):
         """ Set default config file """
