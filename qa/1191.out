@@ -8,33 +8,33 @@ prometheus.bad_summary_nometa.sample_counter0001 [Sample counter metric.]
     Semantics: counter  Units: none
 Help:
 Sample counter metric.
-    inst [0 or "0 baz:'0.0'"] value 0
-    inst [1 or "1 baz:'0.7'"] value 170205394
-    inst [2 or "2 baz:'1.4'"] value 340410788
-    inst [3 or "3 baz:'2.0999999999999996'"] value 510616182
-    inst [4 or "4 baz:'2.8'"] value 680821576
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 170205394
+    inst [2 or "2 baz:1.4"] value 340410788
+    inst [3 or "3 baz:2.0999999999999996"] value 510616182
+    inst [4 or "4 baz:2.8"] value 680821576
 
 prometheus.bad_summary_nometa.sample_gauge0000 [Sample gauge metric.]
     Data Type: double  InDom: 144.5120 0x24001400
     Semantics: instant  Units: none
 Help:
 Sample gauge metric.
-    inst [0 or "0 bar:'0'"] value 0
-    inst [1 or "1 bar:'1'"] value 12.1
-    inst [2 or "2 bar:'2'"] value 48.4
-    inst [3 or "3 bar:'3'"] value 108.9
-    inst [4 or "4 bar:'4'"] value 193.6
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 12.1
+    inst [2 or "2 bar:2"] value 48.4
+    inst [3 or "3 bar:3"] value 108.9
+    inst [4 or "4 bar:4"] value 193.6
 
 prometheus.bad_summary_nometa.sample_summary0002 [Sample summary metric has instances.]
     Data Type: double  InDom: 144.5122 0x24001402
     Semantics: instant  Units: none
 Help:
 Sample summary metric has instances.
-    inst [0 or "0 quantile:'0.0'"] value 0
-    inst [1 or "1 quantile:'0.25'"] value 0.000319246
-    inst [2 or "2 quantile:'0.5'"] value 0.0006384920000000001
-    inst [3 or "3 quantile:'0.75'"] value 0.000957738
-    inst [4 or "4 quantile:'1.0'"] value 0.001276984
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.000319246
+    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
+    inst [3 or "3 quantile:0.75"] value 0.000957738
+    inst [4 or "4 quantile:1.0"] value 0.001276984
 
 prometheus.bad_summary_nometa.sample_summary_count0002 [Sample summary metric has instances.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -55,186 +55,186 @@ prometheus.collectd_sample.collectd_cpu_percent [Collectd exporter: 'cpu' Type: 
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'cpu' Type: 'percent' Dstype: 'api.Gauge' Dsname: 'value'
-    inst [0 or "0 cpu:'0',instance:'172-20-12-224',type:'idle'"] value 97.78894472361809
-    inst [1 or "1 cpu:'0',instance:'172-20-12-224',type:'interrupt'"] value 0
-    inst [2 or "2 cpu:'0',instance:'172-20-12-224',type:'nice'"] value 0
-    inst [3 or "3 cpu:'0',instance:'172-20-12-224',type:'softirq'"] value 0
-    inst [4 or "4 cpu:'0',instance:'172-20-12-224',type:'steal'"] value 0
-    inst [5 or "5 cpu:'0',instance:'172-20-12-224',type:'system'"] value 0.3015075376884422
-    inst [6 or "6 cpu:'0',instance:'172-20-12-224',type:'user'"] value 0.5025125628140703
-    inst [7 or "7 cpu:'0',instance:'172-20-12-224',type:'wait'"] value 1.407035175879397
-    inst [8 or "8 cpu:'1',instance:'172-20-12-224',type:'idle'"] value 98.5929648241206
-    inst [9 or "9 cpu:'1',instance:'172-20-12-224',type:'interrupt'"] value 0
-    inst [10 or "10 cpu:'1',instance:'172-20-12-224',type:'nice'"] value 0
-    inst [11 or "11 cpu:'1',instance:'172-20-12-224',type:'softirq'"] value 0
-    inst [12 or "12 cpu:'1',instance:'172-20-12-224',type:'steal'"] value 0.2010050251256282
-    inst [13 or "13 cpu:'1',instance:'172-20-12-224',type:'system'"] value 0.3015075376884422
-    inst [14 or "14 cpu:'1',instance:'172-20-12-224',type:'user'"] value 0.3015075376884422
-    inst [15 or "15 cpu:'1',instance:'172-20-12-224',type:'wait'"] value 0.6030150753768845
-    inst [16 or "16 cpu:'2',instance:'172-20-12-224',type:'idle'"] value 99.19517102615694
-    inst [17 or "17 cpu:'2',instance:'172-20-12-224',type:'interrupt'"] value 0
-    inst [18 or "18 cpu:'2',instance:'172-20-12-224',type:'nice'"] value 0
-    inst [19 or "19 cpu:'2',instance:'172-20-12-224',type:'softirq'"] value 0
-    inst [20 or "20 cpu:'2',instance:'172-20-12-224',type:'steal'"] value 0
-    inst [21 or "21 cpu:'2',instance:'172-20-12-224',type:'system'"] value 0.4024144869215292
-    inst [22 or "22 cpu:'2',instance:'172-20-12-224',type:'user'"] value 0.4024144869215292
-    inst [23 or "23 cpu:'2',instance:'172-20-12-224',type:'wait'"] value 0
-    inst [24 or "24 cpu:'3',instance:'172-20-12-224',type:'idle'"] value 99.19678714859437
-    inst [25 or "25 cpu:'3',instance:'172-20-12-224',type:'interrupt'"] value 0
-    inst [26 or "26 cpu:'3',instance:'172-20-12-224',type:'nice'"] value 0
-    inst [27 or "27 cpu:'3',instance:'172-20-12-224',type:'softirq'"] value 0
-    inst [28 or "28 cpu:'3',instance:'172-20-12-224',type:'steal'"] value 0
-    inst [29 or "29 cpu:'3',instance:'172-20-12-224',type:'system'"] value 0.3012048192771085
-    inst [30 or "30 cpu:'3',instance:'172-20-12-224',type:'user'"] value 0.5020080321285141
-    inst [31 or "31 cpu:'3',instance:'172-20-12-224',type:'wait'"] value 0
+    inst [0 or "0 cpu:0 instance:172-20-12-224 type:idle"] value 97.78894472361809
+    inst [1 or "1 cpu:0 instance:172-20-12-224 type:interrupt"] value 0
+    inst [2 or "2 cpu:0 instance:172-20-12-224 type:nice"] value 0
+    inst [3 or "3 cpu:0 instance:172-20-12-224 type:softirq"] value 0
+    inst [4 or "4 cpu:0 instance:172-20-12-224 type:steal"] value 0
+    inst [5 or "5 cpu:0 instance:172-20-12-224 type:system"] value 0.3015075376884422
+    inst [6 or "6 cpu:0 instance:172-20-12-224 type:user"] value 0.5025125628140703
+    inst [7 or "7 cpu:0 instance:172-20-12-224 type:wait"] value 1.407035175879397
+    inst [8 or "8 cpu:1 instance:172-20-12-224 type:idle"] value 98.5929648241206
+    inst [9 or "9 cpu:1 instance:172-20-12-224 type:interrupt"] value 0
+    inst [10 or "10 cpu:1 instance:172-20-12-224 type:nice"] value 0
+    inst [11 or "11 cpu:1 instance:172-20-12-224 type:softirq"] value 0
+    inst [12 or "12 cpu:1 instance:172-20-12-224 type:steal"] value 0.2010050251256282
+    inst [13 or "13 cpu:1 instance:172-20-12-224 type:system"] value 0.3015075376884422
+    inst [14 or "14 cpu:1 instance:172-20-12-224 type:user"] value 0.3015075376884422
+    inst [15 or "15 cpu:1 instance:172-20-12-224 type:wait"] value 0.6030150753768845
+    inst [16 or "16 cpu:2 instance:172-20-12-224 type:idle"] value 99.19517102615694
+    inst [17 or "17 cpu:2 instance:172-20-12-224 type:interrupt"] value 0
+    inst [18 or "18 cpu:2 instance:172-20-12-224 type:nice"] value 0
+    inst [19 or "19 cpu:2 instance:172-20-12-224 type:softirq"] value 0
+    inst [20 or "20 cpu:2 instance:172-20-12-224 type:steal"] value 0
+    inst [21 or "21 cpu:2 instance:172-20-12-224 type:system"] value 0.4024144869215292
+    inst [22 or "22 cpu:2 instance:172-20-12-224 type:user"] value 0.4024144869215292
+    inst [23 or "23 cpu:2 instance:172-20-12-224 type:wait"] value 0
+    inst [24 or "24 cpu:3 instance:172-20-12-224 type:idle"] value 99.19678714859437
+    inst [25 or "25 cpu:3 instance:172-20-12-224 type:interrupt"] value 0
+    inst [26 or "26 cpu:3 instance:172-20-12-224 type:nice"] value 0
+    inst [27 or "27 cpu:3 instance:172-20-12-224 type:softirq"] value 0
+    inst [28 or "28 cpu:3 instance:172-20-12-224 type:steal"] value 0
+    inst [29 or "29 cpu:3 instance:172-20-12-224 type:system"] value 0.3012048192771085
+    inst [30 or "30 cpu:3 instance:172-20-12-224 type:user"] value 0.5020080321285141
+    inst [31 or "31 cpu:3 instance:172-20-12-224 type:wait"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_io_time_0 [Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 211795
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 190436
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 21
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 211795
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 190436
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 21
 
 prometheus.collectd_sample.collectd_disk_disk_io_time_1 [Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6146 0x24001802
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 2556452
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 2528054
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 27
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 2556452
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 2528054
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 27
 
 prometheus.collectd_sample.collectd_disk_disk_merged_0 [Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6147 0x24001803
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 24
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 24
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 0
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 24
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 24
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_merged_1 [Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6148 0x24001804
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 630
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 630
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 0
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 630
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 630
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_octets_0 [Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6149 0x24001805
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 727850496
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 725892608
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 1138688
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 727850496
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 725892608
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 1138688
 
 prometheus.collectd_sample.collectd_disk_disk_octets_1 [Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6150 0x24001806
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 166722048
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 166722048
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 0
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 166722048
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 166722048
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_ops_0 [Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6151 0x24001807
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 12905
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 12674
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 139
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 12905
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 12674
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 139
 
 prometheus.collectd_sample.collectd_disk_disk_ops_1 [Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6152 0x24001808
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 7151
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 6388
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 0
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 7151
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 6388
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_time_0 [Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6153 0x24001809
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 27198
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 27199
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 2
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 27198
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 27199
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 2
 
 prometheus.collectd_sample.collectd_disk_disk_time_1 [Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6154 0x2400180a
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 242003
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 260282
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 0
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 242003
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 260282
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_pending_operations [Collectd exporter: 'disk' Type: 'pending_operations' Dstype: 'api.Gauge' Dsname: 'value']
     Data Type: double  InDom: 144.6155 0x2400180b
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'pending_operations' Dstype: 'api.Gauge' Dsname: 'value'
-    inst [0 or "0 disk:'vda',instance:'172-20-12-224'"] value 0
-    inst [1 or "1 disk:'vda1',instance:'172-20-12-224'"] value 0
-    inst [2 or "2 disk:'vda2',instance:'172-20-12-224'"] value 0
+    inst [0 or "0 disk:vda instance:172-20-12-224"] value 0
+    inst [1 or "1 disk:vda1 instance:172-20-12-224"] value 0
+    inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_exporter_build_info [A metric with a constant '1' value labeled by version, revision, branch, and goversion from which collectd_exporter was built.]
     Data Type: double  InDom: 144.6156 0x2400180c
     Semantics: instant  Units: none
 Help:
 A metric with a constant '1' value labeled by version, revision, branch, and goversion from which collectd_exporter was built.
-    inst [0 or "0 branch:'cut-0.3.0',goversion:'go1.6.2',revision:'3abb95c',version:'0.3.1'"] value 1
+    inst [0 or "0 branch:cut-0.3.0 goversion:go1.6.2 revision:3abb95c version:0.3.1"] value 1
 
 prometheus.collectd_sample.collectd_interface_if_errors_0 [Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6157 0x2400180d
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'172-20-12-224',interface:'eth0'"] value 0
+    inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 0
 
 prometheus.collectd_sample.collectd_interface_if_errors_1 [Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6158 0x2400180e
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'172-20-12-224',interface:'eth0'"] value 0
+    inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 0
 
 prometheus.collectd_sample.collectd_interface_if_octets_0 [Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6159 0x2400180f
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'172-20-12-224',interface:'eth0'"] value 14762652
+    inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 14762652
 
 prometheus.collectd_sample.collectd_interface_if_octets_1 [Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6160 0x24001810
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'172-20-12-224',interface:'eth0'"] value 534845
+    inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 534845
 
 prometheus.collectd_sample.collectd_interface_if_packets_0 [Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6161 0x24001811
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'172-20-12-224',interface:'eth0'"] value 43352
+    inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 43352
 
 prometheus.collectd_sample.collectd_interface_if_packets_1 [Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6162 0x24001812
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'172-20-12-224',interface:'eth0'"] value 4984
+    inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 4984
 
 prometheus.collectd_sample.collectd_last_push_timestamp_seconds [Unix timestamp of the last received collectd metrics push in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -248,140 +248,140 @@ prometheus.collectd_sample.collectd_memory [Collectd exporter: 'memory' Type: 'm
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'memory' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
-    inst [0 or "0 instance:'172-20-12-224',memory:'buffered'"] value 897024
-    inst [1 or "1 instance:'172-20-12-224',memory:'cached'"] value 786964480
-    inst [2 or "2 instance:'172-20-12-224',memory:'free'"] value 845369344
-    inst [3 or "3 instance:'172-20-12-224',memory:'slab_recl'"] value 56627200
-    inst [4 or "4 instance:'172-20-12-224',memory:'slab_unrecl'"] value 21671936
-    inst [5 or "5 instance:'172-20-12-224',memory:'used'"] value 4377649152
+    inst [0 or "0 instance:172-20-12-224 memory:buffered"] value 897024
+    inst [1 or "1 instance:172-20-12-224 memory:cached"] value 786964480
+    inst [2 or "2 instance:172-20-12-224 memory:free"] value 845369344
+    inst [3 or "3 instance:172-20-12-224 memory:slab_recl"] value 56627200
+    inst [4 or "4 instance:172-20-12-224 memory:slab_unrecl"] value 21671936
+    inst [5 or "5 instance:172-20-12-224 memory:used"] value 4377649152
 
 prometheus.collectd_sample.collectd_virt_disk_octets_0 [Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6165 0x24001815
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'hdc',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
-    inst [1 or "1 instance:'560f9665261043c1aefdeba0b88499d7',type:'vda',virt:'560f9665261043c1aefdeba0b88499d7'"] value 6228480
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:hdc virt:560f9665261043c1aefdeba0b88499d7"] value 0
+    inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 6228480
 
 prometheus.collectd_sample.collectd_virt_disk_octets_1 [Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6166 0x24001816
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'hdc',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
-    inst [1 or "1 instance:'560f9665261043c1aefdeba0b88499d7',type:'vda',virt:'560f9665261043c1aefdeba0b88499d7'"] value 90112
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:hdc virt:560f9665261043c1aefdeba0b88499d7"] value 0
+    inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 90112
 
 prometheus.collectd_sample.collectd_virt_disk_ops_0 [Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6167 0x24001817
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'hdc',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
-    inst [1 or "1 instance:'560f9665261043c1aefdeba0b88499d7',type:'vda',virt:'560f9665261043c1aefdeba0b88499d7'"] value 421
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:hdc virt:560f9665261043c1aefdeba0b88499d7"] value 0
+    inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 421
 
 prometheus.collectd_sample.collectd_virt_disk_ops_1 [Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6168 0x24001818
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'hdc',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
-    inst [1 or "1 instance:'560f9665261043c1aefdeba0b88499d7',type:'vda',virt:'560f9665261043c1aefdeba0b88499d7'"] value 36
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:hdc virt:560f9665261043c1aefdeba0b88499d7"] value 0
+    inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 36
 
 prometheus.collectd_sample.collectd_virt_if_dropped_0 [Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6169 0x24001819
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_dropped_1 [Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6170 0x2400181a
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_errors_0 [Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6171 0x2400181b
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_errors_1 [Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6172 0x2400181c
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 0
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_octets_0 [Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6173 0x2400181d
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 1612942
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 1612942
 
 prometheus.collectd_sample.collectd_virt_if_octets_1 [Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6174 0x2400181e
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 726
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 726
 
 prometheus.collectd_sample.collectd_virt_if_packets_0 [Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0']
     Data Type: double  InDom: 144.6175 0x2400181f
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 21401
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 21401
 
 prometheus.collectd_sample.collectd_virt_if_packets_1 [Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1']
     Data Type: double  InDom: 144.6176 0x24001820
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'vnic3.0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 3
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 3
 
 prometheus.collectd_sample.collectd_virt_memory [Collectd exporter: 'virt' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value']
     Data Type: double  InDom: 144.6177 0x24001821
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'actual_balloon',virt:'560f9665261043c1aefdeba0b88499d7'"] value 268435456
-    inst [1 or "1 instance:'560f9665261043c1aefdeba0b88499d7',type:'available',virt:'560f9665261043c1aefdeba0b88499d7'"] value 255909888
-    inst [2 or "2 instance:'560f9665261043c1aefdeba0b88499d7',type:'major_fault',virt:'560f9665261043c1aefdeba0b88499d7'"] value 1.888933082349218e+22
-    inst [3 or "3 instance:'560f9665261043c1aefdeba0b88499d7',type:'minor_fault',virt:'560f9665261043c1aefdeba0b88499d7'"] value 1.888933082376042e+22
-    inst [4 or "4 instance:'560f9665261043c1aefdeba0b88499d7',type:'rss',virt:'560f9665261043c1aefdeba0b88499d7'"] value 80822272
-    inst [5 or "5 instance:'560f9665261043c1aefdeba0b88499d7',type:'swap_in',virt:'560f9665261043c1aefdeba0b88499d7'"] value 312999936
-    inst [6 or "6 instance:'560f9665261043c1aefdeba0b88499d7',type:'swap_out',virt:'560f9665261043c1aefdeba0b88499d7'"] value 532480
-    inst [7 or "7 instance:'560f9665261043c1aefdeba0b88499d7',type:'total',virt:'560f9665261043c1aefdeba0b88499d7'"] value 268435456
-    inst [8 or "8 instance:'560f9665261043c1aefdeba0b88499d7',type:'unused',virt:'560f9665261043c1aefdeba0b88499d7'"] value 243802112
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:actual_balloon virt:560f9665261043c1aefdeba0b88499d7"] value 268435456
+    inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:available virt:560f9665261043c1aefdeba0b88499d7"] value 255909888
+    inst [2 or "2 instance:560f9665261043c1aefdeba0b88499d7 type:major_fault virt:560f9665261043c1aefdeba0b88499d7"] value 1.888933082349218e+22
+    inst [3 or "3 instance:560f9665261043c1aefdeba0b88499d7 type:minor_fault virt:560f9665261043c1aefdeba0b88499d7"] value 1.888933082376042e+22
+    inst [4 or "4 instance:560f9665261043c1aefdeba0b88499d7 type:rss virt:560f9665261043c1aefdeba0b88499d7"] value 80822272
+    inst [5 or "5 instance:560f9665261043c1aefdeba0b88499d7 type:swap_in virt:560f9665261043c1aefdeba0b88499d7"] value 312999936
+    inst [6 or "6 instance:560f9665261043c1aefdeba0b88499d7 type:swap_out virt:560f9665261043c1aefdeba0b88499d7"] value 532480
+    inst [7 or "7 instance:560f9665261043c1aefdeba0b88499d7 type:total virt:560f9665261043c1aefdeba0b88499d7"] value 268435456
+    inst [8 or "8 instance:560f9665261043c1aefdeba0b88499d7 type:unused virt:560f9665261043c1aefdeba0b88499d7"] value 243802112
 
 prometheus.collectd_sample.collectd_virt_virt_cpu_total [Collectd exporter: 'virt' Type: 'virt_cpu_total' Dstype: 'api.Derive' Dsname: 'value']
     Data Type: double  InDom: 144.6178 0x24001822
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'virt_cpu_total' Dstype: 'api.Derive' Dsname: 'value'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',virt:'560f9665261043c1aefdeba0b88499d7'"] value 28820000000
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 virt:560f9665261043c1aefdeba0b88499d7"] value 28820000000
 
 prometheus.collectd_sample.collectd_virt_virt_vcpu [Collectd exporter: 'virt' Type: 'virt_vcpu' Dstype: 'api.Derive' Dsname: 'value']
     Data Type: double  InDom: 144.6179 0x24001823
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'virt_vcpu' Dstype: 'api.Derive' Dsname: 'value'
-    inst [0 or "0 instance:'560f9665261043c1aefdeba0b88499d7',type:'0',virt:'560f9665261043c1aefdeba0b88499d7'"] value 9150000000
+    inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:0 virt:560f9665261043c1aefdeba0b88499d7"] value 9150000000
 
 prometheus.collectd_sample.go_gc_duration_seconds [A summary of the GC invocation durations.]
     Data Type: double  InDom: 144.6180 0x24001824
     Semantics: instant  Units: sec
 Help:
 A summary of the GC invocation durations.
-    inst [0 or "0 quantile:'0'"] value 6.3137e-05
-    inst [1 or "1 quantile:'0.25'"] value 0.000226391
-    inst [2 or "2 quantile:'0.5'"] value 0.000246904
-    inst [3 or "3 quantile:'0.75'"] value 0.000267675
-    inst [4 or "4 quantile:'1'"] value 0.000786585
+    inst [0 or "0 quantile:0"] value 6.3137e-05
+    inst [1 or "1 quantile:0.25"] value 0.000226391
+    inst [2 or "2 quantile:0.5"] value 0.000246904
+    inst [3 or "3 quantile:0.75"] value 0.000267675
+    inst [4 or "4 quantile:1"] value 0.000786585
 
 prometheus.collectd_sample.go_gc_duration_seconds_count [A summary of the GC invocation durations.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -570,76 +570,76 @@ prometheus.collectd_sample.http_request_duration_microseconds [The HTTP request 
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'prometheus',quantile:'0.5'"] value 2424.361
-    inst [1 or "1 handler:'prometheus',quantile:'0.9'"] value 2667.98
-    inst [2 or "2 handler:'prometheus',quantile:'0.99'"] value 2793.404
+    inst [0 or "0 handler:prometheus quantile:0.5"] value 2424.361
+    inst [1 or "1 handler:prometheus quantile:0.9"] value 2667.98
+    inst [2 or "2 handler:prometheus quantile:0.99"] value 2793.404
 
 prometheus.collectd_sample.http_request_duration_microseconds_count [The HTTP request latencies in microseconds.]
     Data Type: double  InDom: 144.6209 0x24001841
     Semantics: counter  Units: count
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'prometheus'"] value 97
+    inst [0 or "0 handler:prometheus"] value 97
 
 prometheus.collectd_sample.http_request_duration_microseconds_sum [The HTTP request latencies in microseconds.]
     Data Type: double  InDom: 144.6208 0x24001840
     Semantics: counter  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'prometheus'"] value 218535.36
+    inst [0 or "0 handler:prometheus"] value 218535.36
 
 prometheus.collectd_sample.http_request_size_bytes [The HTTP request sizes in bytes.]
     Data Type: double  InDom: 144.6210 0x24001842
     Semantics: instant  Units: byte
 Help:
 The HTTP request sizes in bytes.
-    inst [0 or "0 handler:'prometheus',quantile:'0.5'"] value 309
-    inst [1 or "1 handler:'prometheus',quantile:'0.9'"] value 309
-    inst [2 or "2 handler:'prometheus',quantile:'0.99'"] value 309
+    inst [0 or "0 handler:prometheus quantile:0.5"] value 309
+    inst [1 or "1 handler:prometheus quantile:0.9"] value 309
+    inst [2 or "2 handler:prometheus quantile:0.99"] value 309
 
 prometheus.collectd_sample.http_request_size_bytes_count [The HTTP request sizes in bytes.]
     Data Type: double  InDom: 144.6212 0x24001844
     Semantics: counter  Units: count
 Help:
 The HTTP request sizes in bytes.
-    inst [0 or "0 handler:'prometheus'"] value 97
+    inst [0 or "0 handler:prometheus"] value 97
 
 prometheus.collectd_sample.http_request_size_bytes_sum [The HTTP request sizes in bytes.]
     Data Type: double  InDom: 144.6211 0x24001843
     Semantics: counter  Units: byte
 Help:
 The HTTP request sizes in bytes.
-    inst [0 or "0 handler:'prometheus'"] value 30504
+    inst [0 or "0 handler:prometheus"] value 30504
 
 prometheus.collectd_sample.http_requests_total [Total number of HTTP requests made.]
     Data Type: double  InDom: 144.6213 0x24001845
     Semantics: counter  Units: none
 Help:
 Total number of HTTP requests made.
-    inst [0 or "0 code:'200',handler:'prometheus',method:'get'"] value 97
+    inst [0 or "0 code:200 handler:prometheus method:get"] value 97
 
 prometheus.collectd_sample.http_response_size_bytes [The HTTP response sizes in bytes.]
     Data Type: double  InDom: 144.6214 0x24001846
     Semantics: instant  Units: byte
 Help:
 The HTTP response sizes in bytes.
-    inst [0 or "0 handler:'prometheus',quantile:'0.5'"] value 3163
-    inst [1 or "1 handler:'prometheus',quantile:'0.9'"] value 3181
-    inst [2 or "2 handler:'prometheus',quantile:'0.99'"] value 3185
+    inst [0 or "0 handler:prometheus quantile:0.5"] value 3163
+    inst [1 or "1 handler:prometheus quantile:0.9"] value 3181
+    inst [2 or "2 handler:prometheus quantile:0.99"] value 3185
 
 prometheus.collectd_sample.http_response_size_bytes_count [The HTTP response sizes in bytes.]
     Data Type: double  InDom: 144.6216 0x24001848
     Semantics: counter  Units: count
 Help:
 The HTTP response sizes in bytes.
-    inst [0 or "0 handler:'prometheus'"] value 97
+    inst [0 or "0 handler:prometheus"] value 97
 
 prometheus.collectd_sample.http_response_size_bytes_sum [The HTTP response sizes in bytes.]
     Data Type: double  InDom: 144.6215 0x24001847
     Semantics: counter  Units: byte
 Help:
 The HTTP response sizes in bytes.
-    inst [0 or "0 handler:'prometheus'"] value 304464
+    inst [0 or "0 handler:prometheus"] value 304464
 
 prometheus.collectd_sample.process_cpu_seconds_total [Total user and system CPU time spent in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -688,33 +688,33 @@ prometheus.good_summary_nometa.sample_counter0010 [Sample counter metric.]
     Semantics: counter  Units: none
 Help:
 Sample counter metric.
-    inst [0 or "0 baz:'0.0'"] value 0
-    inst [1 or "1 baz:'0.7'"] value 1702053940
-    inst [2 or "2 baz:'1.4'"] value 3404107880
-    inst [3 or "3 baz:'2.0999999999999996'"] value 5106161820
-    inst [4 or "4 baz:'2.8'"] value 6808215760
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1702053940
+    inst [2 or "2 baz:1.4"] value 3404107880
+    inst [3 or "3 baz:2.0999999999999996"] value 5106161820
+    inst [4 or "4 baz:2.8"] value 6808215760
 
 prometheus.good_summary_nometa.sample_gauge0009 [Sample gauge metric.]
     Data Type: double  InDom: 144.7168 0x24001c00
     Semantics: instant  Units: none
 Help:
 Sample gauge metric.
-    inst [0 or "0 bar:'0'"] value 0
-    inst [1 or "1 bar:'1'"] value 12.1
-    inst [2 or "2 bar:'2'"] value 48.4
-    inst [3 or "3 bar:'3'"] value 108.9
-    inst [4 or "4 bar:'4'"] value 193.6
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 12.1
+    inst [2 or "2 bar:2"] value 48.4
+    inst [3 or "3 bar:3"] value 108.9
+    inst [4 or "4 bar:4"] value 193.6
 
 prometheus.good_summary_nometa.sample_summary0011 [Sample summary metric has instances.]
     Data Type: double  InDom: 144.7170 0x24001c02
     Semantics: instant  Units: none
 Help:
 Sample summary metric has instances.
-    inst [0 or "0 quantile:'0.0'"] value 0
-    inst [1 or "1 quantile:'0.25'"] value 0.001755853
-    inst [2 or "2 quantile:'0.5'"] value 0.003511706
-    inst [3 or "3 quantile:'0.75'"] value 0.005267559
-    inst [4 or "4 quantile:'1.0'"] value 0.007023412
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.001755853
+    inst [2 or "2 quantile:0.5"] value 0.003511706
+    inst [3 or "3 quantile:0.75"] value 0.005267559
+    inst [4 or "4 quantile:1.0"] value 0.007023412
 
 prometheus.good_summary_nometa.sample_summary0011_count [Sample summary metric has instances.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1095,17 +1095,17 @@ prometheus.problematic_strings.test [The Thing]
     Semantics: instant  Units: none
 Help:
 The Thing
-    inst [0 or "0 instance:''"] value 0
-    inst [1 or "1 instance:' '"] value 1
-    inst [2 or "2 instance:'''"] value 2
-    inst [3 or "3 instance:'"'"] value 3
-    inst [4 or "4 instance:'"''"] value 4
-    inst [5 or "5 instance:'\'"] value 5
-    inst [6 or "6 instance:','"] value 6
-    inst [7 or "7 instance:'='"] value 7
-    inst [8 or "8 instance:':'"] value 8
-    inst [9 or "9 instance:'}'"] value 9
-    inst [10 or "10 instance:'{'"] value 10
+    inst [0 or "0 instance:"] value 0
+    inst [1 or "1 instance: "] value 1
+    inst [2 or "2 instance:'"] value 2
+    inst [3 or "3 instance:""] value 3
+    inst [4 or "4 instance:"'"] value 4
+    inst [5 or "5 instance:\"] value 5
+    inst [6 or "6 instance:,"] value 6
+    inst [7 or "7 instance:="] value 7
+    inst [8 or "8 instance::"] value 8
+    inst [9 or "9 instance:}"] value 9
+    inst [10 or "10 instance:{"] value 10
 
 prometheus.problematic_strings.test2 [The Other Thing]
     Data Type: double  InDom: 144.9217 0x24002401
@@ -1138,12 +1138,12 @@ prometheus.prom_exposition_formats_example1.http_request_duration_seconds_bucket
     Semantics: counter  Units: count
 Help:
 A histogram of the request duration.
-    inst [0 or "0 le:'0.05'"] value 24054
-    inst [1 or "1 le:'0.1'"] value 33444
-    inst [2 or "2 le:'0.2'"] value 100392
-    inst [3 or "3 le:'0.5'"] value 129389
-    inst [4 or "4 le:'1'"] value 133988
-    inst [5 or "5 le:'+Inf'"] value 144320
+    inst [0 or "0 le:0.05"] value 24054
+    inst [1 or "1 le:0.1"] value 33444
+    inst [2 or "2 le:0.2"] value 100392
+    inst [3 or "3 le:0.5"] value 129389
+    inst [4 or "4 le:1"] value 133988
+    inst [5 or "5 le:+Inf"] value 144320
 
 prometheus.prom_exposition_formats_example1.http_request_duration_seconds_count [A histogram of the request duration.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1164,8 +1164,8 @@ prometheus.prom_exposition_formats_example1.http_requests_total [The total numbe
     Semantics: counter  Units: none
 Help:
 The total number of HTTP requests.
-    inst [0 or "0 code:'200',method:'post'"] value 1027
-    inst [1 or "1 code:'400',method:'post'"] value 3
+    inst [0 or "0 code:200 method:post"] value 1027
+    inst [1 or "1 code:400 method:post"] value 3
 
 prometheus.prom_exposition_formats_example1.metric_without_timestamp_and_labels []
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1177,19 +1177,19 @@ prometheus.prom_exposition_formats_example1.msdos_file_access_time_seconds []
     Data Type: double  InDom: 144.10241 0x24002801
     Semantics: instant  Units: sec
 Help: <empty entry>
-    inst [0 or "0 error:'Cannot find file:
-"FILE.TXT"',path:'C:\DIR\FILE.TXT'"] value 1458255915
+    inst [0 or "0 error:Cannot find file:
+"FILE.TXT" path:C:\DIR\FILE.TXT"] value 1458255915
 
 prometheus.prom_exposition_formats_example1.rpc_duration_seconds [A summary of the RPC duration in seconds.]
     Data Type: double  InDom: 144.10247 0x24002807
     Semantics: instant  Units: sec
 Help:
 A summary of the RPC duration in seconds.
-    inst [0 or "0 quantile:'0.01'"] value 3102
-    inst [1 or "1 quantile:'0.05'"] value 3272
-    inst [2 or "2 quantile:'0.5'"] value 4773
-    inst [3 or "3 quantile:'0.9'"] value 9001
-    inst [4 or "4 quantile:'0.99'"] value 76656
+    inst [0 or "0 quantile:0.01"] value 3102
+    inst [1 or "1 quantile:0.05"] value 3272
+    inst [2 or "2 quantile:0.5"] value 4773
+    inst [3 or "3 quantile:0.9"] value 9001
+    inst [4 or "4 quantile:0.99"] value 76656
 
 prometheus.prom_exposition_formats_example1.rpc_duration_seconds_count [A summary of the RPC duration in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1209,7 +1209,7 @@ prometheus.prom_exposition_formats_example1.something_weird []
     Data Type: double  InDom: 144.10243 0x24002803
     Semantics: instant  Units: none
 Help: <empty entry>
-    inst [0 or "0 problem:'division by zero'"] value inf
+    inst [0 or "0 problem:division by zero"] value inf
 
 prometheus.python_sample_client_server.process_cpu_seconds_total [Total user and system CPU time spent in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1258,7 +1258,7 @@ prometheus.python_sample_client_server.python_info [Python platform information]
     Semantics: instant  Units: none
 Help:
 Python platform information
-    inst [0 or "0 implementation:'CPython',major:'2',minor:'7',patchlevel:'13',version:'2.7.13'"] value 1
+    inst [0 or "0 implementation:CPython major:2 minor:7 patchlevel:13 version:2.7.13"] value 1
 
 prometheus.python_sample_client_server.queue_size [Sample Gauge of queue size]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1272,21 +1272,21 @@ prometheus.python_sample_client_server.request_latency_seconds_bucket [Sample hi
     Semantics: counter  Units: count
 Help:
 Sample histogram
-    inst [0 or "0 le:'0.005'"] value 0
-    inst [1 or "1 le:'0.01'"] value 0
-    inst [2 or "2 le:'0.025'"] value 0
-    inst [3 or "3 le:'0.05'"] value 0
-    inst [4 or "4 le:'0.075'"] value 0
-    inst [5 or "5 le:'0.1'"] value 0
-    inst [6 or "6 le:'0.25'"] value 0
-    inst [7 or "7 le:'0.5'"] value 0
-    inst [8 or "8 le:'0.75'"] value 0
-    inst [9 or "9 le:'1.0'"] value 0
-    inst [10 or "10 le:'2.5'"] value 0
-    inst [11 or "11 le:'5.0'"] value 1
-    inst [12 or "12 le:'7.5'"] value 1
-    inst [13 or "13 le:'10.0'"] value 1
-    inst [14 or "14 le:'+Inf'"] value 1
+    inst [0 or "0 le:0.005"] value 0
+    inst [1 or "1 le:0.01"] value 0
+    inst [2 or "2 le:0.025"] value 0
+    inst [3 or "3 le:0.05"] value 0
+    inst [4 or "4 le:0.075"] value 0
+    inst [5 or "5 le:0.1"] value 0
+    inst [6 or "6 le:0.25"] value 0
+    inst [7 or "7 le:0.5"] value 0
+    inst [8 or "8 le:0.75"] value 0
+    inst [9 or "9 le:1.0"] value 0
+    inst [10 or "10 le:2.5"] value 0
+    inst [11 or "11 le:5.0"] value 1
+    inst [12 or "12 le:7.5"] value 1
+    inst [13 or "13 le:10.0"] value 1
+    inst [14 or "14 le:+Inf"] value 1
 
 prometheus.python_sample_client_server.request_latency_seconds_count [Sample histogram]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1307,9 +1307,9 @@ prometheus.python_sample_client_server.requests_total [Total requests]
     Semantics: counter  Units: none
 Help:
 Total requests
-    inst [0 or "0 agent:'prometheus',type:'fetch'"] value 1
-    inst [1 or "1 agent:'json',type:'store'"] value 1
-    inst [2 or "2 agent:'docker',type:'oneline'"] value 1
+    inst [0 or "0 agent:prometheus type:fetch"] value 1
+    inst [1 or "1 agent:json type:store"] value 1
+    inst [2 or "2 agent:docker type:oneline"] value 1
 
 prometheus.python_sample_client_server.summary_requests_count [Sample summary of requests]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1330,9 +1330,9 @@ prometheus.reordered_labels.http_request_duration_microseconds [The HTTP request
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'alertmanagers',quantile:'0.5'"] value 3
-    inst [1 or "1 handler:'alertmanagers',quantile:'0.9'"] value 4
-    inst [2 or "2 handler:'alertmanagers',quantile:'0.99'"] value 5
+    inst [0 or "0 handler:alertmanagers quantile:0.5"] value 3
+    inst [1 or "1 handler:alertmanagers quantile:0.9"] value 4
+    inst [2 or "2 handler:alertmanagers quantile:0.99"] value 5
 
 prometheus.sample_pmda_3_12_2.sample.bigid [a metric with item number bigger then 2^9]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -3340,11 +3340,11 @@ prometheus.sample_prometheus_metrics.go_gc_duration_seconds [A summary of the GC
     Semantics: instant  Units: sec
 Help:
 A summary of the GC invocation durations.
-    inst [0 or "0 quantile:'0'"] value 0.000159623
-    inst [1 or "1 quantile:'0.25'"] value 0.000291993
-    inst [2 or "2 quantile:'0.5'"] value 0.000381281
-    inst [3 or "3 quantile:'0.75'"] value 0.000527875
-    inst [4 or "4 quantile:'1'"] value 0.025478763
+    inst [0 or "0 quantile:0"] value 0.000159623
+    inst [1 or "1 quantile:0.25"] value 0.000291993
+    inst [2 or "2 quantile:0.5"] value 0.000381281
+    inst [3 or "3 quantile:0.75"] value 0.000527875
+    inst [4 or "4 quantile:1"] value 0.025478763
 
 prometheus.sample_prometheus_metrics.go_gc_duration_seconds_count [A summary of the GC invocation durations.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -3533,368 +3533,368 @@ prometheus.sample_prometheus_metrics.http_request_duration_microseconds [The HTT
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'alertmanagers',quantile:'0.5'"] value nan
-    inst [1 or "1 handler:'alertmanagers',quantile:'0.9'"] value nan
-    inst [2 or "2 handler:'alertmanagers',quantile:'0.99'"] value nan
-    inst [3 or "3 handler:'alerts',quantile:'0.5'"] value nan
-    inst [4 or "4 handler:'alerts',quantile:'0.9'"] value nan
-    inst [5 or "5 handler:'alerts',quantile:'0.99'"] value nan
-    inst [6 or "6 handler:'config',quantile:'0.5'"] value nan
-    inst [7 or "7 handler:'config',quantile:'0.9'"] value nan
-    inst [8 or "8 handler:'config',quantile:'0.99'"] value nan
-    inst [9 or "9 handler:'consoles',quantile:'0.5'"] value nan
-    inst [10 or "10 handler:'consoles',quantile:'0.9'"] value nan
-    inst [11 or "11 handler:'consoles',quantile:'0.99'"] value nan
-    inst [12 or "12 handler:'drop_series',quantile:'0.5'"] value nan
-    inst [13 or "13 handler:'drop_series',quantile:'0.9'"] value nan
-    inst [14 or "14 handler:'drop_series',quantile:'0.99'"] value nan
-    inst [15 or "15 handler:'federate',quantile:'0.5'"] value nan
-    inst [16 or "16 handler:'federate',quantile:'0.9'"] value nan
-    inst [17 or "17 handler:'federate',quantile:'0.99'"] value nan
-    inst [18 or "18 handler:'flags',quantile:'0.5'"] value nan
-    inst [19 or "19 handler:'flags',quantile:'0.9'"] value nan
-    inst [20 or "20 handler:'flags',quantile:'0.99'"] value nan
-    inst [21 or "21 handler:'graph',quantile:'0.5'"] value 1645.827
-    inst [22 or "22 handler:'graph',quantile:'0.9'"] value 1645.827
-    inst [23 or "23 handler:'graph',quantile:'0.99'"] value 1645.827
-    inst [24 or "24 handler:'heap',quantile:'0.5'"] value nan
-    inst [25 or "25 handler:'heap',quantile:'0.9'"] value nan
-    inst [26 or "26 handler:'heap',quantile:'0.99'"] value nan
-    inst [27 or "27 handler:'label_values',quantile:'0.5'"] value 1050.868
-    inst [28 or "28 handler:'label_values',quantile:'0.9'"] value 1050.868
-    inst [29 or "29 handler:'label_values',quantile:'0.99'"] value 1050.868
-    inst [30 or "30 handler:'options',quantile:'0.5'"] value nan
-    inst [31 or "31 handler:'options',quantile:'0.9'"] value nan
-    inst [32 or "32 handler:'options',quantile:'0.99'"] value nan
-    inst [33 or "33 handler:'prometheus',quantile:'0.5'"] value 7195.892
-    inst [34 or "34 handler:'prometheus',quantile:'0.9'"] value 11789.059
-    inst [35 or "35 handler:'prometheus',quantile:'0.99'"] value 12187.249
-    inst [36 or "36 handler:'query',quantile:'0.5'"] value nan
-    inst [37 or "37 handler:'query',quantile:'0.9'"] value nan
-    inst [38 or "38 handler:'query',quantile:'0.99'"] value nan
-    inst [39 or "39 handler:'query_range',quantile:'0.5'"] value nan
-    inst [40 or "40 handler:'query_range',quantile:'0.9'"] value nan
-    inst [41 or "41 handler:'query_range',quantile:'0.99'"] value nan
-    inst [42 or "42 handler:'rules',quantile:'0.5'"] value nan
-    inst [43 or "43 handler:'rules',quantile:'0.9'"] value nan
-    inst [44 or "44 handler:'rules',quantile:'0.99'"] value nan
-    inst [45 or "45 handler:'series',quantile:'0.5'"] value nan
-    inst [46 or "46 handler:'series',quantile:'0.9'"] value nan
-    inst [47 or "47 handler:'series',quantile:'0.99'"] value nan
-    inst [48 or "48 handler:'static',quantile:'0.5'"] value 642.505
-    inst [49 or "49 handler:'static',quantile:'0.9'"] value 3144.552
-    inst [50 or "50 handler:'static',quantile:'0.99'"] value 5593.358
-    inst [51 or "51 handler:'status',quantile:'0.5'"] value nan
-    inst [52 or "52 handler:'status',quantile:'0.9'"] value nan
-    inst [53 or "53 handler:'status',quantile:'0.99'"] value nan
-    inst [54 or "54 handler:'targets',quantile:'0.5'"] value nan
-    inst [55 or "55 handler:'targets',quantile:'0.9'"] value nan
-    inst [56 or "56 handler:'targets',quantile:'0.99'"] value nan
-    inst [57 or "57 handler:'version',quantile:'0.5'"] value nan
-    inst [58 or "58 handler:'version',quantile:'0.9'"] value nan
-    inst [59 or "59 handler:'version',quantile:'0.99'"] value nan
+    inst [0 or "0 handler:alertmanagers quantile:0.5"] value nan
+    inst [1 or "1 handler:alertmanagers quantile:0.9"] value nan
+    inst [2 or "2 handler:alertmanagers quantile:0.99"] value nan
+    inst [3 or "3 handler:alerts quantile:0.5"] value nan
+    inst [4 or "4 handler:alerts quantile:0.9"] value nan
+    inst [5 or "5 handler:alerts quantile:0.99"] value nan
+    inst [6 or "6 handler:config quantile:0.5"] value nan
+    inst [7 or "7 handler:config quantile:0.9"] value nan
+    inst [8 or "8 handler:config quantile:0.99"] value nan
+    inst [9 or "9 handler:consoles quantile:0.5"] value nan
+    inst [10 or "10 handler:consoles quantile:0.9"] value nan
+    inst [11 or "11 handler:consoles quantile:0.99"] value nan
+    inst [12 or "12 handler:drop_series quantile:0.5"] value nan
+    inst [13 or "13 handler:drop_series quantile:0.9"] value nan
+    inst [14 or "14 handler:drop_series quantile:0.99"] value nan
+    inst [15 or "15 handler:federate quantile:0.5"] value nan
+    inst [16 or "16 handler:federate quantile:0.9"] value nan
+    inst [17 or "17 handler:federate quantile:0.99"] value nan
+    inst [18 or "18 handler:flags quantile:0.5"] value nan
+    inst [19 or "19 handler:flags quantile:0.9"] value nan
+    inst [20 or "20 handler:flags quantile:0.99"] value nan
+    inst [21 or "21 handler:graph quantile:0.5"] value 1645.827
+    inst [22 or "22 handler:graph quantile:0.9"] value 1645.827
+    inst [23 or "23 handler:graph quantile:0.99"] value 1645.827
+    inst [24 or "24 handler:heap quantile:0.5"] value nan
+    inst [25 or "25 handler:heap quantile:0.9"] value nan
+    inst [26 or "26 handler:heap quantile:0.99"] value nan
+    inst [27 or "27 handler:label_values quantile:0.5"] value 1050.868
+    inst [28 or "28 handler:label_values quantile:0.9"] value 1050.868
+    inst [29 or "29 handler:label_values quantile:0.99"] value 1050.868
+    inst [30 or "30 handler:options quantile:0.5"] value nan
+    inst [31 or "31 handler:options quantile:0.9"] value nan
+    inst [32 or "32 handler:options quantile:0.99"] value nan
+    inst [33 or "33 handler:prometheus quantile:0.5"] value 7195.892
+    inst [34 or "34 handler:prometheus quantile:0.9"] value 11789.059
+    inst [35 or "35 handler:prometheus quantile:0.99"] value 12187.249
+    inst [36 or "36 handler:query quantile:0.5"] value nan
+    inst [37 or "37 handler:query quantile:0.9"] value nan
+    inst [38 or "38 handler:query quantile:0.99"] value nan
+    inst [39 or "39 handler:query_range quantile:0.5"] value nan
+    inst [40 or "40 handler:query_range quantile:0.9"] value nan
+    inst [41 or "41 handler:query_range quantile:0.99"] value nan
+    inst [42 or "42 handler:rules quantile:0.5"] value nan
+    inst [43 or "43 handler:rules quantile:0.9"] value nan
+    inst [44 or "44 handler:rules quantile:0.99"] value nan
+    inst [45 or "45 handler:series quantile:0.5"] value nan
+    inst [46 or "46 handler:series quantile:0.9"] value nan
+    inst [47 or "47 handler:series quantile:0.99"] value nan
+    inst [48 or "48 handler:static quantile:0.5"] value 642.505
+    inst [49 or "49 handler:static quantile:0.9"] value 3144.552
+    inst [50 or "50 handler:static quantile:0.99"] value 5593.358
+    inst [51 or "51 handler:status quantile:0.5"] value nan
+    inst [52 or "52 handler:status quantile:0.9"] value nan
+    inst [53 or "53 handler:status quantile:0.99"] value nan
+    inst [54 or "54 handler:targets quantile:0.5"] value nan
+    inst [55 or "55 handler:targets quantile:0.9"] value nan
+    inst [56 or "56 handler:targets quantile:0.99"] value nan
+    inst [57 or "57 handler:version quantile:0.5"] value nan
+    inst [58 or "58 handler:version quantile:0.9"] value nan
+    inst [59 or "59 handler:version quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.http_request_duration_microseconds_count [The HTTP request latencies in microseconds.]
     Data Type: double  InDom: 144.14365 0x2400381d
     Semantics: counter  Units: count
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'alertmanagers'"] value 0
-    inst [1 or "1 handler:'alerts'"] value 1
-    inst [2 or "2 handler:'config'"] value 0
-    inst [3 or "3 handler:'consoles'"] value 0
-    inst [4 or "4 handler:'drop_series'"] value 0
-    inst [5 or "5 handler:'federate'"] value 0
-    inst [6 or "6 handler:'flags'"] value 0
-    inst [7 or "7 handler:'graph'"] value 10
-    inst [8 or "8 handler:'heap'"] value 0
-    inst [9 or "9 handler:'label_values'"] value 10
-    inst [10 or "10 handler:'options'"] value 0
-    inst [11 or "11 handler:'prometheus'"] value 15895
-    inst [12 or "12 handler:'query'"] value 2
-    inst [13 or "13 handler:'query_range'"] value 26
-    inst [14 or "14 handler:'rules'"] value 0
-    inst [15 or "15 handler:'series'"] value 0
-    inst [16 or "16 handler:'static'"] value 68
-    inst [17 or "17 handler:'status'"] value 1
-    inst [18 or "18 handler:'targets'"] value 0
-    inst [19 or "19 handler:'version'"] value 0
+    inst [0 or "0 handler:alertmanagers"] value 0
+    inst [1 or "1 handler:alerts"] value 1
+    inst [2 or "2 handler:config"] value 0
+    inst [3 or "3 handler:consoles"] value 0
+    inst [4 or "4 handler:drop_series"] value 0
+    inst [5 or "5 handler:federate"] value 0
+    inst [6 or "6 handler:flags"] value 0
+    inst [7 or "7 handler:graph"] value 10
+    inst [8 or "8 handler:heap"] value 0
+    inst [9 or "9 handler:label_values"] value 10
+    inst [10 or "10 handler:options"] value 0
+    inst [11 or "11 handler:prometheus"] value 15895
+    inst [12 or "12 handler:query"] value 2
+    inst [13 or "13 handler:query_range"] value 26
+    inst [14 or "14 handler:rules"] value 0
+    inst [15 or "15 handler:series"] value 0
+    inst [16 or "16 handler:static"] value 68
+    inst [17 or "17 handler:status"] value 1
+    inst [18 or "18 handler:targets"] value 0
+    inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_request_duration_microseconds_sum [The HTTP request latencies in microseconds.]
     Data Type: double  InDom: 144.14364 0x2400381c
     Semantics: counter  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
-    inst [0 or "0 handler:'alertmanagers'"] value 0
-    inst [1 or "1 handler:'alerts'"] value 2148.995
-    inst [2 or "2 handler:'config'"] value 0
-    inst [3 or "3 handler:'consoles'"] value 0
-    inst [4 or "4 handler:'drop_series'"] value 0
-    inst [5 or "5 handler:'federate'"] value 0
-    inst [6 or "6 handler:'flags'"] value 0
-    inst [7 or "7 handler:'graph'"] value 29242.753
-    inst [8 or "8 handler:'heap'"] value 0
-    inst [9 or "9 handler:'label_values'"] value 9023.558000000001
-    inst [10 or "10 handler:'options'"] value 0
-    inst [11 or "11 handler:'prometheus'"] value 153265967.7039996
-    inst [12 or "12 handler:'query'"] value 4643.357
-    inst [13 or "13 handler:'query_range'"] value 155670.697
-    inst [14 or "14 handler:'rules'"] value 0
-    inst [15 or "15 handler:'series'"] value 0
-    inst [16 or "16 handler:'static'"] value 120706.83
-    inst [17 or "17 handler:'status'"] value 2295.634
-    inst [18 or "18 handler:'targets'"] value 0
-    inst [19 or "19 handler:'version'"] value 0
+    inst [0 or "0 handler:alertmanagers"] value 0
+    inst [1 or "1 handler:alerts"] value 2148.995
+    inst [2 or "2 handler:config"] value 0
+    inst [3 or "3 handler:consoles"] value 0
+    inst [4 or "4 handler:drop_series"] value 0
+    inst [5 or "5 handler:federate"] value 0
+    inst [6 or "6 handler:flags"] value 0
+    inst [7 or "7 handler:graph"] value 29242.753
+    inst [8 or "8 handler:heap"] value 0
+    inst [9 or "9 handler:label_values"] value 9023.558000000001
+    inst [10 or "10 handler:options"] value 0
+    inst [11 or "11 handler:prometheus"] value 153265967.7039996
+    inst [12 or "12 handler:query"] value 4643.357
+    inst [13 or "13 handler:query_range"] value 155670.697
+    inst [14 or "14 handler:rules"] value 0
+    inst [15 or "15 handler:series"] value 0
+    inst [16 or "16 handler:static"] value 120706.83
+    inst [17 or "17 handler:status"] value 2295.634
+    inst [18 or "18 handler:targets"] value 0
+    inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_request_size_bytes [The HTTP request sizes in bytes.]
     Data Type: double  InDom: 144.14366 0x2400381e
     Semantics: instant  Units: byte
 Help:
 The HTTP request sizes in bytes.
-    inst [0 or "0 handler:'alertmanagers',quantile:'0.5'"] value nan
-    inst [1 or "1 handler:'alertmanagers',quantile:'0.9'"] value nan
-    inst [2 or "2 handler:'alertmanagers',quantile:'0.99'"] value nan
-    inst [3 or "3 handler:'alerts',quantile:'0.5'"] value nan
-    inst [4 or "4 handler:'alerts',quantile:'0.9'"] value nan
-    inst [5 or "5 handler:'alerts',quantile:'0.99'"] value nan
-    inst [6 or "6 handler:'config',quantile:'0.5'"] value nan
-    inst [7 or "7 handler:'config',quantile:'0.9'"] value nan
-    inst [8 or "8 handler:'config',quantile:'0.99'"] value nan
-    inst [9 or "9 handler:'consoles',quantile:'0.5'"] value nan
-    inst [10 or "10 handler:'consoles',quantile:'0.9'"] value nan
-    inst [11 or "11 handler:'consoles',quantile:'0.99'"] value nan
-    inst [12 or "12 handler:'drop_series',quantile:'0.5'"] value nan
-    inst [13 or "13 handler:'drop_series',quantile:'0.9'"] value nan
-    inst [14 or "14 handler:'drop_series',quantile:'0.99'"] value nan
-    inst [15 or "15 handler:'federate',quantile:'0.5'"] value nan
-    inst [16 or "16 handler:'federate',quantile:'0.9'"] value nan
-    inst [17 or "17 handler:'federate',quantile:'0.99'"] value nan
-    inst [18 or "18 handler:'flags',quantile:'0.5'"] value nan
-    inst [19 or "19 handler:'flags',quantile:'0.9'"] value nan
-    inst [20 or "20 handler:'flags',quantile:'0.99'"] value nan
-    inst [21 or "21 handler:'graph',quantile:'0.5'"] value 403
-    inst [22 or "22 handler:'graph',quantile:'0.9'"] value 403
-    inst [23 or "23 handler:'graph',quantile:'0.99'"] value 403
-    inst [24 or "24 handler:'heap',quantile:'0.5'"] value nan
-    inst [25 or "25 handler:'heap',quantile:'0.9'"] value nan
-    inst [26 or "26 handler:'heap',quantile:'0.99'"] value nan
-    inst [27 or "27 handler:'label_values',quantile:'0.5'"] value 452
-    inst [28 or "28 handler:'label_values',quantile:'0.9'"] value 452
-    inst [29 or "29 handler:'label_values',quantile:'0.99'"] value 452
-    inst [30 or "30 handler:'options',quantile:'0.5'"] value nan
-    inst [31 or "31 handler:'options',quantile:'0.9'"] value nan
-    inst [32 or "32 handler:'options',quantile:'0.99'"] value nan
-    inst [33 or "33 handler:'prometheus',quantile:'0.5'"] value 238
-    inst [34 or "34 handler:'prometheus',quantile:'0.9'"] value 238
-    inst [35 or "35 handler:'prometheus',quantile:'0.99'"] value 238
-    inst [36 or "36 handler:'query',quantile:'0.5'"] value nan
-    inst [37 or "37 handler:'query',quantile:'0.9'"] value nan
-    inst [38 or "38 handler:'query',quantile:'0.99'"] value nan
-    inst [39 or "39 handler:'query_range',quantile:'0.5'"] value nan
-    inst [40 or "40 handler:'query_range',quantile:'0.9'"] value nan
-    inst [41 or "41 handler:'query_range',quantile:'0.99'"] value nan
-    inst [42 or "42 handler:'rules',quantile:'0.5'"] value nan
-    inst [43 or "43 handler:'rules',quantile:'0.9'"] value nan
-    inst [44 or "44 handler:'rules',quantile:'0.99'"] value nan
-    inst [45 or "45 handler:'series',quantile:'0.5'"] value nan
-    inst [46 or "46 handler:'series',quantile:'0.9'"] value nan
-    inst [47 or "47 handler:'series',quantile:'0.99'"] value nan
-    inst [48 or "48 handler:'static',quantile:'0.5'"] value 373
-    inst [49 or "49 handler:'static',quantile:'0.9'"] value 401
-    inst [50 or "50 handler:'static',quantile:'0.99'"] value 415
-    inst [51 or "51 handler:'status',quantile:'0.5'"] value nan
-    inst [52 or "52 handler:'status',quantile:'0.9'"] value nan
-    inst [53 or "53 handler:'status',quantile:'0.99'"] value nan
-    inst [54 or "54 handler:'targets',quantile:'0.5'"] value nan
-    inst [55 or "55 handler:'targets',quantile:'0.9'"] value nan
-    inst [56 or "56 handler:'targets',quantile:'0.99'"] value nan
-    inst [57 or "57 handler:'version',quantile:'0.5'"] value nan
-    inst [58 or "58 handler:'version',quantile:'0.9'"] value nan
-    inst [59 or "59 handler:'version',quantile:'0.99'"] value nan
+    inst [0 or "0 handler:alertmanagers quantile:0.5"] value nan
+    inst [1 or "1 handler:alertmanagers quantile:0.9"] value nan
+    inst [2 or "2 handler:alertmanagers quantile:0.99"] value nan
+    inst [3 or "3 handler:alerts quantile:0.5"] value nan
+    inst [4 or "4 handler:alerts quantile:0.9"] value nan
+    inst [5 or "5 handler:alerts quantile:0.99"] value nan
+    inst [6 or "6 handler:config quantile:0.5"] value nan
+    inst [7 or "7 handler:config quantile:0.9"] value nan
+    inst [8 or "8 handler:config quantile:0.99"] value nan
+    inst [9 or "9 handler:consoles quantile:0.5"] value nan
+    inst [10 or "10 handler:consoles quantile:0.9"] value nan
+    inst [11 or "11 handler:consoles quantile:0.99"] value nan
+    inst [12 or "12 handler:drop_series quantile:0.5"] value nan
+    inst [13 or "13 handler:drop_series quantile:0.9"] value nan
+    inst [14 or "14 handler:drop_series quantile:0.99"] value nan
+    inst [15 or "15 handler:federate quantile:0.5"] value nan
+    inst [16 or "16 handler:federate quantile:0.9"] value nan
+    inst [17 or "17 handler:federate quantile:0.99"] value nan
+    inst [18 or "18 handler:flags quantile:0.5"] value nan
+    inst [19 or "19 handler:flags quantile:0.9"] value nan
+    inst [20 or "20 handler:flags quantile:0.99"] value nan
+    inst [21 or "21 handler:graph quantile:0.5"] value 403
+    inst [22 or "22 handler:graph quantile:0.9"] value 403
+    inst [23 or "23 handler:graph quantile:0.99"] value 403
+    inst [24 or "24 handler:heap quantile:0.5"] value nan
+    inst [25 or "25 handler:heap quantile:0.9"] value nan
+    inst [26 or "26 handler:heap quantile:0.99"] value nan
+    inst [27 or "27 handler:label_values quantile:0.5"] value 452
+    inst [28 or "28 handler:label_values quantile:0.9"] value 452
+    inst [29 or "29 handler:label_values quantile:0.99"] value 452
+    inst [30 or "30 handler:options quantile:0.5"] value nan
+    inst [31 or "31 handler:options quantile:0.9"] value nan
+    inst [32 or "32 handler:options quantile:0.99"] value nan
+    inst [33 or "33 handler:prometheus quantile:0.5"] value 238
+    inst [34 or "34 handler:prometheus quantile:0.9"] value 238
+    inst [35 or "35 handler:prometheus quantile:0.99"] value 238
+    inst [36 or "36 handler:query quantile:0.5"] value nan
+    inst [37 or "37 handler:query quantile:0.9"] value nan
+    inst [38 or "38 handler:query quantile:0.99"] value nan
+    inst [39 or "39 handler:query_range quantile:0.5"] value nan
+    inst [40 or "40 handler:query_range quantile:0.9"] value nan
+    inst [41 or "41 handler:query_range quantile:0.99"] value nan
+    inst [42 or "42 handler:rules quantile:0.5"] value nan
+    inst [43 or "43 handler:rules quantile:0.9"] value nan
+    inst [44 or "44 handler:rules quantile:0.99"] value nan
+    inst [45 or "45 handler:series quantile:0.5"] value nan
+    inst [46 or "46 handler:series quantile:0.9"] value nan
+    inst [47 or "47 handler:series quantile:0.99"] value nan
+    inst [48 or "48 handler:static quantile:0.5"] value 373
+    inst [49 or "49 handler:static quantile:0.9"] value 401
+    inst [50 or "50 handler:static quantile:0.99"] value 415
+    inst [51 or "51 handler:status quantile:0.5"] value nan
+    inst [52 or "52 handler:status quantile:0.9"] value nan
+    inst [53 or "53 handler:status quantile:0.99"] value nan
+    inst [54 or "54 handler:targets quantile:0.5"] value nan
+    inst [55 or "55 handler:targets quantile:0.9"] value nan
+    inst [56 or "56 handler:targets quantile:0.99"] value nan
+    inst [57 or "57 handler:version quantile:0.5"] value nan
+    inst [58 or "58 handler:version quantile:0.9"] value nan
+    inst [59 or "59 handler:version quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.http_request_size_bytes_count [The HTTP request sizes in bytes.]
     Data Type: double  InDom: 144.14368 0x24003820
     Semantics: counter  Units: count
 Help:
 The HTTP request sizes in bytes.
-    inst [0 or "0 handler:'alertmanagers'"] value 0
-    inst [1 or "1 handler:'alerts'"] value 1
-    inst [2 or "2 handler:'config'"] value 0
-    inst [3 or "3 handler:'consoles'"] value 0
-    inst [4 or "4 handler:'drop_series'"] value 0
-    inst [5 or "5 handler:'federate'"] value 0
-    inst [6 or "6 handler:'flags'"] value 0
-    inst [7 or "7 handler:'graph'"] value 10
-    inst [8 or "8 handler:'heap'"] value 0
-    inst [9 or "9 handler:'label_values'"] value 10
-    inst [10 or "10 handler:'options'"] value 0
-    inst [11 or "11 handler:'prometheus'"] value 15895
-    inst [12 or "12 handler:'query'"] value 2
-    inst [13 or "13 handler:'query_range'"] value 26
-    inst [14 or "14 handler:'rules'"] value 0
-    inst [15 or "15 handler:'series'"] value 0
-    inst [16 or "16 handler:'static'"] value 68
-    inst [17 or "17 handler:'status'"] value 1
-    inst [18 or "18 handler:'targets'"] value 0
-    inst [19 or "19 handler:'version'"] value 0
+    inst [0 or "0 handler:alertmanagers"] value 0
+    inst [1 or "1 handler:alerts"] value 1
+    inst [2 or "2 handler:config"] value 0
+    inst [3 or "3 handler:consoles"] value 0
+    inst [4 or "4 handler:drop_series"] value 0
+    inst [5 or "5 handler:federate"] value 0
+    inst [6 or "6 handler:flags"] value 0
+    inst [7 or "7 handler:graph"] value 10
+    inst [8 or "8 handler:heap"] value 0
+    inst [9 or "9 handler:label_values"] value 10
+    inst [10 or "10 handler:options"] value 0
+    inst [11 or "11 handler:prometheus"] value 15895
+    inst [12 or "12 handler:query"] value 2
+    inst [13 or "13 handler:query_range"] value 26
+    inst [14 or "14 handler:rules"] value 0
+    inst [15 or "15 handler:series"] value 0
+    inst [16 or "16 handler:static"] value 68
+    inst [17 or "17 handler:status"] value 1
+    inst [18 or "18 handler:targets"] value 0
+    inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_request_size_bytes_sum [The HTTP request sizes in bytes.]
     Data Type: double  InDom: 144.14367 0x2400381f
     Semantics: counter  Units: byte
 Help:
 The HTTP request sizes in bytes.
-    inst [0 or "0 handler:'alertmanagers'"] value 0
-    inst [1 or "1 handler:'alerts'"] value 536
-    inst [2 or "2 handler:'config'"] value 0
-    inst [3 or "3 handler:'consoles'"] value 0
-    inst [4 or "4 handler:'drop_series'"] value 0
-    inst [5 or "5 handler:'federate'"] value 0
-    inst [6 or "6 handler:'flags'"] value 0
-    inst [7 or "7 handler:'graph'"] value 2996
-    inst [8 or "8 handler:'heap'"] value 0
-    inst [9 or "9 handler:'label_values'"] value 4948
-    inst [10 or "10 handler:'options'"] value 0
-    inst [11 or "11 handler:'prometheus'"] value 3521886
-    inst [12 or "12 handler:'query'"] value 1092
-    inst [13 or "13 handler:'query_range'"] value 15791
-    inst [14 or "14 handler:'rules'"] value 0
-    inst [15 or "15 handler:'series'"] value 0
-    inst [16 or "16 handler:'static'"] value 26389
-    inst [17 or "17 handler:'status'"] value 536
-    inst [18 or "18 handler:'targets'"] value 0
-    inst [19 or "19 handler:'version'"] value 0
+    inst [0 or "0 handler:alertmanagers"] value 0
+    inst [1 or "1 handler:alerts"] value 536
+    inst [2 or "2 handler:config"] value 0
+    inst [3 or "3 handler:consoles"] value 0
+    inst [4 or "4 handler:drop_series"] value 0
+    inst [5 or "5 handler:federate"] value 0
+    inst [6 or "6 handler:flags"] value 0
+    inst [7 or "7 handler:graph"] value 2996
+    inst [8 or "8 handler:heap"] value 0
+    inst [9 or "9 handler:label_values"] value 4948
+    inst [10 or "10 handler:options"] value 0
+    inst [11 or "11 handler:prometheus"] value 3521886
+    inst [12 or "12 handler:query"] value 1092
+    inst [13 or "13 handler:query_range"] value 15791
+    inst [14 or "14 handler:rules"] value 0
+    inst [15 or "15 handler:series"] value 0
+    inst [16 or "16 handler:static"] value 26389
+    inst [17 or "17 handler:status"] value 536
+    inst [18 or "18 handler:targets"] value 0
+    inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_requests_total [Total number of HTTP requests made.]
     Data Type: double  InDom: 144.14369 0x24003821
     Semantics: counter  Units: none
 Help:
 Total number of HTTP requests made.
-    inst [0 or "0 code:'200',handler:'alerts',method:'get'"] value 1
-    inst [1 or "1 code:'200',handler:'graph',method:'get'"] value 10
-    inst [2 or "2 code:'200',handler:'label_values',method:'get'"] value 10
-    inst [3 or "3 code:'200',handler:'prometheus',method:'get'"] value 15895
-    inst [4 or "4 code:'200',handler:'query',method:'get'"] value 2
-    inst [5 or "5 code:'200',handler:'query_range',method:'get'"] value 26
-    inst [6 or "6 code:'200',handler:'static',method:'get'"] value 68
-    inst [7 or "7 code:'200',handler:'status',method:'get'"] value 1
+    inst [0 or "0 code:200 handler:alerts method:get"] value 1
+    inst [1 or "1 code:200 handler:graph method:get"] value 10
+    inst [2 or "2 code:200 handler:label_values method:get"] value 10
+    inst [3 or "3 code:200 handler:prometheus method:get"] value 15895
+    inst [4 or "4 code:200 handler:query method:get"] value 2
+    inst [5 or "5 code:200 handler:query_range method:get"] value 26
+    inst [6 or "6 code:200 handler:static method:get"] value 68
+    inst [7 or "7 code:200 handler:status method:get"] value 1
 
 prometheus.sample_prometheus_metrics.http_response_size_bytes [The HTTP response sizes in bytes.]
     Data Type: double  InDom: 144.14370 0x24003822
     Semantics: instant  Units: byte
 Help:
 The HTTP response sizes in bytes.
-    inst [0 or "0 handler:'alertmanagers',quantile:'0.5'"] value nan
-    inst [1 or "1 handler:'alertmanagers',quantile:'0.9'"] value nan
-    inst [2 or "2 handler:'alertmanagers',quantile:'0.99'"] value nan
-    inst [3 or "3 handler:'alerts',quantile:'0.5'"] value nan
-    inst [4 or "4 handler:'alerts',quantile:'0.9'"] value nan
-    inst [5 or "5 handler:'alerts',quantile:'0.99'"] value nan
-    inst [6 or "6 handler:'config',quantile:'0.5'"] value nan
-    inst [7 or "7 handler:'config',quantile:'0.9'"] value nan
-    inst [8 or "8 handler:'config',quantile:'0.99'"] value nan
-    inst [9 or "9 handler:'consoles',quantile:'0.5'"] value nan
-    inst [10 or "10 handler:'consoles',quantile:'0.9'"] value nan
-    inst [11 or "11 handler:'consoles',quantile:'0.99'"] value nan
-    inst [12 or "12 handler:'drop_series',quantile:'0.5'"] value nan
-    inst [13 or "13 handler:'drop_series',quantile:'0.9'"] value nan
-    inst [14 or "14 handler:'drop_series',quantile:'0.99'"] value nan
-    inst [15 or "15 handler:'federate',quantile:'0.5'"] value nan
-    inst [16 or "16 handler:'federate',quantile:'0.9'"] value nan
-    inst [17 or "17 handler:'federate',quantile:'0.99'"] value nan
-    inst [18 or "18 handler:'flags',quantile:'0.5'"] value nan
-    inst [19 or "19 handler:'flags',quantile:'0.9'"] value nan
-    inst [20 or "20 handler:'flags',quantile:'0.99'"] value nan
-    inst [21 or "21 handler:'graph',quantile:'0.5'"] value 3681
-    inst [22 or "22 handler:'graph',quantile:'0.9'"] value 3681
-    inst [23 or "23 handler:'graph',quantile:'0.99'"] value 3681
-    inst [24 or "24 handler:'heap',quantile:'0.5'"] value nan
-    inst [25 or "25 handler:'heap',quantile:'0.9'"] value nan
-    inst [26 or "26 handler:'heap',quantile:'0.99'"] value nan
-    inst [27 or "27 handler:'label_values',quantile:'0.5'"] value 1054
-    inst [28 or "28 handler:'label_values',quantile:'0.9'"] value 1054
-    inst [29 or "29 handler:'label_values',quantile:'0.99'"] value 1054
-    inst [30 or "30 handler:'options',quantile:'0.5'"] value nan
-    inst [31 or "31 handler:'options',quantile:'0.9'"] value nan
-    inst [32 or "32 handler:'options',quantile:'0.99'"] value nan
-    inst [33 or "33 handler:'prometheus',quantile:'0.5'"] value 5127
-    inst [34 or "34 handler:'prometheus',quantile:'0.9'"] value 5134
-    inst [35 or "35 handler:'prometheus',quantile:'0.99'"] value 5142
-    inst [36 or "36 handler:'query',quantile:'0.5'"] value nan
-    inst [37 or "37 handler:'query',quantile:'0.9'"] value nan
-    inst [38 or "38 handler:'query',quantile:'0.99'"] value nan
-    inst [39 or "39 handler:'query_range',quantile:'0.5'"] value nan
-    inst [40 or "40 handler:'query_range',quantile:'0.9'"] value nan
-    inst [41 or "41 handler:'query_range',quantile:'0.99'"] value nan
-    inst [42 or "42 handler:'rules',quantile:'0.5'"] value nan
-    inst [43 or "43 handler:'rules',quantile:'0.9'"] value nan
-    inst [44 or "44 handler:'rules',quantile:'0.99'"] value nan
-    inst [45 or "45 handler:'series',quantile:'0.5'"] value nan
-    inst [46 or "46 handler:'series',quantile:'0.9'"] value nan
-    inst [47 or "47 handler:'series',quantile:'0.99'"] value nan
-    inst [48 or "48 handler:'static',quantile:'0.5'"] value 9528
-    inst [49 or "49 handler:'static',quantile:'0.9'"] value 76322
-    inst [50 or "50 handler:'static',quantile:'0.99'"] value 113498
-    inst [51 or "51 handler:'status',quantile:'0.5'"] value nan
-    inst [52 or "52 handler:'status',quantile:'0.9'"] value nan
-    inst [53 or "53 handler:'status',quantile:'0.99'"] value nan
-    inst [54 or "54 handler:'targets',quantile:'0.5'"] value nan
-    inst [55 or "55 handler:'targets',quantile:'0.9'"] value nan
-    inst [56 or "56 handler:'targets',quantile:'0.99'"] value nan
-    inst [57 or "57 handler:'version',quantile:'0.5'"] value nan
-    inst [58 or "58 handler:'version',quantile:'0.9'"] value nan
-    inst [59 or "59 handler:'version',quantile:'0.99'"] value nan
+    inst [0 or "0 handler:alertmanagers quantile:0.5"] value nan
+    inst [1 or "1 handler:alertmanagers quantile:0.9"] value nan
+    inst [2 or "2 handler:alertmanagers quantile:0.99"] value nan
+    inst [3 or "3 handler:alerts quantile:0.5"] value nan
+    inst [4 or "4 handler:alerts quantile:0.9"] value nan
+    inst [5 or "5 handler:alerts quantile:0.99"] value nan
+    inst [6 or "6 handler:config quantile:0.5"] value nan
+    inst [7 or "7 handler:config quantile:0.9"] value nan
+    inst [8 or "8 handler:config quantile:0.99"] value nan
+    inst [9 or "9 handler:consoles quantile:0.5"] value nan
+    inst [10 or "10 handler:consoles quantile:0.9"] value nan
+    inst [11 or "11 handler:consoles quantile:0.99"] value nan
+    inst [12 or "12 handler:drop_series quantile:0.5"] value nan
+    inst [13 or "13 handler:drop_series quantile:0.9"] value nan
+    inst [14 or "14 handler:drop_series quantile:0.99"] value nan
+    inst [15 or "15 handler:federate quantile:0.5"] value nan
+    inst [16 or "16 handler:federate quantile:0.9"] value nan
+    inst [17 or "17 handler:federate quantile:0.99"] value nan
+    inst [18 or "18 handler:flags quantile:0.5"] value nan
+    inst [19 or "19 handler:flags quantile:0.9"] value nan
+    inst [20 or "20 handler:flags quantile:0.99"] value nan
+    inst [21 or "21 handler:graph quantile:0.5"] value 3681
+    inst [22 or "22 handler:graph quantile:0.9"] value 3681
+    inst [23 or "23 handler:graph quantile:0.99"] value 3681
+    inst [24 or "24 handler:heap quantile:0.5"] value nan
+    inst [25 or "25 handler:heap quantile:0.9"] value nan
+    inst [26 or "26 handler:heap quantile:0.99"] value nan
+    inst [27 or "27 handler:label_values quantile:0.5"] value 1054
+    inst [28 or "28 handler:label_values quantile:0.9"] value 1054
+    inst [29 or "29 handler:label_values quantile:0.99"] value 1054
+    inst [30 or "30 handler:options quantile:0.5"] value nan
+    inst [31 or "31 handler:options quantile:0.9"] value nan
+    inst [32 or "32 handler:options quantile:0.99"] value nan
+    inst [33 or "33 handler:prometheus quantile:0.5"] value 5127
+    inst [34 or "34 handler:prometheus quantile:0.9"] value 5134
+    inst [35 or "35 handler:prometheus quantile:0.99"] value 5142
+    inst [36 or "36 handler:query quantile:0.5"] value nan
+    inst [37 or "37 handler:query quantile:0.9"] value nan
+    inst [38 or "38 handler:query quantile:0.99"] value nan
+    inst [39 or "39 handler:query_range quantile:0.5"] value nan
+    inst [40 or "40 handler:query_range quantile:0.9"] value nan
+    inst [41 or "41 handler:query_range quantile:0.99"] value nan
+    inst [42 or "42 handler:rules quantile:0.5"] value nan
+    inst [43 or "43 handler:rules quantile:0.9"] value nan
+    inst [44 or "44 handler:rules quantile:0.99"] value nan
+    inst [45 or "45 handler:series quantile:0.5"] value nan
+    inst [46 or "46 handler:series quantile:0.9"] value nan
+    inst [47 or "47 handler:series quantile:0.99"] value nan
+    inst [48 or "48 handler:static quantile:0.5"] value 9528
+    inst [49 or "49 handler:static quantile:0.9"] value 76322
+    inst [50 or "50 handler:static quantile:0.99"] value 113498
+    inst [51 or "51 handler:status quantile:0.5"] value nan
+    inst [52 or "52 handler:status quantile:0.9"] value nan
+    inst [53 or "53 handler:status quantile:0.99"] value nan
+    inst [54 or "54 handler:targets quantile:0.5"] value nan
+    inst [55 or "55 handler:targets quantile:0.9"] value nan
+    inst [56 or "56 handler:targets quantile:0.99"] value nan
+    inst [57 or "57 handler:version quantile:0.5"] value nan
+    inst [58 or "58 handler:version quantile:0.9"] value nan
+    inst [59 or "59 handler:version quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.http_response_size_bytes_count [The HTTP response sizes in bytes.]
     Data Type: double  InDom: 144.14372 0x24003824
     Semantics: counter  Units: count
 Help:
 The HTTP response sizes in bytes.
-    inst [0 or "0 handler:'alertmanagers'"] value 0
-    inst [1 or "1 handler:'alerts'"] value 1
-    inst [2 or "2 handler:'config'"] value 0
-    inst [3 or "3 handler:'consoles'"] value 0
-    inst [4 or "4 handler:'drop_series'"] value 0
-    inst [5 or "5 handler:'federate'"] value 0
-    inst [6 or "6 handler:'flags'"] value 0
-    inst [7 or "7 handler:'graph'"] value 10
-    inst [8 or "8 handler:'heap'"] value 0
-    inst [9 or "9 handler:'label_values'"] value 10
-    inst [10 or "10 handler:'options'"] value 0
-    inst [11 or "11 handler:'prometheus'"] value 15895
-    inst [12 or "12 handler:'query'"] value 2
-    inst [13 or "13 handler:'query_range'"] value 26
-    inst [14 or "14 handler:'rules'"] value 0
-    inst [15 or "15 handler:'series'"] value 0
-    inst [16 or "16 handler:'static'"] value 68
-    inst [17 or "17 handler:'status'"] value 1
-    inst [18 or "18 handler:'targets'"] value 0
-    inst [19 or "19 handler:'version'"] value 0
+    inst [0 or "0 handler:alertmanagers"] value 0
+    inst [1 or "1 handler:alerts"] value 1
+    inst [2 or "2 handler:config"] value 0
+    inst [3 or "3 handler:consoles"] value 0
+    inst [4 or "4 handler:drop_series"] value 0
+    inst [5 or "5 handler:federate"] value 0
+    inst [6 or "6 handler:flags"] value 0
+    inst [7 or "7 handler:graph"] value 10
+    inst [8 or "8 handler:heap"] value 0
+    inst [9 or "9 handler:label_values"] value 10
+    inst [10 or "10 handler:options"] value 0
+    inst [11 or "11 handler:prometheus"] value 15895
+    inst [12 or "12 handler:query"] value 2
+    inst [13 or "13 handler:query_range"] value 26
+    inst [14 or "14 handler:rules"] value 0
+    inst [15 or "15 handler:series"] value 0
+    inst [16 or "16 handler:static"] value 68
+    inst [17 or "17 handler:status"] value 1
+    inst [18 or "18 handler:targets"] value 0
+    inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_response_size_bytes_sum [The HTTP response sizes in bytes.]
     Data Type: double  InDom: 144.14371 0x24003823
     Semantics: counter  Units: byte
 Help:
 The HTTP response sizes in bytes.
-    inst [0 or "0 handler:'alertmanagers'"] value 0
-    inst [1 or "1 handler:'alerts'"] value 2705
-    inst [2 or "2 handler:'config'"] value 0
-    inst [3 or "3 handler:'consoles'"] value 0
-    inst [4 or "4 handler:'drop_series'"] value 0
-    inst [5 or "5 handler:'federate'"] value 0
-    inst [6 or "6 handler:'flags'"] value 0
-    inst [7 or "7 handler:'graph'"] value 36810
-    inst [8 or "8 handler:'heap'"] value 0
-    inst [9 or "9 handler:'label_values'"] value 10540
-    inst [10 or "10 handler:'options'"] value 0
-    inst [11 or "11 handler:'prometheus'"] value 84091113
-    inst [12 or "12 handler:'query'"] value 439
-    inst [13 or "13 handler:'query_range'"] value 13247
-    inst [14 or "14 handler:'rules'"] value 0
-    inst [15 or "15 handler:'series'"] value 0
-    inst [16 or "16 handler:'static'"] value 2104402
-    inst [17 or "17 handler:'status'"] value 3769
-    inst [18 or "18 handler:'targets'"] value 0
-    inst [19 or "19 handler:'version'"] value 0
+    inst [0 or "0 handler:alertmanagers"] value 0
+    inst [1 or "1 handler:alerts"] value 2705
+    inst [2 or "2 handler:config"] value 0
+    inst [3 or "3 handler:consoles"] value 0
+    inst [4 or "4 handler:drop_series"] value 0
+    inst [5 or "5 handler:federate"] value 0
+    inst [6 or "6 handler:flags"] value 0
+    inst [7 or "7 handler:graph"] value 36810
+    inst [8 or "8 handler:heap"] value 0
+    inst [9 or "9 handler:label_values"] value 10540
+    inst [10 or "10 handler:options"] value 0
+    inst [11 or "11 handler:prometheus"] value 84091113
+    inst [12 or "12 handler:query"] value 439
+    inst [13 or "13 handler:query_range"] value 13247
+    inst [14 or "14 handler:rules"] value 0
+    inst [15 or "15 handler:series"] value 0
+    inst [16 or "16 handler:static"] value 2104402
+    inst [17 or "17 handler:status"] value 3769
+    inst [18 or "18 handler:targets"] value 0
+    inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.process_cpu_seconds_total [Total user and system CPU time spent in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -3943,7 +3943,7 @@ prometheus.sample_prometheus_metrics.prometheus_build_info [A metric with a cons
     Semantics: instant  Units: none
 Help:
 A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.
-    inst [0 or "0 branch:'master',goversion:'go1.7.5',revision:'bd1182d29f462c39544f94cc822830e1c64cf55b',version:'1.5.2'"] value 1
+    inst [0 or "0 branch:master goversion:go1.7.5 revision:bd1182d29f462c39544f94cc822830e1c64cf55b version:1.5.2"] value 1
 
 prometheus.sample_prometheus_metrics.prometheus_config_last_reload_success_timestamp_seconds [Timestamp of the last successful configuration reload.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -3978,11 +3978,11 @@ prometheus.sample_prometheus_metrics.prometheus_evaluator_duration_seconds [The 
     Semantics: instant  Units: sec
 Help:
 The duration of rule group evaluations.
-    inst [0 or "0 quantile:'0.01'"] value 2.131e-06
-    inst [1 or "1 quantile:'0.05'"] value 2.131e-06
-    inst [2 or "2 quantile:'0.5'"] value 5.665e-06
-    inst [3 or "3 quantile:'0.9'"] value 9.503e-06
-    inst [4 or "4 quantile:'0.99'"] value 1.6817e-05
+    inst [0 or "0 quantile:0.01"] value 2.131e-06
+    inst [1 or "1 quantile:0.05"] value 2.131e-06
+    inst [2 or "2 quantile:0.5"] value 5.665e-06
+    inst [3 or "3 quantile:0.9"] value 9.503e-06
+    inst [4 or "4 quantile:0.99"] value 1.6817e-05
 
 prometheus.sample_prometheus_metrics.prometheus_evaluator_duration_seconds_count [The duration of rule group evaluations.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4010,9 +4010,9 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_checkpoint_duratio
     Semantics: instant  Units: sec
 Help:
 The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted
-    inst [0 or "0 quantile:'0.5'"] value 0.12395186
-    inst [1 or "1 quantile:'0.9'"] value 0.12395186
-    inst [2 or "2 quantile:'0.99'"] value 0.12395186
+    inst [0 or "0 quantile:0.5"] value 0.12395186
+    inst [1 or "1 quantile:0.9"] value 0.12395186
+    inst [2 or "2 quantile:0.99"] value 0.12395186
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_checkpoint_duration_seconds_count [The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4047,9 +4047,9 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_checkpoint_series_
     Semantics: instant  Units: none
 Help:
 The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.
-    inst [0 or "0 quantile:'0.5'"] value 3
-    inst [1 or "1 quantile:'0.9'"] value 7
-    inst [2 or "2 quantile:'0.99'"] value 8
+    inst [0 or "0 quantile:0.5"] value 3
+    inst [1 or "1 quantile:0.9"] value 7
+    inst [2 or "2 quantile:0.99"] value 8
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_checkpoint_series_chunks_written_count [The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4077,11 +4077,11 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_chunk_ops_total [T
     Semantics: counter  Units: none
 Help:
 The total number of chunk operations by their type.
-    inst [0 or "0 type:'create'"] value 46595
-    inst [1 or "1 type:'persist'"] value 45157
-    inst [2 or "2 type:'pin'"] value 90
-    inst [3 or "3 type:'transcode'"] value 33963
-    inst [4 or "4 type:'unpin'"] value 90
+    inst [0 or "0 type:create"] value 46595
+    inst [1 or "1 type:persist"] value 45157
+    inst [2 or "2 type:pin"] value 90
+    inst [3 or "3 type:transcode"] value 33963
+    inst [4 or "4 type:unpin"] value 90
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_chunks_to_persist [The current number of chunks waiting for persistence.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4109,9 +4109,9 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_dur
     Semantics: instant  Units: sec
 Help:
 Quantiles for batch indexing duration in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_duration_seconds_count [Quantiles for batch indexing duration in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4132,9 +4132,9 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_siz
     Semantics: instant  Units: none
 Help:
 Quantiles for indexing batch sizes (number of metrics per batch).
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_sizes_count [Quantiles for indexing batch sizes (number of metrics per batch).]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4176,28 +4176,28 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_maintain_series_du
     Semantics: instant  Units: sec
 Help:
 The duration in seconds it took to perform maintenance on a series.
-    inst [0 or "0 location:'archived',quantile:'0.5'"] value nan
-    inst [1 or "1 location:'archived',quantile:'0.9'"] value nan
-    inst [2 or "2 location:'archived',quantile:'0.99'"] value nan
-    inst [3 or "3 location:'memory',quantile:'0.5'"] value 0.114777617
-    inst [4 or "4 location:'memory',quantile:'0.9'"] value 0.147355813
-    inst [5 or "5 location:'memory',quantile:'0.99'"] value 0.371275481
+    inst [0 or "0 location:archived quantile:0.5"] value nan
+    inst [1 or "1 location:archived quantile:0.9"] value nan
+    inst [2 or "2 location:archived quantile:0.99"] value nan
+    inst [3 or "3 location:memory quantile:0.5"] value 0.114777617
+    inst [4 or "4 location:memory quantile:0.9"] value 0.147355813
+    inst [5 or "5 location:memory quantile:0.99"] value 0.371275481
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds_count [The duration in seconds it took to perform maintenance on a series.]
     Data Type: double  InDom: 144.14412 0x2400384c
     Semantics: counter  Units: count
 Help:
 The duration in seconds it took to perform maintenance on a series.
-    inst [0 or "0 location:'archived'"] value 0
-    inst [1 or "1 location:'memory'"] value 20978
+    inst [0 or "0 location:archived"] value 0
+    inst [1 or "1 location:memory"] value 20978
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds_sum [The duration in seconds it took to perform maintenance on a series.]
     Data Type: double  InDom: 144.14411 0x2400384b
     Semantics: counter  Units: sec
 Help:
 The duration in seconds it took to perform maintenance on a series.
-    inst [0 or "0 location:'archived'"] value 0
-    inst [1 or "1 location:'memory'"] value 1938.185197133004
+    inst [0 or "0 location:archived"] value 0
+    inst [1 or "1 location:memory"] value 1938.185197133004
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_max_chunks_to_persist [The maximum number of chunks that can be waiting for persistence before sample ingestion will stop.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4253,8 +4253,8 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_out_of_order_sampl
     Semantics: counter  Units: none
 Help:
 The total number of samples that were discarded because their timestamps were at or before the last received sample for a series.
-    inst [0 or "0 reason:'multiple_values_for_timestamp'"] value 0
-    inst [1 or "1 reason:'timestamp_out_of_order'"] value 0
+    inst [0 or "0 reason:multiple_values_for_timestamp"] value 0
+    inst [1 or "1 reason:timestamp_out_of_order"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_persist_errors_total [The total number of errors while persisting chunks.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4289,15 +4289,15 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_series_chunks_pers
     Semantics: counter  Units: count
 Help:
 The number of chunks persisted per series.
-    inst [0 or "0 le:'1'"] value 5945
-    inst [1 or "1 le:'2'"] value 10862
-    inst [2 or "2 le:'4'"] value 15813
-    inst [3 or "3 le:'8'"] value 18135
-    inst [4 or "4 le:'16'"] value 18135
-    inst [5 or "5 le:'32'"] value 18135
-    inst [6 or "6 le:'64'"] value 18135
-    inst [7 or "7 le:'128'"] value 18135
-    inst [8 or "8 le:'+Inf'"] value 18135
+    inst [0 or "0 le:1"] value 5945
+    inst [1 or "1 le:2"] value 10862
+    inst [2 or "2 le:4"] value 15813
+    inst [3 or "3 le:8"] value 18135
+    inst [4 or "4 le:16"] value 18135
+    inst [5 or "5 le:32"] value 18135
+    inst [6 or "6 le:64"] value 18135
+    inst [7 or "7 le:128"] value 18135
+    inst [8 or "8 le:+Inf"] value 18135
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_series_chunks_persisted_count [The number of chunks persisted per series.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4318,17 +4318,17 @@ prometheus.sample_prometheus_metrics.prometheus_local_storage_series_ops_total [
     Semantics: counter  Units: none
 Help:
 The total number of series operations by their type.
-    inst [0 or "0 type:'archive'"] value 0
-    inst [1 or "1 type:'create'"] value 0
-    inst [2 or "2 type:'maintenance_in_archive'"] value 0
-    inst [3 or "3 type:'maintenance_in_memory'"] value 20978
-    inst [4 or "4 type:'purge_from_archive'"] value 0
-    inst [5 or "5 type:'purge_from_memory'"] value 0
-    inst [6 or "6 type:'purge_on_request'"] value 0
-    inst [7 or "7 type:'quarantine_completed'"] value 0
-    inst [8 or "8 type:'quarantine_dropped'"] value 0
-    inst [9 or "9 type:'quarantine_failed'"] value 0
-    inst [10 or "10 type:'unarchive'"] value 0
+    inst [0 or "0 type:archive"] value 0
+    inst [1 or "1 type:create"] value 0
+    inst [2 or "2 type:maintenance_in_archive"] value 0
+    inst [3 or "3 type:maintenance_in_memory"] value 20978
+    inst [4 or "4 type:purge_from_archive"] value 0
+    inst [5 or "5 type:purge_from_memory"] value 0
+    inst [6 or "6 type:purge_on_request"] value 0
+    inst [7 or "7 type:quarantine_completed"] value 0
+    inst [8 or "8 type:quarantine_dropped"] value 0
+    inst [9 or "9 type:quarantine_failed"] value 0
+    inst [10 or "10 type:unarchive"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_started_dirty [Whether the local storage was found to be dirty (and crash recovery occurred) during Prometheus startup.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4363,17 +4363,17 @@ prometheus.sample_prometheus_metrics.prometheus_rule_evaluation_failures_total [
     Semantics: counter  Units: none
 Help:
 The total number of rule evaluation failures.
-    inst [0 or "0 rule_type:'alerting'"] value 0
-    inst [1 or "1 rule_type:'recording'"] value 0
+    inst [0 or "0 rule_type:alerting"] value 0
+    inst [1 or "1 rule_type:recording"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_azure_refresh_duration_seconds [The duration of a Azure-SD refresh in seconds.]
     Data Type: double  InDom: 144.14434 0x24003862
     Semantics: instant  Units: sec
 Help:
 The duration of a Azure-SD refresh in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_azure_refresh_duration_seconds_count [The duration of a Azure-SD refresh in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4401,28 +4401,28 @@ prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds [
     Semantics: instant  Units: sec
 Help:
 The duration of a Consul RPC call in seconds.
-    inst [0 or "0 call:'service',endpoint:'catalog',quantile:'0.5'"] value nan
-    inst [1 or "1 call:'service',endpoint:'catalog',quantile:'0.9'"] value nan
-    inst [2 or "2 call:'service',endpoint:'catalog',quantile:'0.99'"] value nan
-    inst [3 or "3 call:'services',endpoint:'catalog',quantile:'0.5'"] value nan
-    inst [4 or "4 call:'services',endpoint:'catalog',quantile:'0.9'"] value nan
-    inst [5 or "5 call:'services',endpoint:'catalog',quantile:'0.99'"] value nan
+    inst [0 or "0 call:service endpoint:catalog quantile:0.5"] value nan
+    inst [1 or "1 call:service endpoint:catalog quantile:0.9"] value nan
+    inst [2 or "2 call:service endpoint:catalog quantile:0.99"] value nan
+    inst [3 or "3 call:services endpoint:catalog quantile:0.5"] value nan
+    inst [4 or "4 call:services endpoint:catalog quantile:0.9"] value nan
+    inst [5 or "5 call:services endpoint:catalog quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds_count [The duration of a Consul RPC call in seconds.]
     Data Type: double  InDom: 144.14440 0x24003868
     Semantics: counter  Units: count
 Help:
 The duration of a Consul RPC call in seconds.
-    inst [0 or "0 call:'service',endpoint:'catalog'"] value 0
-    inst [1 or "1 call:'services',endpoint:'catalog'"] value 0
+    inst [0 or "0 call:service endpoint:catalog"] value 0
+    inst [1 or "1 call:services endpoint:catalog"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds_sum [The duration of a Consul RPC call in seconds.]
     Data Type: double  InDom: 144.14439 0x24003867
     Semantics: counter  Units: sec
 Help:
 The duration of a Consul RPC call in seconds.
-    inst [0 or "0 call:'service',endpoint:'catalog'"] value 0
-    inst [1 or "1 call:'services',endpoint:'catalog'"] value 0
+    inst [0 or "0 call:service endpoint:catalog"] value 0
+    inst [1 or "1 call:services endpoint:catalog"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_failures_total [The number of Consul RPC call failures.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4450,9 +4450,9 @@ prometheus.sample_prometheus_metrics.prometheus_sd_ec2_refresh_duration_seconds 
     Semantics: instant  Units: sec
 Help:
 The duration of a EC2-SD refresh in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_ec2_refresh_duration_seconds_count [The duration of a EC2-SD refresh in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4487,9 +4487,9 @@ prometheus.sample_prometheus_metrics.prometheus_sd_file_scan_duration_seconds [T
     Semantics: instant  Units: sec
 Help:
 The duration of the File-SD scan in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_file_scan_duration_seconds_count [The duration of the File-SD scan in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4510,9 +4510,9 @@ prometheus.sample_prometheus_metrics.prometheus_sd_gce_refresh_duration [The dur
     Semantics: instant  Units: none
 Help:
 The duration of a GCE-SD refresh in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_gce_refresh_duration_count [The duration of a GCE-SD refresh in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4540,27 +4540,27 @@ prometheus.sample_prometheus_metrics.prometheus_sd_kubernetes_events_total [The 
     Semantics: counter  Units: none
 Help:
 The number of Kubernetes events handled.
-    inst [0 or "0 event:'add',role:'endpoints'"] value 0
-    inst [1 or "1 event:'add',role:'node'"] value 0
-    inst [2 or "2 event:'add',role:'pod'"] value 0
-    inst [3 or "3 event:'add',role:'service'"] value 0
-    inst [4 or "4 event:'delete',role:'endpoints'"] value 0
-    inst [5 or "5 event:'delete',role:'node'"] value 0
-    inst [6 or "6 event:'delete',role:'pod'"] value 0
-    inst [7 or "7 event:'delete',role:'service'"] value 0
-    inst [8 or "8 event:'update',role:'endpoints'"] value 0
-    inst [9 or "9 event:'update',role:'node'"] value 0
-    inst [10 or "10 event:'update',role:'pod'"] value 0
-    inst [11 or "11 event:'update',role:'service'"] value 0
+    inst [0 or "0 event:add role:endpoints"] value 0
+    inst [1 or "1 event:add role:node"] value 0
+    inst [2 or "2 event:add role:pod"] value 0
+    inst [3 or "3 event:add role:service"] value 0
+    inst [4 or "4 event:delete role:endpoints"] value 0
+    inst [5 or "5 event:delete role:node"] value 0
+    inst [6 or "6 event:delete role:pod"] value 0
+    inst [7 or "7 event:delete role:service"] value 0
+    inst [8 or "8 event:update role:endpoints"] value 0
+    inst [9 or "9 event:update role:node"] value 0
+    inst [10 or "10 event:update role:pod"] value 0
+    inst [11 or "11 event:update role:service"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_marathon_refresh_duration_seconds [The duration of a Marathon-SD refresh in seconds.]
     Data Type: double  InDom: 144.14457 0x24003879
     Semantics: instant  Units: sec
 Help:
 The duration of a Marathon-SD refresh in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_marathon_refresh_duration_seconds_count [The duration of a Marathon-SD refresh in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4588,9 +4588,9 @@ prometheus.sample_prometheus_metrics.prometheus_sd_triton_refresh_duration_secon
     Semantics: instant  Units: sec
 Help:
 The duration of a Triton-SD refresh in seconds.
-    inst [0 or "0 quantile:'0.5'"] value nan
-    inst [1 or "1 quantile:'0.9'"] value nan
-    inst [2 or "2 quantile:'0.99'"] value nan
+    inst [0 or "0 quantile:0.5"] value nan
+    inst [1 or "1 quantile:0.9"] value nan
+    inst [2 or "2 quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_triton_refresh_duration_seconds_count [The duration of a Triton-SD refresh in seconds.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4618,32 +4618,32 @@ prometheus.sample_prometheus_metrics.prometheus_target_interval_length_seconds [
     Semantics: instant  Units: sec
 Help:
 Actual intervals between scrapes.
-    inst [0 or "0 interval:'15s',quantile:'0.01'"] value 14.999687931
-    inst [1 or "1 interval:'15s',quantile:'0.05'"] value 14.999687931
-    inst [2 or "2 interval:'15s',quantile:'0.5'"] value 15.000052329
-    inst [3 or "3 interval:'15s',quantile:'0.9'"] value 15.000165118
-    inst [4 or "4 interval:'15s',quantile:'0.99'"] value 15.000321589
+    inst [0 or "0 interval:15s quantile:0.01"] value 14.999687931
+    inst [1 or "1 interval:15s quantile:0.05"] value 14.999687931
+    inst [2 or "2 interval:15s quantile:0.5"] value 15.000052329
+    inst [3 or "3 interval:15s quantile:0.9"] value 15.000165118
+    inst [4 or "4 interval:15s quantile:0.99"] value 15.000321589
 
 prometheus.sample_prometheus_metrics.prometheus_target_interval_length_seconds_count [Actual intervals between scrapes.]
     Data Type: double  InDom: 144.14467 0x24003883
     Semantics: counter  Units: count
 Help:
 Actual intervals between scrapes.
-    inst [0 or "0 interval:'15s'"] value 14012
+    inst [0 or "0 interval:15s"] value 14012
 
 prometheus.sample_prometheus_metrics.prometheus_target_interval_length_seconds_sum [Actual intervals between scrapes.]
     Data Type: double  InDom: 144.14466 0x24003882
     Semantics: counter  Units: sec
 Help:
 Actual intervals between scrapes.
-    inst [0 or "0 interval:'15s'"] value 507078.1890832364
+    inst [0 or "0 interval:15s"] value 507078.1890832364
 
 prometheus.sample_prometheus_metrics.prometheus_target_scrape_pool_sync_total [Total number of syncs that were executed on a scrape pool.]
     Data Type: double  InDom: 144.14468 0x24003884
     Semantics: counter  Units: none
 Help:
 Total number of syncs that were executed on a scrape pool.
-    inst [0 or "0 scrape_job:'prometheus'"] value 1
+    inst [0 or "0 scrape_job:prometheus"] value 1
 
 prometheus.sample_prometheus_metrics.prometheus_target_scrapes_exceeded_sample_limit_total [Total number of scrapes that hit the sample limit and were rejected.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4664,25 +4664,25 @@ prometheus.sample_prometheus_metrics.prometheus_target_sync_length_seconds [Actu
     Semantics: instant  Units: sec
 Help:
 Actual interval to sync the scrape pool.
-    inst [0 or "0 quantile:'0.01',scrape_job:'prometheus'"] value nan
-    inst [1 or "1 quantile:'0.05',scrape_job:'prometheus'"] value nan
-    inst [2 or "2 quantile:'0.5',scrape_job:'prometheus'"] value nan
-    inst [3 or "3 quantile:'0.9',scrape_job:'prometheus'"] value nan
-    inst [4 or "4 quantile:'0.99',scrape_job:'prometheus'"] value nan
+    inst [0 or "0 quantile:0.01 scrape_job:prometheus"] value nan
+    inst [1 or "1 quantile:0.05 scrape_job:prometheus"] value nan
+    inst [2 or "2 quantile:0.5 scrape_job:prometheus"] value nan
+    inst [3 or "3 quantile:0.9 scrape_job:prometheus"] value nan
+    inst [4 or "4 quantile:0.99 scrape_job:prometheus"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_target_sync_length_seconds_count [Actual interval to sync the scrape pool.]
     Data Type: double  InDom: 144.14473 0x24003889
     Semantics: counter  Units: count
 Help:
 Actual interval to sync the scrape pool.
-    inst [0 or "0 scrape_job:'prometheus'"] value 1
+    inst [0 or "0 scrape_job:prometheus"] value 1
 
 prometheus.sample_prometheus_metrics.prometheus_target_sync_length_seconds_sum [Actual interval to sync the scrape pool.]
     Data Type: double  InDom: 144.14472 0x24003888
     Semantics: counter  Units: sec
 Help:
 Actual interval to sync the scrape pool.
-    inst [0 or "0 scrape_job:'prometheus'"] value 0.000270178
+    inst [0 or "0 scrape_job:prometheus"] value 0.000270178
 
 prometheus.sample_prometheus_metrics.prometheus_treecache_watcher_goroutines [The current number of watcher goroutines.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4731,32 +4731,32 @@ prometheus.thermostat.tms_jvm_gc_4099dd5b_8226_4c13_a697_5e669380060b_wallTime [
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
-    inst [0 or "0 collector_name:'PSParallelCompact'"] value 360578
-    inst [1 or "1 collector_name:'PSScavenge'"] value 120532
+    inst [0 or "0 collector_name:PSParallelCompact"] value 360578
+    inst [1 or "1 collector_name:PSScavenge"] value 120532
 
 prometheus.thermostat.tms_jvm_gc_44157db5_4922_49d0_89de_f20f8bf71ceb_wallTime [GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb]
     Data Type: double  InDom: 144.15362 0x24003c02
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
-    inst [0 or "0 collector_name:'PSParallelCompact'"] value 53544
-    inst [1 or "1 collector_name:'PSScavenge'"] value 4539165
+    inst [0 or "0 collector_name:PSParallelCompact"] value 53544
+    inst [1 or "1 collector_name:PSScavenge"] value 4539165
 
 prometheus.thermostat.tms_jvm_gc_641b7232_19dd_47ae_9cc1_8294b2a09774_wallTime [GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774]
     Data Type: double  InDom: 144.15366 0x24003c06
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
-    inst [0 or "0 collector_name:'PCopy'"] value 3658446
-    inst [1 or "1 collector_name:'CMS'"] value 2932705
+    inst [0 or "0 collector_name:PCopy"] value 3658446
+    inst [1 or "1 collector_name:CMS"] value 2932705
 
 prometheus.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime [GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396]
     Data Type: double  InDom: 144.15361 0x24003c01
     Semantics: instant  Units: none
 Help:
 GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396
-    inst [0 or "0 collector_name:'Copy'"] value 24462465
-    inst [1 or "1 collector_name:'MSC'"] value 49519
+    inst [0 or "0 collector_name:Copy"] value 24462465
+    inst [1 or "1 collector_name:MSC"] value 49519
 
 === remove prometheus agent ===
 Culling the Performance Metrics Name Space ...
