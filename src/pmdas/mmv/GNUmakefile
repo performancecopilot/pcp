@@ -64,3 +64,5 @@ install_pcp install :: $(SUBDIRS)
 # check-build only, binary not installed (but source is)
 $(LTARGET):	acme.c
 	$(CCF) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+
+mmvdump.o:	$(TOPDIR)/src/include/pcp/libpcp.h

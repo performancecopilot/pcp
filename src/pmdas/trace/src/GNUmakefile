@@ -56,3 +56,5 @@ domain.h:	../../../pmns/stdpmid
 default_pcp:	default
 
 install_pcp:	install
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

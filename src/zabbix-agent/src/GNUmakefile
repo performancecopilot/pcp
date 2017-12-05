@@ -46,3 +46,5 @@ install_pcp: install
 
 zbxpcp.o:	module.h
 $(LIBTARGET):	$(VERSION_SCRIPT)
+
+zbxpcp.o:	$(TOPDIR)/src/include/pcp/libpcp.h

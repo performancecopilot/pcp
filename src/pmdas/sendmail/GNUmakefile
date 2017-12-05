@@ -57,3 +57,5 @@ domain.h: ../../pmns/stdpmid
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
+
+sendmail.o:	$(TOPDIR)/src/include/pcp/libpcp.h

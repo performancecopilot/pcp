@@ -77,3 +77,5 @@ stdpmid:	$(STDPMID)
 default_pcp:	default
 
 install_pcp:	install
+
+pmnsdel.o pmnsmerge.o pmnsutil.o:	$(TOPDIR)/src/include/pcp/libpcp.h

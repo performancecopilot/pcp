@@ -30,3 +30,4 @@ default_pcp:	default
 
 install_pcp:	install
 
+pmprobe.o:	$(TOPDIR)/src/include/pcp/libpcp.h

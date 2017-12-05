@@ -48,3 +48,5 @@ gram.tab.o:	logger.h
 lex.o:		logger.h
 metriclist.o:	logger.h
 pmlogextract.o:	logger.h
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

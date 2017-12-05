@@ -86,3 +86,4 @@ default_pcp: default
 
 install_pcp: install
 
+io.o rules.o:	$(TOPDIR)/src/include/pcp/libpcp.h

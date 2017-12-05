@@ -84,3 +84,5 @@ check :: check_pcp
 
 check_pcp:
 	pmpython -m unittest discover -s test -p '*_test.py'
+
+build_python2 build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h

@@ -100,3 +100,5 @@ photoproc.o:	procmetrics.h
 photosyst.o:	systmetrics.h
 ifprop.o:	ifpropmetrics.h
 various.o:	hostmetrics.h
+
+atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h

@@ -59,3 +59,5 @@ pmnsmap.h:	pmgenmap.sh pmnsmap.spec
 default_pcp:	default
 
 install_pcp:	install
+
+pmclient.o pmclient_fg.o:	$(TOPDIR)/src/include/pcp/libpcp.h

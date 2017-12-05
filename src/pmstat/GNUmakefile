@@ -34,3 +34,5 @@ install:	default
 default_pcp:	default
 
 install_pcp:	install
+
+pmstat.o:	$(TOPDIR)/src/include/pcp/libpcp.h

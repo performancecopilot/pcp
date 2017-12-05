@@ -52,3 +52,5 @@ default_pcp : default
 install_pcp : install
 
 pmproxy.o client.o:	pmproxy.h
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

@@ -72,3 +72,4 @@ perfalloc: perfalloc.o perflock.o
 clean clobber::
 	$(RM) configparser.yy.c perfalloc perfalloc.o
 
+pmda.o:	$(TOPDIR)/src/include/pcp/libpcp.h
