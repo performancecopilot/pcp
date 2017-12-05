@@ -331,8 +331,10 @@ PMCD from a remote host.
 
 @ pmcd.labels Context level metadata labels associated with all values
 Additional end-user and PMCS metadata can be associated with performance
-metrics via $PCP_SYSCONF_DIR/labels files.  This metric exports the value
-that will be reported by pmGetContextLabels(3).
+metrics via $PCP_SYSCONF_DIR/labels files.  This metric exports the user
+defined labels that will be reported by pmGetContextLabels(3).  This set
+does not include labels automatically associated with every context such
+as the hostname, user and group identifier, container identifier, etc.
 
 @ pmcd.hostname local hostname
 A reasonably unique identifier of the PMCD installation, for use

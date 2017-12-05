@@ -157,6 +157,9 @@ PMCD_DATA extern int	pmcd_timeout;
 /* timeout for credentials */
 extern int	_creds_timeout;
 
+/* flag for context label changes */
+extern int	labelChanged;
+
 /* global PMCD PMDA variables */
 
 /*
@@ -221,6 +224,7 @@ extern int VerifyConfig(char *);
 extern int ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
+extern void CheckLabelChange(void);
 extern void MarkStateChanges(int);
 extern void CleanupClient(ClientInfo *, int);
 extern int ClientsAttributes(AgentInfo *);
@@ -236,6 +240,9 @@ PMCD_CALL extern void pmcd_openfds_sethi(int);
 
 /* Explicitly requested hostname (pmcd.hostname metric) */
 PMCD_DATA extern char *pmcd_hostname;
+
+/* Current context label set (pmcd.labels metric) */
+PMCD_DATA extern char *pmcd_labels;
 
 /* Counter of SIGHUPs received and responded to by pmcd */
 PMCD_DATA extern unsigned pmcd_sighups;

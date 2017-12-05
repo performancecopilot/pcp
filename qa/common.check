@@ -2389,3 +2389,46 @@ End-of-File
     fi
     return 0
 }
+
+# send pmcd SIGHUP and reliably check that it received (at least) one
+#
+_sighup_pmcd()
+{
+    _signal_delay=0.05
+    _sighups_before=-1
+
+    eval `pmprobe -v pmcd.sighups 2>/dev/null \
+	  | $PCP_AWK_PROG '{ printf "_sighups_before=%d\n", $3 }'`
+    if [ $_sighups_before -lt 0 ]
+    then
+	echo _sighup_pmcd called but pmcd not running
+	exit 1
+    fi
+
+    $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd >/dev/null 2>&1
+
+    # first make sure pmcd has received SIGHUP
+    #
+    _sts=1
+    for _delay in 0.01 0.05 0.1 0.15 0.25 0.5 1 2
+    do
+	$PCP_BINADM_DIR/pmsleep $_delay
+	_sighups=-1
+	eval `pmprobe -v pmcd.sighups 2>/dev/null | \
+	    $PCP_AWK_PROG '{ printf "_sighups=%d\n", $3 }'`
+	if [ $_sighups -gt $_sighups_before ]
+	then
+	    _sts=0
+	    break
+	fi
+    done
+    if [ $_sts -ne 0 ]
+    then
+	echo _sighup_pmcd caused no change in pmcd sighup count
+	exit 1
+    fi
+
+    # delay for $_signal_delay while pmcd actually does post-SIGHUP work
+    #
+    $PCP_BINADM_DIR/pmsleep $_signal_delay
+}

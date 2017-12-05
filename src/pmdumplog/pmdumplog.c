@@ -538,7 +538,7 @@ dumpLabelSets(__pmContext *ctxp)
     unsigned int	ident;
     __pmHashCtl		*l_hashtype;
     __pmHashNode	*hp, *tp;
-    __pmLogLabelSet	*ldp;
+    __pmLogLabelSet	*ldp, *p;
 
     printf("\nMetric Labels in the Log ...\n");
 
@@ -550,13 +550,25 @@ dumpLabelSets(__pmContext *ctxp)
 	    for (j = 0; j < l_hashtype->hsize; j++) {
 		for (tp = l_hashtype->hash[j]; tp != NULL; tp = tp->next) {
 		    ident = (unsigned int)tp->key;
-		    ldp = (__pmLogLabelSet *)tp->data;
-		    tv.tv_sec = ldp->stamp.tv_sec;
-		    tv.tv_usec = ldp->stamp.tv_usec;
-		    pmPrintStamp(stdout, &tv);
-		    putchar('\n');
-		    pmPrintLabelSets(stdout, ident, type,
-					ldp->labelsets, ldp->nsets);
+
+		    /*
+		     * in reverse chronological order, so iteration is odd
+		     */
+		    ldp = NULL;
+		    for ( ; ; ) {
+			p = (__pmLogLabelSet *)tp->data; 
+			for (; p->next != ldp; p = p->next)
+			    ;
+			tv.tv_sec = p->stamp.tv_sec;
+			tv.tv_usec = p->stamp.tv_usec;
+			pmPrintStamp(stdout, &tv);
+			putchar('\n');
+			pmPrintLabelSets(stdout, ident, type,
+					p->labelsets, p->nsets);
+			if (p == (__pmLogLabelSet *)tp->data)
+			    break;
+			ldp = p;
+		    }
 		}
 	    }
 	}

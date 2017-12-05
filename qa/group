@@ -1447,6 +1447,7 @@ collectl
 1354 pmval archive local
 1359 libpcp local
 1368 labels help pmlogger pmdumplog local
+1369 labels pmcd pmlogger pmdumplog local
 1385:reserved pmda.prometheus local
 1388 pmwebapi local
 1395:reserved pmda.prometheus local

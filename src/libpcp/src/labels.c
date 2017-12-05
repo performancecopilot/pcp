@@ -727,7 +727,7 @@ __pmGetContextLabels(pmLabelSet **set)
     free(labels);
     free(list);
 
-    if (sts < 0)
+    if (sts <= 0)
 	return sts;
 
     return __pmParseLabelSet(buf, sts, PM_LABEL_CONTEXT, set);
@@ -803,6 +803,8 @@ __pmGetDomainLabels(int domain, const char *name, pmLabelSet **set)
     char		buf[PM_MAXLABELJSONLEN];
   
     (void)domain;	/* not currently used */
+    if (strncmp(name, "pmda", 4) == 0 && name[4] != '\0')
+	name += 4;
     length = pmsprintf(buf, sizeof(buf), "{\"agent\":\"%s\"}", name);
     return __pmParseLabelSet(buf, length, PM_LABEL_DOMAIN, set);
 }

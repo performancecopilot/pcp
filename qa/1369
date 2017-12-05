@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1368
-# Exercise fetch protocol support for context label changes.
+# Exercise archive support for labels and help text.
 #
 # Copyright (c) 2017 Red Hat.
 #
@@ -42,6 +42,7 @@ _filter_labels()
 }
 
 status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
 userid=`id -u`
 groupid=`id -g`
 username=`id -u -n`
@@ -53,28 +54,41 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/*
-echo "{\"QA\":$seq}" > $tmp.$seq
+echo "{\"ONE\":$seq}" > $tmp.1.$seq
+echo "{\"TWO\":$seq}" > $tmp.2.$seq
 $sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null
-$sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels/$seq.json
+$sudo cp $tmp.1.$seq $PCP_ETC_DIR/pcp/labels/$seq.1.json
 _sighup_pmcd
 
-##debug##
-# echo && pminfo -f pmcd.labels
-
 cat >$tmp.config <<EOF
-log mandatory on once {
-    sample.bin
+log mandatory on default {
+    sample.long.one
 }
 EOF
-pmlogger -c $tmp.config -T 0.25sec -l $tmp.log -t 0.1sec $tmp
+pmlogger -c $tmp.config -T 1.5sec -l $tmp.log -t 0.1sec $tmp &
+pid=$!
+pmsleep 0.35	# let pmlogger start up
+
+# echo debug initial pmcd labels
+# echo && pminfo -f pmcd.labels
+
+# change pmcd configuration, send a SIGHUP (reread labels)
+$sudo cp $tmp.2.$seq $PCP_ETC_DIR/pcp/labels/$seq.2.json
+$sudo rm $PCP_ETC_DIR/pcp/labels/$seq.1.json
+$sudo $signal -a -s HUP pmcd
+wait $pid
+
+# echo debug final pmcd labels
+# echo && pminfo -f pmcd.labels
 
 echo
-echo "=== Dump labels"
+echo "=== Dump all labels - should see both ONE and TWO labels"
 pmdumplog -e $tmp | _filter_labels
 
 echo
-echo "=== Dump help text"
-pmdumplog -h $tmp
+echo "=== Report labels using PMAPI - initially ONE, later TWO"
+pminfo -a $tmp -l -O0 sample | _filter_labels
+pminfo -a $tmp -l -O-0.5 sample | _filter_labels
 
 # success, all done
 status=0
