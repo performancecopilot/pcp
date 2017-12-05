@@ -331,6 +331,40 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
 }
 
 static int
+GetChangedContextLabels(pmLabelSet **sets, int *changed)
+{
+    int		sts;
+
+    *changed = 0;
+    if ((sts = __pmGetContextLabels(sets)) == 1) {
+	if (!pmcd_labels) {
+	    *changed = 1;
+	} else {
+	    if (strcmp(pmcd_labels, sets[0]->json) != 0)
+		*changed = 1;
+	    free(pmcd_labels);
+	}
+	pmcd_labels = strndup(sets[0]->json, sets[0]->jsonlen);
+    }
+    else if (pmcd_labels) {
+	free(pmcd_labels);
+	pmcd_labels = NULL;
+	*changed = 1;
+    }
+    return sts;
+}
+
+void
+CheckLabelChange(void)
+{
+    pmLabelSet	*sets = NULL;
+    int		nsets;
+
+    if ((nsets = GetChangedContextLabels(&sets, &labelChanged)) > 0)
+	pmFreeLabelSets(sets, nsets);
+}
+
+static int
 GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 {
     __pmHashNode	*node;
@@ -342,7 +376,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     char		*hostname;
     int			sts;
 
-    if ((sts = __pmGetContextLabels(sets)) >= 0) {
+    if ((sts = GetChangedContextLabels(sets, &labelChanged)) >= 0) {
 	if ((hostname = pmcd_hostname) == NULL) {
 	    (void)gethostname(host, MAXHOSTNAMELEN);
 	    hostname = pmcd_hostname = host;

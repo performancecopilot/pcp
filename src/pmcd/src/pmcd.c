@@ -30,6 +30,7 @@ static void	ResetBadHosts(void);
 
 int		AgentDied;		/* for updating mapdom[] */
 int		AgentPendingRestart;	/* for automatic restart */
+int		labelChanged;		/* For SIGHUP labels check */
 static int	timeToDie;		/* For SIGINT handling */
 static int	restart;		/* For SIGHUP restart */
 static int	maxReqPortFd;		/* Largest request port fd */
@@ -553,7 +554,15 @@ SignalRestart(void)
     fprintf(stderr, "\nCurrent PMCD clients ...\n");
     ShowClients(stderr);
     ResetBadHosts();
+    CheckLabelChange();
     ParseRestartAgents(configFileName);
+}
+
+static void
+SignalReloadLabels(void)
+{
+    /* Inform clients there's been a change in context label state */
+    MarkStateChanges(PMCD_LABEL_CHANGE);
 }
 
 static void
@@ -737,7 +746,7 @@ ClientLoop(void)
     int		i, fd, sts;
     int		maxFd;
     int		checkAgents;
-    int		reload_ns = 0;
+    int		reload_namespace = 0;
     int		restartAgents = -1;	/* initial state unknown */
     __pmFdSet	readableFds;
 
@@ -778,7 +787,7 @@ ClientLoop(void)
 				FdToString(i), i);
 	    __pmServerAddNewClients(&readableFds, CheckNewClient);
 	    if (checkAgents)
-		reload_ns = HandleReadyAgents(&readableFds);
+		reload_namespace = HandleReadyAgents(&readableFds);
 	    HandleClientInput(&readableFds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
@@ -809,12 +818,16 @@ ClientLoop(void)
 	}
 	if (restart) {
 	    restart = 0;
-	    reload_ns = 1;
+	    reload_namespace = 1;
 	    SignalRestart();
 	}
-	if (reload_ns) {
-	    reload_ns = 0;
+	if (reload_namespace) {
+	    reload_namespace = 0;
 	    SignalReloadPMNS();
+	}
+	if (labelChanged) {
+	    labelChanged = 0;
+	    SignalReloadLabels();
 	}
 	if (timeToDie) {
 	    SignalShutdown();
@@ -865,6 +878,7 @@ SigHupProc(int sig)
     pmcd_sighups++;
     SignalRestart();
     SignalReloadPMNS();
+    SignalReloadLabels();
 }
 #else
 static void

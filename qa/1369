@@ -1,0 +1,95 @@
+#!/bin/sh
+# PCP QA Test No. 1368
+# Exercise archive support for labels and help text.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+	_sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_labels()
+{
+    sed \
+	-e "s/-U ${username}/-U USERNAME/g" \
+	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+	-e "s/.userid.:$userid/\"userid\":UID/g" \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,pmda_sample.$DSO_SUFFIX ,pmda_sample.dso ,g" \
+	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/[TIMESTAMP]/' \
+	-e 's/Context labels ([0-9][0-9]* bytes)/Context labels (N bytes)/' \
+	-e '/.*name.* : value.*\[context]$/d' \
+    #end
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+need_restore=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+echo "{\"ONE\":$seq}" > $tmp.1.$seq
+echo "{\"TWO\":$seq}" > $tmp.2.$seq
+$sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null
+$sudo cp $tmp.1.$seq $PCP_ETC_DIR/pcp/labels/$seq.1.json
+_sighup_pmcd
+
+cat >$tmp.config <<EOF
+log mandatory on default {
+    sample.long.one
+}
+EOF
+pmlogger -c $tmp.config -T 1.5sec -l $tmp.log -t 0.1sec $tmp &
+pid=$!
+pmsleep 0.35	# let pmlogger start up
+
+# echo debug initial pmcd labels
+# echo && pminfo -f pmcd.labels
+
+# change pmcd configuration, send a SIGHUP (reread labels)
+$sudo cp $tmp.2.$seq $PCP_ETC_DIR/pcp/labels/$seq.2.json
+$sudo rm $PCP_ETC_DIR/pcp/labels/$seq.1.json
+$sudo $signal -a -s HUP pmcd
+wait $pid
+
+# echo debug final pmcd labels
+# echo && pminfo -f pmcd.labels
+
+echo
+echo "=== Dump all labels - should see both ONE and TWO labels"
+pmdumplog -e $tmp | _filter_labels
+
+echo
+echo "=== Report labels using PMAPI - initially ONE, later TWO"
+pminfo -a $tmp -l -O0 sample | _filter_labels
+pminfo -a $tmp -l -O-0.5 sample | _filter_labels
+
+# success, all done
+status=0
+exit

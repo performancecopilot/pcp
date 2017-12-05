@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -56,6 +56,7 @@ int
 myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 {
     int			n = 0;
+    int			changed = 0;
     int			ctx;
     __pmPDU		*pb;
     __pmContext		*ctxp;
@@ -119,8 +120,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	}
 
 	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, &ctxp->c_origin, numpmid, pmidlist);
-	if (n >= 0){
-	    int		changed = 0;
+	if (n >= 0) {
 	    do {
 		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 		/*
@@ -235,9 +235,11 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    free(newlist);
     }
 
-    if (n < 0 && ctxp->c_pmcd->pc_fd != -1) {
-	disconnect(n);
+    if (n < 0) {
+	if (ctxp->c_pmcd->pc_fd != -1)
+	    disconnect(n);
+	return n;
     }
 
-    return n;
+    return changed;
 }

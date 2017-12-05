@@ -113,6 +113,7 @@ class PCP2XML(object):
         self.pmconfig.read_options()
         self.pmconfig.read_cmd_line()
         self.pmconfig.prepare_metrics()
+        self.pmconfig.set_signal_handler()
 
     def options(self):
         """ Setup default command line argument option handling """

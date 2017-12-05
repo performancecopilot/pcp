@@ -19,7 +19,7 @@ test -f /proc/$pid/attr/current || _notrun "No kernel support for labels"
 # for some kernels, /proc/$pid/attr/current exists, but attempts to
 # access the "file" produce an Invalid argument error
 #
-cat /proc/$$/attr/current >/dev/null 2>&1 || _notrun "Incomplete kernel support for labels"
+cat /proc/$$/attr/current >/dev/null 2>&1 || _notrun "Incomplete kernel support for process security labels"
 
 
 status=1	# failure is the default!

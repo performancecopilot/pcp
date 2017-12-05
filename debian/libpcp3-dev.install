@@ -258,6 +258,8 @@ usr/share/man/man3/pmPrintDesc.3.gz
 usr/share/man/man3/pmprintf.3.gz
 usr/share/man/man3/pmPrintHighResStamp.3.gz
 usr/share/man/man3/__pmPrintIPC.3.gz
+usr/share/man/man3/pmprintlabelsets.3.gz
+usr/share/man/man3/pmPrintLabelSets.3.gz
 usr/share/man/man3/pmPrintStamp.3.gz
 usr/share/man/man3/pmprintvalue.3.gz
 usr/share/man/man3/pmPrintValue.3.gz

@@ -29,6 +29,7 @@ _cleanup()
 	need_restore=false
 	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
+	_sighup_pmcd
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -46,16 +47,14 @@ _filter_labels()
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 echo '{"pcpqa":"labels"}' > $tmp.labels
-$sudo cp $tmp.labels $PCP_ETC_DIR/pcp/labels/pcpqa
-_service pmcd restart
-_wait_for_pmcd
+$sudo cp $tmp.labels $PCP_ETC_DIR/pcp/labels/pcpqa.json
+_sighup_pmcd
 
 $here/src/labels \
 	sample.bin \
 	sample.colour \
 	sample.long.one \
 | _filter_labels
-$sudo rm $PCP_ETC_DIR/pcp/labels/pcpqa
 
 # success, all done
 status=0
