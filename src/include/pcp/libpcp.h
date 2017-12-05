@@ -789,8 +789,7 @@ typedef struct {
     int			ac_cache_idx;	/* used in interp.c */
     /*
      * These were added to the ABI in order to support multiple archives
-     * in a single context. In order to maintain ABI compatibility they must
-     * be at the end of this structure.
+     * in a single context.
      */
     int			ac_mark_done;	/* mark record between archives */
 					/*   has been generated */
@@ -826,34 +825,34 @@ typedef struct {
 #define __PM_MODE_MASK	0xffff
 
 /* internal archive routines */
-PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, __pmFILE *, __pmLogLabel *, int);
-PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
+PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
-PCP_CALL extern void __pmLogClose(__pmLogCtl *);
-PCP_CALL extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
-PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const pmTimeval *, int, int *, char **);
-PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
-PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);
-PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const pmTimeval *);
-PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *, unsigned int, unsigned int, int, pmLabelSet *, const pmTimeval *);
-PCP_CALL extern int __pmLogPutText(__pmLogCtl *, unsigned int , unsigned int, char *, int);
+PCP_CALL extern void __pmLogClose(__pmArchCtl *);
+PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
+PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, pmInDom, const pmTimeval *, int, int *, char **);
+PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
+PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
+PCP_CALL extern void __pmLogPutIndex(const __pmArchCtl *, const pmTimeval *);
+PCP_CALL extern int __pmLogPutLabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const pmTimeval *);
+PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
-PCP_CALL extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
-PCP_CALL extern int __pmLogLoadMeta(__pmLogCtl *);
+PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
+PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
-PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, __pmFILE *, pmResult **, int);
+PCP_CALL extern int __pmLogRead(__pmArchCtl *, int, __pmFILE *, pmResult **, int);
 PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **, int);
-PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
+PCP_CALL extern int __pmLogChangeVol(__pmArchCtl *, int);
 PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
-PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, pmTimeval *, int **, char ***);
-PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
-PCP_CALL extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
+PCP_CALL extern int __pmLogGetInDom(__pmArchCtl *, pmInDom, pmTimeval *, int **, char ***);
+PCP_CALL extern int __pmGetArchiveEnd(__pmArchCtl *, struct timeval *);
+PCP_CALL extern int __pmLogLookupDesc(__pmArchCtl *, pmID, pmDesc *);
 #define PMLOGPUTINDOM_DUP       1
-PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, pmTimeval *, const char *);
-PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *, unsigned int, unsigned int, pmLabelSet **, const pmTimeval *);
-PCP_CALL extern int __pmLogLookupText(__pmLogCtl *, unsigned int , unsigned int, char **);
-PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, pmTimeval *, int, char **);
+PCP_CALL extern int __pmLogLookupInDom(__pmArchCtl *, pmInDom, pmTimeval *, const char *);
+PCP_CALL extern int __pmLogLookupLabel(__pmArchCtl *, unsigned int, unsigned int, pmLabelSet **, const pmTimeval *);
+PCP_CALL extern int __pmLogLookupText(__pmArchCtl *, unsigned int , unsigned int, char **);
+PCP_CALL extern int __pmLogNameInDom(__pmArchCtl *, pmInDom, pmTimeval *, int, char **);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
 PCP_DATA extern int __pmLogReads;

@@ -194,14 +194,14 @@ do_logue(int type)
 
     __pmOverrideLastFd(__pmFileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
-    sts = __pmLogPutResult2(&logctl, pb);
+    sts = __pmLogPutResult2(&archctl, pb);
     __pmUnpinPDUBuf(pb);
     if (sts < 0)
 	goto done;
 
     if (type == PROLOGUE) {
 	for (i = 0; i < n_metric; i++) {
-	    if ((sts = __pmLogPutDesc(&logctl, &desc[i], 1, &names[i])) < 0)
+	    if ((sts = __pmLogPutDesc(&archctl, &desc[i], 1, &names[i])) < 0)
 		goto done;
 	    if (desc[i].indom == PM_INDOM_NULL)
 		continue;
@@ -235,7 +235,7 @@ do_logue(int type)
 		 * Note.	DO NOT free instid and instname ... they get hidden
 		 *		away in addindom() below __pmLogPutInDom()
 		 */
-		if ((sts = __pmLogPutInDom(&logctl, desc[i].indom, &tmp, 1, instid, instname)) < 0)
+		if ((sts = __pmLogPutInDom(&archctl, desc[i].indom, &tmp, 1, instid, instname)) < 0)
 		    goto done;
 	    }
 	}
@@ -243,7 +243,7 @@ do_logue(int type)
 	/* fudge the temporal index */
 	__pmFseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
 	__pmFseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-	__pmLogPutIndex(&logctl, &tmp);
+	__pmLogPutIndex(&archctl, &tmp);
 	__pmFseek(logctl.l_mfp, 0L, SEEK_END);
 	__pmFseek(logctl.l_mdfp, 0L, SEEK_END);
     }

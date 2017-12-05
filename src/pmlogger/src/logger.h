@@ -42,6 +42,7 @@ typedef struct task_s {
 
 extern task_t		*tasklist;	/* master list of tasks */
 extern __pmLogCtl	logctl;		/* global log control */
+extern __pmArchCtl	archctl;	/* global archive control */
 extern int log_alarm;			/* set when log_callback() called for any task */
 
 /* config file parser states */

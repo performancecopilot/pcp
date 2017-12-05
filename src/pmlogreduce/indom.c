@@ -78,7 +78,7 @@ doindom(pmResult *rp)
 	    mp->idp->name = namelist;
 	    mp->idp->inst = instlist;
 	    mp->idp->numinst = sts;
-	    if ((sts = __pmLogPutInDom(&logctl, mp->idp->indom, &current, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
+	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &current, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmGetProgname(), pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));
@@ -95,7 +95,7 @@ doindom(pmResult *rp)
 
     if (needti) {
 	__pmFflush(logctl.l_mdfp);
-	__pmLogPutIndex(&logctl, &current);
+	__pmLogPutIndex(&archctl, &current);
     }
 
 }

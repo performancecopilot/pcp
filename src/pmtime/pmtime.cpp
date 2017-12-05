@@ -22,7 +22,6 @@
 #include "aboutdialog.h"
 #include "seealsodialog.h"
 #include <pcp/pmapi.h>
-#include <pcp/libpcp.h>
 
 PmTime::PmTime() : QMainWindow(NULL)
 {

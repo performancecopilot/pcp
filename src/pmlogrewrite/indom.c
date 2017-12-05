@@ -330,7 +330,7 @@ do_indom(void)
 	     * Save the old indom without changes, then operate on the
 	     * duplicate.
 	     */
-	    if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
+	    if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 				pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 		abandon();
@@ -422,7 +422,7 @@ do_indom(void)
      * libpcp, via __pmLogPutInDom(), assumes control of the storage pointed
      * to by instlist and inamelist.
      */
-    if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
+    if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 			pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	abandon();

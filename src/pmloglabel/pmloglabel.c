@@ -20,6 +20,7 @@ static int gold;	/* boolean flag - do we have a golden label yet? */
 static char *goldfile;
 static __pmLogLabel golden;
 static __pmLogCtl logctl;
+static __pmArchCtl archctl;
 static int status;
 
 /*
@@ -252,9 +253,11 @@ main(int argc, char *argv[])
     archive = opts.narchives > 0? opts.archives[0] : argv[opts.optind];
     warnings = (readonly || verbose);
 
+    archctl.ac_log = &logctl;
+
     if (verbose)
 	printf("Scanning for components of archive \"%s\"\n", archive);
-    if ((sts = __pmLogLoadLabel(&logctl, archive)) < 0) {
+    if ((sts = __pmLogLoadLabel(&archctl, archive)) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 		pmGetProgname(), archive, pmErrStr(sts));
 	exit(1);
@@ -269,7 +272,7 @@ main(int argc, char *argv[])
     for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
 	if (verbose)
 	    printf("Checking label on data volume %d\n", c);
-	if ((sts = __pmLogChangeVol(&logctl, c)) < 0 && warnings) {
+	if ((sts = __pmLogChangeVol(&archctl, c)) < 0 && warnings) {
 	    fprintf(stderr, "Bad data volume %d label: %s\n", c, pmErrStr(sts));
 	    status = 2;
 	}
@@ -280,7 +283,7 @@ main(int argc, char *argv[])
     if (logctl.l_tifp) {
 	if (verbose)
 	    printf("Checking label on temporal index\n");
-	if ((sts = __pmLogChkLabel(&logctl, logctl.l_tifp, &logctl.l_label,
+	if ((sts = __pmLogChkLabel(&archctl, logctl.l_tifp, &logctl.l_label,
 			           PM_LOG_VOL_TI)) < 0 && warnings) {
 	    fprintf(stderr, "Bad temporal index label: %s\n", pmErrStr(sts));
 	    status = 2;
@@ -293,7 +296,7 @@ main(int argc, char *argv[])
 
     if (verbose)
 	printf("Checking label on metadata volume\n");
-    if ((sts = __pmLogChkLabel(&logctl, logctl.l_mdfp, &logctl.l_label,
+    if ((sts = __pmLogChkLabel(&archctl, logctl.l_mdfp, &logctl.l_label,
 			       PM_LOG_VOL_META)) < 0 && warnings) {
 	fprintf(stderr, "Bad metadata volume label: %s\n", pmErrStr(sts));
 	status = 2;
@@ -342,7 +345,7 @@ main(int argc, char *argv[])
 	/* Need to reset the data volume, for subsequent label read */
 	logctl.l_mfp = NULL;
 	logctl.l_curvol = -1;
-	__pmLogChangeVol(&logctl, logctl.l_minvol);
+	__pmLogChangeVol(&archctl, logctl.l_minvol);
 
 	if (logctl.l_tifp) {
 	    __pmFclose(logctl.l_tifp);
@@ -399,10 +402,10 @@ main(int argc, char *argv[])
 	tv.tv_usec = golden.ill_start.tv_usec;
 	pmPrintStamp(stdout, &tv);
 	printf(" %4.4s\n", yr);
-	if (__pmLogChangeVol(&logctl, 0) < 0)
-	    printf("  ending     UNKNOWN\n");
-	else if (__pmGetArchiveEnd(&logctl, &tv) < 0)
-	    printf("  ending     UNKNOWN\n");
+	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0)
+	    printf("  ending     UNKNOWN (pmNewContext: %s)\n", pmErrStr(sts));
+	else if ((sts = pmGetArchiveEnd(&tv)) < 0)
+	    printf("  ending     UNKNOWN (pmGetArchiveEnd: %s)\n", pmErrStr(sts));
 	else {
 	    ddmm = pmCtime((const time_t *)&tv.tv_sec, buffer);
 	    ddmm[10] = '\0';

@@ -267,7 +267,7 @@ Options:\n\
 	    else {
 		pmTimeval	now;
 		int		iter;
-		__pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+		__pmArchCtl	*acp = ctxp->c_archctl;
 		PM_UNLOCK(ctxp->c_lock);
 		for (iter=0; iter < 2; iter++) {
 		    /*
@@ -290,7 +290,7 @@ Options:\n\
 			now.tv_sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
 			now.tv_usec = ((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2;
 		     }
-		    if ((sts = __pmLogGetInDom(lcp, indom[i], &now, &instlist, &namelist)) < 0) {
+		    if ((sts = __pmLogGetInDom(acp, indom[i], &now, &instlist, &namelist)) < 0) {
 			fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));
 			fprintf(stderr, "%s\n", pmErrStr(sts));
 		    }
@@ -302,7 +302,7 @@ Options:\n\
 			    fprintf(stderr, "   [%d] %s\n", instlist[j], namelist[j]);
 		    }
 		    if (!fault) {
-			if ((sts = __pmLogLookupInDom(lcp, indom[i], &now, "foobar")) < 0) {
+			if ((sts = __pmLogLookupInDom(acp, indom[i], &now, "foobar")) < 0) {
 			    fprintf(stderr, "__pmLogLookupInDom(%s, foobar) -> ", pmInDomStr(indom[i]));
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
@@ -312,7 +312,7 @@ Options:\n\
 			}
 		    }
 		    if (xname != NULL) {
-			if ((sts = __pmLogLookupInDom(lcp, indom[i], &now, xname)) < 0) {
+			if ((sts = __pmLogLookupInDom(acp, indom[i], &now, xname)) < 0) {
 			    fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xname);
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
@@ -322,7 +322,7 @@ Options:\n\
 			}
 		    }
 		    if (xxname != NULL) {
-			if ((sts = __pmLogLookupInDom(lcp, indom[i], &now, xxname)) < 0) {
+			if ((sts = __pmLogLookupInDom(acp, indom[i], &now, xxname)) < 0) {
 			    fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xxname);
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
@@ -332,7 +332,7 @@ Options:\n\
 			}
 		    }
 		    if (!fault) {
-			if ((sts = __pmLogNameInDom(lcp, indom[i], &now, 1234567, &name)) < 0) {
+			if ((sts = __pmLogNameInDom(acp, indom[i], &now, 1234567, &name)) < 0) {
 			    fprintf(stderr, "__pmLogNameInDom(%s, 1234567) -> ", pmInDomStr(indom[i]));
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
@@ -342,7 +342,7 @@ Options:\n\
 			}
 		    }
 		    if (xinst != -1) {
-			if ((sts = __pmLogNameInDom(lcp, indom[i], &now, xinst, &name)) < 0) {
+			if ((sts = __pmLogNameInDom(acp, indom[i], &now, xinst, &name)) < 0) {
 			    fprintf(stderr, "__pmLogNameInDom(%s, %d) -> ", pmInDomStr(indom[i]), xinst);
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}

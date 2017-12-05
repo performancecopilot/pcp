@@ -22,6 +22,7 @@
 #include "main.h"
 #include "openviewdialog.h"
 #include "saveviewdialog.h"
+#include <pcp/libpcp.h>
 
 /*
  * View file parsing routines and global variables follow.  These are

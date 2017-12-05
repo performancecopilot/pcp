@@ -128,7 +128,7 @@ dometric(const char *name)
 	pmPrintDesc(stderr, &mp->odesc);
     }
 
-    if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, numnames, names)) < 0) {
+    if ((sts = __pmLogPutDesc(&archctl, &mp->odesc, numnames, names)) < 0) {
 	fprintf(stderr,
 	    "%s: Error: failed to add pmDesc for", pmGetProgname());
 	__pmPrintMetricNames(stderr, numnames, names, " or ");

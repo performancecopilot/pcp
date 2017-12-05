@@ -19,6 +19,7 @@
 #include <QDesktopWidget>
 #include "main.h"
 #include "openviewdialog.h"
+#include <pcp/libpcp.h>
 
 #define DESPERATE 0
 

@@ -202,7 +202,7 @@ do_desc(void)
 	    desc.units = mp->new_desc.units;	/* struct assignment */
 	break;
     }
-    if ((sts = __pmLogPutDesc(&outarch.logctl, &desc, numnames, names)) < 0) {
+    if ((sts = __pmLogPutDesc(&outarch.archctl, &desc, numnames, names)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutDesc: %s (%s): %s\n",
 		pmGetProgname(), names[0], pmIDStr(desc.pmid), pmErrStr(sts));
 	abandon();

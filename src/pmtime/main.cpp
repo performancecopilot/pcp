@@ -15,7 +15,6 @@
  */
 #include <QApplication>
 #include <pcp/pmapi.h>
-#include <pcp/libpcp.h>
 #include "timelord.h"
 #include "pmtime.h"
 

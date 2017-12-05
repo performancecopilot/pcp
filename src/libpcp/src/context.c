@@ -502,7 +502,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     lcp = acp->ac_log;
     if (lcp) {
 	if (--lcp->l_refcnt == 0)
-	    __pmLogClose(lcp);
+	    __pmLogClose(acp);
 	else
 	    lcp = NULL;
     }
@@ -851,7 +851,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	sts = __pmLogChangeArchive(ctxp, 0);
 	if (sts < 0)
 	    goto error;
-	sts = __pmLogChangeVol(acp->ac_log, acp->ac_log->l_minvol);
+	sts = __pmLogChangeVol(acp, acp->ac_log->l_minvol);
 	if (sts < 0)
 	    goto error;
     }

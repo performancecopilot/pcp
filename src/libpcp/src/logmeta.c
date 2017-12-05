@@ -208,9 +208,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 }
 
 static int
-addlabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets,
+addlabel(__pmArchCtl *acp, unsigned int type, unsigned int ident, int nsets,
 		pmLabelSet *labelsets, const pmTimeval *tp)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmLogLabelSet	*idp, *idp_prev;
     __pmLogLabelSet	*idp_cached;
     __pmHashNode	*hp;
@@ -234,7 +235,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	fprintf(stderr, ", nsets=%d)\n", nsets);
     }
 
-    if ((sts = __pmLogLookupLabel(lcp, type, ident, &label, NULL)) <= 0) {
+    if ((sts = __pmLogLookupLabel(acp, type, ident, &label, NULL)) <= 0) {
 
 	idp->next = NULL;
 
@@ -298,8 +299,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 }
 
 static int
-addtext(__pmLogCtl *lcp, unsigned int ident, unsigned int type, char *buffer)
+addtext(__pmArchCtl *acp, unsigned int ident, unsigned int type, char *buffer)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmHashNode	*hp;
     __pmHashCtl		*l_hashtype;
     char		*text;
@@ -309,7 +311,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
     if (pmDebugOptions.logmeta)
 	fprintf(stderr, "addtext( ..., %u, %u)", ident, type);
 
-    if ((sts = __pmLogLookupText(lcp, ident, type, &buffer)) < 0) {
+    if ((sts = __pmLogLookupText(acp, ident, type, &buffer)) < 0) {
 
 	if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL) {
 	    if ((l_hashtype = (__pmHashCtl *)calloc(1, sizeof(__pmHashCtl))) == NULL)
@@ -341,8 +343,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
  * if it does not already exist.
  */
 int
-__pmLogLoadMeta(__pmLogCtl *lcp)
+__pmLogLoadMeta(__pmArchCtl *acp)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmHashNode	*hp;
     int			rlen;
     int			check;
@@ -719,7 +722,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    }
 	    free(tbuf);
 
-	    if ((sts = addlabel(lcp, type, ident, nsets, labelsets, &stamp)) < 0)
+	    if ((sts = addlabel(acp, type, ident, nsets, labelsets, &stamp)) < 0)
 		goto end;
 	}
 	else if (h.type == TYPE_TEXT) {
@@ -773,7 +776,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    }
 	    k += sizeof(ident);
 
-	    addtext(lcp, ident, type, (char *)&tbuf[k]);
+	    addtext(acp, ident, type, (char *)&tbuf[k]);
 	    free(tbuf);
 	}
 	else
@@ -815,8 +818,9 @@ end:
  * scan the hashed data structures to find a pmDesc, given a pmid
  */
 int
-__pmLogLookupDesc(__pmLogCtl *lcp, pmID pmid, pmDesc *dp)
+__pmLogLookupDesc(__pmArchCtl *acp, pmID pmid, pmDesc *dp)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmHashNode	*hp;
     pmDesc	*tp;
 
@@ -833,8 +837,9 @@ __pmLogLookupDesc(__pmLogCtl *lcp, pmID pmid, pmDesc *dp)
  * If numnames is positive, then write out any associated PMNS names.
  */
 int
-__pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
+__pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     __pmFILE	*f = lcp->l_mdfp;
     pmDesc	*tdp;
     int		olen;		/* length to write out */
@@ -964,8 +969,9 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
  * time
  */
 int
-__pmLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
+__pmLogGetInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
 
     if (idp == NULL)
@@ -978,9 +984,10 @@ __pmLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist, c
 }
 
 int
-__pmLogLookupInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, 
+__pmLogLookupInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, 
 		   const char *name)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
     int		i;
 
@@ -1011,8 +1018,9 @@ __pmLogLookupInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp,
 }
 
 int
-__pmLogNameInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int inst, char **name)
+__pmLogNameInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, int inst, char **name)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
     int		i;
 
@@ -1037,9 +1045,10 @@ __pmLogNameInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int inst, char *
  * given an identifier and label type.
  */
 int
-__pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
+__pmLogLookupLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
 		pmLabelSet **label, const pmTimeval *tp)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmHashCtl		*label_hash;
     __pmHashNode	*hp;
     __pmLogLabelSet	*ls;
@@ -1065,9 +1074,10 @@ __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
 }
 
 int
-__pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
+__pmLogPutLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
 		int nsets, pmLabelSet *labelsets, const pmTimeval *tp)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		sts = 0;
     int		i;
     int		j;
@@ -1157,7 +1167,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
     }
     free(out);
 
-    return addlabel(lcp, type, ident, nsets, labelsets, tp);
+    return addlabel(acp, type, ident, nsets, labelsets, tp);
 }
 
 /*
@@ -1165,9 +1175,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
  * given an identifier (pmid/indom) and type (oneline/fulltext)
  */
 int
-__pmLogLookupText(__pmLogCtl *lcp, unsigned int ident, unsigned int type,
+__pmLogLookupText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
 		char **buffer)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     __pmHashCtl		*text_hash;
     __pmHashNode	*hp;
 
@@ -1183,9 +1194,10 @@ __pmLogLookupText(__pmLogCtl *lcp, unsigned int ident, unsigned int type,
 }
 
 int
-__pmLogPutText(__pmLogCtl *lcp, unsigned int ident, unsigned int type,
+__pmLogPutText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
 		char *buffer, int cached)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		sts;
     int		len;
     char	*ptr;
@@ -1235,13 +1247,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
 
     if (!cached)
 	return 0;
-    return addtext(lcp, ident, type, buffer);
+    return addtext(acp, ident, type, buffer);
 }
 
 int
-__pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const pmTimeval *tp, 
+__pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const pmTimeval *tp, 
 		int numinst, int *instlist, char **namelist)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		sts = 0;
     int		i;
     int		*inst;
