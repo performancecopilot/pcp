@@ -1,0 +1,76 @@
+#!/bin/sh
+# PCP QA Test No. 1368
+# Exercise archive support for labels and help text.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_labels()
+{
+    sed \
+	-e "s/-U ${username}/-U USERNAME/g" \
+	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+	-e "s/.userid.:$userid/\"userid\":UID/g" \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,pmda_sample.$DSO_SUFFIX ,pmda_sample.dso ,g" \
+	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/[TIMESTAMP]/' \
+	-e 's/Context labels ([0-9][0-9]* bytes)/Context labels (N bytes)/' \
+	-e '/.*name.* : value.*\[context]$/d' \
+    #end
+}
+
+status=1	# failure is the default!
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+need_restore=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+echo "{\"QA\":$seq}" > $tmp.$seq
+$sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null
+$sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels/
+_service pmcd restart
+_wait_for_pmcd
+
+cat >$tmp.config <<EOF
+log mandatory on once {
+    sample.bin
+}
+EOF
+pmlogger -c $tmp.config -T 0.25sec -l $tmp.log -t 0.1sec $tmp
+
+echo "=== Dump labels"
+pmdumplog -e $tmp | _filter_labels
+
+echo "=== Dump help text"
+pmdumplog -h $tmp
+
+# success, all done
+status=0
+exit

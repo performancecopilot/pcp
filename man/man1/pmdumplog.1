@@ -18,7 +18,7 @@
 \f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
 .SH SYNOPSIS
 \f3pmdumplog\f1
-[\f3\-adilLmMrstxz\f1]
+[\f3\-adehilLmMrstxz\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -61,7 +61,7 @@ will recursively descend the archive's namespace and report on all leaf nodes.
 The options control the specific information to be reported.
 .TP 5
 .B \-a
-Report everything, i.e. the flags
+Report almost everything, i.e. the flags
 .BR \-d ,
 .BR \-i ,
 .BR \-L ,
@@ -69,6 +69,8 @@ Report everything, i.e. the flags
 .BR \-s
 and
 .BR \-t .
+The optional help text (\-\f3h\f1) and label metadata
+strings (\-\f3e\f1) are not reported by default.
 .TP
 .B \-d
 Display the metadata and descriptions for those performance metrics
@@ -76,6 +78,18 @@ that appear at least once in the archive:
 see
 .BR pmLookupDesc (3)
 for more details on the metadata describing metrics.
+.TP
+.B \-e
+Display the label metadata if it is present in the archive.
+See
+.BR pmLookupLabels (3)
+for more details on the label metadata hierarchy associated with metrics.
+.TP
+.B \-h
+Display metric and instance domain help text if present in the archive.
+See
+.BR pmLookupText (3)
+for more details on the help text associated with metrics.
 .TP
 .B \-i
 Display the instance domains, and any variations in their instance

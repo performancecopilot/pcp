@@ -1,0 +1,52 @@
+QA output created by 1368
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+=== Dump labels
+
+Metric Labels in the Log ...
+[TIMESTAMP]
+    InDom 29.2[100] labels (11 bytes): {"bin":100}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[200] labels (11 bytes): {"bin":200}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[300] labels (11 bytes): {"bin":300}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[400] labels (11 bytes): {"bin":400}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[500] labels (11 bytes): {"bin":500}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[600] labels (11 bytes): {"bin":600}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[700] labels (11 bytes): {"bin":700}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[800] labels (11 bytes): {"bin":800}
+        [0] name(2,3) : value(7,3) [instances]
+    InDom 29.2[900] labels (11 bytes): {"bin":900}
+        [0] name(2,3) : value(7,3) [instances]
+[TIMESTAMP]
+    Domain 29 labels (39 bytes): {"agent":"pmdasample","role":"testing"}
+        [0] name(2,5) : value(9,12) [domain]
+        [1] name(23,4) : value(29,9) [domain]
+[TIMESTAMP]
+    Context labels (N bytes): {"QA":1368,"groupid":GID,"hostname":"HOSTNAME","userid":UID}
+=== Dump help text
+
+Metric Help Text in the Log ...
+InDom: 29.2
+Universally 9 instances numbered 100 .. 900 in steps of 100, and named
+"bin-100" .. "bin-900"
+PMID: 29.0.6
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
+InDom: 29.2 [Instance domain "bin" for sample PMDA]
+PMID: 29.0.6 [Several constant instances]

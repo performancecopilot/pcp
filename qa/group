@@ -1433,7 +1433,9 @@ collectl
 1225 pmwebapi local
 1227 derive local
 1238 pmiostat archive multi-archive decompress-xz local
+1238:reserved pmiostat archive multi-archive decompress-xz local
 1242 pmrep archive multi-archive decompress-xz local
+1242:reserved pmrep archive multi-archive decompress-xz local
 1245 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local
@@ -1442,10 +1444,9 @@ collectl
 1324 pmclient archive multi-archive decompress-xz local
 1330:reserved pmda.prometheus local
 1331 verify local
-1238:reserved pmiostat archive multi-archive decompress-xz local
-1242:reserved pmrep archive multi-archive decompress-xz local
 1354 pmval archive local
 1359 libpcp local
+1368 labels help pmlogger pmdumplog local
 1385:reserved pmda.prometheus local
 1388 pmwebapi local
 1395:reserved pmda.prometheus local
