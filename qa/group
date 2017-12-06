@@ -1452,8 +1452,6 @@ collectl
 1324 pmclient archive multi-archive decompress-xz local
 1330:reserved pmda.prometheus local
 1331 verify local
-1238:reserved pmiostat archive multi-archive decompress-xz local
-1242:reserved pmrep archive multi-archive decompress-xz local
 1343 pmmgr local
 1354 pmval archive local
 1359 libpcp local
