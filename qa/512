@@ -150,7 +150,8 @@ fetch simple.color
 instance 253.0
 End-of-File
 _post $SRC/dbpmda/src dbpmda
-cat $tmp.out $tmp.err | _filter
+_filter <$tmp.out
+_filter <$tmp.err
 
 
 # success, all done
