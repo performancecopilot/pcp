@@ -942,7 +942,7 @@ class PMReporter(object):
             k += 1
 
             # Look for this instance from each metric
-            for metric in self.metrics:
+            for i, metric in enumerate(self.metrics):
                 l = self.metrics[metric][4]
 
                 found = 0
@@ -959,7 +959,7 @@ class PMReporter(object):
                         found = 1
                         break
 
-                if not found:
+                if not found and instance not in self.pmconfig.insts[i][1]:
                     # Not an instance this metric has,
                     # add a placeholder and move on
                     line.append(NO_INST)
