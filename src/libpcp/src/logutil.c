@@ -175,7 +175,8 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     if (vol >= 0 && vol < lcp->l_numseen && lcp->l_seen[vol]) {
 	/* FastPath, cached result of previous check for this volume */
 	__pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
-	return 0;
+	version = 0;
+	goto func_return;
     }
 
     if (vol >= 0 && vol >= lcp->l_numseen) {
@@ -201,7 +202,8 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	    __pmClearerr(f);
 	    if (pmDebugOptions.log)
 		fprintf(stderr, " file is empty\n");
-	    return PM_ERR_NODATA;
+	    version = PM_ERR_NODATA;
+	    goto func_return;
 	}
 	else {
 	    if (pmDebugOptions.log)
@@ -209,10 +211,13 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		    n, (int)sizeof(len), len, xpectlen);
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
-		return -oserror();
+		version = -oserror();
+		goto func_return;
 	    }
-	    else
-		return PM_ERR_LABEL;
+	    else {
+		version = PM_ERR_LABEL;
+		goto func_return;
+	    }
 	}
     }
 
@@ -222,10 +227,12 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		n, (int)sizeof(__pmLogLabel));
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
-	    return -oserror();
+	    version = -oserror();
+	    goto func_return;
 	}
 	else
-	    return PM_ERR_LABEL;
+	    version = PM_ERR_LABEL;
+	    goto func_return;
     }
     else {
 	/* swab internal log label */
@@ -244,10 +251,12 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		n, (int)sizeof(len), len, xpectlen);
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
-	    return -oserror();
+	    version = -oserror();
+	    goto func_return;
 	}
 	else
-	    return PM_ERR_LABEL;
+	    version = PM_ERR_LABEL;
+	    goto func_return;
     }
 
     version = lp->ill_magic & 0xff;
@@ -262,7 +271,8 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		fprintf(stderr, " label volume %d not %d as expected", lp->ill_vol, vol);
 	    fputc('\n', stderr);
 	}
-	return PM_ERR_LABEL;
+	version = PM_ERR_LABEL;
+	goto func_return;
     }
 
     if (__pmSetVersionIPC(__pmFileno(f), version) < 0)
@@ -273,6 +283,8 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 
     if (vol >= 0 && vol < lcp->l_numseen)
 	lcp->l_seen[vol] = 1;
+
+func_return:
 
     return version;
 }
@@ -546,10 +558,11 @@ __pmLogChangeVol(__pmArchCtl *acp, int vol)
     if ((sts = __pmLogChkLabel(acp, lcp->l_mfp, &lcp->l_label, vol)) < 0) {
 	return sts;
     }
-
     lcp->l_curvol = vol;
+
     if (pmDebugOptions.log)
 	fprintf(stderr, "__pmLogChangeVol: change to volume %d\n", vol);
+
     return sts;
 }
 
@@ -1285,7 +1298,9 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    goto cleanup;
     }
 
+    PM_LOCK(lcp->l_lock);
     lcp->l_refcnt = 0;
+    PM_UNLOCK(lcp->l_lock);
     lcp->l_physend = -1;
 
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
@@ -3375,13 +3390,18 @@ __pmArchCtlFree(__pmArchCtl *acp)
      * refcnt == 0 means the log is not open.
      */
     __pmLogCtl *lcp = acp->ac_log;
-    /* TODO ... move this block + locking into __pmLogClose() and unconditionally call __pmLogClose() here */
+
     if (lcp != NULL) {
+	PM_LOCK(lcp->l_lock);
 	if (--lcp->l_refcnt == 0) {
+	    PM_UNLOCK(lcp->l_lock);
 	    __pmLogClose(acp);
 	    logFreeMeta(lcp);
+	    __pmDestroyMutex(&lcp->l_lock);
 	    free(lcp);
 	}
+	else
+	    PM_UNLOCK(lcp->l_lock);
     }
 
     /* We need to clean up the archive list. */

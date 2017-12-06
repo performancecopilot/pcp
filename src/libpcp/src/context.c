@@ -123,6 +123,7 @@ waitawhile(__pmPMCDCtl *ctl)
     if (n_backoff == 0) {
 	char	*q;
 	int	bad = 0;
+	int	*backoff_new;
 	/* first time ... try for PMCD_RECONNECT_TIMEOUT from env */
 	PM_LOCK(__pmLock_extcall);
 	q = getenv("PMCD_RECONNECT_TIMEOUT");		/* THREADSAFE */
@@ -144,9 +145,11 @@ waitawhile(__pmPMCDCtl *ctl)
 		    bad = 1;
 		    break;
 		}
-		if ((backoff = (int *)realloc(backoff, (n_backoff+1) * sizeof(backoff[0]))) == NULL) {
+		if ((backoff_new = (int *)realloc(backoff, (n_backoff+1) * sizeof(backoff[0]))) == NULL) {
 		    pmNoMem("pmReconnectContext", (n_backoff+1) * sizeof(backoff[0]), PM_FATAL_ERR);
+		    /* NOTREACHED */
 		}
+		backoff = backoff_new;
 		backoff[n_backoff++] = val;
 		if (*pend == '\0')
 		    break;
@@ -487,8 +490,6 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     __pmArchCtl *acp;
     __pmLogCtl	*lcp;
     __pmContext	*ctxp2;
-    __pmArchCtl *acp2;
-    __pmLogCtl	*lcp2;
     int		i;
     int		sts;
 
@@ -501,10 +502,15 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     acp = ctxp->c_archctl;
     lcp = acp->ac_log;
     if (lcp) {
-	if (--lcp->l_refcnt == 0)
+	PM_LOCK(lcp->l_lock);
+	if (--lcp->l_refcnt == 0) {
+	    PM_UNLOCK(lcp->l_lock);
 	    __pmLogClose(acp);
-	else
+	}
+	else {
+	    PM_UNLOCK(lcp->l_lock);
 	    lcp = NULL;
+	}
     }
 
     /*
@@ -513,11 +519,14 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
      * because, for those, there is a global l_pmns which is shared among the
      * archives in the context.
      *
-     * We must take the contexts_lock mutex for this search.
+     * We must take the contexts_lock mutex for this search, and we need
+     * to lock the __pmLogCtl structures in turn.
      */
-    PM_LOCK(contexts_lock);
-    lcp2 = NULL;
     if (! multi_arch) {
+	__pmArchCtl	*acp2;
+	__pmLogCtl	*lcp2 = NULL;
+
+	PM_LOCK(contexts_lock);
 	for (i = 0; i < contexts_len; i++) {
 	    if (i == PM_TPD(curr_handle))
 		continue;
@@ -531,46 +540,63 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    ctxp2 = contexts[i];
 	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
 		acp2 = ctxp2->c_archctl;
+		PM_LOCK(acp2->ac_log->l_lock);
 		if (! acp2->ac_log->l_multi &&
 		    strcmp (name, acp2->ac_log->l_name) == 0) {
 		    lcp2 = acp2->ac_log;
 		    break;
 		}
+		PM_UNLOCK(acp2->ac_log->l_lock);
 	    }
 	}
 
 	/*
-	 * If we found an active archive with the same name, then use it.
-	 * Free the current archive controls, if necessary.
+	 * If we found an in-use archive with the same name, then use it
+	 * ... it is already locked from above.
+	 * Free the current log controls, if necessary.
 	 */
 	if (lcp2 != NULL) {
-	    if (lcp)
+	    if (lcp) {
+		__pmDestroyMutex(&lcp->l_lock);
 		free(lcp);
+	    }
 	    ++lcp2->l_refcnt;
 	    acp->ac_log = lcp2;
+	    PM_UNLOCK(acp2->ac_log->l_lock);
 	    PM_UNLOCK(contexts_lock);
 	    return 0;
 	}
+	PM_UNLOCK(contexts_lock);
     }
-    PM_UNLOCK(contexts_lock);
 
     /*
      * No usable, active archive with this name was found. Open one.
      * Allocate a new log control block, if necessary.
      */
     if (lcp == NULL) {
-	if ((lcp = (__pmLogCtl *)calloc(1, sizeof(*lcp))) == NULL)
+	if ((lcp = (__pmLogCtl *)calloc(1, sizeof(*lcp))) == NULL) {
 	    pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	__pmInitMutex(&lcp->l_lock);
 	lcp->l_multi = multi_arch;
 	acp->ac_log = lcp;
     }
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
+	__pmDestroyMutex(&lcp->l_lock);
 	free(lcp);
 	acp->ac_log = NULL;
     }
-    else
+    else {
+	/*
+	 * Note: we don't need to l_lock here, this is a new __pmLogCtl
+	 * structure and we hold the context lock for the only context
+	 * that will point to this __pmLogCtl ... no one else can see
+	 * it yet
+	 */
 	lcp->l_refcnt = 1;
+    }
 
     return sts;
 }
@@ -580,6 +606,7 @@ addName(const char *dirname, char *list, size_t *listsize,
 		const char *item, size_t itemsize)
 {
     size_t	dirsize;
+    char	*list_new;
 
     /* Was there a directory specified? */
     if (dirname != NULL)
@@ -589,14 +616,19 @@ addName(const char *dirname, char *list, size_t *listsize,
 
     /* Allocate more space */
     if (list == NULL) {
-	if ((list = malloc(dirsize + itemsize + 1)) == NULL)
+	if ((list = malloc(dirsize + itemsize + 1)) == NULL) {
 	    pmNoMem("initArchive", itemsize + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
 	*listsize = 0;
     }
     else {
 	/* The comma goes where the previous nul was */
-	if ((list = realloc(list, dirsize + *listsize + itemsize + 1)) == NULL)
+	if ((list_new = realloc(list, dirsize + *listsize + itemsize + 1)) == NULL) {
 	    pmNoMem("initArchive", *listsize + itemsize + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	list = list_new;
 	list[*listsize - 1] = ',';
     }
 
@@ -649,8 +681,10 @@ expandArchiveList(const char *names)
 	 * directory.
 	 * We need nul terminated copy of the name fpr opendir(3).
 	 */
-	if ((dirname = malloc(length + 1)) == NULL)
+	if ((dirname = malloc(length + 1)) == NULL) {
 	    pmNoMem("initArchive", length + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
 	memcpy(dirname, current, length);
 	dirname[length] = '\0';
 
@@ -728,8 +762,10 @@ initarchive(__pmContext	*ctxp, const char *name)
 	return PM_ERR_LOGFILE;
 
     /* Allocate the structure for overal control of the archive(s). */
-    if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL)
+    if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
 	pmNoMem("initArchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
     acp = ctxp->c_archctl;
     acp->ac_num_logs = 0;
     acp->ac_log_list = NULL;
@@ -801,23 +837,34 @@ initarchive(__pmContext	*ctxp, const char *name)
 	}
 
 	if (! ignore) {
+	    __pmMultiLogCtl	**list_new;
 	    /* Initialize a new ac_log_list entry for this archive. */
-	    acp->ac_log_list = realloc(acp->ac_log_list,
-				       (acp->ac_num_logs + 1) *
-				       sizeof(*acp->ac_log_list));
-	    if (acp->ac_log_list == NULL) {
+	    list_new = (__pmMultiLogCtl **)realloc(acp->ac_log_list,
+						   (acp->ac_num_logs + 1) *
+						   sizeof(*acp->ac_log_list));
+	    if (list_new == NULL) {
 		pmNoMem("initArchive",
 			  (acp->ac_num_logs + 1) * sizeof(*acp->ac_log_list),
 			  PM_FATAL_ERR);
+		/* NOTREACHED */
 	    }
-	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL)
+	    acp->ac_log_list = list_new;
+	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
 		pmNoMem("initArchive", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
-	    if ((mlcp->ml_name = strdup(current)) == NULL)
+		/* NOTREACHED */
+	    }
+	    if ((mlcp->ml_name = strdup(current)) == NULL) {
 		pmNoMem("initArchive", strlen(current) + 1, PM_FATAL_ERR);
-	    if ((mlcp->ml_hostname = strdup(label.ll_hostname)) == NULL)
+		/* NOTREACHED */
+	    }
+	    if ((mlcp->ml_hostname = strdup(label.ll_hostname)) == NULL) {
 		pmNoMem("initArchive", strlen(label.ll_hostname) + 1, PM_FATAL_ERR);
-	    if ((mlcp->ml_tz = strdup(label.ll_tz)) == NULL)
+		/* NOTREACHED */
+	    }
+	    if ((mlcp->ml_tz = strdup(label.ll_tz)) == NULL) {
 		pmNoMem("initArchive", strlen(label.ll_tz) + 1, PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
 	    mlcp->ml_starttime = tmpTime;
 
 	    /*
@@ -1694,7 +1741,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 #ifdef PM_MULTI_THREAD
 #ifdef PM_MULTI_THREAD_DEBUG
 /*
- * return context if lock == c_lock for a context ... no locking here
+ * return context slot # if lock == c_lock for a context ... no locking here
  * to avoid recursion ad nauseum
  */
 int
@@ -1707,6 +1754,59 @@ __pmIsContextLock(void *lock)
     }
     return -1;
 }
+
+/*
+ * return list of context handles if lock == l_lock for an associated
+ * __pmLogCtl ... no locking here to avoid recursion ad nauseum
+ */
+char *
+__pmIsLogCtlLock(void *lock)
+{
+    int		i;
+    char	*result = NULL;
+    int		reslen = 0;
+    __pmContext	*ctxp;
+
+    for (i = 0; i < contexts_len+1; i++) {
+	if (i < contexts_len)
+	    ctxp = contexts[i];
+	else if (PM_TPD(curr_ctxp) != NULL)
+	    ctxp = PM_TPD(curr_ctxp);
+	else
+	    continue;
+	if (ctxp->c_archctl == NULL)
+	    continue;
+	if (ctxp->c_archctl->ac_log == NULL)
+	    /* this should not happen, just being careful */
+	    continue;
+	if ((void *)&ctxp->c_archctl->ac_log->l_lock == lock) {
+	    char	number[10];
+	    pmsprintf(number, sizeof(number), "%d", ctxp->c_handle);
+	    if (reslen == 0) {
+		reslen = strlen(number)+1;
+		if ((result = malloc(reslen)) == NULL) {
+		    pmNoMem("__pmIsLogCtlLock: malloc", reslen, PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
+		strncpy(result, number, strlen(number)+1);
+	    }
+	    else {
+		char	*result_new;
+		reslen += strlen(number)+1;
+		if ((result_new = (char *)realloc(result, reslen)) == NULL) {
+		    pmNoMem("__pmIsLogCtlLock: realloc", reslen, PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
+		result = result_new;
+		strncat(result, ",", 1);
+		strncat(result, number, strlen(number)+1);
+	    }
+	}
+    }
+    return result;
+}
+
+
 #endif
 #endif
 

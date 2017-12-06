@@ -731,6 +731,7 @@ typedef struct {
  * Log/Archive Control
  */
 typedef struct {
+    __pmMutex	l_lock;		/* mutex for multi-thread access */
     int		l_refcnt;	/* number of contexts using this log */
     char	*l_name;	/* external log base name */
     __pmFILE	*l_tifp;	/* temporal index */
