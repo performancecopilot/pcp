@@ -2,6 +2,8 @@ jsmn.c
 jsmn.h
 sha1.c
 sha1.h
+crc16.c
+crc16.h
 http_parser.c
 http_parser.h
 query_parser.tab.c

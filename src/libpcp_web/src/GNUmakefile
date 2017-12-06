@@ -24,10 +24,10 @@ LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_HIREDIS)" "true"
-CFILES += query.c redis.c load.c sha1.c util.c
-HFILES += query.h redis.h load.h sha1.h util.h
+CFILES += query.c redis.c load.c crc16.c sha1.c util.c slots.c
+HFILES += query.h redis.h load.h crc16.h sha1.h util.h slots.h
 YFILES += query_parser.y
-XFILES += sha1.c sha1.h
+XFILES += crc16.c crc16.h sha1.c sha1.h
 LLDLIBS += $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
 else
 CFILES += noseries.c
