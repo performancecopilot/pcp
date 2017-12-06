@@ -1758,3 +1758,11 @@ For writes it means not all data made it to tape.
 @ tape.dev.write_byte_cnt number of bytes written to the tape drive
 @ tape.dev.write_cnt number of write requests issued to the tape drive
 @ tape.dev.write_ns cummulative amount of time spent waiting for write requests to complete
+
+@ tty.serial.rx Number of receive interrupts for current serial line.
+@ tty.serial.tx Number of transmit interrupts for current serial line.
+@ tty.serial.frame Number of frame errors for current serial line.
+@ tty.serial.parity Number of parity errors for current serial line.
+@ tty.serial.brk Number of breaks for current serial line.
+@ tty.serial.overrun Number of overrun errors for current serial line.
+@ tty.serial.irq IRQ number.
