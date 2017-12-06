@@ -455,10 +455,24 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
 
+/*
+ * The empty label set allows python PMDAs to return only a
+ * string for their label callbacks (as opposed to both the
+ * number of labels and the labels themselves, as the lower
+ * level APIs do).
+ */
+static inline int
+empty_labelset(const char *set)
+{
+    if (strlen(set) < 2)
+	return 1;
+    return (strncmp(set, "{}", 2) == 0);
+}
+
 static int
 label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
-    int id, sts;
+    int id, sts = 0;
     char *s = NULL;
 
     if (label_func) {
@@ -483,8 +497,8 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
             return -EINVAL;
         }
 
-        if ((sts = __pmAddLabels(lp, s, type)) < 0)
-            pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+	if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
+	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
         Py_DECREF(result);
 
@@ -617,7 +631,8 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 int
 label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    int sts;
+    int sts = 0;
+    int type = PM_LABEL_INSTANCES;
     char *s = NULL;
     PyObject *arglist, *result;
 
@@ -641,8 +656,8 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
         return -EINVAL;
     }
 
-    if ((sts = __pmAddLabels(lp, s, PM_LABEL_INSTANCES)) < 0)
-        pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+    if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
+	pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
     Py_DECREF(result);
     return sts;

@@ -481,7 +481,13 @@ __pmParseLabels(const char *s, int slen,
 	}
     }
     if (nlabels == 0) {
+	/*
+	 * Zero labels. Happens if we are passed an empty labelset string.
+	 * Argument buffer is set to a zero length string and we return 0
+	 */
 	sts = nlabels;
+	*buflen = 0;
+	buffer[0] = '\0';
 	goto done;
     }
     if (sts < 0)
