@@ -11,17 +11,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef REDIS_SERIES_H
-#define REDIS_SERIES_H
+#ifndef SLOTS_H
+#define SLOTS_H
 
-#include "load.h"
-#include <hiredis/hiredis.h>
+struct redisSlots;
+extern struct redisSlots *redisInitSlots(const char *);
+extern void redisFreeSlots(struct redisSlots *);
+extern redisContext *redisGet(struct redisSlots *, const char *, unsigned int);
 
-extern redisContext *redis_init(void);
-extern redisContext *redis_connect(char *, struct timeval *);
-extern void redis_stop(redisContext *);
-
-extern void redis_series_metadata(redisContext *, metric_t *, value_t *);
-extern void redis_series_addvalue(redisContext *, metric_t *, value_t *);
-
-#endif	/* REDIS_SERIES_H */
+#endif	/* SLOTS_H */
