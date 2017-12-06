@@ -58,12 +58,12 @@ _sighup_pmcd
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/bad.json
 
-#echo && echo == Empty global label
-#echo '{}' > $tmp.empty
-#$sudo cp $tmp.empty $PCP_ETC_DIR/pcp/labels/empty.json
-#_sighup_pmcd
-#pminfo -fl pmcd.labels | _filter_labels
-#$sudo rm $PCP_ETC_DIR/pcp/labels/empty.json
+echo && echo == Empty global label
+echo '{}' > $tmp.empty
+$sudo cp $tmp.empty $PCP_ETC_DIR/pcp/labels/empty.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/empty.json
 
 echo && echo == Simple global label
 echo '{"one":"two"}' > $tmp.simple
