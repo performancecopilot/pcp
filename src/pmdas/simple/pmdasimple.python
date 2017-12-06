@@ -3,7 +3,7 @@
 Python implementation of the "simple" Performance Metrics Domain Agent.
 '''
 #
-# Copyright (c) 2013,2015 Red Hat.
+# Copyright (c) 2013,2015,2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -23,6 +23,8 @@ from ctypes import c_int, POINTER, cast
 import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits, pmContext as PCP
+
+from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_INDOM, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 
 class SimplePMDA(PMDA):
     '''
@@ -205,17 +207,36 @@ class SimplePMDA(PMDA):
         '''
             return a JSON formatted labelset for given item of given type, as a string
         '''
-        L1 = '"simple_label_arguments": "{}/{}"'.format(ident, type)
-        L2 = '"some_label": "some_value"'
-        return '{' + L1 + ',' + L2 + '}'
+        ret = '' # default is an empty labelset string
+        if type == PM_LABEL_DOMAIN:
+            ret += '"role":"testing"'
+        elif type == PM_LABEL_INDOM:
+            indom = ident
+            if indom == self.color_indom:
+                ret += '"simple instance domain":"color"'
+            elif indom == self.now_indom:
+                ret += '"simple instance domain":"now"'
+        elif type == PM_LABEL_CLUSTER:
+            cluster = ident
+            if cluster == 0:
+                ret += '"cluster":"color"'
+            elif cluster == 1:
+                ret += '"cluster":"fetch times"'
+            elif cluster == 2:
+                ret += '"cluster":"fetch now"'
+        elif type == PM_LABEL_ITEM:
+            ret += '"item":"%d"' % ident
+
+        # self.log("simple_label(%#x,%d) returning {%s}" % (ident, type, ret))
+        return '{%s}' % ret
 
     def simple_label_callback(self, indom, inst):
         '''
             return a JSON formatted labelset for an inst in given indom, as a string
         '''
-        L1 = '"simple_label_callback_arguments":"{}/{}"'.format(indom, inst)
-        L2 = '"some label": "some value"'
-        return '{' + L1 + ',' + L2 + '}'
+        ret = '"indom":"%#x", "inst":"%#x"' % (indom, inst)
+        # self.log("simple_label_callback(%#x,%d) returning {%s}" % (indom, inst, ret))
+        return '{%s}' % ret
 
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)

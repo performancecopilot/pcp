@@ -1,7 +1,7 @@
 /*
  * Simple, configurable PMDA
  *
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2014,2017 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -220,7 +220,7 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     else
 	return PM_ERR_PMID;
 
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 /*
@@ -461,6 +461,63 @@ simple_store(pmResult *result, pmdaExt *pmda)
     return sts;
 }
 
+static int
+simple_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    int         sts;
+    pmInDom	indom;
+    int		cluster;
+
+    switch (type) {
+    case PM_LABEL_DOMAIN:
+	if ((sts = pmdaAddLabels(lpp, "{\"role\":\"testing\"}")) < 0)
+            return sts;
+        break;
+    case PM_LABEL_INDOM:
+	indom = (pmInDom)ident;
+	if (pmInDom_serial(indom) == COLOR_INDOM) {
+	    if ((sts = pmdaAddLabels(lpp, "{\"simple instance domain\":\"color\"}")) < 0)
+		return sts;
+	}
+	else if (pmInDom_serial(indom) == NOW_INDOM) {
+	    if ((sts = pmdaAddLabels(lpp, "{\"simple instance domain\":\"now\"}")) < 0)
+		return sts;
+	}
+        break;
+    case PM_LABEL_CLUSTER:
+	cluster = pmID_cluster((pmID)ident);
+	if (cluster == 0) {
+	    if ((sts = pmdaAddLabels(lpp, "{\"cluster\":\"color\"}")) < 0)
+		return sts;
+	}
+	else if (cluster == 1) {
+	    if ((sts = pmdaAddLabels(lpp, "{\"cluster\":\"fetch times\"}")) < 0)
+		return sts;
+	}
+	else if (cluster == 2) {
+	    if ((sts = pmdaAddLabels(lpp, "{\"cluster\":\"fetch now\"}")) < 0)
+		return sts;
+	}
+	break;
+    case PM_LABEL_ITEM:
+	if ((sts = pmdaAddLabels(lpp, "{\"item\":\"%d\"}", ident)) < 0)
+	    return sts;
+	break;
+    default:
+        break;
+    }
+    return pmdaLabel(ident, type, lpp, pmda);
+}
+
+static int
+simple_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    int sts;
+
+    if ((sts = pmdaAddLabels(lp, "{\"indom\":\"%#x\", \"inst\":\"%d\"}", indom, inst)) < 0)
+	return sts;
+    return 2;
+}
 
 /*
  * Initialise the agent (both daemon and DSO).
@@ -472,7 +529,7 @@ simple_init(pmdaInterface *dp)
 	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_2, "simple DSO", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "simple DSO", mypath);
     } else {
 	pmSetProcessIdentity(username);
     }
@@ -483,8 +540,10 @@ simple_init(pmdaInterface *dp)
     dp->version.any.fetch = simple_fetch;
     dp->version.any.store = simple_store;
     dp->version.any.instance = simple_instance;
+    dp->version.seven.label = simple_label;
 
     pmdaSetFetchCallBack(dp, simple_fetchCallBack);
+    pmdaSetLabelCallBack(dp, simple_labelCallBack);
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
 	     sizeof(metrictab)/sizeof(metrictab[0]));
@@ -505,7 +564,7 @@ main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), SIMPLE,
 		"simple.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
