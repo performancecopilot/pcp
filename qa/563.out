@@ -12,6 +12,12 @@ pmcd.labels
     value ""
     labels {"agent":"pmcd"}
 
+== Empty global label
+
+pmcd.labels
+    value ""
+    labels {"agent":"pmcd","groupid":GID,"hostname":"HOSTNAME","userid":UID}
+
 == Simple global label
 
 pmcd.labels

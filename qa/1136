@@ -1,0 +1,223 @@
+#!/bin/sh
+# PCP QA Test No. 1136
+# Dynamic indoms test with pmrep, uses sample.dynamic.*
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1        # failure is the default!
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
+
+sleep=$PCP_BINADM_DIR/pmsleep
+signal=$PCP_BINADM_DIR/pmsignal
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
+
+_cleanup()
+{
+    [ -f $control.qa-$seq ] && $sudo mv $control.qa-$seq $control
+    rm -f $tmp.*
+}
+
+$sudo rm -f $control.qa-$seq
+[ -f $control ] && $sudo mv $control $control.qa-$seq
+
+# real QA test starts here
+_restart_services()
+{
+    if [ $hostname = "mars" ]; then
+	# local testing without a full pcp install (myllynen)
+	$sudo systemctl stop pmlogger pmcd
+	$sleep 1
+	$sudo systemctl start pmlogger pmcd
+	$sleep 2
+    else
+	_service pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    fi
+}
+
+_msg_filter()
+{
+    sed \
+	-e "s,Recording .* metrics.*,Recording metrics...,g" \
+    #end
+}
+
+_time_filter()
+{
+    sed \
+	-e "s/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/YYYY-MM-DD/g" \
+	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
+    #end
+}
+
+_sleep_half()
+{
+    now=`date +%s%N`
+    now=`echo $now / 1000000 | bc`
+    ms=${now: -3}
+    if [ $ms -gt 500 ];	then
+	pause=`echo "scale=3;$ms-500" | bc`
+    else
+	pause=`echo "scale=3;500-$ms" | bc`
+    fi
+    if [ $pause -le 10 ]; then
+	pause=00${pause}
+    elif [ $pause -le 100 ]; then
+	pause=0${pause}
+    fi
+    $sleep 0.$pause
+}
+
+run_test()
+{
+    output=$1
+    filter=$2
+    s=
+    x=
+    n=
+    f=
+    r=
+    if [ "$output" = "colxrow" ]; then
+	output=stdout
+	x=-X
+	n=testing
+	s=.colxrow
+    fi
+    if [ "x$filter" == "xfilter" ]; then
+	f=-i
+	r='tw.*'
+	s=$s.filter
+    fi
+
+    # initial config
+    #
+    cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200 twenty
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    _sleep_half
+
+    # prime the sample PMDA to refresh the dynamic indom
+    #
+    pminfo -f sample.dynamic >/dev/null 2>&1
+    _sleep_half
+
+    # start pmrep
+    #
+    metrics="sample.dynamic.counter sample.dynamic.discrete sample.dynamic.instant"
+    pmrep -o $output -r -A 1s -t 0.5s -T 5s -F $tmp.$output$s $f $r $x $n $metrics | _msg_filter &
+    $sleep 0.250
+
+    # add one in the middle
+    #
+    cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+40 four
+200 twenty
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    _sleep_half
+
+    # remove all but the first and second
+    #
+    cat >$tmp.indom <<End-of-File
+10 one
+20 two
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    _sleep_half
+
+    # re-instate previous state, with new ones at each end
+    #
+    cat >$tmp.indom <<End-of-File
+00 zero
+10 one
+20 two
+30 three
+40 four
+200 twenty
+210 twenty-one
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    _sleep_half
+
+    # remove everything
+    #
+    cat >$tmp.indom <<End-of-File
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    _sleep_half
+
+    # restore initial config
+    #
+    cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200 twenty
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    _sleep_half
+
+    wait
+
+    $sudo rm -f $control
+
+    if [ "$output" = "archive" ]; then
+	pmrep -o stdout -r -u -a $tmp.$output$s sample
+    else
+	cat $tmp.$output$s | _time_filter
+    fi
+}
+
+echo "=== pmrep archive output"
+run_test archive
+echo "=== pmrep archive output - filter"
+run_test archive filter
+
+echo "=== pmrep csv output"
+run_test csv
+echo "=== pmrep csv output - filter"
+run_test csv filter
+
+echo "=== pmrep stdout output"
+run_test stdout
+echo "=== pmrep stdout output - filter"
+run_test stdout filter
+
+echo "=== pmrep colxrow output"
+run_test colxrow
+echo "=== pmrep colxrow output - filter"
+run_test colxrow filter
+
+# success, all done
+status=0
+exit

@@ -1414,6 +1414,7 @@ collectl
 1132 pcp2xlsx python pcp2xxx local
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local
+1136 pmrep python pmda.sample local
 1137 derive pmrep local
 1138 archive pmval multi-archive decompress-xz local
 1140 pidstat local
