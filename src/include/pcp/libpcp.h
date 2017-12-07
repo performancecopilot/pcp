@@ -856,6 +856,7 @@ PCP_CALL extern int __pmLogLookupText(__pmLogCtl *, unsigned int , unsigned int,
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, pmTimeval *, int, char **);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
+PCP_CALL extern char *__pmLogBaseName(char *);
 PCP_DATA extern int __pmLogReads;
 
 /* Convert opaque context handle to __pmContext pointer */

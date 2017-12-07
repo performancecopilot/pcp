@@ -951,6 +951,7 @@ collectl
 603 trace pmda.install remote
 605 trace local
 606 python archive pmns pmiostat local
+610 pmlogrewrite pmdumplog xz-decompress local
 614 pmns local
 617 dbpmda help local
 622 pmie remote
