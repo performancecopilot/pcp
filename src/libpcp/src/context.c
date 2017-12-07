@@ -665,14 +665,24 @@ expandArchiveList(const char *names)
 		 * If this file is part of an archive, then add it.
 		 * Look for names ending in .meta. These are unique to
 		 * each archive.
+		 *
+		 * direntp->d_name is defined as an array by POSIX, so we
+		 * can pass it to __pmLogBaseName, which will strip the
+		 * suffix by modifying the data in place. The suffix can
+		 * still be found after the base name.
 		 */
-		suffix = strrchr(direntp->d_name, '.');
-		if (suffix == NULL || strcmp(suffix, ".meta") != 0)
+		if (__pmLogBaseName(direntp->d_name) == NULL)
+		    continue; /* not an archive file */
+
+		suffix = direntp->d_name + strlen(direntp->d_name) + 1;
+		if (strcmp(suffix, "meta") != 0)
 		    continue;
+
 		/*
 		 * THREADSAFE because addName() acquires no locks (other than
 		 * on the fatal pmNoMem() paths)
 		 */
+		--suffix;
 		newlist = addName(dirname, newlist, &newlistsize,
 				   direntp->d_name, suffix - direntp->d_name);
 	    }

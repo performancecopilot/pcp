@@ -34,6 +34,7 @@ root {
     tmpfs
     sysfs
     tape
+    tty
 }
 
 hinv {
@@ -1394,4 +1395,17 @@ tape.dev {
     write_byte_cnt	60:71:7
     write_cnt		60:71:8
     write_ns		60:71:9
+}
+tty {
+    serial
+}
+
+tty.serial {
+    tx      60:74:0
+    rx	    60:74:1
+    frame   60:74:2
+    parity  60:74:3
+    brk     60:74:4
+    overrun 60:74:5
+    irq	    60:74:6
 }

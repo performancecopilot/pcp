@@ -984,7 +984,7 @@ __pmLogClose(__pmLogCtl *lcp)
 
 /*
  * If name contains '.' and the suffix is "index", "meta" or a string of
- * digits or a string of digits followed by one of the compression suffixes,
+ * digits, all optionally followed by one of the compression suffixes,
  * strip the suffix.
  *
  * Modifications are performed on the argument string in-place. If modifications
@@ -1000,22 +1000,12 @@ __pmLogBaseName(char *name)
 
     strip = 0;
     if ((q = strrchr(name, '.')) != NULL) {
-	if (strcmp(q, ".index") == 0) {
-	    strip = 1;
-	    goto done;
-	}
-	if (strcmp(q, ".meta") == 0) {
-	    strip = 1;
-	    goto done;
-	}
 	for (i = 0; i < ncompress; i++) {
 	    if (strcmp(q, compress_ctl[i].suff) == 0) {
 		char	*q2;
 		/*
-		 * name ends with one of the supported compressed file
-		 * suffixes, check for a string of digits before that,
-		 * e.g. if name is initially "foo.0.bz2", we want it
-		 * stripped to "foo"
+		 * The name ends with one of the supported compressed file
+		 * suffixes. Strip it becore checking for other known suffixes.
 		 */
 		*q = '\0';
 		if ((q2 = strrchr(name, '.')) == NULL) {
@@ -1027,6 +1017,17 @@ __pmLogBaseName(char *name)
 		break;
 	    }
 	}
+	if (strcmp(q, ".index") == 0) {
+	    strip = 1;
+	    goto done;
+	}
+	if (strcmp(q, ".meta") == 0) {
+	    strip = 1;
+	    goto done;
+	}
+	/*
+	 * Check for a string of digits as the suffix.
+	 */
 	if (q[1] != '\0') {
 	    char	*end;
 	    /*
@@ -1120,18 +1121,23 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	while ((direntp = readdir(dirp)) != NULL)		/* THREADSAFE */
 #endif
 	{
-	    if (strncmp(base, direntp->d_name, blen) != 0)
-		continue;
-	    if (direntp->d_name[blen] != '.')
+	    /*
+	     * direntp->d_name is defined as an array by POSIX, so we
+	     * can pass it to __pmLogBaseName, which will strip the
+	     * suffix by modifying the data in place. The suffix can
+	     * still be found after the base name.
+	     */
+	    pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
+	    if (__pmLogBaseName(direntp->d_name) == NULL)
+		continue; /* not an archive file */
+	    if (strcmp(base, direntp->d_name) != 0)
 		continue;
 	    if (pmDebugOptions.log) {
-		pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		fprintf(stderr, "__pmLogOpen: inspect file \"%s\"\n", filename);
 	    }
 	    tp = &direntp->d_name[blen+1];
 	    if (strcmp(tp, "index") == 0) {
 		exists = 1;
-		pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = __pmFopen(filename, "r")) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
@@ -1139,7 +1145,6 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    }
 	    else if (strcmp(tp, "meta") == 0) {
 		exists = 1;
-		pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = __pmFopen(filename, "r")) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
@@ -1149,17 +1154,6 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		char	*q;
 		int	vol;
 		vol = (int)strtol(tp, &q, 10);
-		if (*q != '\0') {
-		    /* may have one of the trailing compressed file suffixes */
-		    int		i;
-		    for (i = 0; i < ncompress; i++) {
-			if (strcmp(q, compress_ctl[i].suff) == 0) {
-			    /* match */
-			    *q = '\0';
-			    break;
-			}
-		    }
-		}
 		if (*q == '\0') {
 		    exists = 1;
 		    if (lcp->l_minvol == -1) {
@@ -2814,8 +2808,10 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 
 	if (__pmFstat(f, &sbuf) < 0) {
 	    /* if we can't stat() this one, then try previous volume(s) */
-	    __pmFclose(f);
-	    f = NULL;
+	    if (f != lcp->l_mfp) {
+		__pmFclose(f);
+		f = NULL;
+	    }
 	    continue;
 	}
 

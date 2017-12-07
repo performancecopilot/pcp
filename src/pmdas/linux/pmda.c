@@ -64,6 +64,7 @@
 #include "numa_meminfo.h"
 #include "ksm.h"
 #include "sysfs_tapestats.h"
+#include "proc_tty.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -89,6 +90,7 @@ static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
 static ksm_info_t               ksm_info;
 static proc_fs_nfsd_t 		proc_fs_nfsd;
+static int                      proc_tty_permission = 0;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -339,7 +341,8 @@ static pmdaIndom indomtab[] = {
     { BUDDYINFO_INDOM, 0, NULL },
     { ZONEINFO_INDOM, 0, NULL },
     { ZONEINFO_PROTECTION_INDOM, 0, NULL },
-    { TAPEDEV_INDOM, 0, NULL }
+    { TAPEDEV_INDOM, 0, NULL },
+    { TTY_INDOM, 0, NULL }
 };
 
 
@@ -5385,6 +5388,32 @@ static pmdaMetric metrictab[] = {
     /* hinv.ntape */
     { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_HINV_NTAPE), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * tty cluster
+ */
+    /* tty.serial.rx */
+    { NULL, {PMDA_PMID(CLUSTER_TTY, TTY_TX), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* tty.serial.tx */
+    { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_RX), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* tty.serial.frame */
+    { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_FRAME), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* tty.serial.parity */
+    { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_PARITY), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* tty.serial.brk */
+    { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_BRK), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* tty.serial.overrun */
+    { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_OVERRUN), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* tty.serial.irq */
+    { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_IRQ), PM_TYPE_U32, TTY_INDOM,
+	     PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)} },
+
 };
 
 typedef struct {
@@ -5631,6 +5660,14 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_TAPEDEV])
 	refresh_sysfs_tapestats(INDOM(TAPEDEV_INDOM));
 
+    if (need_refresh[CLUSTER_TTY]) {
+	if (access != NULL && (access->uid == 0 && access->uid_flag)) {
+	    proc_tty_permission = 1;
+	    refresh_tty(INDOM(TTY_INDOM));
+	} else {
+	    proc_tty_permission = 0;
+	}
+    }
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -5713,6 +5750,9 @@ linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
         break;
     case TAPEDEV_INDOM:
 	need_refresh[CLUSTER_TAPEDEV]++;
+	break;
+    case TTY_INDOM:
+	need_refresh[CLUSTER_TTY]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -7591,6 +7631,46 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (sts != PMDA_CACHE_ACTIVE || tape == NULL)
 		return PM_ERR_INST;
 	    atom->ull = tape->counts[item];
+	}
+	break;
+
+    case CLUSTER_TTY:
+	if (proc_tty_permission != 1)
+	    return 0;
+	if (mdesc->m_desc.indom == INDOM(TTY_INDOM)) {
+	    ttydev_t *ttydev = NULL;
+	    sts = pmdaCacheLookup(INDOM(TTY_INDOM), inst, NULL, (void **)&ttydev);
+
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
+		return 0;
+	    switch (item) {
+	    case TTY_TX:
+		atom->ull = ttydev->tx; /* tty.serial.tx */
+		break;
+	    case TTY_RX:
+		atom->ull = ttydev->rx; /* tty.serial.rx */
+		break;
+	    case TTY_FRAME:
+		atom->ull = ttydev->frame; /* tty.serial.frame */
+		break;
+	    case TTY_PARITY:
+		atom->ull = ttydev->parity; /* tty.serial.parity */
+		break;
+	    case TTY_BRK:
+		atom->ull = ttydev->brk; /* tty.serial.brk */
+		break;
+	    case TTY_OVERRUN:
+		atom->ull = ttydev->overrun; /* tty.serial.overrun */
+		break;
+	    case TTY_IRQ:
+		atom->ull = ttydev->irq; /* tty.serial.irq */
+		break;
+
+	    default:
+		return PM_ERR_PMID;
+	    }
 	}
 	break;
 

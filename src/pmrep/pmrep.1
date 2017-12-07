@@ -737,12 +737,16 @@ $ pmrep -i wlan0 -v network.interface.out
 .ft P
 .RE
 .PP
-Display metrics containing information about I/O issued by
-.IR firefox :
+Display the predefined set of metrics from the default
+.BR pmrep.conf (5)
+containing information about I/O issued by
+.I firefox
+(tab after the colon can be used to complete available
+metricset definitions):
 .RS +4
 .ft CW
 .nf
-$ pmrep -i '.*firefox.*' -I -v proc.io
+$ pmrep -i '.*firefox.*' -I -v :proc-io
 .fi
 .ft P
 .RE

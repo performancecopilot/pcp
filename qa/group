@@ -985,6 +985,7 @@ collectl
 661 pmwebapi local
 662 pmwebapi pmda.sample local
 663 pmwebapi local
+665 pmda.linux local
 666 pmmgr local slow valgrind
 667 pcp2graphite python pcp2xxx local
 668 pmmgr local containers pmdumplog

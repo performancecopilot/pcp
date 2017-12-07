@@ -216,6 +216,18 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
+=== CHECKING SUBTREE: tty
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init tty
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
 === CHECKING SUBTREE: vfs
 
 === std out ===

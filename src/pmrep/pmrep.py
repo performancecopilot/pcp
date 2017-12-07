@@ -1020,7 +1020,7 @@ class PMReporter(object):
                 self.writer.flush()
             except socket.error as error:
                 if error.errno != errno.EPIPE:
-                    raise
+                    raise error
             try:
                 self.writer.close()
             except:

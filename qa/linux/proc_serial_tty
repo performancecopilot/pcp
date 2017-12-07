@@ -1,0 +1,33 @@
+serinfo:1.0 driver revision:
+0: uart:16550A port:000003F8 irq:4 tx:0 rx:0
+1: uart:16550A port:000002F8 irq:3 tx:0 rx:0
+2: uart:unknown port:000003E8 irq:4
+3: uart:unknown port:000002E8 irq:3
+4: uart:16550A port:000050B0 irq:17 tx:34 rx:0 CTS|DSR|CD
+5: uart:unknown port:00000000 irq:0
+6: uart:unknown port:00000000 irq:0
+7: uart:unknown port:00000000 irq:0
+8: uart:unknown port:00000000 irq:0
+9: uart:unknown port:00000000 irq:0
+10: uart:unknown port:00000000 irq:0
+11: uart:unknown port:00000000 irq:0
+12: uart:unknown port:00000000 irq:0
+13: uart:unknown port:00000000 irq:0
+14: uart:unknown port:00000000 irq:0
+15: uart:unknown port:00000000 irq:0
+16: uart:unknown port:00000000 irq:0
+17: uart:unknown port:00000000 irq:0
+18: uart:unknown port:00000000 irq:0
+19: uart:unknown port:00000000 irq:0
+20: uart:unknown port:00000000 irq:0
+21: uart:unknown port:00000000 irq:0
+22: uart:unknown port:00000000 irq:0
+23: uart:unknown port:00000000 irq:0
+24: uart:unknown port:00000000 irq:0
+25: uart:unknown port:00000000 irq:0
+26: uart:unknown port:00000000 irq:0
+27: uart:unknown port:00000000 irq:0
+28: uart:unknown port:00000000 irq:0
+29: uart:unknown port:00000000 irq:0
+30: uart:unknown port:00000000 irq:0
+31: uart:unknown port:00000000 irq:0
