@@ -18,7 +18,7 @@
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
 # pylint: disable=bare-except, broad-except
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
 
@@ -308,7 +308,7 @@ class PMReporter(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics()
+        self.pmconfig.validate_metrics(curr_insts=True)
 
     def validate_config(self):
         """ Validate configuration options """
@@ -693,8 +693,6 @@ class PMReporter(object):
                     try:
                         if inst != PM_IN_NULL and not name:
                             continue
-                        if self.metrics[metric][1] and inst not in self.recorded[metric]:
-                            continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                             self.recorded[metric].append(inst)
                             try:
@@ -720,6 +718,17 @@ class PMReporter(object):
         if data:
             self.pmi.pmiWrite(int(self.pmfg_ts().strftime('%s')), self.pmfg_ts().microsecond)
 
+    def parse_non_number(self, value, width=8):
+        """ Check and handle float inf, -inf, and NaN """
+        if math.isinf(value):
+            if value > 0:
+                value = "inf" if width >= 3 else pmconfig.TRUNC
+            else:
+                value = "-inf" if width >= 4 else pmconfig.TRUNC
+        elif math.isnan(value):
+            value = "NaN" if width >= 3 else pmconfig.TRUNC
+        return value
+
     def write_csv(self, timestamp):
         """ Write results in CSV format """
         if timestamp is None:
@@ -730,33 +739,32 @@ class PMReporter(object):
 
         if self.prev_ts is None:
             self.prev_ts = ts
-
-        # Construct the results
-        line = ""
-        if self.extcsv:
             if self.context.type == PM_CONTEXT_LOCAL:
                 host = "localhost"
             else:
                 host = self.context.pmGetContextHostName()
-            line += host + ","
+            self.csv_host = host + "," # pylint: disable=attribute-defined-outside-init
+            self.csv_tz = " " + self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts)) # pylint: disable=attribute-defined-outside-init
+
+        # Construct the results
+        line = ""
+        if self.extcsv:
+            line += self.csv_host
             line += str(int(ts - self.prev_ts + 0.5)) + ","
             self.prev_ts = ts
         line += timestamp
         if self.extcsv:
-            line += " " + self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            line += self.csv_tz
 
-        # Avoid crossing the C/Python boundary more than once per metric
+        # Avoid expensive PMAPI calls more than once per metric
         res = {}
         for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if self.metrics[metric][1] and inst not in self.pmconfig.insts[i][0]:
+                    if inst != PM_IN_NULL and not name:
                         continue
                     try:
-                        value = val()
-                        if isinstance(value, float):
-                            value = round(value, self.precision)
-                        res[metric + str(inst)] = value
+                        res[metric + "+" + str(inst)] = val
                     except:
                         pass
             except:
@@ -766,15 +774,21 @@ class PMReporter(object):
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.pmconfig.insts[i][0])):
                 line += self.delimiter
-                if metric + str(self.pmconfig.insts[i][0][j]) in res:
-                    value = res[metric + str(self.pmconfig.insts[i][0][j])]
-                    if isinstance(value, str):
-                        if self.delimiter:
-                            value = value.replace(self.delimiter, "_")
-                        value = value.replace("\n", " ").replace('"', " ")
-                        line += str('"' + value + '"')
-                    else:
-                        line += str(value)
+                try:
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
+                except:
+                    continue
+                if isinstance(value, str):
+                    if self.delimiter:
+                        value = value.replace(self.delimiter, "_")
+                    value = value.replace("\n", " ").replace('"', " ")
+                    line += '"' + value + '"'
+                else:
+                    if isinstance(value, float):
+                        value = round(value, self.precision)
+                        value = self.parse_non_number(value)
+                    line += str(value)
+
         self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp):
@@ -784,15 +798,40 @@ class PMReporter(object):
         else:
             self.write_stdout_colxrow(timestamp)
 
-    def check_non_number(self, value, width):
-        """ Check and handle float inf, -inf, and NaN """
-        if math.isinf(value):
-            if value > 0:
-                value = "inf" if width >= 3 else pmconfig.TRUNC
+    def format_stdout_value(self, value, width, fmt, k):
+        """ Format a value for stdout output """
+        if isinstance(value, str):
+            value = value.replace("\n", "\\n")
+            if self.delimiter and not self.delimiter.isspace():
+                value = value.replace(self.delimiter, "_")
+        elif isinstance(value, float) and \
+             not math.isinf(value) and \
+             not math.isnan(value):
+            value = round(value, self.precision)
+            c = self.precision
+            s = len(str(int(value)))
+            if s > width:
+                c = -1
+                value = pmconfig.TRUNC
+            #for _ in reversed(range(c+1)):
+                #t = "{:" + str(width) + "." + str(c) + "f}"
+            for _ in reversed(range(c+1)):
+                t = "{0:" + str(width) + "." + str(c) + "f}"
+                if len(t.format(value)) > width:
+                    c -= 1
+                else:
+                    #fmt[k] = t
+                    fmt[k] = t.replace("{0:", "{X:")
+                    break
+        elif isinstance(value, (int, long)):
+            if len(str(value)) > width:
+                value = pmconfig.TRUNC
             else:
-                value = "-inf" if width >= 4 else pmconfig.TRUNC
-        elif math.isnan(value):
-            value = "NaN" if width >= 3 else pmconfig.TRUNC
+                #fmt[k] = "{:" + str(width) + "d}"
+                fmt[k] = "{X:" + str(width) + "d}"
+        else:
+            value = self.parse_non_number(value, width)
+
         return value
 
     def write_stdout_std(self, timestamp):
@@ -811,22 +850,15 @@ class PMReporter(object):
             line.append(timestamp)
         line.append(self.delimiter)
 
-        # Avoid crossing the C/Python boundary more than once per metric
+        # Avoid expensive PMAPI calls more than once per metric
         res = {}
         for i, metric in enumerate(self.metrics):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if self.metrics[metric][1] and inst not in self.pmconfig.insts[i][0]:
+                    if inst != PM_IN_NULL and not name:
                         continue
                     try:
-                        value = val()
-                        if isinstance(value, float):
-                            value = round(value, self.precision)
-                        elif isinstance(value, str):
-                            value = value.replace("\n", "\\n")
-                            if self.delimiter and not self.delimiter.isspace():
-                                value = value.replace(self.delimiter, "_")
-                        res[metric + str(inst)] = value
+                        res[metric + "+" + str(inst)] = val
                     except:
                         pass
             except:
@@ -835,52 +867,21 @@ class PMReporter(object):
         # Add corresponding values for each column in the static header
         k = 0
         for i, metric in enumerate(self.metrics):
-            l = self.metrics[metric][4]
             for j in range(len(self.pmconfig.insts[i][0])):
                 k += 1
-                if metric + str(self.pmconfig.insts[i][0][j]) in res:
-                    value = res[metric + str(self.pmconfig.insts[i][0][j])]
-                    # Make sure the value fits
-                    if isinstance(value, (int, long)):
-                        if len(str(value)) > l:
-                            value = pmconfig.TRUNC
-                        else:
-                            #fmt[k] = "{:" + str(l) + "d}"
-                            fmt[k] = "{X:" + str(l) + "d}"
-
-                    if isinstance(value, float) and \
-                       not math.isinf(value) and \
-                       not math.isnan(value):
-                        c = self.precision
-                        s = len(str(int(value)))
-                        if s > l:
-                            c = -1
-                            value = pmconfig.TRUNC
-                        #for _ in reversed(range(c+1)):
-                            #t = "{:" + str(l) + "." + str(c) + "f}"
-                        for f in reversed(range(c+1)):
-                            r = "{X:" + str(l) + "." + str(c) + "f}"
-                            t = "{0:" + str(l) + "." + str(c) + "f}"
-                            if len(t.format(value)) > l:
-                                c -= 1
-                            else:
-                                #fmt[k] = t
-                                fmt[k] = r
-                                break
-
-                    line.append(value)
-                    line.append(self.delimiter)
-                else:
-                    line.append(NO_VAL)
-                    line.append(self.delimiter)
+                try:
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
+                    value = self.format_stdout_value(value, self.metrics[metric][4], fmt, k)
+                except:
+                    value = NO_VAL
+                line.append(value)
+                line.append(self.delimiter)
 
         del line[-1]
         #self.writer.write('{}'.join(fmt).format(*line) + "\n")
         index = 0
         nfmt = ""
         for f in fmt:
-            if isinstance(line[index], float):
-                line[index] = self.check_non_number(line[index], self.metrics[metric][4])
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
             nfmt += "{" + str(index) + "}"
@@ -895,40 +896,33 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        # Avoid crossing the C/Python boundary more than once per metric
-        res = OrderedDict()
+        # Avoid expensive PMAPI calls more than once per metric
+        res = {}
         for i, metric in enumerate(self.metrics):
-            res[metric] = []
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if self.metrics[metric][1] and inst not in self.pmconfig.insts[i][0]:
+                    if inst != PM_IN_NULL and not name:
                         continue
                     try:
-                        if inst != PM_IN_NULL and not name:
-                            res[metric].append(['', '', NO_VAL])
-                        else:
-                            res[metric].append([inst, name, val()])
+                        res[metric + "+" + str(inst)] = val
                     except:
-                        res[metric].append([inst, name, NO_VAL])
-                if not res[metric]:
-                    res[metric].append(['', '', NO_VAL])
+                        pass
             except:
-                res[metric].append(['', '', NO_VAL])
+                pass
 
         # Avoid per-line I/O
         output = ""
 
-        # Painfully iterate over what we have, the logic below
-        # being that we need to construct each line independently
+        # We need to construct each line independently
         for instance in self.found_insts:
             # Split on dummies
             fmt = re.split("{\\d+}", self.format)
 
             # Start a new line
-            k = 0
             line = []
+            k = 0
 
-            # Add timestamp as wanted
+            # Add timestamp if wanted
             if self.timestamp == 0:
                 line.append("")
             else:
@@ -941,25 +935,8 @@ class PMReporter(object):
             line.append(self.delimiter)
             k += 1
 
-            # Look for this instance from each metric
             for i, metric in enumerate(self.metrics):
-                l = self.metrics[metric][4]
-
-                found = 0
-                value = NO_VAL
-                for inst in res[metric]:
-                    if inst[1] == instance:
-                        # This metric has the instance we're
-                        # processing, grab it and format below
-                        value = inst[2]
-                        if isinstance(value, str):
-                            value = value.replace("\n", "\\n")
-                            if self.delimiter and not self.delimiter.isspace():
-                                value = value.replace(self.delimiter, "_")
-                        found = 1
-                        break
-
-                if not found and instance not in self.pmconfig.insts[i][1]:
+                if instance not in self.pmconfig.insts[i][1]:
                     # Not an instance this metric has,
                     # add a placeholder and move on
                     line.append(NO_INST)
@@ -967,31 +944,14 @@ class PMReporter(object):
                     k += 1
                     continue
 
-                # Make sure the value fits
-                if isinstance(value, (int, long)):
-                    if len(str(value)) > l:
-                        value = pmconfig.TRUNC
-                    else:
-                        fmt[k] = "{X:" + str(l) + "d}"
+                j = self.pmconfig.insts[i][0][self.pmconfig.insts[i][1].index(instance)]
 
-                if isinstance(value, float) and \
-                   not math.isinf(value) and \
-                   not math.isnan(value):
-                    c = self.precision
-                    s = len(str(int(value)))
-                    if s > l:
-                        c = -1
-                        value = pmconfig.TRUNC
-                    for f in reversed(range(c+1)):
-                        r = "{X:" + str(l) + "." + str(c) + "f}"
-                        t = "{0:" + str(l) + "." + str(c) + "f}"
-                        if len(t.format(value)) > l:
-                            c -= 1
-                        else:
-                            fmt[k] = r
-                            break
+                try:
+                    value = res[metric + "+" + str(j)]()
+                    value = self.format_stdout_value(value, self.metrics[metric][4], fmt, k)
+                except:
+                    value = NO_VAL
 
-                # Finally add the value
                 line.append(value)
                 line.append(self.delimiter)
                 k += 1
@@ -1001,8 +961,6 @@ class PMReporter(object):
             index = 0
             nfmt = ""
             for f in fmt:
-                if isinstance(line[index], float):
-                    line[index] = self.check_non_number(line[index], self.metrics[metric][4])
                 nfmt += f.replace("{X:", "{" + str(index) + ":")
                 index += 1
                 nfmt += "{" + str(index) + "}"
