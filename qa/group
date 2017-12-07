@@ -938,6 +938,7 @@ collectl
 585 pmval pmprobe local pminfo
 586 other local
 587 pmcd #754795 local pmda.install pmda.trivial
+588 threads local
 589 remote
 591 pminfo archive multi-archive decompress-xz local
 592 pmda.sample local

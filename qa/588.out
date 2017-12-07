@@ -1,0 +1,70 @@
+QA output created by 588
+
+=== Thread A archives/ok-foo ===
+10 pmDescs found
+10 pmDescs found
+10 pmDescs found
+10 pmDescs found
+10 pmDescs found
+
+=== Thread B archives/ok-foo ===
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+
+=== Thread C archives/ok-foo ===
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+
+=== Thread D archives/ok-foo ===
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+
+=== Thread A archives/ok-mv-foo ===
+10 pmDescs found
+10 pmDescs found
+10 pmDescs found
+10 pmDescs found
+10 pmDescs found
+
+=== Thread B archives/ok-mv-foo ===
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+8 pmResults and 72 values found for sample.bin
+
+=== Thread C archives/ok-mv-foo ===
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+8 pmResults and 24 values found for sample.colour
+
+=== Thread D archives/ok-mv-foo ===
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+5 non-singular metrics with 3 indoms and 13 instances found
+
+=== Thread A archives/multi ===
+276 pmDescs found
+276 pmDescs found
+276 pmDescs found
+276 pmDescs found
+276 pmDescs found
+
+=== Thread B archives/multi ===
+
+=== Thread C archives/multi ===
+
+=== Thread D archives/multi ===
