@@ -225,7 +225,7 @@ class pcp2elasticsearch(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics()
+        self.pmconfig.validate_metrics(curr_insts=True)
 
     def validate_config(self):
         """ Validate configuration options """

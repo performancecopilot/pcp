@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 590
+# concurrent use of different archives
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=
+
+$sudo rm -f /tmp/thread_?.out
+src/multithread12 -a 5 -b 5 -c 5 -d 5 -C network.interface.out.packets \
+    archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904
+
+echo
+echo "=== Thread A archives/ok-foo ==="
+if [ -f /tmp/thread_A.out ]
+then
+    cat /tmp/thread_A.out
+else
+    echo "Error: /tmp/thread_A.out not created."
+fi
+
+echo
+echo "=== Thread B archives/ok-mv-foo ==="
+if [ -f /tmp/thread_B.out ]
+then
+    cat /tmp/thread_B.out
+else
+    echo "Error: /tmp/thread_B.out not created."
+fi
+
+echo
+echo "=== Thread C archives/multi ==="
+if [ -f /tmp/thread_C.out ]
+then
+    cat /tmp/thread_C.out
+else
+    echo "Error: /tmp/thread_C.out not created."
+fi
+
+echo
+echo "=== Thread D archives/bozo-20170904 ==="
+if [ -f /tmp/thread_D.out ]
+then
+    cat /tmp/thread_D.out
+else
+    echo "Error: /tmp/thread_D.out not created."
+fi
+
+# success, all done
+status=0
+exit

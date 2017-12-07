@@ -38,7 +38,7 @@ CFILES		= pmda.c \
 		  proc_net_netstat.c namespaces.c proc_net_softnet.c \
 		  proc_net_snmp6.c mem_bandwidth.c proc_buddyinfo.c \
 		  proc_zoneinfo.c ksm.c sysfs_tapestats.c \
-		  proc_net_sockstat6.c proc_fs_nfsd.c
+		  proc_net_sockstat6.c proc_fs_nfsd.c proc_tty.c
 
 HFILES		= linux.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -52,7 +52,7 @@ HFILES		= linux.h convert.h \
 		  proc_net_netstat.h namespaces.h proc_net_softnet.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
 		  ksm.h sysfs_tapestats.h proc_net_sockstat6.h \
-		  proc_fs_nfsd.h
+		  proc_fs_nfsd.h proc_tty.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag

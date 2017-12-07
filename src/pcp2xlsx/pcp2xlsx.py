@@ -228,7 +228,7 @@ class PCP2XLSX(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics()
+        self.pmconfig.validate_metrics(curr_insts=True)
 
     def validate_config(self):
         """ Validate configuration options """
@@ -403,16 +403,15 @@ class PCP2XLSX(object):
             float_fmt = "0" if not self.precision else "0." + "0" * self.precision
             self.float_fmt.set_num_format(float_fmt)
 
-        # Avoid crossing the C/Python boundary more than once per metric
+        # Avoid expensive PMAPI calls more than once per metric
         res = {}
-        for _, metric in enumerate(self.metrics):
+        for metric in self.metrics:
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if inst != PM_IN_NULL and not name:
+                        continue
                     try:
-                        value = val()
-                        if isinstance(value, float):
-                            value = round(value, self.precision)
-                        res[metric + str(inst)] = value
+                        res[metric + "+" + str(inst)] = val
                     except:
                         pass
             except:
@@ -424,17 +423,18 @@ class PCP2XLSX(object):
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.pmconfig.insts[i][0])):
                 col += 1
-                if metric + str(self.pmconfig.insts[i][0][j]) in res:
-                    value = res[metric + str(self.pmconfig.insts[i][0][j])]
+                try:
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
                     if value is None:
                         self.ws.write_blank(self.row, col, None)
                     elif isinstance(value, str):
                         self.ws.write_string(self.row, col, value)
                     elif isinstance(value, float):
+                        value = round(value, self.precision)
                         self.ws.write_number(self.row, col, value, self.float_fmt)
                     else:
                         self.ws.write_number(self.row, col, value, self.int_fmt)
-                else:
+                except:
                     self.ws.write_blank(self.row, col, None)
 
     def finalize(self):

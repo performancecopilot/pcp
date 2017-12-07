@@ -96,6 +96,7 @@ enum {
 	CLUSTER_TAPEDEV,	/* 71 /sys/class/scsi_tape */
 	CLUSTER_RANDOM,		/* 72 /proc/sys/kernel/random entropy state */
 	CLUSTER_NET_SOCKSTAT6,	/* 73 /proc/net/sockstat6 */
+	CLUSTER_TTY,            /* 74 proc/tty/device/serial metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -156,6 +157,7 @@ enum {
 	ZONEINFO_INDOM,	        /* 32 - proc zoneinfo */
 	ZONEINFO_PROTECTION_INDOM,	/* 33 - proc zoneinfo protection item */
 	TAPEDEV_INDOM,		/* 34 - tape devices */
+	TTY_INDOM,              /* 35 - serial tty devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

@@ -387,6 +387,7 @@ _filter_top_pmns()
 	-e '/^    systemtap /d' \
 	-e '/^    trace /d' \
 	-e '/^    trivial /d' \
+	-e '/^    tty /d' \
 	-e '/^    txmon /d' \
 	-e '/^    vmware /d' \
 	-e '/^    web /d' \
