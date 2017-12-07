@@ -110,6 +110,8 @@ class pmConfig(object):
         if name == 'colxrow':
             # As a special service for pmrep(1) utility we handle
             # its config colxrow parameter here with minimal impact.
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1]
             self.util.colxrow = value
             return
         if value in ('true', 'True', 'y', 'yes', 'Yes'):
@@ -119,6 +121,8 @@ class pmConfig(object):
         if name == 'speclocal':
             if not self.util.speclocal or not self.util.speclocal.startswith("K:"):
                 self.util.speclocal = value
+        elif name == 'derived':
+            self.util.derived = str(value).replace(",", "@")
         elif name == 'samples':
             self.util.opts.pmSetOptionSamples(value)
             self.util.samples = self.util.opts.pmGetOptionSamples()
