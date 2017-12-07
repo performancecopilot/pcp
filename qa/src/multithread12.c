@@ -53,11 +53,11 @@ dometric_A(const char *name, void *f)
     }
     count_A++;
 
-#ifdef DESPERATE
-    fprintf((FILE *)f, "%s pmid:%s", name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-    fprintf((FILE *)f, " indom:%s", pmInDomStr_r(desc.indom, strbuf, sizeof(strbuf)));
-    fprintf((FILE *)f, " count=%d\n", count_A);
-#endif
+    if (pmDebugOptions.desperate) {
+	fprintf((FILE *)f, "%s pmid:%s", name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	fprintf((FILE *)f, " indom:%s", pmInDomStr_r(desc.indom, strbuf, sizeof(strbuf)));
+	fprintf((FILE *)f, " count=%d\n", count_A);
+    }
 }
 
 static void *
@@ -236,6 +236,15 @@ thread_C(void *arg)
     pthread_exit(NULL);
 }
 
+/*
+ * Note:
+ * 	if PMDAs are badly behaved (like the NET_ADDR_INDOM indom for
+ * 	the Linux PMDA), or instance ids recycled over a longer period
+ * 	of time (like the proc PMDA), then the number of instances in
+ * 	the archive's metadata file (as reported by pmdumplog -i) may
+ * 	be larger than the counts returned via pmGetInDomArchive()
+ * 	below because the duplicates map onto one instlist[] entry.
+ */
 static void
 dometric_D(const char *name, void *f)
 {
@@ -291,10 +300,17 @@ dometric_D(const char *name, void *f)
 	fprintf((FILE *)f, " -> %s\n", pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	pthread_exit("botch D.6");
     }
-    if (sts > 0)
+    if (sts >= 0) {
+	if (pmDebugOptions.desperate) {
+	    fprintf((FILE *)f, "InDom: %s, %d instances\n", pmInDomStr_r(desc.indom, strbuf, sizeof(strbuf)), sts);
+	    for (i = 0; i < sts; i++)
+		fprintf((FILE *)f, "%d ", instlist[i]);
+	    fputc('\n', (FILE *)f);
+	}
 	count_D[2] += sts;
-    free(instlist);
-    free(namelist);
+	free(instlist);
+	free(namelist);
+    }
 }
 
 static void *
