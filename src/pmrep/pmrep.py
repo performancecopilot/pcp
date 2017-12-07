@@ -140,6 +140,7 @@ class PMReporter(object):
         self.pmconfig.read_options()
         self.pmconfig.read_cmd_line()
         self.pmconfig.prepare_metrics()
+        self.pmconfig.set_signal_handler()
 
     def options(self):
         """ Setup default command line argument option handling """
@@ -692,7 +693,6 @@ class PMReporter(object):
                     try:
                         if inst != PM_IN_NULL and not name:
                             continue
-                        value = val()
                         if self.metrics[metric][1] and inst not in self.recorded[metric]:
                             continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
@@ -702,6 +702,7 @@ class PMReporter(object):
                             except pmi.pmiErr as error:
                                 if error.args[0] == PMI_ERR_DUPINSTNAME:
                                     pass
+                        value = val()
                         if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
                             self.pmi.pmiPutValue(metric, name, value)
                         elif self.pmconfig.descs[i].contents.type == PM_TYPE_FLOAT or \
@@ -941,7 +942,7 @@ class PMReporter(object):
             k += 1
 
             # Look for this instance from each metric
-            for metric in self.metrics:
+            for i, metric in enumerate(self.metrics):
                 l = self.metrics[metric][4]
 
                 found = 0
@@ -958,7 +959,7 @@ class PMReporter(object):
                         found = 1
                         break
 
-                if not found:
+                if not found and instance not in self.pmconfig.insts[i][1]:
                     # Not an instance this metric has,
                     # add a placeholder and move on
                     line.append(NO_INST)

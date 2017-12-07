@@ -982,6 +982,7 @@ collectl
 661 pmwebapi local
 662 pmwebapi pmda.sample local
 663 pmwebapi local
+665 pmda.linux local
 666 pmmgr local slow valgrind
 667 pcp2graphite python pcp2xxx local
 668 pmmgr local containers pmdumplog
@@ -1414,6 +1415,7 @@ collectl
 1132 pcp2xlsx python pcp2xxx local
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local
+1136 pmrep python pmda.sample local
 1137 derive pmrep local
 1138 archive pmval multi-archive decompress-xz local
 1140 pidstat local
@@ -1433,7 +1435,9 @@ collectl
 1225 pmwebapi local
 1227 derive local
 1238 pmiostat archive multi-archive decompress-xz local
+1238:reserved pmiostat archive multi-archive decompress-xz local
 1242 pmrep archive multi-archive decompress-xz local
+1242:reserved pmrep archive multi-archive decompress-xz local
 1245 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local
@@ -1442,10 +1446,10 @@ collectl
 1324 pmclient archive multi-archive decompress-xz local
 1330:reserved pmda.prometheus local
 1331 verify local
-1238:reserved pmiostat archive multi-archive decompress-xz local
-1242:reserved pmrep archive multi-archive decompress-xz local
 1354 pmval archive local
 1359 libpcp local
+1368 labels help pmlogger pmdumplog local
+1369 labels pmcd pmlogger pmdumplog local
 1385:reserved pmda.prometheus local
 1388 pmwebapi local
 1395:reserved pmda.prometheus local

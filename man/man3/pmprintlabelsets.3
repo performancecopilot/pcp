@@ -1,0 +1,38 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMPRINTLABELSETS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmPrintLabelSets\f1 \- print an array of label sets
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmPrintLabelSets(FILE *\fIf\fP, int \fIident\fP, int \fItype\fP, pmLabelSet *\fIsets\fP, int \fInsets\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Display all elements of the Performance Metrics LabelSet
+.I sets
+associated with identifier
+.I ident
+of hierarchy level
+.IR type .
+on the output stream
+.IR f .
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmLookupLabels (3).

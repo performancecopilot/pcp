@@ -1,0 +1,21 @@
+QA output created by 1369
+
+=== Dump all labels - should see both ONE and TWO labels
+
+Metric Labels in the Log ...
+[TIMESTAMP]
+    Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
+        [0] name(2,5) : value(9,8) [domain]
+        [1] name(19,4) : value(25,9) [domain]
+[TIMESTAMP]
+    Context labels (N bytes): {"ONE":1369,"groupid":GID,"hostname":"HOSTNAME","userid":UID}
+[TIMESTAMP]
+    Context labels (N bytes): {"TWO":1369,"groupid":GID,"hostname":"HOSTNAME","userid":UID}
+
+=== Report labels using PMAPI - initially ONE, later TWO
+
+sample.long.one
+    labels {"ONE":1369,"agent":"sample","groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}
+
+sample.long.one
+    labels {"TWO":1369,"agent":"sample","groupid":GID,"hostname":"HOSTNAME","role":"testing","userid":UID}

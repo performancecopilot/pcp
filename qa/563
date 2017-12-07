@@ -29,6 +29,7 @@ _cleanup()
 	need_restore=false
 	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
+	_sighup_pmcd
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -42,60 +43,55 @@ _filter_labels()
     #end
 }
 
-report_header()
-{
-    echo && echo == $@
-}
-
-report_labels()
-{
-    pminfo -fl pmcd.labels | _filter_labels
-}
-
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/*
-_service pmcd restart
-_wait_for_pmcd
+_sighup_pmcd
 
-report_header  No global labels
-report_labels
+echo && echo == No global labels
+pminfo -fl pmcd.labels | _filter_labels
 
-#report_header  Bad global label
-#echo '{one:two}' > $tmp.label
-#$sudo cp $tmp.label $PCP_ETC_DIR/pcp/labels/bad
-#report_labels
-#$sudo rm -f $PCP_ETC_DIR/pcp/labels/bad
+echo && echo == Bad global label
+echo '{one:two}' > $tmp.label
+$sudo cp $tmp.label $PCP_ETC_DIR/pcp/labels/bad.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/bad.json
 
-#report_header  Empty global label
-#echo '{}' > $tmp.empty
-#$sudo cp $tmp.empty $PCP_ETC_DIR/pcp/labels/empty
-#report_labels
-#$sudo rm $PCP_ETC_DIR/pcp/labels/empty
+echo && echo == Empty global label
+echo '{}' > $tmp.empty
+$sudo cp $tmp.empty $PCP_ETC_DIR/pcp/labels/empty.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/empty.json
 
-report_header  Simple global label
+echo && echo == Simple global label
 echo '{"one":"two"}' > $tmp.simple
-$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple
-report_labels
-$sudo rm $PCP_ETC_DIR/pcp/labels/simple
+$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/simple.json
 
-report_header  Array global label
+echo && echo == Array global label
 echo '{"a1":[1,2,3,4], "a2":[]}' > $tmp.array
-$sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array
-report_labels
-$sudo rm $PCP_ETC_DIR/pcp/labels/array
+$sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/array.json
 
-report_header  Map global label
+echo && echo == Map global label
 echo '{"map1": {"a":1,"b":2}, "map2": {}}' > $tmp.map
-$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map
-report_labels
-$sudo rm $PCP_ETC_DIR/pcp/labels/map
+$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/map.json
 
-report_header  Multiple global labels
-$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple
-$sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array
-$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map
-report_labels
+echo && echo == Multiple global labels
+$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple.json
+$sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array.json
+$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
 
 # success, all done
 status=0

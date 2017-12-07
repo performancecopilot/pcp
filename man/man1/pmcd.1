@@ -1020,8 +1020,9 @@ Errors are reported in the
 .B pmcd
 log file.
 .PP
-It also checks the PMNS file for changes. If the PMNS file has been
-modified, then it is reloaded.
+It also checks the PMNS file and any labels files for changes.
+If any of these files have been modified, then the PMNS and/or
+context labels are reloaded.
 Use of
 .BR tail (1)
 on the log file is recommended while reconfiguring
@@ -1162,11 +1163,12 @@ executes.
 Only settings of the form "PMCD_VARIABLE=value" will be honoured.
 .TP
 .B $PCP_SYSCONF_DIR/labels
-global metric labels that will be set for every client context
-created by
+directory of files containing the global metric labels that will be
+set for every client context created by
 .BR pmcd .
-These files are ``JSONB'' formatted name:value pairs, and the merged
-set can be queried via the
+File names starting with a ``.'' are ignored, and files ending in
+``.json'' are ``JSONB'' formatted name:value pairs.
+The merged set can be queried via the
 .B pmcd.labels
 metric.
 Context labels are applied universally to all values.

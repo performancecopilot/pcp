@@ -20,7 +20,7 @@ typedef struct {
     int			fd;		/* Socket descriptor */
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
-	unsigned int	changes : 3;	/* PMCD_* bits for changes since last fetch */
+	unsigned int	changes : 4;	/* PMCD_* bits for changes since last fetch */
 	unsigned int	attributes: 1;	/* Connection attributes have changed */
     } status;
     /* There is a profile associated with each client context.

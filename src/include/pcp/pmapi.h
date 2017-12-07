@@ -1173,6 +1173,7 @@ PCP_CALL extern void pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 PCP_CALL extern void pmSyslog(int);
 
 PCP_CALL extern void pmPrintDesc(FILE *, const pmDesc *);
+PCP_CALL extern void pmPrintLabelSets(FILE *, int, int, pmLabelSet *, int);
 
 /* struct timeval manipulations */
 PCP_CALL extern void pmtimevalNow(struct timeval *);

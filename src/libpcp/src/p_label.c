@@ -17,8 +17,8 @@
 #include "libpcp.h"
 #include "internal.h"
 
-static const char *
-LabelTypeString(int type)
+const char *
+__pmLabelTypeString(int type)
 {
     switch (type) {
     case PM_LABEL_CONTEXT:  return "context";
@@ -33,8 +33,40 @@ LabelTypeString(int type)
     return "?";
 }
 
-static char *
-LabelFlagString(int flags, char *buf, int buflen)
+char *
+__pmLabelIdentString(int ident, int type, char *buf, size_t buflen)
+{
+    char	*p, id[32];
+
+    switch (type) {
+    case PM_LABEL_DOMAIN:
+	pmsprintf(buf, buflen, "Domain %u", ident);
+	break;
+    case PM_LABEL_INDOM:
+    case PM_LABEL_INSTANCES:
+	pmsprintf(buf, buflen, "InDom %s", pmInDomStr_r(ident, id, sizeof(id)));
+	break;
+    case PM_LABEL_CLUSTER:
+	pmIDStr_r(ident, id, sizeof(id));
+	p = rindex(id, '.');
+	*p = '\0';
+	pmsprintf(buf, buflen, "Cluster %s", id);
+	break;
+    case PM_LABEL_ITEM:
+	pmsprintf(buf, buflen, "PMID %s", pmIDStr_r(ident, id, sizeof(id)));
+	break;
+    case PM_LABEL_CONTEXT:
+	pmsprintf(buf, buflen, "Context");
+	break;
+    default:
+	buf[0] = '\0';
+	break;
+    }
+    return buf;
+}
+
+char *
+__pmLabelFlagString(int flags, char *buf, int buflen)
 {
     int		type = (flags & ~PM_LABEL_OPTIONAL);
 
@@ -44,7 +76,7 @@ LabelFlagString(int flags, char *buf, int buflen)
      */
     if (buflen <= 16)
 	return NULL;
-    strcpy(buf, LabelTypeString(type));
+    strcpy(buf, __pmLabelTypeString(type));
     if (flags & PM_LABEL_OPTIONAL)
 	strcat(buf, ",optional");
     return buf;
@@ -53,13 +85,14 @@ LabelFlagString(int flags, char *buf, int buflen)
 void
 __pmDumpLabelSet(FILE *fp, const pmLabelSet *set)
 {
-    char	buffer[MAXLABELJSONLEN];
+    char	buffer[PM_MAXLABELJSONLEN];
     const char	type[] = "pmLabelSet";
+    char	*fls;
     int		i;
 
     for (i = 0; i < set->jsonlen; i++)
 	buffer[i] = isprint((int)set->json[i]) ? set->json[i] : '.';
-    buffer[set->jsonlen] = buffer[MAXLABELJSONLEN-1] = '\0';
+    buffer[set->jsonlen] = buffer[PM_MAXLABELJSONLEN-1] = '\0';
 
     fprintf(fp, "%s dump from "PRINTF_P_PFX"%p inst=%d nlabels=%d\n",
 	    type, set, set->inst, set->nlabels);
@@ -67,11 +100,12 @@ __pmDumpLabelSet(FILE *fp, const pmLabelSet *set)
 	fprintf(fp, "%s "PRINTF_P_PFX"%p json:\n    %s\n", type, set, buffer);
     if (set->nlabels)
 	fprintf(fp, "%s "PRINTF_P_PFX"%p index:\n", type, set);
-    for (i = 0; i < set->nlabels; i++)
+    for (i = 0; i < set->nlabels; i++) {
+	fls = __pmLabelFlagString(set->labels[i].flags, buffer, sizeof(buffer));
 	fprintf(fp, "    [%d] name(%d,%d) : value(%d,%d) [%s]\n", i,
 	        set->labels[i].name, set->labels[i].namelen,
-	        set->labels[i].value, set->labels[i].valuelen,
-		LabelFlagString(set->labels[i].flags, buffer, sizeof(buffer)));
+	        set->labels[i].value, set->labels[i].valuelen, fls);
+    }
 }
 
 void
@@ -89,7 +123,7 @@ static void
 DumpLabelSets(char *func, int ident, int type, pmLabelSet *sets, int nsets)
 {
     fprintf(stderr, "%s(ident=%d,type=0x%x[%s], %d sets @"PRINTF_P_PFX"%p)\n",
-	    func, ident, type, LabelTypeString(type), nsets, sets);
+	    func, ident, type, __pmLabelTypeString(type), nsets, sets);
     __pmDumpLabelSets(stderr, sets, nsets);
 }
 
@@ -347,9 +381,9 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	    labellen += nlabels * sizeof(pmLabel);
 
 	/* validity checks - these conditions should not happen */
-	if (nlabels >= MAXLABELS)
+	if (nlabels >= PM_MAXLABELS)
 	    goto corrupt;
-	if (jsonlen >= MAXLABELJSONLEN)
+	if (jsonlen >= PM_MAXLABELJSONLEN)
 	    goto corrupt;
 
 	/* check JSON content fits within the PDU bounds */

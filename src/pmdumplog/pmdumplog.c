@@ -34,6 +34,8 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     { "all", 0, 'a', 0, "dump everything" },
     { "descs", 0, 'd', 0, "dump metric descriptions" },
+    { "labelsets", 0, 'e', 0, "dump all metric label metadata" },
+    { "helptext", 0, 'h', 0, "dump all metric help text" },
     { "insts", 0, 'i', 0, "dump instance domain descriptions" },
     { "", 0, 'L', 0, "more verbose form of archive label dump" },
     { "label", 0, 'l', 0, "dump the archive label" },
@@ -56,7 +58,7 @@ static pmLongOptions longopts[] = {
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
-    .short_options = "aD:dilLmMn:rS:sT:tv:xZ:z?",
+    .short_options = "aD:dehilLmMn:rS:sT:tv:xZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [archive [metricname ...]]",
     .override = overrides,
@@ -492,6 +494,88 @@ dumpInDom(__pmContext *ctxp)
 }
 
 static void
+dumpHelpText(__pmContext *ctxp)
+{
+    int		i;
+    int		j;
+    unsigned int	type;
+    unsigned int	ident;
+    __pmHashCtl		*l_hashtype;
+    __pmHashNode	*hp, *tp;
+    const char		*text;
+
+    printf("\nMetric Help Text in the Log ...\n");
+
+    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashtext.hsize; i++) {
+	for (hp = ctxp->c_archctl->ac_log->l_hashtext.hash[i]; hp != NULL; hp = hp->next) {
+	    type = (unsigned int)hp->key;
+	    l_hashtype = (__pmHashCtl *)hp->data;
+	    for (j = 0; j < l_hashtype->hsize; j++) {
+		for (tp = l_hashtype->hash[j]; tp != NULL; tp = tp->next) {
+		    ident = (unsigned int)tp->key;
+		    text = (const char *)tp->data;
+		    if (type & PM_TEXT_PMID)
+			printf("PMID: %s", pmIDStr((pmID)ident));
+		    else if (type & PM_TEXT_INDOM)
+			printf("InDom: %s", pmInDomStr((pmInDom)ident));
+		    if (type & PM_TEXT_ONELINE)
+			printf(" [%s]", text);
+		    else if (type & PM_TEXT_HELP)
+			printf("\n%s", text);
+		    putchar('\n');
+		}
+	    }
+	}
+    }
+}
+
+static void
+dumpLabelSets(__pmContext *ctxp)
+{
+    int		i;
+    int		j;
+    unsigned int	type;
+    unsigned int	ident;
+    __pmHashCtl		*l_hashtype;
+    __pmHashNode	*hp, *tp;
+    __pmLogLabelSet	*ldp, *p;
+
+    printf("\nMetric Labels in the Log ...\n");
+
+    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashlabels.hsize; i++) {
+	hp = ctxp->c_archctl->ac_log->l_hashlabels.hash[i];
+	for (; hp != NULL; hp = hp->next) {
+	    type = (unsigned int)hp->key;
+	    l_hashtype = (__pmHashCtl *)hp->data;
+	    for (j = 0; j < l_hashtype->hsize; j++) {
+		for (tp = l_hashtype->hash[j]; tp != NULL; tp = tp->next) {
+		    ident = (unsigned int)tp->key;
+
+		    /*
+		     * in reverse chronological order, so iteration is odd
+		     */
+		    ldp = NULL;
+		    for ( ; ; ) {
+			p = (__pmLogLabelSet *)tp->data; 
+			for (; p->next != ldp; p = p->next)
+			    ;
+			tv.tv_sec = p->stamp.tv_sec;
+			tv.tv_usec = p->stamp.tv_usec;
+			pmPrintStamp(stdout, &tv);
+			putchar('\n');
+			pmPrintLabelSets(stdout, ident, type,
+					p->labelsets, p->nsets);
+			if (p == (__pmLogLabelSet *)tp->data)
+			    break;
+			ldp = p;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+static void
 dumpTI(__pmContext *ctxp)
 {
     int		i;
@@ -674,7 +758,7 @@ dometric(const char *name)
 static int
 overrides(int opt, pmOptions *opts)
 {
-    if (opt == 'a' || opt == 'L' || opt == 's' || opt == 't')
+    if (opt == 'a' || opt == 'h' || opt == 'L' || opt == 's' || opt == 't')
 	return 1;
     return 0;
 }
@@ -708,6 +792,8 @@ main(int argc, char *argv[])
     int			ctxid;
     int			first = 1;
     int			dflag = 0;
+    int			eflag = 0;
+    int			hflag = 0;
     int			iflag = 0;
     int			Lflag = 0;
     int			lflag = 0;
@@ -725,12 +811,20 @@ main(int argc, char *argv[])
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	case 'a':	/* dump everything */
+	case 'a':	/* dump (almost) everything */
 	    dflag = iflag = Lflag = lflag = mflag = sflag = tflag = 1;
 	    break;
 
 	case 'd':	/* dump pmDesc structures */
 	    dflag = 1;
+	    break;
+
+	case 'e':	/* dump all label sets */
+	    eflag = 1;
+	    break;
+
+	case 'h':	/* dump all help texts */
+	    hflag = 1;
 	    break;
 
 	case 'i':	/* dump instance domains */
@@ -798,7 +892,7 @@ main(int argc, char *argv[])
 	exit(0);
     }
 
-    if (dflag + iflag + lflag + mflag + tflag == 0)
+    if (dflag + eflag + hflag + iflag + lflag + mflag + tflag == 0)
 	mflag = 1;	/* default */
 
     /* delay option end processing until now that we have the archive name */
@@ -891,6 +985,12 @@ main(int argc, char *argv[])
 
     if (dflag)
 	dumpDesc(ctxp);
+
+    if (eflag)
+	dumpLabelSets(ctxp);
+
+    if (hflag)
+	dumpHelpText(ctxp);
 
     if (iflag)
 	dumpInDom(ctxp);

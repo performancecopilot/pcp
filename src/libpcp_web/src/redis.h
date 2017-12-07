@@ -18,6 +18,7 @@
 #include <hiredis/hiredis.h>
 
 extern redisContext *redis_init(void);
+extern redisContext *redis_connect(char *, struct timeval *);
 extern void redis_stop(redisContext *);
 
 extern void redis_series_metadata(redisContext *, metric_t *, value_t *);

@@ -17,9 +17,6 @@
 
 #define PCP_SCHEMA_VERSION 1
 
-/* TODO: externalise Redis configuration */
-static char default_server[] = "localhost:6379";
-
 typedef struct redis_script {
     const char	*script;
     char	*hash;
@@ -347,47 +344,6 @@ redis_series_addvalue(redisContext *redis, metric_t *metric, value_t *value)
     freeReplyObject(reply);
 }
 
-static redisContext *
-redis_connect(char *server, struct timeval *timeout)
-{
-    redisContext *redis;
-
-    if (server == NULL)
-	server = strdup("localhost:6379");
-
-    if (strncmp(server, "unix:", 5) == 0) {
-        redis = redisConnectUnixWithTimeout(server + 5, *timeout);
-    } else {
-        unsigned int    port;
-        char            *endnum, *p;
-
-        if ((p = rindex(server, ':')) == NULL) {
-            port = 6379;  /* default redis port */
-        } else {
-            port = (unsigned int) strtoul(p + 1, &endnum, 10);
-            if (*endnum != '\0')
-                port = 6379;
-            else
-                *p = '\0';
-        }
-        redis = redisConnectWithTimeout(server, port, *timeout);
-    }
-
-    if (!redis || redis->err) {
-        if (redis) {
-            fprintf(stderr, "Redis connection error: %s\n", redis->errstr);
-            redisFree(redis);
-        } else {
-            fprintf(stderr, "Redis connection error: can't allocate context\n");
-        }
-        return NULL;
-    }
-
-    redisSetTimeout(redis, *timeout);
-    redisEnableKeepAlive(redis);
-    return redis;
-}
-
 static void
 redis_check_schema(redisContext *redis)
 {
@@ -418,11 +374,9 @@ redis_check_schema(redisContext *redis)
 redisContext *
 redis_init(void)
 {
-    struct timeval	timeout = { 1, 500000 }; // 1.5 seconds
-    char		*server = &default_server[0];
-    redisContext	*context;
+    redisContext	*context;   /* TODO: redisSlots */
 
-    if ((context = redis_connect(server, &timeout)) == NULL)
+    if ((context = redis_connect(NULL, NULL)) == NULL)
 	exit(1);	/* TODO: improve error handling */
     redis_check_schema(context);
     redis_load_scripts(context);

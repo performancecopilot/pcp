@@ -12,5 +12,5 @@ sort_r (portable quicksort with closure)
 hash (portable performant hash function)
     - http://burlteburtle.net/bob/hash/evahash.html
 
-sha1 (portable SHA1 hash implementation)
+sha1, crc16 (portable hash implementations)
     - https://github.com/antirez/redis/blob/4.0/src

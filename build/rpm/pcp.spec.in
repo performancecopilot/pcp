@@ -180,8 +180,11 @@ Requires: pcp-libs = @package_version@
 %if "@enable_selinux@" == "true"
 Requires: pcp-selinux = @package_version@
 %endif
-Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-compat
+%if 0%{?fedora} < 27
+# F27 re-introduced split-out debuginfo packages
+Obsoletes: pcp-gui-debuginfo
+%endif
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support

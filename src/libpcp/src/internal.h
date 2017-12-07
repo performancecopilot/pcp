@@ -336,14 +336,6 @@ extern const char *strerror_r(int, char *, size_t);
 extern pid_t __pmProcessWait(pid_t, int, int *, int *) _PCP_HIDDEN;
 #endif
 
-
-#define MAXLABELS		((1<<8)-1)
-#define MAXLABELJSONLEN		((1<<16)-1)
-#define MAXLABELNAMELEN		((1<<8)-1)
-#define MAXLABELVALUELEN	((1<<16)-1)
-extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
-			 pmLabelSet **, int *) _PCP_HIDDEN;
-
 extern void notifyerr(int, const char *, va_list) _PCP_HIDDEN;
 
 /*
@@ -423,7 +415,15 @@ extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *) _PCP_HIDDEN;
 
 extern void __pmFreeInterpData(__pmContext *) _PCP_HIDDEN;
 
-extern void __pmDumpLabelSet(FILE *, const pmLabelSet *) _PCP_HIDDEN;
 extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *) _PCP_HIDDEN;
+
+#define MAXLABELNAMELEN		((1<<8)-1)
+#define MAXLABELVALUELEN	((1<<16)-1)
+extern void __pmDumpLabelSet(FILE *, const pmLabelSet *) _PCP_HIDDEN;
+extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
+			 pmLabelSet **, int *) _PCP_HIDDEN;
+extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
+extern char *__pmLabelIdentString(int, int, char *, size_t) _PCP_HIDDEN;
+extern const char * __pmLabelTypeString(int) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

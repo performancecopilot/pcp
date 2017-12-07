@@ -296,14 +296,40 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 }
 
 static int
+putlabels(unsigned int type, unsigned int ident, const pmTimeval *tp)
+{
+    int		len;
+    pmLabelSet	*label;
+
+    if (type == PM_LABEL_CONTEXT)
+	len = pmGetContextLabels(&label);
+    else if (type == PM_LABEL_DOMAIN)
+	len = pmGetDomainLabels(ident, &label);
+    else if (type == PM_LABEL_CLUSTER)
+	len = pmGetClusterLabels(ident, &label);
+    else if (type == PM_LABEL_INDOM)
+	len = pmGetInDomLabels(ident, &label);
+    else if (type == PM_LABEL_ITEM)
+	len = pmGetItemLabels(ident, &label);
+    else if (type == PM_LABEL_INSTANCES)
+	len = pmGetInstancesLabels(ident, &label);
+    else
+	len = 0;
+
+    if (len > 0)
+	return __pmLogPutLabel(&logctl, type, ident, len, label, tp);
+
+    return 0;
+}
+
+static int
 manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
 {
     int		i = 0;
-    int		len;
     int		sts = 0;
+    pmLabelSet	*label;
     unsigned int type;
     unsigned int ident = PM_IN_NULL;
-    pmLabelSet	*label;
     unsigned int label_types[] = {
 	PM_LABEL_CONTEXT, PM_LABEL_DOMAIN, PM_LABEL_INDOM,
 	PM_LABEL_CLUSTER, PM_LABEL_ITEM, PM_LABEL_INSTANCES
@@ -334,27 +360,8 @@ manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
 	if (__pmLogLookupLabel(&logctl, type, ident, &label, tp) >= 0)
 	    continue;
 
-	if (type == PM_LABEL_CONTEXT)
-	    len = pmGetContextLabels(&label);
-	else if (type == PM_LABEL_DOMAIN)
-	    len = pmGetDomainLabels(ident, &label);
-	else if (type == PM_LABEL_CLUSTER)
-	    len = pmGetClusterLabels(ident, &label);
-	else if (type == PM_LABEL_INDOM)
-	    len = pmGetInDomLabels(ident, &label);
-	else if (type == PM_LABEL_ITEM)
-	    len = pmGetItemLabels(ident, &label);
-	else if (type == PM_LABEL_INSTANCES)
-	    len = pmGetInstancesLabels(ident, &label);
-	else
-	    len = 0;
-
-	if (len > 0) {
-	    sts = __pmLogPutLabel(&logctl, type, ident, len, label, tp);
-	    if (sts < 0) {
-		return sts;
-	    }
-	}
+	if ((sts = putlabels(type, ident, tp)) < 0)
+	    break;
     }
     return sts;
 }
@@ -538,6 +545,7 @@ do_work(task_t *tp)
     AFctl_t		*acp;
     lastfetch_t		*lfp;
     lastfetch_t		*free_lfp;
+    int			changed;
     int			needindom;
     int			needti;
     static int		flushsize = 100000;
@@ -635,7 +643,7 @@ do_work(task_t *tp)
 
 	clearavail(fp);
 
-	if ((sts = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb)) < 0) {
+	if ((sts = changed = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb)) < 0) {
 	    if (sts == -EINTR) {
 		/* disconnect() already done in myFetch() */
 		return;
@@ -648,8 +656,9 @@ do_work(task_t *tp)
 	    }
 	    continue;
 	}
+
 	if (pmDebugOptions.appl2)
-	    fprintf(stderr, "callback: fetch group %p (%d metrics)\n", fp, fp->f_numpmid);
+	    fprintf(stderr, "callback: fetch group %p (%d metrics, 0x%x change)\n", fp, fp->f_numpmid, changed);
 
 	/*
 	 * hook to rewrite PDU buffer ...
@@ -706,6 +715,13 @@ do_work(task_t *tp)
 	setavail(resp);
 	resp_tval.tv_sec = resp->timestamp.tv_sec;
 	resp_tval.tv_usec = resp->timestamp.tv_usec;
+
+	if (changed & PMCD_LABEL_CHANGE) {
+	    /*
+	     * Change to the context labels associated with logged host
+	     */
+	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp_tval);
+	}
 
 	if (tp->t_dm != 0) {
 	    /*

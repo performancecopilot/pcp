@@ -30,6 +30,7 @@ PMCD_DATA int	nAgents;		/* Number of active agents */
 PMCD_DATA AgentInfo *agent;		/* Array of agent info structs */
 
 PMCD_DATA char *pmcd_hostname;		/* Explicitly requested hostname */
+PMCD_DATA char *pmcd_labels;		/* Current set of context labels */
 
 PMCD_DATA unsigned pmcd_sighups;	/* Count of SIGHUPS responded to */
 
