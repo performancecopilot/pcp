@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 610
+# Check for error messages that exceed PM_MAXERRMSGLEN
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+MAX=`sed -n -e '/PM_MAXERRMSGLEN/s/.*PM_MAXERRMSGLEN[ 	]*//p' <$PCP_INC_DIR/pmapi.h`
+if [ -z "$MAX" ]
+then
+    echo "Error: cannot get PM_MAXERRMSGLEN from $PCP_INC_DIR/pmapi.h"
+    exit
+fi
+
+echo "Silence is golden ..."
+
+pmerr -l \
+| sed \
+    -e 's/  */|/' \
+    -e 's/  */|/' \
+| $PCP_AWK_PROG -F\| '
+{ if (length($3) >= '$MAX')
+    { print $0 ; print "Warning: text length " length($3) " exceeds PM_MAXERRMSGLEN-1 (" '$MAX'-1 ")" }
+}' \
+| sed -e 's/|/ /g'
+
+
+# success, all done
+status=0
+exit
