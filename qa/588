@@ -29,8 +29,20 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 export PCP_DERIVED_CONFIG=
 
-for arch in archives/ok-foo archives/ok-mv-foo archives/multi
+for arch in archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904
 do
+    case $arch
+    in
+	archives/multi|archives/bozo-20170904)
+	    metric_B=kernel.percpu.cpu.user
+	    metric_C=network.interface.out.packets
+	    ;;
+	*)
+	    metric_B=sample.bin
+	    metric_C=sample.colour
+	    ;;
+    esac
+
     echo
     echo "=== Thread A $arch ==="
     $sudo rm -f /tmp/thread_A.out
@@ -45,7 +57,7 @@ do
     echo
     echo "=== Thread B $arch ==="
     $sudo rm -f /tmp/thread_B.out
-    src/multithread12 -b 5 -Dappl1 $arch
+    src/multithread12 -b 5 -Dappl1 -B $metric_B $arch
     if [ -f /tmp/thread_B.out ]
     then
 	cat /tmp/thread_B.out
@@ -56,7 +68,7 @@ do
     echo
     echo "=== Thread C $arch ==="
     $sudo rm -f /tmp/thread_C.out
-    src/multithread12 -c 5 -Dappl0,appl1 $arch
+    src/multithread12 -c 5 -Dappl0,appl1 -C $metric_C $arch
     if [ -f /tmp/thread_C.out ]
     then
 	cat /tmp/thread_C.out

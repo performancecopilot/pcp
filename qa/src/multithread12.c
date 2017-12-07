@@ -68,7 +68,7 @@ thread_A(void *arg)
     int		sts;
     int		i;
     FILE	*f;
-    char	strbuf[60];
+    char	strbuf[PM_MAXERRMSGLEN];
 
     if ((f = fopen("/tmp/thread_A.out", "w")) == NULL) {
 	perror("thread_A fopen");
@@ -113,7 +113,7 @@ thread_B(void *arg)
     int		sts;
     int		i;
     FILE	*f;
-    char	strbuf[60];
+    char	strbuf[PM_MAXERRMSGLEN];
 
     if ((f = fopen("/tmp/thread_B.out", "w")) == NULL) {
 	perror("thread_B fopen");
@@ -183,7 +183,7 @@ thread_C(void *arg)
     int		sts;
     int		i;
     FILE	*f;
-    char	strbuf[60];
+    char	strbuf[PM_MAXERRMSGLEN];
 
     if ((f = fopen("/tmp/thread_C.out", "w")) == NULL) {
 	perror("thread_C fopen");
@@ -246,7 +246,7 @@ dometric_D(const char *name, void *f)
     pmInDom	*indom_D_new;
     int		*instlist;
     char	**namelist;
-    char	strbuf[60];
+    char	strbuf[PM_MAXERRMSGLEN];
 
     sts = pmLookupName(1, (char **)&name, &pmid);
     if (sts < 0) {
@@ -279,12 +279,20 @@ dometric_D(const char *name, void *f)
     count_D[1]++;	/* one more instance domain */
 
     sts = pmGetInDomArchive(desc.indom, &instlist, &namelist);
-    if (sts < 0) {
+    /*
+     * Note:
+     * 		PM_ERR_INDOM_LOG is sort of expected if the metric is well
+     * 		behaved but does not have any values at present, so no values
+     * 		in the archive and there is no InDom in the archive;
+     * 		e.g. pmcd.pmie.* in the archives/multi archives
+     */
+    if (sts < 0 && sts != PM_ERR_INDOM_LOG) {
 	fprintf((FILE *)f, "Error: thread_D: pmGetInDomArchive(%s)", pmInDomStr_r(desc.indom, strbuf, sizeof(strbuf)));
 	fprintf((FILE *)f, " -> %s\n", pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	pthread_exit("botch D.6");
     }
-    count_D[2] += sts;
+    if (sts > 0)
+	count_D[2] += sts;
     free(instlist);
     free(namelist);
 }
@@ -297,7 +305,7 @@ thread_D(void *arg)
     int		sts;
     int		i;
     FILE	*f;
-    char	strbuf[60];
+    char	strbuf[PM_MAXERRMSGLEN];
 
     if ((f = fopen("/tmp/thread_D.out", "w")) == NULL) {
 	perror("thread_D fopen");
