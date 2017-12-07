@@ -1841,6 +1841,24 @@ pmmgr_monitor_daemon::daemon_command_line()
                   << " >" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".out"
                   << " 2>" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".err";
 
+  // copy previous contents of .err file
+  ostringstream os;
+  os <<  host_log_dir << "/" << output_filename << "-"  << config_index << ".err";
+  string err_filename = os.str();
+  ifstream f (err_filename.c_str()); // c_str for old school c++
+  while (f.good())
+    {
+      string line;
+      getline(f, line);
+      if (line != "")
+        timestamp(obatched(cerr)) << err_filename << ": " << line << endl;
+    }
+  // NB: we could opt to erase this file at this time, so we don't
+  // re-print the same thing next time.  But this is not necessary,
+  // because as soon as we return, this command line will be executed
+  // (up at pmmgr_daemon::poll), and the 2> part of the command line
+  // will truncate the file first.
+  
   return monitor_command.str();
 }
 
