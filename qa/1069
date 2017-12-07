@@ -387,6 +387,13 @@ pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :global :testing | _archive_filter
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :testing | _archive_filter
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig    :testing | _archive_filter
 
+echo "== handle same labels"
+echo '[l]' > $tmp.lconfig
+echo 'kernel.all.cpu.user = %%usr' >> $tmp.lconfig
+echo 'kernel.percpu.cpu.user = %%usr' >> $tmp.lconfig
+pmrep -s 2 -r -u -w 12 $log2 -c $tmp.lconfig         :l
+pmrep -s 2 -r -u -w 12 $log2 -c $tmp.lconfig -X test :l
+
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig
 echo 'header = yes' >> $tmp.pconfig

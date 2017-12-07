@@ -57,6 +57,7 @@ OUTSEP  = "  "
 OUTTIME = "%H:%M:%S"
 NO_VAL  = "N/A"
 NO_INST = "~"
+SINGULR = "="
 
 # pmrep output targets
 OUTPUT_ARCHIVE = "archive"
@@ -496,9 +497,16 @@ class PMReporter(object):
             self.format += "{2:>" + str(8) + "." + str(8) + "}{3}"
         index += 2
 
-        # Metrics
-        for _, metric in enumerate(self.metrics):
+        # Metrics / labels
+        self.labels = OrderedDict() # pylint: disable=attribute-defined-outside-init
+        for i, metric in enumerate(self.metrics):
             l = str(self.metrics[metric][4])
+            label = self.metrics[metric][0]
+            if label in self.labels:
+                self.labels[label].append((metric, i))
+                continue
+            else:
+                self.labels[label] = [(metric, i)]
             # Value truncated and aligned
             self.format += "{" + str(index) + ":>" + l + "." + l + "}"
             index += 1
@@ -628,8 +636,12 @@ class PMReporter(object):
                 names += [self.colxrow, self.delimiter]
                 units += ["", self.delimiter]
             prnti = 0
+            labels = []
             for i, metric in enumerate(self.metrics):
                 if self.colxrow is not None:
+                    if self.metrics[metric][0] in labels:
+                        continue
+                    labels.append(self.metrics[metric][0])
                     names.append(self.metrics[metric][0])
                     names.append(self.delimiter)
                     units.append(self.metrics[metric][2][0])
@@ -932,31 +944,40 @@ class PMReporter(object):
             line.append(self.delimiter)
             k += 1
 
-            # Add instance (may be None for singular indoms)
-            line.append(str(instance))
+            # Add instance (empty singular indoms)
+            if instance:
+                line.append(instance)
+            else:
+                line.append(SINGULR)
             line.append(self.delimiter)
             k += 1
 
-            for i, metric in enumerate(self.metrics):
-                if instance not in self.pmconfig.insts[i][1]:
-                    # Not an instance this metric has,
+            for label in self.labels:
+                found = 0
+                for metric, i in self.labels[label]:
+                    if found:
+                        break
+                    if label == self.metrics[metric][0] and instance in self.pmconfig.insts[i][1]:
+                        found = 1
+                        j = self.pmconfig.insts[i][0][self.pmconfig.insts[i][1].index(instance)]
+
+                        try:
+                            value = res[metric + "+" + str(j)]()
+                            value = self.format_stdout_value(value, self.metrics[metric][4], fmt, k)
+                        except:
+                            value = NO_VAL
+
+                        line.append(value)
+                        line.append(self.delimiter)
+                        k += 1
+
+                if not found:
+                    # Not an instance for this label,
                     # add a placeholder and move on
                     line.append(NO_INST)
                     line.append(self.delimiter)
                     k += 1
                     continue
-
-                j = self.pmconfig.insts[i][0][self.pmconfig.insts[i][1].index(instance)]
-
-                try:
-                    value = res[metric + "+" + str(j)]()
-                    value = self.format_stdout_value(value, self.metrics[metric][4], fmt, k)
-                except:
-                    value = NO_VAL
-
-                line.append(value)
-                line.append(self.delimiter)
-                k += 1
 
             # Print the line in a Python 2.6 compatible manner
             del line[-1]
