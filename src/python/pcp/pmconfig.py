@@ -65,7 +65,7 @@ class pmConfig(object):
 
     def set_signal_handler(self):
         """ Set default signal handler """
-        def handler(signum, frame):
+        def handler(_signum, _frame):
             """ Default signal handler """
             self.util.finalize()
             sys.exit(0)
