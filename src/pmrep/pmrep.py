@@ -393,8 +393,8 @@ class PMReporter(object):
         while self.samples != 0:
             # Repeat the header if needed
             if self.output == OUTPUT_STDOUT:
-                if lines > 1 and self.repeat_header == lines:
-                    self.write_header()
+                if lines > 0 and self.repeat_header == lines:
+                    self.write_header(repeat=True)
                     lines = 0
                 lines += 1
 
@@ -584,7 +584,7 @@ class PMReporter(object):
         self.writer.write(comm + " duration: " + secs_to_readable(duration) + "\n")
         self.writer.write(comm + "\n")
 
-    def write_header(self):
+    def write_header(self, repeat=False):
         """ Write info header """
         if self.output == OUTPUT_ARCHIVE:
             self.writer.write("Recording %d metrics to %s" % (len(self.metrics), self.outfile))
@@ -619,6 +619,8 @@ class PMReporter(object):
             self.writer.write("\n")
 
         if self.output == OUTPUT_STDOUT:
+            if repeat:
+                self.writer.write("\n")
             names = ["", self.delimiter] # no timestamp on header line
             insts = ["", self.delimiter] # no timestamp on instances line
             units = ["", self.delimiter] # no timestamp on units line
@@ -758,7 +760,7 @@ class PMReporter(object):
 
         # Avoid expensive PMAPI calls more than once per metric
         res = {}
-        for i, metric in enumerate(self.metrics):
+        for metric in self.metrics:
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     if inst != PM_IN_NULL and not name:
@@ -852,7 +854,7 @@ class PMReporter(object):
 
         # Avoid expensive PMAPI calls more than once per metric
         res = {}
-        for i, metric in enumerate(self.metrics):
+        for metric in self.metrics:
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     if inst != PM_IN_NULL and not name:
@@ -898,7 +900,7 @@ class PMReporter(object):
 
         # Avoid expensive PMAPI calls more than once per metric
         res = {}
-        for i, metric in enumerate(self.metrics):
+        for metric in self.metrics:
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     if inst != PM_IN_NULL and not name:
