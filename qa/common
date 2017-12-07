@@ -133,6 +133,8 @@ _haveagents()
 		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 		    echo "Restarting PMCD ..."
 		    _service pcp restart
+		    _wait_for_pmcd
+		    _wait_for_pmlogger
 		    restart=true
 		fi
 		if $reinstall
@@ -220,22 +222,19 @@ End-of-File
 	# restart after a package install ... just going one step
 	# at a time, carefully ...
 	#
+	_stop_auto_restart pmlogger
+	_pid=`_get_pids_by_name -a 'pmlogger.*-P'`
 	_service pmlogger stop
-	_wait_pmlogger_end
-	sleep 2
+	if [ -n "$_pid" ]
+	then
+	    # odd ... a primary pmlogger has appeared ... wait for it to
+	    # go away
+	    _wait_pmlogger_end $_pid
+	fi
 	_service pmcd stop
 	_wait_pmcd_end
-	sleep 2
-	_service pmcd start
+	_service pcp start
 	_wait_for_pmcd
-	sleep 2
-	_service pmlogger start
-	# in this case, may have to rebuild pmlogger config files,
-	# so the default 20 second delay in _wait_for_pmlogger may
-	# not be enough
-	#
-	sleep 10
-
 	_wait_for_pmlogger
     fi
 }
@@ -304,6 +303,7 @@ End-of-File
 	esac
 	$sudo chown root:$grp $PCPQA_PMCDOPTIONS
 	_service pcp restart
+	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
 
