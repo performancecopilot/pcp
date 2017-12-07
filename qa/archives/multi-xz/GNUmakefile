@@ -3,8 +3,8 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives/multi-xz
 SRCARCH = $(shell echo *.[0-9].xz)
-SRCMETA = $(patsubst %.0.xz,%.meta,$(SRCARCH))
-SRCIDX = $(patsubst %.0.xz,%.index,$(SRCARCH))
+SRCMETA = $(patsubst %.0.xz,%.meta,%.meta.xz,$(SRCARCH))
+SRCIDX = $(patsubst %.0.xz,%.index,%.index.xz,$(SRCARCH))
 
 default setup default_pcp:
 

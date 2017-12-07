@@ -45,6 +45,10 @@
 #include "pmapi.h"
 #include "libpcp.h"
 
+#ifndef PCP_XZ_CACHE_BLOCKS
+#define PCP_XZ_CACHE_BLOCKS 4 /* 4 blocks in the cache, for now */
+#endif
+
 #define XZ_HEADER_MAGIC     "\xfd" "7zXZ\0"
 #define XZ_HEADER_MAGIC_LEN 6
 #define XZ_FOOTER_MAGIC     "YZ"
@@ -401,7 +405,7 @@ init(xzfile *xz)
 
   xz->uncompressed_size = lzma_index_uncompressed_size(xz->idx);
   xz->uncompressed_offset = 0;
-  xz->cache = new_blkcache(4); /* 4 blocks in the cache, for now */
+  xz->cache = new_blkcache(PCP_XZ_CACHE_BLOCKS);
   
   return 0; /* ok */
 }
