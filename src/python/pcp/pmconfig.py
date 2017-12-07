@@ -158,6 +158,7 @@ class pmConfig(object):
     def read_options(self):
         """ Read options from configuration file """
         config = ConfigParser.SafeConfigParser()
+        config.optionxform = str
         if self.util.config:
             config.read(self.util.config)
         self.read_section_options(config, 'options')
@@ -264,6 +265,7 @@ class pmConfig(object):
 
         # Read config
         config = ConfigParser.SafeConfigParser()
+        config.optionxform = str
         if self.util.config:
             config.read(self.util.config)
 
