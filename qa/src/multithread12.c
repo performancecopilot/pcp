@@ -489,7 +489,7 @@ main(int argc, char **argv)
 	archive_D = archive_C;
 
     if (pick_me == 0) {
-	sts = pthread_barrier_init(&barrier, NULL, 3);
+	sts = pthread_barrier_init(&barrier, NULL, 4);
 	if (sts != 0) {
 	    printf("pthread_barrier_init: sts=%d\n", sts);
 	    exit(1);
