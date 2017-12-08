@@ -957,6 +957,7 @@ collectl
 614 pmns local
 617 dbpmda help local
 622 pmie remote
+624 pmlogrewrite pmdumplog xz-decompress local
 628 pmda local pmda.simple
 633 pmlogger local
 634 libirixpmda local pmval timezone
