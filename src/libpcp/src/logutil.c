@@ -3290,7 +3290,6 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      */
     acp = ctxp->c_archctl;
     if (acp->ac_cur_log == 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_EOL; /* no more archives */
     }
 
@@ -3326,7 +3325,6 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * with the start time of the previous one.
      */
     if ((sts = __pmGetArchiveEnd_ctx(ctxp, &current_endtime)) < 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }
 
@@ -3342,11 +3340,9 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * chooses to keep reading anyway.
      */
     if (__pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
     }
 
-    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 
