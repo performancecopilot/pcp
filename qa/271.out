@@ -3,7 +3,6 @@ QA output created by 271
 [filtered and sorted stderr]
 __pmLogOpen: inspect file "TMP.0"
 __pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.log"
 __pmLogOpen: inspect file "TMP.meta"
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
@@ -19,9 +18,7 @@ Performance metrics from host HOST
 === empty dir ===
 [filtered and sorted stderr]
 __pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.dir"
 __pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.log"
 __pmLogOpen: inspect file "TMP.meta"
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
@@ -37,9 +34,7 @@ Performance metrics from host HOST
 === non-empty dir ===
 [filtered and sorted stderr]
 __pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.dir"
 __pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.log"
 __pmLogOpen: inspect file "TMP.meta"
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0

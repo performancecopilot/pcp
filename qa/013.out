@@ -23,5 +23,4 @@ pmdumplog: Cannot open archive "/tmp/fungus": No such file or directory
 [filtered and sorted stderr]
 __pmLogOpen: Not found: data file "bogus.0" (or similar)
 __pmLogOpen: Not found: metadata file "bogus.meta"
-__pmLogOpen: inspect file "/tmp/bogus.verylongsuffix"
 pmdumplog: Cannot open archive "/tmp/bogus": No such file or directory
