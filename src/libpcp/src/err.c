@@ -205,8 +205,10 @@ strerror_x(int code, char *buf, int buflen)
 #ifdef HAVE_STRERROR_R_PTR
     char	*p;
     p = strerror_r(code, buf, buflen);
-    if (p != buf)
+    if (p != buf) {
 	strncpy(buf, p, buflen);
+	buf[buflen-1] = '\0';
+    }
 #else
     /*
      * the more normal POSIX and XSI compliant variants always fill buf[]
@@ -229,6 +231,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 
     if (code == 0) {
 	strncpy(buf, "No error", buflen);
+	buf[buflen-1] = '\0';
 	return buf;
     }
 
@@ -312,14 +315,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 #else	/* WIN32 */
     if (code > -PM_ERR_BASE || code < -PM_ERR_NYI) {
 	const char	*bp;
-	if ((bp = wsastrerror(-code)) != NULL)
+	if ((bp = wsastrerror(-code)) != NULL) {
 	    strncpy(buf, bp, buflen);
+	    buf[buflen-1] = '\0';
+	}
 	else {
 	    /* No strerror_r in MinGW, so need to lock */
 	    char	*tbp;
 	    PM_LOCK(__pmLock_extcall);
 	    tbp = strerror(-code);		/* THREADSAFE */
 	    strncpy(buf, tbp, buflen);
+	    buf[buflen-1] = '\0';
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 
@@ -331,6 +337,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     for (i = 0; errtab[i].err; i++) {
 	if (errtab[i].err == code) {
 	    strncpy(buf, errtab[i].errmess, buflen);
+	    buf[buflen-1] = '\0';
 	    return buf;
 	}
     }
@@ -353,8 +360,8 @@ __pmDumpErrTab(FILE *f)
 {
     int	i;
 
-    fprintf(f, "  Code  Symbolic Name        Message\n");
+    fprintf(f, "  Code  Symbolic Name          Message\n");
     for (i = 0; errtab[i].err; i++)
-	fprintf(f, "%6d  %-20s %s\n",
+	fprintf(f, "%6d  %-22s %s\n",
 	    errtab[i].err, errtab[i].symb, errtab[i].errmess);
 }

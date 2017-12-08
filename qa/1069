@@ -102,6 +102,22 @@ echo "== exercise raw counter mode"
 pmrep --daemonize -s 5 -t 2 $log -c $tmp.config -r sample
 pmsleep 1
 
+echo "== exercise samples/interval/endtime settings and combinations"
+# One at a time
+pmrep -s 3 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -t 3 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -T 3 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+# Two at a time
+pmrep -s 3 -t 3 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -s 3 -T 3 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -t 3 -T 9 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+# All at once
+pmrep -s 3 -t 3 -T 1 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -s 3 -t 3 -T 2 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -s 3 -t 3 -T 3 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -s 3 -t 3 -T 6 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+pmrep -s 2 -t 8 -T 4 --archive $here/archives/sample-secs -p -x -z sample | _archive_filter
+
 echo "== exercise timezone setting"
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z XYZ sample \
 | _archive_filter
@@ -370,6 +386,13 @@ pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :global :testing | _archive_filter
 # Expected to pass
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G :testing | _archive_filter
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig    :testing | _archive_filter
+
+echo "== handle same labels"
+echo '[l]' > $tmp.lconfig
+echo 'kernel.all.cpu.user = %%usr' >> $tmp.lconfig
+echo 'kernel.percpu.cpu.user = %%usr' >> $tmp.lconfig
+pmrep -s 2 -r -u -w 12 $log2 -c $tmp.lconfig         :l
+pmrep -s 2 -r -u -w 12 $log2 -c $tmp.lconfig -X test :l
 
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig

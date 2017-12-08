@@ -94,7 +94,7 @@ HH:MM:SS        1
 00:47:01|     sde|     N/A|      N/A|      N/A|      ~|       ~|       ~|       ~
 00:47:01|      lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:01|    eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:01|    None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:01|       =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:01|1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:01|5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:01|15 minut|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -106,7 +106,7 @@ HH:MM:SS        1
 00:47:03|     sde|   1.000|   12.000|   12.000|      ~|       ~|       ~|       ~
 00:47:03|      lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:03|    eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:03|    None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:03|       =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:03|1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:03|5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:03|15 minut|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -118,7 +118,7 @@ HH:MM:SS        1
 00:47:05|     sde|   1.000|   11.500|   12.500|      ~|       ~|       ~|       ~
 00:47:05|      lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:05|    eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:05|    None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:05|       =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:05|1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:05|5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:05|15 minut|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -130,7 +130,7 @@ HH:MM:SS        1
 00:47:07|     sde|   1.000|   11.500|   12.500|      ~|       ~|       ~|       ~
 00:47:07|      lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:07|    eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:07|    None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:07|       =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:07|1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:07|5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:07|15 minut|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -142,7 +142,7 @@ HH:MM:SS        1
 00:47:09|     sde|   0.500|   11.500|   12.500|      ~|       ~|       ~|       ~
 00:47:09|      lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:09|    eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:09|    None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:09|       =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:09|1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|15 minut|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -156,7 +156,7 @@ HH:MM:SS        1
 00:47:01|          sde|     N/A|      N/A|      N/A|      ~|       ~|       ~|       ~
 00:47:01|           lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:01|         eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:01|         None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:01|            =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:01|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:01|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:01|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -168,7 +168,7 @@ HH:MM:SS        1
 00:47:03|          sde|   1.000|   12.000|   12.000|      ~|       ~|       ~|       ~
 00:47:03|           lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:03|         eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:03|         None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:03|            =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:03|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:03|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:03|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -180,7 +180,7 @@ HH:MM:SS        1
 00:47:05|          sde|   1.000|   11.500|   12.500|      ~|       ~|       ~|       ~
 00:47:05|           lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:05|         eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:05|         None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:05|            =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:05|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:05|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:05|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -192,7 +192,7 @@ HH:MM:SS        1
 00:47:07|          sde|   1.000|   11.500|   12.500|      ~|       ~|       ~|       ~
 00:47:07|           lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:07|         eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:07|         None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:07|            =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:07|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:07|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:07|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -204,7 +204,7 @@ HH:MM:SS        1
 00:47:09|          sde|   0.500|   11.500|   12.500|      ~|       ~|       ~|       ~
 00:47:09|           lo|       ~|        ~|        ~|  16436|       ~|       ~|       ~
 00:47:09|         eth0|       ~|        ~|        ~|   1500|       ~|       ~|       ~
-00:47:09|         None|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
+00:47:09|            =|       ~|        ~|        ~|      ~|   38220|       ~| 6068648
 00:47:09|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
@@ -280,6 +280,202 @@ Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
      380436   380435679.381
      380438   380437679.382
      380440   380439679.413
+== exercise samples/interval/endtime settings and combinations
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 1.0 sec
+ duration: 00:00:02
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:46        N/A             N/A
+20:36:47      1.000        1000.216
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 21
+ interval: 3.0 sec
+ duration: 00:01:00
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:48        N/A             N/A
+20:36:51      1.000         999.992
+20:36:54      1.000        1000.011
+20:36:57      1.000        1000.002
+20:37:00      1.000         999.995
+20:37:03      1.000        1000.004
+20:37:06      1.000         999.997
+20:37:09      1.000        1000.000
+20:37:12      1.000        1000.001
+20:37:15      1.000        1000.000
+20:37:18      1.000        1000.002
+20:37:21      1.000        1000.003
+20:37:24      1.000         999.994
+20:37:27      1.000        1000.003
+20:37:30      1.000         999.996
+20:37:33      1.000        1000.001
+20:37:36      1.000         999.995
+20:37:39      1.000        1000.005
+20:37:42      1.000        1000.004
+20:37:45      1.000         999.997
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 4
+ interval: 1.0 sec
+ duration: 00:00:03
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:46        N/A             N/A
+20:36:47      1.000        1000.216
+20:36:48      1.000        1000.090
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 3.0 sec
+ duration: 00:00:06
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:48        N/A             N/A
+20:36:51      1.000         999.992
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 1.5 sec
+ duration: 00:00:03
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:46        N/A             N/A
+20:36:48      1.333        1000.132
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 4
+ interval: 3.0 sec
+ duration: 00:00:09
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:48        N/A             N/A
+20:36:51      1.000         999.992
+20:36:54      1.000        1000.011
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 0.5 sec
+ duration: 00:00:01
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:45        N/A             N/A
+20:36:46      2.000        1000.216
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 1.0 sec
+ duration: 00:00:02
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:46        N/A             N/A
+20:36:47      1.000        1000.216
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 1.5 sec
+ duration: 00:00:03
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:46        N/A             N/A
+20:36:48      1.333        1000.132
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 3
+ interval: 3.0 sec
+ duration: 00:00:06
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:48        N/A             N/A
+20:36:51      1.000         999.992
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+10
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 2
+ interval: 4.0 sec
+ duration: 00:00:04
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+20:36:45        N/A             N/A
+20:36:49        N/A             N/A
 == exercise timezone setting
 
   archive: QAPATH/archives/sample-secs
@@ -578,10 +774,12 @@ ok
         s/s
         N/A
         N/A
+
   s.seconds
         s/s
       1.000
       1.000
+
   s.seconds
         s/s
       1.000
@@ -975,6 +1173,20 @@ No metrics specified.
 
   freemem  usedmem
     Kbyte    Kbyte
+== handle same labels
+          %usr          %usr          %usr
+                        cpu0          cpu1
+      millisec      millisec      millisec
+    4998314520    2062490350    2935824170
+    4998332000    2062491170    2935840820
+  test          %usr
+            millisec
+     =    4998314520
+  cpu0    2062490350
+  cpu1    2935824170
+     =    4998332000
+  cpu0    2062491170
+  cpu1    2935840820
 == exercise option priority
           m.u.free
              Kbyte
