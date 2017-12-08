@@ -97,8 +97,7 @@ allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
 allow pcp_pmcd_t debugfs_t:dir read;
 allow pcp_pmcd_t debugfs_t:file { getattr ioctl open read };
 allow pcp_pmcd_t pcp_pmie_exec_t:file { execute execute_no_trans open read };
-allow pcp_pmcd_t pcp_var_lib_t:fifo_file { read unlink }; #RHBZ1460131
-
+allow pcp_pmcd_t pcp_var_lib_t:fifo_file { getattr open read unlink }; #RHBZ1460131
 #type=AVC msg=audit(1463754714.313:316): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 #type=AVC msg=audit(1491576442.619:1738169): avc:  denied  { sys_ptrace } for  pid=15205 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 #type=AVC msg=audit(1498833776.957:2094): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
