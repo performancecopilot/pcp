@@ -455,7 +455,11 @@ __pmLock(void *lock, const char *file, int line)
 
     if ((sts = pthread_mutex_lock(lock)) != 0) {
 	sts = -sts;
+#ifdef PM_MULTI_THREAD_DEBUG
 	fprintf(stderr, "%s:%d: __pmLock(%s) failed: %s\n", file, line, lockname(lock), pmErrStr(sts));
+#else
+	fprintf(stderr, "%s:%d: __pmLock(%p) failed: %s\n", file, line, lock, pmErrStr(sts));
+#endif
 #ifdef BUILD_WITH_LOCK_ASSERTS
 	mybacktrace();
 	abort();
@@ -530,7 +534,11 @@ __pmUnlock(void *lock, const char *file, int line)
 
     if ((sts = pthread_mutex_unlock(lock)) != 0) {
 	sts = -sts;
+#ifdef PM_MULTI_THREAD_DEBUG
 	fprintf(stderr, "%s:%d: __pmUnlock(%s) failed: %s\n", file, line, lockname(lock), pmErrStr(sts));
+#else
+	fprintf(stderr, "%s:%d: __pmUnlock(%p) failed: %s\n", file, line, lock, pmErrStr(sts));
+#endif
 #ifdef BUILD_WITH_LOCK_ASSERTS
 	mybacktrace();
 	abort();
