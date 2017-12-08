@@ -9,6 +9,9 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+echo "*** Failure expected. libpcp fixes for concurrent multithreaded"
+echo "*** archive operations is WIP."
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
