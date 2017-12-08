@@ -12,11 +12,6 @@
 -  includedir config file support (?)
 -  copy directive conf file support (?)
 -  generalized zabbix_interval (write to target in batches) (?)
--  add support merging colums in colxrow output; for example in case of:
-[test]
-colxrow = test
-kernel.all.cpu.user = %%usr
-kernel.percpu.cpu.user = %%usr
 
 -----
 
