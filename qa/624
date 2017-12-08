@@ -1,0 +1,157 @@
+#!/bin/sh
+# PCP QA Test No. 610
+# pmlogrewrite - -i option with xz compressed input
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
+which xz >/dev/null 2>&1 || _notrun "xz not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;/$$\.;/PID.;g" \
+	-e '/^__pm/d' \
+	-e '/^_pm/d' \
+	-e '/^logputresult:/d' \
+	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    ok=true
+    for ext in 0 index meta
+    do
+	if [ ! -f "$1.$ext" ]
+	then
+	    echo "Arrgh ... $1.$ext missing" | _filter
+	    ok=false
+	fi
+	if [ ! -f "$2.$ext" ]
+	then
+	    echo "Warning: $2.$ext missing" | _filter
+	    ok=false
+	fi
+    done
+    $ok || return
+    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+mkdir $tmp.arch
+
+# real QA test starts here
+
+echo "=== metric not in archive ===" | tee -a $seq.full
+arch=rewrite
+rm -f $tmp.arch/*
+cp archives/$arch.* $tmp.arch
+ls -l $tmp.arch | tee -a $seq.full >$tmp.before
+cat <<'End-of-File' >$tmp.conf
+metric kernel.all.load { pmid -> 1.2.3 }
+End-of-File
+pmlogrewrite -Dlog -iqsvw -c $tmp.conf $tmp.arch/$arch 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+ls $tmp.arch
+ls -l $tmp.arch | tee -a $seq.full >$tmp.after
+if diff $tmp.before $tmp.after >/dev/null
+then
+    :
+else
+    echo "Directory differences, before ..."
+    cat $tmp.before
+    echo "After ..."
+    cat $tmp.after
+fi
+_cmp archives/$arch $tmp.arch/$arch
+
+echo | tee -a $seq.full
+echo "=== correctness checked in QA 493 ... only care about expected file contents here ===" | tee -a $seq.full
+cat <<End-of-File >$tmp.conf
+metric sample.ulong.bin_ctr {
+    indom -> NULL output MIN
+    type -> DOUBLE
+    units -> 1,0,0,BYTE,0,0
+}
+metric sample.ulonglong.bin_ctr {
+    indom -> NULL output MAX
+    type -> 32
+    units -> 1,0,0,BYTE,0,0
+}
+metric sampledso.double.bin_ctr {
+    indom -> NULL output AVG
+    type -> FLOAT
+}
+metric sample.float.bin_ctr {
+    indom -> NULL output SUM
+    type -> U64
+}
+metric sample.longlong.bin_ctr {
+    indom -> NULL output FIRST
+    type -> 64
+    units -> 1,-1,0,KBYTE,SEC,0
+}
+indom 29.2 { inst 200 -> DELETE }
+indom 30.2 { inst 800 -> DELETE }
+End-of-File
+cat $tmp.conf >>$seq.full
+arch=mirage
+rm -f $tmp.arch/*
+cp archives/$arch.* $tmp.arch
+xz --compress $tmp.arch/$arch.*
+ls $tmp.arch
+ls -l $tmp.arch >>$seq.full
+pmlogrewrite -s -c $tmp.conf $tmp.arch/$arch $tmp.arch/$arch.expect 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+ls $tmp.arch
+ls -l $tmp.arch >>$seq.full
+pmlogrewrite -Dlog -si -c $tmp.conf $tmp.arch/$arch 2>&1 \
+| _filter \
+| LC_COLLATE=POSIX sort
+ls -l $tmp.arch >>$seq.full
+_cmp $tmp.arch/$arch $tmp.arch/$arch.expect
+
+echo | tee -a $seq.full
+echo "=== truncated archive ... expect no change ==="
+cat <<End-of-File >$tmp.conf
+indom 29.1 { iname "red" -> "really red" }
+End-of-File
+cat $tmp.conf >>$seq.full
+arch=ok-truncbin
+rm -f $tmp.arch/*
+cp archives/$arch.* $tmp.arch
+ls -l $tmp.arch >>$seq.full
+pmlogrewrite -Dlog -iwv -c $tmp.conf $tmp.arch/$arch 2>$tmp.err >$tmp.out
+cat $tmp.out $tmp.err \
+| _filter \
+| sed -e '/inspect file/{
+s/\.meta/.EXT/
+s/\.index/.EXT/
+s/\.0/.EXT/
+}'
+ls $tmp.arch
+ls -l $tmp.arch >>$seq.full
+_cmp archives/$arch $tmp.arch/$arch
+
+# success, all done
+exit
