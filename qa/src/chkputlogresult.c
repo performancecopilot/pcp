@@ -30,8 +30,8 @@ main(int argc, char **argv)
     pmID	*pmids;
     pmDesc	desc;
     pmResult	*rp;
-    __pmLogCtl	logctl = { 0 };
-    __pmArchCtl	archctl = { 0 };
+    __pmLogCtl	logctl;
+    __pmArchCtl	archctl;
     __pmPDU	*pdp;
     pmTimeval	epoch = { 0, 0 };
     int		numinst;
@@ -83,6 +83,8 @@ Options:\n\
 	exit(1);
     }
 
+    memset(&logctl, 0, sizeof(logctl));
+    memset(&archctl, 0, sizeof(archctl));
     archctl.ac_log = &logctl;
     if ((sts = __pmLogCreate("qatest", argv[optind], LOG_PDU_VERSION, &archctl)) != 0) {
 	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmGetProgname(), pmErrStr(sts));
