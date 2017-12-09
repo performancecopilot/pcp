@@ -242,6 +242,10 @@ main(int argc, char **argv)
 	    break;
 	}
 	n++;
+	if (n > resnum) {
+	    printf("%s: botch: found %d records forwards, but now have seen %d records backwards\n", pmGetProgname(), resnum, n);
+	    exit(1);
+	}
 	cmpres(n, resvec[resnum - n], resp);
 	pmFreeResult(resp);
     }
