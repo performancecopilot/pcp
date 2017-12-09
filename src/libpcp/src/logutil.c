@@ -230,9 +230,10 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	    version = -oserror();
 	    goto func_return;
 	}
-	else
+	else {
 	    version = PM_ERR_LABEL;
 	    goto func_return;
+	}
     }
     else {
 	/* swab internal log label */
@@ -254,9 +255,10 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	    version = -oserror();
 	    goto func_return;
 	}
-	else
+	else {
 	    version = PM_ERR_LABEL;
 	    goto func_return;
+	}
     }
 
     version = lp->ill_magic & 0xff;
