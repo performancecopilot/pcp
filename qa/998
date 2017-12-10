@@ -43,7 +43,7 @@ $1 == "backtrace:"	{ exit }
 			{ print }'
     else
 	tee -a $here/$seq.full \
-	| sed -e \
+	| sed \
 	    -e '/^github-50.c:.*pmUnlock(.* not permitted/d' \
 	# end
     fi \
