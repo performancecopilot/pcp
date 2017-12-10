@@ -62,6 +62,7 @@
 The scsi tape instance domain includes st[0-9]+ devices, but not any of the
 derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
 devices all share the same statistics in the kernel as the st devices.
+@ 60.35 serial devices (aka ttys)
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
