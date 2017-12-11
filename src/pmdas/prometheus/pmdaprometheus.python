@@ -77,8 +77,9 @@ class Metric(object):
                 self.typeline = typeline
                 self.values = {} # instance-vector-to-value
                 self.labels = {}
-                for key,val in instances.items():
-                        self.labels[key] = val
+                if instances is not None: # dict is empty for singular metrics (no indom)
+                        for key,val in instances.items():
+                                self.labels[key] = val
 
                 self.assign_metadata()
                 if instances:
