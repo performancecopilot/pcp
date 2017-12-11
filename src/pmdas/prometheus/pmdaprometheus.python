@@ -22,6 +22,9 @@ import cpmda
 from pcp.pmapi import pmUnits, pmContext, pmErr
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 
+from cpmapi import PM_LABEL_CONTEXT, PM_LABEL_DOMAIN, PM_LABEL_INDOM, PM_LABEL_CLUSTER
+from cpmapi import PM_LABEL_ITEM, PM_LABEL_INSTANCES, PM_LABEL_OPTIONAL
+
 import argparse
 from collections import OrderedDict
 from ctypes import c_int
@@ -36,7 +39,7 @@ import time
 import pickle
 import requests
 import threading
-
+from socket import gethostname
 
 # Number of seconds to wait between poll attempts on a source that
 # we've never been able to connect to & collect a list of metrics from.
@@ -46,7 +49,7 @@ MAX_CLUSTER = 0xfff    # ~ max. number of prometheus sources
 MAX_METRIC = 0x3ff     # ~ max. number of metrics per source
 MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
 
-# These numbers are combined to create uniqe numbers for several
+# These numbers are combined to create unique numbers for several
 # purposes.  The first two types are used only for internal
 # pmdaprometheus purposes, and are not visible as indoms to pmapi
 # clients.
@@ -55,6 +58,10 @@ MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
 # indom# 1..4095: for each source=cluster, map metric names to pmid numbers
 # indom# 4096 + cluster#*1024 ...+1023:  actual pmns indom for each metric
 
+labeltype = { PM_LABEL_CONTEXT:"PM_LABEL_CONTEXT",
+PM_LABEL_DOMAIN:"PM_LABEL_DOMAIN", PM_LABEL_INDOM:"PM_LABEL_INDOM",
+PM_LABEL_CLUSTER:"PM_LABEL_CLUSTER", PM_LABEL_ITEM:"PM_LABEL_ITEM",
+PM_LABEL_INSTANCES:"PM_LABEL_INSTANCES", PM_LABEL_OPTIONAL:"PM_LABEL_OPTIONAL" }
 
 class Metric(object):
         ''' Metric information class '''
@@ -69,6 +76,7 @@ class Metric(object):
                 self.pcpline = pcpline
                 self.typeline = typeline
                 self.values = {} # instance-vector-to-value
+                self.labels = instances # dict
                 self.assign_metadata()
                 if instances:
                         self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
@@ -92,7 +100,7 @@ class Metric(object):
                         self.source.pmda.set_need_refresh()
                 except Exception as e:
                         self.source.pmda.err("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
-                self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
+                self.source.pmda.debug("created metric %#x (%s) labels='%s'" % (self.pmid, self.mname, self.labels))
 
 
         def assign_metadata(self):
@@ -434,6 +442,7 @@ class Source(object):
                 self.name = name # source nickname
                 self.cluster = cluster # unique/persistent id# for nickname
                 self.path = path # pathname to .url file
+                self.url = None
                 self.pmda = pmda # the shared pmda
 
                 self.refresh_time = 0 # "never"
@@ -579,6 +588,7 @@ class Source(object):
                                         m.save()
                                 except: # ... which they won't, this is just belt & suspenders
                                         pass
+                        self.url = url
                         self.pmids_table.save()
                         self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(t), s, url))
                 except Exception as e:
@@ -631,6 +641,10 @@ class PrometheusPMDA(PMDA):
                 # used during fetch
                 self.set_refresh_all(self.refresh_some_clusters_for_fetch) # "all" is a misnomer
                 self.set_fetch_callback(self.fetch_callback)
+
+                # label callbacks
+                self.set_label(self.prom_label)
+                self.set_label_callback(self.prom_label_callback)
 
 
         def assert_source_invariants(self, name=None, cluster=None):
@@ -763,6 +777,73 @@ class PrometheusPMDA(PMDA):
         def set_need_refresh(self):
                 cpmda.set_need_refresh()
                 self.pmns_refresh()
+
+        def prom_label(self, ident, type):
+                '''
+                return a JSONb formatted string (labelset) for given ident of given type
+                '''
+
+                self.debug('prom_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[type]))
+                if type == PM_LABEL_DOMAIN:
+                        # labels for this domain
+                        return '{"domain":"prometheus", "domainID":%d}' % 144
+
+                elif type == PM_LABEL_INDOM:
+                        # labels for indom=ident
+                        indom = ident
+                        for k,v in self.source_by_cluster.items():
+                                for m,mv in v.metrics_by_name.items():
+                                        if mv.mindom == indom:
+                                                return '{"source":"%s"}' % v.name
+
+                elif type == PM_LABEL_CLUSTER:
+                        # labels for a cluster, i.e. a prometheus source
+                        # Note: if using dbpmda, test this with e.g. label cluster 144.1
+                        # (you need the domain (144) and the cluster number (1, 2, ..)
+                        # self.debug('   source_by_cluster %s' % (self.source_by_cluster))
+                        try:
+                                s = self.source_by_cluster[ident]
+                                if s.url.startswith("http"):
+                                        host = s.url.replace("http://", "").replace("https://", "").split("/")[0]
+                                elif s.url.startswith("file://"):
+                                        host = gethostname()
+                                else:
+                                        host = "unknown"
+                                if host == "localhost":
+                                        host = gethostname()
+                                return '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
+                        except:
+                                pass # ignore key error for unknown cluster number
+
+                elif type == PM_LABEL_ITEM:
+                        # labels for a metric pmid=ident
+                        L = ''
+                        for k,v in self.source_by_cluster.items():
+                                for m,mv in v.metrics_by_name.items():
+                                        if mv.pmid == ident:
+                                                for lname,lval in mv.labels.items():
+                                                        if len(L) > 0:
+                                                                L += ','
+                                                        L += '"%s":"%s"' % (lname,lval)
+                                                return '{%s}' % L
+
+                # all other cases return an empty label set
+                return '{}'
+
+        def prom_label_callback(self, indom, inst):
+                '''
+                return label for given instance ID in given indom
+                '''
+                self.debug('prom_label_callback(indom=%#x, inst=%d)' % (indom, inst))
+                for k,v in self.source_by_cluster.items():
+                        for m,mv in v.metrics_by_name.items():
+                                if indom == mv.mindom:
+                                        for i,n in enumerate(mv.indom_table.instances):
+                                                if inst == i:
+                                                        # success
+                                                        return '{"instance": "' + str(i) + ' ' + n + '"}'
+                # inst not found in indom
+                return '{}'
 
         def debug(self,s):
                 # XXX: conditionalize
