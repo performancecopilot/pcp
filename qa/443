@@ -81,8 +81,6 @@ _run -p 1234 -g
 _run -p 123foo
 _run_sudo -K blah,a,/no/such/file,no_init
 _run -s 456bar
-_run -s 3 -T+5min
-_run -T+5min -s 10
 _run -t 10foobars
 _run -Z GMT -z
 _run -z -Z EST
