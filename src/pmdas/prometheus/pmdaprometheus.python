@@ -76,7 +76,10 @@ class Metric(object):
                 self.pcpline = pcpline
                 self.typeline = typeline
                 self.values = {} # instance-vector-to-value
-                self.labels = instances # dict
+                self.labels = {}
+                for key,val in instances.items():
+                        self.labels[key] = val
+
                 self.assign_metadata()
                 if instances:
                         self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
@@ -183,6 +186,7 @@ class Metric(object):
                                         if len(instname) > 0:
                                                 instname += ' '
                                         instname += key + ":" + val + ""
+                                        self.labels[key] = val
                         inst = self.indom_table.intern_lookup_value(instname)
 
                         # self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
@@ -821,7 +825,8 @@ class PrometheusPMDA(PMDA):
                         for k,v in self.source_by_cluster.items():
                                 for m,mv in v.metrics_by_name.items():
                                         if mv.pmid == ident:
-                                                for lname,lval in mv.labels.items():
+                                                # self.debug('prom_label PM_LABEL_ITEM, found pmid %#x, labels=%s' % (ident, mv.labels))
+                                                for lname,lval in sorted(mv.labels.items()):
                                                         if len(L) > 0:
                                                                 L += ','
                                                         L += '"%s":"%s"' % (lname,lval)
