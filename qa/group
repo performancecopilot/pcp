@@ -1437,6 +1437,7 @@ collectl
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
+1221:reserved labels pmda.prometheus local
 1225 pmwebapi local
 1227 derive local
 1238 pmiostat archive multi-archive decompress-xz local
@@ -1453,6 +1454,7 @@ collectl
 1331 verify local
 1354 pmval archive local
 1359 libpcp local
+1367:reserved labels pmda.simple local
 1368 labels help pmlogger pmdumplog local
 1369 labels pmcd pmlogger pmdumplog local
 1385:reserved pmda.prometheus local
