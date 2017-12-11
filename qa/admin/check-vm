@@ -973,8 +973,8 @@ pkg?		/usr/lib/qt/5.*/lib/libQt5Core.so	[library/qt5 (build optional)]
 slackpkg?	libQt5Core.so			[? (build optional)]
 pacman?		libQt5Core.so			[? (build optional)]
 dpkg?		/usr/lib/*/qt5/bin/uic		[qtbase5-dev-tools (build optional)]
-rpm?		uic|/usr/lib/qtchooser/uic	[? (build optional)]
-urpm?		uic|/usr/lib/qtchooser/uic	[? (build optional)]
+rpm?		uic|/usr/lib/qtchooser/uic	[qtchooser (build optional)]
+urpm?		uic|/usr/lib/qtchooser/uic	[qtchooser (build optional)]
 emerge?		uic				[? (build optional)]
 pkgin?		uic				[? (build optional)]
 pkg_add?	uic				[? (build optional)]
@@ -1523,12 +1523,12 @@ then
 # text after # is treated as a comment
 # pcp.spec.in
 qt-devel|qt4-devel|libqt4-devel|lib64qt4-devel	>=	4.4
-libpfm-devel			>=	4.4	pcp-pmda-perfevent
-libpfm|libpfm4			>=	4.4	pcp-pmda-perfevent
-libibmad-devel			>=	1.1.7	pcp-pmda-infiniband
-libibmad|libibmad5		>=	1.1.7	pcp-pmda-infiniband
-libibumad-devel			>=	1.1.7	pcp-pmda-infiniband
-libibumad|libibumad3		>=	1.1.7	pcp-pmda-infiniband
+libpfm-devel				>=	4.4	pcp-pmda-perfevent
+libpfm|libpfm4				>=	4.4	pcp-pmda-perfevent
+libibmad-devel|infiniband-diags-devel	>=	1.1.7	pcp-pmda-infiniband
+libibmad|libibmad5|infiniband-diags	>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel				>=	1.1.7	pcp-pmda-infiniband
+libibumad|libibumad3			>=	1.1.7	pcp-pmda-infiniband
 End-of-File
     cat $tmp.rpm \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
