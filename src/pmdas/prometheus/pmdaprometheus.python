@@ -841,7 +841,7 @@ class PrometheusPMDA(PMDA):
                                         for i,n in enumerate(mv.indom_table.instances):
                                                 if inst == i:
                                                         # success
-                                                        return '{"instance": "' + str(i) + ' ' + n + '"}'
+                                                        return '{"instance": "' + n + '"}'
                 # inst not found in indom
                 return '{}'
 
