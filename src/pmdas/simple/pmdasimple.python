@@ -213,9 +213,9 @@ class SimplePMDA(PMDA):
         elif type == PM_LABEL_INDOM:
             indom = ident
             if indom == self.color_indom:
-                ret += '"simple instance domain":"color"'
+                ret += '"simple_instance_domain":"color"'
             elif indom == self.now_indom:
-                ret += '"simple instance domain":"now"'
+                ret += '"simple_instance_domain":"now"'
         elif type == PM_LABEL_CLUSTER:
             cluster = ident
             if cluster == 0:
@@ -234,6 +234,7 @@ class SimplePMDA(PMDA):
         '''
             return a JSON formatted labelset for an inst in given indom, as a string
         '''
+        # note: this should probably export the instance name, not the ID.
         ret = '"indom":"%#x", "inst":"%#x"' % (indom, inst)
         # self.log("simple_label_callback(%#x,%d) returning {%s}" % (indom, inst, ret))
         return '{%s}' % ret

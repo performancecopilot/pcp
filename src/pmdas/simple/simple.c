@@ -476,11 +476,11 @@ simple_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
     case PM_LABEL_INDOM:
 	indom = (pmInDom)ident;
 	if (pmInDom_serial(indom) == COLOR_INDOM) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"simple instance domain\":\"color\"}")) < 0)
+	    if ((sts = pmdaAddLabels(lpp, "{\"simple_instance_domain\":\"color\"}")) < 0)
 		return sts;
 	}
 	else if (pmInDom_serial(indom) == NOW_INDOM) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"simple instance domain\":\"now\"}")) < 0)
+	    if ((sts = pmdaAddLabels(lpp, "{\"simple_instance_domain\":\"now\"}")) < 0)
 		return sts;
 	}
         break;
@@ -514,6 +514,7 @@ simple_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     int sts;
 
+    /* note: should probably export the instance name here, not the instance ID. */
     if ((sts = pmdaAddLabels(lp, "{\"indom\":\"%#x\", \"inst\":\"%d\"}", indom, inst)) < 0)
 	return sts;
     return 2;
