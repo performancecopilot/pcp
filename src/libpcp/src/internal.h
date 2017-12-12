@@ -386,7 +386,6 @@ extern void __pmConnectGetPorts(pmHostSpec *) _PCP_HIDDEN;
 extern int __pmLogOpen(const char *, __pmContext *) _PCP_HIDDEN;
 extern const char *__pmLogName_r(const char *, int, char *, int) _PCP_HIDDEN;
 extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-safe */
-extern char *__pmLogBaseName(char *) _PCP_HIDDEN;
 extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;

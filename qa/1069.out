@@ -884,6 +884,7 @@ ok
     1.001
 == derived metrics in pmrep.conf
 No output expected.
+No output expected.
 == extended existing sample configuration
   s.combo  s.seconds  s.milliseconds
       s/s        s/s            ms/s
@@ -1104,6 +1105,8 @@ No metrics specified.
 
 == handle options/global/metricset section corner cases / issues
 Unknown option mem.util.free in [options].
+   test   freemem
+            Kbyte
   yes  freemem
          Kbyte
 

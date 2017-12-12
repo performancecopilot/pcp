@@ -41,7 +41,7 @@ _pcp_complete()
         arg_regex="-[ahKceASTOstZiPqbygpXEx]"
     ;;
     pmdumplog)
-        all_args="adiLlmnrSsTtVvxZz"
+        all_args="adehiLlmnrSsTtVvxZz"
         arg_regex="-[nSTvZ]"
     ;;
     pmdumptext)

@@ -201,6 +201,14 @@ pmrep -s 5 -t 2 $log -e "$combo" sample.combo
 echo "== derived metrics in pmrep.conf"
 cat > $tmp.derived-test.conf <<EOF
 [derived-test]
+derived = derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes),derived_b = delta(proc.io.read_bytes) + delta(proc.io.write_bytes)
+derived_a = ,,
+derived_b = ,,
+EOF
+pmrep -C -H -U -a $here/archives/proc -c $tmp.derived-test.conf :derived-test
+echo "No output expected."
+cat > $tmp.derived-test.conf <<EOF
+[derived-test]
 iopct = p.i.io_pct
 iopct.formula = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))
 EOF
@@ -359,6 +367,11 @@ echo 'interval = 2s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No metrics in options allowed
 pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used | _archive_filter
+echo '[testing]' > $tmp.cconfig
+echo 'colxrow = " test "' >> $tmp.cconfig
+echo 'mem.util.free = freemem' >> $tmp.cconfig
+# colxrow quote handling
+pmrep -s 1 -C $log2 -c $tmp.cconfig :testing | _archive_filter
 echo '[testing]' > $tmp.cconfig
 echo 'colxrow = yes' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
