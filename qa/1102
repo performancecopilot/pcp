@@ -3,6 +3,10 @@
 # pmdaprometheus testing
 # specifically testing generic usecase
 #
+# Note: if anything gets added or changed in qa/prometheus/samples directory,
+# then this test (and all tests in group pmda.prometheus) will need to be remade.
+
+#
 # Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
 
