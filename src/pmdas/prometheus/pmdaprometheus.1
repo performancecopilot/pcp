@@ -14,33 +14,43 @@
 .\" for more details.
 .\"
 .\"
-.TH PMDAPROMETHEUS 1 "PCP" "Performance Co-Pilot"
+.ds ia prometheus
+.ds IA PROMETHEUS
+.ds Ia Prometheus
+.TH PMDA\*(IA 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdaprometheus\f1 \- Prometheus PMDA
+\f3pmda\*(ia\f1 \- \*(Ia PMDA
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+[\f3\-c\f1 \f2config\f1]
+[\f3\-t\f1 \f2timeout\f1]
+[\f3\-u\f1 \f2user\f1]
 .SH DESCRIPTION
-\fBpmdaprometheus\fR is a Performance Metrics Domain Agent (PMDA) which
-creates PCP metrics from Prometheus endpoints, which provide HTTP based
+\fBpmda\*(ia\fR is a Performance Metrics Domain Agent (PMDA) which
+creates PCP metrics from \*(Ia endpoints, which provide HTTP based
 access to application metrics.
+The default \f2config\fP directory is \fB$PCP_PMDAS_DIR/prometheus/urls.d/\fR,
+see \fBSOURCES\fP below.
+The default URL fetch \f2timeout\fP is \fB2\fP seconds.
+The default \f2user\fP, if not specified, is the current user.
 .PP
-Further details on the Prometheus exposition format can
+Further details on the \*(Ia exposition format can
 be found at
 .I https://prometheus.io/docs/instrumenting/exposition_formats
 
-.SH SOURCES
-
+.SH "URL SOURCES"
 As it runs,
-.B pmdaprometheus
+.B pmda\*(ia
 periodically scans the
 .I $PCP_PMDAS_DIR/prometheus/urls.d
 directory, looking for source url files (\c
-.IR *.url).
+.IR *.url ).
 Each .url file contains one complete HTTP or HTTPS URL at which to
-pmdaprometheus is to reach a Prometheus endpoint.  The server does not
+pmda\*(ia is to reach a \*(Ia endpoint.  The server does not
 have to be up or stay running.  The pmda will relay data and metadata
 when/if they are up, and will return errors when/if they are down.
 
 .SH METRICS
-
 All metrics from a file named
 .IR FOO.url
 will be exported as PCP metrics with the
@@ -55,15 +65,13 @@ with sources that mix levels of nesting, such as
 because metrics under FOO one may conflict with or hide FOO.BAR and FOO.BAZ
 subtrees.
 
-
 \" example
 \" describe metric naming conventions
 \" refer to pmwebd interop
 \" describe # PCP extras
 
 .SH LIMITATIONS
-
-.B pmdaprometheus
+.B pmda\*(ia
 and
 .B libpcp
 internals impose some numerical constraints about the number of sources (4095),
@@ -72,9 +80,8 @@ metric (4194304).
 
 \" errors 
 
-
 .SH INSTALLATION
-Install the Prometheus PMDA by using the Install script as root:
+Install the \*(Ia PMDA by using the Install script as root:
 .PP
       # cd $PCP_PMDAS_DIR/prometheus
 .br
@@ -86,18 +93,18 @@ To uninstall, do the following as root:
 .br
       # ./Remove
 .PP
-\fBpmdaprometheus\fR is launched by \fIpmcd\fR(1) and should never be executed
+\fBpmda\*(ia\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.
 .SH FILES
 .IP "\fB$PCP_PMDAS_DIR/prometheus/Install\fR" 4
-installation script for the \fBpmdaprometheus\fR agent
+installation script for the \fBpmda\*(ia\fR agent
 .IP "\fB$PCP_PMDAS_DIR/prometheus/Remove\fR" 4
-undo installation script for the \fBpmdaprometheus\fR agent
+undo installation script for the \fBpmda\*(ia\fR agent
 .IP "\fB$PCP_PMDAS_DIR/prometheus/urls.d/\fR" 4
-source files for the \fBpmdaprometheus\fR agent
+source files for the \fBpmda\*(ia\fR agent
 .IP "\fB$PCP_LOG_DIR/pmcd/prometheus.log\fR" 4
-default log file for error messages from \fBpmdaprometheus\fR
+default log file for error messages from \fBpmda\*(ia\fR
 .IP "\fB$PCP_VAR_DIR/\fR" 4
 directory containing internal tables for ID number persistence
 

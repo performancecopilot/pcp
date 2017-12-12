@@ -612,11 +612,14 @@ class Source(object):
 
 
 class PrometheusPMDA(PMDA):
-        def __init__(self,pmda_name,domain,config,timeout):
+        def __init__(self,pmda_name,domain,config,timeout,user):
                 ''' Initialize the PMDA
                 '''
-                # urgent: say hi the invoking pmcd, redirect stderr etc.
+                # urgent: set user, say hi the invoking pmcd, redirect stderr etc.
                 PMDA.__init__(self,pmda_name,domain)
+                if user is not None:
+                        self.set_user(user)
+                        self.log('running as user "%s"' % user)
                 self.connect_pmcd()
                 # now everything else may take time
                 self.pmda_name = pmda_name
@@ -875,7 +878,11 @@ if __name__ == '__main__':
                             type=int,
                             default=2,
                             help='HTTP GET timeout for each end-point URL (default 2 seconds)')
+        parser.add_argument('-u','--user',
+                            type=str,
+                            default=None,
+                            help='set the username to run under. Default is no change (current user).')
         args = parser.parse_args()
 
-        pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout)
+        pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout, args.user)
         pmda.run()
