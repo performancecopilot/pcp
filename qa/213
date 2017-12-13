@@ -22,7 +22,7 @@ culldir=false
 _cleanup()
 {
     rm -f $tmp.*
-    $sudo rm -f $files
+    $sudo rm -f mmv.log
     $culldir && $sudo rm -fr "$PCP_TMP_DIR/mmv"
 }
 
@@ -48,6 +48,7 @@ _filter()
 	-e 's/dbpmda([0-9][0-9]*)/dbpmda(PID)/' \
 	-e "s/ -U $username//g" \
 	-e "s/\.$DSO_SUFFIX/.DSO_SUFFIX/g" \
+	-e "s@$tmp@TMP@g" \
     | _filter_dumpresult
 }
 
@@ -73,7 +74,7 @@ End-of-File
 echo
 echo "=== Daemon PMDA test ==="
 cat <<End-of-File | dbpmda -ei 2>&1 | _filter
-open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29 -l $tmp.log
 name 29.0.1001
 name 29.0.1007
 name 2.4.1
@@ -85,6 +86,8 @@ traverse sample.secret.foo
 children sample.secret.foo.bar
 traverse sample.secret.foo.bar
 End-of-File
+
+cat $tmp.log >>$here/$seq.full
 
 echo
 echo "=== MMV PMDA test ==="
@@ -101,7 +104,7 @@ desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
 store mmv.control.reload "1"
-open pipe $PCP_PMDAS_DIR/mmv/pmdammv $pipeargs
+open pipe $PCP_PMDAS_DIR/mmv/pmdammv $pipeargs -l $tmp.log
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
@@ -114,6 +117,8 @@ fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
 store mmv.control.reload "1"
 End-of-File
+
+cat $tmp.log >>$here/$seq.full
 
 # success, all done
 exit

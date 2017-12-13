@@ -138,8 +138,8 @@ Getdesc:                off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
-dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
-Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)

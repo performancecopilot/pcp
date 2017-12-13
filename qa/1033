@@ -50,7 +50,8 @@ $1 == "Metric:"			{ state = 1 }'
 
 _filter_pmda_log()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
         -e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
         -e 's/^\(Log finished\) .*/\1 .../' \
         -e '/^$/d' \

@@ -19,7 +19,7 @@ status=1
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -f $tmp.*; $sudo rm -f $PCP_PMDAS_DIR/gpfs/gpfs.log; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -54,6 +54,8 @@ End-of-File
 # iterate over our pre-canned gpfs files
 echo === Testing precanned gpfs files
 $sudo TERM=ansi dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+
+cat gpfs.log >>$here/$seq.full
 
 status=0
 exit

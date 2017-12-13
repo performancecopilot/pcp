@@ -60,3 +60,5 @@ store papi.control.enable "TOT_INS"
 fetch papi.system.TOT_INS
 store papi.control.disable "TOT_INS"
 EOF
+
+cat $tmp.log >>$here/$seq.full

@@ -21,7 +21,8 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
 	-e 's/\.'"$DSO_SUFFIX"'/.$DSO_SUFFIX/g' \
 	-e "s;$tmp;\$tmp;g" \

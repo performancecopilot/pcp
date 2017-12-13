@@ -17,19 +17,22 @@ _filter()
     sed \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
-	-e "s/\\.$DSO_SUFFIX/.\$DSO_SUFFIX/"
+	-e "s/\\.$DSO_SUFFIX/.\$DSO_SUFFIX/" \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+status=1
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 dsopmda=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
 pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
-[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
-[ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$dsopmda\"" && exit 1
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit
+[ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$dsopmda\"" && exit
 
 $sudo TERM=ansi dbpmda -ie <<End-of-File 2>&1 | _filter
-open pipe $pipepmda -d 29
+open pipe $pipepmda -d 29 -l $tmp.log
 getdesc on
 fetch 29.0.6
 profile 29.2 none
@@ -61,3 +64,8 @@ profile 30.2 delete 700
 profile 30.2 delete 900
 fetch 30.0.6
 End-of-File
+
+cat $tmp.log >>$here/$seq.full
+
+status=0
+exit

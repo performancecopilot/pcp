@@ -1,6 +1,6 @@
 QA output created by 1040
-dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
-Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> fetch sample.long.million
 PMID(s): 29.0.13
 pmResult ... numpmid: 1

@@ -24,7 +24,7 @@ _cleanup()
 {
     _restore_config $PCP_PMDAS_DIR/bind2/bind2.conf
     _restore_pmda_install $iam
-    $sudo rm -f $tmp.*
+    $sudo rm -f $tmp.* $PCP_PMDAS_DIR/bind2/bind2.log
     exit $status
 }
 

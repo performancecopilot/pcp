@@ -14,7 +14,8 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
 
-trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
+status=1
+trap "rm -rf $tmp $tmp.*; $sudo rm -f simple.log; exit \$status" 0 1 2 3 15
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 
@@ -64,4 +65,5 @@ fetch simple.color
 quit
 End-of-File
 
-exit 0
+status=0
+exit

@@ -1147,11 +1147,14 @@ EOF
 _check_papi_native()
 {
     $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
-open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
 attr "username" "root"
 attr 11 "0"
 traverse papi.system.perf
 EOF
+    echo "papi.log ..." >>$here/$seq.full
+    cat $tmp.papi.log >>$here/$seq.full
+    $sudo rm $tmp.papi.log
     echo "_check_papi_native ..." >>$here/$seq.full
     cat $tmp.papi.check >>$here/$seq.full
     if grep "Error PDU: Unknown metric name" <$tmp.papi.check >/dev/null

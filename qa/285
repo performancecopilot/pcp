@@ -36,7 +36,9 @@ _filter()
 	-e '/^dbpmda> $/d' \
 	-e "s/ -U $username//g" \
         -e "s;$sampledso;SAMPLEDSO;g" \
-	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g" \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
 pipeargs=""
@@ -57,11 +59,13 @@ EOF
 
 echo
 dbpmda -ie <<EOF 2>&1 | _filter | tee $tmp.daemon
-open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 30
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 30 -l $tmp.log
 instance 30.1
 instance 30.1 0
 instance 30.1 "red"
 EOF
+
+cat $tmp.log >>$here/$seq.full
 
 echo
 echo "Differences ... expect none after the \"open\" processing"
@@ -73,8 +77,10 @@ echo
 echo "=== IPC-PDU version botch for second PMDA? ==="
 dbpmda -ie <<EOF 2>&1 | _filter
 open dso $sampledso sample_init 30
-open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29 -l $tmp.log
 EOF
+
+cat $tmp.log >>$here/$seq.full
 
 # success, all done
 status=0

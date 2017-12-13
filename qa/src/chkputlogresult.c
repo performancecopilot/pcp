@@ -112,12 +112,12 @@ Options:\n\
 	exit(1);
     }
     logctl.l_label.ill_vol = 0;
-    if ((sts = __pmLogWriteLabel(logctl.l_mfp, &logctl.l_label)) != 0) {
+    if ((sts = __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel VOL 0 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
-    __pmFflush(logctl.l_mfp);
+    __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
     __pmLogPutIndex(&archctl, &epoch);
 
@@ -155,11 +155,11 @@ Options:\n\
 	}
 	rp->timestamp.tv_sec = ++epoch.tv_sec;
 	rp->timestamp.tv_usec = epoch.tv_usec;
-	if ((sts = __pmEncodeResult(__pmFileno(logctl.l_mfp), rp, &pdp)) < 0) {
+	if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), rp, &pdp)) < 0) {
 	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	__pmOverrideLastFd(__pmFileno(logctl.l_mfp));
+	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 	if (bflag) {
 	    printf("__pmLogPutResult: %d metrics ...\n", i+1);
 	    if ((sts = __pmLogPutResult(&archctl, pdp)) < 0) {
@@ -178,7 +178,7 @@ Options:\n\
 	pmFreeResult(rp);
     }
 
-    __pmFflush(logctl.l_mfp);
+    __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
     __pmLogPutIndex(&archctl, &epoch);
 

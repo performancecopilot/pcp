@@ -58,6 +58,7 @@ store papi.control.enable "perf.CYCLES"
 fetch papi.system.perf.CYCLES
 store papi.control.disable "perf.CYCLES"
 EOF
+
 # success, all done
 status=0
 

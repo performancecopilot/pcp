@@ -18,7 +18,8 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+status=1
+trap "rm -f $tmp.*; $sudo rm -f $PCP_PMDAS_DIR/simple/simple.log; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -53,4 +54,5 @@ instance $domain.0
 text indom $domain.1
 End-of-File
 
-exit 0
+status=0
+exit

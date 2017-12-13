@@ -55,5 +55,7 @@ profile 29.1 add 2
 fetch sample.colour
 End-of-File
 
+cat $tmp.log >>$here/$seq.full
+
 # success, all done
 exit
