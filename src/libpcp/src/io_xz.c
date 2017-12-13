@@ -175,10 +175,14 @@ check_header_magic(FILE *f)
 
   if (fseek(f, 0, SEEK_SET) == -1)
       return 1; /* error */
-  if (fread(buf, 1, sizeof(buf), f) != sizeof(buf))
+  if (fread(buf, 1, sizeof(buf), f) != sizeof(buf)) {
+      setoserror(-PM_ERR_LOGREC);
       return 1; /* error */
-  if (memcmp(buf, XZ_HEADER_MAGIC, sizeof(buf)) != 0)
+  }
+  if (memcmp(buf, XZ_HEADER_MAGIC, sizeof(buf)) != 0) {
+      setoserror(-PM_ERR_LOGREC);
       return 1; /* error */
+  }
 
   return 0; /* ok */
 }
@@ -212,145 +216,164 @@ parse_indexes(FILE *f, size_t *nr_streams)
   pos = ftell(f);
   if (pos == -1)
       goto err;
-  if ((pos & 3) != 0)
+  if ((pos & 3) != 0) {
+      setoserror(-PM_ERR_LOGREC);
       goto err;
+  }
 
   /* Jump backwards through the file identifying each stream. */
   while (pos > 0) {
-    if (pos < LZMA_STREAM_HEADER_SIZE)
-	goto err;
-
-    if (fseek(f, -LZMA_STREAM_HEADER_SIZE, SEEK_CUR) != 0) {
-      xz_debug("%s: fseek: %m", __func__);
-      goto err;
-    }
-    if (fread(footer, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
-      xz_debug("%s: read stream footer: %m", __func__);
-      goto err;
-    }
-    /* Skip stream padding. */
-    if (footer[8] == 0 && footer[9] == 0 &&
-        footer[10] == 0 && footer[11] == 0) {
-      stream_padding += 4;
-      pos -= 4;
-      continue;
-    }
-
-    pos -= LZMA_STREAM_HEADER_SIZE;
-    (*nr_streams)++;
-
-    xz_debug("decode stream footer at pos = %d", pos);
-
-    /* Does the stream footer look reasonable? */
-    r = lzma_stream_footer_decode(&footer_flags, footer);
-    if (r != LZMA_OK) {
-      xz_debug("parse_indexes: invalid stream footer (error %d)", r);
-      goto err;
-    }
-    xz_debug("backward_size = %lu",
-                  (unsigned long) footer_flags.backward_size);
-    index_size = footer_flags.backward_size;
-    if (pos < index_size + LZMA_STREAM_HEADER_SIZE) {
-      xz_debug("%s: invalid stream footer", __func__);
-      goto err;
-    }
-
-    pos -= index_size;
-    xz_debug("decode index at pos = %d", pos);
-
-    /* Seek backwards to the index of this stream. */
-    if (fseek(f, pos, SEEK_SET) != 0) {
-      xz_debug("%s: fseek: %m", __func__);
-      goto err;
-    }
-
-    /* Decode the index. */
-    r = lzma_index_decoder(&strm, &this_index, UINT64_MAX);
-    if (r != LZMA_OK) {
-      xz_debug("%s: invalid stream index (error %d)", __func__, r);
-      goto err;
-    }
-
-    do {
-      uint8_t buf[BUFSIZ];
-
-      strm.avail_in = index_size;
-      if (strm.avail_in > BUFSIZ)
-        strm.avail_in = BUFSIZ;
-
-      n = fread(&buf, 1, strm.avail_in, f);
-      if (n != strm.avail_in) {
-        xz_debug("read: %m");
-        goto err;
+      if (pos < LZMA_STREAM_HEADER_SIZE) {
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
       }
-      index_size -= strm.avail_in;
 
-      strm.next_in = buf;
-      r = lzma_code(&strm, LZMA_RUN);
-    } while (r == LZMA_OK);
+      if (fseek(f, -LZMA_STREAM_HEADER_SIZE, SEEK_CUR) != 0) {
+	  xz_debug("%s: fseek: %m", __func__);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+      if (fread(footer, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
+	  xz_debug("%s: read stream footer: %m", __func__);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+      /* Skip stream padding. */
+      if (footer[8] == 0 && footer[9] == 0 &&
+	  footer[10] == 0 && footer[11] == 0) {
+	  stream_padding += 4;
+	  pos -= 4;
+	  continue;
+      }
 
-    if (r != LZMA_STREAM_END) {
-      xz_debug("%s: could not parse index (error %d)",
-                    __func__, r);
-      goto err;
-    }
+      pos -= LZMA_STREAM_HEADER_SIZE;
+      (*nr_streams)++;
 
-    pos -= lzma_index_total_size(this_index) + LZMA_STREAM_HEADER_SIZE;
+      xz_debug("decode stream footer at pos = %d", pos);
 
-    xz_debug("decode stream header at pos = %d", pos);
-
-    /* Read and decode the stream header. */
-    if (fseek(f, pos, SEEK_SET) != 0) {
-      xz_debug("%s: fseek: %m", __func__);
-      goto err;
-    }
-    if (fread(header, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
-      xz_debug("%s: read stream header: %m", __func__);
-      goto err;
-    }
-
-    r = lzma_stream_header_decode(&header_flags, header);
-    if (r != LZMA_OK) {
-      xz_debug("%s: invalid stream header (error %d)", __func__, r);
-      goto err;
-    }
-
-    /* Header and footer of the stream should be equal. */
-    r = lzma_stream_flags_compare(&header_flags, &footer_flags);
-    if (r != LZMA_OK) {
-      xz_debug("%s: header and footer of stream are not equal (error %d)",
-                    __func__, r);
-      goto err;
-    }
-
-    /* Store the decoded stream flags in this_index. */
-    r = lzma_index_stream_flags(this_index, &footer_flags);
-    if (r != LZMA_OK) {
-      xz_debug("%s: cannot read stream_flags from index (error %d)",
-                    __func__, r);
-      goto err;
-    }
-
-    /* Store the amount of stream padding so far.  Needed to calculate
-     * compressed offsets correctly in multi-stream files.
-     */
-    r = lzma_index_stream_padding(this_index, stream_padding);
-    if (r != LZMA_OK) {
-      xz_debug("%s: cannot set stream_padding in index (error %d)",
-                    __func__, r);
-      goto err;
-    }
-
-    if (combined_index != NULL) {
-      r = lzma_index_cat(this_index, combined_index, NULL);
+      /* Does the stream footer look reasonable? */
+      r = lzma_stream_footer_decode(&footer_flags, footer);
       if (r != LZMA_OK) {
-        xz_debug("%s: cannot combine indexes", __func__);
-        goto err;
+	  xz_debug("parse_indexes: invalid stream footer (error %d)", r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
       }
-    }
+      xz_debug("backward_size = %lu",
+	       (unsigned long) footer_flags.backward_size);
+      index_size = footer_flags.backward_size;
+      if (pos < index_size + LZMA_STREAM_HEADER_SIZE) {
+	  xz_debug("%s: invalid stream footer", __func__);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
 
-    combined_index = this_index;
-    this_index = NULL;
+      pos -= index_size;
+      xz_debug("decode index at pos = %d", pos);
+
+      /* Seek backwards to the index of this stream. */
+      if (fseek(f, pos, SEEK_SET) != 0) {
+	  xz_debug("%s: fseek: %m", __func__);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      /* Decode the index. */
+      r = lzma_index_decoder(&strm, &this_index, UINT64_MAX);
+      if (r != LZMA_OK) {
+	  xz_debug("%s: invalid stream index (error %d)", __func__, r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      do {
+	  uint8_t buf[BUFSIZ];
+
+	  strm.avail_in = index_size;
+	  if (strm.avail_in > BUFSIZ)
+	      strm.avail_in = BUFSIZ;
+
+	  n = fread(&buf, 1, strm.avail_in, f);
+	  if (n != strm.avail_in) {
+	      xz_debug("read: %m");
+	      setoserror(-PM_ERR_LOGREC);
+	      goto err;
+	  }
+	  index_size -= strm.avail_in;
+
+	  strm.next_in = buf;
+	  r = lzma_code(&strm, LZMA_RUN);
+      } while (r == LZMA_OK);
+
+      if (r != LZMA_STREAM_END) {
+	  xz_debug("%s: could not parse index (error %d)",
+		   __func__, r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      pos -= lzma_index_total_size(this_index) + LZMA_STREAM_HEADER_SIZE;
+
+      xz_debug("decode stream header at pos = %d", pos);
+
+      /* Read and decode the stream header. */
+      if (fseek(f, pos, SEEK_SET) != 0) {
+	  xz_debug("%s: fseek: %m", __func__);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+      if (fread(header, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
+	  xz_debug("%s: read stream header: %m", __func__);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      r = lzma_stream_header_decode(&header_flags, header);
+      if (r != LZMA_OK) {
+	  xz_debug("%s: invalid stream header (error %d)", __func__, r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      /* Header and footer of the stream should be equal. */
+      r = lzma_stream_flags_compare(&header_flags, &footer_flags);
+      if (r != LZMA_OK) {
+	  xz_debug("%s: header and footer of stream are not equal (error %d)",
+		   __func__, r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      /* Store the decoded stream flags in this_index. */
+      r = lzma_index_stream_flags(this_index, &footer_flags);
+      if (r != LZMA_OK) {
+	  xz_debug("%s: cannot read stream_flags from index (error %d)",
+		   __func__, r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      /* Store the amount of stream padding so far.  Needed to calculate
+       * compressed offsets correctly in multi-stream files.
+       */
+      r = lzma_index_stream_padding(this_index, stream_padding);
+      if (r != LZMA_OK) {
+	  xz_debug("%s: cannot set stream_padding in index (error %d)",
+		   __func__, r);
+	  setoserror(-PM_ERR_LOGREC);
+	  goto err;
+      }
+
+      if (combined_index != NULL) {
+	  r = lzma_index_cat(this_index, combined_index, NULL);
+	  if (r != LZMA_OK) {
+	      xz_debug("%s: cannot combine indexes", __func__);
+	      setoserror(-PM_ERR_LOGREC);
+	      goto err;
+	  }
+      }
+
+      combined_index = this_index;
+      this_index = NULL;
   }
 
   lzma_end(&strm);
