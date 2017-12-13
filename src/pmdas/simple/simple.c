@@ -464,45 +464,26 @@ simple_store(pmResult *result, pmdaExt *pmda)
 static int
 simple_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 {
-    int         sts;
-    pmInDom	indom;
-    int		cluster;
+    int		serial;
 
     switch (type) {
     case PM_LABEL_DOMAIN:
-	if ((sts = pmdaAddLabels(lpp, "{\"role\":\"testing\"}")) < 0)
-            return sts;
-        break;
+	pmdaAddLabels(lpp, "{\"role\":\"testing\"}");
+	break;
     case PM_LABEL_INDOM:
-	indom = (pmInDom)ident;
-	if (pmInDom_serial(indom) == COLOR_INDOM) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"simple_instance_domain\":\"color\"}")) < 0)
-		return sts;
+	serial = pmInDom_serial((pmInDom)ident);
+	if (serial == COLOR_INDOM) {
+	    pmdaAddLabels(lpp, "{\"indom_name\":\"color\"}");
+	    pmdaAddLabels(lpp, "{\"model\":\"RGB\"}");
 	}
-	else if (pmInDom_serial(indom) == NOW_INDOM) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"simple_instance_domain\":\"now\"}")) < 0)
-		return sts;
+	if (serial == NOW_INDOM) {
+	    pmdaAddLabels(lpp, "{\"indom_name\":\"time\"}");
+	    pmdaAddLabels(lpp, "{\"unitsystem\":\"SI\"}");
 	}
-        break;
+	break;
     case PM_LABEL_CLUSTER:
-	cluster = pmID_cluster((pmID)ident);
-	if (cluster == 0) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"cluster\":\"color\"}")) < 0)
-		return sts;
-	}
-	else if (cluster == 1) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"cluster\":\"fetch times\"}")) < 0)
-		return sts;
-	}
-	else if (cluster == 2) {
-	    if ((sts = pmdaAddLabels(lpp, "{\"cluster\":\"fetch now\"}")) < 0)
-		return sts;
-	}
-	break;
     case PM_LABEL_ITEM:
-	if ((sts = pmdaAddLabels(lpp, "{\"item\":\"%d\"}", ident)) < 0)
-	    return sts;
-	break;
+	/* no labels to add for these types, fall through */
     default:
         break;
     }
@@ -512,12 +493,14 @@ simple_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 static int
 simple_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    int sts;
+    struct timeslice *tsp;
 
-    /* note: should probably export the instance name here, not the instance ID. */
-    if ((sts = pmdaAddLabels(lp, "{\"indom\":\"%#x\", \"inst\":\"%d\"}", indom, inst)) < 0)
-	return sts;
-    return 2;
+    if (pmInDom_serial(indom) != NOW_INDOM)
+	return 0;
+    if (pmdaCacheLookup(indom, inst, NULL, (void *)&tsp) != PMDA_CACHE_ACTIVE)
+	return 0;
+    /* SI units label, value: sec (seconds), min (minutes), hour (hours) */
+    return pmdaAddLabels(lp, "{\"units\":\"%s\"}", tsp->tm_name);
 }
 
 /*

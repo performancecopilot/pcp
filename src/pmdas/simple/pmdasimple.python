@@ -24,8 +24,6 @@ import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits, pmContext as PCP
 
-from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_INDOM, PM_LABEL_CLUSTER, PM_LABEL_ITEM
-
 class SimplePMDA(PMDA):
     '''
     A simple Performance Metrics Domain Agent with very simple metrics.
@@ -205,39 +203,33 @@ class SimplePMDA(PMDA):
 
     def simple_label(self, ident, type):
         '''
-            return a JSON formatted labelset for given item of given type, as a string
+        Return JSONB format labelset for identifier of given type, as a string
         '''
-        ret = '' # default is an empty labelset string
-        if type == PM_LABEL_DOMAIN:
-            ret += '"role":"testing"'
-        elif type == PM_LABEL_INDOM:
+        if type == c_api.PM_LABEL_DOMAIN:
+            ret = '"role":"testing"'
+        elif type == c_api.PM_LABEL_INDOM:
             indom = ident
             if indom == self.color_indom:
-                ret += '"simple_instance_domain":"color"'
+                ret = '"indom_name":"color"'
             elif indom == self.now_indom:
-                ret += '"simple_instance_domain":"now"'
-        elif type == PM_LABEL_CLUSTER:
-            cluster = ident
-            if cluster == 0:
-                ret += '"cluster":"color"'
-            elif cluster == 1:
-                ret += '"cluster":"fetch times"'
-            elif cluster == 2:
-                ret += '"cluster":"fetch now"'
-        elif type == PM_LABEL_ITEM:
-            ret += '"item":"%d"' % ident
+                ret = '"indom_name":"now","unitsystem":"SI"'
+        else: # no labels added for types PM_LABEL_CLUSTER, PM_LABEL_ITEM
+            ret = '' # default is an empty labelset string
 
         # self.log("simple_label(%#x,%d) returning {%s}" % (ident, type, ret))
         return '{%s}' % ret
 
     def simple_label_callback(self, indom, inst):
         '''
-            return a JSON formatted labelset for an inst in given indom, as a string
+        Return JSONB format labelset for an inst in given indom, as a string
         '''
-        # note: this should probably export the instance name, not the ID.
-        ret = '"indom":"%#x", "inst":"%#x"' % (indom, inst)
+        if indom == self.now_indom:
+            ret = '"units":"%s"' % (self.inst_name_lookup(self.now_indom, inst))
+        else:
+            ret = ''
         # self.log("simple_label_callback(%#x,%d) returning {%s}" % (indom, inst, ret))
         return '{%s}' % ret
+
 
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
