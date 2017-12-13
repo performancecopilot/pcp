@@ -308,6 +308,8 @@ interp.o
     ignore_mark_records		# no unsafe side-effects, see notes in util.c
     ignore_mark_gap		# no unsafe side-effects, see notes in util.c
 io.o
+    compress_ctl		# const
+    ?ncompress			# const
 io_stdio.o
      __pm_stdio			# file operations using stdio
 ?io_xz.o
@@ -347,8 +349,6 @@ logportmap.o
 logutil.o
     logutil_lock		# local mutex
     tbuf			# __pmLogName deprecated by __pmLogName_r
-    compress_ctl		# const
-    ?ncompress			# const
     ?__pmLogReads		# diag counter, no atomic updates
     pc_hc			# guarded by logutil_lock mutex
 secureserver.o

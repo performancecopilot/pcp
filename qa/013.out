@@ -8,6 +8,9 @@ Performance metrics from host HOST
   commencing DATE
   ending     DATE
 [filtered and sorted stderr]
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 0
 __pmLogOpen: inspect file "tmparch/foo.0"
 __pmLogOpen: inspect file "tmparch/foo.index"
