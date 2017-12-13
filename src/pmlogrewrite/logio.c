@@ -23,8 +23,9 @@
  * raw read of next log record - largely stolen from __pmLogRead in libpcp
  */
 int
-_pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
+_pmLogGet(__pmArchCtl *acp, int vol, __pmPDU **pb)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		head;
     int		tail;
     int		sts;
@@ -54,7 +55,7 @@ again:
 	    __pmFseek(f, offset, SEEK_SET);
 	    if (vol != PM_LOG_VOL_META) {
 		if (lcp->l_curvol < lcp->l_maxvol) {
-		    if (__pmLogChangeVol(lcp, lcp->l_curvol+1) == 0) {
+		    if (__pmLogChangeVol(acp, lcp->l_curvol+1) == 0) {
 			f = lcp->l_mfp;
 			goto again;
 		    }

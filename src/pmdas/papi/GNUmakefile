@@ -62,3 +62,5 @@ domain.h: ../../pmns/stdpmid
 $(OBJECTS): domain.h
 
 papi.o: $(VERSION_SCRIPT)
+
+papi.o:	$(TOPDIR)/src/include/pcp/libpcp.h

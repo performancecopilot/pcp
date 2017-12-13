@@ -19,6 +19,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 eval `pmconfig -L lock_asserts`
+echo "lock_asserts=$lock_asserts" >>$here/$seq.full
 
 # The alternte filter is required if libpcp is built with
 # BUILD_LOCK_ASSERTS defined.
@@ -34,12 +35,17 @@ _filter()
     then
 	tee -a $here/$seq.full \
 	| sed \
-	    -e '/^github-50: lock.c:[0-9]*: __pmUnlock: Assertion .* failed/s/.*/Unlock Fail: Operation not permitted/' \
+	    -e '/^github-50.c:.*pmUnlock(.* not permitted/s/.*/Unlock Fail: Operation not permitted/' \
 	    -e '/^Aborted (core dumped)/d' \
 	    -e '/^Aborted$/d' \
-	# end
+	| $PCP_AWK_PROG '
+$1 == "backtrace:"	{ exit }
+			{ print }'
     else
-	cat
+	tee -a $here/$seq.full \
+	| sed \
+	    -e '/^github-50.c:.*pmUnlock(.* not permitted/d' \
+	# end
     fi \
     | sed \
 	-e '/Unlock Fail/s/Not owner/Operation not permitted/' \

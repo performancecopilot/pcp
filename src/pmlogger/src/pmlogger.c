@@ -21,6 +21,7 @@
 
 char		*configfile;		/* current config filename, must be *alloc()d */
 __pmLogCtl	logctl;
+__pmArchCtl	archctl;
 int		exit_samples = -1;       /* number of samples 'til exit */
 __int64_t	exit_bytes = -1;         /* number of bytes 'til exit */
 __int64_t	vol_bytes;		 /* total in earlier volumes */
@@ -94,7 +95,7 @@ run_done(int sts, char *msg)
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
 	__pmFseek(logctl.l_mfp, last_log_offset, SEEK_SET);
-	__pmLogPutIndex(&logctl, &tmp);
+	__pmLogPutIndex(&archctl, &tmp);
     }
 
     exit(sts);
@@ -945,7 +946,8 @@ main(int argc, char **argv)
 	pmcd_host=pmcd_host_label;
     }
 
-    if ((sts = __pmLogCreate(pmcd_host, archBase, archive_version, &logctl)) < 0) {
+    archctl.ac_log = &logctl;
+    if ((sts = __pmLogCreate(pmcd_host, archBase, archive_version, &archctl)) < 0) {
 	fprintf(stderr, "__pmLogCreate: %s\n", pmErrStr(sts));
 	exit(1);
     }

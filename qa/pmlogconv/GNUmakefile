@@ -49,6 +49,8 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
 
-pmlogconv.o:	pmlogconv.c
-logio.o:	logio.c
 libpcp.o:	libpcp.c
+logio.o:	logio.c
+pmlogconv.o:	pmlogconv.c
+
+libpcp.o logio.o pmlogconv.o:	$(TOPDIR)/src/include/pcp/libpcp.h

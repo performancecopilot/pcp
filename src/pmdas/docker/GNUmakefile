@@ -60,3 +60,5 @@ domain.h: ../../pmns/stdpmid
 $(OBJECTS): domain.h
 
 docker.o: $(VERSION_SCRIPT)
+
+docker.o:	$(TOPDIR)/src/include/pcp/libpcp.h

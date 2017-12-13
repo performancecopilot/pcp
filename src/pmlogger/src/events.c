@@ -62,7 +62,7 @@ do_events(pmValueSet *vsp)
 	    for (p = 0; p < erp->er_nparams; p++) {
 		epp = (pmEventParameter *)base;
 		base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
-		sts = __pmLogLookupDesc(&logctl, epp->ep_pmid, &desc);
+		sts = __pmLogLookupDesc(&archctl, epp->ep_pmid, &desc);
 		if (sts < 0) {
 		    int	numnames;
 		    char	**names;
@@ -99,7 +99,7 @@ do_events(pmValueSet *vsp)
 			memset(&desc.units, '\0', sizeof(desc.units));
 			fprintf(stderr, "Warning: metric %s (%s) has no descriptor, using a default one\n", names[0], pmIDStr(epp->ep_pmid));
 		    }
-		    if ((sts = __pmLogPutDesc(&logctl, &desc, numnames, names)) < 0) {
+		    if ((sts = __pmLogPutDesc(&archctl, &desc, numnames, names)) < 0) {
 			fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 			exit(1);
 		    }

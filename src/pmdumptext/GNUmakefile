@@ -33,3 +33,5 @@ endif
 default_pcp:	default
 
 install_pcp:	install
+
+pmdumptext.o:	$(TOPDIR)/src/include/pcp/libpcp.h

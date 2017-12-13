@@ -37,4 +37,6 @@ default_pcp:	default
 
 install_pcp:	install
 
-$(OBJECTS): $(HFILES)
+$(OBJECTS):	$(HFILES)
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

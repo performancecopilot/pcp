@@ -233,6 +233,8 @@ pmiStart(const char *archive, int inherit)
     current->timezone = NULL;
     current->result = NULL;
     memset((void *)&current->logctl, 0, sizeof(current->logctl));
+    memset((void *)&current->archctl, 0, sizeof(current->archctl));
+    current->archctl.ac_log = &current->logctl;
     if (inherit && old_current != NULL) {
 	current->nmetric = old_current->nmetric;
 	if (old_current->metric != NULL) {

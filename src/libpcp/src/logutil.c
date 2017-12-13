@@ -164,8 +164,9 @@ checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
 }
 
 int
-__pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
+__pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		len = 0;
     int		version = UNKNOWN_VERSION;
     int		xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
@@ -174,7 +175,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
     if (vol >= 0 && vol < lcp->l_numseen && lcp->l_seen[vol]) {
 	/* FastPath, cached result of previous check for this volume */
 	__pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
-	return 0;
+	version = 0;
+	goto func_return;
     }
 
     if (vol >= 0 && vol >= lcp->l_numseen) {
@@ -200,7 +202,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	    __pmClearerr(f);
 	    if (pmDebugOptions.log)
 		fprintf(stderr, " file is empty\n");
-	    return PM_ERR_NODATA;
+	    version = PM_ERR_NODATA;
+	    goto func_return;
 	}
 	else {
 	    if (pmDebugOptions.log)
@@ -208,10 +211,13 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		    n, (int)sizeof(len), len, xpectlen);
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
-		return -oserror();
+		version = -oserror();
+		goto func_return;
 	    }
-	    else
-		return PM_ERR_LABEL;
+	    else {
+		version = PM_ERR_LABEL;
+		goto func_return;
+	    }
 	}
     }
 
@@ -221,10 +227,13 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		n, (int)sizeof(__pmLogLabel));
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
-	    return -oserror();
+	    version = -oserror();
+	    goto func_return;
 	}
-	else
-	    return PM_ERR_LABEL;
+	else {
+	    version = PM_ERR_LABEL;
+	    goto func_return;
+	}
     }
     else {
 	/* swab internal log label */
@@ -243,10 +252,13 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		n, (int)sizeof(len), len, xpectlen);
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
-	    return -oserror();
+	    version = -oserror();
+	    goto func_return;
 	}
-	else
-	    return PM_ERR_LABEL;
+	else {
+	    version = PM_ERR_LABEL;
+	    goto func_return;
+	}
     }
 
     version = lp->ill_magic & 0xff;
@@ -261,7 +273,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		fprintf(stderr, " label volume %d not %d as expected", lp->ill_vol, vol);
 	    fputc('\n', stderr);
 	}
-	return PM_ERR_LABEL;
+	version = PM_ERR_LABEL;
+	goto func_return;
     }
 
     if (__pmSetVersionIPC(__pmFileno(f), version) < 0)
@@ -272,6 +285,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 
     if (vol >= 0 && vol < lcp->l_numseen)
 	lcp->l_seen[vol] = 1;
+
+func_return:
 
     return version;
 }
@@ -487,8 +502,9 @@ fopen_compress(const char *fname)
 }
 
 static __pmFILE *
-_logpeek(__pmLogCtl *lcp, int vol)
+_logpeek(__pmArchCtl *acp, int vol)
 {
+    __pmLogCtl		*lcp = acp->ac_log;
     int			sts;
     __pmFILE		*f;
     __pmLogLabel	label;
@@ -506,7 +522,7 @@ _logpeek(__pmLogCtl *lcp, int vol)
     }
     PM_UNLOCK(logutil_lock);
 
-    if ((sts = __pmLogChkLabel(lcp, f, &label, vol)) < 0) {
+    if ((sts = __pmLogChkLabel(acp, f, &label, vol)) < 0) {
 	__pmFclose(f);
 	setoserror(sts);
 	return NULL;
@@ -516,8 +532,9 @@ _logpeek(__pmLogCtl *lcp, int vol)
 }
 
 int
-__pmLogChangeVol(__pmLogCtl *lcp, int vol)
+__pmLogChangeVol(__pmArchCtl *acp, int vol)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     char	fname[MAXPATHLEN];
     int		sts;
 
@@ -540,13 +557,14 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
     }
     PM_UNLOCK(logutil_lock);
 
-    if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0) {
+    if ((sts = __pmLogChkLabel(acp, lcp->l_mfp, &lcp->l_label, vol)) < 0) {
 	return sts;
     }
-
     lcp->l_curvol = vol;
+
     if (pmDebugOptions.log)
 	fprintf(stderr, "__pmLogChangeVol: change to volume %d\n", vol);
+
     return sts;
 }
 
@@ -716,8 +734,9 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 
 int
 __pmLogCreate(const char *host, const char *base, int log_version,
-	      __pmLogCtl *lcp)
+	      __pmArchCtl *acp)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		save_error = 0;
     char	fname[MAXPATHLEN];
 
@@ -947,8 +966,10 @@ logFreeMeta(__pmLogCtl *lcp)
  */
 
 void
-__pmLogClose(__pmLogCtl *lcp)
+__pmLogClose(__pmArchCtl *acp)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
+
     /*
      * We no longer free l_pmns here or clear l_hashpmid or l_hashindom here.
      * They may be needed by the next archive of a multi-archive context.
@@ -1053,8 +1074,9 @@ done:
 }
 
 int
-__pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
+__pmLogLoadLabel(__pmArchCtl *acp, const char *name)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		sts;
     int		blen;
     int		exists = 0;
@@ -1202,7 +1224,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 cleanup:
     if (dirp != NULL)
 	closedir(dirp);
-    __pmLogClose(lcp);
+    __pmLogClose(acp);
     logFreeMeta(lcp);
     free(tbuf);
     free(base);
@@ -1212,16 +1234,17 @@ cleanup:
 int
 __pmLogOpen(const char *name, __pmContext *ctxp)
 {
+    __pmArchCtl	*acp = ctxp->c_archctl;
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     __pmLogLabel label;
     int		version;
     int		sts;
 
-    if ((sts = __pmLogLoadLabel(lcp, name)) < 0)
+    if ((sts = __pmLogLoadLabel(ctxp->c_archctl, name)) < 0)
 	return sts;
 
     lcp->l_curvol = -1;
-    if ((sts = __pmLogChangeVol(lcp, lcp->l_minvol)) < 0)
+    if ((sts = __pmLogChangeVol(acp, lcp->l_minvol)) < 0)
 	goto cleanup;
     else
 	version = sts;
@@ -1229,7 +1252,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     ctxp->c_origin = lcp->l_label.ill_start;
 
     if (lcp->l_tifp) {
-	sts = __pmLogChkLabel(lcp, lcp->l_tifp, &label, PM_LOG_VOL_TI);
+	sts = __pmLogChkLabel(acp, lcp->l_tifp, &label, PM_LOG_VOL_TI);
 	if (sts < 0)
 	    goto cleanup;
 	else if (sts != version) {
@@ -1245,7 +1268,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	}
     }
 
-    if ((sts = __pmLogChkLabel(lcp, lcp->l_mdfp, &label, PM_LOG_VOL_META)) < 0)
+    if ((sts = __pmLogChkLabel(acp, lcp->l_mdfp, &label, PM_LOG_VOL_META)) < 0)
 	goto cleanup;
     else if (sts != version) {	/* version mismatch between meta & ti */
 	sts = PM_ERR_LABEL;
@@ -1259,7 +1282,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     if ((sts = checkLabelConsistency(ctxp, &lcp->l_label)) < 0)
 	goto cleanup;
 
-    if ((sts = __pmLogLoadMeta(lcp)) < 0)
+    if ((sts = __pmLogLoadMeta(acp)) < 0)
 	goto cleanup;
 
     if ((sts = __pmLogLoadIndex(lcp)) < 0)
@@ -1271,7 +1294,9 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    goto cleanup;
     }
 
+    PM_LOCK(lcp->l_lock);
     lcp->l_refcnt = 0;
+    PM_UNLOCK(lcp->l_lock);
     lcp->l_physend = -1;
 
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
@@ -1279,14 +1304,15 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     return 0;
 
 cleanup:
-    __pmLogClose(lcp);
+    __pmLogClose(acp);
     logFreeMeta(lcp);
     return sts;
 }
 
 void
-__pmLogPutIndex(const __pmLogCtl *lcp, const pmTimeval *tp)
+__pmLogPutIndex(const __pmArchCtl *acp, const pmTimeval *tp)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     __pmLogTI	ti;
     __pmLogTI	oti;
     int		sts;
@@ -1358,7 +1384,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const pmTimeval *tp)
 }
 
 static int
-logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
+logputresult(int version,__pmArchCtl *acp, __pmPDU *pb)
 {
     /*
      * This is a bit tricky ...
@@ -1382,6 +1408,7 @@ logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
      * If version == 1, pb[] does not have room for trailer len.
      * If version == 2, pb[] does have room for trailer len.
      */
+    __pmLogCtl		*lcp = acp->ac_log;
     int			sz;
     int			sts = 0;
     int			save_from;
@@ -1456,9 +1483,9 @@ logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
  * needed
  */
 int
-__pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
+__pmLogPutResult(__pmArchCtl *acp, __pmPDU *pb)
 {
-    return logputresult(1, lcp, pb);
+    return logputresult(1, acp, pb);
 }
 
 /*
@@ -1466,9 +1493,9 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
  * needed
  */
 int
-__pmLogPutResult2(__pmLogCtl *lcp, __pmPDU *pb)
+__pmLogPutResult2(__pmArchCtl *acp, __pmPDU *pb)
 {
-    return logputresult(2, lcp, pb);
+    return logputresult(2, acp, pb);
 }
 
 /*
@@ -1730,6 +1757,7 @@ int
 __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result, int option)
 {
     __pmLogCtl	*lcp;
+    __pmArchCtl	*acp;
     int		head;
     int		rlen;
     int		trail;
@@ -1745,6 +1773,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result,
 	goto func_return;
 
     lcp = ctxp->c_archctl->ac_log;
+    acp = ctxp->c_archctl;
 
     /*
      * Strip any XTB data from mode, its not used here
@@ -1774,7 +1803,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result,
 		if (peekf == NULL) {
 		    int		vol = lcp->l_curvol-1;
 		    while (vol >= lcp->l_minvol) {
-			if (__pmLogChangeVol(lcp, vol) >= 0) {
+			if (__pmLogChangeVol(acp, vol) >= 0) {
 			    f = lcp->l_mfp;
 			    __pmFseek(f, 0L, SEEK_END);
 			    offset = __pmFtell(f);
@@ -1845,7 +1874,7 @@ again:
 		/* Try the next volume. */
 		int	vol = lcp->l_curvol+1;
 		while (vol <= lcp->l_maxvol) {
-		    if (__pmLogChangeVol(lcp, vol) >= 0) {
+		    if (__pmLogChangeVol(acp, vol) >= 0) {
 			f = lcp->l_mfp;
 			goto again;
 		    }
@@ -2094,7 +2123,7 @@ func_return:
 }
 
 int
-__pmLogRead(__pmLogCtl *lcp, int mode, __pmFILE *peekf, pmResult **result, int option)
+__pmLogRead(__pmArchCtl *acp, int mode, __pmFILE *peekf, pmResult **result, int option)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -2167,7 +2196,7 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     all_derived = check_all_derived(numpmid, pmidlist);
 
     /* re-establish position */
-    __pmLogChangeVol(ctxp->c_archctl->ac_log, ctxp->c_archctl->ac_vol);
+    __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
     __pmFseek(ctxp->c_archctl->ac_log->l_mfp, 
 	    (long)ctxp->c_archctl->ac_offset, SEEK_SET);
 
@@ -2370,7 +2399,7 @@ more:
 		 */
 		continue;
 	    }
-	    sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, newres->vset[i]->pmid, &desc);
+	    sts = __pmLogLookupDesc(ctxp->c_archctl, newres->vset[i]->pmid, &desc);
 	    if (sts < 0) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
@@ -2427,12 +2456,13 @@ func_return:
  * success
  */
 static int
-VolSkip(__pmLogCtl *lcp, int mode,  int j)
+VolSkip(__pmArchCtl *acp, int mode,  int j)
 {
+    __pmLogCtl	*lcp = acp->ac_log;
     int		vol = lcp->l_ti[j].ti_vol;
 
     while (lcp->l_minvol <= vol && vol <= lcp->l_maxvol) {
-	if (__pmLogChangeVol(lcp, vol) >= 0)
+	if (__pmLogChangeVol(acp, vol) >= 0)
 	    return j;
 	if (pmDebugOptions.log) {
 	    fprintf(stderr, "VolSkip: Skip missing vol %d\n", vol);
@@ -2537,7 +2567,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    vol = lcp->l_maxvol;
 		    if (vol >= 0 && vol < lcp->l_numseen && lcp->l_seen[vol])
 			__pmFstat(lcp->l_mfp, &sbuf);
-		    else if ((f = _logpeek(lcp, lcp->l_maxvol)) != NULL) {
+		    else if ((f = _logpeek(acp, lcp->l_maxvol)) != NULL) {
 			__pmFstat(f, &sbuf);
 			__pmFclose(f);
 		    }
@@ -2565,7 +2595,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	acp->ac_serial = 1;
 
 	if (match) {
-	    j = VolSkip(lcp, mode, j);
+	    j = VolSkip(acp, mode, j);
 	    if (j < 0)
 		return;
 	    __pmFseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
@@ -2577,7 +2607,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	    }
 	}
 	else if (j < 1) {
-	    j = VolSkip(lcp, PM_MODE_FORW, 0);
+	    j = VolSkip(acp, PM_MODE_FORW, 0);
 	    if (j < 0)
 		return;
 	    __pmFseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
@@ -2587,7 +2617,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	    }
 	}
 	else if (j == numti) {
-	    j = VolSkip(lcp, PM_MODE_BACK, numti-1);
+	    j = VolSkip(acp, PM_MODE_BACK, numti-1);
 	    if (j < 0)
 		return;
 	    __pmFseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
@@ -2609,7 +2639,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	    t_hi = __pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
 	    t_lo = __pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
 	    if (t_hi <= t_lo && !toobig) {
-		j = VolSkip(lcp, mode, j);
+		j = VolSkip(acp, mode, j);
 		if (j < 0)
 		    return;
 		__pmFseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
@@ -2621,7 +2651,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		}
 	    }
 	    else {
-		j = VolSkip(lcp, mode, j-1);
+		j = VolSkip(acp, mode, j-1);
 		if (j < 0)
 		    return;
 		__pmFseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
@@ -2650,11 +2680,11 @@ __pmLogSetTime(__pmContext *ctxp)
     else {
 	/* index either not available, or not useful */
 	if (mode == PM_MODE_FORW) {
-	    __pmLogChangeVol(lcp, lcp->l_minvol);
+	    __pmLogChangeVol(acp, lcp->l_minvol);
 	    __pmFseek(lcp->l_mfp, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 	}
 	else if (mode == PM_MODE_BACK) {
-	    __pmLogChangeVol(lcp, lcp->l_maxvol);
+	    __pmLogChangeVol(acp, lcp->l_maxvol);
 	    __pmFseek(lcp->l_mfp, (long)0, SEEK_END);
 	}
 
@@ -2743,7 +2773,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	    return sts;
 	}
 	lcp = ctxp->c_archctl->ac_log;
-	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
+	if ((sts = __pmLogChangeVol(acp, save_vol)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
@@ -2764,6 +2794,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
 int
 __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 {
+    __pmArchCtl	*acp = ctxp->c_archctl;
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     struct stat	sbuf;
     __pmFILE	*f;
@@ -2801,7 +2832,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	    save = __pmFtell(f);
 	    assert(save >= 0);
 	}
-	else if ((f = _logpeek(lcp, vol)) == NULL) {
+	else if ((f = _logpeek(acp, vol)) == NULL) {
 	    /* failed to open this one, try previous volume(s) */
 	    continue;
 	}
@@ -2952,7 +2983,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 }
 
 int
-__pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
+__pmGetArchiveEnd(__pmArchCtl *acp, struct timeval *tp)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -3048,7 +3079,7 @@ pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	    return sts;
 	}
 	lcp = ctxp->c_archctl->ac_log;
-	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
+	if ((sts = __pmLogChangeVol(acp, save_vol)) < 0) {
 	    if (need_unlock)
 		PM_UNLOCK(ctxp->c_lock);
 	    return sts;
@@ -3261,7 +3292,6 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      */
     acp = ctxp->c_archctl;
     if (acp->ac_cur_log == 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_EOL; /* no more archives */
     }
 
@@ -3297,12 +3327,11 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * with the start time of the previous one.
      */
     if ((sts = __pmGetArchiveEnd_ctx(ctxp, &current_endtime)) < 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }
 
     /* Set up to scan backwards from the end of the archive. */
-    __pmLogChangeVol(lcp, lcp->l_maxvol);
+    __pmLogChangeVol(acp, lcp->l_maxvol);
     __pmFseek(lcp->l_mfp, (long)0, SEEK_END);
     ctxp->c_archctl->ac_offset = __pmFtell(lcp->l_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
@@ -3313,11 +3342,9 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * chooses to keep reading anyway.
      */
     if (__pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
     }
 
-    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 
@@ -3357,12 +3384,18 @@ __pmArchCtlFree(__pmArchCtl *acp)
      * refcnt == 0 means the log is not open.
      */
     __pmLogCtl *lcp = acp->ac_log;
+
     if (lcp != NULL) {
+	PM_LOCK(lcp->l_lock);
 	if (--lcp->l_refcnt == 0) {
-	    __pmLogClose(lcp);
+	    PM_UNLOCK(lcp->l_lock);
+	    __pmLogClose(acp);
 	    logFreeMeta(lcp);
+	    __pmDestroyMutex(&lcp->l_lock);
 	    free(lcp);
 	}
+	else
+	    PM_UNLOCK(lcp->l_lock);
     }
 
     /* We need to clean up the archive list. */

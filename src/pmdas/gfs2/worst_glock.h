@@ -81,7 +81,7 @@ struct worst_glock {
     int    assigned_entries;
 };
 
-extern void gfs2_worst_glock_init(pmdaMetric *, int);
+extern void gfs2_worst_glock_init(pmdaExt *, pmdaMetric *, int);
 extern int gfs2_worst_glock_fetch(int, struct worst_glock *, pmAtomValue *);
 extern int gfs2_extract_worst_glock(char **, pmInDom);
 

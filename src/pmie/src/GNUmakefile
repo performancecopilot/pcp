@@ -77,3 +77,4 @@ andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragm
 grammar.tab.o lexicon.o pmie.o syntax.o systemlog.o: syntax.h
 fun.o grammar.tab.o systemlog.o: systemlog.h
 
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

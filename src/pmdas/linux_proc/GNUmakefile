@@ -112,3 +112,5 @@ ksym.o pmda.o:		ksym.h
 pmda.o:	domain.h
 pmda.o:	getinfo.h
 pmda.o:	$(VERSION_SCRIPT)
+
+cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o proc_runq.o:	$(TOPDIR)/src/include/pcp/libpcp.h

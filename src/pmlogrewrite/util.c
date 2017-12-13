@@ -1,7 +1,7 @@
 /*
  * Utiility routines for pmlogrewrite
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -88,7 +88,7 @@ inst_name_eq(const char *p, const char *q)
  *
  * If _any_ error occurs, don't make any changes.
  *
- * Note: does not handle compressed versions of files.
+ * Note: also handles compressed versions of files.
  *
  * TODO - need global locking for PCP 3.6 version if this is promoted
  *        to libpcp
@@ -104,8 +104,11 @@ _pmLogRename(const char *old, const char *new)
     char		path[MAXPATHLEN+1];
     char		opath[MAXPATHLEN+1];
     char		npath[MAXPATHLEN+1];
+    char		logbase[MAXPATHLEN+1];
     DIR			*dirp;
+    const char		*p;
     struct dirent	*dp;
+    struct stat		stbuf;
 
     strncpy(path, old, sizeof(path));
     path[sizeof(path)-1] = '\0';
@@ -122,54 +125,45 @@ _pmLogRename(const char *old, const char *new)
 	setoserror(0);
 	if ((dp = readdir(dirp)) == NULL)
 	    break;
-	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
-	    continue;
-	if (strncmp(obase, dp->d_name, strlen(obase)) == 0) {
-	    /*
-	     * match the base part of the old archive name, now check
-	     * for meta or index or a valid volume number
-	     */
-	    char	*p = &dp->d_name[strlen(obase)];
-	    int		want = 0;
-	    if (strcmp(p, ".meta") == 0)
-		want = 1;
-	    else if (strcmp(p, ".index") == 0)
-		want = 1;
-	    else if (*p == '.' && isdigit((int)p[1])) {
-		char	*endp;
-		long	vol;
-		vol = strtol(&p[1], &endp, 10);
-		if (vol >= 0 && *endp == '\0')
-		    want = 1;
-	    }
-	    if (want) {
-		struct stat	stbuf;
-		pmsprintf(opath, sizeof(opath), "%s%s", old, p);
-		pmsprintf(npath, sizeof(npath), "%s%s", new, p);
-		if (stat(npath, &stbuf) == 0) {
-		    fprintf(stderr, "__pmLogRename: destination file %s already exists\n", npath);
-		    goto revert;
-		}
-		if (rename(opath, npath) == -1) {
-		    fprintf(stderr, "__pmLogRename: rename %s -> %s failed: %s\n", opath, npath, pmErrStr(-oserror()));
-		    goto revert;
-		}
-		nfound++;
-		found = (char **)realloc(found, nfound*sizeof(found[0]));
-		if (found == NULL) {
-		    pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
-		    abandon();
-		    /*NOTREACHED*/
-		}
-		if ((found[nfound-1] = strdup(p)) == NULL) {
-		    pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
-		    abandon();
-		    /*NOTREACHED*/
-		}
-		if (pmDebugOptions.log)
-		    fprintf(stderr, "__pmLogRename: %s -> %s\n", opath, npath);
-	    }
+
+	/*
+	 * __pmLogBaseName modifies the buffer which is passed to it
+	 * so we need a copy.
+	 */
+	strncpy(logbase, dp->d_name, sizeof(logbase));
+	logbase[sizeof(logbase)-1] = '0';
+	if (__pmLogBaseName(logbase) == NULL)
+	    continue; /* not an archive file */
+
+	if (strcmp(obase, logbase) != 0)
+	    continue; /* Not the same archive */
+
+	/* We have found a file from the given archive */
+	p = &dp->d_name[strlen(obase)];
+	pmsprintf(opath, sizeof(opath), "%s%s", old, p);
+	pmsprintf(npath, sizeof(npath), "%s%s", new, p);
+	if (stat(npath, &stbuf) == 0) {
+	    fprintf(stderr, "__pmLogRename: destination file %s already exists\n", npath);
+	    goto revert;
 	}
+	if (rename(opath, npath) == -1) {
+	    fprintf(stderr, "__pmLogRename: rename %s -> %s failed: %s\n", opath, npath, pmErrStr(-oserror()));
+	    goto revert;
+	}
+	nfound++;
+	found = (char **)realloc(found, nfound*sizeof(found[0]));
+	if (found == NULL) {
+	    pmNoMem("__pmLogRename: realloc", nfound*sizeof(found[0]), PM_RECOV_ERR);
+	    abandon();
+	    /*NOTREACHED*/
+	}
+	if ((found[nfound-1] = strdup(p)) == NULL) {
+	    pmNoMem("__pmLogRename: strdup", strlen(p)+1, PM_RECOV_ERR);
+	    abandon();
+	    /*NOTREACHED*/
+	}
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "__pmLogRename: %s -> %s\n", opath, npath);
     }
 
     if ((sts = oserror()) != 0) {
@@ -208,7 +202,7 @@ cleanup:
 /*
  * Remove all the physical archive files with basename of base.
  *
- * Note: does not handle compressed versions of files.
+ * Note: also handles compressed versions of files.
  *
  * TODO - need global locking for PCP 3.6 version if this is promoted
  *        to libpcp
@@ -221,7 +215,9 @@ _pmLogRemove(const char *name)
     char		*dname;
     char		*base;
     char		path[MAXPATHLEN+1];
+    char		logbase[MAXPATHLEN+1];
     DIR			*dirp;
+    const char		*p;
     struct dirent	*dp;
 
     strncpy(path, name, sizeof(path));
@@ -251,34 +247,25 @@ _pmLogRemove(const char *name)
 	setoserror(0);
 	if ((dp = readdir(dirp)) == NULL)
 	    break;
-	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
-	    continue;
-	if (strncmp(base, dp->d_name, strlen(base)) == 0) {
-	    /*
-	     * match the base part of the old archive name, now check
-	     * for meta or index or a valid volume number
-	     */
-	    char	*p = &dp->d_name[strlen(base)];
-	    int		want = 0;
-	    if (strcmp(p, ".meta") == 0)
-		want = 1;
-	    else if (strcmp(p, ".index") == 0)
-		want = 1;
-	    else if (*p == '.' && isdigit((int)p[1])) {
-		char	*endp;
-		long	vol;
-		vol = strtol(&p[1], &endp, 10);
-		if (vol >= 0 && *endp == '\0')
-		    want = 1;
-	    }
-	    if (want) {
-		pmsprintf(path, sizeof(path), "%s%s", name, p);
-		unlink(path);
-		nfound++;
-		if (pmDebugOptions.log)
-		    fprintf(stderr, "__pmLogRemove: %s\n", path);
-	    }
-	}
+
+	/*
+	 * __pmLogBaseName modifies the buffer which is passed to it
+	 * so we need a copy.
+	 */
+	strncpy(logbase, dp->d_name, sizeof(logbase));
+	logbase[sizeof(logbase)-1] = '0';
+	if (__pmLogBaseName(logbase) == NULL)
+	    continue; /* not an archive file */
+
+	if (strcmp(base, logbase) != 0)
+	    continue; /* Not the same archive */
+
+	p = &dp->d_name[strlen(base)];
+	pmsprintf(path, sizeof(path), "%s%s", name, p);
+	unlink(path);
+	nfound++;
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "__pmLogRemove: %s\n", path);
     }
 
     if ((sts = oserror()) != 0) {

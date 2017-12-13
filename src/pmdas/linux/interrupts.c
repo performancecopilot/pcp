@@ -694,19 +694,19 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-interrupts_init(pmdaMetric *metrictable, int nmetrics)
+interrupts_init(pmdaExt *pmda, pmdaMetric *metrictable, int nmetrics)
 {
     int set[] = { CLUSTER_INTERRUPT_LINES, CLUSTER_INTERRUPT_OTHER };
     int soft[] = { CLUSTER_SOFTIRQS };
 
-    pmdaDynamicPMNS("kernel.percpu.interrupts",
-		    set, sizeof(set)/sizeof(int),
-		    refresh_interrupts, interrupts_text,
-		    refresh_metrictable, interrupts_metrictable,
-		    metrictable, nmetrics);
-    pmdaDynamicPMNS("kernel.percpu.softirqs",
-		    soft, sizeof(soft)/sizeof(int),
-		    refresh_softirqs, interrupts_text,
-		    refresh_metrictable, softirq_metrictable,
-		    metrictable, nmetrics);
+    pmdaExtDynamicPMNS("kernel.percpu.interrupts",
+			set, sizeof(set)/sizeof(int),
+			refresh_interrupts, interrupts_text,
+			refresh_metrictable, interrupts_metrictable,
+			metrictable, nmetrics, pmda);
+    pmdaExtDynamicPMNS("kernel.percpu.softirqs",
+			soft, sizeof(soft)/sizeof(int),
+			refresh_softirqs, interrupts_text,
+			refresh_metrictable, softirq_metrictable,
+			metrictable, nmetrics, pmda);
 }

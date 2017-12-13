@@ -107,7 +107,7 @@ again_local:
     }
     else {
 again_archive:
-	sts = __pmLogLookupText(ctxp->c_archctl->ac_log, ident, type, buffer);
+	sts = __pmLogLookupText(ctxp->c_archctl, ident, type, buffer);
 	if (sts == PM_ERR_NOTHOST && (type = fallbacktext(type, *buffer)) != 0)
 	    goto again_archive;
 	if (sts == 0)

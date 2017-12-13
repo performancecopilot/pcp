@@ -48,3 +48,5 @@ lex.o gram.tab.o:	gram.tab.h
 default_pcp:	default
 
 install_pcp:	install
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

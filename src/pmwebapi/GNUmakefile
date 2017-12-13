@@ -95,3 +95,5 @@ gcov:
 indent:
 	# indent -nhnl -l400 $(CXXFILES) $(HFILES)
 	astyle  -A10 -n -xd -v -H -U -xy -xC100 $(CXXFILES) $(HFILES)
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

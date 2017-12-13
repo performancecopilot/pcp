@@ -71,7 +71,7 @@ _sleep_half()
 {
     now=`date +%s%N`
     now=`echo $now / 1000000 | bc`
-    ms=${now: -3}
+    ms=${now:-3}
     if [ $ms -gt 500 ];	then
 	pause=`echo "scale=3;$ms-500" | bc`
     else
@@ -100,7 +100,7 @@ run_test()
 	n=testing
 	s=.colxrow
     fi
-    if [ "x$filter" == "xfilter" ]; then
+    if [ "x$filter" = "xfilter" ]; then
 	f=-i
 	r='tw.*'
 	s=$s.filter

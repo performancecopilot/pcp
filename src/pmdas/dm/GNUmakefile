@@ -73,3 +73,5 @@ pmda.o dmthin.o: dmthin.h
 ifeq "$(HAVE_DEVMAPPER)" "true"
 pmda.o dmstats.o: dmstats.h
 endif
+
+dmcache.o dmthin.o:	$(TOPDIR)/src/include/pcp/libpcp.h

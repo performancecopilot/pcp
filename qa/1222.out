@@ -1,0 +1,10 @@
+QA output created by 1222
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -vL -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,3,PCP_PMDAS_DIR/proc/pmda_proc,proc_init proc
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

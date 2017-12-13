@@ -29,12 +29,6 @@ Usage: pmevent [options] metricname
 === -s 456bar ===
 pmevent: -s requires numeric argument
 Usage: pmevent [options] metricname
-=== -s 3 -T+5min ===
-pmevent: at most one of -T and -s allowed
-Usage: pmevent [options] metricname
-=== -T+5min -s 10 ===
-pmevent: at most one of -T and -s allowed
-Usage: pmevent [options] metricname
 === -t 10foobars ===
 pmevent: -t argument not in pmParseInterval(3) format:
 10foobars

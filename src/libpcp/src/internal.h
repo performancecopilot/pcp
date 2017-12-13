@@ -98,6 +98,7 @@ extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
 
 #ifdef PM_MULTI_THREAD
 extern void __pmInitMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex initializer */
+extern void __pmDestroyMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex destroyer */
 
 /* local lock initilizer methods */
 extern void init_pmns_lock(void) _PCP_HIDDEN;
@@ -141,6 +142,7 @@ __pmTPDGet(void)
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
 extern int __pmIsContextLock(void *) _PCP_HIDDEN;
+extern char *__pmIsLogCtlLock(void *) _PCP_HIDDEN;
 extern int __pmIsDeriveLock(void *) _PCP_HIDDEN;
 extern int __pmIsAuxconnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsConfigLock(void *) _PCP_HIDDEN;
@@ -384,7 +386,6 @@ extern void __pmConnectGetPorts(pmHostSpec *) _PCP_HIDDEN;
 extern int __pmLogOpen(const char *, __pmContext *) _PCP_HIDDEN;
 extern const char *__pmLogName_r(const char *, int, char *, int) _PCP_HIDDEN;
 extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-safe */
-extern char *__pmLogBaseName(char *) _PCP_HIDDEN;
 extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;
