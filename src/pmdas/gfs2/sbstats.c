@@ -255,13 +255,13 @@ sbstats_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-gfs2_sbstats_init(pmdaMetric *metrics, int nmetrics)
+gfs2_sbstats_init(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 {
     int set[] = { CLUSTER_SBSTATS };
 
-    pmdaDynamicPMNS("gfs2.sbstats",
-		    set, sizeof(set)/sizeof(int),
-		    refresh_sbstats, sbstats_text,
-		    refresh_metrictable, size_metrictable,
-		    metrics, nmetrics);
+    pmdaExtDynamicPMNS("gfs2.sbstats",
+			set, sizeof(set)/sizeof(int),
+			refresh_sbstats, sbstats_text,
+			refresh_metrictable, size_metrictable,
+			metrics, nmetrics, pmda);
 }

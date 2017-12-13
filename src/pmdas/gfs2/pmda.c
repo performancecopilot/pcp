@@ -1012,8 +1012,8 @@ gfs2_init(pmdaInterface *dp)
     dp->version.four.children = gfs2_children;
     pmdaSetFetchCallBack(dp, gfs2_fetchCallBack);
 
-    gfs2_sbstats_init(metrictable, nmetrics);
-    gfs2_worst_glock_init(metrictable, nmetrics);
+    gfs2_sbstats_init(dp->version.any.ext, metrictable, nmetrics);
+    gfs2_worst_glock_init(dp->version.any.ext, metrictable, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);

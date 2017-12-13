@@ -8244,7 +8244,7 @@ linux_init(pmdaInterface *dp)
     nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
     proc_vmstat_init();
-    interrupts_init(metrictab, nmetrics);
+    interrupts_init(dp->version.any.ext, metrictab, nmetrics);
 
     rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
