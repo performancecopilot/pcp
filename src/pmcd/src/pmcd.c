@@ -1004,7 +1004,7 @@ main(int argc, char *argv[])
     assert(sts >= 0);
 
     if (env_warn & ENV_WARN_PORT)
-	fprintf(stderr, "Warning: nports=%d from PMCD_PORT=%s in environment\n", nport, getenv("PMCD_PORTS"));
+	fprintf(stderr, "Warning: nports=%d from PMCD_PORT=%s in environment\n", nport, getenv("PMCD_PORT"));
     if (env_warn & ENV_WARN_LOCAL)
 	fprintf(stderr, "Warning: localhost only from PMCD_LOCAL=%s in environment\n", getenv("PMCD_LOCAL"));
     if (env_warn & ENV_WARN_MAXPENDING)
