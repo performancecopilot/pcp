@@ -74,6 +74,7 @@ d
 	-e 's/fd [0-9-][0-9]*/fd <n>/g' \
 	-e '/client\[[0-9][0-9]*\]/s//client[N]/' \
 	-e '/lib=.*\.'"$DSO_SUFFIX"'/s/[0-9] dso/N dso/' \
+	-e "/Warning:/s/PMCD_PORT=$port/PMCD_PORT=\$port/" \
 	-e 's/ $//' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
@@ -225,7 +226,8 @@ echo "export PMCD_PORT=$PMCD_PORT" >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 $sudo sh $tmp.start 2>&1 \
 | tee -a $seq.full \
-| sed '/Wait/d' \
+| sed \
+    -e '/Wait/d' \
 | _filter_pcp_start
 _wait_for_pmcd
 

@@ -56,6 +56,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e "/sed: couldn't flush stdout: Broken pipe/d" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e '/unix:/d' \
+	-e "/Warning:/s/PMCD_PORT=$port/PMCD_PORT=\$port/" \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 $1 == "news"		{ $4 = "fd_in"; $5 = "fd_out" }
