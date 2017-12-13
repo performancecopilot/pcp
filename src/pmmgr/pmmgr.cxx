@@ -33,6 +33,7 @@ extern "C" {
 #include <unistd.h>
 #include <glob.h>
 #include <sys/wait.h>
+#include <sys/vfs.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -895,6 +896,10 @@ pmmgr_job_spec::poll()
   if (log_dir == "") log_dir = default_log_dir;
   else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
+  // adjust for ENOSPC retention-factor
+  double rf = retention_factor (log_dir);
+  tv.tv_sec *= rf;
+  
   glob_t the_blob;
   string glob_pattern = log_dir + (char)pmPathSeparator() + "*";
   rc = glob (glob_pattern.c_str(),
@@ -1145,6 +1150,122 @@ void pmmgr_daemon::poll()
     }
 }
 
+/* A - disk-full-threshold
+ * B - disk-full-retention
+ * diskspace free  0..A - return 1 (no scaling)
+ * diskspace free  A..100 - determine percentage above 'A'
+ * ie: A = 0.2 and diskspace 80% full, we're at 75% of the threshold<->full space
+ * (80 - A) / (100 - A) = 60/80 = 75%
+ * At this point we'll be reducing logs at 75% of the 'B' value
+ * ((75%) * (100 - 'B'))
+ * B = 50 (50% log reduction rate)
+ * We'll be reducing the log retention by 37.5% (ie. return 0.625)
+ */
+double
+pmmgr_configurable::retention_factor (const std::string& logpath)
+{
+  // NB: all doubles used here are fractions between [0.0 and 1.0], not percentages.
+  // Literals used in double arithmetic get decimal points as reminder of FP arithmetic.
+  
+  // ---------- find the fullness threshold 
+  const double full_threshold_default = 0.75;
+  double full_threshold = 0.;
+  string full_threshold_str = get_config_single ("disk-full-threshold");
+  if (full_threshold_str == "")
+    full_threshold = full_threshold_default;
+  else
+    {
+      full_threshold = strtod (full_threshold_str.c_str(), NULL);
+      if (full_threshold > 100. || full_threshold < 0.) full_threshold = full_threshold_default;
+      else if (full_threshold <= 100. && full_threshold > 1.) full_threshold/=100.;
+    }
+
+  // ---------- find the actual fullness
+  struct statfs logpartition;
+  int rc = statfs(logpath.c_str(), &logpartition);
+  if (rc == -1)
+    {
+      timestamp(obatched(cerr)) << "statfs " << logpath << " for log retention failed: errno=" << errno << endl;
+      return 1.;
+    }
+  if (logpartition.f_blocks == 0) // avoid division by zero, if hypothetically possible for a filesystem
+    return 1.;
+  double fraction_full = (1.-((double)logpartition.f_bavail / (double)logpartition.f_blocks));
+  
+  if (fraction_full <= full_threshold) // not too full
+    return 1.;
+  // red alert: this filesystem is officially too full
+  
+  // ---------- find the retention parameter
+  double full_retention = 0.;
+  const double full_retention_default = 0.5;
+  string full_retention_str = get_config_single ("disk-full-retention");
+  if (full_retention_str == "")
+    full_retention = full_retention_default;
+  else
+    {
+      full_retention = strtod (full_retention_str.c_str(), NULL);
+      if (full_retention > 100. || full_retention < 0.) full_retention = full_retention_default;
+      else if (full_retention <= 100. && full_retention > 1.) full_retention/=100.;
+    }
+
+  // ---------- compute how much overfull (above fraction_full, below 100%) the disk is 
+
+  const double epsilon = 0.0001; // a minimum value for FP calculations to avoid div-by-zero edge cases
+
+  // fraction_full   full_threshold -> normalized_overfull
+  // 0.500001       0.5               0.0
+  // 0.75           0.5               0.5
+  // 1.             0.5               1.
+  // 1.             0.0               1.
+  // 1.             1.                1.  (asymptote)
+  double normalized_overfull =
+    (epsilon + fraction_full - full_threshold) /
+    (epsilon + 1. - full_threshold);
+
+  /*
+  set xlabel "fraction-full"
+  set ylabel "full-threshold"
+  set isosamples 2,100
+  eps=0.0001
+  nt(x,y)=x>y ? (eps+x-y)/(eps+1-y) : 0 
+  splot [0:1] [0:1] nt(x,y) title "normalized-overfull"
+  */
+
+  // ---------- compute the final retention factor
+
+  // normalized_overfull   full_retention ->  retention_factor
+  // 1.                   0.0                 0.0
+  // 0.75                 0.0                 0.25
+  // 0.5                  0.0                 0.5
+  // 0.0                  0.0                 1.0
+  // 1.                   0.5                 0.5
+  // 0.75                 0.5                 0.625
+  // 0.5                  0.5                 0.75
+  // 0.0                  0.5                 1.0
+  // 1.                   1.0                 1.0
+  // 0.75                 1.0                 1.0
+  // 0.5                  1.0                 1.0
+  // 0.0                  1.0                 1.0
+  
+  double retention_factor =
+    (normalized_overfull * full_retention) + (1.-normalized_overfull);
+
+  /*
+  set xlabel "normalized-overfull"
+  set ylabel "full-retention"
+  rf(x,y) = (x*y) + (1-x)
+  splot [0:1] [0:1] rf(x,y) title "retention-factor"
+  */
+     
+  timestamp(obatched(cerr)) << "log directory " << logpath << " "
+                            << (int)(fraction_full*100.) << "% full, "
+                            << "adjusting to "
+                            << (int)(retention_factor*100.) << "% retention times" << endl;
+
+  return retention_factor;
+}
+
 
 std::string
 pmmgr_pmlogger_daemon::daemon_command_line()
@@ -1160,6 +1281,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   string host_log_dir = log_dir + (char)pmPathSeparator() + hostid;
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
+
+  double rf = retention_factor(host_log_dir); // assess fullness of that space
+  assert (rf >= 0.0 && rf <= 1.0);
 
   string pmlogger_command =
 	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmlogger";
@@ -1226,8 +1350,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  retention_tv.tv_sec = 14*24*60*60;
 	  retention_tv.tv_usec = 0;
 	}
+      retention_tv.tv_sec *= rf;
       pmlogextract_options += " -S -" + sh_quote(retention);
-
+      
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
       string period = get_config_single ("pmlogmerge");
@@ -1429,11 +1554,11 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
       // remove too-old reduced archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "reduced-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60);
+      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60, rf);
 
       // remove too-old corrupt archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "corrupt-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60);
+      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60, rf);
 
       string timestr = "archive";
       time_t now2 = time(NULL);
@@ -1523,7 +1648,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 void
 pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
                                                const std::string& carousel_config,
-                                               time_t carousel_default)
+                                               time_t carousel_default,
+                                               double rf)
 {
   int rc;
   struct timeval retention_tv;
@@ -1546,6 +1672,9 @@ pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
       retention_tv.tv_usec = 0;
     }
 
+  // penalize if disk getting full
+  retention_tv.tv_sec *= rf;
+  
   glob_t the_blob;
   rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
   if (rc == 0)

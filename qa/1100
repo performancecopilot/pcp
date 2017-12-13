@@ -104,8 +104,9 @@ _check_completion_zsh()
     echo $cmd | grep = > /dev/null 2>&1 && continue
     common=$(awk "/common_most=/,/  \)/" $zsh_comp)
     pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
+    pmda=$(awk "/common_pmda=/,/  \)/" $zsh_comp)
     version=V
-    comps=$(awk "/  $cmd\)/,/\;\;/" $zsh_comp)
+    comps=$(awk "/  $cmd\)/,/\;\;/" $zsh_comp | sed -e 's,equivalent to .*,,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err
@@ -117,29 +118,36 @@ _check_completion_zsh()
     cat $tmp.out >>$here/$seq.full
     echo "--- stderr ---" >>$here/$seq.full
     cat $tmp.err >>$here/$seq.full
-    opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
+    opts=$(cat $tmp.out $tmp.err | sed -e 's,equivalent to .*,,' | grep -Eo -- ' -[^-].' | tr -d - | tr -d '?' | tr -d , | sort | uniq)
     echo "opts=$opts" >>$here/$seq.full
 
     for opt in $opts; do
-      echo $comps | grep -- -$opt > /dev/null 2>&1
+      echo $comps | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
       not_found=$?
+      if [ $not_found -ne 0 ]; then
+        if [ "$opt" = "V" ]; then
+          echo $comps | grep common_help > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
       if [ $not_found -ne 0 ]; then
         echo $comps | grep common_most > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-          echo $common | grep -- -$opt > /dev/null 2>&1
+          echo $common | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo $comps | grep common_pmda > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          echo $pmda | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
           not_found=$?
         fi
       fi
       if [ $not_found -ne 0 ]; then
         echo $comps | grep common_python > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-          echo $pytool | grep -- -$opt > /dev/null 2>&1
-          not_found=$?
-        fi
-      fi
-      if [ $not_found -ne 0 ]; then
-        if [ "$opt" = "V" ]; then
-          echo $comps | grep common_help > /dev/null 2>&1
+          echo $pytool | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
           not_found=$?
         fi
       fi
@@ -159,7 +167,7 @@ _check_completion_zsh()
 }
 
 # real QA test starts here
-echo "== only pmlogger/V should be missing"
+echo "== only V+u for pmlogger should be missing"
 _check_completion_bash
 _check_completion_zsh
 

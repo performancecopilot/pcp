@@ -429,6 +429,56 @@ The default is
 .BR 90days .
 To store reduced archives indefinitely, set this to a large
 quantity like "99999weeks".
+.TP
+.I disk\-full\-threshold
+If this file exists, then
+.B pmmgr
+will track the disk space available
+where pmlogger archives are kept.  If that partition fills up
+past the configured percentage,
+.B pmmgr
+will linearly reduce the duration logs are kept via the
+.I disk\-full\-retention
+variable.
+
+Values must be greater than zero, and expressed either a value
+between 0 and 1, or decimal value between 1 and 100.
+.TP
+.I disk\-full\-retention
+If expressed, this variable scales the rate at which logs are culled when
+.I disk\-full\-threshold
+has been surpassed.  A lower percentage will cull logs more quickly (in
+favour of preserving disk space), while a higher percentage will opt to
+retain more pcp archives.
+.TS
+box,center;
+c|c|c.
+Normalized Full Threshold	\fRFull Retention	\fRFinal Retention Factor
+_
+1\fR	\fR0.0	\fR0.0\fR
+_
+0.75\fR	\fR0.0	\fR0.25\fR
+_
+0.5\fR	\fR0.0	\fR0.5\fR
+_
+0.0\fR	\fR0.0	\fR1.0\fR
+_
+1\fR	\fR0.5	\fR0.5\fR
+_
+0.75\fR	\fR0.5	\fR0.625\fR
+_
+0.5\fR	\fR0.5	\fR0.75\fR
+_
+0.0\fR	\fR0.5	\fR1.0\fR
+_
+1\fR	\fR1.0	\fR1.0\fR
+_
+0.75\fR	\fR1.0	\fR1.0\fR
+_
+0.5\fR	\fR1.0	\fR1.0\fR
+_
+0.0\fR	\fR1.0	\fR1.0\fR
+.TE
 .SS PMIE CONFIGURATION
 This group of configuration options controls a
 .BR pmie
