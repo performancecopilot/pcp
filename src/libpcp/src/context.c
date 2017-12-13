@@ -564,6 +564,21 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    acp->ac_log = lcp2;
 	    PM_UNLOCK(acp2->ac_log->l_lock);
 	    PM_UNLOCK(contexts_lock);
+	    /*
+	     * Setup the per-context part of the controls ...
+	     */
+	    acp->ac_mfp = NULL;
+	    acp->ac_curvol = -1;
+	    sts = __pmLogChangeVol(acp, acp->ac_log->l_minvol);
+	    if  (sts < 0) {
+		acp->ac_log = NULL;
+		if (pmDebugOptions.log) {
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    fprintf(stderr, "__pmFindOrOpenArchive(..., %s, ...): __pmLogChangeVol(..., %d) failed: %s\n",
+		    	name, acp->ac_log->l_minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		}
+		return sts;
+	    }
 	    return 0;
 	}
 	PM_UNLOCK(contexts_lock);
@@ -777,6 +792,8 @@ initarchive(__pmContext	*ctxp, const char *name)
 	/* NOTREACHED */
     }
     acp = ctxp->c_archctl;
+    acp->ac_mfp = NULL;
+    acp->ac_curvol = -1;
     acp->ac_num_logs = 0;
     acp->ac_log_list = NULL;
     acp->ac_log = NULL;
@@ -918,7 +935,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     ctxp->c_origin.tv_usec = (__int32_t)acp->ac_log->l_label.ill_start.tv_usec;
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
     acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
-    acp->ac_vol = acp->ac_log->l_curvol;
+    acp->ac_vol = acp->ac_curvol;
     acp->ac_serial = 0;		/* not serial access, yet */
     acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
     acp->ac_pmid_hc.hsize = 0;
@@ -1330,6 +1347,7 @@ pmDupContext(void)
     pmInDomProfile	*q, *p, *p_end;
     int			i;
     int			ctxnum;
+    int			vol;
 
     if (pmDebugOptions.pmapi) {
 	fprintf(stderr, "pmDupContext() <:");
@@ -1433,6 +1451,24 @@ pmDupContext(void)
 	newcon->c_archctl->ac_pmid_hc.nodes = 0;
 	newcon->c_archctl->ac_pmid_hc.hsize = 0;
 	newcon->c_archctl->ac_cache = NULL;
+
+	/*
+	 * Need a new ac_mfp, but pointing at the same volume so ac_offset
+	 * is OK
+	 */
+	newcon->c_archctl->ac_mfp = NULL;
+	vol = newcon->c_archctl->ac_curvol;
+	newcon->c_archctl->ac_curvol = -1;
+	sts = __pmLogChangeVol(newcon->c_archctl, vol);
+	if  (sts < 0) {
+	    if (pmDebugOptions.log) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "pmDupContext: __pmLogChangeVol(newcon, %d) failed: %s\n",
+		    vol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	    free(newcon->c_archctl);
+	    goto done_locked;
+	}
 
 	/*
 	 * We need to copy the log lists and bump up the reference counts of
@@ -1727,9 +1763,9 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 			    con->c_sent ? "SENT" : "NOT_SENT",
 			    con->c_archctl->ac_log->l_tifp == NULL ? -1 : __pmFileno(con->c_archctl->ac_log->l_tifp),
 			    __pmFileno(con->c_archctl->ac_log->l_mdfp),
-			    __pmFileno(con->c_archctl->ac_log->l_mfp),
+			    __pmFileno(con->c_archctl->ac_mfp),
 			    con->c_archctl->ac_log->l_refcnt,
-			    con->c_archctl->ac_log->l_curvol);
+			    con->c_archctl->ac_curvol);
 		    fprintf(f, " offset=%ld (vol=%d) serial=%d",
 			    (long)con->c_archctl->ac_offset,
 			    con->c_archctl->ac_vol,

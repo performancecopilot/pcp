@@ -80,13 +80,13 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	lcp->l_label.ill_vol = PM_LOG_VOL_META;
 	__pmLogWriteLabel(lcp->l_mdfp, &lcp->l_label);
 	lcp->l_label.ill_vol = 0;
-	__pmLogWriteLabel(lcp->l_mfp, &lcp->l_label);
+	__pmLogWriteLabel(acp->ac_mfp, &lcp->l_label);
 	lcp->l_state = PM_LOG_STATE_INIT;
 	__pmLogPutIndex(&current->archctl, &stamp);
     }
 
-    __pmOverrideLastFd(__pmFileno(lcp->l_mfp));
-    if ((sts = __pmEncodeResult(__pmFileno(lcp->l_mfp), result, &pb)) < 0)
+    __pmOverrideLastFd(__pmFileno(acp->ac_mfp));
+    if ((sts = __pmEncodeResult(__pmFileno(acp->ac_mfp), result, &pb)) < 0)
 	return sts;
 
     needti = 0;

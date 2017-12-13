@@ -429,7 +429,7 @@ main(int argc, char **argv)
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
-	peek_offset = __pmFtell(logctl.l_mfp);
+	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    pmTimeval	next_stamp;
@@ -460,7 +460,7 @@ next:
     }
 
     /* write the last time stamp */
-    __pmFflush(logctl.l_mfp);
+    __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
     __pmLogPutIndex(&archctl, &current);
 

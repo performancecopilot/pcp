@@ -665,7 +665,7 @@ do_result(void)
     if (orig_numpmid == 0 || inarch.rp->numpmid > 0) {
 	unsigned long	out_offset;
 	unsigned long	peek_offset;
-	peek_offset = __pmFtell(outarch.logctl.l_mfp);
+	peek_offset = __pmFtell(outarch.archctl.ac_mfp);
 	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, &inarch.logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
@@ -679,9 +679,9 @@ do_result(void)
 	     * data file size will exceed 2^31-1 bytes, so force
 	     * volume switch
 	     */
-	    newvolume(outarch.logctl.l_curvol+1);
+	    newvolume(outarch.archctl.ac_curvol+1);
 	}
-	out_offset = __pmFtell(outarch.logctl.l_mfp);
+	out_offset = __pmFtell(outarch.archctl.ac_mfp);
 	if ((sts = __pmLogPutResult2(&outarch.archctl, inarch.logrec)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));

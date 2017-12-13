@@ -384,6 +384,7 @@ extern void __pmDropHostPort(pmHostSpec *) _PCP_HIDDEN;
 extern void __pmConnectGetPorts(pmHostSpec *) _PCP_HIDDEN;
 
 extern int __pmLogOpen(const char *, __pmContext *) _PCP_HIDDEN;
+extern int __pmLogReopen(const char *, __pmContext *) _PCP_HIDDEN;
 extern const char *__pmLogName_r(const char *, int, char *, int) _PCP_HIDDEN;
 extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-safe */
 extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;

@@ -745,7 +745,7 @@ pmiPutResult(const pmResult *result)
 int
 pmiPutMark(void)
 {
-    __pmLogCtl *lcp;
+    __pmArchCtl *acp;
     struct {
 	__pmPDU		hdr;
 	pmTimeval	timestamp;	/* when returned */
@@ -759,7 +759,7 @@ pmiPutMark(void)
     if (current->last_stamp.tv_sec == 0 && current->last_stamp.tv_usec == 0)
 	/* no earlier pmResult, no point adding a mark record */
 	return 0;
-    lcp = &current->logctl;
+    acp = &current->archctl;
 
     mark.hdr = htonl((int)sizeof(mark));
     mark.tail = mark.hdr;
@@ -773,7 +773,7 @@ pmiPutMark(void)
     mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
     mark.numpmid = htonl(0);
 
-    if (__pmFwrite(&mark, 1, sizeof(mark), lcp->l_mfp) != sizeof(mark))
+    if (__pmFwrite(&mark, 1, sizeof(mark), acp->ac_mfp) != sizeof(mark))
 	return -oserror();
 
     return 0;

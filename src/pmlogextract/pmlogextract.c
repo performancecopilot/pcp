@@ -349,10 +349,10 @@ abandon_extract(void)
     char    fname[MAXNAMELEN];
     if (desperate == 0) {
 	fprintf(stderr, "Archive \"%s\" not created.\n", outarchname);
-	while (logctl.l_curvol >= 0) {
-	    pmsprintf(fname, sizeof(fname), "%s.%d", outarchname, logctl.l_curvol);
+	while (archctl.ac_curvol >= 0) {
+	    pmsprintf(fname, sizeof(fname), "%s.%d", outarchname, archctl.ac_curvol);
 	    unlink(fname);
-	    logctl.l_curvol--;
+	    archctl.ac_curvol--;
 	}
 	pmsprintf(fname, sizeof(fname), "%s.meta", outarchname);
 	unlink(fname);
@@ -390,15 +390,15 @@ static void
 newvolume(char *base, pmTimeval *tvp)
 {
     __pmFILE		*newfp;
-    int			nextvol = logctl.l_curvol + 1;
+    int			nextvol = archctl.ac_curvol + 1;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
 	struct timeval	stamp;
-	__pmFclose(logctl.l_mfp);
-	logctl.l_mfp = newfp;
-	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
-	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	__pmFflush(logctl.l_mfp);
+	__pmFclose(archctl.ac_mfp);
+	archctl.ac_mfp = newfp;
+	logctl.l_label.ill_vol = archctl.ac_curvol = nextvol;
+	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
+	__pmFflush(archctl.ac_mfp);
 	stamp.tv_sec = ntohl(tvp->tv_sec);
 	stamp.tv_usec = ntohl(tvp->tv_usec);
 	fprintf(stderr, "%s: New log volume %d, at ", pmGetProgname(), nextvol);
@@ -527,7 +527,7 @@ void
 writelabel_data(void)
 {
     logctl.l_label.ill_vol = 0;
-    __pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
+    __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 }
 
 
@@ -1273,7 +1273,7 @@ nextlog(void)
     int		eoflog = 0;	/* number of log files at eof */
     int		sts;
     pmTimeval	curtime;
-    __pmLogCtl	*lcp;
+    __pmArchCtl	*acp;
     __pmContext	*ctxp;
     inarch_t	*iap;
 
@@ -1307,14 +1307,14 @@ nextlog(void)
 	    abandon_extract();
 	}
 	/* Need to hold c_lock for __pmLogRead_ctx() */
-	lcp = ctxp->c_archctl->ac_log;
+	acp = ctxp->c_archctl;
 
 againlog:
 	if ((sts=__pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmGetProgname(), iap->name, pmErrStr(sts));
-		_report(lcp->l_mfp);
+		_report(acp->ac_mfp);
 		if (sts != PM_ERR_LOGREC)
 		    abandon_extract();
 	    }
@@ -1676,7 +1676,7 @@ fprintf(stderr, " break!\n");
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
-	peek_offset = __pmFtell(logctl.l_mfp);
+	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    newvolume(outarchname, (pmTimeval *)&pb[3]);
@@ -1687,7 +1687,7 @@ fprintf(stderr, " break!\n");
 	write_metareclist(elm->res, &needti);
 
 	/* write out log record */
-	old_log_offset = __pmFtell(logctl.l_mfp);
+	old_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(old_log_offset >= 0);
 	if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
@@ -1700,7 +1700,7 @@ fprintf(stderr, " break!\n");
 	/* check whether we need to write TI (temporal index) */
 	if (old_log_offset == 0 ||
 	    old_log_offset == sizeof(__pmLogLabel)+2*sizeof(int) ||
-	    __pmFtell(logctl.l_mfp) > flushsize)
+	    __pmFtell(archctl.ac_mfp) > flushsize)
 		needti = 1;
 
 	/* make sure that we do not write out the temporal index more
@@ -1713,31 +1713,31 @@ fprintf(stderr, " break!\n");
 	if (needti) {
 	    titime = restime;
 
-	    __pmFflush(logctl.l_mfp);
+	    __pmFflush(archctl.ac_mfp);
 	    __pmFflush(logctl.l_mdfp);
 
 	    if (old_log_offset == 0)
 		old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
-            new_log_offset = __pmFtell(logctl.l_mfp);
+            new_log_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_log_offset >= 0);
             new_meta_offset = __pmFtell(logctl.l_mdfp);
 	    assert(new_meta_offset >= 0);
 
-            __pmFseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
+            __pmFseek(archctl.ac_mfp, (long)old_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
 
             __pmLogPutIndex(&archctl, &restime);
 
-            __pmFseek(logctl.l_mfp, (long)new_log_offset, SEEK_SET);
+            __pmFseek(archctl.ac_mfp, (long)new_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 
-            old_log_offset = __pmFtell(logctl.l_mfp);
+            old_log_offset = __pmFtell(archctl.ac_mfp);
 	    assert(old_log_offset >= 0);
             old_meta_offset = __pmFtell(logctl.l_mdfp);
 	    assert(old_meta_offset >= 0);
 
-            flushsize = __pmFtell(logctl.l_mfp) + 100000;
+            flushsize = __pmFtell(archctl.ac_mfp) + 100000;
         }
 
 	/* free PDU buffer */
@@ -2157,13 +2157,13 @@ cleanup:
     }
     else {
 	/* write the last time stamp */
-	__pmFflush(logctl.l_mfp);
+	__pmFflush(archctl.ac_mfp);
 	__pmFflush(logctl.l_mdfp);
 
 	if (old_log_offset == 0)
 	    old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
-	new_log_offset = __pmFtell(logctl.l_mfp);
+	new_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(new_log_offset >= 0);
 	new_meta_offset = __pmFtell(logctl.l_mdfp);
 	assert(new_meta_offset >= 0);
@@ -2173,7 +2173,7 @@ cleanup:
 	    mintime.tv_sec, mintime.tv_usec, tmptime.tv_sec, tmptime.tv_usec, logend.tv_sec, logend.tv_usec, winend.tv_sec, winend.tv_usec, current.tv_sec, current.tv_usec);
 #endif
 
-	__pmFseek(logctl.l_mfp, old_log_offset, SEEK_SET);
+	__pmFseek(archctl.ac_mfp, old_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &current);
 
 
