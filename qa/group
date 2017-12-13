@@ -1437,6 +1437,7 @@ collectl
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
+1221 pmda.linux pmda.proc local
 1225 pmwebapi local
 1227 derive local
 1238 pmiostat archive multi-archive decompress-xz local

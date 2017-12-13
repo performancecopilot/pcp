@@ -49,7 +49,7 @@ struct sbstats {
 	__uint64_t	values[SBSTATS_COUNT];
 };
 
-extern void gfs2_sbstats_init(pmdaMetric *, int);
+extern void gfs2_sbstats_init(pmdaExt *, pmdaMetric *, int);
 extern int gfs2_sbstats_fetch(int, struct sbstats *, pmAtomValue *);
 extern int gfs2_refresh_sbstats(const char *, const char *, struct sbstats *);
 

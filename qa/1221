@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1221
+# Exercise multiple DSO PMDAs using pmdaDynamic APIs.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific PMDAs used in test case"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/^proc.namespaces.envid: Metric not supported/d' \
+    # end
+}
+
+# real QA test starts here
+linux_pmda=$PCP_PMDAS_DIR/linux/pmda_linux,linux_init
+proc_pmda=$PCP_PMDAS_DIR/proc/pmda_proc,proc_init
+_run_valgrind pminfo -vL -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc \
+| _filter
+
+# success, all done
+status=0
+exit

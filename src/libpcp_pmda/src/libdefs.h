@@ -22,6 +22,8 @@
 #define HAVE_V_SEVEN(interface)	((interface) >= PMDA_INTERFACE_7)
 #define HAVE_ANY(interface)	((interface) <= PMDA_INTERFACE_7 && HAVE_V_TWO(interface))
 
+struct dynamic;
+
 /*
  * Auxilliary structure used to save data from pmdaDSO or pmdaDaemon and
  * make it available to the other methods, also as private per PMDA data
@@ -32,6 +34,8 @@ typedef struct {
     pmResult		*res;		/* high-water allocation for */
     int			maxnpmids;	/* pmResult for each PMDA */
     __pmHashCtl		hashpmids;	/* hashed metrictab lookups */
+    int			ndynamics;	/* number of dynamics entries, below */
+    struct dynamic	*dynamics;	/* dynamic metric manipulation table */
 } e_ext_t;
 
 /*
