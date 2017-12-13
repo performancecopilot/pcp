@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1221
+# PCP QA Test No. 1222
 # Exercise multiple DSO PMDAs using pmdaDynamic APIs.
 #
 # Copyright (c) 2017 Red Hat.
