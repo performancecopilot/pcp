@@ -46,3 +46,5 @@ indom.o metric.o result.o util.o pmlogrewrite.o:	logger.h
 default_pcp:	default
 
 install_pcp:	install
+
+gram.tab.o indom.o lex.o logio.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h

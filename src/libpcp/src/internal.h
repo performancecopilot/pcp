@@ -98,6 +98,7 @@ extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
 
 #ifdef PM_MULTI_THREAD
 extern void __pmInitMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex initializer */
+extern void __pmDestroyMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex destroyer */
 
 /* local lock initilizer methods */
 extern void init_pmns_lock(void) _PCP_HIDDEN;
@@ -141,6 +142,7 @@ __pmTPDGet(void)
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
 extern int __pmIsContextLock(void *) _PCP_HIDDEN;
+extern char *__pmIsLogCtlLock(void *) _PCP_HIDDEN;
 extern int __pmIsDeriveLock(void *) _PCP_HIDDEN;
 extern int __pmIsAuxconnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsConfigLock(void *) _PCP_HIDDEN;

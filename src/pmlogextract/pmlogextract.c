@@ -284,7 +284,8 @@ static off_t	flushsize = 100000;		/* bytes before flush */
 char			*outarchname = NULL;	/* name of output archive */
 static __pmHashCtl	mdesc_hash;	/* pmids that have been written */
 static __pmHashCtl	mindom_hash;	/* indoms that have been written */
-static __pmLogCtl	logctl;		/* output archive control */
+static __pmLogCtl	logctl;		/* output log control */
+static __pmArchCtl	archctl;	/* output archive control */
 inarch_t		*inarch;	/* input archive control(s) */
 int			inarchnum;	/* number of input archives */
 
@@ -1146,7 +1147,7 @@ nextmeta(void)
 againmeta:
 	/* get next meta record */
 
-	if ((sts = _pmLogGet(lcp, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
+	if ((sts = _pmLogGet(ctxp->c_archctl, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
 	    iap->eof[META] = 1;
 	    ++numeof;
 	    if (sts != PM_ERR_EOL) {
@@ -1594,7 +1595,7 @@ checkwinend(pmTimeval now)
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
     markpdu = _createmark();
-    if ((sts = __pmLogPutResult2(&logctl, markpdu)) < 0) {
+    if ((sts = __pmLogPutResult2(&archctl, markpdu)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
@@ -1688,7 +1689,7 @@ fprintf(stderr, " break!\n");
 	/* write out log record */
 	old_log_offset = __pmFtell(logctl.l_mfp);
 	assert(old_log_offset >= 0);
-	if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
+	if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
@@ -1726,7 +1727,7 @@ fprintf(stderr, " break!\n");
             __pmFseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
 
-            __pmLogPutIndex(&logctl, &restime);
+            __pmLogPutIndex(&archctl, &restime);
 
             __pmFseek(logctl.l_mfp, (long)new_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
@@ -1776,7 +1777,7 @@ writemark(inarch_t *iap)
     p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
     p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
 
-    if ((sts = __pmLogPutResult2(&logctl, iap->pb[LOG])) < 0) {
+    if ((sts = __pmLogPutResult2(&archctl, iap->pb[LOG])) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
@@ -1955,7 +1956,8 @@ main(int argc, char **argv)
 
 
     /* create output log - must be done before writing label */
-    if ((sts = __pmLogCreate("", outarchname, outarchvers, &logctl)) < 0) {
+    archctl.ac_log = &logctl;
+    if ((sts = __pmLogCreate("", outarchname, outarchvers, &archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);
@@ -2172,7 +2174,7 @@ cleanup:
 #endif
 
 	__pmFseek(logctl.l_mfp, old_log_offset, SEEK_SET);
-	__pmLogPutIndex(&logctl, &current);
+	__pmLogPutIndex(&archctl, &current);
 
 
 	/* need to fix up label with new start-time */

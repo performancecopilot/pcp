@@ -60,3 +60,5 @@ default_pcp : default
 install_pcp : install
 
 .PHONY: build-me
+
+pmmgr.o:	$(TOPDIR)/src/include/pcp/libpcp.h

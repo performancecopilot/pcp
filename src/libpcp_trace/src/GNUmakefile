@@ -72,3 +72,5 @@ install_pcp : install
 ifneq ($(LIBTARGET),)
 $(LIBTARGET): $(VERSION_SCRIPT)
 endif
+
+pdu.o trace.o:	$(TOPDIR)/src/include/pcp/libpcp.h

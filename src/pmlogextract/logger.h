@@ -104,7 +104,7 @@ extern int	yyparse(void);
 extern void	dometric(const char *);
 
 /* log I/O helper routines */
-extern int _pmLogGet(__pmLogCtl *, int, __pmPDU **);
+extern int _pmLogGet(__pmArchCtl *, int, __pmPDU **);
 extern int _pmLogPut(__pmFILE *, __pmPDU *);
 extern pmUnits ntoh_pmUnits(pmUnits);
 #define ntoh_pmInDom(indom) ntohl(indom)

@@ -44,3 +44,5 @@ include $(BUILDRULES)
 default_pcp:	default
 
 install_pcp:	install
+
+actions.o gram.tab.o pmlc.o:	$(TOPDIR)/src/include/pcp/libpcp.h

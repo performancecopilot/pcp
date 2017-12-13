@@ -49,6 +49,7 @@ _cleanup()
 	else
 	    ( cd $PCP_PMDAS_DIR/kvm; $sudo ./Remove >/dev/null 2>&1 )
 	fi
+	_restore_auto_restart pmcd
 	done_clean=true
     fi
     $sudo rm -f $tmp.*
@@ -67,6 +68,8 @@ then
 fi
 cd $home/$iam
 unset ROOT MAKEFLAGS
+
+_stop_auto_restart pmcd
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf

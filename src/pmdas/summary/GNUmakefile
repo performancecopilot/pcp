@@ -62,3 +62,5 @@ default_%:	default
 
 install_%:	install
 	@true
+
+mainloop.o pmda.o summary.o:	$(TOPDIR)/src/include/pcp/libpcp.h

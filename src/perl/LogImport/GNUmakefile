@@ -70,3 +70,4 @@ default_pcp: default
 
 install_pcp: install
 
+LogImport.o:	$(TOPDIR)/src/include/pcp/libpcp.h

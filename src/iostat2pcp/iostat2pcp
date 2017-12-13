@@ -663,10 +663,14 @@ while (<INFILE>) {
 
     if ($header == 0 && $sample >= 0) {
 	if ($in_cpu) {
-	    my @part = split(/\s+/, $_);
+	    # iostat has begun inserting nulls after each value, causing
+	    # floating point conversion failure later - clean the input
+	    my $input = $_;
+	    $input =~ s/\0//g;
+	    my @part = split(/\s+/, $input);
 	    # $part[0] is empty white space before first value
 	    if ($#part != 6) {
-		print STDERR "[$line] $_\n";
+		print STDERR "[$line] $input\n";
 		die "avg-cpu: number of values? expected 7, found " . ($#part+1) . "\n";
 	    }
 	    put($part[1]/100);	# user

@@ -190,10 +190,10 @@ static int
 nextmeta()
 {
     int			sts;
-    __pmLogCtl		*lcp;
+    __pmArchCtl		*acp = inarch.ctxp->c_archctl;
+    __pmLogCtl		*lcp = acp->ac_log;
 
-    lcp = inarch.ctxp->c_archctl->ac_log;
-    if ((sts = _pmLogGet(lcp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
+    if ((sts = _pmLogGet(acp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
 		    pmGetProgname(), inarch.name, pmErrStr(sts));
@@ -218,12 +218,11 @@ nextmeta()
 static int
 nextlog(void)
 {
+    __pmArchCtl		*acp = inarch.ctxp->c_archctl;
+    __pmLogCtl		*lcp = acp->ac_log;
     int			sts;
-    __pmLogCtl		*lcp;
     int			old_vol;
 
-
-    lcp = inarch.ctxp->c_archctl->ac_log;
     old_vol = inarch.ctxp->c_archctl->ac_log->l_curvol;
 
     sts = __pmLogRead_ctx(inarch.ctxp, PM_MODE_FORW, NULL, &inarch.rp, PMLOGREAD_NEXT);
@@ -236,7 +235,7 @@ nextlog(void)
 	return -1;
     }
 
-    return old_vol == inarch.ctxp->c_archctl->ac_log->l_curvol ? 0 : 1;
+    return old_vol == lcp->l_curvol ? 0 : 1;
 }
 
 #ifdef IS_MINGW
@@ -1052,7 +1051,8 @@ main(int argc, char **argv)
 	exit(0);
 
     /* create output log - must be done before writing label */
-    if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.logctl)) < 0) {
+    outarch.archctl.ac_log = &outarch.logctl;
+    if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
 		pmGetProgname(), outarch.name, pmErrStr(sts));
 	abandon();
@@ -1260,7 +1260,7 @@ main(int argc, char **argv)
 	    new_meta_offset = __pmFtell(outarch.logctl.l_mdfp);
 	    assert(new_meta_offset >= 0);
             __pmFseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
-            __pmLogPutIndex(&outarch.logctl, &tstamp);
+            __pmLogPutIndex(&outarch.archctl, &tstamp);
             __pmFseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 	    needti = 0;
 	    doneti = 1;
@@ -1282,7 +1282,7 @@ main(int argc, char **argv)
 	/* Final temporal index entry */
 	__pmFflush(outarch.logctl.l_mfp);
 	__pmFseek(outarch.logctl.l_mfp, (long)old_log_offset, SEEK_SET);
-	__pmLogPutIndex(&outarch.logctl, &tstamp);
+	__pmLogPutIndex(&outarch.archctl, &tstamp);
     }
 
     if (iflag) {

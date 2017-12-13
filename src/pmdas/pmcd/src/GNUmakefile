@@ -72,3 +72,5 @@ $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
 $(LIBTARGET): $(VERSION_SCRIPT)
+
+pmcd.o:	$(TOPDIR)/src/include/pcp/libpcp.h

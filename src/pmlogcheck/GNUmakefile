@@ -32,3 +32,5 @@ default_pcp:	default
 install_pcp:	install
 
 $(OBJECTS):	logcheck.h
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

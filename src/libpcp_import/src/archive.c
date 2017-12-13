@@ -28,6 +28,7 @@ _pmi_put_result(pmi_context *current, pmResult *result)
     char	myname[MAXHOSTNAMELEN];
     __pmPDU	*pb;
     __pmLogCtl	*lcp = &current->logctl;
+    __pmArchCtl	*acp = &current->archctl;
     int		k;
     int		i;
     int		m;
@@ -52,7 +53,8 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	else
 	    host = current->hostname;
 
-	sts = __pmLogCreate(host, current->archive, PM_LOG_VERS02, lcp);
+	acp->ac_log = &current->logctl;
+	sts = __pmLogCreate(host, current->archive, PM_LOG_VERS02, acp);
 	if (sts < 0)
 	    return sts;
 
@@ -80,7 +82,7 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	lcp->l_label.ill_vol = 0;
 	__pmLogWriteLabel(lcp->l_mfp, &lcp->l_label);
 	lcp->l_state = PM_LOG_STATE_INIT;
-	__pmLogPutIndex(&current->logctl, &stamp);
+	__pmLogPutIndex(&current->archctl, &stamp);
     }
 
     __pmOverrideLastFd(__pmFileno(lcp->l_mfp));
@@ -95,7 +97,7 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	    if (current->metric[m].meta_done == 0) {
 		char	**namelist = &current->metric[m].name;
 
-		if ((sts = __pmLogPutDesc(lcp, &current->metric[m].desc, 1, namelist)) < 0) {
+		if ((sts = __pmLogPutDesc(acp, &current->metric[m].desc, 1, namelist)) < 0) {
 		    __pmUnpinPDUBuf(pb);
 		    return sts;
 		}
@@ -106,7 +108,7 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 		for (i = 0; i < current->nindom; i++) {
 		    if (current->metric[m].desc.indom == current->indom[i].indom) {
 			if (current->indom[i].meta_done == 0) {
-			    if ((sts = __pmLogPutInDom(lcp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0) {
+			    if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0) {
 				__pmUnpinPDUBuf(pb);
 				return sts;
 			    }
@@ -120,10 +122,10 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	}
     }
     if (needti) {
-	__pmLogPutIndex(lcp, &stamp);
+	__pmLogPutIndex(acp, &stamp);
     }
 
-    if ((sts = __pmLogPutResult2(lcp, pb)) < 0) {
+    if ((sts = __pmLogPutResult2(acp, pb)) < 0) {
 	__pmUnpinPDUBuf(pb);
 	return sts;
     }
@@ -138,9 +140,9 @@ _pmi_end(pmi_context *current)
     /* Final temporal index update to finish the archive
      * ... same logic here as in run_done() for pmlogger
      */
-    __pmLogPutIndex(&current->logctl, &stamp);
+    __pmLogPutIndex(&current->archctl, &stamp);
 
-    __pmLogClose(&current->logctl);
+    __pmLogClose(&current->archctl);
 
     current->state = CONTEXT_END;
     return 0;

@@ -50,3 +50,5 @@ chkhelp$(EXECSUFFIX):	chkhelp.o
 default_pcp:	default
 
 install_pcp:	install
+
+chkhelp.o newhelp.o:	$(TOPDIR)/src/include/pcp/libpcp.h

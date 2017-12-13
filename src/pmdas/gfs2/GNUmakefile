@@ -64,3 +64,5 @@ pmda.o ftrace.o:	       ftrace.h
 pmda.o ftrace.o worst_glock.o: worst_glock.h
 pmda.o ftrace.o latency.o:     latency.h
 pmda.o control.o:              control.h
+
+pmda.o sbstats.o worst_glock.o:	$(TOPDIR)/src/include/pcp/libpcp.h

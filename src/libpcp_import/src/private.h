@@ -43,6 +43,7 @@ typedef struct {
     char	*hostname;
     char	*timezone;
     __pmLogCtl	logctl;
+    __pmArchCtl	archctl;
     pmResult	*result;
     int		nmetric;
     pmi_metric	*metric;

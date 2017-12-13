@@ -15,7 +15,7 @@
 
 extern unsigned int irq_err_count;
 
-extern void interrupts_init(pmdaMetric *, int);
+extern void interrupts_init(pmdaExt *, pmdaMetric *, int);
 extern int refresh_interrupt_values(void);
 extern int refresh_softirqs_values(void);
 extern int interrupts_fetch(int, int, unsigned int, pmAtomValue *);

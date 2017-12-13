@@ -125,7 +125,8 @@ extern inarch_t		inarch;		/* input archive */
  */
 typedef struct {
     char	*name;		/* base name of output archive */
-    __pmLogCtl	logctl;		/* libpcp control */
+    __pmArchCtl	archctl;	/* libpcp archive control */
+    __pmLogCtl	logctl;		/* libpcp log control */
 } outarch_t;
 
 extern outarch_t	outarch;	/* output archive */
@@ -152,7 +153,7 @@ extern int	yyparse(void);
 #define W_NEXT	2
 #define W_NONE	3
 
-extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
+extern int	_pmLogGet(__pmArchCtl *, int, __pmPDU **);
 extern int	_pmLogPut(FILE *, __pmPDU *);
 extern int	_pmLogRename(const char *, const char *);
 extern int	_pmLogRemove(const char *);

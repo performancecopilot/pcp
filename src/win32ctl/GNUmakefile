@@ -34,3 +34,5 @@ ifeq "$(TARGET_OS)" "mingw"
 endif
 
 include $(BUILDRULES)
+
+pcp-setevent.o:	$(TOPDIR)/src/include/pcp/libpcp.h

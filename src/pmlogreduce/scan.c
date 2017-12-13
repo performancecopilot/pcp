@@ -110,7 +110,7 @@ doscan(struct timeval *end)
 	    markrec.timestamp.tv_sec = htonl(rp->timestamp.tv_sec);
 	    markrec.timestamp.tv_usec = htonl(rp->timestamp.tv_usec);
 	    markrec.numpmid = 0;
-	    if ((sts = __pmLogPutResult2(&logctl, (__pmPDU *)&markrec)) < 0) {
+	    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)&markrec)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutResult2: mark record write: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 		exit(1);

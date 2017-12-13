@@ -91,3 +91,5 @@ $(LIBCONFIG): $(LIBCONFIG).in
 	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
 	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif
+
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

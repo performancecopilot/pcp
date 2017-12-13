@@ -176,7 +176,7 @@ class pmConfig(object):
         """ Parse user-supplied instances string """
         insts = []
         reader = csv.reader([instances])
-        for _, inst in enumerate(list(reader)[0]):
+        for inst in list(reader)[0]:
             if inst.startswith('"') or inst.startswith("'"):
                 inst = inst[1:]
             if inst.endswith('"') or inst.endswith("'"):

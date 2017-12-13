@@ -45,3 +45,5 @@ pmdesc: pmdesc.o
 default_pcp:    default
 
 install_pcp:    install
+
+collectl2pcp.o:	$(TOPDIR)/src/include/pcp/libpcp.h

@@ -893,7 +893,7 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	}
     }
     else {
-	if ((sts = __pmLogLookupLabel(ctxp->c_archctl->ac_log, type,
+	if ((sts = __pmLogLookupLabel(ctxp->c_archctl, type,
 				ident, sets, &ctxp->c_origin)) < 0) {
 	    /* supply context labels for archives lacking label support */
 	    if (type & PM_LABEL_CONTEXT)
