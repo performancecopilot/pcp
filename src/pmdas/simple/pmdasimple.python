@@ -3,7 +3,7 @@
 Python implementation of the "simple" Performance Metrics Domain Agent.
 '''
 #
-# Copyright (c) 2013,2015 Red Hat.
+# Copyright (c) 2013,2015,2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -201,6 +201,36 @@ class SimplePMDA(PMDA):
         self.replace_indom(self.now_indom, self.timeslices)
 
 
+    def simple_label(self, ident, type):
+        '''
+        Return JSONB format labelset for identifier of given type, as a string
+        '''
+        if type == c_api.PM_LABEL_DOMAIN:
+            ret = '"role":"testing"'
+        elif type == c_api.PM_LABEL_INDOM:
+            indom = ident
+            if indom == self.color_indom:
+                ret = '"indom_name":"color"'
+            elif indom == self.now_indom:
+                ret = '"indom_name":"now","unitsystem":"SI"'
+        else: # no labels added for types PM_LABEL_CLUSTER, PM_LABEL_ITEM
+            ret = '' # default is an empty labelset string
+
+        # self.log("simple_label(%#x,%d) returning {%s}" % (ident, type, ret))
+        return '{%s}' % ret
+
+    def simple_label_callback(self, indom, inst):
+        '''
+        Return JSONB format labelset for an inst in given indom, as a string
+        '''
+        if indom == self.now_indom:
+            ret = '"units":"%s"' % (self.inst_name_lookup(self.now_indom, inst))
+        else:
+            ret = ''
+        # self.log("simple_label_callback(%#x,%d) returning {%s}" % (indom, inst, ret))
+        return '{%s}' % ret
+
+
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
@@ -235,6 +265,8 @@ class SimplePMDA(PMDA):
         self.set_instance(self.simple_instance)
         self.set_fetch_callback(self.simple_fetch_callback)
         self.set_store_callback(self.simple_store_callback)
+        self.set_label(self.simple_label)
+        self.set_label_callback(self.simple_label_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
         self.simple_timenow_check()
 
