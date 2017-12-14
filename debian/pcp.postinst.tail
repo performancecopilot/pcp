@@ -76,15 +76,6 @@ update-rc.d pmlogger defaults >/dev/null
 update-rc.d pmie defaults >/dev/null
 update-rc.d pmproxy defaults >/dev/null
 
-# migrate existing statistics files to their new (permanent!) home
-#
-for dir in /var/tmp/mmv /var/tmp/pmdabash
-do
-    [ -d $dir ] || continue
-    [ "$(LC_ALL=C stat -c '%u %g %F' $dir)" = "0 0 directory" ] && mv $dir /var/lib/pcp/tmp
-done
-_clean_tmpdirs $PCP_TMP_DIR /var/tmp pmie pmlogger
-
 # transition pmdadmcache over to pmdadm (device mapper)
 #
 PCP_PMCDCONF_PATH=/etc/pcp/pmcd/pmcd.conf

@@ -31,9 +31,9 @@ preinstall: preinstall.head $(SCRIPTS)/cleanconfigs preinstall.tail
 	cat preinstall.head $(SCRIPTS)/cleanconfigs preinstall.tail > $@
 	chmod ugo+x $@
 
-postinstall: postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail
+postinstall: postinstall.head postinstall.tail
 	rm -f $@
-	cat postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail > $@
+	cat postinstall.head postinstall.tail > $@
 	chmod ugo+x $@
 
 pack_pcp : 
