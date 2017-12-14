@@ -1,3 +1,5 @@
+# original pmdaprometheus test case
+
 # HELP go_gc_duration_seconds A summary of the GC invocation durations.
 # TYPE go_gc_duration_seconds summary
 go_gc_duration_seconds{quantile="0"} 0.000159623

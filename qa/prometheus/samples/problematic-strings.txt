@@ -1,0 +1,33 @@
+# HELP test The Thing
+# TYPE test gauge
+test{instance=""} 0
+test{instance=" "} 1
+test{instance="'"} 2
+test{instance="\""} 3
+test{instance="\"'"} 4
+test{instance="\\"} 5
+test{instance=","} 6
+test{instance="="} 7
+test{instance=":"} 8
+test{instance="}"} 9
+test{instance="{"} 10
+
+# PCP test2 instant count
+# HELP test2 The Other Thing
+# TYPE test2 gauge
+test2{instance=""} 0
+test2{instance=" "} 1
+test2{instance="'"} 2
+test2{instance="\""} 3
+test2{instance="\"'"} 4
+test2{instance="\\"} 5
+test2{instance=","} 6
+test2{instance="="} 7
+test2{instance=":"} 8
+test2{instance="}"} 9
+test2{instance="{"} 10
+
+# HELP test3 Yet Another Thing\nwith a long label\nvery long indeed\nand has a \\ or two \\
+# TYPE test3 gauge
+test3 0
+

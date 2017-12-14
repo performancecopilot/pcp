@@ -1,0 +1,10 @@
+# HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
+# TYPE http_request_duration_microseconds summary
+http_request_duration_microseconds{handler="alertmanagers",quantile="0.5"} 0
+http_request_duration_microseconds{handler="alertmanagers",quantile="0.9"} 1
+http_request_duration_microseconds{handler="alertmanagers",quantile="0.99"} 2
+http_request_duration_microseconds{quantile="0.5",handler="alertmanagers"} 3
+http_request_duration_microseconds{quantile="0.9",handler="alertmanagers"} 4
+http_request_duration_microseconds{quantile="0.99",handler="alertmanagers"} 5
+
+# These latter three should map to the same metric, so the later values should override the earlier ones

@@ -128,6 +128,7 @@ pass0(char *fname)
     char	*p;
     __pmFILE	*f = NULL;
     int		label_ok = STS_OK;
+    char	logBase[MAXPATHLEN];
 
     if (vflag)
 	fprintf(stderr, "%s: start pass0\n", fname);
@@ -137,18 +138,18 @@ pass0(char *fname)
 	sts = STS_FATAL;
 	goto done;
     }
-    p = strrchr(fname, '.');
-    if (p != NULL) {
-	if (strcmp(p, ".index") == 0)
+    
+    strncpy(logBase, fname, sizeof(logBase));
+    logBase[sizeof(logBase)-1] = '\0';
+    if (__pmLogBaseName(logBase) != NULL) {
+	/* A valid archive suffix was found */
+	p = logBase + strlen(logBase) + 1;
+	if (strcmp(p, "index") == 0)
 	    is = IS_INDEX;
-	else if (strcmp(p, ".meta") == 0)
+	else if (strcmp(p, "meta") == 0)
 	    is = IS_META;
-	else if (isdigit((int)(*++p))) {
-	    p++;
-	    while (*p && isdigit((int)*p))
-		p++;
-	    if (*p == '\0')
-		is = IS_LOG;
+	else if (isdigit((int)(*p))) {
+	    is = IS_LOG;
 	}
     }
     if (is == IS_UNKNOWN) {

@@ -1681,7 +1681,10 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection,
                 output_descs[i].units.dimTime = 0;
                 output_descs[i].units.dimCount = 1;
 
-                for (time_t w = t_start; w <= t_end; w += t_step)
+                // set to 0 the time interval that overlaps the archive's timespan and the query timespan
+                for (time_t w = max(t_start,e->archive_begin.tv_sec);
+                     w <= min(t_end,e->archive_end.tv_sec);
+                     w += t_step)
                     (outputs[i]).at(w) = 0;
                 
                 // skip rest of jobmap etc. processing

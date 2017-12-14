@@ -2811,18 +2811,10 @@ sample_label_domain(pmLabelSet **sets, pmdaExt *ep)
 static int
 sample_label_indom(pmInDom indom, pmLabelSet **lp)
 {
-    int		sts;
-
-    if (indom == indomtab[COLOUR_INDOM].it_indom) {
-	if ((sts = pmdaAddLabels(lp, "{\"model\":\"RGB\"}")) < 0)
-	    return sts;
-	return 1;
-    }
-    if (indom == indomtab[FAMILY_INDOM].it_indom) {
-	if ((sts = pmdaAddLabels(lp, "{\"clan\":\"mcdonell\"}")) < 0)
-	    return sts;
-	return 1;
-    }
+    if (indom == indomtab[COLOUR_INDOM].it_indom)
+	return pmdaAddLabels(lp, "{\"model\":\"RGB\"}");
+    if (indom == indomtab[FAMILY_INDOM].it_indom)
+	return pmdaAddLabels(lp, "{\"clan\":\"mcdonell\"}");
     return 0;
 }
 

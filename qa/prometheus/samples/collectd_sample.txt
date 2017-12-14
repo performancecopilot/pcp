@@ -1,0 +1,303 @@
+# from https://github.com/prometheus/prometheus/issues/1943
+
+# HELP collectd_cpu_percent Collectd exporter: 'cpu' Type: 'percent' Dstype: 'api.Gauge' Dsname: 'value'
+# TYPE collectd_cpu_percent gauge
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="idle"} 97.78894472361809
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="interrupt"} 0
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="nice"} 0
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="softirq"} 0
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="steal"} 0
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="system"} 0.30150753768844224
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="user"} 0.5025125628140703
+collectd_cpu_percent{cpu="0",instance="172-20-12-224",type="wait"} 1.407035175879397
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="idle"} 98.5929648241206
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="interrupt"} 0
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="nice"} 0
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="softirq"} 0
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="steal"} 0.20100502512562815
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="system"} 0.30150753768844224
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="user"} 0.30150753768844224
+collectd_cpu_percent{cpu="1",instance="172-20-12-224",type="wait"} 0.6030150753768845
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="idle"} 99.19517102615694
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="interrupt"} 0
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="nice"} 0
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="softirq"} 0
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="steal"} 0
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="system"} 0.4024144869215292
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="user"} 0.4024144869215292
+collectd_cpu_percent{cpu="2",instance="172-20-12-224",type="wait"} 0
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="idle"} 99.19678714859437
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="interrupt"} 0
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="nice"} 0
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="softirq"} 0
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="steal"} 0
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="system"} 0.30120481927710846
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="user"} 0.5020080321285141
+collectd_cpu_percent{cpu="3",instance="172-20-12-224",type="wait"} 0
+# HELP collectd_disk_disk_io_time_0 Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_disk_disk_io_time_0 counter
+collectd_disk_disk_io_time_0{disk="vda",instance="172-20-12-224"} 211795
+collectd_disk_disk_io_time_0{disk="vda1",instance="172-20-12-224"} 190436
+collectd_disk_disk_io_time_0{disk="vda2",instance="172-20-12-224"} 21
+# HELP collectd_disk_disk_io_time_1 Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_disk_disk_io_time_1 counter
+collectd_disk_disk_io_time_1{disk="vda",instance="172-20-12-224"} 2.556452e+06
+collectd_disk_disk_io_time_1{disk="vda1",instance="172-20-12-224"} 2.528054e+06
+collectd_disk_disk_io_time_1{disk="vda2",instance="172-20-12-224"} 27
+# HELP collectd_disk_disk_merged_0 Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_disk_disk_merged_0 counter
+collectd_disk_disk_merged_0{disk="vda",instance="172-20-12-224"} 24
+collectd_disk_disk_merged_0{disk="vda1",instance="172-20-12-224"} 24
+collectd_disk_disk_merged_0{disk="vda2",instance="172-20-12-224"} 0
+# HELP collectd_disk_disk_merged_1 Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_disk_disk_merged_1 counter
+collectd_disk_disk_merged_1{disk="vda",instance="172-20-12-224"} 630
+collectd_disk_disk_merged_1{disk="vda1",instance="172-20-12-224"} 630
+collectd_disk_disk_merged_1{disk="vda2",instance="172-20-12-224"} 0
+# HELP collectd_disk_disk_octets_0 Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_disk_disk_octets_0 counter
+collectd_disk_disk_octets_0{disk="vda",instance="172-20-12-224"} 7.27850496e+08
+collectd_disk_disk_octets_0{disk="vda1",instance="172-20-12-224"} 7.25892608e+08
+collectd_disk_disk_octets_0{disk="vda2",instance="172-20-12-224"} 1.138688e+06
+# HELP collectd_disk_disk_octets_1 Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_disk_disk_octets_1 counter
+collectd_disk_disk_octets_1{disk="vda",instance="172-20-12-224"} 1.66722048e+08
+collectd_disk_disk_octets_1{disk="vda1",instance="172-20-12-224"} 1.66722048e+08
+collectd_disk_disk_octets_1{disk="vda2",instance="172-20-12-224"} 0
+# HELP collectd_disk_disk_ops_0 Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_disk_disk_ops_0 counter
+collectd_disk_disk_ops_0{disk="vda",instance="172-20-12-224"} 12905
+collectd_disk_disk_ops_0{disk="vda1",instance="172-20-12-224"} 12674
+collectd_disk_disk_ops_0{disk="vda2",instance="172-20-12-224"} 139
+# HELP collectd_disk_disk_ops_1 Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_disk_disk_ops_1 counter
+collectd_disk_disk_ops_1{disk="vda",instance="172-20-12-224"} 7151
+collectd_disk_disk_ops_1{disk="vda1",instance="172-20-12-224"} 6388
+collectd_disk_disk_ops_1{disk="vda2",instance="172-20-12-224"} 0
+# HELP collectd_disk_disk_time_0 Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_disk_disk_time_0 counter
+collectd_disk_disk_time_0{disk="vda",instance="172-20-12-224"} 27198
+collectd_disk_disk_time_0{disk="vda1",instance="172-20-12-224"} 27199
+collectd_disk_disk_time_0{disk="vda2",instance="172-20-12-224"} 2
+# HELP collectd_disk_disk_time_1 Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_disk_disk_time_1 counter
+collectd_disk_disk_time_1{disk="vda",instance="172-20-12-224"} 242003
+collectd_disk_disk_time_1{disk="vda1",instance="172-20-12-224"} 260282
+collectd_disk_disk_time_1{disk="vda2",instance="172-20-12-224"} 0
+# HELP collectd_disk_pending_operations Collectd exporter: 'disk' Type: 'pending_operations' Dstype: 'api.Gauge' Dsname: 'value'
+# TYPE collectd_disk_pending_operations gauge
+collectd_disk_pending_operations{disk="vda",instance="172-20-12-224"} 0
+collectd_disk_pending_operations{disk="vda1",instance="172-20-12-224"} 0
+collectd_disk_pending_operations{disk="vda2",instance="172-20-12-224"} 0
+# HELP collectd_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which collectd_exporter was built.
+# TYPE collectd_exporter_build_info gauge
+collectd_exporter_build_info{branch="cut-0.3.0",goversion="go1.6.2",revision="3abb95c",version="0.3.1"} 1
+# HELP collectd_interface_if_errors_0 Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_interface_if_errors_0 counter
+collectd_interface_if_errors_0{instance="172-20-12-224",interface="eth0"} 0
+# HELP collectd_interface_if_errors_1 Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_interface_if_errors_1 counter
+collectd_interface_if_errors_1{instance="172-20-12-224",interface="eth0"} 0
+# HELP collectd_interface_if_octets_0 Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_interface_if_octets_0 counter
+collectd_interface_if_octets_0{instance="172-20-12-224",interface="eth0"} 1.4762652e+07
+# HELP collectd_interface_if_octets_1 Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_interface_if_octets_1 counter
+collectd_interface_if_octets_1{instance="172-20-12-224",interface="eth0"} 534845
+# HELP collectd_interface_if_packets_0 Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_interface_if_packets_0 counter
+collectd_interface_if_packets_0{instance="172-20-12-224",interface="eth0"} 43352
+# HELP collectd_interface_if_packets_1 Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_interface_if_packets_1 counter
+collectd_interface_if_packets_1{instance="172-20-12-224",interface="eth0"} 4984
+# HELP collectd_last_push_timestamp_seconds Unix timestamp of the last received collectd metrics push in seconds.
+# TYPE collectd_last_push_timestamp_seconds gauge
+collectd_last_push_timestamp_seconds 1.472825201754032e+09
+# HELP collectd_memory Collectd exporter: 'memory' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
+# TYPE collectd_memory gauge
+collectd_memory{instance="172-20-12-224",memory="buffered"} 897024
+collectd_memory{instance="172-20-12-224",memory="cached"} 7.8696448e+08
+collectd_memory{instance="172-20-12-224",memory="free"} 8.45369344e+08
+collectd_memory{instance="172-20-12-224",memory="slab_recl"} 5.66272e+07
+collectd_memory{instance="172-20-12-224",memory="slab_unrecl"} 2.1671936e+07
+collectd_memory{instance="172-20-12-224",memory="used"} 4.377649152e+09
+# HELP collectd_virt_disk_octets_0 Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_virt_disk_octets_0 counter
+collectd_virt_disk_octets_0{instance="560f9665261043c1aefdeba0b88499d7",type="hdc",virt="560f9665261043c1aefdeba0b88499d7"} 0
+collectd_virt_disk_octets_0{instance="560f9665261043c1aefdeba0b88499d7",type="vda",virt="560f9665261043c1aefdeba0b88499d7"} 6.22848e+06
+# HELP collectd_virt_disk_octets_1 Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_virt_disk_octets_1 counter
+collectd_virt_disk_octets_1{instance="560f9665261043c1aefdeba0b88499d7",type="hdc",virt="560f9665261043c1aefdeba0b88499d7"} 0
+collectd_virt_disk_octets_1{instance="560f9665261043c1aefdeba0b88499d7",type="vda",virt="560f9665261043c1aefdeba0b88499d7"} 90112
+# HELP collectd_virt_disk_ops_0 Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_virt_disk_ops_0 counter
+collectd_virt_disk_ops_0{instance="560f9665261043c1aefdeba0b88499d7",type="hdc",virt="560f9665261043c1aefdeba0b88499d7"} 0
+collectd_virt_disk_ops_0{instance="560f9665261043c1aefdeba0b88499d7",type="vda",virt="560f9665261043c1aefdeba0b88499d7"} 421
+# HELP collectd_virt_disk_ops_1 Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_virt_disk_ops_1 counter
+collectd_virt_disk_ops_1{instance="560f9665261043c1aefdeba0b88499d7",type="hdc",virt="560f9665261043c1aefdeba0b88499d7"} 0
+collectd_virt_disk_ops_1{instance="560f9665261043c1aefdeba0b88499d7",type="vda",virt="560f9665261043c1aefdeba0b88499d7"} 36
+# HELP collectd_virt_if_dropped_0 Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_virt_if_dropped_0 counter
+collectd_virt_if_dropped_0{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 0
+# HELP collectd_virt_if_dropped_1 Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_virt_if_dropped_1 counter
+collectd_virt_if_dropped_1{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 0
+# HELP collectd_virt_if_errors_0 Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_virt_if_errors_0 counter
+collectd_virt_if_errors_0{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 0
+# HELP collectd_virt_if_errors_1 Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_virt_if_errors_1 counter
+collectd_virt_if_errors_1{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 0
+# HELP collectd_virt_if_octets_0 Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_virt_if_octets_0 counter
+collectd_virt_if_octets_0{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 1.612942e+06
+# HELP collectd_virt_if_octets_1 Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_virt_if_octets_1 counter
+collectd_virt_if_octets_1{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 726
+# HELP collectd_virt_if_packets_0 Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0'
+# TYPE collectd_virt_if_packets_0 counter
+collectd_virt_if_packets_0{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 21401
+# HELP collectd_virt_if_packets_1 Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1'
+# TYPE collectd_virt_if_packets_1 counter
+collectd_virt_if_packets_1{instance="560f9665261043c1aefdeba0b88499d7",type="vnic3.0",virt="560f9665261043c1aefdeba0b88499d7"} 3
+# HELP collectd_virt_memory Collectd exporter: 'virt' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
+# TYPE collectd_virt_memory gauge
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="actual_balloon",virt="560f9665261043c1aefdeba0b88499d7"} 2.68435456e+08
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="available",virt="560f9665261043c1aefdeba0b88499d7"} 2.55909888e+08
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="major_fault",virt="560f9665261043c1aefdeba0b88499d7"} 1.8889330823492178e+22
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="minor_fault",virt="560f9665261043c1aefdeba0b88499d7"} 1.888933082376042e+22
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="rss",virt="560f9665261043c1aefdeba0b88499d7"} 8.0822272e+07
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="swap_in",virt="560f9665261043c1aefdeba0b88499d7"} 3.12999936e+08
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="swap_out",virt="560f9665261043c1aefdeba0b88499d7"} 532480
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="total",virt="560f9665261043c1aefdeba0b88499d7"} 2.68435456e+08
+collectd_virt_memory{instance="560f9665261043c1aefdeba0b88499d7",type="unused",virt="560f9665261043c1aefdeba0b88499d7"} 2.43802112e+08
+# HELP collectd_virt_virt_cpu_total Collectd exporter: 'virt' Type: 'virt_cpu_total' Dstype: 'api.Derive' Dsname: 'value'
+# TYPE collectd_virt_virt_cpu_total counter
+collectd_virt_virt_cpu_total{instance="560f9665261043c1aefdeba0b88499d7",virt="560f9665261043c1aefdeba0b88499d7"} 2.882e+10
+# HELP collectd_virt_virt_vcpu Collectd exporter: 'virt' Type: 'virt_vcpu' Dstype: 'api.Derive' Dsname: 'value'
+# TYPE collectd_virt_virt_vcpu counter
+collectd_virt_virt_vcpu{instance="560f9665261043c1aefdeba0b88499d7",type="0",virt="560f9665261043c1aefdeba0b88499d7"} 9.15e+09
+# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{quantile="0"} 6.3137e-05
+go_gc_duration_seconds{quantile="0.25"} 0.00022639100000000002
+go_gc_duration_seconds{quantile="0.5"} 0.000246904
+go_gc_duration_seconds{quantile="0.75"} 0.00026767500000000004
+go_gc_duration_seconds{quantile="1"} 0.000786585
+go_gc_duration_seconds_sum 0.019577778
+go_gc_duration_seconds_count 73
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines 12
+# HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
+# TYPE go_memstats_alloc_bytes gauge
+go_memstats_alloc_bytes 2.443056e+06
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
+# TYPE go_memstats_alloc_bytes_total counter
+go_memstats_alloc_bytes_total 1.79013592e+08
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table.
+# TYPE go_memstats_buck_hash_sys_bytes gauge
+go_memstats_buck_hash_sys_bytes 1.453583e+06
+# HELP go_memstats_frees_total Total number of frees.
+# TYPE go_memstats_frees_total counter
+go_memstats_frees_total 568013
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
+# TYPE go_memstats_gc_sys_bytes gauge
+go_memstats_gc_sys_bytes 223232
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
+# TYPE go_memstats_heap_alloc_bytes gauge
+go_memstats_heap_alloc_bytes 2.443056e+06
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used.
+# TYPE go_memstats_heap_idle_bytes gauge
+go_memstats_heap_idle_bytes 2.711552e+06
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use.
+# TYPE go_memstats_heap_inuse_bytes gauge
+go_memstats_heap_inuse_bytes 3.121152e+06
+# HELP go_memstats_heap_objects Number of allocated objects.
+# TYPE go_memstats_heap_objects gauge
+go_memstats_heap_objects 7835
+# HELP go_memstats_heap_released_bytes_total Total number of heap bytes released to OS.
+# TYPE go_memstats_heap_released_bytes_total counter
+go_memstats_heap_released_bytes_total 0
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system.
+# TYPE go_memstats_heap_sys_bytes gauge
+go_memstats_heap_sys_bytes 5.832704e+06
+# HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
+# TYPE go_memstats_last_gc_time_seconds gauge
+go_memstats_last_gc_time_seconds 1.4728252002169666e+09
+# HELP go_memstats_lookups_total Total number of pointer lookups.
+# TYPE go_memstats_lookups_total counter
+go_memstats_lookups_total 996
+# HELP go_memstats_mallocs_total Total number of mallocs.
+# TYPE go_memstats_mallocs_total counter
+go_memstats_mallocs_total 575848
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures.
+# TYPE go_memstats_mcache_inuse_bytes gauge
+go_memstats_mcache_inuse_bytes 4800
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system.
+# TYPE go_memstats_mcache_sys_bytes gauge
+go_memstats_mcache_sys_bytes 16384
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures.
+# TYPE go_memstats_mspan_inuse_bytes gauge
+go_memstats_mspan_inuse_bytes 21960
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system.
+# TYPE go_memstats_mspan_sys_bytes gauge
+go_memstats_mspan_sys_bytes 32768
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place.
+# TYPE go_memstats_next_gc_bytes gauge
+go_memstats_next_gc_bytes 4.350551e+06
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations.
+# TYPE go_memstats_other_sys_bytes gauge
+go_memstats_other_sys_bytes 1.295081e+06
+# HELP go_memstats_stack_inuse_bytes Number of bytes in use by the stack allocator.
+# TYPE go_memstats_stack_inuse_bytes gauge
+go_memstats_stack_inuse_bytes 458752
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator.
+# TYPE go_memstats_stack_sys_bytes gauge
+go_memstats_stack_sys_bytes 458752
+# HELP go_memstats_sys_bytes Number of bytes obtained by system. Sum of all system allocations.
+# TYPE go_memstats_sys_bytes gauge
+go_memstats_sys_bytes 9.312504e+06
+# HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
+# TYPE http_request_duration_microseconds summary
+http_request_duration_microseconds{handler="prometheus",quantile="0.5"} 2424.361
+http_request_duration_microseconds{handler="prometheus",quantile="0.9"} 2667.98
+http_request_duration_microseconds{handler="prometheus",quantile="0.99"} 2793.404
+http_request_duration_microseconds_sum{handler="prometheus"} 218535.36000000004
+http_request_duration_microseconds_count{handler="prometheus"} 97
+# HELP http_request_size_bytes The HTTP request sizes in bytes.
+# TYPE http_request_size_bytes summary
+http_request_size_bytes{handler="prometheus",quantile="0.5"} 309
+http_request_size_bytes{handler="prometheus",quantile="0.9"} 309
+http_request_size_bytes{handler="prometheus",quantile="0.99"} 309
+http_request_size_bytes_sum{handler="prometheus"} 30504
+http_request_size_bytes_count{handler="prometheus"} 97
+# HELP http_requests_total Total number of HTTP requests made.
+# TYPE http_requests_total counter
+http_requests_total{code="200",handler="prometheus",method="get"} 97
+# HELP http_response_size_bytes The HTTP response sizes in bytes.
+# TYPE http_response_size_bytes summary
+http_response_size_bytes{handler="prometheus",quantile="0.5"} 3163
+http_response_size_bytes{handler="prometheus",quantile="0.9"} 3181
+http_response_size_bytes{handler="prometheus",quantile="0.99"} 3185
+http_response_size_bytes_sum{handler="prometheus"} 304464
+http_response_size_bytes_count{handler="prometheus"} 97
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 0.48
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1024
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 10
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 9.674752e+06
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.47282425912e+09
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 1.7334272e+07

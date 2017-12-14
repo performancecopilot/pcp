@@ -1397,7 +1397,7 @@ collectl
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1101 libpcp_web local
-1102:reserved pmda.prometheus.local
+1102 pmda.prometheus local
 1105 derive local
 1106 libpcp local
 1108 logutil local folio pmlogextract
@@ -1408,7 +1408,7 @@ collectl
 1113 pcp python local
 1114 archive pmval multi-archive local
 1119 pmlogsummary archive multi-archive decompress-xz local
-1120:reserved pmda.prometheus local
+1120 pmda.prometheus local
 1121 pmda.linux local
 1122 pmie local
 1123 pmchart local
@@ -1430,14 +1430,11 @@ collectl
 1174 threads valgrind local
 1182 libpcp local
 1186 pmie local
-1191 pmda.prometheus pmda.install local
-1192 pmda.prometheus local
-1193 pmda.prometheus local
-1194 pmda.prometheus local
 1196 pmcd local
+1191 pmda.prometheus local
 1199 libpcp pmcd local
 1202 pmdadm local
-1221:reserved labels pmda.prometheus local
+1221 labels pmda.prometheus local
 1222 pmda.linux pmda.proc local
 1225 pmwebapi local
 1227 derive local
@@ -1451,14 +1448,16 @@ collectl
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local
 1324 pmclient archive multi-archive decompress-xz local
-1330:reserved pmda.prometheus local
+1330 pmda.prometheus local
 1331 verify local
+1343 pmmgr local
+1344 pmmgr local
 1354 pmval archive local
 1359 libpcp local
-1367:reserved labels pmda.simple local
+1367 labels pmda.simple local
 1368 labels help pmlogger pmdumplog local
 1369 labels pmcd pmlogger pmdumplog local
-1385:reserved pmda.prometheus local
+1385 pmda.prometheus local
 1388 pmwebapi local
-1395:reserved pmda.prometheus local
+1395 pmda.prometheus local
 4751 libpcp threads valgrind local
