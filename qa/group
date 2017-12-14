@@ -1439,8 +1439,6 @@ collectl
 1225 pmwebapi local
 1227 derive local
 1238 pmiostat archive multi-archive decompress-xz local
-1238 pmiostat archive multi-archive decompress-xz local
-1242 pmrep archive multi-archive decompress-xz local
 1242 pmrep archive multi-archive decompress-xz local
 1245 libpcp local
 1257 libpcp python local
