@@ -51,8 +51,8 @@ Metric: sampledso.secret.foo.bar
 dbpmda> 
 
 === Daemon PMDA test ===
-dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample 29
-Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample 29
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample 29 -l TMP.log
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample 29 -l TMP.log
 dbpmda> name 29.0.1001
 PMID: 29.0.1001
    sample.secret.foo.one
@@ -113,8 +113,8 @@ dbpmda> text mmv.test.strings
 Warning: No PMDA currently opened
 dbpmda> store mmv.control.reload "1"
 Warning: No PMDA currently opened
-dbpmda> open pipe $PCP_PMDAS_DIR/mmv/pmdammv
-Start pmdammv PMDA: $PCP_PMDAS_DIR/mmv/pmdammv
+dbpmda> open pipe $PCP_PMDAS_DIR/mmv/pmdammv -l TMP.log
+Start pmdammv PMDA: $PCP_PMDAS_DIR/mmv/pmdammv -l TMP.log
 dbpmda> desc mmv.test.strings
 PMID: 70.1.6
     Data Type: string  InDom: 70.2049 0x11800801

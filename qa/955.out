@@ -1,7 +1,7 @@
 QA output created by 955
 === Daemon PMDA linux static text then dynamic fetch test ===
-dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
-Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
 dbpmda> text hinv.ncpu
 PMID: 60.0.32
 [number of CPUs in the system]
@@ -20,8 +20,8 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [7 or ???] value 1 1.4012985e-45 ADDR
 dbpmda> 
 === Daemon PMDA linux static fetch then dynamic fetch test ===
-dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
-Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
 dbpmda> fetch hinv.ncpu
 PMID(s): 60.0.32
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
@@ -41,8 +41,8 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [7 or ???] value 1 1.4012985e-45 ADDR
 dbpmda> 
 === Daemon PMDA linux dynamic then static fetch test ===
-dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
-Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
 dbpmda> fetch kernel.percpu.interrupts.line1
 PMID(s): 60.49.1
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
@@ -64,8 +64,8 @@ dbpmda>
 === Daemon PMDA linux look for dynamic children ===
 LEAFS OK
 === Daemon PMDA fetch from a second dynamic metric tree ===
-dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
-Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
 dbpmda> fetch kernel.percpu.softirqs.NET_RX kernel.percpu.interrupts.line0
 PMID(s): 60.63.3 60.49.0
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 2

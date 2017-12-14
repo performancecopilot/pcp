@@ -71,6 +71,7 @@ fetch papi.system.TOT_INS
 store papi.control.disable "TOT_INS"
 fetch papi.system.TOT_INS
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # now that we know existing functionality is working, lets test
 # the timeout of auto_enable, lets set to 5 seconds and test
@@ -87,6 +88,7 @@ fetch papi.control.status
 wait 7
 fetch papi.control.status
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # even with a timeout (for our case it will be a small one)
 # the existing control.{enable,disable} metrics will override the
@@ -108,6 +110,7 @@ fetch papi.control.status
 store papi.control.disable "TOT_INS"
 fetch papi.control.status
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # add a test to check that the papi.control.status metric shows
 # evidence of altering the papi.control.multiplex metric
@@ -127,3 +130,4 @@ fetch papi.control.status
 wait 7
 fetch papi.control.status
 EOF
+cat $tmp.log >>$here/$seq.full

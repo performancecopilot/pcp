@@ -1,8 +1,8 @@
 QA output created by 174
 dbpmda> debug 1
 dbpmda> getdesc on
-dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
-Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002

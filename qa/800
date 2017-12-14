@@ -20,6 +20,7 @@ _cleanup()
     cd $here
     [ -f $tmp.backup ] && $sudo mv $tmp.backup $PCP_PMDAS_DIR/proc/hotproc.conf
     rm -rf $tmp.*
+    $sudo rm -f proc.log
 }
 
 status=1	# failure is the default!

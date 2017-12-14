@@ -1273,8 +1273,8 @@ sendstatus(void)
 	pmtimevalNow(&now);
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
-	ls.ls_vol = logctl.l_curvol;
-	ls.ls_size = __pmFtell(logctl.l_mfp);
+	ls.ls_vol = archctl.ac_curvol;
+	ls.ls_size = __pmFtell(archctl.ac_mfp);
 	assert(ls.ls_size >= 0);
 
 	/* be careful of buffer size mismatches when copying strings */

@@ -29,7 +29,7 @@ esac
 export PMDADSO
 
 status=1	# failure is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -44,7 +44,9 @@ _filter()
 	-e '/DSO Interface Version:  /s/[5-9]/N/g' \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/TIMEZONE/g' \
 	-e 's/Permission denied/No permission to perform requested operation/' \
-        -e '/Error PDU/s/One-line/Oneline/'
+        -e '/Error PDU/s/One-line/Oneline/' \
+	-e "s@$tmp@TMP@g" \
+    # end
 
 # last sed substitution thanks to pv:937345 which changed the wording
 # ... preserving the old form so QA passes
@@ -76,7 +78,7 @@ open pipe /blah/this_file_should_not_exist
 status
 open dso /blah/this_file_should_not_exist blah_init 128
 status
-open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l $tmp.log
 status
 #test the desc command
 desc
@@ -163,6 +165,8 @@ status
 blah
 quit
 End-of-File
+
+cat $tmp.log >>$here/$seq.full
 
 status=0
 exit

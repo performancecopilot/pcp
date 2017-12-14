@@ -51,6 +51,8 @@ text sample.daemon_pid
 close
 End-of-File
 
+cat $tmp.log >>$here/$seq.full
+
 # success, all done
 status=0
 

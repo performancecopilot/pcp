@@ -57,6 +57,8 @@ open pipe $python_path $pmda_script
 instance $domain.0
 End-of-File
 
+cat gluster.log >>$here/$seq.full
+
 echo "== Testing volume information metrics" | tee -a $seq.full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
@@ -68,6 +70,8 @@ fetch gluster.volume.dist.count
 fetch gluster.volume.stripe.count
 fetch gluster.volume.replica.count
 End-of-File
+
+cat gluster.log >>$here/$seq.full
 
 echo "== Testing volume control metric store" | tee -a $seq.full
 $sudo rm -f $tmp.start $tmp.stop
@@ -83,11 +87,15 @@ End-of-File
 cat $tmp.start $tmp.stop
 $sudo rm -f $tmp.start $tmp.stop
 
+cat gluster.log >>$here/$seq.full
+
 echo "== Testing brick instance domain" | tee -a $seq.full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 instance $domain.1
 End-of-File
+
+cat gluster.log >>$here/$seq.full
 
 echo "== Testing brick throughput metrics" | tee -a $seq.full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
@@ -98,6 +106,8 @@ fetch gluster.brick.read_bytes
 desc gluster.brick.write_bytes
 fetch gluster.brick.write_bytes
 End-of-File
+
+cat gluster.log >>$here/$seq.full
 
 echo "== Testing brick file operation latency metrics" | tee -a $seq.full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
@@ -112,6 +122,8 @@ fetch gluster.brick.latency.getxattr.min
 fetch gluster.brick.latency.getxattr.max
 fetch gluster.brick.latency.getxattr.count
 End-of-File
+
+cat gluster.log >>$here/$seq.full
 
 status=0
 exit

@@ -142,23 +142,23 @@ Instances of pmInDom: 30.2
 dbpmda> 
 == dbpmda PIPE labels
 ** Labels on domain  via dbpmda (pipe)
-dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
 dbpmda> label domain 
 Labels:
     agent="sample"
     role="testing"
 dbpmda> 
 ** Labels on metric sample.colour via dbpmda (pipe)
-dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
 dbpmda> label item sample.colour
 PMID: 29.0.5
 Info: __pmDecodeLabel() returns 0 label sets
 dbpmda> 
 ** Labels on metric sample.rapid via dbpmda (pipe)
-dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
 dbpmda> label item sample.rapid
 PMID: 29.0.64
 Labels:
@@ -167,23 +167,23 @@ Labels:
     unitsystem="SI"
 dbpmda> 
 ** Labels on indom 29.1 via dbpmda (pipe)
-dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
 dbpmda> label indom 29.1
 pmInDom: 29.1
 Labels:
     model="RGB"
 dbpmda> 
 ** Labels on metric sample.darkness via dbpmda (pipe)
-dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
 dbpmda> label item sample.darkness
 PMID: 29.0.92
 Info: __pmDecodeLabel() returns 0 label sets
 dbpmda> 
 ** Labels on instances 29.2 via dbpmda (pipe)
-dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
+dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
+Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29 -l TMP.log
 dbpmda> label instances 29.2
 Instances of pmInDom: 29.2
 [  0] Labels inst: 100

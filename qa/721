@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.* sample.log; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -24,6 +24,7 @@ _filter()
 	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/' \
 	-e "s/\.$DSO_SUFFIX /.DSO /g" \
+	-e "s@$tmp@TMP@g" \
     # end
 }
 
@@ -36,7 +37,7 @@ echo "=== pipe PMDA ===" >>$here/$seq.full
 $sudo rm -f sample.log
 $sudo TERM=ansi dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
-open pipe pmdasample -l sample.log -D AUTH
+open pipe pmdasample -l $tmp.log -D AUTH
 attr
 attr 5 "pcpqa"
 attr "username" "pcpqa"
@@ -50,9 +51,9 @@ End-of-File
 sleep 2
 
 echo Checking log file, pipe mode | tee -a $here/$seq.full
-cat sample.log >>$here/$seq.full
-grep -i attribute sample.log | _filter
-$sudo rm -f sample.log
+cat $tmp.log >>$here/$seq.full
+grep -i attribute $tmp.log | _filter
+$sudo rm -f $tmp.log
 echo .
 
 # DSO PMDA variant of test

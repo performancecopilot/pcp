@@ -69,7 +69,7 @@ void
 writelabel(void)
 {
     logctl.l_label.ill_vol = 0;
-    __pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
+    __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
     logctl.l_label.ill_vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
     logctl.l_label.ill_vol = PM_LOG_VOL_META;
@@ -83,15 +83,15 @@ void
 newvolume(char *base, pmTimeval *tvp)
 {
     __pmFILE		*newfp;
-    int			nextvol = logctl.l_curvol + 1;
+    int			nextvol = archctl.ac_curvol + 1;
     struct timeval	stamp;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
-	__pmFclose(logctl.l_mfp);
-	logctl.l_mfp = newfp;
-	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
-	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	__pmFflush(logctl.l_mfp);
+	__pmFclose(archctl.ac_mfp);
+	archctl.ac_mfp = newfp;
+	logctl.l_label.ill_vol = archctl.ac_curvol = nextvol;
+	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
+	__pmFflush(archctl.ac_mfp);
 	stamp.tv_sec = tvp->tv_sec;
 	stamp.tv_usec = tvp->tv_usec;
 	fprintf(stderr, "%s: New log volume %d, at ",

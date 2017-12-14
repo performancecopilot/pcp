@@ -307,11 +307,14 @@ pmstore -h localhost sample.write_me 21
 pmstore -h $me sample.write_me 42
 
 echo "pmcd.log:======="
-sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
+sed -n <$PCP_PMCDLOG_PATH \
+    -e '/endclient/{
 s/\[[0-9]*]/[M]/
 s/(fd [0-9]*)/(fd N)/
 p
-}'
+}' \
+    -e "/Warning:/s/PMCD_PORT=$port/PMCD_PORT=\$port/" \
+# end
 echo "================"
 
 echo "pmcd.log ..." >>$seq.full

@@ -39,6 +39,7 @@ sampledso.control PMID: 30.0.0
     Semantics: instant  Units: none
 Log for pmcd on HOST started DATE
 
+Warning: nports=1 from PMCD_PORT=$port in environment
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========

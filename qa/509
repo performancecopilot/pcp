@@ -32,6 +32,7 @@ _filter()
 	-e '/PMNS Checksums/s/=[0-9a-f][0-9a-f]*/=CHECKSUM/g' \
 	-e '/Loaded Version 1 or 2/s/ent = [0-9][0-9]/ent = NN/' \
 	-e '/pmResult dump/s/ [0-9][0-9]*:00:00/ HH:00:00/' \
+	-e "s@$tmp@TMP@g" \
     | $PCP_AWK_PROG '
 BEGIN					{ state = 0; outf = "'$tmp.tmp'.0" }
 state == "0" && $1 == "pmLoadNameSpace:"	{ state = 1; outf = "'$tmp.tmp'.1" }
@@ -59,7 +60,7 @@ pminfo -D pmns -mf -c $tmp.def \
 _filter <$tmp.out
 _filter <$tmp.err
 
-pipeargs="-d 29"
+pipeargs="-d 29 -l $tmp.log"
 id pcp >/dev/null 2>&1 && pipeargs="$pipeargs -U $username"
 
 export PCP_DERIVED_CONFIG=$tmp.def
@@ -69,3 +70,5 @@ fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
 End-of-File
 _filter <$tmp.out
 _filter <$tmp.err
+
+cat $tmp.log >>$here/$seq.full

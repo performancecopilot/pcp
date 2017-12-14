@@ -263,7 +263,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    logctl.l_curvol = -1;
+    archctl.ac_curvol = -1;
     logctl.l_physend = -1;
 
     /*
@@ -277,7 +277,7 @@ main(int argc, char *argv[])
 	    status = 2;
 	}
 	pmsprintf(buffer, sizeof(buffer), "data volume %d", c);
-	compare_golden(logctl.l_mfp, buffer, sts, warnings);
+	compare_golden(archctl.ac_mfp, buffer, sts, warnings);
     }
 
     if (logctl.l_tifp) {
@@ -322,29 +322,29 @@ main(int argc, char *argv[])
 	    golden.ill_tz[PM_TZ_MAXLEN-1] = '\0';
 	}
 
-	if (logctl.l_mfp)
-	    __pmFclose(logctl.l_mfp);
+	if (archctl.ac_mfp)
+	    __pmFclose(archctl.ac_mfp);
 	for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
 	    if (verbose)
 		printf("Writing label on data volume %d\n", c);
 	    golden.ill_vol = c;
 	    pmsprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
-	    if ((logctl.l_mfp = __pmFopen(buffer, "r+")) == NULL) {
+	    if ((archctl.ac_mfp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
 				c, osstrerror());
 		status = 3;
 	    }
-	    else if ((sts = __pmLogWriteLabel(logctl.l_mfp, &golden)) < 0) {
+	    else if ((sts = __pmLogWriteLabel(archctl.ac_mfp, &golden)) < 0) {
 		fprintf(stderr, "Failed data volume %d label write: %s\n",
 				c, pmErrStr(sts));
 		status = 3;
 	    }
-	    if (logctl.l_mfp)
-		__pmFclose(logctl.l_mfp);
+	    if (archctl.ac_mfp)
+		__pmFclose(archctl.ac_mfp);
 	}
 	/* Need to reset the data volume, for subsequent label read */
-	logctl.l_mfp = NULL;
-	logctl.l_curvol = -1;
+	archctl.ac_mfp = NULL;
+	archctl.ac_curvol = -1;
 	__pmLogChangeVol(&archctl, logctl.l_minvol);
 
 	if (logctl.l_tifp) {

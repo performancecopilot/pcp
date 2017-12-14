@@ -17,7 +17,8 @@ test -f "$PCP_PMDAS_DIR/simple/pmdasimple.python"
 [ $? -eq 0 ] || _notrun "python simple pmda not yet installed"
 
 python_path=`which $python`
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+status=1
+trap "rm -f $tmp.*; $sudo rm -f $PCP_PMDAS_DIR/simple/simple.log; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -51,4 +52,7 @@ instance $domain.0
 text indom $domain.1
 End-of-File
 
-exit 0
+cat $PCP_PMDAS_DIR/simple/simple.log >>$here/$seq.full
+
+status=0
+exit

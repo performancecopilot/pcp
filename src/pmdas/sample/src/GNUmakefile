@@ -66,6 +66,6 @@ install_pcp:	install
 
 libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
 	rm -f libpcp.h
-	ln $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h
+	$(LN_S) $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h
 
 events.o pmda.o sample.o:	$(TOPDIR)/src/include/pcp/libpcp.h

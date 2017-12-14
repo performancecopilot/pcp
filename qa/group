@@ -938,14 +938,14 @@ collectl
 585 pmval pmprobe local pminfo
 586 other local
 587 pmcd #754795 local pmda.install pmda.trivial
-588 libpcp threads local
+588 libpcp threads local archive multi-archive
 589 remote
-590 libpcp threads local
+590 libpcp threads local archive multi-archive
 591 pminfo archive multi-archive decompress-xz local
 592 pmda.sample local
 593 pmlogger #779495 local pmstore
 594 pmda.sample #779246 #782029 local
-595 libpcp threads local
+595 libpcp threads local archive multi-archive
 597 pmda.shping pmda.proc pmda.install local
 599 pmie local
 600 libpcp local timezone

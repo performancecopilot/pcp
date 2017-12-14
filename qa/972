@@ -19,7 +19,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.* zswap.log; exit \$status" 0 1 2 3 15
 
 _filter()
 {

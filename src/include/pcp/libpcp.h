@@ -736,8 +736,6 @@ typedef struct {
     char	*l_name;	/* external log base name */
     __pmFILE	*l_tifp;	/* temporal index */
     __pmFILE	*l_mdfp;	/* meta data */
-    __pmFILE	*l_mfp;		/* current metrics log */
-    int		l_curvol;	/* current metrics log volume no. */
     int		l_state;	/* (when writing) log state */
     __pmHashCtl	l_hashpmid;	/* PMID hashed access */
     __pmHashCtl	l_hashindom;	/* instance domain hashed access */
@@ -779,6 +777,8 @@ typedef struct {
 typedef struct {
     __pmLogCtl		*ac_log;	/* Current global logging and archive
 					   control */
+    __pmFILE		*ac_mfp;	/* current metrics log */
+    int			ac_curvol;	/* current metrics log volume no. */
     long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */

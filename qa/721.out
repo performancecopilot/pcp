@@ -1,8 +1,8 @@
 QA output created by 721
 .
 dbpmda> debug AUTH
-dbpmda> open pipe pmdasample -l sample.log -D AUTH
-Start pmdasample PMDA: ./pmdasample -l sample.log -D AUTH
+dbpmda> open pipe pmdasample -l TMP.log -D AUTH
+Start pmdasample PMDA: ./pmdasample -l TMP.log -D AUTH
 dbpmda> attr
 attr name [value]
 attr attr# [value]

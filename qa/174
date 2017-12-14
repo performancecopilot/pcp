@@ -25,7 +25,9 @@ _filter()
 	-e '/^dbpmda> $/d' \
 	-e "s/ -U $username//g" \
         -e "s;$sampledso;SAMPLEDSO;g" \
-	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g" \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
 # filter out GetPDUs and pmResult dumps
@@ -57,7 +59,8 @@ gotGetPDU==1 && $1 ~ /[0-9][0-9][0-9]:/	{ next }
 		    			{ gotGetPDU=0; print }'
 }
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+status=1
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 $sudo rm -f $here/$seq.full
 
 # real QA test starts here
@@ -65,7 +68,7 @@ $sudo rm -f $here/$seq.full
 dbpmda -ie <<End-of-File 2>$tmp.err >$tmp.out
 debug 1
 getdesc on
-open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29 -l $tmp.log
 fetch 29.0.6
 fetch 29.0.6
 fetch 29.0.6
@@ -101,5 +104,7 @@ echo "PDUs sent ..." | tee -a $here/$seq.full
 cat $tmp.err >>$here/$seq.full
 _filter_stderr <$tmp.err
 
+cat $tmp.log >>$here/$seq.full
 
-exit 0
+status=0
+exit

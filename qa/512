@@ -142,7 +142,7 @@ fetch simple.numfetch
 desc simple.color
 fetch simple.color
 instance 253.0
-open pipe $PCP_PMDAS_DIR/simple/pmdasimple -d 253
+open pipe $PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l $tmp.log
 desc simple.numfetch
 fetch simple.numfetch
 desc simple.color
@@ -153,6 +153,7 @@ _post $SRC/dbpmda/src dbpmda
 _filter <$tmp.out
 _filter <$tmp.err
 
+cat $tmp.log >>$here/$seq.full
 
 # success, all done
 exit

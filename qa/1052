@@ -102,7 +102,7 @@ cleanup()
 	    $sudo rm -rf ${pmda_saved_config_dir}
 	fi
     fi
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.* json.log
 }
 
 domain=137
@@ -481,6 +481,8 @@ _drain_output
 
 # Wait for dbpmda to quit.
 wait
+
+cat json.log >>$here/$seq.full
 
 status=0
 exit

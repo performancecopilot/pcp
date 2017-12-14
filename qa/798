@@ -29,7 +29,8 @@ fi
 
 _cleanup()
 {
-    $sudo rm -f $here/nfsclient.log
+    cd $here
+    $sudo rm -f $PCP_PMDAS_DIR/nfsclient/nfsclient.log
     rm -f $tmp.*
 }
 
@@ -50,7 +51,8 @@ _filter()
 
 _filter_pmda_log()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
 	-e 's/^\(Log finished\) .*/\1 .../' \
 	-e '/^$/d' \

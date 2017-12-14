@@ -20,7 +20,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
-log mandatory on 20 msec {
+log mandatory on 50 msec {
     cgroup
     containers
     disk
@@ -96,6 +96,7 @@ state == 0		{ print }'
 }
 
 # real QA test starts here
+export PCP_DERIVED_CONFIG=
 pmlogger -h localhost -r -c $tmp.config -m qa_$seq -l $tmp.log $tmp &
 pid=$!
 
@@ -105,10 +106,10 @@ wait
 
 _filter <$tmp.log
 
-# without timeouts, expect 6sec * 1000 * 5 fetch groups / 20msec = 1500 records
+# without timeouts, expect 6sec * 1000 * 5 fetch groups / 50msec = 600 records
 #
-max_nrec=1500
-min_nrec=300
+max_nrec=600
+min_nrec=200
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
 echo "nrec=$nrec" >>$here/$seq.full
 

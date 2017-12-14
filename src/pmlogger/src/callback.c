@@ -681,11 +681,11 @@ do_work(task_t *tp)
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
-	peek_offset = __pmFtell(logctl.l_mfp);
+	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", __pmFtell(logctl.l_mfp));
+		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", __pmFtell(archctl.ac_mfp));
 	    (void)newvolume(VOL_SW_MAX);
 	}
 
@@ -698,14 +698,14 @@ do_work(task_t *tp)
 	 * is decoded ... so we have 2 "write" paths for the PDU buffer
 	 * ... more sighing
 	 */
-	last_log_offset = __pmFtell(logctl.l_mfp);
+	last_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(last_log_offset >= 0);
 	if (tp->t_dm == 0) {
 	    if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
 		fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
-	    __pmOverrideLastFd(__pmFileno(logctl.l_mfp));
+	    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 	}
 	resp = NULL; /* silence coverity */
 	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
@@ -739,7 +739,7 @@ do_work(task_t *tp)
 		if (IS_DERIVED(vsp->pmid))
 		    vsp->pmid = SET_DERIVED_LOGGED(vsp->pmid);
 	    }
-	    if ((sts = __pmEncodeResult(__pmFileno(logctl.l_mfp), resp, &pdubuf)) < 0) {
+	    if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), resp, &pdubuf)) < 0) {
 		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
@@ -748,7 +748,7 @@ do_work(task_t *tp)
 		exit(1);
 	    }
 	    __pmUnpinPDUBuf(pdubuf);
-	    __pmOverrideLastFd(__pmFileno(logctl.l_mfp));
+	    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 	    for (i = 0; i < resp->numpmid; i++) {
 		pmValueSet	*vsp = resp->vset[i];
 		if (IS_DERIVED_LOGGED(vsp->pmid))
@@ -871,10 +871,10 @@ do_work(task_t *tp)
 	    }
 	}
 
-	if (__pmFtell(logctl.l_mfp) > flushsize) {
+	if (__pmFtell(archctl.ac_mfp) > flushsize) {
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)__pmFtell(logctl.l_mfp), flushsize);
+		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)__pmFtell(archctl.ac_mfp), flushsize);
 	}
 
 	if (last_log_offset == 0 || last_log_offset == sizeof(__pmLogLabel)+2*sizeof(int)) {
@@ -890,11 +890,11 @@ do_work(task_t *tp)
 	     * result (but if this is the first one, skip the label
 	     * record, what a crock), ... ditto for the meta data
 	     */
-	    new_offset = __pmFtell(logctl.l_mfp);
+	    new_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_offset >= 0);
 	    new_meta_offset = __pmFtell(logctl.l_mdfp);
 	    assert(new_meta_offset >= 0);
-	    __pmFseek(logctl.l_mfp, last_log_offset, SEEK_SET);
+	    __pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	    __pmFseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 	    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
@@ -902,9 +902,9 @@ do_work(task_t *tp)
 	    /*
 	     * ... and put them back
 	     */
-	    __pmFseek(logctl.l_mfp, new_offset, SEEK_SET);
+	    __pmFseek(archctl.ac_mfp, new_offset, SEEK_SET);
 	    __pmFseek(logctl.l_mdfp, new_meta_offset, SEEK_SET);
-	    flushsize = __pmFtell(logctl.l_mfp) + 100000;
+	    flushsize = __pmFtell(archctl.ac_mfp) + 100000;
 	}
 
 	last_stamp = resp->timestamp;	/* struct assignment */
@@ -978,7 +978,7 @@ do_work(task_t *tp)
 	run_done(0, "Sample limit reached");
 
     if (exit_bytes != -1 && 
-        (vol_bytes + __pmFtell(logctl.l_mfp) >= exit_bytes)) 
+        (vol_bytes + __pmFtell(archctl.ac_mfp) >= exit_bytes)) 
         /* reached exit_bytes limit, so stop logging */
         run_done(0, "Byte limit reached");
 
@@ -990,10 +990,10 @@ do_work(task_t *tp)
     }
 
     if (vol_switch_bytes > 0 &&
-        (__pmFtell(logctl.l_mfp) >= vol_switch_bytes)) {
+        (__pmFtell(archctl.ac_mfp) >= vol_switch_bytes)) {
         (void)newvolume(VOL_SW_BYTES);
 	if (pmDebugOptions.appl2)
-	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)__pmFtell(logctl.l_mfp));
+	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)__pmFtell(archctl.ac_mfp));
     }
 
 }
@@ -1024,7 +1024,7 @@ putmark(void)
     mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
     mark.numpmid = htonl(0);
 
-    if (__pmFwrite(&mark, 1, sizeof(mark), logctl.l_mfp) != sizeof(mark))
+    if (__pmFwrite(&mark, 1, sizeof(mark), archctl.ac_mfp) != sizeof(mark))
 	return -oserror();
     else
 	return 0;

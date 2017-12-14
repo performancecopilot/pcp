@@ -27,6 +27,7 @@ _filter()
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e "s@$tmp@TMP@g" \
     #end
 }
 
@@ -53,42 +54,47 @@ _make_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
 # Test real regression that occured when updating dynamic metrics
 echo "=== Daemon PMDA linux static text then dynamic fetch test ==="
 dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60
+open pipe $pmdalinux -d 60 -l $tmp.log
 text hinv.ncpu
 fetch kernel.percpu.interrupts.line1
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # Try a couple of other plausible failures
 
 # Static fetch then dynamic fetch
 echo "=== Daemon PMDA linux static fetch then dynamic fetch test ==="
 dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60
+open pipe $pmdalinux -d 60 -l $tmp.log
 fetch hinv.ncpu
 fetch kernel.percpu.interrupts.line1
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # Dynamic fetch then static fetch
 echo "=== Daemon PMDA linux dynamic then static fetch test ==="
 dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60
+open pipe $pmdalinux -d 60 -l $tmp.log
 fetch kernel.percpu.interrupts.line1
 fetch hinv.ncpu
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # Dump a dynamic tree
 echo "=== Daemon PMDA linux look for dynamic children ==="
 dbpmda -ie <<EOF 2>&1 | _filter | _count_leafs
-open pipe $pmdalinux -d 60
+open pipe $pmdalinux -d 60 -l $tmp.log
 children kernel.percpu.interrupts
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # Check values from a second dynamic tree (softirqs)
 echo "=== Daemon PMDA fetch from a second dynamic metric tree ==="
 dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60
+open pipe $pmdalinux -d 60 -l $tmp.log
 fetch kernel.percpu.softirqs.NET_RX kernel.percpu.interrupts.line0
 EOF
+cat $tmp.log >>$here/$seq.full
 
 # success, all done
 status=0

@@ -46,6 +46,7 @@ _filter_labels()
 	-e "s/.userid.:$userid/\"userid\":UID/g" \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e "s,pmda_sample.$DSO_SUFFIX ,pmda_sample.dso ,g" \
+	-e "s@$tmp@TMP@g" \
     #end
 }
 
@@ -70,9 +71,10 @@ _dbpipe_labels()
     two=$2
     [ $one = metric ] && one="item"
     cat <<End-of-File | dbpmda -ei 2>&1
-open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29 -l $tmp.log
 label $one $two
 End-of-File
+    cat $tmp.log >>$here/$seq.full
 }
 
 _dbdso_labels()

@@ -19,12 +19,13 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.*; $sudo rm -f $PCP_PMDAS_DIR/news/news.log; exit \$status" 0 1 2 3 15
 here=`pwd`
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s;/[a-zA-Z0-9_/.\-]*/perl;PERL;" \
 	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;" \
