@@ -770,7 +770,7 @@ class PrometheusPMDA(PMDA):
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
                         threads.append(t)
-                        ## t.daemon = True
+                        t.daemon = True
                         t.start()
                 for t in threads:
                         t.join() # XXX: timeout maybe?
