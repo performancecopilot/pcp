@@ -499,6 +499,8 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 response:
     if (sts >= 0) {
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_LABEL, (int)ident);
+	if (nsets > 1 && !(type & PM_LABEL_INSTANCES))
+	    nsets = 1;
 	sts = __pmSendLabel(cp->fd, FROM_ANON, ident, type, sets, nsets);
 	if (sts < 0) {
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_LABEL, sts);
