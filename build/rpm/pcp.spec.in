@@ -3076,30 +3076,6 @@ PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
 
-# migrate old to new temp dir locations within the same filesystem)
-migrate_tempdirs()
-{
-    _sub="$1"
-    _new_tmp_dir=%{_tmpdir}
-    _old_tmp_dir=%{_localstatedir}/tmp
-
-    for d in "$_old_tmp_dir/$_sub" ; do
-	test -d "$d" -a -k "$d" || continue
-	cd "$d" || continue
-	for f in * ; do
-	    [ "$f" != "*" ] || continue
-	    source="$d/$f"
-	    target="$_new_tmp_dir/$_sub/$f"
-            [ "$source" != "$target" ] || continue
-	    [ -f "$target" ] || mv -fu "$source" "$target"
-        done
-        cd && rmdir "$d" 2>/dev/null
-    done
-}
-for daemon in mmv pmdabash pmie pmlogger
-do
-    migrate_tempdirs $daemon
-done
 chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null

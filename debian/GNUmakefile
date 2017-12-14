@@ -319,9 +319,9 @@ pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst
 	rm -f $@
 	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail > $@
 
-pcp.postinst:	pcp.postinst.head $(SCRIPTS)/cleantmpdirs configversions pcp.postinst.tail
+pcp.postinst:	pcp.postinst.head configversions pcp.postinst.tail
 	rm -f $@
-	cat pcp.postinst.head $(SCRIPTS)/cleantmpdirs configversions pcp.postinst.tail > $@
+	cat pcp.postinst.head configversions pcp.postinst.tail > $@
 
 pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@

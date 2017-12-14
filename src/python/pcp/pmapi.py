@@ -298,7 +298,7 @@ class tm(Structure):
                      self.tm_sec, self.tm_min, self.tm_hour,
                      self.tm_mday, self.tm_mon, self.tm_year,
                      self.tm_wday, self.tm_yday, self.tm_isdst,
-                     self.tm_gmtoff, str(self.tm_zone))
+                     long(self.tm_gmtoff), str(self.tm_zone))
         timetp = c_long(long(second))
         LIBPCP.pmCtime(byref(timetp), result)
         return str(result.value.decode()).rstrip()

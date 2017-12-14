@@ -1,2 +1,8 @@
 QA output created by 1367
 diff between C and python labels output, EXPECT NO OUTPUT
+5a6
+>     model="RGB"
+8c9
+<     indom_name="now"
+---
+>     indom_name="time"

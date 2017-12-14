@@ -7870,38 +7870,50 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 
     switch (pmInDom_serial(indom)) {
     case CPU_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per cpu\"}");
 	return 1;
     case MD_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"block\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per md device\"}");
+	return 1;
     case DM_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"block\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per dm device\"}");
+	return 1;
     case DISK_INDOM:
     case SCSI_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"block\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per disk\"}");
+	return 1;
     case PARTITIONS_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"block\"}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":\"block\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per partition\"}");
 	return 1;
     case NODE_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"numa_node\"}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":\"numa_node\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per numa_node\"}");
 	return 1;
     case NET_DEV_INDOM:
     case NET_ADDR_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"interface\"}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":\"interface\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per interface\"}");
 	return 1;
     case SWAPDEV_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":[\"block\",\"memory\"]}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":[\"block\",\"memory\"]}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per swap device\"}");
 	return 1;
     case SLAB_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"memory\"}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":\"memory\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per slab\"}");
 	return 1;
     case ZONEINFO_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"memory\"]}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per zone\"}");
+	return 1;
     case BUDDYINFO_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"memory\"]}")) < 0)
-	    return sts;
+	pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"memory\"]}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per buddy\"}");
 	return 1;
     default:
 	sts = 0;
@@ -7915,37 +7927,26 @@ linux_labelItem(pmID pmid, pmLabelSet **lp)
 {
     unsigned int	cluster = pmID_cluster(pmid);
     unsigned int	item = pmID_item(pmid);
-    int			sts;
 
     switch (cluster) {
     case CLUSTER_STAT:
-	if (item >= 62 && item <= 71)	{ /* kernel.pernode.cpu */
-	    if ((sts = pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"cpu\"]}")) < 0)
-		return sts;
-	    return 1;
-	}
+	if (item >= 62 && item <= 71)	/* kernel.pernode.cpu */
+	    return pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"cpu\"]}");
 	else if ((item >= 20 && item <= 23) || /* kernel.all.cpu */
-	    (item >= 53 && item <= 55)) {
-	    if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
-		return sts;
-	    return 1;
-	}
+	    (item >= 53 && item <= 55))
+	    return pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}");
 	else switch (item) {
 	case 77:					/* kernel.pernode.cpu */
 	case 85:
 	case 86:
-	    if ((sts = pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"cpu\"]}")) < 0)
-		return sts;
-	    return 1;
+	    return pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"cpu\"]}");
 	case 34:					/* kernel.all.cpu */
 	case 35:
 	case 60:
 	case 78:
 	case 81:
 	case 82:
-	    if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
-		return sts;
-	    return 1;
+	    return pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}");
 	}
 	break;
 
@@ -7967,9 +7968,7 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 
     switch (pmInDom_serial(indom)) {
     case CPU_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"cpu\":%u}", inst)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"cpu\":%u}", inst);
 
     case DISK_INDOM:
     case DM_INDOM:
@@ -7978,34 +7977,26 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
-	if ((sts = pmdaAddLabels(lp, "{\"device_name\":\"%s\"}", name)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"device_name\":\"%s\"}", name);
 
     case NET_DEV_INDOM:
 	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
-	if ((sts = pmdaAddLabels(lp, "{\"interface\":\"%s\"}", name)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"interface\":\"%s\"}", name);
 
     case NODE_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"numa_node\":%u}", inst)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"numa_node\":%u}", inst);
 
     case BUDDYINFO_INDOM:
 	if (inst >= proc_buddyinfo.nbuddys)
 	    return PM_ERR_INST;
 	numanode = atoi(proc_buddyinfo.buddys[inst].node_name);
 	value = proc_buddyinfo.buddys[inst].order;
-	if ((sts = pmdaAddLabels(lp,
+	return pmdaAddLabels(lp,
 			"{\"numa_node\":%u,\"zone\":\"%s\",\"order\":%u}",
 			numanode, proc_buddyinfo.buddys[inst].zone_name,
-			value)) < 0)
-	    return sts;
-	return 1;
+			value);
 
     case ZONEINFO_INDOM:
 	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, &name, NULL);
@@ -8013,10 +8004,8 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	    return 0;
 	if (sscanf(name, "%s::node%u", zone, &numanode) != 2)
 	    return PM_ERR_INST;
-	if ((sts = pmdaAddLabels(lp, "{\"numa_node\":%u,\"zone\":\"%s\"}",
-			numanode, zone)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"numa_node\":%u,\"zone\":\"%s\"}",
+			numanode, zone);
 
     case ZONEINFO_PROTECTION_INDOM:
 	sts = pmdaCacheLookup(indom, inst, &name, NULL);
@@ -8024,11 +8013,9 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	    return 0;
 	if (sscanf(name, "%s::node%u::lowmem_reserved%u", zone, &numanode, &value) != 3)
 	    return PM_ERR_INST;
-	if ((sts = pmdaAddLabels(lp,
+	return pmdaAddLabels(lp,
 			"{\"numa_node\":%u,\"zone\":\"%s\",\"lowmem_reserved\":%u}",
-			numanode, zone, value)) < 0)
-	    return sts;
-	return 1;
+			numanode, zone, value);
 
     default:
 	break;

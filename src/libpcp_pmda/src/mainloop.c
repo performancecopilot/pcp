@@ -326,6 +326,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
+	    if (sts > 0 && !(type & PM_LABEL_INSTANCES))
+		sts = 1;
 	    __pmSendLabel(pmda->e_outfd, FROM_ANON, ident, type, labels, sts);
 	    pmFreeLabelSets(labels, sts);
 	}

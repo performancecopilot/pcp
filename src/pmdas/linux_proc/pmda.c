@@ -3252,29 +3252,23 @@ proc_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
     switch (pmInDom_serial(indom)) {
     case PROC_INDOM:
     case HOTPROC_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"pid\":%u}", inst)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"pid\":%u}", inst);
 
     case CGROUP_PERDEVBLKIO_INDOM:
 	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	device = strrchr(name, ':');
-	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"device_name\":\"%s\"}",
-				(int)(device - name) - 1, name, device + 1)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"device_name\":\"%s\"}",
+				(int)(device - name) - 1, name, device + 1);
 
     case CGROUP_PERCPUACCT_INDOM:
 	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	device = strrchr(name, ':');
-	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"cpu\":\"%s\"}",
-				(int)(device - name) - 1, name, device + 4)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"cpu\":\"%s\"}",
+				(int)(device - name) - 1, name, device + 4);
 
     case CGROUP_CPUSET_INDOM:
     case CGROUP_CPUACCT_INDOM:
@@ -3285,9 +3279,7 @@ proc_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
-	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%s\"}", name)) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"cgroup\":\"%s\"}", name);
 
     default:
 	break;
@@ -3305,22 +3297,14 @@ proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
     case CGROUP_CPUACCT_INDOM:
     case CGROUP_CPUSCHED_INDOM:
     case CGROUP_PERCPUACCT_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}");
     case CGROUP_MEMORY_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"memory\"}")) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"device_type\":\"memory\"}");
     case CGROUP_NETCLS_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"interface\"}")) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"device_type\":\"interface\"}");
     case CGROUP_BLKIO_INDOM:
     case CGROUP_PERDEVBLKIO_INDOM:
-	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"block\"}")) < 0)
-	    return sts;
-	return 1;
+	return pmdaAddLabels(lp, "{\"device_type\":\"block\"}");
     default:
 	break;
     }

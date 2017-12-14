@@ -2863,15 +2863,11 @@ static int
 sample_label_cb(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     if (indom == indomtab[BIN_INDOM].it_indom ||
-	indom == indomtab[SCRAMBLE_INDOM].it_indom) {
-	pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
-	return 1;
-    }
-    if (indom == indomtab[MIRAGE_INDOM].it_indom) {
+	indom == indomtab[SCRAMBLE_INDOM].it_indom)
+	return pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
+    if (indom == indomtab[MIRAGE_INDOM].it_indom)
 	/* instance zero is always present, the rest come and go */
-	pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
-	return 1;
-    }
+	return pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
     return 0;
 }
 
