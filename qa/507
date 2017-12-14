@@ -84,8 +84,9 @@ _config > $tmp.config.pcp
 pmlogger -T 3sec -c $tmp.config.pcp -l $tmp.log $tmp.archive
 echo pmlogger status=$? | tee -a $seq.full
 cat $tmp.log >>$seq.full
+pmdumplog $tmp.archive >>$seq.full
 
-pcp -a $tmp.archive | _filter >$tmp.arch
+pcp -a $tmp.archive | tee -a $seq.full | _filter >$tmp.arch
 echo status=$? | tee -a $seq.full
 
 #  This loop deals with cases when pcp(1) reports that some condition has
