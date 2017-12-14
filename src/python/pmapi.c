@@ -164,7 +164,7 @@ static PyObject *
 makeTime(PyObject *self, PyObject *args, PyObject *keywords)
 {
     struct tm tm;
-    int gmtoff = 0;
+    long gmtoff = 0;
     char *zone = NULL;
     char *keyword_list[] = {"tm_sec", "tm_min", "tm_hour",
 			    "tm_mday", "tm_mon", "tm_year",
