@@ -1843,7 +1843,7 @@ pmmgr_monitor_daemon::daemon_command_line()
 
   // copy previous contents of .err file
   ostringstream os;
-  os <<  host_log_dir << "/" << output_filename << "-"  << config_index << ".err";
+  os <<  host_log_dir << "/" << "monitor" << "-"  << config_index << ".err";
   string err_filename = os.str();
   ifstream f (err_filename.c_str()); // c_str for old school c++
   while (f.good())
