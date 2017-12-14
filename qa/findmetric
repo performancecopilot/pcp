@@ -57,7 +57,7 @@ done
 
 if $arch
 then
-    srclist="`echo src/*.0 archives/*.0`"
+    srclist="`find * -name '*.meta*'`"
 else
     srclist='ignoreme'
 fi
@@ -98,7 +98,7 @@ p
 s/.* from host //
 p
 }'`
-	    echo "=== `basename $src .0` (V.$vers) host: $host ==="
+	    echo "=== `echo "$src" | sed -e 's/\.meta$//' -e 's/\.meta\.[^.]*$//'` (V.$vers) host: $host ==="
 	    grep commencing $tmp.info
 	    grep ending $tmp.info
 	    sed <$tmp.out -e "s/^/    /"
