@@ -51,8 +51,6 @@ do
     fi
 done
 
-_clean_tmpdirs $PCP_TMP_DIR /var/tmp mmv pmdabash pmie pmlogger
-
 # set up pcp and pcpqa users
 #
 if [ -f /etc/passwd ]
