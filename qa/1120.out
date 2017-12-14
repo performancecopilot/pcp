@@ -1,0 +1,4180 @@
+QA output created by 1120
+Waiting for pmcd to terminate ...
+
+=== prometheus agent installation ===
+Fetch and desc prometheus metrics: success
+
+prometheus.source1.sample_summary0002_count
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+    value 5454
+
+prometheus.source1.sample_summary0002_sum
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 4.17362031
+
+prometheus.source1.sample_summary0002
+    Data Type: double  InDom: 144.6146 0x24001802
+    Semantics: instant  Units: none
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.000478869
+    inst [2 or "2 quantile:0.5"] value 0.000957738
+    inst [3 or "3 quantile:0.75"] value 0.001436607
+    inst [4 or "4 quantile:1.0"] value 0.001915476
+    inst [5 or "5 quantile:1.25"] value 0.002394345
+    inst [6 or "6 quantile:1.5"] value 0.002873214
+    inst [7 or "7 quantile:1.75"] value 0.003352083
+    inst [8 or "8 quantile:2.0"] value 0.003830952
+    inst [9 or "9 quantile:2.25"] value 0.004309821
+
+prometheus.source1.sample_counter0001
+    Data Type: double  InDom: 144.6145 0x24001801
+    Semantics: counter  Units: none
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 340410788
+    inst [2 or "2 baz:1.4"] value 680821576
+    inst [3 or "3 baz:2.0999999999999996"] value 1021232360
+    inst [4 or "4 baz:2.8"] value 1361643150
+    inst [5 or "5 baz:3.5"] value 1702053940
+    inst [6 or "6 baz:4.199999999999999"] value 2042464730
+    inst [7 or "7 baz:4.8999999999999995"] value 2382875520
+    inst [8 or "8 baz:5.6"] value 2723286300
+    inst [9 or "9 baz:6.3"] value 3063697090
+
+prometheus.source1.sample_gauge0000
+    Data Type: double  InDom: 144.6144 0x24001800
+    Semantics: instant  Units: none
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 12.1
+    inst [2 or "2 bar:2"] value 24.2
+    inst [3 or "3 bar:3"] value 36.3
+    inst [4 or "4 bar:4"] value 48.4
+    inst [5 or "5 bar:5"] value 60.5
+    inst [6 or "6 bar:6"] value 72.59999999999999
+    inst [7 or "7 bar:7"] value 84.7
+    inst [8 or "8 bar:8"] value 96.8
+    inst [9 or "9 bar:9"] value 108.9
+
+prometheus.source2.sample_summary0002_count
+    value 7272
+
+prometheus.source2.sample_summary0002_sum
+    value 5.564827080000001
+
+prometheus.source2.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.0006384920000000001
+    inst [2 or "2 quantile:0.5"] value 0.001276984
+    inst [3 or "3 quantile:0.75"] value 0.001915476
+    inst [4 or "4 quantile:1.0"] value 0.002553968
+    inst [5 or "5 quantile:1.25"] value 0.00319246
+    inst [6 or "6 quantile:1.5"] value 0.003830952
+    inst [7 or "7 quantile:1.75"] value 0.004469444
+    inst [8 or "8 quantile:2.0"] value 0.005107936
+    inst [9 or "9 quantile:2.25"] value 0.005746428
+
+prometheus.source2.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 510616182
+    inst [2 or "2 baz:1.4"] value 1021232360
+    inst [3 or "3 baz:2.0999999999999996"] value 1531848550
+    inst [4 or "4 baz:2.8"] value 2042464730
+    inst [5 or "5 baz:3.5"] value 2553080910
+    inst [6 or "6 baz:4.199999999999999"] value 3063697090
+    inst [7 or "7 baz:4.8999999999999995"] value 3574313270
+    inst [8 or "8 baz:5.6"] value 4084929460
+    inst [9 or "9 baz:6.3"] value 4595545640
+
+prometheus.source2.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 24.2
+    inst [2 or "2 bar:2"] value 48.4
+    inst [3 or "3 bar:3"] value 72.59999999999999
+    inst [4 or "4 bar:4"] value 96.8
+    inst [5 or "5 bar:5"] value 121
+    inst [6 or "6 bar:6"] value 145.2
+    inst [7 or "7 bar:7"] value 169.4
+    inst [8 or "8 bar:8"] value 193.6
+    inst [9 or "9 bar:9"] value 217.8
+
+prometheus.source3.sample_summary0002_count
+    value 9090
+
+prometheus.source3.sample_summary0002_sum
+    value 6.956033850000001
+
+prometheus.source3.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.000798115
+    inst [2 or "2 quantile:0.5"] value 0.00159623
+    inst [3 or "3 quantile:0.75"] value 0.002394345
+    inst [4 or "4 quantile:1.0"] value 0.00319246
+    inst [5 or "5 quantile:1.25"] value 0.003990575
+    inst [6 or "6 quantile:1.5"] value 0.00478869
+    inst [7 or "7 quantile:1.75"] value 0.005586805
+    inst [8 or "8 quantile:2.0"] value 0.00638492
+    inst [9 or "9 quantile:2.25"] value 0.007183035
+
+prometheus.source3.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 680821576
+    inst [2 or "2 baz:1.4"] value 1361643150
+    inst [3 or "3 baz:2.0999999999999996"] value 2042464730
+    inst [4 or "4 baz:2.8"] value 2723286300
+    inst [5 or "5 baz:3.5"] value 3404107880
+    inst [6 or "6 baz:4.199999999999999"] value 4084929460
+    inst [7 or "7 baz:4.8999999999999995"] value 4765751030
+    inst [8 or "8 baz:5.6"] value 5446572610
+    inst [9 or "9 baz:6.3"] value 6127394180
+
+prometheus.source3.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 36.3
+    inst [2 or "2 bar:2"] value 72.59999999999999
+    inst [3 or "3 bar:3"] value 108.9
+    inst [4 or "4 bar:4"] value 145.2
+    inst [5 or "5 bar:5"] value 181.5
+    inst [6 or "6 bar:6"] value 217.8
+    inst [7 or "7 bar:7"] value 254.1
+    inst [8 or "8 bar:8"] value 290.4
+    inst [9 or "9 bar:9"] value 326.7
+
+prometheus.source4.sample_summary0002_count
+    value 10908
+
+prometheus.source4.sample_summary0002_sum
+    value 8.347240620000001
+
+prometheus.source4.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.000957738
+    inst [2 or "2 quantile:0.5"] value 0.001915476
+    inst [3 or "3 quantile:0.75"] value 0.002873214
+    inst [4 or "4 quantile:1.0"] value 0.003830952
+    inst [5 or "5 quantile:1.25"] value 0.00478869
+    inst [6 or "6 quantile:1.5"] value 0.005746428
+    inst [7 or "7 quantile:1.75"] value 0.006704166
+    inst [8 or "8 quantile:2.0"] value 0.007661904
+    inst [9 or "9 quantile:2.25"] value 0.008619642
+
+prometheus.source4.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 851026970
+    inst [2 or "2 baz:1.4"] value 1702053940
+    inst [3 or "3 baz:2.0999999999999996"] value 2553080910
+    inst [4 or "4 baz:2.8"] value 3404107880
+    inst [5 or "5 baz:3.5"] value 4255134850
+    inst [6 or "6 baz:4.199999999999999"] value 5106161820
+    inst [7 or "7 baz:4.8999999999999995"] value 5957188790
+    inst [8 or "8 baz:5.6"] value 6808215760
+    inst [9 or "9 baz:6.3"] value 7659242730
+
+prometheus.source4.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 48.4
+    inst [2 or "2 bar:2"] value 96.8
+    inst [3 or "3 bar:3"] value 145.2
+    inst [4 or "4 bar:4"] value 193.6
+    inst [5 or "5 bar:5"] value 242
+    inst [6 or "6 bar:6"] value 290.4
+    inst [7 or "7 bar:7"] value 338.8
+    inst [8 or "8 bar:8"] value 387.2
+    inst [9 or "9 bar:9"] value 435.6
+
+prometheus.source5.sample_summary0002_count
+    value 12726
+
+prometheus.source5.sample_summary0002_sum
+    value 9.738447390000001
+
+prometheus.source5.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.001117361
+    inst [2 or "2 quantile:0.5"] value 0.002234722
+    inst [3 or "3 quantile:0.75"] value 0.003352083
+    inst [4 or "4 quantile:1.0"] value 0.004469444
+    inst [5 or "5 quantile:1.25"] value 0.005586805
+    inst [6 or "6 quantile:1.5"] value 0.006704166
+    inst [7 or "7 quantile:1.75"] value 0.007821527
+    inst [8 or "8 quantile:2.0"] value 0.008938888000000001
+    inst [9 or "9 quantile:2.25"] value 0.010056249
+
+prometheus.source5.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1021232360
+    inst [2 or "2 baz:1.4"] value 2042464730
+    inst [3 or "3 baz:2.0999999999999996"] value 3063697090
+    inst [4 or "4 baz:2.8"] value 4084929460
+    inst [5 or "5 baz:3.5"] value 5106161820
+    inst [6 or "6 baz:4.199999999999999"] value 6127394180
+    inst [7 or "7 baz:4.8999999999999995"] value 7148626550
+    inst [8 or "8 baz:5.6"] value 8169858910
+    inst [9 or "9 baz:6.3"] value 9191091280
+
+prometheus.source5.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 60.5
+    inst [2 or "2 bar:2"] value 121
+    inst [3 or "3 bar:3"] value 181.5
+    inst [4 or "4 bar:4"] value 242
+    inst [5 or "5 bar:5"] value 302.5
+    inst [6 or "6 bar:6"] value 363
+    inst [7 or "7 bar:7"] value 423.5
+    inst [8 or "8 bar:8"] value 484
+    inst [9 or "9 bar:9"] value 544.5
+
+prometheus.source6.sample_summary0002_count
+    value 14544
+
+prometheus.source6.sample_summary0002_sum
+    value 11.12965416
+
+prometheus.source6.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.001276984
+    inst [2 or "2 quantile:0.5"] value 0.002553968
+    inst [3 or "3 quantile:0.75"] value 0.003830952
+    inst [4 or "4 quantile:1.0"] value 0.005107936
+    inst [5 or "5 quantile:1.25"] value 0.00638492
+    inst [6 or "6 quantile:1.5"] value 0.007661904
+    inst [7 or "7 quantile:1.75"] value 0.008938888000000001
+    inst [8 or "8 quantile:2.0"] value 0.010215872
+    inst [9 or "9 quantile:2.25"] value 0.011492856
+
+prometheus.source6.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1191437760
+    inst [2 or "2 baz:1.4"] value 2382875520
+    inst [3 or "3 baz:2.0999999999999996"] value 3574313270
+    inst [4 or "4 baz:2.8"] value 4765751030
+    inst [5 or "5 baz:3.5"] value 5957188790
+    inst [6 or "6 baz:4.199999999999999"] value 7148626550
+    inst [7 or "7 baz:4.8999999999999995"] value 8340064310
+    inst [8 or "8 baz:5.6"] value 9531502060
+    inst [9 or "9 baz:6.3"] value 10722939800
+
+prometheus.source6.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 72.59999999999999
+    inst [2 or "2 bar:2"] value 145.2
+    inst [3 or "3 bar:3"] value 217.8
+    inst [4 or "4 bar:4"] value 290.4
+    inst [5 or "5 bar:5"] value 363
+    inst [6 or "6 bar:6"] value 435.6
+    inst [7 or "7 bar:7"] value 508.2
+    inst [8 or "8 bar:8"] value 580.8
+    inst [9 or "9 bar:9"] value 653.4
+
+prometheus.source7.sample_summary0002_count
+    value 16362
+
+prometheus.source7.sample_summary0002_sum
+    value 12.52086093
+
+prometheus.source7.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.001436607
+    inst [2 or "2 quantile:0.5"] value 0.002873214
+    inst [3 or "3 quantile:0.75"] value 0.004309821
+    inst [4 or "4 quantile:1.0"] value 0.005746428
+    inst [5 or "5 quantile:1.25"] value 0.007183035
+    inst [6 or "6 quantile:1.5"] value 0.008619642
+    inst [7 or "7 quantile:1.75"] value 0.010056249
+    inst [8 or "8 quantile:2.0"] value 0.011492856
+    inst [9 or "9 quantile:2.25"] value 0.012929463
+
+prometheus.source7.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1361643150
+    inst [2 or "2 baz:1.4"] value 2723286300
+    inst [3 or "3 baz:2.0999999999999996"] value 4084929460
+    inst [4 or "4 baz:2.8"] value 5446572610
+    inst [5 or "5 baz:3.5"] value 6808215760
+    inst [6 or "6 baz:4.199999999999999"] value 8169858910
+    inst [7 or "7 baz:4.8999999999999995"] value 9531502060
+    inst [8 or "8 baz:5.6"] value 10893145200
+    inst [9 or "9 baz:6.3"] value 12254788400
+
+prometheus.source7.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 84.7
+    inst [2 or "2 bar:2"] value 169.4
+    inst [3 or "3 bar:3"] value 254.1
+    inst [4 or "4 bar:4"] value 338.8
+    inst [5 or "5 bar:5"] value 423.5
+    inst [6 or "6 bar:6"] value 508.2
+    inst [7 or "7 bar:7"] value 592.9
+    inst [8 or "8 bar:8"] value 677.6
+    inst [9 or "9 bar:9"] value 762.3
+
+prometheus.source8.sample_summary0002_count
+    value 18180
+
+prometheus.source8.sample_summary0002_sum
+    value 13.9120677
+
+prometheus.source8.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.00159623
+    inst [2 or "2 quantile:0.5"] value 0.00319246
+    inst [3 or "3 quantile:0.75"] value 0.00478869
+    inst [4 or "4 quantile:1.0"] value 0.00638492
+    inst [5 or "5 quantile:1.25"] value 0.007981149999999999
+    inst [6 or "6 quantile:1.5"] value 0.00957738
+    inst [7 or "7 quantile:1.75"] value 0.01117361
+    inst [8 or "8 quantile:2.0"] value 0.01276984
+    inst [9 or "9 quantile:2.25"] value 0.01436607
+
+prometheus.source8.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1531848550
+    inst [2 or "2 baz:1.4"] value 3063697090
+    inst [3 or "3 baz:2.0999999999999996"] value 4595545640
+    inst [4 or "4 baz:2.8"] value 6127394180
+    inst [5 or "5 baz:3.5"] value 7659242730
+    inst [6 or "6 baz:4.199999999999999"] value 9191091280
+    inst [7 or "7 baz:4.8999999999999995"] value 10722939800
+    inst [8 or "8 baz:5.6"] value 12254788400
+    inst [9 or "9 baz:6.3"] value 13786636900
+
+prometheus.source8.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 96.8
+    inst [2 or "2 bar:2"] value 193.6
+    inst [3 or "3 bar:3"] value 290.4
+    inst [4 or "4 bar:4"] value 387.2
+    inst [5 or "5 bar:5"] value 484
+    inst [6 or "6 bar:6"] value 580.8
+    inst [7 or "7 bar:7"] value 677.6
+    inst [8 or "8 bar:8"] value 774.4
+    inst [9 or "9 bar:9"] value 871.2
+
+prometheus.source9.sample_summary0002_count
+    value 19998
+
+prometheus.source9.sample_summary0002_sum
+    value 15.30327447
+
+prometheus.source9.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.001755853
+    inst [2 or "2 quantile:0.5"] value 0.003511706
+    inst [3 or "3 quantile:0.75"] value 0.005267559
+    inst [4 or "4 quantile:1.0"] value 0.007023412
+    inst [5 or "5 quantile:1.25"] value 0.008779265
+    inst [6 or "6 quantile:1.5"] value 0.010535118
+    inst [7 or "7 quantile:1.75"] value 0.012290971
+    inst [8 or "8 quantile:2.0"] value 0.014046824
+    inst [9 or "9 quantile:2.25"] value 0.015802677
+
+prometheus.source9.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1702053940
+    inst [2 or "2 baz:1.4"] value 3404107880
+    inst [3 or "3 baz:2.0999999999999996"] value 5106161820
+    inst [4 or "4 baz:2.8"] value 6808215760
+    inst [5 or "5 baz:3.5"] value 8510269700
+    inst [6 or "6 baz:4.199999999999999"] value 10212323600
+    inst [7 or "7 baz:4.8999999999999995"] value 11914377600
+    inst [8 or "8 baz:5.6"] value 13616431500
+    inst [9 or "9 baz:6.3"] value 15318485500
+
+prometheus.source9.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 108.9
+    inst [2 or "2 bar:2"] value 217.8
+    inst [3 or "3 bar:3"] value 326.7
+    inst [4 or "4 bar:4"] value 435.6
+    inst [5 or "5 bar:5"] value 544.5
+    inst [6 or "6 bar:6"] value 653.4
+    inst [7 or "7 bar:7"] value 762.3
+    inst [8 or "8 bar:8"] value 871.2
+    inst [9 or "9 bar:9"] value 980.1
+
+prometheus.source10.sample_summary0002_count
+    value 21816
+
+prometheus.source10.sample_summary0002_sum
+    value 16.69448124
+
+prometheus.source10.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.001915476
+    inst [2 or "2 quantile:0.5"] value 0.003830952
+    inst [3 or "3 quantile:0.75"] value 0.005746428
+    inst [4 or "4 quantile:1.0"] value 0.007661904
+    inst [5 or "5 quantile:1.25"] value 0.00957738
+    inst [6 or "6 quantile:1.5"] value 0.011492856
+    inst [7 or "7 quantile:1.75"] value 0.013408332
+    inst [8 or "8 quantile:2.0"] value 0.015323808
+    inst [9 or "9 quantile:2.25"] value 0.017239284
+
+prometheus.source10.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 1872259330
+    inst [2 or "2 baz:1.4"] value 3744518670
+    inst [3 or "3 baz:2.0999999999999996"] value 5616778000
+    inst [4 or "4 baz:2.8"] value 7489037340
+    inst [5 or "5 baz:3.5"] value 9361296670
+    inst [6 or "6 baz:4.199999999999999"] value 11233556000
+    inst [7 or "7 baz:4.8999999999999995"] value 13105815300
+    inst [8 or "8 baz:5.6"] value 14978074700
+    inst [9 or "9 baz:6.3"] value 16850334000
+
+prometheus.source10.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 121
+    inst [2 or "2 bar:2"] value 242
+    inst [3 or "3 bar:3"] value 363
+    inst [4 or "4 bar:4"] value 484
+    inst [5 or "5 bar:5"] value 605
+    inst [6 or "6 bar:6"] value 726
+    inst [7 or "7 bar:7"] value 847
+    inst [8 or "8 bar:8"] value 968
+    inst [9 or "9 bar:9"] value 1089
+
+prometheus.source11.sample_summary0002_count
+    value 23634
+
+prometheus.source11.sample_summary0002_sum
+    value 18.08568801
+
+prometheus.source11.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002075099
+    inst [2 or "2 quantile:0.5"] value 0.004150198
+    inst [3 or "3 quantile:0.75"] value 0.006225297
+    inst [4 or "4 quantile:1.0"] value 0.008300396
+    inst [5 or "5 quantile:1.25"] value 0.010375495
+    inst [6 or "6 quantile:1.5"] value 0.012450594
+    inst [7 or "7 quantile:1.75"] value 0.014525693
+    inst [8 or "8 quantile:2.0"] value 0.016600792
+    inst [9 or "9 quantile:2.25"] value 0.018675891
+
+prometheus.source11.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 2042464730
+    inst [2 or "2 baz:1.4"] value 4084929460
+    inst [3 or "3 baz:2.0999999999999996"] value 6127394180
+    inst [4 or "4 baz:2.8"] value 8169858910
+    inst [5 or "5 baz:3.5"] value 10212323600
+    inst [6 or "6 baz:4.199999999999999"] value 12254788400
+    inst [7 or "7 baz:4.8999999999999995"] value 14297253100
+    inst [8 or "8 baz:5.6"] value 16339717800
+    inst [9 or "9 baz:6.3"] value 18382182600
+
+prometheus.source11.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 133.1
+    inst [2 or "2 bar:2"] value 266.2
+    inst [3 or "3 bar:3"] value 399.3
+    inst [4 or "4 bar:4"] value 532.4
+    inst [5 or "5 bar:5"] value 665.5
+    inst [6 or "6 bar:6"] value 798.6
+    inst [7 or "7 bar:7"] value 931.7
+    inst [8 or "8 bar:8"] value 1064.8
+    inst [9 or "9 bar:9"] value 1197.9
+
+prometheus.source12.sample_summary0002_count
+    value 25452
+
+prometheus.source12.sample_summary0002_sum
+    value 19.47689478
+
+prometheus.source12.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002234722
+    inst [2 or "2 quantile:0.5"] value 0.004469444
+    inst [3 or "3 quantile:0.75"] value 0.006704166
+    inst [4 or "4 quantile:1.0"] value 0.008938888000000001
+    inst [5 or "5 quantile:1.25"] value 0.01117361
+    inst [6 or "6 quantile:1.5"] value 0.013408332
+    inst [7 or "7 quantile:1.75"] value 0.015643054
+    inst [8 or "8 quantile:2.0"] value 0.017877776
+    inst [9 or "9 quantile:2.25"] value 0.020112498
+
+prometheus.source12.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 2212670120
+    inst [2 or "2 baz:1.4"] value 4425340240
+    inst [3 or "3 baz:2.0999999999999996"] value 6638010370
+    inst [4 or "4 baz:2.8"] value 8850680490
+    inst [5 or "5 baz:3.5"] value 11063350600
+    inst [6 or "6 baz:4.199999999999999"] value 13276020700
+    inst [7 or "7 baz:4.8999999999999995"] value 15488690900
+    inst [8 or "8 baz:5.6"] value 17701361000
+    inst [9 or "9 baz:6.3"] value 19914031100
+
+prometheus.source12.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 145.2
+    inst [2 or "2 bar:2"] value 290.4
+    inst [3 or "3 bar:3"] value 435.6
+    inst [4 or "4 bar:4"] value 580.8
+    inst [5 or "5 bar:5"] value 726
+    inst [6 or "6 bar:6"] value 871.2
+    inst [7 or "7 bar:7"] value 1016.4
+    inst [8 or "8 bar:8"] value 1161.6
+    inst [9 or "9 bar:9"] value 1306.8
+
+prometheus.source13.sample_summary0002_count
+    value 27270
+
+prometheus.source13.sample_summary0002_sum
+    value 20.86810155
+
+prometheus.source13.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002394345
+    inst [2 or "2 quantile:0.5"] value 0.00478869
+    inst [3 or "3 quantile:0.75"] value 0.007183035
+    inst [4 or "4 quantile:1.0"] value 0.00957738
+    inst [5 or "5 quantile:1.25"] value 0.011971725
+    inst [6 or "6 quantile:1.5"] value 0.01436607
+    inst [7 or "7 quantile:1.75"] value 0.016760415
+    inst [8 or "8 quantile:2.0"] value 0.01915476
+    inst [9 or "9 quantile:2.25"] value 0.021549105
+
+prometheus.source13.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 2382875520
+    inst [2 or "2 baz:1.4"] value 4765751030
+    inst [3 or "3 baz:2.0999999999999996"] value 7148626550
+    inst [4 or "4 baz:2.8"] value 9531502060
+    inst [5 or "5 baz:3.5"] value 11914377600
+    inst [6 or "6 baz:4.199999999999999"] value 14297253100
+    inst [7 or "7 baz:4.8999999999999995"] value 16680128600
+    inst [8 or "8 baz:5.6"] value 19063004100
+    inst [9 or "9 baz:6.3"] value 21445879600
+
+prometheus.source13.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 157.3
+    inst [2 or "2 bar:2"] value 314.6
+    inst [3 or "3 bar:3"] value 471.9
+    inst [4 or "4 bar:4"] value 629.2
+    inst [5 or "5 bar:5"] value 786.5
+    inst [6 or "6 bar:6"] value 943.8
+    inst [7 or "7 bar:7"] value 1101.1
+    inst [8 or "8 bar:8"] value 1258.4
+    inst [9 or "9 bar:9"] value 1415.7
+
+prometheus.source14.sample_summary0002_count
+    value 29088
+
+prometheus.source14.sample_summary0002_sum
+    value 22.25930832
+
+prometheus.source14.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002553968
+    inst [2 or "2 quantile:0.5"] value 0.005107936
+    inst [3 or "3 quantile:0.75"] value 0.007661904
+    inst [4 or "4 quantile:1.0"] value 0.010215872
+    inst [5 or "5 quantile:1.25"] value 0.01276984
+    inst [6 or "6 quantile:1.5"] value 0.015323808
+    inst [7 or "7 quantile:1.75"] value 0.017877776
+    inst [8 or "8 quantile:2.0"] value 0.020431744
+    inst [9 or "9 quantile:2.25"] value 0.022985712
+
+prometheus.source14.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 2553080910
+    inst [2 or "2 baz:1.4"] value 5106161820
+    inst [3 or "3 baz:2.0999999999999996"] value 7659242730
+    inst [4 or "4 baz:2.8"] value 10212323600
+    inst [5 or "5 baz:3.5"] value 12765404600
+    inst [6 or "6 baz:4.199999999999999"] value 15318485500
+    inst [7 or "7 baz:4.8999999999999995"] value 17871566400
+    inst [8 or "8 baz:5.6"] value 20424647300
+    inst [9 or "9 baz:6.3"] value 22977728200
+
+prometheus.source14.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 169.4
+    inst [2 or "2 bar:2"] value 338.8
+    inst [3 or "3 bar:3"] value 508.2
+    inst [4 or "4 bar:4"] value 677.6
+    inst [5 or "5 bar:5"] value 847
+    inst [6 or "6 bar:6"] value 1016.4
+    inst [7 or "7 bar:7"] value 1185.8
+    inst [8 or "8 bar:8"] value 1355.2
+    inst [9 or "9 bar:9"] value 1524.6
+
+prometheus.source15.sample_summary0002_count
+    value 30906
+
+prometheus.source15.sample_summary0002_sum
+    value 23.65051509
+
+prometheus.source15.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002713591
+    inst [2 or "2 quantile:0.5"] value 0.005427182
+    inst [3 or "3 quantile:0.75"] value 0.008140773
+    inst [4 or "4 quantile:1.0"] value 0.010854364
+    inst [5 or "5 quantile:1.25"] value 0.013567955
+    inst [6 or "6 quantile:1.5"] value 0.016281546
+    inst [7 or "7 quantile:1.75"] value 0.018995137
+    inst [8 or "8 quantile:2.0"] value 0.021708728
+    inst [9 or "9 quantile:2.25"] value 0.024422319
+
+prometheus.source15.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 2723286300
+    inst [2 or "2 baz:1.4"] value 5446572610
+    inst [3 or "3 baz:2.0999999999999996"] value 8169858910
+    inst [4 or "4 baz:2.8"] value 10893145200
+    inst [5 or "5 baz:3.5"] value 13616431500
+    inst [6 or "6 baz:4.199999999999999"] value 16339717800
+    inst [7 or "7 baz:4.8999999999999995"] value 19063004100
+    inst [8 or "8 baz:5.6"] value 21786290400
+    inst [9 or "9 baz:6.3"] value 24509576700
+
+prometheus.source15.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 181.5
+    inst [2 or "2 bar:2"] value 363
+    inst [3 or "3 bar:3"] value 544.5
+    inst [4 or "4 bar:4"] value 726
+    inst [5 or "5 bar:5"] value 907.5
+    inst [6 or "6 bar:6"] value 1089
+    inst [7 or "7 bar:7"] value 1270.5
+    inst [8 or "8 bar:8"] value 1452
+    inst [9 or "9 bar:9"] value 1633.5
+
+prometheus.source16.sample_summary0002_count
+    value 32724
+
+prometheus.source16.sample_summary0002_sum
+    value 25.04172186
+
+prometheus.source16.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002873214
+    inst [2 or "2 quantile:0.5"] value 0.005746428
+    inst [3 or "3 quantile:0.75"] value 0.008619642
+    inst [4 or "4 quantile:1.0"] value 0.011492856
+    inst [5 or "5 quantile:1.25"] value 0.01436607
+    inst [6 or "6 quantile:1.5"] value 0.017239284
+    inst [7 or "7 quantile:1.75"] value 0.020112498
+    inst [8 or "8 quantile:2.0"] value 0.022985712
+    inst [9 or "9 quantile:2.25"] value 0.025858926
+
+prometheus.source16.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 2893491700
+    inst [2 or "2 baz:1.4"] value 5786983400
+    inst [3 or "3 baz:2.0999999999999996"] value 8680475090
+    inst [4 or "4 baz:2.8"] value 11573966800
+    inst [5 or "5 baz:3.5"] value 14467458500
+    inst [6 or "6 baz:4.199999999999999"] value 17360950200
+    inst [7 or "7 baz:4.8999999999999995"] value 20254441900
+    inst [8 or "8 baz:5.6"] value 23147933600
+    inst [9 or "9 baz:6.3"] value 26041425300
+
+prometheus.source16.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 193.6
+    inst [2 or "2 bar:2"] value 387.2
+    inst [3 or "3 bar:3"] value 580.8
+    inst [4 or "4 bar:4"] value 774.4
+    inst [5 or "5 bar:5"] value 968
+    inst [6 or "6 bar:6"] value 1161.6
+    inst [7 or "7 bar:7"] value 1355.2
+    inst [8 or "8 bar:8"] value 1548.8
+    inst [9 or "9 bar:9"] value 1742.4
+
+prometheus.source17.sample_summary0002_count
+    value 34542
+
+prometheus.source17.sample_summary0002_sum
+    value 26.43292863
+
+prometheus.source17.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.003032837
+    inst [2 or "2 quantile:0.5"] value 0.006065674
+    inst [3 or "3 quantile:0.75"] value 0.009098511
+    inst [4 or "4 quantile:1.0"] value 0.012131348
+    inst [5 or "5 quantile:1.25"] value 0.015164185
+    inst [6 or "6 quantile:1.5"] value 0.018197022
+    inst [7 or "7 quantile:1.75"] value 0.021229859
+    inst [8 or "8 quantile:2.0"] value 0.024262696
+    inst [9 or "9 quantile:2.25"] value 0.027295533
+
+prometheus.source17.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 3063697090
+    inst [2 or "2 baz:1.4"] value 6127394180
+    inst [3 or "3 baz:2.0999999999999996"] value 9191091280
+    inst [4 or "4 baz:2.8"] value 12254788400
+    inst [5 or "5 baz:3.5"] value 15318485500
+    inst [6 or "6 baz:4.199999999999999"] value 18382182600
+    inst [7 or "7 baz:4.8999999999999995"] value 21445879600
+    inst [8 or "8 baz:5.6"] value 24509576700
+    inst [9 or "9 baz:6.3"] value 27573273800
+
+prometheus.source17.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 205.7
+    inst [2 or "2 bar:2"] value 411.4
+    inst [3 or "3 bar:3"] value 617.1
+    inst [4 or "4 bar:4"] value 822.8
+    inst [5 or "5 bar:5"] value 1028.5
+    inst [6 or "6 bar:6"] value 1234.2
+    inst [7 or "7 bar:7"] value 1439.9
+    inst [8 or "8 bar:8"] value 1645.6
+    inst [9 or "9 bar:9"] value 1851.3
+
+prometheus.source18.sample_summary0002_count
+    value 36360
+
+prometheus.source18.sample_summary0002_sum
+    value 27.8241354
+
+prometheus.source18.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.00319246
+    inst [2 or "2 quantile:0.5"] value 0.00638492
+    inst [3 or "3 quantile:0.75"] value 0.00957738
+    inst [4 or "4 quantile:1.0"] value 0.01276984
+    inst [5 or "5 quantile:1.25"] value 0.0159623
+    inst [6 or "6 quantile:1.5"] value 0.01915476
+    inst [7 or "7 quantile:1.75"] value 0.02234722
+    inst [8 or "8 quantile:2.0"] value 0.02553968
+    inst [9 or "9 quantile:2.25"] value 0.02873214
+
+prometheus.source18.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 3233902490
+    inst [2 or "2 baz:1.4"] value 6467804970
+    inst [3 or "3 baz:2.0999999999999996"] value 9701707460
+    inst [4 or "4 baz:2.8"] value 12935609900
+    inst [5 or "5 baz:3.5"] value 16169512400
+    inst [6 or "6 baz:4.199999999999999"] value 19403414900
+    inst [7 or "7 baz:4.8999999999999995"] value 22637317400
+    inst [8 or "8 baz:5.6"] value 25871219900
+    inst [9 or "9 baz:6.3"] value 29105122400
+
+prometheus.source18.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 217.8
+    inst [2 or "2 bar:2"] value 435.6
+    inst [3 or "3 bar:3"] value 653.4
+    inst [4 or "4 bar:4"] value 871.2
+    inst [5 or "5 bar:5"] value 1089
+    inst [6 or "6 bar:6"] value 1306.8
+    inst [7 or "7 bar:7"] value 1524.6
+    inst [8 or "8 bar:8"] value 1742.4
+    inst [9 or "9 bar:9"] value 1960.2
+
+prometheus.source19.sample_summary0002_count
+    value 38178
+
+prometheus.source19.sample_summary0002_sum
+    value 29.21534217
+
+prometheus.source19.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.003352083
+    inst [2 or "2 quantile:0.5"] value 0.006704166
+    inst [3 or "3 quantile:0.75"] value 0.010056249
+    inst [4 or "4 quantile:1.0"] value 0.013408332
+    inst [5 or "5 quantile:1.25"] value 0.016760415
+    inst [6 or "6 quantile:1.5"] value 0.020112498
+    inst [7 or "7 quantile:1.75"] value 0.023464581
+    inst [8 or "8 quantile:2.0"] value 0.026816664
+    inst [9 or "9 quantile:2.25"] value 0.030168747
+
+prometheus.source19.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 3404107880
+    inst [2 or "2 baz:1.4"] value 6808215760
+    inst [3 or "3 baz:2.0999999999999996"] value 10212323600
+    inst [4 or "4 baz:2.8"] value 13616431500
+    inst [5 or "5 baz:3.5"] value 17020539400
+    inst [6 or "6 baz:4.199999999999999"] value 20424647300
+    inst [7 or "7 baz:4.8999999999999995"] value 23828755200
+    inst [8 or "8 baz:5.6"] value 27232863000
+    inst [9 or "9 baz:6.3"] value 30636970900
+
+prometheus.source19.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 229.9
+    inst [2 or "2 bar:2"] value 459.8
+    inst [3 or "3 bar:3"] value 689.7
+    inst [4 or "4 bar:4"] value 919.6
+    inst [5 or "5 bar:5"] value 1149.5
+    inst [6 or "6 bar:6"] value 1379.4
+    inst [7 or "7 bar:7"] value 1609.3
+    inst [8 or "8 bar:8"] value 1839.2
+    inst [9 or "9 bar:9"] value 2069.1
+
+prometheus.source20.sample_summary0002_count
+    value 39996
+
+prometheus.source20.sample_summary0002_sum
+    value 30.60654894
+
+prometheus.source20.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.003511706
+    inst [2 or "2 quantile:0.5"] value 0.007023412
+    inst [3 or "3 quantile:0.75"] value 0.010535118
+    inst [4 or "4 quantile:1.0"] value 0.014046824
+    inst [5 or "5 quantile:1.25"] value 0.01755853
+    inst [6 or "6 quantile:1.5"] value 0.021070236
+    inst [7 or "7 quantile:1.75"] value 0.024581942
+    inst [8 or "8 quantile:2.0"] value 0.028093648
+    inst [9 or "9 quantile:2.25"] value 0.031605354
+
+prometheus.source20.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 3574313270
+    inst [2 or "2 baz:1.4"] value 7148626550
+    inst [3 or "3 baz:2.0999999999999996"] value 10722939800
+    inst [4 or "4 baz:2.8"] value 14297253100
+    inst [5 or "5 baz:3.5"] value 17871566400
+    inst [6 or "6 baz:4.199999999999999"] value 21445879600
+    inst [7 or "7 baz:4.8999999999999995"] value 25020192900
+    inst [8 or "8 baz:5.6"] value 28594506200
+    inst [9 or "9 baz:6.3"] value 32168819500
+
+prometheus.source20.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 242
+    inst [2 or "2 bar:2"] value 484
+    inst [3 or "3 bar:3"] value 726
+    inst [4 or "4 bar:4"] value 968
+    inst [5 or "5 bar:5"] value 1210
+    inst [6 or "6 bar:6"] value 1452
+    inst [7 or "7 bar:7"] value 1694
+    inst [8 or "8 bar:8"] value 1936
+    inst [9 or "9 bar:9"] value 2178
+
+prometheus.source21.sample_summary0002_count
+    value 41814
+
+prometheus.source21.sample_summary0002_sum
+    value 31.99775571
+
+prometheus.source21.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.003671329
+    inst [2 or "2 quantile:0.5"] value 0.007342658
+    inst [3 or "3 quantile:0.75"] value 0.011013987
+    inst [4 or "4 quantile:1.0"] value 0.014685316
+    inst [5 or "5 quantile:1.25"] value 0.018356645
+    inst [6 or "6 quantile:1.5"] value 0.022027974
+    inst [7 or "7 quantile:1.75"] value 0.025699303
+    inst [8 or "8 quantile:2.0"] value 0.029370632
+    inst [9 or "9 quantile:2.25"] value 0.033041961
+
+prometheus.source21.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 3744518670
+    inst [2 or "2 baz:1.4"] value 7489037340
+    inst [3 or "3 baz:2.0999999999999996"] value 11233556000
+    inst [4 or "4 baz:2.8"] value 14978074700
+    inst [5 or "5 baz:3.5"] value 18722593300
+    inst [6 or "6 baz:4.199999999999999"] value 22467112000
+    inst [7 or "7 baz:4.8999999999999995"] value 26211630700
+    inst [8 or "8 baz:5.6"] value 29956149300
+    inst [9 or "9 baz:6.3"] value 33700668000
+
+prometheus.source21.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 254.1
+    inst [2 or "2 bar:2"] value 508.2
+    inst [3 or "3 bar:3"] value 762.3
+    inst [4 or "4 bar:4"] value 1016.4
+    inst [5 or "5 bar:5"] value 1270.5
+    inst [6 or "6 bar:6"] value 1524.6
+    inst [7 or "7 bar:7"] value 1778.7
+    inst [8 or "8 bar:8"] value 2032.8
+    inst [9 or "9 bar:9"] value 2286.9
+
+prometheus.source22.sample_summary0002_count
+    value 43632
+
+prometheus.source22.sample_summary0002_sum
+    value 33.38896248
+
+prometheus.source22.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.003830952
+    inst [2 or "2 quantile:0.5"] value 0.007661904
+    inst [3 or "3 quantile:0.75"] value 0.011492856
+    inst [4 or "4 quantile:1.0"] value 0.015323808
+    inst [5 or "5 quantile:1.25"] value 0.01915476
+    inst [6 or "6 quantile:1.5"] value 0.022985712
+    inst [7 or "7 quantile:1.75"] value 0.026816664
+    inst [8 or "8 quantile:2.0"] value 0.030647616
+    inst [9 or "9 quantile:2.25"] value 0.034478568
+
+prometheus.source22.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 3914724060
+    inst [2 or "2 baz:1.4"] value 7829448120
+    inst [3 or "3 baz:2.0999999999999996"] value 11744172200
+    inst [4 or "4 baz:2.8"] value 15658896200
+    inst [5 or "5 baz:3.5"] value 19573620300
+    inst [6 or "6 baz:4.199999999999999"] value 23488344400
+    inst [7 or "7 baz:4.8999999999999995"] value 27403068400
+    inst [8 or "8 baz:5.6"] value 31317792500
+    inst [9 or "9 baz:6.3"] value 35232516600
+
+prometheus.source22.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 266.2
+    inst [2 or "2 bar:2"] value 532.4
+    inst [3 or "3 bar:3"] value 798.6
+    inst [4 or "4 bar:4"] value 1064.8
+    inst [5 or "5 bar:5"] value 1331
+    inst [6 or "6 bar:6"] value 1597.2
+    inst [7 or "7 bar:7"] value 1863.4
+    inst [8 or "8 bar:8"] value 2129.6
+    inst [9 or "9 bar:9"] value 2395.8
+
+prometheus.source23.sample_summary0002_count
+    value 45450
+
+prometheus.source23.sample_summary0002_sum
+    value 34.78016925
+
+prometheus.source23.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.003990575
+    inst [2 or "2 quantile:0.5"] value 0.007981149999999999
+    inst [3 or "3 quantile:0.75"] value 0.011971725
+    inst [4 or "4 quantile:1.0"] value 0.0159623
+    inst [5 or "5 quantile:1.25"] value 0.019952875
+    inst [6 or "6 quantile:1.5"] value 0.02394345
+    inst [7 or "7 quantile:1.75"] value 0.027934025
+    inst [8 or "8 quantile:2.0"] value 0.0319246
+    inst [9 or "9 quantile:2.25"] value 0.035915175
+
+prometheus.source23.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 4084929460
+    inst [2 or "2 baz:1.4"] value 8169858910
+    inst [3 or "3 baz:2.0999999999999996"] value 12254788400
+    inst [4 or "4 baz:2.8"] value 16339717800
+    inst [5 or "5 baz:3.5"] value 20424647300
+    inst [6 or "6 baz:4.199999999999999"] value 24509576700
+    inst [7 or "7 baz:4.8999999999999995"] value 28594506200
+    inst [8 or "8 baz:5.6"] value 32679435600
+    inst [9 or "9 baz:6.3"] value 36764365100
+
+prometheus.source23.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 278.3
+    inst [2 or "2 bar:2"] value 556.6
+    inst [3 or "3 bar:3"] value 834.9
+    inst [4 or "4 bar:4"] value 1113.2
+    inst [5 or "5 bar:5"] value 1391.5
+    inst [6 or "6 bar:6"] value 1669.8
+    inst [7 or "7 bar:7"] value 1948.1
+    inst [8 or "8 bar:8"] value 2226.4
+    inst [9 or "9 bar:9"] value 2504.7
+
+prometheus.source24.sample_summary0002_count
+    value 47268
+
+prometheus.source24.sample_summary0002_sum
+    value 36.17137602
+
+prometheus.source24.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.004150198
+    inst [2 or "2 quantile:0.5"] value 0.008300396
+    inst [3 or "3 quantile:0.75"] value 0.012450594
+    inst [4 or "4 quantile:1.0"] value 0.016600792
+    inst [5 or "5 quantile:1.25"] value 0.02075099
+    inst [6 or "6 quantile:1.5"] value 0.024901188
+    inst [7 or "7 quantile:1.75"] value 0.029051386
+    inst [8 or "8 quantile:2.0"] value 0.033201584
+    inst [9 or "9 quantile:2.25"] value 0.037351782
+
+prometheus.source24.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 4255134850
+    inst [2 or "2 baz:1.4"] value 8510269700
+    inst [3 or "3 baz:2.0999999999999996"] value 12765404600
+    inst [4 or "4 baz:2.8"] value 17020539400
+    inst [5 or "5 baz:3.5"] value 21275674200
+    inst [6 or "6 baz:4.199999999999999"] value 25530809100
+    inst [7 or "7 baz:4.8999999999999995"] value 29785944000
+    inst [8 or "8 baz:5.6"] value 34041078800
+    inst [9 or "9 baz:6.3"] value 38296213600
+
+prometheus.source24.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 290.4
+    inst [2 or "2 bar:2"] value 580.8
+    inst [3 or "3 bar:3"] value 871.2
+    inst [4 or "4 bar:4"] value 1161.6
+    inst [5 or "5 bar:5"] value 1452
+    inst [6 or "6 bar:6"] value 1742.4
+    inst [7 or "7 bar:7"] value 2032.8
+    inst [8 or "8 bar:8"] value 2323.2
+    inst [9 or "9 bar:9"] value 2613.6
+
+prometheus.source25.sample_summary0002_count
+    value 49086
+
+prometheus.source25.sample_summary0002_sum
+    value 37.56258279000001
+
+prometheus.source25.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.004309821
+    inst [2 or "2 quantile:0.5"] value 0.008619642
+    inst [3 or "3 quantile:0.75"] value 0.012929463
+    inst [4 or "4 quantile:1.0"] value 0.017239284
+    inst [5 or "5 quantile:1.25"] value 0.021549105
+    inst [6 or "6 quantile:1.5"] value 0.025858926
+    inst [7 or "7 quantile:1.75"] value 0.030168747
+    inst [8 or "8 quantile:2.0"] value 0.034478568
+    inst [9 or "9 quantile:2.25"] value 0.038788389
+
+prometheus.source25.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 4425340240
+    inst [2 or "2 baz:1.4"] value 8850680490
+    inst [3 or "3 baz:2.0999999999999996"] value 13276020700
+    inst [4 or "4 baz:2.8"] value 17701361000
+    inst [5 or "5 baz:3.5"] value 22126701200
+    inst [6 or "6 baz:4.199999999999999"] value 26552041500
+    inst [7 or "7 baz:4.8999999999999995"] value 30977381700
+    inst [8 or "8 baz:5.6"] value 35402722000
+    inst [9 or "9 baz:6.3"] value 39828062200
+
+prometheus.source25.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 302.5
+    inst [2 or "2 bar:2"] value 605
+    inst [3 or "3 bar:3"] value 907.5
+    inst [4 or "4 bar:4"] value 1210
+    inst [5 or "5 bar:5"] value 1512.5
+    inst [6 or "6 bar:6"] value 1815
+    inst [7 or "7 bar:7"] value 2117.5
+    inst [8 or "8 bar:8"] value 2420
+    inst [9 or "9 bar:9"] value 2722.5
+
+prometheus.source26.sample_summary0002_count
+    value 50904
+
+prometheus.source26.sample_summary0002_sum
+    value 38.95378956
+
+prometheus.source26.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.004469444
+    inst [2 or "2 quantile:0.5"] value 0.008938888000000001
+    inst [3 or "3 quantile:0.75"] value 0.013408332
+    inst [4 or "4 quantile:1.0"] value 0.017877776
+    inst [5 or "5 quantile:1.25"] value 0.02234722
+    inst [6 or "6 quantile:1.5"] value 0.026816664
+    inst [7 or "7 quantile:1.75"] value 0.031286108
+    inst [8 or "8 quantile:2.0"] value 0.035755552
+    inst [9 or "9 quantile:2.25"] value 0.040224996
+
+prometheus.source26.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 4595545640
+    inst [2 or "2 baz:1.4"] value 9191091280
+    inst [3 or "3 baz:2.0999999999999996"] value 13786636900
+    inst [4 or "4 baz:2.8"] value 18382182600
+    inst [5 or "5 baz:3.5"] value 22977728200
+    inst [6 or "6 baz:4.199999999999999"] value 27573273800
+    inst [7 or "7 baz:4.8999999999999995"] value 32168819500
+    inst [8 or "8 baz:5.6"] value 36764365100
+    inst [9 or "9 baz:6.3"] value 41359910700
+
+prometheus.source26.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 314.6
+    inst [2 or "2 bar:2"] value 629.2
+    inst [3 or "3 bar:3"] value 943.8
+    inst [4 or "4 bar:4"] value 1258.4
+    inst [5 or "5 bar:5"] value 1573
+    inst [6 or "6 bar:6"] value 1887.6
+    inst [7 or "7 bar:7"] value 2202.2
+    inst [8 or "8 bar:8"] value 2516.8
+    inst [9 or "9 bar:9"] value 2831.4
+
+prometheus.source27.sample_summary0002_count
+    value 52722
+
+prometheus.source27.sample_summary0002_sum
+    value 40.34499633
+
+prometheus.source27.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.004629067
+    inst [2 or "2 quantile:0.5"] value 0.009258133999999999
+    inst [3 or "3 quantile:0.75"] value 0.013887201
+    inst [4 or "4 quantile:1.0"] value 0.018516268
+    inst [5 or "5 quantile:1.25"] value 0.023145335
+    inst [6 or "6 quantile:1.5"] value 0.027774402
+    inst [7 or "7 quantile:1.75"] value 0.032403469
+    inst [8 or "8 quantile:2.0"] value 0.037032536
+    inst [9 or "9 quantile:2.25"] value 0.041661603
+
+prometheus.source27.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 4765751030
+    inst [2 or "2 baz:1.4"] value 9531502060
+    inst [3 or "3 baz:2.0999999999999996"] value 14297253100
+    inst [4 or "4 baz:2.8"] value 19063004100
+    inst [5 or "5 baz:3.5"] value 23828755200
+    inst [6 or "6 baz:4.199999999999999"] value 28594506200
+    inst [7 or "7 baz:4.8999999999999995"] value 33360257200
+    inst [8 or "8 baz:5.6"] value 38126008300
+    inst [9 or "9 baz:6.3"] value 42891759300
+
+prometheus.source27.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 326.7
+    inst [2 or "2 bar:2"] value 653.4
+    inst [3 or "3 bar:3"] value 980.1
+    inst [4 or "4 bar:4"] value 1306.8
+    inst [5 or "5 bar:5"] value 1633.5
+    inst [6 or "6 bar:6"] value 1960.2
+    inst [7 or "7 bar:7"] value 2286.9
+    inst [8 or "8 bar:8"] value 2613.6
+    inst [9 or "9 bar:9"] value 2940.3
+
+prometheus.source28.sample_summary0002_count
+    value 54540
+
+prometheus.source28.sample_summary0002_sum
+    value 41.7362031
+
+prometheus.source28.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.00478869
+    inst [2 or "2 quantile:0.5"] value 0.00957738
+    inst [3 or "3 quantile:0.75"] value 0.01436607
+    inst [4 or "4 quantile:1.0"] value 0.01915476
+    inst [5 or "5 quantile:1.25"] value 0.02394345
+    inst [6 or "6 quantile:1.5"] value 0.02873214
+    inst [7 or "7 quantile:1.75"] value 0.03352083
+    inst [8 or "8 quantile:2.0"] value 0.03830952
+    inst [9 or "9 quantile:2.25"] value 0.04309821
+
+prometheus.source28.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 4935956430
+    inst [2 or "2 baz:1.4"] value 9871912850
+    inst [3 or "3 baz:2.0999999999999996"] value 14807869300
+    inst [4 or "4 baz:2.8"] value 19743825700
+    inst [5 or "5 baz:3.5"] value 24679782100
+    inst [6 or "6 baz:4.199999999999999"] value 29615738600
+    inst [7 or "7 baz:4.8999999999999995"] value 34551695000
+    inst [8 or "8 baz:5.6"] value 39487651400
+    inst [9 or "9 baz:6.3"] value 44423607800
+
+prometheus.source28.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 338.8
+    inst [2 or "2 bar:2"] value 677.6
+    inst [3 or "3 bar:3"] value 1016.4
+    inst [4 or "4 bar:4"] value 1355.2
+    inst [5 or "5 bar:5"] value 1694
+    inst [6 or "6 bar:6"] value 2032.8
+    inst [7 or "7 bar:7"] value 2371.6
+    inst [8 or "8 bar:8"] value 2710.4
+    inst [9 or "9 bar:9"] value 3049.2
+
+prometheus.source29.sample_summary0002_count
+    value 56358
+
+prometheus.source29.sample_summary0002_sum
+    value 43.12740987000001
+
+prometheus.source29.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.004948313
+    inst [2 or "2 quantile:0.5"] value 0.009896626
+    inst [3 or "3 quantile:0.75"] value 0.014844939
+    inst [4 or "4 quantile:1.0"] value 0.019793252
+    inst [5 or "5 quantile:1.25"] value 0.024741565
+    inst [6 or "6 quantile:1.5"] value 0.029689878
+    inst [7 or "7 quantile:1.75"] value 0.034638191
+    inst [8 or "8 quantile:2.0"] value 0.039586504
+    inst [9 or "9 quantile:2.25"] value 0.044534817
+
+prometheus.source29.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 5106161820
+    inst [2 or "2 baz:1.4"] value 10212323600
+    inst [3 or "3 baz:2.0999999999999996"] value 15318485500
+    inst [4 or "4 baz:2.8"] value 20424647300
+    inst [5 or "5 baz:3.5"] value 25530809100
+    inst [6 or "6 baz:4.199999999999999"] value 30636970900
+    inst [7 or "7 baz:4.8999999999999995"] value 35743132700
+    inst [8 or "8 baz:5.6"] value 40849294600
+    inst [9 or "9 baz:6.3"] value 45955456400
+
+prometheus.source29.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 350.9
+    inst [2 or "2 bar:2"] value 701.8
+    inst [3 or "3 bar:3"] value 1052.7
+    inst [4 or "4 bar:4"] value 1403.6
+    inst [5 or "5 bar:5"] value 1754.5
+    inst [6 or "6 bar:6"] value 2105.4
+    inst [7 or "7 bar:7"] value 2456.3
+    inst [8 or "8 bar:8"] value 2807.2
+    inst [9 or "9 bar:9"] value 3158.1
+
+prometheus.source30.sample_summary0002_count
+    value 58176
+
+prometheus.source30.sample_summary0002_sum
+    value 44.51861664
+
+prometheus.source30.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.005107936
+    inst [2 or "2 quantile:0.5"] value 0.010215872
+    inst [3 or "3 quantile:0.75"] value 0.015323808
+    inst [4 or "4 quantile:1.0"] value 0.020431744
+    inst [5 or "5 quantile:1.25"] value 0.02553968
+    inst [6 or "6 quantile:1.5"] value 0.030647616
+    inst [7 or "7 quantile:1.75"] value 0.035755552
+    inst [8 or "8 quantile:2.0"] value 0.040863488
+    inst [9 or "9 quantile:2.25"] value 0.045971424
+
+prometheus.source30.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 5276367210
+    inst [2 or "2 baz:1.4"] value 10552734400
+    inst [3 or "3 baz:2.0999999999999996"] value 15829101600
+    inst [4 or "4 baz:2.8"] value 21105468900
+    inst [5 or "5 baz:3.5"] value 26381836100
+    inst [6 or "6 baz:4.199999999999999"] value 31658203300
+    inst [7 or "7 baz:4.8999999999999995"] value 36934570500
+    inst [8 or "8 baz:5.6"] value 42210937700
+    inst [9 or "9 baz:6.3"] value 47487304900
+
+prometheus.source30.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 363
+    inst [2 or "2 bar:2"] value 726
+    inst [3 or "3 bar:3"] value 1089
+    inst [4 or "4 bar:4"] value 1452
+    inst [5 or "5 bar:5"] value 1815
+    inst [6 or "6 bar:6"] value 2178
+    inst [7 or "7 bar:7"] value 2541
+    inst [8 or "8 bar:8"] value 2904
+    inst [9 or "9 bar:9"] value 3267
+
+prometheus.source31.sample_summary0002_count
+    value 59994
+
+prometheus.source31.sample_summary0002_sum
+    value 45.90982341
+
+prometheus.source31.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.005267559
+    inst [2 or "2 quantile:0.5"] value 0.010535118
+    inst [3 or "3 quantile:0.75"] value 0.015802677
+    inst [4 or "4 quantile:1.0"] value 0.021070236
+    inst [5 or "5 quantile:1.25"] value 0.026337795
+    inst [6 or "6 quantile:1.5"] value 0.031605354
+    inst [7 or "7 quantile:1.75"] value 0.036872913
+    inst [8 or "8 quantile:2.0"] value 0.042140472
+    inst [9 or "9 quantile:2.25"] value 0.047408031
+
+prometheus.source31.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 5446572610
+    inst [2 or "2 baz:1.4"] value 10893145200
+    inst [3 or "3 baz:2.0999999999999996"] value 16339717800
+    inst [4 or "4 baz:2.8"] value 21786290400
+    inst [5 or "5 baz:3.5"] value 27232863000
+    inst [6 or "6 baz:4.199999999999999"] value 32679435600
+    inst [7 or "7 baz:4.8999999999999995"] value 38126008300
+    inst [8 or "8 baz:5.6"] value 43572580900
+    inst [9 or "9 baz:6.3"] value 49019153500
+
+prometheus.source31.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 375.1
+    inst [2 or "2 bar:2"] value 750.2
+    inst [3 or "3 bar:3"] value 1125.3
+    inst [4 or "4 bar:4"] value 1500.4
+    inst [5 or "5 bar:5"] value 1875.5
+    inst [6 or "6 bar:6"] value 2250.6
+    inst [7 or "7 bar:7"] value 2625.7
+    inst [8 or "8 bar:8"] value 3000.8
+    inst [9 or "9 bar:9"] value 3375.9
+
+prometheus.source32.sample_summary0002_count
+    value 61812
+
+prometheus.source32.sample_summary0002_sum
+    value 47.30103018000001
+
+prometheus.source32.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.005427182
+    inst [2 or "2 quantile:0.5"] value 0.010854364
+    inst [3 or "3 quantile:0.75"] value 0.016281546
+    inst [4 or "4 quantile:1.0"] value 0.021708728
+    inst [5 or "5 quantile:1.25"] value 0.02713591
+    inst [6 or "6 quantile:1.5"] value 0.032563092
+    inst [7 or "7 quantile:1.75"] value 0.037990274
+    inst [8 or "8 quantile:2.0"] value 0.043417456
+    inst [9 or "9 quantile:2.25"] value 0.048844638
+
+prometheus.source32.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 5616778000
+    inst [2 or "2 baz:1.4"] value 11233556000
+    inst [3 or "3 baz:2.0999999999999996"] value 16850334000
+    inst [4 or "4 baz:2.8"] value 22467112000
+    inst [5 or "5 baz:3.5"] value 28083890000
+    inst [6 or "6 baz:4.199999999999999"] value 33700668000
+    inst [7 or "7 baz:4.8999999999999995"] value 39317446000
+    inst [8 or "8 baz:5.6"] value 44934224000
+    inst [9 or "9 baz:6.3"] value 50551002000
+
+prometheus.source32.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 387.2
+    inst [2 or "2 bar:2"] value 774.4
+    inst [3 or "3 bar:3"] value 1161.6
+    inst [4 or "4 bar:4"] value 1548.8
+    inst [5 or "5 bar:5"] value 1936
+    inst [6 or "6 bar:6"] value 2323.2
+    inst [7 or "7 bar:7"] value 2710.4
+    inst [8 or "8 bar:8"] value 3097.6
+    inst [9 or "9 bar:9"] value 3484.8
+
+prometheus.source33.sample_summary0002_count
+    value 63630
+
+prometheus.source33.sample_summary0002_sum
+    value 48.69223695000001
+
+prometheus.source33.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.005586805
+    inst [2 or "2 quantile:0.5"] value 0.01117361
+    inst [3 or "3 quantile:0.75"] value 0.016760415
+    inst [4 or "4 quantile:1.0"] value 0.02234722
+    inst [5 or "5 quantile:1.25"] value 0.027934025
+    inst [6 or "6 quantile:1.5"] value 0.03352083
+    inst [7 or "7 quantile:1.75"] value 0.039107635
+    inst [8 or "8 quantile:2.0"] value 0.04469444
+    inst [9 or "9 quantile:2.25"] value 0.050281245
+
+prometheus.source33.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 5786983400
+    inst [2 or "2 baz:1.4"] value 11573966800
+    inst [3 or "3 baz:2.0999999999999996"] value 17360950200
+    inst [4 or "4 baz:2.8"] value 23147933600
+    inst [5 or "5 baz:3.5"] value 28934917000
+    inst [6 or "6 baz:4.199999999999999"] value 34721900400
+    inst [7 or "7 baz:4.8999999999999995"] value 40508883800
+    inst [8 or "8 baz:5.6"] value 46295867200
+    inst [9 or "9 baz:6.3"] value 52082850600
+
+prometheus.source33.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 399.3
+    inst [2 or "2 bar:2"] value 798.6
+    inst [3 or "3 bar:3"] value 1197.9
+    inst [4 or "4 bar:4"] value 1597.2
+    inst [5 or "5 bar:5"] value 1996.5
+    inst [6 or "6 bar:6"] value 2395.8
+    inst [7 or "7 bar:7"] value 2795.1
+    inst [8 or "8 bar:8"] value 3194.4
+    inst [9 or "9 bar:9"] value 3593.7
+
+prometheus.source34.sample_summary0002_count
+    value 65448
+
+prometheus.source34.sample_summary0002_sum
+    value 50.08344372000001
+
+prometheus.source34.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.005746428
+    inst [2 or "2 quantile:0.5"] value 0.011492856
+    inst [3 or "3 quantile:0.75"] value 0.017239284
+    inst [4 or "4 quantile:1.0"] value 0.022985712
+    inst [5 or "5 quantile:1.25"] value 0.02873214
+    inst [6 or "6 quantile:1.5"] value 0.034478568
+    inst [7 or "7 quantile:1.75"] value 0.040224996
+    inst [8 or "8 quantile:2.0"] value 0.045971424
+    inst [9 or "9 quantile:2.25"] value 0.051717852
+
+prometheus.source34.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 5957188790
+    inst [2 or "2 baz:1.4"] value 11914377600
+    inst [3 or "3 baz:2.0999999999999996"] value 17871566400
+    inst [4 or "4 baz:2.8"] value 23828755200
+    inst [5 or "5 baz:3.5"] value 29785944000
+    inst [6 or "6 baz:4.199999999999999"] value 35743132700
+    inst [7 or "7 baz:4.8999999999999995"] value 41700321500
+    inst [8 or "8 baz:5.6"] value 47657510300
+    inst [9 or "9 baz:6.3"] value 53614699100
+
+prometheus.source34.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 411.4
+    inst [2 or "2 bar:2"] value 822.8
+    inst [3 or "3 bar:3"] value 1234.2
+    inst [4 or "4 bar:4"] value 1645.6
+    inst [5 or "5 bar:5"] value 2057
+    inst [6 or "6 bar:6"] value 2468.4
+    inst [7 or "7 bar:7"] value 2879.8
+    inst [8 or "8 bar:8"] value 3291.2
+    inst [9 or "9 bar:9"] value 3702.6
+
+prometheus.source35.sample_summary0002_count
+    value 67266
+
+prometheus.source35.sample_summary0002_sum
+    value 51.47465049
+
+prometheus.source35.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.005906051
+    inst [2 or "2 quantile:0.5"] value 0.011812102
+    inst [3 or "3 quantile:0.75"] value 0.017718153
+    inst [4 or "4 quantile:1.0"] value 0.023624204
+    inst [5 or "5 quantile:1.25"] value 0.029530255
+    inst [6 or "6 quantile:1.5"] value 0.035436306
+    inst [7 or "7 quantile:1.75"] value 0.041342357
+    inst [8 or "8 quantile:2.0"] value 0.047248408
+    inst [9 or "9 quantile:2.25"] value 0.053154459
+
+prometheus.source35.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 6127394180
+    inst [2 or "2 baz:1.4"] value 12254788400
+    inst [3 or "3 baz:2.0999999999999996"] value 18382182600
+    inst [4 or "4 baz:2.8"] value 24509576700
+    inst [5 or "5 baz:3.5"] value 30636970900
+    inst [6 or "6 baz:4.199999999999999"] value 36764365100
+    inst [7 or "7 baz:4.8999999999999995"] value 42891759300
+    inst [8 or "8 baz:5.6"] value 49019153500
+    inst [9 or "9 baz:6.3"] value 55146547700
+
+prometheus.source35.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 423.5
+    inst [2 or "2 bar:2"] value 847
+    inst [3 or "3 bar:3"] value 1270.5
+    inst [4 or "4 bar:4"] value 1694
+    inst [5 or "5 bar:5"] value 2117.5
+    inst [6 or "6 bar:6"] value 2541
+    inst [7 or "7 bar:7"] value 2964.5
+    inst [8 or "8 bar:8"] value 3388
+    inst [9 or "9 bar:9"] value 3811.5
+
+prometheus.source36.sample_summary0002_count
+    value 69084
+
+prometheus.source36.sample_summary0002_sum
+    value 52.86585726000001
+
+prometheus.source36.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.006065674
+    inst [2 or "2 quantile:0.5"] value 0.012131348
+    inst [3 or "3 quantile:0.75"] value 0.018197022
+    inst [4 or "4 quantile:1.0"] value 0.024262696
+    inst [5 or "5 quantile:1.25"] value 0.03032837
+    inst [6 or "6 quantile:1.5"] value 0.036394044
+    inst [7 or "7 quantile:1.75"] value 0.042459718
+    inst [8 or "8 quantile:2.0"] value 0.048525392
+    inst [9 or "9 quantile:2.25"] value 0.054591066
+
+prometheus.source36.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 6297599580
+    inst [2 or "2 baz:1.4"] value 12595199200
+    inst [3 or "3 baz:2.0999999999999996"] value 18892798700
+    inst [4 or "4 baz:2.8"] value 25190398300
+    inst [5 or "5 baz:3.5"] value 31487997900
+    inst [6 or "6 baz:4.199999999999999"] value 37785597500
+    inst [7 or "7 baz:4.8999999999999995"] value 44083197000
+    inst [8 or "8 baz:5.6"] value 50380796600
+    inst [9 or "9 baz:6.3"] value 56678396200
+
+prometheus.source36.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 435.6
+    inst [2 or "2 bar:2"] value 871.2
+    inst [3 or "3 bar:3"] value 1306.8
+    inst [4 or "4 bar:4"] value 1742.4
+    inst [5 or "5 bar:5"] value 2178
+    inst [6 or "6 bar:6"] value 2613.6
+    inst [7 or "7 bar:7"] value 3049.2
+    inst [8 or "8 bar:8"] value 3484.8
+    inst [9 or "9 bar:9"] value 3920.4
+
+prometheus.source37.sample_summary0002_count
+    value 70902
+
+prometheus.source37.sample_summary0002_sum
+    value 54.25706403000001
+
+prometheus.source37.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.006225297
+    inst [2 or "2 quantile:0.5"] value 0.012450594
+    inst [3 or "3 quantile:0.75"] value 0.018675891
+    inst [4 or "4 quantile:1.0"] value 0.024901188
+    inst [5 or "5 quantile:1.25"] value 0.031126485
+    inst [6 or "6 quantile:1.5"] value 0.037351782
+    inst [7 or "7 quantile:1.75"] value 0.043577079
+    inst [8 or "8 quantile:2.0"] value 0.049802376
+    inst [9 or "9 quantile:2.25"] value 0.056027673
+
+prometheus.source37.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 6467804970
+    inst [2 or "2 baz:1.4"] value 12935609900
+    inst [3 or "3 baz:2.0999999999999996"] value 19403414900
+    inst [4 or "4 baz:2.8"] value 25871219900
+    inst [5 or "5 baz:3.5"] value 32339024900
+    inst [6 or "6 baz:4.199999999999999"] value 38806829800
+    inst [7 or "7 baz:4.8999999999999995"] value 45274634800
+    inst [8 or "8 baz:5.6"] value 51742439800
+    inst [9 or "9 baz:6.3"] value 58210244700
+
+prometheus.source37.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 447.7
+    inst [2 or "2 bar:2"] value 895.4
+    inst [3 or "3 bar:3"] value 1343.1
+    inst [4 or "4 bar:4"] value 1790.8
+    inst [5 or "5 bar:5"] value 2238.5
+    inst [6 or "6 bar:6"] value 2686.2
+    inst [7 or "7 bar:7"] value 3133.9
+    inst [8 or "8 bar:8"] value 3581.6
+    inst [9 or "9 bar:9"] value 4029.3
+
+prometheus.source38.sample_summary0002_count
+    value 72720
+
+prometheus.source38.sample_summary0002_sum
+    value 55.64827080000001
+
+prometheus.source38.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.00638492
+    inst [2 or "2 quantile:0.5"] value 0.01276984
+    inst [3 or "3 quantile:0.75"] value 0.01915476
+    inst [4 or "4 quantile:1.0"] value 0.02553968
+    inst [5 or "5 quantile:1.25"] value 0.0319246
+    inst [6 or "6 quantile:1.5"] value 0.03830952
+    inst [7 or "7 quantile:1.75"] value 0.04469444
+    inst [8 or "8 quantile:2.0"] value 0.05107936
+    inst [9 or "9 quantile:2.25"] value 0.05746428
+
+prometheus.source38.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 6638010370
+    inst [2 or "2 baz:1.4"] value 13276020700
+    inst [3 or "3 baz:2.0999999999999996"] value 19914031100
+    inst [4 or "4 baz:2.8"] value 26552041500
+    inst [5 or "5 baz:3.5"] value 33190051800
+    inst [6 or "6 baz:4.199999999999999"] value 39828062200
+    inst [7 or "7 baz:4.8999999999999995"] value 46466072600
+    inst [8 or "8 baz:5.6"] value 53104082900
+    inst [9 or "9 baz:6.3"] value 59742093300
+
+prometheus.source38.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 459.8
+    inst [2 or "2 bar:2"] value 919.6
+    inst [3 or "3 bar:3"] value 1379.4
+    inst [4 or "4 bar:4"] value 1839.2
+    inst [5 or "5 bar:5"] value 2299
+    inst [6 or "6 bar:6"] value 2758.8
+    inst [7 or "7 bar:7"] value 3218.6
+    inst [8 or "8 bar:8"] value 3678.4
+    inst [9 or "9 bar:9"] value 4138.2
+
+prometheus.source39.sample_summary0002_count
+    value 74538
+
+prometheus.source39.sample_summary0002_sum
+    value 57.03947757
+
+prometheus.source39.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.006544543
+    inst [2 or "2 quantile:0.5"] value 0.013089086
+    inst [3 or "3 quantile:0.75"] value 0.019633629
+    inst [4 or "4 quantile:1.0"] value 0.026178172
+    inst [5 or "5 quantile:1.25"] value 0.032722715
+    inst [6 or "6 quantile:1.5"] value 0.039267258
+    inst [7 or "7 quantile:1.75"] value 0.045811801
+    inst [8 or "8 quantile:2.0"] value 0.052356344
+    inst [9 or "9 quantile:2.25"] value 0.058900887
+
+prometheus.source39.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 6808215760
+    inst [2 or "2 baz:1.4"] value 13616431500
+    inst [3 or "3 baz:2.0999999999999996"] value 20424647300
+    inst [4 or "4 baz:2.8"] value 27232863000
+    inst [5 or "5 baz:3.5"] value 34041078800
+    inst [6 or "6 baz:4.199999999999999"] value 40849294600
+    inst [7 or "7 baz:4.8999999999999995"] value 47657510300
+    inst [8 or "8 baz:5.6"] value 54465726100
+    inst [9 or "9 baz:6.3"] value 61273941800
+
+prometheus.source39.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 471.9
+    inst [2 or "2 bar:2"] value 943.8
+    inst [3 or "3 bar:3"] value 1415.7
+    inst [4 or "4 bar:4"] value 1887.6
+    inst [5 or "5 bar:5"] value 2359.5
+    inst [6 or "6 bar:6"] value 2831.4
+    inst [7 or "7 bar:7"] value 3303.3
+    inst [8 or "8 bar:8"] value 3775.2
+    inst [9 or "9 bar:9"] value 4247.1
+
+prometheus.source40.sample_summary0002_count
+    value 76356
+
+prometheus.source40.sample_summary0002_sum
+    value 58.43068434000001
+
+prometheus.source40.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.006704166
+    inst [2 or "2 quantile:0.5"] value 0.013408332
+    inst [3 or "3 quantile:0.75"] value 0.020112498
+    inst [4 or "4 quantile:1.0"] value 0.026816664
+    inst [5 or "5 quantile:1.25"] value 0.03352083
+    inst [6 or "6 quantile:1.5"] value 0.040224996
+    inst [7 or "7 quantile:1.75"] value 0.046929162
+    inst [8 or "8 quantile:2.0"] value 0.053633328
+    inst [9 or "9 quantile:2.25"] value 0.060337494
+
+prometheus.source40.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 6978421150
+    inst [2 or "2 baz:1.4"] value 13956842300
+    inst [3 or "3 baz:2.0999999999999996"] value 20935263500
+    inst [4 or "4 baz:2.8"] value 27913684600
+    inst [5 or "5 baz:3.5"] value 34892105800
+    inst [6 or "6 baz:4.199999999999999"] value 41870526900
+    inst [7 or "7 baz:4.8999999999999995"] value 48848948100
+    inst [8 or "8 baz:5.6"] value 55827369200
+    inst [9 or "9 baz:6.3"] value 62805790400
+
+prometheus.source40.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 484
+    inst [2 or "2 bar:2"] value 968
+    inst [3 or "3 bar:3"] value 1452
+    inst [4 or "4 bar:4"] value 1936
+    inst [5 or "5 bar:5"] value 2420
+    inst [6 or "6 bar:6"] value 2904
+    inst [7 or "7 bar:7"] value 3388
+    inst [8 or "8 bar:8"] value 3872
+    inst [9 or "9 bar:9"] value 4356
+
+prometheus.source41.sample_summary0002_count
+    value 78174
+
+prometheus.source41.sample_summary0002_sum
+    value 59.82189111000001
+
+prometheus.source41.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.006863789
+    inst [2 or "2 quantile:0.5"] value 0.013727578
+    inst [3 or "3 quantile:0.75"] value 0.020591367
+    inst [4 or "4 quantile:1.0"] value 0.027455156
+    inst [5 or "5 quantile:1.25"] value 0.034318945
+    inst [6 or "6 quantile:1.5"] value 0.041182734
+    inst [7 or "7 quantile:1.75"] value 0.048046523
+    inst [8 or "8 quantile:2.0"] value 0.054910312
+    inst [9 or "9 quantile:2.25"] value 0.061774101
+
+prometheus.source41.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 7148626550
+    inst [2 or "2 baz:1.4"] value 14297253100
+    inst [3 or "3 baz:2.0999999999999996"] value 21445879600
+    inst [4 or "4 baz:2.8"] value 28594506200
+    inst [5 or "5 baz:3.5"] value 35743132700
+    inst [6 or "6 baz:4.199999999999999"] value 42891759300
+    inst [7 or "7 baz:4.8999999999999995"] value 50040385800
+    inst [8 or "8 baz:5.6"] value 57189012400
+    inst [9 or "9 baz:6.3"] value 64337638900
+
+prometheus.source41.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 496.1
+    inst [2 or "2 bar:2"] value 992.2
+    inst [3 or "3 bar:3"] value 1488.3
+    inst [4 or "4 bar:4"] value 1984.4
+    inst [5 or "5 bar:5"] value 2480.5
+    inst [6 or "6 bar:6"] value 2976.6
+    inst [7 or "7 bar:7"] value 3472.7
+    inst [8 or "8 bar:8"] value 3968.8
+    inst [9 or "9 bar:9"] value 4464.9
+
+prometheus.source42.sample_summary0002_count
+    value 79992
+
+prometheus.source42.sample_summary0002_sum
+    value 61.21309788000001
+
+prometheus.source42.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007023412
+    inst [2 or "2 quantile:0.5"] value 0.014046824
+    inst [3 or "3 quantile:0.75"] value 0.021070236
+    inst [4 or "4 quantile:1.0"] value 0.028093648
+    inst [5 or "5 quantile:1.25"] value 0.03511706
+    inst [6 or "6 quantile:1.5"] value 0.042140472
+    inst [7 or "7 quantile:1.75"] value 0.049163884
+    inst [8 or "8 quantile:2.0"] value 0.056187296
+    inst [9 or "9 quantile:2.25"] value 0.063210708
+
+prometheus.source42.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 7318831940
+    inst [2 or "2 baz:1.4"] value 14637663900
+    inst [3 or "3 baz:2.0999999999999996"] value 21956495800
+    inst [4 or "4 baz:2.8"] value 29275327800
+    inst [5 or "5 baz:3.5"] value 36594159700
+    inst [6 or "6 baz:4.199999999999999"] value 43912991700
+    inst [7 or "7 baz:4.8999999999999995"] value 51231823600
+    inst [8 or "8 baz:5.6"] value 58550655500
+    inst [9 or "9 baz:6.3"] value 65869487500
+
+prometheus.source42.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 508.2
+    inst [2 or "2 bar:2"] value 1016.4
+    inst [3 or "3 bar:3"] value 1524.6
+    inst [4 or "4 bar:4"] value 2032.8
+    inst [5 or "5 bar:5"] value 2541
+    inst [6 or "6 bar:6"] value 3049.2
+    inst [7 or "7 bar:7"] value 3557.4
+    inst [8 or "8 bar:8"] value 4065.6
+    inst [9 or "9 bar:9"] value 4573.8
+
+prometheus.source43.sample_summary0002_count
+    value 81810
+
+prometheus.source43.sample_summary0002_sum
+    value 62.60430465
+
+prometheus.source43.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007183035
+    inst [2 or "2 quantile:0.5"] value 0.01436607
+    inst [3 or "3 quantile:0.75"] value 0.021549105
+    inst [4 or "4 quantile:1.0"] value 0.02873214
+    inst [5 or "5 quantile:1.25"] value 0.035915175
+    inst [6 or "6 quantile:1.5"] value 0.04309821
+    inst [7 or "7 quantile:1.75"] value 0.050281245
+    inst [8 or "8 quantile:2.0"] value 0.05746428
+    inst [9 or "9 quantile:2.25"] value 0.064647315
+
+prometheus.source43.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 7489037340
+    inst [2 or "2 baz:1.4"] value 14978074700
+    inst [3 or "3 baz:2.0999999999999996"] value 22467112000
+    inst [4 or "4 baz:2.8"] value 29956149300
+    inst [5 or "5 baz:3.5"] value 37445186700
+    inst [6 or "6 baz:4.199999999999999"] value 44934224000
+    inst [7 or "7 baz:4.8999999999999995"] value 52423261400
+    inst [8 or "8 baz:5.6"] value 59912298700
+    inst [9 or "9 baz:6.3"] value 67401336000
+
+prometheus.source43.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 520.3
+    inst [2 or "2 bar:2"] value 1040.6
+    inst [3 or "3 bar:3"] value 1560.9
+    inst [4 or "4 bar:4"] value 2081.2
+    inst [5 or "5 bar:5"] value 2601.5
+    inst [6 or "6 bar:6"] value 3121.8
+    inst [7 or "7 bar:7"] value 3642.1
+    inst [8 or "8 bar:8"] value 4162.4
+    inst [9 or "9 bar:9"] value 4682.7
+
+prometheus.source44.sample_summary0002_count
+    value 83628
+
+prometheus.source44.sample_summary0002_sum
+    value 63.99551142000001
+
+prometheus.source44.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007342658
+    inst [2 or "2 quantile:0.5"] value 0.014685316
+    inst [3 or "3 quantile:0.75"] value 0.022027974
+    inst [4 or "4 quantile:1.0"] value 0.029370632
+    inst [5 or "5 quantile:1.25"] value 0.03671329
+    inst [6 or "6 quantile:1.5"] value 0.044055948
+    inst [7 or "7 quantile:1.75"] value 0.051398606
+    inst [8 or "8 quantile:2.0"] value 0.058741264
+    inst [9 or "9 quantile:2.25"] value 0.066083922
+
+prometheus.source44.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 7659242730
+    inst [2 or "2 baz:1.4"] value 15318485500
+    inst [3 or "3 baz:2.0999999999999996"] value 22977728200
+    inst [4 or "4 baz:2.8"] value 30636970900
+    inst [5 or "5 baz:3.5"] value 38296213600
+    inst [6 or "6 baz:4.199999999999999"] value 45955456400
+    inst [7 or "7 baz:4.8999999999999995"] value 53614699100
+    inst [8 or "8 baz:5.6"] value 61273941800
+    inst [9 or "9 baz:6.3"] value 68933184600
+
+prometheus.source44.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 532.4
+    inst [2 or "2 bar:2"] value 1064.8
+    inst [3 or "3 bar:3"] value 1597.2
+    inst [4 or "4 bar:4"] value 2129.6
+    inst [5 or "5 bar:5"] value 2662
+    inst [6 or "6 bar:6"] value 3194.4
+    inst [7 or "7 bar:7"] value 3726.8
+    inst [8 or "8 bar:8"] value 4259.2
+    inst [9 or "9 bar:9"] value 4791.6
+
+prometheus.source45.sample_summary0002_count
+    value 85446
+
+prometheus.source45.sample_summary0002_sum
+    value 65.38671819000001
+
+prometheus.source45.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007502281
+    inst [2 or "2 quantile:0.5"] value 0.015004562
+    inst [3 or "3 quantile:0.75"] value 0.022506843
+    inst [4 or "4 quantile:1.0"] value 0.030009124
+    inst [5 or "5 quantile:1.25"] value 0.037511405
+    inst [6 or "6 quantile:1.5"] value 0.045013686
+    inst [7 or "7 quantile:1.75"] value 0.052515967
+    inst [8 or "8 quantile:2.0"] value 0.060018248
+    inst [9 or "9 quantile:2.25"] value 0.067520529
+
+prometheus.source45.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 7829448120
+    inst [2 or "2 baz:1.4"] value 15658896200
+    inst [3 or "3 baz:2.0999999999999996"] value 23488344400
+    inst [4 or "4 baz:2.8"] value 31317792500
+    inst [5 or "5 baz:3.5"] value 39147240600
+    inst [6 or "6 baz:4.199999999999999"] value 46976688700
+    inst [7 or "7 baz:4.8999999999999995"] value 54806136900
+    inst [8 or "8 baz:5.6"] value 62635585000
+    inst [9 or "9 baz:6.3"] value 70465033100
+
+prometheus.source45.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 544.5
+    inst [2 or "2 bar:2"] value 1089
+    inst [3 or "3 bar:3"] value 1633.5
+    inst [4 or "4 bar:4"] value 2178
+    inst [5 or "5 bar:5"] value 2722.5
+    inst [6 or "6 bar:6"] value 3267
+    inst [7 or "7 bar:7"] value 3811.5
+    inst [8 or "8 bar:8"] value 4356
+    inst [9 or "9 bar:9"] value 4900.5
+
+prometheus.source46.sample_summary0002_count
+    value 87264
+
+prometheus.source46.sample_summary0002_sum
+    value 66.77792496000001
+
+prometheus.source46.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007661904
+    inst [2 or "2 quantile:0.5"] value 0.015323808
+    inst [3 or "3 quantile:0.75"] value 0.022985712
+    inst [4 or "4 quantile:1.0"] value 0.030647616
+    inst [5 or "5 quantile:1.25"] value 0.03830952
+    inst [6 or "6 quantile:1.5"] value 0.045971424
+    inst [7 or "7 quantile:1.75"] value 0.053633328
+    inst [8 or "8 quantile:2.0"] value 0.061295232
+    inst [9 or "9 quantile:2.25"] value 0.068957136
+
+prometheus.source46.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 7999653520
+    inst [2 or "2 baz:1.4"] value 15999307000
+    inst [3 or "3 baz:2.0999999999999996"] value 23998960600
+    inst [4 or "4 baz:2.8"] value 31998614100
+    inst [5 or "5 baz:3.5"] value 39998267600
+    inst [6 or "6 baz:4.199999999999999"] value 47997921100
+    inst [7 or "7 baz:4.8999999999999995"] value 55997574600
+    inst [8 or "8 baz:5.6"] value 63997228100
+    inst [9 or "9 baz:6.3"] value 71996881700
+
+prometheus.source46.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 556.6
+    inst [2 or "2 bar:2"] value 1113.2
+    inst [3 or "3 bar:3"] value 1669.8
+    inst [4 or "4 bar:4"] value 2226.4
+    inst [5 or "5 bar:5"] value 2783
+    inst [6 or "6 bar:6"] value 3339.6
+    inst [7 or "7 bar:7"] value 3896.2
+    inst [8 or "8 bar:8"] value 4452.8
+    inst [9 or "9 bar:9"] value 5009.4
+
+prometheus.source47.sample_summary0002_count
+    value 89082
+
+prometheus.source47.sample_summary0002_sum
+    value 68.16913173
+
+prometheus.source47.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007821527
+    inst [2 or "2 quantile:0.5"] value 0.015643054
+    inst [3 or "3 quantile:0.75"] value 0.023464581
+    inst [4 or "4 quantile:1.0"] value 0.031286108
+    inst [5 or "5 quantile:1.25"] value 0.039107635
+    inst [6 or "6 quantile:1.5"] value 0.046929162
+    inst [7 or "7 quantile:1.75"] value 0.054750689
+    inst [8 or "8 quantile:2.0"] value 0.062572216
+    inst [9 or "9 quantile:2.25"] value 0.07039374299999999
+
+prometheus.source47.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 8169858910
+    inst [2 or "2 baz:1.4"] value 16339717800
+    inst [3 or "3 baz:2.0999999999999996"] value 24509576700
+    inst [4 or "4 baz:2.8"] value 32679435600
+    inst [5 or "5 baz:3.5"] value 40849294600
+    inst [6 or "6 baz:4.199999999999999"] value 49019153500
+    inst [7 or "7 baz:4.8999999999999995"] value 57189012400
+    inst [8 or "8 baz:5.6"] value 65358871300
+    inst [9 or "9 baz:6.3"] value 73528730200
+
+prometheus.source47.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 568.7
+    inst [2 or "2 bar:2"] value 1137.4
+    inst [3 or "3 bar:3"] value 1706.1
+    inst [4 or "4 bar:4"] value 2274.8
+    inst [5 or "5 bar:5"] value 2843.5
+    inst [6 or "6 bar:6"] value 3412.2
+    inst [7 or "7 bar:7"] value 3980.9
+    inst [8 or "8 bar:8"] value 4549.6
+    inst [9 or "9 bar:9"] value 5118.3
+
+prometheus.source48.sample_summary0002_count
+    value 90900
+
+prometheus.source48.sample_summary0002_sum
+    value 69.5603385
+
+prometheus.source48.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.007981149999999999
+    inst [2 or "2 quantile:0.5"] value 0.0159623
+    inst [3 or "3 quantile:0.75"] value 0.02394345
+    inst [4 or "4 quantile:1.0"] value 0.0319246
+    inst [5 or "5 quantile:1.25"] value 0.03990575
+    inst [6 or "6 quantile:1.5"] value 0.0478869
+    inst [7 or "7 quantile:1.75"] value 0.05586805
+    inst [8 or "8 quantile:2.0"] value 0.06384919999999999
+    inst [9 or "9 quantile:2.25"] value 0.07183035
+
+prometheus.source48.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 8340064310
+    inst [2 or "2 baz:1.4"] value 16680128600
+    inst [3 or "3 baz:2.0999999999999996"] value 25020192900
+    inst [4 or "4 baz:2.8"] value 33360257200
+    inst [5 or "5 baz:3.5"] value 41700321500
+    inst [6 or "6 baz:4.199999999999999"] value 50040385800
+    inst [7 or "7 baz:4.8999999999999995"] value 58380450100
+    inst [8 or "8 baz:5.6"] value 66720514400
+    inst [9 or "9 baz:6.3"] value 75060578800
+
+prometheus.source48.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 580.8
+    inst [2 or "2 bar:2"] value 1161.6
+    inst [3 or "3 bar:3"] value 1742.4
+    inst [4 or "4 bar:4"] value 2323.2
+    inst [5 or "5 bar:5"] value 2904
+    inst [6 or "6 bar:6"] value 3484.8
+    inst [7 or "7 bar:7"] value 4065.6
+    inst [8 or "8 bar:8"] value 4646.4
+    inst [9 or "9 bar:9"] value 5227.2
+
+prometheus.source49.sample_summary0002_count
+    value 92718
+
+prometheus.source49.sample_summary0002_sum
+    value 70.95154527000001
+
+prometheus.source49.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.008140773
+    inst [2 or "2 quantile:0.5"] value 0.016281546
+    inst [3 or "3 quantile:0.75"] value 0.024422319
+    inst [4 or "4 quantile:1.0"] value 0.032563092
+    inst [5 or "5 quantile:1.25"] value 0.040703865
+    inst [6 or "6 quantile:1.5"] value 0.048844638
+    inst [7 or "7 quantile:1.75"] value 0.056985411
+    inst [8 or "8 quantile:2.0"] value 0.065126184
+    inst [9 or "9 quantile:2.25"] value 0.07326695699999999
+
+prometheus.source49.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 8510269700
+    inst [2 or "2 baz:1.4"] value 17020539400
+    inst [3 or "3 baz:2.0999999999999996"] value 25530809100
+    inst [4 or "4 baz:2.8"] value 34041078800
+    inst [5 or "5 baz:3.5"] value 42551348500
+    inst [6 or "6 baz:4.199999999999999"] value 51061618200
+    inst [7 or "7 baz:4.8999999999999995"] value 59571887900
+    inst [8 or "8 baz:5.6"] value 68082157600
+    inst [9 or "9 baz:6.3"] value 76592427300
+
+prometheus.source49.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 592.9
+    inst [2 or "2 bar:2"] value 1185.8
+    inst [3 or "3 bar:3"] value 1778.7
+    inst [4 or "4 bar:4"] value 2371.6
+    inst [5 or "5 bar:5"] value 2964.5
+    inst [6 or "6 bar:6"] value 3557.4
+    inst [7 or "7 bar:7"] value 4150.3
+    inst [8 or "8 bar:8"] value 4743.2
+    inst [9 or "9 bar:9"] value 5336.1
+
+prometheus.source50.sample_summary0002_count
+    value 94536
+
+prometheus.source50.sample_summary0002_sum
+    value 72.34275204000001
+
+prometheus.source50.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.008300396
+    inst [2 or "2 quantile:0.5"] value 0.016600792
+    inst [3 or "3 quantile:0.75"] value 0.024901188
+    inst [4 or "4 quantile:1.0"] value 0.033201584
+    inst [5 or "5 quantile:1.25"] value 0.04150198
+    inst [6 or "6 quantile:1.5"] value 0.049802376
+    inst [7 or "7 quantile:1.75"] value 0.058102772
+    inst [8 or "8 quantile:2.0"] value 0.066403168
+    inst [9 or "9 quantile:2.25"] value 0.074703564
+
+prometheus.source50.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 8680475090
+    inst [2 or "2 baz:1.4"] value 17360950200
+    inst [3 or "3 baz:2.0999999999999996"] value 26041425300
+    inst [4 or "4 baz:2.8"] value 34721900400
+    inst [5 or "5 baz:3.5"] value 43402375500
+    inst [6 or "6 baz:4.199999999999999"] value 52082850600
+    inst [7 or "7 baz:4.8999999999999995"] value 60763325700
+    inst [8 or "8 baz:5.6"] value 69443800800
+    inst [9 or "9 baz:6.3"] value 78124275800
+
+prometheus.source50.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 605
+    inst [2 or "2 bar:2"] value 1210
+    inst [3 or "3 bar:3"] value 1815
+    inst [4 or "4 bar:4"] value 2420
+    inst [5 or "5 bar:5"] value 3025
+    inst [6 or "6 bar:6"] value 3630
+    inst [7 or "7 bar:7"] value 4235
+    inst [8 or "8 bar:8"] value 4840
+    inst [9 or "9 bar:9"] value 5445
+
+prometheus.source51.sample_summary0002_count
+    value 96354
+
+prometheus.source51.sample_summary0002_sum
+    value 73.73395881
+
+prometheus.source51.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.008460018999999999
+    inst [2 or "2 quantile:0.5"] value 0.016920038
+    inst [3 or "3 quantile:0.75"] value 0.025380057
+    inst [4 or "4 quantile:1.0"] value 0.033840076
+    inst [5 or "5 quantile:1.25"] value 0.042300095
+    inst [6 or "6 quantile:1.5"] value 0.050760114
+    inst [7 or "7 quantile:1.75"] value 0.059220133
+    inst [8 or "8 quantile:2.0"] value 0.06768015199999999
+    inst [9 or "9 quantile:2.25"] value 0.07614017100000001
+
+prometheus.source51.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 8850680490
+    inst [2 or "2 baz:1.4"] value 17701361000
+    inst [3 or "3 baz:2.0999999999999996"] value 26552041500
+    inst [4 or "4 baz:2.8"] value 35402722000
+    inst [5 or "5 baz:3.5"] value 44253402400
+    inst [6 or "6 baz:4.199999999999999"] value 53104082900
+    inst [7 or "7 baz:4.8999999999999995"] value 61954763400
+    inst [8 or "8 baz:5.6"] value 70805443900
+    inst [9 or "9 baz:6.3"] value 79656124400
+
+prometheus.source51.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 617.1
+    inst [2 or "2 bar:2"] value 1234.2
+    inst [3 or "3 bar:3"] value 1851.3
+    inst [4 or "4 bar:4"] value 2468.4
+    inst [5 or "5 bar:5"] value 3085.5
+    inst [6 or "6 bar:6"] value 3702.6
+    inst [7 or "7 bar:7"] value 4319.7
+    inst [8 or "8 bar:8"] value 4936.8
+    inst [9 or "9 bar:9"] value 5553.9
+
+prometheus.source52.sample_summary0002_count
+    value 98172
+
+prometheus.source52.sample_summary0002_sum
+    value 75.12516558000002
+
+prometheus.source52.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.008619642
+    inst [2 or "2 quantile:0.5"] value 0.017239284
+    inst [3 or "3 quantile:0.75"] value 0.025858926
+    inst [4 or "4 quantile:1.0"] value 0.034478568
+    inst [5 or "5 quantile:1.25"] value 0.04309821
+    inst [6 or "6 quantile:1.5"] value 0.051717852
+    inst [7 or "7 quantile:1.75"] value 0.060337494
+    inst [8 or "8 quantile:2.0"] value 0.068957136
+    inst [9 or "9 quantile:2.25"] value 0.077576778
+
+prometheus.source52.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 9020885880
+    inst [2 or "2 baz:1.4"] value 18041771800
+    inst [3 or "3 baz:2.0999999999999996"] value 27062657600
+    inst [4 or "4 baz:2.8"] value 36083543500
+    inst [5 or "5 baz:3.5"] value 45104429400
+    inst [6 or "6 baz:4.199999999999999"] value 54125315300
+    inst [7 or "7 baz:4.8999999999999995"] value 63146201200
+    inst [8 or "8 baz:5.6"] value 72167087100
+    inst [9 or "9 baz:6.3"] value 81187972900
+
+prometheus.source52.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 629.2
+    inst [2 or "2 bar:2"] value 1258.4
+    inst [3 or "3 bar:3"] value 1887.6
+    inst [4 or "4 bar:4"] value 2516.8
+    inst [5 or "5 bar:5"] value 3146
+    inst [6 or "6 bar:6"] value 3775.2
+    inst [7 or "7 bar:7"] value 4404.4
+    inst [8 or "8 bar:8"] value 5033.6
+    inst [9 or "9 bar:9"] value 5662.8
+
+prometheus.source53.sample_summary0002_count
+    value 99990
+
+prometheus.source53.sample_summary0002_sum
+    value 76.51637235000001
+
+prometheus.source53.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.008779265
+    inst [2 or "2 quantile:0.5"] value 0.01755853
+    inst [3 or "3 quantile:0.75"] value 0.026337795
+    inst [4 or "4 quantile:1.0"] value 0.03511706
+    inst [5 or "5 quantile:1.25"] value 0.043896325
+    inst [6 or "6 quantile:1.5"] value 0.05267559
+    inst [7 or "7 quantile:1.75"] value 0.061454855
+    inst [8 or "8 quantile:2.0"] value 0.07023412
+    inst [9 or "9 quantile:2.25"] value 0.07901338500000001
+
+prometheus.source53.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 9191091280
+    inst [2 or "2 baz:1.4"] value 18382182600
+    inst [3 or "3 baz:2.0999999999999996"] value 27573273800
+    inst [4 or "4 baz:2.8"] value 36764365100
+    inst [5 or "5 baz:3.5"] value 45955456400
+    inst [6 or "6 baz:4.199999999999999"] value 55146547700
+    inst [7 or "7 baz:4.8999999999999995"] value 64337638900
+    inst [8 or "8 baz:5.6"] value 73528730200
+    inst [9 or "9 baz:6.3"] value 82719821500
+
+prometheus.source53.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 641.3
+    inst [2 or "2 bar:2"] value 1282.6
+    inst [3 or "3 bar:3"] value 1923.9
+    inst [4 or "4 bar:4"] value 2565.2
+    inst [5 or "5 bar:5"] value 3206.5
+    inst [6 or "6 bar:6"] value 3847.8
+    inst [7 or "7 bar:7"] value 4489.1
+    inst [8 or "8 bar:8"] value 5130.4
+    inst [9 or "9 bar:9"] value 5771.7
+
+prometheus.source54.sample_summary0002_count
+    value 101808
+
+prometheus.source54.sample_summary0002_sum
+    value 77.90757912000001
+
+prometheus.source54.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.008938888000000001
+    inst [2 or "2 quantile:0.5"] value 0.017877776
+    inst [3 or "3 quantile:0.75"] value 0.026816664
+    inst [4 or "4 quantile:1.0"] value 0.035755552
+    inst [5 or "5 quantile:1.25"] value 0.04469444
+    inst [6 or "6 quantile:1.5"] value 0.053633328
+    inst [7 or "7 quantile:1.75"] value 0.062572216
+    inst [8 or "8 quantile:2.0"] value 0.07151110400000001
+    inst [9 or "9 quantile:2.25"] value 0.080449992
+
+prometheus.source54.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 9361296670
+    inst [2 or "2 baz:1.4"] value 18722593300
+    inst [3 or "3 baz:2.0999999999999996"] value 28083890000
+    inst [4 or "4 baz:2.8"] value 37445186700
+    inst [5 or "5 baz:3.5"] value 46806483400
+    inst [6 or "6 baz:4.199999999999999"] value 56167780000
+    inst [7 or "7 baz:4.8999999999999995"] value 65529076700
+    inst [8 or "8 baz:5.6"] value 74890373400
+    inst [9 or "9 baz:6.3"] value 84251670000
+
+prometheus.source54.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 653.4
+    inst [2 or "2 bar:2"] value 1306.8
+    inst [3 or "3 bar:3"] value 1960.2
+    inst [4 or "4 bar:4"] value 2613.6
+    inst [5 or "5 bar:5"] value 3267
+    inst [6 or "6 bar:6"] value 3920.4
+    inst [7 or "7 bar:7"] value 4573.8
+    inst [8 or "8 bar:8"] value 5227.2
+    inst [9 or "9 bar:9"] value 5880.6
+
+prometheus.source55.sample_summary0002_count
+    value 103626
+
+prometheus.source55.sample_summary0002_sum
+    value 79.29878589
+
+prometheus.source55.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.009098511
+    inst [2 or "2 quantile:0.5"] value 0.018197022
+    inst [3 or "3 quantile:0.75"] value 0.027295533
+    inst [4 or "4 quantile:1.0"] value 0.036394044
+    inst [5 or "5 quantile:1.25"] value 0.045492555
+    inst [6 or "6 quantile:1.5"] value 0.054591066
+    inst [7 or "7 quantile:1.75"] value 0.063689577
+    inst [8 or "8 quantile:2.0"] value 0.072788088
+    inst [9 or "9 quantile:2.25"] value 0.081886599
+
+prometheus.source55.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 9531502060
+    inst [2 or "2 baz:1.4"] value 19063004100
+    inst [3 or "3 baz:2.0999999999999996"] value 28594506200
+    inst [4 or "4 baz:2.8"] value 38126008300
+    inst [5 or "5 baz:3.5"] value 47657510300
+    inst [6 or "6 baz:4.199999999999999"] value 57189012400
+    inst [7 or "7 baz:4.8999999999999995"] value 66720514400
+    inst [8 or "8 baz:5.6"] value 76252016500
+    inst [9 or "9 baz:6.3"] value 85783518600
+
+prometheus.source55.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 665.5
+    inst [2 or "2 bar:2"] value 1331
+    inst [3 or "3 bar:3"] value 1996.5
+    inst [4 or "4 bar:4"] value 2662
+    inst [5 or "5 bar:5"] value 3327.5
+    inst [6 or "6 bar:6"] value 3993
+    inst [7 or "7 bar:7"] value 4658.5
+    inst [8 or "8 bar:8"] value 5324
+    inst [9 or "9 bar:9"] value 5989.5
+
+prometheus.source56.sample_summary0002_count
+    value 105444
+
+prometheus.source56.sample_summary0002_sum
+    value 80.68999266
+
+prometheus.source56.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.009258133999999999
+    inst [2 or "2 quantile:0.5"] value 0.018516268
+    inst [3 or "3 quantile:0.75"] value 0.027774402
+    inst [4 or "4 quantile:1.0"] value 0.037032536
+    inst [5 or "5 quantile:1.25"] value 0.04629067
+    inst [6 or "6 quantile:1.5"] value 0.055548804
+    inst [7 or "7 quantile:1.75"] value 0.06480693799999999
+    inst [8 or "8 quantile:2.0"] value 0.074065072
+    inst [9 or "9 quantile:2.25"] value 0.083323206
+
+prometheus.source56.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 9701707460
+    inst [2 or "2 baz:1.4"] value 19403414900
+    inst [3 or "3 baz:2.0999999999999996"] value 29105122400
+    inst [4 or "4 baz:2.8"] value 38806829800
+    inst [5 or "5 baz:3.5"] value 48508537300
+    inst [6 or "6 baz:4.199999999999999"] value 58210244700
+    inst [7 or "7 baz:4.8999999999999995"] value 67911952200
+    inst [8 or "8 baz:5.6"] value 77613659700
+    inst [9 or "9 baz:6.3"] value 87315367100
+
+prometheus.source56.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 677.6
+    inst [2 or "2 bar:2"] value 1355.2
+    inst [3 or "3 bar:3"] value 2032.8
+    inst [4 or "4 bar:4"] value 2710.4
+    inst [5 or "5 bar:5"] value 3388
+    inst [6 or "6 bar:6"] value 4065.6
+    inst [7 or "7 bar:7"] value 4743.2
+    inst [8 or "8 bar:8"] value 5420.8
+    inst [9 or "9 bar:9"] value 6098.4
+
+prometheus.source57.sample_summary0002_count
+    value 107262
+
+prometheus.source57.sample_summary0002_sum
+    value 82.08119943000001
+
+prometheus.source57.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.009417757000000001
+    inst [2 or "2 quantile:0.5"] value 0.018835514
+    inst [3 or "3 quantile:0.75"] value 0.028253271
+    inst [4 or "4 quantile:1.0"] value 0.037671028
+    inst [5 or "5 quantile:1.25"] value 0.047088785
+    inst [6 or "6 quantile:1.5"] value 0.056506542
+    inst [7 or "7 quantile:1.75"] value 0.06592429900000001
+    inst [8 or "8 quantile:2.0"] value 0.075342056
+    inst [9 or "9 quantile:2.25"] value 0.084759813
+
+prometheus.source57.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 9871912850
+    inst [2 or "2 baz:1.4"] value 19743825700
+    inst [3 or "3 baz:2.0999999999999996"] value 29615738600
+    inst [4 or "4 baz:2.8"] value 39487651400
+    inst [5 or "5 baz:3.5"] value 49359564300
+    inst [6 or "6 baz:4.199999999999999"] value 59231477100
+    inst [7 or "7 baz:4.8999999999999995"] value 69103390000
+    inst [8 or "8 baz:5.6"] value 78975302800
+    inst [9 or "9 baz:6.3"] value 88847215700
+
+prometheus.source57.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 689.7
+    inst [2 or "2 bar:2"] value 1379.4
+    inst [3 or "3 bar:3"] value 2069.1
+    inst [4 or "4 bar:4"] value 2758.8
+    inst [5 or "5 bar:5"] value 3448.5
+    inst [6 or "6 bar:6"] value 4138.2
+    inst [7 or "7 bar:7"] value 4827.9
+    inst [8 or "8 bar:8"] value 5517.6
+    inst [9 or "9 bar:9"] value 6207.3
+
+prometheus.source58.sample_summary0002_count
+    value 109080
+
+prometheus.source58.sample_summary0002_sum
+    value 83.47240620000001
+
+prometheus.source58.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.00957738
+    inst [2 or "2 quantile:0.5"] value 0.01915476
+    inst [3 or "3 quantile:0.75"] value 0.02873214
+    inst [4 or "4 quantile:1.0"] value 0.03830952
+    inst [5 or "5 quantile:1.25"] value 0.0478869
+    inst [6 or "6 quantile:1.5"] value 0.05746428
+    inst [7 or "7 quantile:1.75"] value 0.06704166
+    inst [8 or "8 quantile:2.0"] value 0.07661904
+    inst [9 or "9 quantile:2.25"] value 0.08619642
+
+prometheus.source58.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 10042118200
+    inst [2 or "2 baz:1.4"] value 20084236500
+    inst [3 or "3 baz:2.0999999999999996"] value 30126354700
+    inst [4 or "4 baz:2.8"] value 40168473000
+    inst [5 or "5 baz:3.5"] value 50210591200
+    inst [6 or "6 baz:4.199999999999999"] value 60252709500
+    inst [7 or "7 baz:4.8999999999999995"] value 70294827700
+    inst [8 or "8 baz:5.6"] value 80336946000
+    inst [9 or "9 baz:6.3"] value 90379064200
+
+prometheus.source58.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 701.8
+    inst [2 or "2 bar:2"] value 1403.6
+    inst [3 or "3 bar:3"] value 2105.4
+    inst [4 or "4 bar:4"] value 2807.2
+    inst [5 or "5 bar:5"] value 3509
+    inst [6 or "6 bar:6"] value 4210.8
+    inst [7 or "7 bar:7"] value 4912.6
+    inst [8 or "8 bar:8"] value 5614.4
+    inst [9 or "9 bar:9"] value 6316.2
+
+prometheus.source59.sample_summary0002_count
+    value 110898
+
+prometheus.source59.sample_summary0002_sum
+    value 84.86361297000001
+
+prometheus.source59.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.009737002999999999
+    inst [2 or "2 quantile:0.5"] value 0.019474006
+    inst [3 or "3 quantile:0.75"] value 0.029211009
+    inst [4 or "4 quantile:1.0"] value 0.038948012
+    inst [5 or "5 quantile:1.25"] value 0.048685015
+    inst [6 or "6 quantile:1.5"] value 0.058422018
+    inst [7 or "7 quantile:1.75"] value 0.068159021
+    inst [8 or "8 quantile:2.0"] value 0.07789602399999999
+    inst [9 or "9 quantile:2.25"] value 0.087633027
+
+prometheus.source59.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 10212323600
+    inst [2 or "2 baz:1.4"] value 20424647300
+    inst [3 or "3 baz:2.0999999999999996"] value 30636970900
+    inst [4 or "4 baz:2.8"] value 40849294600
+    inst [5 or "5 baz:3.5"] value 51061618200
+    inst [6 or "6 baz:4.199999999999999"] value 61273941800
+    inst [7 or "7 baz:4.8999999999999995"] value 71486265500
+    inst [8 or "8 baz:5.6"] value 81698589100
+    inst [9 or "9 baz:6.3"] value 91910912800
+
+prometheus.source59.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 713.9
+    inst [2 or "2 bar:2"] value 1427.8
+    inst [3 or "3 bar:3"] value 2141.7
+    inst [4 or "4 bar:4"] value 2855.6
+    inst [5 or "5 bar:5"] value 3569.5
+    inst [6 or "6 bar:6"] value 4283.4
+    inst [7 or "7 bar:7"] value 4997.3
+    inst [8 or "8 bar:8"] value 5711.2
+    inst [9 or "9 bar:9"] value 6425.1
+
+prometheus.source60.sample_summary0002_count
+    value 112716
+
+prometheus.source60.sample_summary0002_sum
+    value 86.25481974000002
+
+prometheus.source60.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.009896626
+    inst [2 or "2 quantile:0.5"] value 0.019793252
+    inst [3 or "3 quantile:0.75"] value 0.029689878
+    inst [4 or "4 quantile:1.0"] value 0.039586504
+    inst [5 or "5 quantile:1.25"] value 0.04948313
+    inst [6 or "6 quantile:1.5"] value 0.059379756
+    inst [7 or "7 quantile:1.75"] value 0.069276382
+    inst [8 or "8 quantile:2.0"] value 0.079173008
+    inst [9 or "9 quantile:2.25"] value 0.08906963399999999
+
+prometheus.source60.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 10382529000
+    inst [2 or "2 baz:1.4"] value 20765058100
+    inst [3 or "3 baz:2.0999999999999996"] value 31147587100
+    inst [4 or "4 baz:2.8"] value 41530116100
+    inst [5 or "5 baz:3.5"] value 51912645200
+    inst [6 or "6 baz:4.199999999999999"] value 62295174200
+    inst [7 or "7 baz:4.8999999999999995"] value 72677703200
+    inst [8 or "8 baz:5.6"] value 83060232300
+    inst [9 or "9 baz:6.3"] value 93442761300
+
+prometheus.source60.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 726
+    inst [2 or "2 bar:2"] value 1452
+    inst [3 or "3 bar:3"] value 2178
+    inst [4 or "4 bar:4"] value 2904
+    inst [5 or "5 bar:5"] value 3630
+    inst [6 or "6 bar:6"] value 4356
+    inst [7 or "7 bar:7"] value 5082
+    inst [8 or "8 bar:8"] value 5808
+    inst [9 or "9 bar:9"] value 6534
+
+prometheus.source61.sample_summary0002_count
+    value 114534
+
+prometheus.source61.sample_summary0002_sum
+    value 87.64602651000001
+
+prometheus.source61.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.010056249
+    inst [2 or "2 quantile:0.5"] value 0.020112498
+    inst [3 or "3 quantile:0.75"] value 0.030168747
+    inst [4 or "4 quantile:1.0"] value 0.040224996
+    inst [5 or "5 quantile:1.25"] value 0.050281245
+    inst [6 or "6 quantile:1.5"] value 0.060337494
+    inst [7 or "7 quantile:1.75"] value 0.07039374299999999
+    inst [8 or "8 quantile:2.0"] value 0.080449992
+    inst [9 or "9 quantile:2.25"] value 0.090506241
+
+prometheus.source61.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 10552734400
+    inst [2 or "2 baz:1.4"] value 21105468900
+    inst [3 or "3 baz:2.0999999999999996"] value 31658203300
+    inst [4 or "4 baz:2.8"] value 42210937700
+    inst [5 or "5 baz:3.5"] value 52763672100
+    inst [6 or "6 baz:4.199999999999999"] value 63316406600
+    inst [7 or "7 baz:4.8999999999999995"] value 73869141000
+    inst [8 or "8 baz:5.6"] value 84421875400
+    inst [9 or "9 baz:6.3"] value 94974609900
+
+prometheus.source61.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 738.1
+    inst [2 or "2 bar:2"] value 1476.2
+    inst [3 or "3 bar:3"] value 2214.3
+    inst [4 or "4 bar:4"] value 2952.4
+    inst [5 or "5 bar:5"] value 3690.5
+    inst [6 or "6 bar:6"] value 4428.6
+    inst [7 or "7 bar:7"] value 5166.7
+    inst [8 or "8 bar:8"] value 5904.8
+    inst [9 or "9 bar:9"] value 6642.9
+
+prometheus.source62.sample_summary0002_count
+    value 116352
+
+prometheus.source62.sample_summary0002_sum
+    value 89.03723328000001
+
+prometheus.source62.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.010215872
+    inst [2 or "2 quantile:0.5"] value 0.020431744
+    inst [3 or "3 quantile:0.75"] value 0.030647616
+    inst [4 or "4 quantile:1.0"] value 0.040863488
+    inst [5 or "5 quantile:1.25"] value 0.05107936
+    inst [6 or "6 quantile:1.5"] value 0.061295232
+    inst [7 or "7 quantile:1.75"] value 0.07151110400000001
+    inst [8 or "8 quantile:2.0"] value 0.08172697600000001
+    inst [9 or "9 quantile:2.25"] value 0.09194284799999999
+
+prometheus.source62.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 10722939800
+    inst [2 or "2 baz:1.4"] value 21445879600
+    inst [3 or "3 baz:2.0999999999999996"] value 32168819500
+    inst [4 or "4 baz:2.8"] value 42891759300
+    inst [5 or "5 baz:3.5"] value 53614699100
+    inst [6 or "6 baz:4.199999999999999"] value 64337638900
+    inst [7 or "7 baz:4.8999999999999995"] value 75060578800
+    inst [8 or "8 baz:5.6"] value 85783518600
+    inst [9 or "9 baz:6.3"] value 96506458400
+
+prometheus.source62.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 750.2
+    inst [2 or "2 bar:2"] value 1500.4
+    inst [3 or "3 bar:3"] value 2250.6
+    inst [4 or "4 bar:4"] value 3000.8
+    inst [5 or "5 bar:5"] value 3751
+    inst [6 or "6 bar:6"] value 4501.2
+    inst [7 or "7 bar:7"] value 5251.4
+    inst [8 or "8 bar:8"] value 6001.6
+    inst [9 or "9 bar:9"] value 6751.8
+
+prometheus.source63.sample_summary0002_count
+    value 118170
+
+prometheus.source63.sample_summary0002_sum
+    value 90.42844005000001
+
+prometheus.source63.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.010375495
+    inst [2 or "2 quantile:0.5"] value 0.02075099
+    inst [3 or "3 quantile:0.75"] value 0.031126485
+    inst [4 or "4 quantile:1.0"] value 0.04150198
+    inst [5 or "5 quantile:1.25"] value 0.051877475
+    inst [6 or "6 quantile:1.5"] value 0.06225297
+    inst [7 or "7 quantile:1.75"] value 0.072628465
+    inst [8 or "8 quantile:2.0"] value 0.08300396
+    inst [9 or "9 quantile:2.25"] value 0.093379455
+
+prometheus.source63.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 10893145200
+    inst [2 or "2 baz:1.4"] value 21786290400
+    inst [3 or "3 baz:2.0999999999999996"] value 32679435600
+    inst [4 or "4 baz:2.8"] value 43572580900
+    inst [5 or "5 baz:3.5"] value 54465726100
+    inst [6 or "6 baz:4.199999999999999"] value 65358871300
+    inst [7 or "7 baz:4.8999999999999995"] value 76252016500
+    inst [8 or "8 baz:5.6"] value 87145161700
+    inst [9 or "9 baz:6.3"] value 98038306900
+
+prometheus.source63.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 762.3
+    inst [2 or "2 bar:2"] value 1524.6
+    inst [3 or "3 bar:3"] value 2286.9
+    inst [4 or "4 bar:4"] value 3049.2
+    inst [5 or "5 bar:5"] value 3811.5
+    inst [6 or "6 bar:6"] value 4573.8
+    inst [7 or "7 bar:7"] value 5336.1
+    inst [8 or "8 bar:8"] value 6098.4
+    inst [9 or "9 bar:9"] value 6860.7
+
+prometheus.source64.sample_summary0002_count
+    value 119988
+
+prometheus.source64.sample_summary0002_sum
+    value 91.81964682
+
+prometheus.source64.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.010535118
+    inst [2 or "2 quantile:0.5"] value 0.021070236
+    inst [3 or "3 quantile:0.75"] value 0.031605354
+    inst [4 or "4 quantile:1.0"] value 0.042140472
+    inst [5 or "5 quantile:1.25"] value 0.05267559
+    inst [6 or "6 quantile:1.5"] value 0.063210708
+    inst [7 or "7 quantile:1.75"] value 0.073745826
+    inst [8 or "8 quantile:2.0"] value 0.084280944
+    inst [9 or "9 quantile:2.25"] value 0.09481606200000001
+
+prometheus.source64.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 11063350600
+    inst [2 or "2 baz:1.4"] value 22126701200
+    inst [3 or "3 baz:2.0999999999999996"] value 33190051800
+    inst [4 or "4 baz:2.8"] value 44253402400
+    inst [5 or "5 baz:3.5"] value 55316753000
+    inst [6 or "6 baz:4.199999999999999"] value 66380103700
+    inst [7 or "7 baz:4.8999999999999995"] value 77443454300
+    inst [8 or "8 baz:5.6"] value 88506804900
+    inst [9 or "9 baz:6.3"] value 99570155500
+
+prometheus.source64.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 774.4
+    inst [2 or "2 bar:2"] value 1548.8
+    inst [3 or "3 bar:3"] value 2323.2
+    inst [4 or "4 bar:4"] value 3097.6
+    inst [5 or "5 bar:5"] value 3872
+    inst [6 or "6 bar:6"] value 4646.4
+    inst [7 or "7 bar:7"] value 5420.8
+    inst [8 or "8 bar:8"] value 6195.2
+    inst [9 or "9 bar:9"] value 6969.6
+
+prometheus.source65.sample_summary0002_count
+    value 121806
+
+prometheus.source65.sample_summary0002_sum
+    value 93.21085359000001
+
+prometheus.source65.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.010694741
+    inst [2 or "2 quantile:0.5"] value 0.021389482
+    inst [3 or "3 quantile:0.75"] value 0.032084223
+    inst [4 or "4 quantile:1.0"] value 0.042778964
+    inst [5 or "5 quantile:1.25"] value 0.053473705
+    inst [6 or "6 quantile:1.5"] value 0.064168446
+    inst [7 or "7 quantile:1.75"] value 0.074863187
+    inst [8 or "8 quantile:2.0"] value 0.08555792800000001
+    inst [9 or "9 quantile:2.25"] value 0.096252669
+
+prometheus.source65.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 11233556000
+    inst [2 or "2 baz:1.4"] value 22467112000
+    inst [3 or "3 baz:2.0999999999999996"] value 33700668000
+    inst [4 or "4 baz:2.8"] value 44934224000
+    inst [5 or "5 baz:3.5"] value 56167780000
+    inst [6 or "6 baz:4.199999999999999"] value 67401336000
+    inst [7 or "7 baz:4.8999999999999995"] value 78634892000
+    inst [8 or "8 baz:5.6"] value 89868448000
+    inst [9 or "9 baz:6.3"] value 101102004000
+
+prometheus.source65.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 786.5
+    inst [2 or "2 bar:2"] value 1573
+    inst [3 or "3 bar:3"] value 2359.5
+    inst [4 or "4 bar:4"] value 3146
+    inst [5 or "5 bar:5"] value 3932.5
+    inst [6 or "6 bar:6"] value 4719
+    inst [7 or "7 bar:7"] value 5505.5
+    inst [8 or "8 bar:8"] value 6292
+    inst [9 or "9 bar:9"] value 7078.5
+
+prometheus.source66.sample_summary0002_count
+    value 123624
+
+prometheus.source66.sample_summary0002_sum
+    value 94.60206036000001
+
+prometheus.source66.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.010854364
+    inst [2 or "2 quantile:0.5"] value 0.021708728
+    inst [3 or "3 quantile:0.75"] value 0.032563092
+    inst [4 or "4 quantile:1.0"] value 0.043417456
+    inst [5 or "5 quantile:1.25"] value 0.05427182
+    inst [6 or "6 quantile:1.5"] value 0.065126184
+    inst [7 or "7 quantile:1.75"] value 0.07598054799999999
+    inst [8 or "8 quantile:2.0"] value 0.086834912
+    inst [9 or "9 quantile:2.25"] value 0.09768927600000001
+
+prometheus.source66.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 11403761400
+    inst [2 or "2 baz:1.4"] value 22807522800
+    inst [3 or "3 baz:2.0999999999999996"] value 34211284200
+    inst [4 or "4 baz:2.8"] value 45615045600
+    inst [5 or "5 baz:3.5"] value 57018807000
+    inst [6 or "6 baz:4.199999999999999"] value 68422568400
+    inst [7 or "7 baz:4.8999999999999995"] value 79826329800
+    inst [8 or "8 baz:5.6"] value 91230091200
+    inst [9 or "9 baz:6.3"] value 102633853000
+
+prometheus.source66.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 798.6
+    inst [2 or "2 bar:2"] value 1597.2
+    inst [3 or "3 bar:3"] value 2395.8
+    inst [4 or "4 bar:4"] value 3194.4
+    inst [5 or "5 bar:5"] value 3993
+    inst [6 or "6 bar:6"] value 4791.6
+    inst [7 or "7 bar:7"] value 5590.2
+    inst [8 or "8 bar:8"] value 6388.8
+    inst [9 or "9 bar:9"] value 7187.4
+
+prometheus.source67.sample_summary0002_count
+    value 125442
+
+prometheus.source67.sample_summary0002_sum
+    value 95.99326713000001
+
+prometheus.source67.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.011013987
+    inst [2 or "2 quantile:0.5"] value 0.022027974
+    inst [3 or "3 quantile:0.75"] value 0.033041961
+    inst [4 or "4 quantile:1.0"] value 0.044055948
+    inst [5 or "5 quantile:1.25"] value 0.055069935
+    inst [6 or "6 quantile:1.5"] value 0.066083922
+    inst [7 or "7 quantile:1.75"] value 0.07709790900000001
+    inst [8 or "8 quantile:2.0"] value 0.088111896
+    inst [9 or "9 quantile:2.25"] value 0.099125883
+
+prometheus.source67.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 11573966800
+    inst [2 or "2 baz:1.4"] value 23147933600
+    inst [3 or "3 baz:2.0999999999999996"] value 34721900400
+    inst [4 or "4 baz:2.8"] value 46295867200
+    inst [5 or "5 baz:3.5"] value 57869834000
+    inst [6 or "6 baz:4.199999999999999"] value 69443800800
+    inst [7 or "7 baz:4.8999999999999995"] value 81017767500
+    inst [8 or "8 baz:5.6"] value 92591734300
+    inst [9 or "9 baz:6.3"] value 104165701000
+
+prometheus.source67.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 810.7
+    inst [2 or "2 bar:2"] value 1621.4
+    inst [3 or "3 bar:3"] value 2432.1
+    inst [4 or "4 bar:4"] value 3242.8
+    inst [5 or "5 bar:5"] value 4053.5
+    inst [6 or "6 bar:6"] value 4864.2
+    inst [7 or "7 bar:7"] value 5674.9
+    inst [8 or "8 bar:8"] value 6485.6
+    inst [9 or "9 bar:9"] value 7296.3
+
+prometheus.source68.sample_summary0002_count
+    value 127260
+
+prometheus.source68.sample_summary0002_sum
+    value 97.38447390000002
+
+prometheus.source68.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.01117361
+    inst [2 or "2 quantile:0.5"] value 0.02234722
+    inst [3 or "3 quantile:0.75"] value 0.03352083
+    inst [4 or "4 quantile:1.0"] value 0.04469444
+    inst [5 or "5 quantile:1.25"] value 0.05586805
+    inst [6 or "6 quantile:1.5"] value 0.06704166
+    inst [7 or "7 quantile:1.75"] value 0.07821527
+    inst [8 or "8 quantile:2.0"] value 0.08938888
+    inst [9 or "9 quantile:2.25"] value 0.10056249
+
+prometheus.source68.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 11744172200
+    inst [2 or "2 baz:1.4"] value 23488344400
+    inst [3 or "3 baz:2.0999999999999996"] value 35232516600
+    inst [4 or "4 baz:2.8"] value 46976688700
+    inst [5 or "5 baz:3.5"] value 58720860900
+    inst [6 or "6 baz:4.199999999999999"] value 70465033100
+    inst [7 or "7 baz:4.8999999999999995"] value 82209205300
+    inst [8 or "8 baz:5.6"] value 93953377500
+    inst [9 or "9 baz:6.3"] value 105697550000
+
+prometheus.source68.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 822.8
+    inst [2 or "2 bar:2"] value 1645.6
+    inst [3 or "3 bar:3"] value 2468.4
+    inst [4 or "4 bar:4"] value 3291.2
+    inst [5 or "5 bar:5"] value 4114
+    inst [6 or "6 bar:6"] value 4936.8
+    inst [7 or "7 bar:7"] value 5759.6
+    inst [8 or "8 bar:8"] value 6582.4
+    inst [9 or "9 bar:9"] value 7405.2
+
+prometheus.source69.sample_summary0002_count
+    value 129078
+
+prometheus.source69.sample_summary0002_sum
+    value 98.77568067000001
+
+prometheus.source69.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.011333233
+    inst [2 or "2 quantile:0.5"] value 0.022666466
+    inst [3 or "3 quantile:0.75"] value 0.033999699
+    inst [4 or "4 quantile:1.0"] value 0.045332932
+    inst [5 or "5 quantile:1.25"] value 0.056666165
+    inst [6 or "6 quantile:1.5"] value 0.067999398
+    inst [7 or "7 quantile:1.75"] value 0.079332631
+    inst [8 or "8 quantile:2.0"] value 0.090665864
+    inst [9 or "9 quantile:2.25"] value 0.101999097
+
+prometheus.source69.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 11914377600
+    inst [2 or "2 baz:1.4"] value 23828755200
+    inst [3 or "3 baz:2.0999999999999996"] value 35743132700
+    inst [4 or "4 baz:2.8"] value 47657510300
+    inst [5 or "5 baz:3.5"] value 59571887900
+    inst [6 or "6 baz:4.199999999999999"] value 71486265500
+    inst [7 or "7 baz:4.8999999999999995"] value 83400643100
+    inst [8 or "8 baz:5.6"] value 95315020600
+    inst [9 or "9 baz:6.3"] value 107229398000
+
+prometheus.source69.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 834.9
+    inst [2 or "2 bar:2"] value 1669.8
+    inst [3 or "3 bar:3"] value 2504.7
+    inst [4 or "4 bar:4"] value 3339.6
+    inst [5 or "5 bar:5"] value 4174.5
+    inst [6 or "6 bar:6"] value 5009.4
+    inst [7 or "7 bar:7"] value 5844.3
+    inst [8 or "8 bar:8"] value 6679.2
+    inst [9 or "9 bar:9"] value 7514.1
+
+prometheus.source70.sample_summary0002_count
+    value 130896
+
+prometheus.source70.sample_summary0002_sum
+    value 100.16688744
+
+prometheus.source70.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.011492856
+    inst [2 or "2 quantile:0.5"] value 0.022985712
+    inst [3 or "3 quantile:0.75"] value 0.034478568
+    inst [4 or "4 quantile:1.0"] value 0.045971424
+    inst [5 or "5 quantile:1.25"] value 0.05746428
+    inst [6 or "6 quantile:1.5"] value 0.068957136
+    inst [7 or "7 quantile:1.75"] value 0.080449992
+    inst [8 or "8 quantile:2.0"] value 0.09194284799999999
+    inst [9 or "9 quantile:2.25"] value 0.103435704
+
+prometheus.source70.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 12084583000
+    inst [2 or "2 baz:1.4"] value 24169165900
+    inst [3 or "3 baz:2.0999999999999996"] value 36253748900
+    inst [4 or "4 baz:2.8"] value 48338331900
+    inst [5 or "5 baz:3.5"] value 60422914900
+    inst [6 or "6 baz:4.199999999999999"] value 72507497800
+    inst [7 or "7 baz:4.8999999999999995"] value 84592080800
+    inst [8 or "8 baz:5.6"] value 96676663800
+    inst [9 or "9 baz:6.3"] value 108761247000
+
+prometheus.source70.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 847
+    inst [2 or "2 bar:2"] value 1694
+    inst [3 or "3 bar:3"] value 2541
+    inst [4 or "4 bar:4"] value 3388
+    inst [5 or "5 bar:5"] value 4235
+    inst [6 or "6 bar:6"] value 5082
+    inst [7 or "7 bar:7"] value 5929
+    inst [8 or "8 bar:8"] value 6776
+    inst [9 or "9 bar:9"] value 7623
+
+prometheus.source71.sample_summary0002_count
+    value 132714
+
+prometheus.source71.sample_summary0002_sum
+    value 101.55809421
+
+prometheus.source71.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.011652479
+    inst [2 or "2 quantile:0.5"] value 0.023304958
+    inst [3 or "3 quantile:0.75"] value 0.034957437
+    inst [4 or "4 quantile:1.0"] value 0.046609916
+    inst [5 or "5 quantile:1.25"] value 0.058262395
+    inst [6 or "6 quantile:1.5"] value 0.069914874
+    inst [7 or "7 quantile:1.75"] value 0.081567353
+    inst [8 or "8 quantile:2.0"] value 0.093219832
+    inst [9 or "9 quantile:2.25"] value 0.104872311
+
+prometheus.source71.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 12254788400
+    inst [2 or "2 baz:1.4"] value 24509576700
+    inst [3 or "3 baz:2.0999999999999996"] value 36764365100
+    inst [4 or "4 baz:2.8"] value 49019153500
+    inst [5 or "5 baz:3.5"] value 61273941800
+    inst [6 or "6 baz:4.199999999999999"] value 73528730200
+    inst [7 or "7 baz:4.8999999999999995"] value 85783518600
+    inst [8 or "8 baz:5.6"] value 98038306900
+    inst [9 or "9 baz:6.3"] value 110293095000
+
+prometheus.source71.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 859.1
+    inst [2 or "2 bar:2"] value 1718.2
+    inst [3 or "3 bar:3"] value 2577.3
+    inst [4 or "4 bar:4"] value 3436.4
+    inst [5 or "5 bar:5"] value 4295.5
+    inst [6 or "6 bar:6"] value 5154.6
+    inst [7 or "7 bar:7"] value 6013.7
+    inst [8 or "8 bar:8"] value 6872.8
+    inst [9 or "9 bar:9"] value 7731.9
+
+prometheus.source72.sample_summary0002_count
+    value 134532
+
+prometheus.source72.sample_summary0002_sum
+    value 102.94930098
+
+prometheus.source72.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.011812102
+    inst [2 or "2 quantile:0.5"] value 0.023624204
+    inst [3 or "3 quantile:0.75"] value 0.035436306
+    inst [4 or "4 quantile:1.0"] value 0.047248408
+    inst [5 or "5 quantile:1.25"] value 0.05906051
+    inst [6 or "6 quantile:1.5"] value 0.070872612
+    inst [7 or "7 quantile:1.75"] value 0.08268471400000001
+    inst [8 or "8 quantile:2.0"] value 0.094496816
+    inst [9 or "9 quantile:2.25"] value 0.106308918
+
+prometheus.source72.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 12424993800
+    inst [2 or "2 baz:1.4"] value 24849987500
+    inst [3 or "3 baz:2.0999999999999996"] value 37274981300
+    inst [4 or "4 baz:2.8"] value 49699975000
+    inst [5 or "5 baz:3.5"] value 62124968800
+    inst [6 or "6 baz:4.199999999999999"] value 74549962600
+    inst [7 or "7 baz:4.8999999999999995"] value 86974956300
+    inst [8 or "8 baz:5.6"] value 99399950100
+    inst [9 or "9 baz:6.3"] value 111824944000
+
+prometheus.source72.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 871.2
+    inst [2 or "2 bar:2"] value 1742.4
+    inst [3 or "3 bar:3"] value 2613.6
+    inst [4 or "4 bar:4"] value 3484.8
+    inst [5 or "5 bar:5"] value 4356
+    inst [6 or "6 bar:6"] value 5227.2
+    inst [7 or "7 bar:7"] value 6098.4
+    inst [8 or "8 bar:8"] value 6969.6
+    inst [9 or "9 bar:9"] value 7840.8
+
+prometheus.source73.sample_summary0002_count
+    value 136350
+
+prometheus.source73.sample_summary0002_sum
+    value 104.34050775
+
+prometheus.source73.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.011971725
+    inst [2 or "2 quantile:0.5"] value 0.02394345
+    inst [3 or "3 quantile:0.75"] value 0.035915175
+    inst [4 or "4 quantile:1.0"] value 0.0478869
+    inst [5 or "5 quantile:1.25"] value 0.059858625
+    inst [6 or "6 quantile:1.5"] value 0.07183035
+    inst [7 or "7 quantile:1.75"] value 0.083802075
+    inst [8 or "8 quantile:2.0"] value 0.09577380000000001
+    inst [9 or "9 quantile:2.25"] value 0.107745525
+
+prometheus.source73.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 12595199200
+    inst [2 or "2 baz:1.4"] value 25190398300
+    inst [3 or "3 baz:2.0999999999999996"] value 37785597500
+    inst [4 or "4 baz:2.8"] value 50380796600
+    inst [5 or "5 baz:3.5"] value 62975995800
+    inst [6 or "6 baz:4.199999999999999"] value 75571194900
+    inst [7 or "7 baz:4.8999999999999995"] value 88166394100
+    inst [8 or "8 baz:5.6"] value 100761593000
+    inst [9 or "9 baz:6.3"] value 113356792000
+
+prometheus.source73.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 883.3
+    inst [2 or "2 bar:2"] value 1766.6
+    inst [3 or "3 bar:3"] value 2649.9
+    inst [4 or "4 bar:4"] value 3533.2
+    inst [5 or "5 bar:5"] value 4416.5
+    inst [6 or "6 bar:6"] value 5299.8
+    inst [7 or "7 bar:7"] value 6183.1
+    inst [8 or "8 bar:8"] value 7066.4
+    inst [9 or "9 bar:9"] value 7949.7
+
+prometheus.source74.sample_summary0002_count
+    value 138168
+
+prometheus.source74.sample_summary0002_sum
+    value 105.73171452
+
+prometheus.source74.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.012131348
+    inst [2 or "2 quantile:0.5"] value 0.024262696
+    inst [3 or "3 quantile:0.75"] value 0.036394044
+    inst [4 or "4 quantile:1.0"] value 0.048525392
+    inst [5 or "5 quantile:1.25"] value 0.06065674
+    inst [6 or "6 quantile:1.5"] value 0.072788088
+    inst [7 or "7 quantile:1.75"] value 0.084919436
+    inst [8 or "8 quantile:2.0"] value 0.097050784
+    inst [9 or "9 quantile:2.25"] value 0.109182132
+
+prometheus.source74.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 12765404600
+    inst [2 or "2 baz:1.4"] value 25530809100
+    inst [3 or "3 baz:2.0999999999999996"] value 38296213600
+    inst [4 or "4 baz:2.8"] value 51061618200
+    inst [5 or "5 baz:3.5"] value 63827022800
+    inst [6 or "6 baz:4.199999999999999"] value 76592427300
+    inst [7 or "7 baz:4.8999999999999995"] value 89357831800
+    inst [8 or "8 baz:5.6"] value 102123236000
+    inst [9 or "9 baz:6.3"] value 114888641000
+
+prometheus.source74.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 895.4
+    inst [2 or "2 bar:2"] value 1790.8
+    inst [3 or "3 bar:3"] value 2686.2
+    inst [4 or "4 bar:4"] value 3581.6
+    inst [5 or "5 bar:5"] value 4477
+    inst [6 or "6 bar:6"] value 5372.4
+    inst [7 or "7 bar:7"] value 6267.8
+    inst [8 or "8 bar:8"] value 7163.2
+    inst [9 or "9 bar:9"] value 8058.6
+
+prometheus.source75.sample_summary0002_count
+    value 139986
+
+prometheus.source75.sample_summary0002_sum
+    value 107.12292129
+
+prometheus.source75.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.012290971
+    inst [2 or "2 quantile:0.5"] value 0.024581942
+    inst [3 or "3 quantile:0.75"] value 0.036872913
+    inst [4 or "4 quantile:1.0"] value 0.049163884
+    inst [5 or "5 quantile:1.25"] value 0.061454855
+    inst [6 or "6 quantile:1.5"] value 0.073745826
+    inst [7 or "7 quantile:1.75"] value 0.086036797
+    inst [8 or "8 quantile:2.0"] value 0.098327768
+    inst [9 or "9 quantile:2.25"] value 0.110618739
+
+prometheus.source75.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 12935609900
+    inst [2 or "2 baz:1.4"] value 25871219900
+    inst [3 or "3 baz:2.0999999999999996"] value 38806829800
+    inst [4 or "4 baz:2.8"] value 51742439800
+    inst [5 or "5 baz:3.5"] value 64678049700
+    inst [6 or "6 baz:4.199999999999999"] value 77613659700
+    inst [7 or "7 baz:4.8999999999999995"] value 90549269600
+    inst [8 or "8 baz:5.6"] value 103484880000
+    inst [9 or "9 baz:6.3"] value 116420489000
+
+prometheus.source75.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 907.5
+    inst [2 or "2 bar:2"] value 1815
+    inst [3 or "3 bar:3"] value 2722.5
+    inst [4 or "4 bar:4"] value 3630
+    inst [5 or "5 bar:5"] value 4537.5
+    inst [6 or "6 bar:6"] value 5445
+    inst [7 or "7 bar:7"] value 6352.5
+    inst [8 or "8 bar:8"] value 7260
+    inst [9 or "9 bar:9"] value 8167.5
+
+prometheus.source76.sample_summary0002_count
+    value 141804
+
+prometheus.source76.sample_summary0002_sum
+    value 108.51412806
+
+prometheus.source76.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.012450594
+    inst [2 or "2 quantile:0.5"] value 0.024901188
+    inst [3 or "3 quantile:0.75"] value 0.037351782
+    inst [4 or "4 quantile:1.0"] value 0.049802376
+    inst [5 or "5 quantile:1.25"] value 0.06225297
+    inst [6 or "6 quantile:1.5"] value 0.074703564
+    inst [7 or "7 quantile:1.75"] value 0.087154158
+    inst [8 or "8 quantile:2.0"] value 0.099604752
+    inst [9 or "9 quantile:2.25"] value 0.112055346
+
+prometheus.source76.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 13105815300
+    inst [2 or "2 baz:1.4"] value 26211630700
+    inst [3 or "3 baz:2.0999999999999996"] value 39317446000
+    inst [4 or "4 baz:2.8"] value 52423261400
+    inst [5 or "5 baz:3.5"] value 65529076700
+    inst [6 or "6 baz:4.199999999999999"] value 78634892000
+    inst [7 or "7 baz:4.8999999999999995"] value 91740707400
+    inst [8 or "8 baz:5.6"] value 104846523000
+    inst [9 or "9 baz:6.3"] value 117952338000
+
+prometheus.source76.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 919.6
+    inst [2 or "2 bar:2"] value 1839.2
+    inst [3 or "3 bar:3"] value 2758.8
+    inst [4 or "4 bar:4"] value 3678.4
+    inst [5 or "5 bar:5"] value 4598
+    inst [6 or "6 bar:6"] value 5517.6
+    inst [7 or "7 bar:7"] value 6437.2
+    inst [8 or "8 bar:8"] value 7356.8
+    inst [9 or "9 bar:9"] value 8276.4
+
+prometheus.source77.sample_summary0002_count
+    value 143622
+
+prometheus.source77.sample_summary0002_sum
+    value 109.90533483
+
+prometheus.source77.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.012610217
+    inst [2 or "2 quantile:0.5"] value 0.025220434
+    inst [3 or "3 quantile:0.75"] value 0.037830651
+    inst [4 or "4 quantile:1.0"] value 0.050440868
+    inst [5 or "5 quantile:1.25"] value 0.06305108500000001
+    inst [6 or "6 quantile:1.5"] value 0.075661302
+    inst [7 or "7 quantile:1.75"] value 0.08827151900000001
+    inst [8 or "8 quantile:2.0"] value 0.100881736
+    inst [9 or "9 quantile:2.25"] value 0.113491953
+
+prometheus.source77.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 13276020700
+    inst [2 or "2 baz:1.4"] value 26552041500
+    inst [3 or "3 baz:2.0999999999999996"] value 39828062200
+    inst [4 or "4 baz:2.8"] value 53104082900
+    inst [5 or "5 baz:3.5"] value 66380103700
+    inst [6 or "6 baz:4.199999999999999"] value 79656124400
+    inst [7 or "7 baz:4.8999999999999995"] value 92932145100
+    inst [8 or "8 baz:5.6"] value 106208166000
+    inst [9 or "9 baz:6.3"] value 119484187000
+
+prometheus.source77.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 931.7
+    inst [2 or "2 bar:2"] value 1863.4
+    inst [3 or "3 bar:3"] value 2795.1
+    inst [4 or "4 bar:4"] value 3726.8
+    inst [5 or "5 bar:5"] value 4658.5
+    inst [6 or "6 bar:6"] value 5590.2
+    inst [7 or "7 bar:7"] value 6521.9
+    inst [8 or "8 bar:8"] value 7453.6
+    inst [9 or "9 bar:9"] value 8385.299999999999
+
+prometheus.source78.sample_summary0002_count
+    value 145440
+
+prometheus.source78.sample_summary0002_sum
+    value 111.2965416
+
+prometheus.source78.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.01276984
+    inst [2 or "2 quantile:0.5"] value 0.02553968
+    inst [3 or "3 quantile:0.75"] value 0.03830952
+    inst [4 or "4 quantile:1.0"] value 0.05107936
+    inst [5 or "5 quantile:1.25"] value 0.06384919999999999
+    inst [6 or "6 quantile:1.5"] value 0.07661904
+    inst [7 or "7 quantile:1.75"] value 0.08938888
+    inst [8 or "8 quantile:2.0"] value 0.10215872
+    inst [9 or "9 quantile:2.25"] value 0.11492856
+
+prometheus.source78.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 13446226100
+    inst [2 or "2 baz:1.4"] value 26892452300
+    inst [3 or "3 baz:2.0999999999999996"] value 40338678400
+    inst [4 or "4 baz:2.8"] value 53784904500
+    inst [5 or "5 baz:3.5"] value 67231130600
+    inst [6 or "6 baz:4.199999999999999"] value 80677356800
+    inst [7 or "7 baz:4.8999999999999995"] value 94123582900
+    inst [8 or "8 baz:5.6"] value 107569809000
+    inst [9 or "9 baz:6.3"] value 121016035000
+
+prometheus.source78.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 943.8
+    inst [2 or "2 bar:2"] value 1887.6
+    inst [3 or "3 bar:3"] value 2831.4
+    inst [4 or "4 bar:4"] value 3775.2
+    inst [5 or "5 bar:5"] value 4719
+    inst [6 or "6 bar:6"] value 5662.8
+    inst [7 or "7 bar:7"] value 6606.6
+    inst [8 or "8 bar:8"] value 7550.4
+    inst [9 or "9 bar:9"] value 8494.200000000001
+
+prometheus.source79.sample_summary0002_count
+    value 147258
+
+prometheus.source79.sample_summary0002_sum
+    value 112.68774837
+
+prometheus.source79.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.012929463
+    inst [2 or "2 quantile:0.5"] value 0.025858926
+    inst [3 or "3 quantile:0.75"] value 0.038788389
+    inst [4 or "4 quantile:1.0"] value 0.051717852
+    inst [5 or "5 quantile:1.25"] value 0.064647315
+    inst [6 or "6 quantile:1.5"] value 0.077576778
+    inst [7 or "7 quantile:1.75"] value 0.090506241
+    inst [8 or "8 quantile:2.0"] value 0.103435704
+    inst [9 or "9 quantile:2.25"] value 0.116365167
+
+prometheus.source79.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 13616431500
+    inst [2 or "2 baz:1.4"] value 27232863000
+    inst [3 or "3 baz:2.0999999999999996"] value 40849294600
+    inst [4 or "4 baz:2.8"] value 54465726100
+    inst [5 or "5 baz:3.5"] value 68082157600
+    inst [6 or "6 baz:4.199999999999999"] value 81698589100
+    inst [7 or "7 baz:4.8999999999999995"] value 95315020600
+    inst [8 or "8 baz:5.6"] value 108931452000
+    inst [9 or "9 baz:6.3"] value 122547884000
+
+prometheus.source79.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 955.9
+    inst [2 or "2 bar:2"] value 1911.8
+    inst [3 or "3 bar:3"] value 2867.7
+    inst [4 or "4 bar:4"] value 3823.6
+    inst [5 or "5 bar:5"] value 4779.5
+    inst [6 or "6 bar:6"] value 5735.4
+    inst [7 or "7 bar:7"] value 6691.3
+    inst [8 or "8 bar:8"] value 7647.2
+    inst [9 or "9 bar:9"] value 8603.1
+
+prometheus.source80.sample_summary0002_count
+    value 149076
+
+prometheus.source80.sample_summary0002_sum
+    value 114.07895514
+
+prometheus.source80.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.013089086
+    inst [2 or "2 quantile:0.5"] value 0.026178172
+    inst [3 or "3 quantile:0.75"] value 0.039267258
+    inst [4 or "4 quantile:1.0"] value 0.052356344
+    inst [5 or "5 quantile:1.25"] value 0.06544543
+    inst [6 or "6 quantile:1.5"] value 0.078534516
+    inst [7 or "7 quantile:1.75"] value 0.091623602
+    inst [8 or "8 quantile:2.0"] value 0.104712688
+    inst [9 or "9 quantile:2.25"] value 0.117801774
+
+prometheus.source80.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 13786636900
+    inst [2 or "2 baz:1.4"] value 27573273800
+    inst [3 or "3 baz:2.0999999999999996"] value 41359910700
+    inst [4 or "4 baz:2.8"] value 55146547700
+    inst [5 or "5 baz:3.5"] value 68933184600
+    inst [6 or "6 baz:4.199999999999999"] value 82719821500
+    inst [7 or "7 baz:4.8999999999999995"] value 96506458400
+    inst [8 or "8 baz:5.6"] value 110293095000
+    inst [9 or "9 baz:6.3"] value 124079732000
+
+prometheus.source80.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 968
+    inst [2 or "2 bar:2"] value 1936
+    inst [3 or "3 bar:3"] value 2904
+    inst [4 or "4 bar:4"] value 3872
+    inst [5 or "5 bar:5"] value 4840
+    inst [6 or "6 bar:6"] value 5808
+    inst [7 or "7 bar:7"] value 6776
+    inst [8 or "8 bar:8"] value 7744
+    inst [9 or "9 bar:9"] value 8712
+
+prometheus.source81.sample_summary0002_count
+    value 150894
+
+prometheus.source81.sample_summary0002_sum
+    value 115.47016191
+
+prometheus.source81.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.013248709
+    inst [2 or "2 quantile:0.5"] value 0.026497418
+    inst [3 or "3 quantile:0.75"] value 0.039746127
+    inst [4 or "4 quantile:1.0"] value 0.052994836
+    inst [5 or "5 quantile:1.25"] value 0.066243545
+    inst [6 or "6 quantile:1.5"] value 0.079492254
+    inst [7 or "7 quantile:1.75"] value 0.092740963
+    inst [8 or "8 quantile:2.0"] value 0.105989672
+    inst [9 or "9 quantile:2.25"] value 0.119238381
+
+prometheus.source81.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 13956842300
+    inst [2 or "2 baz:1.4"] value 27913684600
+    inst [3 or "3 baz:2.0999999999999996"] value 41870526900
+    inst [4 or "4 baz:2.8"] value 55827369200
+    inst [5 or "5 baz:3.5"] value 69784211500
+    inst [6 or "6 baz:4.199999999999999"] value 83741053800
+    inst [7 or "7 baz:4.8999999999999995"] value 97697896200
+    inst [8 or "8 baz:5.6"] value 111654738000
+    inst [9 or "9 baz:6.3"] value 125611581000
+
+prometheus.source81.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 980.1
+    inst [2 or "2 bar:2"] value 1960.2
+    inst [3 or "3 bar:3"] value 2940.3
+    inst [4 or "4 bar:4"] value 3920.4
+    inst [5 or "5 bar:5"] value 4900.5
+    inst [6 or "6 bar:6"] value 5880.6
+    inst [7 or "7 bar:7"] value 6860.7
+    inst [8 or "8 bar:8"] value 7840.8
+    inst [9 or "9 bar:9"] value 8820.9
+
+prometheus.source82.sample_summary0002_count
+    value 152712
+
+prometheus.source82.sample_summary0002_sum
+    value 116.86136868
+
+prometheus.source82.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.013408332
+    inst [2 or "2 quantile:0.5"] value 0.026816664
+    inst [3 or "3 quantile:0.75"] value 0.040224996
+    inst [4 or "4 quantile:1.0"] value 0.053633328
+    inst [5 or "5 quantile:1.25"] value 0.06704166
+    inst [6 or "6 quantile:1.5"] value 0.080449992
+    inst [7 or "7 quantile:1.75"] value 0.09385832400000001
+    inst [8 or "8 quantile:2.0"] value 0.107266656
+    inst [9 or "9 quantile:2.25"] value 0.120674988
+
+prometheus.source82.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 14127047700
+    inst [2 or "2 baz:1.4"] value 28254095400
+    inst [3 or "3 baz:2.0999999999999996"] value 42381143100
+    inst [4 or "4 baz:2.8"] value 56508190800
+    inst [5 or "5 baz:3.5"] value 70635238500
+    inst [6 or "6 baz:4.199999999999999"] value 84762286200
+    inst [7 or "7 baz:4.8999999999999995"] value 98889333900
+    inst [8 or "8 baz:5.6"] value 113016382000
+    inst [9 or "9 baz:6.3"] value 127143429000
+
+prometheus.source82.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 992.2
+    inst [2 or "2 bar:2"] value 1984.4
+    inst [3 or "3 bar:3"] value 2976.6
+    inst [4 or "4 bar:4"] value 3968.8
+    inst [5 or "5 bar:5"] value 4961
+    inst [6 or "6 bar:6"] value 5953.2
+    inst [7 or "7 bar:7"] value 6945.4
+    inst [8 or "8 bar:8"] value 7937.6
+    inst [9 or "9 bar:9"] value 8929.799999999999
+
+prometheus.source83.sample_summary0002_count
+    value 154530
+
+prometheus.source83.sample_summary0002_sum
+    value 118.25257545
+
+prometheus.source83.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.013567955
+    inst [2 or "2 quantile:0.5"] value 0.02713591
+    inst [3 or "3 quantile:0.75"] value 0.040703865
+    inst [4 or "4 quantile:1.0"] value 0.05427182
+    inst [5 or "5 quantile:1.25"] value 0.067839775
+    inst [6 or "6 quantile:1.5"] value 0.08140773
+    inst [7 or "7 quantile:1.75"] value 0.094975685
+    inst [8 or "8 quantile:2.0"] value 0.10854364
+    inst [9 or "9 quantile:2.25"] value 0.122111595
+
+prometheus.source83.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 14297253100
+    inst [2 or "2 baz:1.4"] value 28594506200
+    inst [3 or "3 baz:2.0999999999999996"] value 42891759300
+    inst [4 or "4 baz:2.8"] value 57189012400
+    inst [5 or "5 baz:3.5"] value 71486265500
+    inst [6 or "6 baz:4.199999999999999"] value 85783518600
+    inst [7 or "7 baz:4.8999999999999995"] value 100080772000
+    inst [8 or "8 baz:5.6"] value 114378025000
+    inst [9 or "9 baz:6.3"] value 128675278000
+
+prometheus.source83.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1004.3
+    inst [2 or "2 bar:2"] value 2008.6
+    inst [3 or "3 bar:3"] value 3012.9
+    inst [4 or "4 bar:4"] value 4017.2
+    inst [5 or "5 bar:5"] value 5021.5
+    inst [6 or "6 bar:6"] value 6025.8
+    inst [7 or "7 bar:7"] value 7030.1
+    inst [8 or "8 bar:8"] value 8034.4
+    inst [9 or "9 bar:9"] value 9038.700000000001
+
+prometheus.source84.sample_summary0002_count
+    value 156348
+
+prometheus.source84.sample_summary0002_sum
+    value 119.64378222
+
+prometheus.source84.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.013727578
+    inst [2 or "2 quantile:0.5"] value 0.027455156
+    inst [3 or "3 quantile:0.75"] value 0.041182734
+    inst [4 or "4 quantile:1.0"] value 0.054910312
+    inst [5 or "5 quantile:1.25"] value 0.06863788999999999
+    inst [6 or "6 quantile:1.5"] value 0.082365468
+    inst [7 or "7 quantile:1.75"] value 0.096093046
+    inst [8 or "8 quantile:2.0"] value 0.109820624
+    inst [9 or "9 quantile:2.25"] value 0.123548202
+
+prometheus.source84.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 14467458500
+    inst [2 or "2 baz:1.4"] value 28934917000
+    inst [3 or "3 baz:2.0999999999999996"] value 43402375500
+    inst [4 or "4 baz:2.8"] value 57869834000
+    inst [5 or "5 baz:3.5"] value 72337292400
+    inst [6 or "6 baz:4.199999999999999"] value 86804750900
+    inst [7 or "7 baz:4.8999999999999995"] value 101272209000
+    inst [8 or "8 baz:5.6"] value 115739668000
+    inst [9 or "9 baz:6.3"] value 130207126000
+
+prometheus.source84.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1016.4
+    inst [2 or "2 bar:2"] value 2032.8
+    inst [3 or "3 bar:3"] value 3049.2
+    inst [4 or "4 bar:4"] value 4065.6
+    inst [5 or "5 bar:5"] value 5082
+    inst [6 or "6 bar:6"] value 6098.4
+    inst [7 or "7 bar:7"] value 7114.8
+    inst [8 or "8 bar:8"] value 8131.2
+    inst [9 or "9 bar:9"] value 9147.6
+
+prometheus.source85.sample_summary0002_count
+    value 158166
+
+prometheus.source85.sample_summary0002_sum
+    value 121.03498899
+
+prometheus.source85.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.013887201
+    inst [2 or "2 quantile:0.5"] value 0.027774402
+    inst [3 or "3 quantile:0.75"] value 0.041661603
+    inst [4 or "4 quantile:1.0"] value 0.055548804
+    inst [5 or "5 quantile:1.25"] value 0.069436005
+    inst [6 or "6 quantile:1.5"] value 0.083323206
+    inst [7 or "7 quantile:1.75"] value 0.097210407
+    inst [8 or "8 quantile:2.0"] value 0.111097608
+    inst [9 or "9 quantile:2.25"] value 0.124984809
+
+prometheus.source85.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 14637663900
+    inst [2 or "2 baz:1.4"] value 29275327800
+    inst [3 or "3 baz:2.0999999999999996"] value 43912991700
+    inst [4 or "4 baz:2.8"] value 58550655500
+    inst [5 or "5 baz:3.5"] value 73188319400
+    inst [6 or "6 baz:4.199999999999999"] value 87825983300
+    inst [7 or "7 baz:4.8999999999999995"] value 102463647000
+    inst [8 or "8 baz:5.6"] value 117101311000
+    inst [9 or "9 baz:6.3"] value 131738975000
+
+prometheus.source85.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1028.5
+    inst [2 or "2 bar:2"] value 2057
+    inst [3 or "3 bar:3"] value 3085.5
+    inst [4 or "4 bar:4"] value 4114
+    inst [5 or "5 bar:5"] value 5142.5
+    inst [6 or "6 bar:6"] value 6171
+    inst [7 or "7 bar:7"] value 7199.5
+    inst [8 or "8 bar:8"] value 8228
+    inst [9 or "9 bar:9"] value 9256.5
+
+prometheus.source86.sample_summary0002_count
+    value 159984
+
+prometheus.source86.sample_summary0002_sum
+    value 122.42619576
+
+prometheus.source86.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.014046824
+    inst [2 or "2 quantile:0.5"] value 0.028093648
+    inst [3 or "3 quantile:0.75"] value 0.042140472
+    inst [4 or "4 quantile:1.0"] value 0.056187296
+    inst [5 or "5 quantile:1.25"] value 0.07023412
+    inst [6 or "6 quantile:1.5"] value 0.084280944
+    inst [7 or "7 quantile:1.75"] value 0.098327768
+    inst [8 or "8 quantile:2.0"] value 0.112374592
+    inst [9 or "9 quantile:2.25"] value 0.126421416
+
+prometheus.source86.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 14807869300
+    inst [2 or "2 baz:1.4"] value 29615738600
+    inst [3 or "3 baz:2.0999999999999996"] value 44423607800
+    inst [4 or "4 baz:2.8"] value 59231477100
+    inst [5 or "5 baz:3.5"] value 74039346400
+    inst [6 or "6 baz:4.199999999999999"] value 88847215700
+    inst [7 or "7 baz:4.8999999999999995"] value 103655085000
+    inst [8 or "8 baz:5.6"] value 118462954000
+    inst [9 or "9 baz:6.3"] value 133270824000
+
+prometheus.source86.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1040.6
+    inst [2 or "2 bar:2"] value 2081.2
+    inst [3 or "3 bar:3"] value 3121.8
+    inst [4 or "4 bar:4"] value 4162.4
+    inst [5 or "5 bar:5"] value 5203
+    inst [6 or "6 bar:6"] value 6243.6
+    inst [7 or "7 bar:7"] value 7284.2
+    inst [8 or "8 bar:8"] value 8324.799999999999
+    inst [9 or "9 bar:9"] value 9365.4
+
+prometheus.source87.sample_summary0002_count
+    value 161802
+
+prometheus.source87.sample_summary0002_sum
+    value 123.81740253
+
+prometheus.source87.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.014206447
+    inst [2 or "2 quantile:0.5"] value 0.028412894
+    inst [3 or "3 quantile:0.75"] value 0.042619341
+    inst [4 or "4 quantile:1.0"] value 0.056825788
+    inst [5 or "5 quantile:1.25"] value 0.071032235
+    inst [6 or "6 quantile:1.5"] value 0.085238682
+    inst [7 or "7 quantile:1.75"] value 0.09944512899999999
+    inst [8 or "8 quantile:2.0"] value 0.113651576
+    inst [9 or "9 quantile:2.25"] value 0.127858023
+
+prometheus.source87.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 14978074700
+    inst [2 or "2 baz:1.4"] value 29956149300
+    inst [3 or "3 baz:2.0999999999999996"] value 44934224000
+    inst [4 or "4 baz:2.8"] value 59912298700
+    inst [5 or "5 baz:3.5"] value 74890373400
+    inst [6 or "6 baz:4.199999999999999"] value 89868448000
+    inst [7 or "7 baz:4.8999999999999995"] value 104846523000
+    inst [8 or "8 baz:5.6"] value 119824597000
+    inst [9 or "9 baz:6.3"] value 134802672000
+
+prometheus.source87.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1052.7
+    inst [2 or "2 bar:2"] value 2105.4
+    inst [3 or "3 bar:3"] value 3158.1
+    inst [4 or "4 bar:4"] value 4210.8
+    inst [5 or "5 bar:5"] value 5263.5
+    inst [6 or "6 bar:6"] value 6316.2
+    inst [7 or "7 bar:7"] value 7368.9
+    inst [8 or "8 bar:8"] value 8421.6
+    inst [9 or "9 bar:9"] value 9474.299999999999
+
+prometheus.source88.sample_summary0002_count
+    value 163620
+
+prometheus.source88.sample_summary0002_sum
+    value 125.2086093
+
+prometheus.source88.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.01436607
+    inst [2 or "2 quantile:0.5"] value 0.02873214
+    inst [3 or "3 quantile:0.75"] value 0.04309821
+    inst [4 or "4 quantile:1.0"] value 0.05746428
+    inst [5 or "5 quantile:1.25"] value 0.07183035
+    inst [6 or "6 quantile:1.5"] value 0.08619642
+    inst [7 or "7 quantile:1.75"] value 0.10056249
+    inst [8 or "8 quantile:2.0"] value 0.11492856
+    inst [9 or "9 quantile:2.25"] value 0.12929463
+
+prometheus.source88.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 15148280100
+    inst [2 or "2 baz:1.4"] value 30296560100
+    inst [3 or "3 baz:2.0999999999999996"] value 45444840200
+    inst [4 or "4 baz:2.8"] value 60593120300
+    inst [5 or "5 baz:3.5"] value 75741400300
+    inst [6 or "6 baz:4.199999999999999"] value 90889680400
+    inst [7 or "7 baz:4.8999999999999995"] value 106037960000
+    inst [8 or "8 baz:5.6"] value 121186241000
+    inst [9 or "9 baz:6.3"] value 136334521000
+
+prometheus.source88.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1064.8
+    inst [2 or "2 bar:2"] value 2129.6
+    inst [3 or "3 bar:3"] value 3194.4
+    inst [4 or "4 bar:4"] value 4259.2
+    inst [5 or "5 bar:5"] value 5324
+    inst [6 or "6 bar:6"] value 6388.8
+    inst [7 or "7 bar:7"] value 7453.6
+    inst [8 or "8 bar:8"] value 8518.4
+    inst [9 or "9 bar:9"] value 9583.200000000001
+
+prometheus.source89.sample_summary0002_count
+    value 165438
+
+prometheus.source89.sample_summary0002_sum
+    value 126.59981607
+
+prometheus.source89.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.014525693
+    inst [2 or "2 quantile:0.5"] value 0.029051386
+    inst [3 or "3 quantile:0.75"] value 0.043577079
+    inst [4 or "4 quantile:1.0"] value 0.058102772
+    inst [5 or "5 quantile:1.25"] value 0.072628465
+    inst [6 or "6 quantile:1.5"] value 0.087154158
+    inst [7 or "7 quantile:1.75"] value 0.101679851
+    inst [8 or "8 quantile:2.0"] value 0.116205544
+    inst [9 or "9 quantile:2.25"] value 0.130731237
+
+prometheus.source89.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 15318485500
+    inst [2 or "2 baz:1.4"] value 30636970900
+    inst [3 or "3 baz:2.0999999999999996"] value 45955456400
+    inst [4 or "4 baz:2.8"] value 61273941800
+    inst [5 or "5 baz:3.5"] value 76592427300
+    inst [6 or "6 baz:4.199999999999999"] value 91910912800
+    inst [7 or "7 baz:4.8999999999999995"] value 107229398000
+    inst [8 or "8 baz:5.6"] value 122547884000
+    inst [9 or "9 baz:6.3"] value 137866369000
+
+prometheus.source89.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1076.9
+    inst [2 or "2 bar:2"] value 2153.8
+    inst [3 or "3 bar:3"] value 3230.7
+    inst [4 or "4 bar:4"] value 4307.6
+    inst [5 or "5 bar:5"] value 5384.5
+    inst [6 or "6 bar:6"] value 6461.4
+    inst [7 or "7 bar:7"] value 7538.3
+    inst [8 or "8 bar:8"] value 8615.200000000001
+    inst [9 or "9 bar:9"] value 9692.1
+
+prometheus.source90.sample_summary0002_count
+    value 167256
+
+prometheus.source90.sample_summary0002_sum
+    value 127.99102284
+
+prometheus.source90.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.014685316
+    inst [2 or "2 quantile:0.5"] value 0.029370632
+    inst [3 or "3 quantile:0.75"] value 0.044055948
+    inst [4 or "4 quantile:1.0"] value 0.058741264
+    inst [5 or "5 quantile:1.25"] value 0.07342658000000001
+    inst [6 or "6 quantile:1.5"] value 0.088111896
+    inst [7 or "7 quantile:1.75"] value 0.102797212
+    inst [8 or "8 quantile:2.0"] value 0.117482528
+    inst [9 or "9 quantile:2.25"] value 0.132167844
+
+prometheus.source90.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 15488690900
+    inst [2 or "2 baz:1.4"] value 30977381700
+    inst [3 or "3 baz:2.0999999999999996"] value 46466072600
+    inst [4 or "4 baz:2.8"] value 61954763400
+    inst [5 or "5 baz:3.5"] value 77443454300
+    inst [6 or "6 baz:4.199999999999999"] value 92932145100
+    inst [7 or "7 baz:4.8999999999999995"] value 108420836000
+    inst [8 or "8 baz:5.6"] value 123909527000
+    inst [9 or "9 baz:6.3"] value 139398218000
+
+prometheus.source90.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1089
+    inst [2 or "2 bar:2"] value 2178
+    inst [3 or "3 bar:3"] value 3267
+    inst [4 or "4 bar:4"] value 4356
+    inst [5 or "5 bar:5"] value 5445
+    inst [6 or "6 bar:6"] value 6534
+    inst [7 or "7 bar:7"] value 7623
+    inst [8 or "8 bar:8"] value 8712
+    inst [9 or "9 bar:9"] value 9801
+
+prometheus.source91.sample_summary0002_count
+    value 169074
+
+prometheus.source91.sample_summary0002_sum
+    value 129.38222961
+
+prometheus.source91.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.014844939
+    inst [2 or "2 quantile:0.5"] value 0.029689878
+    inst [3 or "3 quantile:0.75"] value 0.044534817
+    inst [4 or "4 quantile:1.0"] value 0.059379756
+    inst [5 or "5 quantile:1.25"] value 0.07422469499999999
+    inst [6 or "6 quantile:1.5"] value 0.08906963399999999
+    inst [7 or "7 quantile:1.75"] value 0.103914573
+    inst [8 or "8 quantile:2.0"] value 0.118759512
+    inst [9 or "9 quantile:2.25"] value 0.133604451
+
+prometheus.source91.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 15658896200
+    inst [2 or "2 baz:1.4"] value 31317792500
+    inst [3 or "3 baz:2.0999999999999996"] value 46976688700
+    inst [4 or "4 baz:2.8"] value 62635585000
+    inst [5 or "5 baz:3.5"] value 78294481200
+    inst [6 or "6 baz:4.199999999999999"] value 93953377500
+    inst [7 or "7 baz:4.8999999999999995"] value 109612274000
+    inst [8 or "8 baz:5.6"] value 125271170000
+    inst [9 or "9 baz:6.3"] value 140930066000
+
+prometheus.source91.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1101.1
+    inst [2 or "2 bar:2"] value 2202.2
+    inst [3 or "3 bar:3"] value 3303.3
+    inst [4 or "4 bar:4"] value 4404.4
+    inst [5 or "5 bar:5"] value 5505.5
+    inst [6 or "6 bar:6"] value 6606.6
+    inst [7 or "7 bar:7"] value 7707.7
+    inst [8 or "8 bar:8"] value 8808.799999999999
+    inst [9 or "9 bar:9"] value 9909.9
+
+prometheus.source92.sample_summary0002_count
+    value 170892
+
+prometheus.source92.sample_summary0002_sum
+    value 130.77343638
+
+prometheus.source92.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.015004562
+    inst [2 or "2 quantile:0.5"] value 0.030009124
+    inst [3 or "3 quantile:0.75"] value 0.045013686
+    inst [4 or "4 quantile:1.0"] value 0.060018248
+    inst [5 or "5 quantile:1.25"] value 0.07502281
+    inst [6 or "6 quantile:1.5"] value 0.09002737199999999
+    inst [7 or "7 quantile:1.75"] value 0.105031934
+    inst [8 or "8 quantile:2.0"] value 0.120036496
+    inst [9 or "9 quantile:2.25"] value 0.135041058
+
+prometheus.source92.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 15829101600
+    inst [2 or "2 baz:1.4"] value 31658203300
+    inst [3 or "3 baz:2.0999999999999996"] value 47487304900
+    inst [4 or "4 baz:2.8"] value 63316406600
+    inst [5 or "5 baz:3.5"] value 79145508200
+    inst [6 or "6 baz:4.199999999999999"] value 94974609900
+    inst [7 or "7 baz:4.8999999999999995"] value 110803711000
+    inst [8 or "8 baz:5.6"] value 126632813000
+    inst [9 or "9 baz:6.3"] value 142461915000
+
+prometheus.source92.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1113.2
+    inst [2 or "2 bar:2"] value 2226.4
+    inst [3 or "3 bar:3"] value 3339.6
+    inst [4 or "4 bar:4"] value 4452.8
+    inst [5 or "5 bar:5"] value 5566
+    inst [6 or "6 bar:6"] value 6679.2
+    inst [7 or "7 bar:7"] value 7792.4
+    inst [8 or "8 bar:8"] value 8905.6
+    inst [9 or "9 bar:9"] value 10018.8
+
+prometheus.source93.sample_summary0002_count
+    value 172710
+
+prometheus.source93.sample_summary0002_sum
+    value 132.16464315
+
+prometheus.source93.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.015164185
+    inst [2 or "2 quantile:0.5"] value 0.03032837
+    inst [3 or "3 quantile:0.75"] value 0.045492555
+    inst [4 or "4 quantile:1.0"] value 0.06065674
+    inst [5 or "5 quantile:1.25"] value 0.075820925
+    inst [6 or "6 quantile:1.5"] value 0.09098510999999999
+    inst [7 or "7 quantile:1.75"] value 0.106149295
+    inst [8 or "8 quantile:2.0"] value 0.12131348
+    inst [9 or "9 quantile:2.25"] value 0.136477665
+
+prometheus.source93.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 15999307000
+    inst [2 or "2 baz:1.4"] value 31998614100
+    inst [3 or "3 baz:2.0999999999999996"] value 47997921100
+    inst [4 or "4 baz:2.8"] value 63997228100
+    inst [5 or "5 baz:3.5"] value 79996535200
+    inst [6 or "6 baz:4.199999999999999"] value 95995842200
+    inst [7 or "7 baz:4.8999999999999995"] value 111995149000
+    inst [8 or "8 baz:5.6"] value 127994456000
+    inst [9 or "9 baz:6.3"] value 143993763000
+
+prometheus.source93.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1125.3
+    inst [2 or "2 bar:2"] value 2250.6
+    inst [3 or "3 bar:3"] value 3375.9
+    inst [4 or "4 bar:4"] value 4501.2
+    inst [5 or "5 bar:5"] value 5626.5
+    inst [6 or "6 bar:6"] value 6751.8
+    inst [7 or "7 bar:7"] value 7877.1
+    inst [8 or "8 bar:8"] value 9002.4
+    inst [9 or "9 bar:9"] value 10127.7
+
+prometheus.source94.sample_summary0002_count
+    value 174528
+
+prometheus.source94.sample_summary0002_sum
+    value 133.55584992
+
+prometheus.source94.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.015323808
+    inst [2 or "2 quantile:0.5"] value 0.030647616
+    inst [3 or "3 quantile:0.75"] value 0.045971424
+    inst [4 or "4 quantile:1.0"] value 0.061295232
+    inst [5 or "5 quantile:1.25"] value 0.07661904
+    inst [6 or "6 quantile:1.5"] value 0.09194284799999999
+    inst [7 or "7 quantile:1.75"] value 0.107266656
+    inst [8 or "8 quantile:2.0"] value 0.122590464
+    inst [9 or "9 quantile:2.25"] value 0.137914272
+
+prometheus.source94.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 16169512400
+    inst [2 or "2 baz:1.4"] value 32339024900
+    inst [3 or "3 baz:2.0999999999999996"] value 48508537300
+    inst [4 or "4 baz:2.8"] value 64678049700
+    inst [5 or "5 baz:3.5"] value 80847562200
+    inst [6 or "6 baz:4.199999999999999"] value 97017074600
+    inst [7 or "7 baz:4.8999999999999995"] value 113186587000
+    inst [8 or "8 baz:5.6"] value 129356099000
+    inst [9 or "9 baz:6.3"] value 145525612000
+
+prometheus.source94.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1137.4
+    inst [2 or "2 bar:2"] value 2274.8
+    inst [3 or "3 bar:3"] value 3412.2
+    inst [4 or "4 bar:4"] value 4549.6
+    inst [5 or "5 bar:5"] value 5687
+    inst [6 or "6 bar:6"] value 6824.4
+    inst [7 or "7 bar:7"] value 7961.8
+    inst [8 or "8 bar:8"] value 9099.200000000001
+    inst [9 or "9 bar:9"] value 10236.6
+
+prometheus.source95.sample_summary0002_count
+    value 176346
+
+prometheus.source95.sample_summary0002_sum
+    value 134.94705669
+
+prometheus.source95.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.015483431
+    inst [2 or "2 quantile:0.5"] value 0.030966862
+    inst [3 or "3 quantile:0.75"] value 0.046450293
+    inst [4 or "4 quantile:1.0"] value 0.061933724
+    inst [5 or "5 quantile:1.25"] value 0.077417155
+    inst [6 or "6 quantile:1.5"] value 0.09290058599999999
+    inst [7 or "7 quantile:1.75"] value 0.108384017
+    inst [8 or "8 quantile:2.0"] value 0.123867448
+    inst [9 or "9 quantile:2.25"] value 0.139350879
+
+prometheus.source95.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 16339717800
+    inst [2 or "2 baz:1.4"] value 32679435600
+    inst [3 or "3 baz:2.0999999999999996"] value 49019153500
+    inst [4 or "4 baz:2.8"] value 65358871300
+    inst [5 or "5 baz:3.5"] value 81698589100
+    inst [6 or "6 baz:4.199999999999999"] value 98038306900
+    inst [7 or "7 baz:4.8999999999999995"] value 114378025000
+    inst [8 or "8 baz:5.6"] value 130717743000
+    inst [9 or "9 baz:6.3"] value 147057460000
+
+prometheus.source95.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1149.5
+    inst [2 or "2 bar:2"] value 2299
+    inst [3 or "3 bar:3"] value 3448.5
+    inst [4 or "4 bar:4"] value 4598
+    inst [5 or "5 bar:5"] value 5747.5
+    inst [6 or "6 bar:6"] value 6897
+    inst [7 or "7 bar:7"] value 8046.5
+    inst [8 or "8 bar:8"] value 9196
+    inst [9 or "9 bar:9"] value 10345.5
+
+prometheus.source96.sample_summary0002_count
+    value 178164
+
+prometheus.source96.sample_summary0002_sum
+    value 136.33826346
+
+prometheus.source96.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.015643054
+    inst [2 or "2 quantile:0.5"] value 0.031286108
+    inst [3 or "3 quantile:0.75"] value 0.046929162
+    inst [4 or "4 quantile:1.0"] value 0.062572216
+    inst [5 or "5 quantile:1.25"] value 0.07821527
+    inst [6 or "6 quantile:1.5"] value 0.09385832400000001
+    inst [7 or "7 quantile:1.75"] value 0.109501378
+    inst [8 or "8 quantile:2.0"] value 0.125144432
+    inst [9 or "9 quantile:2.25"] value 0.140787486
+
+prometheus.source96.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 16509923200
+    inst [2 or "2 baz:1.4"] value 33019846400
+    inst [3 or "3 baz:2.0999999999999996"] value 49529769700
+    inst [4 or "4 baz:2.8"] value 66039692900
+    inst [5 or "5 baz:3.5"] value 82549616100
+    inst [6 or "6 baz:4.199999999999999"] value 99059539300
+    inst [7 or "7 baz:4.8999999999999995"] value 115569463000
+    inst [8 or "8 baz:5.6"] value 132079386000
+    inst [9 or "9 baz:6.3"] value 148589309000
+
+prometheus.source96.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1161.6
+    inst [2 or "2 bar:2"] value 2323.2
+    inst [3 or "3 bar:3"] value 3484.8
+    inst [4 or "4 bar:4"] value 4646.4
+    inst [5 or "5 bar:5"] value 5808
+    inst [6 or "6 bar:6"] value 6969.6
+    inst [7 or "7 bar:7"] value 8131.2
+    inst [8 or "8 bar:8"] value 9292.799999999999
+    inst [9 or "9 bar:9"] value 10454.4
+
+prometheus.source97.sample_summary0002_count
+    value 179982
+
+prometheus.source97.sample_summary0002_sum
+    value 137.72947023
+
+prometheus.source97.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.015802677
+    inst [2 or "2 quantile:0.5"] value 0.031605354
+    inst [3 or "3 quantile:0.75"] value 0.047408031
+    inst [4 or "4 quantile:1.0"] value 0.063210708
+    inst [5 or "5 quantile:1.25"] value 0.07901338500000001
+    inst [6 or "6 quantile:1.5"] value 0.09481606200000001
+    inst [7 or "7 quantile:1.75"] value 0.110618739
+    inst [8 or "8 quantile:2.0"] value 0.126421416
+    inst [9 or "9 quantile:2.25"] value 0.142224093
+
+prometheus.source97.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 16680128600
+    inst [2 or "2 baz:1.4"] value 33360257200
+    inst [3 or "3 baz:2.0999999999999996"] value 50040385800
+    inst [4 or "4 baz:2.8"] value 66720514400
+    inst [5 or "5 baz:3.5"] value 83400643100
+    inst [6 or "6 baz:4.199999999999999"] value 100080772000
+    inst [7 or "7 baz:4.8999999999999995"] value 116760900000
+    inst [8 or "8 baz:5.6"] value 133441029000
+    inst [9 or "9 baz:6.3"] value 150121158000
+
+prometheus.source97.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1173.7
+    inst [2 or "2 bar:2"] value 2347.4
+    inst [3 or "3 bar:3"] value 3521.1
+    inst [4 or "4 bar:4"] value 4694.8
+    inst [5 or "5 bar:5"] value 5868.5
+    inst [6 or "6 bar:6"] value 7042.2
+    inst [7 or "7 bar:7"] value 8215.9
+    inst [8 or "8 bar:8"] value 9389.6
+    inst [9 or "9 bar:9"] value 10563.3
+
+prometheus.source98.sample_summary0002_count
+    value 181800
+
+prometheus.source98.sample_summary0002_sum
+    value 139.120677
+
+prometheus.source98.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.0159623
+    inst [2 or "2 quantile:0.5"] value 0.0319246
+    inst [3 or "3 quantile:0.75"] value 0.0478869
+    inst [4 or "4 quantile:1.0"] value 0.06384919999999999
+    inst [5 or "5 quantile:1.25"] value 0.07981149999999999
+    inst [6 or "6 quantile:1.5"] value 0.09577380000000001
+    inst [7 or "7 quantile:1.75"] value 0.1117361
+    inst [8 or "8 quantile:2.0"] value 0.1276984
+    inst [9 or "9 quantile:2.25"] value 0.1436607
+
+prometheus.source98.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 16850334000
+    inst [2 or "2 baz:1.4"] value 33700668000
+    inst [3 or "3 baz:2.0999999999999996"] value 50551002000
+    inst [4 or "4 baz:2.8"] value 67401336000
+    inst [5 or "5 baz:3.5"] value 84251670000
+    inst [6 or "6 baz:4.199999999999999"] value 101102004000
+    inst [7 or "7 baz:4.8999999999999995"] value 117952338000
+    inst [8 or "8 baz:5.6"] value 134802672000
+    inst [9 or "9 baz:6.3"] value 151653006000
+
+prometheus.source98.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1185.8
+    inst [2 or "2 bar:2"] value 2371.6
+    inst [3 or "3 bar:3"] value 3557.4
+    inst [4 or "4 bar:4"] value 4743.2
+    inst [5 or "5 bar:5"] value 5929
+    inst [6 or "6 bar:6"] value 7114.8
+    inst [7 or "7 bar:7"] value 8300.6
+    inst [8 or "8 bar:8"] value 9486.4
+    inst [9 or "9 bar:9"] value 10672.2
+
+prometheus.source99.sample_summary0002_count
+    value 183618
+
+prometheus.source99.sample_summary0002_sum
+    value 140.51188377
+
+prometheus.source99.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.016121923
+    inst [2 or "2 quantile:0.5"] value 0.032243846
+    inst [3 or "3 quantile:0.75"] value 0.048365769
+    inst [4 or "4 quantile:1.0"] value 0.064487692
+    inst [5 or "5 quantile:1.25"] value 0.080609615
+    inst [6 or "6 quantile:1.5"] value 0.09673153800000001
+    inst [7 or "7 quantile:1.75"] value 0.112853461
+    inst [8 or "8 quantile:2.0"] value 0.128975384
+    inst [9 or "9 quantile:2.25"] value 0.145097307
+
+prometheus.source99.sample_counter0001
+    inst [0 or "0 baz:0.0"] value 0
+    inst [1 or "1 baz:0.7"] value 17020539400
+    inst [2 or "2 baz:1.4"] value 34041078800
+    inst [3 or "3 baz:2.0999999999999996"] value 51061618200
+    inst [4 or "4 baz:2.8"] value 68082157600
+    inst [5 or "5 baz:3.5"] value 85102697000
+    inst [6 or "6 baz:4.199999999999999"] value 102123236000
+    inst [7 or "7 baz:4.8999999999999995"] value 119143776000
+    inst [8 or "8 baz:5.6"] value 136164315000
+    inst [9 or "9 baz:6.3"] value 153184855000
+
+prometheus.source99.sample_gauge0000
+    inst [0 or "0 bar:0"] value 0
+    inst [1 or "1 bar:1"] value 1197.9
+    inst [2 or "2 bar:2"] value 2395.8
+    inst [3 or "3 bar:3"] value 3593.7
+    inst [4 or "4 bar:4"] value 4791.6
+    inst [5 or "5 bar:5"] value 5989.5
+    inst [6 or "6 bar:6"] value 7187.4
+    inst [7 or "7 bar:7"] value 8385.299999999999
+    inst [8 or "8 bar:8"] value 9583.200000000001
+    inst [9 or "9 bar:9"] value 10781.1
+
+=== remove prometheus agent ===
+Culling the Performance Metrics Name Space ...
+prometheus ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check prometheus metrics have gone away ... OK

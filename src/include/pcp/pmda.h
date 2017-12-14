@@ -552,10 +552,12 @@ PMDA_CALL extern int pmdaAddLabelFlags(pmLabelSet *, int);
 /*
  * Dynamic metric table manipulation
  *
- * pmdaDynamicPMNS
+ * pmdaExtDynamicPMNS / pmdaDynamicPMNS
  *	Register a new dynamic namespace sub-tree associated with one or more
  *	PMID clusters.  Callbacks are passed in to deal with PMDA-specific
  *	components (names, help text, metric duplication, and table sizing).
+ *	pmdaExtDynamicPMNS is preferred as it works in both DSO/daemon modes;
+ *	however pmdaDynamicPMNS is maintained for backward compatibility.
  *
  * pmdaDynamicLookupName
  *	Perform PMDA name lookup operations for the name callback, for dynamic
@@ -583,6 +585,10 @@ typedef int  (*pmdaUpdatePMNS)(pmdaExt *, pmdaNameSpace **);
 typedef int  (*pmdaUpdateText)(pmdaExt *, pmID, int, char **);
 typedef void (*pmdaUpdateMetric)(pmdaMetric *, pmdaMetric *, int);
 typedef void (*pmdaCountMetrics)(int *, int *);
+PMDA_CALL extern void pmdaExtDynamicPMNS(const char *, int *, int,
+                                     pmdaUpdatePMNS, pmdaUpdateText,
+                                     pmdaUpdateMetric, pmdaCountMetrics,
+                                     pmdaMetric *, int, pmdaExt *);
 PMDA_CALL extern void pmdaDynamicPMNS(const char *, int *, int,
                                      pmdaUpdatePMNS, pmdaUpdateText,
                                      pmdaUpdateMetric, pmdaCountMetrics,

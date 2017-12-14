@@ -81,6 +81,12 @@ curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcund
 &from=07:03_20151201&until=07:16_20151201&maxDataPoints=14" | _filter_curl_i | _webapi_json_pretty | \
 awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
 
+echo;echo;echo === pmwebd/graphite time series dump for ._ metric ===
+# fetch the _ bit too
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcunda._\
+&from=07:03_20151120&until=07:16_20151222" | _filter_curl_i | _webapi_json_pretty | \
+awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
+
 cat $tmp.out >> $seq.full
 status=0
 exit

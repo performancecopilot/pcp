@@ -224,6 +224,7 @@ _pcp () {
       "(-f --font-family $exargs)"{-f+,--font-family}'[specify font family]:family:_xft_fonts' \
       "(-g --geometry $exargs)"{-g+,--geometry}'[specify image geometry (WxH)]:geometry:' \
       "(-o --output $exargs)"{-o+,--output}'[specify output file]:file:_files' \
+      "(-s --samples $exargs)"{-s+,--samples}'[buffer up N points of sample history]:samples:' \
       "(-v --visible $exargs)"{-v+,--visible}'[set points to display]:points:' \
       "(-W --white $exargs)"{-W,--white}'[export using opaque (white) bg]' \
       '*:source:_hosts' \
@@ -275,7 +276,7 @@ _pcp () {
       - set1 \
       "(-a --all $exargs)"{-a,--all}'[dump everything]' \
       "(-d --descs $exargs)"{-d,--descs}'[dump metric descriptions]' \
-      "(-e --labelsets $exargs)"{-l,--labelsets}'[dump all metric label metadata]' \
+      "(-e --labelsets $exargs)"{-e,--labelsets}'[dump all metric label metadata]' \
       "(-h --helptext $exargs)"{-h,--helptext}'[dump all metric help text]' \
       "(-i --insts $exargs)"{-i,--insts}'[dump instance domain descriptions]' \
       "(-L $exargs)"-L'[verbose label dump]' \

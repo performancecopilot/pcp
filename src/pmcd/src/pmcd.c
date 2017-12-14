@@ -800,8 +800,10 @@ ClientLoop(void)
 
 		if ((args = getenv("PMCD_RESTART_AGENTS")) == NULL)
 		    restartAgents = 1;	/* unset, default to enabled */
-		else
+		else {
 		    restartAgents = (strcmp(args, "0") != 0);
+		    fprintf(stderr, "Warning: restartAgents=%d from PMCD_RESTART_AGENTS=%s in environment\n", restartAgents, args);
+		}
 	    }
 	    AgentPendingRestart = restartAgents;
 	}
@@ -906,6 +908,10 @@ SigBad(int sig)
     _exit(sig);
 }
 
+#define ENV_WARN_PORT	1
+#define ENV_WARN_LOCAL	2
+#define ENV_WARN_MAXPENDING	4
+
 int
 main(int argc, char *argv[])
 {
@@ -913,6 +919,7 @@ main(int argc, char *argv[])
     int		nport = 0;
     int		localhost = 0;
     int		maxpending = MAXPENDING;
+    int		env_warn = 0;
     char	*envstr;
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
@@ -927,13 +934,20 @@ main(int argc, char *argv[])
     __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
     __pmServerSetFeature(PM_SERVER_FEATURE_CONTAINERS);
 
-    if ((envstr = getenv("PMCD_PORT")) != NULL)
+    if ((envstr = getenv("PMCD_PORT")) != NULL) {
 	nport = __pmServerAddPorts(envstr);
-    if ((envstr = getenv("PMCD_LOCAL")) != NULL)
-	if ((localhost = atoi(envstr)) != 0)
+	env_warn |= ENV_WARN_PORT;
+    }
+    if ((envstr = getenv("PMCD_LOCAL")) != NULL) {
+	if ((localhost = atoi(envstr)) != 0) {
 	    __pmServerSetFeature(PM_SERVER_FEATURE_LOCAL);
-    if ((envstr = getenv("PMCD_MAXPENDING")) != NULL)
+	    env_warn |= ENV_WARN_LOCAL;
+	}
+    }
+    if ((envstr = getenv("PMCD_MAXPENDING")) != NULL) {
 	maxpending = atoi(envstr);
+	env_warn |= ENV_WARN_MAXPENDING;
+    }
     ParseOptions(argc, argv, &nport);
     if (localhost)
 	__pmServerAddInterface("INADDR_LOOPBACK");
@@ -988,6 +1002,13 @@ main(int argc, char *argv[])
     sts = dup(fileno(stderr));
     /* if this fails beware of the sky falling in */
     assert(sts >= 0);
+
+    if (env_warn & ENV_WARN_PORT)
+	fprintf(stderr, "Warning: nports=%d from PMCD_PORT=%s in environment\n", nport, getenv("PMCD_PORTS"));
+    if (env_warn & ENV_WARN_LOCAL)
+	fprintf(stderr, "Warning: localhost only from PMCD_LOCAL=%s in environment\n", getenv("PMCD_LOCAL"));
+    if (env_warn & ENV_WARN_MAXPENDING)
+	fprintf(stderr, "Warning: maxpending=%d from PMCD_MAXPENDING=%s from environment\n", maxpending, getenv("PMCD_MAXPENDING"));
 
     sts = pmLoadASCIINameSpace(pmnsfile, dupok);
     if (sts < 0) {

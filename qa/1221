@@ -2,6 +2,9 @@
 # PCP QA Test No. 1221
 # test pmda prometheus labels
 #
+# Note: if anything gets added or changed in qa/prometheus/samples directory,
+# then this test (and all tests in group pmda.prometheus) will need to be remade.
+#
 # Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
 
@@ -12,28 +15,91 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.python
 
-# test for-some-thing || _notrun No support for some-thing
+[ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+mkdir -p $tmp
 
 _cleanup()
 {
     cd $here
+    alive=`kill -s 0 $pid >/dev/null 2>&1`
+    pidstatus=$?
+    if [ $pidstatus == 0 ]
+    then
+	$sudo kill $pid 2>&1 >/dev/null
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
+pmdaprometheus_remove()
+{
+    echo
+    echo "=== remove prometheus agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
 
-# real QA test starts here
-_notrun test pmda prometheus label support
+pmdaprometheus_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/prometheus
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop 2>&1 | _filter_pcp_stop
 
-# if error
-exit
+    echo
+    echo "=== prometheus agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+}
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+_filter()
+{
+    sed \
+    -e 's/"userid":[0-9]*/"userid":NUM/' \
+    -e 's/"groupid":[0-9]*/"groupid":NUM/' \
+    -e 's/"url":"file:.*\.txt"/"url":FILEURL/' \
+    -e 's/"hostname":"[a-z0-9_-]*"/"hostname":HOSTNAME/'
+}
+
+_prepare_pmda prometheus
+trap "_cleanup _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+
+_save_config $PCP_PMDAS_DIR/prometheus/urls.d
+_save_config $PCP_VAR_DIR/config/pmda
+$sudo rm -f $PCP_PMDAS_DIR/prometheus/urls.d/*
+$sudo rm -f $PCP_VAR_DIR/config/pmda/*
+$sudo chmod 777 $PCP_PMDAS_DIR/prometheus/urls.d/
+
+pmdaprometheus_install
+
+
+# add all the sample text files as urls.
+ls -1 $here/prometheus/samples/*.txt | sort | while read file
+do
+    urlbase=`basename $file .txt | tr .- _`
+    echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/urls.d/$urlbase.url
+done
+
+sleep 2 #avoid racing (zoom zoom)
+
+metrics=`pminfo prometheus | LC_COLLATE=POSIX sort`
+if pminfo -l $metrics 2> $tmp.err | _filter | tee $tmp.info
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err
+
+pmdaprometheus_remove
+
+_restore_config $PCP_PMDAS_DIR/prometheus/urls.d
+_restore_config $PCP_VAR_DIR/config/pmda
 
 # success, all done
 status=0

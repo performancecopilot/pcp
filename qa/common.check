@@ -171,20 +171,22 @@ _restore_auto_restart()
 # one has to do the $sudo and the journal dredging and handle "pcp" as
 # the special non-service case ...
 #
-# Usage: _service <service> [on|off|restart|...]
+# Usage: _service [-v] <service> [on|off|restart|...]
 #
 _service()
 {
-    if [ $# -ne 2 ]
+    if [ -n "$1" -a "$1" = "-v" ]
     then
-	echo "_service: expect 2 arguments, not $# ($*)"
-	exit
+	_verbose=true
+	shift
+    else
+	_verbose=false
     fi
     _do_systemctl=false
     if [ "$PCPQA_SYSTEMD" = no ]
     then
 	# don't ever use systemctl
-	:
+	$_verbose && echo "_service: no systemctl, PCPQA_SYSTEMD=$PCPQA_SYSTEMD"
     else
 	which systemctl >/dev/null 2>&1 && _do_systemctl=true
 	if $_do_systemctl
@@ -196,6 +198,7 @@ _service()
 		    then
 			:
 		    else
+			$_verbose && echo "_service: no systemctl, need pmcd service, pmlogger servce and pcp rc script"
 			_do_systemctl=false
 		    fi
 		    ;;
@@ -204,10 +207,13 @@ _service()
 		    then
 			:
 		    else
+			$_verbose && echo "_service: no systemctl, need $1 service"
 			_do_systemctl=false
 		    fi
 		    ;;
 	    esac
+	else
+	    $_verbose && echo "_service: no systemct executable"
 	fi
     fi
 
@@ -238,6 +244,7 @@ _service()
 		    | egrep " (pmcd)|(pmlogger)\\[" \
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
+		$_verbose && echo "_service: using $PCP_RC_DIR/pcp $2"
 		$sudo $PCP_RC_DIR/pcp $2
 		sleep 2
 		if `which journalctl >/dev/null 2>&1`
@@ -264,6 +271,7 @@ _service()
 		    | egrep " $1\\[" \
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
+		$_verbose && echo "_service: using systemctl $2 $1.service"
 		$sudo systemctl $2 $1.service
 		sleep 2
 		if `which journalctl >/dev/null 2>&1`
@@ -314,6 +322,7 @@ skip == 0	{ print }' \
 	# end
     elif [ -f $PCP_RC_DIR/$1 ]
     then
+	$_verbose && echo "_service: using $PCP_RC_DIR/$1 $2"
 	$sudo $PCP_RC_DIR/$1 $2
     else
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"

@@ -132,9 +132,11 @@ _haveagents()
 		else
 		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 		    echo "Restarting PMCD ..."
-		    _service pcp restart
+		    SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
+		    unset PCPQA_SYSTEMD
+		    _service pmcd restart
 		    _wait_for_pmcd
-		    _wait_for_pmlogger
+		    export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
 		    restart=true
 		fi
 		if $reinstall
@@ -222,7 +224,8 @@ End-of-File
 	# restart after a package install ... just going one step
 	# at a time, carefully ...
 	#
-	_stop_auto_restart pmlogger
+	SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
+	unset PCPQA_SYSTEMD
 	_pid=`_get_pids_by_name -a 'pmlogger.*-P'`
 	_service pmlogger stop
 	if [ -n "$_pid" ]
@@ -233,9 +236,11 @@ End-of-File
 	fi
 	_service pmcd stop
 	_wait_pmcd_end
-	_service pcp start
+	_service pmcd start
 	_wait_for_pmcd
+	_service pmlogger start
 	_wait_for_pmlogger
+	export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
     fi
 }
 
@@ -246,7 +251,7 @@ _haveremote()
     if test -f "${PCP_SYSCONFIG_DIR}/pmcd"
     then
 	sed <$PCP_SYSCONFIG_DIR/pmcd >$tmp.tmp \
-		-e '/^PMCD_LOCAL=1/s/^/#/g'
+		-e '/^PMCD_LOCAL=1/s/^/#PCP QA# /g'
 	diff $PCP_SYSCONFIG_DIR/pmcd $tmp.tmp >/dev/null || \
 	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmcd
     fi
@@ -302,9 +307,11 @@ End-of-File
 		    ;;
 	esac
 	$sudo chown root:$grp $PCPQA_PMCDOPTIONS
-	_service pcp restart
+	SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
+	unset PCPQA_SYSTEMD
+	_service pmcd restart
 	_wait_for_pmcd
-	_wait_for_pmlogger
+	export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
     fi
 
 }
@@ -791,12 +798,50 @@ export QA_HOST QA_DIR QA_USER
 
 if $check
 then
-    x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
-    if [ ! -z "$x" ]
+    # try loopback default (-h localhost) first ...
+    #
+    x=`pminfo -v pmcd.control.timeout 2>&1`
+    if [ -n "$x" ]
     then
-	echo "Is pmcd running on host $QA_HOST?  Simple test produces ..."
+	echo "Is pmcd running on localhost?  Simple test produces ..."
 	echo "$x"
 	exit 1
+    fi
+    # now try -h localhostname
+    #
+    $sudo rm -f $tmp.ok
+    x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
+    if [ -n "$x" ]
+    then
+	case "$x"
+	in
+	    *'Connection refused')
+		# OK, now this might be a Fedora 27 style config set up
+		# where PMCD_LOCAL is set in the environment before the
+		# pmcd start up script is run
+		#
+		if [ -n "$PCP_SYSCONFIG_DIR" -a -f $PCP_SYSCONFIG_DIR/pmcd ]
+		then
+		    if grep '^[^#]*PMCD_LOCAL=1' $PCP_SYSCONFIG_DIR/pmcd >/dev/null
+		    then
+			_haveremote
+			SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
+			unset PCPQA_SYSTEMD
+			_service pmcd restart
+			_wait_for_pmcd
+			export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
+			x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
+			[ -z "$x" ] && touch $tmp.ok
+		    fi
+		fi
+		;;
+	esac
+	if [ ! -f $tmp.ok ]
+	then
+	    echo "Is pmcd running on host $QA_HOST?  Simple test produces ..."
+	    echo "$x"
+	    exit 1
+	fi
     fi
 fi
 

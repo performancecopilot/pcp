@@ -452,10 +452,10 @@ dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 void
 proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 {
-    int clusters[1]; /* Not needed, but kept for interface compatibility */
+    int clusters[1] = {0}; /* Not needed, kept for interface compatibility */
     int nclusters = 0;
 
-    pmdaDynamicPMNS("NOTNEEDED",
+    pmdaDynamicPMNS("proc",
                     clusters, nclusters,
                     refresh_dynamic_proc, dynamic_proc_text,
                     refresh_metrictable, size_metrictable,

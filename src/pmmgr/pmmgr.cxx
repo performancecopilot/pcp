@@ -33,6 +33,7 @@ extern "C" {
 #include <unistd.h>
 #include <glob.h>
 #include <sys/wait.h>
+#include <sys/vfs.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -272,13 +273,17 @@ pmmgr_configurable::get_config_multi(const string& file) const
       lines.push_back(line);
     if (! f.good())
       break;
-    // NB: an empty line is not necessarily a problem
-    #if 0
-    if (line == "")
-      timestamp(obatched(cerr)) << "file '" << file << "' parse warning: empty line ignored" << endl;
-    #endif
   }
 
+  return lines;
+}
+
+vector<string>
+pmmgr_configurable::get_config_multi(const string& file, const pmmgr_hostid& suffix) const
+{
+  vector<string> lines = get_config_multi (file + '.' + suffix);
+  vector<string> lines2 = get_config_multi (file);
+  lines.insert(lines.end(),lines2.begin(), lines2.end());
   return lines;
 }
 
@@ -292,20 +297,34 @@ pmmgr_configurable::get_config_exists(const string& file) const
 }
 
 
+bool
+pmmgr_configurable::get_config_exists(const string& file, const pmmgr_hostid& suffix) const
+{
+  return get_config_exists(file + '.' + suffix) || get_config_exists(file);
+}
+
+
 string
 pmmgr_configurable::get_config_single(const string& file) const
 {
   vector<string> lines = get_config_multi (file);
-  if (lines.size() == 1)
-    return lines[0];
-  else if (lines.size() > 1)
-    {
-      timestamp(obatched(cerr)) << "file '" << file << "' parse warning: ignored extra lines" << endl;
-      return "";
-    }
+  if (lines.size() >= 1)
+    return lines[0]; // ignore subsequent lines
   else
     return ""; // even an empty or nonexistent file comes back with a ""
 }
+
+
+string
+pmmgr_configurable::get_config_single(const string& file, const pmmgr_hostid& suffix) const
+{
+  vector<string> lines = get_config_multi (file, suffix);
+  if (lines.size() >= 1)
+    return lines[0]; // ignore subsequent lines
+  else
+    return ""; // even an empty or nonexistent file comes back with a ""
+}
+
 
 ostream& // NB: return by value!
 pmmgr_configurable::timestamp(ostream& o) const
@@ -351,19 +370,24 @@ pmmgr_job_spec::parse_metric_spec (const string& spec) const
 // NB: note: this function needs to be reentrant/concurrency-aware, since
 // multiple threads may be running it at the same time against the same
 // pmmgr_job_spec object!
-pmmgr_hostid
-pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
+set<pmmgr_hostid>
+pmmgr_job_spec::compute_hostids (const pcp_context_spec& ctx) const
 {
-  // static hostid takes precedence
-  string hostid_static = get_config_single ("hostid-static");
-  if (hostid_static != "")
-    return pmmgr_hostid (hostid_static);
+  set<pmmgr_hostid> hostids;
+
+  // static hostids take precedence
+  vector<string> hostid_static = get_config_multi ("hostid-static");
+  if (hostid_static.size() != 0) {
+    hostids.insert(hostid_static.begin(), hostid_static.end());
+    return hostids;
+  }
 
   pmFG fg;
   int sts = pmCreateFetchGroup (&fg, PM_CONTEXT_HOST, ctx.c_str());
-  if (sts < 0)
-    return "";
-
+  if (sts < 0) {
+    return hostids; // empty
+  }
+  
   // parse all the hostid metric specifications
   vector<string> hostid_specs = get_config_multi("hostid-metrics");
   if (hostid_specs.size() == 0)
@@ -432,7 +456,8 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
 	}
     }
 
-    return pmmgr_hostid (sanitized);
+  hostids.insert(pmmgr_hostid (sanitized));
+  return hostids;
 }
 
 
@@ -553,14 +578,13 @@ pmmgr_pmcd_search_thread (void *a)
       }
 
       // NB: this may take seconds! $PMCD_CONNECT_TIMEOUT
-      pmmgr_hostid hostid = t->job->compute_hostid (spec);
+      set<pmmgr_hostid> hostids = t->job->compute_hostids (spec);
 
-      if (hostid != "") // verified existence/liveness
-	{
-          locker update_output (& t->lock);
-
-          t->output.insert (make_pair (hostid, spec));
-        }
+      locker update_output (& t->lock);
+      for (set<pmmgr_hostid>::iterator it = hostids.begin();
+           it != hostids.end();
+           it++)
+        t->output.insert (make_pair (*it, spec));
     }
 
   return 0;
@@ -895,6 +919,10 @@ pmmgr_job_spec::poll()
   if (log_dir == "") log_dir = default_log_dir;
   else if(log_dir[0] != '/') log_dir = config_directory + (char)pmPathSeparator() + log_dir;
 
+  // adjust for ENOSPC retention-factor
+  double rf = retention_factor (log_dir);
+  tv.tv_sec *= rf;
+  
   glob_t the_blob;
   string glob_pattern = log_dir + (char)pmPathSeparator() + "*";
   rc = glob (glob_pattern.c_str(),
@@ -941,15 +969,19 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
 {
   timestamp(obatched(cout)) << "new hostid " << hid << " at " << string(spec) << endl;
 
-  if (get_config_exists("pmlogger"))
+  if (get_config_exists("pmlogger", hid))
     daemons.insert(make_pair(hid, new pmmgr_pmlogger_daemon(config_directory, hid, spec)));
 
-  if (get_config_exists("pmie"))
+  if (get_config_exists("pmie", hid))
     daemons.insert(make_pair(hid, new pmmgr_pmie_daemon(config_directory, hid, spec)));
 
-  vector<string> lines = get_config_multi ("monitor");
+  vector<string> lines = get_config_multi ("monitor", hid);
   for (unsigned i=0; i<lines.size(); i++)
     daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines[i], i, hid, spec)));
+
+  vector<string> lines2 = get_config_multi ("monitor-host-env", hid);
+  for (unsigned i=0; i<lines2.size(); i++)
+    daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines2[i], i, hid, spec)));
 }
 
 
@@ -1003,6 +1035,24 @@ pmmgr_daemon::pmmgr_daemon(const std::string& config_directory,
   pid(0),
   last_restart_attempt(0)
 {
+}
+
+vector<string>
+pmmgr_daemon::get_config_multi(const string& file) const
+{
+  return pmmgr_configurable::get_config_multi(file, hostid);
+}
+
+bool
+pmmgr_daemon::get_config_exists(const string& file) const
+{
+  return pmmgr_configurable::get_config_exists(file, hostid);
+}
+
+string
+pmmgr_daemon::get_config_single(const string& file) const
+{
+  return pmmgr_configurable::get_config_single(file, hostid);
 }
 
 
@@ -1145,6 +1195,122 @@ void pmmgr_daemon::poll()
     }
 }
 
+/* A - disk-full-threshold
+ * B - disk-full-retention
+ * diskspace free  0..A - return 1 (no scaling)
+ * diskspace free  A..100 - determine percentage above 'A'
+ * ie: A = 0.2 and diskspace 80% full, we're at 75% of the threshold<->full space
+ * (80 - A) / (100 - A) = 60/80 = 75%
+ * At this point we'll be reducing logs at 75% of the 'B' value
+ * ((75%) * (100 - 'B'))
+ * B = 50 (50% log reduction rate)
+ * We'll be reducing the log retention by 37.5% (ie. return 0.625)
+ */
+double
+pmmgr_configurable::retention_factor (const std::string& logpath)
+{
+  // NB: all doubles used here are fractions between [0.0 and 1.0], not percentages.
+  // Literals used in double arithmetic get decimal points as reminder of FP arithmetic.
+  
+  // ---------- find the fullness threshold 
+  const double full_threshold_default = 0.75;
+  double full_threshold = 0.;
+  string full_threshold_str = get_config_single ("disk-full-threshold");
+  if (full_threshold_str == "")
+    full_threshold = full_threshold_default;
+  else
+    {
+      full_threshold = strtod (full_threshold_str.c_str(), NULL);
+      if (full_threshold > 100. || full_threshold < 0.) full_threshold = full_threshold_default;
+      else if (full_threshold <= 100. && full_threshold > 1.) full_threshold/=100.;
+    }
+
+  // ---------- find the actual fullness
+  struct statfs logpartition;
+  int rc = statfs(logpath.c_str(), &logpartition);
+  if (rc == -1)
+    {
+      timestamp(obatched(cerr)) << "statfs " << logpath << " for log retention failed: errno=" << errno << endl;
+      return 1.;
+    }
+  if (logpartition.f_blocks == 0) // avoid division by zero, if hypothetically possible for a filesystem
+    return 1.;
+  double fraction_full = (1.-((double)logpartition.f_bavail / (double)logpartition.f_blocks));
+  
+  if (fraction_full <= full_threshold) // not too full
+    return 1.;
+  // red alert: this filesystem is officially too full
+  
+  // ---------- find the retention parameter
+  double full_retention = 0.;
+  const double full_retention_default = 0.5;
+  string full_retention_str = get_config_single ("disk-full-retention");
+  if (full_retention_str == "")
+    full_retention = full_retention_default;
+  else
+    {
+      full_retention = strtod (full_retention_str.c_str(), NULL);
+      if (full_retention > 100. || full_retention < 0.) full_retention = full_retention_default;
+      else if (full_retention <= 100. && full_retention > 1.) full_retention/=100.;
+    }
+
+  // ---------- compute how much overfull (above fraction_full, below 100%) the disk is 
+
+  const double epsilon = 0.0001; // a minimum value for FP calculations to avoid div-by-zero edge cases
+
+  // fraction_full   full_threshold -> normalized_overfull
+  // 0.500001       0.5               0.0
+  // 0.75           0.5               0.5
+  // 1.             0.5               1.
+  // 1.             0.0               1.
+  // 1.             1.                1.  (asymptote)
+  double normalized_overfull =
+    (epsilon + fraction_full - full_threshold) /
+    (epsilon + 1. - full_threshold);
+
+  /*
+  set xlabel "fraction-full"
+  set ylabel "full-threshold"
+  set isosamples 2,100
+  eps=0.0001
+  nt(x,y)=x>y ? (eps+x-y)/(eps+1-y) : 0 
+  splot [0:1] [0:1] nt(x,y) title "normalized-overfull"
+  */
+
+  // ---------- compute the final retention factor
+
+  // normalized_overfull   full_retention ->  retention_factor
+  // 1.                   0.0                 0.0
+  // 0.75                 0.0                 0.25
+  // 0.5                  0.0                 0.5
+  // 0.0                  0.0                 1.0
+  // 1.                   0.5                 0.5
+  // 0.75                 0.5                 0.625
+  // 0.5                  0.5                 0.75
+  // 0.0                  0.5                 1.0
+  // 1.                   1.0                 1.0
+  // 0.75                 1.0                 1.0
+  // 0.5                  1.0                 1.0
+  // 0.0                  1.0                 1.0
+  
+  double retention_factor =
+    (normalized_overfull * full_retention) + (1.-normalized_overfull);
+
+  /*
+  set xlabel "normalized-overfull"
+  set ylabel "full-retention"
+  rf(x,y) = (x*y) + (1-x)
+  splot [0:1] [0:1] rf(x,y) title "retention-factor"
+  */
+     
+  timestamp(obatched(cerr)) << "log directory " << logpath << " "
+                            << (int)(fraction_full*100.) << "% full, "
+                            << "adjusting to "
+                            << (int)(retention_factor*100.) << "% retention times" << endl;
+
+  return retention_factor;
+}
+
 
 std::string
 pmmgr_pmlogger_daemon::daemon_command_line()
@@ -1160,6 +1326,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   string host_log_dir = log_dir + (char)pmPathSeparator() + hostid;
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
+
+  double rf = retention_factor(host_log_dir); // assess fullness of that space
+  assert (rf >= 0.0 && rf <= 1.0);
 
   string pmlogger_command =
 	string(pmGetConfig("PCP_BIN_DIR")) + (char)pmPathSeparator() + "pmlogger";
@@ -1226,8 +1395,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  retention_tv.tv_sec = 14*24*60*60;
 	  retention_tv.tv_usec = 0;
 	}
+      retention_tv.tv_sec *= rf;
       pmlogextract_options += " -S -" + sh_quote(retention);
-
+      
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
       string period = get_config_single ("pmlogmerge");
@@ -1429,11 +1599,11 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
       // remove too-old reduced archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "reduced-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60);
+      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60, rf);
 
       // remove too-old corrupt archives too
       glob_pattern = host_log_dir + (char)pmPathSeparator() + "corrupt-*.index";
-      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60);
+      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60, rf);
 
       string timestr = "archive";
       time_t now2 = time(NULL);
@@ -1523,7 +1693,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 void
 pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
                                                const std::string& carousel_config,
-                                               time_t carousel_default)
+                                               time_t carousel_default,
+                                               double rf)
 {
   int rc;
   struct timeval retention_tv;
@@ -1546,6 +1717,9 @@ pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
       retention_tv.tv_usec = 0;
     }
 
+  // penalize if disk getting full
+  retention_tv.tv_sec *= rf;
+  
   glob_t the_blob;
   rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
   if (rc == 0)
@@ -1667,6 +1841,24 @@ pmmgr_monitor_daemon::daemon_command_line()
                   << " >" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".out"
                   << " 2>" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".err";
 
+  // copy previous contents of .err file
+  ostringstream os;
+  os <<  host_log_dir << "/" << "monitor" << "-"  << config_index << ".err";
+  string err_filename = os.str();
+  ifstream f (err_filename.c_str()); // c_str for old school c++
+  while (f.good())
+    {
+      string line;
+      getline(f, line);
+      if (line != "")
+        timestamp(obatched(cerr)) << err_filename << ": " << line << endl;
+    }
+  // NB: we could opt to erase this file at this time, so we don't
+  // re-print the same thing next time.  But this is not necessary,
+  // because as soon as we return, this command line will be executed
+  // (up at pmmgr_daemon::poll), and the 2> part of the command line
+  // will truncate the file first.
+  
   return monitor_command.str();
 }
 
@@ -1881,6 +2073,24 @@ int main (int argc, char *argv[])
       alarm (0);
       (void) signal (SIGCHLD, SIG_DFL);
       (void) signal (SIGALRM, SIG_DFL);
+
+      // Reap any zombie child processes.  These could be
+      // (a) direct daemon processes we started - in which case
+      //     our later specif waitpid()s will fail, but that's OK;
+      //     at worst we'll lose the wstatus code; we still test
+      //     for liveness with kill($pid, 0)
+      // (b) indirect children of our daemon processes, or
+      // (c) random child processes, if pmmgr happens to be pid=1,
+      //     and in both cases we can simply reap the zombie
+      // but not
+      // (d) a temporary child process opened with popen() or similar,
+      //     whose output we were collecting, and whose rc we really
+      //     care about ... because all those child processes will have
+      //     been conclusively dealt with during the -> poll()'s above.
+      int pid;
+      do {
+        pid = waitpid(-1, NULL, WNOHANG);
+      } while (pid > 0);
     }
 
   // NB: don't let this cleanup be interrupted by pending-quit signals;

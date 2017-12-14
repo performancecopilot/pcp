@@ -1,0 +1,15 @@
+QA output created by 1343
+creating a filesystem
+creating a mount point
+mounting xfs filesystem
+pmmgr plain startup
+look for pmmgr starting no daemons
+target-host
+target-threads
+add control files to start pmlogger
+restart pmlogger to create a bunch of archives to merge
+add log-merging/rewriting
+recheck the directories past retain/merge
+less than three
+kill pmmgr
+Log retention adjustments made

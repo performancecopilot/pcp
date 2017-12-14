@@ -29,10 +29,16 @@ echo 'expect "disk.dev.read: pmStore: No permission to perform requested operati
 pmstore disk.dev.read 1 2>&1 \
 | fgrep 'pmStore:' \
 | sed -e 's/Permission denied/No permission to perform requested operation/'
-_service pcp restart 2>&1 | _filter_pcp_start
+
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
+_service pcp restart >$tmp.out 2>&1
+_filter_pcp_start <$tmp.out
 _wait_for_pmcd
+_restore_auto_restart pmcd
 _wait_for_pmlogger
-status=0
+_restore_auto_restart pmlogger
 
 # success, all done
+status=0
 exit

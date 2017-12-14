@@ -380,13 +380,13 @@ worst_glock_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-gfs2_worst_glock_init(pmdaMetric *metrics, int nmetrics)
+gfs2_worst_glock_init(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 {
     int set[] = { CLUSTER_WORSTGLOCK };
 
-    pmdaDynamicPMNS("gfs2.worst_glock",
-		    set, sizeof(set)/sizeof(int),
-		    refresh_worst_glock, worst_glock_text,
-		    refresh_metrictable, size_metrictable,
-		    metrics, nmetrics);
+    pmdaExtDynamicPMNS("gfs2.worst_glock",
+			set, sizeof(set)/sizeof(int),
+			refresh_worst_glock, worst_glock_text,
+			refresh_metrictable, size_metrictable,
+			metrics, nmetrics, pmda);
 }

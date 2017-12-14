@@ -29,30 +29,6 @@
 PCP_DATA int	__pmLogReads;
 
 /*
- * Suffixes and associated compresssion application for compressed filenames.
- * These can appear _after_ the volume number in the name of a file for an
- * archive metric log file, e.g. /var/log/pmlogger/myhost/20101219.0.bz2
- */
-#define	USE_NONE	0
-#define	USE_BZIP2	1
-#define USE_GZIP	2
-#define USE_XZ		3
-static const struct {
-    const char	*suff;
-    const int	appl;
-    const int   direct;
-} compress_ctl[] = {
-    { ".xz",	USE_XZ,	 	1 }, /* can decompress directly */
-    { ".lzma",	USE_XZ,		0 },
-    { ".bz2",	USE_BZIP2,	0 },
-    { ".bz",	USE_BZIP2,	0 },
-    { ".gz",	USE_GZIP,	0 },
-    { ".Z",	USE_GZIP,	0 },
-    { ".z",	USE_GZIP,	0 },
-};
-static const int ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
-
-/*
  * first two fields are made to look like a pmValueSet when no values are
  * present ... used to populate the pmValueSet in a pmResult when values
  * for particular metrics are not available from this log record.
@@ -291,216 +267,6 @@ func_return:
     return version;
 }
 
-static int
-popen_uncompress(const char *cmd, const char *arg, const char *fname, const char *suffix, int fd)
-{
-    char	file[MAXPATHLEN+1];
-    char	buffer[4096];
-    FILE	*finp;
-    ssize_t	bytes;
-    int		sts, infd;
-    __pmExecCtl_t	*argp = NULL;
-
-    sts = __pmProcessAddArg(&argp, cmd);
-    if (sts == 0)
-	sts = __pmProcessAddArg(&argp, arg);
-    pmsprintf(file, sizeof(file), "%s%s", fname, suffix);
-    if (sts == 0)
-	sts = __pmProcessAddArg(&argp, file);
-    if (sts < 0)
-	return sts;
-
-    if (pmDebugOptions.log)
-	fprintf(stderr, "__pmLogOpen: uncompress using: %s %s %s\n", cmd, arg, file);
-
-    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &finp)) < 0)
-	return sts;
-    infd = fileno(finp);
-
-    while ((bytes = read(infd, buffer, sizeof(buffer))) > 0) {
-	if (write(fd, buffer, bytes) != bytes) {
-	    bytes = -1;
-	    break;
-	}
-    }
-
-    if ((sts = __pmProcessPipeClose(finp)) != 0)
-	return sts;
-    return (bytes == 0) ? 0 : -1;
-}
-
-static int
-fopen_securetmp(const char *fname)
-{
-    char	tmpname[MAXPATHLEN];
-    mode_t	cur_umask;
-    char	*msg;
-    int		fd;
-
-    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
-#if HAVE_MKSTEMP
-    if ((msg = pmGetOptionalConfig("PCP_TMPFILE_DIR")) == NULL) {
-	if (pmDebugOptions.log) {
-	    fprintf(stderr, "fopen_securetmp: pmGetOptionalConfig -> NULL\n");
-	}
-	umask(cur_umask);
-	return -1;
-    }
-    pmsprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", msg);
-    msg = tmpname;
-    fd = mkstemp(tmpname);
-    if (fd < 0) {
-	if (pmDebugOptions.log) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "fopen_securetmp: mkstemp(%s): %s\n", tmpname, osstrerror_r(errmsg, sizeof(errmsg)));
-	}
-    }
-#else
-    PM_LOCK(__pmLock_extcall);
-    if ((msg = tmpnam(NULL)) == NULL) {		/* THREADSAFE */
-	PM_UNLOCK(__pmLock_extcall);
-	if (pmDebugOptions.log) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "fopen_securetmp: tmpname: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-	}
-	umask(cur_umask);
-	return -1;
-    }
-    fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
-    if (fd < 0) {
-	if (pmDebugOptions.log) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "fopen_securetmp: open(%s): %s\n", msg, osstrerror_r(errmsg, sizeof(errmsg)));
-	}
-    }
-#endif
-    /*
-     * unlink temporary file to avoid namespace pollution and allow O/S
-     * space cleanup on last close
-     */
-#if HAVE_MKSTEMP
-    unlink(msg);
-#else
-    unlink(msg);
-    PM_UNLOCK(__pmLock_extcall);
-#endif
-    umask(cur_umask);
-    return fd;
-}
-
-/*
- * Lookup whether the suffix matches one of the compression styles,
- * and if so return the matching index into the compress_ctl table.
- */
-static int
-index_compress(const char *fname)
-{
-    int		i;
-    char	tmpname[MAXPATHLEN];
-
-    for (i = 0; i < ncompress; i++) {
-	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
-	if (access(tmpname, R_OK) == 0)
-	    return i;
-    }
-    /* end up here if it does not look like a compressed file */
-    return -1;
-}
-
-static __pmFILE *
-fopen_compress(const char *fname)
-{
-    int		sts;
-    int		fd;
-    int		i;
-    char	*cmd;
-    char	*arg;
-    __pmFILE	*fp;
-
-
-    if ((i = index_compress(fname)) < 0) {
-	if (pmDebugOptions.log) {
-	    fprintf(stderr, "__pmLogOpen: index_compress -> %d\n", i);
-	}
-	return NULL;
-    }
-
-    if (compress_ctl[i].direct) {
-	/* We have the ability to decompress this archive directly. Try it. */
-	char tmpname[MAXPATHLEN];
-	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
-	if ((fp = __pmFopen(tmpname, "r")) != NULL)
-	    return fp; /* Success */
-    }
-    
-    /* We will need to decompress this file using an external program first. */
-    if (compress_ctl[i].appl == USE_XZ) {
-	cmd = "xz";
-	arg = "-dc";
-    }
-    else if (compress_ctl[i].appl == USE_BZIP2) {
-	cmd = "bzip2";
-	arg = "-dc";
-    }
-    else if (compress_ctl[i].appl == USE_GZIP) {
-	cmd = "gzip";
-	arg = "-dc";
-    }
-    else {
-	/* botch in compress_ctl[] ... should not happen */
-	if (pmDebugOptions.log) {
-	    fprintf(stderr, "__pmLogOpen: botch in compress_ctl[]: i=%d\n", i);
-	}
-	return NULL;
-    }
-
-    if ((fd = fopen_securetmp(fname)) < 0) {
-	sts = oserror();
-	if (pmDebugOptions.log) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "__pmLogOpen: temp file create failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-	}
-	setoserror(sts);
-	return NULL;
-    }
-
-    sts = popen_uncompress(cmd, arg, fname, compress_ctl[i].suff, fd);
-    if (sts == -1) {
-	sts = oserror();
-	if (pmDebugOptions.log) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-	}
-	setoserror(sts);
-	return NULL;
-    }
-    if (sts != 0) {
-	if (pmDebugOptions.log) {
-	    if (sts == 2000)
-		fprintf(stderr, "__pmLogOpen: uncompress failed, unknown reason\n");
-	    else if (sts > 1000)
-		fprintf(stderr, "__pmLogOpen: uncompress failed, signal: %d\n", sts - 1000);
-	    else
-		fprintf(stderr, "__pmLogOpen: uncompress failed, exit status: %d\n", sts);
-	}
-	/* not a great error code, but the best we can do */
-	setoserror(-PM_ERR_LOGREC);
-	return NULL;
-    }
-    if ((fp = __pmFdopen(fd, "r")) == NULL) {
-	if (pmDebugOptions.log) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "__pmLogOpen: fdopen failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-	}
-	sts = oserror();
-	close(fd);
-	setoserror(sts);
-	return NULL;
-    }
-    /* success */
-    return fp;
-}
-
 static __pmFILE *
 _logpeek(__pmArchCtl *acp, int vol)
 {
@@ -514,11 +280,8 @@ _logpeek(__pmArchCtl *acp, int vol)
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
     if ((f = __pmFopen(fname, "r")) == NULL) {
-	/* try for a compressed file */
-	if ((f = fopen_compress(fname)) == NULL) {
-	    PM_UNLOCK(logutil_lock);
-	    return f;
-	}
+	PM_UNLOCK(logutil_lock);
+	return f;
     }
     PM_UNLOCK(logutil_lock);
 
@@ -549,11 +312,8 @@ __pmLogChangeVol(__pmArchCtl *acp, int vol)
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
     if ((lcp->l_mfp = __pmFopen(fname, "r")) == NULL) {
-	/* try for a compressed file */
-	if ((lcp->l_mfp = fopen_compress(fname)) == NULL) {
-	    PM_UNLOCK(logutil_lock);
-	    return -oserror();
-	}
+	PM_UNLOCK(logutil_lock);
+	return -oserror();
     }
     PM_UNLOCK(logutil_lock);
 
@@ -1001,76 +761,6 @@ __pmLogClose(__pmArchCtl *acp)
     }
     if (lcp->l_ti != NULL)
 	free(lcp->l_ti);
-}
-
-/*
- * If name contains '.' and the suffix is "index", "meta" or a string of
- * digits, all optionally followed by one of the compression suffixes,
- * strip the suffix.
- *
- * Modifications are performed on the argument string in-place. If modifications
- * are made, a pointer to the start of the modified string is returned.
- * Otherwise, NULL is returned.
- */
-char *
-__pmLogBaseName(char *name)
-{
-    char *q;
-    int   strip;
-    int   i;
-
-    strip = 0;
-    if ((q = strrchr(name, '.')) != NULL) {
-	for (i = 0; i < ncompress; i++) {
-	    if (strcmp(q, compress_ctl[i].suff) == 0) {
-		char	*q2;
-		/*
-		 * The name ends with one of the supported compressed file
-		 * suffixes. Strip it becore checking for other known suffixes.
-		 */
-		*q = '\0';
-		if ((q2 = strrchr(name, '.')) == NULL) {
-		    /* no . to the left of the suffix */
-		    *q = '.';
-		    goto done;
-		}
-		q = q2;
-		break;
-	    }
-	}
-	if (strcmp(q, ".index") == 0) {
-	    strip = 1;
-	    goto done;
-	}
-	if (strcmp(q, ".meta") == 0) {
-	    strip = 1;
-	    goto done;
-	}
-	/*
-	 * Check for a string of digits as the suffix.
-	 */
-	if (q[1] != '\0') {
-	    char	*end;
-	    /*
-	     * Below we don't care about the value from strtol(),
-	     * we're interested in updating the pointer "end".
-	     * The messiness is thanks to gcc and glibc ... strtol()
-	     * is marked __attribute__((warn_unused_result)) ...
-	     * to avoid warnings on all platforms, assign to a
-	     * dummy variable that is explicitly marked unused.
-	     */
-	    long	tmpl __attribute__((unused));
-	    tmpl = strtol(q+1, &end, 10);
-	    if (*end == '\0') strip = 1;
-	}
-    }
-done:
-    if (strip) {
-	*q = '\0';
-	return name;
-    }
-
-    return NULL; /* not the name of an archive file. */
 }
 
 int
