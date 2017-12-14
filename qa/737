@@ -13,6 +13,11 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
+eval `pmpython --version | $PCP_AWK_PROG '{print $2 }' | \
+	$PCP_AWK_PROG -F. '{ printf "pymajor=%d pyminor=%d\n", $1, $2 }'`
+[ $pymajor -eq 2 -a $pyminor -lt 7 ] && \
+	_notrun "Skip dated python versions with known TZ handling bug"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
