@@ -97,6 +97,7 @@ dumpLabel(void)
 static int
 filter(const_dirent *dp)
 {
+    char logBase[MAXPATHLEN];
     static int	len = -1;
 
     if (len == -1) {
@@ -107,37 +108,46 @@ filter(const_dirent *dp)
     }
     if (vflag > 2)
 	fprintf(stderr, "d_name=\"%s\"? ", dp->d_name);
-    if (strncmp(dp->d_name, archbasename, len) != 0) {
+
+    if (dp->d_name[len] != '.') {
+	if (vflag > 2)
+	    fprintf(stderr, "no (not expected extension after basename)\n");
+	return 0;
+    }
+    /*
+     * __pmLogBaseName will strip the suffix by modifying the data
+     * in place. The suffix can still be found after the base name.
+     */
+    strncpy(logBase, dp->d_name, sizeof(logBase));
+    logBase[sizeof(logBase)-1] = '\0';
+    if (__pmLogBaseName(logBase) == NULL ) {
+	if (vflag > 2)
+	    fprintf(stderr, "no (not expected extension after basename)\n");
+	return 0;
+    }
+    if (strcmp(logBase, archbasename) != 0) {
 	if (vflag > 2)
 	    fprintf(stderr, "no (first %d chars not matched)\n", len);
 	return 0;
     }
-    if (strcmp(&dp->d_name[len], ".meta") == 0) {
+    if (strcmp(&logBase[len+1], "meta") == 0) {
 	if (vflag > 2)
 	    fprintf(stderr, "yes\n");
 	return 1;
     }
-    if (strcmp(&dp->d_name[len], ".index") == 0) {
+    if (strcmp(&logBase[len+1], "index") == 0) {
 	if (vflag > 2)
 	    fprintf(stderr, "yes\n");
 	return 1;
     }
-    if (dp->d_name[len] == '.' && isdigit((int)(dp->d_name[len+1]))) {
-	const char	*p = &dp->d_name[len+2];
-	for ( ; *p; p++) {
-	    if (!isdigit((int)*p)) {
-		if (vflag > 2)
-		    fprintf(stderr, "no (non-digit after basename)\n");
-		return 0;
-	    }
-	}
+    if (! isdigit((int)(logBase[len+1]))) {
 	if (vflag > 2)
-	    fprintf(stderr, "yes\n");
-	return 1;
+	    fprintf(stderr, "no (non-digit after basename)\n");
+	return 0;
     }
     if (vflag > 2)
-	fprintf(stderr, "no (not expected extension after basename)\n");
-    return 0;
+	fprintf(stderr, "yes\n");
+    return 1;
 }
 
 int
@@ -191,34 +201,28 @@ main(int argc, char *argv[])
     archpathname = argv[opts.optind];
     archbasename = strdup(basename(strdup(archpathname)));
     /*
-     * treat foo, foo.index, foo.meta, foo.NNN as all equivalent
+     * treat foo.index, foo.meta, foo.NNN along with any supported
+     * compressed file suffixes as all equivalent
      * to "foo"
      */
     p = strrchr(archbasename, '.');
     if (p != NULL) {
-	if (strcmp(p, ".index") == 0 || strcmp(p, ".meta") == 0)
-	    *p = '\0';
-	else {
-	    char	*q = p;
-	    q++;
-	    if (isdigit((int)*q)) {
-		/*
-		 * foo.<digit> ... if archpathname does exist, then
-		 * safe to strip digits, else leave as is for the
-		 * case of, e.g. archive-20150415.041154 which is the
-		 * pmmgr basename for an archive with a first volume
-		 * named archive-20150415.041154.0
-		 */
-		if (access(archpathname, F_OK) == 0) {
-		    q++;
-		    while (*q && isdigit((int)*q))
-			q++;
-		    if (*q == '\0')
-			*p = '\0';
-		}
-	    }
+	char	*q = p + 1;
+	if (isdigit((int)*q)) {
+	    /*
+	     * foo.<digit> ... if archpathname does exist, then
+	     * safe to strip digits, else leave as is for the
+	     * case of, e.g. archive-20150415.041154 which is the
+	     * pmmgr basename for an archive with a first volume
+	     * named archive-20150415.041154.0
+	     */
+	    if (access(archpathname, F_OK) == 0)
+		__pmLogBaseName(archbasename);
 	}
+	else
+	    __pmLogBaseName(archbasename);
     }
+
     archdirname = dirname(strdup(archpathname));
     if (vflag)
 	fprintf(stderr, "Scanning for components of archive \"%s\"\n", archpathname);

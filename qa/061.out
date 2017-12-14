@@ -24,6 +24,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -83,6 +86,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -138,6 +144,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -196,6 +205,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -258,6 +270,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -317,6 +332,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -376,6 +394,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -431,6 +452,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -486,6 +510,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -545,6 +572,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -600,6 +630,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -659,6 +692,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -714,6 +750,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -772,6 +811,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -830,6 +872,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -885,6 +930,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -944,6 +992,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -999,6 +1050,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1054,6 +1108,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1113,6 +1170,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1168,6 +1228,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1227,6 +1290,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1282,6 +1348,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1337,6 +1406,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1396,6 +1468,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
+__pmFopen: index_compress -> -1
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
