@@ -33,7 +33,9 @@ extern "C" {
 #include <unistd.h>
 #include <glob.h>
 #include <sys/wait.h>
-#include <sys/vfs.h>
+#if defined(HAVE_SYS_STATVFS_H)
+#include <sys/statvfs.h>
+#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -1209,6 +1211,7 @@ void pmmgr_daemon::poll()
 double
 pmmgr_configurable::retention_factor (const std::string& logpath)
 {
+#if defined(HAVE_SYS_STATVFS_H)
   // NB: all doubles used here are fractions between [0.0 and 1.0], not percentages.
   // Literals used in double arithmetic get decimal points as reminder of FP arithmetic.
   
@@ -1226,11 +1229,11 @@ pmmgr_configurable::retention_factor (const std::string& logpath)
     }
 
   // ---------- find the actual fullness
-  struct statfs logpartition;
-  int rc = statfs(logpath.c_str(), &logpartition);
+  struct statvfs logpartition;
+  int rc = statvfs(logpath.c_str(), &logpartition);
   if (rc == -1)
     {
-      timestamp(obatched(cerr)) << "statfs " << logpath << " for log retention failed: errno=" << errno << endl;
+      timestamp(obatched(cerr)) << "statvfs " << logpath << " for log retention failed: errno=" << errno << endl;
       return 1.;
     }
   if (logpartition.f_blocks == 0) // avoid division by zero, if hypothetically possible for a filesystem
@@ -1307,7 +1310,9 @@ pmmgr_configurable::retention_factor (const std::string& logpath)
                             << (int)(fraction_full*100.) << "% full, "
                             << "adjusting to "
                             << (int)(retention_factor*100.) << "% retention times" << endl;
-
+#else
+  double retention_factor = 1.0;
+#endif
   return retention_factor;
 }
 
