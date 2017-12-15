@@ -38,6 +38,19 @@
    ...
 }
 
+# and yet another variant from bozo-vm and qa/720 ...
+{
+   libsasl-bad-2
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   fun:__pmSecureClientHandshake
+   ...
+   fun:pmNewContext
+   ...
+}
+
 # same bogus condition seen with earlier versions of valgrind
 # (this time with pmFetch_ctx() on the call stack)
 #
