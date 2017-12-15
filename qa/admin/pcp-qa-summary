@@ -59,7 +59,7 @@ shift `expr $OPTIND - 1`
 sts=0
 if $debug
 then
-    tmp=`pwd`/tmp
+    tmp=`pwd`/tmp-summary
     trap "exit \$sts" 0 1 2 3 15
 else
     tmp=/var/tmp/$$
@@ -141,7 +141,7 @@ do
     fi
     basevmname=`echo $vmdir | sed -e 's/\(vm[0-9][0-9]\)-.*/\1/' -e 's/\.sgi.com//'`
     rm -f $tmp.seen $tmp.found
-    for date in `ls | grep -v qa | grep -v pcpqa | grep -v pcp | sort -r`
+    for date in `ls | grep -v qa | grep -v pcpqa | grep -v pcp | grep -v whatami | sort -r`
     do
 	[ -f $date ] || continue
 	touch $tmp.seen
@@ -219,7 +219,7 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 	    # 2013-03-13     67     67      0      2|vm19-opensuse-64
 	    # 2013-03-13    512    509      3     48|vm19-opensuse-64
 	    # 2013-03-13    512    509      3     16|vm19-opensuse-64
-	    $debug && sed -e 's/^/Debug: /' <$tmp.dbg
+	    $debug && sed -e 's/^/Debug: line:/' <$tmp.dbg
 	    sort <$tmp.out --key=3,3nr --key=5,5n \
 	    | sed -e 1q >$tmp.tmp
 	    # $tmp.tmp line is ...
