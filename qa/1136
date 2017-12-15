@@ -71,7 +71,7 @@ _sleep_half()
 {
     now=`date +%s%N`
     now=`echo $now / 1000000 | bc`
-    ms=${now:-3}
+    ms=`echo $now | sed -e 's/.*\(...\)/\1/'`
     if [ $ms -gt 500 ];	then
 	pause=`echo "scale=3;$ms-500" | bc`
     else
