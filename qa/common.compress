@@ -19,6 +19,7 @@ _filter_compression()
 	-e '/: No error: 0/s//: Success/' \
 	-e '/: No such file or directory/s//: Success/' \
 	-e '/null.0.gz/s/unrecognized file format/unexpected end of file/' \
+	-e '/null.0.xz: File format not recognized/d' \
 	-e '/^[ 	]*$/d'
 }
 
@@ -117,6 +118,12 @@ _exercise_compression()
 	pmval -a $arch sample.milliseconds
 	pmie -a $arch </dev/null
     done
-    touch null.0.$suffix null.meta null.index
+    echo "--- compressed empty data volume ---"
+    touch null.0 null.meta null.index
+    $deflate null.0
+    pminfo -a null 2>&1 | _filter_compression
+    echo "--- empty data volume pretending to be compressed ---"
+    rm -f null.0.$suffix
+    touch null.0.$suffix
     pminfo -a null 2>&1 | _filter_compression
 }
