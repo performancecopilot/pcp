@@ -29,7 +29,10 @@ _filter()
 {
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-	-e '/^proc.namespaces.envid: Metric not supported/d' \
+	-e '/^proc\.schedstat\.envid: Metric not supported/d' \
+	-e '/^proc\.schedstat\.pcount: Metric not supported/d' \
+	-e '/^proc\.schedstat\..*: No value(s) available/d' \
+	-e '/^proc\.namespaces\..*: Metric not supported/d' \
     # end
 }
 
