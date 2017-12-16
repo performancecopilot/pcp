@@ -19,7 +19,7 @@ _filter_compression()
 	-e '/: No error: 0/s//: Success/' \
 	-e '/: No such file or directory/s//: Success/' \
 	-e '/null.0.gz/s/unrecognized file format/unexpected end of file/' \
-	-e '/null.0.xz: File format not recognized/d' \
+	-e '/null.0.xz: File format not recogni[zs]ed/d' \
 	-e '/^[ 	]*$/d'
 }
 
