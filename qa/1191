@@ -27,7 +27,7 @@ _cleanup()
     cd $here
     alive=`kill -s 0 $pid >/dev/null 2>&1`
     pidstatus=$?
-    if [ $pidstatus == 0 ]
+    if [ $pidstatus = 0 ]
     then
 	$sudo kill $pid 2>&1 >/dev/null
     fi

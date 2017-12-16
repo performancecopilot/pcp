@@ -32,7 +32,7 @@ _cleanup()
 
 _semodule_remove()
 {
-    if [ "x$semodule_x_option" == "x" ]
+    if [ "x$semodule_x_option" = "x" ]
     then
 	echo "Removing semodule without priority option" >> $here/$seq.full
 	$sudo semodule -r $policy_name 2>&1
@@ -61,7 +61,7 @@ dd bs=1 skip=78 if=$policy_file >>$OF 2>>$here/$seq.full
 file $OF >>$here/$seq.full
 
 #install the module but catch any errors
-if [ "x$semodule_x_option" == "x" ]
+if [ "x$semodule_x_option" = "x" ]
 then
     echo "Installing semodule without priority option" >> $here/$seq.full
     error_line=`$sudo semodule -i $tmp/selinux/$policy_name.pp 2>&1 | tee -a $here/$seq.full | grep ^libsepol\. | cut -f3 -d":" |cut -f3 -d" "`
@@ -73,13 +73,13 @@ else
     echo $error_line >> $here/$seq.full
 fi
 
-if [ "x$error_line" == "x" ]
+if [ "x$error_line" = "x" ]
 then
     _semodule_remove
     status=0
     exit
 else
-    if [ "x$semodule_x_option" == "x" ]
+    if [ "x$semodule_x_option" = "x" ]
     then
 	echo "Error from type: $error_line"
     else
