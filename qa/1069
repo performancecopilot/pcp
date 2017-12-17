@@ -25,6 +25,7 @@ _live_filter()
 {
     sed \
 	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
+	-e '/derived/s/ from file.*:/ from file ...:/' \
 	-e '/timezone/s/ (reporting.*)//' \
     #end
 }
@@ -189,6 +190,7 @@ pmrep -s 5 -t 2 $log2 -w 15 -P 8 -p mem.util.free,,,kb/s mem.util.used,,,GB/ms
 pmrep -s 5 -t 2 -z -a $here/archives/rep -u -p mem.util.used,,,GB/ms network.interface.speed,,,GB/hr
 
 echo "== derived metrics configuration file"
+pmrep -e $tmp.nosuchfile metric 2>&1 | _live_filter
 cat > $tmp.derived <<EOF
 sample.combo = sample.seconds + (sample.milliseconds / 1000)
 EOF

@@ -406,7 +406,7 @@ class pmConfig(object):
                 try:
                     self.util.context.pmLoadDerivedConfig(self.util.derived)
                 except pmapi.pmErr as error:
-                    sys.stderr.write("Failed to register derived metric: %s.\n" % str(error))
+                    sys.stderr.write("Failed to load derived metric definitions from file '%s':\n%s.\n" % (self.util.derived, str(error)))
                     sys.exit(1)
             else:
                 for definition in self.util.derived.split("@"):

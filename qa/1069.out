@@ -867,6 +867,8 @@ ok
 14:39:16     0.000  2746624.0
 14:39:17     0.000  2746624.0
 == derived metrics configuration file
+Failed to load derived metric definitions from file ...:
+No such file or directory.
   s.combo
       s/s
       N/A
