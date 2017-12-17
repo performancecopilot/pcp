@@ -105,7 +105,7 @@ _pcp () {
       [[ -z $state ]] && state=pcp_cmdopts
   ;;
   pcp2elasticsearch)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -116,7 +116,7 @@ _pcp () {
       && return 0
   ;;
   pcp2graphite)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -129,7 +129,7 @@ _pcp () {
       && return 0
   ;;
   pcp2influxdb)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -142,7 +142,7 @@ _pcp () {
       && return 0
   ;;
   pcp2json)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -156,7 +156,7 @@ _pcp () {
       && return 0
   ;;
   pcp2xlsx)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -168,7 +168,7 @@ _pcp () {
       && return 0
   ;;
   pcp2xml)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -182,7 +182,7 @@ _pcp () {
       && return 0
   ;;
   pcp2zabbix)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
@@ -271,7 +271,7 @@ _pcp () {
   ;;
   pmdumplog)
     arch_req=1
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       - set1 \
       "(-a --all $exargs)"{-a,--all}'[dump everything]' \
@@ -442,7 +442,7 @@ _pcp () {
   ;;
   pmlogcheck)
     exargs="-? --help"
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
@@ -457,7 +457,7 @@ _pcp () {
   ;;
   pmlogextract)
     exargs="-? --help"
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
       "(-d --desperate $exargs)"{-d,--desperate}'[save output after fatal error]' \
@@ -501,7 +501,7 @@ _pcp () {
   ;;
   pmloglabel)
     exargs="-? --help"
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       '(- *)'-\?'[display help message]' \
       "(-h --host $exargs)"{-h+,--host}'[set hostname for all files in archive]:hostname:_hosts' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
@@ -567,7 +567,7 @@ _pcp () {
       && return 0
   ;;
   pmrep)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
       "$common_most[@]" \
       "$common_pmda[@]" \
@@ -651,9 +651,9 @@ _pcp () {
     local fpat t
     local -a archives
     [[ -n $words[CURRENT] ]] && t=${words[CURRENT]##*,}
-    archives=( ${t}*(-FM) ${t}*.index )
-    if [[ $#archives -gt 0 && $archives == *.index* ]]; then
-      _values -s , -w archive ${archives/.index} && ret=0
+    archives=( ${t}*(-FM) ${t}*.meta* )
+    if [[ $#archives -gt 0 && $archives == *.meta* ]]; then
+      _values -s , -w archive ${archives/.meta*} && ret=0
     else
       compset -P '*,'
       zstyle -s ":completion:${curcontext}:" file-patterns fpat
@@ -694,7 +694,7 @@ _pcp () {
       a=-a
       arch=$words[2]
       for word in ${words:1}; do
-        [[ $word != -* && -f $word.index ]] && arch=$word
+        [[ $word != -* && (-f $word.meta || -f $word.meta.xz) ]] && arch=$word
       done
     fi
     for word in ${words:1}; do
@@ -719,7 +719,7 @@ _pcp () {
       a=-a
       arch=$words[2]
       for word in ${words:1}; do
-        [[ $word != -* && -f $word.index ]] && arch=$word
+        [[ $word != -* && (-f $word.meta || -f $word.meta.xz) ]] && arch=$word
       done
     fi
     # Derived metrics from command line
