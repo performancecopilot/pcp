@@ -10,8 +10,8 @@ Although the metrics supported are simple, the framework is quite
 general and could be extended to implement a much more complex PMDA.
 
 Note:
-	This PMDA may be remade from source and hence requires IDO (or
-	more specifically a C compiler) to be installed.
+	This PMDA may be remade from source and hence requires a C
+	compiler to be installed.
 
 	Uses of make(1) may fail (without removing or clobbering files)
 	if the C compiler cannot be found.  This is most likely to

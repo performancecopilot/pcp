@@ -5,8 +5,8 @@ This PMDA collects statistics common to all lustre implementations,
 the statistics found in /proc/lustre and /proc/lnet
 
 Note:
-	This PMDA may be remade from source and hence requires IDO (or
-	more specifically a C compiler) to be installed.
+	This PMDA may be remade from source and hence requires a C
+	compiler to be installed.
 
 	Uses of make(1) may fail (without removing or clobbering files)
 	if the C compiler cannot be found.  This is most likely to
