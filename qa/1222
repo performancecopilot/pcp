@@ -25,6 +25,9 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# assorted metrics may not be there, plus this ripper ...
+# [Mon Dec 18 20:31:35] pminfo(8372) Error: pmdaFetch: Fetch callback error from metric PMID 3.11.0[1]: No data available
+#
 _filter()
 {
     sed \
@@ -33,6 +36,8 @@ _filter()
 	-e '/^proc\.schedstat\.pcount: Metric not supported/d' \
 	-e '/^proc\.schedstat\..*: No value(s) available/d' \
 	-e '/^proc\.namespaces\..*: Metric not supported/d' \
+	-e '/^proc\.psinfo\.cgroups: No data available/d' \
+	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
     # end
 }
 

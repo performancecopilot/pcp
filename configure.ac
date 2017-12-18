@@ -3429,7 +3429,7 @@ AS_IF([test "x$do_decompression" != "xno"], [
     # Check for -llzma
     enable_lzma=true
     PKG_CHECK_MODULES([lzma], [liblzma],
-        [AC_CHECK_LIB(lzma, lzma_block_decoder,
+        [AC_CHECK_LIB(lzma, lzma_index_stream_flags,
 		      [lib_for_lzma="-llzma"],
 		      [enable_lzma=false])
         ],[enable_lzma=false])
