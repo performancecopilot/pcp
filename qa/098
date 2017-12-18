@@ -43,7 +43,9 @@ _filter_logger()
 {
     _filter_pmlogger_log \
     | sed \
-	-e '/AF event queue/d'
+	-e '/AF event queue/d' \
+	-e '/Validating metrics after PMCD state change/d' \
+    #end
 }
 
 _filter_dump()
