@@ -54,7 +54,7 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
         counter_string += "# HELP sample_counter{:04d} instance scale {} value scale {}\n".format(endpointNum, instance_scale, count_value)
         counter_string += "# TYPE sample_counter{:04d} counter\n".format(endpointNum)
         for i in range(instances):
-            counter_string += "sample_counter{:04d}{{baz=\"{}\"}} {:.8e}\n".format(endpointNum, (i * instance_scale), (int(iteration) * instance_count * count_value))
+            counter_string += "sample_counter{:04d}{{baz=\"{:.1f}\"}} {:.8e}\n".format(endpointNum, (i * instance_scale), (int(iteration) * instance_count * count_value))
             instance_count += 1
         return counter_string
 
