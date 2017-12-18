@@ -34,11 +34,11 @@ prometheus.source1.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 340410788
     inst [2 or "2 baz:1.4"] value 680821576
-    inst [3 or "3 baz:2.0999999999999996"] value 1021232360
+    inst [3 or "3 baz:2.1"] value 1021232360
     inst [4 or "4 baz:2.8"] value 1361643150
     inst [5 or "5 baz:3.5"] value 1702053940
-    inst [6 or "6 baz:4.199999999999999"] value 2042464730
-    inst [7 or "7 baz:4.8999999999999995"] value 2382875520
+    inst [6 or "6 baz:4.2"] value 2042464730
+    inst [7 or "7 baz:4.9"] value 2382875520
     inst [8 or "8 baz:5.6"] value 2723286300
     inst [9 or "9 baz:6.3"] value 3063697090
 
@@ -78,11 +78,11 @@ prometheus.source2.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 510616182
     inst [2 or "2 baz:1.4"] value 1021232360
-    inst [3 or "3 baz:2.0999999999999996"] value 1531848550
+    inst [3 or "3 baz:2.1"] value 1531848550
     inst [4 or "4 baz:2.8"] value 2042464730
     inst [5 or "5 baz:3.5"] value 2553080910
-    inst [6 or "6 baz:4.199999999999999"] value 3063697090
-    inst [7 or "7 baz:4.8999999999999995"] value 3574313270
+    inst [6 or "6 baz:4.2"] value 3063697090
+    inst [7 or "7 baz:4.9"] value 3574313270
     inst [8 or "8 baz:5.6"] value 4084929460
     inst [9 or "9 baz:6.3"] value 4595545640
 
@@ -120,11 +120,11 @@ prometheus.source3.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 680821576
     inst [2 or "2 baz:1.4"] value 1361643150
-    inst [3 or "3 baz:2.0999999999999996"] value 2042464730
+    inst [3 or "3 baz:2.1"] value 2042464730
     inst [4 or "4 baz:2.8"] value 2723286300
     inst [5 or "5 baz:3.5"] value 3404107880
-    inst [6 or "6 baz:4.199999999999999"] value 4084929460
-    inst [7 or "7 baz:4.8999999999999995"] value 4765751030
+    inst [6 or "6 baz:4.2"] value 4084929460
+    inst [7 or "7 baz:4.9"] value 4765751030
     inst [8 or "8 baz:5.6"] value 5446572610
     inst [9 or "9 baz:6.3"] value 6127394180
 
@@ -162,11 +162,11 @@ prometheus.source4.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 851026970
     inst [2 or "2 baz:1.4"] value 1702053940
-    inst [3 or "3 baz:2.0999999999999996"] value 2553080910
+    inst [3 or "3 baz:2.1"] value 2553080910
     inst [4 or "4 baz:2.8"] value 3404107880
     inst [5 or "5 baz:3.5"] value 4255134850
-    inst [6 or "6 baz:4.199999999999999"] value 5106161820
-    inst [7 or "7 baz:4.8999999999999995"] value 5957188790
+    inst [6 or "6 baz:4.2"] value 5106161820
+    inst [7 or "7 baz:4.9"] value 5957188790
     inst [8 or "8 baz:5.6"] value 6808215760
     inst [9 or "9 baz:6.3"] value 7659242730
 
@@ -204,11 +204,11 @@ prometheus.source5.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1021232360
     inst [2 or "2 baz:1.4"] value 2042464730
-    inst [3 or "3 baz:2.0999999999999996"] value 3063697090
+    inst [3 or "3 baz:2.1"] value 3063697090
     inst [4 or "4 baz:2.8"] value 4084929460
     inst [5 or "5 baz:3.5"] value 5106161820
-    inst [6 or "6 baz:4.199999999999999"] value 6127394180
-    inst [7 or "7 baz:4.8999999999999995"] value 7148626550
+    inst [6 or "6 baz:4.2"] value 6127394180
+    inst [7 or "7 baz:4.9"] value 7148626550
     inst [8 or "8 baz:5.6"] value 8169858910
     inst [9 or "9 baz:6.3"] value 9191091280
 
@@ -246,11 +246,11 @@ prometheus.source6.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1191437760
     inst [2 or "2 baz:1.4"] value 2382875520
-    inst [3 or "3 baz:2.0999999999999996"] value 3574313270
+    inst [3 or "3 baz:2.1"] value 3574313270
     inst [4 or "4 baz:2.8"] value 4765751030
     inst [5 or "5 baz:3.5"] value 5957188790
-    inst [6 or "6 baz:4.199999999999999"] value 7148626550
-    inst [7 or "7 baz:4.8999999999999995"] value 8340064310
+    inst [6 or "6 baz:4.2"] value 7148626550
+    inst [7 or "7 baz:4.9"] value 8340064310
     inst [8 or "8 baz:5.6"] value 9531502060
     inst [9 or "9 baz:6.3"] value 10722939800
 
@@ -288,11 +288,11 @@ prometheus.source7.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1361643150
     inst [2 or "2 baz:1.4"] value 2723286300
-    inst [3 or "3 baz:2.0999999999999996"] value 4084929460
+    inst [3 or "3 baz:2.1"] value 4084929460
     inst [4 or "4 baz:2.8"] value 5446572610
     inst [5 or "5 baz:3.5"] value 6808215760
-    inst [6 or "6 baz:4.199999999999999"] value 8169858910
-    inst [7 or "7 baz:4.8999999999999995"] value 9531502060
+    inst [6 or "6 baz:4.2"] value 8169858910
+    inst [7 or "7 baz:4.9"] value 9531502060
     inst [8 or "8 baz:5.6"] value 10893145200
     inst [9 or "9 baz:6.3"] value 12254788400
 
@@ -330,11 +330,11 @@ prometheus.source8.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1531848550
     inst [2 or "2 baz:1.4"] value 3063697090
-    inst [3 or "3 baz:2.0999999999999996"] value 4595545640
+    inst [3 or "3 baz:2.1"] value 4595545640
     inst [4 or "4 baz:2.8"] value 6127394180
     inst [5 or "5 baz:3.5"] value 7659242730
-    inst [6 or "6 baz:4.199999999999999"] value 9191091280
-    inst [7 or "7 baz:4.8999999999999995"] value 10722939800
+    inst [6 or "6 baz:4.2"] value 9191091280
+    inst [7 or "7 baz:4.9"] value 10722939800
     inst [8 or "8 baz:5.6"] value 12254788400
     inst [9 or "9 baz:6.3"] value 13786636900
 
@@ -372,11 +372,11 @@ prometheus.source9.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1702053940
     inst [2 or "2 baz:1.4"] value 3404107880
-    inst [3 or "3 baz:2.0999999999999996"] value 5106161820
+    inst [3 or "3 baz:2.1"] value 5106161820
     inst [4 or "4 baz:2.8"] value 6808215760
     inst [5 or "5 baz:3.5"] value 8510269700
-    inst [6 or "6 baz:4.199999999999999"] value 10212323600
-    inst [7 or "7 baz:4.8999999999999995"] value 11914377600
+    inst [6 or "6 baz:4.2"] value 10212323600
+    inst [7 or "7 baz:4.9"] value 11914377600
     inst [8 or "8 baz:5.6"] value 13616431500
     inst [9 or "9 baz:6.3"] value 15318485500
 
@@ -414,11 +414,11 @@ prometheus.source10.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1872259330
     inst [2 or "2 baz:1.4"] value 3744518670
-    inst [3 or "3 baz:2.0999999999999996"] value 5616778000
+    inst [3 or "3 baz:2.1"] value 5616778000
     inst [4 or "4 baz:2.8"] value 7489037340
     inst [5 or "5 baz:3.5"] value 9361296670
-    inst [6 or "6 baz:4.199999999999999"] value 11233556000
-    inst [7 or "7 baz:4.8999999999999995"] value 13105815300
+    inst [6 or "6 baz:4.2"] value 11233556000
+    inst [7 or "7 baz:4.9"] value 13105815300
     inst [8 or "8 baz:5.6"] value 14978074700
     inst [9 or "9 baz:6.3"] value 16850334000
 
@@ -456,11 +456,11 @@ prometheus.source11.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2042464730
     inst [2 or "2 baz:1.4"] value 4084929460
-    inst [3 or "3 baz:2.0999999999999996"] value 6127394180
+    inst [3 or "3 baz:2.1"] value 6127394180
     inst [4 or "4 baz:2.8"] value 8169858910
     inst [5 or "5 baz:3.5"] value 10212323600
-    inst [6 or "6 baz:4.199999999999999"] value 12254788400
-    inst [7 or "7 baz:4.8999999999999995"] value 14297253100
+    inst [6 or "6 baz:4.2"] value 12254788400
+    inst [7 or "7 baz:4.9"] value 14297253100
     inst [8 or "8 baz:5.6"] value 16339717800
     inst [9 or "9 baz:6.3"] value 18382182600
 
@@ -498,11 +498,11 @@ prometheus.source12.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2212670120
     inst [2 or "2 baz:1.4"] value 4425340240
-    inst [3 or "3 baz:2.0999999999999996"] value 6638010370
+    inst [3 or "3 baz:2.1"] value 6638010370
     inst [4 or "4 baz:2.8"] value 8850680490
     inst [5 or "5 baz:3.5"] value 11063350600
-    inst [6 or "6 baz:4.199999999999999"] value 13276020700
-    inst [7 or "7 baz:4.8999999999999995"] value 15488690900
+    inst [6 or "6 baz:4.2"] value 13276020700
+    inst [7 or "7 baz:4.9"] value 15488690900
     inst [8 or "8 baz:5.6"] value 17701361000
     inst [9 or "9 baz:6.3"] value 19914031100
 
@@ -540,11 +540,11 @@ prometheus.source13.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2382875520
     inst [2 or "2 baz:1.4"] value 4765751030
-    inst [3 or "3 baz:2.0999999999999996"] value 7148626550
+    inst [3 or "3 baz:2.1"] value 7148626550
     inst [4 or "4 baz:2.8"] value 9531502060
     inst [5 or "5 baz:3.5"] value 11914377600
-    inst [6 or "6 baz:4.199999999999999"] value 14297253100
-    inst [7 or "7 baz:4.8999999999999995"] value 16680128600
+    inst [6 or "6 baz:4.2"] value 14297253100
+    inst [7 or "7 baz:4.9"] value 16680128600
     inst [8 or "8 baz:5.6"] value 19063004100
     inst [9 or "9 baz:6.3"] value 21445879600
 
@@ -582,11 +582,11 @@ prometheus.source14.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2553080910
     inst [2 or "2 baz:1.4"] value 5106161820
-    inst [3 or "3 baz:2.0999999999999996"] value 7659242730
+    inst [3 or "3 baz:2.1"] value 7659242730
     inst [4 or "4 baz:2.8"] value 10212323600
     inst [5 or "5 baz:3.5"] value 12765404600
-    inst [6 or "6 baz:4.199999999999999"] value 15318485500
-    inst [7 or "7 baz:4.8999999999999995"] value 17871566400
+    inst [6 or "6 baz:4.2"] value 15318485500
+    inst [7 or "7 baz:4.9"] value 17871566400
     inst [8 or "8 baz:5.6"] value 20424647300
     inst [9 or "9 baz:6.3"] value 22977728200
 
@@ -624,11 +624,11 @@ prometheus.source15.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2723286300
     inst [2 or "2 baz:1.4"] value 5446572610
-    inst [3 or "3 baz:2.0999999999999996"] value 8169858910
+    inst [3 or "3 baz:2.1"] value 8169858910
     inst [4 or "4 baz:2.8"] value 10893145200
     inst [5 or "5 baz:3.5"] value 13616431500
-    inst [6 or "6 baz:4.199999999999999"] value 16339717800
-    inst [7 or "7 baz:4.8999999999999995"] value 19063004100
+    inst [6 or "6 baz:4.2"] value 16339717800
+    inst [7 or "7 baz:4.9"] value 19063004100
     inst [8 or "8 baz:5.6"] value 21786290400
     inst [9 or "9 baz:6.3"] value 24509576700
 
@@ -666,11 +666,11 @@ prometheus.source16.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2893491700
     inst [2 or "2 baz:1.4"] value 5786983400
-    inst [3 or "3 baz:2.0999999999999996"] value 8680475090
+    inst [3 or "3 baz:2.1"] value 8680475090
     inst [4 or "4 baz:2.8"] value 11573966800
     inst [5 or "5 baz:3.5"] value 14467458500
-    inst [6 or "6 baz:4.199999999999999"] value 17360950200
-    inst [7 or "7 baz:4.8999999999999995"] value 20254441900
+    inst [6 or "6 baz:4.2"] value 17360950200
+    inst [7 or "7 baz:4.9"] value 20254441900
     inst [8 or "8 baz:5.6"] value 23147933600
     inst [9 or "9 baz:6.3"] value 26041425300
 
@@ -708,11 +708,11 @@ prometheus.source17.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 3063697090
     inst [2 or "2 baz:1.4"] value 6127394180
-    inst [3 or "3 baz:2.0999999999999996"] value 9191091280
+    inst [3 or "3 baz:2.1"] value 9191091280
     inst [4 or "4 baz:2.8"] value 12254788400
     inst [5 or "5 baz:3.5"] value 15318485500
-    inst [6 or "6 baz:4.199999999999999"] value 18382182600
-    inst [7 or "7 baz:4.8999999999999995"] value 21445879600
+    inst [6 or "6 baz:4.2"] value 18382182600
+    inst [7 or "7 baz:4.9"] value 21445879600
     inst [8 or "8 baz:5.6"] value 24509576700
     inst [9 or "9 baz:6.3"] value 27573273800
 
@@ -750,11 +750,11 @@ prometheus.source18.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 3233902490
     inst [2 or "2 baz:1.4"] value 6467804970
-    inst [3 or "3 baz:2.0999999999999996"] value 9701707460
+    inst [3 or "3 baz:2.1"] value 9701707460
     inst [4 or "4 baz:2.8"] value 12935609900
     inst [5 or "5 baz:3.5"] value 16169512400
-    inst [6 or "6 baz:4.199999999999999"] value 19403414900
-    inst [7 or "7 baz:4.8999999999999995"] value 22637317400
+    inst [6 or "6 baz:4.2"] value 19403414900
+    inst [7 or "7 baz:4.9"] value 22637317400
     inst [8 or "8 baz:5.6"] value 25871219900
     inst [9 or "9 baz:6.3"] value 29105122400
 
@@ -792,11 +792,11 @@ prometheus.source19.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 3404107880
     inst [2 or "2 baz:1.4"] value 6808215760
-    inst [3 or "3 baz:2.0999999999999996"] value 10212323600
+    inst [3 or "3 baz:2.1"] value 10212323600
     inst [4 or "4 baz:2.8"] value 13616431500
     inst [5 or "5 baz:3.5"] value 17020539400
-    inst [6 or "6 baz:4.199999999999999"] value 20424647300
-    inst [7 or "7 baz:4.8999999999999995"] value 23828755200
+    inst [6 or "6 baz:4.2"] value 20424647300
+    inst [7 or "7 baz:4.9"] value 23828755200
     inst [8 or "8 baz:5.6"] value 27232863000
     inst [9 or "9 baz:6.3"] value 30636970900
 
@@ -834,11 +834,11 @@ prometheus.source20.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 3574313270
     inst [2 or "2 baz:1.4"] value 7148626550
-    inst [3 or "3 baz:2.0999999999999996"] value 10722939800
+    inst [3 or "3 baz:2.1"] value 10722939800
     inst [4 or "4 baz:2.8"] value 14297253100
     inst [5 or "5 baz:3.5"] value 17871566400
-    inst [6 or "6 baz:4.199999999999999"] value 21445879600
-    inst [7 or "7 baz:4.8999999999999995"] value 25020192900
+    inst [6 or "6 baz:4.2"] value 21445879600
+    inst [7 or "7 baz:4.9"] value 25020192900
     inst [8 or "8 baz:5.6"] value 28594506200
     inst [9 or "9 baz:6.3"] value 32168819500
 
@@ -876,11 +876,11 @@ prometheus.source21.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 3744518670
     inst [2 or "2 baz:1.4"] value 7489037340
-    inst [3 or "3 baz:2.0999999999999996"] value 11233556000
+    inst [3 or "3 baz:2.1"] value 11233556000
     inst [4 or "4 baz:2.8"] value 14978074700
     inst [5 or "5 baz:3.5"] value 18722593300
-    inst [6 or "6 baz:4.199999999999999"] value 22467112000
-    inst [7 or "7 baz:4.8999999999999995"] value 26211630700
+    inst [6 or "6 baz:4.2"] value 22467112000
+    inst [7 or "7 baz:4.9"] value 26211630700
     inst [8 or "8 baz:5.6"] value 29956149300
     inst [9 or "9 baz:6.3"] value 33700668000
 
@@ -918,11 +918,11 @@ prometheus.source22.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 3914724060
     inst [2 or "2 baz:1.4"] value 7829448120
-    inst [3 or "3 baz:2.0999999999999996"] value 11744172200
+    inst [3 or "3 baz:2.1"] value 11744172200
     inst [4 or "4 baz:2.8"] value 15658896200
     inst [5 or "5 baz:3.5"] value 19573620300
-    inst [6 or "6 baz:4.199999999999999"] value 23488344400
-    inst [7 or "7 baz:4.8999999999999995"] value 27403068400
+    inst [6 or "6 baz:4.2"] value 23488344400
+    inst [7 or "7 baz:4.9"] value 27403068400
     inst [8 or "8 baz:5.6"] value 31317792500
     inst [9 or "9 baz:6.3"] value 35232516600
 
@@ -960,11 +960,11 @@ prometheus.source23.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 4084929460
     inst [2 or "2 baz:1.4"] value 8169858910
-    inst [3 or "3 baz:2.0999999999999996"] value 12254788400
+    inst [3 or "3 baz:2.1"] value 12254788400
     inst [4 or "4 baz:2.8"] value 16339717800
     inst [5 or "5 baz:3.5"] value 20424647300
-    inst [6 or "6 baz:4.199999999999999"] value 24509576700
-    inst [7 or "7 baz:4.8999999999999995"] value 28594506200
+    inst [6 or "6 baz:4.2"] value 24509576700
+    inst [7 or "7 baz:4.9"] value 28594506200
     inst [8 or "8 baz:5.6"] value 32679435600
     inst [9 or "9 baz:6.3"] value 36764365100
 
@@ -1002,11 +1002,11 @@ prometheus.source24.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 4255134850
     inst [2 or "2 baz:1.4"] value 8510269700
-    inst [3 or "3 baz:2.0999999999999996"] value 12765404600
+    inst [3 or "3 baz:2.1"] value 12765404600
     inst [4 or "4 baz:2.8"] value 17020539400
     inst [5 or "5 baz:3.5"] value 21275674200
-    inst [6 or "6 baz:4.199999999999999"] value 25530809100
-    inst [7 or "7 baz:4.8999999999999995"] value 29785944000
+    inst [6 or "6 baz:4.2"] value 25530809100
+    inst [7 or "7 baz:4.9"] value 29785944000
     inst [8 or "8 baz:5.6"] value 34041078800
     inst [9 or "9 baz:6.3"] value 38296213600
 
@@ -1044,11 +1044,11 @@ prometheus.source25.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 4425340240
     inst [2 or "2 baz:1.4"] value 8850680490
-    inst [3 or "3 baz:2.0999999999999996"] value 13276020700
+    inst [3 or "3 baz:2.1"] value 13276020700
     inst [4 or "4 baz:2.8"] value 17701361000
     inst [5 or "5 baz:3.5"] value 22126701200
-    inst [6 or "6 baz:4.199999999999999"] value 26552041500
-    inst [7 or "7 baz:4.8999999999999995"] value 30977381700
+    inst [6 or "6 baz:4.2"] value 26552041500
+    inst [7 or "7 baz:4.9"] value 30977381700
     inst [8 or "8 baz:5.6"] value 35402722000
     inst [9 or "9 baz:6.3"] value 39828062200
 
@@ -1086,11 +1086,11 @@ prometheus.source26.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 4595545640
     inst [2 or "2 baz:1.4"] value 9191091280
-    inst [3 or "3 baz:2.0999999999999996"] value 13786636900
+    inst [3 or "3 baz:2.1"] value 13786636900
     inst [4 or "4 baz:2.8"] value 18382182600
     inst [5 or "5 baz:3.5"] value 22977728200
-    inst [6 or "6 baz:4.199999999999999"] value 27573273800
-    inst [7 or "7 baz:4.8999999999999995"] value 32168819500
+    inst [6 or "6 baz:4.2"] value 27573273800
+    inst [7 or "7 baz:4.9"] value 32168819500
     inst [8 or "8 baz:5.6"] value 36764365100
     inst [9 or "9 baz:6.3"] value 41359910700
 
@@ -1128,11 +1128,11 @@ prometheus.source27.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 4765751030
     inst [2 or "2 baz:1.4"] value 9531502060
-    inst [3 or "3 baz:2.0999999999999996"] value 14297253100
+    inst [3 or "3 baz:2.1"] value 14297253100
     inst [4 or "4 baz:2.8"] value 19063004100
     inst [5 or "5 baz:3.5"] value 23828755200
-    inst [6 or "6 baz:4.199999999999999"] value 28594506200
-    inst [7 or "7 baz:4.8999999999999995"] value 33360257200
+    inst [6 or "6 baz:4.2"] value 28594506200
+    inst [7 or "7 baz:4.9"] value 33360257200
     inst [8 or "8 baz:5.6"] value 38126008300
     inst [9 or "9 baz:6.3"] value 42891759300
 
@@ -1170,11 +1170,11 @@ prometheus.source28.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 4935956430
     inst [2 or "2 baz:1.4"] value 9871912850
-    inst [3 or "3 baz:2.0999999999999996"] value 14807869300
+    inst [3 or "3 baz:2.1"] value 14807869300
     inst [4 or "4 baz:2.8"] value 19743825700
     inst [5 or "5 baz:3.5"] value 24679782100
-    inst [6 or "6 baz:4.199999999999999"] value 29615738600
-    inst [7 or "7 baz:4.8999999999999995"] value 34551695000
+    inst [6 or "6 baz:4.2"] value 29615738600
+    inst [7 or "7 baz:4.9"] value 34551695000
     inst [8 or "8 baz:5.6"] value 39487651400
     inst [9 or "9 baz:6.3"] value 44423607800
 
@@ -1212,11 +1212,11 @@ prometheus.source29.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 5106161820
     inst [2 or "2 baz:1.4"] value 10212323600
-    inst [3 or "3 baz:2.0999999999999996"] value 15318485500
+    inst [3 or "3 baz:2.1"] value 15318485500
     inst [4 or "4 baz:2.8"] value 20424647300
     inst [5 or "5 baz:3.5"] value 25530809100
-    inst [6 or "6 baz:4.199999999999999"] value 30636970900
-    inst [7 or "7 baz:4.8999999999999995"] value 35743132700
+    inst [6 or "6 baz:4.2"] value 30636970900
+    inst [7 or "7 baz:4.9"] value 35743132700
     inst [8 or "8 baz:5.6"] value 40849294600
     inst [9 or "9 baz:6.3"] value 45955456400
 
@@ -1254,11 +1254,11 @@ prometheus.source30.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 5276367210
     inst [2 or "2 baz:1.4"] value 10552734400
-    inst [3 or "3 baz:2.0999999999999996"] value 15829101600
+    inst [3 or "3 baz:2.1"] value 15829101600
     inst [4 or "4 baz:2.8"] value 21105468900
     inst [5 or "5 baz:3.5"] value 26381836100
-    inst [6 or "6 baz:4.199999999999999"] value 31658203300
-    inst [7 or "7 baz:4.8999999999999995"] value 36934570500
+    inst [6 or "6 baz:4.2"] value 31658203300
+    inst [7 or "7 baz:4.9"] value 36934570500
     inst [8 or "8 baz:5.6"] value 42210937700
     inst [9 or "9 baz:6.3"] value 47487304900
 
@@ -1296,11 +1296,11 @@ prometheus.source31.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 5446572610
     inst [2 or "2 baz:1.4"] value 10893145200
-    inst [3 or "3 baz:2.0999999999999996"] value 16339717800
+    inst [3 or "3 baz:2.1"] value 16339717800
     inst [4 or "4 baz:2.8"] value 21786290400
     inst [5 or "5 baz:3.5"] value 27232863000
-    inst [6 or "6 baz:4.199999999999999"] value 32679435600
-    inst [7 or "7 baz:4.8999999999999995"] value 38126008300
+    inst [6 or "6 baz:4.2"] value 32679435600
+    inst [7 or "7 baz:4.9"] value 38126008300
     inst [8 or "8 baz:5.6"] value 43572580900
     inst [9 or "9 baz:6.3"] value 49019153500
 
@@ -1338,11 +1338,11 @@ prometheus.source32.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 5616778000
     inst [2 or "2 baz:1.4"] value 11233556000
-    inst [3 or "3 baz:2.0999999999999996"] value 16850334000
+    inst [3 or "3 baz:2.1"] value 16850334000
     inst [4 or "4 baz:2.8"] value 22467112000
     inst [5 or "5 baz:3.5"] value 28083890000
-    inst [6 or "6 baz:4.199999999999999"] value 33700668000
-    inst [7 or "7 baz:4.8999999999999995"] value 39317446000
+    inst [6 or "6 baz:4.2"] value 33700668000
+    inst [7 or "7 baz:4.9"] value 39317446000
     inst [8 or "8 baz:5.6"] value 44934224000
     inst [9 or "9 baz:6.3"] value 50551002000
 
@@ -1380,11 +1380,11 @@ prometheus.source33.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 5786983400
     inst [2 or "2 baz:1.4"] value 11573966800
-    inst [3 or "3 baz:2.0999999999999996"] value 17360950200
+    inst [3 or "3 baz:2.1"] value 17360950200
     inst [4 or "4 baz:2.8"] value 23147933600
     inst [5 or "5 baz:3.5"] value 28934917000
-    inst [6 or "6 baz:4.199999999999999"] value 34721900400
-    inst [7 or "7 baz:4.8999999999999995"] value 40508883800
+    inst [6 or "6 baz:4.2"] value 34721900400
+    inst [7 or "7 baz:4.9"] value 40508883800
     inst [8 or "8 baz:5.6"] value 46295867200
     inst [9 or "9 baz:6.3"] value 52082850600
 
@@ -1422,11 +1422,11 @@ prometheus.source34.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 5957188790
     inst [2 or "2 baz:1.4"] value 11914377600
-    inst [3 or "3 baz:2.0999999999999996"] value 17871566400
+    inst [3 or "3 baz:2.1"] value 17871566400
     inst [4 or "4 baz:2.8"] value 23828755200
     inst [5 or "5 baz:3.5"] value 29785944000
-    inst [6 or "6 baz:4.199999999999999"] value 35743132700
-    inst [7 or "7 baz:4.8999999999999995"] value 41700321500
+    inst [6 or "6 baz:4.2"] value 35743132700
+    inst [7 or "7 baz:4.9"] value 41700321500
     inst [8 or "8 baz:5.6"] value 47657510300
     inst [9 or "9 baz:6.3"] value 53614699100
 
@@ -1464,11 +1464,11 @@ prometheus.source35.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 6127394180
     inst [2 or "2 baz:1.4"] value 12254788400
-    inst [3 or "3 baz:2.0999999999999996"] value 18382182600
+    inst [3 or "3 baz:2.1"] value 18382182600
     inst [4 or "4 baz:2.8"] value 24509576700
     inst [5 or "5 baz:3.5"] value 30636970900
-    inst [6 or "6 baz:4.199999999999999"] value 36764365100
-    inst [7 or "7 baz:4.8999999999999995"] value 42891759300
+    inst [6 or "6 baz:4.2"] value 36764365100
+    inst [7 or "7 baz:4.9"] value 42891759300
     inst [8 or "8 baz:5.6"] value 49019153500
     inst [9 or "9 baz:6.3"] value 55146547700
 
@@ -1506,11 +1506,11 @@ prometheus.source36.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 6297599580
     inst [2 or "2 baz:1.4"] value 12595199200
-    inst [3 or "3 baz:2.0999999999999996"] value 18892798700
+    inst [3 or "3 baz:2.1"] value 18892798700
     inst [4 or "4 baz:2.8"] value 25190398300
     inst [5 or "5 baz:3.5"] value 31487997900
-    inst [6 or "6 baz:4.199999999999999"] value 37785597500
-    inst [7 or "7 baz:4.8999999999999995"] value 44083197000
+    inst [6 or "6 baz:4.2"] value 37785597500
+    inst [7 or "7 baz:4.9"] value 44083197000
     inst [8 or "8 baz:5.6"] value 50380796600
     inst [9 or "9 baz:6.3"] value 56678396200
 
@@ -1548,11 +1548,11 @@ prometheus.source37.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 6467804970
     inst [2 or "2 baz:1.4"] value 12935609900
-    inst [3 or "3 baz:2.0999999999999996"] value 19403414900
+    inst [3 or "3 baz:2.1"] value 19403414900
     inst [4 or "4 baz:2.8"] value 25871219900
     inst [5 or "5 baz:3.5"] value 32339024900
-    inst [6 or "6 baz:4.199999999999999"] value 38806829800
-    inst [7 or "7 baz:4.8999999999999995"] value 45274634800
+    inst [6 or "6 baz:4.2"] value 38806829800
+    inst [7 or "7 baz:4.9"] value 45274634800
     inst [8 or "8 baz:5.6"] value 51742439800
     inst [9 or "9 baz:6.3"] value 58210244700
 
@@ -1590,11 +1590,11 @@ prometheus.source38.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 6638010370
     inst [2 or "2 baz:1.4"] value 13276020700
-    inst [3 or "3 baz:2.0999999999999996"] value 19914031100
+    inst [3 or "3 baz:2.1"] value 19914031100
     inst [4 or "4 baz:2.8"] value 26552041500
     inst [5 or "5 baz:3.5"] value 33190051800
-    inst [6 or "6 baz:4.199999999999999"] value 39828062200
-    inst [7 or "7 baz:4.8999999999999995"] value 46466072600
+    inst [6 or "6 baz:4.2"] value 39828062200
+    inst [7 or "7 baz:4.9"] value 46466072600
     inst [8 or "8 baz:5.6"] value 53104082900
     inst [9 or "9 baz:6.3"] value 59742093300
 
@@ -1632,11 +1632,11 @@ prometheus.source39.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 6808215760
     inst [2 or "2 baz:1.4"] value 13616431500
-    inst [3 or "3 baz:2.0999999999999996"] value 20424647300
+    inst [3 or "3 baz:2.1"] value 20424647300
     inst [4 or "4 baz:2.8"] value 27232863000
     inst [5 or "5 baz:3.5"] value 34041078800
-    inst [6 or "6 baz:4.199999999999999"] value 40849294600
-    inst [7 or "7 baz:4.8999999999999995"] value 47657510300
+    inst [6 or "6 baz:4.2"] value 40849294600
+    inst [7 or "7 baz:4.9"] value 47657510300
     inst [8 or "8 baz:5.6"] value 54465726100
     inst [9 or "9 baz:6.3"] value 61273941800
 
@@ -1674,11 +1674,11 @@ prometheus.source40.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 6978421150
     inst [2 or "2 baz:1.4"] value 13956842300
-    inst [3 or "3 baz:2.0999999999999996"] value 20935263500
+    inst [3 or "3 baz:2.1"] value 20935263500
     inst [4 or "4 baz:2.8"] value 27913684600
     inst [5 or "5 baz:3.5"] value 34892105800
-    inst [6 or "6 baz:4.199999999999999"] value 41870526900
-    inst [7 or "7 baz:4.8999999999999995"] value 48848948100
+    inst [6 or "6 baz:4.2"] value 41870526900
+    inst [7 or "7 baz:4.9"] value 48848948100
     inst [8 or "8 baz:5.6"] value 55827369200
     inst [9 or "9 baz:6.3"] value 62805790400
 
@@ -1716,11 +1716,11 @@ prometheus.source41.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 7148626550
     inst [2 or "2 baz:1.4"] value 14297253100
-    inst [3 or "3 baz:2.0999999999999996"] value 21445879600
+    inst [3 or "3 baz:2.1"] value 21445879600
     inst [4 or "4 baz:2.8"] value 28594506200
     inst [5 or "5 baz:3.5"] value 35743132700
-    inst [6 or "6 baz:4.199999999999999"] value 42891759300
-    inst [7 or "7 baz:4.8999999999999995"] value 50040385800
+    inst [6 or "6 baz:4.2"] value 42891759300
+    inst [7 or "7 baz:4.9"] value 50040385800
     inst [8 or "8 baz:5.6"] value 57189012400
     inst [9 or "9 baz:6.3"] value 64337638900
 
@@ -1758,11 +1758,11 @@ prometheus.source42.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 7318831940
     inst [2 or "2 baz:1.4"] value 14637663900
-    inst [3 or "3 baz:2.0999999999999996"] value 21956495800
+    inst [3 or "3 baz:2.1"] value 21956495800
     inst [4 or "4 baz:2.8"] value 29275327800
     inst [5 or "5 baz:3.5"] value 36594159700
-    inst [6 or "6 baz:4.199999999999999"] value 43912991700
-    inst [7 or "7 baz:4.8999999999999995"] value 51231823600
+    inst [6 or "6 baz:4.2"] value 43912991700
+    inst [7 or "7 baz:4.9"] value 51231823600
     inst [8 or "8 baz:5.6"] value 58550655500
     inst [9 or "9 baz:6.3"] value 65869487500
 
@@ -1800,11 +1800,11 @@ prometheus.source43.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 7489037340
     inst [2 or "2 baz:1.4"] value 14978074700
-    inst [3 or "3 baz:2.0999999999999996"] value 22467112000
+    inst [3 or "3 baz:2.1"] value 22467112000
     inst [4 or "4 baz:2.8"] value 29956149300
     inst [5 or "5 baz:3.5"] value 37445186700
-    inst [6 or "6 baz:4.199999999999999"] value 44934224000
-    inst [7 or "7 baz:4.8999999999999995"] value 52423261400
+    inst [6 or "6 baz:4.2"] value 44934224000
+    inst [7 or "7 baz:4.9"] value 52423261400
     inst [8 or "8 baz:5.6"] value 59912298700
     inst [9 or "9 baz:6.3"] value 67401336000
 
@@ -1842,11 +1842,11 @@ prometheus.source44.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 7659242730
     inst [2 or "2 baz:1.4"] value 15318485500
-    inst [3 or "3 baz:2.0999999999999996"] value 22977728200
+    inst [3 or "3 baz:2.1"] value 22977728200
     inst [4 or "4 baz:2.8"] value 30636970900
     inst [5 or "5 baz:3.5"] value 38296213600
-    inst [6 or "6 baz:4.199999999999999"] value 45955456400
-    inst [7 or "7 baz:4.8999999999999995"] value 53614699100
+    inst [6 or "6 baz:4.2"] value 45955456400
+    inst [7 or "7 baz:4.9"] value 53614699100
     inst [8 or "8 baz:5.6"] value 61273941800
     inst [9 or "9 baz:6.3"] value 68933184600
 
@@ -1884,11 +1884,11 @@ prometheus.source45.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 7829448120
     inst [2 or "2 baz:1.4"] value 15658896200
-    inst [3 or "3 baz:2.0999999999999996"] value 23488344400
+    inst [3 or "3 baz:2.1"] value 23488344400
     inst [4 or "4 baz:2.8"] value 31317792500
     inst [5 or "5 baz:3.5"] value 39147240600
-    inst [6 or "6 baz:4.199999999999999"] value 46976688700
-    inst [7 or "7 baz:4.8999999999999995"] value 54806136900
+    inst [6 or "6 baz:4.2"] value 46976688700
+    inst [7 or "7 baz:4.9"] value 54806136900
     inst [8 or "8 baz:5.6"] value 62635585000
     inst [9 or "9 baz:6.3"] value 70465033100
 
@@ -1926,11 +1926,11 @@ prometheus.source46.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 7999653520
     inst [2 or "2 baz:1.4"] value 15999307000
-    inst [3 or "3 baz:2.0999999999999996"] value 23998960600
+    inst [3 or "3 baz:2.1"] value 23998960600
     inst [4 or "4 baz:2.8"] value 31998614100
     inst [5 or "5 baz:3.5"] value 39998267600
-    inst [6 or "6 baz:4.199999999999999"] value 47997921100
-    inst [7 or "7 baz:4.8999999999999995"] value 55997574600
+    inst [6 or "6 baz:4.2"] value 47997921100
+    inst [7 or "7 baz:4.9"] value 55997574600
     inst [8 or "8 baz:5.6"] value 63997228100
     inst [9 or "9 baz:6.3"] value 71996881700
 
@@ -1968,11 +1968,11 @@ prometheus.source47.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 8169858910
     inst [2 or "2 baz:1.4"] value 16339717800
-    inst [3 or "3 baz:2.0999999999999996"] value 24509576700
+    inst [3 or "3 baz:2.1"] value 24509576700
     inst [4 or "4 baz:2.8"] value 32679435600
     inst [5 or "5 baz:3.5"] value 40849294600
-    inst [6 or "6 baz:4.199999999999999"] value 49019153500
-    inst [7 or "7 baz:4.8999999999999995"] value 57189012400
+    inst [6 or "6 baz:4.2"] value 49019153500
+    inst [7 or "7 baz:4.9"] value 57189012400
     inst [8 or "8 baz:5.6"] value 65358871300
     inst [9 or "9 baz:6.3"] value 73528730200
 
@@ -2010,11 +2010,11 @@ prometheus.source48.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 8340064310
     inst [2 or "2 baz:1.4"] value 16680128600
-    inst [3 or "3 baz:2.0999999999999996"] value 25020192900
+    inst [3 or "3 baz:2.1"] value 25020192900
     inst [4 or "4 baz:2.8"] value 33360257200
     inst [5 or "5 baz:3.5"] value 41700321500
-    inst [6 or "6 baz:4.199999999999999"] value 50040385800
-    inst [7 or "7 baz:4.8999999999999995"] value 58380450100
+    inst [6 or "6 baz:4.2"] value 50040385800
+    inst [7 or "7 baz:4.9"] value 58380450100
     inst [8 or "8 baz:5.6"] value 66720514400
     inst [9 or "9 baz:6.3"] value 75060578800
 
@@ -2052,11 +2052,11 @@ prometheus.source49.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 8510269700
     inst [2 or "2 baz:1.4"] value 17020539400
-    inst [3 or "3 baz:2.0999999999999996"] value 25530809100
+    inst [3 or "3 baz:2.1"] value 25530809100
     inst [4 or "4 baz:2.8"] value 34041078800
     inst [5 or "5 baz:3.5"] value 42551348500
-    inst [6 or "6 baz:4.199999999999999"] value 51061618200
-    inst [7 or "7 baz:4.8999999999999995"] value 59571887900
+    inst [6 or "6 baz:4.2"] value 51061618200
+    inst [7 or "7 baz:4.9"] value 59571887900
     inst [8 or "8 baz:5.6"] value 68082157600
     inst [9 or "9 baz:6.3"] value 76592427300
 
@@ -2094,11 +2094,11 @@ prometheus.source50.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 8680475090
     inst [2 or "2 baz:1.4"] value 17360950200
-    inst [3 or "3 baz:2.0999999999999996"] value 26041425300
+    inst [3 or "3 baz:2.1"] value 26041425300
     inst [4 or "4 baz:2.8"] value 34721900400
     inst [5 or "5 baz:3.5"] value 43402375500
-    inst [6 or "6 baz:4.199999999999999"] value 52082850600
-    inst [7 or "7 baz:4.8999999999999995"] value 60763325700
+    inst [6 or "6 baz:4.2"] value 52082850600
+    inst [7 or "7 baz:4.9"] value 60763325700
     inst [8 or "8 baz:5.6"] value 69443800800
     inst [9 or "9 baz:6.3"] value 78124275800
 
@@ -2136,11 +2136,11 @@ prometheus.source51.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 8850680490
     inst [2 or "2 baz:1.4"] value 17701361000
-    inst [3 or "3 baz:2.0999999999999996"] value 26552041500
+    inst [3 or "3 baz:2.1"] value 26552041500
     inst [4 or "4 baz:2.8"] value 35402722000
     inst [5 or "5 baz:3.5"] value 44253402400
-    inst [6 or "6 baz:4.199999999999999"] value 53104082900
-    inst [7 or "7 baz:4.8999999999999995"] value 61954763400
+    inst [6 or "6 baz:4.2"] value 53104082900
+    inst [7 or "7 baz:4.9"] value 61954763400
     inst [8 or "8 baz:5.6"] value 70805443900
     inst [9 or "9 baz:6.3"] value 79656124400
 
@@ -2178,11 +2178,11 @@ prometheus.source52.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 9020885880
     inst [2 or "2 baz:1.4"] value 18041771800
-    inst [3 or "3 baz:2.0999999999999996"] value 27062657600
+    inst [3 or "3 baz:2.1"] value 27062657600
     inst [4 or "4 baz:2.8"] value 36083543500
     inst [5 or "5 baz:3.5"] value 45104429400
-    inst [6 or "6 baz:4.199999999999999"] value 54125315300
-    inst [7 or "7 baz:4.8999999999999995"] value 63146201200
+    inst [6 or "6 baz:4.2"] value 54125315300
+    inst [7 or "7 baz:4.9"] value 63146201200
     inst [8 or "8 baz:5.6"] value 72167087100
     inst [9 or "9 baz:6.3"] value 81187972900
 
@@ -2220,11 +2220,11 @@ prometheus.source53.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 9191091280
     inst [2 or "2 baz:1.4"] value 18382182600
-    inst [3 or "3 baz:2.0999999999999996"] value 27573273800
+    inst [3 or "3 baz:2.1"] value 27573273800
     inst [4 or "4 baz:2.8"] value 36764365100
     inst [5 or "5 baz:3.5"] value 45955456400
-    inst [6 or "6 baz:4.199999999999999"] value 55146547700
-    inst [7 or "7 baz:4.8999999999999995"] value 64337638900
+    inst [6 or "6 baz:4.2"] value 55146547700
+    inst [7 or "7 baz:4.9"] value 64337638900
     inst [8 or "8 baz:5.6"] value 73528730200
     inst [9 or "9 baz:6.3"] value 82719821500
 
@@ -2262,11 +2262,11 @@ prometheus.source54.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 9361296670
     inst [2 or "2 baz:1.4"] value 18722593300
-    inst [3 or "3 baz:2.0999999999999996"] value 28083890000
+    inst [3 or "3 baz:2.1"] value 28083890000
     inst [4 or "4 baz:2.8"] value 37445186700
     inst [5 or "5 baz:3.5"] value 46806483400
-    inst [6 or "6 baz:4.199999999999999"] value 56167780000
-    inst [7 or "7 baz:4.8999999999999995"] value 65529076700
+    inst [6 or "6 baz:4.2"] value 56167780000
+    inst [7 or "7 baz:4.9"] value 65529076700
     inst [8 or "8 baz:5.6"] value 74890373400
     inst [9 or "9 baz:6.3"] value 84251670000
 
@@ -2304,11 +2304,11 @@ prometheus.source55.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 9531502060
     inst [2 or "2 baz:1.4"] value 19063004100
-    inst [3 or "3 baz:2.0999999999999996"] value 28594506200
+    inst [3 or "3 baz:2.1"] value 28594506200
     inst [4 or "4 baz:2.8"] value 38126008300
     inst [5 or "5 baz:3.5"] value 47657510300
-    inst [6 or "6 baz:4.199999999999999"] value 57189012400
-    inst [7 or "7 baz:4.8999999999999995"] value 66720514400
+    inst [6 or "6 baz:4.2"] value 57189012400
+    inst [7 or "7 baz:4.9"] value 66720514400
     inst [8 or "8 baz:5.6"] value 76252016500
     inst [9 or "9 baz:6.3"] value 85783518600
 
@@ -2346,11 +2346,11 @@ prometheus.source56.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 9701707460
     inst [2 or "2 baz:1.4"] value 19403414900
-    inst [3 or "3 baz:2.0999999999999996"] value 29105122400
+    inst [3 or "3 baz:2.1"] value 29105122400
     inst [4 or "4 baz:2.8"] value 38806829800
     inst [5 or "5 baz:3.5"] value 48508537300
-    inst [6 or "6 baz:4.199999999999999"] value 58210244700
-    inst [7 or "7 baz:4.8999999999999995"] value 67911952200
+    inst [6 or "6 baz:4.2"] value 58210244700
+    inst [7 or "7 baz:4.9"] value 67911952200
     inst [8 or "8 baz:5.6"] value 77613659700
     inst [9 or "9 baz:6.3"] value 87315367100
 
@@ -2388,11 +2388,11 @@ prometheus.source57.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 9871912850
     inst [2 or "2 baz:1.4"] value 19743825700
-    inst [3 or "3 baz:2.0999999999999996"] value 29615738600
+    inst [3 or "3 baz:2.1"] value 29615738600
     inst [4 or "4 baz:2.8"] value 39487651400
     inst [5 or "5 baz:3.5"] value 49359564300
-    inst [6 or "6 baz:4.199999999999999"] value 59231477100
-    inst [7 or "7 baz:4.8999999999999995"] value 69103390000
+    inst [6 or "6 baz:4.2"] value 59231477100
+    inst [7 or "7 baz:4.9"] value 69103390000
     inst [8 or "8 baz:5.6"] value 78975302800
     inst [9 or "9 baz:6.3"] value 88847215700
 
@@ -2430,11 +2430,11 @@ prometheus.source58.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 10042118200
     inst [2 or "2 baz:1.4"] value 20084236500
-    inst [3 or "3 baz:2.0999999999999996"] value 30126354700
+    inst [3 or "3 baz:2.1"] value 30126354700
     inst [4 or "4 baz:2.8"] value 40168473000
     inst [5 or "5 baz:3.5"] value 50210591200
-    inst [6 or "6 baz:4.199999999999999"] value 60252709500
-    inst [7 or "7 baz:4.8999999999999995"] value 70294827700
+    inst [6 or "6 baz:4.2"] value 60252709500
+    inst [7 or "7 baz:4.9"] value 70294827700
     inst [8 or "8 baz:5.6"] value 80336946000
     inst [9 or "9 baz:6.3"] value 90379064200
 
@@ -2472,11 +2472,11 @@ prometheus.source59.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 10212323600
     inst [2 or "2 baz:1.4"] value 20424647300
-    inst [3 or "3 baz:2.0999999999999996"] value 30636970900
+    inst [3 or "3 baz:2.1"] value 30636970900
     inst [4 or "4 baz:2.8"] value 40849294600
     inst [5 or "5 baz:3.5"] value 51061618200
-    inst [6 or "6 baz:4.199999999999999"] value 61273941800
-    inst [7 or "7 baz:4.8999999999999995"] value 71486265500
+    inst [6 or "6 baz:4.2"] value 61273941800
+    inst [7 or "7 baz:4.9"] value 71486265500
     inst [8 or "8 baz:5.6"] value 81698589100
     inst [9 or "9 baz:6.3"] value 91910912800
 
@@ -2514,11 +2514,11 @@ prometheus.source60.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 10382529000
     inst [2 or "2 baz:1.4"] value 20765058100
-    inst [3 or "3 baz:2.0999999999999996"] value 31147587100
+    inst [3 or "3 baz:2.1"] value 31147587100
     inst [4 or "4 baz:2.8"] value 41530116100
     inst [5 or "5 baz:3.5"] value 51912645200
-    inst [6 or "6 baz:4.199999999999999"] value 62295174200
-    inst [7 or "7 baz:4.8999999999999995"] value 72677703200
+    inst [6 or "6 baz:4.2"] value 62295174200
+    inst [7 or "7 baz:4.9"] value 72677703200
     inst [8 or "8 baz:5.6"] value 83060232300
     inst [9 or "9 baz:6.3"] value 93442761300
 
@@ -2556,11 +2556,11 @@ prometheus.source61.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 10552734400
     inst [2 or "2 baz:1.4"] value 21105468900
-    inst [3 or "3 baz:2.0999999999999996"] value 31658203300
+    inst [3 or "3 baz:2.1"] value 31658203300
     inst [4 or "4 baz:2.8"] value 42210937700
     inst [5 or "5 baz:3.5"] value 52763672100
-    inst [6 or "6 baz:4.199999999999999"] value 63316406600
-    inst [7 or "7 baz:4.8999999999999995"] value 73869141000
+    inst [6 or "6 baz:4.2"] value 63316406600
+    inst [7 or "7 baz:4.9"] value 73869141000
     inst [8 or "8 baz:5.6"] value 84421875400
     inst [9 or "9 baz:6.3"] value 94974609900
 
@@ -2598,11 +2598,11 @@ prometheus.source62.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 10722939800
     inst [2 or "2 baz:1.4"] value 21445879600
-    inst [3 or "3 baz:2.0999999999999996"] value 32168819500
+    inst [3 or "3 baz:2.1"] value 32168819500
     inst [4 or "4 baz:2.8"] value 42891759300
     inst [5 or "5 baz:3.5"] value 53614699100
-    inst [6 or "6 baz:4.199999999999999"] value 64337638900
-    inst [7 or "7 baz:4.8999999999999995"] value 75060578800
+    inst [6 or "6 baz:4.2"] value 64337638900
+    inst [7 or "7 baz:4.9"] value 75060578800
     inst [8 or "8 baz:5.6"] value 85783518600
     inst [9 or "9 baz:6.3"] value 96506458400
 
@@ -2640,11 +2640,11 @@ prometheus.source63.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 10893145200
     inst [2 or "2 baz:1.4"] value 21786290400
-    inst [3 or "3 baz:2.0999999999999996"] value 32679435600
+    inst [3 or "3 baz:2.1"] value 32679435600
     inst [4 or "4 baz:2.8"] value 43572580900
     inst [5 or "5 baz:3.5"] value 54465726100
-    inst [6 or "6 baz:4.199999999999999"] value 65358871300
-    inst [7 or "7 baz:4.8999999999999995"] value 76252016500
+    inst [6 or "6 baz:4.2"] value 65358871300
+    inst [7 or "7 baz:4.9"] value 76252016500
     inst [8 or "8 baz:5.6"] value 87145161700
     inst [9 or "9 baz:6.3"] value 98038306900
 
@@ -2682,11 +2682,11 @@ prometheus.source64.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 11063350600
     inst [2 or "2 baz:1.4"] value 22126701200
-    inst [3 or "3 baz:2.0999999999999996"] value 33190051800
+    inst [3 or "3 baz:2.1"] value 33190051800
     inst [4 or "4 baz:2.8"] value 44253402400
     inst [5 or "5 baz:3.5"] value 55316753000
-    inst [6 or "6 baz:4.199999999999999"] value 66380103700
-    inst [7 or "7 baz:4.8999999999999995"] value 77443454300
+    inst [6 or "6 baz:4.2"] value 66380103700
+    inst [7 or "7 baz:4.9"] value 77443454300
     inst [8 or "8 baz:5.6"] value 88506804900
     inst [9 or "9 baz:6.3"] value 99570155500
 
@@ -2724,11 +2724,11 @@ prometheus.source65.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 11233556000
     inst [2 or "2 baz:1.4"] value 22467112000
-    inst [3 or "3 baz:2.0999999999999996"] value 33700668000
+    inst [3 or "3 baz:2.1"] value 33700668000
     inst [4 or "4 baz:2.8"] value 44934224000
     inst [5 or "5 baz:3.5"] value 56167780000
-    inst [6 or "6 baz:4.199999999999999"] value 67401336000
-    inst [7 or "7 baz:4.8999999999999995"] value 78634892000
+    inst [6 or "6 baz:4.2"] value 67401336000
+    inst [7 or "7 baz:4.9"] value 78634892000
     inst [8 or "8 baz:5.6"] value 89868448000
     inst [9 or "9 baz:6.3"] value 101102004000
 
@@ -2766,11 +2766,11 @@ prometheus.source66.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 11403761400
     inst [2 or "2 baz:1.4"] value 22807522800
-    inst [3 or "3 baz:2.0999999999999996"] value 34211284200
+    inst [3 or "3 baz:2.1"] value 34211284200
     inst [4 or "4 baz:2.8"] value 45615045600
     inst [5 or "5 baz:3.5"] value 57018807000
-    inst [6 or "6 baz:4.199999999999999"] value 68422568400
-    inst [7 or "7 baz:4.8999999999999995"] value 79826329800
+    inst [6 or "6 baz:4.2"] value 68422568400
+    inst [7 or "7 baz:4.9"] value 79826329800
     inst [8 or "8 baz:5.6"] value 91230091200
     inst [9 or "9 baz:6.3"] value 102633853000
 
@@ -2808,11 +2808,11 @@ prometheus.source67.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 11573966800
     inst [2 or "2 baz:1.4"] value 23147933600
-    inst [3 or "3 baz:2.0999999999999996"] value 34721900400
+    inst [3 or "3 baz:2.1"] value 34721900400
     inst [4 or "4 baz:2.8"] value 46295867200
     inst [5 or "5 baz:3.5"] value 57869834000
-    inst [6 or "6 baz:4.199999999999999"] value 69443800800
-    inst [7 or "7 baz:4.8999999999999995"] value 81017767500
+    inst [6 or "6 baz:4.2"] value 69443800800
+    inst [7 or "7 baz:4.9"] value 81017767500
     inst [8 or "8 baz:5.6"] value 92591734300
     inst [9 or "9 baz:6.3"] value 104165701000
 
@@ -2850,11 +2850,11 @@ prometheus.source68.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 11744172200
     inst [2 or "2 baz:1.4"] value 23488344400
-    inst [3 or "3 baz:2.0999999999999996"] value 35232516600
+    inst [3 or "3 baz:2.1"] value 35232516600
     inst [4 or "4 baz:2.8"] value 46976688700
     inst [5 or "5 baz:3.5"] value 58720860900
-    inst [6 or "6 baz:4.199999999999999"] value 70465033100
-    inst [7 or "7 baz:4.8999999999999995"] value 82209205300
+    inst [6 or "6 baz:4.2"] value 70465033100
+    inst [7 or "7 baz:4.9"] value 82209205300
     inst [8 or "8 baz:5.6"] value 93953377500
     inst [9 or "9 baz:6.3"] value 105697550000
 
@@ -2892,11 +2892,11 @@ prometheus.source69.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 11914377600
     inst [2 or "2 baz:1.4"] value 23828755200
-    inst [3 or "3 baz:2.0999999999999996"] value 35743132700
+    inst [3 or "3 baz:2.1"] value 35743132700
     inst [4 or "4 baz:2.8"] value 47657510300
     inst [5 or "5 baz:3.5"] value 59571887900
-    inst [6 or "6 baz:4.199999999999999"] value 71486265500
-    inst [7 or "7 baz:4.8999999999999995"] value 83400643100
+    inst [6 or "6 baz:4.2"] value 71486265500
+    inst [7 or "7 baz:4.9"] value 83400643100
     inst [8 or "8 baz:5.6"] value 95315020600
     inst [9 or "9 baz:6.3"] value 107229398000
 
@@ -2934,11 +2934,11 @@ prometheus.source70.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 12084583000
     inst [2 or "2 baz:1.4"] value 24169165900
-    inst [3 or "3 baz:2.0999999999999996"] value 36253748900
+    inst [3 or "3 baz:2.1"] value 36253748900
     inst [4 or "4 baz:2.8"] value 48338331900
     inst [5 or "5 baz:3.5"] value 60422914900
-    inst [6 or "6 baz:4.199999999999999"] value 72507497800
-    inst [7 or "7 baz:4.8999999999999995"] value 84592080800
+    inst [6 or "6 baz:4.2"] value 72507497800
+    inst [7 or "7 baz:4.9"] value 84592080800
     inst [8 or "8 baz:5.6"] value 96676663800
     inst [9 or "9 baz:6.3"] value 108761247000
 
@@ -2976,11 +2976,11 @@ prometheus.source71.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 12254788400
     inst [2 or "2 baz:1.4"] value 24509576700
-    inst [3 or "3 baz:2.0999999999999996"] value 36764365100
+    inst [3 or "3 baz:2.1"] value 36764365100
     inst [4 or "4 baz:2.8"] value 49019153500
     inst [5 or "5 baz:3.5"] value 61273941800
-    inst [6 or "6 baz:4.199999999999999"] value 73528730200
-    inst [7 or "7 baz:4.8999999999999995"] value 85783518600
+    inst [6 or "6 baz:4.2"] value 73528730200
+    inst [7 or "7 baz:4.9"] value 85783518600
     inst [8 or "8 baz:5.6"] value 98038306900
     inst [9 or "9 baz:6.3"] value 110293095000
 
@@ -3018,11 +3018,11 @@ prometheus.source72.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 12424993800
     inst [2 or "2 baz:1.4"] value 24849987500
-    inst [3 or "3 baz:2.0999999999999996"] value 37274981300
+    inst [3 or "3 baz:2.1"] value 37274981300
     inst [4 or "4 baz:2.8"] value 49699975000
     inst [5 or "5 baz:3.5"] value 62124968800
-    inst [6 or "6 baz:4.199999999999999"] value 74549962600
-    inst [7 or "7 baz:4.8999999999999995"] value 86974956300
+    inst [6 or "6 baz:4.2"] value 74549962600
+    inst [7 or "7 baz:4.9"] value 86974956300
     inst [8 or "8 baz:5.6"] value 99399950100
     inst [9 or "9 baz:6.3"] value 111824944000
 
@@ -3060,11 +3060,11 @@ prometheus.source73.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 12595199200
     inst [2 or "2 baz:1.4"] value 25190398300
-    inst [3 or "3 baz:2.0999999999999996"] value 37785597500
+    inst [3 or "3 baz:2.1"] value 37785597500
     inst [4 or "4 baz:2.8"] value 50380796600
     inst [5 or "5 baz:3.5"] value 62975995800
-    inst [6 or "6 baz:4.199999999999999"] value 75571194900
-    inst [7 or "7 baz:4.8999999999999995"] value 88166394100
+    inst [6 or "6 baz:4.2"] value 75571194900
+    inst [7 or "7 baz:4.9"] value 88166394100
     inst [8 or "8 baz:5.6"] value 100761593000
     inst [9 or "9 baz:6.3"] value 113356792000
 
@@ -3102,11 +3102,11 @@ prometheus.source74.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 12765404600
     inst [2 or "2 baz:1.4"] value 25530809100
-    inst [3 or "3 baz:2.0999999999999996"] value 38296213600
+    inst [3 or "3 baz:2.1"] value 38296213600
     inst [4 or "4 baz:2.8"] value 51061618200
     inst [5 or "5 baz:3.5"] value 63827022800
-    inst [6 or "6 baz:4.199999999999999"] value 76592427300
-    inst [7 or "7 baz:4.8999999999999995"] value 89357831800
+    inst [6 or "6 baz:4.2"] value 76592427300
+    inst [7 or "7 baz:4.9"] value 89357831800
     inst [8 or "8 baz:5.6"] value 102123236000
     inst [9 or "9 baz:6.3"] value 114888641000
 
@@ -3144,11 +3144,11 @@ prometheus.source75.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 12935609900
     inst [2 or "2 baz:1.4"] value 25871219900
-    inst [3 or "3 baz:2.0999999999999996"] value 38806829800
+    inst [3 or "3 baz:2.1"] value 38806829800
     inst [4 or "4 baz:2.8"] value 51742439800
     inst [5 or "5 baz:3.5"] value 64678049700
-    inst [6 or "6 baz:4.199999999999999"] value 77613659700
-    inst [7 or "7 baz:4.8999999999999995"] value 90549269600
+    inst [6 or "6 baz:4.2"] value 77613659700
+    inst [7 or "7 baz:4.9"] value 90549269600
     inst [8 or "8 baz:5.6"] value 103484880000
     inst [9 or "9 baz:6.3"] value 116420489000
 
@@ -3186,11 +3186,11 @@ prometheus.source76.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 13105815300
     inst [2 or "2 baz:1.4"] value 26211630700
-    inst [3 or "3 baz:2.0999999999999996"] value 39317446000
+    inst [3 or "3 baz:2.1"] value 39317446000
     inst [4 or "4 baz:2.8"] value 52423261400
     inst [5 or "5 baz:3.5"] value 65529076700
-    inst [6 or "6 baz:4.199999999999999"] value 78634892000
-    inst [7 or "7 baz:4.8999999999999995"] value 91740707400
+    inst [6 or "6 baz:4.2"] value 78634892000
+    inst [7 or "7 baz:4.9"] value 91740707400
     inst [8 or "8 baz:5.6"] value 104846523000
     inst [9 or "9 baz:6.3"] value 117952338000
 
@@ -3228,11 +3228,11 @@ prometheus.source77.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 13276020700
     inst [2 or "2 baz:1.4"] value 26552041500
-    inst [3 or "3 baz:2.0999999999999996"] value 39828062200
+    inst [3 or "3 baz:2.1"] value 39828062200
     inst [4 or "4 baz:2.8"] value 53104082900
     inst [5 or "5 baz:3.5"] value 66380103700
-    inst [6 or "6 baz:4.199999999999999"] value 79656124400
-    inst [7 or "7 baz:4.8999999999999995"] value 92932145100
+    inst [6 or "6 baz:4.2"] value 79656124400
+    inst [7 or "7 baz:4.9"] value 92932145100
     inst [8 or "8 baz:5.6"] value 106208166000
     inst [9 or "9 baz:6.3"] value 119484187000
 
@@ -3270,11 +3270,11 @@ prometheus.source78.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 13446226100
     inst [2 or "2 baz:1.4"] value 26892452300
-    inst [3 or "3 baz:2.0999999999999996"] value 40338678400
+    inst [3 or "3 baz:2.1"] value 40338678400
     inst [4 or "4 baz:2.8"] value 53784904500
     inst [5 or "5 baz:3.5"] value 67231130600
-    inst [6 or "6 baz:4.199999999999999"] value 80677356800
-    inst [7 or "7 baz:4.8999999999999995"] value 94123582900
+    inst [6 or "6 baz:4.2"] value 80677356800
+    inst [7 or "7 baz:4.9"] value 94123582900
     inst [8 or "8 baz:5.6"] value 107569809000
     inst [9 or "9 baz:6.3"] value 121016035000
 
@@ -3312,11 +3312,11 @@ prometheus.source79.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 13616431500
     inst [2 or "2 baz:1.4"] value 27232863000
-    inst [3 or "3 baz:2.0999999999999996"] value 40849294600
+    inst [3 or "3 baz:2.1"] value 40849294600
     inst [4 or "4 baz:2.8"] value 54465726100
     inst [5 or "5 baz:3.5"] value 68082157600
-    inst [6 or "6 baz:4.199999999999999"] value 81698589100
-    inst [7 or "7 baz:4.8999999999999995"] value 95315020600
+    inst [6 or "6 baz:4.2"] value 81698589100
+    inst [7 or "7 baz:4.9"] value 95315020600
     inst [8 or "8 baz:5.6"] value 108931452000
     inst [9 or "9 baz:6.3"] value 122547884000
 
@@ -3354,11 +3354,11 @@ prometheus.source80.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 13786636900
     inst [2 or "2 baz:1.4"] value 27573273800
-    inst [3 or "3 baz:2.0999999999999996"] value 41359910700
+    inst [3 or "3 baz:2.1"] value 41359910700
     inst [4 or "4 baz:2.8"] value 55146547700
     inst [5 or "5 baz:3.5"] value 68933184600
-    inst [6 or "6 baz:4.199999999999999"] value 82719821500
-    inst [7 or "7 baz:4.8999999999999995"] value 96506458400
+    inst [6 or "6 baz:4.2"] value 82719821500
+    inst [7 or "7 baz:4.9"] value 96506458400
     inst [8 or "8 baz:5.6"] value 110293095000
     inst [9 or "9 baz:6.3"] value 124079732000
 
@@ -3396,11 +3396,11 @@ prometheus.source81.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 13956842300
     inst [2 or "2 baz:1.4"] value 27913684600
-    inst [3 or "3 baz:2.0999999999999996"] value 41870526900
+    inst [3 or "3 baz:2.1"] value 41870526900
     inst [4 or "4 baz:2.8"] value 55827369200
     inst [5 or "5 baz:3.5"] value 69784211500
-    inst [6 or "6 baz:4.199999999999999"] value 83741053800
-    inst [7 or "7 baz:4.8999999999999995"] value 97697896200
+    inst [6 or "6 baz:4.2"] value 83741053800
+    inst [7 or "7 baz:4.9"] value 97697896200
     inst [8 or "8 baz:5.6"] value 111654738000
     inst [9 or "9 baz:6.3"] value 125611581000
 
@@ -3438,11 +3438,11 @@ prometheus.source82.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 14127047700
     inst [2 or "2 baz:1.4"] value 28254095400
-    inst [3 or "3 baz:2.0999999999999996"] value 42381143100
+    inst [3 or "3 baz:2.1"] value 42381143100
     inst [4 or "4 baz:2.8"] value 56508190800
     inst [5 or "5 baz:3.5"] value 70635238500
-    inst [6 or "6 baz:4.199999999999999"] value 84762286200
-    inst [7 or "7 baz:4.8999999999999995"] value 98889333900
+    inst [6 or "6 baz:4.2"] value 84762286200
+    inst [7 or "7 baz:4.9"] value 98889333900
     inst [8 or "8 baz:5.6"] value 113016382000
     inst [9 or "9 baz:6.3"] value 127143429000
 
@@ -3480,11 +3480,11 @@ prometheus.source83.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 14297253100
     inst [2 or "2 baz:1.4"] value 28594506200
-    inst [3 or "3 baz:2.0999999999999996"] value 42891759300
+    inst [3 or "3 baz:2.1"] value 42891759300
     inst [4 or "4 baz:2.8"] value 57189012400
     inst [5 or "5 baz:3.5"] value 71486265500
-    inst [6 or "6 baz:4.199999999999999"] value 85783518600
-    inst [7 or "7 baz:4.8999999999999995"] value 100080772000
+    inst [6 or "6 baz:4.2"] value 85783518600
+    inst [7 or "7 baz:4.9"] value 100080772000
     inst [8 or "8 baz:5.6"] value 114378025000
     inst [9 or "9 baz:6.3"] value 128675278000
 
@@ -3522,11 +3522,11 @@ prometheus.source84.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 14467458500
     inst [2 or "2 baz:1.4"] value 28934917000
-    inst [3 or "3 baz:2.0999999999999996"] value 43402375500
+    inst [3 or "3 baz:2.1"] value 43402375500
     inst [4 or "4 baz:2.8"] value 57869834000
     inst [5 or "5 baz:3.5"] value 72337292400
-    inst [6 or "6 baz:4.199999999999999"] value 86804750900
-    inst [7 or "7 baz:4.8999999999999995"] value 101272209000
+    inst [6 or "6 baz:4.2"] value 86804750900
+    inst [7 or "7 baz:4.9"] value 101272209000
     inst [8 or "8 baz:5.6"] value 115739668000
     inst [9 or "9 baz:6.3"] value 130207126000
 
@@ -3564,11 +3564,11 @@ prometheus.source85.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 14637663900
     inst [2 or "2 baz:1.4"] value 29275327800
-    inst [3 or "3 baz:2.0999999999999996"] value 43912991700
+    inst [3 or "3 baz:2.1"] value 43912991700
     inst [4 or "4 baz:2.8"] value 58550655500
     inst [5 or "5 baz:3.5"] value 73188319400
-    inst [6 or "6 baz:4.199999999999999"] value 87825983300
-    inst [7 or "7 baz:4.8999999999999995"] value 102463647000
+    inst [6 or "6 baz:4.2"] value 87825983300
+    inst [7 or "7 baz:4.9"] value 102463647000
     inst [8 or "8 baz:5.6"] value 117101311000
     inst [9 or "9 baz:6.3"] value 131738975000
 
@@ -3606,11 +3606,11 @@ prometheus.source86.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 14807869300
     inst [2 or "2 baz:1.4"] value 29615738600
-    inst [3 or "3 baz:2.0999999999999996"] value 44423607800
+    inst [3 or "3 baz:2.1"] value 44423607800
     inst [4 or "4 baz:2.8"] value 59231477100
     inst [5 or "5 baz:3.5"] value 74039346400
-    inst [6 or "6 baz:4.199999999999999"] value 88847215700
-    inst [7 or "7 baz:4.8999999999999995"] value 103655085000
+    inst [6 or "6 baz:4.2"] value 88847215700
+    inst [7 or "7 baz:4.9"] value 103655085000
     inst [8 or "8 baz:5.6"] value 118462954000
     inst [9 or "9 baz:6.3"] value 133270824000
 
@@ -3648,11 +3648,11 @@ prometheus.source87.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 14978074700
     inst [2 or "2 baz:1.4"] value 29956149300
-    inst [3 or "3 baz:2.0999999999999996"] value 44934224000
+    inst [3 or "3 baz:2.1"] value 44934224000
     inst [4 or "4 baz:2.8"] value 59912298700
     inst [5 or "5 baz:3.5"] value 74890373400
-    inst [6 or "6 baz:4.199999999999999"] value 89868448000
-    inst [7 or "7 baz:4.8999999999999995"] value 104846523000
+    inst [6 or "6 baz:4.2"] value 89868448000
+    inst [7 or "7 baz:4.9"] value 104846523000
     inst [8 or "8 baz:5.6"] value 119824597000
     inst [9 or "9 baz:6.3"] value 134802672000
 
@@ -3690,11 +3690,11 @@ prometheus.source88.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 15148280100
     inst [2 or "2 baz:1.4"] value 30296560100
-    inst [3 or "3 baz:2.0999999999999996"] value 45444840200
+    inst [3 or "3 baz:2.1"] value 45444840200
     inst [4 or "4 baz:2.8"] value 60593120300
     inst [5 or "5 baz:3.5"] value 75741400300
-    inst [6 or "6 baz:4.199999999999999"] value 90889680400
-    inst [7 or "7 baz:4.8999999999999995"] value 106037960000
+    inst [6 or "6 baz:4.2"] value 90889680400
+    inst [7 or "7 baz:4.9"] value 106037960000
     inst [8 or "8 baz:5.6"] value 121186241000
     inst [9 or "9 baz:6.3"] value 136334521000
 
@@ -3732,11 +3732,11 @@ prometheus.source89.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 15318485500
     inst [2 or "2 baz:1.4"] value 30636970900
-    inst [3 or "3 baz:2.0999999999999996"] value 45955456400
+    inst [3 or "3 baz:2.1"] value 45955456400
     inst [4 or "4 baz:2.8"] value 61273941800
     inst [5 or "5 baz:3.5"] value 76592427300
-    inst [6 or "6 baz:4.199999999999999"] value 91910912800
-    inst [7 or "7 baz:4.8999999999999995"] value 107229398000
+    inst [6 or "6 baz:4.2"] value 91910912800
+    inst [7 or "7 baz:4.9"] value 107229398000
     inst [8 or "8 baz:5.6"] value 122547884000
     inst [9 or "9 baz:6.3"] value 137866369000
 
@@ -3774,11 +3774,11 @@ prometheus.source90.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 15488690900
     inst [2 or "2 baz:1.4"] value 30977381700
-    inst [3 or "3 baz:2.0999999999999996"] value 46466072600
+    inst [3 or "3 baz:2.1"] value 46466072600
     inst [4 or "4 baz:2.8"] value 61954763400
     inst [5 or "5 baz:3.5"] value 77443454300
-    inst [6 or "6 baz:4.199999999999999"] value 92932145100
-    inst [7 or "7 baz:4.8999999999999995"] value 108420836000
+    inst [6 or "6 baz:4.2"] value 92932145100
+    inst [7 or "7 baz:4.9"] value 108420836000
     inst [8 or "8 baz:5.6"] value 123909527000
     inst [9 or "9 baz:6.3"] value 139398218000
 
@@ -3816,11 +3816,11 @@ prometheus.source91.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 15658896200
     inst [2 or "2 baz:1.4"] value 31317792500
-    inst [3 or "3 baz:2.0999999999999996"] value 46976688700
+    inst [3 or "3 baz:2.1"] value 46976688700
     inst [4 or "4 baz:2.8"] value 62635585000
     inst [5 or "5 baz:3.5"] value 78294481200
-    inst [6 or "6 baz:4.199999999999999"] value 93953377500
-    inst [7 or "7 baz:4.8999999999999995"] value 109612274000
+    inst [6 or "6 baz:4.2"] value 93953377500
+    inst [7 or "7 baz:4.9"] value 109612274000
     inst [8 or "8 baz:5.6"] value 125271170000
     inst [9 or "9 baz:6.3"] value 140930066000
 
@@ -3858,11 +3858,11 @@ prometheus.source92.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 15829101600
     inst [2 or "2 baz:1.4"] value 31658203300
-    inst [3 or "3 baz:2.0999999999999996"] value 47487304900
+    inst [3 or "3 baz:2.1"] value 47487304900
     inst [4 or "4 baz:2.8"] value 63316406600
     inst [5 or "5 baz:3.5"] value 79145508200
-    inst [6 or "6 baz:4.199999999999999"] value 94974609900
-    inst [7 or "7 baz:4.8999999999999995"] value 110803711000
+    inst [6 or "6 baz:4.2"] value 94974609900
+    inst [7 or "7 baz:4.9"] value 110803711000
     inst [8 or "8 baz:5.6"] value 126632813000
     inst [9 or "9 baz:6.3"] value 142461915000
 
@@ -3900,11 +3900,11 @@ prometheus.source93.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 15999307000
     inst [2 or "2 baz:1.4"] value 31998614100
-    inst [3 or "3 baz:2.0999999999999996"] value 47997921100
+    inst [3 or "3 baz:2.1"] value 47997921100
     inst [4 or "4 baz:2.8"] value 63997228100
     inst [5 or "5 baz:3.5"] value 79996535200
-    inst [6 or "6 baz:4.199999999999999"] value 95995842200
-    inst [7 or "7 baz:4.8999999999999995"] value 111995149000
+    inst [6 or "6 baz:4.2"] value 95995842200
+    inst [7 or "7 baz:4.9"] value 111995149000
     inst [8 or "8 baz:5.6"] value 127994456000
     inst [9 or "9 baz:6.3"] value 143993763000
 
@@ -3942,11 +3942,11 @@ prometheus.source94.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 16169512400
     inst [2 or "2 baz:1.4"] value 32339024900
-    inst [3 or "3 baz:2.0999999999999996"] value 48508537300
+    inst [3 or "3 baz:2.1"] value 48508537300
     inst [4 or "4 baz:2.8"] value 64678049700
     inst [5 or "5 baz:3.5"] value 80847562200
-    inst [6 or "6 baz:4.199999999999999"] value 97017074600
-    inst [7 or "7 baz:4.8999999999999995"] value 113186587000
+    inst [6 or "6 baz:4.2"] value 97017074600
+    inst [7 or "7 baz:4.9"] value 113186587000
     inst [8 or "8 baz:5.6"] value 129356099000
     inst [9 or "9 baz:6.3"] value 145525612000
 
@@ -3984,11 +3984,11 @@ prometheus.source95.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 16339717800
     inst [2 or "2 baz:1.4"] value 32679435600
-    inst [3 or "3 baz:2.0999999999999996"] value 49019153500
+    inst [3 or "3 baz:2.1"] value 49019153500
     inst [4 or "4 baz:2.8"] value 65358871300
     inst [5 or "5 baz:3.5"] value 81698589100
-    inst [6 or "6 baz:4.199999999999999"] value 98038306900
-    inst [7 or "7 baz:4.8999999999999995"] value 114378025000
+    inst [6 or "6 baz:4.2"] value 98038306900
+    inst [7 or "7 baz:4.9"] value 114378025000
     inst [8 or "8 baz:5.6"] value 130717743000
     inst [9 or "9 baz:6.3"] value 147057460000
 
@@ -4026,11 +4026,11 @@ prometheus.source96.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 16509923200
     inst [2 or "2 baz:1.4"] value 33019846400
-    inst [3 or "3 baz:2.0999999999999996"] value 49529769700
+    inst [3 or "3 baz:2.1"] value 49529769700
     inst [4 or "4 baz:2.8"] value 66039692900
     inst [5 or "5 baz:3.5"] value 82549616100
-    inst [6 or "6 baz:4.199999999999999"] value 99059539300
-    inst [7 or "7 baz:4.8999999999999995"] value 115569463000
+    inst [6 or "6 baz:4.2"] value 99059539300
+    inst [7 or "7 baz:4.9"] value 115569463000
     inst [8 or "8 baz:5.6"] value 132079386000
     inst [9 or "9 baz:6.3"] value 148589309000
 
@@ -4068,11 +4068,11 @@ prometheus.source97.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 16680128600
     inst [2 or "2 baz:1.4"] value 33360257200
-    inst [3 or "3 baz:2.0999999999999996"] value 50040385800
+    inst [3 or "3 baz:2.1"] value 50040385800
     inst [4 or "4 baz:2.8"] value 66720514400
     inst [5 or "5 baz:3.5"] value 83400643100
-    inst [6 or "6 baz:4.199999999999999"] value 100080772000
-    inst [7 or "7 baz:4.8999999999999995"] value 116760900000
+    inst [6 or "6 baz:4.2"] value 100080772000
+    inst [7 or "7 baz:4.9"] value 116760900000
     inst [8 or "8 baz:5.6"] value 133441029000
     inst [9 or "9 baz:6.3"] value 150121158000
 
@@ -4110,11 +4110,11 @@ prometheus.source98.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 16850334000
     inst [2 or "2 baz:1.4"] value 33700668000
-    inst [3 or "3 baz:2.0999999999999996"] value 50551002000
+    inst [3 or "3 baz:2.1"] value 50551002000
     inst [4 or "4 baz:2.8"] value 67401336000
     inst [5 or "5 baz:3.5"] value 84251670000
-    inst [6 or "6 baz:4.199999999999999"] value 101102004000
-    inst [7 or "7 baz:4.8999999999999995"] value 117952338000
+    inst [6 or "6 baz:4.2"] value 101102004000
+    inst [7 or "7 baz:4.9"] value 117952338000
     inst [8 or "8 baz:5.6"] value 134802672000
     inst [9 or "9 baz:6.3"] value 151653006000
 
@@ -4152,11 +4152,11 @@ prometheus.source99.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 17020539400
     inst [2 or "2 baz:1.4"] value 34041078800
-    inst [3 or "3 baz:2.0999999999999996"] value 51061618200
+    inst [3 or "3 baz:2.1"] value 51061618200
     inst [4 or "4 baz:2.8"] value 68082157600
     inst [5 or "5 baz:3.5"] value 85102697000
-    inst [6 or "6 baz:4.199999999999999"] value 102123236000
-    inst [7 or "7 baz:4.8999999999999995"] value 119143776000
+    inst [6 or "6 baz:4.2"] value 102123236000
+    inst [7 or "7 baz:4.9"] value 119143776000
     inst [8 or "8 baz:5.6"] value 136164315000
     inst [9 or "9 baz:6.3"] value 153184855000
 
