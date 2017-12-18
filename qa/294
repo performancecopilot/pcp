@@ -141,6 +141,7 @@ $sudo $signal -a pmproxy >/dev/null 2>&1
 proxyargs="-Dcontext"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
+$PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
 
 PMPROXY_HOST=localhost
 export PMPROXY_HOST
