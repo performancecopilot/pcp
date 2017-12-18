@@ -219,7 +219,6 @@ static int
 nextlog(void)
 {
     __pmArchCtl		*acp = inarch.ctxp->c_archctl;
-    __pmLogCtl		*lcp = acp->ac_log;
     int			sts;
     int			old_vol;
 

@@ -2045,7 +2045,7 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 		}
 	    } else {
 		/* buffer matches "ps" output format, direct hash */
-		buf[sizeof(buf)-1] = '\0';
+		buf[n-1] = '\0';
 		ep->label_id = proc_strings_insert(buf);
 	    }
 	}

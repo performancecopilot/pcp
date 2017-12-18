@@ -3290,8 +3290,6 @@ proc_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 static int
 proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
 {
-    int		sts;
-
     switch (pmInDom_serial(indom)) {
     case CGROUP_CPUSET_INDOM:
     case CGROUP_CPUACCT_INDOM:
