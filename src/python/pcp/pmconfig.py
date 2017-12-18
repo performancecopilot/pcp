@@ -231,7 +231,7 @@ class pmConfig(object):
             if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
                 metrics[key] = [value]
-                for index in range(0, 6):
+                for index in range(0, 7):
                     if len(metrics[key]) <= index:
                         if index == 2:
                             metrics[key].append([])
@@ -257,7 +257,7 @@ class pmConfig(object):
                         metrics[key][self.metricspec.index(spec)+1] = value
 
     def prepare_metrics(self):
-        """ Construct and prepare the initial metrics set """
+        """ Construct and prepare the initial metricset """
         metrics = self.util.opts.pmGetOperands()
         if not metrics:
             sys.stderr.write("No metrics specified.\n")
@@ -310,7 +310,7 @@ class pmConfig(object):
                 else:
                     raise IOError("Metricset definition '%s' not found." % metric)
 
-        # Create the combined metrics set
+        # Create the combined metricset
         if self.util.globals == 1:
             for metric in globmet:
                 self.util.metrics[metric] = globmet[metric]
@@ -399,7 +399,7 @@ class pmConfig(object):
             return self._items
 
     def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
-        """ Validate the metrics set """
+        """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
             if self.util.derived.startswith("/") or self.util.derived.startswith("."):
@@ -470,11 +470,11 @@ class pmConfig(object):
                 print(self.util.instances)
             sys.exit(1)
 
-        # Finalize the metrics set
+        # Finalize the metricset
         incompat_metrics = OrderedDict()
         for i, metric in enumerate(self.util.metrics):
             # Fill in all fields for easier checking later
-            for index in range(0, 6):
+            for index in range(0, 7):
                 if len(self.util.metrics[metric]) <= index:
                     if index == 1:
                         self.util.metrics[metric].append([])
@@ -564,6 +564,16 @@ class pmConfig(object):
                 self.util.metrics[metric][4] = len(self.util.metrics[metric][0])
             if self.util.metrics[metric][4] < len(TRUNC):
                 self.util.metrics[metric][4] = len(TRUNC) # Forced minimum
+
+            # Set default precision if not specified on per-metric basis
+            # NB. We need to take into account that clients expect pmfg item in [5]
+            if self.util.metrics[metric][5]:
+                self.util.metrics[metric][6] = int(self.util.metrics[metric][5])
+            elif hasattr(self.util, 'precision') and self.util.precision >= 0:
+                self.util.metrics[metric][6] = self.util.precision
+            else:
+                self.util.metrics[metric][6] = 3 # Built-in default
+            self.util.metrics[metric][5] = None
 
             # Add fetchgroup items
             try:

@@ -102,7 +102,7 @@ class PCP2XLSX(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -400,7 +400,7 @@ class PCP2XLSX(object):
             self.int_fmt = self.sheet.add_format()
             self.int_fmt.set_num_format("0")
             self.float_fmt = self.sheet.add_format()
-            float_fmt = "0" if not self.precision else "0." + "0" * self.precision
+            float_fmt = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
             self.float_fmt.set_num_format(float_fmt)
 
         # Avoid expensive PMAPI calls more than once per metric
@@ -430,7 +430,7 @@ class PCP2XLSX(object):
                     elif isinstance(value, str):
                         self.ws.write_string(self.row, col, value)
                     elif isinstance(value, float):
-                        value = round(value, self.precision)
+                        value = round(value, self.metrics[metric][6])
                         self.ws.write_number(self.row, col, value, self.float_fmt)
                     else:
                         self.ws.write_number(self.row, col, value, self.int_fmt)

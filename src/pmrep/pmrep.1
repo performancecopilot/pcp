@@ -148,10 +148,10 @@ This so-called
 .I compact form
 of a metricspec is defined as follows:
 .P
-.in 1.5i
+.in 1.0i
 .ft CW
 .nf
-metric[,label[,instances[,unit/scale[,type[,width]]]]]
+metric[,label[,instances[,unit/scale[,type[,width[,precision]]]]]]
 .fi
 .ft R
 .in
@@ -181,7 +181,7 @@ is applicable for dimension-compatible, non-string metrics.
 .I unit/scale
 specifications.)
 By default, cumulative counter metrics are converted to rates.
-Finally, for supporting output targets (currently:
+For supporting output targets (currently:
 .IR stdout )
 a numeric
 .I width
@@ -189,6 +189,9 @@ can be used to set the width of the output column for this metric.
 Too-wide numeric values for output will not be printed (apart from
 trailing decimals, numeric values will never be silently truncated).
 Too-wide strings will be truncated.
+Lastly, a metric-specific
+.I precision
+can be provided for numeric non-integer output values.
 .P
 As a special case with metrics that are counters with time units
 (nanoseconds to hours), the
@@ -509,6 +512,9 @@ If the value is too wide for its column width,
 is reduced one by one until the value fits, or not printed at all if it
 does not.
 The default is to use 3 decimal places (when applicable).
+This option will
+.I not
+override possible per-metric specifications.
 .TP
 .B \-q
 .I Unit/scale
