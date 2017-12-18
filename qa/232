@@ -137,9 +137,9 @@ do
 		;;
 	esac
     fi
-    if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd -o $metric = "mem.slabinfo.objects.total" ]
+    if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd -o $metric = "mem.slabinfo.objects.total" -o $metric = "tmpfs.capacity" ]
     then
-	# need to be root to open /dev/kmem or access Linux /proc/slabinfo
+	# need to be root to open /dev/kmem or access some Linux /proc files
 	$sudo $here/src/torture_indom $metric >$tmp.out 2>&1
 	status=$?
     else
