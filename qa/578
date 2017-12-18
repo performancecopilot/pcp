@@ -24,6 +24,9 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
+_needpmmgr=false
+[ -x "$PCP_BINADM_DIR/pmmgr" ] && _needpmmgr=true
+
 signal=$PCP_BINADM_DIR/pmsignal
 simple_domain=253
 if [ -x pmobjstyle ]
@@ -144,7 +147,7 @@ export PMCD_PORT
 #
 _service pmlogger stop >>$here/$seq.full 2>&1
 _service pmie stop >>$here/$seq.full 2>&1
-_service pmmgr stop >>$here/$seq.full 2>&1
+$_needpmmgr && _service pmmgr stop >>$here/$seq.full 2>&1
 
 # and we're starting a new pmcd ...
 _service pmcd stop
