@@ -23,7 +23,6 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-mkdir -p $tmp
 totalendpoints=5 #total queue to work through
 endpoints=5 #prometheus endpoints
 iterations=5
@@ -32,14 +31,11 @@ instances=400
 
 _cleanup()
 {
-    cd $here
-    alive=`kill -s 0 $pid >/dev/null 2>&1`
-    pidstatus=$?
-    if [ $pidstatus = 0 ]
+    if [ -n "$pid" ]
     then
-	$sudo kill $pid 2>&1 >/dev/null
+	$sudo $PCP_BINADM_DIR/pmsignal -s TERM $pid
+	pid=""
     fi
-    $sudo rm -rf $tmp $tmp.*
 }
 
 pmdaprometheus_remove()

@@ -13,10 +13,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 . ./common.python
 
 [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
@@ -24,7 +20,6 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-mkdir -p $tmp
 totalendpoints=10 #total queue to work through
 endpoints=5 #prometheus endpoints
 iterations=5
@@ -35,12 +30,11 @@ delay=0
 
 _cleanup()
 {
-    cd $here
     if [ -n "$pid" ]
     then
-	$sudo kill $pid 2>&1 >/dev/null
+	$sudo $PCP_BINADM_DIR/pmsignal -s TERM $pid 2>&1 >/dev/null
+	pid=""
     fi
-    $sudo rm -rf $tmp $tmp.*
 }
 
 pmdaprometheus_remove()

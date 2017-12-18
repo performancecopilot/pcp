@@ -14,25 +14,12 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./common.python
 
-[ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
+[ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "Prometheus PMDA not installed"
+[ -d $PCP_PMDAS_DIR/prometheus/urls.d ] || _notrun "Prometheus PMDA not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-mkdir -p $tmp
-
-_cleanup()
-{
-    cd $here
-    alive=`kill -s 0 $pid >/dev/null 2>&1`
-    pidstatus=$?
-    if [ $pidstatus = 0 ]
-    then
-	$sudo kill $pid 2>&1 >/dev/null
-    fi
-    $sudo rm -rf $tmp $tmp.*
-}
 
 pmdaprometheus_remove()
 {
@@ -56,7 +43,7 @@ pmdaprometheus_install()
 }
 
 _prepare_pmda prometheus
-trap "_cleanup _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+trap "_cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
 _save_config $PCP_PMDAS_DIR/prometheus/urls.d
 _save_config $PCP_VAR_DIR/config/pmda
