@@ -15976,9 +15976,9 @@ else
 	lzma_LIBS=$pkg_cv_lzma_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma_block_decoder in -llzma" >&5
-$as_echo_n "checking for lzma_block_decoder in -llzma... " >&6; }
-if ${ac_cv_lib_lzma_lzma_block_decoder+:} false; then :
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lzma_index_stream_flags in -llzma" >&5
+$as_echo_n "checking for lzma_index_stream_flags in -llzma... " >&6; }
+if ${ac_cv_lib_lzma_lzma_index_stream_flags+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -15992,27 +15992,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char lzma_block_decoder ();
+char lzma_index_stream_flags ();
 int
 main ()
 {
-return lzma_block_decoder ();
+return lzma_index_stream_flags ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_lzma_lzma_block_decoder=yes
+  ac_cv_lib_lzma_lzma_index_stream_flags=yes
 else
-  ac_cv_lib_lzma_lzma_block_decoder=no
+  ac_cv_lib_lzma_lzma_index_stream_flags=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lzma_lzma_block_decoder" >&5
-$as_echo "$ac_cv_lib_lzma_lzma_block_decoder" >&6; }
-if test "x$ac_cv_lib_lzma_lzma_block_decoder" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lzma_lzma_index_stream_flags" >&5
+$as_echo "$ac_cv_lib_lzma_lzma_index_stream_flags" >&6; }
+if test "x$ac_cv_lib_lzma_lzma_index_stream_flags" = xyes; then :
   lib_for_lzma="-llzma"
 else
   enable_lzma=false
