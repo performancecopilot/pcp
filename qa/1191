@@ -38,8 +38,7 @@ then
     exit
 fi
 
-metrics=`pminfo prometheus | LC_COLLATE=POSIX sort`
-if pminfo -dtTf $metrics  > $tmp.info 2> $tmp.err
+if pminfo -dtTf `pminfo prometheus | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
 then
     :
 else

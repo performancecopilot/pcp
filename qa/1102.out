@@ -4,30 +4,6 @@ Waiting for pmcd to terminate ...
 === prometheus agent installation ===
 Fetch and desc prometheus metrics: success
 
-prometheus.source1.sample_summary0002_count
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-    value 5454
-
-prometheus.source1.sample_summary0002_sum
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-    value 4.17362031
-
-prometheus.source1.sample_summary0002
-    Data Type: double  InDom: 144.6146 0x24001802
-    Semantics: instant  Units: none
-    inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000478869
-    inst [2 or "2 quantile:0.5"] value 0.000957738
-    inst [3 or "3 quantile:0.75"] value 0.001436607
-    inst [4 or "4 quantile:1.0"] value 0.001915476
-    inst [5 or "5 quantile:1.25"] value 0.002394345
-    inst [6 or "6 quantile:1.5"] value 0.002873214
-    inst [7 or "7 quantile:1.75"] value 0.003352083
-    inst [8 or "8 quantile:2.0"] value 0.003830952
-    inst [9 or "9 quantile:2.25"] value 0.004309821
-
 prometheus.source1.sample_counter0001
     Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
@@ -56,23 +32,29 @@ prometheus.source1.sample_gauge0000
     inst [8 or "8 bar:8"] value 96.8
     inst [9 or "9 bar:9"] value 108.9
 
-prometheus.source0.sample_summary0002_count
-    value 3636
-
-prometheus.source0.sample_summary0002_sum
-    value 2.78241354
-
-prometheus.source0.sample_summary0002
+prometheus.source1.sample_summary0002
+    Data Type: double  InDom: 144.6146 0x24001802
+    Semantics: instant  Units: none
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000319246
-    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
-    inst [3 or "3 quantile:0.75"] value 0.000957738
-    inst [4 or "4 quantile:1.0"] value 0.001276984
-    inst [5 or "5 quantile:1.25"] value 0.00159623
-    inst [6 or "6 quantile:1.5"] value 0.001915476
-    inst [7 or "7 quantile:1.75"] value 0.002234722
-    inst [8 or "8 quantile:2.0"] value 0.002553968
-    inst [9 or "9 quantile:2.25"] value 0.002873214
+    inst [1 or "1 quantile:0.25"] value 0.000478869
+    inst [2 or "2 quantile:0.5"] value 0.000957738
+    inst [3 or "3 quantile:0.75"] value 0.001436607
+    inst [4 or "4 quantile:1.0"] value 0.001915476
+    inst [5 or "5 quantile:1.25"] value 0.002394345
+    inst [6 or "6 quantile:1.5"] value 0.002873214
+    inst [7 or "7 quantile:1.75"] value 0.003352083
+    inst [8 or "8 quantile:2.0"] value 0.003830952
+    inst [9 or "9 quantile:2.25"] value 0.004309821
+
+prometheus.source1.sample_summary0002_count
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+    value 5454
+
+prometheus.source1.sample_summary0002_sum
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 4.17362031
 
 prometheus.source0.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -98,23 +80,23 @@ prometheus.source0.sample_gauge0000
     inst [8 or "8 bar:8"] value 0
     inst [9 or "9 bar:9"] value 0
 
-prometheus.source1.sample_summary0002_count
-    value 7272
-
-prometheus.source1.sample_summary0002_sum
-    value 5.564827080000001
-
-prometheus.source1.sample_summary0002
+prometheus.source0.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.0006384920000000001
-    inst [2 or "2 quantile:0.5"] value 0.001276984
-    inst [3 or "3 quantile:0.75"] value 0.001915476
-    inst [4 or "4 quantile:1.0"] value 0.002553968
-    inst [5 or "5 quantile:1.25"] value 0.00319246
-    inst [6 or "6 quantile:1.5"] value 0.003830952
-    inst [7 or "7 quantile:1.75"] value 0.004469444
-    inst [8 or "8 quantile:2.0"] value 0.005107936
-    inst [9 or "9 quantile:2.25"] value 0.005746428
+    inst [1 or "1 quantile:0.25"] value 0.000319246
+    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
+    inst [3 or "3 quantile:0.75"] value 0.000957738
+    inst [4 or "4 quantile:1.0"] value 0.001276984
+    inst [5 or "5 quantile:1.25"] value 0.00159623
+    inst [6 or "6 quantile:1.5"] value 0.001915476
+    inst [7 or "7 quantile:1.75"] value 0.002234722
+    inst [8 or "8 quantile:2.0"] value 0.002553968
+    inst [9 or "9 quantile:2.25"] value 0.002873214
+
+prometheus.source0.sample_summary0002_count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    value 2.78241354
 
 prometheus.source1.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -140,23 +122,23 @@ prometheus.source1.sample_gauge0000
     inst [8 or "8 bar:8"] value 193.6
     inst [9 or "9 bar:9"] value 217.8
 
-prometheus.source0.sample_summary0002_count
-    value 3636
-
-prometheus.source0.sample_summary0002_sum
-    value 2.78241354
-
-prometheus.source0.sample_summary0002
+prometheus.source1.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000319246
-    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
-    inst [3 or "3 quantile:0.75"] value 0.000957738
-    inst [4 or "4 quantile:1.0"] value 0.001276984
-    inst [5 or "5 quantile:1.25"] value 0.00159623
-    inst [6 or "6 quantile:1.5"] value 0.001915476
-    inst [7 or "7 quantile:1.75"] value 0.002234722
-    inst [8 or "8 quantile:2.0"] value 0.002553968
-    inst [9 or "9 quantile:2.25"] value 0.002873214
+    inst [1 or "1 quantile:0.25"] value 0.0006384920000000001
+    inst [2 or "2 quantile:0.5"] value 0.001276984
+    inst [3 or "3 quantile:0.75"] value 0.001915476
+    inst [4 or "4 quantile:1.0"] value 0.002553968
+    inst [5 or "5 quantile:1.25"] value 0.00319246
+    inst [6 or "6 quantile:1.5"] value 0.003830952
+    inst [7 or "7 quantile:1.75"] value 0.004469444
+    inst [8 or "8 quantile:2.0"] value 0.005107936
+    inst [9 or "9 quantile:2.25"] value 0.005746428
+
+prometheus.source1.sample_summary0002_count
+    value 7272
+
+prometheus.source1.sample_summary0002_sum
+    value 5.564827080000001
 
 prometheus.source0.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -182,23 +164,23 @@ prometheus.source0.sample_gauge0000
     inst [8 or "8 bar:8"] value 0
     inst [9 or "9 bar:9"] value 0
 
-prometheus.source1.sample_summary0002_count
-    value 9090
-
-prometheus.source1.sample_summary0002_sum
-    value 6.956033850000001
-
-prometheus.source1.sample_summary0002
+prometheus.source0.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000798115
-    inst [2 or "2 quantile:0.5"] value 0.00159623
-    inst [3 or "3 quantile:0.75"] value 0.002394345
-    inst [4 or "4 quantile:1.0"] value 0.00319246
-    inst [5 or "5 quantile:1.25"] value 0.003990575
-    inst [6 or "6 quantile:1.5"] value 0.00478869
-    inst [7 or "7 quantile:1.75"] value 0.005586805
-    inst [8 or "8 quantile:2.0"] value 0.00638492
-    inst [9 or "9 quantile:2.25"] value 0.007183035
+    inst [1 or "1 quantile:0.25"] value 0.000319246
+    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
+    inst [3 or "3 quantile:0.75"] value 0.000957738
+    inst [4 or "4 quantile:1.0"] value 0.001276984
+    inst [5 or "5 quantile:1.25"] value 0.00159623
+    inst [6 or "6 quantile:1.5"] value 0.001915476
+    inst [7 or "7 quantile:1.75"] value 0.002234722
+    inst [8 or "8 quantile:2.0"] value 0.002553968
+    inst [9 or "9 quantile:2.25"] value 0.002873214
+
+prometheus.source0.sample_summary0002_count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    value 2.78241354
 
 prometheus.source1.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -224,23 +206,23 @@ prometheus.source1.sample_gauge0000
     inst [8 or "8 bar:8"] value 290.4
     inst [9 or "9 bar:9"] value 326.7
 
-prometheus.source0.sample_summary0002_count
-    value 3636
-
-prometheus.source0.sample_summary0002_sum
-    value 2.78241354
-
-prometheus.source0.sample_summary0002
+prometheus.source1.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000319246
-    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
-    inst [3 or "3 quantile:0.75"] value 0.000957738
-    inst [4 or "4 quantile:1.0"] value 0.001276984
-    inst [5 or "5 quantile:1.25"] value 0.00159623
-    inst [6 or "6 quantile:1.5"] value 0.001915476
-    inst [7 or "7 quantile:1.75"] value 0.002234722
-    inst [8 or "8 quantile:2.0"] value 0.002553968
-    inst [9 or "9 quantile:2.25"] value 0.002873214
+    inst [1 or "1 quantile:0.25"] value 0.000798115
+    inst [2 or "2 quantile:0.5"] value 0.00159623
+    inst [3 or "3 quantile:0.75"] value 0.002394345
+    inst [4 or "4 quantile:1.0"] value 0.00319246
+    inst [5 or "5 quantile:1.25"] value 0.003990575
+    inst [6 or "6 quantile:1.5"] value 0.00478869
+    inst [7 or "7 quantile:1.75"] value 0.005586805
+    inst [8 or "8 quantile:2.0"] value 0.00638492
+    inst [9 or "9 quantile:2.25"] value 0.007183035
+
+prometheus.source1.sample_summary0002_count
+    value 9090
+
+prometheus.source1.sample_summary0002_sum
+    value 6.956033850000001
 
 prometheus.source0.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -266,23 +248,23 @@ prometheus.source0.sample_gauge0000
     inst [8 or "8 bar:8"] value 0
     inst [9 or "9 bar:9"] value 0
 
-prometheus.source1.sample_summary0002_count
-    value 10908
-
-prometheus.source1.sample_summary0002_sum
-    value 8.347240620000001
-
-prometheus.source1.sample_summary0002
+prometheus.source0.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000957738
-    inst [2 or "2 quantile:0.5"] value 0.001915476
-    inst [3 or "3 quantile:0.75"] value 0.002873214
-    inst [4 or "4 quantile:1.0"] value 0.003830952
-    inst [5 or "5 quantile:1.25"] value 0.00478869
-    inst [6 or "6 quantile:1.5"] value 0.005746428
-    inst [7 or "7 quantile:1.75"] value 0.006704166
-    inst [8 or "8 quantile:2.0"] value 0.007661904
-    inst [9 or "9 quantile:2.25"] value 0.008619642
+    inst [1 or "1 quantile:0.25"] value 0.000319246
+    inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
+    inst [3 or "3 quantile:0.75"] value 0.000957738
+    inst [4 or "4 quantile:1.0"] value 0.001276984
+    inst [5 or "5 quantile:1.25"] value 0.00159623
+    inst [6 or "6 quantile:1.5"] value 0.001915476
+    inst [7 or "7 quantile:1.75"] value 0.002234722
+    inst [8 or "8 quantile:2.0"] value 0.002553968
+    inst [9 or "9 quantile:2.25"] value 0.002873214
+
+prometheus.source0.sample_summary0002_count
+    value 3636
+
+prometheus.source0.sample_summary0002_sum
+    value 2.78241354
 
 prometheus.source1.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -308,23 +290,23 @@ prometheus.source1.sample_gauge0000
     inst [8 or "8 bar:8"] value 387.2
     inst [9 or "9 bar:9"] value 435.6
 
-prometheus.source2.sample_summary0002_count
-    value 7272
-
-prometheus.source2.sample_summary0002_sum
-    value 5.564827080000001
-
-prometheus.source2.sample_summary0002
+prometheus.source1.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.0006384920000000001
-    inst [2 or "2 quantile:0.5"] value 0.001276984
-    inst [3 or "3 quantile:0.75"] value 0.001915476
-    inst [4 or "4 quantile:1.0"] value 0.002553968
-    inst [5 or "5 quantile:1.25"] value 0.00319246
-    inst [6 or "6 quantile:1.5"] value 0.003830952
-    inst [7 or "7 quantile:1.75"] value 0.004469444
-    inst [8 or "8 quantile:2.0"] value 0.005107936
-    inst [9 or "9 quantile:2.25"] value 0.005746428
+    inst [1 or "1 quantile:0.25"] value 0.000957738
+    inst [2 or "2 quantile:0.5"] value 0.001915476
+    inst [3 or "3 quantile:0.75"] value 0.002873214
+    inst [4 or "4 quantile:1.0"] value 0.003830952
+    inst [5 or "5 quantile:1.25"] value 0.00478869
+    inst [6 or "6 quantile:1.5"] value 0.005746428
+    inst [7 or "7 quantile:1.75"] value 0.006704166
+    inst [8 or "8 quantile:2.0"] value 0.007661904
+    inst [9 or "9 quantile:2.25"] value 0.008619642
+
+prometheus.source1.sample_summary0002_count
+    value 10908
+
+prometheus.source1.sample_summary0002_sum
+    value 8.347240620000001
 
 prometheus.source2.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -350,23 +332,23 @@ prometheus.source2.sample_gauge0000
     inst [8 or "8 bar:8"] value 193.6
     inst [9 or "9 bar:9"] value 217.8
 
-prometheus.source3.sample_summary0002_count
-    value 9090
-
-prometheus.source3.sample_summary0002_sum
-    value 6.956033850000001
-
-prometheus.source3.sample_summary0002
+prometheus.source2.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000798115
-    inst [2 or "2 quantile:0.5"] value 0.00159623
-    inst [3 or "3 quantile:0.75"] value 0.002394345
-    inst [4 or "4 quantile:1.0"] value 0.00319246
-    inst [5 or "5 quantile:1.25"] value 0.003990575
-    inst [6 or "6 quantile:1.5"] value 0.00478869
-    inst [7 or "7 quantile:1.75"] value 0.005586805
-    inst [8 or "8 quantile:2.0"] value 0.00638492
-    inst [9 or "9 quantile:2.25"] value 0.007183035
+    inst [1 or "1 quantile:0.25"] value 0.0006384920000000001
+    inst [2 or "2 quantile:0.5"] value 0.001276984
+    inst [3 or "3 quantile:0.75"] value 0.001915476
+    inst [4 or "4 quantile:1.0"] value 0.002553968
+    inst [5 or "5 quantile:1.25"] value 0.00319246
+    inst [6 or "6 quantile:1.5"] value 0.003830952
+    inst [7 or "7 quantile:1.75"] value 0.004469444
+    inst [8 or "8 quantile:2.0"] value 0.005107936
+    inst [9 or "9 quantile:2.25"] value 0.005746428
+
+prometheus.source2.sample_summary0002_count
+    value 7272
+
+prometheus.source2.sample_summary0002_sum
+    value 5.564827080000001
 
 prometheus.source3.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -392,23 +374,23 @@ prometheus.source3.sample_gauge0000
     inst [8 or "8 bar:8"] value 290.4
     inst [9 or "9 bar:9"] value 326.7
 
-prometheus.source2.sample_summary0002_count
-    value 10908
-
-prometheus.source2.sample_summary0002_sum
-    value 8.347240620000001
-
-prometheus.source2.sample_summary0002
+prometheus.source3.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000957738
-    inst [2 or "2 quantile:0.5"] value 0.001915476
-    inst [3 or "3 quantile:0.75"] value 0.002873214
-    inst [4 or "4 quantile:1.0"] value 0.003830952
-    inst [5 or "5 quantile:1.25"] value 0.00478869
-    inst [6 or "6 quantile:1.5"] value 0.005746428
-    inst [7 or "7 quantile:1.75"] value 0.006704166
-    inst [8 or "8 quantile:2.0"] value 0.007661904
-    inst [9 or "9 quantile:2.25"] value 0.008619642
+    inst [1 or "1 quantile:0.25"] value 0.000798115
+    inst [2 or "2 quantile:0.5"] value 0.00159623
+    inst [3 or "3 quantile:0.75"] value 0.002394345
+    inst [4 or "4 quantile:1.0"] value 0.00319246
+    inst [5 or "5 quantile:1.25"] value 0.003990575
+    inst [6 or "6 quantile:1.5"] value 0.00478869
+    inst [7 or "7 quantile:1.75"] value 0.005586805
+    inst [8 or "8 quantile:2.0"] value 0.00638492
+    inst [9 or "9 quantile:2.25"] value 0.007183035
+
+prometheus.source3.sample_summary0002_count
+    value 9090
+
+prometheus.source3.sample_summary0002_sum
+    value 6.956033850000001
 
 prometheus.source2.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -434,23 +416,23 @@ prometheus.source2.sample_gauge0000
     inst [8 or "8 bar:8"] value 387.2
     inst [9 or "9 bar:9"] value 435.6
 
-prometheus.source3.sample_summary0002_count
-    value 14544
-
-prometheus.source3.sample_summary0002_sum
-    value 11.12965416
-
-prometheus.source3.sample_summary0002
+prometheus.source2.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.001276984
-    inst [2 or "2 quantile:0.5"] value 0.002553968
-    inst [3 or "3 quantile:0.75"] value 0.003830952
-    inst [4 or "4 quantile:1.0"] value 0.005107936
-    inst [5 or "5 quantile:1.25"] value 0.00638492
-    inst [6 or "6 quantile:1.5"] value 0.007661904
-    inst [7 or "7 quantile:1.75"] value 0.008938888000000001
-    inst [8 or "8 quantile:2.0"] value 0.010215872
-    inst [9 or "9 quantile:2.25"] value 0.011492856
+    inst [1 or "1 quantile:0.25"] value 0.000957738
+    inst [2 or "2 quantile:0.5"] value 0.001915476
+    inst [3 or "3 quantile:0.75"] value 0.002873214
+    inst [4 or "4 quantile:1.0"] value 0.003830952
+    inst [5 or "5 quantile:1.25"] value 0.00478869
+    inst [6 or "6 quantile:1.5"] value 0.005746428
+    inst [7 or "7 quantile:1.75"] value 0.006704166
+    inst [8 or "8 quantile:2.0"] value 0.007661904
+    inst [9 or "9 quantile:2.25"] value 0.008619642
+
+prometheus.source2.sample_summary0002_count
+    value 10908
+
+prometheus.source2.sample_summary0002_sum
+    value 8.347240620000001
 
 prometheus.source3.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -476,13 +458,7 @@ prometheus.source3.sample_gauge0000
     inst [8 or "8 bar:8"] value 580.8
     inst [9 or "9 bar:9"] value 653.4
 
-prometheus.source2.sample_summary0002_count
-    value 14544
-
-prometheus.source2.sample_summary0002_sum
-    value 11.12965416
-
-prometheus.source2.sample_summary0002
+prometheus.source3.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.001276984
     inst [2 or "2 quantile:0.5"] value 0.002553968
@@ -493,6 +469,12 @@ prometheus.source2.sample_summary0002
     inst [7 or "7 quantile:1.75"] value 0.008938888000000001
     inst [8 or "8 quantile:2.0"] value 0.010215872
     inst [9 or "9 quantile:2.25"] value 0.011492856
+
+prometheus.source3.sample_summary0002_count
+    value 14544
+
+prometheus.source3.sample_summary0002_sum
+    value 11.12965416
 
 prometheus.source2.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -518,23 +500,23 @@ prometheus.source2.sample_gauge0000
     inst [8 or "8 bar:8"] value 580.8
     inst [9 or "9 bar:9"] value 653.4
 
-prometheus.source3.sample_summary0002_count
-    value 19998
-
-prometheus.source3.sample_summary0002_sum
-    value 15.30327447
-
-prometheus.source3.sample_summary0002
+prometheus.source2.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.001755853
-    inst [2 or "2 quantile:0.5"] value 0.003511706
-    inst [3 or "3 quantile:0.75"] value 0.005267559
-    inst [4 or "4 quantile:1.0"] value 0.007023412
-    inst [5 or "5 quantile:1.25"] value 0.008779265
-    inst [6 or "6 quantile:1.5"] value 0.010535118
-    inst [7 or "7 quantile:1.75"] value 0.012290971
-    inst [8 or "8 quantile:2.0"] value 0.014046824
-    inst [9 or "9 quantile:2.25"] value 0.015802677
+    inst [1 or "1 quantile:0.25"] value 0.001276984
+    inst [2 or "2 quantile:0.5"] value 0.002553968
+    inst [3 or "3 quantile:0.75"] value 0.003830952
+    inst [4 or "4 quantile:1.0"] value 0.005107936
+    inst [5 or "5 quantile:1.25"] value 0.00638492
+    inst [6 or "6 quantile:1.5"] value 0.007661904
+    inst [7 or "7 quantile:1.75"] value 0.008938888000000001
+    inst [8 or "8 quantile:2.0"] value 0.010215872
+    inst [9 or "9 quantile:2.25"] value 0.011492856
+
+prometheus.source2.sample_summary0002_count
+    value 14544
+
+prometheus.source2.sample_summary0002_sum
+    value 11.12965416
 
 prometheus.source3.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -560,23 +542,23 @@ prometheus.source3.sample_gauge0000
     inst [8 or "8 bar:8"] value 871.2
     inst [9 or "9 bar:9"] value 980.1
 
-prometheus.source2.sample_summary0002_count
-    value 18180
-
-prometheus.source2.sample_summary0002_sum
-    value 13.9120677
-
-prometheus.source2.sample_summary0002
+prometheus.source3.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.00159623
-    inst [2 or "2 quantile:0.5"] value 0.00319246
-    inst [3 or "3 quantile:0.75"] value 0.00478869
-    inst [4 or "4 quantile:1.0"] value 0.00638492
-    inst [5 or "5 quantile:1.25"] value 0.007981149999999999
-    inst [6 or "6 quantile:1.5"] value 0.00957738
-    inst [7 or "7 quantile:1.75"] value 0.01117361
-    inst [8 or "8 quantile:2.0"] value 0.01276984
-    inst [9 or "9 quantile:2.25"] value 0.01436607
+    inst [1 or "1 quantile:0.25"] value 0.001755853
+    inst [2 or "2 quantile:0.5"] value 0.003511706
+    inst [3 or "3 quantile:0.75"] value 0.005267559
+    inst [4 or "4 quantile:1.0"] value 0.007023412
+    inst [5 or "5 quantile:1.25"] value 0.008779265
+    inst [6 or "6 quantile:1.5"] value 0.010535118
+    inst [7 or "7 quantile:1.75"] value 0.012290971
+    inst [8 or "8 quantile:2.0"] value 0.014046824
+    inst [9 or "9 quantile:2.25"] value 0.015802677
+
+prometheus.source3.sample_summary0002_count
+    value 19998
+
+prometheus.source3.sample_summary0002_sum
+    value 15.30327447
 
 prometheus.source2.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -602,23 +584,23 @@ prometheus.source2.sample_gauge0000
     inst [8 or "8 bar:8"] value 774.4
     inst [9 or "9 bar:9"] value 871.2
 
-prometheus.source3.sample_summary0002_count
-    value 25452
-
-prometheus.source3.sample_summary0002_sum
-    value 19.47689478
-
-prometheus.source3.sample_summary0002
+prometheus.source2.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.002234722
-    inst [2 or "2 quantile:0.5"] value 0.004469444
-    inst [3 or "3 quantile:0.75"] value 0.006704166
-    inst [4 or "4 quantile:1.0"] value 0.008938888000000001
-    inst [5 or "5 quantile:1.25"] value 0.01117361
-    inst [6 or "6 quantile:1.5"] value 0.013408332
-    inst [7 or "7 quantile:1.75"] value 0.015643054
-    inst [8 or "8 quantile:2.0"] value 0.017877776
-    inst [9 or "9 quantile:2.25"] value 0.020112498
+    inst [1 or "1 quantile:0.25"] value 0.00159623
+    inst [2 or "2 quantile:0.5"] value 0.00319246
+    inst [3 or "3 quantile:0.75"] value 0.00478869
+    inst [4 or "4 quantile:1.0"] value 0.00638492
+    inst [5 or "5 quantile:1.25"] value 0.007981149999999999
+    inst [6 or "6 quantile:1.5"] value 0.00957738
+    inst [7 or "7 quantile:1.75"] value 0.01117361
+    inst [8 or "8 quantile:2.0"] value 0.01276984
+    inst [9 or "9 quantile:2.25"] value 0.01436607
+
+prometheus.source2.sample_summary0002_count
+    value 18180
+
+prometheus.source2.sample_summary0002_sum
+    value 13.9120677
 
 prometheus.source3.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -644,23 +626,23 @@ prometheus.source3.sample_gauge0000
     inst [8 or "8 bar:8"] value 1161.6
     inst [9 or "9 bar:9"] value 1306.8
 
-prometheus.source4.sample_summary0002_count
-    value 10908
-
-prometheus.source4.sample_summary0002_sum
-    value 8.347240620000001
-
-prometheus.source4.sample_summary0002
+prometheus.source3.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.000957738
-    inst [2 or "2 quantile:0.5"] value 0.001915476
-    inst [3 or "3 quantile:0.75"] value 0.002873214
-    inst [4 or "4 quantile:1.0"] value 0.003830952
-    inst [5 or "5 quantile:1.25"] value 0.00478869
-    inst [6 or "6 quantile:1.5"] value 0.005746428
-    inst [7 or "7 quantile:1.75"] value 0.006704166
-    inst [8 or "8 quantile:2.0"] value 0.007661904
-    inst [9 or "9 quantile:2.25"] value 0.008619642
+    inst [1 or "1 quantile:0.25"] value 0.002234722
+    inst [2 or "2 quantile:0.5"] value 0.004469444
+    inst [3 or "3 quantile:0.75"] value 0.006704166
+    inst [4 or "4 quantile:1.0"] value 0.008938888000000001
+    inst [5 or "5 quantile:1.25"] value 0.01117361
+    inst [6 or "6 quantile:1.5"] value 0.013408332
+    inst [7 or "7 quantile:1.75"] value 0.015643054
+    inst [8 or "8 quantile:2.0"] value 0.017877776
+    inst [9 or "9 quantile:2.25"] value 0.020112498
+
+prometheus.source3.sample_summary0002_count
+    value 25452
+
+prometheus.source3.sample_summary0002_sum
+    value 19.47689478
 
 prometheus.source4.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -686,23 +668,23 @@ prometheus.source4.sample_gauge0000
     inst [8 or "8 bar:8"] value 387.2
     inst [9 or "9 bar:9"] value 435.6
 
-prometheus.source4.sample_summary0002_count
-    value 18180
-
-prometheus.source4.sample_summary0002_sum
-    value 13.9120677
-
 prometheus.source4.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.00159623
-    inst [2 or "2 quantile:0.5"] value 0.00319246
-    inst [3 or "3 quantile:0.75"] value 0.00478869
-    inst [4 or "4 quantile:1.0"] value 0.00638492
-    inst [5 or "5 quantile:1.25"] value 0.007981149999999999
-    inst [6 or "6 quantile:1.5"] value 0.00957738
-    inst [7 or "7 quantile:1.75"] value 0.01117361
-    inst [8 or "8 quantile:2.0"] value 0.01276984
-    inst [9 or "9 quantile:2.25"] value 0.01436607
+    inst [1 or "1 quantile:0.25"] value 0.000957738
+    inst [2 or "2 quantile:0.5"] value 0.001915476
+    inst [3 or "3 quantile:0.75"] value 0.002873214
+    inst [4 or "4 quantile:1.0"] value 0.003830952
+    inst [5 or "5 quantile:1.25"] value 0.00478869
+    inst [6 or "6 quantile:1.5"] value 0.005746428
+    inst [7 or "7 quantile:1.75"] value 0.006704166
+    inst [8 or "8 quantile:2.0"] value 0.007661904
+    inst [9 or "9 quantile:2.25"] value 0.008619642
+
+prometheus.source4.sample_summary0002_count
+    value 10908
+
+prometheus.source4.sample_summary0002_sum
+    value 8.347240620000001
 
 prometheus.source4.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -728,23 +710,23 @@ prometheus.source4.sample_gauge0000
     inst [8 or "8 bar:8"] value 774.4
     inst [9 or "9 bar:9"] value 871.2
 
-prometheus.source4.sample_summary0002_count
-    value 25452
-
-prometheus.source4.sample_summary0002_sum
-    value 19.47689478
-
 prometheus.source4.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.002234722
-    inst [2 or "2 quantile:0.5"] value 0.004469444
-    inst [3 or "3 quantile:0.75"] value 0.006704166
-    inst [4 or "4 quantile:1.0"] value 0.008938888000000001
-    inst [5 or "5 quantile:1.25"] value 0.01117361
-    inst [6 or "6 quantile:1.5"] value 0.013408332
-    inst [7 or "7 quantile:1.75"] value 0.015643054
-    inst [8 or "8 quantile:2.0"] value 0.017877776
-    inst [9 or "9 quantile:2.25"] value 0.020112498
+    inst [1 or "1 quantile:0.25"] value 0.00159623
+    inst [2 or "2 quantile:0.5"] value 0.00319246
+    inst [3 or "3 quantile:0.75"] value 0.00478869
+    inst [4 or "4 quantile:1.0"] value 0.00638492
+    inst [5 or "5 quantile:1.25"] value 0.007981149999999999
+    inst [6 or "6 quantile:1.5"] value 0.00957738
+    inst [7 or "7 quantile:1.75"] value 0.01117361
+    inst [8 or "8 quantile:2.0"] value 0.01276984
+    inst [9 or "9 quantile:2.25"] value 0.01436607
+
+prometheus.source4.sample_summary0002_count
+    value 18180
+
+prometheus.source4.sample_summary0002_sum
+    value 13.9120677
 
 prometheus.source4.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -770,23 +752,23 @@ prometheus.source4.sample_gauge0000
     inst [8 or "8 bar:8"] value 1161.6
     inst [9 or "9 bar:9"] value 1306.8
 
-prometheus.source4.sample_summary0002_count
-    value 32724
-
-prometheus.source4.sample_summary0002_sum
-    value 25.04172186
-
 prometheus.source4.sample_summary0002
     inst [0 or "0 quantile:0.0"] value 0
-    inst [1 or "1 quantile:0.25"] value 0.002873214
-    inst [2 or "2 quantile:0.5"] value 0.005746428
-    inst [3 or "3 quantile:0.75"] value 0.008619642
-    inst [4 or "4 quantile:1.0"] value 0.011492856
-    inst [5 or "5 quantile:1.25"] value 0.01436607
-    inst [6 or "6 quantile:1.5"] value 0.017239284
-    inst [7 or "7 quantile:1.75"] value 0.020112498
-    inst [8 or "8 quantile:2.0"] value 0.022985712
-    inst [9 or "9 quantile:2.25"] value 0.025858926
+    inst [1 or "1 quantile:0.25"] value 0.002234722
+    inst [2 or "2 quantile:0.5"] value 0.004469444
+    inst [3 or "3 quantile:0.75"] value 0.006704166
+    inst [4 or "4 quantile:1.0"] value 0.008938888000000001
+    inst [5 or "5 quantile:1.25"] value 0.01117361
+    inst [6 or "6 quantile:1.5"] value 0.013408332
+    inst [7 or "7 quantile:1.75"] value 0.015643054
+    inst [8 or "8 quantile:2.0"] value 0.017877776
+    inst [9 or "9 quantile:2.25"] value 0.020112498
+
+prometheus.source4.sample_summary0002_count
+    value 25452
+
+prometheus.source4.sample_summary0002_sum
+    value 19.47689478
 
 prometheus.source4.sample_counter0001
     inst [0 or "0 baz:0.0"] value 0
@@ -811,6 +793,24 @@ prometheus.source4.sample_gauge0000
     inst [7 or "7 bar:7"] value 1355.2
     inst [8 or "8 bar:8"] value 1548.8
     inst [9 or "9 bar:9"] value 1742.4
+
+prometheus.source4.sample_summary0002
+    inst [0 or "0 quantile:0.0"] value 0
+    inst [1 or "1 quantile:0.25"] value 0.002873214
+    inst [2 or "2 quantile:0.5"] value 0.005746428
+    inst [3 or "3 quantile:0.75"] value 0.008619642
+    inst [4 or "4 quantile:1.0"] value 0.011492856
+    inst [5 or "5 quantile:1.25"] value 0.01436607
+    inst [6 or "6 quantile:1.5"] value 0.017239284
+    inst [7 or "7 quantile:1.75"] value 0.020112498
+    inst [8 or "8 quantile:2.0"] value 0.022985712
+    inst [9 or "9 quantile:2.25"] value 0.025858926
+
+prometheus.source4.sample_summary0002_count
+    value 32724
+
+prometheus.source4.sample_summary0002_sum
+    value 25.04172186
 
 === remove prometheus agent ===
 Culling the Performance Metrics Name Space ...
