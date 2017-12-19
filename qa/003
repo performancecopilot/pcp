@@ -36,7 +36,8 @@ nyi="pmFetch: Functionality not yet implemented"
 
 pmie_filter()
 {
-    sed -e "/pmcd\.pmie\.actions: $unavailable/d" \
+    sed \
+	-e "/pmcd\.pmie\.actions: $unavailable/d" \
     	-e "/pmcd\.pmie\.configfile: $unavailable/d" \
     	-e "/pmcd\.pmie\.eval\.actual: $unavailable/d" \
     	-e "/pmcd\.pmie\.eval\.expected: $unavailable/d" \
@@ -47,127 +48,13 @@ pmie_filter()
     	-e "/pmcd\.pmie\.numrules: $unavailable/d" \
     	-e "/pmcd\.pmie\.pmcd_host: $unavailable/d" \
     	-e "/pmcd\.pmie\.host: $unavailable/d"
-}
-
-linux_filter()
-{
-    sed \
-	-e "/disk\.dm\..*: $unavailable/d" \
-	-e "/disk\.md\..*: $unavailable/d" \
-	-e "/filesys\.readonly: $unknown/d" \
-	-e "/hinv\.cpu\..*: $unavailable/d" \
-	-e "/hinv\.hugepagesize: $unavailable/d" \
-	-e "/hinv\.map\.dmname: $unavailable/d" \
-	-e "/hinv\.map\.mdname: $unavailable/d" \
-	-e "/hinv\.nlv: $unavailable/d" \
-	-e "/hinv\.node\.online: $unavailable/d" \
-	-e "/ipc\.sem\.key: $unavailable/d" \
-	-e "/ipc\.sem\.nsems: $unavailable/d" \
-	-e "/ipc\.sem\.owner: $unavailable/d" \
-	-e "/ipc\.sem\.perms: $unavailable/d" \
-	-e "/ipc\.shm\.key: $unavailable/d" \
-	-e "/ipc\.shm\.nattch: $unavailable/d" \
-	-e "/ipc\.shm\.owner: $unavailable/d" \
-	-e "/ipc\.shm\.perms: $unavailable/d" \
-	-e "/ipc\.shm\.segsz: $unavailable/d" \
-	-e "/ipc\.shm\.status: $unavailable/d" \
-	-e "/ipc\.msg\.key: $unavailable/d" \
-	-e "/ipc\.msg\.owner: $unavailable/d" \
-	-e "/ipc\.msg\.perms: $unavailable/d" \
-	-e "/ipc\.msg\.msgsz: $unavailable/d" \
-	-e "/ipc\.msg\.messages: $unavailable/d" \
-	-e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
-	-e "/kernel\.pernode..*: $unavailable/d" \
-	-e "/mem\.util\.active_anon: $unavailable/d" \
-	-e "/mem\.util\.active_file: $unavailable/d" \
-	-e "/mem\.util\.anonhugepages: $unavailable/d" \
-	-e "/mem\.util\.available: $unavailable/d" \
-	-e "/mem\.util\.corrupthardware: $unavailable/d" \
-	-e "/mem\.util\.directMap1G: $unavailable/d" \
-	-e "/mem\.util\.directMap2M: $unavailable/d" \
-	-e "/mem\.util\.directMap4k: $unavailable/d" \
-	-e "/mem\.util\.highFree: $unavailable/d" \
-	-e "/mem\.util\.highTotal: $unavailable/d" \
-	-e "/mem\.util\.hugepagesFree: $unavailable/d" \
-	-e "/mem\.util\.hugepagesFreeBytes: $unavailable/d" \
-	-e "/mem\.util\.hugepagesRsvd: $unavailable/d" \
-	-e "/mem\.util\.hugepagesRsvdBytes: $unavailable/d" \
-	-e "/mem\.util\.hugepagesSurp: $unavailable/d" \
-	-e "/mem\.util\.hugepagesSurpBytes: $unavailable/d" \
-	-e "/mem\.util\.hugepagesTotal: $unavailable/d" \
-	-e "/mem\.util\.hugepagesTotalBytes: $unavailable/d" \
-	-e "/mem\.util\.inactive_anon: $unavailable/d" \
-	-e "/mem\.util\.inactive_file: $unavailable/d" \
-	-e "/mem\.util\.kernelStack: $unavailable/d" \
-	-e "/mem\.util\.lowFree: $unavailable/d" \
-	-e "/mem\.util\.lowTotal: $unavailable/d" \
-	-e "/mem\.util\.mlocked: $unavailable/d" \
-	-e "/mem\.util\.mmap_copy: $unavailable/d" \
-	-e "/mem\.util\.quicklists: $unavailable/d" \
-	-e "/mem\.util\.shmem: $unavailable/d" \
-	-e "/mem\.util\.slabReclaimable: $unavailable/d" \
-	-e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
-	-e "/mem\.util\.unevictable: $unavailable/d" \
-	-e "/mem\.vmstat\..*: $unavailable/d" \
-	-e "/network\.icmpmsg\..*: $unavailable/d" \
-	-e "/network\.interface\.hw_addr: $unavailable/d" \
-	-e "/network\.interface\.ipv6_addr: $unavailable/d" \
-	-e "/network\.interface\.ipv6_scope: $unavailable/d" \
-	-e "/network\.ip\.ce.*: $unavailable/d" \
-	-e "/network\.ip\.csum.*: $unavailable/d" \
-	-e "/network\.ip\.ect.*: $unavailable/d" \
-	-e "/network\.ip\.inbcastoctets: $unavailable/d" \
-	-e "/network\.ip\.inoctets: $unavailable/d" \
-	-e "/network\.ip\..*mcast.*: $unavailable/d" \
-	-e "/network\.ip\.noect.*: $unavailable/d" \
-	-e "/network\.ip\.outbcastoctets: $unavailable/d" \
-	-e "/network\.ip\.outoctets: $unavailable/d" \
-	-e "/network\.softnet\..*: $nosupport/d" \
-	-e "/network\.tcp\.autocork.*: $unavailable/d" \
-	-e "/network\.tcp\.backlogdrop: $unavailable/d" \
-	-e "/network\.tcp\.busypoll.*: $unavailable/d" \
-	-e "/network\.tcp\.challenge.*: $unavailable/d" \
-	-e "/network\.tcp\.defer.*: $unavailable/d" \
-	-e "/network\.tcp\.dsackignorednoundo: $unavailable/d" \
-	-e "/network\.tcp\.dsackignoredold: $unavailable/d" \
-	-e "/network\.tcp\.fast.*: $unavailable/d" \
-	-e "/network\.tcp\.from.*: $unavailable/d" \
-	-e "/network\.tcp\.iprpfilter.*: $unavailable/d" \
-	-e "/network\.tcp\.loss.*: $unavailable/d" \
-	-e "/network\.tcp\.md5notfound: $unavailable/d" \
-	-e "/network\.tcp\.md5unexpected: $unavailable/d" \
-	-e "/network\.tcp\.minttldrop: $unavailable/d" \
-	-e "/network\.tcp\.ofo.*: $unavailable/d" \
-	-e "/network\.tcp\.orig.*: $unavailable/d" \
-	-e "/network\.tcp\.rcv.*: $unavailable/d" \
-	-e "/network\.tcp\.reqq.*: $unavailable/d" \
-	-e "/network\.tcp\.retrans.*: $unavailable/d" \
-	-e "/network\.tcp\.pawspassiverejected: $unavailable/d" \
-	-e "/network\.tcp\.sackdiscard: $unavailable/d" \
-	-e "/network\.tcp\.sackmerged: $unavailable/d" \
-	-e "/network\.tcp\.sackshifted: $unavailable/d" \
-	-e "/network\.tcp\.sackshiftfallback: $unavailable/d" \
-	-e "/network\.tcp\.spurious.*: $unavailable/d" \
-	-e "/network\.tcp\.syn.*: $unavailable/d" \
-	-e "/network\.tcp\.timewait.*: $unavailable/d" \
-	-e "/network\.tcp\..*window.*: $unavailable/d" \
-	-e "/network\.udplite\..*: $unavailable/d" \
-	-e "/network\.udp\.recvbuferrors: $unavailable/d" \
-	-e "/network\.udp\.sndbuferrors: $unavailable/d" \
-	-e "/network\.softnet\.flow_limit_count: $nosupport/d" \
-	-e "/swapdev\.free: $unavailable/d" \
-	-e "/swapdev\.length: $unavailable/d" \
-	-e "/swapdev\.maxswap: $unavailable/d" \
-	-e "/swapdev\.priority: $unavailable/d" \
-	-e "/swapdev\.vlength: $unavailable/d" \
-	-e "/swap\.in: $nosupport/d" \
-	-e "/swap\.out: $nosupport/d"
-
+    # end
 }
 
 sample_filter()
 {
-    sed -e "/sample\.bad\.nosupport: $nosupport/d" \
+    sed \
+	-e "/sample\.bad\.nosupport: $nosupport/d" \
 	-e "/sample\.bad\.unknown: $unknown/d" \
 	-e "/sample\.bad\.novalues: $unavailable/d" \
 	-e "/sample\.needprofile: $explicit/d" \
@@ -191,7 +78,47 @@ sample_filter()
 	-e "/sampledso\.secret: $unknown/d" \
 	-e "/sampledso\.event\.type: $unavailable/d" \
 	-e "/sampledso\.event\.param_.*: $unavailable/d" \
+    # end
+}
 
+# derived metrics that may have no value, e.g. if they include rate() or
+# delta()
+#
+derived_filter()
+{
+    sed \
+	-e "/disk\.dev\.avg_qlen: $unavailable/d" \
+	-e "/disk\.dev\.avg_rqsz: $unavailable/d" \
+	-e "/disk\.dev\.await: $unavailable/d" \
+	-e "/disk\.dev\.r_avg_rqsz: $unavailable/d" \
+	-e "/disk\.dev\.r_await: $unavailable/d" \
+	-e "/disk\.dev\.util: $unavailable/d" \
+	-e "/disk\.dev\.w_avg_rqsz: $unavailable/d" \
+	-e "/disk\.dev\.w_await: $unavailable/d" \
+	-e "/disk\.dm\.avg_qlen: $unavailable/d" \
+	-e "/disk\.dm\.avg_rqsz: $unavailable/d" \
+	-e "/disk\.dm\.await: $unavailable/d" \
+	-e "/disk\.dm\.r_avg_rqsz: $unavailable/d" \
+	-e "/disk\.dm\.r_await: $unavailable/d" \
+	-e "/disk\.dm\.util: $unavailable/d" \
+	-e "/disk\.dm\.w_avg_rqsz: $unavailable/d" \
+	-e "/disk\.dm\.w_await: $unavailable/d" \
+	-e "/disk\.md\.avg_qlen: $unavailable/d" \
+	-e "/disk\.md\.avg_rqsz: $unavailable/d" \
+	-e "/disk\.md\.await: $unavailable/d" \
+	-e "/disk\.md\.r_avg_rqsz: $unavailable/d" \
+	-e "/disk\.md\.r_await: $unavailable/d" \
+	-e "/disk\.md\.util: $unavailable/d" \
+	-e "/disk\.md\.w_avg_rqsz: $unavailable/d" \
+	-e "/disk\.md\.w_await: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.idle: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.intr: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.nice: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.steal: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.sys: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.user: $unavailable/d" \
+	-e "/kernel\.cpu\.util\.wait: $unavailable/d" \
+    # end
 }
 
 count_filter()
@@ -207,10 +134,10 @@ for root in \
 	nfs nfs3 resource rpc stream swap swapdev vnodes xfs \
 	pmcd
 do
-    src/exercise -i 5 $root \
+    src/exercise -i 5 $root 2>&1 \
     | LC_COLLATE=POSIX sort \
+    | derived_filter \
     | sample_filter \
-    | linux_filter \
     | pmie_filter \
     | count_filter >$tmp.tmp
 
@@ -223,40 +150,150 @@ do
 	    -e "/disk\.dev\.avactive: $unavailable/d" \
 	    -e "/disk\.dev\.aveq: $unavailable/d" \
 	    -e "/disk\.dev\..*_bytes: $unavailable/d" \
+	    -e "/disk\.dm\..*: $unavailable/d" \
+	    -e "/disk\.md\..*: $unavailable/d" \
 	    -e "/disk\.partitions\./d" \
 	    -e "/disk\.xvm\..*: $unavailable/d" \
+	    -e "/filesys\.readonly: $unknown/d" \
+	    -e "/hinv\.cpu\..*: $unavailable/d" \
+	    -e "/hinv\.hugepagesize: $unavailable/d" \
 	    -e "/hinv\.interconnect: $unavailable/d" \
 	    -e "/hinv\.map\.cpu: $unavailable/d" \
 	    -e "/hinv\.map\.disk: $unavailable/d" \
+	    -e "/hinv\.map\.dmname: $unavailable/d" \
+	    -e "/hinv\.map\.mdname: $unavailable/d" \
 	    -e "/hinv\.map\.node: $unavailable/d" \
 	    -e "/hinv\.map\.routerport: $unavailable/d" \
 	    -e "/hinv\.map\.router: $unavailable/d" \
 	    -e "/hinv\.map\.scsi: $unavailable/d" \
 	    -e "/hinv\.map\.xbow: $unavailable/d" \
+	    -e "/hinv\.nlv: $unavailable/d" \
+	    -e "/hinv\.node\.online: $unavailable/d" \
 	    -e "/hinv\.nxbow: $nyi/d" \
 	    -e "/hw\.hub\..*: $missing/d" \
 	    -e "/hw\.hub\..*: $unavailable/d" \
 	    -e "/hw\.router\..*: $unavailable/d" \
+	    -e "/ipc\.msg\.key: $unavailable/d" \
+	    -e "/ipc\.msg\.messages: $unavailable/d" \
+	    -e "/ipc\.msg\.msgsz: $unavailable/d" \
+	    -e "/ipc\.msg\.owner: $unavailable/d" \
+	    -e "/ipc\.msg\.perms: $unavailable/d" \
+	    -e "/ipc\.sem\.key: $unavailable/d" \
+	    -e "/ipc\.sem\.nsems: $unavailable/d" \
+	    -e "/ipc\.sem\.owner: $unavailable/d" \
+	    -e "/ipc\.sem\.perms: $unavailable/d" \
+	    -e "/ipc\.shm\.key: $unavailable/d" \
+	    -e "/ipc\.shm\.nattch: $unavailable/d" \
+	    -e "/ipc\.shm\.owner: $unavailable/d" \
+	    -e "/ipc\.shm\.perms: $unavailable/d" \
+	    -e "/ipc\.shm\.segsz: $unavailable/d" \
+	    -e "/ipc\.shm\.status: $unavailable/d" \
+	    -e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
+	    -e "/kernel\.pernode..*: $unavailable/d" \
 	    -e "/kernel\..*\.syscall: $unavailable/d" \
+	    -e "/mem\.numa\..*: $unavailable/d" \
 	    -e "/mem\.slabinfo\.objects\.active: $unavailable/d" \
 	    -e "/mem\.slabinfo\.objects\.size: $unavailable/d" \
 	    -e "/mem\.slabinfo\.objects\.total: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.active: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.objects_per_slab: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.pages_per_slab: $unavailable/d" \
-	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.total_size: $unavailable/d" \
-	    -e "/mem\.vmstat\.nr_slab: $unavailable/d" \
-	    -e "/mem\.numa\..*: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
+	    -e "/mem\.util\.active_anon: $unavailable/d" \
+	    -e "/mem\.util\.active_file: $unavailable/d" \
+	    -e "/mem\.util\.anonhugepages: $unavailable/d" \
+	    -e "/mem\.util\.available: $unavailable/d" \
+	    -e "/mem\.util\.corrupthardware: $unavailable/d" \
+	    -e "/mem\.util\.directMap1G: $unavailable/d" \
+	    -e "/mem\.util\.directMap2M: $unavailable/d" \
+	    -e "/mem\.util\.directMap4k: $unavailable/d" \
+	    -e "/mem\.util\.highFree: $unavailable/d" \
+	    -e "/mem\.util\.highTotal: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesFreeBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesFree: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesRsvdBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesRsvd: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesSurpBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesSurp: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesTotalBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesTotal: $unavailable/d" \
+	    -e "/mem\.util\.inactive_anon: $unavailable/d" \
+	    -e "/mem\.util\.inactive_file: $unavailable/d" \
+	    -e "/mem\.util\.kernelStack: $unavailable/d" \
+	    -e "/mem\.util\.lowFree: $unavailable/d" \
+	    -e "/mem\.util\.lowTotal: $unavailable/d" \
+	    -e "/mem\.util\.mlocked: $unavailable/d" \
+	    -e "/mem\.util\.mmap_copy: $unavailable/d" \
 	    -e "/mem\.util\.other: $unavailable/d" \
+	    -e "/mem\.util\.quicklists: $unavailable/d" \
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \
+	    -e "/mem\.util\.shmem: $unavailable/d" \
+	    -e "/mem\.util\.slabReclaimable: $unavailable/d" \
+	    -e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
+	    -e "/mem\.util\.unevictable: $unavailable/d" \
+	    -e "/mem\.vmstat\.nr_slab: $unavailable/d" \
+	    -e "/mem\.vmstat\..*: $unavailable/d" \
 	    -e "/network\.ib\..*/d" \
+	    -e "/network\.icmpmsg\..*: $unavailable/d" \
+	    -e "/network\..*\.incsumerrors: $unavailable/d" \
 	    -e "/network\.interface\.baudrate: $unavailable/d" \
 	    -e "/network\.interface\.duplex: $unavailable/d" \
+	    -e "/network\.interface\.hw_addr: $unavailable/d" \
 	    -e "/network\.interface\.inet_addr: $unavailable/d" \
+	    -e "/network\.interface\.ipv6_addr: $unavailable/d" \
+	    -e "/network\.interface\.ipv6_scope: $unavailable/d" \
 	    -e "/network\.interface\.speed: $unavailable/d" \
-	    -e "/network\..*\.incsumerrors: $unavailable/d" \
+	    -e "/network\.ip\.ce.*: $unavailable/d" \
+	    -e "/network\.ip\.csum.*: $unavailable/d" \
+	    -e "/network\.ip\.ect.*: $unavailable/d" \
+	    -e "/network\.ip\.inbcastoctets: $unavailable/d" \
+	    -e "/network\.ip\.inoctets: $unavailable/d" \
+	    -e "/network\.ip\..*mcast.*: $unavailable/d" \
+	    -e "/network\.ip\.noect.*: $unavailable/d" \
+	    -e "/network\.ip\.outbcastoctets: $unavailable/d" \
+	    -e "/network\.ip\.outoctets: $unavailable/d" \
+	    -e "/network\.softnet\.flow_limit_count: $nosupport/d" \
+	    -e "/network\.softnet\..*: $nosupport/d" \
+	    -e "/network\.tcp\.autocork.*: $unavailable/d" \
+	    -e "/network\.tcp\.backlogdrop: $unavailable/d" \
+	    -e "/network\.tcp\.busypoll.*: $unavailable/d" \
+	    -e "/network\.tcp\.challenge.*: $unavailable/d" \
+	    -e "/network\.tcp\.defer.*: $unavailable/d" \
+	    -e "/network\.tcp\.directcopyfrombacklog: $unavailable/d" \
+	    -e "/network\.tcp\.directcopyfromprequeue: $unavailable/d" \
+	    -e "/network\.tcp\.dsackignorednoundo: $unavailable/d" \
+	    -e "/network\.tcp\.dsackignoredold: $unavailable/d" \
+	    -e "/network\.tcp\.fast.*: $unavailable/d" \
+	    -e "/network\.tcp\.forwardretrans: $unavailable/d" \
+	    -e "/network\.tcp\.from.*: $unavailable/d" \
+	    -e "/network\.tcp\.hphitstouser: $unavailable/d" \
+	    -e "/network\.tcp\.iprpfilter.*: $unavailable/d" \
+	    -e "/network\.tcp\.loss.*: $unavailable/d" \
+	    -e "/network\.tcp\.md5notfound: $unavailable/d" \
+	    -e "/network\.tcp\.md5unexpected: $unavailable/d" \
+	    -e "/network\.tcp\.minttldrop: $unavailable/d" \
+	    -e "/network\.tcp\.ofo.*: $unavailable/d" \
+	    -e "/network\.tcp\.orig.*: $unavailable/d" \
+	    -e "/network\.tcp\.pawspassiverejected: $unavailable/d" \
+	    -e "/network\.tcp\.prequeueddropped: $unavailable/d" \
+	    -e "/network\.tcp\.prequeued: $unavailable/d" \
+	    -e "/network\.tcp\.rcv.*: $unavailable/d" \
+	    -e "/network\.tcp\.reqq.*: $unavailable/d" \
+	    -e "/network\.tcp\.retrans.*: $unavailable/d" \
+	    -e "/network\.tcp\.sackdiscard: $unavailable/d" \
+	    -e "/network\.tcp\.sackmerged: $unavailable/d" \
+	    -e "/network\.tcp\.sackshifted: $unavailable/d" \
+	    -e "/network\.tcp\.sackshiftfallback: $unavailable/d" \
+	    -e "/network\.tcp\.schedulerfail: $unavailable/d" \
+	    -e "/network\.tcp\.spurious.*: $unavailable/d" \
+	    -e "/network\.tcp\.syn.*: $unavailable/d" \
+	    -e "/network\.tcp\.timewait.*: $unavailable/d" \
+	    -e "/network\.tcp\..*window.*: $unavailable/d" \
+	    -e "/network\.udplite\..*: $unavailable/d" \
+	    -e "/network\.udp\.recvbuferrors: $unavailable/d" \
+	    -e "/network\.udp\.sndbuferrors: $unavailable/d" \
 	    -e "/nfs3\.server\..*: $unavailable/d" \
 	    -e "/nfs.*\.client\.calls: $unavailable/d" \
 	    -e "/nfs.*\.client\.reqs: $unavailable/d" \
@@ -266,6 +303,13 @@ do
 	    -e "/rpc\.server\..*: $unavailable/d" \
 	    -e "/sampledso\.sysinfo: $nosupport/d" \
 	    -e "/sample\.sysinfo: $nosupport/d" \
+	    -e "/swapdev\.free: $unavailable/d" \
+	    -e "/swapdev\.length: $unavailable/d" \
+	    -e "/swapdev\.maxswap: $unavailable/d" \
+	    -e "/swapdev\.priority: $unavailable/d" \
+	    -e "/swapdev\.vlength: $unavailable/d" \
+	    -e "/swap\.in: $nosupport/d" \
+	    -e "/swap\.out: $nosupport/d" \
 	    -e "/xfs\..*: $unavailable/d" \
 	# end
     elif [ "$PCP_PLATFORM" = darwin ]
