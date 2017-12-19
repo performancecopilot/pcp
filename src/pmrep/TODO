@@ -8,7 +8,6 @@
 -  opt to output in short format (see pmdumptext -F/-G / pmNumberStr) [-m/-M]
 -  handle too wide unit display (like count/s when width is 5) if needed
 
--  per-metric precision support (?)
 -  includedir config file support (?)
 -  copy directive conf file support (?)
 -  generalized zabbix_interval (write to target in batches) (?)

@@ -103,7 +103,7 @@ class PCP2XML(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -389,7 +389,7 @@ class PCP2XML(object):
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
                         value = val()
-                        fmt = "." + str(self.precision) + "f"
+                        fmt = "." + str(self.metrics[metric][6]) + "f"
                         value = format(value, fmt) if isinstance(value, float) else str(value)
                         value = escape_xml_text(value)
                         name = escape_xml_markup(name)

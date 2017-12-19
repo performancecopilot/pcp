@@ -189,6 +189,9 @@ pmrep -s 5 -t 2 $log2 -w 15 -P 9 -p -b MB/s mem.util.free mem.util.used
 pmrep -s 5 -t 2 $log2 -w 15 -P 8 -p mem.util.free,,,kb/s mem.util.used,,,GB/ms
 pmrep -s 5 -t 2 -z -a $here/archives/rep -u -p mem.util.used,,,GB/ms network.interface.speed,,,GB/hr
 
+echo "== exercise compact metricset specification and overrides"
+pmrep -s 5 -t 2 $log2 -w 128 -P 1 -p -b kB "mem.util.free,mem free,,MB,,15,0" mem.util.used,mem-used,,GB,,15,2
+
 echo "== derived metrics configuration file"
 pmrep -e $tmp.nosuchfile metric 2>&1 | _live_filter
 cat > $tmp.derived <<EOF

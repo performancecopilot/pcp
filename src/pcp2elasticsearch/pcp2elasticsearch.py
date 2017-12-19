@@ -100,7 +100,7 @@ class pcp2elasticsearch(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -357,7 +357,7 @@ class pcp2elasticsearch(object):
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
                         value = val()
-                        value = round(value, self.precision) if isinstance(value, float) else value
+                        value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
                     except:
                         continue
 

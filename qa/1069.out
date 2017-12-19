@@ -866,6 +866,14 @@ ok
 14:39:15    -0.000  2746624.0
 14:39:16     0.000  2746624.0
 14:39:17     0.000  2746624.0
+== exercise compact metricset specification and overrides
+                 mem free         mem-used
+                       MB               GB
+00:47:01               37             5.79
+00:47:03               37             5.79
+00:47:05               37             5.79
+00:47:07               37             5.79
+00:47:09               37             5.79
 == derived metrics configuration file
 Failed to load derived metric definitions from file ...:
 No such file or directory.

@@ -131,7 +131,7 @@ class PMReporter(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -799,7 +799,7 @@ class PMReporter(object):
                     line += '"' + value + '"'
                 else:
                     if isinstance(value, float):
-                        value = round(value, self.precision)
+                        value = round(value, self.metrics[metric][6])
                         value = self.parse_non_number(value)
                     line += str(value)
 
@@ -812,7 +812,7 @@ class PMReporter(object):
         else:
             self.write_stdout_colxrow(timestamp)
 
-    def format_stdout_value(self, value, width, fmt, k):
+    def format_stdout_value(self, value, width, precision, fmt, k):
         """ Format a value for stdout output """
         if isinstance(value, str):
             value = value.replace("\n", "\\n")
@@ -821,8 +821,8 @@ class PMReporter(object):
         elif isinstance(value, float) and \
              not math.isinf(value) and \
              not math.isnan(value):
-            value = round(value, self.precision)
-            c = self.precision
+            value = round(value, precision)
+            c = precision
             s = len(str(int(value)))
             if s > width:
                 c = -1
@@ -885,7 +885,7 @@ class PMReporter(object):
                 k += 1
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
-                    value = self.format_stdout_value(value, self.metrics[metric][4], fmt, k)
+                    value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
                 except:
                     value = NO_VAL
                 line.append(value)
@@ -963,7 +963,7 @@ class PMReporter(object):
 
                         try:
                             value = res[metric + "+" + str(j)]()
-                            value = self.format_stdout_value(value, self.metrics[metric][4], fmt, k)
+                            value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
                         except:
                             value = NO_VAL
 

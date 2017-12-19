@@ -204,7 +204,7 @@ class PCP2InfluxDB(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -443,7 +443,7 @@ class PCP2InfluxDB(object):
                     suffix = sanitize_name_indom(name) if name else "value"
                     try:
                         value = val()
-                        value = round(value, self.precision) if isinstance(value, float) else value
+                        value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
                         tmp.add_field(suffix, value)
                     except:
                         pass
