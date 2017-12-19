@@ -1212,8 +1212,8 @@ fi
 na=''
 case `hostname`
 in
-    grundy-dmz)
-	na='microhttpd.h sd-daemon.h papi.h pfmlib_perf_event.h six.py jsonpointer.py valgrind logconv.pl zabbix_agentd mkfs.gfs2 SoQt.h SoPath.h libSoQt.so xclip'
+    vm18)
+	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel'
