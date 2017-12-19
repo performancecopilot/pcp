@@ -49,7 +49,7 @@ then
     exit
 fi
 
-if pminfo -v prometheus.source0 > $tmp.info 2> $tmp.err
+if pminfo -v `pminfo prometheus.source0 | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
 then
     :
 else
@@ -58,7 +58,7 @@ else
 fi
 cat $tmp.info $tmp.err
 
-if pminfo -fd prometheus.source1 > $tmp.info 2>$tmp.err
+if pminfo -fd `pminfo prometheus.source1 | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc prometheus metrics: success"
     cat $tmp.info
@@ -68,7 +68,7 @@ else
 fi
 for i in `seq 2 1 99`
 do
-    pminfo -f prometheus.source$i
+    pminfo -f `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
     sleep 0.5
 done
 

@@ -53,8 +53,7 @@ then
     exit
 fi
 
-metrics=`pminfo prometheus | LC_COLLATE=POSIX sort`
-if pminfo -b 10000000 -v $metrics > $tmp.info 2> $tmp.err
+if pminfo -b 10000000 -v `pminfo prometheus | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
 then
     :
 else
@@ -63,7 +62,7 @@ else
 fi
 cat $tmp.info $tmp.err
 #sleep 120
-if pminfo -b 10000000 -fd $metrics > $tmp.info 2>$tmp.err
+if pminfo -b 10000000 -fd `pminfo prometheus | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc prometheus metrics: success"
     cat $tmp.info
@@ -72,16 +71,15 @@ else
     cat $tmp.err
 fi
 
-pminfo -b 10000000 -tf prometheus.source0
+pminfo -b 10000000 -tf `pminfo prometheus.source0 | LC_COLLATE=POSIX sort`
 
 for i in `seq 1 1 99`
 do
-    pminfo -b 10000000 -tf prometheus.source$i
-    pminfo -b 10000000 -tf prometheus.source$i
-    pminfo -b 10000000 -tf prometheus.source$i
+    pminfo -b 10000000 -tf `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
     sleep 0.5
 done
-
 
 _pmdaprometheus_remove
 _pmdaprometheus_restore_config
