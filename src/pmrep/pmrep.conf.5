@@ -426,6 +426,10 @@ related metrics.
 The \fBsar-w\fR set is an example how to mimic an existing tool with
 \fBpmrep\fR.
 .P
+The system default \fBpmrep.conf\fR file contains many more examples.
+Using tab after the colon can be used to complete available metricsets
+(with bash and zsh).
+.P
 .sp
 .if n \{\
 .RS 4
@@ -442,6 +446,7 @@ space_scale = MB
 kernel.all.sysfork = forks,,,,8
 allcache = mem.util.allcache
 allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
+allcache.width = 10
 
 [db1]
 source = db-host1.example.com
@@ -456,15 +461,10 @@ header = yes
 unitinfo = no
 globals = no
 timestamp = yes
-interval = 1s
-extheader = no
 precision = 2
-sysfork = kernel.all.sysfork
-sysfork.label = proc/s
-sysfork.width = 11
-pswitch = kernel.all.pswitch
-pswitch.label = cswch/s
-pswitch.width = 8
+delimiter = " "
+kernel.all.sysfork = proc/s,,,,12
+kernel.all.pswitch = cswch/s,,,,9
 .fi
 .if n \{\
 .RE
