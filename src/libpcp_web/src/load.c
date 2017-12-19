@@ -1068,7 +1068,7 @@ series_source(pmSeriesSettings *settings,
     source.redis = redis_init();
 
     load_prepare_source(&source, root, 0);
-    if (source.context.type) {
+    if (!source.context.type) {
 	pmsprintf(msg, sizeof(msg), "found no context to load");
 	loadmsg(&source, PMSERIES_ERROR, msg);
 	return -ESRCH;
