@@ -50,6 +50,7 @@ _cleanup()
     _wait_for_stop
     echo "final pmproxy log ..." >>$here/$seq.full
     cat $tmp.log >>$here/$seq.full
+    _restore_auto_restart pmproxy
     $sudo rm -f $tmp.*
 }
 
@@ -77,12 +78,12 @@ _wait_for_start()
     if [ -f $tmp.started ]
     then
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| egrep 'PID|pmproxy' >>$here/$seq.full
+	| egrep 'PID|pmproxy|pmcd' >>$here/$seq.full
     else
 	# NB: may be an expected situation at this stage of the test
 	echo "Failed to probe pmproxy" >>$here/$seq.full
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| egrep 'PID|pmproxy' >>$here/$seq.full
+	| egrep 'PID|pmproxy|pmcd' >>$here/$seq.full
 	[ -f $tmp.log ] && cat $tmp.log >>$here/$seq.full
     fi
 }
@@ -108,7 +109,7 @@ _wait_for_stop()
     else
 	echo "Failed to stop pmproxy"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| egrep 'PID|pmproxy'
+	| egrep 'PID|pmproxy|pmcd'
     fi
 }
 
@@ -117,14 +118,15 @@ export PMCD_HOST=localhost
 export PMPROXY_HOST=$hostname
 export PMPROXY_PORT=44322
 
+_stop_auto_restart pmproxy
 $sudo $signal -a pmproxy
 _wait_for_stop
 
 proxyargs="-l $tmp.log"
-#proxyargs="$proxyargs -Dcontext,pdu"
+proxyargs="$proxyargs -Dcontext,pdu"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U pcp"
 
-echo "== pmproxy not running =="
+echo "== pmproxy not running ==" | tee -a $here/$seq.full
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
@@ -135,11 +137,11 @@ _wait_for_start
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
-echo "== simple explicit host case =="
+echo "== simple explicit host case ==" | tee -a $here/$seq.full
 pmprobe -v -h localhost hinv.ncpu 2>&1 | _filter
 
 echo
-echo "== non-standard PMPROXY_PORT, expect failure =="
+echo "== non-standard PMPROXY_PORT, expect failure ==" | tee -a $here/$seq.full
 export PMPROXY_PORT=94322
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
