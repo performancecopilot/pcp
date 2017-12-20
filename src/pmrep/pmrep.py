@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=bare-except, broad-except, too-many-arguments
 # pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
@@ -213,10 +213,10 @@ class PMReporter(object):
             self.daemonize = 1
             return
         if opt == 'K':
-            if not self.speclocal or not self.speclocal.startswith("K:"):
-                self.speclocal = "K:" + optarg
+            if not self.speclocal or not self.speclocal.startswith(";"):
+                self.speclocal = ";" + optarg
             else:
-                self.speclocal = self.speclocal + "|" + optarg
+                self.speclocal = self.speclocal + ";" + optarg
         elif opt == 'c':
             self.config = optarg
         elif opt == 'C':
@@ -240,7 +240,10 @@ class PMReporter(object):
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
-            self.derived = optarg
+            if not self.derived or not self.derived.startswith(";"):
+                self.derived = ";" + optarg
+            else:
+                self.derived = self.derived + ";" + optarg
         elif opt == 'H':
             self.header = 0
         elif opt == 'U':

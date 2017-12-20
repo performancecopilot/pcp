@@ -185,10 +185,10 @@ class PCP2JSON(object):
             self.daemonize = 1
             return
         if opt == 'K':
-            if not self.speclocal or not self.speclocal.startswith("K:"):
-                self.speclocal = "K:" + optarg
+            if not self.speclocal or not self.speclocal.startswith(";"):
+                self.speclocal = ";" + optarg
             else:
-                self.speclocal = self.speclocal + "|" + optarg
+                self.speclocal = self.speclocal + ";" + optarg
         elif opt == 'c':
             self.config = optarg
         elif opt == 'C':
@@ -199,7 +199,10 @@ class PCP2JSON(object):
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
-            self.derived = optarg
+            if not self.derived or not self.derived.startswith(";"):
+                self.derived = ";" + optarg
+            else:
+                self.derived = self.derived + ";" + optarg
         elif opt == 'H':
             self.header = 0
         elif opt == 'G':

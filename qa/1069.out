@@ -895,6 +895,7 @@ No such file or directory.
 == derived metrics in pmrep.conf
 No output expected.
 No output expected.
+No output expected.
 == extended existing sample configuration
   s.combo  s.seconds  s.milliseconds
       s/s        s/s            ms/s

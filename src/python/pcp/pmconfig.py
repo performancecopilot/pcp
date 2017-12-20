@@ -119,10 +119,12 @@ class pmConfig(object):
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
         if name == 'speclocal':
-            if not self.util.speclocal or not self.util.speclocal.startswith("K:"):
-                self.util.speclocal = value
+            self.util.speclocal = value
         elif name == 'derived':
-            self.util.derived = str(value).replace(",", "@")
+            if ';' in value:
+                self.util.derived = value
+            else:
+                self.util.derived = str(value).replace(",", ";")
         elif name == 'samples':
             self.util.opts.pmSetOptionSamples(value)
             self.util.samples = self.util.opts.pmGetOptionSamples()
@@ -247,9 +249,9 @@ class pmConfig(object):
                     value = value[1:-1]
                 if spec == "formula":
                     if self.util.derived is None:
-                        self.util.derived = metrics[key][0] + "=" + value
+                        self.util.derived = ";" + metrics[key][0] + "=" + value
                     else:
-                        self.util.derived += "@" + metrics[key][0] + "=" + value
+                        self.util.derived += ";" + metrics[key][0] + "=" + value
                 else:
                     if self.metricspec.index(spec) == 1:
                         metrics[key][self.metricspec.index(spec)+1] = [value]
@@ -402,6 +404,8 @@ class pmConfig(object):
         """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
+            if self.util.derived.startswith(";"):
+                self.util.derived = self.util.derived[1:]
             if self.util.derived.startswith("/") or self.util.derived.startswith("."):
                 try:
                     self.util.context.pmLoadDerivedConfig(self.util.derived)
@@ -409,7 +413,7 @@ class pmConfig(object):
                     sys.stderr.write("Failed to load derived metric definitions from file '%s':\n%s.\n" % (self.util.derived, str(error)))
                     sys.exit(1)
             else:
-                for definition in self.util.derived.split("@"):
+                for definition in self.util.derived.split(";"):
                     err = ""
                     try:
                         name, expr = definition.split("=", 1)
