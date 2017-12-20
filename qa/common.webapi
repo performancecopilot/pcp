@@ -61,10 +61,14 @@ _webapi_response_filter()
     # end
 }
 
+_check_json_pretty()
+{
+    which json_pp >/dev/null 2>&1 || _notrun "No json_pp binary (perl-JSON-PP) installed"
+}
+
 _webapi_json_pretty()
 {
-    $python -c "from json.tool import main; main()" \
-    | sed -e 's/, $/,/g'
+  json_pp -json_opt canonical,indent
 }
 
 _webapi_img_pretty()

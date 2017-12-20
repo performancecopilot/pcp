@@ -12,11 +12,8 @@ echo "QA output created by $seq"
 
 test -d "$PCP_SHARE_DIR/webapps/graphite" || \
 	_notrun "graphite webapp is not installed"
-test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
-	_notrun "blinkenlights webapp is not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-$python -c "import json.tool" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python import json.tool not installed"
+_check_json_pretty
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
@@ -60,8 +57,7 @@ _filter_curl_i()
 
 echo "the catalog"
 curl -s -i "http://localhost:$webport/?zoo=goo&phantasm" | _filter_curl_i
-curl -s -i "http://localhost:$webport/blinkenlights" | _filter_curl_i
-curl -s -i "http://localhost:$webport/blinkenlights/" | _filter_curl_i
+curl -s -i "http://localhost:$webport/" | _filter_curl_i
 curl -s -S "http://localhost:$webport/graphite/index.html?foo=bar&ectoplasm=egon"
 
 echo
@@ -73,33 +69,23 @@ echo
 echo "metric tree iteration" 
 curl -s -S "http://localhost:$webport/graphite/metrics/find?query=archives*naslog*.*" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.*" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*." \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all." \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 echo
 echo "metric regex grep 1" 
@@ -113,25 +99,19 @@ echo
 echo "metric value dump 1" 
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 echo
 echo "metric value dump 2" 
 curl --compressed -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 echo
 echo compressed archive, expect non-empty result
 curl -s -S "http://localhost:$webport/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 echo
 echo "metric gfx rendering" 
@@ -165,9 +145,7 @@ echo
 echo "metric value dump 1 without -X"
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*node_archive*.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" \
 | _webapi_json_pretty \
-| tee -a $here/$seq.full \
-| sed -e 's/, *$//' \
-| LC_COLLATE=POSIX sort
+| tee -a $here/$seq.full
 
 status=0
 exit
