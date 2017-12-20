@@ -430,7 +430,7 @@ class PCP2Zabbix(object):
             if self.context.pmDebug(PM_DEBUG_APPL0):
                 print('Got response from Zabbix: %s' % resp)
             if resp.get('response') != 'success':
-                sys.stderr.write('Error response from Zabbix: %s', resp)
+                sys.stderr.write('Error response from Zabbix: %s' % resp)
                 sys.stderr.flush()
                 return False
             return True
