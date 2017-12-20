@@ -946,6 +946,7 @@ collectl
 593 pmlogger #779495 local pmstore
 594 pmda.sample #779246 #782029 local
 595 libpcp threads local archive multi-archive
+596 pmlogextract archive local
 597 pmda.shping pmda.proc pmda.install local
 599 pmie local
 600 libpcp local timezone
@@ -1430,8 +1431,8 @@ collectl
 1174 threads valgrind local
 1182 libpcp local
 1186 pmie local
-1196 pmcd local
 1191 pmda.prometheus local
+1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
 1221 labels pmda.prometheus local
