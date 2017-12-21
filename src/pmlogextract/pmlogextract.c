@@ -956,8 +956,7 @@ write_metareclist(pmResult *result, int *needti)
 
     this = &result->timestamp;
 
-    /* if pmid in result matches a pmid in desc then write desc
-     */
+    /* if pmid in result matches a pmid in desc then write desc */
     for (i=0; i<result->numpmid; i++) {
 	pmid = result->vset[i]->pmid;
 	indom = PM_IN_NULL;
@@ -968,23 +967,23 @@ write_metareclist(pmResult *result, int *needti)
 	    curr_desc = curr_desc->next;
 
 	if (curr_desc == NULL) {
-	    /* descriptor has not been found - this is bad
-	     */
+	    /* descriptor has not been found - this is bad */
 	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %s has not been found.\n", pmGetProgname(), pmIDStr(pmid));
 	    abandon_extract();
 	}
 	else {
-	    /* descriptor has been found
-	     */
+	    /* descriptor has been found */
 	    if (curr_desc->written == WRITTEN) {
-		/* descriptor has been written before (no need to write again)
+		/*
+		 * descriptor has been written before (no need to write again)
 		 * but still need to check indom
 		 */
 		indom = curr_desc->desc.indom;
 		curr_indom = curr_desc->ptr;
 	    }
 	    else if (curr_desc->pdu == NULL) {
-		/* descriptor is in list, has not been written, but no pdu
+		/*
+		 * descriptor is in list, has not been written, but no pdu
 		 *  - this is bad
 		 */
 		fprintf(stderr, "%s: Error: missing pdu for pmid %s\n",
@@ -992,7 +991,8 @@ write_metareclist(pmResult *result, int *needti)
 	        abandon_extract();
 	    }
 	    else {
-		/* descriptor is in list, has not been written, and has pdu
+		/*
+		 * descriptor is in list, has not been written, and has pdu
 		 * write!
 		 */
 		curr_desc->written = MARK_FOR_WRITE;
@@ -1002,11 +1002,13 @@ write_metareclist(pmResult *result, int *needti)
 	    }
 	}
 
-	/* descriptor has been found and written,
+	/*
+	 * descriptor has been found and written,
 	 * now go and find & write the indom
 	 */
 	if (indom != PM_INDOM_NULL) {
-	    /* there may be more than one indom in the list, so we need
+	    /*
+	     * there may be more than one indom in the list, so we need
 	     * to traverse the entire list
 	     *	- we can safely ignore all indoms after the current timestamp
 	     *	- we want the latest indom at, or before the current timestamp
@@ -1017,7 +1019,8 @@ write_metareclist(pmResult *result, int *needti)
 		         (curr_indom->stamp.tv_sec == this->tv_sec &&
 		          curr_indom->stamp.tv_usec <= this->tv_usec))
 		{
-		    /* indom is in list, indom has pdu
+		    /*
+		     * indom is in list, indom has pdu
 		     * and timestamp in pdu suits us
 		     */
 		    if (othr_indom == NULL) {
@@ -1027,7 +1030,8 @@ write_metareclist(pmResult *result, int *needti)
 			     (othr_indom->stamp.tv_sec == curr_indom->stamp.tv_sec &&
 			      othr_indom->stamp.tv_usec <= curr_indom->stamp.tv_usec))
 		    {
-			/* we already have a perfectly good indom,
+			/*
+			 * we already have a perfectly good indom,
 			 * but curr_indom has a better timestamp
 			 */
 			othr_indom = curr_indom;
@@ -1041,8 +1045,7 @@ write_metareclist(pmResult *result, int *needti)
 		othr_indom->pdu[2] = htonl(this->tv_sec);
 		othr_indom->pdu[3] = htonl(this->tv_usec);
 
-		/* make sure to set needti, when writing out the indom
-		 */
+		/* make sure to set needti, when writing out the indom */
 		*needti = 1;
 		write_rec(othr_indom);
 	    }
@@ -1122,15 +1125,13 @@ nextmeta(void)
     for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
 
-	/* if at the end of meta file then skip this archive
-	 */
+	/* if at the end of meta file then skip this archive */
 	if (iap->eof[META]) {
 	    ++numeof;
 	    continue;
 	}
 
-	/* we should never already have a meta record
-	 */
+	/* we should never already have a meta record */
 	if (iap->pb[META] != NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
@@ -1162,13 +1163,15 @@ againmeta:
 
 	type = ntohl(iap->pb[META][1]);
 
-	/* pmDesc entries, if not seen before & wanted,
+	/*
+	 * pmDesc entries, if not seen before & wanted,
 	 *	then append to desc list
 	 */
 	if (type == TYPE_DESC) {
 	    pmid = ntoh_pmID(iap->pb[META][2]);
 
-	    /* if ml is defined, then look for pmid in the list
+	    /*
+	     * if ml is defined, then look for pmid in the list
 	     * if pmid is not in the list then discard it immediately
 	     */
 	    want = 0;
@@ -1199,7 +1202,8 @@ againmeta:
 	    }
 	}
 	else if (type == TYPE_INDOM) {
-	    /* if ml is defined, then look for instance domain in the list
+	    /*
+	     * if ml is defined, then look for instance domain in the list
 	     * if indom is not in the list then discard it immediately
 	     */
 	    indom = ntoh_pmInDom(iap->pb[META][4]);
@@ -1218,8 +1222,9 @@ againmeta:
 		    /* meta record has never been seen ... add it to the list */
 		    __pmHashAdd((int)indom, NULL, &mindom_hash);
 	        }
-		/* add to indom list */
-		/* append_indomreclist() sets pb[META] to NULL
+		/*
+		 * add to indom list 
+		 * append_indomreclist() sets pb[META] to NULL
 		 * append_indomreclist() may unpin the pdu buffer
 		 */
 		append_indomreclist(i);
@@ -1281,21 +1286,18 @@ nextlog(void)
     for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
 
-	/* if at the end of log file then skip this archive
-	 */
+	/* if at the end of log file then skip this archive */
 	if (iap->eof[LOG]) {
 	    ++eoflog;
 	    continue;
 	}
 
-	/* if we already have a log record then skip this archive
-	 */
+	/* if we already have a log record then skip this archive */
 	if (iap->_Nresult != NULL) {
 	    continue;
 	}
 
-	/* if mark has been written out, then log is at EOF
-	 */
+	/* if mark has been written out, then log is at EOF */
 	if (iap->mark) {
 	    iap->eof[LOG] = 1;
 	    ++eoflog;
@@ -1318,7 +1320,8 @@ againlog:
 		if (sts != PM_ERR_LOGREC)
 		    abandon_extract();
 	    }
-	    /* if the first data record has not been written out, then
+	    /*
+	     * if the first data record has not been written out, then
 	     * do not generate a mark record, and you may as well ignore
 	     * this archive
 	     */
@@ -1337,46 +1340,48 @@ againlog:
 	assert(iap->_result != NULL);
 
 
-	/* set current log time - this is only done so that we can
+	/*
+	 * set current log time - this is only done so that we can
 	 * determine whether to keep or discard the log
 	 */
 	curtime.tv_sec = iap->_result->timestamp.tv_sec;
 	curtime.tv_usec = iap->_result->timestamp.tv_usec;
 
-	/* if log time is greater than (or equal to) the current window
+	/*
+	 * if log time is greater than (or equal to) the current window
 	 * start time, then we may want it
 	 *	(irrespective of the current window end time)
 	 */
 	if (tvcmp(curtime, winstart) < 0) {
-	    /* log is not in time window - discard result and get next record
+	    /*
+	     * log is not in time window - discard result and get next record
 	     */
 	    pmFreeResult(iap->_result);
 	    iap->_result = NULL;
 	    goto againlog;
 	}
         else {
-            /* log is within time window - check whether we want this record
+            /*
+	     * log is within time window - check whether we want this record
              */
             if (iap->_result->numpmid == 0) {
-		/* mark record, process this one as is
-		 */
+		/* mark record, process this one as is */
                 iap->_Nresult = iap->_result;
 	    }
             else if (ml == NULL) {
-                /* ml is NOT defined, we want everything
-                 */
+                /* ml is NOT defined, we want everything */
                 iap->_Nresult = iap->_result;
             }
             else {
-                /* ml is defined, need to search metric list for wanted pmid's
+                /*
+		 * ml is defined, need to search metric list for wanted pmid's
                  *   (searchmlist may return a NULL pointer - this is fine)
                  */
                 iap->_Nresult = searchmlist(iap->_result);
             }
 
             if (iap->_Nresult == NULL) {
-                /* dont want any of the metrics in _result, try again
-                 */
+                /* dont want any of the metrics in _result, try again */
 		pmFreeResult(iap->_result);
 		iap->_result = NULL;
                 goto againlog;
@@ -1386,7 +1391,8 @@ againlog:
 	PM_UNLOCK(ctxp->c_lock);
     } /*for(i)*/
 
-    /* if we are here, then each archive control struct should either
+    /*
+     * if we are here, then each archive control struct should either
      * be at eof, or it should have a _result, or it should have a mark PDU
      * (if we have a _result, we may want all/some/none of the pmid's in it)
      */
@@ -1540,7 +1546,8 @@ checkwinend(pmTimeval now)
     if (winend.tv_sec < 0 || tvcmp(now, winend) <= 0)
 	return(0);
 
-    /* we have reached the end of a window
+    /*
+     * we have reached the end of a window
      *	- if warg is not set, then we have finished (break)
      *	- otherwise, calculate start and end of next window,
      *		     set pre_startwin, discard logs before winstart,
@@ -1553,7 +1560,8 @@ checkwinend(pmTimeval now)
     winend.tv_sec += NUM_SEC_PER_DAY;
     pre_startwin = 1;
 
-    /* if start of next window is later than max termination
+    /*
+     * if start of next window is later than max termination
      * then bail out here
      */
     if (tvcmp(winstart, logend) > 0)
@@ -1566,8 +1574,7 @@ checkwinend(pmTimeval now)
 	    tmptime.tv_sec = iap->_Nresult->timestamp.tv_sec;
 	    tmptime.tv_usec = iap->_Nresult->timestamp.tv_usec;
 	    if (tvcmp(tmptime, winstart) < 0) {
-		/* free _result and _Nresult
-		 */
+		/* free _result and _Nresult */
 		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
 		}
@@ -1583,7 +1590,8 @@ checkwinend(pmTimeval now)
 	    tmptime.tv_sec = ntohl(iap->pb[LOG][3]);
 	    tmptime.tv_usec = ntohl(iap->pb[LOG][4]);
 	    if (tvcmp(tmptime, winstart) < 0) {
-		/* free PDU buffer ... it is probably a mark
+		/*
+		 * free PDU buffer ... it is probably a mark
 		 * and has not been pinned
 		 */
 		free(iap->pb[LOG]);
@@ -1606,9 +1614,6 @@ checkwinend(pmTimeval now)
 }
 
 
-/*
- *
- */
 void
 writerlist(rlist_t **rlready, pmTimeval mintime)
 {
@@ -1632,12 +1637,12 @@ fprintf(stderr, " break!\n");
 	    break;
 	}
 
-	/* get the first element from the list
-	 */
+	/* get the first element from the list */
 	elm = *rlready;
 	*rlready = elm->next;
 
-	/* if this is the first record (for output archive) then do some
+	/*
+	 * if this is the first record (for output archive) then do some
 	 * admin stuff
 	 */
 	if (first_datarec) {
@@ -1648,7 +1653,8 @@ fprintf(stderr, " break!\n");
             writelabel_data();
         }
 
-	/* if we are in a pre_startwin state, and we are writing
+	/*
+	 * if we are in a pre_startwin state, and we are writing
 	 * something out, then we are not in a pre_startwin state any more
 	 * (it also means that there may be some discrete metrics to be
 	 * written out)
@@ -1657,8 +1663,7 @@ fprintf(stderr, " break!\n");
 	    pre_startwin = 0;
 
 
-	/* convert log record to a pdu
-	 */
+	/* convert log record to a pdu */
 	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
@@ -1682,8 +1687,7 @@ fprintf(stderr, " break!\n");
 	    newvolume(outarchname, (pmTimeval *)&pb[3]);
 	}
 
-	/* write out the descriptor and instance domain pdu's first
-	 */
+	/* write out the descriptor and instance domain pdu's first */
 	write_metareclist(elm->res, &needti);
 
 	/* write out log record */
@@ -1703,7 +1707,8 @@ fprintf(stderr, " break!\n");
 	    __pmFtell(archctl.ac_mfp) > flushsize)
 		needti = 1;
 
-	/* make sure that we do not write out the temporal index more
+	/*
+	 * make sure that we do not write out the temporal index more
 	 * than once for the same timestamp
 	 */
 	if (needti && tvcmp(titime, restime) >= 0)
@@ -1916,7 +1921,8 @@ main(int argc, char **argv)
     logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
     logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
 
-    /* process config file
+    /*
+     * process config file
      *	- this includes a list of metrics and their instances
      */
     if (configfile && parseconfig() < 0)
@@ -1963,7 +1969,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    /* This must be done after log is created:
+    /*
+     * This must be done after log is created:
      *		- checks that archive version, host, and timezone are ok
      *		- set archive version, host, and timezone of output archive
      */
@@ -2005,7 +2012,8 @@ main(int argc, char **argv)
     first_datarec = 1;
     pre_startwin = 1;
 
-    /* get all meta data first
+    /*
+     * get all meta data first
      * nextmeta() should return 0 (will return -1 when all meta is eof)
      */
     do {
@@ -2013,7 +2021,8 @@ main(int argc, char **argv)
     } while (stsmeta >= 0);
 
 
-    /* get log record - choose one with earliest timestamp
+    /*
+     * get log record - choose one with earliest timestamp
      * write out meta data (required by this log record)
      * write out log
      * do ti update if necessary
@@ -2025,14 +2034,14 @@ main(int argc, char **argv)
 	old_meta_offset = __pmFtell(logctl.l_mdfp);
 	assert(old_meta_offset >= 0);
 
-	/* nextlog() resets ilog, and curlog (to the smallest timestamp)
-	 */
+	/* nextlog() resets ilog, and curlog (to the smallest timestamp) */
 	stslog = nextlog();
 
 	if (stslog < 0)
 	    break;
 
-	/* find the _Nresult (or mark pdu) with the earliest timestamp;
+	/*
+	 * find the _Nresult (or mark pdu) with the earliest timestamp;
 	 * set ilog
 	 * (this is a bit more complex when tflag is specified)
 	 */
@@ -2062,14 +2071,16 @@ main(int argc, char **argv)
 	    }
 	}
 
-	/* now     == the earliest timestamp of the archive(s)
+	/*
+	 * now     == the earliest timestamp of the archive(s)
 	 *		and/or mark records
 	 * mintime == now or timestamp of the earliest mark
 	 *		(whichever is smaller)
 	 */
 	now = curlog;
 
-	/* note - mark (after last archive) will be created, but this
+	/*
+	 * note - mark (after last archive) will be created, but this
 	 * break, will prevent it from being written out
 	 */
 	if (tvcmp(now, logend) > 0)
@@ -2083,8 +2094,7 @@ main(int argc, char **argv)
 
 	current = curlog;
 
-	/* prepare to write out log record
-	 */
+	/* prepare to write out log record */
 	if (ilog < 0 || ilog >= inarchnum) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr, "    log file index = %d\n", ilog);
@@ -2096,8 +2106,7 @@ main(int argc, char **argv)
 	if (iap->mark)
 	    writemark(iap);
 	else {
-	    /* result is to be written out, but there is no _Nresult
-	     */
+	    /* result is to be written out, but there is no _Nresult */
 	    if (iap->_Nresult == NULL) {
 		fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
@@ -2119,11 +2128,11 @@ main(int argc, char **argv)
 
 	    writerlist(&rlready, curlog);
 
-	    /* writerlist frees elm (elements of rlready) but does not
+	    /*
+	     * writerlist frees elm (elements of rlready) but does not
 	     * free _result & _Nresult
-	     */
-
-	    /* free _result & _Nresult
+	     *
+	     * free _result & _Nresult
 	     *	_Nresult may contain space that was allocated
 	     *	in __pmStuffValue this space has PM_VAL_SPTR format,
 	     *	and has to be freed first
