@@ -417,7 +417,7 @@ class pmConfig(object):
                 self.util.repeat_header = int(self.util.repeat_header)
                 if self.util.repeat_header < 0:
                     raise ValueError(err)
-        except ValueError as error:
+        except ValueError:
             sys.stderr.write("Error while parsing options: %s.\n" % err)
             sys.exit(1)
 
@@ -512,7 +512,7 @@ class pmConfig(object):
                 name = ""
                 for m in metric.split("."):
                     name += m[0] + "."
-                self.util.metrics[metric][0] = name[:-2] + m # pylint: disable=undefined-loop-variable
+                self.util.metrics[metric][0] = name[:-2] + metric.split(".")[-1]
 
             # Instance(s)
             if not self.util.metrics[metric][1] and self.util.instances:
@@ -613,7 +613,9 @@ class pmConfig(object):
                             try:
                                 items.append((self.insts[i][0][j], self.insts[i][1][j], self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])))
                                 mitems += 1
-                            except:
+                            except pmapi.pmErr as error:
+                                if error.args[0] == pmapi.c_api.PM_ERR_CONV:
+                                    raise
                                 vanished.append(j)
                         else:
                             del self.insts[i][0][-1]

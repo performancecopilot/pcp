@@ -198,6 +198,7 @@ echo "== exercise repeated headers option"
 pmrep -s 5 -t 2 $log -E 2 sample.seconds
 
 echo "== exercise units conversion options"
+pmrep -s 5 -t 2 $log2 disk.dev.read,,sda,1
 pmrep -s 5 -t 2 $log2 -w 15 -P 1 -p -b MB mem.util.free mem.util.used
 pmrep -s 5 -t 2 $log2 -w 15 -P 2 -p -b GB mem.util.free mem.util.used
 pmrep -s 5 -t 2 $log2 -w 15 -P 3 -p -q "count x 10^2" disk.dev.read
