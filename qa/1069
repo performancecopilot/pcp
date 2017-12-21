@@ -2,7 +2,7 @@
 # PCP QA Test No. 1069
 # Exercise pmrep configuration and various reporting modes.
 #
-# Copyright (c) 2015-2016 Red Hat.
+# Copyright (c) 2015-2017 Red Hat.
 #
 
 seq=`basename $0`
@@ -92,6 +92,27 @@ pmrep -s 1 -t 1 -i '('      disk.dev.read 2>&1 | grep -o "Invalid regex '(':"
 pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read 2>&1 | grep -o "Invalid regex '.\[]\*':"
 pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read 2>&1 | grep -o "Invalid regex '.\[z-a\]':"
 pmrep -s 1 -t 1 :nosuchset
+
+echo "== invalid configuration file"
+cat > $tmp.wconfig <<EOF
+[global]
+mem.util.free = ,,
+[test1]
+output = x
+[test2]
+samples = -1
+[test3]
+precision = a
+[test4]
+space_scale = s
+[test5]
+incomplete = bogus
+EOF
+pmrep -C -c $tmp.wconfig -x :test1
+pmrep -C -c $tmp.wconfig -x :test2 2>&1 | grep "sample count"
+pmrep -C -c $tmp.wconfig -x :test3
+pmrep -C -c $tmp.wconfig -x :test4
+pmrep -C -c $tmp.wconfig -x :test5
 
 echo "== unsupported metric type"
 pmrep -s 1 -t 1 sample.sysinfo

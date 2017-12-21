@@ -222,15 +222,7 @@ class PMReporter(object):
         elif opt == 'C':
             self.check = 1
         elif opt == 'o':
-            if optarg == OUTPUT_ARCHIVE:
-                self.output = OUTPUT_ARCHIVE
-            elif optarg == OUTPUT_CSV:
-                self.output = OUTPUT_CSV
-            elif optarg == OUTPUT_STDOUT:
-                self.output = OUTPUT_STDOUT
-            else:
-                sys.stderr.write("Invalid output target %s specified.\n" % optarg)
-                sys.exit(1)
+            self.output = optarg
         elif opt == 'F':
             if os.path.exists(optarg + ".index"):
                 sys.stderr.write("Archive %s already exists.\n" % optarg)
@@ -265,17 +257,9 @@ class PMReporter(object):
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
-            try:
-                self.width = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.width = optarg
         elif opt == 'P':
-            try:
-                self.precision = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.precision = optarg
         elif opt == 'l':
             self.delimiter = optarg
         elif opt == 'k':
@@ -283,11 +267,7 @@ class PMReporter(object):
         elif opt == 'x':
             self.extheader = 1
         elif opt == 'E':
-            try:
-                self.repeat_header = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.repeat_header = optarg
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
@@ -312,12 +292,22 @@ class PMReporter(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics(curr_insts=True)
-
     def validate_config(self):
-        """ Validate configuration options """
+        """ Validate configuration """
         if self.version != CONFVER:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
+            sys.exit(1)
+
+        self.pmconfig.validate_common_options()
+
+        try:
+            err = "Invalid output target specified"
+            if self.output != OUTPUT_ARCHIVE and \
+               self.output != OUTPUT_CSV and \
+               self.output != OUTPUT_STDOUT:
+                raise ValueError(err)
+        except ValueError as error:
+            sys.stderr.write("Error while parsing options: %s.\n" % err)
             sys.exit(1)
 
         # Check how we were invoked and adjust output
@@ -328,6 +318,7 @@ class PMReporter(object):
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
+        self.pmconfig.validate_metrics(curr_insts=True)
         self.pmconfig.finalize_options()
 
     def execute(self):

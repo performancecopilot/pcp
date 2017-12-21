@@ -400,6 +400,27 @@ class pmConfig(object):
             """ Retrieve the items """
             return self._items
 
+    def validate_common_options(self):
+        """ Validate common utility options """
+        try:
+            err = "Integer expected"
+            if hasattr(self.util, 'width'):
+                self.util.width = int(self.util.width)
+                if self.util.width < 0:
+                    err = "Positive integer expected"
+                    raise ValueError(err)
+            if hasattr(self.util, 'precision'):
+                self.util.precision = int(self.util.precision)
+                if self.util.precision < 0:
+                    raise ValueError(err)
+            if hasattr(self.util, 'repeat_header'):
+                self.util.repeat_header = int(self.util.repeat_header)
+                if self.util.repeat_header < 0:
+                    raise ValueError(err)
+        except ValueError as error:
+            sys.stderr.write("Error while parsing options: %s.\n" % err)
+            sys.exit(1)
+
     def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
         """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics

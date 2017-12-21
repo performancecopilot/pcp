@@ -197,11 +197,7 @@ class pcp2elasticsearch(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            try:
-                self.precision = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.precision = optarg
         elif opt == 'q':
             self.count_scale = optarg
         elif opt == 'b':
@@ -228,17 +224,18 @@ class pcp2elasticsearch(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics(curr_insts=True)
-
     def validate_config(self):
         """ Validate configuration options """
         if self.version != CONFVER:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
+        self.pmconfig.validate_common_options()
+
         if self.es_hostid is None:
             self.es_hostid = self.context.pmGetContextHostName()
 
+        self.pmconfig.validate_metrics(curr_insts=True)
         self.pmconfig.finalize_options()
 
     def execute(self):

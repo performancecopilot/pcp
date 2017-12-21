@@ -250,6 +250,12 @@ Invalid regex '(':
 Invalid regex '.[]*':
 Invalid regex '.[z-a]':
 Metricset definition ':nosuchset' not found.
+== invalid configuration file
+Error while parsing options: Invalid output target specified.
+pcp: sample count must be a positive numeric argument
+Error while parsing options: Integer expected.
+pmrep: Impossible value or scale conversion
+Invalid metric bogus (PM_ERR_NAME Unknown metric name).
 == unsupported metric type
 Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
 == exercise non-integer options
