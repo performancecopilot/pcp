@@ -20,11 +20,11 @@
 \f3pcp2influxdb\f1 \- pcp-to-influxdb metrics exporter
 .SH SYNOPSIS
 \f3pcp2influxdb\f1
-[\f3\-CGHILrvV?\f1]
+[\f3\-CGHILrRvV?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
-[\f3\-b\f1 \f2space-scale\f1]
+[\f3\-b|-B\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\--container\f1 \f2container\f1]
 [\f3\--daemonize\f1]
@@ -35,8 +35,8 @@
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-O\f1 \f2origin\f1]
-[\f3\-P\f1 \f2precision\f1]
-[\f3\-q\f1 \f2count-scale\f1]
+[\f3\-P|-0\f1 \f2precision\f1]
+[\f3\-q|-Q\f1 \f2count-scale\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
@@ -44,7 +44,7 @@
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2database\f1]
 [\f3\-X\f1 \f2tags\f1]
-[\f3\-y\f1 \f2time-scale\f1]
+[\f3\-y|-Y\f1 \f2time-scale\f1]
 \f2metricspec [...]\f1
 .SH DESCRIPTION
 .de EX
@@ -112,13 +112,18 @@ The following options are common with
 .BR samples ,
 .BR interval ,
 .BR type ,
+.BR type_prefer ,
 .BR ignore_incompat ,
 .BR instances ,
 .BR omit_flat ,
 .BR precision ,
+.BR precision_force ,
 .BR count_scale ,
 .BR space_scale ,
-.BR time_scale .
+.BR time_scale ,
+.BR count_scale_force ,
+.BR space_scale_force ,
+.BR time_scale_force .
 The
 .B output
 option is recognized but ignored for
@@ -200,6 +205,13 @@ This option will
 override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
+.TP
+.B \-B
+As
+.B \-b
+but this option
+.I will
+override per-metric specifications.
 .TP
 .B \-c
 Specify the
@@ -330,6 +342,13 @@ This option will
 .I not
 override possible per-metric specifications.
 .TP
+.B \-0
+As
+.B \-P
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-q
 .I Unit/scale
 for count metrics, possible values include
@@ -349,9 +368,23 @@ override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
+.B \-Q
+As
+.B \-q
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-r
 Output raw metric values, do not convert cumulative counters to rates.
 This option \fIwill\fR override possible per-metric specifications.
+.TP
+.B \-R
+As
+.B \-r
+but this option will
+.I not
+override per-metric specifications.
 .TP
 .B \-s
 The argument
@@ -465,6 +498,13 @@ This option will
 override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
+.TP
+.B \-Y
+As
+.B \-y
+but this option
+.I will
+override per-metric specifications.
 .TP
 .B \-?
 Display usage message and exit.

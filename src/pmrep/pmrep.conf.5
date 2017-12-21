@@ -142,7 +142,7 @@ Undefined by default.
 daemonize (boolean)
 .RS 4
 Indicates whether to daemonize on startup. Corresponding command line option is
-\fB--daemonize\fR.  Defaults to \fBno\fR.
+\fB--daemonize\fR. Defaults to \fBno\fR.
 .RE
 .P
 header (boolean)
@@ -200,6 +200,13 @@ Corresponding command line option is \fB-r\fR. Allowed values are
 \fBdefault\fR or \fBraw\fR.
 .RE
 .P
+type_prefer (string)
+.RS 4
+As \fBtype\fR but does not override possible per-metric type specifications.
+Corresponding command line option is \fB-R\fR. Allowed values are
+\fBdefault\fR or \fBraw\fR.
+.RE
+.P
 ignore_incompat (string)
 .RS 4
 Indicates that incompatible metrics are to be ignored. Corresponding
@@ -234,11 +241,24 @@ option is \fB-w\fR. Forced minimum is \fB3\fR. Defaults to the
 shortest width that can fit the metric label.
 .RE
 .P
+width_force (integer)
+.RS 4
+As \fBwidth\fR but overrides possible possible per-metric specifications.
+Corresponding command line option is \fB-W\fR. Forced minimum is
+\fB3\fR.
+.RE
+.P
 precision (integer)
 .RS 4
 Indicates how many decimals to use for numeric non-integer output
 values. Corresponding command line option is \fB-P\fR. Defaults to
 \fB3\fR.
+.RE
+.P
+precision_force (integer)
+.RS 4
+As \fBprecision\fR but overrides possible per-metric specifications.
+Corresponding command line option is \fB-0\fR. Undefined by default.
 .RE
 .P
 delimiter (string)
@@ -289,6 +309,12 @@ option is \fB-q\fR. For supported syntax, see
 Undefined (no scaling) by default.
 .RE
 .P
+count_scale_force (string)
+.RS 4
+As \fBcount_scale\fR but overrides possible per-metric specifications.
+Corresponding command line option is \fB-Q\fR. Undefined by default.
+.RE
+.P
 space_scale (string)
 .RS 4
 Indicates the unit/scale for space metrics. Corresponding command line
@@ -297,12 +323,24 @@ option is \fB-b\fR. For supported syntax, see
 Undefined (no scaling) by default.
 .RE
 .P
+space_scale_force (string)
+.RS 4
+As \fBspace_scale\fR but overrides possible per-metric specifications.
+Corresponding command line option is \fB-B\fR. Undefined by default.
+.RE
+.P
 time_scale (string)
 .RS 4
 Indicates the unit/scale for time metrics. Corresponding command line
 option is \fB-y\fR. For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
+.RE
+.P
+time_scale_force (string)
+.RS 4
+As \fBtime_scale\fR but overrides possible per-metric specifications.
+Corresponding command line option is \fB-Y\fR. Undefined by default.
 .RE
 .P
 \fBOutput target specific options\fR
@@ -405,6 +443,10 @@ If set to \fBraw\fR rate conversion for the metric will be disabled.
 .TP 2
 .I width
 Defines the width of the output column for the metric.
+.TP 2
+.I precision
+Defines how many decimals to use for numeric non-integer metric
+output values.
 .RE
 .SH EXAMPLE
 The following example contains a short \fB[options]\fR section setting

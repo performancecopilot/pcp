@@ -20,11 +20,11 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \f3pmrep\f1
-[\f3\-CdGHIkLpruUvVxz?\f1]
+[\f3\-CdGHIkLprRuUvVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
-[\f3\-b\f1 \f2space-scale\f1]
+[\f3\-b|-B\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\--container\f1 \f2container\f1]
 [\f3\--daemonize\f1]
@@ -38,15 +38,15 @@
 [\f3\-l\f1 \f2delimiter\f1]
 [\f3\-o\f1 \f2output\f1]
 [\f3\-O\f1 \f2origin\f1]
-[\f3\-P\f1 \f2precision\f1]
-[\f3\-q\f1 \f2count-scale\f1]
+[\f3\-P|-0\f1 \f2precision\f1]
+[\f3\-q|-Q\f1 \f2count-scale\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
-[\f3\-w\f1 \f2width\f1]
+[\f3\-w|-W\f1 \f2width\f1]
 [\f3\-X\f1 \f2label\f1]
-[\f3\-y\f1 \f2time-scale\f1]
+[\f3\-y|-Y\f1 \f2time-scale\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricspec [...]\f1
 .SH DESCRIPTION
@@ -180,7 +180,12 @@ is applicable for dimension-compatible, non-string metrics.
 (See below for supported
 .I unit/scale
 specifications.)
-By default, cumulative counter metrics are converted to rates.
+By default, cumulative counter metrics are converted to rates,
+an optional
+.I type
+can be set to
+.B raw
+to disable this rate conversion.
 For supporting output targets (currently:
 .IR stdout )
 a numeric
@@ -201,7 +206,9 @@ milliseconds / second) to normalize to the range zero to one
 by setting this to
 .B sec
 (see also
-.BR -y ).
+.B -y
+and
+.BR -Y ).
 .P
 The following
 .I metricspec
@@ -277,6 +284,13 @@ This option will
 override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
+.TP
+.B \-B
+As
+.B \-b
+but this option
+.I will
+override per-metric specifications.
 .TP
 .B \-c
 Specify the
@@ -516,6 +530,13 @@ This option will
 .I not
 override possible per-metric specifications.
 .TP
+.B \-0
+As
+.B \-P
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-q
 .I Unit/scale
 for count metrics, possible values include
@@ -535,9 +556,23 @@ override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
+.B \-Q
+As
+.B \-q
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-r
 Output raw metric values, do not convert cumulative counters to rates.
 This option \fIwill\fR override possible per-metric specifications.
+.TP
+.B \-R
+As
+.B \-r
+but this option will
+.I not
+override per-metric specifications.
 .TP
 .B \-s
 The argument
@@ -665,6 +700,13 @@ This option will
 .I not
 override possible per-metric specifications.
 .TP
+.B \-W
+As
+.B \-w
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-x
 Print extended header.
 .TP
@@ -695,6 +737,13 @@ This option will
 override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
+.TP
+.B \-Y
+As
+.B \-y
+but this option
+.I will
+override per-metric specifications.
 .TP
 .B \-z
 Use the local timezone of the host that is the source of the
@@ -773,12 +822,12 @@ $ pmrep -h server1 -o csv -t 2s disk.dev.read disk.dev.write
 .PP
 Display timestamped
 .BR vmstat (8)
-like information using MBs instead of bytes and also include the number
-of in-use inodes:
+like information using MBs instead of kilobytes and also include
+the number of in-use inodes:
 .RS +4
 .ft CW
 .nf
-$ pmrep -p -b MB vfs.inodes.count :vmstat
+$ pmrep -p -B MB vfs.inodes.count :vmstat
 .fi
 .ft P
 .RE

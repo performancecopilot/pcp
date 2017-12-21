@@ -243,9 +243,9 @@ HH:MM:SS        1
  duration: 2 days, 15:01:40
 
 == invalid command line parameters
-Error while parsing options: Integer expected.
-Error while parsing options: Integer expected.
-Error while parsing options: Integer expected.
+Error while parsing options: Non-negative integer expected.
+Error while parsing options: Non-negative integer expected.
+Error while parsing options: Non-negative integer expected.
 Invalid regex '(':
 Invalid regex '.[]*':
 Invalid regex '.[z-a]':
@@ -253,7 +253,7 @@ Metricset definition ':nosuchset' not found.
 == invalid configuration file
 Error while parsing options: Invalid output target specified.
 pcp: sample count must be a positive numeric argument
-Error while parsing options: Integer expected.
+Error while parsing options: Non-negative integer expected.
 pmrep: Impossible value or scale conversion
 Invalid metric bogus (PM_ERR_NAME Unknown metric name).
 == unsupported metric type
@@ -881,6 +881,70 @@ pmrep: Impossible value or scale conversion
 00:47:05               37             5.79
 00:47:07               37             5.79
 00:47:09               37             5.79
+== exercise forced override options
+         m.u.used
+               MB
+         5926.414
+         m.u.used
+               MB
+         5926.414
+         m.u.used
+               MB
+         5926.414
+         m.u.used
+               MB
+         5926.414
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+   count/s
+       N/A
+     0.000
+  m.u.used
+        MB
+  5926.414
+  m.u.used
+        MB
+  5926.414
 == derived metrics configuration file
 Failed to load derived metric definitions from file ...:
 No such file or directory.

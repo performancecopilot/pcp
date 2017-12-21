@@ -103,6 +103,8 @@ class PCP2Zabbix(object):
                      'samples', 'interval', 'type', 'precision', 'daemonize',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval', 'zabbix_prefix',
                      'count_scale', 'space_scale', 'time_scale', 'version',
+                     'count_scale_force', 'space_scale_force', 'time_scale_force',
+                     'type_prefer', 'precision_force',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -122,15 +124,20 @@ class PCP2Zabbix(object):
         self.opts.pmSetOptionInterval(str(60)) # 60 sec
         self.delay = 0
         self.type = 0
+        self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
         self.omit_flat = 0
         self.precision = 3 # .3f
+        self.precision_force = None
         self.timefmt = "%H:%M:%S" # For compat only
         self.interpol = 0
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
+        self.count_scale_force = None
+        self.space_scale_force = None
+        self.time_scale_force = None
 
         self.zabbix_server = ZBXSERVER
         self.zabbix_port = ZBXPORT
@@ -163,7 +170,7 @@ class PCP2Zabbix(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rIi:vP:q:b:y:g:p:X:E:x:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -191,13 +198,18 @@ class PCP2Zabbix(object):
         opts.pmSetLongOptionSamples()      # -s/--samples
         opts.pmSetLongOptionInterval()     # -t/--interval
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
+        opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("zabbix-server", 1, "g", "SERVER", "zabbix server (default: " + ZBXSERVER + ")")
         opts.pmSetLongOption("zabbix-port", 1, "p", "PORT", "zabbix port (default: " + str(ZBXPORT) + ")")
@@ -238,6 +250,8 @@ class PCP2Zabbix(object):
             self.globals = 0
         elif opt == 'r':
             self.type = 1
+        elif opt == 'R':
+            self.type_prefer = 1
         elif opt == 'I':
             self.ignore_incompat = 1
         elif opt == 'i':
@@ -246,12 +260,20 @@ class PCP2Zabbix(object):
             self.omit_flat = 1
         elif opt == 'P':
             self.precision = optarg
+        elif opt == '0':
+            self.precision_force = optarg
         elif opt == 'q':
             self.count_scale = optarg
         elif opt == 'b':
             self.space_scale = optarg
         elif opt == 'y':
             self.time_scale = optarg
+        elif opt == 'Q':
+            self.count_scale_force = optarg
+        elif opt == 'B':
+            self.space_scale_force = optarg
+        elif opt == 'Y':
+            self.time_scale_force = optarg
         elif opt == 'g':
             self.zabbix_server = optarg
         elif opt == 'p':
