@@ -68,17 +68,22 @@ _pcp () {
     "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:'
     "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files'
     "(-C --check $exargs)"{-C,--check}'[check config only]'
-    "(-e --derived $exargs)"{-e+,--derived}'[derived metrics definitions]:file or formula:_files'
+    "($exargs)"\*{-e+,--derived}'[derived metrics definitions]:file or formula:_files'
     "(-H --no-header $exargs)"{-H,--no-header}'[omit headers]'
     "(-G --no-globals $exargs)"{-G,--no-globals}'[omit global metrics]'
-    "(-r --raw $exargs)"{-r,--raw}'[report raw values]'
+    "(-r --raw -R --raw-prefer $exargs)"{-r,--raw}'[force reporting raw values]'
+    "(-R --raw-prefer -r --raw $exargs)"{-R,--raw-prefer}'[prefer reporting raw values]'
     "(-I --ignore-incompat)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
     "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances'
     "(-v --omit-flat)"{-v,--omit-flat}'[omit single-valued metrics with -i]'
-    "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:'
-    "(-q --count-scale $exargs)"{-q+,--count-scale}'[set default count unit]:scale:->scales_count'
-    "(-b --space-scale $exargs)"{-b+,--space-scale}'[set default space unit]:scale:->scales_space'
-    "(-y --time-scale $exargs)"{-y+,--time-scale}'[set default time unit]:scale:->scales_time'
+    "(-P --precision $exargs)"{-P+,--precision}'[set default floating point precision]:precision:'
+    "(-0 --precision-force $exargs)"{-0+,--precision-force}'[force floating point precision]:precision:'
+    "(-q --count-scale -Q --count-scale-force $exargs)"{-q+,--count-scale}'[set default count unit]:scale:->scales_count'
+    "(-b --space-scale -B --space-scale-force $exargs)"{-b+,--space-scale}'[set default space unit]:scale:->scales_space'
+    "(-y --time-scale -Y --time-scale-force $exargs)"{-y+,--time-scale}'[set default time unit]:scale:->scales_time'
+    "(-Q --count-scale-force -q --count-scale $exargs)"{-Q+,--count-scale-force}'[force count unit]:scale:->scales_count'
+    "(-B --space-scale-force -b --space-scale $exargs)"{-B+,--space-scale-force}'[force space unit]:scale:->scales_space'
+    "(-Y --time-scale-force -y --time-scale $exargs)"{-Y+,--time-scale-force}'[force time unit]:scale:->scales_time'
   )
 
   case $service in
@@ -578,7 +583,8 @@ _pcp () {
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
       "(-X --colxrow $exargs)"{-X+,--colxrow}'[swap stdout columns and rows using header label]:label:' \
-      "(-w --width $exargs)"{-w+,--width}'[set default column width]:width:' \
+      "(-w --width -W --width-force $exargs)"{-w+,--width}'[set default column width]:width:' \
+      "(-W --width-force -w --width $exargs)"{-W+,--width-force}'[forced column width]:width:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \

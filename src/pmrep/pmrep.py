@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=bare-except, broad-except, too-many-arguments
 # pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
@@ -80,6 +80,8 @@ class PMReporter(object):
                      'delay', 'width', 'delimiter', 'extcsv',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
+                     'count_scale_force', 'space_scale_force', 'time_scale_force',
+                     'type_prefer', 'precision_force', 'width_force',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -101,12 +103,15 @@ class PMReporter(object):
         self.opts.pmSetOptionInterval(str(1))  # 1 sec
         self.delay = 0
         self.type = 0
+        self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
         self.omit_flat = 0
         self.colxrow = None
         self.width = 0
+        self.width_force = None
         self.precision = 3 # .3f
+        self.precision_force = None
         self.delimiter = None
         self.extcsv = 0
         self.extheader = 0
@@ -116,6 +121,9 @@ class PMReporter(object):
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
+        self.count_scale_force = None
+        self.space_scale_force = None
+        self.time_scale_force = None
 
         # Not in pmrep.conf, won't overwrite
         self.outfile = None
@@ -148,7 +156,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrIi:vX:w:P:l:kxE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:vX:W:w:P:0:l:kxE:f:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -183,12 +191,15 @@ class PMReporter(object):
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
+        opts.pmSetLongOption("width-force", 1, "W", "N", "forced column width")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
         opts.pmSetLongOption("extended-csv", 0, "k", "", "write extended CSV")
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
@@ -198,6 +209,9 @@ class PMReporter(object):
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
+        opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         return opts
 
@@ -213,24 +227,16 @@ class PMReporter(object):
             self.daemonize = 1
             return
         if opt == 'K':
-            if not self.speclocal or not self.speclocal.startswith("K:"):
-                self.speclocal = "K:" + optarg
+            if not self.speclocal or not self.speclocal.startswith(";"):
+                self.speclocal = ";" + optarg
             else:
-                self.speclocal = self.speclocal + "|" + optarg
+                self.speclocal = self.speclocal + ";" + optarg
         elif opt == 'c':
             self.config = optarg
         elif opt == 'C':
             self.check = 1
         elif opt == 'o':
-            if optarg == OUTPUT_ARCHIVE:
-                self.output = OUTPUT_ARCHIVE
-            elif optarg == OUTPUT_CSV:
-                self.output = OUTPUT_CSV
-            elif optarg == OUTPUT_STDOUT:
-                self.output = OUTPUT_STDOUT
-            else:
-                sys.stderr.write("Invalid output target %s specified.\n" % optarg)
-                sys.exit(1)
+            self.output = optarg
         elif opt == 'F':
             if os.path.exists(optarg + ".index"):
                 sys.stderr.write("Archive %s already exists.\n" % optarg)
@@ -240,7 +246,10 @@ class PMReporter(object):
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
-            self.derived = optarg
+            if not self.derived or not self.derived.startswith(";"):
+                self.derived = ";" + optarg
+            else:
+                self.derived = self.derived + ";" + optarg
         elif opt == 'H':
             self.header = 0
         elif opt == 'U':
@@ -253,6 +262,8 @@ class PMReporter(object):
             self.delay = 1
         elif opt == 'r':
             self.type = 1
+        elif opt == 'R':
+            self.type_prefer = 1
         elif opt == 'I':
             self.ignore_incompat = 1
         elif opt == 'i':
@@ -262,17 +273,13 @@ class PMReporter(object):
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
-            try:
-                self.width = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.width = optarg
+        elif opt == 'W':
+            self.width_force = optarg
         elif opt == 'P':
-            try:
-                self.precision = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.precision = optarg
+        elif opt == '0':
+            self.precision_force = optarg
         elif opt == 'l':
             self.delimiter = optarg
         elif opt == 'k':
@@ -280,11 +287,7 @@ class PMReporter(object):
         elif opt == 'x':
             self.extheader = 1
         elif opt == 'E':
-            try:
-                self.repeat_header = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.repeat_header = optarg
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
@@ -295,6 +298,12 @@ class PMReporter(object):
             self.space_scale = optarg
         elif opt == 'y':
             self.time_scale = optarg
+        elif opt == 'Q':
+            self.count_scale_force = optarg
+        elif opt == 'B':
+            self.space_scale_force = optarg
+        elif opt == 'Y':
+            self.time_scale_force = optarg
         else:
             raise pmapi.pmUsageErr()
 
@@ -309,12 +318,22 @@ class PMReporter(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics(curr_insts=True)
-
     def validate_config(self):
-        """ Validate configuration options """
+        """ Validate configuration """
         if self.version != CONFVER:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
+            sys.exit(1)
+
+        self.pmconfig.validate_common_options()
+
+        try:
+            err = "Invalid output target specified"
+            if self.output != OUTPUT_ARCHIVE and \
+               self.output != OUTPUT_CSV and \
+               self.output != OUTPUT_STDOUT:
+                raise ValueError(err)
+        except ValueError:
+            sys.stderr.write("Error while parsing options: %s.\n" % err)
             sys.exit(1)
 
         # Check how we were invoked and adjust output
@@ -325,6 +344,7 @@ class PMReporter(object):
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
+        self.pmconfig.validate_metrics(curr_insts=True)
         self.pmconfig.finalize_options()
 
     def execute(self):

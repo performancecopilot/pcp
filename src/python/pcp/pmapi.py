@@ -1338,8 +1338,7 @@ class pmContext(object):
                 source = None
 
         if context == c_api.PM_CONTEXT_LOCAL and speclocal:
-            speclocal = speclocal.replace("K:", "")
-            for spec in speclocal.split("|"):
+            for spec in filter(None, speclocal.split(";")):
                 options.pmSetOptionSpecLocal(spec)
 
         flags = options.pmGetOptionFlags()
