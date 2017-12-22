@@ -1094,7 +1094,7 @@ typedef struct {
     int	appl1;		/* Application-specific flag 1 */
     int	appl2;		/* Application-specific flag 2 */
     int	pmns;		/* PMNS operations */
-    int	libpmda;	/* PMDA callbacks into libpcp_pmda */
+    int	libpmda;	/* PMDA operations in libpcp_pmda */
     int	timecontrol;	/* Time control API */
     int	pmc;		/* Metrics class operations */
     int	derive;		/* Derived metrics functionality */
@@ -1113,6 +1113,7 @@ typedef struct {
     int	exec;	 	/* __pmProcessExec and related calls */
     int labels;		/* Metric label metadata operations */
     int series;		/* Time series tracing */
+    int	libweb;		/* Trace services from libpcp_web */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

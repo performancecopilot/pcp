@@ -16,8 +16,9 @@
 .TH PMJSONGET 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmjsonGet\f1,
+\f3pmjsonPrint\f1,
 \f3pmjsonInit\f1,
-\f3pmjsonInitIndom\f1 \- JSON performance metrics extraction
+\f3pmjsonInitIndom\f1 \- JSON string helpers and metrics extraction
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -32,6 +33,9 @@ typedef int (*json_get)(void *\fIbuffer\fP, int \fIlength\fP, void *\fIdata\fP);
 .br
 .ti -8n
 int pmjsonGet(json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP, pmInDom \fIindom\fP, json_get \fIcallback\fP, void *\fIdata\fP);
+.br
+.ti -8n
+int pmjsonPrint(FILE *\fIfp\fP, json_flag *\fIoutput_flags\fP, const char *\fIjson_pointer\fP, json_get \fIcallback\fP, void *\fIdata\fP);
 .sp
 .in
 .hy
@@ -54,7 +58,17 @@ cc ... \-lpcp_web
 Performance Metric Domain Agent (\fBPMDA\fP(3)).
 Metrics and instances are defined by the \f2json_metrics\f1 parameter.
 The result of parsing is the extraction of values for the requested
-metrics (as defined in the json_pointer field) in the values field.
+metrics (as defined in the
+.I json_pointer
+field) in the values field.
+.PP
+A simple diagnostic utility for reporting JSON strings iss provided as
+a convenience as well.
+Its
+.I output_flags
+argument allows it to support a variety of alternate output formats,
+including minimal JSON (no optional whitespace), pretty-printed, and
+a simple YAML subset.
 .PP
 \f2json_metrics\f1 is the array of json_metric_desc struct which
 contains the json pointer to the metric data, possible flags to check
@@ -78,7 +92,9 @@ The JSON string must be provided by the \f2callback\f1 function.
 This function is passed a memory \f2buffer\f1 of \f2length\f1 bytes and
 an opaque user \f2data\f1 pointer which is unchanged from the original
 call to
-.BR pmjsonGet .
+.BR pmjsonGet
+or
+.BR pmjsonPrint .
 The returned result must be the number of bytes written into \f2buffer\f1,
 zero when no more data is available or less than zero on error conditions.
 .PP
