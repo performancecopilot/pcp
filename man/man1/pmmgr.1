@@ -147,7 +147,7 @@ instances, how to uniquely identify them, and where state
 such as log files should be kept for each.  Ideally, a persistent and
 unique hostid string is computed for each potential target pmcd from
 specified metric values.  This hostid is also used as a subdirectory
-name for locating daemon data.
+name for locating daemon data.  The rare empty hostid is mapped to "-".
 .TP
 .I hostid\-static
 This file contains one or more lines specifying the static string that
