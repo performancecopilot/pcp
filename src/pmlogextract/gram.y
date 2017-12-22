@@ -129,7 +129,8 @@ dometric(const char *name)
 	goto nomem;
     }
 
-    /* Cast away const, pmLookUpName should not modify name
+    /*
+     * Cast away const, pmLookUpName should not modify name
      */
     if ((sts = pmLookupName(1,(char **)&name,&pmid)) < 0 || pmid == PM_ID_NULL){
 	/*
@@ -179,7 +180,8 @@ dometric(const char *name)
 	goto nomem;
     }
 
-    /* input descriptor (idesc) and output descriptor (odesc) are initially
+    /*
+     * input descriptor (idesc) and output descriptor (odesc) are initially
      * pointed at the same descriptor
      */
     ml[ml_numpmid].idesc = dp;
@@ -188,7 +190,8 @@ dometric(const char *name)
 
     skip = 0;
     if (numinst == 0) {
-	/* user hasn't specified any instances
+	/*
+	 * user hasn't specified any instances
 	 *	- if there is NO instance domain, then allow for at least one
 	 *	- if there is an instance domain, set to numinst -1 and
 	 *	  searchmlist() will grab them all
@@ -247,7 +250,8 @@ dometric(const char *name)
 		free(p);
 	    }
 
-	    /* if inst is > -1 then this instance exists, and its id is `inst'
+	    /*
+	     * if inst is > -1 then this instance exists, and its id is `inst'
 	     */
 	    if (inst > -1) {
 		ml[ml_numpmid].instlist[j] = inst;

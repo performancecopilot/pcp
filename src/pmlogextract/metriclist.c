@@ -74,7 +74,8 @@ extractpmid(pmValueSet *vsetp, struct timeval *timestamp, pmResult **resp)
 	    result->vset[0]->vlist[i].value.pval->vtype = vbp->vtype;
 	    result->vset[0]->vlist[i].value.pval->vlen = vbp->vlen;
 
-	    /* in a pmValueBlock, the first byte is assigned to vtype,
+	    /*
+	     * in a pmValueBlock, the first byte is assigned to vtype,
 	     * and the subsequent 3 bytes are assigned to vlen - that's
 	     * a total of 4 bytes - the rest is used for vbuf
 	     */
