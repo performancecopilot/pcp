@@ -18,6 +18,8 @@ _cleanup()
     [ -f $tmp.backup ] && \
     $sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
     $sudo rm -rf $tmp.*
+    _restore_auto_restart pmwebd
+    _service pmwebd restart >/dev/null 2>&1
 }
 
 status=1	# failure is the default!
@@ -29,7 +31,9 @@ unset HTTP_PROXY
 webport=`_find_free_port`
 
 # real QA test starts here
+_stop_auto_restart pmwebd # see GH #394
 _service pmwebd stop >/dev/null 2>&1
+$sudo $signal -a pmwebd >/dev/null 2>&1
 $sudo cp $PCP_PMWEBDOPTIONS_PATH $tmp.backup
 
 # create an old-format configuration file
@@ -39,7 +43,7 @@ cat <<EOF >$tmp.config
 EOF
 $sudo cp $tmp.config $PCP_PMWEBDOPTIONS_PATH
 
-_service pmwebd start
+_service pmwebd start >/dev/null 2>&1
 _wait_for_pmwebd $webport
 
 echo
@@ -49,8 +53,6 @@ curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _
 # new-format configuration file via _cleanup
 $sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
 $sudo rm -f $tmp.backup
-_service pmwebd restart
-_wait_for_pmwebd 44323
 
 # success, all done
 status=0

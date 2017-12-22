@@ -17,10 +17,8 @@ which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 _cleanup()
 {
     cd $here
-    _service pmwebd stop >>$here/$seq.full 2>&1
-    _service pcp start >>$here/$seq.full 2>&1
-    _wait_for_pmcd
-    _wait_for_pmlogger
+    _restore_auto_restart pmwebd
+    _service pmwebd restart >/dev/null 2>&1
     rm -rf $tmp.*
 }
 
@@ -68,7 +66,10 @@ _get_metrics()
     fi
 }
 
-_service pmwebd stop >>$here/$seq.full 2>&1
+_stop_auto_restart pmwebd # see GH #394
+_service pmwebd stop >/dev/null 2>&1
+$sudo $signal -a pmwebd >/dev/null 2>&1
+
 _service pmwebd start
 _wait_for_pmwebd 44323
 
