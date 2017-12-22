@@ -13,32 +13,32 @@ _pcp_complete()
     # Register arguments
     case $cmd in
     pcp2elasticsearch)
-        all_args="ahLKcCeVHGASTOstrIivPqbygXx"
-        arg_regex="-[ahKceASTOstZiPqbygXx]"
+        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgXx"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgXx]"
     ;;
     pcp2graphite)
-        all_args="ahLKcCeVHGASTOstrIivPqbygpXEx"
-        arg_regex="-[ahKceASTOstZiPqbygpXEx]"
+        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgpXEx"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
     ;;
     pcp2influxdb)
-        all_args="ahLKcCeVHGASTOstrIivPqbygxUEX"
-        arg_regex="-[ahKceASTOstZiPqbygxUEX]"
+        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgxUEX"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgxUEX]"
     ;;
     pcp2json)
-        all_args="ahLKcCeVHGASTOstZzrIivPqbyFfXx"
-        arg_regex="-[ahKceASTOstZiPqbygFf]"
+        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFfXx"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2xlsx)
-        all_args="ahLKcCeVHGASTOstZzrIivPqbyFf"
-        arg_regex="-[ahKceASTOstZiPqbygFf]"
+        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFf"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2xml)
-        all_args="ahLKcCeVHGASTOstZzrIivPqbyFfXx"
-        arg_regex="-[ahKceASTOstZiPqbygFf]"
+        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFfXx"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2zabbix)
-        all_args="ahLKcCeVHGASTOstrIivPqbygpXEx"
-        arg_regex="-[ahKceASTOstZiPqbygpXEx]"
+        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgpXEx"
+        arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
     ;;
     pmdumplog)
         all_args="adehiLlmnrSsTtVvxZz"
@@ -73,8 +73,8 @@ _pcp_complete()
         arg_regex="-[ahKnOZ]"
     ;;
     pmrep)
-        all_args="AabCcdEeFfGHhIiKkLlOoPpqrSsTtUuVvwXxyZz"
-        arg_regex="-[AabcEeFfhiKlOoPqSsTtwXyZ]"
+        all_args="0AaBbCcdEeFfGgHhIiKkLlOoPpQqRrSsTtUuVvWwXxYyZz"
+        arg_regex="-[0ABabcEeFfhiKlOoPQqSsTtWwXYyZ]"
     ;;
     pmstore)
         all_args="fhiKLnV"

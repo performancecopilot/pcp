@@ -2,7 +2,7 @@
 # PCP QA Test No. 1069
 # Exercise pmrep configuration and various reporting modes.
 #
-# Copyright (c) 2015-2016 Red Hat.
+# Copyright (c) 2015-2017 Red Hat.
 #
 
 seq=`basename $0`
@@ -58,7 +58,7 @@ pmrep -z -p -s 5 -t 2 -P 2 --archive $here/archives/sample-secs \
 	sample.seconds sample.milliseconds
 
 echo "== basic configuration file handling"
-echo > $tmp.config <<EOF
+cat > $tmp.config <<EOF
 [options]
 version = 1
 source = www.example.com
@@ -69,20 +69,23 @@ pmrep -s 5 -t 2 $log -c $tmp.config sample
 
 echo "== exercise various output options"
 pmrep -s 3 -p -u $log2 hinv.machine
-pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
+pmrep -s 5 -t 2 $log -o stdout -p -w 20 sample
 echo "---"
-pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _archive_filter
+pmrep -s 5 -t 2 $log -C -x sample | _archive_filter
 echo "---"
-pmrep -T 7s -t 3 -p $log -c $tmp.config -x sample | _archive_filter
+pmrep -T 7s -t 3 -p $log -x sample | _archive_filter
 echo "---"
-pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
-pmrep -s 5 -t 2 $log2 -c $tmp.config -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
-pmrep -s 5 -t 2 $log2 -c $tmp.config -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
+pmrep -s 5 -t 2 $log -G -H -U sample
+pmrep -s 5 -t 2 $log2 -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
+pmrep -s 5 -t 2 $log2 -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 
 echo "== exercise extended header"
 pmrep -z -a $here/archives/rep -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/20130706 -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/bug-1044.meta -x -H -U -C -u -I "" | _archive_filter
+
+echo "== exercise separate header"
+pmrep -s 4 -t 1 $log2 -E 2 -g mem.util.free disk.dev.read mem.util.used
 
 echo "== invalid command line parameters"
 pmrep -s 1 -t 1 -b GB -E 1x mem.util.free
@@ -93,14 +96,35 @@ pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read 2>&1 | grep -o "Invalid regex '.\[]\*'
 pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read 2>&1 | grep -o "Invalid regex '.\[z-a\]':"
 pmrep -s 1 -t 1 :nosuchset
 
+echo "== invalid configuration file"
+cat > $tmp.wconfig <<EOF
+[global]
+mem.util.free = ,,
+[test1]
+output = x
+[test2]
+samples = -1
+[test3]
+precision = a
+[test4]
+space_scale = s
+[test5]
+incomplete = bogus
+EOF
+pmrep -C -c $tmp.wconfig -x :test1
+pmrep -C -c $tmp.wconfig -x :test2 2>&1 | grep "sample count"
+pmrep -C -c $tmp.wconfig -x :test3
+pmrep -C -c $tmp.wconfig -x :test4
+pmrep -C -c $tmp.wconfig -x :test5
+
 echo "== unsupported metric type"
 pmrep -s 1 -t 1 sample.sysinfo
 
 echo "== exercise non-integer options"
-pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _archive_filter
+pmrep -T 2.5s -t 0.5 -p $log -x sample | _archive_filter
 
 echo "== exercise raw counter mode"
-pmrep --daemonize -s 5 -t 2 $log -c $tmp.config -r sample
+pmrep --daemonize -s 5 -t 2 $log -r sample
 pmsleep 1
 
 echo "== exercise samples/interval/endtime settings and combinations"
@@ -163,13 +187,13 @@ echo 'mem.util.used = usedmem' >> $tmp.dconfig
 pmrep -s 2 -t 2 $log2 -c $tmp.dconfig -p :testing | _archive_filter
 
 echo "== exercise CSV and alternate delimiters"
-pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
-pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' sample | \
+pmrep -s 5 -t 2 $log -o csv -p -P 1 sample
+pmrep -s 5 -t 2 $log -o csv --delimiter '|' sample | \
     tee -a $tmp.out1
 echo "== exercise CSV and instance handling"
-pmrep -s 5 -t 2 $log2 -c $tmp.config -o csv hinv.map.scsi kernel.all.load
+pmrep -s 5 -t 2 $log2 -o csv hinv.map.scsi kernel.all.load
 echo "== compare output-to-file versus stdout"
-pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' -F $tmp.out2 sample
+pmrep -s 5 -t 2 $log -o csv --delimiter '|' -F $tmp.out2 sample
 diff $tmp.out1 $tmp.out2
 test $? -eq 0 && echo ok
 
@@ -177,6 +201,7 @@ echo "== exercise repeated headers option"
 pmrep -s 5 -t 2 $log -E 2 sample.seconds
 
 echo "== exercise units conversion options"
+pmrep -s 5 -t 2 $log2 disk.dev.read,,sda,1
 pmrep -s 5 -t 2 $log2 -w 15 -P 1 -p -b MB mem.util.free mem.util.used
 pmrep -s 5 -t 2 $log2 -w 15 -P 2 -p -b GB mem.util.free mem.util.used
 pmrep -s 5 -t 2 $log2 -w 15 -P 3 -p -q "count x 10^2" disk.dev.read
@@ -192,6 +217,23 @@ pmrep -s 5 -t 2 -z -a $here/archives/rep -u -p mem.util.used,,,GB/ms network.int
 echo "== exercise compact metricset specification and overrides"
 pmrep -s 5 -t 2 $log2 -w 128 -P 1 -p -b kB "mem.util.free,mem free,,MB,,15,0" mem.util.used,mem-used,,GB,,15,2
 
+echo "== exercise forced override options"
+pmrep -s 1 -t 2 $log2 -w 15 mem.util.used,,,MB,,
+pmrep -s 1 -t 2 $log2 mem.util.used,,,MB,,15
+pmrep -s 1 -t 2 $log2 -w 25 mem.util.used,,,MB,,15
+pmrep -s 1 -t 2 $log2 -W 15 mem.util.used,,,MB,,25
+pmrep -s 2 -t 2 $log2 -P 1 disk.dev.read,,sda,,,,
+pmrep -s 2 -t 2 $log2 disk.dev.read,,sda,,,,1
+pmrep -s 2 -t 2 $log2 -P 9 disk.dev.read,,sda,,,,1
+pmrep -s 2 -t 2 $log2 -0 1 disk.dev.read,,sda,,,,9
+pmrep -s 2 -t 2 $log2 disk.dev.read,,sda,,raw
+pmrep -s 2 -t 2 $log2 -r disk.dev.read,,sda,,
+pmrep -s 2 -t 2 $log2 -r disk.dev.read,,sda,,default
+pmrep -s 2 -t 2 $log2 -R disk.dev.read,,sda,,
+pmrep -s 2 -t 2 $log2 -R disk.dev.read,,sda,,default
+pmrep -s 1 -t 2 $log2 -b GB mem.util.used,,,MB
+pmrep -s 1 -t 2 $log2 -B MB mem.util.used,,,GB
+
 echo "== derived metrics configuration file"
 pmrep -e $tmp.nosuchfile metric 2>&1 | _live_filter
 cat > $tmp.derived <<EOF
@@ -202,6 +244,8 @@ pmrep -s 5 -t 2 $log -e $tmp.derived sample.combo
 echo "== derived metrics directly on command line"
 combo="sample.combo = sample.seconds + (sample.milliseconds / 1000)"
 pmrep -s 5 -t 2 $log -e "$combo" sample.combo
+pmrep -C -H -U -e 'derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes);derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))' derived_a derived_b
+pmrep -C -H -U -e 'derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes)' -e 'derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))' derived_a derived_b
 
 echo "== derived metrics in pmrep.conf"
 cat > $tmp.derived-test.conf <<EOF
@@ -219,10 +263,17 @@ iopct.formula = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? 
 EOF
 pmrep -C -H -U -a $here/archives/proc -c $tmp.derived-test.conf :derived-test
 echo "No output expected."
+cat > $tmp.derived-test.conf <<EOF
+[derived-test]
+derived = derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes);derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))
+derived_a = ,,
+derived_b = ,,
+EOF
+pmrep -C -H -U -a $here/archives/proc -c $tmp.derived-test.conf :derived-test
+echo "No output expected."
 
 echo "== extended existing sample configuration"
-cp $tmp.config $tmp.dconfig
-cat >> $tmp.dconfig <<EOF
+cat > $tmp.dconfig <<EOF
 [global]
 combo = sample.combo
 EOF
@@ -231,12 +282,10 @@ pmrep -s 5 -t 2 $log -e $tmp.derived -c $tmp.dconfig sample
 echo "== exercise good config version"
 echo '[options]' > $tmp.vconfig
 echo 'version = 1' >> $tmp.vconfig
-cat $tmp.config >> $tmp.vconfig 
 pmrep -s 5 -t 2 $log -c $tmp.vconfig sample
 echo "== exercise bad config version"
 echo '[options]' > $tmp.vconfig
 echo 'version = 99' >> $tmp.vconfig
-cat $tmp.config >> $tmp.vconfig
 pmrep -s 5 -t 2 $log -c $tmp.vconfig sample
 
 echo "== un/interpolated archive mode reporting"
@@ -296,7 +345,7 @@ echo 'test.instances = "sd.*"' >> $tmp.iconfig
 pmrep -s 1 $log2 -c $tmp.iconfig -l '|' :test
 
 echo "=== more instance handling"
-cat << EOF > $tmp.iiconfig
+cat > $tmp.iiconfig <<EOF
 [test1] # fails
 instances = xxx,yyy,zzz
 foo = disk.dev.read
@@ -442,7 +491,7 @@ pmrep -s 5 $log2 -c $tmp.pconfig -p -u :source
 echo "---"
 echo '[source]' > $tmp.pconfig
 echo 'source = @' >> $tmp.pconfig
-echo "speclocal = clear|add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init" >> $tmp.pconfig
+echo "speclocal = clear;add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init" >> $tmp.pconfig
 echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
 # Test speclocal from config file
 pmrep -s 1 -c $tmp.pconfig -p -u :source | _live_filter

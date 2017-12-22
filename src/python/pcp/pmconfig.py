@@ -46,7 +46,8 @@ class pmConfig(object):
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # Supported metricset specifiers
-        self.metricspec = ('label', 'instances', 'unit', 'type', 'width', 'formula')
+        self.metricspec = ('label', 'instances', 'unit',
+                           'type', 'width', 'precision', 'formula')
 
         # Main utility reference
         self.util = util
@@ -119,10 +120,12 @@ class pmConfig(object):
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
         if name == 'speclocal':
-            if not self.util.speclocal or not self.util.speclocal.startswith("K:"):
-                self.util.speclocal = value
+            self.util.speclocal = value
         elif name == 'derived':
-            self.util.derived = str(value).replace(",", "@")
+            if ';' in value:
+                self.util.derived = value
+            else:
+                self.util.derived = str(value).replace(",", ";")
         elif name == 'samples':
             self.util.opts.pmSetOptionSamples(value)
             self.util.samples = self.util.opts.pmGetOptionSamples()
@@ -134,6 +137,11 @@ class pmConfig(object):
                 self.util.type = 1
             else:
                 self.util.type = 0
+        elif name == 'type_prefer':
+            if value == 'raw':
+                self.util.type_prefer = 1
+            else:
+                self.util.type_prefer = 0
         elif name == 'instances':
             self.util.instances = value.split(",") # pylint: disable=no-member
         else:
@@ -247,9 +255,9 @@ class pmConfig(object):
                     value = value[1:-1]
                 if spec == "formula":
                     if self.util.derived is None:
-                        self.util.derived = metrics[key][0] + "=" + value
+                        self.util.derived = ";" + metrics[key][0] + "=" + value
                     else:
-                        self.util.derived += "@" + metrics[key][0] + "=" + value
+                        self.util.derived += ";" + metrics[key][0] + "=" + value
                 else:
                     if self.metricspec.index(spec) == 1:
                         metrics[key][self.metricspec.index(spec)+1] = [value]
@@ -398,10 +406,40 @@ class pmConfig(object):
             """ Retrieve the items """
             return self._items
 
+    def validate_common_options(self):
+        """ Validate common utility options """
+        try:
+            err = "Non-negative integer expected"
+            if hasattr(self.util, 'width'):
+                self.util.width = int(self.util.width)
+                if self.util.width < 0:
+                    raise ValueError(err)
+            if hasattr(self.util, 'width_force') and self.util.width_force:
+                self.util.width_force = int(self.util.width_force)
+                if self.util.width_force < 0:
+                    raise ValueError(err)
+            if hasattr(self.util, 'precision'):
+                self.util.precision = int(self.util.precision)
+                if self.util.precision < 0:
+                    raise ValueError(err)
+            if hasattr(self.util, 'precision_force') and self.util.precision_force:
+                self.util.precision_force = int(self.util.precision_force)
+                if self.util.precision_force < 0:
+                    raise ValueError(err)
+            if hasattr(self.util, 'repeat_header'):
+                self.util.repeat_header = int(self.util.repeat_header)
+                if self.util.repeat_header < 0:
+                    raise ValueError(err)
+        except ValueError:
+            sys.stderr.write("Error while parsing options: %s.\n" % err)
+            sys.exit(1)
+
     def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
         """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
+            if self.util.derived.startswith(";"):
+                self.util.derived = self.util.derived[1:]
             if self.util.derived.startswith("/") or self.util.derived.startswith("."):
                 try:
                     self.util.context.pmLoadDerivedConfig(self.util.derived)
@@ -409,7 +447,7 @@ class pmConfig(object):
                     sys.stderr.write("Failed to load derived metric definitions from file '%s':\n%s.\n" % (self.util.derived, str(error)))
                     sys.exit(1)
             else:
-                for definition in self.util.derived.split("@"):
+                for definition in self.util.derived.split(";"):
                     err = ""
                     try:
                         name, expr = definition.split("=", 1)
@@ -487,7 +525,7 @@ class pmConfig(object):
                 name = ""
                 for m in metric.split("."):
                     name += m[0] + "."
-                self.util.metrics[metric][0] = name[:-2] + m # pylint: disable=undefined-loop-variable
+                self.util.metrics[metric][0] = name[:-2] + metric.split(".")[-1]
 
             # Instance(s)
             if not self.util.metrics[metric][1] and self.util.instances:
@@ -497,6 +535,12 @@ class pmConfig(object):
                 self.util.metrics[metric][1] = []
 
             # Rawness
+            if hasattr(self.util, 'type_prefer') and not self.util.metrics[metric][3]:
+                self.util.metrics[metric][3] = self.util.type_prefer
+            elif self.util.metrics[metric][3] == 'raw':
+                self.util.metrics[metric][3] = 1
+            else:
+                self.util.metrics[metric][3] = 0
             # As a special service for pmrep(1) utility we hardcode
             # support for its two output modes, archive and csv.
             if (hasattr(self.util, 'type') and self.util.type == 1) or \
@@ -504,28 +548,60 @@ class pmConfig(object):
                self.util.output == 'archive' or \
                self.util.output == 'csv':
                 self.util.metrics[metric][3] = 1
-            else:
-                self.util.metrics[metric][3] = 0
 
-            # Set unit/scale if not specified on per-metric basis
-            if not self.util.metrics[metric][2]:
-                unit = self.descs[i].contents.units
-                self.util.metrics[metric][2] = str(unit)
-                if self.util.count_scale and \
-                   unit.dimCount == 1 and ( \
+            # Dimension test helpers
+            def is_count(unit):
+                """ Test count dimension """
+                if unit.dimCount == 1 and ( \
                    unit.dimSpace == 0 and \
                    unit.dimTime == 0):
-                    self.util.metrics[metric][2] = self.util.count_scale
-                if self.util.space_scale and \
-                   unit.dimSpace == 1 and ( \
+                    return True
+                return False
+
+            def is_space(unit):
+                """ Test space dimension """
+                if unit.dimSpace == 1 and ( \
                    unit.dimCount == 0 and \
                    unit.dimTime == 0):
-                    self.util.metrics[metric][2] = self.util.space_scale
-                if self.util.time_scale and \
-                   unit.dimTime == 1 and ( \
+                    return True
+                return False
+
+            def is_time(unit):
+                """ Test time dimension """
+                if unit.dimTime == 1 and ( \
                    unit.dimCount == 0 and \
                    unit.dimSpace == 0):
+                    return True
+                return False
+
+            # Set unit/scale
+            unit = self.descs[i].contents.units
+            if is_count(unit):
+                if hasattr(self.util, 'count_scale_force') and self.util.count_scale_force:
+                    self.util.metrics[metric][2] = self.util.count_scale_force
+                elif hasattr(self.util, 'count_scale') and self.util.count_scale and \
+                   not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = self.util.count_scale
+                elif not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = str(unit)
+            if is_space(unit):
+                if hasattr(self.util, 'space_scale_force') and self.util.space_scale_force:
+                    self.util.metrics[metric][2] = self.util.space_scale_force
+                elif hasattr(self.util, 'space_scale') and self.util.space_scale and \
+                   not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = self.util.space_scale
+                elif not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = str(unit)
+            if is_time(unit):
+                if hasattr(self.util, 'time_scale_force') and self.util.time_scale_force:
+                    self.util.metrics[metric][2] = self.util.time_scale_force
+                elif hasattr(self.util, 'time_scale') and self.util.time_scale and \
+                   not self.util.metrics[metric][2]:
                     self.util.metrics[metric][2] = self.util.time_scale
+                elif not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = str(unit)
+            if not self.util.metrics[metric][2]:
+                self.util.metrics[metric][2] = str(unit)
 
             # Finalize label and unit/scale
             try:
@@ -555,24 +631,40 @@ class pmConfig(object):
             if self.descs[i].contents.type == pmapi.c_api.PM_TYPE_STRING:
                 mtype = self.descs[i].contents.type
 
-            # Set default width if not specified on per-metric basis
+            # Set width
             if self.util.metrics[metric][4]:
-                self.util.metrics[metric][4] = int(self.util.metrics[metric][4])
-            elif hasattr(self.util, 'width') and self.util.width != 0:
+                try:
+                    self.util.metrics[metric][4] = int(self.util.metrics[metric][4])
+                    if self.util.metrics[metric][4] < 0:
+                        raise ValueError
+                except:
+                    sys.stderr.write("Non-negative integer expected: %s\n" % metric)
+                    sys.exit(1)
+            elif hasattr(self.util, 'width'):
                 self.util.metrics[metric][4] = self.util.width
             else:
+                self.util.metrics[metric][4] = 0 # Auto-adjust
+            if hasattr(self.util, 'width_force') and self.util.width_force is not None:
+                self.util.metrics[metric][4] = self.util.width_force
+            if not self.util.metrics[metric][4]:
                 self.util.metrics[metric][4] = len(self.util.metrics[metric][0])
             if self.util.metrics[metric][4] < len(TRUNC):
                 self.util.metrics[metric][4] = len(TRUNC) # Forced minimum
 
-            # Set default precision if not specified on per-metric basis
+            # Set precision
             # NB. We need to take into account that clients expect pmfg item in [5]
             if self.util.metrics[metric][5]:
-                self.util.metrics[metric][6] = int(self.util.metrics[metric][5])
-            elif hasattr(self.util, 'precision') and self.util.precision >= 0:
+                try:
+                    self.util.metrics[metric][6] = int(self.util.metrics[metric][5])
+                except:
+                    sys.stderr.write("Non-negative integer expected: %s\n" % metric)
+                    sys.exit(1)
+            elif hasattr(self.util, 'precision'):
                 self.util.metrics[metric][6] = self.util.precision
             else:
                 self.util.metrics[metric][6] = 3 # Built-in default
+            if hasattr(self.util, 'precision_force') and self.util.precision_force is not None:
+                self.util.metrics[metric][6] = self.util.precision_force
             self.util.metrics[metric][5] = None
 
             # Add fetchgroup items
@@ -588,7 +680,9 @@ class pmConfig(object):
                             try:
                                 items.append((self.insts[i][0][j], self.insts[i][1][j], self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])))
                                 mitems += 1
-                            except:
+                            except pmapi.pmErr as error:
+                                if error.args[0] == pmapi.c_api.PM_ERR_CONV:
+                                    raise
                                 vanished.append(j)
                         else:
                             del self.insts[i][0][-1]

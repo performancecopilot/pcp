@@ -242,14 +242,46 @@ HH:MM:SS        1
  interval: N/A
  duration: 2 days, 15:01:40
 
+== exercise separate header
+[ 1] - mem.util.free - Kbyte
+[ 2] - disk.dev.read["sda"] - count/s
+[ 3] - disk.dev.read["sdb"] - count/s
+[ 4] - disk.dev.read["sdc"] - count/s
+[ 5] - disk.dev.read["hdc"] - count/s
+[ 6] - disk.dev.read["sdd"] - count/s
+[ 7] - disk.dev.read["sde"] - count/s
+[ 8] - mem.util.used - Kbyte
+
+         1         2         3         4         5         6         7         8
+     38220       N/A       N/A       N/A       N/A       N/A       N/A   6068648
+     38220     0.000    30.000     0.000     0.000     0.000     1.000   6068648
+
+[ 1] - mem.util.free - Kbyte
+[ 2] - disk.dev.read["sda"] - count/s
+[ 3] - disk.dev.read["sdb"] - count/s
+[ 4] - disk.dev.read["sdc"] - count/s
+[ 5] - disk.dev.read["hdc"] - count/s
+[ 6] - disk.dev.read["sdd"] - count/s
+[ 7] - disk.dev.read["sde"] - count/s
+[ 8] - mem.util.used - Kbyte
+
+         1         2         3         4         5         6         7         8
+     38220     0.000    30.000     1.000     0.000     0.000     1.000   6068648
+     38220     0.000    30.000     0.000     0.000     0.000     1.000   6068648
 == invalid command line parameters
-Error while parsing options: Integer expected.
-Error while parsing options: Integer expected.
-Error while parsing options: Integer expected.
+Error while parsing options: Non-negative integer expected.
+Error while parsing options: Non-negative integer expected.
+Error while parsing options: Non-negative integer expected.
 Invalid regex '(':
 Invalid regex '.[]*':
 Invalid regex '.[z-a]':
 Metricset definition ':nosuchset' not found.
+== invalid configuration file
+Error while parsing options: Invalid output target specified.
+pcp: sample count must be a positive numeric argument
+Error while parsing options: Non-negative integer expected.
+pmrep: Impossible value or scale conversion
+Invalid metric bogus (PM_ERR_NAME Unknown metric name).
 == unsupported metric type
 Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
 == exercise non-integer options
@@ -784,6 +816,7 @@ ok
         s/s
       1.000
 == exercise units conversion options
+pmrep: Impossible value or scale conversion
                  m.u.free         m.u.used
                        MB               MB
 00:47:01             37.3           5926.4
@@ -874,6 +907,70 @@ ok
 00:47:05               37             5.79
 00:47:07               37             5.79
 00:47:09               37             5.79
+== exercise forced override options
+         m.u.used
+               MB
+         5926.414
+         m.u.used
+               MB
+         5926.414
+         m.u.used
+               MB
+         5926.414
+         m.u.used
+               MB
+         5926.414
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+   count/s
+       N/A
+       0.0
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+     count
+  57062162
+  57062162
+  d.d.read
+       sda
+   count/s
+       N/A
+     0.000
+  m.u.used
+        MB
+  5926.414
+  m.u.used
+        MB
+  5926.414
 == derived metrics configuration file
 Failed to load derived metric definitions from file ...:
 No such file or directory.
@@ -893,6 +990,7 @@ No such file or directory.
     1.001
     1.001
 == derived metrics in pmrep.conf
+No output expected.
 No output expected.
 No output expected.
 == extended existing sample configuration

@@ -67,6 +67,8 @@ class PCP2JSON(object):
                      'samples', 'interval', 'type', 'precision', 'daemonize',
                      'timefmt', 'extended', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
+                     'count_scale_force', 'space_scale_force', 'time_scale_force',
+                     'type_prefer', 'precision_force',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -86,15 +88,20 @@ class PCP2JSON(object):
         self.opts.pmSetOptionInterval(str(60)) # 60 sec
         self.delay = 0
         self.type = 0
+        self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
         self.omit_flat = 0
         self.precision = 3 # .3f
+        self.precision_force = None
         self.timefmt = TIMEFMT
         self.interpol = 0
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
+        self.count_scale_force = None
+        self.space_scale_force = None
+        self.time_scale_force = None
 
         # Not in pcp2json.conf, won't overwrite
         self.outfile = None
@@ -128,7 +135,7 @@ class PCP2JSON(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rIi:vP:q:b:y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -159,14 +166,19 @@ class PCP2JSON(object):
         opts.pmSetLongOptionTimeZone()     # -Z/--timezone
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
+        opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("with-extended", 0, "x", "", "write extended information about metrics")
         opts.pmSetLongOption("with-everything", 0, "X", "", "write everything, incl. internal IDs")
@@ -185,10 +197,10 @@ class PCP2JSON(object):
             self.daemonize = 1
             return
         if opt == 'K':
-            if not self.speclocal or not self.speclocal.startswith("K:"):
-                self.speclocal = "K:" + optarg
+            if not self.speclocal or not self.speclocal.startswith(";"):
+                self.speclocal = ";" + optarg
             else:
-                self.speclocal = self.speclocal + "|" + optarg
+                self.speclocal = self.speclocal + ";" + optarg
         elif opt == 'c':
             self.config = optarg
         elif opt == 'C':
@@ -199,13 +211,18 @@ class PCP2JSON(object):
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
-            self.derived = optarg
+            if not self.derived or not self.derived.startswith(";"):
+                self.derived = ";" + optarg
+            else:
+                self.derived = self.derived + ";" + optarg
         elif opt == 'H':
             self.header = 0
         elif opt == 'G':
             self.globals = 0
         elif opt == 'r':
             self.type = 1
+        elif opt == 'R':
+            self.type_prefer = 1
         elif opt == 'I':
             self.ignore_incompat = 1
         elif opt == 'i':
@@ -213,11 +230,9 @@ class PCP2JSON(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            try:
-                self.precision = int(optarg)
-            except:
-                sys.stderr.write("Error while parsing options: Integer expected.\n")
-                sys.exit(1)
+            self.precision = optarg
+        elif opt == '0':
+            self.precision_force = optarg
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'q':
@@ -226,6 +241,12 @@ class PCP2JSON(object):
             self.space_scale = optarg
         elif opt == 'y':
             self.time_scale = optarg
+        elif opt == 'Q':
+            self.count_scale_force = optarg
+        elif opt == 'B':
+            self.space_scale_force = optarg
+        elif opt == 'Y':
+            self.time_scale_force = optarg
         elif opt == 'x':
             self.extended = 1
         elif opt == 'X':
@@ -244,17 +265,18 @@ class PCP2JSON(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-        self.pmconfig.validate_metrics(curr_insts=True)
-
     def validate_config(self):
         """ Validate configuration options """
         if self.version != CONFVER:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
+        self.pmconfig.validate_common_options()
+
         if self.everything:
             self.extended = 1
 
+        self.pmconfig.validate_metrics(curr_insts=True)
         self.pmconfig.finalize_options()
 
     def execute(self):

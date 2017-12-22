@@ -50,7 +50,7 @@ $python $here/prometheus/prometheus_endpoint.python \
 	--instances $instances \
 	--limit $iterations \
 	--delay $delay \
-	--error $errors & >> $tmp.full 2>&1
+	--error $errors >> $tmp.full 2>&1 &
 pid=$!
 
 if ! _pmdaprometheus_wait_for_metric prometheus.source4

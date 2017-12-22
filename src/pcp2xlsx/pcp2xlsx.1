@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2016-2017 Red Hat.
 .\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -20,14 +20,14 @@
 \f3pcp2xlsx\f1 \- pcp-to-xlsx metrics exporter
 .SH SYNOPSIS
 \f3pcp2xlsx\f1
-[\f3\-CGHILrvVz?\f1]
+[\f3\-CGHILrRvVz?\f1]
 [\f3\-a\f1 \f2archive\f1]
-[\f3\--archive-folio\f1 \f2folio\f1]
+[\f3\-\-archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
-[\f3\-b\f1 \f2space-scale\f1]
+[\f3\-b|\-B\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
-[\f3\--container\f1 \f2container\f1]
-[\f3\--daemonize\f1]
+[\f3\-\-container\f1 \f2container\f1]
+[\f3\-\-daemonize\f1]
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-f\f1 \f2format\f1]
 [\f3\-F\f1 \f2outfile\f1]
@@ -35,13 +35,13 @@
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-O\f1 \f2origin\f1]
-[\f3\-P\f1 \f2precision\f1]
-[\f3\-q\f1 \f2count-scale\f1]
+[\f3\-P|\-0\f1 \f2precision\f1]
+[\f3\-q|\-Q\f1 \f2count-scale\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
-[\f3\-y\f1 \f2time-scale\f1]
+[\f3\-y|\-Y\f1 \f2time-scale\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricspec [...]\f1
 .SH DESCRIPTION
@@ -110,13 +110,18 @@ The following options are common with
 .BR samples ,
 .BR interval ,
 .BR type ,
+.BR type_prefer ,
 .BR ignore_incompat ,
 .BR instances ,
 .BR omit_flat ,
 .BR precision ,
+.BR precision_force ,
 .BR count_scale ,
 .BR space_scale ,
-.BR time_scale .
+.BR time_scale ,
+.BR count_scale_force ,
+.BR space_scale_force ,
+.BR time_scale_force .
 The
 .B output
 option is recognized but ignored for
@@ -167,6 +172,13 @@ override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
+.B \-B
+As
+.B \-b
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-c
 Specify the
 .I config
@@ -200,7 +212,7 @@ performance metrics. If
 .I derived
 starts with a slash (``/'') or with a dot (``.'') it will be
 interpreted as a derived metrics configuration file, otherwise it will
-be interpreted as comma-separated derived metric expressions.
+be interpreted as comma- or semicolon-separated derived metric expressions.
 For details see
 .BR pmLoadDerivedConfig (3)
 and
@@ -305,6 +317,13 @@ This option will
 .I not
 override possible per-metric specifications.
 .TP
+.B \-0
+As
+.B \-P
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-q
 .I Unit/scale
 for count metrics, possible values include
@@ -324,9 +343,23 @@ override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
+.B \-Q
+As
+.B \-q
+but this option
+.I will
+override per-metric specifications.
+.TP
 .B \-r
 Output raw metric values, do not convert cumulative counters to rates.
 This option \fIwill\fR override possible per-metric specifications.
+.TP
+.B \-R
+As
+.B \-r
+but this option will
+.I not
+override per-metric specifications.
 .TP
 .B \-s
 The argument
@@ -426,6 +459,13 @@ This option will
 override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
+.TP
+.B \-Y
+As
+.B \-y
+but this option
+.I will
+override per-metric specifications.
 .TP
 .B \-z
 Use the local timezone of the host that is the source of the
