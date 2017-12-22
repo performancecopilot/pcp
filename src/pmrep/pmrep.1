@@ -20,7 +20,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \f3pmrep\f1
-[\f3\-CdGHIkLprRuUvVxz?\f1]
+[\f3\-CdgGHIkLprRuUvVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-\-archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -365,6 +365,10 @@ Specify the output file
 .IR outfile .
 See
 .BR \-o .
+.TP
+.B \-g
+Output the column number and complete metric information,
+one-per-line, before printing the metric values.
 .TP
 .B \-G
 Do not include global metrics in reporting (see

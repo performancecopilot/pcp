@@ -76,7 +76,7 @@ class PMReporter(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'timestamp', 'unitinfo', 'colxrow',
+                     'timestamp', 'unitinfo', 'colxrow', 'separate_header',
                      'delay', 'width', 'delimiter', 'extcsv',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
@@ -116,6 +116,7 @@ class PMReporter(object):
         self.extcsv = 0
         self.extheader = 0
         self.repeat_header = 0
+        self.separate_header = 0
         self.timefmt = None
         self.interpol = 1
         self.count_scale = None
@@ -156,7 +157,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:vX:W:w:P:0:l:kxE:f:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:vX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -204,6 +205,7 @@ class PMReporter(object):
         opts.pmSetLongOption("extended-csv", 0, "k", "", "write extended CSV")
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
+        opts.pmSetLongOption("separate-header", 0, "g", "", "write separated header before metrics")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
@@ -217,7 +219,7 @@ class PMReporter(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K' or opt == 'p':
+        if opt == 'H' or opt == 'K' or opt == 'g' or opt == 'p':
             return 1
         return 0
 
@@ -288,6 +290,8 @@ class PMReporter(object):
             self.extheader = 1
         elif opt == 'E':
             self.repeat_header = optarg
+        elif opt == 'g':
+            self.separate_header = 1
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
@@ -612,6 +616,33 @@ class PMReporter(object):
         self.writer.write(comm + " duration: " + secs_to_readable(duration) + "\n")
         self.writer.write(comm + "\n")
 
+    def write_separate_header(self):
+        """ Write separate header """
+        l = len(str(len(self.metrics))) + 1
+        k = 0
+        for i, metric in enumerate(self.metrics):
+            for j in range(len(self.pmconfig.insts[i][0])):
+                k += 1
+                line = "[" + str(k).rjust(l) + "] - "
+                line += metric
+                if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
+                    line += "[\"" + self.pmconfig.insts[i][1][j] + "\"]"
+                if self.metrics[metric][2][0]:
+                    line += " - " + self.metrics[metric][2][0] + "\n"
+                else:
+                    line += " - none\n"
+                self.writer.write(line.format(str(k)))
+        self.writer.write("\n")
+        names = ["", self.delimiter] # no timestamp on header line
+        k = 0
+        for i, metric in enumerate(self.metrics):
+            for j in range(len(self.pmconfig.insts[i][0])):
+                k += 1
+                names.append(str(k))
+                names.append(self.delimiter)
+        del names[-1]
+        self.writer.write(self.format.format(*names) + "\n")
+
     def write_header(self, repeat=False):
         """ Write info header """
         if self.output == OUTPUT_ARCHIVE:
@@ -649,6 +680,9 @@ class PMReporter(object):
         if self.output == OUTPUT_STDOUT:
             if repeat:
                 self.writer.write("\n")
+            if self.separate_header:
+                self.write_separate_header()
+                return
             names = ["", self.delimiter] # no timestamp on header line
             insts = ["", self.delimiter] # no timestamp on instances line
             units = ["", self.delimiter] # no timestamp on units line

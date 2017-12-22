@@ -589,6 +589,7 @@ _pcp () {
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
       "(-E --repeat $exargs)"{-E+,--repeat}'[set header repeat frequency]:samples:' \
+      "(-g --separate-header $exargs)"{-g,--separate-header}'[print separate header]' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
       "(-u --no-interpol --container -d --delay -h --host -L --local-PMDA -K --spec-local -t --interval $exargs)"{-u,--no-interpol}'[disable interpolation]' \
       '*:metric:->metrics' \

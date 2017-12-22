@@ -4,7 +4,6 @@
 
 -  live insts filtering support (-i '.*foo.*' to match current and new insts)
 
--  opt to do pmdumptext -X like output (or shorten inst names if needed) [-g]
 -  opt to output in short format (see pmdumptext -F/-G / pmNumberStr) [-m/-M]
 
 -  includedir config file support (?)

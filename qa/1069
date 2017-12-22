@@ -84,6 +84,9 @@ pmrep -z -a $here/archives/rep -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/20130706 -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/bug-1044.meta -x -H -U -C -u -I "" | _archive_filter
 
+echo "== exercise separate header"
+pmrep -s 4 -t 1 $log2 -E 2 -g mem.util.free disk.dev.read mem.util.used
+
 echo "== invalid command line parameters"
 pmrep -s 1 -t 1 -b GB -E 1x mem.util.free
 pmrep -s 1 -t 1 -b GB -P 2x mem.util.free

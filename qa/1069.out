@@ -242,6 +242,32 @@ HH:MM:SS        1
  interval: N/A
  duration: 2 days, 15:01:40
 
+== exercise separate header
+[ 1] - mem.util.free - Kbyte
+[ 2] - disk.dev.read["sda"] - count/s
+[ 3] - disk.dev.read["sdb"] - count/s
+[ 4] - disk.dev.read["sdc"] - count/s
+[ 5] - disk.dev.read["hdc"] - count/s
+[ 6] - disk.dev.read["sdd"] - count/s
+[ 7] - disk.dev.read["sde"] - count/s
+[ 8] - mem.util.used - Kbyte
+
+         1         2         3         4         5         6         7         8
+     38220       N/A       N/A       N/A       N/A       N/A       N/A   6068648
+     38220     0.000    30.000     0.000     0.000     0.000     1.000   6068648
+
+[ 1] - mem.util.free - Kbyte
+[ 2] - disk.dev.read["sda"] - count/s
+[ 3] - disk.dev.read["sdb"] - count/s
+[ 4] - disk.dev.read["sdc"] - count/s
+[ 5] - disk.dev.read["hdc"] - count/s
+[ 6] - disk.dev.read["sdd"] - count/s
+[ 7] - disk.dev.read["sde"] - count/s
+[ 8] - mem.util.used - Kbyte
+
+         1         2         3         4         5         6         7         8
+     38220     0.000    30.000     1.000     0.000     0.000     1.000   6068648
+     38220     0.000    30.000     0.000     0.000     0.000     1.000   6068648
 == invalid command line parameters
 Error while parsing options: Non-negative integer expected.
 Error while parsing options: Non-negative integer expected.
