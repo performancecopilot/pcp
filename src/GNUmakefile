@@ -69,6 +69,7 @@ OTHER_SUBDIRS = \
 	pmie \
 	pmieconf \
 	pmiestatus \
+	pmjson \
 	pmlc \
 	pmlock \
 	pmlogextract \

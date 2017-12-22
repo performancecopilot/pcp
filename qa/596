@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 596
+# pmlogextract with prologue-epilogue heuristic
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogextract archives/mark_no_mark_0 archives/mark_no_mark_1 $tmp
+
+pmdumplog -z -M $tmp pmcd.pid pmcd.seqnum
+
+# success, all done
+status=0
+exit

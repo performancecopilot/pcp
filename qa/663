@@ -15,8 +15,6 @@ test -d "$PCP_SHARE_DIR/webapps/graphite" || \
 test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
 	_notrun "blinkenlights webapp is not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-$python -c "import json.tool" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python import json.tool not installed"
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*

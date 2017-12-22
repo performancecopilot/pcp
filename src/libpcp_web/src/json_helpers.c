@@ -16,7 +16,9 @@
 #include "pmjson.h"
 #include "pmda.h"
 #include "jsmn.h"
-#include <sys/stat.h>
+
+/* Number of spaces to use in each level of pretty-printed output */
+#define PRETTY_SPACES	4
 
 /*
  * JSMN helper interfaces for efficiently extracting from JSON strings
@@ -197,7 +199,7 @@ jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics,
 	    return -1;
     }
     else {
-	if (pmDebugOptions.appl2)
+	if (pmDebugOptions.libweb)
 	    pmNotifyErr(LOG_DEBUG, "pmjson_flag: %d\n", flag);
 	switch (flag) {
 	case pmjson_flag_boolean:
@@ -273,11 +275,11 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 
     switch (json_tokens->type) {
     case JSMN_PRIMITIVE:
-	if (pmDebugOptions.appl2)
+	if (pmDebugOptions.libweb)
 	    pmNotifyErr(LOG_DEBUG, "jsmn primitive\n");
 	return 1;
     case JSMN_STRING:
-	if (pmDebugOptions.appl2)
+	if (pmDebugOptions.libweb)
 	    pmNotifyErr(LOG_DEBUG, "string: %.*s parent: %d\n",
 			json_tokens->end - json_tokens->start,
 			json + json_tokens->start, json_tokens->parent);
@@ -300,11 +302,11 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	}
 	return 1;
     case JSMN_OBJECT:
-	if (pmDebugOptions.appl2)
+	if (pmDebugOptions.libweb)
 	    pmNotifyErr(LOG_DEBUG, "jsmn object\n");
 	for (i = j = k = 0; i < json_tokens->size; i++) {
 	    k = 0;
-	    if (pmDebugOptions.appl2)
+	    if (pmDebugOptions.libweb)
 		pmNotifyErr(LOG_DEBUG, "object key\n");
 	    k = json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
 	    /* returned a valid section, continue */
@@ -322,7 +324,7 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		j++;
 	    }
 
-	    if (pmDebugOptions.appl2)
+	    if (pmDebugOptions.libweb)
 		pmNotifyErr(LOG_DEBUG, "object value %d\n", (json_tokens+1+j)->size);
 	    if (count > j)
 		j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
@@ -331,7 +333,7 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	}
 	return j + 1;
     case JSMN_ARRAY:
-	if (pmDebugOptions.appl2)
+	if (pmDebugOptions.libweb)
 	    pmNotifyErr(LOG_DEBUG, "jsmn_array");
 	for (i = j = 0; i < json_tokens->size; i++)
 	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
@@ -354,7 +356,7 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
     for (i = 0; i < nmetrics; i++) {
 	memset(&pointer_final[0], 0, sizeof(pointer_final));
 	json_pointer = strdup(json_metrics[i].json_pointer);
-	if (pmDebugOptions.appl1)
+	if (pmDebugOptions.libweb)
 	    pmNotifyErr(LOG_DEBUG, "json_pointer: %s\n", json_pointer);
 	j = 0;
 	pointer_part = strtok(json_pointer, "/");
@@ -400,14 +402,14 @@ int
 pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 		   json_get get_json, void *userdata)
 {
-    int               sts = 0;
-    jsmn_parser       parser;
-    jsmntok_t         *json_tokens;
-    int               token_count = 256;
-    int               json_length = 0;
-    char              *json = NULL;
-    char              buffer[BUFSIZ];
-    int               bytes;
+    int		sts = 0;
+    jsmn_parser	parser;
+    jsmntok_t	*json_tokens;
+    int		token_count = 256;
+    int		json_length = 0;
+    char	*json = NULL;
+    char	buffer[BUFSIZ];
+    int		bytes;
 
     jsmn_init(&parser);
     if (!(json_tokens = calloc(token_count, sizeof(*json_tokens))))
@@ -418,8 +420,8 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	if (bytes == 0)
 	    goto indexing;
 	if (bytes < 0) {
-	    if (pmDebugOptions.attr)
-		fprintf(stderr, "%s: failed to read more JSON: %s\n",
+	    if (pmDebugOptions.libweb)
+		fprintf(stderr, "%s: failed to get JSON: %s\n",
 			pmGetProgname(), osstrerror());
 	    sts = -oserror();
 	    goto finished;
@@ -435,21 +437,21 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 
 parsing:
 	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
-	if (pmDebugOptions.attr) {
+	if (pmDebugOptions.libweb)
 	    fprintf(stderr, "jsmn_parse() -> %d\n", sts);
-	}
 	if (sts < 0) {
 	    if (sts == JSMN_ERROR_PART)		/* keep consuming JSON */
 		continue;
 	    if (sts == JSMN_ERROR_NOMEM) {	/* ran out of token space */
 		token_count *= 2;
-		if ((json_tokens = realloc(json_tokens, (sizeof(*json_tokens) * token_count))) == NULL) {
+		bytes = sizeof(*json_tokens) * token_count;
+		if ((json_tokens = realloc(json_tokens, bytes)) == NULL) {
 		    free(json);
 		    free(json_tokens);
 		    return -ENOMEM;
 		}
 		/* set the newly allocated memory to zero */
-		memset(&json_tokens[token_count/2], 0, sizeof(*json_tokens)*token_count/2);
+		memset(&json_tokens[token_count / 2], 0, bytes / 2);
 		goto parsing;
 	    }
 	    sts = -EINVAL;	/* anything else indicates invalid JSON */
@@ -457,10 +459,193 @@ parsing:
 	}
 
 indexing:
-	json_pointer_to_index(json, json_tokens, parser.toknext, json_metrics, nmetrics);
-	sts = (indom == PM_INDOM_NULL) ? 0 :
-	    pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
+	json_pointer_to_index(json, json_tokens,
+			parser.toknext, json_metrics, nmetrics);
+	sts = (indom == PM_INDOM_NULL) ? 0 : pmdaCacheStore(indom,
+			PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
 	break;
+    }
+
+finished:
+    free(json_tokens);
+    free(json);
+    return sts;
+}
+
+static int
+printyaml(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent)
+{
+    int		i, j;
+
+    if (!count)
+	return 0;
+
+    if (t->type == JSMN_PRIMITIVE) {
+	fprintf(fp, "%.*s", t->end - t->start, js + t->start);
+	return 1;
+    } else if (t->type == JSMN_STRING) {
+	fprintf(fp, "%.*s", t->end - t->start, js + t->start);
+	return 1;
+    } else if (t->type == JSMN_OBJECT) {
+	if (indent > 0)
+	    fprintf(fp, "\n");
+	for (i = j = 0; i < t->size; i++) {
+	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1);
+	    fprintf(fp, ": ");
+	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1);
+	    if (i != t->size - 1)
+		fprintf(fp, "\n");
+	}
+	return j+1;
+    } else if (t->type == JSMN_ARRAY) {
+	if (indent > 0)
+	    fprintf(fp, "\n");
+	for (i = j = 0; i < t->size; i++) {
+	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	    fprintf(fp, "  - ");
+	    j += printyaml(fp, js, t+1+j, count-j, indent+1);
+	    if (i != t->size - 1)
+		fprintf(fp, "\n");
+	}
+	return j+1;
+    }
+    return 0;
+}
+
+static int
+printjson(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent, json_flags flags)
+{
+    int		i, j;
+
+    if (!count)
+	return 0;
+
+    if (t->type == JSMN_PRIMITIVE) {
+	fprintf(fp, "%.*s", t->end - t->start, js + t->start);
+	return 1;
+    } else if (t->type == JSMN_STRING) {
+	fprintf(fp, "\"%.*s\"", t->end - t->start, js + t->start);
+	return 1;
+    } else if (t->type == JSMN_OBJECT) {
+	fprintf(fp, "{");
+	if (!(flags & pmjson_flag_minimal) && t->size > 0)
+	    fprintf(fp, "\n");
+	for (i = j = 0; i < t->size; i++) {
+	    if (!(flags & pmjson_flag_minimal))
+		fprintf(fp, "%*s", PRETTY_SPACES * (1 + indent), "");
+	    j += printjson(fp, js, t + 1 + j, count - j, indent + 1, flags);
+	    fprintf(fp, ":");
+	    if (!(flags & pmjson_flag_minimal))
+		fprintf(fp, " ");
+	    j += printjson(fp, js, t + 1 + j, count - j, indent + 1, flags);
+	    if (i != t->size - 1)
+		fprintf(fp, ",");
+	    if (!(flags & pmjson_flag_minimal))
+		fprintf(fp, "\n");
+	}
+	if (!(flags & pmjson_flag_minimal))
+	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	fprintf(fp, "}");
+	return j+1;
+    } else if (t->type == JSMN_ARRAY) {
+	fprintf(fp, "[");
+	if (!(flags & pmjson_flag_minimal) && t->size > 0)
+	    fprintf(fp, "\n");
+	for (i = j = 0; i < t->size; i++) {
+	    if (!(flags & pmjson_flag_minimal))
+		fprintf(fp, "%*s", PRETTY_SPACES * (1 + indent), "");
+	    j += printjson(fp, js, t+1+j, count-j, indent+1, flags);
+	    if (i != t->size - 1)
+		fprintf(fp, ",");
+	    if (!(flags & pmjson_flag_minimal))
+		fprintf(fp, "\n");
+	}
+	if (!(flags & pmjson_flag_minimal))
+	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	fprintf(fp, "]");
+	return j+1;
+    }
+    return 0;
+}
+
+int
+pmjsonPrint(FILE *fp, json_flags flags, const char *pointer,
+		json_get get_json, void *userdata)
+{
+    int		sts = 0;
+    int		eof_expected = 0;
+    jsmn_parser	parser;
+    jsmntok_t	*json_tokens;
+    int		token_count = 256;
+    int		json_length = 0;
+    char	*json = NULL;
+    char	buffer[BUFSIZ];
+    int		bytes;
+
+    if (pointer)
+	return PM_ERR_NYI;	/* API placeholder for jsonpointers */
+
+    jsmn_init(&parser);
+    if (!(json_tokens = calloc(token_count, sizeof(*json_tokens))))
+	return -ENOMEM;
+
+    for (;;) {
+	bytes = (*get_json)(buffer, sizeof(buffer), userdata);
+	if (bytes == 0) {
+	    sts = eof_expected ? 0 : -EINVAL;
+	    goto finished;
+	}
+	if (bytes < 0) {
+	    if (pmDebugOptions.libweb)
+		fprintf(stderr, "%s: failed to get JSON: %s\n",
+			pmGetProgname(), osstrerror());
+	    sts = -oserror();
+	    goto finished;
+	}
+
+	/* Successfully read in more data, extend sizeof json array */
+	if ((json = realloc(json, json_length + bytes + 1)) == NULL) {
+	    sts = -ENOMEM;
+	    goto finished;
+	}
+	strncpy(json + json_length, buffer, bytes);
+	json_length = json_length + bytes;
+
+parsing:
+	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "jsmn_parse() -> %d\n", sts);
+	if (sts < 0) {
+	    if (sts == JSMN_ERROR_PART)		/* keep consuming JSON */
+		continue;
+	    if (sts == JSMN_ERROR_NOMEM) {	/* ran out of token space */
+		token_count *= 2;
+		bytes = sizeof(*json_tokens) * token_count;
+		if ((json_tokens = realloc(json_tokens, bytes)) == NULL) {
+		    free(json);
+		    free(json_tokens);
+		    return -ENOMEM;
+		}
+		/* set the newly allocated memory to zero */
+		memset(&json_tokens[token_count / 2], 0, bytes / 2);
+		goto parsing;
+	    }
+	    sts = -EINVAL;	/* anything else indicates invalid JSON */
+	    break;
+	}
+
+/*printing:*/
+	if (flags & pmjson_flag_quiet)
+	    ; /* just checking syntax */
+	else if (flags & pmjson_flag_yaml) {
+	    printyaml(fp, json, json_tokens, parser.toknext, 0);
+	    fprintf(fp, "\n");
+	} else {
+	    printjson(fp, json, json_tokens, parser.toknext, 0, flags);
+	    fprintf(fp, "\n");
+	}
+	eof_expected = 1;
     }
 
 finished:

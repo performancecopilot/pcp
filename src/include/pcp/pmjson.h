@@ -29,6 +29,10 @@ typedef enum json_flags {
     pmjson_flag_u64      = (1<<5),
     pmjson_flag_float    = (1<<6),
     pmjson_flag_double   = (1<<7),
+    pmjson_flag_minimal  = (1<<10),
+    pmjson_flag_pretty   = (1<<11),
+    pmjson_flag_quiet    = (1<<12),
+    pmjson_flag_yaml     = (1<<13),
 } json_flags;
 
 typedef struct json_metric_desc {
@@ -42,8 +46,10 @@ typedef struct json_metric_desc {
 typedef int (*json_get)(char *, int, void *);
 PCP_CALL extern int pmjsonGet(json_metric_desc *, int, pmInDom, json_get, void *);
 
-PCP_CALL extern int pmjsonInit(int fd, json_metric_desc *, int);
-PCP_CALL extern int pmjsonInitIndom(int fd, json_metric_desc *, int, pmInDom);
+PCP_CALL extern int pmjsonInit(int, json_metric_desc *, int);
+PCP_CALL extern int pmjsonInitIndom(int, json_metric_desc *, int, pmInDom);
+
+PCP_CALL extern int pmjsonPrint(FILE *, json_flags, const char *, json_get, void *);
 
 #ifdef __cplusplus
 }

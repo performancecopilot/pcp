@@ -946,6 +946,7 @@ collectl
 593 pmlogger #779495 local pmstore
 594 pmda.sample #779246 #782029 local
 595 libpcp threads local archive multi-archive
+596 pmlogextract archive local
 597 pmda.shping pmda.proc pmda.install local
 599 pmie local
 600 libpcp local timezone
@@ -1439,6 +1440,7 @@ collectl
 1222 pmda.linux pmda.proc local
 1225 pmwebapi local
 1227 derive local
+1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local
 1242 pmrep archive multi-archive decompress-xz local
 1245 libpcp local
