@@ -1,0 +1,41 @@
+QA output created by 598
+
+a.ok_scalar
+    value 100
+
+a.ok_indom
+    inst [100 or "bin-100"] value 100
+    inst [300 or "bin-300"] value 300
+    inst [500 or "bin-500"] value 500
+    inst [700 or "bin-700"] value 700
+    inst [900 or "bin-900"] value 900
+
+a.noval_op2_t
+No value(s) available!
+
+a.noval_op2_f
+No value(s) available!
+
+a.noval_op3_t
+No value(s) available!
+
+a.noval_op3_f
+No value(s) available!
+
+a.err_op2_t
+Error: Try again. Information not currently available
+
+a.err_op2_f
+Error: Try again. Information not currently available
+
+a.err_op3_t
+Error: Try again. Information not currently available
+
+a.err_op3_f
+Error: Try again. Information not currently available
+
+a.noval_op1
+No value(s) available!
+
+a.err_op1
+Error: Try again. Information not currently available

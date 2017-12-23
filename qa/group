@@ -948,6 +948,7 @@ collectl
 595 libpcp threads local archive multi-archive
 596 pmlogextract archive local
 597 pmda.shping pmda.proc pmda.install local
+598 derive local
 599 pmie local
 600 libpcp local timezone
 601 trace pmda.install local
