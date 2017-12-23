@@ -395,6 +395,7 @@ sampledso.hordes.two
 sampledso.bad.unknown
 sampledso.bad.nosupport
 sampledso.bad.novalues
+sampledso.bad.fetch.again
 sampledso.wrap.long
 sampledso.wrap.ulong
 sampledso.wrap.longlong
@@ -595,6 +596,7 @@ sampledso.hordes.two
 sampledso.bad.unknown
 sampledso.bad.nosupport
 sampledso.bad.novalues
+sampledso.bad.fetch.again
 sampledso.wrap.long
 sampledso.wrap.ulong
 sampledso.wrap.longlong

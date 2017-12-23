@@ -104,6 +104,7 @@ sampledso.hordes.two [500 instances]
 sampledso.bad.unknown [Not known to the PMDA]
 sampledso.bad.nosupport [Not supported in this version of the PMDA]
 sampledso.bad.novalues [Scalar with no values, ever]
+sampledso.bad.fetch.again [Fetch returns PM_ERR_AGAIN, always]
 sampledso.wrap.long [long counter that wraps]
 sampledso.wrap.ulong [unsigned long counter that wraps]
 sampledso.wrap.longlong [long long counter that wraps]
@@ -723,6 +724,10 @@ Type is PM_NOSUPPORT, fetch returns PM_ERR_APPVERSION
 sampledso.bad.novalues
 Help:
 Scalar with no values, ever
+
+sampledso.bad.fetch.again
+Help:
+Fetch returns PM_ERR_AGAIN, always
 
 sampledso.wrap.long
 Help:

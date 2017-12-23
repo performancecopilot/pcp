@@ -16,6 +16,7 @@ sample.needprofile: Explicit instance identifier(s) required
 sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
 sample.bad.novalues: No value(s) available
+sample.bad.fetch.again: Try again. Information not currently available
 sample.event.type: No value(s) available
 sample.event.param_32: No value(s) available
 sample.event.param_u32: No value(s) available
@@ -48,6 +49,7 @@ sampledso.needprofile: Explicit instance identifier(s) required
 sampledso.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
 sampledso.bad.nosupport: Not Supported
 sampledso.bad.novalues: No value(s) available
+sampledso.bad.fetch.again: Try again. Information not currently available
 sampledso.event.type: No value(s) available
 sampledso.event.param_32: No value(s) available
 sampledso.event.param_u32: No value(s) available

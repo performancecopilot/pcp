@@ -26,6 +26,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.aggregate.hullo
 2 sampledso.aggregate.null
 2 sampledso.aggregate.write_me
+2 sampledso.bad.fetch.again
 2 sampledso.bad.nosupport
 2 sampledso.bad.novalues
 2 sampledso.bad.unknown
@@ -190,6 +191,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.aggregate.hullo
 2 sampledso.aggregate.null
 2 sampledso.aggregate.write_me
+2 sampledso.bad.fetch.again
 2 sampledso.bad.nosupport
 2 sampledso.bad.novalues
 2 sampledso.bad.unknown
@@ -340,6 +342,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.aggregate.hullo
 0 sampledso.aggregate.null
 0 sampledso.aggregate.write_me
+0 sampledso.bad.fetch.again
 0 sampledso.bad.nosupport
 0 sampledso.bad.novalues
 0 sampledso.bad.unknown
@@ -489,6 +492,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.aggregate.hullo
 1 sampledso.aggregate.null
 1 sampledso.aggregate.write_me
+1 sampledso.bad.fetch.again
 1 sampledso.bad.nosupport
 1 sampledso.bad.novalues
 1 sampledso.bad.unknown
@@ -638,6 +642,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.aggregate.hullo
 2 sampledso.aggregate.null
 2 sampledso.aggregate.write_me
+2 sampledso.bad.fetch.again
 2 sampledso.bad.nosupport
 2 sampledso.bad.novalues
 2 sampledso.bad.unknown
@@ -788,6 +793,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.aggregate.hullo
 0 sampledso.aggregate.null
 0 sampledso.aggregate.write_me
+0 sampledso.bad.fetch.again
 0 sampledso.bad.nosupport
 0 sampledso.bad.novalues
 0 sampledso.bad.unknown
@@ -937,6 +943,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.aggregate.hullo
 1 sampledso.aggregate.null
 1 sampledso.aggregate.write_me
+1 sampledso.bad.fetch.again
 1 sampledso.bad.nosupport
 1 sampledso.bad.novalues
 1 sampledso.bad.unknown
@@ -1086,6 +1093,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.aggregate.hullo
 2 sampledso.aggregate.null
 2 sampledso.aggregate.write_me
+2 sampledso.bad.fetch.again
 2 sampledso.bad.nosupport
 2 sampledso.bad.novalues
 2 sampledso.bad.unknown
@@ -1287,6 +1295,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.aggregate.hullo
 0 sampledso.aggregate.null
 0 sampledso.aggregate.write_me
+0 sampledso.bad.fetch.again
 0 sampledso.bad.nosupport
 0 sampledso.bad.novalues
 0 sampledso.bad.unknown
@@ -1436,6 +1445,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.aggregate.hullo
 1 sampledso.aggregate.null
 1 sampledso.aggregate.write_me
+1 sampledso.bad.fetch.again
 1 sampledso.bad.nosupport
 1 sampledso.bad.novalues
 1 sampledso.bad.unknown
@@ -1585,6 +1595,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.aggregate.hullo
 2 sampledso.aggregate.null
 2 sampledso.aggregate.write_me
+2 sampledso.bad.fetch.again
 2 sampledso.bad.nosupport
 2 sampledso.bad.novalues
 2 sampledso.bad.unknown
@@ -1735,6 +1746,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.aggregate.hullo
 0 sampledso.aggregate.null
 0 sampledso.aggregate.write_me
+0 sampledso.bad.fetch.again
 0 sampledso.bad.nosupport
 0 sampledso.bad.novalues
 0 sampledso.bad.unknown
@@ -1884,6 +1896,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.aggregate.hullo
 1 sampledso.aggregate.null
 1 sampledso.aggregate.write_me
+1 sampledso.bad.fetch.again
 1 sampledso.bad.nosupport
 1 sampledso.bad.novalues
 1 sampledso.bad.unknown
@@ -2033,6 +2046,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.aggregate.hullo
 2 sampledso.aggregate.null
 2 sampledso.aggregate.write_me
+2 sampledso.bad.fetch.again
 2 sampledso.bad.nosupport
 2 sampledso.bad.novalues
 2 sampledso.bad.unknown

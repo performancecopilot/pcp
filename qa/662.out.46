@@ -81,10 +81,11 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):173
+len(metrics[]):174
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
+  metric:sample.bad.fetch.again metadata:7
   metric:sample.bad.nosupport metadata:7
   metric:sample.bad.novalues metadata:7
   metric:sample.bigid metadata:7
@@ -481,10 +482,11 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):173
+len(metrics[]):174
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
+  metric:sample.bad.fetch.again metadata:7
   metric:sample.bad.nosupport metadata:7
   metric:sample.bad.novalues metadata:7
   metric:sample.bigid metadata:7

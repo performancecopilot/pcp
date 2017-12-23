@@ -109,6 +109,7 @@ sample.hordes.two 500
 sample.bad.unknown -12358 Unknown or illegal metric identifier
 sample.bad.nosupport -12350 Metric not supported by this version of monitored application
 sample.bad.novalues 0
+sample.bad.fetch.again -12389 Try again. Information not currently available
 sample.wrap.long 1
 sample.wrap.ulong 1
 sample.wrap.longlong 1
@@ -297,6 +298,7 @@ sample.hordes.two 500 ?0 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?10 ?11 ?12 ?13 ?14 ?15 ?16 
 sample.bad.unknown -12358 Unknown or illegal metric identifier (pmLookupDesc)
 sample.bad.nosupport -12350 Metric not supported by this version of monitored application
 sample.bad.novalues 0
+sample.bad.fetch.again -12389 Try again. Information not currently available
 sample.wrap.long 1 PM_IN_NULL
 sample.wrap.ulong 1 PM_IN_NULL
 sample.wrap.longlong 1 PM_IN_NULL
@@ -491,6 +493,7 @@ sample.hordes.two 500 "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13
 sample.bad.unknown -12358 Unknown or illegal metric identifier (pmLookupDesc)
 sample.bad.nosupport -12350 Metric not supported by this version of monitored application
 sample.bad.novalues 0
+sample.bad.fetch.again -12389 Try again. Information not currently available
 sample.wrap.long 1 PM_IN_NULL
 sample.wrap.ulong 1 PM_IN_NULL
 sample.wrap.longlong 1 PM_IN_NULL
@@ -671,6 +674,7 @@ sample.hordes.two 500 499 498 497 496 495 494 493 492 491 490 489 488 487 486 48
 sample.bad.unknown -12358 Unknown or illegal metric identifier (pmLookupDesc)
 sample.bad.nosupport -12350 Metric not supported by this version of monitored application
 sample.bad.novalues 0
+sample.bad.fetch.again -12389 Try again. Information not currently available
 sample.wrap.long 1 NUMBER
 sample.wrap.ulong 1 NUMBER
 sample.wrap.longlong 1 NUMBER
@@ -896,6 +900,7 @@ sample.hordes.two 500 ?0 "0" ?1 "1" ?2 "2" ?3 "3" ?4 "4" ?5 "5" ?6 "6" ?7 "7" ?8
 sample.bad.unknown -12358 Unknown or illegal metric identifier (pmLookupDesc)
 sample.bad.nosupport -12350 Metric not supported by this version of monitored application
 sample.bad.novalues 0
+sample.bad.fetch.again -12389 Try again. Information not currently available
 sample.wrap.long 1 PM_IN_NULL PM_IN_NULL
 sample.wrap.ulong 1 PM_IN_NULL PM_IN_NULL
 sample.wrap.longlong 1 PM_IN_NULL PM_IN_NULL

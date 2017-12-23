@@ -308,6 +308,8 @@ PMID 29.0.152 sample.negative.discrete.m_double: double discrete metric with neg
 
 PMID 29.0.153 sample.string.bin: a string-valued version of sample.bin
 
+PMID 29.0.154 sample.bad.fetch.again: Fetch returns PM_ERR_AGAIN, always
+
 PMID 29.0.1000: dynamic *.secret.bar metric
 
 PMID 29.0.1001: dynamic *.secret.foo.one metric

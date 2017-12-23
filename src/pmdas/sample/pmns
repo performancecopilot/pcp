@@ -173,6 +173,11 @@ sample.bad {
     unknown	SAMPLE:0:54
     nosupport	SAMPLE:0:55
     novalues	SAMPLE:0:138
+    fetch
+}
+
+sample.bad.fetch {
+    again	SAMPLE:0:154
 }
 
 sample.wrap {

@@ -367,6 +367,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,152), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* sample.string.bin */
     { PMDA_PMID(0,153), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.bad.fetch.again  */
+    { PMDA_PMID(0,154), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -1630,6 +1632,8 @@ doit:
 		numval = 0;
 	    else if (cluster == 0 && item == 138)	/* bad.novalues */
 		numval = 0;
+	    else if (cluster == 0 && item == 154)	/* bad.fetch.again */
+		numval = PM_ERR_AGAIN;
 	    else if (cluster == 0 &&
 	             (item == 127 ||	/* event.type */
 		      item == 128 ||	/* event.param_32 */

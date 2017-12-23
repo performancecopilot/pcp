@@ -29,6 +29,7 @@ pmlc> query sample.bad.unknown
 pmlc> query sample.bad.nosupport
 pmlc> query sample.bad
 sample.bad.novalues
+sample.bad.fetch.again
 pmlc> query sample
 sample.control
 sample.daemon_pid
@@ -124,6 +125,7 @@ sample.aggregate.write_me
 sample.hordes.one
 sample.hordes.two
 sample.bad.novalues
+sample.bad.fetch.again
 sample.wrap.long
 sample.wrap.ulong
 sample.wrap.longlong

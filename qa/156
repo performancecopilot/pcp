@@ -13,16 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_service pcp restart | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
-
 _filter()
 {
     _filter_pmda_install | \
     sed -e 's/ 13[0-9][0-9] values/ 1300+ values/' \
 	-e 's/ 1[0-9] warnings/ 10+ warnings/' \
-	-e 's/ 3 warnings/ 10+ warnings/' \
 	-e 's/ 1[0-9][0-9] metrics/ 100+ metrics/' \
 	-e "s;$tmp;TMP;" \
 	-e "s/$port1/PORT1/" \
