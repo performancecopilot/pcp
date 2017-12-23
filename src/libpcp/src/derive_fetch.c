@@ -929,11 +929,23 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		node_t	*pick;
 		node_t	*pick_inst;
 		int	numval;
+		/*
+		 * the ternary expression is only going to have well-behaved
+		 * semantics if we have value(s) for the guard and both the
+		 * truth/false expressions
+		 */
+		if (np->left->info->numval <= 0) {
+		    /* no guard expression values */
+		    np->info->numval = np->left->info->numval;
+		    return np->info->numval;
+		}
 		if (np->right->left->info->numval <= 0) {
+		    /* no true expression values */
 		    np->info->numval = np->right->left->info->numval;
 		    return np->info->numval;
 		}
 		if (np->right->right->info->numval <= 0) {
+		    /* no false expression values */
 		    np->info->numval = np->right->right->info->numval;
 		    return np->info->numval;
 		}
@@ -1005,6 +1017,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				}
 				return PM_ERR_TYPE;
 			}
+		    }
+		    if (pick == NULL) {
+			fprintf(stderr, "For Marco ...\n");
+			__dmdumpexpr(np, 0);
 		    }
 		    assert(pick != NULL);
 		    switch (np->desc.type) {
