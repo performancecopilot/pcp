@@ -57,6 +57,7 @@ sample_filter()
 	-e "/sample\.bad\.nosupport: $nosupport/d" \
 	-e "/sample\.bad\.unknown: $unknown/d" \
 	-e "/sample\.bad\.novalues: $unavailable/d" \
+	-e "/sample\.bad\.fetch.again: .* Try again/d" \
 	-e "/sample\.needprofile: $explicit/d" \
 	-e "/sample\.noinst: $unavailable/d" \
 	-e "/sample\.dynamic\.counter: $unavailable/d" \
@@ -69,6 +70,7 @@ sample_filter()
 	-e "/sampledso\.bad\.nosupport: $nosupport/d" \
 	-e "/sampledso\.bad\.unknown: $unknown/d" \
 	-e "/sampledso\.bad\.novalues: $unavailable/d" \
+	-e "/sampledso\.bad\.fetch.again: .* Try again/d" \
 	-e "/sampledso\.needprofile: $explicit/d" \
 	-e "/sampledso\.noinst: $unavailable/d" \
 	-e "/sampledso\.dynamic\.counter: $unavailable/d" \

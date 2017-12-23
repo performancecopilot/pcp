@@ -28,9 +28,11 @@ _filter()
 	-e '/^sample\.needprofile:/d' \
 	-e '/^sample\.bad\.unknown:/d' \
 	-e '/^sample\.bad\.nosupport:/d' \
+	-e '/^sample\.bad\.fetch\.again:/d' \
 	-e '/^sampledso\.needprofile:/d' \
 	-e '/^sampledso\.bad\.unknown:/d' \
 	-e '/^sampledso\.bad\.nosupport:/d' \
+	-e '/^sampledso\.bad\.fetch\.again:/d' \
 	-e '/^proc\.schedstat.*: Unknown or .*/d' \
 	-e '/^proc\.schedstat.*: No permission/d' \
 	-e '/^proc\.psinfo.*: No permission/d' \

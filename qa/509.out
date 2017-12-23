@@ -70,6 +70,7 @@ dbpmda>
 load(name=(null), dupok=1, use_cpp=0) lic case=0 fname=/var/lib/pcp/pmns/root
 loadascii(dupok=1, use_cpp=0) fname=/var/lib/pcp/pmns/root
 pmLoadNameSpace: active -> 29.0.123
+pmLoadNameSpace: again -> 29.0.154
 pmLoadNameSpace: base -> 29.0.115
 pmLoadNameSpace: bigid -> 29.0.1023
 pmLoadNameSpace: bin -> 29.0.103
