@@ -1449,6 +1449,7 @@ collectl
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local
 1324 pmclient archive multi-archive decompress-xz local
+1326 pmstore pmda.pmcd local
 1330 pmda.prometheus local
 1331 verify local
 1343 pmmgr local
