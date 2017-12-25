@@ -1890,6 +1890,10 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		raise(SIGHUP);
 #endif
 	    }
+	    else if (item == 24) { /* pmcd.seqnum */
+		/* bump ... intended for QA */
+		pmcd_seqnum++;
+	    }
 	    else {
 		sts = PM_ERR_PMID;
 		break;
