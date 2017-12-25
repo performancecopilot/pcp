@@ -20,7 +20,7 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstore\f1
-[\f3\-Lf\f1]
+[\f3\-LfF\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
@@ -130,6 +130,25 @@ argument conforms to the syntax described in
 More than one
 .B \-K
 option may be used.
+.PP
+Normally
+.B pmstore
+will report the old value (as initially retrieved using
+.BR pmFetch (3))
+and the new value from the command line.
+The
+.B \-F
+option forces another
+.BR pmFetch (3)
+after the
+.BR pmStore (3)
+and the returned value is reported as the new value.
+This is useful in cases where
+.I metricname
+is a metric that provides different semantics for the store operation,
+e.g. to increment the current value or reset a counter (independent of the
+.I value
+from the command line).
 .SH FILES
 .PD 0
 .TP 10
@@ -154,7 +173,10 @@ as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmval (1),
+.BR PMAPI (3),
+.BR pmFetch (3),
 .BR __pmSpecLocalPMDA (3),
+.BR pmStore (3),
 .BR strtod (3)
 and
 .BR strtol (3).

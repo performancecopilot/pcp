@@ -1,5 +1,5 @@
 /*
- * pmstore [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
+ * pmstore [-Ff] [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
  *
  * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -28,6 +28,7 @@ static pmLongOptions longopts[] = {
     PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Value options"),
+    { "fetch", 0, 'F', 0, "perform pmFetch after pmStore to confirm value" },
     { "force", 0, 'f', 0, "store the value even if there is no current value set" },
     { "insts", 1, 'i', "INSTS", "restrict store to comma-separated list of instances" },
     PMAPI_OPTIONS_END
@@ -35,7 +36,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "D:fh:K:Li:n:V?",
+    .short_options = "D:Ffh:K:Li:n:V?",
     .long_options = longopts,
     .short_usage = "[options] metricname value",
 };
@@ -75,19 +76,29 @@ main(int argc, char **argv)
     char	*source;
     char	*namelist[1];
     pmID	pmidlist[1];
-    pmResult	*result;
+    pmResult	*old;
+    pmResult	*new;
+    pmResult	*store;
     char	**instnames = NULL;
     int		numinst = 0;
     int		force = 0;
+    int		fetch = 0;
+    int		old_force = 0;
     pmDesc	desc;
     pmAtomValue	nav;
-    pmValueSet	*vsp;
+    pmValueSet	*old_vsp;
+    pmValueSet	*store_vsp;
+    pmValueSet	*new_vsp;
     char        *subopt;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
         case 'f':
             force++;
+            break;
+
+        case 'F':
+            fetch++;
             break;
 
 	case 'i':	/* list of instances */
@@ -175,21 +186,46 @@ main(int argc, char **argv)
 	    }
 	}
     }
-    if ((n = pmFetch(1, pmidlist, &result)) < 0) {
-	printf("%s: pmFetch: %s\n", namelist[0], pmErrStr(n));
+
+    if ((n = pmFetch(1, pmidlist, &old)) < 0) {
+	printf("%s: pre pmFetch: %s\n", namelist[0], pmErrStr(n));
+	exit(1);
+    }
+    old_vsp = old->vset[0];
+    if (old_vsp->numval < 0) {
+	printf("%s: Error: %s\n", namelist[0], pmErrStr(old_vsp->numval));
 	exit(1);
     }
 
     /* value is argv[opts.optind] */
     mkAtom(&nav, desc.type, argv[opts.optind]);
 
-    vsp = result->vset[0];
-    if (vsp->numval < 0) {
-	printf("%s: Error: %s\n", namelist[0], pmErrStr(vsp->numval));
+    /* duplicate old -> store */
+    store = (pmResult *)malloc(sizeof(pmResult));
+    if (store == NULL) {
+	fprintf(stderr, "%s: pmResult malloc(%d) failed\n", pmGetProgname(), (int)sizeof(pmResult));
 	exit(1);
     }
+    store->timestamp = old->timestamp;
+    store->numpmid = old->numpmid;
+    store->vset[0] = (pmValueSet *)malloc(sizeof(pmValueSet)+(old_vsp->numval-1)*sizeof(pmValue));
+    if (store->vset[0] == NULL) {
+	fprintf(stderr, "%s: pmValueSet malloc(%d) failed\n", pmGetProgname(), (int)(sizeof(pmValueSet)+(old_vsp->numval-1)*sizeof(pmValue)));
+	exit(1);
+    }
+    store_vsp = store->vset[0];
+    store_vsp->pmid = old_vsp->pmid;
+    store_vsp->numval = old_vsp->numval;
+    store_vsp->valfmt = old_vsp->valfmt;
+    for (i = 0; i < old_vsp->numval; i++) {
+	/*
+	 * OK to copy these, the __pmStuffValue() below will assign
+	 * new values to the old-> ones
+	 */
+	store_vsp->vlist[i] = old_vsp->vlist[i];
+    }
 
-    if (vsp->numval == 0) {
+    if (old_vsp->numval == 0) {
         if (!force) {
             printf("%s: No value(s) available!\n", namelist[0]);
             exit(1);
@@ -199,33 +235,51 @@ main(int argc, char **argv)
 
             mkAtom(&tmpav, PM_TYPE_STRING, "(none)");
 
-            vsp->numval = 1;
-            vsp->valfmt = __pmStuffValue(&tmpav, &vsp->vlist[0], PM_TYPE_STRING);
+            store_vsp->numval = 1;
+            store_vsp->valfmt = __pmStuffValue(&tmpav, &store_vsp->vlist[0], PM_TYPE_STRING);
+	    old_force = 1;
         }
     }
 
-    for (i = 0; i < vsp->numval; i++) {
-	pmValue	*vp = &vsp->vlist[i];
+    for (i = 0; i < store_vsp->numval; i++) {
+	store_vsp->valfmt = __pmStuffValue(&nav, &store_vsp->vlist[i], desc.type);
+    }
+
+    if ((n = pmStore(store)) < 0) {
+	printf("%s: pmStore: %s\n", namelist[0], pmErrStr(n));
+	exit(1);
+    }
+
+    if (fetch) {
+	if ((n = pmFetch(1, pmidlist, &new)) < 0) {
+	    printf("%s: post pmFetch: %s\n", namelist[0], pmErrStr(n));
+	    exit(1);
+	}
+    }
+    else
+	new = store;
+
+    new_vsp = new->vset[0];
+
+    for (i = 0; i < old_vsp->numval; i++) {
+	pmValue	*old_vp = &old_vsp->vlist[i];
+	pmValue	*new_vp = &new_vsp->vlist[i];
 	printf("%s", namelist[0]);
 	if (desc.indom != PM_INDOM_NULL) {
-	    if ((n = pmNameInDom(desc.indom, vp->inst, &p)) < 0)
-		printf(" inst [%d]", vp->inst);
+	    if ((n = pmNameInDom(desc.indom, old_vp->inst, &p)) < 0)
+		printf(" inst [%d]", old_vp->inst);
 	    else {
-		printf(" inst [%d or \"%s\"]", vp->inst, p);
+		printf(" inst [%d or \"%s\"]", old_vp->inst, p);
 		free(p);
 	    }
 	}
 	printf(" old value=");
-	pmPrintValue(stdout, vsp->valfmt, desc.type, vp, 1);
-	vsp->valfmt = __pmStuffValue(&nav, &vsp->vlist[i], desc.type);
+	if (old_force == 0)
+	    pmPrintValue(stdout, old_vsp->valfmt, desc.type, old_vp, 1);
 	printf(" new value=");
-	pmPrintValue(stdout, vsp->valfmt, desc.type, vp, 1);
+	pmPrintValue(stdout, new_vsp->valfmt, desc.type, new_vp, 1);
 	putchar('\n');
     }
-    if ((n = pmStore(result)) < 0) {
-	printf("%s: pmStore: %s\n", namelist[0], pmErrStr(n));
-	exit(1);
-    }
-    pmFreeResult(result);
+
     exit(0);
 }

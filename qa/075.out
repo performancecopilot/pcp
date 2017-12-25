@@ -46,6 +46,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Value options:
+  -F, --fetch           perform pmFetch after pmStore to confirm value
   -f, --force           store the value even if there is no current value set
   -i INSTS, --insts=INSTS
                         restrict store to comma-separated list of instances
@@ -67,6 +68,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Value options:
+  -F, --fetch           perform pmFetch after pmStore to confirm value
   -f, --force           store the value even if there is no current value set
   -i INSTS, --insts=INSTS
                         restrict store to comma-separated list of instances
