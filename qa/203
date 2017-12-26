@@ -1,6 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 203
 # pmlogextract, then pmlogextract again (nested mark record processing)
+# See also qa/604 for the new pmlogextract <mark> handling logic.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -47,9 +48,9 @@ echo log.B
 _filter $tmp.B
 
 rm -f $tmp.C.*
-pmlogextract $tmp.A $tmp.B $tmp.C
+pmlogextract -m $tmp.A $tmp.B $tmp.C
 echo
-echo "log.C == pmlogextract log.A log.B"
+echo "log.C == pmlogextract -m log.A log.B"
 _filter $tmp.C
 
 echo
@@ -79,9 +80,9 @@ echo log.D
 _filter $tmp.D
 
 rm -f $tmp.E.*
-pmlogextract $tmp.C $tmp.D $tmp.E
+pmlogextract -m $tmp.C $tmp.D $tmp.E
 echo
-echo "log.E == pmlogextract log.C log.D"
+echo "log.E == pmlogextract -m log.C log.D"
 _filter $tmp.E
 
 echo
