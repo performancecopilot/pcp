@@ -30,7 +30,7 @@ log mandatory on 1 second {
 }
 EOFEOF
 
-pmlogextract $tmp.first $tmp.second $tmp.result
+pmlogextract -m $tmp.first $tmp.second $tmp.result
 
 echo "=== pminfo, no mark, no core ==="
 pminfo -f -a $tmp.result sample.long.ten
