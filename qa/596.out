@@ -1,33 +1,81 @@
 QA output created by 596
-Note: timezone set to local timezone of host "bozo" from archive
+Note: timezone set to local timezone of host "bozo-vm" from archive
 
 
-11:08:18.192  2.0.23 (pmcd.pid): value 12662
-              2.0.24 (pmcd.seqnum): value 11
+06:03:55.904  2.0.23 (pmcd.pid): value 17962
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:21.212  2.0.23 (pmcd.pid): value 12662
-              2.0.24 (pmcd.seqnum): value 11
+06:03:58.925  2.0.23 (pmcd.pid): value 17962
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:21.213  <mark>
+06:03:58.926  <mark>
 
-11:08:22.142  2.0.23 (pmcd.pid): value 13740
-              2.0.24 (pmcd.seqnum): value 11
+06:03:59.627  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:25.163  2.0.23 (pmcd.pid): value 13740
-              2.0.24 (pmcd.seqnum): value 11
+06:04:02.650  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:25.164  <mark>
+06:04:02.670  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:25.174  2.0.23 (pmcd.pid): value 13740
-              2.0.24 (pmcd.seqnum): value 11
+06:04:05.691  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:28.194  2.0.23 (pmcd.pid): value 13740
-              2.0.24 (pmcd.seqnum): value 11
+06:04:05.692  <mark>
 
-11:08:28.195  <mark>
+06:04:06.383  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:29.227  2.0.23 (pmcd.pid): value 14094
-              2.0.24 (pmcd.seqnum): value 11
+06:04:09.404  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 12
 
-11:08:32.247  2.0.23 (pmcd.pid): value 14094
-              2.0.24 (pmcd.seqnum): value 11
+06:04:09.405  <mark>
+
+06:04:09.434  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 13
+
+06:04:12.457  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 13
+
+=== with -m (old style) ===
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+
+06:03:55.904  2.0.23 (pmcd.pid): value 17962
+              2.0.24 (pmcd.seqnum): value 12
+
+06:03:58.925  2.0.23 (pmcd.pid): value 17962
+              2.0.24 (pmcd.seqnum): value 12
+
+06:03:58.926  <mark>
+
+06:03:59.627  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
+
+06:04:02.650  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
+
+06:04:02.651  <mark>
+
+06:04:02.670  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
+
+06:04:05.691  2.0.23 (pmcd.pid): value 22717
+              2.0.24 (pmcd.seqnum): value 12
+
+06:04:05.692  <mark>
+
+06:04:06.383  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 12
+
+06:04:09.404  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 12
+
+06:04:09.405  <mark>
+
+06:04:09.434  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 13
+
+06:04:12.457  2.0.23 (pmcd.pid): value 23230
+              2.0.24 (pmcd.seqnum): value 13

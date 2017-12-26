@@ -24,8 +24,13 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmlogextract archives/mark_no_mark_0 archives/mark_no_mark_1 $tmp
+pmlogextract archives/mark_no_mark_?.0 $tmp
+pmdumplog -z -M $tmp pmcd.pid pmcd.seqnum
 
+echo
+echo "=== with -m (old style) ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogextract -m archives/mark_no_mark_?.0 $tmp
 pmdumplog -z -M $tmp pmcd.pid pmcd.seqnum
 
 # success, all done
