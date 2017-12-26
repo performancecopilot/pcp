@@ -47,7 +47,6 @@ _doit()
     rm -f $tmp.new.* $tmp.out
     echo "log mandatory on 1sec { sample.dynamic.meta }" \
     | pmlogger -l $tmp.log -s 3 $tmp.new
-    _reset
     pmlogextract $tmp.base $tmp.new $tmp.out 2>&1 \
     | _filter
     if [ -f $tmp.out.0 ]
@@ -81,18 +80,22 @@ echo "log mandatory on 1sec { sample.dynamic.meta }" \
 echo "Change metric type ..."
 pmstore sample.dynamic.meta.pmdesc.type 3
 _doit
+pmstore sample.dynamic.meta.pmdesc.type 0
 
 echo "Change metric indom ..."
 pmstore sample.dynamic.meta.pmdesc.indom 42
 _doit
+pmstore sample.dynamic.meta.pmdesc.indom 4294967295
 
 echo "Change metric semantics ..."
 pmstore sample.dynamic.meta.pmdesc.sem 0
 _doit
+pmstore sample.dynamic.meta.pmdesc.sem 4
 
 echo "Change metric units ..."
 pmstore sample.dynamic.meta.pmdesc.units 0
 _doit
+pmstore sample.dynamic.meta.pmdesc.units 520105984
 
 # success, all done
 exit
