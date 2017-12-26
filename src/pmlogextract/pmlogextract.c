@@ -27,11 +27,15 @@ long totalmalloc;
 static pmUnits nullunits;
 static int desperate;
 
+pmID pmid_pid;
+pmID pmid_seqnum;
+
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "config", 1, 'c', "FILE", "file to load configuration from" },
     { "desperate", 0, 'd', 0, "desperate, save output after fatal error" },
     { "first", 0, 'f', 0, "use timezone from first archive [default is last]" },
+    { "mark", 0, 'm', 0, "ignore prologue/epilogue records and <mark> between archives" },
     PMOPT_START,
     { "samples", 1, 's', "NUM", "terminate after NUM log records have been written" },
     PMOPT_FINISH,
@@ -43,7 +47,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:dfS:s:T:v:wZ:z?",
+    .short_options = "c:D:dfmS:s:T:v:wZ:z?",
     .long_options = longopts,
     .short_usage = "[options] input-archive output-archive",
 };
@@ -311,6 +315,7 @@ static pmTimeval	logend = {-1,0};	/* log end time */
 /* command line args */
 char	*configfile = NULL;		/* -c arg - name of config file */
 int	farg = 0;			/* -f arg - use first timezone */
+int	old_mark_logic = 0;		/* -m arg - <mark> b/n archives */
 int	sarg = -1;			/* -s arg - finish after X samples */
 char	*Sarg = NULL;			/* -S arg - window start */
 char	*Targ = NULL;			/* -T arg - window end */
@@ -1337,8 +1342,8 @@ againlog:
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
+	iap->recnum++;
 	assert(iap->_result != NULL);
-
 
 	/*
 	 * set current log time - this is only done so that we can
@@ -1346,6 +1351,53 @@ againlog:
 	 */
 	curtime.tv_sec = iap->_result->timestamp.tv_sec;
 	curtime.tv_usec = iap->_result->timestamp.tv_usec;
+
+	/*
+	 * check for prologue/epilogue records ... 
+	 *
+	 * Warning: If pmlogger changes the contents of the prologue
+	 *          and/or epilogue records, then the 5 below will need
+	 *          to be adjusted.
+	 *          If the type of pmcd.pid changes from U64 or the type
+	 *          of pmcd.seqnum changes from U32, the extraction will
+	 *          have to change as well.
+	 */
+	if (iap->_result->numpmid == 5) {
+	    pmAtomValue	av;
+	    int		lsts;
+	    for (i=0; i<iap->_result->numpmid; i++) {
+		if (iap->_result->vset[i]->pmid == pmid_pid) {
+		    lsts = pmExtractValue(iap->_result->vset[i]->valfmt, &iap->_result->vset[i]->vlist[0], PM_TYPE_U64, &av, PM_TYPE_64);
+		    if (lsts != 0) {
+			fprintf(stderr,
+			    "%s: Warning: failed to get pmcd.pid from %s at record %d: %s\n",
+				pmGetProgname(), iap->name, iap->recnum, pmErrStr(lsts));
+			if (pmDebugOptions.desperate) {
+			    PM_UNLOCK(ctxp->c_lock);
+			    __pmDumpResult(stderr, iap->_result);
+			    PM_LOCK(ctxp->c_lock);
+			}
+		    }
+		    else
+			iap->pmcd_pid = av.ll;
+		}
+		else if (iap->_result->vset[i]->pmid == pmid_seqnum) {
+		    lsts = pmExtractValue(iap->_result->vset[i]->valfmt, &iap->_result->vset[i]->vlist[0], PM_TYPE_U32, &av, PM_TYPE_32);
+		    if (lsts != 0) {
+			fprintf(stderr,
+			    "%s: Warning: failed to get pmcd.seqnum from %s at record %d: %s\n",
+				pmGetProgname(), iap->name, iap->recnum, pmErrStr(lsts));
+			if (pmDebugOptions.desperate) {
+			    PM_UNLOCK(ctxp->c_lock);
+			    __pmDumpResult(stderr, iap->_result);
+			    PM_LOCK(ctxp->c_lock);
+			}
+		    }
+		    else
+			iap->pmcd_seqnum = av.l;
+		}
+	    }
+	}
 
 	/*
 	 * if log time is greater than (or equal to) the current window
@@ -1387,8 +1439,8 @@ againlog:
                 goto againlog;
             }
 	}
-
 	PM_UNLOCK(ctxp->c_lock);
+
     } /*for(i)*/
 
     /*
@@ -1438,6 +1490,10 @@ parseargs(int argc, char *argv[])
 
 	case 'f':	/* use timezone from first archive */
 	    farg = 1;
+	    break;
+
+	case 'm':	/* always add <mark> between archives */
+	    old_mark_logic = 1;
 	    break;
 
 	case 's':	/* number of samples to write out */
@@ -1792,6 +1848,46 @@ writemark(inarch_t *iap)
     iap->pb[LOG] = NULL;
 }
 
+static int
+do_not_need_mark(inarch_t *iap)
+{
+    int			i, j;
+    struct timeval	tstamp;
+    struct timeval	smallest_tstamp;
+
+    if (old_mark_logic || iap->pmcd_pid == -1 || iap->pmcd_seqnum == -1)
+	/* no epilogue/prologue for me ... */
+	return 0;
+
+    j = -1;
+    smallest_tstamp.tv_sec = INT_MAX;
+    smallest_tstamp.tv_usec = 999999;
+    for (i=0; i<inarchnum; i++) {
+	if (&inarch[i] == iap)
+	    continue;
+	if (inarch[i]._result != NULL) {
+	    tstamp.tv_sec = inarch[i]._result->timestamp.tv_sec;
+	    tstamp.tv_usec = inarch[i]._result->timestamp.tv_usec;
+	    if (tstamp.tv_sec < smallest_tstamp.tv_sec || 
+		(tstamp.tv_sec == smallest_tstamp.tv_sec && tstamp.tv_usec < smallest_tstamp.tv_usec)) {
+		j = i;
+		smallest_tstamp.tv_sec = tstamp.tv_sec;
+		smallest_tstamp.tv_usec = tstamp.tv_usec;
+	    }
+	}
+    }
+    if (j != -1) {
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "EOF this pid=%" FMT_INT64 " seqnum=%d next[%d] pid=%" FMT_INT64 " seqnum=%d\n", iap->pmcd_pid, iap->pmcd_seqnum, j, inarch[j].pmcd_pid, inarch[j].pmcd_seqnum);
+	}
+	if (iap->pmcd_pid == inarch[j].pmcd_pid &&
+	    iap->pmcd_seqnum == inarch[j].pmcd_seqnum)
+	    return 1;
+    }
+
+    return 0;
+}
+
 /*--- END FUNCTIONS ---------------------------------------------------------*/
 
 int
@@ -1819,6 +1915,13 @@ main(int argc, char **argv)
     rdesc = NULL;	/* list of meta desc records to write */
     rindom = NULL;	/* list of meta indom records to write */
     rlready = NULL;
+
+    /*
+     * These come from the PMCD PMDA and pmlogger's epilogue/prologue
+     * code.
+     */
+    pmid_pid = pmID_build(2,0,23);
+    pmid_seqnum = pmID_build(2,0,24);
 
     /* no derived or anon metrics, please */
     __pmSetInternalState(PM_STATE_PMCS);
@@ -1859,6 +1962,9 @@ main(int argc, char **argv)
 	iap->pb[LOG] = iap->pb[META] = NULL;
 	iap->eof[LOG] = iap->eof[META] = 0;
 	iap->mark = 0;
+	iap->pmcd_pid = -1;
+	iap->pmcd_seqnum = -1;
+	iap->recnum = 0;
 	iap->_result = NULL;
 	iap->_Nresult = NULL;
 
@@ -2103,8 +2209,14 @@ main(int argc, char **argv)
 
 
 	iap = &inarch[ilog];
-	if (iap->mark)
-	    writemark(iap);
+	if (iap->mark) {
+	    if (do_not_need_mark(iap)) {
+		free(iap->pb[LOG]);
+		iap->pb[LOG] = NULL;
+	    }
+	    else
+		writemark(iap);
+	}
 	else {
 	    /* result is to be written out, but there is no _Nresult */
 	    if (iap->_Nresult == NULL) {

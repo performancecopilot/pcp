@@ -20,7 +20,7 @@
 and merge Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3pmlogextract\f1
-[\f3\-dfwz\f1]
+[\f3\-dfmwz\f1]
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-s\f1 \f2samples\f1]
@@ -60,7 +60,7 @@ the sets of logs are merged (or concatenated) and written to
 .PP
 In the output archive log a
 .I <mark>
-record will be inserted at a time
+record may be inserted at a time
 just past the end of each of the input archive logs to indicate
 a possible temporal discontinuity between the end of one input
 archive log and the start of the next input archive log.
@@ -118,6 +118,24 @@ The
 option forces the timezone from the
 .I first
 input archive log to be used.
+.TP 7
+.BI \-m
+As described in the
+.B "MARK RECORDS"
+section below, sometimes it is possible to safely omit
+.I <mark>
+records from the output archive.
+If the
+.B \-m
+option is specified, then the
+.I epilogue
+and
+.I prologue
+test is skipped and a
+.I <mark>
+record will always be inserted at the end of each input
+archive (except the last).  This is the original behaviour for
+.BR pmlogextract .
 .TP 7
 .BI \-S " starttime"
 Define the start of a time window to restrict the samples retrieved
@@ -276,7 +294,7 @@ This is an example of a valid
 When more than one input archive log contributes performance data to the
 output archive log, then
 .I <mark>
-records are inserted to indicate a possible
+records may be inserted to indicate a possible
 discontinuity in the performance data.
 .PP
 A
@@ -292,6 +310,20 @@ often associated with the restart of a service or
 .BR pmcd (1)
 or a system, there may be considerable doubt as to the continuity of
 performance data across this time period.
+.PP
+Most current archives are created with a
+.I prologue
+record at the beginning and an
+.I epilogue
+record at the end.
+These records identify the state of
+.BR pmcd (1)
+at the time, and may be used by
+.B pmlogextract
+to determine that there is no discontinuity between the end of
+one archive and the next output record, and as a consequence the
+.I <mark>
+record can safely be omitted from the output archive.
 .PP
 The rationale behind
 .I <mark>
