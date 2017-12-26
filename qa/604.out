@@ -1,0 +1,26 @@
+QA output created by 604
+
+log.A
+6 records
+
+log.B
+7 records
+
+log.C == pmlogextract log.A log.B
+13 records
+
+mismatch timestamps
+
+pmval [no interpolate] ...
+8 records
+
+log.D
+8 records
+
+log.E == pmlogextract log.C log.D
+21 records
+
+mismatch timestamps
+
+pmval [no interpolate] ...
+14 records

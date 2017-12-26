@@ -954,6 +954,7 @@ collectl
 601 trace pmda.install local
 602 trace pmda.install local
 603 trace pmda.install remote
+604 logutil archive pmval pmlogextract pmdumplog local
 605 trace local
 606 python archive pmns pmiostat local
 610 libpcp local
