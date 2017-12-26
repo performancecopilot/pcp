@@ -14,32 +14,36 @@ cd ..
 . ./common.check
 cd $myhere
 
+_stop_auto_restart
+
 rm -f mark_no_mark*
 
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+trap "rm -f $tmp.*; _restore_auto_restart; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
 log mandatory on once hinv
 log mandatory on default simple
 End-of-File
 
-pmlogger -c $tmp.config -t 1sec $tmp.0 -s 5 -l $tmp.log
-echo "FYI - pmlogger.log for #0"; cat $tmp.log
+pmlogger -c $tmp.config -t 1sec mark_no_mark_0 -s 5 -l $tmp.log
+echo "FYI - pmlogger.log for _0"; cat $tmp.log
+
+_service pmcd restart
+_wait_for_pmcd
+
+pmlogger -c $tmp.config -t 1sec mark_no_mark_1 -s 5 -l $tmp.log
+echo "FYI - pmlogger.log for _1"; cat $tmp.log
+
+pmlogger -c $tmp.config -t 1sec mark_no_mark_2 -s 5 -l $tmp.log
+echo "FYI - pmlogger.log for _2"; cat $tmp.log
 
 _service pmcd restart
 
-pmlogger -c $tmp.config -t 1sec $tmp.1 -s 5 -l $tmp.log
-echo "FYI - pmlogger.log for #1"; cat $tmp.log
+pmlogger -c $tmp.config -t 1sec mark_no_mark_3 -s 5 -l $tmp.log
+echo "FYI - pmlogger.log for _3"; cat $tmp.log
 
-pmlogger -c $tmp.config -t 1sec $tmp.2 -s 5 -l $tmp.log
-echo "FYI - pmlogger.log for #2"; cat $tmp.log
+pmstore -F pmcd.seqnum 1
 
-_service pmcd restart
+pmlogger -c $tmp.config -t 1sec mark_no_mark_4 -s 5 -l $tmp.log
+echo "FYI - pmlogger.log for _4"; cat $tmp.log
 
-pmlogger -c $tmp.config -t 1sec $tmp.3 -s 5 -l $tmp.log
-echo "FYI - pmlogger.log for #3"; cat $tmp.log
-
-pmlogextract $tmp.0.meta $tmp.1.meta mark_no_mark_0
-pmlogextract $tmp.2.meta $tmp.3.meta mark_no_mark_1
-
-echo $tmp.?.meta
