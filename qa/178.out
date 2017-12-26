@@ -28,7 +28,7 @@ Log record counts ...
 a: 27
 b: 22
 c: 12
-merge: 61 (+2 marks)
+merge: 61
 
 sample.bin ["bin-200"] ... expect 55 samples
 55 samples
@@ -43,7 +43,7 @@ merge -s 10
 merge (expect 10): 10
 
 merge -T 6.9
-merge (expect 32 + 1 prologue + 1 epilogue + 1 mark): 35 (+1 mark)
+merge (expect 32 + 1 prologue + 1 epilogue + 1 mark): 35
 
 merge -S 6.9 -T 7.2
 merge (expect 12): 12
@@ -57,10 +57,10 @@ Log record counts ...
 a: 27
 b: 22
 c: 12
-merge: 61 (+2 marks)
+merge: 61
 Log record counts per merged volume ...
 volume 0: 15
 volume 1: 15
-volume 2: 14 (+1 mark)
-volume 3: 14 (+1 mark)
-volume 4: 3
+volume 2: 15
+volume 3: 15
+volume 4: 1
