@@ -6,7 +6,7 @@ log.A
 log.B
 8 records
 
-log.C == pmlogextract log.A log.B
+log.C == pmlogextract -m log.A log.B
 14 records, and 1 marks
 
 mismatch timestamps
@@ -14,3 +14,11 @@ mismatch timestamps
 
 pmval [no interpolate] ...
 8 records, and 1 marks
+
+log.C == pmlogextract  log.A log.B
+14 records
+
+mismatch timestamps
+
+pmval [no interpolate] ...
+9 records

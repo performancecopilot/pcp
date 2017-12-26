@@ -54,27 +54,30 @@ ls -l $tmp.B.* >>$seq.full
 pmdumplog -l $tmp.A >>$seq.full
 _filter $tmp.B
 
-rm -f $tmp.C.*
-pmlogextract $tmp.A $tmp.B $tmp.C
-echo
-echo "log.C == pmlogextract log.A log.B"
-_filter $tmp.C
+for arg in -m ""
+do
+    rm -f $tmp.C.*
+    pmlogextract $arg $tmp.A $tmp.B $tmp.C
+    echo
+    echo "log.C == pmlogextract $arg log.A log.B"
+    _filter $tmp.C
 
-echo
-echo "mismatch timestamps"
-cat $tmp.A.stamp $tmp.B.stamp \
-| comm -3 - $tmp.C.stamp \
-| sed -e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/timestamp/g'
+    echo
+    echo "mismatch timestamps"
+    cat $tmp.A.stamp $tmp.B.stamp \
+    | comm -3 - $tmp.C.stamp \
+    | sed -e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/timestamp/g'
 
-echo
-echo "pmval [no interpolate] ..."
-pmval -U $tmp.C sample.milliseconds 2>&1 \
-| tee -a $seq.full \
-| $PCP_AWK_PROG '
-/suspended/				{ mark++; next }
-/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./   { rec++ }
-END			{ printf "%d records",rec
-			  if (mark) printf ", and %d marks",mark
-			  print ""
-			}'
+    echo
+    echo "pmval [no interpolate] ..."
+    pmval -U $tmp.C sample.milliseconds 2>&1 \
+    | tee -a $seq.full \
+    | $PCP_AWK_PROG '
+    /suspended/				{ mark++; next }
+    /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./   { rec++ }
+    END			{ printf "%d records",rec
+			      if (mark) printf ", and %d marks",mark
+			      print ""
+			    }'
 
+done
