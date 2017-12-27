@@ -1019,7 +1019,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			}
 		    }
 		    if (pick == NULL) {
-			fprintf(stderr, "For Marco ...\n");
+			fprintf(stderr, "eval_expr: botch: picked nothing\n"); 
 			__dmdumpexpr(np, 0);
 		    }
 		    assert(pick != NULL);
