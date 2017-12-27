@@ -231,6 +231,10 @@ main(int argc, char **argv)
             exit(1);
         }
         else {
+	    /*
+	     * No current values, so fake one, so that we allocate space
+	     * and then can clobber it in the pmResult (store) below.
+	     */
             pmAtomValue tmpav;
 
             mkAtom(&tmpav, PM_TYPE_STRING, "(none)");
@@ -261,21 +265,23 @@ main(int argc, char **argv)
 
     new_vsp = new->vset[0];
 
-    for (i = 0; i < old_vsp->numval; i++) {
+    for (i = 0; i < new_vsp->numval; i++) {
 	pmValue	*old_vp = &old_vsp->vlist[i];
 	pmValue	*new_vp = &new_vsp->vlist[i];
 	printf("%s", namelist[0]);
 	if (desc.indom != PM_INDOM_NULL) {
-	    if ((n = pmNameInDom(desc.indom, old_vp->inst, &p)) < 0)
-		printf(" inst [%d]", old_vp->inst);
+	    if ((n = pmNameInDom(desc.indom, new_vp->inst, &p)) < 0)
+		printf(" inst [%d]", new_vp->inst);
 	    else {
-		printf(" inst [%d or \"%s\"]", old_vp->inst, p);
+		printf(" inst [%d or \"%s\"]", new_vp->inst, p);
 		free(p);
 	    }
 	}
 	printf(" old value=");
 	if (old_force == 0)
 	    pmPrintValue(stdout, old_vsp->valfmt, desc.type, old_vp, 1);
+	else
+	    printf("\"(none)\"");
 	printf(" new value=");
 	pmPrintValue(stdout, new_vsp->valfmt, desc.type, new_vp, 1);
 	putchar('\n');
