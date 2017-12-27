@@ -858,7 +858,7 @@ collectl
 505 pmlogrewrite local pmdumplog
 506 pmlogrewrite local slow
 507 pcp local
-508 archive pmlogreduce pmlogextract local pmval
+508 archive pmlogreduce local pmval
 509 derive pmns local
 510 pmlogger pmlc local
 511 pmimport pmdumplog pmlogsummary perl local
@@ -941,7 +941,7 @@ collectl
 588 libpcp threads local archive multi-archive
 589 remote
 590 libpcp threads local archive multi-archive
-591 pminfo archive multi-archive decompress-xz local
+591 pminfo archive multi-archive decompress-xz local pmlogextract
 592 pmda.sample local
 593 pmlogger #779495 local pmstore
 594 pmda.sample #779246 #782029 local
@@ -996,9 +996,9 @@ collectl
 668 pmmgr local containers pmdumplog
 669 pmmgr local pmlogcheck
 670 libpcp local
-677 pmprobe archive multi-archive decompress-xz local
-684 pmstat archive multi-archive decompress-xz local
-689 pmclient archive multi-archive decompress-xz local sanity
+677 pmprobe archive multi-archive decompress-xz local pmlogextract
+684 pmstat archive multi-archive decompress-xz local pmlogextract
+689 pmclient archive multi-archive decompress-xz local sanity pmlogextract
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
@@ -1107,16 +1107,16 @@ collectl
 806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
 808 pmlogger local
-809 archive multi-archive local collectl
-810 pmiostat archive multi-archive local
+809 archive multi-archive local collectl pmlogextract
+810 pmiostat archive multi-archive local pmlogextract
 811 pmlogger pmcpp local
 812 pmlogextract local pmdumplog
 813 pmda.papi local
-814 pmprobe archive multi-archive local
+814 pmprobe archive multi-archive local pmlogextract
 815 pmie local
 816 libpcp local
-817 pmstat archive multi-archive local
-818 pmval archive multi-archive local
+817 pmstat archive multi-archive local pmlogextract
+818 pmval archive multi-archive local pmlogextract
 819 pmda.elasticsearch local
 820 pmda.linux local
 821 pmda.linux local
@@ -1185,7 +1185,7 @@ collectl
 884 libpcp_web local
 885 pmda.linux local
 886 pmda.linux local
-887 pmlogsummary archive multi-archive local
+887 pmlogsummary archive multi-archive local pmlogextract
 888 pmda.linux local
 889 pmda.proc local
 890 libpcp_import local
@@ -1268,7 +1268,7 @@ collectl
 967 pmda.papi local
 968 python local derive
 969 derive local
-970 pmclient archive multi-archive local sanity
+970 pmclient archive multi-archive local sanity pmlogextract
 971 pmlogrewrite pmda.proc local pmdumplog
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
@@ -1334,9 +1334,9 @@ collectl
 1033 pmda.named local
 1034 pmda.named local
 1035 pmda.oracle local
-1036 pmclient archive multi-archive local
-1037 pminfo archive multi-archive local
-1038 pmrep archive multi-archive local
+1036 pmclient archive multi-archive local pmlogextract
+1037 pminfo archive multi-archive local pmlogextract
+1038 pmrep archive multi-archive local pmlogextract
 1039 libpcp local
 1040 dbpmda local
 1041 pmda.libvirt local
@@ -1409,13 +1409,13 @@ collectl
 1111 pcp2influxdb python pcp2xxx local
 1112 pmda.linux local
 1113 pcp python local
-1114 archive pmval multi-archive local
-1119 pmlogsummary archive multi-archive decompress-xz local
+1114 archive pmval multi-archive local pmlogextract
+1119 pmlogsummary archive multi-archive decompress-xz local pmlogextract
 1120 pmda.prometheus local
 1121 pmda.linux local
 1122 pmie local
 1123 pmchart local
-1125 archive multi-archive collectl decompress-xz local
+1125 archive multi-archive collectl decompress-xz local pmlogextract
 1128 pmie local
 1129 derive local
 1130 pcp2elasticsearch python pcp2xxx local
@@ -1425,7 +1425,7 @@ collectl
 1134 pmrep pcp2json pcp2xml python pcp2xxx local
 1136 pmrep python pmda.sample local
 1137 derive pmrep local
-1138 archive pmval multi-archive decompress-xz local
+1138 archive pmval multi-archive decompress-xz local pmlogextract
 1140 pidstat local
 1141 selinux local
 1159 pmlogger local pmdumplog
@@ -1442,14 +1442,14 @@ collectl
 1222 pmda.linux pmda.proc local
 1225 pmwebapi local
 1227 derive local
-1238 pmiostat archive multi-archive decompress-xz local
-1242 pmrep archive multi-archive decompress-xz local
+1238 pmiostat archive multi-archive decompress-xz local pmlogextract
+1242 pmrep archive multi-archive decompress-xz local pmlogextract
 1245 libpcp local
 1257 libpcp python local
-1264 archive multi-archive collectl decompress-xz local
+1264 archive multi-archive collectl decompress-xz local pmlogextract
 1276 pmmgr containers local
-1289 pmval archive multi-archive decompress-xz local
-1324 pmclient archive multi-archive decompress-xz local
+1289 pmval archive multi-archive decompress-xz local pmlogextract
+1324 pmclient archive multi-archive decompress-xz local pmlogextract
 1326 pmstore pmda.pmcd local
 1330 pmda.prometheus local
 1331 verify local
