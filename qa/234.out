@@ -18,7 +18,6 @@ pmlogger: Sample limit reached, exiting
 
 Log finished DATE
 Merging ...
-Skip mark @ byte N into input
 
 Checking non-counter stochastic average (sample.drift) ...
 Pass

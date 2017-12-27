@@ -289,12 +289,6 @@ pmlogextract $tmp.a $tmp.b $tmp.merge
 echo "=== tmp.merge ===" >>$seq.full
 pmdumplog $tmp.merge >>$seq.full
 
-# ensure no mark records in archive...
-# 
-mv $tmp.merge.0 $tmp.markedmerge.0
-src/stripmark $tmp.markedmerge.0 $tmp.merge.0 2>&1 \
-| sed -e 's/byte [0-9][0-9]*/byte N/'
-
 echo
 echo "Checking non-counter stochastic average (sample.drift) ..."
 _check_noncounter_stocave sample.drift
