@@ -458,6 +458,9 @@ pmmgr_job_spec::compute_hostids (const pcp_context_spec& ctx) const
 	}
     }
 
+  if (sanitized == "") // treat empty hostid as '-', from hostid-metrics separator
+    sanitized = "-";
+
   hostids.insert(pmmgr_hostid (sanitized));
   return hostids;
 }

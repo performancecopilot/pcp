@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1234
+# Exercise the pmjson utility for manipulating JSON strings.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_jsondump()
+{
+    json="$1"
+    echo
+    echo "Input: $json"
+    echo "Output:"
+
+    echo $json | pmjson --minimal
+    echo "  => Minimal: exitsts =" $?
+
+    echo $json | pmjson --pretty
+    echo "  => Pretty: exitsts =" $?
+
+    echo $json | pmjson --quiet
+    echo "  => Quiet: exitsts =" $?
+
+    echo $json | pmjson --yaml
+    echo "  => YAML: exitsts =" $?
+
+    echo
+}
+
+# real QA test starts here
+echo
+
+echo "== Empty JSON object"
+_jsondump '{}'
+
+echo "== Empty JSON array"
+_jsondump '{}'
+
+echo "== Invalid string"
+_jsondump '-}'
+
+echo "== Basic data types"
+_jsondump '{"a":1,"b":"str","c":[1,2,3],"d":false,"e":null,"f":{"map":1}}'
+
+echo "== Nested data types"
+_jsondump '{"a":{"b":"str","c":{"d":[1,2,3]}},"e":false,"f":{"map":1,"array":[1,2]}}'
+
+# success, all done
+status=0
+exit

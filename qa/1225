@@ -15,8 +15,6 @@ echo "QA output created by $seq"
 test -d "$PCP_SHARE_DIR/webapps/graphite" || \
 	_notrun "graphite webapp is not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-$python -c "import json.tool" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python import json.tool not installed"
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
@@ -78,13 +76,13 @@ awk '/N\/A/ {next} /^[0-9]/ {print $1, $2}'
 #
 echo;echo;echo === pmwebd/graphite time series dump ===
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcunda.disk.dev.read_bytes.sda\
-&from=07:03_20151201&until=07:16_20151201&maxDataPoints=14" | _filter_curl_i | _webapi_json_pretty | \
+&from=07:03_20151201&until=07:16_20151201&maxDataPoints=14" | _filter_curl_i | pmjson --pretty | \
 awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
 
 echo;echo;echo === pmwebd/graphite time series dump for ._ metric ===
 # fetch the _ bit too
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcunda._\
-&from=07:03_20151120&until=07:16_20151222" | _filter_curl_i | _webapi_json_pretty | \
+&from=07:03_20151120&until=07:16_20151222" | _filter_curl_i | pmjson --pretty | \
 awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
 
 cat $tmp.out >> $seq.full

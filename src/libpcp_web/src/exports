@@ -31,4 +31,6 @@ PCP_WEB_1.3 {
     pmSeriesQuery;
     pmSeriesLoad;
     pmSeriesLevelStr;
+
+    pmjsonPrint;
 } PCP_WEB_1.2;

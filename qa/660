@@ -27,6 +27,7 @@ _cleanup()
     $sudo rm -f $here/src/index.html
     $sudo rm -fr $tmp.dir
     $sudo $signal -a pmwebd >/dev/null 2>&1
+    _restore_auto_restart pmwebd
     _service pmwebd restart >/dev/null 2>&1
     $sudo rm -f $tmp.*
 }
@@ -79,6 +80,7 @@ _filter()
 ipv6local=`_ipv6_localhost 2>>$seq.full`
 echo "ipv6local=$ipv6local" >>$seq.full
 
+_stop_auto_restart pmwebd # see GH #394
 _service pmwebd stop >/dev/null 2>&1
 $sudo $signal -a pmwebd >/dev/null 2>&1
 

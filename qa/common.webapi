@@ -61,12 +61,6 @@ _webapi_response_filter()
     # end
 }
 
-_webapi_json_pretty()
-{
-    $python -c "from json.tool import main; main()" \
-    | sed -e 's/, $/,/g'
-}
-
 _webapi_img_pretty()
 {
     imgname=$1

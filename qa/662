@@ -13,6 +13,10 @@ echo "QA output created by $seq"
 _check_pmwebd
 _check_requests_json
 
+_stop_auto_restart pmwebd # see GH #394
+_service pmwebd stop >/dev/null 2>&1
+$sudo $signal -a pmwebd >/dev/null 2>&1
+
 $sudo rm -f $tmp.* $seq.full
 
 pyscript=src/test_webapi.py
@@ -30,6 +34,8 @@ _cleanup()
 	$signal -s TERM $webpid
 	webpid=""
     fi
+    _restore_auto_restart pmwebd
+    _service pmwebd restart >/dev/null 2>&1
     $sudo rm -f $tmp.*
 }
 
