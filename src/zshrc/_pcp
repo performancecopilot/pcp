@@ -467,6 +467,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
       "(-d --desperate $exargs)"{-d,--desperate}'[save output after fatal error]' \
       "(-f --first $exargs)"{-f,--first}'[use timezone from the first (not last) archive]' \
+      "(-m --mark $exargs)"{-m,--mark}'[ignore prologue/epilogue and <mark> records between archives]' \
       "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
       "(-s --samples $exargs)"{-s+,--samples}'[specify number of log records to write]:samples:' \
       "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
@@ -625,6 +626,7 @@ _pcp () {
       "(-L --local-PMDA -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-F --fetch $exargs)"{-f,--fetch}'[perform pmFetch after pmStore to confirm value]' \
       "(-f --force $exargs)"{-f,--force}'[store value even if unset]' \
       "($exargs)"\*{-i+,--insts}'[specify instances to store to]:instances:->instances' \
       '1:metric:->metrics' \
