@@ -626,7 +626,7 @@ _pcp () {
       "(-L --local-PMDA -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-F --fetch $exargs)"{-f,--fetch}'[perform pmFetch after pmStore to confirm value]' \
+      "(-F --fetch $exargs)"{-F,--fetch}'[perform pmFetch after pmStore to confirm value]' \
       "(-f --force $exargs)"{-f,--force}'[store value even if unset]' \
       "($exargs)"\*{-i+,--insts}'[specify instances to store to]:instances:->instances' \
       '1:metric:->metrics' \
