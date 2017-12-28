@@ -25,8 +25,7 @@ ok FD port inet INADDR_ANY
 Testing QA user allowed fetch access (explicit)
 sample.control 1 0
 Testing QA user disallowed store access (explicit)
-sample.write_me old value=2 new value=1
-sample.write_me: pmStore: No permission to perform requested operation
+sample.write_me: new value="1" pmStore: No permission to perform requested operation
 Testing nobody user disallowed fetch access (implicit)
 Error: sample.control: No permission to perform requested operation
 Terminating local pmcd process
@@ -84,8 +83,7 @@ ok FD port inet INADDR_ANY
 Testing QA group allowed fetch access (explicit)
 sample.control 1 0
 Testing QA group disallowed store access (explicit)
-sample.write_me old value=2 new value=1
-sample.write_me: pmStore: No permission to perform requested operation
+sample.write_me: new value="1" pmStore: No permission to perform requested operation
 Testing nobody group disallowed fetch access (implicit)
 Error: sample.control: No permission to perform requested operation
 Terminating local pmcd process

@@ -74,7 +74,7 @@ Value options:
                         restrict store to comma-separated list of instances
 
 $ pmstore -i bin-300,bin-400,bin-500 -h REMOTEHOST sample.bin 500
-sample.bin: pmStore: No permission to perform requested operation
+sample.bin: new value="500" pmStore: No permission to perform requested operation
 
 $ pmval -s 2 -i bin-300,bin-400,bin-500 sample.bin
 
