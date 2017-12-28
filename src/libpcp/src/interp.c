@@ -108,7 +108,7 @@ typedef struct pmidcntl {		/* metric control */
 typedef struct {
     pmResult	*rp;		/* cached pmResult from __pmLogRead */
     int		sts;		/* from __pmLogRead */
-    char	*l_name;	/* log name */
+    char	*c_name;	/* log name */
     int		vol;		/* log volume */
     long	head_posn;	/* posn in file before forwards __pmLogRead */
     long	tail_posn;	/* posn in file after forwards __pmLogRead */
@@ -181,7 +181,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
     acp->ac_cache_idx = (acp->ac_cache_idx + 1) % NUMCACHE;
     lfup = &cache[acp->ac_cache_idx];
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-	if (cp->l_name != NULL && strcmp(cp->l_name, acp->ac_log->l_name) == 0 &&
+	if (cp->c_name != NULL && strcmp(cp->c_name, acp->ac_log->l_name) == 0 &&
 	    cp->vol == acp->ac_vol &&
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
@@ -242,9 +242,9 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
      */
     if (posn == 0 || save_curvol != acp->ac_curvol || archive_changed ||
 	acp->ac_mark_done) {
-	if (lfup->l_name) {
-	    free(lfup->l_name);
-	    lfup->l_name = NULL;
+	if (lfup->c_name) {
+	    free(lfup->c_name);
+	    lfup->c_name = NULL;
 	}
 	if (pmDebugOptions.log && pmDebugOptions.desperate)
 	    fprintf(stderr, "cache_read: reload vol switch, mark cache[%d] unused\n",
@@ -255,12 +255,12 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	lfup->vol = acp->ac_vol;
 	lfup->used = 1;
 	/* Try to avoid excessive copying/freeing of the archive name. */
-	if (lfup->l_name != NULL && strcmp(lfup->l_name, acp->ac_log->l_name) != 0) {
-	    free(lfup->l_name);
-	    lfup->l_name = NULL;
+	if (lfup->c_name != NULL && strcmp(lfup->c_name, acp->ac_log->l_name) != 0) {
+	    free(lfup->c_name);
+	    lfup->c_name = NULL;
 	}
-	if (lfup->l_name == NULL) {
-	    if ((lfup->l_name = strdup(acp->ac_log->l_name)) == NULL) {
+	if (lfup->c_name == NULL) {
+	    if ((lfup->c_name = strdup(acp->ac_log->l_name)) == NULL) {
 		pmNoMem("__pmLogFetchInterp.l_name",
 			  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
 	    }
@@ -2094,14 +2094,14 @@ __pmFreeInterpData(__pmContext *ctxp)
 	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	    if (pmDebugOptions.log && pmDebugOptions.interp) {
 		fprintf(stderr, "read cache entry "
-			PRINTF_P_PFX "%p: l_name=%s rp="
+			PRINTF_P_PFX "%p: c_name=%s rp="
 			PRINTF_P_PFX "%p\n",
-			cp, cp->l_name ? cp->l_name : "(none)",
+			cp, cp->c_name ? cp->c_name : "(none)",
 			cp->rp);
 	    }
-	    if (cp->l_name != NULL) {
-		free(cp->l_name);
-		cp->l_name = NULL;
+	    if (cp->c_name != NULL) {
+		free(cp->c_name);
+		cp->c_name = NULL;
 	    }
 	    if (cp->rp != NULL) {
 		pmFreeResult(cp->rp);
