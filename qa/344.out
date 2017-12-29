@@ -32,7 +32,7 @@ sample.colour PMID: 30.0.5
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K clear, +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -71,7 +71,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400 +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -110,7 +110,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400, +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -149,7 +149,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -188,7 +188,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX, +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -227,7 +227,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX,sample_init +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -266,7 +266,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -305,7 +305,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,,sample_init +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -344,7 +344,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -383,7 +383,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,,sample_init +++
-pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+pminfo: pmSpecLocalPMDA failed: unexpected text after clear op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -422,7 +422,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add +++
-pminfo: __pmSpecLocalPMDA failed: expected , after op in spec
+pminfo: pmSpecLocalPMDA failed: expected , after op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -461,7 +461,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add, +++
-pminfo: __pmSpecLocalPMDA failed: missing domain in spec
+pminfo: pmSpecLocalPMDA failed: missing domain in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -500,7 +500,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400 +++
-pminfo: __pmSpecLocalPMDA failed: missing dso-path in spec
+pminfo: pmSpecLocalPMDA failed: missing dso-path in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -539,7 +539,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400, +++
-pminfo: __pmSpecLocalPMDA failed: missing dso-path in spec
+pminfo: pmSpecLocalPMDA failed: missing dso-path in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -578,7 +578,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX +++
-pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
+pminfo: pmSpecLocalPMDA failed: missing init-routine in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -617,7 +617,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX, +++
-pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
+pminfo: pmSpecLocalPMDA failed: missing init-routine in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -666,7 +666,7 @@ sample.string.write_me PMID: 30.0.29
 qa.string.write_me PMID: 400.0.29
     value 13
 +++ -K del +++
-pminfo: __pmSpecLocalPMDA failed: expected , after op in spec
+pminfo: pmSpecLocalPMDA failed: expected , after op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -705,7 +705,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del, +++
-pminfo: __pmSpecLocalPMDA failed: missing domain in spec
+pminfo: pmSpecLocalPMDA failed: missing domain in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -754,7 +754,7 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,,sample/pmda_sample.$DSO_SUFFIX +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 __pmLocalPMDA -> Unknown or illegal instance domain identifier
-pminfo: __pmSpecLocalPMDA failed: __pmLocalPMDA: Unknown or illegal instance domain identifier
+pminfo: pmSpecLocalPMDA failed: __pmLocalPMDA: Unknown or illegal instance domain identifier
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -801,7 +801,7 @@ build_dsotab: parsing $PCP_PMCDCONF_PATH
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,, +++
-pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
+pminfo: pmSpecLocalPMDA failed: missing domain and dso-path in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -840,7 +840,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,,, +++
-pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
+pminfo: pmSpecLocalPMDA failed: missing domain and dso-path in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
@@ -879,7 +879,7 @@ Metrics options:
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,,,sample_init +++
-pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
+pminfo: pmSpecLocalPMDA failed: missing domain and dso-path in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:

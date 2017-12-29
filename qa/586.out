@@ -55,7 +55,7 @@ Error Parsing ASCII PMNS: Cannot open "/no/such/pmns"
 template: Cannot load namespace from "/no/such/pmns": No such file or directory
 
 === bad arg for -K option  ===
-template: __pmSpecLocalPMDA failed: bad op in spec
+template: pmSpecLocalPMDA failed: bad op in spec
 Usage: template [options] ...
 ... usage stuff deleted
 

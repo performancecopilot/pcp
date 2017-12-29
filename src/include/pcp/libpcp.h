@@ -1147,7 +1147,6 @@ PCP_CALL extern int __pmIsLocalhost(const char *);
 
 /* DSO PMDA helpers */
 PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
-PCP_CALL extern char *__pmSpecLocalPMDA(const char *);
 
 /* internals of argument parsing for special circumstances */
 PCP_CALL extern void __pmStartOptions(pmOptions *);

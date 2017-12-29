@@ -658,8 +658,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'K':
-	    if ((endnum = __pmSpecLocalPMDA(opts.optarg)) != NULL) {
-		pmprintf("%s: __pmSpecLocalPMDA failed: %s\n",
+	    if ((endnum = pmSpecLocalPMDA(opts.optarg)) != NULL) {
+		pmprintf("%s: pmSpecLocalPMDA failed: %s\n",
 			pmGetProgname(), endnum);
 		opts.errors++;
 	    }

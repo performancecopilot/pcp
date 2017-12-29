@@ -1199,6 +1199,9 @@ PCP_CALL extern int pmSetProcessIdentity(const char *);
  */
 PCP_CALL extern int pmGetUsername(char **);
 
+/* DSO PMDA helpers */
+PCP_CALL extern char *pmSpecLocalPMDA(const char *);
+
 #ifdef __cplusplus
 }
 #endif

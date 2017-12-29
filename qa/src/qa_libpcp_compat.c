@@ -34,6 +34,7 @@ extern int __pmPathSeparator(void);
 extern int __pmGetUsername(char **);
 extern int __pmSetProcessIdentity(const char *);
 extern void pmFreeHighResResult(pmHighResResult *);
+extern char __pmSpecLocalPMDA(const char *);
 
 #else
 /*
@@ -81,6 +82,9 @@ main(int argc, char **argv)
     struct timespec	x;
     double		t;
     pmHighResResult	*rp;
+    char		buf[1024];
+    char		*pcp_pmdas_dir;
+    char		*dso_suffix;
 
     setlinebuf(stdout);
     setlinebuf(stderr);
@@ -193,6 +197,27 @@ main(int argc, char **argv)
     /* nothing to test here, just diags */
     pmSetDebug("pdubuf");
     pmFreeHighResResult(rp);
+
+    printf("pmSpecLocalPMDA test:\n");
+    fflush(stdout);
+    u = pmSpecLocalPMDA("foo");
+    if (u != NULL)
+	printf("Expected error: pmSpecLocal(foo): %s\n", u);
+    else
+	printf("Error: expected error from pmSpecLocal(foo)\n");
+    u = pmSpecLocalPMDA("clear");
+    if (u != NULL)
+	printf("Unexpected error: pmSpecLocal(clear): %s\n", u);
+    else
+	printf("pmSpecLocal(clear): OK\n");
+    pcp_pmdas_dir = pmGetConfig("PCP_PMDAS_DIR");
+    dso_suffix = pmGetConfig("DSO_SUFFIX");
+    sprintf(buf, "add,30,%s/sample/pmda_sample.%s,sample_init", pcp_pmdas_dir, dso_suffix);
+    u = pmSpecLocalPMDA(buf);
+    if (u != NULL)
+	printf("Unexpected error: pmSpecLocal(%s): %s\n", buf, u);
+    else
+	printf("pmSpecLocal(add,...): OK\n");
 
     /* need this to be last ... this cripples the process! */
     printf("__pmSetProcessIdentity test: (expect failure)\n");

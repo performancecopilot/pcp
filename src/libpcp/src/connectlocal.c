@@ -17,7 +17,7 @@
  *
  * atexit_installed is protected by the __pmLock_libpcp mutex.
  *
- * __pmSpecLocalPMDA() uses buffer[], but this routine is only called
+ * pmSpecLocalPMDA() uses buffer[], but this routine is only called
  * from main() in single-threaded apps like pminfo, pmprobe, pmval
  * and pmevent ... so we can ignore any multi-threading issues,
  * especially as buffer[] is only used on an error handling code path.
@@ -36,7 +36,7 @@
  * The same arguments apply to EndLocalContext() and __pmConnectLocal().
  *
  * __pmLocalPMDA() is a mixed bag, sharing some of the justification from
- * __pmSpecLocalPMDA() and some from __pmConnectLocal().
+ * pmSpecLocalPMDA() and some from __pmConnectLocal().
  *
  * Because __pmConnectLocal() is not going to be used in a multi-threaded
  * environment, the call to the thread-unsafe dlerror() is OK.
@@ -598,7 +598,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
  *	- init (name of DSO's initialization routine)
  */
 char *
-__pmSpecLocalPMDA(const char *spec)
+pmSpecLocalPMDA(const char *spec)
 {
     int		op;
     int		domain = -1;
@@ -611,7 +611,7 @@ __pmSpecLocalPMDA(const char *spec)
 
     if ((arg = sbuf = strdup(spec)) == NULL) {
 	sts = -oserror();
-	pmNoMem("__pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
+	pmNoMem("pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
 	return "strdup failed";
     }
     if (strncmp(arg, "add", 3) == 0) {
