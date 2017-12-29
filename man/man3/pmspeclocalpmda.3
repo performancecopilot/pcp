@@ -1,32 +1,26 @@
 '\"macro stdmacro
 .TH PMSPECLOCALPMDA 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3__pmSpecLocalPMDA\f1 \- process command-line argument for the table of DSO PMDAs
+\f3pmSpecLocalPMDA\f1 \- process command-line argument for the table of DSO PMDAs
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-char *__pmSpecLocalPMDA(const char *\fIspec\fP);
+char *pmSpecLocalPMDA(const char *\fIspec\fP);
 .sp
 cc ... \-lpcp
 .ft 1
-.SH CAVEAT
-This documentation is intended for internal Performance Co-Pilot
-(PCP) developer use.
-.PP
-These interfaces are not part of the PCP APIs that are guaranteed to
-remain fixed across releases, and they may not work, or may provide
-different semantics at some point in the future.
 .SH DESCRIPTION
-PCP contexts of type
+For Performance Co-Pilot (PCP) applications,
+contexts of type
 .B PM_CONTEXT_LOCAL
 are used by clients that wish to fetch metrics directly from one or more PMDAs on
 the local host without involving
 .BR pmcd (1).
 .PP
-.B __pmSpecLocalPMDA
+.B pmSpecLocalPMDA
 provides a convenience wrapper to be used by applications that wish
 to use a command line argument (usually with
 .BR -K )
@@ -66,15 +60,14 @@ To clear all entries, only the opcode is required.
 If
 .I spec
 is parsed successfully, then
-.BR __pmLocalPMDA (3)
-is called with the extracted arguments.
+the DSO table is updated with the extracted fields.
 .SH "RETURN VALUE"
 On success,
-.B __pmSpecLocalPMDA
+.B pmSpecLocalPMDA
 will return NULL.
 .PP
 On error or failure,
-.B __pmSpecLocalPMDA
+.B pmSpecLocalPMDA
 will return a pointer to a static error message.
 .SH EXAMPLES
 Some examples of valid
@@ -119,7 +112,7 @@ Delete the entry for the DSO with either domain 123
 and/or a pathname to the DSO that matches
 .IR foo/foo_pmda .
 .SH SEE ALSO
-.BR PMAPI (3),
-.BR __pmLocalPMDA (3)
+.BR pmcd (1),
+.BR PMAPI (3)
 and
 .BR pmNewContext (3).
