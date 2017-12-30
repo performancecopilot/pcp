@@ -24,6 +24,10 @@ __pmPathSeparator test: OK
 __pmGetUsername test: OK
 pmFreeHighResResult test:
 __pmFreeHighResResult(ADDR)
+pmSpecLocalPMDA test:
+Expected error: pmSpecLocal(foo): bad op in spec
+pmSpecLocal(clear): OK
+pmSpecLocal(add,...): OK
 __pmSetProcessIdentity test: (expect failure)
 [DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
 
@@ -52,5 +56,9 @@ __pmPathSeparator test: OK
 __pmGetUsername test: OK
 pmFreeHighResResult test:
 __pmFreeHighResResult(ADDR)
+pmSpecLocalPMDA test:
+Expected error: pmSpecLocal(foo): bad op in spec
+pmSpecLocal(clear): OK
+pmSpecLocal(add,...): OK
 __pmSetProcessIdentity test: (expect failure)
 [DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to

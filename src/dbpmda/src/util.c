@@ -68,7 +68,7 @@ setup_context(void)
      * we don't want or need any PMDAs to be loaded for this one
      * PM_CONTEXT_LOCAL context
      */
-    __pmSpecLocalPMDA("clear");
+    pmSpecLocalPMDA("clear");
 
     if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
 	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));

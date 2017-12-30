@@ -250,7 +250,7 @@ main(int argc, char **argv)
     }
 
     if ((n = pmStore(store)) < 0) {
-	printf("%s: pmStore: %s\n", namelist[0], pmErrStr(n));
+	printf("%s: new value=\"%s\" pmStore: %s\n", namelist[0], argv[opts.optind], pmErrStr(n));
 	exit(1);
     }
 

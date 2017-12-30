@@ -24,7 +24,7 @@ Usage: pmevent [options] metricname
 pmevent: error - no metricname specified
 Usage: pmevent [options] metricname
 === -K blah,a,/no/such/file,no_init ===
-pmevent: __pmSpecLocalPMDA failed: bad op in spec
+pmevent: pmSpecLocalPMDA failed: bad op in spec
 Usage: pmevent [options] metricname
 === -s 456bar ===
 pmevent: -s requires numeric argument

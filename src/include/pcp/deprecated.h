@@ -49,6 +49,8 @@
  * __pmTimeval			pmTimeval
  * __pmTimespec			pmTimespec
  * pmFreeHighResResult()	__pmFreeHighResResult()
+ * __pmSpecLocalPMDA()		pmSpecLocalPMDA()
+ * __pmLocalPMDA()		pmLocalPMDA()
  */
 
 PCP_CALL extern int __pmSetProgname(const char *);
@@ -124,5 +126,7 @@ PCP_CALL struct __pmContext *__pmCurrentContext(void);
 #define __pmTimeval pmTimeval
 #define __pmTimespec pmTimespec
 #define pmFreeHighResResult __pmFreeHighResResult
+#define __pmSpecLocalPMDA pmSpecLocalPMDA
+#define __pmLocalPMDA pmLocalPMDA
 
 #endif /* PCP_DEPRECATED_H */

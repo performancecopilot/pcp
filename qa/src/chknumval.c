@@ -60,8 +60,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'K':	/* update local PMDA table */
-	    if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
-		fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmGetProgname(), errmsg);
+	    if ((errmsg = pmSpecLocalPMDA(optarg)) != NULL) {
+		fprintf(stderr, "%s: pmSpecLocalPMDA failed: %s\n", pmGetProgname(), errmsg);
 		errflag++;
 	    }
 	    break;

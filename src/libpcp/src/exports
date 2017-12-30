@@ -612,6 +612,7 @@ PCP_3.22 {
     pmtimevalNow;
     pmtimevalSub;
     pmtimevalToReal;
+    pmSpecLocalPMDA;
 
     __pmAddLabels;
     __pmDecodeLabel;

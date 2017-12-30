@@ -163,3 +163,10 @@ pmFreeHighResResult(pmHighResResult *result)
 {
     __pmFreeHighResResult(result);
 }
+
+#undef __pmSpecLocalPMDA
+char *
+__pmSpecLocalPMDA(const char *spec)
+{
+    return pmSpecLocalPMDA(spec);
+}

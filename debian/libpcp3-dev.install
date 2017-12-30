@@ -293,8 +293,8 @@ usr/share/man/man3/pmsetprogname.3.gz
 usr/share/man/man3/pmSetProgname.3.gz
 usr/share/man/man3/pmsortinstances.3.gz
 usr/share/man/man3/pmSortInstances.3.gz
-usr/share/man/man3/__pmspeclocalpmda.3.gz
-usr/share/man/man3/__pmSpecLocalPMDA.3.gz
+usr/share/man/man3/pmspeclocalpmda.3.gz
+usr/share/man/man3/pmSpecLocalPMDA.3.gz
 usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmstore.3.gz
 usr/share/man/man3/pmStore.3.gz

@@ -685,8 +685,8 @@ __pmSetLocalContextTable(pmOptions *opts, char *arg)
 {
     char *errmsg;
 
-    if ((errmsg = __pmSpecLocalPMDA(arg)) != NULL) {
-	pmprintf("%s: __pmSpecLocalPMDA failed: %s\n", pmGetProgname(), errmsg);
+    if ((errmsg = pmSpecLocalPMDA(arg)) != NULL) {
+	pmprintf("%s: pmSpecLocalPMDA failed: %s\n", pmGetProgname(), errmsg);
 	opts->errors++;
     }
 }
