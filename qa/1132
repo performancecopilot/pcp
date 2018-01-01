@@ -69,12 +69,24 @@ _path_filter xl/worksheets/sheet1.xml
 cd $tmp.dir
 echo "--- diffing outputs - no output expected"
 # map >< to >\n< so we can see differences better
-for file in ref/xl/worksheets/sheet1.xml run/xl/worksheets/sheet1.xml
+# and force %.3f output for floats to avoid precision differences
+# 
+for file in ref/xl/worksheets/sheet1.xml run/xl/worksheets/sheet1.xml \
+	    ref/xl/styles.xml run/xl/styles.xml
 do
-    sed -e 's/></>\
-</g' <$file >$tmp.tmp
+    sed <$file  \
+	-e '/^<styleSheet/d' \
+	-e 's/></>\
+</g' \
+    | $PCP_AWK_PROG -F '>' '
+BEGIN	{ OFS = "<" }
+$1 == "<v" && $2 ~ /^[0-9][0-9]*\.[0-9]/	{ $2 = sprintf("%.3f>",gsub(/>/, "", $2)) }
+	{ print }' >$tmp.tmp
     mv $tmp.tmp $file
 done
+
+find ref run -type f \
+| xargs wc >>$here/$seq.full
 diff -purN ref run
 echo "--- end of diff"
 cd $here
