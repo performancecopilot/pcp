@@ -1212,6 +1212,9 @@ fi
 na=''
 case `hostname`
 in
+    vm07)
+	na='docker.io'
+	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
