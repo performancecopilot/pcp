@@ -32,7 +32,7 @@ _cleanup()
 }
 
 _prepare_pmda prometheus
-trap "_cleanup _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+trap "_cleanup; _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
 _pmdaprometheus_save_config
 _pmdaprometheus_install
