@@ -547,12 +547,11 @@ class pmConfig(object):
                 self.util.metrics[metric][3] = 1
             else:
                 self.util.metrics[metric][3] = 0
-            # As a special service for pmrep(1) utility we hardcode
-            # support for its two output modes, archive and csv.
+            # As a special service for the pmrep(1) utility,
+            # we force raw output with its archive mode.
             if (hasattr(self.util, 'type') and self.util.type == 1) or \
                self.util.metrics[metric][3] == 'raw' or \
-               self.util.output == 'archive' or \
-               self.util.output == 'csv':
+               self.util.output == 'archive':
                 self.util.metrics[metric][3] = 1
 
             # Dimension test helpers

@@ -22,8 +22,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 A=$here/archives/20130706
 
 echo expect no broken pipe exceptions or Exception Ignored errors
-pmrep -a $A -o csv -u -S @10:00 kernel.all.sysfork | head -0
-pmrep -a $A -F $tmp.csv -o csv -u -S @10:00 kernel.all.sysfork | head -0
+pmrep -a $A -o csv -r -u -S @10:00 kernel.all.sysfork | head -0
+pmrep -a $A -F $tmp.csv -o csv -r -u -S @10:00 kernel.all.sysfork | head -0
 pmrep -a $A -u -S @10:00 kernel.all.sysfork | head -0
 
 # success, all done

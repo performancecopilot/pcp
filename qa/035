@@ -26,7 +26,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmrep -z -o csv -H -a badarchives/archive-20141125-000009 disk.dev >$tmp.tmp 2>$tmp.err
+pmrep -z -o csv -r -H -a badarchives/archive-20141125-000009 disk.dev >$tmp.tmp 2>$tmp.err
 echo "Culling 'no values available' lines ..."
 grep ',[0-9]' <$tmp.tmp >$tmp.out
 head -10 $tmp.out

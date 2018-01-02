@@ -53,7 +53,7 @@ cat $tmp.out
 cat $tmp.err
 
 echo && echo "Verify no pmrep coredump..."
-pmrep -z -I -o csv -a badarchives/logsummary-bug.meta "" >$tmp.out 2>$tmp.err
+pmrep -z -I -o csv -r -a badarchives/logsummary-bug.meta "" >$tmp.out 2>$tmp.err
 cat $tmp.out
 cat $tmp.err
 
