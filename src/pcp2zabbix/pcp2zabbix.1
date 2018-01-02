@@ -189,8 +189,10 @@ one or more archives.
 .B \-\-archive\-folio
 Read metric source archives from the PCP archive
 .IR folio
-(see
-.BR mkaf (1)).
+created by tools like
+.BR pmchart (1)
+or, less often, manually with
+.BR mkaf (1).
 .TP
 .B \-A
 Force the initial sample to be
@@ -284,7 +286,7 @@ Fetch performance metrics from
 .BR pmcd (1)
 on
 .IR host ,
-rather than the default localhost.
+rather than from the default localhost.
 .TP
 .B \-H
 Do not print any headers.
@@ -297,7 +299,8 @@ By default all instances are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
-By default metrics without instances are reported as usual, use
+By default single-valued ``flat'' metrics without separate
+instances are still reported as usual, use
 .B \-v
 to change this.
 Please refer to
@@ -476,8 +479,12 @@ will run.
 .RE
 .TP
 .B \-v
-Omit single-valued ``flat'' metrics from reporting when instances
-were requested.
+Omit single-valued ``flat'' metrics from reporting, only consider
+multi-valued metrics (i.e., metrics with
+.IR "instance domains" ,
+or
+.IR indoms )
+for reporting.
 See
 .B -\i
 and
