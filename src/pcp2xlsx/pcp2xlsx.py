@@ -109,7 +109,7 @@ class PCP2XLSX(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -385,7 +385,7 @@ class PCP2XLSX(object):
             fmt = self.sheet.add_format({'bold': True})
             fmt.set_align('right')
             self.ws.write_string(self.row, col, "Time", fmt)
-            # Labels, static
+            # Metrics/instances, static
             for i, metric in enumerate(self.metrics):
                 for j in range(len(self.pmconfig.insts[i][0])):
                     col += 1

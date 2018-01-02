@@ -161,9 +161,7 @@ A valid PMNS node
 is mandatory.
 It can be followed by a text
 .I label
-used by supporting output targets (such as
-.I csv
-and
+used by supporting output targets (currently:
 .IR stdout ,
 see below).
 The optional
@@ -214,7 +212,7 @@ The following
 .I metricspec
 requests the metric
 .B kernel.all.sysfork
-to be reported under the label
+to be reported under the text label
 .BR forks ,
 converting to the default rate count/s in an
 .B 8
@@ -712,7 +710,7 @@ Set the \fIstdout\fR output column
 Strings will be truncated to this width.
 The default
 .I width
-is the shortest that can fit the metric label, the forced minimum is 3.
+is the shortest that can fit the metric text label, the forced minimum is 3.
 This option will
 .I not
 override possible per-metric specifications.
@@ -729,8 +727,8 @@ Print extended header.
 .TP
 .B \-X
 Swap columns and rows in \fIstdout\fR output, reporting one instance per
-line, using \fIlabel\fR as the label for instance column (set to an empty
-string \fB""\fR to enable swapping without a specific label).
+line, using \fIlabel\fR as the text label for instance column (set to an
+empty string \fB""\fR to enable swapping without a specific text label).
 This is convenient to allow easily using
 .BR grep (1)
 to filter results or to more closely mimic other utilities.

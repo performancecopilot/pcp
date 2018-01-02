@@ -140,7 +140,7 @@ class PMReporter(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -521,7 +521,7 @@ class PMReporter(object):
             self.format += "{2:>" + str(8) + "." + str(8) + "}{3}"
         index += 2
 
-        # Metrics / labels
+        # Metrics / text labels
         self.labels = OrderedDict() # pylint: disable=attribute-defined-outside-init
         for i, metric in enumerate(self.metrics):
             l = str(self.metrics[metric][4])

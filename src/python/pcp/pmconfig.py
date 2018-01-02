@@ -46,8 +46,7 @@ class pmConfig(object):
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # Supported metricset specifiers
-        self.metricspec = ('label', 'instances', 'unit',
-                           'type', 'width', 'precision', 'formula')
+        self.metricspec = ('label', 'instances', 'unit', 'type', 'width', 'precision', 'formula')
 
         # Main utility reference
         self.util = util
@@ -202,7 +201,7 @@ class pmConfig(object):
         # We need to detect which is the case here. What a mess.
         quoted = 0
         s = spec.split(",")[2]
-        if s and (s[1] == "'" or s[1] == '"'):
+        if s and len(s) > 2 and (s[0] == "'" or s[0] == '"'):
             quoted = 1
         if spec.count('"') or spec.count("'"):
             inststr = spec.partition(",")[2].partition(",")[2]
@@ -360,7 +359,7 @@ class pmConfig(object):
                     desc.contents.type == pmapi.c_api.PM_TYPE_STRING):
                 raise pmapi.pmErr(pmapi.c_api.PM_ERR_TYPE)
             instances = self.util.instances if not self._tmp else self._tmp
-            if self.util.omit_flat and instances and not inst[1][0]:
+            if hasattr(self.util, 'omit_flat') and self.util.omit_flat and not inst[1][0]:
                 return
             if instances and inst[1][0]:
                 found = [[], []]
@@ -387,7 +386,7 @@ class pmConfig(object):
             sys.exit(1)
 
     def format_metric_label(self, label):
-        """ Format a metric label """
+        """ Format a metric text label """
         # See src/libpcp/src/units.c
         if ' / ' in label:
             label = label.replace("nanosec", "ns").replace("microsec", "us")
@@ -519,7 +518,7 @@ class pmConfig(object):
                     else:
                         self.util.metrics[metric].append(None)
 
-            # Label
+            # Text label
             if not self.util.metrics[metric][0]:
                 # mem.util.free -> m.u.free
                 name = ""
@@ -603,7 +602,7 @@ class pmConfig(object):
             if not self.util.metrics[metric][2]:
                 self.util.metrics[metric][2] = str(unit)
 
-            # Finalize label and unit/scale
+            # Finalize text label and unit/scale
             try:
                 label = self.util.metrics[metric][2]
                 (unitstr, mult) = self.util.context.pmParseUnitsStr(self.util.metrics[metric][2])
