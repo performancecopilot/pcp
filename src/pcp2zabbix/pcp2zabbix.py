@@ -43,7 +43,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ PCP to Zabbix Bridge """
 
@@ -56,7 +56,7 @@ import sys
 # Our imports
 try:
     import json
-except:
+except ImportError:
     import simplejson as json
 import socket
 import struct

@@ -15,7 +15,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ PCP Python Utils Config Routines """
 
@@ -73,7 +73,7 @@ class pmConfig(object):
             try:
                 signum = getattr(signal, sig)
                 signal.signal(signum, handler)
-            except:
+            except Exception:
                 pass
 
     def set_config_file(self, default_config):
@@ -642,7 +642,7 @@ class pmConfig(object):
                     self.util.metrics[metric][4] = int(self.util.metrics[metric][4])
                     if self.util.metrics[metric][4] < 0:
                         raise ValueError
-                except:
+                except Exception:
                     sys.stderr.write("Non-negative integer expected: %s\n" % metric)
                     sys.exit(1)
             elif hasattr(self.util, 'width'):
@@ -661,7 +661,7 @@ class pmConfig(object):
             if self.util.metrics[metric][5]:
                 try:
                     self.util.metrics[metric][6] = int(self.util.metrics[metric][5])
-                except:
+                except Exception:
                     sys.stderr.write("Non-negative integer expected: %s\n" % metric)
                     sys.exit(1)
             elif hasattr(self.util, 'precision'):
@@ -699,7 +699,7 @@ class pmConfig(object):
                     self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
                 else:
                     self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
-            except:
+            except Exception:
                 if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                     # Schedule the metric for removal
                     incompat_metrics[metric] = i
@@ -737,7 +737,7 @@ class pmConfig(object):
                     self.util.interval = pmapi.timeval(0)
                 try:
                     self.util.samples = int(self.util.runtime / float(self.util.interval) + 1)
-                except:
+                except Exception:
                     pass
         else:
             self.util.samples = self.util.opts.pmGetOptionSamples()

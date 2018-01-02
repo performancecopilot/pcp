@@ -19,7 +19,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks, too-many-arguments
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ PCP to JSON Bridge """
 
@@ -32,7 +32,7 @@ import sys
 # Our imports
 try:
     import json
-except:
+except ImportError:
     import simplejson as json
 import socket
 import os
@@ -491,7 +491,7 @@ class PCP2JSON(object):
                     raise
             try:
                 self.writer.close()
-            except:
+            except: # pylint: disable=bare-except
                 pass
             self.writer = None
         return

@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except, too-many-arguments
+# pylint: disable=broad-except, too-many-arguments
 # pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
@@ -843,9 +843,9 @@ class PMReporter(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Add corresponding values for each column in the static header
@@ -854,7 +854,7 @@ class PMReporter(object):
                 line += self.delimiter
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
-                except:
+                except Exception:
                     continue
                 if isinstance(value, str):
                     if self.delimiter:
@@ -937,9 +937,9 @@ class PMReporter(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Add corresponding values for each column in the static header
@@ -950,7 +950,7 @@ class PMReporter(object):
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
                     value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
-                except:
+                except Exception:
                     value = NO_VAL
                 line.append(value)
                 line.append(self.delimiter)
@@ -983,9 +983,9 @@ class PMReporter(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Avoid per-line I/O
@@ -1028,7 +1028,7 @@ class PMReporter(object):
                         try:
                             value = res[metric + "+" + str(j)]()
                             value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
-                        except:
+                        except Exception:
                             value = NO_VAL
 
                         line.append(value)
@@ -1068,7 +1068,7 @@ class PMReporter(object):
                     raise error
             try:
                 self.writer.close()
-            except:
+            except: # pylint: disable=bare-except
                 pass
             self.writer = None
         if self.pmi:
