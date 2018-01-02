@@ -33,7 +33,7 @@ pmie -Dappl2 -t 12 -c $tmp.config 2>$tmp.err &
 
 # expect back off 5 + 10 + 12 + 12 ... = 27 + 12 + ...
 #
-sleep 30
+sleep 33
 kill -TERM $!
 
 cat $tmp.err >>$here/$seq.full

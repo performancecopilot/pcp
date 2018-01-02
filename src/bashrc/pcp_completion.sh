@@ -62,7 +62,7 @@ _pcp_complete()
     ;;
     pmlogextract)
         all_args="cdfmSsTvwZz"
-        arg_regex="-[cmSsTvZ]"
+        arg_regex="-[cSsTvZ]"
     ;;
     pmlogsummary)
         all_args="aBbFfHIilMmNnpSTVvxZz"
@@ -77,8 +77,8 @@ _pcp_complete()
         arg_regex="-[0ABabcEeFfhiKlOoPQqSsTtWwXYyZ]"
     ;;
     pmstore)
-        all_args="fFhiKLnV"
-        arg_regex="-[FhiKn]"
+        all_args="FfhiKLnV"
+        arg_regex="-[hiKn]"
     ;;
     pmval)
         all_args="AadfghiKLnOprSsTtUvVwxZz"

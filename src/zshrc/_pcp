@@ -623,6 +623,7 @@ _pcp () {
     _arguments -A "-*" -C -S -s \
       "$common_help[@]" \
       "(-h --host -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
+      "(-F --fetch $exargs)"{-F,--fetch}'[perform pmFetch after pmStore to confirm value]' \
       "(-L --local-PMDA -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \

@@ -33,8 +33,10 @@ _filter()
 	-e "/qa-$seq/s/.*qa/... qa/p"
 }
 
+rm -f $seq.full
 $sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.qa.$seq
 $sudo touch -t 199701020304.00 $PCP_LOG_DIR/NOTICES
+ls -l $PCP_LOG_DIR/NOTICES >>$here/$seq.full
 
 # real QA test starts here
 for i in 1 2 3 4 5
@@ -52,6 +54,9 @@ done
 wait
 
 _filter $PCP_LOG_DIR/NOTICES
+
+ls -l $PCP_LOG_DIR/NOTICES >>$here/$seq.full
+cat $PCP_LOG_DIR/NOTICES >>$here/$seq.full
 
 # success, all done
 status=0
