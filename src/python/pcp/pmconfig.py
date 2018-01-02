@@ -332,6 +332,12 @@ class pmConfig(object):
         if not self.util.metrics:
             raise IOError("No metrics specified.")
 
+    def do_live_filtering(self):
+        """ Check if doing live filtering """
+        if hasattr(self.util, 'live_filter') and self.util.live_filter:
+            return True
+        return False
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -361,7 +367,7 @@ class pmConfig(object):
             instances = self.util.instances if not self._tmp else self._tmp
             if hasattr(self.util, 'omit_flat') and self.util.omit_flat and not inst[1][0]:
                 return
-            if instances and inst[1][0]:
+            if instances and inst[1][0] and not self.do_live_filtering():
                 found = [[], []]
                 for r in instances:
                     try:
@@ -370,6 +376,7 @@ class pmConfig(object):
                             if re.match(cr, s):
                                 found[0].append(inst[0][i])
                                 found[1].append(inst[1][i])
+                        del cr
                     except Exception as e:
                         sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
                         sys.exit(1)
@@ -754,3 +761,21 @@ class pmConfig(object):
 
         if sleep > 0:
             time.sleep(sleep)
+
+    def filter_instance(self, metric, name):
+        """ Filter given instance name against requested metric instances """
+        if not self.util.metrics[metric][1]:
+            return True
+
+        try:
+            for r in self.util.metrics[metric][1]:
+                cr = re.compile(r'\A' + r + r'\Z')
+                found = re.match(cr, name)
+                del cr
+                if found:
+                    return True
+        except Exception as e:
+            sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+            sys.exit(1)
+
+        return False

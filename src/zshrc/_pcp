@@ -114,6 +114,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-g --es-host $exargs)"{-g+,--es-host}'[elasticsearch server]:host:_hosts' \
       "(-x --es-index $exargs)"{-x+,--es-index}'[elasticsearch index]:index:' \
       "(-X --es-hostid $exargs)"{-X+,--es-hostid}'[elasticsearch host-id]:host-id:' \
@@ -125,6 +126,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-E --text-port -p --pickle-port -X --pickle-protocol $exargs)"{-E+,--text-port}'[graphite plaintext port]:port:' \
       "(-g --graphite-host $exargs)"{-g+,--graphite-host}'[graphite server]:host:_hosts' \
       "(-p --pickle-port -E --text-port $exargs)"{-p+,--pickle-port}'[graphite pickle port]:port:' \
@@ -138,6 +140,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-E --db-pass $exargs)"{-E+,--db-pass}'[password for database]:password:' \
       "(-g --db-server $exargs)"{-g+,--db-server}'[server URL]:url:_urls' \
       "(-U --db-user $exargs)"{-U+,--db-user}'[username for database]:username:_users' \
@@ -153,6 +156,7 @@ _pcp () {
       "$common_python[@]" \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
@@ -179,6 +183,7 @@ _pcp () {
       "$common_python[@]" \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
@@ -191,6 +196,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-E --zabbix-interval $exargs)"{-E+,--zabbix-interval}'[send interval]:interval:' \
       "(-g --zabbix-server $exargs)"{-g+,--zabbix-server}'[zabbix server]:host:_hosts' \
       "(-p --zabbix-port $exargs)"{-p+,--zabbix-port}'[zabbix port]:port:' \
@@ -587,6 +593,7 @@ _pcp () {
       "(-w --width -W --width-force $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-W --width-force -w --width $exargs)"{-W+,--width-force}'[forced column width]:width:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
+      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
       "(-E --repeat $exargs)"{-E+,--repeat}'[set header repeat frequency]:samples:' \

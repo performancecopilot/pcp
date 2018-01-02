@@ -3,7 +3,6 @@
 -  drop RHEL 7 / Python 2.x support around RHEL 7 EOL (ca. 2024)
 
 -  add labels support [-m/-M]
--  live insts filtering support (-i '.*foo.*' to match current and new insts)
 
 -  includedir config file support (?)
 -  copy directive conf file support (?)
@@ -12,10 +11,10 @@
 -----
 
 In use / reserved cmd line options:
-0AaBbCcDdEeFfGgHhIiKkLlOoPpQqRrSsTtUuVvWwXxYyZz
+0AaBbCcDdEeFfGgHhIijKkLlOoPpQqRrSsTtUuVvWwXxYyZz
 
 Tentatively planned:
 Mm
 
 Available:
-JjNn
+JNn

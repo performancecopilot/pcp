@@ -68,7 +68,7 @@ class PCP2JSON(object):
                      'timefmt', 'extended', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'live_filter',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -91,6 +91,7 @@ class PCP2JSON(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
@@ -135,7 +136,7 @@ class PCP2JSON(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jvP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -169,6 +170,7 @@ class PCP2JSON(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
@@ -227,6 +229,8 @@ class PCP2JSON(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
@@ -276,7 +280,7 @@ class PCP2JSON(object):
         if self.everything:
             self.extended = 1
 
-        self.pmconfig.validate_metrics(curr_insts=True)
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -441,10 +445,15 @@ class PCP2JSON(object):
 
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
+                        if inst != PM_IN_NULL and not name:
+                            continue
+                        if self.live_filter and inst != PM_IN_NULL and \
+                           not self.pmconfig.filter_instance(metric, name):
+                            continue
                         value = val()
                         fmt = "." + str(self.metrics[metric][6]) + "f"
                         value = format(value, fmt) if isinstance(value, float) else str(value)
-                    except:
+                    except Exception:
                         continue
 
                     pmns_leaf_dict = self.data['@pcp']['@hosts'][0]['@metrics'][-1]
@@ -463,7 +472,7 @@ class PCP2JSON(object):
                             pmns_leaf_dict[last_part] = {insts_key: []}
                         insts = pmns_leaf_dict[last_part][insts_key]
                         insts.append(create_attrs(value, inst, name, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i]))
-            except:
+            except Exception:
                 pass
 
     def finalize(self):

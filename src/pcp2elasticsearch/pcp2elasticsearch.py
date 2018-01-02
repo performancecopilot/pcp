@@ -63,7 +63,7 @@ class pcp2elasticsearch(object):
                      'es_server', 'es_index', 'es_hostid',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'live_filter',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -86,6 +86,7 @@ class pcp2elasticsearch(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
@@ -124,7 +125,7 @@ class pcp2elasticsearch(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:g:x:X:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jvP:0:q:b:y:Q:B:Y:g:x:X:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -155,6 +156,7 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
@@ -208,6 +210,8 @@ class pcp2elasticsearch(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
@@ -257,7 +261,7 @@ class pcp2elasticsearch(object):
         if self.es_hostid is None:
             self.es_hostid = self.context.pmGetContextHostName()
 
-        self.pmconfig.validate_metrics(curr_insts=True)
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -378,9 +382,14 @@ class pcp2elasticsearch(object):
                 # Find/create the parent dictionary into which to insert the final component
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
+                        if inst != PM_IN_NULL and not name:
+                            continue
+                        if self.live_filter and inst != PM_IN_NULL and \
+                           not self.pmconfig.filter_instance(metric, name):
+                            continue
                         value = val()
                         value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
-                    except:
+                    except Exception:
                         continue
 
                     pmns_leaf_dict = es_doc
@@ -405,7 +414,7 @@ class pcp2elasticsearch(object):
                                 found = True
                         if not found:
                             insts.append({inst_key: name, last_part: value})
-            except:
+            except Exception:
                 pass
 
         try:

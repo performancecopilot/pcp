@@ -20,7 +20,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \f3pmrep\f1
-[\f3\-CdgGHIkLprRuUvVxz?\f1]
+[\f3\-CdgGHIjkLprRuUvVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-\-archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -391,7 +391,7 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-(if present).
+from current instances (if present).
 By default all current instances are reported,
 except when writing an archive (see
 .BR -o )
@@ -429,6 +429,11 @@ However, this would report only the 1-minute instance:
 .EX
 $ pmrep \-i '"1 minute","5 minute"' kernel.all.load,,"1 minute"
 .EE
+.PP
+But this would report all instances (due to per-metric override):
+.EX
+$ pmrep \-i '"1 minute","5 minute"' 'kernel.all.load,,.*'
+.EE
 .RE
 .TP
 .B \-I
@@ -440,6 +445,25 @@ to terminate with an error message.
 With this option all incompatible metrics are silently omitted
 from reporting. This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
+.TP
+.B \-j
+Perform instance live filtering.
+This allows capturing all filtered instances even if processes
+are restarted at some point (unlike without live filtering).
+Doing live filtering over a huge amount of instances naturally
+comes with some overhead so a bit of user caution is adviced.
+.RS
+.PP
+Since
+both
+.I stdout
+and
+.I csv
+output targets write a static header at the beginning this option
+can only be used with
+.I archive
+output.
+.RE
 .TP
 .B \-k
 Write extended CSV output, similar to

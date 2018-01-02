@@ -77,11 +77,11 @@ class PMReporter(object):
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
                      'timestamp', 'unitinfo', 'colxrow', 'separate_header',
-                     'delay', 'width', 'delimiter', 'extcsv',
+                     'delay', 'width', 'delimiter', 'extcsv', 'width_force',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force', 'width_force',
+                     'type_prefer', 'precision_force', 'live_filter',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -106,6 +106,7 @@ class PMReporter(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
         self.omit_flat = 0
         self.colxrow = None
         self.width = 0
@@ -157,7 +158,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:vX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jvX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -195,6 +196,7 @@ class PMReporter(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering with archive output")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
@@ -270,6 +272,8 @@ class PMReporter(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'X':
@@ -348,7 +352,11 @@ class PMReporter(object):
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
-        self.pmconfig.validate_metrics(curr_insts=True)
+        if self.output != OUTPUT_ARCHIVE and self.live_filter:
+            sys.stderr.write("Instance live filtering only possible with archive output.\n")
+            sys.exit(1)
+
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -751,14 +759,6 @@ class PMReporter(object):
                                       self.pmconfig.descs[i].contents.indom,
                                       self.pmconfig.descs[i].contents.sem,
                                       self.pmconfig.descs[i].contents.units)
-                ins = 0 if self.pmconfig.insts[i][0][0] == PM_IN_NULL else len(self.pmconfig.insts[i][0])
-                for j in range(ins):
-                    self.recorded[metric].append(self.pmconfig.insts[i][0][j])
-                    try:
-                        self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, self.pmconfig.insts[i][1][j], self.pmconfig.insts[i][0][j])
-                    except pmi.pmiErr as error:
-                        if error.args[0] == PMI_ERR_DUPINSTNAME:
-                            pass
 
         # Add current values
         data = 0
@@ -768,10 +768,13 @@ class PMReporter(object):
                     try:
                         if inst != PM_IN_NULL and not name:
                             continue
+                        if self.live_filter and inst != PM_IN_NULL and \
+                           not self.pmconfig.filter_instance(metric, name):
+                            continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
-                            self.recorded[metric].append(inst)
                             try:
                                 self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
+                                self.recorded[metric].append(inst)
                             except pmi.pmiErr as error:
                                 if error.args[0] == PMI_ERR_DUPINSTNAME:
                                     pass
@@ -784,9 +787,9 @@ class PMReporter(object):
                         else:
                             self.pmi.pmiPutValue(metric, name, "%d" % value)
                         data = 1
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Flush

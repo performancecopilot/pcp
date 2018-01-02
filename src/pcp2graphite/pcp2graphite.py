@@ -68,7 +68,7 @@ class PCP2Graphite(object):
                      'graphite_host', 'graphite_port', 'pickle', 'pickle_protocol', 'prefix',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'live_filter',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -91,6 +91,7 @@ class PCP2Graphite(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
@@ -132,7 +133,7 @@ class PCP2Graphite(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jvP:0:q:b:y:Q:B:Y:g:p:X:E:x:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -163,6 +164,7 @@ class PCP2Graphite(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
@@ -218,6 +220,8 @@ class PCP2Graphite(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
@@ -270,7 +274,7 @@ class PCP2Graphite(object):
             sys.exit(1)
 
         self.pmconfig.validate_common_options()
-        self.pmconfig.validate_metrics(curr_insts=True)
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -368,18 +372,21 @@ class PCP2Graphite(object):
         for metric in self.metrics:
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    key = self.prefix + metric
-                    if name:
-                        key += "." + sanitize_name_indom(name)
-                    if inst != PM_IN_NULL and not name:
-                        continue
                     try:
+                        key = self.prefix + metric
+                        if name:
+                            key += "." + sanitize_name_indom(name)
+                        if inst != PM_IN_NULL and not name:
+                            continue
+                        if self.live_filter and inst != PM_IN_NULL and \
+                           not self.pmconfig.filter_instance(metric, name):
+                            continue
                         value = val()
                         value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
                         miv_tuples.append((key, value))
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)

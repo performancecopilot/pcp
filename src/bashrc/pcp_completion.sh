@@ -13,19 +13,19 @@ _pcp_complete()
     # Register arguments
     case $cmd in
     pcp2elasticsearch)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgXx"
+        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgXx"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgXx]"
     ;;
     pcp2graphite)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgpXEx"
+        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgpXEx"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
     ;;
     pcp2influxdb)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgxUEX"
+        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgxUEX"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgxUEX]"
     ;;
     pcp2json)
-        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFfXx"
+        all_args="0ahLKcCeVHGASTOstRrZzrIijvPqbyQBYFfXx"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2xlsx)
@@ -33,11 +33,11 @@ _pcp_complete()
         arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2xml)
-        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFfXx"
+        all_args="0ahLKcCeVHGASTOstRrZzrIijvPqbyQBYFfXx"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2zabbix)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgpXEx"
+        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgpXEx"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
     ;;
     pmdumplog)
@@ -73,7 +73,7 @@ _pcp_complete()
         arg_regex="-[ahKnOZ]"
     ;;
     pmrep)
-        all_args="0AaBbCcdEeFfGgHhIiKkLlOoPpQqRrSsTtUuVvWwXxYyZz"
+        all_args="0AaBbCcdEeFfGgHhIijKkLlOoPpQqRrSsTtUuVvWwXxYyZz"
         arg_regex="-[0ABabcEeFfhiKlOoPQqSsTtWwXYyZ]"
     ;;
     pmstore)

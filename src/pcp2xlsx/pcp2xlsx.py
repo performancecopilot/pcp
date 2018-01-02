@@ -434,9 +434,9 @@ class PCP2XLSX(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Add corresponding values for each column in the static header
@@ -456,7 +456,7 @@ class PCP2XLSX(object):
                         self.ws.write_number(self.row, col, value, self.float_fmt)
                     else:
                         self.ws.write_number(self.row, col, value, self.int_fmt)
-                except:
+                except Exception:
                     self.ws.write_blank(self.row, col, None)
 
     def finalize(self):

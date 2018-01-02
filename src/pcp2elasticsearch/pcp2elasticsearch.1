@@ -20,7 +20,7 @@
 \f3pcp2elasticsearch\f1 \- pcp-to-elasticsearch metrics exporter
 .SH SYNOPSIS
 \f3pcp2elasticsearch\f1
-[\f3\-CGHILrRvV?\f1]
+[\f3\-CGHIjLrRvV?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-\-archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -112,6 +112,7 @@ The following options are common with
 .BR type ,
 .BR type_prefer ,
 .BR ignore_incompat ,
+.BR live_filter ,
 .BR instances ,
 .BR omit_flat ,
 .BR precision ,
@@ -263,7 +264,7 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-(if present).
+from current instances (if present).
 By default all instances are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
@@ -284,6 +285,13 @@ to terminate with an error message.
 With this option all incompatible metrics are silently omitted
 from reporting. This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
+.TP
+.B \-j
+Perform instance live filtering.
+This allows capturing all filtered instances even if processes
+are restarted at some point (unlike without live filtering).
+Doing live filtering over a huge amount of instances naturally
+comes with some overhead so a bit of user caution is adviced.
 .TP
 .B \-K
 When fetching metrics from a local context (see
