@@ -620,13 +620,18 @@ class PMReporter(object):
         """ Write separate header """
         l = len(str(len(self.metrics))) + 1
         k = 0
+        labels = []
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.pmconfig.insts[i][0])):
+                if self.colxrow is not None and self.metrics[metric][0] in labels:
+                    continue
+                labels.append(self.metrics[metric][0])
                 k += 1
                 line = "[" + str(k).rjust(l) + "] - "
                 line += metric
-                if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
-                    line += "[\"" + self.pmconfig.insts[i][1][j] + "\"]"
+                if self.colxrow is None:
+                    if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
+                        line += "[\"" + self.pmconfig.insts[i][1][j] + "\"]"
                 if self.metrics[metric][2][0]:
                     line += " - " + self.metrics[metric][2][0] + "\n"
                 else:
@@ -634,6 +639,8 @@ class PMReporter(object):
                 self.writer.write(line.format(str(k)))
         self.writer.write("\n")
         names = ["", self.delimiter] # no timestamp on header line
+        if self.colxrow is not None:
+            names.extend(["", self.delimiter]) # nothing for the instance column
         k = 0
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.pmconfig.insts[i][0])):
