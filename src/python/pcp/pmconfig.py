@@ -444,19 +444,17 @@ class pmConfig(object):
         """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
-            if self.util.derived.startswith(";"):
-                self.util.derived = self.util.derived[1:]
-            if self.util.derived.startswith("/") or self.util.derived.startswith("."):
-                try:
-                    self.util.context.pmLoadDerivedConfig(self.util.derived)
-                except pmapi.pmErr as error:
-                    sys.stderr.write("Failed to load derived metric definitions from file '%s':\n%s.\n" % (self.util.derived, str(error)))
-                    sys.exit(1)
-            else:
-                for definition in self.util.derived.split(";"):
+            for derived in filter(None, self.util.derived.split(";")):
+                if derived.startswith("/") or derived.startswith("."):
+                    try:
+                        self.util.context.pmLoadDerivedConfig(derived)
+                    except pmapi.pmErr as error:
+                        sys.stderr.write("Failed to load derived metric definitions from file '%s':\n%s.\n" % (derived, str(error)))
+                        sys.exit(1)
+                else:
                     err = ""
                     try:
-                        name, expr = definition.split("=", 1)
+                        name, expr = derived.split("=", 1)
                         self.util.context.pmLookupName(name.strip())
                     except pmapi.pmErr as error:
                         if error.args[0] != pmapi.c_api.PM_ERR_NAME:

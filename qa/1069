@@ -248,6 +248,17 @@ pmrep -s 5 -t 2 $log -e "$combo" sample.combo
 pmrep -C -H -U -e 'derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes);derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))' derived_a derived_b
 pmrep -C -H -U -e 'derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes)' -e 'derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))' derived_a derived_b
 
+echo "== derived metrics definition files on command line"
+cat > $tmp.derived.conf1 <<EOF
+derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes)
+EOF
+cat > $tmp.derived.conf2 <<EOF
+derived_b = delta(proc.io.read_bytes) + delta(proc.io.write_bytes)
+EOF
+pmrep -C -H -U -e $tmp.derived.conf1 -e $tmp.derived.conf2 derived_a derived_b
+pmrep -C -H -U -e $tmp.derived.conf1\;$tmp.derived.conf2 derived_a derived_b
+echo "No output expected."
+
 echo "== derived metrics in pmrep.conf"
 cat > $tmp.derived-test.conf <<EOF
 [derived-test]
