@@ -1212,6 +1212,9 @@ fi
 na=''
 case `hostname`
 in
+    bozo-laptop)
+	na='dh-python libpapi-dev libpfm4-dev python3-json-pointer python3-libvirt python3-prometheus-client python3-elasticsearch python3-xlsxwriter docker.io'
+	;;
     vm07)
 	na='docker.io'
 	;;
