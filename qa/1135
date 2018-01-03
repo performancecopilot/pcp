@@ -150,9 +150,6 @@ End-of-File
 
     $sudo rm -f $control
 
-    mkdir -p /tmp/foo
-    cp $tmp.archive* /tmp/foo
-
     pmrep -o stdout -r -u -a $tmp.archive sample
 }
 
