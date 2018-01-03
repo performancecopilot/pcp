@@ -1,0 +1,11 @@
+QA output created by 1135
+=== pmrep archive output with live filtering
+Recording metrics...
+7 samples(s) with 1.0 sec interval ~ 6 sec duration.
+  s.d.counter  s.d.counter
+          one    twentyone
+        count        count
+            1          N/A
+            1            1
+          N/A            1
+            1          N/A

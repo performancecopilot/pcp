@@ -213,6 +213,12 @@ Indicates that incompatible metrics are to be ignored. Corresponding
 command line option is \fB-I\fR. Defaults to \fBno\fR.
 .RE
 .P
+live_filter (boolean)
+.RS 4
+Indicates that live filtering should be enabled. Corresponding
+command line option is \fB-j\fR. Defaults to \fBno\fR.
+.RE
+.P
 instances (string)
 .RS 4
 Indicates the instances to be reported. Corresponding command line
@@ -230,7 +236,7 @@ Defaults to \fBno\fR.
 colxrow (string)
 .RS 4
 Indicates to swap columns and rows in \fIstdout\fR output using
-the given label. Corresponding command line option is \fB-X\fR.
+the given text label. Corresponding command line option is \fB-X\fR.
 Undefined (no swapping) by default.
 .RE
 .P
@@ -238,7 +244,7 @@ width (integer)
 .RS 4
 Indicates the width of stdout output columns. Corresponding command line
 option is \fB-w\fR. Forced minimum is \fB3\fR. Defaults to the
-shortest width that can fit the metric label.
+shortest width that can fit the metric text label.
 .RE
 .P
 width_force (integer)
@@ -348,14 +354,6 @@ time_scale_force (string)
 As \fBtime_scale\fR but overrides possible per-metric specifications.
 Corresponding command line option is \fB-Y\fR. Undefined by default.
 .RE
-.P
-\fBOutput target specific options\fR
-.P
-.RS 4
-The following options are also accepted in the \fB[options]\fR
-section but are typically used only in custom sections as they are
-applicable only to certain output targets.
-.RE
 .SS The [global] section
 The
 .B [global]
@@ -406,8 +404,8 @@ The only difference of its usage in the configuration file is that the
 metric name is used as the key and the optional specifiers as values.
 The compact form of the metricspec is specified in detail in
 .BR pmrep (1).
-The third, \fIverbose form\fR of a metricspec is valid only in the
-configuration file.
+The third, \fIverbose form\fR of a metricspec, is valid only in the
+configuration file (see below).
 .P
 A key containing a dot (``.'') is interpreted as a metric name (see
 above), a non-option key not containing a dot is interpreted as an

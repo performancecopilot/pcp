@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2017 Red Hat.
+.\" Copyright (c) 2016-2018 Red Hat.
 .\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \f3pmrep\f1
-[\f3\-CdgGHIkLprRuUvVxz?\f1]
+[\f3\-CdgGHIjkLprRuUvVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-\-archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -161,9 +161,7 @@ A valid PMNS node
 is mandatory.
 It can be followed by a text
 .I label
-used by supporting output targets (such as
-.I csv
-and
+used by supporting output targets (currently:
 .IR stdout ,
 see below).
 The optional
@@ -214,7 +212,7 @@ The following
 .I metricspec
 requests the metric
 .B kernel.all.sysfork
-to be reported under the label
+to be reported under the text label
 .BR forks ,
 converting to the default rate count/s in an
 .B 8
@@ -231,7 +229,9 @@ kernel.all.sysfork,forks,,,,8
 .ft R
 .in
 .P
-The third form of a metricspec is described and valid only in
+The third form of a metricspec,
+.IR "verbose form" ,
+is described and valid only in
 .BR pmrep.conf (5).
 .P
 Derived metrics are specified like PMNS leaf node metrics.
@@ -256,8 +256,10 @@ See also
 .B \-\-archive\-folio
 Read metric source archives from the PCP archive
 .IR folio
-(see
-.BR mkaf (1)).
+created by tools like
+.BR pmchart (1)
+or, less often, manually with
+.BR mkaf (1).
 .TP
 .B \-A
 Force the initial sample to be
@@ -354,11 +356,13 @@ method which is mostly the same as that described in
 .BR strftime (3).
 An empty
 .I format
-string (i.e., '') will remove the timestamps from the output.
-The default with \fIstdout\fR is
-.BR %H:%M:%S .
-The default with \fIcsv\fR is
-.BR "%Y-%m-%d %H:%M:%S" .
+string (i.e., "") will remove the timestamps from the output.
+Defaults to
+.B %H:%M:%S
+when using the \fIstdout\fR output target.
+Defaults to
+.B "%Y-%m-%d %H:%M:%S"
+when using the \fIcsv\fR output target.
 .TP
 .B \-F
 Specify the output file
@@ -379,7 +383,7 @@ Fetch performance metrics from
 .BR pmcd (1)
 on
 .IR host ,
-rather than the default localhost.
+rather than from the default localhost.
 .TP
 .B \-H
 Do not print any headers.
@@ -387,7 +391,7 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-(if present).
+from current instances (if present).
 By default all current instances are reported,
 except when writing an archive (see
 .BR -o )
@@ -395,7 +399,8 @@ when all instances are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
-By default metrics without instances are reported as usual, use
+By default single-valued ``flat'' metrics without separate
+instances are still reported as usual, use
 .B \-v
 to change this.
 .RS
@@ -424,6 +429,11 @@ However, this would report only the 1-minute instance:
 .EX
 $ pmrep \-i '"1 minute","5 minute"' kernel.all.load,,"1 minute"
 .EE
+.PP
+But this would report all instances (due to per-metric override):
+.EX
+$ pmrep \-i '"1 minute","5 minute"' 'kernel.all.load,,.*'
+.EE
 .RE
 .TP
 .B \-I
@@ -435,6 +445,25 @@ to terminate with an error message.
 With this option all incompatible metrics are silently omitted
 from reporting. This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
+.TP
+.B \-j
+Perform instance live filtering.
+This allows capturing all filtered instances even if processes
+are restarted at some point (unlike without live filtering).
+Doing live filtering over a huge amount of instances naturally
+comes with some overhead so a bit of user caution is adviced.
+.RS
+.PP
+Since
+both
+.I stdout
+and
+.I csv
+output targets write a static header at the beginning this option
+can only be used with
+.I archive
+output.
+.RE
 .TP
 .B \-k
 Write extended CSV output, similar to
@@ -468,8 +497,8 @@ The default for
 is two spaces (``  '') and comma (``,'') for
 .IR csv .
 In case of CSV output or stdout output with non-whitespace delimiter,
-any string value containing the delimiter will be replaced by the
-underscore (``_'').
+any instances of the delimiter in string values will be replaced by
+the underscore (``_'') character.
 .TP
 .B \-L
 Use a local context to collect metrics from DSO PMDAs on the local host
@@ -491,7 +520,7 @@ Record metrics into a PCP archive which can later be replayed with PCP
 tools, including
 .B pmrep
 itself. See
-.BR pmlogger (5)
+.BR LOGARCHIVE (5)
 and
 .BR PCPIntro (1)
 for details about PCP archive files.
@@ -569,6 +598,7 @@ override per-metric specifications.
 .TP
 .B \-r
 Output raw metric values, do not convert cumulative counters to rates.
+When writing archives, raw values are always used.
 This option \fIwill\fR override possible per-metric specifications.
 .TP
 .B \-R
@@ -673,9 +703,11 @@ metrics from the values recorded in the proximity of these requested
 metrics and values for every 1 hour are reported.
 With
 .B \-u
-every record every 10 seconds are used as such (the reported values
+every record every 10 seconds are reported as such (the reported values
 are still subject to rate conversion, use
 .B \-r
+or
+.B \-R
 to disable).
 .RE
 .TP
@@ -683,8 +715,12 @@ to disable).
 Omit unit information from of headers.
 .TP
 .B \-v
-Omit single-valued ``flat'' metrics from reporting when instances
-were requested.
+Omit single-valued ``flat'' metrics from reporting, only consider
+multi-valued metrics (i.e., metrics with
+.IR "instance domains" ,
+or
+.IR indoms )
+for reporting.
 See
 .B -\i
 and
@@ -699,7 +735,7 @@ Set the \fIstdout\fR output column
 Strings will be truncated to this width.
 The default
 .I width
-is the shortest that can fit the metric label, the forced minimum is 3.
+is the shortest that can fit the metric text label, the forced minimum is 3.
 This option will
 .I not
 override possible per-metric specifications.
@@ -716,8 +752,8 @@ Print extended header.
 .TP
 .B \-X
 Swap columns and rows in \fIstdout\fR output, reporting one instance per
-line, using \fIlabel\fR as the label for instance column (set to an empty
-string \fB""\fR to enable swapping without a specific label).
+line, using \fIlabel\fR as the text label for instance column (set to an
+empty string \fB""\fR to enable swapping without a specific text label).
 This is convenient to allow easily using
 .BR grep (1)
 to filter results or to more closely mimic other utilities.
@@ -773,11 +809,11 @@ UTC offsets are used (so something like -Z EST+5 will become UTC-5).
 .B \-?
 Display usage message and exit.
 .SH EXAMPLES
-The following examples use the PCP facilities for collecting the metric
-values, no external utilities are needed.
-The examples expect the default configuration file to contain the
-.I metricset
-specifications.
+The following examples use the standard PCP facilities for collecting
+the metric values, no external utilities are needed.
+The referenced colon-starting
+.I metricsets
+are part of the system \fBpmrep.conf\fR file.
 .PP
 Display network interface metrics on the local host:
 .RS +4
@@ -808,7 +844,7 @@ metricset definitions):
 .RS +4
 .ft CW
 .nf
-$ pmrep -i '.*firefox.*' -I -v :proc-io
+$ pmrep -i '.*firefox.*' :proc-io
 .fi
 .ft P
 .RE
@@ -910,14 +946,15 @@ as described in
 .BR pmprobe (1),
 .BR pmstat (1),
 .BR pmval (1),
+.BR sadf (1),
 .BR sar (1),
 .BR pmSpecLocalPMDA (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),
 .BR pmRegisterDerived (3),
 .BR strftime (3),
+.BR LOGARCHIVE (5),
 .BR pcp.conf (5),
-.BR pmlogger (5),
 .BR pmns (5),
 .BR pmrep.conf (5),
 .BR environ (7)

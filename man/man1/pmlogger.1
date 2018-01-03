@@ -136,7 +136,8 @@ and is affected by the files
 .IR $PCP_SYSCONF_DIR/pmlogger/control ,
 .IR $PCP_SYSCONF_DIR/pmlogger/control .d
 (use
-.BR chkconfig (8)
+.BR chkconfig (8),
+.BR systemctl (1)
 or similar platform-specific commands to activate or disable the primary
 .B pmlogger 
 instance),
@@ -832,6 +833,7 @@ as described in
 .BR pmdumplog (1),
 .BR pmlc (1),
 .BR pmlogger_check (1),
+.BR systemctl (1),
 .BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (5),
 .BR pcp.env (5),

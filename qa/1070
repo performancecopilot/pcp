@@ -55,10 +55,10 @@ echo "Test data to be used:"
 pmrep -s 5 -t 2 $log -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
 | _path_filter \
 | _archive_filter
-pmrep -s 5 -t 2 $log -p -o csv -F 1070.csv hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+pmrep -s 5 -t 2 $log -p -o csv -r -F 1070.csv hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
 | _archive_filter
 sheet2pcp 1070.csv 1070.map 1070-archive
-pmrep -s 5 -t 2 -a 1070-archive -z -p -o csv -F 1070.csv2 hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+pmrep -s 5 -t 2 -a 1070-archive -z -p -o csv -r -F 1070.csv2 hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
 | _archive_filter
 echo "Diff of CSV files start (no output expected)"
 diff 1070.csv 1070.csv2

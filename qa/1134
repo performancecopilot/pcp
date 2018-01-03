@@ -44,9 +44,9 @@ echo "---"
 # -s 10 can be removed when Python 2 support is dropped
 pmrep -z -p -u -a $A -w 40 -s 10 -l \; kernel.uname.release
 echo "---"
-pmrep -z -p -u -a $A kernel.uname.release -o csv | sed -e 's,XXX.*XXX,XXX,g'
+pmrep -z -p -u -a $A kernel.uname.release -o csv -r | sed -e 's,XXX.*XXX,XXX,g'
 echo "---"
-pmrep -z -p -u -a $A kernel.uname.release -o csv | wc
+pmrep -z -p -u -a $A kernel.uname.release -o csv -r | wc
 echo "---"
 # For completeness sake, no -nan in archives/value-test
 pmrep -z -p -u -a archives/all-sles9-sp1.meta -w 10 filesys.full

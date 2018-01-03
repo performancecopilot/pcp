@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except, too-many-arguments
+# pylint: disable=broad-except, too-many-arguments
 # pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
@@ -77,11 +77,11 @@ class PMReporter(object):
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
                      'timestamp', 'unitinfo', 'colxrow', 'separate_header',
-                     'delay', 'width', 'delimiter', 'extcsv',
+                     'delay', 'width', 'delimiter', 'extcsv', 'width_force',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force', 'width_force',
+                     'type_prefer', 'precision_force', 'live_filter',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -106,6 +106,7 @@ class PMReporter(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
         self.omit_flat = 0
         self.colxrow = None
         self.width = 0
@@ -140,7 +141,7 @@ class PMReporter(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -157,7 +158,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:vX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jvX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -195,6 +196,7 @@ class PMReporter(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering with archive output")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
@@ -270,6 +272,8 @@ class PMReporter(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'X':
@@ -348,7 +352,11 @@ class PMReporter(object):
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
-        self.pmconfig.validate_metrics(curr_insts=True)
+        if self.output != OUTPUT_ARCHIVE and self.live_filter:
+            sys.stderr.write("Instance live filtering only possible with archive output.\n")
+            sys.exit(1)
+
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -521,7 +529,7 @@ class PMReporter(object):
             self.format += "{2:>" + str(8) + "." + str(8) + "}{3}"
         index += 2
 
-        # Metrics / labels
+        # Metrics / text labels
         self.labels = OrderedDict() # pylint: disable=attribute-defined-outside-init
         for i, metric in enumerate(self.metrics):
             l = str(self.metrics[metric][4])
@@ -620,20 +628,36 @@ class PMReporter(object):
         """ Write separate header """
         l = len(str(len(self.metrics))) + 1
         k = 0
-        for i, metric in enumerate(self.metrics):
-            for j in range(len(self.pmconfig.insts[i][0])):
+        labels = []
+
+        def write_line(metric, k, i, j):
+            """ Line writer helper """
+            line = "[" + str(k).rjust(l) + "] - "
+            line += metric
+            if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
+                line += "[\"" + self.pmconfig.insts[i][1][j] + "\"]"
+            if self.metrics[metric][2][0]:
+                line += " - " + self.metrics[metric][2][0] + "\n"
+            else:
+                line += " - none\n"
+            self.writer.write(line.format(str(k)))
+
+        if self.colxrow is None:
+            for i, metric in enumerate(self.metrics):
+                for j in range(len(self.pmconfig.insts[i][0])):
+                    k += 1
+                    write_line(metric, k, i, j)
+        else:
+            for label in self.labels:
                 k += 1
-                line = "[" + str(k).rjust(l) + "] - "
-                line += metric
-                if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
-                    line += "[\"" + self.pmconfig.insts[i][1][j] + "\"]"
-                if self.metrics[metric][2][0]:
-                    line += " - " + self.metrics[metric][2][0] + "\n"
-                else:
-                    line += " - none\n"
-                self.writer.write(line.format(str(k)))
+                for metric, i in self.labels[label]:
+                    for j in range(len(self.pmconfig.insts[i][0])):
+                        write_line(metric, k, i, j)
+
         self.writer.write("\n")
         names = ["", self.delimiter] # no timestamp on header line
+        if self.colxrow is not None:
+            names.extend(["", self.delimiter]) # nothing for the instance column
         k = 0
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.pmconfig.insts[i][0])):
@@ -744,14 +768,6 @@ class PMReporter(object):
                                       self.pmconfig.descs[i].contents.indom,
                                       self.pmconfig.descs[i].contents.sem,
                                       self.pmconfig.descs[i].contents.units)
-                ins = 0 if self.pmconfig.insts[i][0][0] == PM_IN_NULL else len(self.pmconfig.insts[i][0])
-                for j in range(ins):
-                    self.recorded[metric].append(self.pmconfig.insts[i][0][j])
-                    try:
-                        self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, self.pmconfig.insts[i][1][j], self.pmconfig.insts[i][0][j])
-                    except pmi.pmiErr as error:
-                        if error.args[0] == PMI_ERR_DUPINSTNAME:
-                            pass
 
         # Add current values
         data = 0
@@ -761,10 +777,13 @@ class PMReporter(object):
                     try:
                         if inst != PM_IN_NULL and not name:
                             continue
+                        if self.live_filter and inst != PM_IN_NULL and \
+                           not self.pmconfig.filter_instance(metric, name):
+                            continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
-                            self.recorded[metric].append(inst)
                             try:
                                 self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
+                                self.recorded[metric].append(inst)
                             except pmi.pmiErr as error:
                                 if error.args[0] == PMI_ERR_DUPINSTNAME:
                                     pass
@@ -777,9 +796,9 @@ class PMReporter(object):
                         else:
                             self.pmi.pmiPutValue(metric, name, "%d" % value)
                         data = 1
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Flush
@@ -833,9 +852,9 @@ class PMReporter(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Add corresponding values for each column in the static header
@@ -844,7 +863,7 @@ class PMReporter(object):
                 line += self.delimiter
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
-                except:
+                except Exception:
                     continue
                 if isinstance(value, str):
                     if self.delimiter:
@@ -927,9 +946,9 @@ class PMReporter(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Add corresponding values for each column in the static header
@@ -940,7 +959,7 @@ class PMReporter(object):
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
                     value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
-                except:
+                except Exception:
                     value = NO_VAL
                 line.append(value)
                 line.append(self.delimiter)
@@ -973,9 +992,9 @@ class PMReporter(object):
                         continue
                     try:
                         res[metric + "+" + str(inst)] = val
-                    except:
+                    except Exception:
                         pass
-            except:
+            except Exception:
                 pass
 
         # Avoid per-line I/O
@@ -1018,7 +1037,7 @@ class PMReporter(object):
                         try:
                             value = res[metric + "+" + str(j)]()
                             value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
-                        except:
+                        except Exception:
                             value = NO_VAL
 
                         line.append(value)
@@ -1058,7 +1077,7 @@ class PMReporter(object):
                     raise error
             try:
                 self.writer.close()
-            except:
+            except: # pylint: disable=bare-except
                 pass
             self.writer = None
         if self.pmi:
