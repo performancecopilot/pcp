@@ -84,8 +84,8 @@ port3=`expr $port2 + 1`
 port3=`_find_free_port $port3`
 
 # a and b concurrently
-# a: 25 x 0.6 sec
-# b: 20 x 0.3 sec
+# a: 25 x 0.6 sec + prologue + epilogue = 27
+# b: 20 x 0.3 sec + prologue + epilogue = 22
 #
 PMLOGGER_PORT=$port1 \
 pmlogger -c $tmp.a.config -l $tmp.a.log -s 25 $tmp.a >$tmp.a.err 2>&1 &
@@ -99,7 +99,10 @@ echo >>$seq.full
 echo "log for archive 'b' ..." >>$seq.full
 cat $tmp.b.err $tmp.b.log | tee -a $seq.full | _filter_pmlogger_log
 
+sleep 2
+
 # c later
+# c: 10 x 0.3 sec + prologue + epilogue = 12
 #
 PMLOGGER_PORT=$port3 \
 pmlogger -c $tmp.c.config -l $tmp.c.log -s 10 $tmp.c >$tmp.c.err 2>&1
@@ -136,42 +139,38 @@ pmval -U $tmp.merge sample.drift 2>&1 \
 
 echo | tee -a $seq.full
 echo "merge -s 10" | tee -a $seq.full
-rm -f $tmp.merge.*
-pmlogextract -s 10 $tmp.a $tmp.b $tmp.c $tmp.merge
+pmlogextract -s 10 $tmp.a $tmp.b $tmp.c $tmp.merge-10
 $PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 10): ""$PCP_ECHO_C"
-pmdumplog -m $tmp.merge \
+pmdumplog -m $tmp.merge-10 \
 | tee -a $seq.full \
 | _count_rec 
 
-# all of b + 12 from a
+# all of a + b
 #
 echo | tee -a $seq.full
-echo "merge -T 6.9" | tee -a $seq.full
-rm -f $tmp.merge.*
-pmlogextract -T 6.9 $tmp.a $tmp.b $tmp.c $tmp.merge
-$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 32 + 1 prologue + 1 epilogue + 1 mark): ""$PCP_ECHO_C"
-pmdumplog -m $tmp.merge \
+echo "merge -T 16" | tee -a $seq.full
+pmlogextract -T 16 $tmp.a $tmp.b $tmp.c $tmp.merge-T16
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 49): ""$PCP_ECHO_C"
+pmdumplog -m $tmp.merge-T16 \
 | tee -a $seq.full \
 | _count_rec
 
-# tail of a (less 1), none of b or c
+# all of c, none of a or b
 echo | tee -a $seq.full
-echo "merge -S 6.9 -T 7.2" | tee -a $seq.full
-rm -f $tmp.merge.*
-pmlogextract -S 6.9 -T 7.2 $tmp.a $tmp.b $tmp.c $tmp.merge
+echo "merge -S 16" | tee -a $seq.full
+pmlogextract -S 16 $tmp.a $tmp.b $tmp.c $tmp.merge-S16
 $PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 12): ""$PCP_ECHO_C"
-pmdumplog -m $tmp.merge \
+pmdumplog -m $tmp.merge-S16 \
 | tee -a $seq.full \
 | _count_rec
 
 echo | tee -a $seq.full
 echo "Full merge with volume switch ..." | tee -a $seq.full
-rm -f $tmp.merge.*
-pmlogextract -v 15 $tmp.a $tmp.b $tmp.c $tmp.merge 2>&1 \
+pmlogextract -v 15 $tmp.a $tmp.b $tmp.c $tmp.merge-mv 2>&1 \
 | tee -a $seq.full \
 | _stamp
 echo "Log record counts ..." | tee -a $seq.full
-for i in a b c merge
+for i in a b c merge-mv
 do
     $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
     ( echo; echo "=== $i ===" ) >>$seq.full
@@ -180,20 +179,26 @@ do
     | _count_rec
 done
 
-for file in $tmp.merge.[0-9]*
+for file in $tmp.merge-mv.[0-9]*
 do
     mv $file $file.x
 done
 
 echo "Log record counts per merged volume ..." | tee -a $seq.full
-for vol in `echo $tmp.merge.[0-9]* | sed -e "s;$tmp\\.merge\\.\\([0-9]*\\)\\.x;\\1;g"`
+for vol in `echo $tmp.merge-mv.[0-9]* | sed -e "s;$tmp\\.merge-mv\\.\\([0-9]*\\)\\.x;\\1;g"`
 do
     $PCP_ECHO_PROG $PCP_ECHO_N "volume $vol: ""$PCP_ECHO_C"
     ( echo; echo "=== volume $vol ===" ) >>$seq.full
-    mv $tmp.merge.$vol.x $tmp.merge.$vol
-    pmdumplog -m $tmp.merge \
+    mv $tmp.merge-mv.$vol.x $tmp.merge-mv.$vol
+    pmdumplog -m $tmp.merge-mv \
     | tee -a $seq.full \
     | _count_rec
-    mv $tmp.merge.$vol $tmp.merge.$vol.x
+    mv $tmp.merge-mv.$vol $tmp.merge-mv.$vol.x
+done
+
+for file in $tmp.merge-mv.[0-9]*
+do
+    file=`echo $file | sed -e 's/\.x$//'`
+    mv $file.x $file
 done
 
