@@ -426,7 +426,7 @@ newvolume(char *base, pmTimeval *tvp)
 static void
 newlabel(void)
 {
-    int		i;
+    int		indx;
     inarch_t	*iap;
     __pmLogLabel	*lp = &logctl.l_label;
 
@@ -462,8 +462,8 @@ newlabel(void)
     }
 
     /* reset outarch as appropriate, depending on other input archives */
-    for (i=0; i<inarchnum; i++) {
-	iap = &inarch[i];
+    for (indx=0; indx<inarchnum; indx++) {
+	iap = &inarch[indx];
 
 	/* Ensure all archives of the same version number */
         if ((iap->label.ll_magic & 0xff) != inarchvers) {
@@ -505,7 +505,7 @@ newlabel(void)
 		    iap->name, iap->label.ll_tz);
 	    }
 	}
-    } /*for(i)*/
+    } /*for(indx)*/
 }
 
 
@@ -615,12 +615,12 @@ findnadd_indomreclist(int indom)
  *  append a new record to the log record list
  */
 void
-append_logreclist(int i)
+append_logreclist(int indx)
 {
     inarch_t	*iap;
     reclist_t	*curr;
 
-    iap = &inarch[i];
+    iap = &inarch[indx];
 
     if (rlog == NULL) {
 	rlog = mk_reclist_t();
@@ -654,14 +654,14 @@ append_logreclist(int i)
  *  same as the last desc meta record for this pmid from this source
  */
 void
-update_descreclist(int i)
+update_descreclist(int indx)
 {
     inarch_t	*iap;
     reclist_t	*curr;
     pmUnits	pmu;
     pmUnits	*pmup;
 
-    iap = &inarch[i];
+    iap = &inarch[indx];
 
     if (rdesc == NULL) {
 	/* first time */
@@ -787,13 +787,13 @@ update_descreclist(int i)
  *  append a new record to the indom meta record list
  */
 void
-append_indomreclist(int i)
+append_indomreclist(int indx)
 {
     inarch_t	*iap;
     reclist_t	*curr;
     reclist_t	*rec;
 
-    iap = &inarch[i];
+    iap = &inarch[indx];
 
     if (rindom == NULL) {
 	rindom = mk_reclist_t();
@@ -1055,7 +1055,7 @@ write_metareclist(pmResult *result, int *needti)
 		write_rec(othr_indom);
 	    }
 	}
-    } /*for(i)*/
+    } /*for(indx)*/
 }
 
 /* --- End of reclist functions --- */
@@ -1096,12 +1096,12 @@ _createmark(void)
 }
 
 void
-checklogtime(pmTimeval *this, int i)
+checklogtime(pmTimeval *this, int indx)
 {
     if ((curlog.tv_sec == 0 && curlog.tv_usec == 0) ||
 	(curlog.tv_sec > this->tv_sec ||
 	(curlog.tv_sec == this->tv_sec && curlog.tv_usec > this->tv_usec))) {
-	    ilog = i;
+	    ilog = indx;
 	    curlog.tv_sec = this->tv_sec;
 	    curlog.tv_usec = this->tv_usec;
     }
@@ -1115,7 +1115,7 @@ checklogtime(pmTimeval *this, int i)
 static int
 nextmeta(void)
 {
-    int		i;
+    int		indx;
     int		j;
     int		type;
     int		want;
@@ -1127,8 +1127,8 @@ nextmeta(void)
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
 
-    for (i=0; i<inarchnum; i++) {
-	iap = &inarch[i];
+    for (indx=0; indx<inarchnum; indx++) {
+	iap = &inarch[indx];
 
 	/* if at the end of meta file then skip this archive */
 	if (iap->eof[META]) {
@@ -1197,7 +1197,7 @@ againmeta:
 		 * sightings of desc for this pmid from this source
 		 * update_descreclist() sets pb[META] to NULL
 		 */
-		update_descreclist(i);
+		update_descreclist(indx);
 	    }
 	    else {
 		/* not wanted */
@@ -1232,7 +1232,7 @@ againmeta:
 		 * append_indomreclist() sets pb[META] to NULL
 		 * append_indomreclist() may unpin the pdu buffer
 		 */
-		append_indomreclist(i);
+		append_indomreclist(indx);
 	    }
 	    else {
 	        /* META: don't want this meta */
@@ -1279,7 +1279,7 @@ againmeta:
 static int
 nextlog(void)
 {
-    int		i;
+    int		indx;
     int		eoflog = 0;	/* number of log files at eof */
     int		sts;
     pmTimeval	curtime;
@@ -1288,8 +1288,8 @@ nextlog(void)
     inarch_t	*iap;
 
 
-    for (i=0; i<inarchnum; i++) {
-	iap = &inarch[i];
+    for (indx=0; indx<inarchnum; indx++) {
+	iap = &inarch[indx];
 
 	/* if at the end of log file then skip this archive */
 	if (iap->eof[LOG]) {
@@ -1363,6 +1363,7 @@ againlog:
 	 *          have to change as well.
 	 */
 	if (iap->_result->numpmid == 5) {
+	    int		i;
 	    pmAtomValue	av;
 	    int		lsts;
 	    for (i=0; i<iap->_result->numpmid; i++) {
@@ -1441,7 +1442,7 @@ againlog:
 	}
 	PM_UNLOCK(ctxp->c_lock);
 
-    } /*for(i)*/
+    } /*for(indx)*/
 
     /*
      * if we are here, then each archive control struct should either
@@ -1593,7 +1594,7 @@ parseconfig(void)
 static int
 checkwinend(pmTimeval now)
 {
-    int		i;
+    int		indx;
     int		sts;
     pmTimeval	tmptime;
     inarch_t	*iap;
@@ -1624,8 +1625,8 @@ checkwinend(pmTimeval now)
 	    return(-1);
 
     ilog = -1;
-    for (i=0; i<inarchnum; i++) {
-	iap = &inarch[i];
+    for (indx=0; indx<inarchnum; indx++) {
+	iap = &inarch[indx];
 	if (iap->_Nresult != NULL) {
 	    tmptime.tv_sec = iap->_Nresult->timestamp.tv_sec;
 	    tmptime.tv_usec = iap->_Nresult->timestamp.tv_usec;
@@ -1654,7 +1655,7 @@ checkwinend(pmTimeval now)
 		iap->pb[LOG] = NULL;
 	    }
 	}
-    } /*for(i)*/
+    } /*for(indx)*/
 
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
@@ -1851,7 +1852,7 @@ writemark(inarch_t *iap)
 static int
 do_not_need_mark(inarch_t *iap)
 {
-    int			i, j;
+    int			indx, j;
     struct timeval	tstamp;
     struct timeval	smallest_tstamp;
 
@@ -1862,15 +1863,15 @@ do_not_need_mark(inarch_t *iap)
     j = -1;
     smallest_tstamp.tv_sec = INT_MAX;
     smallest_tstamp.tv_usec = 999999;
-    for (i=0; i<inarchnum; i++) {
-	if (&inarch[i] == iap)
+    for (indx=0; indx<inarchnum; indx++) {
+	if (&inarch[indx] == iap)
 	    continue;
-	if (inarch[i]._result != NULL) {
-	    tstamp.tv_sec = inarch[i]._result->timestamp.tv_sec;
-	    tstamp.tv_usec = inarch[i]._result->timestamp.tv_usec;
+	if (inarch[indx]._result != NULL) {
+	    tstamp.tv_sec = inarch[indx]._result->timestamp.tv_sec;
+	    tstamp.tv_usec = inarch[indx]._result->timestamp.tv_usec;
 	    if (tstamp.tv_sec < smallest_tstamp.tv_sec || 
 		(tstamp.tv_sec == smallest_tstamp.tv_sec && tstamp.tv_usec < smallest_tstamp.tv_usec)) {
-		j = i;
+		j = indx;
 		smallest_tstamp.tv_sec = tstamp.tv_sec;
 		smallest_tstamp.tv_usec = tstamp.tv_usec;
 	    }
@@ -1893,7 +1894,7 @@ do_not_need_mark(inarch_t *iap)
 int
 main(int argc, char **argv)
 {
-    int		i;
+    int		indx;
     int		j;
     int		sts;
     int		stslog;			/* sts from nextlog() */
@@ -1954,8 +1955,8 @@ main(int argc, char **argv)
     }
 
 
-    for (i=0; i<inarchnum; i++, opts.optind++) {
-	iap = &inarch[i];
+    for (indx=0; indx<inarchnum; indx++, opts.optind++) {
+	iap = &inarch[indx];
 
 	iap->name = argv[opts.optind];
 
@@ -1996,7 +1997,7 @@ main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (i == 0) {
+	if (indx == 0) {
 	    /* start time */
 	    logstart_tval.tv_sec = iap->label.ll_start.tv_sec;
 	    logstart_tval.tv_usec = iap->label.ll_start.tv_usec;
@@ -2022,7 +2023,7 @@ main(int argc, char **argv)
 		    logend_tval.tv_usec = unused.tv_usec;
 	    }
 	}
-    } /*for(i)*/
+    } /*for(indx)*/
 
     logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
     logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
@@ -2152,24 +2153,24 @@ main(int argc, char **argv)
 	 * (this is a bit more complex when tflag is specified)
 	 */
 	mintime.tv_sec = mintime.tv_usec = 0;
-	for (i=0; i<inarchnum; i++) {
-	    if (inarch[i]._Nresult != NULL) {
-		tstamp.tv_sec = inarch[i]._Nresult->timestamp.tv_sec;
-		tstamp.tv_usec = inarch[i]._Nresult->timestamp.tv_usec;
-		checklogtime(&tstamp, i);
+	for (indx=0; indx<inarchnum; indx++) {
+	    if (inarch[indx]._Nresult != NULL) {
+		tstamp.tv_sec = inarch[indx]._Nresult->timestamp.tv_sec;
+		tstamp.tv_usec = inarch[indx]._Nresult->timestamp.tv_usec;
+		checklogtime(&tstamp, indx);
 
-		if (ilog == i) {
+		if (ilog == indx) {
 		    tmptime = curlog;
 		    if (mintime.tv_sec <= 0 || tvcmp(mintime, tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
-	    else if (inarch[i].pb[LOG] != NULL) {
-		tstamp.tv_sec = inarch[i].pb[LOG][3]; /* no swab needed */
-		tstamp.tv_usec = inarch[i].pb[LOG][4]; /* no swab needed */
-		checklogtime(&tstamp, i);
+	    else if (inarch[indx].pb[LOG] != NULL) {
+		tstamp.tv_sec = inarch[indx].pb[LOG][3]; /* no swab needed */
+		tstamp.tv_usec = inarch[indx].pb[LOG][4]; /* no swab needed */
+		checklogtime(&tstamp, indx);
 
-		if (ilog == i) {
+		if (ilog == indx) {
 		    tmptime = curlog;
 		    if (mintime.tv_sec <= 0 || tvcmp(mintime, tmptime) > 0)
 		        mintime = tmptime;
@@ -2251,6 +2252,7 @@ main(int argc, char **argv)
 	     *	(in order to avoid memory leaks)
 	     */
 	    if (iap->_result != iap->_Nresult && iap->_Nresult != NULL) {
+		int		i;
 		pmValueSet	*vsetp;
 		for (i=0; i<iap->_Nresult->numpmid; i++) {
 		    vsetp = iap->_Nresult->vset[i];
