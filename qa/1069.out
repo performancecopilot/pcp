@@ -281,8 +281,18 @@ HH:MM:SS        1
          1         2         3         4         5         6         7         8
      38220     0.000    30.000     0.500     0.000     0.000     0.500   6068648
 [ 1] - mem.util.free - Kbyte
-[ 2] - disk.dev.read - count/s
-[ 3] - disk.dev.write - count/s
+[ 2] - disk.dev.read["sda"] - count/s
+[ 2] - disk.dev.read["sdb"] - count/s
+[ 2] - disk.dev.read["sdc"] - count/s
+[ 2] - disk.dev.read["hdc"] - count/s
+[ 2] - disk.dev.read["sdd"] - count/s
+[ 2] - disk.dev.read["sde"] - count/s
+[ 3] - disk.dev.write["sda"] - count/s
+[ 3] - disk.dev.write["sdb"] - count/s
+[ 3] - disk.dev.write["sdc"] - count/s
+[ 3] - disk.dev.write["hdc"] - count/s
+[ 3] - disk.dev.write["sdd"] - count/s
+[ 3] - disk.dev.write["sde"] - count/s
 [ 4] - mem.util.used - Kbyte
 
         |        |       1|       2|        3|       4
@@ -321,6 +331,29 @@ HH:MM:SS        1
 00:47:09|     hdc|       ~|   0.000|    0.000|       ~
 00:47:09|     sdd|       ~|   0.000|    0.000|       ~
 00:47:09|     sde|       ~|   0.500|   11.500|       ~
+[ 1] - mem.util.used - Kbyte
+[ 2] - kernel.all.cpu.user - ms/s
+[ 2] - kernel.percpu.cpu.user["cpu0"] - ms/s
+[ 2] - kernel.percpu.cpu.user["cpu1"] - ms/s
+[ 3] - mem.util.free - Kbyte
+[ 4] - mem.util.shared - Kbyte
+
+                       1     2         3           4
+00:47:01     =   6068648   N/A     38220         N/A
+00:47:01  cpu0         ~   N/A         ~           ~
+00:47:01  cpu1         ~   N/A         ~           ~
+00:47:03     =   6068648   404     38220         N/A
+00:47:03  cpu0         ~  21.0         ~           ~
+00:47:03  cpu1         ~   384         ~           ~
+00:47:05     =   6068648   404     38220         N/A
+00:47:05  cpu0         ~  20.5         ~           ~
+00:47:05  cpu1         ~   384         ~           ~
+00:47:07     =   6068648   405     38220         N/A
+00:47:07  cpu0         ~  21.0         ~           ~
+00:47:07  cpu1         ~   384         ~           ~
+00:47:09     =   6068648   404     38220         N/A
+00:47:09  cpu0         ~  21.0         ~           ~
+00:47:09  cpu1         ~   384         ~           ~
 == invalid command line parameters
 Error while parsing options: Non-negative integer expected.
 Error while parsing options: Non-negative integer expected.
