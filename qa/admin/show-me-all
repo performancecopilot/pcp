@@ -3,16 +3,22 @@
 # Trawl pcp-daily log directories looking for _all_ the failures
 # for one or more tests
 #
+# Look in $HOME/Logs/by-vm if it exists, else the current directory.
+# Expect to find a bunch of subdirs like vm00, vm01, ... bozo, bozo-vm,
+# etc and within those, a qa subdir which contains the .out and .out.bad
+# (and .full) files for the failing tests.
+#
 
 tmp=/var/tmp/$$
-sts=0
+sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 _usage()
 {
-    echo "Usage: $0 [options] seq ..."
+    echo "Usage: $0 [options] seq"
     echo "Options:"
     echo "  -f    show me seq.full if it exists"
+    echo "  -g    path to base of PCP git tree [default: $HOME/src/pcp]"
     echo "  -l    run show-me -l"
     echo "  -m    gather unique .out.bad files and prepare email"
     sts=1
@@ -20,160 +26,181 @@ _usage()
 }
 
 full=false
+pcpdir=$HOME/src/pcp
 verbose=false
 show_me_opts=''
 prepare_mail=false
-while getopts 'flm?' p
+while getopts 'fg:lm?' p
 do
     case "$p"
     in
 	f)	full=true
 		;;
 
+	g)	pcpdir="$OPTARG"
+		;;
+
 	l)	show_me_opts="$show_me_opts -l"
 		;;
+
 	m)	prepare_mail=true
 		;;
+
 	?)	_usage
 		# NOTREACHED
     esac
 done
 shift `expr $OPTIND - 1`
-[ $# -ge 1 ] || _usage
+[ $# -ne 1 ] && _usage
+seq="$1"
 
-cd $HOME
+if [ ! -d $pcpdir/qa ]
+then
+    echo "Error: $pcpdir/qa does not exist ... expecting PCP qa dir"
+    exit
+fi
 
-for seq
+if [ -d $HOME/Logs/by-vm ]
+then
+    cd $HOME/Logs/by-vm
+fi
+
+case "$seq"
+in
+    [0-9])
+	    seq=00$seq
+	    ;;
+    [0-9][0-9])
+	    seq=0$seq
+	    ;;
+esac
+base=''
+echo >$tmp.sum
+here=`pwd`
+find * -name "$seq.out.bad" \
+| sort \
+| while read bad
 do
-    case "$seq"
-    in
-	[0-9])
-		seq=00$seq
-		;;
-	[0-9][0-9])
-		seq=0$seq
-		;;
-    esac
-    base=''
-    echo >$tmp.sum
-    find $HOME/Logs/by-vm -name "$seq.out.bad" \
-    | sort \
-    | while read bad
-    do
-	sum=`shasum <$bad | sed -e 's/ .*//'`
-	host=`echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/\/.*//'`
-	cd `dirname $bad`
-	rm -f $tmp.ok
-	for log in `ls -r ../????-??-??`
-	do
-	    if grep '^Failures: ' $log >$tmp.fail
-	    then
-		# found a Failures: line ... is our test included in the
-		# last Failures: line?
-		#
-		if tail -1 $tmp.fail | grep " $seq" >/dev/null
-		then
-		    touch $tmp.ok
-		fi
-		break
-	    fi
-	done
-	if [ ! -f $tmp.ok ]
-	then
-	    # cleanup because test was subsequently made to pass?
-	    #
-	    echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
-	    read ans </dev/tty
-	    if [ -n "$ans" -a "$ans" = y ]
-	    then
-		rm $seq.*
-	    fi
-	    continue
-	fi
-	if grep " $sum" <$tmp.sum >/dev/null 2>&1
-	then
-	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
-	    echo "$host: same $seq.out.bad as $match_host"
-	else
-	    for qabits in \
-		common common.check common.config common.filter common.install.cisco \
-		common.pcpweb common.product common.rc common.setup localconfig \
-		group show-me
-	    do
-		if [ -L $qabits ]
-		then
-		    :
-		else
-		    rm -f $qabits
-		    ln -s $HOME/src/pcp/qa/$qabits $qabits
-		fi
-	    done
-	    echo -n "$host-"
-	    show-me $show_me_opts $seq
-	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
-	fi
-	echo $host $sum >>$tmp.sum
-	#debug# cat $tmp.sum
-    done
-
-    if $prepare_mail
+    cd $here
+    sum=`shasum <$bad | sed -e 's/ .*//'`
+    host=`echo "$bad" | sed -e 's/\/.*//'`
+    if [ ! -d `dirname $bad` ]
     then
-	var=0
-	rm -f /tmp/$seq.out.bad-*
-	rm -f $tmp.map $tmp.mail
-	touch $tmp.map
-	cat $tmp.sum \
-	| while read host sum
-	do
-	    [ -z "$host" ] && continue
-	    myvar=`grep " $sum\$" $tmp.map | sed -e 's/ .*//'`
-	    if [ -z "$myvar" ]
-	    then
-		cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/$seq.out.bad-$var
-		myvar=$var
-		echo "$var $sum" >>$tmp.map
-		var=`expr $var + 1`
-	    fi
-	    myhost=``
-	    if [ -f $HOME/whatami.out ]
-	    then
-		myhost=`grep "^$host " $HOME/whatami.out`
-	    fi
-	    [ -z "$myhost" ] && myhost=$host
-	    printf " %2d   %s\n" $myvar "$myhost" >>$tmp.mail
-	done
-	echo "Subject: QA failures for qa/$seq (`grep "^$seq " $HOME/src/pcp/qa/group | sed \
--e "s/^$seq //" -e 's/ local//' -e 's/ remote//'`)"
-	echo
-	echo "QA test $seq is failing on a number of machines in the QA Farm."
-	echo
-	echo "If you can help with diagnosis that would be most appreciated."
-	echo
-	echo "Even better would be code changes if this indicates there is a"
-	echo "real bug or QA changes if it represents a QA test failure."
-	echo
-	numvar=`echo /tmp/$seq.out.bad-* | wc -w | sed -e 's/  */ /g'`
-	if [ "$numvar" -gt 1 ]
-	then
-	    echo "Details for qa/$seq failures."
-	    echo
-	    echo ".bad  Host        PCP      CPU     Operating System"
-	    sort -k1,1n -k2,2 <$tmp.mail
-	    echo
-	    echo "The $numvar variants of the $seq.out.bad file are attached."
-	    echo
-	    echo "Attachments: `echo /tmp/$seq.out.bad-*`"
-	else
-	    echo "The failure is the same on all the following hosts."
-	    echo
-	    echo "Host        PCP      CPU     Operating System"
-	    sort -k1,1n -k2,2 <$tmp.mail | sed -e 's/^......//'
-	    echo
-	    echo "The $seq.out.bad file is attached."
-	    echo
-	    mv /tmp/$seq.out.bad-0 /tmp/$seq.out.bad
-	    echo "Attachment: /tmp/$seq.out.bad"
-	fi
+	echo "Arrgh: bad=$bad but dir=`dirname $bad` is not a directory!"
+	exit
     fi
-
+    cd `dirname $bad`
+    rm -f $tmp.ok
+    for log in `ls -r ../????-??-??`
+    do
+	if grep '^Failures: ' $log >$tmp.fail
+	then
+	    # found a Failures: line ... is our test included in the
+	    # last Failures: line?
+	    #
+	    if tail -1 $tmp.fail | grep " $seq" >/dev/null
+	    then
+		touch $tmp.ok
+	    fi
+	    break
+	fi
+    done
+    if [ ! -f $tmp.ok ]
+    then
+	# cleanup because test was subsequently made to pass?
+	#
+	echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
+	read ans </dev/tty
+	if [ -n "$ans" -a "$ans" = y ]
+	then
+	    rm $seq.*
+	fi
+	continue
+    fi
+    if grep " $sum" <$tmp.sum >/dev/null 2>&1
+    then
+	match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
+	echo "$host: same $seq.out.bad as $match_host"
+    else
+	for qabits in \
+	    common common.check common.config common.filter common.install.cisco \
+	    common.pcpweb common.product common.rc common.setup localconfig \
+	    group show-me
+	do
+	    if [ -L $qabits ]
+	    then
+		:
+	    else
+		rm -f $qabits
+		ln -s $pcpdir/qa/$qabits $qabits
+	    fi
+	done
+	echo -n "$host-"
+	show-me $show_me_opts $seq
+	$full && [ -f $seq.full ] && less $seq.full </dev/tty
+    fi
+    echo $host $sum >>$tmp.sum
+    #debug# cat $tmp.sum
 done
+
+if $prepare_mail
+then
+    var=0
+    rm -f /tmp/$seq.out.bad-*
+    rm -f $tmp.map $tmp.mail
+    touch $tmp.map
+    cat $tmp.sum \
+    | while read host sum
+    do
+	[ -z "$host" ] && continue
+	myvar=`grep " $sum\$" $tmp.map | sed -e 's/ .*//'`
+	if [ -z "$myvar" ]
+	then
+	    cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/$seq.out.bad-$var
+	    myvar=$var
+	    echo "$var $sum" >>$tmp.map
+	    var=`expr $var + 1`
+	fi
+	myhost=``
+	if [ -f $HOME/whatami.out ]
+	then
+	    myhost=`grep "^$host " $HOME/whatami.out`
+	fi
+	[ -z "$myhost" ] && myhost=$host
+	printf " %2d   %s\n" $myvar "$myhost" >>$tmp.mail
+    done
+    echo "Subject: QA failures for qa/$seq (`grep "^$seq " $HOME/src/pcp/qa/group | sed \
+-e "s/^$seq //" -e 's/ local//' -e 's/ remote//'`)"
+    echo
+    echo "QA test $seq is failing on a number of machines in the QA Farm."
+    echo
+    echo "If you can help with diagnosis that would be most appreciated."
+    echo
+    echo "Even better would be code changes if this indicates there is a"
+    echo "real bug or QA changes if it represents a QA test failure."
+    echo
+    numvar=`echo /tmp/$seq.out.bad-* | wc -w | sed -e 's/  */ /g'`
+    if [ "$numvar" -gt 1 ]
+    then
+	echo "Details for qa/$seq failures."
+	echo
+	echo "-bad  Host        PCP      CPU     Operating System"
+	sort -k1,1n -k2,2 <$tmp.mail
+	echo
+	echo "The $numvar variants of the $seq.out.bad file are attached."
+	echo
+	echo "Attachments: `echo /tmp/$seq.out.bad-*`"
+    else
+	echo "The failure is the same on all the following hosts."
+	echo
+	echo "Host        PCP      CPU     Operating System"
+	sort -k1,1n -k2,2 <$tmp.mail | sed -e 's/^......//'
+	echo
+	echo "The $seq.out.bad file is attached."
+	echo
+	mv /tmp/$seq.out.bad-0 /tmp/$seq.out.bad
+	echo "Attachment: /tmp/$seq.out.bad"
+    fi
+fi
+
+sts=0
