@@ -805,6 +805,15 @@ class PMReporter(object):
         if data:
             self.pmi.pmiWrite(int(self.pmfg_ts().strftime('%s')), self.pmfg_ts().microsecond)
 
+    def remove_delimiter(self, value):
+        """ Remove delimiter if needed in string values """
+        if isinstance(value, str) and self.delimiter and not self.delimiter.isspace():
+            if self.delimiter != "_":
+                value = value.replace(self.delimiter, "_")
+            else:
+                value = value.replace(self.delimiter, " ")
+        return value
+
     def parse_non_number(self, value, width=8):
         """ Check and handle float inf, -inf, and NaN """
         if math.isinf(value):
@@ -830,14 +839,14 @@ class PMReporter(object):
                 host = "localhost"
             else:
                 host = self.context.pmGetContextHostName()
-            self.csv_host = host + "," # pylint: disable=attribute-defined-outside-init
+            self.csv_host = host + self.delimiter # pylint: disable=attribute-defined-outside-init
             self.csv_tz = " " + self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts)) # pylint: disable=attribute-defined-outside-init
 
         # Construct the results
         line = ""
         if self.extcsv:
             line += self.csv_host
-            line += str(int(ts - self.prev_ts + 0.5)) + ","
+            line += str(int(ts - self.prev_ts + 0.5)) + self.delimiter
             self.prev_ts = ts
         line += timestamp
         if self.extcsv:
@@ -866,8 +875,7 @@ class PMReporter(object):
                 except Exception:
                     continue
                 if isinstance(value, str):
-                    if self.delimiter:
-                        value = value.replace(self.delimiter, "_")
+                    value = self.remove_delimiter(value)
                     value = value.replace("\n", " ").replace('"', " ")
                     line += '"' + value + '"'
                 else:
@@ -888,9 +896,8 @@ class PMReporter(object):
     def format_stdout_value(self, value, width, precision, fmt, k):
         """ Format a value for stdout output """
         if isinstance(value, str):
+            value = self.remove_delimiter(value)
             value = value.replace("\n", "\\n")
-            if self.delimiter and not self.delimiter.isspace():
-                value = value.replace(self.delimiter, "_")
         elif isinstance(value, float) and \
              not math.isinf(value) and \
              not math.isnan(value):

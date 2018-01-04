@@ -192,6 +192,8 @@ echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -o csv -r -p -P 1 sample
 pmrep -s 5 -t 2 $log -o csv -r --delimiter '|' sample | \
     tee -a $tmp.out1
+pmrep -s 5 -t 2 $log -o csv -r -k -l ';' sample 2>&1 | _archive_filter
+
 echo "== exercise CSV and instance handling"
 pmrep -s 5 -t 2 $log2 -o csv -r hinv.map.scsi kernel.all.load
 echo "== compare output-to-file versus stdout"
