@@ -1,0 +1,28 @@
+# Broken getaddrinfo seen on i686 Ubuntu 17.04 (vm01)
+# pretty sure we call freeaddrinfo() from __pmHostEntFree()
+# after this call to __pmGetAddrInfo from __pmAuxConnectPMCDPort()
+#
+# at 0x482E23C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+# by 0x537A836: ???
+# by 0x537A1EA: ???
+# by 0x539BF27: ???
+# by 0x538143F: ???
+# by 0x4B827E6: gaih_inet.constprop.5 (getaddrinfo.c:848)
+# by 0x4B838CB: getaddrinfo (getaddrinfo.c:2391)
+# by 0x4896E5D: __pmGetAddrInfo (in /usr/lib/libpcp.so.3)
+# by 0x48970A5: __pmAuxConnectPMCDPort (in /usr/lib/libpcp.so.3)
+# by 0x486417E: __pmConnectPMCD (in /usr/lib/libpcp.so.3)
+# by 0x4866896: pmNewContext (in /usr/lib/libpcp.so.3)
+#
+{
+   getaddrinfo leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:gaih_inet.constprop.5
+   fun:getaddrinfo
+   fun:__pmGetAddrInfo
+   fun:__pmAuxConnectPMCDPort
+   fun:__pmConnectPMCD
+}
