@@ -1,0 +1,79 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMJSON 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmjson\f1 \- Performance Co-Pilot JSON dumping utility
+.SH SYNOPSIS
+\f3pmjson\f1
+[\f3\-mpqy\f1]
+[\f3\-i\f1|\f3\-\-in\f1 \f2FILE\f1]
+[\f3\-o\f1|\f3\-\-out\f1 \f2FILE\f1]
+.SH DESCRIPTION
+.B pmjson
+is used to manipulate JSON (JavaScript Object Notation) formatted
+text used in the Performance Co-Pilot (PCP toolkit).
+It can produce minimal and human readable output formats
+when it is supplied with valid JSON input.
+.PP
+The available command line options are as follows:
+.TP 5
+.BR \-i|\-\-in \ \fIFILE\f1
+JSON formatted input
+.IR FILE
+\- path to a file from which input should be read.
+If this option is omitted, then
+.B pmjson
+will read from the standard input stream.
+.TP
+.BR \-o|\-\-out \ \fIFILE\f1
+Formatted output is written to the named
+.IR FILE .
+If this option is omitted, then
+.B pmjson
+will write to the standard output stream.
+.TP
+.BR \-m|\-\-minimal
+Produce JSON output with all superflous whitespace removed
+from the resulting JSON string.
+.TP
+.BR \-p|\-\-pretty
+Produce JSON output in a human-readable format.
+.TP
+.BR \-q|\-\-quiet
+Verify the input as valid JSON only, no output is produced.
+.TP
+.BR \-y|\-\-yaml
+Produce YAML-like output, a human-readable format with less
+syntactic sugar than JSON.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PMWEBAPI (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
