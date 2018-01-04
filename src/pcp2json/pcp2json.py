@@ -30,11 +30,8 @@ import time
 import sys
 
 # Our imports
-try:
-    import json
-except ImportError:
-    import simplejson as json
 import socket
+import json
 import os
 
 # PCP Python PMAPI

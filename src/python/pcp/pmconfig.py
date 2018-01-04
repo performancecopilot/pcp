@@ -21,9 +21,9 @@
 
 from collections import OrderedDict
 try:
-    import ConfigParser
-except ImportError:
     import configparser as ConfigParser
+except ImportError:
+    import ConfigParser
 import signal
 import time
 import csv
