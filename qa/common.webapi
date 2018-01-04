@@ -1,6 +1,6 @@
 #
 # Common shell routines for testing the REST API daemon
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2018 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -59,18 +59,6 @@ _webapi_response_filter()
         -e '/> User-Agent: /d' \
 	-e '/Connection: Keep-Alive/d' \
     # end
-}
-
-_webapi_img_pretty()
-{
-    imgname=$1
-
-    $python -c "
-import sys
-from PIL import Image
-img = Image.open('$imgname')
-print('size=%dx%d\n' % (img.size[0], img.size[1]))
-"
 }
 
 # wait_for_pmwebd port [logfile]

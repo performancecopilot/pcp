@@ -76,14 +76,12 @@ awk '/N\/A/ {next} /^[0-9]/ {print $1, $2}'
 #
 echo;echo;echo === pmwebd/graphite time series dump ===
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcunda.disk.dev.read_bytes.sda\
-&from=07:03_20151201&until=07:16_20151201&maxDataPoints=14" | _filter_curl_i | pmjson --pretty | \
-awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
+&from=07:03_20151201&until=07:16_20151201&maxDataPoints=14" | _filter_curl_i | pmjson --pretty
 
 echo;echo;echo === pmwebd/graphite time series dump for ._ metric ===
 # fetch the _ bit too
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcunda._\
-&from=07:03_20151120&until=07:16_20151222" | _filter_curl_i | pmjson --pretty | \
-awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
+&from=07:03_20151120&until=07:16_20151222" | _filter_curl_i | pmjson --pretty
 
 cat $tmp.out >> $seq.full
 status=0
