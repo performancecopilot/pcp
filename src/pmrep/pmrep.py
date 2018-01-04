@@ -782,8 +782,8 @@ class PMReporter(object):
                             continue
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                             try:
-                                self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
                                 self.recorded[metric].append(inst)
+                                self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
                             except pmi.pmiErr as error:
                                 if error.args[0] == PMI_ERR_DUPINSTNAME:
                                     pass
