@@ -295,9 +295,9 @@ __pmInitMutex(pthread_mutex_t *lock)
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitMutex(");
 #ifdef PM_MULTI_THREAD_DEBUG
-	fprintf(stderr, "%s", lockname(lock));
+	fprintf(stderr, "%s)", lockname(lock));
 #else
-	fprintf(stderr, "%p", lock);
+	fprintf(stderr, "%p)", lock);
 #endif
 	fprintf(stderr, ": pthread_mutexattr_init failed: %s\n", errmsg);
 	exit(4);
@@ -306,9 +306,9 @@ __pmInitMutex(pthread_mutex_t *lock)
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitMutex(");
 #ifdef PM_MULTI_THREAD_DEBUG
-	fprintf(stderr, "%s", lockname(lock));
+	fprintf(stderr, "%s)", lockname(lock));
 #else
-	fprintf(stderr, "%p", lock);
+	fprintf(stderr, "%p)", lock);
 #endif
 	fprintf(stderr, ": pthread_mutexattr_settype failed: %s\n", errmsg);
 	exit(4);
@@ -317,14 +317,24 @@ __pmInitMutex(pthread_mutex_t *lock)
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitMutex(");
 #ifdef PM_MULTI_THREAD_DEBUG
-	fprintf(stderr, "%s", lockname(lock));
+	fprintf(stderr, "%s)", lockname(lock));
 #else
-	fprintf(stderr, "%p", lock);
+	fprintf(stderr, "%p)", lock);
 #endif
 	fprintf(stderr, ": pthread_mutex_init failed: %s\n", errmsg);
 	exit(4);
     }
     pthread_mutexattr_destroy(&attr);
+
+    if (pmDebugOptions.lock) {
+	fprintf(stderr, "__pmInitMutex(");
+#ifdef PM_MULTI_THREAD_DEBUG
+	fprintf(stderr, "%s", lockname(lock));
+#else
+	fprintf(stderr, "%p", lock);
+#endif
+	fprintf(stderr, ")\n");
+    }
 }
 
 void
