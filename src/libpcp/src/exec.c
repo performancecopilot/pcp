@@ -122,6 +122,8 @@ __pmProcessAddArg(__pmExecCtl_t **handle, const char *arg)
     __pmExecCtl_t	*ep;
     char		**tmp_argv;
 
+    __pmInitLocks();
+
     if (*handle == NULL) {
 	PM_LOCK(exec_lock);
 	/* first call in a sequence */
@@ -844,6 +846,8 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
     char	*p;
     char	*pend;
     int		endch = ' ';
+
+    __pmInitLocks();
 
     if (str == NULL) {
 	pmNoMem("__pmProcessUnpickArgs", strlen(command)+1, PM_RECOV_ERR);
