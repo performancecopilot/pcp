@@ -28,13 +28,23 @@ _filter_err()
     # end
 }
 
+# output from sum(1) is not deterministic across platforms
+#
+_sum_filter()
+{
+    sed \
+	-e 's/^00*/0/' \
+	-e 's/  */ /g' \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "--- simple cases ---"
-src/unpickargs -D exec "sum" 2>$tmp.err
+src/unpickargs -D exec "sum" 2>$tmp.err | _sum_filter
 _filter_err <$tmp.err
 echo
 src/unpickargs -D exec "echo a bb ccc dddd>eeee" 2>$tmp.err
