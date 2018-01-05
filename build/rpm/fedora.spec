@@ -3235,7 +3235,7 @@ cd
 %endif
 
 %changelog
-* Fri Jan 19 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
+* Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
