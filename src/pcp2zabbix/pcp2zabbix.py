@@ -54,10 +54,7 @@ import time
 import sys
 
 # Our imports
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 import socket
 import struct
 
