@@ -570,7 +570,7 @@ option specifies an explicit timezone, else a
 .B \-z/\-\-hostzone
 option changes the timezone to the local timezone at the host
 that is the source of the performance metrics.
-.SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
+.SH "PERFORMANCE METRICS \- IDENTIFIERS, NAMES, VALUES"
 The number of performance metric names supported by PCP on most
 platforms ranges from many hundreds to several thousand.
 The PCP libraries and applications use an internal
@@ -643,9 +643,46 @@ use
 or if the PCP GUI package is installed the New Chart and Metric Search
 windows within
 .BR pmchart (1).
+.PP
+Some performance metrics have a singular value.
+For example, the available memory or number of context switches
+have one value per performance metric source, that is, one value
+per host.
+The metric descriptor (metadata) for each metric makes this fact
+known to applications that process values for these single-valued
+metrics.
+.PP
+Some performance metrics have a set of values or
+.I instances
+in each implementing performance metric domain.
+For example, one value for each disk, one value for each process,
+one value for each CPU, or one value for each activation of a
+given application.
+When a metric has multiple instances, the PMNS does not represent
+this in metric names; rather, a single metric may have an associated
+set of values.
+Multiple values are associated with the members of an
+.IR "instance domain" ,
+such that each instance has a unique instance identifier within
+the associated instance domain.
+For example, the ''per CPU´´ instance domain may use the instance
+identifiers 0, 1, 2, 3, and so on to identify the configured processors
+in the system.
+Internally, instance identifiers are encoded as binary values, but each
+performance metric domain also supports corresponding strings as external
+names for the instance identifiers, and these names are used at the user
+interface to the PCP utilities.
+.PP
+Multiple performance metrics may be associated with a single instance domain.
+.PP
+PCP arranges for information describing instance domains to be exported
+from the performance metric domains to the applications that require
+this information.
+Applications may also choose to retrieve values for all instances of a
+performance metric, or some arbitrary subset of the available instances.
 .SH PERFORMANCE METRIC SPECIFICATIONS
 In configuration files and (to a lesser extent) command line options,
-metric specifications adhere to the following syntax rules.
+metric specifications adhere to the following syntax rules by most tools.
 .PP
 If the source of performance metrics is real-time from
 .BR pmcd (1)
