@@ -19,8 +19,8 @@ __pmProcessPipeClose() -> 0
 --- pipe out ---
 __pmProcessPipe: argc=2 type="w" toss=0 "od" "-c"
 __pmProcessPipe(..., "w", ...) -> 0
-0000000   h   e   l   l   o       o   t   h   e   r       w   o   r   l
-0000020   d  \n
+0000000 h e l l o o t h e r w o r l
+0000020 d \n
 0000022
 __pmProcessPipeClose: pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0

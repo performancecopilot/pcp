@@ -31,6 +31,16 @@ _filter()
     #end
 }
 
+# whitespace in od(1) output is not consistent across platforms
+#
+_od_filter()
+{
+    sed \
+	-e 's/  */ /g' \
+	-e 's/ $//' \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -45,7 +55,7 @@ echo "--- pipe in ---"
 src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
 echo "--- pipe out ---"
 echo "hello other world" >$tmp.data
-src/exectest -Dexec -P $tmp.data -- od -c 2>&1 | _filter
+src/exectest -Dexec -P $tmp.data -- od -c 2>&1 | _filter | _od_filter
 echo "---  exec and executable not on \$PATH ---"
 cat <<'End-of-File' >$tmp.sh
 #!/bin/sh
