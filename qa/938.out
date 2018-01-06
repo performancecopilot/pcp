@@ -719,28 +719,28 @@ expr node <addr-217> type=QUEST left=<addr-218> right=<addr-225> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr-218> type=EQ left=<addr-219> right=<addr-224> save_last=0
-    PMID: PM_ID_NULL (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr-219> type=PLUS left=<addr-220> right=<addr-222> save_last=0
-    PMID: PM_ID_NULL (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 expr node <addr-220> type=DELTA left=<addr-221> right=(nil) save_last=0
-    PMID: PM_ID_NULL (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 expr node <addr-221> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] master=0
-    PMID: 60.0.41 (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
 expr node <addr-222> type=DELTA left=<addr-223> right=(nil) save_last=0
-    PMID: PM_ID_NULL (60.0.42 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 expr node <addr-223> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] master=0
-    PMID: 60.0.42 (60.0.42 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
 expr node <addr-224> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
@@ -799,24 +799,24 @@ expr node <addr-237> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.byt
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 expr node <addr-238> type=PLUS left=<addr-239> right=<addr-241> save_last=0
-    PMID: PM_ID_NULL (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 expr node <addr-239> type=DELTA left=<addr-240> right=(nil) save_last=0
-    PMID: PM_ID_NULL (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 expr node <addr-240> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] master=0
-    PMID: 60.0.41 (60.0.41 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
 expr node <addr-241> type=DELTA left=<addr-242> right=(nil) save_last=0
-    PMID: PM_ID_NULL (60.0.42 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 expr node <addr-242> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] master=0
-    PMID: 60.0.42 (60.0.42 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
+    Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="a" added "a.m8"
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.11
