@@ -16,7 +16,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <values.h>
+#include <limits.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
 
@@ -30,9 +30,9 @@ ids(void)
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 37, 13 },
-	{ MAXINT, 0 },
-	{ 0, MAXINT },
-	{ MAXINT, MAXINT }
+	{ INT_MAX, 0 },
+	{ 0, INT_MAX },
+	{ INT_MAX, INT_MAX }
     };
     int		i;
 
