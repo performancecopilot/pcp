@@ -115,7 +115,8 @@ then
 			echo
 			echo "=== $args ==="
 			eval pmdumplog $tmp \
-			pmcd.pmlogger.host pmcd.pmlogger.port pmcd.pmlogger.archive $args \
+			pmcd.pmlogger.host pmcd.pmlogger.port pmcd.pmlogger.archive \
+			pmcd.pid pmcd.seqnum $args \
 			| _filter >$tmp.tmp
 			cat $tmp.tmp
 			diff $tmp.ref $tmp.tmp
