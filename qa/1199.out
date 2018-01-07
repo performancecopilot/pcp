@@ -1,9 +1,9 @@
 QA output created by 1199
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
- 200 sample.bin (29.0.6): 1 value
- 200 sample.bin (29.0.6): 2 values
- 200 sample.bin (29.0.6): 3 values
- 200 sample.bin (29.0.6): 4 values
- 200 sample.bin (29.0.6): 5 values
- 1000 sample.long.one (29.0.10): 1 value
+200 sample.bin (29.0.6): 1 value
+200 sample.bin (29.0.6): 2 values
+200 sample.bin (29.0.6): 3 values
+200 sample.bin (29.0.6): 4 values
+200 sample.bin (29.0.6): 5 values
+1000 sample.long.one (29.0.10): 1 value

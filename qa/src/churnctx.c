@@ -60,7 +60,7 @@ dometric(const char *new_name)
 	for (j = 0; j < ninst; j++) {
 	    inst[j] = pmLookupInDom(indom, instname[j]);
 	    if (inst[j] < 0) {
-		fprintf(stderr, "Warning: pmLookupInDom(%s, \"%s\") failed for metric %s: %s\n", pmInDomStr(indom), instname[j], new_name, pmErrStr(inst[j]));
+		fprintf(stderr, "Warning: pmLookupInDom(%s, \"%s\") [j=%d] failed for metric %s: %s\n", pmInDomStr(indom), instname[j], j, new_name, pmErrStr(inst[j]));
 		inst[j] = PM_IN_NULL;
 	    }
 	}
@@ -170,9 +170,9 @@ main(int argc, char **argv)
 	    q = optarg;
 	    while ((q = index(optarg, ',')) != NULL) {
 		ninst++;
-		instname = (char **)realloc(instname, ninst*sizeof(instname[0]));
+		instname = (char **)realloc(instname, (ninst+1)*sizeof(instname[0]));
 		if (instname == NULL) {
-		    pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
+		    pmNoMem("instname", (ninst+1)*sizeof(instname[0]), PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 		*q = '\0';
