@@ -41,6 +41,7 @@ if [ $? -ne 0 ]; then
     skip_pcp2json=true
     skip_pcp2graphite=true
     skip_pcp2influxdb=true
+    skip_pcp2zabbix=true
 fi
 
 # these may not be available if X11 display is missing
@@ -67,6 +68,7 @@ _check_completion_bash()
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
     $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
+    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pcp2json && [ "$cmd" = pcp2json ] && continue
     $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
     $skip_pcp2xml && [ "$cmd" = pcp2xml ] && continue
@@ -110,6 +112,7 @@ _check_completion_zsh()
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
     $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
+    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pcp2json && [ "$cmd" = pcp2json ] && continue
     $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
     $skip_pcp2xml && [ "$cmd" = pcp2xml ] && continue
