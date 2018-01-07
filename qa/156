@@ -40,7 +40,7 @@ _check_pmda_gone()
     # it ... in this case, name will appear as [pmda$1] or (pmda$1)
     # so skip these ones
     #
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "[^([][p]mda$1[^)\]]" >$tmp.tmp
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "[^([][p]mda$1[^])]" >$tmp.tmp
     if [ -s $tmp.tmp ]
     then
 	echo "Error: some \"$1\" PMDAs still present"
