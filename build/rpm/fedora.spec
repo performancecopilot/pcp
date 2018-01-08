@@ -41,6 +41,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %endif
 
 %global disable_microhttpd 0
+%global disable_webapps 0
 %global disable_cairo 0
 
 %global disable_python2 0
@@ -296,6 +297,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_snmp --with-pmdasnmp=yes
 %endif
 
+%if %{disable_webapps}
+%global _with_webapps --with-webapps=no
+%else
+%global _with_webapps --with-webapps=yes
+%endif
+
 %global pmda_remove() %{expand:
 if [ "%1" -eq 0 ]
 then
@@ -451,6 +458,7 @@ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
 %endif
 
+%if !%{disable_webapps}
 #
 # pcp-webjs and pcp-webapp packages
 #
@@ -530,6 +538,7 @@ URL: http://pcp.io
 %description webapp-blinkenlights
 Demo web application showing traffic lights that change colour based
 on the periodic evaluation of performance metric expressions.
+%endif
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -2097,7 +2106,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2123,11 +2132,13 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
+%if !%{disable_webapps}
 for app in vector grafana graphite blinkenlights; do
     pwd
     webapp=`find ../$app -mindepth 1 -maxdepth 1`
     mv $webapp $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps/$app
 done
+%endif
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -2900,13 +2911,14 @@ cd
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
-# duplicate directories from pcp and pcp-webjs, but rpm copes with that.
+# duplicate pcp, pcp-webapi and pcp-webjs directories, but rpm copes with that.
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %endif
 
+%if !%{disable_webapps}
 %files webjs
-# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+# duplicate pcp, pcp-webapi and pcp-webjs directories, but rpm copes with that.
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/*.png
@@ -2932,6 +2944,7 @@ cd
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/vector
+%endif
 
 %files manager
 %{_initddir}/pmmgr
