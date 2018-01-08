@@ -957,6 +957,8 @@ collectl
 604 logutil archive pmval pmlogextract pmdumplog local
 605 trace local
 606 python archive pmns pmiostat local
+607 libpcp local
+608 pmpost local
 610 libpcp local
 614 pmns local
 617 dbpmda help local
