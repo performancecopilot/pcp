@@ -1061,6 +1061,11 @@ getOptionArchives(PyObject *self, PyObject *args)
     PyObject	*result;
     int		i;
 
+    /* default to localhost archives with unqualified -O/--origin option */
+    if (options.origin_optarg != NULL &&
+	options.narchives <= 0 && options.nhosts <= 0 && !options.Lflag)
+	__pmAddOptArchivePath(&options);
+
     if (options.narchives > 0) {
 	if ((result = PyList_New(options.narchives)) == NULL)
 	    return PyErr_NoMemory();
@@ -1075,6 +1080,7 @@ getOptionArchives(PyObject *self, PyObject *args)
 	Py_INCREF(result);
 	return result;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }

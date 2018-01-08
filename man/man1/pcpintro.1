@@ -258,7 +258,7 @@ either the
 .BR \-\-host )
 or
 .B \-a
-or
+(or
 .BR \-\-archive )
 options.
 .TP
@@ -288,6 +288,23 @@ should be a comma-separated list of debugging option name(s) and/or
 decimal integers, see
 .BR pmdbg (1)
 for a description of the supported option names and values.
+.PP
+In the absense of a live or archive source of metrics, a heuristic search
+for archive logs for the local host can be invoked via the
+.B \-O
+(or
+.BR \-\-origin )
+option.
+When using this option without an explicit source of metrics, monitor
+tools attempt to use archives from a system archive location such as
+.BR $PCP_LOG_DIR/pmlogger/`hostname` .
+Refer to the
+.B "TIME WINDOW SPECIFICATION"
+section below for details on the acceptable syntax for the origin
+option, but a typical invocation in this mode would be
+.B "\-O today"
+or
+.BR "\-\-origin yesterday" .
 .SH INTERVAL SPECIFICATION AND ALIGNMENT
 Most PCP tools operate with periodic sampling or
 reporting, and the

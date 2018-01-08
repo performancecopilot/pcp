@@ -7,7 +7,7 @@
 **  Conversion to GNU bison pure-parser form and to use PCP time(zone)
 **  interfaces, by Nathan Scott <nathans@redhat.com> in September 2015.
 **
-**  This grammar has 10 shift/reduce conflicts.
+**  This grammar has 11 shift/reduce conflicts.
 **
 **  This code is in the public domain and has no copyright.
 */
@@ -58,6 +58,7 @@ typedef struct _PARSER {
     int		yyHaveRel;
     int		yyHaveTime;
     int		yyHaveZone;
+    int		yyHaveDateAlign;
     time_t	yyTimezone;
     time_t	yyDay;
     time_t	yyHour;
@@ -80,8 +81,8 @@ static int yyerror(PARSER *, const char *);
 %parse-param { PARSER *lp }
 %lex-param { PARSER *lp }
 
-/* This grammar has 10 shift/reduce conflicts. */
-%expect 10
+/* This grammar has 11 shift/reduce conflicts. */
+%expect 11
 
 %union {
     time_t		Number;
@@ -89,10 +90,10 @@ static int yyerror(PARSER *, const char *);
 }
 
 %token	tAGO tDAY tDAYZONE tID tMERIDIAN tMINUTE_UNIT tMONTH tMONTH_UNIT
-%token	tSEC_UNIT tSNUMBER tUNUMBER tZONE tDST
+%token	tSEC_UNIT tSNUMBER tUNUMBER tZONE tDST tDAMINUTE_UNIT
 
 %type	<Number>	tDAY tDAYZONE tMINUTE_UNIT tMONTH tMONTH_UNIT
-%type	<Number>	tSEC_UNIT tSNUMBER tUNUMBER tZONE
+%type	<Number>	tSEC_UNIT tSNUMBER tUNUMBER tZONE tDAMINUTE_UNIT
 %type	<Meridian>	tMERIDIAN o_merid
 
 %%
@@ -264,6 +265,18 @@ relunit	: tUNUMBER tMINUTE_UNIT {
 	| tMONTH_UNIT {
 	    lp->yyRelMonth += $1;
 	}
+	| tSNUMBER tDAMINUTE_UNIT {	/* date-aligned minute unit */
+	    lp->yyRelSeconds += $1 * $2 * 60L;
+	    lp->yyHaveDateAlign++;
+	}
+	| tUNUMBER tDAMINUTE_UNIT {
+	    lp->yyRelSeconds += $1 * $2 * 60L;
+	    lp->yyHaveDateAlign++;
+	}
+	| tDAMINUTE_UNIT {
+	    lp->yyRelSeconds += $1 * 60L;
+	    lp->yyHaveDateAlign++;
+	}
 	;
 
 number	: tUNUMBER {
@@ -349,9 +362,9 @@ static TABLE const UnitsTable[] = {
 
 /* Assorted relative-time words. */
 static TABLE const OtherTable[] = {
-    { "tomorrow",	tMINUTE_UNIT,	1 * 24 * 60 },
-    { "yesterday",	tMINUTE_UNIT,	-1 * 24 * 60 },
-    { "today",		tMINUTE_UNIT,	0 },
+    { "tomorrow",	tDAMINUTE_UNIT,	1 * 24 * 60 },
+    { "yesterday",	tDAMINUTE_UNIT,	-1 * 24 * 60 },
+    { "today",		tDAMINUTE_UNIT,	0 },
     { "now",		tMINUTE_UNIT,	0 },
     { "last",		tUNUMBER,	-1 },
     { "this",		tMINUTE_UNIT,	0 },
@@ -837,10 +850,10 @@ __pmGetDate(struct timespec *result, const char *p, struct timespec const *now)
 
     if (yyparse(&yp) ||
 	yp.yyHaveTime > 1 || yp.yyHaveZone > 1 ||
-	yp.yyHaveDate > 1 || yp.yyHaveDay > 1)
+	yp.yyHaveDate > 1 || yp.yyHaveDay > 1 || yp.yyHaveDateAlign > 1)
 	return -1;
 
-    if (yp.yyHaveDate || yp.yyHaveTime || yp.yyHaveDay) {
+    if (yp.yyHaveDate || yp.yyHaveTime || yp.yyHaveDay || yp.yyHaveDateAlign) {
 	Start = Convert(&yp, yp.yyMonth, yp.yyDay, yp.yyYear,
 			yp.yyHour, yp.yyMinutes, yp.yySeconds,
 			yp.yyMeridian, yp.yyDSTmode);

@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -207,6 +207,10 @@ __pmEndOptions(pmOptions *opts)
 	    opts->context = PM_CONTEXT_HOST;
 	else if (opts->narchives && !opts->nhosts)
 	    opts->context = PM_CONTEXT_ARCHIVE;
+	else if (opts->origin_optarg) {
+	    opts->context = PM_CONTEXT_ARCHIVE;
+	    __pmAddOptArchivePath(opts);
+	}
     }
 
     if ((opts->start_optarg || opts->align_optarg || opts->origin_optarg) &&
@@ -327,7 +331,7 @@ addArchive(pmOptions *opts, char *arg)
 	 */
 	if (archives == NULL) {
 	    /* The initial name. */
-	    size = sizeof (*archives);
+	    size = sizeof(*archives);
 	    if ((archives = malloc(size)) == NULL)
 		goto noMem;
 	    size = strlen(arg); /* for noMem below */
@@ -344,12 +348,12 @@ addArchive(pmOptions *opts, char *arg)
 		    return; /* duplicate */
 	    }
 	    /* Add a comma plus the additional name. */
-	    size = strlen (*archives) + 1 + strlen (arg) + 1;
+	    size = strlen (*archives) + 1 + strlen(arg) + 1;
 	    if ((tmp_archives = realloc(*archives, size)) == NULL)
 		goto noMem;
 	    *archives = tmp_archives;
-	    strcat (*archives, ",");
-	    strcat (*archives, arg);
+	    strcat(*archives, ",");
+	    strcat(*archives, arg);
 	}
     }
 
@@ -361,16 +365,53 @@ addArchive(pmOptions *opts, char *arg)
     /*NOTREACHED*/
 }
 
+/*
+ * Add a path to the default archive location for localhost,
+ * as an archive argument.  Used when -O/--origin given but
+ * no explicit path to archives is passed in, automatically
+ * provides a best-effort guess.
+ */
+void
+__pmAddOptArchivePath(pmOptions *opts)
+{
+    const char	fallback[] = "/var/log/pcp";
+    const char	*paths[] = { "pmlogger", "pmmgr" };
+    const char	*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
+    char	hostname[MAXHOSTNAMELEN];
+    char	sep = pmPathSeparator();
+    char	dir[MAXPATHLEN];
+    int		i, found = 0;
+
+    if (!logdir)
+	logdir = fallback;
+    if (gethostname(hostname, sizeof(hostname)) < 0)
+	pmsprintf(hostname, sizeof(hostname), "localhost");
+
+    for (i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
+	pmsprintf(dir, sizeof(dir), "%s%c%s%c%s",
+			logdir, sep, paths[i], sep, hostname);
+	if (access(dir, F_OK) == 0) {
+	    addArchive(opts, dir);
+	    found = 1;
+	    break;
+	}
+    }
+    if (!found) {
+	pmsprintf(dir, sizeof(dir), "%s%c%s%c%s",
+			logdir, sep, paths[0], sep, hostname);
+	addArchive(opts, dir);
+    }
+}
+
 void
 __pmAddOptArchive(pmOptions *opts, char *arg)
 {
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one host or archive allowed\n", pmGetProgname());
 	opts->errors++;
-	return;
+    } else {
+	addArchive(opts, arg);
     }
-
-    addArchive(opts, arg);
 }
 
 static char *

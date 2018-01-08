@@ -1005,6 +1005,11 @@ main(int argc, char *argv[])
 	source = opts.archives[0];
 	type = archive = 1;
     }
+    else if (opts.origin_optarg) {
+	__pmAddOptArchivePath(&opts);
+	source = opts.archives[0];
+	type = archive = 1;
+    }
     else if (opts.Lflag) {
 	source = NULL;
 	type = 2;

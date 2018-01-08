@@ -1291,6 +1291,10 @@ class pmContext(object):
             source = hosts[index]
         elif typed == c_api.PM_CONTEXT_LOCAL:
             source = None
+        elif options.pmGetOptionOrigin() != None:
+            archives = options.pmGetOptionArchives()
+            source = archives[index]
+            typed = c_api.PM_CONTEXT_ARCHIVE
         else:
             typed = c_api.PM_CONTEXT_HOST
             source = "local:"

@@ -614,6 +614,7 @@ PCP_3.22 {
     pmtimevalToReal;
     pmSpecLocalPMDA;
 
+    __pmAddOptArchivePath;
     __pmAddLabels;
     __pmDecodeLabel;
     __pmDecodeLabelReq;
