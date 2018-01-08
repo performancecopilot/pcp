@@ -24,53 +24,39 @@ No value(s) available!
 == Checking serial tty metrics from proc_serial_tty with sudo
 
 tty.serial.tx
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
-    inst [4 or "000050B0"] value 34
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "4"] value 34
 
 tty.serial.rx
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
-    inst [4 or "000050B0"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "4"] value 0
 
 tty.serial.frame
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
-    inst [4 or "000050B0"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "4"] value 0
 
 tty.serial.parity
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
-    inst [4 or "000050B0"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "4"] value 0
 
 tty.serial.brk
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
-    inst [4 or "000050B0"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "4"] value 0
 
 tty.serial.overrun
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
-    inst [4 or "000050B0"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "4"] value 0
 
 tty.serial.irq
-    inst [0 or "000003F8"] value 4
-    inst [1 or "000002F8"] value 3
-    inst [2 or "000003E8"] value 4
-    inst [3 or "000002E8"] value 3
-    inst [4 or "000050B0"] value 17
+    inst [0 or "0"] value 4
+    inst [1 or "1"] value 3
+    inst [2 or "4"] value 17
 
 == done
 
@@ -99,46 +85,32 @@ No value(s) available!
 == Checking serial tty metrics from proc_serial_tty1 with sudo
 
 tty.serial.tx
-    inst [0 or "000003F8"] value 6
-    inst [1 or "000002F8"] value 251
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
+    inst [0 or "0"] value 6
+    inst [1 or "1"] value 251
 
 tty.serial.rx
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 66948
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 66948
 
 tty.serial.frame
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
 
 tty.serial.parity
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
 
 tty.serial.brk
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
 
 tty.serial.overrun
-    inst [0 or "000003F8"] value 0
-    inst [1 or "000002F8"] value 0
-    inst [2 or "000003E8"] value 0
-    inst [3 or "000002E8"] value 0
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
 
 tty.serial.irq
-    inst [0 or "000003F8"] value 4
-    inst [1 or "000002F8"] value 3
-    inst [2 or "000003E8"] value 4
-    inst [3 or "000002E8"] value 3
+    inst [0 or "0"] value 4
+    inst [1 or "1"] value 3
 
 == done
 
