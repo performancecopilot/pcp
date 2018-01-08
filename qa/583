@@ -177,7 +177,9 @@ then
 else
     $sudo tail -100 $SYSLOG >$tmp.syslog
 fi
-sed <$tmp.syslog -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
+sed <$tmp.syslog -n \
+    -e '/message repeated [1-9][0-9]* times/d' \
+    -e '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | LC_COLLATE=POSIX sort -u
 

@@ -138,8 +138,11 @@ echo 'pminfo(1) output:'
 pminfo -fa archives/pcpcmd pmcd.pmlogger
 echo
 echo 'pcp(1) output:'
-pcp -n src/root_irix -a archives/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
+pcp -O +.001sec -n src/root_irix -a archives/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
 # dont use services/pmie output here cos archive doesn't have all metrics
+
+echo === Checking transient problem
+pcp -z -a archives/tricky_4_507
 
 # success, all done
 status=0

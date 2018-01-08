@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15
+$sudo rm -f $seq.full
 
 _cleanup()
 {
@@ -57,9 +58,13 @@ $sudo mv $iam.conf $iam.conf.$seq
 echo "sec,min,hour" >$tmp.conf
 $sudo cp $tmp.conf $home/$iam/$iam.conf
 
+echo "=== simple.conf ===" >>$here/$seq.full
+ls -l $home/$iam/$iam.conf >>$here/$seq.full
+cat $home/$iam/$iam.conf >>$here/$seq.full
+
 if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
 then
-    :
+    ( echo "=== make ==="; cat $tmp.out ) >>$here/$seq.full
 else
     cat $tmp.out
     echo "Arrgh, make clobber failed"
@@ -70,6 +75,7 @@ fi
 $sudo ./Remove >/dev/null 2>&1
 
 $sudo ./Install -e </dev/null >$tmp.out 2>&1
+( echo "=== Install ==="; cat $tmp.out ) >>$here/$seq.full
 _pmda_filter <$tmp.out
 
 # exercise various configuration file entries (updated on the fly) ...

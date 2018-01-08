@@ -44,7 +44,7 @@ cat $tmp.out >>$here/$seq.full
 grep sample $tmp.out \
 | sort \
 | uniq -c \
-| sed -e 's/  */ /g'
+| sed -e 's/^  *//'
 
 pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
 end=`cat $tmp.tmp | awk '{print $3}'`

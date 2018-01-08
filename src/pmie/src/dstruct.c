@@ -217,7 +217,7 @@ sleepTight(Task *t)
 	delay = sched - cur;
 	if (delay < 0) {
 	    int		show_detail = 0;
-	    if (delay <= -1) {
+	    if (delay <= -1 && !quiet) {
 		fprintf(stderr, "sleepTight: negative delay (%f). sched=%f, cur=%f\n",
 			    delay, sched, cur);
 		show_detail = 1;

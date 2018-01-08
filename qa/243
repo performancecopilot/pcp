@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ $PCP_PLATFORM = darwin ] && _notrun "Who knows what the darwin networking code is doing, don't bother with this test"
+
 rm -f $seq.out
 _get_libpcp_config
 if $ipv6 ; then

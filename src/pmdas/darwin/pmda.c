@@ -1173,7 +1173,7 @@ darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
 {
     int			need_refresh[NUM_CLUSTERS] = { 0 };
 
-    switch (pmInDom_serial(&indom)) {
+    switch (pmInDom_serial(indom)) {
     case FILESYS_INDOM: need_refresh[CLUSTER_FILESYS]++; break;
     case DISK_INDOM:	need_refresh[CLUSTER_DISK]++; break;
     case CPU_INDOM:	need_refresh[CLUSTER_CPU]++; break;

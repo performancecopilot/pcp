@@ -49,6 +49,7 @@ _filter_make()
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo rm -f $seq.full
 
 # create a basic pmcd config file
 if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
@@ -99,8 +100,11 @@ cp $rootconf $tmp.root.bak
 
 needclean=true
 $sudo cp $tmp.pmcd.conf $pmcdconf 
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]mcd)|([P]ID)' >>$here/$seq.full
 _service pcp restart | _filter_pcp_start
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]mcd)|([P]ID)' >>$here/$seq.full
 _wait_for_pmcd
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]mcd)|([P]ID)' >>$here/$seq.full
 _wait_for_pmlogger
 
 for pmda in '' sample trivial simple

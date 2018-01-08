@@ -39,7 +39,7 @@ pmlogconf -q $tmp.tmp >>$here/$seq.full </dev/null 2>&1
 $PCP_AWK_PROG <$tmp.tmp '
 BEGIN					{ state = 0 }
 state == 2 && /DO NOT UPDATE/		{ state = 3 }
-					{ print >"'$tmp'." state }
+					{ outf = "'$tmp'." state; print >outf }
 state == 0 && /\+ groupdir /		{ state = 1 }
 state == 1 && NR > 100 && /^#----/	{ state = 2 }'
 cat $tmp.0 >$tmp.base

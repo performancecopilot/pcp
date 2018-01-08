@@ -69,12 +69,20 @@ esac
 #	-E, --preserve-env
 #
 sudo=`which sudo`
-if $sudo -h 2>&1 | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
-then
-    # sudo has -E to preserve the environment
-    #
-    sudo="$sudo -E"
-fi
+case $PCP_PLATFORM
+in
+    darwin)
+	# I cannot make this work on Mac OS X ... kenj
+	;;
+    *)
+	if $sudo -h 2>&1 | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
+	then
+	    # sudo has -E to preserve the environment
+	    #
+	    sudo="$sudo -E"
+	fi
+	;;
+esac
 
 # $sudo_local_ctx maybe $sudo if PM_CONTEXT_LOCAL needs to run as root,
 # e.g. for /dev/kmem readers

@@ -82,6 +82,7 @@ EOF
 
 Pflag=false
 debug=false
+BATCH=''
 ARGS=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
 
@@ -91,6 +92,7 @@ do
     case "$1" in
       -a)
 	export PCP_ARCHIVE="$2"
+	BATCH="-b 1"
 	shift
 	;;
       -D)
@@ -131,18 +133,16 @@ then
 /^  commencing/				{  tmp = substr($5, 7, 6)
 					   sub(tmp, tmp+0.001, $5)
 					   sub("commencing", "@")
-					   printf "pcp_offset=\"%s\"\n", $0
 					   printf "pcp_hostzone=true\n", $0
 					}'`
     [ -z "$pcp_host" ] && pcp_host="unknown host"
-    [ -z "$pcp_offset" ] || export PCP_ORIGIN="$pcp_offset"
     [ -z "$pcp_hostzone" ] || export PCP_HOSTZONE="$pcp_hostzone"
 else
     pcp_host="$PCP_HOST"
-    [ -z "$pcp_host" ] && export pcp_host=`hostname`
+    [ -z "$pcp_host" ] && pcp_host=`hostname`
 fi
 
-if eval pminfo -f $metrics > $tmp/metrics 2>$tmp/err
+if eval pminfo $BATCH -f $metrics > $tmp/metrics 2>$tmp/err
 then
     :
 else

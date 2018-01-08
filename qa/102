@@ -64,6 +64,7 @@ pmlc -P </dev/null 2>&1 >>$seq.full
 _service pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([p]mlogger)' >>$here/$seq.full
 
 pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
 # not connected
@@ -142,7 +143,11 @@ query sample.bin [100,200,300 400 500,700]
 query sample.bin [100,"bin-200"]
 End-of-File
 _filter_pmlc <$tmp.err
-_filter_pmlc <$tmp.out
+# nl state is non-deterministic because pmlogger might, or might not,
+# have logger these metrics by now
+#
+_filter_pmlc <$tmp.out \
+| sed -e 's/mand on    /mand on  nl/'
 
 pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
 connect primary
