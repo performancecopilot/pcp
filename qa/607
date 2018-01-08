@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 607
+# Report $PCP_FOO settings from the environment.
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e '/^pmgetconfig:/d' \
+	-e "s/`hostname -f`/HOSTNAME/" \
+	-e "s/`hostname`/HOSTNAME/" \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+export PCP_DEBUG=config
+
+PCP_HOST=`hostname` pminfo -f pmcd.hostname 2>&1 | _filter
+
+echo
+PCP_ARCHIVE=archives/rattle pminfo -f pmcd.pmlogger.host 2>&1 | _filter
+
+# success, all done
+status=0
+exit

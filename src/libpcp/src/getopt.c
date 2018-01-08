@@ -827,7 +827,18 @@ __pmStartOptions(pmOptions *opts)
     if (opts->flags & PM_OPTFLAG_INIT)
 	return;
 
+    /* need to check for PCP_DEBUG first ... */
     for (p = _environ; *p != NULL; p++) {
+	s = *p;
+	if (strncmp(s, "PCP_DEBUG=", 10) != 0)
+	    continue;
+	value = &s[10];
+	__pmSetDebugFlag(opts, value);
+	break;
+    }
+
+    for (p = _environ; *p != NULL; p++) {
+	int	found;
 	s = *p;
 	if (strncmp(s, "PCP_", 4) != 0)
 	    continue;	/* short circuit if not PCP-prefixed */
@@ -837,51 +848,95 @@ __pmStartOptions(pmOptions *opts)
 	    value++;	/* skip over the equals sign */
 	}
 
-	if (strcmp(s, "ALIGN_TIME") == 0)
+	found = 0;
+	if (strcmp(s, "ALIGN_TIME") == 0) {
 	    __pmSetAlignment(opts, value);
-	else if (strcmp(s, "ARCHIVE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "ARCHIVE") == 0) {
 	    __pmAddOptArchive(opts, value);
-	else if (strcmp(s, "ARCHIVE_LIST") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "ARCHIVE_LIST") == 0) {
 	    __pmAddOptArchiveList(opts, value);
-	else if (strcmp(s, "DEBUG") == 0)
-	    __pmSetDebugFlag(opts, value);
-	else if (strcmp(s, "FOLIO") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "DEBUG") == 0) {
+	    /* processed above */
+	    found = 1;
+	}
+	else if (strcmp(s, "FOLIO") == 0) {
 	    __pmAddOptArchiveFolio(opts, value);
-	else if (strcmp(s, "GUIMODE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "GUIMODE") == 0) {
 	    __pmSetGuiModeFlag(opts);
-	else if (strcmp(s, "HOST") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "HOST") == 0) {
 	    __pmAddOptHost(opts, value);
-	else if (strcmp(s, "HOST_LIST") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "HOST_LIST") == 0) {
 	    __pmAddOptHostList(opts, value);
-	else if (strcmp(s, "SPECLOCAL") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "SPECLOCAL") == 0) {
 	    __pmSetLocalContextTable(opts, value);
+	    found = 1;
+	}
 	else if (strcmp(s, "LOCALMODE") == 0 ||
-		 strcmp(s, "LOCALPMDA") == 0)
+		 strcmp(s, "LOCALPMDA") == 0) {
 	    __pmSetLocalContextFlag(opts);
-	else if (strcmp(s, "NAMESPACE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "NAMESPACE") == 0) {
 	    __pmSetNameSpace(opts, value, 1);
-	else if (strcmp(s, "UNIQNAMES") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "UNIQNAMES") == 0) {
 	    __pmSetNameSpace(opts, value, 0);
+	    found = 1;
+	}
 	else if (strcmp(s, "ORIGIN") == 0 ||
-		 strcmp(s, "ORIGIN_TIME") == 0)
+		 strcmp(s, "ORIGIN_TIME") == 0) {
 	    __pmSetOrigin(opts, value);
-	else if (strcmp(s, "GUIPORT") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "GUIPORT") == 0) {
 	    __pmSetGuiPort(opts, value);
-	else if (strcmp(s, "START_TIME") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "START_TIME") == 0) {
 	    __pmSetStartTime(opts, value);
-	else if (strcmp(s, "SAMPLES") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "SAMPLES") == 0) {
 	    __pmSetSampleCount(opts, value);
-	else if (strcmp(s, "FINISH_TIME") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "FINISH_TIME") == 0) {
 	    __pmSetFinishTime(opts, value);
-	else if (strcmp(s, "INTERVAL") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "INTERVAL") == 0) {
 	    __pmSetSampleInterval(opts, value);
-	else if (strcmp(s, "TIMEZONE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "TIMEZONE") == 0) {
 	    __pmSetTimeZone(opts, value);
-	else if (strcmp(s, "HOSTZONE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "HOSTZONE") == 0) {
 	    __pmSetHostZone(opts);
+	    found = 1;
+	}
 
 	if (value)		/* reset the environment */
 	    *(value-1) = '=';
+
+	if (found && pmDebugOptions.config)
+	    fprintf(stderr, "pmGetOptions: %s set from the environment\n", *p);
     }
 
     opts->flags |= PM_OPTFLAG_INIT;

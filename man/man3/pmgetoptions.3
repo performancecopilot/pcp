@@ -405,6 +405,16 @@ parameter (which mimics the
 variable of the same name).
 .SH "OPTIONS VIA ENVIRONMENT VARIABLES"
 .PP
+Some environment variables may be used as an alternative to the
+command line options.
+The use of these mechanisms is primarily
+for internal use by PCP tools. 
+General users should choose the command line options as this provides
+a clearer indication of intent, makes debugging issues easier and
+avoids confusion over possible conflicts between the command line
+options and the environment variables (where the command line options
+usually ``win'').
+.PP
 The following table describes the environment variables that
 may be used to set values as an alternative to command line options.
 .PP
