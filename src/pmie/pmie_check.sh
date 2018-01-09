@@ -234,7 +234,6 @@ _lock()
 	    echo "$prog: `cat $tmp/out`"
 	fi
 	_warning "failed to acquire exclusive lock ($logfile.lock) ..."
-	continue
     fi
 }
 
