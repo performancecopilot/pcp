@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Red Hat.
+ * Copyright (c) 2016-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -805,14 +805,19 @@ local_context_labels(pmLabelSet **sets)
 int
 __pmGetDomainLabels(int domain, const char *name, pmLabelSet **set)
 {
-    size_t		length;
-    char		buf[PM_MAXLABELJSONLEN];
+    int		buflen, namelen;
+    char	buf[PM_MAXLABELJSONLEN];
   
     (void)domain;	/* not currently used */
+    /* clean the string - strip "pmda" prefix and "DSO" suffix */
     if (strncmp(name, "pmda", 4) == 0 && name[4] != '\0')
 	name += 4;
-    length = pmsprintf(buf, sizeof(buf), "{\"agent\":\"%s\"}", name);
-    return __pmParseLabelSet(buf, length, PM_LABEL_DOMAIN, set);
+    namelen = strlen(name);
+    if (namelen > 4 && strcmp(name + namelen - 4, " DSO") == 0)
+	namelen -= 4;
+
+    buflen = pmsprintf(buf, sizeof(buf), "{\"agent\":\"%.*s\"}", namelen, name);
+    return __pmParseLabelSet(buf, buflen, PM_LABEL_DOMAIN, set);
 }
 
 static int

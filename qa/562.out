@@ -41,39 +41,39 @@ InDom: 29.1 0x7400001
 ** Labels on metric sampledso.colour via local context
 
 sampledso.colour
-    inst [0 or "red"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
-    inst [1 or "green"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
-    inst [2 or "blue"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [0 or "red"] labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
 
 ** Labels on metric sampledso.darkness via local context
 
 sampledso.darkness
-    inst [0 or "red"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
-    inst [1 or "green"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
-    inst [2 or "blue"] labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [0 or "red"] labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
 
 ** Labels on metric sampledso.rapid via local context
 
 sampledso.rapid
-    labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","measure":"speed","role":"testing","units":"metres per second","unitsystem":"SI"}
+    labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","measure":"speed","role":"testing","units":"metres per second","unitsystem":"SI"}
 
 ** Labels on metric sampledso.bin via local context
 
 sampledso.bin
-    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample DSO","bin":100,"hostname":"HOSTNAME","role":"testing"}
-    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample DSO","bin":200,"hostname":"HOSTNAME","role":"testing"}
-    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample DSO","bin":300,"hostname":"HOSTNAME","role":"testing"}
-    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample DSO","bin":400,"hostname":"HOSTNAME","role":"testing"}
-    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample DSO","bin":500,"hostname":"HOSTNAME","role":"testing"}
-    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample DSO","bin":600,"hostname":"HOSTNAME","role":"testing"}
-    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample DSO","bin":700,"hostname":"HOSTNAME","role":"testing"}
-    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample DSO","bin":800,"hostname":"HOSTNAME","role":"testing"}
-    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample DSO","bin":900,"hostname":"HOSTNAME","role":"testing"}
+    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample","bin":100,"hostname":"HOSTNAME","role":"testing"}
+    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample","bin":200,"hostname":"HOSTNAME","role":"testing"}
+    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample","bin":300,"hostname":"HOSTNAME","role":"testing"}
+    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample","bin":400,"hostname":"HOSTNAME","role":"testing"}
+    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample","bin":500,"hostname":"HOSTNAME","role":"testing"}
+    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample","bin":600,"hostname":"HOSTNAME","role":"testing"}
+    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample","bin":700,"hostname":"HOSTNAME","role":"testing"}
+    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample","bin":800,"hostname":"HOSTNAME","role":"testing"}
+    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample","bin":900,"hostname":"HOSTNAME","role":"testing"}
 
 ** Labels on indom 30.1 via local context
 
 InDom: 30.1 0x7800001
-    labels {"QA":562,"agent":"sample DSO","hostname":"HOSTNAME","model":"RGB","role":"testing"}
+    labels {"QA":562,"agent":"sample","hostname":"HOSTNAME","model":"RGB","role":"testing"}
 
 == dbpmda DSO labels
 ** Labels on context  via dbpmda (dso)
@@ -86,7 +86,7 @@ dbpmda>
 dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
 dbpmda> label domain 
 Labels:
-    agent="sample DSO"
+    agent="sample"
     role="testing"
 dbpmda> 
 ** Labels on metric sampledso.colour via dbpmda (dso)
