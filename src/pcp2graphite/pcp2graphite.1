@@ -495,25 +495,16 @@ but this option \fIwill\fP override per-metric specifications.
 .B \-?
 Display usage message and exit.
 .SH FILES
-.PD 0
-.TP 10
-.B pcp2graphite.conf
-\fBpcp2graphite\fP configuration file (see \fB\-c\fP).
-.PD
+.TP
+.I pcp2graphite.conf
+\fBpcp2graphite\fP configuration file (see \fB\-c\fP)
 .SH PCP ENVIRONMENT
-Environment variables with the prefix
-.B PCP_
-are used to parametrize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR mkaf (1),
 .BR PCPIntro (1),
