@@ -89,11 +89,6 @@ Warning: is another PCP cron job running concurrently?
 ... ls output ... tmp/SEQ-PID.locker/ok.2.lock
 pmie_check [/tmp/SEQ-PID.warning.2:2]
 Warning: failed to acquire exclusive lock (/tmp/SEQ-PID.locker/ok.2.lock) ...
-No current pmie process exists for:
-host = LOCALHOST
-log file = /tmp/SEQ-PID.locker/ok.2
-Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.2 -c /tmp/SEQ-PID.conf
 
 --- can't create lock file ---
 # $version=1.1

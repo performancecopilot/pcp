@@ -234,7 +234,10 @@ _lock()
 	    echo "$prog: `cat $tmp/out`"
 	fi
 	_warning "failed to acquire exclusive lock ($logfile.lock) ..."
+	return 1
     fi
+
+    return 0
 }
 
 _unlock()
@@ -641,7 +644,7 @@ s/^\\$//
 	    _warning "no write access in $dir, skip lock file processing"
 	    ls -ld "$dir"
 	else
-	    _lock
+	    _lock || continue
 	fi
 
 	# match $logfile from control file to running pmies
