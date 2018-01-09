@@ -49,8 +49,11 @@ modify custom metricsets by editing
 .BR pmrep.conf .
 See below for the \fImetricset\fP specification.
 .PP
-Configuration file options override the corresponding built-in
-default values (if any).
+Options via environment values (see
+.BR pmGetOptions (3))
+override the corresponding built-in default values (if any).
+Configuration file options override the corresponding
+environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
 .SH FILE FORMAT
@@ -560,6 +563,7 @@ System provided configuration file.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmrep (1),
+.BR pmGetOptions (3),
 .BR pmSpecLocalPMDA (3),
 and
 .BR pmRegisterDerived (3).

@@ -75,8 +75,11 @@ other options recognized by
 .BR pmrep (1)
 are not supported.
 .PP
-Configuration file options override the corresponding built-in
-default values (if any).
+Options via environment values (see
+.BR pmGetOptions (3))
+override the corresponding built-in default values (if any).
+Configuration file options override the corresponding
+environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
 .SH CONFIGURATION FILE
@@ -491,6 +494,7 @@ as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmrep (1),
+.BR pmGetOptions (3),
 .BR pmSpecLocalPMDA (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),

@@ -235,8 +235,11 @@ is described and valid only in
 .PP
 Derived metrics are specified like PMNS leaf node metrics.
 .PP
-Configuration file options override the corresponding built-in
-default values (if any).
+Options via environment values (see
+.BR pmGetOptions (3))
+override the corresponding built-in default values (if any).
+Configuration file options override the corresponding
+environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
 .SH OPTIONS
@@ -930,6 +933,7 @@ as described in
 .BR pmval (1),
 .BR sadf (1),
 .BR sar (1),
+.BR pmGetOptions (3),
 .BR pmSpecLocalPMDA (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),
