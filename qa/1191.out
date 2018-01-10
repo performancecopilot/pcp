@@ -3,8 +3,48 @@ Waiting for pmcd to terminate ...
 
 === prometheus agent installation ===
 
-prometheus.bad_summary_nometa.sample_counter0001 [Sample counter metric.]
+prometheus.awk_scripted.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5120 0x24001400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.awk_scripted.some_metric001 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.5121 0x24001401
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.awk_scripted.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5122 0x24001402
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.awk_scripted.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5123 0x24001403
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.awk_scripted.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5124 0x24001404
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+prometheus.bad_summary_nometa.sample_counter0001 [Sample counter metric.]
+    Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
 Help:
 Sample counter metric.
@@ -15,7 +55,7 @@ Sample counter metric.
     inst [4 or "4 baz:2.8"] value 680821576
 
 prometheus.bad_summary_nometa.sample_gauge0000 [Sample gauge metric.]
-    Data Type: double  InDom: 144.5120 0x24001400
+    Data Type: double  InDom: 144.6144 0x24001800
     Semantics: instant  Units: none
 Help:
 Sample gauge metric.
@@ -26,7 +66,7 @@ Sample gauge metric.
     inst [4 or "4 bar:4"] value 193.6
 
 prometheus.bad_summary_nometa.sample_summary0002 [Sample summary metric has instances.]
-    Data Type: double  InDom: 144.5122 0x24001402
+    Data Type: double  InDom: 144.6146 0x24001802
     Semantics: instant  Units: none
 Help:
 Sample summary metric has instances.
@@ -51,7 +91,7 @@ Sample summary metric has instances.
     value 2.78241354
 
 prometheus.collectd_sample.collectd_cpu_percent [Collectd exporter: 'cpu' Type: 'percent' Dstype: 'api.Gauge' Dsname: 'value']
-    Data Type: double  InDom: 144.6144 0x24001800
+    Data Type: double  InDom: 144.7168 0x24001c00
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'cpu' Type: 'percent' Dstype: 'api.Gauge' Dsname: 'value'
@@ -89,7 +129,7 @@ Collectd exporter: 'cpu' Type: 'percent' Dstype: 'api.Gauge' Dsname: 'value'
     inst [31 or "31 cpu:3 instance:172-20-12-224 type:wait"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_io_time_0 [Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6145 0x24001801
+    Data Type: double  InDom: 144.7169 0x24001c01
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '0'
@@ -98,7 +138,7 @@ Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '0'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 21
 
 prometheus.collectd_sample.collectd_disk_disk_io_time_1 [Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6146 0x24001802
+    Data Type: double  InDom: 144.7170 0x24001c02
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '1'
@@ -107,7 +147,7 @@ Collectd exporter: 'disk' Type: 'disk_io_time' Dstype: 'api.Derive' Dsname: '1'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 27
 
 prometheus.collectd_sample.collectd_disk_disk_merged_0 [Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6147 0x24001803
+    Data Type: double  InDom: 144.7171 0x24001c03
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '0'
@@ -116,7 +156,7 @@ Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '0'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_merged_1 [Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6148 0x24001804
+    Data Type: double  InDom: 144.7172 0x24001c04
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '1'
@@ -125,7 +165,7 @@ Collectd exporter: 'disk' Type: 'disk_merged' Dstype: 'api.Derive' Dsname: '1'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_octets_0 [Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6149 0x24001805
+    Data Type: double  InDom: 144.7173 0x24001c05
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
@@ -134,7 +174,7 @@ Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 1138688
 
 prometheus.collectd_sample.collectd_disk_disk_octets_1 [Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6150 0x24001806
+    Data Type: double  InDom: 144.7174 0x24001c06
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
@@ -143,7 +183,7 @@ Collectd exporter: 'disk' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_ops_0 [Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6151 0x24001807
+    Data Type: double  InDom: 144.7175 0x24001c07
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
@@ -152,7 +192,7 @@ Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 139
 
 prometheus.collectd_sample.collectd_disk_disk_ops_1 [Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6152 0x24001808
+    Data Type: double  InDom: 144.7176 0x24001c08
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
@@ -161,7 +201,7 @@ Collectd exporter: 'disk' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_disk_time_0 [Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6153 0x24001809
+    Data Type: double  InDom: 144.7177 0x24001c09
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '0'
@@ -170,7 +210,7 @@ Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '0'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 2
 
 prometheus.collectd_sample.collectd_disk_disk_time_1 [Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6154 0x2400180a
+    Data Type: double  InDom: 144.7178 0x24001c0a
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '1'
@@ -179,7 +219,7 @@ Collectd exporter: 'disk' Type: 'disk_time' Dstype: 'api.Derive' Dsname: '1'
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_disk_pending_operations [Collectd exporter: 'disk' Type: 'pending_operations' Dstype: 'api.Gauge' Dsname: 'value']
-    Data Type: double  InDom: 144.6155 0x2400180b
+    Data Type: double  InDom: 144.7179 0x24001c0b
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'disk' Type: 'pending_operations' Dstype: 'api.Gauge' Dsname: 'value'
@@ -188,49 +228,49 @@ Collectd exporter: 'disk' Type: 'pending_operations' Dstype: 'api.Gauge' Dsname:
     inst [2 or "2 disk:vda2 instance:172-20-12-224"] value 0
 
 prometheus.collectd_sample.collectd_exporter_build_info [A metric with a constant '1' value labeled by version, revision, branch, and goversion from which collectd_exporter was built.]
-    Data Type: double  InDom: 144.6156 0x2400180c
+    Data Type: double  InDom: 144.7180 0x24001c0c
     Semantics: instant  Units: none
 Help:
 A metric with a constant '1' value labeled by version, revision, branch, and goversion from which collectd_exporter was built.
     inst [0 or "0 branch:cut-0.3.0 goversion:go1.6.2 revision:3abb95c version:0.3.1"] value 1
 
 prometheus.collectd_sample.collectd_interface_if_errors_0 [Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6157 0x2400180d
+    Data Type: double  InDom: 144.7181 0x24001c0d
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 0
 
 prometheus.collectd_sample.collectd_interface_if_errors_1 [Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6158 0x2400180e
+    Data Type: double  InDom: 144.7182 0x24001c0e
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1'
     inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 0
 
 prometheus.collectd_sample.collectd_interface_if_octets_0 [Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6159 0x2400180f
+    Data Type: double  InDom: 144.7183 0x24001c0f
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 14762652
 
 prometheus.collectd_sample.collectd_interface_if_octets_1 [Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6160 0x24001810
+    Data Type: double  InDom: 144.7184 0x24001c10
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1'
     inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 534845
 
 prometheus.collectd_sample.collectd_interface_if_packets_0 [Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6161 0x24001811
+    Data Type: double  InDom: 144.7185 0x24001c11
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:172-20-12-224 interface:eth0"] value 43352
 
 prometheus.collectd_sample.collectd_interface_if_packets_1 [Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6162 0x24001812
+    Data Type: double  InDom: 144.7186 0x24001c12
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'interface' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1'
@@ -244,7 +284,7 @@ Unix timestamp of the last received collectd metrics push in seconds.
     value 1472825201.754032
 
 prometheus.collectd_sample.collectd_memory [Collectd exporter: 'memory' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value']
-    Data Type: double  InDom: 144.6164 0x24001814
+    Data Type: double  InDom: 144.7188 0x24001c14
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'memory' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
@@ -256,7 +296,7 @@ Collectd exporter: 'memory' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
     inst [5 or "5 instance:172-20-12-224 memory:used"] value 4377649152
 
 prometheus.collectd_sample.collectd_virt_disk_octets_0 [Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6165 0x24001815
+    Data Type: double  InDom: 144.7189 0x24001c15
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
@@ -264,7 +304,7 @@ Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '0'
     inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 6228480
 
 prometheus.collectd_sample.collectd_virt_disk_octets_1 [Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6166 0x24001816
+    Data Type: double  InDom: 144.7190 0x24001c16
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
@@ -272,7 +312,7 @@ Collectd exporter: 'virt' Type: 'disk_octets' Dstype: 'api.Derive' Dsname: '1'
     inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 90112
 
 prometheus.collectd_sample.collectd_virt_disk_ops_0 [Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6167 0x24001817
+    Data Type: double  InDom: 144.7191 0x24001c17
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
@@ -280,7 +320,7 @@ Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '0'
     inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 421
 
 prometheus.collectd_sample.collectd_virt_disk_ops_1 [Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6168 0x24001818
+    Data Type: double  InDom: 144.7192 0x24001c18
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
@@ -288,63 +328,63 @@ Collectd exporter: 'virt' Type: 'disk_ops' Dstype: 'api.Derive' Dsname: '1'
     inst [1 or "1 instance:560f9665261043c1aefdeba0b88499d7 type:vda virt:560f9665261043c1aefdeba0b88499d7"] value 36
 
 prometheus.collectd_sample.collectd_virt_if_dropped_0 [Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6169 0x24001819
+    Data Type: double  InDom: 144.7193 0x24001c19
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_dropped_1 [Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6170 0x2400181a
+    Data Type: double  InDom: 144.7194 0x24001c1a
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_dropped' Dstype: 'api.Derive' Dsname: '1'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_errors_0 [Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6171 0x2400181b
+    Data Type: double  InDom: 144.7195 0x24001c1b
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_errors_1 [Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6172 0x2400181c
+    Data Type: double  InDom: 144.7196 0x24001c1c
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_errors' Dstype: 'api.Derive' Dsname: '1'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 0
 
 prometheus.collectd_sample.collectd_virt_if_octets_0 [Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6173 0x2400181d
+    Data Type: double  InDom: 144.7197 0x24001c1d
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 1612942
 
 prometheus.collectd_sample.collectd_virt_if_octets_1 [Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6174 0x2400181e
+    Data Type: double  InDom: 144.7198 0x24001c1e
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_octets' Dstype: 'api.Derive' Dsname: '1'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 726
 
 prometheus.collectd_sample.collectd_virt_if_packets_0 [Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0']
-    Data Type: double  InDom: 144.6175 0x2400181f
+    Data Type: double  InDom: 144.7199 0x24001c1f
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '0'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 21401
 
 prometheus.collectd_sample.collectd_virt_if_packets_1 [Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1']
-    Data Type: double  InDom: 144.6176 0x24001820
+    Data Type: double  InDom: 144.7200 0x24001c20
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'if_packets' Dstype: 'api.Derive' Dsname: '1'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:vnic3.0 virt:560f9665261043c1aefdeba0b88499d7"] value 3
 
 prometheus.collectd_sample.collectd_virt_memory [Collectd exporter: 'virt' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value']
-    Data Type: double  InDom: 144.6177 0x24001821
+    Data Type: double  InDom: 144.7201 0x24001c21
     Semantics: instant  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
@@ -359,21 +399,21 @@ Collectd exporter: 'virt' Type: 'memory' Dstype: 'api.Gauge' Dsname: 'value'
     inst [8 or "8 instance:560f9665261043c1aefdeba0b88499d7 type:unused virt:560f9665261043c1aefdeba0b88499d7"] value 243802112
 
 prometheus.collectd_sample.collectd_virt_virt_cpu_total [Collectd exporter: 'virt' Type: 'virt_cpu_total' Dstype: 'api.Derive' Dsname: 'value']
-    Data Type: double  InDom: 144.6178 0x24001822
+    Data Type: double  InDom: 144.7202 0x24001c22
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'virt_cpu_total' Dstype: 'api.Derive' Dsname: 'value'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 virt:560f9665261043c1aefdeba0b88499d7"] value 28820000000
 
 prometheus.collectd_sample.collectd_virt_virt_vcpu [Collectd exporter: 'virt' Type: 'virt_vcpu' Dstype: 'api.Derive' Dsname: 'value']
-    Data Type: double  InDom: 144.6179 0x24001823
+    Data Type: double  InDom: 144.7203 0x24001c23
     Semantics: counter  Units: none
 Help:
 Collectd exporter: 'virt' Type: 'virt_vcpu' Dstype: 'api.Derive' Dsname: 'value'
     inst [0 or "0 instance:560f9665261043c1aefdeba0b88499d7 type:0 virt:560f9665261043c1aefdeba0b88499d7"] value 9150000000
 
 prometheus.collectd_sample.go_gc_duration_seconds [A summary of the GC invocation durations.]
-    Data Type: double  InDom: 144.6180 0x24001824
+    Data Type: double  InDom: 144.7204 0x24001c24
     Semantics: instant  Units: sec
 Help:
 A summary of the GC invocation durations.
@@ -566,7 +606,7 @@ Number of bytes obtained by system. Sum of all system allocations.
     value 9312504
 
 prometheus.collectd_sample.http_request_duration_microseconds [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.6207 0x2400183f
+    Data Type: double  InDom: 144.7231 0x24001c3f
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
@@ -575,21 +615,21 @@ The HTTP request latencies in microseconds.
     inst [2 or "2 handler:prometheus quantile:0.99"] value 2793.404
 
 prometheus.collectd_sample.http_request_duration_microseconds_count [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.6209 0x24001841
+    Data Type: double  InDom: 144.7233 0x24001c41
     Semantics: counter  Units: count
 Help:
 The HTTP request latencies in microseconds.
     inst [0 or "0 handler:prometheus"] value 97
 
 prometheus.collectd_sample.http_request_duration_microseconds_sum [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.6208 0x24001840
+    Data Type: double  InDom: 144.7232 0x24001c40
     Semantics: counter  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
     inst [0 or "0 handler:prometheus"] value 218535.36
 
 prometheus.collectd_sample.http_request_size_bytes [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.6210 0x24001842
+    Data Type: double  InDom: 144.7234 0x24001c42
     Semantics: instant  Units: byte
 Help:
 The HTTP request sizes in bytes.
@@ -598,28 +638,28 @@ The HTTP request sizes in bytes.
     inst [2 or "2 handler:prometheus quantile:0.99"] value 309
 
 prometheus.collectd_sample.http_request_size_bytes_count [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.6212 0x24001844
+    Data Type: double  InDom: 144.7236 0x24001c44
     Semantics: counter  Units: count
 Help:
 The HTTP request sizes in bytes.
     inst [0 or "0 handler:prometheus"] value 97
 
 prometheus.collectd_sample.http_request_size_bytes_sum [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.6211 0x24001843
+    Data Type: double  InDom: 144.7235 0x24001c43
     Semantics: counter  Units: byte
 Help:
 The HTTP request sizes in bytes.
     inst [0 or "0 handler:prometheus"] value 30504
 
 prometheus.collectd_sample.http_requests_total [Total number of HTTP requests made.]
-    Data Type: double  InDom: 144.6213 0x24001845
+    Data Type: double  InDom: 144.7237 0x24001c45
     Semantics: counter  Units: none
 Help:
 Total number of HTTP requests made.
     inst [0 or "0 code:200 handler:prometheus method:get"] value 97
 
 prometheus.collectd_sample.http_response_size_bytes [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.6214 0x24001846
+    Data Type: double  InDom: 144.7238 0x24001c46
     Semantics: instant  Units: byte
 Help:
 The HTTP response sizes in bytes.
@@ -628,14 +668,14 @@ The HTTP response sizes in bytes.
     inst [2 or "2 handler:prometheus quantile:0.99"] value 3185
 
 prometheus.collectd_sample.http_response_size_bytes_count [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.6216 0x24001848
+    Data Type: double  InDom: 144.7240 0x24001c48
     Semantics: counter  Units: count
 Help:
 The HTTP response sizes in bytes.
     inst [0 or "0 handler:prometheus"] value 97
 
 prometheus.collectd_sample.http_response_size_bytes_sum [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.6215 0x24001847
+    Data Type: double  InDom: 144.7239 0x24001c47
     Semantics: counter  Units: byte
 Help:
 The HTTP response sizes in bytes.
@@ -683,8 +723,39 @@ Help:
 Virtual memory size in bytes.
     value 17334272
 
+prometheus.curl_filtered.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.8192 0x24002000
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123"] value 123
+
+prometheus.curl_hostname_label.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.9216 0x24002400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0 hostname:remotehost"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123 hostname:remotehost"] value 123
+
+prometheus.curl_scripted.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.10240 0x24002800
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123"] value 123
+
+prometheus.curl_scripted.metric2 [Simple gauge metric singular instance domain]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric singular instance domain
+    value 456
+
 prometheus.good_summary_nometa.sample_counter0010 [Sample counter metric.]
-    Data Type: double  InDom: 144.7169 0x24001c01
+    Data Type: double  InDom: 144.11265 0x24002c01
     Semantics: counter  Units: none
 Help:
 Sample counter metric.
@@ -695,7 +766,7 @@ Sample counter metric.
     inst [4 or "4 baz:2.8"] value 6808215760
 
 prometheus.good_summary_nometa.sample_gauge0009 [Sample gauge metric.]
-    Data Type: double  InDom: 144.7168 0x24001c00
+    Data Type: double  InDom: 144.11264 0x24002c00
     Semantics: instant  Units: none
 Help:
 Sample gauge metric.
@@ -706,7 +777,7 @@ Sample gauge metric.
     inst [4 or "4 bar:4"] value 193.6
 
 prometheus.good_summary_nometa.sample_summary0011 [Sample summary metric has instances.]
-    Data Type: double  InDom: 144.7170 0x24001c02
+    Data Type: double  InDom: 144.11266 0x24002c02
     Semantics: instant  Units: none
 Help:
 Sample summary metric has instances.
@@ -730,99 +801,179 @@ Help:
 Sample summary metric has instances.
     value 15.30327447
 
+prometheus.multiple.namespace.levels.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.12288 0x24003000
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.multiple.namespace.levels.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.12289 0x24003001
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.multiple.namespace.levels.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.12290 0x24003002
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.multiple.namespace.levels.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.12291 0x24003003
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.multiple.namespace.levels.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.12292 0x24003004
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+prometheus.multiple.namespace.more.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.13312 0x24003400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.multiple.namespace.more.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.13313 0x24003401
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.multiple.namespace.more.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.13314 0x24003402
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.multiple.namespace.more.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.13315 0x24003403
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.multiple.namespace.more.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.13316 0x24003404
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async [Per-cgroup throttle async bytes transferred]
-    Data Type: double  InDom: 144.8236 0x2400202c
+    Data Type: double  InDom: 144.14380 0x2400382c
     Semantics: counter  Units: byte
 Help:
 Per-cgroup throttle async bytes transferred
     inst [0 or "/"] value 321091796992
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.read [Per-cgroup throttle bytes transferred in reads]
-    Data Type: double  InDom: 144.8233 0x24002029
+    Data Type: double  InDom: 144.14377 0x24003829
     Semantics: counter  Units: byte
 Help:
 Per-cgroup throttle bytes transferred in reads
     inst [0 or "/"] value 320924024832
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.sync [Per-cgroup throttle sync bytes transferred]
-    Data Type: double  InDom: 144.8235 0x2400202b
+    Data Type: double  InDom: 144.14379 0x2400382b
     Semantics: counter  Units: byte
 Help:
 Per-cgroup throttle sync bytes transferred
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.total [Per-cgroup throttle total bytes transferred]
-    Data Type: double  InDom: 144.8237 0x2400202d
+    Data Type: double  InDom: 144.14381 0x2400382d
     Semantics: counter  Units: byte
 Help:
 Per-cgroup throttle total bytes transferred
     inst [0 or "/"] value 321091796992
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.write [Per-cgroup throttle bytes transferred to disk in writes]
-    Data Type: double  InDom: 144.8234 0x2400202a
+    Data Type: double  InDom: 144.14378 0x2400382a
     Semantics: counter  Units: byte
 Help:
 Per-cgroup throttle bytes transferred to disk in writes
     inst [0 or "/"] value 167772160
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.async [Per-cgroup throttle async operations serviced]
-    Data Type: double  InDom: 144.8241 0x24002031
+    Data Type: double  InDom: 144.14385 0x24003831
     Semantics: counter  Units: none
 Help:
 Per-cgroup throttle async operations serviced
     inst [0 or "/"] value 4745
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.read [Per-cgroup throttle read operations serviced]
-    Data Type: double  InDom: 144.8238 0x2400202e
+    Data Type: double  InDom: 144.14382 0x2400382e
     Semantics: counter  Units: none
 Help:
 Per-cgroup throttle read operations serviced
     inst [0 or "/"] value 4737
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.sync [Per-cgroup throttle sync operations serviced]
-    Data Type: double  InDom: 144.8240 0x24002030
+    Data Type: double  InDom: 144.14384 0x24003830
     Semantics: counter  Units: none
 Help:
 Per-cgroup throttle sync operations serviced
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.total [Per-cgroup total throttle operations serviced]
-    Data Type: double  InDom: 144.8242 0x24002032
+    Data Type: double  InDom: 144.14386 0x24003832
     Semantics: counter  Units: none
 Help:
 Per-cgroup total throttle operations serviced
     inst [0 or "/"] value 4745
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.write [Per-cgroup throttle write operations serviced]
-    Data Type: double  InDom: 144.8239 0x2400202f
+    Data Type: double  InDom: 144.14383 0x2400382f
     Semantics: counter  Units: none
 Help:
 Per-cgroup throttle write operations serviced
     inst [0 or "/"] value 8
 
 prometheus.pmwebd_3_12_2.cgroup.cpuacct.stat.system [Time spent by tasks of the cgroup in kernel mode]
-    Data Type: double  InDom: 144.8195 0x24002003
+    Data Type: double  InDom: 144.14339 0x24003803
     Semantics: counter  Units: sec
 Help:
 Time spent by tasks of the cgroup in kernel mode
     inst [0 or "/"] value 0.258
 
 prometheus.pmwebd_3_12_2.cgroup.cpuacct.stat.user [Time spent by tasks of the cgroup in user mode]
-    Data Type: double  InDom: 144.8194 0x24002002
+    Data Type: double  InDom: 144.14338 0x24003802
     Semantics: counter  Units: sec
 Help:
 Time spent by tasks of the cgroup in user mode
     inst [0 or "/"] value 5.585
 
 prometheus.pmwebd_3_12_2.cgroup.cpuacct.usage [CPU time consumed by processes in each cgroup]
-    Data Type: double  InDom: 144.8192 0x24002000
+    Data Type: double  InDom: 144.14336 0x24003800
     Semantics: counter  Units: sec
 Help:
 CPU time consumed by processes in each cgroup
     inst [0 or "/"] value 59.30594183300001
 
 prometheus.pmwebd_3_12_2.cgroup.cpuacct.usage_percpu [Per-CPU time consumed by processes in each cgroup]
-    Data Type: double  InDom: 144.8193 0x24002001
+    Data Type: double  InDom: 144.14337 0x24003801
     Semantics: counter  Units: sec
 Help:
 Per-CPU time consumed by processes in each cgroup
@@ -832,266 +983,266 @@ Per-CPU time consumed by processes in each cgroup
     inst [3 or "/::cpu3"] value 12.858868303
 
 prometheus.pmwebd_3_12_2.cgroup.memory.failcnt [Count of failures to allocate memory due to cgroup limit]
-    Data Type: double  InDom: 144.8198 0x24002006
+    Data Type: double  InDom: 144.14342 0x24003806
     Semantics: counter  Units: none
 Help:
 Count of failures to allocate memory due to cgroup limit
     inst [0 or "/"] value 27068
 
 prometheus.pmwebd_3_12_2.cgroup.memory.limit [Maximum memory that can be utilized by each cgroup]
-    Data Type: double  InDom: 144.8197 0x24002005
+    Data Type: double  InDom: 144.14341 0x24003805
     Semantics: instant  Units: byte
 Help:
 Maximum memory that can be utilized by each cgroup
     inst [0 or "/"] value 629145600
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.active_anon [Anonymous and swap cache memory on active LRU list.]
-    Data Type: double  InDom: 144.8210 0x24002012
+    Data Type: double  InDom: 144.14354 0x24003812
     Semantics: instant  Units: byte
 Help:
 Anonymous and swap cache memory on active LRU list.
     inst [0 or "/"] value 464416768
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.active_file [File-backed memory on active LRU list]
-    Data Type: double  InDom: 144.8212 0x24002014
+    Data Type: double  InDom: 144.14356 0x24003814
     Semantics: instant  Units: byte
 Help:
 File-backed memory on active LRU list
     inst [0 or "/"] value 83148800
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.cache [Number of bytes of page cache memory]
-    Data Type: double  InDom: 144.8199 0x24002007
+    Data Type: double  InDom: 144.14343 0x24003807
     Semantics: instant  Units: byte
 Help:
 Number of bytes of page cache memory
     inst [0 or "/"] value 164532224
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.inactive_anon [Anonymous and swap cache memory on inactive LRU list]
-    Data Type: double  InDom: 144.8209 0x24002011
+    Data Type: double  InDom: 144.14353 0x24003811
     Semantics: instant  Units: byte
 Help:
 Anonymous and swap cache memory on inactive LRU list
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.inactive_file [File-backed memory on inactive LRU list]
-    Data Type: double  InDom: 144.8211 0x24002013
+    Data Type: double  InDom: 144.14355 0x24003813
     Semantics: instant  Units: byte
 Help:
 File-backed memory on inactive LRU list
     inst [0 or "/"] value 81383424
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.mapped_file [Bytes of mapped file (incl tmpfs/shmem)]
-    Data Type: double  InDom: 144.8202 0x2400200a
+    Data Type: double  InDom: 144.14346 0x2400380a
     Semantics: instant  Units: byte
 Help:
 Bytes of mapped file (incl tmpfs/shmem)
     inst [0 or "/"] value 14311424
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.pgfault [Total number of page faults]
-    Data Type: double  InDom: 144.8207 0x2400200f
+    Data Type: double  InDom: 144.14351 0x2400380f
     Semantics: counter  Units: none
 Help:
 Total number of page faults
     inst [0 or "/"] value 207794
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.pgmajfault [Number of major page faults]
-    Data Type: double  InDom: 144.8208 0x24002010
+    Data Type: double  InDom: 144.14352 0x24003810
     Semantics: counter  Units: none
 Help:
 Number of major page faults
     inst [0 or "/"] value 196
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.pgpgin [Number of charging events to the memory cgroup]
-    Data Type: double  InDom: 144.8205 0x2400200d
+    Data Type: double  InDom: 144.14349 0x2400380d
     Semantics: counter  Units: none
 Help:
 Number of charging events to the memory cgroup
     inst [0 or "/"] value 208514
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.pgpgout [Number of uncharging events to the memory cgroup]
-    Data Type: double  InDom: 144.8206 0x2400200e
+    Data Type: double  InDom: 144.14350 0x2400380e
     Semantics: counter  Units: none
 Help:
 Number of uncharging events to the memory cgroup
     inst [0 or "/"] value 122925
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.recent.rotated_anon [VM internal parameter (see mm/vmscan.c)]
-    Data Type: double  InDom: 144.8229 0x24002025
+    Data Type: double  InDom: 144.14373 0x24003825
     Semantics: counter  Units: byte
 Help:
 VM internal parameter (see mm/vmscan.c)
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.recent.rotated_file [VM internal parameter (see mm/vmscan.c)]
-    Data Type: double  InDom: 144.8230 0x24002026
+    Data Type: double  InDom: 144.14374 0x24003826
     Semantics: counter  Units: byte
 Help:
 VM internal parameter (see mm/vmscan.c)
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.recent.scanned_anon [VM internal parameter (see mm/vmscan.c)]
-    Data Type: double  InDom: 144.8231 0x24002027
+    Data Type: double  InDom: 144.14375 0x24003827
     Semantics: counter  Units: byte
 Help:
 VM internal parameter (see mm/vmscan.c)
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.recent.scanned_file [VM internal parameter (see mm/vmscan.c)]
-    Data Type: double  InDom: 144.8232 0x24002028
+    Data Type: double  InDom: 144.14376 0x24003828
     Semantics: counter  Units: byte
 Help:
 VM internal parameter (see mm/vmscan.c)
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.rss [Anonymous and swap memory (incl transparent hugepages)]
-    Data Type: double  InDom: 144.8200 0x24002008
+    Data Type: double  InDom: 144.14344 0x24003808
     Semantics: instant  Units: byte
 Help:
 Anonymous and swap memory (incl transparent hugepages)
     inst [0 or "/"] value 464416768
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.rss_huge [Anonymous transparent hugepages]
-    Data Type: double  InDom: 144.8201 0x24002009
+    Data Type: double  InDom: 144.14345 0x24003809
     Semantics: instant  Units: byte
 Help:
 Anonymous transparent hugepages
     inst [0 or "/"] value 278921216
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.swap [Number of bytes of swap usage]
-    Data Type: double  InDom: 144.8204 0x2400200c
+    Data Type: double  InDom: 144.14348 0x2400380c
     Semantics: instant  Units: byte
 Help:
 Number of bytes of swap usage
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.active_anon [Hierarchical, cumulative version of stat.active_anon]
-    Data Type: double  InDom: 144.8225 0x24002021
+    Data Type: double  InDom: 144.14369 0x24003821
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.active_anon
     inst [0 or "/"] value 464416768
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.active_file [Hierarchical, cumulative version of stat.active_file]
-    Data Type: double  InDom: 144.8227 0x24002023
+    Data Type: double  InDom: 144.14371 0x24003823
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.active_file
     inst [0 or "/"] value 83148800
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.cache [Hierarchical, cumulative version of stat.cache]
-    Data Type: double  InDom: 144.8214 0x24002016
+    Data Type: double  InDom: 144.14358 0x24003816
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.cache
     inst [0 or "/"] value 164532224
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.inactive_anon [Hierarchical, cumulative version of stat.inactive_anon]
-    Data Type: double  InDom: 144.8224 0x24002020
+    Data Type: double  InDom: 144.14368 0x24003820
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.inactive_anon
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.inactive_file [Hierarchical, cumulative version of stat.inactive_file]
-    Data Type: double  InDom: 144.8226 0x24002022
+    Data Type: double  InDom: 144.14370 0x24003822
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.inactive_file
     inst [0 or "/"] value 81383424
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.mapped_file [Hierarchical, cumulative version of stat.mapped_file]
-    Data Type: double  InDom: 144.8217 0x24002019
+    Data Type: double  InDom: 144.14361 0x24003819
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.mapped_file
     inst [0 or "/"] value 14311424
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.pgfault [Hierarchical, cumulative version of stat.pgfault]
-    Data Type: double  InDom: 144.8222 0x2400201e
+    Data Type: double  InDom: 144.14366 0x2400381e
     Semantics: counter  Units: none
 Help:
 Hierarchical, cumulative version of stat.pgfault
     inst [0 or "/"] value 207794
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.pgmajfault [Hierarchical, cumulative version of stat.pgmajfault]
-    Data Type: double  InDom: 144.8223 0x2400201f
+    Data Type: double  InDom: 144.14367 0x2400381f
     Semantics: counter  Units: none
 Help:
 Hierarchical, cumulative version of stat.pgmajfault
     inst [0 or "/"] value 196
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.pgpgin [Hierarchical, cumulative version of stat.pgpgin]
-    Data Type: double  InDom: 144.8220 0x2400201c
+    Data Type: double  InDom: 144.14364 0x2400381c
     Semantics: counter  Units: none
 Help:
 Hierarchical, cumulative version of stat.pgpgin
     inst [0 or "/"] value 208514
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.pgpgout [Hierarchical, cumulative version of stat.pgpgout]
-    Data Type: double  InDom: 144.8221 0x2400201d
+    Data Type: double  InDom: 144.14365 0x2400381d
     Semantics: counter  Units: none
 Help:
 Hierarchical, cumulative version of stat.pgpgout
     inst [0 or "/"] value 122925
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.rss [Hierarchical, cumulative version of stat.rss]
-    Data Type: double  InDom: 144.8215 0x24002017
+    Data Type: double  InDom: 144.14359 0x24003817
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.rss
     inst [0 or "/"] value 464416768
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.rss_huge [Hierarchical, cumulative version of stat.rss_huge]
-    Data Type: double  InDom: 144.8216 0x24002018
+    Data Type: double  InDom: 144.14360 0x24003818
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.rss_huge
     inst [0 or "/"] value 278921216
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.swap [Hierarchical, cumulative version of stat.swap]
-    Data Type: double  InDom: 144.8219 0x2400201b
+    Data Type: double  InDom: 144.14363 0x2400381b
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.swap
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.unevictable [Hierarchical, cumulative version of stat.unevictable]
-    Data Type: double  InDom: 144.8228 0x24002024
+    Data Type: double  InDom: 144.14372 0x24003824
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.unevictable
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.total.writeback [Hierarchical, cumulative version of stat.writeback]
-    Data Type: double  InDom: 144.8218 0x2400201a
+    Data Type: double  InDom: 144.14362 0x2400381a
     Semantics: instant  Units: byte
 Help:
 Hierarchical, cumulative version of stat.writeback
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.unevictable [Memory that cannot be reclaimed (e.g. mlocked)]
-    Data Type: double  InDom: 144.8213 0x24002015
+    Data Type: double  InDom: 144.14357 0x24003815
     Semantics: instant  Units: byte
 Help:
 Memory that cannot be reclaimed (e.g. mlocked)
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.stat.writeback [Bytes of file/anonymous cache queued for syncing]
-    Data Type: double  InDom: 144.8203 0x2400200b
+    Data Type: double  InDom: 144.14347 0x2400380b
     Semantics: instant  Units: byte
 Help:
 Bytes of file/anonymous cache queued for syncing
     inst [0 or "/"] value 0
 
 prometheus.pmwebd_3_12_2.cgroup.memory.usage [Current physical memory accounted to each cgroup]
-    Data Type: double  InDom: 144.8196 0x24002004
+    Data Type: double  InDom: 144.14340 0x24003804
     Semantics: instant  Units: byte
 Help:
 Current physical memory accounted to each cgroup
     inst [0 or "/"] value 629055488
 
 prometheus.problematic_strings.test [The Thing]
-    Data Type: double  InDom: 144.9216 0x24002400
+    Data Type: double  InDom: 144.15360 0x24003c00
     Semantics: instant  Units: none
 Help:
 The Thing
@@ -1108,7 +1259,7 @@ The Thing
     inst [10 or "10 instance:{"] value 10
 
 prometheus.problematic_strings.test2 [The Other Thing]
-    Data Type: double  InDom: 144.9217 0x24002401
+    Data Type: double  InDom: 144.15361 0x24003c01
     Semantics: instant  Units: none
 Help:
 The Other Thing
@@ -1134,7 +1285,7 @@ and has a \ or two \
     value 0
 
 prometheus.prom_exposition_formats_example1.http_request_duration_seconds_bucket [A histogram of the request duration.]
-    Data Type: double  InDom: 144.10244 0x24002804
+    Data Type: double  InDom: 144.16388 0x24004004
     Semantics: counter  Units: count
 Help:
 A histogram of the request duration.
@@ -1160,7 +1311,7 @@ A histogram of the request duration.
     value 53423
 
 prometheus.prom_exposition_formats_example1.http_requests_total [The total number of HTTP requests.]
-    Data Type: double  InDom: 144.10240 0x24002800
+    Data Type: double  InDom: 144.16384 0x24004000
     Semantics: counter  Units: none
 Help:
 The total number of HTTP requests.
@@ -1174,14 +1325,14 @@ Help: <empty entry>
     value 12.47
 
 prometheus.prom_exposition_formats_example1.msdos_file_access_time_seconds []
-    Data Type: double  InDom: 144.10241 0x24002801
+    Data Type: double  InDom: 144.16385 0x24004001
     Semantics: instant  Units: sec
 Help: <empty entry>
     inst [0 or "0 error:Cannot find file:
 "FILE.TXT" path:C:\DIR\FILE.TXT"] value 1458255915
 
 prometheus.prom_exposition_formats_example1.rpc_duration_seconds [A summary of the RPC duration in seconds.]
-    Data Type: double  InDom: 144.10247 0x24002807
+    Data Type: double  InDom: 144.16391 0x24004007
     Semantics: instant  Units: sec
 Help:
 A summary of the RPC duration in seconds.
@@ -1206,7 +1357,7 @@ A summary of the RPC duration in seconds.
     value 17560473
 
 prometheus.prom_exposition_formats_example1.something_weird []
-    Data Type: double  InDom: 144.10243 0x24002803
+    Data Type: double  InDom: 144.16387 0x24004003
     Semantics: instant  Units: none
 Help: <empty entry>
     inst [0 or "0 problem:division by zero"] value inf
@@ -1254,7 +1405,7 @@ Virtual memory size in bytes.
     value 340594688
 
 prometheus.python_sample_client_server.python_info [Python platform information]
-    Data Type: double  InDom: 144.11264 0x24002c00
+    Data Type: double  InDom: 144.17408 0x24004400
     Semantics: instant  Units: none
 Help:
 Python platform information
@@ -1268,7 +1419,7 @@ Sample Gauge of queue size
     value 90
 
 prometheus.python_sample_client_server.request_latency_seconds_bucket [Sample histogram]
-    Data Type: double  InDom: 144.11275 0x24002c0b
+    Data Type: double  InDom: 144.17419 0x2400440b
     Semantics: counter  Units: count
 Help:
 Sample histogram
@@ -1303,7 +1454,7 @@ Sample histogram
     value 4.7
 
 prometheus.python_sample_client_server.requests_total [Total requests]
-    Data Type: double  InDom: 144.11273 0x24002c09
+    Data Type: double  InDom: 144.17417 0x24004409
     Semantics: counter  Units: none
 Help:
 Total requests
@@ -1325,8 +1476,16 @@ Help:
 Sample summary of requests
     value 4.7
 
+prometheus.python_scripted.python_scripted_metric [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.18432 0x24004800
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 def:123"] value 123
+
 prometheus.reordered_labels.http_request_duration_microseconds [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.12288 0x24003000
+    Data Type: double  InDom: 144.19456 0x24004c00
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
@@ -1342,7 +1501,7 @@ a metric with item number bigger then 2^9
     value 4194303
 
 prometheus.sample_pmda_3_12_2.sample.bogus_bin [Several constant instances]
-    Data Type: double  InDom: 144.13321 0x24003409
+    Data Type: double  InDom: 144.20489 0x24005009
     Semantics: instant  Units: none
 Help:
 Several constant instances
@@ -1354,7 +1513,7 @@ Several constant instances
     inst [5 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.bucket [Several constant instances]
-    Data Type: double  InDom: 144.13319 0x24003407
+    Data Type: double  InDom: 144.20487 0x24005007
     Semantics: instant  Units: none
 Help:
 Several constant instances
@@ -1376,7 +1535,7 @@ counter byte counter
     value 2255
 
 prometheus.sample_pmda_3_12_2.sample.colour [Metrics with a "saw-tooth" trend over time]
-    Data Type: double  InDom: 144.13317 0x24003405
+    Data Type: double  InDom: 144.20485 0x24005005
     Semantics: instant  Units: none
 Help:
 Metrics with a "saw-tooth" trend over time
@@ -1420,7 +1579,7 @@ control values retured for sample.dodgey.value
     value 5
 
 prometheus.sample_pmda_3_12_2.sample.dodgey.value [5 unreliable instances]
-    Data Type: double  InDom: 144.13394 0x24003452
+    Data Type: double  InDom: 144.20562 0x24005052
     Semantics: instant  Units: none
 Help:
 5 unreliable instances
@@ -1431,7 +1590,7 @@ Help:
     inst [4 or "d5"] value 55
 
 prometheus.sample_pmda_3_12_2.sample.double.bin [like sample.bin but type DOUBLE]
-    Data Type: double  InDom: 144.13385 0x24003449
+    Data Type: double  InDom: 144.20553 0x24005049
     Semantics: instant  Units: none
 Help:
 like sample.bin but type DOUBLE
@@ -1446,7 +1605,7 @@ like sample.bin but type DOUBLE
     inst [8 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.double.bin_ctr [like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE]
-    Data Type: double  InDom: 144.13386 0x2400344a
+    Data Type: double  InDom: 144.20554 0x2400504a
     Semantics: counter  Units: byte
 Help:
 like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
@@ -1503,7 +1662,7 @@ Process id of PMDA daemon
     value 12301
 
 prometheus.sample_pmda_3_12_2.sample.dupnames.three.bin [Several constant instances]
-    Data Type: double  InDom: 144.13318 0x24003406
+    Data Type: double  InDom: 144.20486 0x24005006
     Semantics: instant  Units: none
 Help:
 Several constant instances
@@ -1539,7 +1698,7 @@ Elapsed time (seconds)
     value 770
 
 prometheus.sample_pmda_3_12_2.sample.dynamic.counter [counter metric with dynamic indom]
-    Data Type: double  InDom: 144.13395 0x24003453
+    Data Type: double  InDom: 144.20563 0x24005053
     Semantics: counter  Units: none
 Help:
 counter metric with dynamic indom
@@ -1547,7 +1706,7 @@ counter metric with dynamic indom
     inst [1 or "two"] value 1178
 
 prometheus.sample_pmda_3_12_2.sample.dynamic.discrete [discrete metric with dynamic indom]
-    Data Type: double  InDom: 144.13396 0x24003454
+    Data Type: double  InDom: 144.20564 0x24005054
     Semantics: discrete  Units: none
 Help:
 discrete metric with dynamic indom
@@ -1555,7 +1714,7 @@ discrete metric with dynamic indom
     inst [1 or "two"] value 1178
 
 prometheus.sample_pmda_3_12_2.sample.dynamic.instant [instant metric with dynamic indom]
-    Data Type: double  InDom: 144.13397 0x24003455
+    Data Type: double  InDom: 144.20565 0x24005055
     Semantics: instant  Units: none
 Help:
 instant metric with dynamic indom
@@ -1619,7 +1778,7 @@ reset highres event record state
     value 3
 
 prometheus.sample_pmda_3_12_2.sample.float.bin [like sample.bin but type FLOAT]
-    Data Type: double  InDom: 144.13378 0x24003442
+    Data Type: double  InDom: 144.20546 0x24005042
     Semantics: instant  Units: none
 Help:
 like sample.bin but type FLOAT
@@ -1634,7 +1793,7 @@ like sample.bin but type FLOAT
     inst [8 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.float.bin_ctr [like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE]
-    Data Type: double  InDom: 144.13379 0x24003443
+    Data Type: double  InDom: 144.20547 0x24005043
     Semantics: counter  Units: byte
 Help:
 like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
@@ -1677,7 +1836,7 @@ a 32-bit floating-point value that can be modified
     value 13
 
 prometheus.sample_pmda_3_12_2.sample.hordes.one [500 instances]
-    Data Type: double  InDom: 144.13387 0x2400344b
+    Data Type: double  InDom: 144.20555 0x2400504b
     Semantics: instant  Units: none
 Help:
 500 instances
@@ -2183,7 +2342,7 @@ Help:
     inst [499 or "499"] value 499
 
 prometheus.sample_pmda_3_12_2.sample.hordes.two [500 instances]
-    Data Type: double  InDom: 144.13388 0x2400344c
+    Data Type: double  InDom: 144.20556 0x2400504c
     Semantics: instant  Units: none
 Help:
 500 instances
@@ -2703,7 +2862,7 @@ Hypothetical load
     value 42
 
 prometheus.sample_pmda_3_12_2.sample.long.bin [like sample.bin but type 32]
-    Data Type: double  InDom: 144.13350 0x24003426
+    Data Type: double  InDom: 144.20518 0x24005026
     Semantics: instant  Units: none
 Help:
 like sample.bin but type 32
@@ -2718,7 +2877,7 @@ like sample.bin but type 32
     inst [8 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.long.bin_ctr [like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE]
-    Data Type: double  InDom: 144.13351 0x24003427
+    Data Type: double  InDom: 144.20519 0x24005027
     Semantics: counter  Units: byte
 Help:
 like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
@@ -2768,7 +2927,7 @@ a 32-bit integer that can be modified
     value 13
 
 prometheus.sample_pmda_3_12_2.sample.longlong.bin [like sample.bin but type 64]
-    Data Type: double  InDom: 144.13364 0x24003434
+    Data Type: double  InDom: 144.20532 0x24005034
     Semantics: instant  Units: none
 Help:
 like sample.bin but type 64
@@ -2783,7 +2942,7 @@ like sample.bin but type 64
     inst [8 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.longlong.bin_ctr [like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE]
-    Data Type: double  InDom: 144.13365 0x24003435
+    Data Type: double  InDom: 144.20533 0x24005035
     Semantics: counter  Units: byte
 Help:
 like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
@@ -2847,7 +3006,7 @@ number of instances in sample.many.int's domain
     value 5
 
 prometheus.sample_pmda_3_12_2.sample.many.int [variable sized instance domain]
-    Data Type: double  InDom: 144.13410 0x24003462
+    Data Type: double  InDom: 144.20578 0x24005062
     Semantics: instant  Units: none
 Help:
 variable sized instance domain
@@ -2956,7 +3115,7 @@ interval (in seconds) during which PMDA does not respond to PDUs
     value 0
 
 prometheus.sample_pmda_3_12_2.sample.part_bin [Several constant instances]
-    Data Type: double  InDom: 144.13320 0x24003408
+    Data Type: double  InDom: 144.20488 0x24005008
     Semantics: instant  Units: none
 Help:
 Several constant instances
@@ -3072,7 +3231,7 @@ count up seconds by multiples of 10, wrap back to 1 second at 1 day
     value 1
 
 prometheus.sample_pmda_3_12_2.sample.scramble.bin [Several constant instances, instances scrambled]
-    Data Type: double  InDom: 144.13412 0x24003464
+    Data Type: double  InDom: 144.20580 0x24005064
     Semantics: instant  Units: none
 Help:
 Several constant instances, instances scrambled
@@ -3117,7 +3276,7 @@ dynamic *.secret.foo.bar.grunt.snort.six metric
     value 6
 
 prometheus.sample_pmda_3_12_2.sample.secret.foo.bar.max.redirect [PMDA status]
-    Data Type: double  InDom: 144.13337 0x24003419
+    Data Type: double  InDom: 144.20505 0x24005019
     Semantics: discrete  Units: none
 Help:
 PMDA status
@@ -3171,7 +3330,7 @@ A step function (counter)
     value 520
 
 prometheus.sample_pmda_3_12_2.sample.ulong.bin [like sample.bin but type U32]
-    Data Type: double  InDom: 144.13357 0x2400342d
+    Data Type: double  InDom: 144.20525 0x2400502d
     Semantics: instant  Units: none
 Help:
 like sample.bin but type U32
@@ -3186,7 +3345,7 @@ like sample.bin but type U32
     inst [8 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.ulong.bin_ctr [like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE]
-    Data Type: double  InDom: 144.13358 0x2400342e
+    Data Type: double  InDom: 144.20526 0x2400502e
     Semantics: counter  Units: byte
 Help:
 like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
@@ -3236,7 +3395,7 @@ a 32-bit unsigned integer that can be modified
     value 13
 
 prometheus.sample_pmda_3_12_2.sample.ulonglong.bin [like sample.bin but type U64]
-    Data Type: double  InDom: 144.13371 0x2400343b
+    Data Type: double  InDom: 144.20539 0x2400503b
     Semantics: instant  Units: none
 Help:
 like sample.bin but type U64
@@ -3251,7 +3410,7 @@ like sample.bin but type U64
     inst [8 or "bin-900"] value 900
 
 prometheus.sample_pmda_3_12_2.sample.ulonglong.bin_ctr [like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE]
-    Data Type: double  InDom: 144.13372 0x2400343c
+    Data Type: double  InDom: 144.20540 0x2400503c
     Semantics: counter  Units: byte
 Help:
 like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
@@ -3336,7 +3495,7 @@ Count of PDUs transmitted
     value 1854
 
 prometheus.sample_prometheus_metrics.go_gc_duration_seconds [A summary of the GC invocation durations.]
-    Data Type: double  InDom: 144.14336 0x24003800
+    Data Type: double  InDom: 144.21504 0x24005400
     Semantics: instant  Units: sec
 Help:
 A summary of the GC invocation durations.
@@ -3529,7 +3688,7 @@ Number of bytes obtained by system. Sum of all system allocations.
     value 133160936
 
 prometheus.sample_prometheus_metrics.http_request_duration_microseconds [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.14363 0x2400381b
+    Data Type: double  InDom: 144.21531 0x2400541b
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
@@ -3595,7 +3754,7 @@ The HTTP request latencies in microseconds.
     inst [59 or "59 handler:version quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.http_request_duration_microseconds_count [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.14365 0x2400381d
+    Data Type: double  InDom: 144.21533 0x2400541d
     Semantics: counter  Units: count
 Help:
 The HTTP request latencies in microseconds.
@@ -3621,7 +3780,7 @@ The HTTP request latencies in microseconds.
     inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_request_duration_microseconds_sum [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.14364 0x2400381c
+    Data Type: double  InDom: 144.21532 0x2400541c
     Semantics: counter  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
@@ -3647,7 +3806,7 @@ The HTTP request latencies in microseconds.
     inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_request_size_bytes [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.14366 0x2400381e
+    Data Type: double  InDom: 144.21534 0x2400541e
     Semantics: instant  Units: byte
 Help:
 The HTTP request sizes in bytes.
@@ -3713,7 +3872,7 @@ The HTTP request sizes in bytes.
     inst [59 or "59 handler:version quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.http_request_size_bytes_count [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.14368 0x24003820
+    Data Type: double  InDom: 144.21536 0x24005420
     Semantics: counter  Units: count
 Help:
 The HTTP request sizes in bytes.
@@ -3739,7 +3898,7 @@ The HTTP request sizes in bytes.
     inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_request_size_bytes_sum [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.14367 0x2400381f
+    Data Type: double  InDom: 144.21535 0x2400541f
     Semantics: counter  Units: byte
 Help:
 The HTTP request sizes in bytes.
@@ -3765,7 +3924,7 @@ The HTTP request sizes in bytes.
     inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_requests_total [Total number of HTTP requests made.]
-    Data Type: double  InDom: 144.14369 0x24003821
+    Data Type: double  InDom: 144.21537 0x24005421
     Semantics: counter  Units: none
 Help:
 Total number of HTTP requests made.
@@ -3779,7 +3938,7 @@ Total number of HTTP requests made.
     inst [7 or "7 code:200 handler:status method:get"] value 1
 
 prometheus.sample_prometheus_metrics.http_response_size_bytes [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.14370 0x24003822
+    Data Type: double  InDom: 144.21538 0x24005422
     Semantics: instant  Units: byte
 Help:
 The HTTP response sizes in bytes.
@@ -3845,7 +4004,7 @@ The HTTP response sizes in bytes.
     inst [59 or "59 handler:version quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.http_response_size_bytes_count [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.14372 0x24003824
+    Data Type: double  InDom: 144.21540 0x24005424
     Semantics: counter  Units: count
 Help:
 The HTTP response sizes in bytes.
@@ -3871,7 +4030,7 @@ The HTTP response sizes in bytes.
     inst [19 or "19 handler:version"] value 0
 
 prometheus.sample_prometheus_metrics.http_response_size_bytes_sum [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.14371 0x24003823
+    Data Type: double  InDom: 144.21539 0x24005423
     Semantics: counter  Units: byte
 Help:
 The HTTP response sizes in bytes.
@@ -3939,7 +4098,7 @@ Virtual memory size in bytes.
     value 170373120
 
 prometheus.sample_prometheus_metrics.prometheus_build_info [A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.]
-    Data Type: double  InDom: 144.14379 0x2400382b
+    Data Type: double  InDom: 144.21547 0x2400542b
     Semantics: instant  Units: none
 Help:
 A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.
@@ -3974,7 +4133,7 @@ The max number of concurrent queries.
     value 20
 
 prometheus.sample_prometheus_metrics.prometheus_evaluator_duration_seconds [The duration of rule group evaluations.]
-    Data Type: double  InDom: 144.14384 0x24003830
+    Data Type: double  InDom: 144.21552 0x24005430
     Semantics: instant  Units: sec
 Help:
 The duration of rule group evaluations.
@@ -4006,7 +4165,7 @@ The total number of rule group evaluations skipped due to throttled metric stora
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_checkpoint_duration_seconds [The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted]
-    Data Type: double  InDom: 144.14388 0x24003834
+    Data Type: double  InDom: 144.21556 0x24005434
     Semantics: instant  Units: sec
 Help:
 The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted
@@ -4043,7 +4202,7 @@ The size of the last checkpoint of open chunks and chunks yet to be persisted
     value 1584792
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_checkpoint_series_chunks_written [The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.]
-    Data Type: double  InDom: 144.14393 0x24003839
+    Data Type: double  InDom: 144.21561 0x24005439
     Semantics: instant  Units: none
 Help:
 The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.
@@ -4073,7 +4232,7 @@ Help:
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_chunk_ops_total [The total number of chunk operations by their type.]
-    Data Type: double  InDom: 144.14397 0x2400383d
+    Data Type: double  InDom: 144.21565 0x2400543d
     Semantics: counter  Units: none
 Help:
 The total number of chunk operations by their type.
@@ -4105,7 +4264,7 @@ A counter incremented each time an inconsistency in the local storage is detecte
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_duration_seconds [Quantiles for batch indexing duration in seconds.]
-    Data Type: double  InDom: 144.14401 0x24003841
+    Data Type: double  InDom: 144.21569 0x24005441
     Semantics: instant  Units: sec
 Help:
 Quantiles for batch indexing duration in seconds.
@@ -4128,7 +4287,7 @@ Quantiles for batch indexing duration in seconds.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_sizes [Quantiles for indexing batch sizes (number of metrics per batch).]
-    Data Type: double  InDom: 144.14404 0x24003844
+    Data Type: double  InDom: 144.21572 0x24005444
     Semantics: instant  Units: none
 Help:
 Quantiles for indexing batch sizes (number of metrics per batch).
@@ -4172,7 +4331,7 @@ The total number of samples ingested.
     value 7177706
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds [The duration in seconds it took to perform maintenance on a series.]
-    Data Type: double  InDom: 144.14410 0x2400384a
+    Data Type: double  InDom: 144.21578 0x2400544a
     Semantics: instant  Units: sec
 Help:
 The duration in seconds it took to perform maintenance on a series.
@@ -4184,7 +4343,7 @@ The duration in seconds it took to perform maintenance on a series.
     inst [5 or "5 location:memory quantile:0.99"] value 0.371275481
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds_count [The duration in seconds it took to perform maintenance on a series.]
-    Data Type: double  InDom: 144.14412 0x2400384c
+    Data Type: double  InDom: 144.21580 0x2400544c
     Semantics: counter  Units: count
 Help:
 The duration in seconds it took to perform maintenance on a series.
@@ -4192,7 +4351,7 @@ The duration in seconds it took to perform maintenance on a series.
     inst [1 or "1 location:memory"] value 20978
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds_sum [The duration in seconds it took to perform maintenance on a series.]
-    Data Type: double  InDom: 144.14411 0x2400384b
+    Data Type: double  InDom: 144.21579 0x2400544b
     Semantics: counter  Units: sec
 Help:
 The duration in seconds it took to perform maintenance on a series.
@@ -4249,7 +4408,7 @@ How often a non-existent series was referred to during label matching or chunk p
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_out_of_order_samples_total [The total number of samples that were discarded because their timestamps were at or before the last received sample for a series.]
-    Data Type: double  InDom: 144.14420 0x24003854
+    Data Type: double  InDom: 144.21588 0x24005454
     Semantics: counter  Units: none
 Help:
 The total number of samples that were discarded because their timestamps were at or before the last received sample for a series.
@@ -4285,7 +4444,7 @@ Help:
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_series_chunks_persisted_bucket [The number of chunks persisted per series.]
-    Data Type: double  InDom: 144.14425 0x24003859
+    Data Type: double  InDom: 144.21593 0x24005459
     Semantics: counter  Units: count
 Help:
 The number of chunks persisted per series.
@@ -4314,7 +4473,7 @@ The number of chunks persisted per series.
     value 45157
 
 prometheus.sample_prometheus_metrics.prometheus_local_storage_series_ops_total [The total number of series operations by their type.]
-    Data Type: double  InDom: 144.14428 0x2400385c
+    Data Type: double  InDom: 144.21596 0x2400545c
     Semantics: counter  Units: none
 Help:
 The total number of series operations by their type.
@@ -4359,7 +4518,7 @@ The number of alert notifications in the queue.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_rule_evaluation_failures_total [The total number of rule evaluation failures.]
-    Data Type: double  InDom: 144.14433 0x24003861
+    Data Type: double  InDom: 144.21601 0x24005461
     Semantics: counter  Units: none
 Help:
 The total number of rule evaluation failures.
@@ -4367,7 +4526,7 @@ The total number of rule evaluation failures.
     inst [1 or "1 rule_type:recording"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_azure_refresh_duration_seconds [The duration of a Azure-SD refresh in seconds.]
-    Data Type: double  InDom: 144.14434 0x24003862
+    Data Type: double  InDom: 144.21602 0x24005462
     Semantics: instant  Units: sec
 Help:
 The duration of a Azure-SD refresh in seconds.
@@ -4397,7 +4556,7 @@ Number of Azure-SD refresh failures.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds [The duration of a Consul RPC call in seconds.]
-    Data Type: double  InDom: 144.14438 0x24003866
+    Data Type: double  InDom: 144.21606 0x24005466
     Semantics: instant  Units: sec
 Help:
 The duration of a Consul RPC call in seconds.
@@ -4409,7 +4568,7 @@ The duration of a Consul RPC call in seconds.
     inst [5 or "5 call:services endpoint:catalog quantile:0.99"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds_count [The duration of a Consul RPC call in seconds.]
-    Data Type: double  InDom: 144.14440 0x24003868
+    Data Type: double  InDom: 144.21608 0x24005468
     Semantics: counter  Units: count
 Help:
 The duration of a Consul RPC call in seconds.
@@ -4417,7 +4576,7 @@ The duration of a Consul RPC call in seconds.
     inst [1 or "1 call:services endpoint:catalog"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds_sum [The duration of a Consul RPC call in seconds.]
-    Data Type: double  InDom: 144.14439 0x24003867
+    Data Type: double  InDom: 144.21607 0x24005467
     Semantics: counter  Units: sec
 Help:
 The duration of a Consul RPC call in seconds.
@@ -4446,7 +4605,7 @@ The number of DNS-SD lookups.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_ec2_refresh_duration_seconds [The duration of a EC2-SD refresh in seconds.]
-    Data Type: double  InDom: 144.14444 0x2400386c
+    Data Type: double  InDom: 144.21612 0x2400546c
     Semantics: instant  Units: sec
 Help:
 The duration of a EC2-SD refresh in seconds.
@@ -4483,7 +4642,7 @@ The number of File-SD read errors.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_file_scan_duration_seconds [The duration of the File-SD scan in seconds.]
-    Data Type: double  InDom: 144.14449 0x24003871
+    Data Type: double  InDom: 144.21617 0x24005471
     Semantics: instant  Units: sec
 Help:
 The duration of the File-SD scan in seconds.
@@ -4506,7 +4665,7 @@ The duration of the File-SD scan in seconds.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_gce_refresh_duration [The duration of a GCE-SD refresh in seconds.]
-    Data Type: double  InDom: 144.14452 0x24003874
+    Data Type: double  InDom: 144.21620 0x24005474
     Semantics: instant  Units: none
 Help:
 The duration of a GCE-SD refresh in seconds.
@@ -4536,7 +4695,7 @@ The number of GCE-SD refresh failures.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_kubernetes_events_total [The number of Kubernetes events handled.]
-    Data Type: double  InDom: 144.14456 0x24003878
+    Data Type: double  InDom: 144.21624 0x24005478
     Semantics: counter  Units: none
 Help:
 The number of Kubernetes events handled.
@@ -4554,7 +4713,7 @@ The number of Kubernetes events handled.
     inst [11 or "11 event:update role:service"] value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_marathon_refresh_duration_seconds [The duration of a Marathon-SD refresh in seconds.]
-    Data Type: double  InDom: 144.14457 0x24003879
+    Data Type: double  InDom: 144.21625 0x24005479
     Semantics: instant  Units: sec
 Help:
 The duration of a Marathon-SD refresh in seconds.
@@ -4584,7 +4743,7 @@ The number of Marathon-SD refresh failures.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_sd_triton_refresh_duration_seconds [The duration of a Triton-SD refresh in seconds.]
-    Data Type: double  InDom: 144.14461 0x2400387d
+    Data Type: double  InDom: 144.21629 0x2400547d
     Semantics: instant  Units: sec
 Help:
 The duration of a Triton-SD refresh in seconds.
@@ -4614,7 +4773,7 @@ The number of Triton-SD scrape failures.
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_target_interval_length_seconds [Actual intervals between scrapes.]
-    Data Type: double  InDom: 144.14465 0x24003881
+    Data Type: double  InDom: 144.21633 0x24005481
     Semantics: instant  Units: sec
 Help:
 Actual intervals between scrapes.
@@ -4625,21 +4784,21 @@ Actual intervals between scrapes.
     inst [4 or "4 interval:15s quantile:0.99"] value 15.000321589
 
 prometheus.sample_prometheus_metrics.prometheus_target_interval_length_seconds_count [Actual intervals between scrapes.]
-    Data Type: double  InDom: 144.14467 0x24003883
+    Data Type: double  InDom: 144.21635 0x24005483
     Semantics: counter  Units: count
 Help:
 Actual intervals between scrapes.
     inst [0 or "0 interval:15s"] value 14012
 
 prometheus.sample_prometheus_metrics.prometheus_target_interval_length_seconds_sum [Actual intervals between scrapes.]
-    Data Type: double  InDom: 144.14466 0x24003882
+    Data Type: double  InDom: 144.21634 0x24005482
     Semantics: counter  Units: sec
 Help:
 Actual intervals between scrapes.
     inst [0 or "0 interval:15s"] value 507078.1890832364
 
 prometheus.sample_prometheus_metrics.prometheus_target_scrape_pool_sync_total [Total number of syncs that were executed on a scrape pool.]
-    Data Type: double  InDom: 144.14468 0x24003884
+    Data Type: double  InDom: 144.21636 0x24005484
     Semantics: counter  Units: none
 Help:
 Total number of syncs that were executed on a scrape pool.
@@ -4660,7 +4819,7 @@ Total number of scrapes that were skipped because the metric storage was throttl
     value 0
 
 prometheus.sample_prometheus_metrics.prometheus_target_sync_length_seconds [Actual interval to sync the scrape pool.]
-    Data Type: double  InDom: 144.14471 0x24003887
+    Data Type: double  InDom: 144.21639 0x24005487
     Semantics: instant  Units: sec
 Help:
 Actual interval to sync the scrape pool.
@@ -4671,14 +4830,14 @@ Actual interval to sync the scrape pool.
     inst [4 or "4 quantile:0.99 scrape_job:prometheus"] value nan
 
 prometheus.sample_prometheus_metrics.prometheus_target_sync_length_seconds_count [Actual interval to sync the scrape pool.]
-    Data Type: double  InDom: 144.14473 0x24003889
+    Data Type: double  InDom: 144.21641 0x24005489
     Semantics: counter  Units: count
 Help:
 Actual interval to sync the scrape pool.
     inst [0 or "0 scrape_job:prometheus"] value 1
 
 prometheus.sample_prometheus_metrics.prometheus_target_sync_length_seconds_sum [Actual interval to sync the scrape pool.]
-    Data Type: double  InDom: 144.14472 0x24003888
+    Data Type: double  InDom: 144.21640 0x24005488
     Semantics: counter  Units: sec
 Help:
 Actual interval to sync the scrape pool.
@@ -4697,6 +4856,93 @@ prometheus.sample_prometheus_metrics.prometheus_treecache_zookeeper_failures_tot
 Help:
 The total number of ZooKeeper failures.
     value 0
+
+prometheus.sh_script_no_suffix.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.23552 0x24005c00
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.sh_script_no_suffix.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.23553 0x24005c01
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.sh_script_no_suffix.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.23554 0x24005c02
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.sh_script_no_suffix.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.23555 0x24005c03
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.sh_script_no_suffix.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.23556 0x24005c04
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+prometheus.sh_scripted.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.24576 0x24006000
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.sh_scripted.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.24577 0x24006001
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.sh_scripted.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.24578 0x24006002
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.sh_scripted.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.24579 0x24006003
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.sh_scripted.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.24580 0x24006004
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+prometheus.stderr_check.stderr_check [Simple gauge metric with one instance]
+    Data Type: double  InDom: 144.25600 0x24006400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with one instance
+    inst [0 or "0 abc:0"] value 456
 
 prometheus.thermostat.tms_jvm_cpu_4099dd5b_8226_4c13_a697_5e669380060b_cpuLoad [CPU load for 4099dd5b_8226_4c13_a697_5e669380060b]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -4727,7 +4973,7 @@ CPU load for b5be5b9f_b0f1_47de_b436_27f167daf396
     value 0.6245374825293383
 
 prometheus.thermostat.tms_jvm_gc_4099dd5b_8226_4c13_a697_5e669380060b_wallTime [GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b]
-    Data Type: double  InDom: 144.15365 0x24003c05
+    Data Type: double  InDom: 144.26629 0x24006805
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
@@ -4735,7 +4981,7 @@ GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
     inst [1 or "1 collector_name:PSScavenge"] value 120532
 
 prometheus.thermostat.tms_jvm_gc_44157db5_4922_49d0_89de_f20f8bf71ceb_wallTime [GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb]
-    Data Type: double  InDom: 144.15362 0x24003c02
+    Data Type: double  InDom: 144.26626 0x24006802
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
@@ -4743,7 +4989,7 @@ GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
     inst [1 or "1 collector_name:PSScavenge"] value 4539165
 
 prometheus.thermostat.tms_jvm_gc_641b7232_19dd_47ae_9cc1_8294b2a09774_wallTime [GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774]
-    Data Type: double  InDom: 144.15366 0x24003c06
+    Data Type: double  InDom: 144.26630 0x24006806
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
@@ -4751,7 +4997,7 @@ GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
     inst [1 or "1 collector_name:CMS"] value 2932705
 
 prometheus.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime [GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396]
-    Data Type: double  InDom: 144.15361 0x24003c01
+    Data Type: double  InDom: 144.26625 0x24006801
     Semantics: instant  Units: none
 Help:
 GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396

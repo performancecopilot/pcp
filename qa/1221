@@ -38,8 +38,12 @@ _pmdaprometheus_install
 ls -1 $here/prometheus/samples/*.txt | sort | while read file
 do
     urlbase=`basename $file .txt | tr .- _`
-    echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/urls.d/$urlbase.url
+    echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/config.d/$urlbase.url
 done
+
+# add all the sample scripts
+cp $here/prometheus/scripts/* $PCP_PMDAS_DIR/prometheus/config.d
+rm -f $PCP_PMDAS_DIR/prometheus/config.d/GNU*
 
 if ! _pmdaprometheus_wait_for_metric prometheus.thermostat
 then

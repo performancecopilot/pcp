@@ -7,6 +7,8 @@
 # get standard environment, filters and checks
 . ./common.python
 
+CONFIG_DIR=$PCP_PMDAS_DIR/prometheus/config.d
+
 _pmdaprometheus_check()
 {
     [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || return 1
@@ -37,16 +39,16 @@ _pmdaprometheus_install()
 
 _pmdaprometheus_save_config()
 {
-    _save_config $PCP_PMDAS_DIR/prometheus/urls.d
+    _save_config $CONFIG_DIR
     _save_config $PCP_VAR_DIR/config/pmda
-    $sudo rm -f $PCP_PMDAS_DIR/prometheus/urls.d/*
+    $sudo rm -f $CONFIG_DIR/*
     $sudo rm -f $PCP_VAR_DIR/config/pmda/*
-    $sudo chmod 777 $PCP_PMDAS_DIR/prometheus/urls.d/
+    $sudo chmod 777 $CONFIG_DIR
 }
 
 _pmdaprometheus_restore_config()
 {
-    _restore_config $PCP_PMDAS_DIR/prometheus/urls.d
+    _restore_config $CONFIG_DIR
     _restore_config $PCP_VAR_DIR/config/pmda
 }
 

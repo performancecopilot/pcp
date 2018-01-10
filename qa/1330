@@ -55,7 +55,7 @@ echo "port=$port" >>$here/$seq.full
 
 $python $here/prometheus/prometheus_endpoint.python \
 	--port=$port \
-	--output=$PCP_PMDAS_DIR/prometheus/urls.d/ \
+	--output=$PCP_PMDAS_DIR/prometheus/config.d/ \
 	--total $totalendpoints \
 	--endpoints $endpoints \
 	--metrics $metrics \
