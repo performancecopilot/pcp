@@ -45,7 +45,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
-	unpickargs.c hanoi.c chain.c progname.c
+	unpickargs.c hanoi.c chain.c progname.c countmark.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

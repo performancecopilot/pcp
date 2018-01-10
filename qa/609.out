@@ -1,0 +1,37 @@
+QA output created by 609
+
+=== archives/bozo-20170904 ===
+06:39:11.722  <mark>
+06:52:15.968  <mark>
+20:55:45.262  <mark>
+20:59:45.260  <mark>
+21:00:45.293  <mark>
+21:01:45.258  <mark>
+21:03:45.260  <mark>
+21:34:45.258  <mark>
+21:36:15.568  <mark>
+21:37:57.202  <mark>
+21:38:01.286  <mark>
+21:38:43.145  <mark>
+21:38:47.260  <mark>
+21:38:55.124  <mark>
+<mark> @ byte offset 9269460
+<mark> @ byte offset 9612100
+<mark> @ byte offset 31540488
+<mark> @ byte offset 31647180
+<mark> @ byte offset 31671076
+<mark> @ byte offset 31694972
+<mark> @ byte offset 31754104
+<mark> @ byte offset 32561312
+<mark> @ byte offset 32609216
+<mark> @ byte offset 32658860
+<mark> @ byte offset 32659032
+<mark> @ byte offset 32659204
+<mark> @ byte offset 32706916
+<mark> @ byte offset 32754580
+pmdumplog: 14 mark records
+countmark: 14 mark records
+
+=== archives/bozo-disk ===
+pmdumplog: 0 mark records
+countmark: 0 mark records

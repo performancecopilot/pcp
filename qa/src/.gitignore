@@ -46,6 +46,7 @@ clienttimeout
 compare
 context_fd_leak
 context_test
+countmark
 crashpmcd
 defctx
 derived
