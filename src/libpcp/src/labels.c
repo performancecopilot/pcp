@@ -640,9 +640,12 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	    __pmDumpLabelSet(stderr, sets[i]);
 	}
 
-	if ((sts = __pmMergeLabelSets(sets[i]->labels,
-				sets[i]->json, sets[i]->nlabels,
-				blabels, buf, nlabels,
+	/*
+	 * Merge sets[i] with blabels into olabels. Any duplicate label
+	 * names in sets[i] prevail over those in blabels.
+	 */
+	if ((sts = __pmMergeLabelSets(blabels, buf, nlabels,
+				sets[i]->labels, sets[i]->json, sets[i]->nlabels,
 				olabels, buffer, &nlabels, buflen,
 				filter, arg)) < 0)
 	    return sts;
