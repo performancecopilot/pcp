@@ -4,7 +4,7 @@ Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
 '''
 #
 # Copyright (c) 2017 Ronak Jain.
-# Copyright (c) 2017 Red Hat, Inc.
+# Copyright (c) 2017-2018 Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -40,6 +40,8 @@ import pickle
 import requests
 import threading
 from socket import gethostname
+import subprocess
+from stat import ST_MODE, S_IXUSR
 
 # Number of seconds to wait between poll attempts on a source that
 # we've never been able to connect to & collect a list of metrics from.
@@ -443,15 +445,18 @@ class Source(object):
         the source is online.
         '''
 
-        def __init__(self, name, cluster, path, pmda):
+        def __init__(self, name, cluster, path, is_scripted, pmda):
                 self.name = name # source nickname
                 self.cluster = cluster # unique/persistent id# for nickname
-                self.path = path # pathname to .url file
+                self.path = path # pathname to .url or executable file
                 self.url = None
+                self.is_scripted = is_scripted
                 self.pmda = pmda # the shared pmda
 
                 self.refresh_time = 0 # "never"
-                self.requests = requests.Session() # allow persistent connections etc.
+                if not is_scripted:
+                        # source is a URL. Create a session for it.
+                        self.requests = requests.Session() # allow persistent connections etc.
                 
                 # persistently assign numeric id to our metrics
                 self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
@@ -558,46 +563,62 @@ class Source(object):
                 
                 return num_metrics
                 
-
         def refresh(self,timeout):
                 '''
-                Find the target URL by reading .url file.
-                Fetch the target URL.
-                Parse the resulting document.
+                If the Source config entry is a URL (with ".url" extension), find the
+                target URL by reading the .url file, fetch (http GET) the target and
+                then parse the resulting document.
+
+                If the Source config entry is executable, run it, expecting prometheus
+                formatted data on it's stdout, which is then parsed.
                 '''
+
                 # clear cached values from all my metrics
                 for n,m in self.metrics_by_name.items():
                         m.clear_values()
                 # XXX: ditch metrics no longer found in document
 
                 self.refresh_time = time.time()
-                
-                # (re)read the URL from given file
                 try:
-                        url = open(self.path,'r').read().strip()
+                        if self.is_scripted:
+                                # check file still exists and is executable
+                                if not os.stat(self.path)[ST_MODE] & S_IXUSR:
+                                        self.pmda.err("cannot execute '%s': %s" % self.path)
+                                        return
+                        else:
+                                # (re)read the URL from given file
+                                self.url = open(self.path,'r').read().strip()
                 except Exception as e:
                         self.pmda.err("cannot read %s: %s" % (self.path, e))
                         return
-                # fetch the URL
+
+                # fetch the document
                 try:
-                        if url.startswith('file://'):
-                                t = open(url[7:],'r').read()
+                        if self.is_scripted:
+                                # Execute file, expecting prometheus metric data on stdout.
+                                # stderr goes to the PMDA log. Failures are caught below.
+                                document = subprocess.check_output(self.path, shell=False).decode()
                         else:
-                                r = self.requests.get(url,timeout=timeout)
-                                r.raise_for_status() # non-200?  ERROR
-                                t = r.text
-                        s = self.parse_lines(t)
+                                # fetch the URL
+                                if self.url.startswith('file://'):
+                                        document = open(self.url[7:],'r').read()
+                                else:
+                                        r = self.requests.get(self.url,timeout=timeout)
+                                        r.raise_for_status() # non-200?  ERROR
+                                        document = r.text
+
+                        # parse and handle the prometheus formatted metric data
+                        s = self.parse_lines(document)
                         # save metric & indom lookup tables changes, if any 
                         for n,m in self.metrics_by_name.items():
                                 try: # NB: must process whole list even if exceptions escape
                                         m.save()
                                 except: # ... which they won't, this is just belt & suspenders
                                         pass
-                        self.url = url
                         self.pmids_table.save()
-                        self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(t), s, url))
+                        self.pmda.debug("fetched %d bytes with %d metrics from URL or script %s" % (len(document), s, self.path))
                 except Exception as e:
-                        self.pmda.err("cannot fetch %s: %s" % (url, e))
+                        self.pmda.err('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e))
                         return
                 
         def fetch(self, item, inst):
@@ -699,21 +720,27 @@ class PrometheusPMDA(PMDA):
                                 # the part of the filename before .url
                                 file_split = os.path.splitext(file)
                                 self.debug("found %s/%s => %s" % (root, file, file_split))
-                                if len(file_split) != 2 or file_split[1] != ".url":
+
+                                # check if it's executable, or has ".url" suffix
+                                is_scripted = os.stat(os.path.join(root,file))[ST_MODE] & S_IXUSR != 0
+                                if not is_scripted and (len(file_split) != 2 or file_split[1] != ".url"):
+                                        # ignore this file - not executable or doesn't end in ".url"
+                                        # self.err("Warning: ignored config '%s'" % os.path.join(root, file))
                                         continue
                                 name = file_split[0]
                                 if not nickname_regexp.match(name):
-                                        self.err("Bad nickname %s" % file)
+                                        self.err("Warning: ignored config '%s', not suitable for PCP namespace" % os.path.join(root, file))
                                         continue
 
                                 if name in self.source_by_name:
+                                        # this source is already known
                                         self.assert_source_invariants(name=name)
                                         pass
                                 else:
                                         try:
                                                 path = os.path.join(root, file)
                                                 cluster = self.cluster_table.intern_lookup_value(name)
-                                                source = Source(name, cluster, path, self)
+                                                source = Source(name, cluster, path, is_scripted, self)
                                                 self.source_by_name[source.name] = source
                                                 self.source_by_cluster[source.cluster] = source
                                                 save_cluster_table = True
@@ -811,15 +838,24 @@ class PrometheusPMDA(PMDA):
                         # self.debug('   source_by_cluster %s' % (self.source_by_cluster))
                         try:
                                 s = self.source_by_cluster[ident]
-                                if s.url.startswith("http"):
-                                        host = s.url.replace("http://", "").replace("https://", "").split("/")[0]
-                                elif s.url.startswith("file://"):
-                                        host = gethostname()
+                                if s.is_scripted:
+                                        # The script should insert a hostname="somewhere" label if it
+                                        # fetches from a remote host. This will override the hostname
+                                        # label inserted by pmcd (at the context label level). Details
+                                        # of the label hierarchy rules are in the "PRECEDENCE" section
+                                        # of the pmLookupLabels(3) man page.
+                                        return '{"source":"%s", "script":"%s"}' % (s.name, s.path)
                                 else:
-                                        host = "unknown"
-                                if host == "localhost":
-                                        host = gethostname()
-                                return '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
+                                        # extract hostname label from the URL
+                                        if s.url.startswith("http"):
+                                                host = s.url.replace("http://", "").replace("https://", "").split("/")[0]
+                                        elif s.url.startswith("file://"):
+                                                host = gethostname()
+                                        else:
+                                                host = "localhost"
+                                        if host == "localhost":
+                                                host = gethostname()
+                                        return '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
                         except:
                                 pass # ignore key error for unknown cluster number
 
@@ -850,7 +886,7 @@ class PrometheusPMDA(PMDA):
                                         for i,n in enumerate(mv.indom_table.instances):
                                                 if inst == i:
                                                         # success
-                                                        return '{"instance": "' + n + '"}'
+                                                        return '{"instname": "' + n + '"}'
                 # inst not found in indom
                 return '{}'
 
@@ -872,8 +908,8 @@ if __name__ == '__main__':
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser.add_argument('-c','--config',
                             type=str,
-                            default=os.getenv('PCP_PMDAS_DIR')+'/prometheus/urls.d',
-                            help='set URL configuration directory')
+                            default=os.getenv('PCP_PMDAS_DIR')+'/prometheus/config.d',
+                            help='configuration directory')
         parser.add_argument('-t','--timeout',
                             type=int,
                             default=2,
