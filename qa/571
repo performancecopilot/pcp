@@ -36,11 +36,13 @@ _cleanup()
    
    $sudo rm -f $control
 
+   pmdumplog -a $tmp.logfile >>$here/$seq.full
+
     [ -f $control.qa-$seq ] && $sudo mv $control.qa-$seq $control
     rm -f $tmp.*
 }
 
-$sudo rm -f $control.qa-$seq
+$sudo rm -f $control.qa-$seq $seq.full
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -60,19 +62,44 @@ End-of-File
     logger_pid=$!
 }
 
-_filter_unwanted_indom()
+# - replace timestamps by TIMESTAMP-n
+# - skip InDom 2.1 (pmcd.pmlogger.* metrics) where instances are not
+#   deterministic
+#
+_filter()
 {
-    _filter_pmdumplog | $PCP_AWK_PROG '
-/^InDom: 2.1/ && step == 0	{ step = 1; next }
-step == 1	{ step = 2; next }
-step == 2	{ step = 0; next }
+    cat >$tmp.tmp
+    sed -n -e '/^[0-9]/p' <$tmp.tmp \
+    | sort \
+    | uniq >$tmp.stamps
+
+    ( cat $tmp.stamps \
+      ; echo "---" \
+      ; cat $tmp.tmp \
+    ) \
+    | $PCP_AWK_PROG '
+BEGIN		{ state = 0; i = 0 }
+$1 == "---"	{ state = 1; next }
+/InDom: 2.1/	{ skip = 2; next }
+skip > 0	{ skip--; next }
+state == 0	{ stamp[$1] = "TIMESTAMP-" i; i++; next }
+/^[0-9]/	{ if ($0 ~ /^[0-9]/) {
+		    if (stamp[$1] != "")
+			$1 = stamp[$1]
+		    else
+			$1 = $1 "-BOTCHED-MATCH"
+		  }
+		  print
+		  next
+		}
 		{ print }'
 }
 
 _dumplog()
 {
     sleep $SLEEPY
-    pmdumplog -i $tmp.logfile | _filter_unwanted_indom
+    pmdumplog -i $tmp.logfile | _filter
+    pmdumplog -im $tmp.logfile sample.dynamic.instant | _filter >>$here/$seq.full
 }
 
 # start the pmlogger
