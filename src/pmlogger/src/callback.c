@@ -225,24 +225,44 @@ __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
+    int			sts;
 
-    if (pmDebugOptions.logmeta)
-	fprintf(stderr, "__localLogGetInDom( ..., %s)\n",
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+	fprintf(stderr, "__localLogGetInDom( ..., %s) -> ",
 	    pmInDomStr(indom));
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL)
-	return 0;
+    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
+	sts = -1;
+	goto done;
+    }
 
     idp = (__pmLogInDom *)hp->data;
 
-    if (idp == NULL)
-	return PM_ERR_INDOM_LOG;
+    if (idp == NULL) {
+	sts = PM_ERR_INDOM_LOG;
+	goto done;
+    }
 
     *instlist = idp->instlist;
     *namelist = idp->namelist;
     *tp = idp->stamp;
 
-    return idp->numinst;
+    sts = idp->numinst;
+
+done:
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	if (hp == NULL)
+	    fprintf(stderr, "%d (__pmHashSearch failed)\n", sts);
+	else if (sts >= 0) {
+	    fprintf(stderr, "%d @ ", sts);
+	    __pmPrintTimeval(stderr, tp);
+	    fputc('\n', stderr);
+	}
+	else
+	    fprintf(stderr, "%s\n", pmErrStr(sts));
+    }
+
+    return sts;
 }
 
 
@@ -808,18 +828,34 @@ do_work(task_t *tp)
 	    }
 	    if (desc.indom != PM_INDOM_NULL && vsp->numval > 0) {
 		/*
-		 * __pmLogGetInDom has been replaced by __localLogGetInDom so that
-		 * the timestamp of the retrieved indom is also returned. The timestamp
-		 * is then used to decide if the indom needs to be refreshed.
+		 * __pmLogGetInDom has been replaced by __localLogGetInDom
+		 * so that the timestamp of the retrieved indom is also
+		 * returned. The timestamp is then used to decide if
+		 * the indom needs to be refreshed.
 		 */
 		pmTimeval indom_tval;
 		numinst = __localLogGetInDom(&logctl, desc.indom, &indom_tval, &instlist, &namelist);
-		if (numinst < 0)
+		if (numinst > 0 && __pmTimevalSub(&resp_tval, &indom_tval) <= 0) {
+		    /*
+		     * Already have indom with the same (or later, in the
+		     * case of some time warp) timestamp compared to the
+		     * timestamp for this pmResult (from a previous metric
+		     * in the pmResult with the same indom).
+		     * Avoid doing it again:
+		     * (a) duplicate indoms with same timestamp in the
+		     *     metadata file is not a good idea
+		     * (b) (worse) pmGetInDom may return different instances
+		     *     if the indom is dynamic, like proc metrics
+		     */
+		    needindom = 0;
+		}
+		else if (numinst < 0) {
 		    needindom = 1;
+		}
 		else {
 		    needindom = 0;
 		    /* Need to see if result's insts all exist
-		     * somewhere in the hashed/cached insts.
+		     * somewhere in the most recent hashed/cached indom.
 		     * Thus a potential numval^2 search.
                      */
 		    for (j = 0; j < vsp->numval; j++) {
@@ -832,16 +868,15 @@ do_work(task_t *tp)
 			    break;
 			}
 		    }
+		    /* 
+		     * Check that instances have not diminished between
+		     * consecutive pmFetch's ... this would pass all the
+		     * tests above, but still the indom still needs to
+		     * be refeshed.
+		     */
+		    if (needindom == 0 && lfp->lf_resp != NULL)
+			needindom = check_inst(vsp, i, lfp->lf_resp);
 		}
-		/* 
-		 * Check here that the instance domain has not been changed
-		 * by a previous iteration of this loop.
-		 * So, the timestamp of resp must be after the update timestamp
-		 * of the target instance domain.
-		 */
-		if (needindom == 0 && lfp->lf_resp != (pmResult *)0 &&
-		    __pmTimevalSub(&resp_tval, &indom_tval) < 0 )
-		    needindom = check_inst(vsp, i, lfp->lf_resp);
 
 		if (needindom) {
 		    /*
