@@ -77,493 +77,493 @@ Time,"kernel.uname.release"
 19:37:16      47.790       6.755      62.383         NaN
 19:37:19      47.790       6.755      62.383         NaN
 ---
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "@unit": "sec",
-                  "value": ""
-                  "value": "-1.000"
-                  "value": "-9223372036854775808.000"
-                  "value": "-9223372036854775808.000"
-                  "value": "-inf"
-                  "value": "0"
-                  "value": "0"
-                  "value": "0"
-                  "value": "0.000"
-                  "value": "1"
-                  "value": "1"
-                  "value": "1.000"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1.2.3"
-                  "value": "1234567"
-                  "value": "1234567.000"
-                  "value": "3.2.1"
-                  "value": "4294967295"
-                  "value": "4294967295"
-                  "value": "7654321"
-                  "value": "7654321.000"
-                  "value": "9223372036854775808.000"
-                  "value": "9223372036854775808.000"
-                  "value": "X"
-                  "value": "XXX"
-                  "value": "XXX"
-                  "value": "char:<:&:`:$:;:!:#: :?:*:|:~:>:test"
-                  "value": "dont:\n;touch /tmp/toast;\n:eval"
-                  "value": "inf"
-                  "value": "line:\n:break"
-                  "value": "nan"
-                  "value": "nan"
-                  "value": "null:"
-                  "value": "some:åäöšŠžŽ€🙃§½¼¾:unicode"
-                  "value": "this:\":is:\\':a:':quote:\\\":test"
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "one": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "release": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                "uptime": {
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-                }
-              "all": {
-              "all": {
-              "all": {
-              "all": {
-              "all": {
-              "all": {
-              "all": {
-              "all": {
-              "all": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "float": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              "uname": {
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              }
-              },
-              },
-              },
-              },
-              },
-              },
-              },
-              },
-              },
-            "@interval": "0",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@interval": "1",
-            "@timestamp": "1970-01-01 00:00:00",
-            "@timestamp": "1970-01-01 00:00:01",
-            "@timestamp": "1970-01-01 00:00:02",
-            "@timestamp": "1970-01-01 00:00:03",
-            "@timestamp": "1970-01-01 00:00:04",
-            "@timestamp": "1970-01-01 00:00:05",
-            "@timestamp": "1970-01-01 00:00:06",
-            "@timestamp": "1970-01-01 00:00:07",
-            "@timestamp": "1970-01-01 00:00:08",
-            "@timestamp": "1970-01-01 00:00:09",
-            "@timestamp": "1970-01-01 00:00:10",
-            "@timestamp": "1970-01-01 00:00:11",
-            "@timestamp": "1970-01-01 00:00:12",
-            "@timestamp": "1970-01-01 00:00:13",
-            "@timestamp": "1970-01-01 00:00:14",
-            "@timestamp": "1970-01-01 00:00:15",
-            "@timestamp": "1970-01-01 00:00:16",
-            "@timestamp": "1970-01-01 00:00:17",
-            "@timestamp": "1970-01-01 00:00:18",
-            "@timestamp": "1970-01-01 00:00:19",
-            "@timestamp": "1970-01-01 00:00:20",
-            "@timestamp": "1970-01-01 00:00:21",
-            "@timestamp": "1970-01-01 00:00:22",
-            "@timestamp": "1970-01-01 00:00:23",
-            "@timestamp": "1970-01-01 00:00:24",
-            "@timestamp": "1970-01-01 00:00:25",
-            "@timestamp": "1970-01-01 00:00:26",
-            "@timestamp": "1970-01-01 00:00:27",
-            "@timestamp": "1970-01-01 00:00:28",
-            "@timestamp": "1970-01-01 00:00:29",
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "kernel": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            "sample": {
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            }
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-            },
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          {
-          }
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-          },
-        "@host": "localhost",
-        "@metrics": [
-        "@source": "ARCHIVE_PATH",
-        "@timezone": "UTC+0"
-        ],
-      {
-      }
-    "@hosts": [
-    ]
-  "@pcp": {
-  }
 {
+    "@pcp": {
+        "@hosts": [
+            {
+                "@host": "localhost",
+                "@metrics": [
+                    {
+                        "@interval": "0",
+                        "@timestamp": "1970-01-01 00:00:00",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "1234567"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "1234567.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:01",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "0"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:02",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "4294967295"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:03",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "1"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:04",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "0"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:05",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "4294967295"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:06",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "1"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:07",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "0"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:08",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "nan"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:09",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "inf"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:10",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "9223372036854775808.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:11",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "9223372036854775808.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:12",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "1.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:13",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "0.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:14",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "-1.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:15",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "-9223372036854775808.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:16",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "-9223372036854775808.000"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:17",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "-inf"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:18",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "1.2.3"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "nan"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:19",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "null:"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:20",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "line:\n:break"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:21",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "this:\":is:\\':a:':quote:\\\":test"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:22",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "char:<:&:`:$:;:!:#: :?:*:|:~:>:test"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:23",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": ""
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:24",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "dont:\n;touch /tmp/toast;\n:eval"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:25",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "XXX"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:26",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "XXX"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:27",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "X"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:28",
+                        "kernel": {
+                            "uname": {
+                                "release": {
+                                    "value": "some:åäöšŠžŽ€🙃§½¼¾:unicode"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "@interval": "1",
+                        "@timestamp": "1970-01-01 00:00:29",
+                        "kernel": {
+                            "all": {
+                                "uptime": {
+                                    "@unit": "sec",
+                                    "value": "7654321"
+                                }
+                            },
+                            "uname": {
+                                "release": {
+                                    "value": "3.2.1"
+                                }
+                            }
+                        },
+                        "sample": {
+                            "float": {
+                                "one": {
+                                    "value": "7654321.000"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "@source": "ARCHIVE_PATH",
+                "@timezone": "UTC+0"
+            }
+        ]
+    }
 }
 ---
             <one>-1.000</one>
