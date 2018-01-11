@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2016-2018 Red Hat.
-.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -16,57 +16,42 @@
 .\"
 .TH PCP2JSON 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp2json\f1 \- pcp-to-json metrics exporter
+\fBpcp2json\fP \- pcp-to-json metrics exporter
 .SH SYNOPSIS
-\f3pcp2json\f1
-[\f3\-CGHIjLrRvVxXz?\f1]
-[\f3\-a\f1 \f2archive\f1]
-[\f3\-\-archive-folio\f1 \f2folio\f1]
-[\f3\-A\f1 \f2align\f1]
-[\f3\-b|\-B\f1 \f2space-scale\f1]
-[\f3\-c\f1 \f2config\f1]
-[\f3\-\-container\f1 \f2container\f1]
-[\f3\-\-daemonize\f1]
-[\f3\-e\f1 \f2derived\f1]
-[\f3\-f\f1 \f2format\f1]
-[\f3\-F\f1 \f2outfile\f1]
-[\f3\-h\f1 \f2host\f1]
-[\f3\-i\f1 \f2instances\f1]
-[\f3\-K\f1 \f2spec\f1]
-[\f3\-O\f1 \f2origin\f1]
-[\f3\-P|\-0\f1 \f2precision\f1]
-[\f3\-q|\-Q\f1 \f2count-scale\f1]
-[\f3\-s\f1 \f2samples\f1]
-[\f3\-S\f1 \f2starttime\f1]
-[\f3\-t\f1 \f2interval\f1]
-[\f3\-T\f1 \f2endtime\f1]
-[\f3\-y|\-Y\f1 \f2time-scale\f1]
-[\f3\-Z\f1 \f2timezone\f1]
-\f2metricspec [...]\f1
+\fBpcp2json\fP
+[\fB\-CGHIjLrRvVxXz?\fP]
+[\fB\-a\fP \fIarchive\fP]
+[\fB\-\-archive\-folio\fP \fIfolio\fP]
+[\fB\-A\fP \fIalign\fP]
+[\fB\-b\fP|\fB\-B\fP \fIspace-scale\fP]
+[\fB\-c\fP \fIconfig\fP]
+[\fB\-\-container\fP \fIcontainer\fP]
+[\fB\-\-daemonize\fP]
+[\fB\-e\fP \fIderived\fP]
+[\fB\-f\fP \fIformat\fP]
+[\fB\-F\fP \fIoutfile\fP]
+[\fB\-h\fP \fIhost\fP]
+[\fB\-i\fP \fIinstances\fP]
+[\fB\-K\fP \fIspec\fP]
+[\fB\-O\fP \fIorigin\fP]
+[\fB\-P\fP|\fB\-0\fP \fIprecision\fP]
+[\fB\-q\fP|\fB\-Q\fP \fIcount-scale\fP]
+[\fB\-s\fP \fIsamples\fP]
+[\fB\-S\fP \fIstarttime\fP]
+[\fB\-t\fP \fIinterval\fP]
+[\fB\-T\fP \fIendtime\fP]
+[\fB\-y\fP|\fB\-Y\fP \fItime-scale\fP]
+[\fB\-Z\fP \fItimezone\fP]
+\fImetricspec\fP
+\fI[...]\fP
 .SH DESCRIPTION
-.de EX
-.in +0.5i
-.ie t .ft CB
-.el .ft B
-.ie t .sp .5v
-.el .sp
-.ta \\w' 'u*8
-.nf
-..
-.de EE
-.fi
-.ie t .sp .5v
-.el .sp
-.ft R
-.in
-..
 .B pcp2json
 is a customizable performance metrics exporter tool from PCP to
 JSON.
-Any available performance metric, live or archived, system and/or application,
-can be selected for exporting using either command line arguments or a
-configuration file.
-.P
+Any available performance metric, live or archived, system and/or
+application, can be selected for exporting using either command line
+arguments or a configuration file.
+.PP
 .B pcp2json
 is a close relative of
 .BR pmrep (1).
@@ -84,16 +69,19 @@ configuration file overall syntax, this page describes
 .B pcp2json
 specific options and configuration file differences with
 .BR pmrep.conf (5).
-.P
+.PP
 Only the command line options listed on this page are supported,
 other options recognized by
 .BR pmrep (1)
 are not supported.
-.P
-Configuration file options override the corresponding built-in
-default values (if any).
-Command line options override the
-corresponding configuration file options (if any).
+.PP
+Options via environment values (see
+.BR pmGetOptions (3))
+override the corresponding built-in default values (if any).
+Configuration file options override the corresponding
+environment variables (if any).
+Command line options override the corresponding configuration
+file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2json
 uses a configuration file with overall syntax described in
@@ -127,36 +115,35 @@ The
 option is recognized but ignored for
 .B pmrep.conf
 compatibility.
-.P
-\fBpcp2json specific options\fR
-.P
+.SS pcp2json specific options
+.PP
 extended (boolean)
 .RS 4
 Write extended information about metrics.
-Corresponding command line option is \fB-x\fR.
-Default is \fBno\fR.
+Corresponding command line option is \fB\-x\fP.
+Default is \fBno\fP.
 .RE
-.P
+.PP
 everything (boolean)
 .RS 4
 Write everything known about metrics, including PCP internal IDs.
-Corresponding command line option is \fB-X\fR.
-Default is \fBno\fR.
+Corresponding command line option is \fB\-X\fP.
+Default is \fBno\fP.
 .RE
-.SH COMMAND LINE OPTIONS
+.SH OPTIONS
 The available command line options are:
 .TP 5
 .B \-a
-Performance metric values are retrieved from the set of Performance Co-Pilot
-(PCP) archive log files identified by the argument
+Performance metric values are retrieved from the set of Performance
+Co-Pilot (PCP) archive log files identified by the argument
 .IR archive ,
 which is a comma-separated list of names, each
-of which may be the base name of an archive or the name of a directory containing
-one or more archives.
+of which may be the base name of an archive or the name of
+a directory containing one or more archives.
 .TP
 .B \-\-archive\-folio
 Read metric source archives from the PCP archive
-.IR folio
+.I folio
 created by tools like
 .BR pmchart (1)
 or, less often, manually with
@@ -182,18 +169,14 @@ for space (byte) metrics, possible values include
 and so forth up to
 .BR Ebytes ,
 .BR EB .
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-B
 As
 .B \-b
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-c
 Specify the
@@ -224,7 +207,8 @@ Daemonize on startup.
 .B \-e
 Specify
 .I derived
-performance metrics. If
+performance metrics.
+If
 .I derived
 starts with a slash (``/'') or with a dot (``.'') it will be
 interpreted as a derived metrics configuration file, otherwise it will
@@ -238,14 +222,11 @@ and
 Use the
 .I format
 string for formatting the timestamp.
-The format will be used with
-Python's
+The format will be used with Python's
 .B datetime.strftime
 method which is mostly the same as that described in
 .BR strftime (3).
-The default with \fIstdout\fR is
-.BR %H:%M:%S .
-The default with \fIcsv\fR is
+The default is
 .BR "%Y-%m-%d %H:%M:%S" .
 .TP
 .B \-F
@@ -274,7 +255,7 @@ By default all instances are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
-By default single-valued ``flat'' metrics without separate
+By default single-valued ``flat'' metrics without multiple
 instances are still reported as usual, use
 .B \-v
 to change this.
@@ -283,13 +264,15 @@ Please refer to
 for more details on this option.
 .TP
 .B \-I
-Ignore incompatible metrics. By default incompatible metrics
-(that is, their type is unsupported or they cannot be scaled
-as requested) will cause
+Ignore incompatible metrics.
+By default incompatible metrics (that is,
+their type is unsupported or they cannot be scaled as requested)
+will cause
 .B pcp2json
 to terminate with an error message.
 With this option all incompatible metrics are silently omitted
-from reporting. This may be especially useful when requesting
+from reporting.
+This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
 .TP
 .B \-j
@@ -304,12 +287,11 @@ When fetching metrics from a local context (see
 .BR \-L ),
 the
 .B \-K
-option may be used to control the DSO PMDAs that should be made
-accessible.
+option may be used to control the DSO PMDAs that should be made accessible.
 The
 .I spec
 argument conforms to the syntax described in
-.BR pmSpecLocalPMDA(3).
+.BR pmSpecLocalPMDA (3).
 More than one
 .B \-K
 option may be used.
@@ -337,53 +319,43 @@ Use
 .I precision
 for numeric non-integer output values.
 The default is to use 3 decimal places (when applicable).
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 .TP
 .B \-0
 As
 .B \-P
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-q
 .I Unit/scale
 for count metrics, possible values include
-.BR "count x 10^-1" ,
+.BR "count x 10^\-1" ,
 .BR "count" ,
 .BR "count x 10" ,
 .BR "count x 10^2" ,
 and so forth from
-.B 10^-8
+.B 10^\-8
 to
 .BR 10^7 .
 .\" https://bugzilla.redhat.com/show_bug.cgi?id=1264124
 (These values are currently space-sensitive.)
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-Q
 As
 .B \-q
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-r
 Output raw metric values, do not convert cumulative counters to rates.
-This option \fIwill\fR override possible per-metric specifications.
+This option \fIwill\fP override possible per-metric specifications.
 .TP
 .B \-R
 As
 .B \-r
-but this option will
-.I not
-override per-metric specifications.
+but this option will \fInot\fP override per-metric specifications.
 .TP
 .B \-s
 The argument
@@ -417,8 +389,8 @@ The
 .I interval
 argument follows the syntax described in
 .BR PCPIntro (1),
-and in the simplest form may be an unsigned integer (the implied units
-in this case are seconds).
+and in the simplest form may be an unsigned integer
+(the implied units in this case are seconds).
 See also the
 .B \-T
 option.
@@ -433,9 +405,9 @@ for a complete description of the syntax for
 .IR endtime .
 .RS
 .PP
-When used to define the runtime before \fBpcp2json\fR will exit,
-if no \fIsamples\fR is given (see \fB-s\fR) then the number of
-reported samples depends on \fIinterval\fR (see \fB-t\fR).
+When used to define the runtime before \fBpcp2json\fP will exit,
+if no \fIsamples\fP is given (see \fB\-s\fP) then the number of
+reported samples depends on \fIinterval\fP (see \fB\-t\fP).
 If
 .I samples
 is given then
@@ -457,15 +429,11 @@ will run.
 .TP
 .B \-v
 Omit single-valued ``flat'' metrics from reporting, only consider
-multi-valued metrics (i.e., metrics with
-.IR "instance domains" ,
-or
-.IR indoms )
-for reporting.
+set-valued metrics (i.e., metrics with multiple values) for reporting.
 See
-.B -\i
+.B \-i
 and
-.BR -\I .
+.BR \-I .
 .TP
 .B \-V
 Display version number and exit.
@@ -488,18 +456,14 @@ for time metrics, possible values include
 and so forth up to
 .BR hour ,
 .BR hr .
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-Y
 As
 .B \-y
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-z
 Use the local timezone of the host that is the source of the
@@ -520,30 +484,23 @@ is in the format of the environment variable
 as described in
 .BR environ (7).
 Note that when including a timezone string in output, ISO 8601 -style
-UTC offsets are used (so something like -Z EST+5 will become UTC-5).
+UTC offsets are used (so something like \-Z EST+5 will become UTC-5).
 .TP
 .B \-?
 Display usage message and exit.
 .SH FILES
-.PD 0
-.TP 10
-.BI pcp2json.conf
-\fBpcp2json\fR configuration file (see \fB-c\fR).
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parametrize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.TP
+.I pcp2json.conf
+\fBpcp2json\fP configuration file (see \fB\-c\fP)
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR mkaf (1),
 .BR PCPIntro (1),
@@ -557,6 +514,7 @@ as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmrep (1),
+.BR pmGetOptions (3),
 .BR pmSpecLocalPMDA (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
 .\"
 .TH ZBXPCP 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3zbxpcp\f1 \- Zabbix Agent Loadable PCP Module
+\fBzbxpcp\fP \- Zabbix Agent Loadable PCP Module
 .SH DESCRIPTION
 The
 .B zbxpcp
@@ -39,8 +39,8 @@ In addition to very complete
 .I /proc
 based statistics, readily available PCP PMDAs provide support for such
 system and application level components as 389 Directory Server, Apache,
-containers, GFS2, Gluster, KVM, MySQL, NFS, Oracle, Postfix, PostgreSQL,
-Samba, and Sendmail, among others.
+containers, HAProxy, GFS2, Gluster, libvirt, MySQL, NFS, Oracle, Postfix,
+PostgreSQL, Samba, and Sendmail, among others.
 PCP also runs on many platforms, including Linux, Mac OS X, FreeBSD,
 NetBSD, Solaris, and Windows.
 .PP
@@ -72,7 +72,7 @@ the Zabbix agent configuration file
 .I zabbix_agentd.conf
 (make sure to use the correct
 .IR LoadModulePath ):
-
+.sp 1
 .RS +4
 .ft CW
 .nf
@@ -81,15 +81,15 @@ LoadModule=zbxpcp.so
 .fi
 .ft P
 .RE
-
+.sp 1
 After restarting the Zabbix agent all the PCP metrics will be available
 with the ``\c
 .BR pcp. ''
 prefix like all the other agent items.
 This can be verified with the commands:
-
+.sp 1
 .RS +4
-.ft CW
+.ft B
 .nf
 $ pminfo -t
 $ zabbix_agentd -p
@@ -111,19 +111,18 @@ metrics will not become available.
 Special care must be taken to make sure this happens also when rebooting
 the system.
 .SH FILES
-.PD 0
-.TP 10
-.BI /etc/zabbix/zabbix_agentd.conf
+.TP
+.I /etc/zabbix/zabbix_agentd.conf
 Typical Zabbix agent configuration file location.
-.TP 10
-.BI /etc/zabbix/zbxpcp-derived-metrics.conf
+.TP
+.I /etc/zabbix/zbxpcp-derived-metrics.conf
 Optional PCP derived metrics configuration file for
 .BR zbxpcp .
 See
 .BR pmLoadDerivedConfig (3)
 for more info on derived metrics.
-.TP 10
-.BI $(PCP_LIB_DIR)/zabbix/agent/zbxpcp.so
+.TP
+.I \f(CW$PCP_LIB_DIR\fP/zabbix/agent/zbxpcp.so
 Zabbix agent loadable PCP module.
 .PD
 .SH SEE ALSO

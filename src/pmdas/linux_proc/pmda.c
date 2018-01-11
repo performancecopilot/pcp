@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2017 Red Hat.
+ * Portions Copyright (c) 2012-2018 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1924,14 +1924,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul = entry->id;
 		break;
 
-	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.tty */
+	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.ttyname */
 		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
 		if (f == NULL)
 		    atom->cp = "?";
-		else {
-		    dev_t dev = get_encoded_dev(f);
-		    atom->cp = get_ttyname_info(inst, dev);
-		}
+		else
+		    atom->cp = get_ttyname_info(inst, f);
 		break;
 
 	    case PROC_PID_STAT_TTY_PGRP: /* proc.psinfo.tty_pgrp */
