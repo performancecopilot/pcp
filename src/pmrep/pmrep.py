@@ -253,7 +253,8 @@ class PMReporter(object):
                 sys.stderr.write("Archive %s already exists.\n" % optarg)
                 sys.exit(1)
             if os.path.exists(optarg):
-                sys.stderr.write("File %s already exists.\n" % optarg)
+                type = "File" if os.path.isfile(optarg) else "Directory"
+                sys.stderr.write("%s %s already exists.\n" % (type, optarg))
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
@@ -358,7 +359,12 @@ class PMReporter(object):
             self.output = OUTPUT_CSV
 
         if self.output == OUTPUT_ARCHIVE and not self.outfile:
-            sys.stderr.write("Archive must be defined with archive output.\n")
+            sys.stderr.write("Output archive must be defined with archive output.\n")
+            sys.exit(1)
+
+        if self.output == OUTPUT_ARCHIVE and \
+           not os.access(os.path.dirname(self.outfile), os.W_OK|os.X_OK):
+            sys.stderr.write("Output directory %s not accessible.\n" % os.path.dirname(self.outfile))
             sys.exit(1)
 
         if self.output != OUTPUT_ARCHIVE and self.live_filter:
