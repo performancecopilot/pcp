@@ -367,6 +367,10 @@ prometheus.collectd_sample.process_start_time_seconds
 prometheus.collectd_sample.process_virtual_memory_bytes
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"collectd_sample","url":FILEURL,"userid":NUM}
 
+prometheus.curl.script.metric1
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+
 prometheus.curl_filtered.metric1
     inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
     inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
@@ -3492,6 +3496,10 @@ prometheus.collectd_sample.process_start_time_seconds
 
 prometheus.collectd_sample.process_virtual_memory_bytes
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"collectd_sample","url":FILEURL,"userid":NUM}
+
+prometheus.curl.script.metric1
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
 
 prometheus.curl_filtered.metric1
     inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}

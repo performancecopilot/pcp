@@ -41,7 +41,7 @@ _pmdaprometheus_save_config()
 {
     _save_config $CONFIG_DIR
     _save_config $PCP_VAR_DIR/config/pmda
-    $sudo rm -f $CONFIG_DIR/*
+    $sudo rm -rf $CONFIG_DIR/*
     $sudo rm -f $PCP_VAR_DIR/config/pmda/*
     $sudo chmod 777 $CONFIG_DIR
 }

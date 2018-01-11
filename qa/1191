@@ -32,7 +32,7 @@ do
 done
 
 # add all the sample scripts
-cp $here/prometheus/scripts/* $PCP_PMDAS_DIR/prometheus/config.d
+cp -a $here/prometheus/scripts/* $PCP_PMDAS_DIR/prometheus/config.d
 rm -f $PCP_PMDAS_DIR/prometheus/config.d/GNU*
 
 if ! _pmdaprometheus_wait_for_metric prometheus.thermostat
