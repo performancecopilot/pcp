@@ -228,6 +228,13 @@ Corresponding command line option is \fB\-I\fP.
 Defaults to \fBno\fP.
 .RE
 .PP
+instances (string)
+.RS 4
+Indicates the instances to be reported.
+Corresponding command line option is \fB\-i\fP.
+Undefined (all instances are reported) by default.
+.RE
+.PP
 live_filter (boolean)
 .RS 4
 Indicates that live filtering should be enabled.
@@ -235,11 +242,25 @@ Corresponding command line option is \fB\-j\fP.
 Defaults to \fBno\fP.
 .RE
 .PP
-instances (string)
+rank (integer)
 .RS 4
-Indicates the instances to be reported.
-Corresponding command line option is \fB\-i\fP.
-Undefined (all current instances are reported) by default.
+Indicates the value to be used for ranking instances.
+Corresponding command line option is \fB\-J\fP.
+Undefined (all instances are reported) by default.
+.RE
+.PP
+invert_filter (boolean)
+.RS 4
+Indicates that invert filtering should be performed.
+Corresponding command line option is \fB\-n\fP.
+Defaults to \fBno\fP.
+.RE
+.PP
+predicate (string)
+.RS 4
+Indicates the metrics to be used as predicate metrics.
+Corresponding command line option is \fB\-N\fP.
+Undefined by default.
 .RE
 .PP
 omit_flat (string)
