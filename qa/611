@@ -32,6 +32,8 @@ _filter()
 
     cat >$tmp.dump
 
+    rm -f $tmp.prior
+
     $PCP_AWK_PROG <$tmp.dump '
 $1 == "InDom:"	{ indom = $2
 		  stamp = ""
@@ -59,9 +61,12 @@ $3 == "instances" { if ($1 == stamp) {
 		    last=`expr $arg + 1`
 		    if [ "$key" = match ]
 		    then
-			diff $tmp.prior $tmp.this
-			mv $tmp.this $tmp.prior
+			if diff $tmp.prior $tmp.this
+			then
+			    echo "SURPRISE, indoms are the same"
+			fi
 		    fi
+		    mv $tmp.this $tmp.prior
 		    ;;
 	esac
     done
