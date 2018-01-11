@@ -41,7 +41,7 @@ _cleanup()
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 &
+$PCP_BINADM_DIR/pmwebd -l $tmp.out $webargs -p $webport -v -t5 &
 webpid=$!
 echo "pid=$webpid" >>$seq.full
 echo "webport=$webport" >>$seq.full

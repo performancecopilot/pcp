@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 609
+# Check countmark.
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for arch in archives/bozo-20170904 archives/bozo-disk
+do
+    echo
+    echo "=== $arch ==="
+    pmdumplog -z $arch | grep '<mark>' >$tmp.pmdumplog 2>&1
+    cat $tmp.pmdumplog
+    if [ -f $arch.0.xz ]
+    then
+	xzcat $arch.0.xz >$tmp.0
+	arch=$tmp
+    fi
+    src/countmark $arch.0 >$tmp.countmark 2>&1
+    cat $tmp.countmark
+    echo "pmdumplog: `wc -l <$tmp.pmdumplog | sed -e 's/ //g'` mark records"
+    echo "countmark: `wc -l <$tmp.countmark | sed -e 's/ //g'` mark records"
+done
+
+# success, all done
+status=0
+exit

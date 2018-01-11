@@ -144,10 +144,23 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	    idp_time = idp_prev; /* just before this time slot */
 	    do {
 		/* Have we found a duplicate? */
+		if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+		    char	strbuf[20];
+		    fprintf(stderr, "indom: %s sameindom(",
+			pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+		    __pmPrintTimeval(stderr, &idp_cached->stamp);
+		    fprintf(stderr, "[%d numinst],", idp_cached->numinst);
+		    __pmPrintTimeval(stderr, &idp->stamp);
+		    fprintf(stderr, "[%d numinst]) ? ", idp->numinst);
+		}
 		if (sameindom(idp_cached, idp)) {
 		    sts = PMLOGPUTINDOM_DUP; /* duplicate */
+		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+			fprintf(stderr, "yes\n");
 		    break;
 		}
+		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		    fprintf(stderr, "no\n");
 		/* Try the next one */
 		idp_prev = idp_cached;
 		idp_cached = idp_cached->next;
@@ -309,7 +322,7 @@ addtext(__pmArchCtl *acp, unsigned int ident, unsigned int type, char *buffer)
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
     if (pmDebugOptions.logmeta)
-	fprintf(stderr, "addtext( ..., %u, %u)", ident, type);
+	fprintf(stderr, "addtext( ..., %u, %u)\n", ident, type);
 
     if ((sts = __pmLogLookupText(acp, ident, type, &buffer)) < 0) {
 

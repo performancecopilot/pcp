@@ -959,7 +959,9 @@ collectl
 606 python archive pmns pmiostat local
 607 libpcp local
 608 pmpost local
+609 pmdumplog local
 610 libpcp local
+611 pmlogger pmdumplog local
 614 pmns local
 617 dbpmda help local
 622 pmie remote
@@ -1442,6 +1444,7 @@ collectl
 1199 libpcp pmcd local
 1202 pmdadm local
 1203 derive pmval libpcp local
+1221 pmda.proc local
 1221 labels pmda.prometheus local
 1222 pmda.linux pmda.proc local
 1225 pmwebapi local
