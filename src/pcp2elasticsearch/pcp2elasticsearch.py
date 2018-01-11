@@ -182,7 +182,7 @@ class pcp2elasticsearch(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt in ('g','H','K','n','N','p'):
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 

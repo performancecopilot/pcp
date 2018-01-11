@@ -228,7 +228,7 @@ class PMReporter(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt in ('g','H','K','n','N','p'):
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 
@@ -253,8 +253,8 @@ class PMReporter(object):
                 sys.stderr.write("Archive %s already exists.\n" % optarg)
                 sys.exit(1)
             if os.path.exists(optarg):
-                type = "File" if os.path.isfile(optarg) else "Directory"
-                sys.stderr.write("%s %s already exists.\n" % (type, optarg))
+                kind = "File" if os.path.isfile(optarg) else "Directory"
+                sys.stderr.write("%s %s already exists.\n" % (kind, optarg))
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
@@ -414,13 +414,10 @@ class PMReporter(object):
 
         # Headers
         if self.extheader == 1:
-            self.extheader = 0
-            self.write_ext_header()
-
+            self.write_extheader()
         if self.header == 1:
-            self.header = 0
             self.write_header()
-        else:
+        if self.header == 0:
             self.repeat_header = 0
 
         # Just checking
@@ -490,14 +487,14 @@ class PMReporter(object):
                 self.writer = open(self.outfile, 'wt')
 
     def prepare_stdout(self):
-        """ Prepare stdout output """
+        """ Prepare stdout output format """
         if self.colxrow is None:
             self.prepare_stdout_std()
         else:
             self.prepare_stdout_colxrow()
 
     def prepare_stdout_std(self):
-        """ Prepare standard formatted stdout output """
+        """ Prepare standard/default stdout output format """
         index = 0
         if self.timestamp == 0:
             #self.format = "{:}{}"
@@ -510,14 +507,18 @@ class PMReporter(object):
             index += 1
             self.format += "{" + str(index) + "}"
             index += 1
+        def prepare_line(index, l):
+            """ Line prepare helper """
+            l = str(self.metrics[metric][4])
+            #self.format += "{:>" + l + "." + l + "}{}"
+            self.format += "{" + str(index) + ":>" + l + "." + l + "}"
+            index += 1
+            self.format += "{" + str(index) + "}"
+            index += 1
         for i, metric in enumerate(self.metrics):
             for _ in range(len(self.pmconfig.insts[i][0])):
-                l = str(self.metrics[metric][4])
-                #self.format += "{:>" + l + "." + l + "}{}"
-                self.format += "{" + str(index) + ":>" + l + "." + l + "}"
-                index += 1
-                self.format += "{" + str(index) + "}"
-                index += 1
+                prepare_line(index, str(self.metrics[metric][4]))
+                index += 2
         #self.format = self.format[:-2]
         l = len(str(index-1)) + 2
         self.format = self.format[:-l]
@@ -569,7 +570,7 @@ class PMReporter(object):
                 if instance not in self.found_insts:
                     self.found_insts.append(instance)
 
-    def write_ext_header(self):
+    def write_extheader(self):
         """ Write extended header """
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
@@ -680,80 +681,85 @@ class PMReporter(object):
     def write_header(self, repeat=False):
         """ Write info header """
         if self.output == OUTPUT_ARCHIVE:
-            self.writer.write("Recording %d metrics to %s" % (len(self.metrics), self.outfile))
-            if self.runtime != -1:
-                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
-            elif self.samples:
-                duration = (self.samples - 1) * float(self.interval)
-                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
-            else:
-                self.writer.write("...")
-                if self.context.type != PM_CONTEXT_ARCHIVE:
-                    self.writer.write(" (Ctrl-C to stop)")
-                self.writer.write("\n")
-            return
-
+            self.write_header_archive()
         if self.output == OUTPUT_CSV:
-            if self.extcsv:
-                self.writer.write("Host,Interval,")
-            self.writer.write("Time")
-            for i, metric in enumerate(self.metrics):
-                for j in range(len(self.pmconfig.insts[i][0])):
-                    name = metric
-                    if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
-                        name += "-" + self.pmconfig.insts[i][1][j]
-                    # Mark metrics with instance domain but without instances
-                    if self.pmconfig.descs[i].contents.indom != PM_IN_NULL and self.pmconfig.insts[i][1][0] is None:
-                        name += "-"
-                    if self.delimiter:
-                        name = name.replace(self.delimiter, " ")
-                    name = name.replace("\n", " ").replace("\"", " ")
-                    self.writer.write(self.delimiter + "\"" + name + "\"")
-            self.writer.write("\n")
-
+            self.write_header_csv()
         if self.output == OUTPUT_STDOUT:
-            if repeat:
-                self.writer.write("\n")
-            if self.separate_header:
-                self.write_separate_header()
-                return
-            names = ["", self.delimiter] # no timestamp on header line
-            insts = ["", self.delimiter] # no timestamp on instances line
-            units = ["", self.delimiter] # no timestamp on units line
+            self.write_header_stdout(repeat)
+
+    def write_header_archive(self):
+        """ Write info header for archive output """
+        self.writer.write("Recording %d metrics to %s" % (len(self.metrics), self.outfile))
+        if self.runtime != -1:
+            self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
+        elif self.samples:
+            duration = (self.samples - 1) * float(self.interval)
+            self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
+        else:
+            self.writer.write("...")
+            if self.context.type != PM_CONTEXT_ARCHIVE:
+                self.writer.write(" (Ctrl-C to stop)")
+            self.writer.write("\n")
+        return
+
+    def write_header_csv(self):
+        """ Write info header for CSV output """
+        if self.extcsv:
+            self.writer.write("Host,Interval,")
+        self.writer.write("Time")
+        for i, metric in enumerate(self.metrics):
+            for j in range(len(self.pmconfig.insts[i][0])):
+                name = metric
+                if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
+                    name += "-" + self.pmconfig.insts[i][1][j]
+                # Mark metrics with instance domain but without instances
+                if self.pmconfig.descs[i].contents.indom != PM_IN_NULL and self.pmconfig.insts[i][1][0] is None:
+                    name += "-"
+                if self.delimiter:
+                    name = name.replace(self.delimiter, " ")
+                name = name.replace("\n", " ").replace("\"", " ")
+                self.writer.write(self.delimiter + "\"" + name + "\"")
+        self.writer.write("\n")
+
+    def write_header_stdout(self, repeat=False):
+        """ Write info header for stdout output """
+        if repeat:
+            self.writer.write("\n")
+        if self.separate_header:
+            self.write_separate_header()
+            return
+        names = ["", self.delimiter] # no timestamp on header line
+        insts = ["", self.delimiter] # no timestamp on instances line
+        units = ["", self.delimiter] # no timestamp on units line
+        if self.colxrow is not None:
+            names += [self.colxrow, self.delimiter]
+            units += ["", self.delimiter]
+        prnti = 0
+        labels = []
+        def add_header_items(metric, name):
+            """ Helper to add items to header """
+            names.extend([self.metrics[metric][0], self.delimiter])
+            units.extend([self.metrics[metric][2][0], self.delimiter])
+            insts.extend([name, self.delimiter])
+            labels.append(self.metrics[metric][0])
+        for i, metric in enumerate(self.metrics):
             if self.colxrow is not None:
-                names += [self.colxrow, self.delimiter]
-                units += ["", self.delimiter]
-            prnti = 0
-            labels = []
-            for i, metric in enumerate(self.metrics):
-                if self.colxrow is not None:
-                    if self.metrics[metric][0] in labels:
-                        continue
-                    labels.append(self.metrics[metric][0])
-                    names.append(self.metrics[metric][0])
-                    names.append(self.delimiter)
-                    units.append(self.metrics[metric][2][0])
-                    units.append(self.delimiter)
+                if self.metrics[metric][0] in labels:
                     continue
-                prnti = 1 if self.pmconfig.insts[i][0][0] != PM_IN_NULL else prnti
-                for j in range(len(self.pmconfig.insts[i][0])):
-                    names.append(self.metrics[metric][0])
-                    names.append(self.delimiter)
-                    units.append(self.metrics[metric][2][0])
-                    units.append(self.delimiter)
-                    if prnti == 1 and self.pmconfig.insts[i][1][j]:
-                        insts.append(self.pmconfig.insts[i][1][j])
-                    else:
-                        insts.append(self.delimiter)
-                    insts.append(self.delimiter)
-            del names[-1]
-            del units[-1]
-            del insts[-1]
-            self.writer.write(self.format.format(*names) + "\n")
-            if prnti == 1:
-                self.writer.write(self.format.format(*insts) + "\n")
-            if self.unitinfo:
-                self.writer.write(self.format.format(*units) + "\n")
+                add_header_items(metric, None)
+                continue
+            prnti = 1 if self.pmconfig.insts[i][0][0] != PM_IN_NULL else prnti
+            for j in range(len(self.pmconfig.insts[i][0])):
+                name = self.pmconfig.insts[i][1][j] if prnti and self.pmconfig.insts[i][1][j] else self.delimiter
+                add_header_items(metric, name)
+        del names[-1]
+        del units[-1]
+        del insts[-1]
+        self.writer.write(self.format.format(*names) + "\n")
+        if prnti:
+            self.writer.write(self.format.format(*insts) + "\n")
+        if self.unitinfo:
+            self.writer.write(self.format.format(*units) + "\n")
 
     def write_archive(self, timestamp):
         """ Write an archive record """
@@ -893,7 +899,7 @@ class PMReporter(object):
                 value = pmconfig.TRUNC
             elif s+2 > width:
                 fmt[k] = "{X:" + str(width) + "d}"
-                value = int(value)
+                value = int(value) # pylint: disable=redefined-variable-type
             else:
                 fmt[k] = "{X:" + str(width) + numfmt + "}"
         elif isinstance(value, (int, long)):
