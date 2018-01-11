@@ -14,5 +14,5 @@
  */
 
 extern dev_t get_encoded_dev(const char *);
-extern char *get_ttyname_info(int, dev_t);
+extern char *get_ttyname_info(int, dev_t, char *);
 

@@ -40,14 +40,17 @@ get_encoded_dev(const char *devnum)
  * as poor form).
  *
  * Returns a pointer into a static buffer, so no free'ing needed.
+ *
+ * fix the issue that can't get ttyname correctly.  
+ * by wulm.fnst@cn.fujitsu.com at 2018/1/4
  */
 char *
-get_ttyname_info(int pid, dev_t dev)
+get_ttyname_info(int pid, dev_t dev, char *devpath)
 {
     struct stat statbuf;
     char fullpath[MAXPATHLEN];
     static char ttyname[MAXPATHLEN];
-    char *path, *devpath = "/dev/";
+    char *path;
     struct dirent *drp;
     DIR *rundir;
 
@@ -58,15 +61,22 @@ get_ttyname_info(int pid, dev_t dev)
     while ((drp = readdir(rundir)) != NULL) {
 	if (*(path = &drp->d_name[0]) == '.')
 	    continue;
-	pmsprintf(fullpath, sizeof(fullpath), "%s%s", devpath, path);
+	pmsprintf(fullpath, sizeof(fullpath), "%s/%s", devpath, path);
 	fullpath[sizeof(fullpath)-1] = '\0';
-	if (!stat(fullpath, &statbuf))
-	    continue;
-	if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
-	    strncpy(ttyname, &fullpath[5], sizeof(ttyname));
-	    ttyname[sizeof(ttyname)-1] = '\0';
-	    break;
-	}
+        if (drp->d_type == DT_DIR) {
+	    if(strcmp(get_ttyname_info(pid, dev, fullpath), "?") != 0)
+                return ttyname;
+        }else {
+	    if(!stat(fullpath, &statbuf)) {
+                fprintf(stderr, "fail to get stat of path : %s\n", fullpath);
+            }
+	    if (S_ISCHR(statbuf.st_mode) && drp->d_type != DT_LNK 
+                && dev == statbuf.st_rdev) {
+	        strncpy(ttyname, &fullpath[5], sizeof(ttyname));
+	        ttyname[sizeof(ttyname)-1] = '\0';
+	        break;
+	    }
+        }
     }
     closedir(rundir);
     return ttyname;

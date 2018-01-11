@@ -1930,7 +1930,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    atom->cp = "?";
 		else {
 		    dev_t dev = get_encoded_dev(f);
-		    atom->cp = get_ttyname_info(inst, dev);
+		    atom->cp = get_ttyname_info(inst, dev, "/dev");
 		}
 		break;
 
