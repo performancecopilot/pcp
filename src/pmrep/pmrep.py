@@ -888,7 +888,7 @@ class PMReporter(object):
         else:
             self.write_stdout_colxrow(timestamp)
 
-    def format_stdout_value(self, value, width, precision, fmt, k):
+    def format_stdout_value(self, value, width, numfmt, fmt, k):
         """ Format a value for stdout output """
         if isinstance(value, str):
             value = self.remove_delimiter(value)
@@ -896,22 +896,14 @@ class PMReporter(object):
         elif isinstance(value, float) and \
              not math.isinf(value) and \
              not math.isnan(value):
-            value = round(value, precision)
-            c = precision
             s = len(str(int(value)))
             if s > width:
-                c = -1
                 value = pmconfig.TRUNC
-            #for _ in reversed(range(c+1)):
-                #t = "{:" + str(width) + "." + str(c) + "f}"
-            for _ in reversed(range(c+1)):
-                t = "{0:" + str(width) + "." + str(c) + "f}"
-                if len(t.format(value)) > width:
-                    c -= 1
-                else:
-                    #fmt[k] = t
-                    fmt[k] = t.replace("{0:", "{X:")
-                    break
+            elif s+2 > width:
+                fmt[k] = "{X:" + str(width) + "d}"
+                value = int(value)
+            else:
+                fmt[k] = "{X:" + str(width) + numfmt + "}"
         elif isinstance(value, (int, long)):
             if len(str(value)) > width:
                 value = pmconfig.TRUNC
@@ -949,11 +941,13 @@ class PMReporter(object):
         # Add corresponding values for each column in the static header
         k = 0
         for i, metric in enumerate(self.metrics):
+            p = self.metrics[metric][6] if self.metrics[metric][4] > self.metrics[metric][6] else self.metrics[metric][4]
+            numfmt = "." + str(p) + "f"
             for j in range(len(self.pmconfig.insts[i][0])):
                 k += 1
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]
-                    value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
+                    value = self.format_stdout_value(value, self.metrics[metric][4], numfmt, fmt, k)
                 except Exception:
                     value = NO_VAL
                 line.append(value)
@@ -1016,6 +1010,8 @@ class PMReporter(object):
             for label in self.labels:
                 found = 0
                 for metric, i in self.labels[label]:
+                    p = self.metrics[metric][6] if self.metrics[metric][4] > self.metrics[metric][6] else self.metrics[metric][4]
+                    numfmt = "." + str(p) + "f"
                     if found:
                         break
                     if label == self.metrics[metric][0] and instance in self.pmconfig.insts[i][1]:
@@ -1024,7 +1020,7 @@ class PMReporter(object):
 
                         try:
                             value = res[metric + "+" + str(j)]
-                            value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
+                            value = self.format_stdout_value(value, self.metrics[metric][4], numfmt, fmt, k)
                         except Exception:
                             value = NO_VAL
 
