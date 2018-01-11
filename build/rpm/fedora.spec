@@ -15,6 +15,12 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 7
+%global __python2 python2
+%else
+%global __python2 python
+%endif
+
 %if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
@@ -164,7 +170,7 @@ BuildRequires: zlib-devel
 %if 0%{?default_python} != 3
 BuildRequires: python%{?default_python}-devel
 %else
-BuildRequires: python-devel
+BuildRequires: %{__python2}-devel
 %endif
 %endif
 %if !%{disable_python3}
@@ -719,9 +725,9 @@ Requires: python3-pcp = %{version}-%{release}
 Requires: python3-elasticsearch
 BuildRequires: python3-elasticsearch
 %else
-Requires: python-pcp = %{version}-%{release}
-Requires: python-elasticsearch
-BuildRequires: python-elasticsearch
+Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-elasticsearch
+BuildRequires: %{__python2}-elasticsearch
 %endif
 
 %description export-pcp2elasticsearch
@@ -741,7 +747,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2graphite
@@ -760,8 +766,8 @@ Requires: pcp-libs >= %{version}-%{release}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-requests
 %else
-Requires: python-pcp = %{version}-%{release}
-Requires: python-requests
+Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-requests
 %endif
 
 %description export-pcp2influxdb
@@ -780,7 +786,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2json
@@ -800,7 +806,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2xlsx
@@ -819,7 +825,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2xml
@@ -838,7 +844,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2zabbix
@@ -1444,7 +1450,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-gluster
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1462,7 +1468,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-zswap
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1480,7 +1486,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-unbound
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1498,7 +1504,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-mic
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1516,7 +1522,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-haproxy
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1536,10 +1542,10 @@ Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
 BuildRequires: libvirt-python3 python3-lxml
 %else
-Requires: python-pcp
-Requires: libvirt-python python-lxml
+Requires: %{__python2}-pcp
+Requires: libvirt-python %{__python2}-lxml
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: libvirt-python python-lxml
+BuildRequires: libvirt-python %{__python2}-lxml
 %endif
 %endif
 %description pmda-libvirt
@@ -1561,9 +1567,9 @@ Requires: python3-pcp
 Requires: python3-rtslib
 BuildRequires: python3-rtslib
 %else
-Requires: python-pcp
-Requires: python-rtslib
-BuildRequires: python-rtslib
+Requires: %{__python2}-pcp
+Requires: %{__python2}-rtslib
+BuildRequires: %{__python2}-rtslib
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
@@ -1587,9 +1593,9 @@ Requires: python3-pcp
 Requires: python3-requests
 BuildRequires: python3-requests
 %else
-Requires: python-pcp
-Requires: python-requests
-BuildRequires: python-requests
+Requires: %{__python2}-pcp
+Requires: %{__python2}-requests
+BuildRequires: %{__python2}-requests
 %endif
 
 %description pmda-prometheus
@@ -1613,9 +1619,9 @@ Requires: python3-pcp
 Requires: python3-jsonpointer python3-six
 BuildRequires: python3-jsonpointer python3-six
 %else
-Requires: python-pcp
-Requires: python-jsonpointer python-six
-BuildRequires: python-jsonpointer python-six
+Requires: %{__python2}-pcp
+Requires: %{__python2}-jsonpointer %{__python2}-six
+BuildRequires: %{__python2}-jsonpointer %{__python2}-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1962,9 +1968,9 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 
 %if !%{disable_python2}
 #
-# python-pcp. This is the PCP library bindings for python.
+# python2-pcp. This is the PCP library bindings for python.
 #
-%package -n python-pcp
+%package -n %{__python2}-pcp
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
@@ -1976,7 +1982,7 @@ Requires: python%{default_python}
 Requires: python
 %endif
 
-%description -n python-pcp
+%description -n %{__python2}-pcp
 This python PCP module contains the language bindings for
 Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agent (PMDA) collector tools written in Python.
@@ -2013,7 +2019,7 @@ URL: http://www.pcp.io
 Requires: python3-pcp = %{version}-%{release}
 %endif
 %if !%{disable_python2}
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 
@@ -3217,7 +3223,7 @@ cd
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 
 %if !%{disable_python2}
-%files -n python-pcp -f python-pcp.list.rpm
+%files -n %{__python2}-pcp -f python-pcp.list.rpm
 %endif
 
 %if !%{disable_python3}
