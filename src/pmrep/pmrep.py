@@ -347,14 +347,10 @@ class PMReporter(object):
 
         self.pmconfig.validate_common_options()
 
-        try:
-            err = "Invalid output target specified"
-            if self.output != OUTPUT_ARCHIVE and \
-               self.output != OUTPUT_CSV and \
-               self.output != OUTPUT_STDOUT:
-                raise ValueError(err)
-        except ValueError:
-            sys.stderr.write("Error while parsing options: %s.\n" % err)
+        if self.output != OUTPUT_ARCHIVE and \
+           self.output != OUTPUT_CSV and \
+           self.output != OUTPUT_STDOUT:
+            sys.stderr.write("Error while parsing options: Invalid output target specified.\n")
             sys.exit(1)
 
         # Check how we were invoked and adjust output
@@ -437,7 +433,7 @@ class PMReporter(object):
         # Main loop
         lines = 0
         while self.samples != 0:
-            # Repeat the header if needed
+            # Repeat header if needed
             if self.output == OUTPUT_STDOUT:
                 if lines > 0 and self.repeat_header == lines:
                     self.write_header(repeat=True)
@@ -482,12 +478,10 @@ class PMReporter(object):
     def prepare_writer(self):
         """ Prepare generic stdout writer """
         if not self.writer:
-            if self.output == OUTPUT_ARCHIVE or \
-               self.outfile is None:
+            if self.output == OUTPUT_ARCHIVE or self.outfile is None:
                 self.writer = sys.stdout
             else:
                 self.writer = open(self.outfile, 'wt')
-        return self.writer
 
     def prepare_stdout(self):
         """ Prepare stdout output """
@@ -571,8 +565,6 @@ class PMReporter(object):
 
     def write_ext_header(self):
         """ Write extended header """
-        comm = "#" if self.output == OUTPUT_CSV else ""
-
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
         else:
@@ -621,6 +613,7 @@ class PMReporter(object):
             elif not self.interpol:
                 samples = "N/A" # pylint: disable=redefined-variable-type
 
+        comm = "#" if self.output == OUTPUT_CSV else ""
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
             self.writer.write(comm + "  archive: " + self.source + "\n")
@@ -805,15 +798,6 @@ class PMReporter(object):
         if data:
             self.pmi.pmiWrite(int(self.pmfg_ts().strftime('%s')), self.pmfg_ts().microsecond)
 
-    def remove_delimiter(self, value):
-        """ Remove delimiter if needed in string values """
-        if isinstance(value, str) and self.delimiter and not self.delimiter.isspace():
-            if self.delimiter != "_":
-                value = value.replace(self.delimiter, "_")
-            else:
-                value = value.replace(self.delimiter, " ")
-        return value
-
     def parse_non_number(self, value, width=8):
         """ Check and handle float inf, -inf, and NaN """
         if math.isinf(value):
@@ -823,6 +807,15 @@ class PMReporter(object):
                 value = "-inf" if width >= 4 else pmconfig.TRUNC
         elif math.isnan(value):
             value = "NaN" if width >= 3 else pmconfig.TRUNC
+        return value
+
+    def remove_delimiter(self, value):
+        """ Remove delimiter if needed in string values """
+        if isinstance(value, str) and self.delimiter and not self.delimiter.isspace():
+            if self.delimiter != "_":
+                value = value.replace(self.delimiter, "_")
+            else:
+                value = value.replace(self.delimiter, " ")
         return value
 
     def write_csv(self, timestamp):
@@ -881,13 +874,6 @@ class PMReporter(object):
 
         self.writer.write(line + "\n")
 
-    def write_stdout(self, timestamp):
-        """ Write a line to stdout """
-        if self.colxrow is None:
-            self.write_stdout_std(timestamp)
-        else:
-            self.write_stdout_colxrow(timestamp)
-
     def format_stdout_value(self, value, width, numfmt, fmt, k):
         """ Format a value for stdout output """
         if isinstance(value, str):
@@ -914,6 +900,13 @@ class PMReporter(object):
             value = self.parse_non_number(value, width)
 
         return value
+
+    def write_stdout(self, timestamp):
+        """ Write a line to stdout """
+        if self.colxrow is None:
+            self.write_stdout_std(timestamp)
+        else:
+            self.write_stdout_colxrow(timestamp)
 
     def write_stdout_std(self, timestamp):
         """ Write a line to standard formatted stdout """
@@ -999,7 +992,7 @@ class PMReporter(object):
             line.append(self.delimiter)
             k += 1
 
-            # Add instance (empty singular indoms)
+            # Add instance
             if instance:
                 line.append(instance)
             else:
