@@ -192,7 +192,7 @@ class PCP2Graphite(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K' or opt == 'n' or opt == 'N' or opt == 'g' or opt == 'p':
+        if opt in ('g','H','K','n','N','p'):
             return 1
         return 0
 

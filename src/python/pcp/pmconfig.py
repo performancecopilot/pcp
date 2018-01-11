@@ -61,8 +61,11 @@ class pmConfig(object):
         self._init_ts = None
 
         # Predicate metric references
-        self.pred_index = []
-        self.pred_indom = []
+        self._pred_index = []
+        self._pred_indom = []
+
+        # Instance regex cache
+        self._re_cache = {}
 
         # Pass data with pmTraversePMNS
         self._tmp = []
@@ -715,6 +718,16 @@ class pmConfig(object):
                     self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
                 else:
                     self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
+
+                # Populate per-metric regex cache for live filtering
+                if self.do_live_filtering():
+                    try:
+                        self._re_cache[metric] = []
+                        for r in self.util.metrics[metric][1]:
+                            self._re_cache[metric].append(re.compile(r'\A' + r + r'\Z'))
+                    except Exception as e:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                        sys.exit(1)
             except Exception:
                 if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                     # Schedule the metric for removal
@@ -781,20 +794,13 @@ class pmConfig(object):
             time.sleep(sleep)
 
     def filter_instance(self, metric, name):
-        """ Filter given instance name against requested metric instances """
-        if not self.util.metrics[metric][1]:
+        """ Filter instance name against metric instances """
+        if not self._re_cache[metric]:
             return True
 
-        try:
-            for r in self.util.metrics[metric][1]:
-                cr = re.compile(r'\A' + r + r'\Z')
-                found = re.match(cr, name)
-                del cr
-                if found:
-                    return True
-        except Exception as e:
-            sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
-            sys.exit(1)
+        for cr in self._re_cache[metric]:
+            if re.match(cr, name):
+                return True
 
         return False
 
@@ -813,8 +819,8 @@ class pmConfig(object):
             for i, metric in enumerate(self.util.metrics):
                 if metric == predicate:
                     index = i
-                    self.pred_index.append(i)
-                    self.pred_indom.append(self.descs[i].contents.indom)
+                    self._pred_index.append(i)
+                    self._pred_indom.append(self.descs[i].contents.indom)
                     break
 
             if index < 0:
@@ -854,21 +860,21 @@ class pmConfig(object):
         if hasattr(self.util, 'predicate') and self.util.predicate:
             pred_insts = {}
             predicates = self.util.predicate.split(",")
-            for pred_index, predicate in enumerate(predicates):
+            for _pred_index, predicate in enumerate(predicates):
                 results[predicate] = self.rank(results[predicate])
-                if self.pred_indom[pred_index] not in pred_insts:
-                    pred_insts[self.pred_indom[pred_index]] = []
-                pred_insts[self.pred_indom[pred_index]].extend([i[0] for i in results[predicate]])
+                if self._pred_indom[_pred_index] not in pred_insts:
+                    pred_insts[self._pred_indom[_pred_index]] = []
+                pred_insts[self._pred_indom[_pred_index]].extend([i[0] for i in results[predicate]])
             for i, metric in enumerate(results):
                 if metric in predicates:
                     continue
-                if self.descs[i].contents.indom not in self.pred_indom:
+                if self.descs[i].contents.indom not in self._pred_indom:
                     results[metric] = self.rank(results[metric])
                     continue
                 inst_index = self.descs[i].contents.indom
                 results[metric] = [i for i in results[metric] if i[0] in pred_insts[inst_index]]
         else:
-            if hasattr(self.util, 'rank'):
+            if hasattr(self.util, 'rank') and self.util.rank:
                 for metric in results:
                     results[metric] = self.rank(results[metric])
 

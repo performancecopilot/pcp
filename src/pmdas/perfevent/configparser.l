@@ -321,11 +321,11 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
 
     if (context_derived)
     {
+        setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
         if (NULL == setting_lists)
         {
             return;
         }
-        setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
         while (setting_lists->next)
         {
             setting_lists = setting_lists->next;

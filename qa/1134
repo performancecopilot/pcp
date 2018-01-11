@@ -26,10 +26,17 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 A="archives/value-test"
 
-_filter()
+_value_filter()
 {
-    LC_COLLATE=POSIX sort | \
-    sed -e "s,$A,ARCHIVE_PATH,g"
+    sed \
+       -e "s,$A,ARCHIVE_PATH,g" \
+       -e "s,XXX.*XXX,XXX,g" \
+    #end
+}
+
+_sort()
+{
+    LC_COLLATE=POSIX sort
 }
 
 # real QA test starts here
@@ -51,9 +58,9 @@ echo "---"
 # For completeness sake, no -nan in archives/value-test
 pmrep -z -p -u -a archives/all-sles9-sp1.meta -w 10 filesys.full
 echo "---"
-pcp2json -z -a $A -H -I "" | _filter | sed -e 's,XXX.*XXX,XXX,g'
+pcp2json -z -a $A -H -I "" | pmjson -p | _value_filter
 echo "---"
-pcp2xml -z -a $A -H -I "" | _filter | sed -e 's,XXX.*XXX,XXX,g'
+pcp2xml -z -a $A -H -I "" | _value_filter | _sort
 echo "---"
 
 # success, all done
