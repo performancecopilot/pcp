@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -81,7 +81,8 @@ class PMReporter(object):
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force', 'live_filter',
+                     'type_prefer', 'precision_force',
+                     'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -107,6 +108,9 @@ class PMReporter(object):
         self.ignore_incompat = 0
         self.instances = []
         self.live_filter = 0
+        self.rank = 0
+        self.predicate = None
+        self.invert_filter = 0
         self.omit_flat = 0
         self.colxrow = None
         self.width = 0
@@ -158,7 +162,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jvX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:nN:vX:W:w:P:0:l:kxE:gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -196,7 +200,10 @@ class PMReporter(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
-        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering with archive output")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering (with archive output)")
+        opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
+        opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
+        opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
@@ -221,7 +228,7 @@ class PMReporter(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K' or opt == 'g' or opt == 'p':
+        if opt == 'H' or opt == 'K' or opt == 'n' or opt == 'N' or opt == 'g' or opt == 'p':
             return 1
         return 0
 
@@ -274,6 +281,12 @@ class PMReporter(object):
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'j':
             self.live_filter = 1
+        elif opt == 'J':
+            self.rank = optarg
+        elif opt == 'n':
+            self.invert_filter = 1
+        elif opt == 'N':
+            self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'X':
@@ -628,8 +641,6 @@ class PMReporter(object):
         """ Write separate header """
         l = len(str(len(self.metrics))) + 1
         k = 0
-        labels = []
-
         def write_line(metric, k, i, j):
             """ Line writer helper """
             line = "[" + str(k).rjust(l) + "] - "
@@ -771,35 +782,24 @@ class PMReporter(object):
 
         # Add current values
         data = 0
-        for i, metric in enumerate(self.metrics):
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+        results = self.pmconfig.get_sorted_results()
+        for i, metric in enumerate(results):
+            for inst, name, value in results[metric]:
+                if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                     try:
-                        if inst != PM_IN_NULL and not name:
-                            continue
-                        if self.live_filter and inst != PM_IN_NULL and \
-                           not self.pmconfig.filter_instance(metric, name):
-                            continue
-                        if inst != PM_IN_NULL and inst not in self.recorded[metric]:
-                            try:
-                                self.recorded[metric].append(inst)
-                                self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
-                            except pmi.pmiErr as error:
-                                if error.args[0] == PMI_ERR_DUPINSTNAME:
-                                    pass
-                        value = val()
-                        if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
-                            self.pmi.pmiPutValue(metric, name, value)
-                        elif self.pmconfig.descs[i].contents.type == PM_TYPE_FLOAT or \
-                             self.pmconfig.descs[i].contents.type == PM_TYPE_DOUBLE:
-                            self.pmi.pmiPutValue(metric, name, "%f" % value)
-                        else:
-                            self.pmi.pmiPutValue(metric, name, "%d" % value)
-                        data = 1
-                    except Exception:
-                        pass
-            except Exception:
-                pass
+                        self.recorded[metric].append(inst)
+                        self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
+                    except pmi.pmiErr as error:
+                        if error.args[0] == PMI_ERR_DUPINSTNAME:
+                            pass
+                if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
+                    self.pmi.pmiPutValue(metric, name, value)
+                elif self.pmconfig.descs[i].contents.type == PM_TYPE_FLOAT or \
+                     self.pmconfig.descs[i].contents.type == PM_TYPE_DOUBLE:
+                    self.pmi.pmiPutValue(metric, name, "%f" % value)
+                else:
+                    self.pmi.pmiPutValue(metric, name, "%d" % value)
+                data = 1
 
         # Flush
         if data:
@@ -852,26 +852,20 @@ class PMReporter(object):
         if self.extcsv:
             line += self.csv_tz
 
-        # Avoid expensive PMAPI calls more than once per metric
+        results = self.pmconfig.get_sorted_results()
+
         res = {}
-        for metric in self.metrics:
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if inst != PM_IN_NULL and not name:
-                        continue
-                    try:
-                        res[metric + "+" + str(inst)] = val
-                    except Exception:
-                        pass
-            except Exception:
-                pass
+        for i, metric in enumerate(results):
+            for inst, _, value in results[metric]:
+                res[metric + "+" + str(inst)] = value
 
         # Add corresponding values for each column in the static header
         for i, metric in enumerate(self.metrics):
+            fmt = "." + str(self.metrics[metric][6]) + "f"
             for j in range(len(self.pmconfig.insts[i][0])):
                 line += self.delimiter
                 try:
-                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]
                 except Exception:
                     continue
                 if isinstance(value, str):
@@ -880,8 +874,9 @@ class PMReporter(object):
                     line += '"' + value + '"'
                 else:
                     if isinstance(value, float):
-                        value = round(value, self.metrics[metric][6])
                         value = self.parse_non_number(value)
+                        if isinstance(value, float):
+                            value = format(value, fmt)
                     line += str(value)
 
         self.writer.write(line + "\n")
@@ -944,19 +939,12 @@ class PMReporter(object):
             line.append(timestamp)
         line.append(self.delimiter)
 
-        # Avoid expensive PMAPI calls more than once per metric
+        results = self.pmconfig.get_sorted_results()
+
         res = {}
-        for metric in self.metrics:
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if inst != PM_IN_NULL and not name:
-                        continue
-                    try:
-                        res[metric + "+" + str(inst)] = val
-                    except Exception:
-                        pass
-            except Exception:
-                pass
+        for i, metric in enumerate(results):
+            for inst, _, value in results[metric]:
+                res[metric + "+" + str(inst)] = value
 
         # Add corresponding values for each column in the static header
         k = 0
@@ -964,7 +952,7 @@ class PMReporter(object):
             for j in range(len(self.pmconfig.insts[i][0])):
                 k += 1
                 try:
-                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]
                     value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
                 except Exception:
                     value = NO_VAL
@@ -990,22 +978,15 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        # Avoid expensive PMAPI calls more than once per metric
-        res = {}
-        for metric in self.metrics:
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if inst != PM_IN_NULL and not name:
-                        continue
-                    try:
-                        res[metric + "+" + str(inst)] = val
-                    except Exception:
-                        pass
-            except Exception:
-                pass
-
         # Avoid per-line I/O
         output = ""
+
+        results = self.pmconfig.get_sorted_results()
+
+        res = {}
+        for i, metric in enumerate(results):
+            for inst, _, value in results[metric]:
+                res[metric + "+" + str(inst)] = value
 
         # We need to construct each line independently
         for instance in self.found_insts:
@@ -1042,7 +1023,7 @@ class PMReporter(object):
                         j = self.pmconfig.insts[i][0][self.pmconfig.insts[i][1].index(instance)]
 
                         try:
-                            value = res[metric + "+" + str(j)]()
+                            value = res[metric + "+" + str(j)]
                             value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
                         except Exception:
                             value = NO_VAL

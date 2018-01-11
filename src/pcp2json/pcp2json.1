@@ -16,10 +16,10 @@
 .\"
 .TH PCP2JSON 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\fBpcp2json\fP \- pcp-to-json metrics exporter
+\f3pcp2json\f1 \- pcp-to-json metrics exporter
 .SH SYNOPSIS
 \fBpcp2json\fP
-[\fB\-CGHIjLrRvVxXz?\fP]
+[\fB\-CGHIjLnrRvVxXz?\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -32,7 +32,9 @@
 [\fB\-F\fP \fIoutfile\fP]
 [\fB\-h\fP \fIhost\fP]
 [\fB\-i\fP \fIinstances\fP]
+[\fB\-J\fP \fIrank\fP]
 [\fB\-K\fP \fIspec\fP]
+[\fB\-N\fP \fIpredicate\fP]
 [\fB\-O\fP \fIorigin\fP]
 [\fB\-P\fP|\fB\-0\fP \fIprecision\fP]
 [\fB\-q\fP|\fB\-Q\fP \fIcount-scale\fP]
@@ -99,8 +101,11 @@ The following options are common with
 .BR type ,
 .BR type_prefer ,
 .BR ignore_incompat ,
-.BR live_filter ,
 .BR instances ,
+.BR live_filter ,
+.BR rank ,
+.BR invert_filter ,
+.BR predicate ,
 .BR omit_flat ,
 .BR precision ,
 .BR precision_force ,
@@ -183,11 +188,11 @@ Specify the
 .I config
 file to use.
 The default is the first found of:
-.BR ./pcp2json.conf ,
-.BR $HOME/.pcp2json.conf ,
-.BR $HOME/pcp/pcp2json.conf ,
+.IR ./pcp2json.conf ,
+.IR \f(CW$HOME\fP/.pcp2json.conf ,
+.IR \f(CW$HOME\fP/pcp/pcp2json.conf ,
 and
-.BR $PCP_SYSCONF_DIR/pcp2json.conf .
+.IR \f(CW$PCP_SYSCONF_DIR\fP/pcp2json.conf .
 For details, see the above section and
 .BR pmrep.conf (5).
 .TP
@@ -282,6 +287,14 @@ are restarted at some point (unlike without live filtering).
 Doing live filtering over a huge amount of instances naturally
 comes with some overhead so a bit of user caution is adviced.
 .TP
+.B \-J
+Limit results to highest/lowest
+.I rank
+instances of set-valued metrics.
+A positive integer will include highest valued instances in reporting.
+A negative integer will include lowest valued instances in reporting.
+A value of zero performs no ranking.
+.TP
 .B \-K
 When fetching metrics from a local context (see
 .BR \-L ),
@@ -301,6 +314,45 @@ Use a local context to collect metrics from DSO PMDAs on the local host
 without PMCD.
 See also
 .BR \-K .
+.TP
+.B \-n
+Perform ranking before live filtering.
+By default instance live filter filtering (when requested, see
+.BR \-j )
+happens before instance ranking (when requested, see
+.BR \-J ).
+With this option the logic is inversed and ranking happens before
+live filtering.
+.TP
+.B \-N
+Specify a comma-separated list of
+.I predicate
+filter reference metrics.
+By default ranking (see
+.BR \-J )
+happens for each metric individually.
+With predicate filter reference metrics, ranking is done only for the
+specified metrics.
+When reporting, the rest of the metrics sharing the same
+.I instance domain
+(see
+.BR PCPIntro (1))
+as the predicates will include only the highest/lowest ranking
+instances of the corresponding predicates.
+.RS
+.PP
+So for example, when the using \fBproc.memory.rss\fP
+(resident size of process)
+as the
+.I predicate
+and including \fBproc.io.total_bytes\fP and \fBmem.util.used\fP as metrics
+to be reported, only the processes using most/least memory (as per
+.BR \-J )
+will be included when reporting total bytes written by processes.
+Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
+same instance domain as the process-related metrics),
+it will be reported as usual.
+.RE
 .TP
 .B \-O
 When reporting archived metrics, start reporting at

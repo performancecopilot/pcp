@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -425,19 +425,12 @@ class PCP2XLSX(object):
             float_fmt = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
             self.float_fmt.set_num_format(float_fmt)
 
-        # Avoid expensive PMAPI calls more than once per metric
+        results = self.pmconfig.get_sorted_results()
+
         res = {}
-        for metric in self.metrics:
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if inst != PM_IN_NULL and not name:
-                        continue
-                    try:
-                        res[metric + "+" + str(inst)] = val
-                    except Exception:
-                        pass
-            except Exception:
-                pass
+        for i, metric in enumerate(results):
+            for inst, _, value in results[metric]:
+                res[metric + "+" + str(inst)] = value
 
         # Add corresponding values for each column in the static header
         col = 0
@@ -446,7 +439,7 @@ class PCP2XLSX(object):
             for j in range(len(self.pmconfig.insts[i][0])):
                 col += 1
                 try:
-                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]
                     if value is None:
                         self.ws.write_blank(self.row, col, None)
                     elif isinstance(value, str):

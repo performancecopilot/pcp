@@ -15,7 +15,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except
+# pylint: disable=broad-except, too-many-public-methods
 
 """ PCP Python Utils Config Routines """
 
@@ -59,6 +59,10 @@ class pmConfig(object):
         # Pause helpers
         self._round = 0
         self._init_ts = None
+
+        # Predicate metric references
+        self.pred_index = []
+        self.pred_indom = []
 
         # Pass data with pmTraversePMNS
         self._tmp = []
@@ -338,6 +342,12 @@ class pmConfig(object):
             return True
         return False
 
+    def do_invert_filtering(self):
+        """ Check if doing invert filtering """
+        if hasattr(self.util, 'invert_filter') and self.util.invert_filter:
+            return True
+        return False
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -415,6 +425,9 @@ class pmConfig(object):
     def validate_common_options(self):
         """ Validate common utility options """
         try:
+            err = "Integer expected"
+            if hasattr(self.util, 'rank'):
+                self.util.rank = int(self.util.rank)
             err = "Non-negative integer expected"
             if hasattr(self.util, 'width'):
                 self.util.width = int(self.util.width)
@@ -442,6 +455,11 @@ class pmConfig(object):
 
     def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
         """ Validate the metricset """
+        if hasattr(self.util, 'predicate') and self.util.predicate:
+            for predicate in self.util.predicate.split(","):
+                if predicate not in self.util.metrics:
+                    self.util.metrics[predicate] = ['', []]
+
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
             for derived in filter(None, self.util.derived.split(";")):
@@ -717,6 +735,9 @@ class pmConfig(object):
             sys.stderr.write("No compatible metrics found.\n")
             sys.exit(1)
 
+        if hasattr(self.util, 'predicate') and self.util.predicate:
+            self.validate_predicate()
+
     def finalize_options(self):
         """ Finalize util options """
         # Runtime overrides samples/interval
@@ -776,3 +797,83 @@ class pmConfig(object):
             sys.exit(1)
 
         return False
+
+    def rank(self, instances):
+        """ Rank instances """
+        if not self.util.rank:
+            return instances
+        rank = abs(self.util.rank)
+        revs = True if self.util.rank > 0 else False
+        return sorted(instances, key=lambda value: value[2], reverse=revs)[:rank]
+
+    def validate_predicate(self):
+        """ Validate predicate filter reference metrics """
+        for predicate in self.util.predicate.split(","):
+            index = -1
+            for i, metric in enumerate(self.util.metrics):
+                if metric == predicate:
+                    index = i
+                    self.pred_index.append(i)
+                    self.pred_indom.append(self.descs[i].contents.indom)
+                    break
+
+            if index < 0:
+                sys.stderr.write("Internal error, predicate metric not found!")
+                sys.exit(2)
+
+            if self.insts[index][0][0] == pmapi.c_api.PM_IN_NULL:
+                sys.stderr.write("Predicate metric must have instances.\n")
+                sys.exit(1)
+
+            if self.descs[index].contents.type == pmapi.c_api.PM_TYPE_STRING:
+                sys.stderr.write("Predicate metric values must be numeric.\n")
+                sys.exit(1)
+
+    def get_sorted_results(self):
+        """ Get filtered and ranked results """
+        results = OrderedDict()
+        early_live_filter = self.do_live_filtering() and not self.do_invert_filtering()
+        for i, metric in enumerate(self.util.metrics):
+            results[metric] = []
+            try:
+                for inst, name, val in self.util.metrics[metric][5]():
+                    try:
+                        # Ignore transient instances
+                        if inst != pmapi.c_api.PM_IN_NULL and not name:
+                            continue
+                        if early_live_filter and inst != pmapi.c_api.PM_IN_NULL and \
+                          not self.filter_instance(metric, name):
+                            continue
+                        value = val()
+                        results[metric].append((inst, name, value))
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+        if hasattr(self.util, 'predicate') and self.util.predicate:
+            pred_insts = {}
+            predicates = self.util.predicate.split(",")
+            for pred_index, predicate in enumerate(predicates):
+                results[predicate] = self.rank(results[predicate])
+                if self.pred_indom[pred_index] not in pred_insts:
+                    pred_insts[self.pred_indom[pred_index]] = []
+                pred_insts[self.pred_indom[pred_index]].extend([i[0] for i in results[predicate]])
+            for i, metric in enumerate(results):
+                if metric in predicates:
+                    continue
+                if self.descs[i].contents.indom not in self.pred_indom:
+                    results[metric] = self.rank(results[metric])
+                    continue
+                inst_index = self.descs[i].contents.indom
+                results[metric] = [i for i in results[metric] if i[0] in pred_insts[inst_index]]
+        else:
+            if hasattr(self.util, 'rank'):
+                for metric in results:
+                    results[metric] = self.rank(results[metric])
+
+        if self.do_live_filtering() and self.do_invert_filtering():
+            for metric in results:
+                results[metric] = [i for i in results[metric] if self.filter_instance(metric, i[1])]
+
+        return results

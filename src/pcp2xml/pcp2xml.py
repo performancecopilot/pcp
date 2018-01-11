@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -61,7 +61,8 @@ class PCP2XML(object):
                      'timefmt', 'extended', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force', 'live_filter',
+                     'type_prefer', 'precision_force',
+                     'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -85,6 +86,9 @@ class PCP2XML(object):
         self.ignore_incompat = 0
         self.instances = []
         self.live_filter = 0
+        self.rank = 0
+        self.predicate = None
+        self.invert_filter = 0
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
@@ -128,7 +132,7 @@ class PCP2XML(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jvP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -163,6 +167,9 @@ class PCP2XML(object):
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
+        opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
+        opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
+        opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
@@ -181,7 +188,7 @@ class PCP2XML(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K':
+        if opt == 'H' or opt == 'K' or opt == 'n' or opt == 'N':
             return 1
         return 0
 
@@ -223,6 +230,12 @@ class PCP2XML(object):
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'j':
             self.live_filter = 1
+        elif opt == 'J':
+            self.rank = optarg
+        elif opt == 'n':
+            self.invert_filter = 1
+        elif opt == 'N':
+            self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
@@ -405,53 +418,43 @@ class PCP2XML(object):
                 return None
             return string.replace("&", "&amp;").replace("<", "&lt;")
 
-        for i, metric in enumerate(self.metrics):
-            try:
-                # Install value into dict in key1{key2{key3=value}} style:
-                # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
+        results = self.pmconfig.get_sorted_results()
 
-                pmns_parts = metric.split(".")
+        for i, metric in enumerate(results):
+            # Install value into dict in key1{key2{key3=value}} style:
+            # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
 
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    try:
-                        if inst != PM_IN_NULL and not name:
-                            continue
-                        if self.live_filter and inst != PM_IN_NULL and \
-                           not self.pmconfig.filter_instance(metric, name):
-                            continue
-                        value = val()
-                        fmt = "." + str(self.metrics[metric][6]) + "f"
-                        value = format(value, fmt) if isinstance(value, float) else str(value)
-                        value = escape_xml_text(value)
-                        name = escape_xml_markup(name)
-                    except Exception:
-                        continue
+            pmns_parts = metric.split(".")
 
-                    pmns_leaf_dict = data
+            fmt = "." + str(self.metrics[metric][6]) + "f"
+            for inst, name, value in results[metric]:
+                value = format(value, fmt) if isinstance(value, float) else str(value)
+                value = escape_xml_text(value)
+                name = escape_xml_markup(name)
 
-                    # Find/create the parent dictionary into which to insert the final component
-                    for pmns_part in pmns_parts[:-1]:
-                        if pmns_part not in pmns_leaf_dict:
-                            pmns_leaf_dict[pmns_part] = {}
-                        pmns_leaf_dict = pmns_leaf_dict[pmns_part]
-                    last_part = pmns_parts[-1]
+                pmns_leaf_dict = data
 
-                    if inst == PM_IN_NULL:
-                        pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
-                    else:
-                        if insts_key not in pmns_leaf_dict:
-                            pmns_leaf_dict[insts_key] = []
-                        insts = pmns_leaf_dict[insts_key]
-                        # Find a preexisting {@id: name} object in there, if any
-                        found = False
-                        for j in range(1, len(insts)):
-                            if insts[j][inst_key] == name:
-                                insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
-                                found = True
-                        if not found:
-                            insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
-            except Exception:
-                pass
+                # Find/create the parent dictionary into which to insert the final component
+                for pmns_part in pmns_parts[:-1]:
+                    if pmns_part not in pmns_leaf_dict:
+                        pmns_leaf_dict[pmns_part] = {}
+                    pmns_leaf_dict = pmns_leaf_dict[pmns_part]
+                last_part = pmns_parts[-1]
+
+                if inst == PM_IN_NULL:
+                    pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                else:
+                    if insts_key not in pmns_leaf_dict:
+                        pmns_leaf_dict[insts_key] = []
+                    insts = pmns_leaf_dict[insts_key]
+                    # Find a preexisting {@id: name} object in there, if any
+                    found = False
+                    for j in range(1, len(insts)):
+                        if insts[j][inst_key] == name:
+                            insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                            found = True
+                    if not found:
+                        insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
 
         def get_type_string(desc):
             """ Get metric type as string """

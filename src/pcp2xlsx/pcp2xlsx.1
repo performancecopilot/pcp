@@ -16,7 +16,7 @@
 .\"
 .TH PCP2XLSX 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\fBpcp2xlsx\fP \- pcp-to-xlsx metrics exporter
+\f3pcp2xlsx\f1 \- pcp-to-xlsx metrics exporter
 .SH SYNOPSIS
 \fBpcp2xlsx\fP
 [\fB\-CGHILrRvVz?\fP]
@@ -169,11 +169,11 @@ Specify the
 .I config
 file to use.
 The default is the first found of:
-.BR ./pcp2xlsx.conf ,
-.BR $HOME/.pcp2xlsx.conf ,
-.BR $HOME/pcp/pcp2xlsx.conf ,
+.IR ./pcp2xlsx.conf ,
+.IR \f(CW$HOME\fP/.pcp2xlsx.conf ,
+.IR \f(CW$HOME\fP/pcp/pcp2xlsx.conf ,
 and
-.BR $PCP_SYSCONF_DIR/pcp2xlsx.conf .
+.IR \f(CW$PCP_SYSCONF_DIR\fP/pcp2xlsx.conf .
 For details, see the above section and
 .BR pmrep.conf (5).
 .TP

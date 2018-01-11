@@ -13,32 +13,32 @@ _pcp_complete()
     # Register arguments
     case $cmd in
     pcp2elasticsearch)
-        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgXx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgXx]"
+        all_args="0ahLKcCeVHGASTOstRrIijJnNvPqbyQBYgXx"
+        arg_regex="-[0ahKceASTOstZiJNPqbyQBYgXx]"
     ;;
     pcp2graphite)
-        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgpXEx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
+        all_args="0ahLKcCeVHGASTOstRrIijJnNvPqbyQBYgpXEx"
+        arg_regex="-[0ahKceASTOstZiJNPqbyQBYgpXEx]"
     ;;
     pcp2influxdb)
-        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgxUEX"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgxUEX]"
+        all_args="0ahLKcCeVHGASTOstRrIijJnNvPqbyQBYgxUEX"
+        arg_regex="-[0ahKceASTOstZiJNPqbyQBYgxUEX]"
     ;;
     pcp2json)
-        all_args="0ahLKcCeVHGASTOstRrZzrIijvPqbyQBYFfXx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
+        all_args="0ahLKcCeVHGASTOstRrZzrIijJnNvPqbyQBYFfXx"
+        arg_regex="-[0ahKceASTOstZiJNPqbyQBYgFf]"
     ;;
     pcp2xlsx)
         all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFf"
         arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
     ;;
     pcp2xml)
-        all_args="0ahLKcCeVHGASTOstRrZzrIijvPqbyQBYFfXx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
+        all_args="0ahLKcCeVHGASTOstRrZzrIijJnNvPqbyQBYFfXx"
+        arg_regex="-[0ahKceASTOstZiJNPqbyQBYgFf]"
     ;;
     pcp2zabbix)
-        all_args="0ahLKcCeVHGASTOstRrIijvPqbyQBYgpXEx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
+        all_args="0ahLKcCeVHGASTOstRrIijJnNvPqbyQBYgpXEx"
+        arg_regex="-[0ahKceASTOstZiJNPqbyQBYgpXEx]"
     ;;
     pmdumplog)
         all_args="adehiLlmnrSsTtVvxZz"
@@ -73,8 +73,8 @@ _pcp_complete()
         arg_regex="-[ahKnOZ]"
     ;;
     pmrep)
-        all_args="0AaBbCcdEeFfGgHhIijKkLlOoPpQqRrSsTtUuVvWwXxYyZz"
-        arg_regex="-[0ABabcEeFfhiKlOoPQqSsTtWwXYyZ]"
+        all_args="0AaBbCcdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz"
+        arg_regex="-[0ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
     ;;
     pmstore)
         all_args="FfhiKLnV"
