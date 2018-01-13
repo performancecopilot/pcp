@@ -14,10 +14,10 @@ Note: timezone set to local timezone of host "vm23.localdomain" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host vm23.localdomain
-  commencing Wed Jan 27 19:17:10.000 2016
-  ending     Wed Jan 27 19:20:00.000 2016
+  commencing Wed Jan 27 19:17:10.000000 2016
+  ending     Wed Jan 27 19:20:00.000000 2016
 
-19:17:10.000  245.0.NN (hinv.ncpu): value 1
+19:17:10.000000  245.0.NN (hinv.ncpu): value 1
               245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
@@ -180,7 +180,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:15.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+19:17:15.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -342,7 +342,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:20.000  245.0.NN (kernel.all.cpu.user): value 0
+19:17:20.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0.0099999998
@@ -504,7 +504,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:25.000  245.0.NN (kernel.all.cpu.user): value 0
+19:17:25.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -666,7 +666,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:30.000  245.0.NN (kernel.all.cpu.user): value 0
+19:17:30.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0099999998
@@ -828,7 +828,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:35.000  245.0.NN (kernel.all.cpu.user): value 0
+19:17:35.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0040000002
@@ -990,7 +990,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:40.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+19:17:40.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0040000002
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1152,7 +1152,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274112
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:45.000  245.0.NN (kernel.all.cpu.user): value 0.108
+19:17:45.000000  245.0.NN (kernel.all.cpu.user): value 0.108
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.093999997
               245.0.NN (kernel.all.cpu.wait.total): value 0.052000001
@@ -1314,7 +1314,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274111
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:50.000  245.0.NN (kernel.all.cpu.user): value 0
+19:17:50.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0040000002
@@ -1476,7 +1476,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274111
                 inst [1 or "/dev/sda1"] value 318
 
-19:17:55.000  245.0.NN (kernel.all.cpu.user): value 0.071699999
+19:17:55.000000  245.0.NN (kernel.all.cpu.user): value 0.071699999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.077500001
               245.0.NN (kernel.all.cpu.wait.total): value 0.042599998
@@ -1638,7 +1638,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274109
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:00.000  245.0.NN (kernel.all.cpu.user): value 0.27200001
+19:18:00.000000  245.0.NN (kernel.all.cpu.user): value 0.27200001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.59600002
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1800,7 +1800,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274108
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:05.000  245.0.NN (kernel.all.cpu.user): value 0.016000001
+19:18:05.000000  245.0.NN (kernel.all.cpu.user): value 0.016000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.024
               245.0.NN (kernel.all.cpu.wait.total): value 0.0099999998
@@ -1962,7 +1962,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274108
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:10.000  245.0.NN (kernel.all.cpu.user): value 0.0080000004
+19:18:10.000000  245.0.NN (kernel.all.cpu.user): value 0.0080000004
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0080000004
               245.0.NN (kernel.all.cpu.wait.total): value 0.038199998
@@ -2124,7 +2124,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274108
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:15.000  245.0.NN (kernel.all.cpu.user): value 0.0262
+19:18:15.000000  245.0.NN (kernel.all.cpu.user): value 0.0262
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.032299999
               245.0.NN (kernel.all.cpu.wait.total): value 0.1089
@@ -2286,7 +2286,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274094
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:20.000  245.0.NN (kernel.all.cpu.user): value 0.0080000004
+19:18:20.000000  245.0.NN (kernel.all.cpu.user): value 0.0080000004
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0098999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.169
@@ -2448,7 +2448,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274094
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:25.000  245.0.NN (kernel.all.cpu.user): value 0.1345
+19:18:25.000000  245.0.NN (kernel.all.cpu.user): value 0.1345
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.2651
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2610,7 +2610,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274095
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:30.000  245.0.NN (kernel.all.cpu.user): value 0.1864
+19:18:30.000000  245.0.NN (kernel.all.cpu.user): value 0.1864
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.39480001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2772,7 +2772,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274096
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:35.000  245.0.NN (kernel.all.cpu.user): value 0.063100003
+19:18:35.000000  245.0.NN (kernel.all.cpu.user): value 0.063100003
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.076099999
               245.0.NN (kernel.all.cpu.wait.total): value 0.027799999
@@ -2934,7 +2934,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274102
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:40.000  245.0.NN (kernel.all.cpu.user): value 0.018100001
+19:18:40.000000  245.0.NN (kernel.all.cpu.user): value 0.018100001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0221
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3096,7 +3096,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274103
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:45.000  245.0.NN (kernel.all.cpu.user): value 0.012
+19:18:45.000000  245.0.NN (kernel.all.cpu.user): value 0.012
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0241
               245.0.NN (kernel.all.cpu.wait.total): value 0.018100001
@@ -3258,7 +3258,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274107
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:50.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+19:18:50.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0099999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.0099999998
@@ -3420,7 +3420,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274107
                 inst [1 or "/dev/sda1"] value 318
 
-19:18:55.000  245.0.NN (kernel.all.cpu.user): value 0.0141
+19:18:55.000000  245.0.NN (kernel.all.cpu.user): value 0.0141
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.018100001
               245.0.NN (kernel.all.cpu.wait.total): value 0.040199999
@@ -3582,7 +3582,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274107
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:00.000  245.0.NN (kernel.all.cpu.user): value 0.0141
+19:19:00.000000  245.0.NN (kernel.all.cpu.user): value 0.0141
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0221
               245.0.NN (kernel.all.cpu.wait.total): value 0.094599999
@@ -3744,7 +3744,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274110
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:05.000  245.0.NN (kernel.all.cpu.user): value 0.0060000001
+19:19:05.000000  245.0.NN (kernel.all.cpu.user): value 0.0060000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0099999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.0099999998
@@ -3906,7 +3906,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274110
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:10.000  245.0.NN (kernel.all.cpu.user): value 0.0121
+19:19:10.000000  245.0.NN (kernel.all.cpu.user): value 0.0121
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0101
               245.0.NN (kernel.all.cpu.wait.total): value 0.018200001
@@ -4068,7 +4068,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274110
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:15.000  245.0.NN (kernel.all.cpu.user): value 0.014
+19:19:15.000000  245.0.NN (kernel.all.cpu.user): value 0.014
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0099999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.0040000002
@@ -4230,7 +4230,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274110
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:20.000  245.0.NN (kernel.all.cpu.user): value 0.017999999
+19:19:20.000000  245.0.NN (kernel.all.cpu.user): value 0.017999999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.028100001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4392,7 +4392,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274097
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:25.000  245.0.NN (kernel.all.cpu.user): value 0.2886
+19:19:25.000000  245.0.NN (kernel.all.cpu.user): value 0.2886
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.61720002
               245.0.NN (kernel.all.cpu.wait.total): value 0.012
@@ -4554,7 +4554,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274102
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:30.000  245.0.NN (kernel.all.cpu.user): value 0.0309
+19:19:30.000000  245.0.NN (kernel.all.cpu.user): value 0.0309
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.046399999
               245.0.NN (kernel.all.cpu.wait.total): value 0.065800004
@@ -4716,7 +4716,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274098
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:35.000  245.0.NN (kernel.all.cpu.user): value 0.020199999
+19:19:35.000000  245.0.NN (kernel.all.cpu.user): value 0.020199999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.018100001
               245.0.NN (kernel.all.cpu.wait.total): value 0.1028
@@ -4878,7 +4878,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274098
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:40.000  245.0.NN (kernel.all.cpu.user): value 0.080499999
+19:19:40.000000  245.0.NN (kernel.all.cpu.user): value 0.080499999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.076499999
               245.0.NN (kernel.all.cpu.wait.total): value 0.030200001
@@ -5040,7 +5040,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274098
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:45.000  245.0.NN (kernel.all.cpu.user): value 0.088
+19:19:45.000000  245.0.NN (kernel.all.cpu.user): value 0.088
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.12800001
               245.0.NN (kernel.all.cpu.wait.total): value 0.032000002
@@ -5202,7 +5202,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274101
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:50.000  245.0.NN (kernel.all.cpu.user): value 0.092399999
+19:19:50.000000  245.0.NN (kernel.all.cpu.user): value 0.092399999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.1406
               245.0.NN (kernel.all.cpu.wait.total): value 0.0080000004
@@ -5364,7 +5364,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274104
                 inst [1 or "/dev/sda1"] value 318
 
-19:19:55.000  245.0.NN (kernel.all.cpu.user): value 0.032099999
+19:19:55.000000  245.0.NN (kernel.all.cpu.user): value 0.032099999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.066299997
               245.0.NN (kernel.all.cpu.wait.total): value 0.0361
@@ -5526,7 +5526,7 @@ Performance metrics from host vm23.localdomain
                 inst [0 or "/dev/mapper/fedora-root"] value 274106
                 inst [1 or "/dev/sda1"] value 318
 
-19:20:00.000  245.0.NN (kernel.all.cpu.user): value 0.1109
+19:20:00.000000  245.0.NN (kernel.all.cpu.user): value 0.1109
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.2296
               245.0.NN (kernel.all.cpu.wait.total): value 0

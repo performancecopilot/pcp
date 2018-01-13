@@ -1,47 +1,51 @@
 QA output created by 733
 mark records ...
-08:44:01.548  <mark>
-17:41:22.784  <mark>
+08:44:01.548696  <mark>
+17:41:22.784001  <mark>
 
 data present for DISCRETE metrics between marks ...
 Note: timezone set to local timezone of host "billing02" from archive
 
 
-08:44:01.547  60.5.1 (filesys.capacity):
-                inst [0 or "/dev/root"] value 2031440
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
-                inst [5 or "/dev/sda1"] value 124427
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+08:44:01.547696 1 metric
+    60.5.1 (filesys.capacity):
+        inst [0 or "/dev/root"] value 2031440
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+        inst [5 or "/dev/sda1"] value 124427
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
 
-08:57:23.222  60.5.1 (filesys.capacity):
-                inst [0 or "/dev/root"] value 2031440
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
-                inst [5 or "/dev/sda1"] value 124427
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+08:57:23.222961 1 metric
+    60.5.1 (filesys.capacity):
+        inst [0 or "/dev/root"] value 2031440
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+        inst [5 or "/dev/sda1"] value 124427
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
 
-17:43:43.556  60.5.1 (filesys.capacity):
-                inst [0 or "/dev/root"] value 2031440
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
-                inst [5 or "/dev/sda1"] value 124427
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+17:43:43.556563 1 metric
+    60.5.1 (filesys.capacity):
+        inst [0 or "/dev/root"] value 2031440
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+        inst [5 or "/dev/sda1"] value 124427
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
 
-17:44:43.554  60.5.1 (filesys.capacity):
-                inst [0 or "/dev/root"] value 2031440
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
-                inst [5 or "/dev/sda1"] value 124427
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+17:44:43.554779 1 metric
+    60.5.1 (filesys.capacity):
+        inst [0 or "/dev/root"] value 2031440
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+        inst [5 or "/dev/sda1"] value 124427
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
 Note: timezone set to local timezone of host "billing02" from archive
 
 metric:    filesys.capacity
@@ -91,32 +95,35 @@ data missing for INSTANTANEOUS metrics between marks ...
 Note: timezone set to local timezone of host "billing02" from archive
 
 
-08:44:01.547  60.5.2 (filesys.used):
-                inst [0 or "/dev/root"] value 315872
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4459304
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
-                inst [5 or "/dev/sda1"] value 12722
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104879776
+08:44:01.547696 1 metric
+    60.5.2 (filesys.used):
+        inst [0 or "/dev/root"] value 315872
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4459304
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
+        inst [5 or "/dev/sda1"] value 12722
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104879776
 
-17:43:43.556  60.5.2 (filesys.used):
-                inst [0 or "/dev/root"] value 315872
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4460572
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
-                inst [5 or "/dev/sda1"] value 12722
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104172896
+17:43:43.556563 1 metric
+    60.5.2 (filesys.used):
+        inst [0 or "/dev/root"] value 315872
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4460572
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
+        inst [5 or "/dev/sda1"] value 12722
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104172896
 
-17:44:43.554  60.5.2 (filesys.used):
-                inst [0 or "/dev/root"] value 315872
-                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4460572
-                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
-                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
-                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
-                inst [5 or "/dev/sda1"] value 12722
-                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104174596
+17:44:43.554779 1 metric
+    60.5.2 (filesys.used):
+        inst [0 or "/dev/root"] value 315872
+        inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4460572
+        inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
+        inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
+        inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
+        inst [5 or "/dev/sda1"] value 12722
+        inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104174596
 Note: timezone set to local timezone of host "billing02" from archive
 
 metric:    filesys.used

@@ -1,7 +1,7 @@
 QA output created by 947
 expect 3, 4 or 5 sample lines
-TIMESTAMP  29.0.10 (sample.long.one): value 1
-TIMESTAMP  29.0.10 (sample.long.one): value 1
-TIMESTAMP  29.0.10 (sample.long.one): value 1
+    29.0.10 (sample.long.one): value 1
+    29.0.10 (sample.long.one): value 1
+    29.0.10 (sample.long.one): value 1
 expecting an error from PID selection
 pmlogger: PID error - no such process (-666)

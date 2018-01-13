@@ -66,7 +66,7 @@ do
     echo "mismatch timestamps"
     cat $tmp.A.stamp $tmp.B.stamp \
     | comm -3 - $tmp.C.stamp \
-    | sed -e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/timestamp/g'
+    | sed -e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/timestamp/g'
 
     echo
     echo "pmval [no interpolate] ..."

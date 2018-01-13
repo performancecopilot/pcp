@@ -627,8 +627,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Tue Aug  5 07:45:41.422 1997
-  ending     Tue Aug  5 07:45:59.912 1997
+    commencing Tue Aug  5 07:45:41.422332 1997
+    ending     Tue Aug  5 07:45:59.912855 1997
 
 Descriptions for Metrics in the Log ...
 PMID: 1.18.2 (hinv.ncpu)
@@ -661,199 +661,217 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 
 Instance Domains in the Log ...
 InDom: 1.6
-07:45:42.422 3 instances
-                 1 or "ec0"
-                 2 or "ec2"
-                 3 or "lo0"
-07:45:56.912 3 instances
-                 1 or "ec0"
-                 2 or "ec2"
-                 3 or "lo0"
+07:45:42.422184 3 instances
+   1 or "ec0"
+   2 or "ec2"
+   3 or "lo0"
+07:45:56.912243 3 instances
+   1 or "ec0"
+   2 or "ec2"
+   3 or "lo0"
 InDom: 29.2
-07:45:42.422 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
-07:45:48.657 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
-07:45:56.912 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
+07:45:42.422184 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+07:45:48.657341 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+07:45:56.912243 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
 InDom: 2.1
-07:45:41.422 1 instances
-                 1318 or "1318"
-07:45:48.643 1 instances
-                 1342 or "1342"
-07:45:55.913 1 instances
-                 1368 or "1368"
+07:45:41.422332 1 instances
+   1318 or "1318"
+07:45:48.643735 1 instances
+   1342 or "1342"
+07:45:55.913666 1 instances
+   1368 or "1368"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
-07:45:41.422       0          190          132
-07:45:41.422       0          231          256
-07:45:42.422       0          673          440
-07:45:42.422       0          867          440
-07:45:48.643       0          908         1016
-07:45:48.657       0         1080         1056
-07:45:55.913       0         1180         1632
-07:45:56.912       0         1352         1804
-07:45:56.912       0         1416         1804
+		Log Vol    end(meta)     end(log)
+07:45:41.422332	      0          190          132
+07:45:41.422332	      0          231          256
+07:45:42.422184	      0          673          440
+07:45:42.422184	      0          867          440
+07:45:48.643735	      0          908         1016
+07:45:48.657341	      0         1080         1056
+07:45:55.913666	      0         1180         1632
+07:45:56.912243	      0         1352         1804
+07:45:56.912243	      0         1416         1804
 
-07:45:41.422  2.3.3 (pmcd.pmlogger.host): inst [1318 or "1318"] value "gonzo.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port): inst [1318 or "1318"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [1318 or "1318"] value "/tmp/1306.A"
+07:45:41.422332 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [1318 or "1318"] value "gonzo.melbourne.sgi.com"
+    2.3.0 (pmcd.pmlogger.port): inst [1318 or "1318"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [1318 or "1318"] value "/tmp/1306.A"
 
-07:45:41.435  1.18.2 (hinv.ncpu): value 1
+07:45:41.435091 1 metric
+    1.18.2 (hinv.ncpu): value 1
 
-07:45:42.422  29.0.7 (sample.drift): value 184
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [400 or "bin-400"] value 400
-              29.0.2 (sample.seconds): value 9993
-              1.25.19 (irix.network.interface.total.packets):
-                inst [1 or "ec0"] value 6648807
-                inst [3 or "lo0"] value 315790
-              1.18.2 (hinv.ncpu): value 1
+07:45:42.422184 5 metrics
+    29.0.7 (sample.drift): value 184
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [400 or "bin-400"] value 400
+    29.0.2 (sample.seconds): value 9993
+    1.25.19 (irix.network.interface.total.packets):
+        inst [1 or "ec0"] value 6648807
+        inst [3 or "lo0"] value 315790
+    1.18.2 (hinv.ncpu): value 1
 
-07:45:43.422  29.0.7 (sample.drift): value 183
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [400 or "bin-400"] value 400
-              29.0.2 (sample.seconds): value 9994
-              1.25.19 (irix.network.interface.total.packets):
-                inst [1 or "ec0"] value 6648812
-                inst [3 or "lo0"] value 315838
-              1.18.2 (hinv.ncpu): value 1
+07:45:43.422126 5 metrics
+    29.0.7 (sample.drift): value 183
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [400 or "bin-400"] value 400
+    29.0.2 (sample.seconds): value 9994
+    1.25.19 (irix.network.interface.total.packets):
+        inst [1 or "ec0"] value 6648812
+        inst [3 or "lo0"] value 315838
+    1.18.2 (hinv.ncpu): value 1
 
-07:45:44.422  29.0.7 (sample.drift): value 166
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [400 or "bin-400"] value 400
-              29.0.2 (sample.seconds): value 9995
-              1.25.19 (irix.network.interface.total.packets):
-                inst [1 or "ec0"] value 6648813
-                inst [3 or "lo0"] value 315846
-              1.18.2 (hinv.ncpu): value 1
+07:45:44.422335 5 metrics
+    29.0.7 (sample.drift): value 166
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [400 or "bin-400"] value 400
+    29.0.2 (sample.seconds): value 9995
+    1.25.19 (irix.network.interface.total.packets):
+        inst [1 or "ec0"] value 6648813
+        inst [3 or "lo0"] value 315846
+    1.18.2 (hinv.ncpu): value 1
 
-07:45:45.422  29.0.7 (sample.drift): value 117
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [400 or "bin-400"] value 400
-              29.0.2 (sample.seconds): value 9996
-              1.25.19 (irix.network.interface.total.packets):
-                inst [1 or "ec0"] value 6648816
-                inst [3 or "lo0"] value 315854
-              1.18.2 (hinv.ncpu): value 1
+07:45:45.422101 5 metrics
+    29.0.7 (sample.drift): value 117
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [400 or "bin-400"] value 400
+    29.0.2 (sample.seconds): value 9996
+    1.25.19 (irix.network.interface.total.packets):
+        inst [1 or "ec0"] value 6648816
+        inst [3 or "lo0"] value 315854
+    1.18.2 (hinv.ncpu): value 1
 
-07:45:45.423  <mark>
+07:45:45.423101  <mark>
 
-07:45:48.643  2.3.3 (pmcd.pmlogger.host): inst [1342 or "1342"] value "gonzo.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port): inst [1342 or "1342"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [1342 or "1342"] value "/tmp/1306.B"
+07:45:48.643735 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [1342 or "1342"] value "gonzo.melbourne.sgi.com"
+    2.3.0 (pmcd.pmlogger.port): inst [1342 or "1342"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [1342 or "1342"] value "/tmp/1306.B"
 
-07:45:48.657  29.0.6 (sample.bin): inst [500 or "bin-500"] value 500
+07:45:48.657341 1 metric
+    29.0.6 (sample.bin): inst [500 or "bin-500"] value 500
 
-07:45:49.641  29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-              29.0.3 (sample.milliseconds): value 10000485.487
-              29.0.2 (sample.seconds): value 10000
+07:45:49.641716 3 metrics
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+    29.0.3 (sample.milliseconds): value 10000485.487
+    29.0.2 (sample.seconds): value 10000
 
-07:45:50.641  29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-              29.0.3 (sample.milliseconds): value 10001485.28
-              29.0.2 (sample.seconds): value 10001
+07:45:50.641464 3 metrics
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+    29.0.3 (sample.milliseconds): value 10001485.28
+    29.0.2 (sample.seconds): value 10001
 
-07:45:51.641  29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-              29.0.3 (sample.milliseconds): value 10002485.518
-              29.0.2 (sample.seconds): value 10002
+07:45:51.641746 3 metrics
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+    29.0.3 (sample.milliseconds): value 10002485.518
+    29.0.2 (sample.seconds): value 10002
 
-07:45:52.641  29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-              29.0.3 (sample.milliseconds): value 10003485.271
-              29.0.2 (sample.seconds): value 10003
+07:45:52.641460 3 metrics
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+    29.0.3 (sample.milliseconds): value 10003485.271
+    29.0.2 (sample.seconds): value 10003
 
-07:45:52.642  <mark>
+07:45:52.642460  <mark>
 
-07:45:55.913  2.3.3 (pmcd.pmlogger.host): inst [1368 or "1368"] value "gonzo.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port): inst [1368 or "1368"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [1368 or "1368"] value "/tmp/1306.C"
+07:45:55.913666 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [1368 or "1368"] value "gonzo.melbourne.sgi.com"
+    2.3.0 (pmcd.pmlogger.port): inst [1368 or "1368"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [1368 or "1368"] value "/tmp/1306.C"
 
-07:45:55.928  1.18.2 (hinv.ncpu): value 1
+07:45:55.928990 1 metric
+    1.18.2 (hinv.ncpu): value 1
 
-07:45:56.912  29.0.7 (sample.drift): value 70
-              29.0.6 (sample.bin):
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-              29.0.2 (sample.seconds): value 10007
-              1.25.19 (irix.network.interface.total.packets):
-                inst [2 or "ec2"] value 4106724
-                inst [3 or "lo0"] value 316134
+07:45:56.912243 4 metrics
+    29.0.7 (sample.drift): value 70
+    29.0.6 (sample.bin):
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+    29.0.2 (sample.seconds): value 10007
+    1.25.19 (irix.network.interface.total.packets):
+        inst [2 or "ec2"] value 4106724
+        inst [3 or "lo0"] value 316134
 
-07:45:57.912  29.0.7 (sample.drift): value 50
-              29.0.6 (sample.bin):
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-              29.0.2 (sample.seconds): value 10008
-              1.25.19 (irix.network.interface.total.packets):
-                inst [2 or "ec2"] value 4106755
-                inst [3 or "lo0"] value 316182
+07:45:57.912328 4 metrics
+    29.0.7 (sample.drift): value 50
+    29.0.6 (sample.bin):
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+    29.0.2 (sample.seconds): value 10008
+    1.25.19 (irix.network.interface.total.packets):
+        inst [2 or "ec2"] value 4106755
+        inst [3 or "lo0"] value 316182
 
-07:45:58.912  29.0.7 (sample.drift): value 40
-              29.0.6 (sample.bin):
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-              29.0.2 (sample.seconds): value 10009
-              1.25.19 (irix.network.interface.total.packets):
-                inst [2 or "ec2"] value 4106795
-                inst [3 or "lo0"] value 316190
+07:45:58.912273 4 metrics
+    29.0.7 (sample.drift): value 40
+    29.0.6 (sample.bin):
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+    29.0.2 (sample.seconds): value 10009
+    1.25.19 (irix.network.interface.total.packets):
+        inst [2 or "ec2"] value 4106795
+        inst [3 or "lo0"] value 316190
 
-07:45:59.912  29.0.7 (sample.drift): value 26
-              29.0.6 (sample.bin):
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-              29.0.2 (sample.seconds): value 10010
-              1.25.19 (irix.network.interface.total.packets):
-                inst [2 or "ec2"] value 4106843
-                inst [3 or "lo0"] value 316198
+07:45:59.912855 4 metrics
+    29.0.7 (sample.drift): value 26
+    29.0.6 (sample.bin):
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+    29.0.2 (sample.seconds): value 10010
+    1.25.19 (irix.network.interface.total.packets):
+        inst [2 or "ec2"] value 4106843
+        inst [3 or "lo0"] value 316198

@@ -38,7 +38,7 @@ unknown -> print "[3] unknown as expected"
 End-of-File
 
 # real QA test starts here
-pmie -t 1sec -T 3.5sec -c $tmp.config 2>&1 | _filter_pmie_log
+pmie -q -t 1sec -T 3.5sec -c $tmp.config 2>&1 | _filter_pmie_log
 
 # success, all done
 status=0

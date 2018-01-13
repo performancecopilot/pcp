@@ -13,4 +13,3 @@ DATE: [3] unknown as expected
 DATE: [1] pmcd sees PDUs as expected
 DATE: [2] pmcd sees PDUs for 2 samples as expected
 DATE: [3] unknown as expected
-[TIMESTAMP] pmie(PID) Info: evaluator exiting

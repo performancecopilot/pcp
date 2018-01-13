@@ -168,10 +168,22 @@ _check_output pmlogextract
 # dump values for sample.drift
 echo "--- dump values for sample.drift ---"
 pmdumplog -m -z archives/mirage sample.drift \
-	| sed -e '/^$/d' \
+	| sed \
+	    -e '/^$/d' \
+	    -e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
 	| $PCP_AWK_PROG -F":" '{ if ($1 == 10 && $2 >= 50) print $0; }' > $tmp.m
 pmdumplog -m -z $tmp.arch sample.drift \
-	| sed -e '/^$/d' \
+	| sed \
+	    -e '/^$/d' \
+	    -e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
 	| grep -v "timezone set to local" > $tmp.a
 diff $tmp.m $tmp.a
 x=$?
@@ -197,10 +209,22 @@ _check_output pmlogextract
 # dump values for irix.kernel.all.load
 echo "--- dump values for irix.kernel.all.load ---"
 pmdumplog -m -z archives/rattle irix.kernel.all.load \
-	| sed -e '/^$/d' \
+	| sed \
+	    -e '/^$/d' \
+	    -e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
 	| $PCP_AWK_PROG -F":" '{ if ($1 >= 0 && $1 < 12) print $0; }' > $tmp.m
 pmdumplog -m -z $tmp.arch irix.kernel.all.load \
-	| sed -e '/^$/d' \
+	| sed \
+	    -e '/^$/d' \
+	    -e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
 	| grep -v "timezone set to local" > $tmp.a
 diff $tmp.m $tmp.a
 x=$?

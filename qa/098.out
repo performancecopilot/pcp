@@ -857,6 +857,7 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 
 Uniq filtered entries from pmdumplog ...
+1 metric
 2.0.23 (pmcd.pid): value NUMBER
 2.0.24 (pmcd.seqnum): value NUMBER
 2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
@@ -864,3 +865,4 @@ Uniq filtered entries from pmdumplog ...
 2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 29.0.10 (sample.long.one): value NUMBER
 29.0.2 (sample.dupnames.two.seconds or sample.seconds): value NUMBER
+5 metrics

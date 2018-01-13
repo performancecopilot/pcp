@@ -15,8 +15,8 @@ __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LE
 __pmLogSetTime(0) TIMESTAMP delta=0 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 === empty dir ===
 [filtered and sorted stderr]
@@ -34,8 +34,8 @@ __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LE
 __pmLogSetTime(0) TIMESTAMP delta=0 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 === non-empty dir ===
 [filtered and sorted stderr]
@@ -53,5 +53,5 @@ __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LE
 __pmLogSetTime(0) TIMESTAMP delta=0 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE

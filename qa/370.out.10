@@ -14,10 +14,10 @@ Note: timezone set to local timezone of host "slack" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host slack
-  commencing Tue Jan 12 21:31:30.000 2016
-  ending     Tue Jan 12 21:34:20.000 2016
+  commencing Tue Jan 12 21:31:30.000000 2016
+  ending     Tue Jan 12 21:34:20.000000 2016
 
-21:31:30.000  245.0.NN (hinv.ncpu): value 8
+21:31:30.000000  245.0.NN (hinv.ncpu): value 8
               245.0.NN (kernel.all.cpu.user): value 0.003
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.00079999998
@@ -322,7 +322,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:31:35.000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
+21:31:35.000000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0013
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -626,7 +626,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:31:40.000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
+21:31:40.000000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -930,7 +930,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:31:45.000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
+21:31:45.000000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.00050000002
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -1234,7 +1234,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:31:50.000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
+21:31:50.000000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.00079999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -1538,7 +1538,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:31:55.000  245.0.NN (kernel.all.cpu.user): value 0.0044999998
+21:31:55.000000  245.0.NN (kernel.all.cpu.user): value 0.0044999998
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.00079999998
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1842,7 +1842,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:00.000  245.0.NN (kernel.all.cpu.user): value 0.0033
+21:32:00.000000  245.0.NN (kernel.all.cpu.user): value 0.0033
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0015
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -2146,7 +2146,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:05.000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
+21:32:05.000000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -2450,7 +2450,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:10.000  245.0.NN (kernel.all.cpu.user): value 0.0041999999
+21:32:10.000000  245.0.NN (kernel.all.cpu.user): value 0.0041999999
               245.0.NN (kernel.all.cpu.nice): value 0.00019999999
               245.0.NN (kernel.all.cpu.sys): value 0.0022
               245.0.NN (kernel.all.cpu.wait.total): value 0.00019999999
@@ -2754,7 +2754,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:15.000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
+21:32:15.000000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.00079999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -3058,7 +3058,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:20.000  245.0.NN (kernel.all.cpu.user): value 0.0035000001
+21:32:20.000000  245.0.NN (kernel.all.cpu.user): value 0.0035000001
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -3362,7 +3362,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:25.000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
+21:32:25.000000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0013
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -3666,7 +3666,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:30.000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
+21:32:30.000000  245.0.NN (kernel.all.cpu.user): value 0.0038000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0015
               245.0.NN (kernel.all.cpu.wait.total): value 0.00079999998
@@ -3970,7 +3970,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:35.000  245.0.NN (kernel.all.cpu.user): value 0.0035000001
+21:32:35.000000  245.0.NN (kernel.all.cpu.user): value 0.0035000001
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0013
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -4274,7 +4274,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:40.000  245.0.NN (kernel.all.cpu.user): value 0.0143
+21:32:40.000000  245.0.NN (kernel.all.cpu.user): value 0.0143
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0023000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -4578,7 +4578,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:45.000  245.0.NN (kernel.all.cpu.user): value 0.012
+21:32:45.000000  245.0.NN (kernel.all.cpu.user): value 0.012
               245.0.NN (kernel.all.cpu.nice): value 0.00019999999
               245.0.NN (kernel.all.cpu.sys): value 0.0024999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.00019999999
@@ -4882,7 +4882,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:50.000  245.0.NN (kernel.all.cpu.user): value 0.0105
+21:32:50.000000  245.0.NN (kernel.all.cpu.user): value 0.0105
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.003
               245.0.NN (kernel.all.cpu.wait.total): value 0.0015
@@ -5186,7 +5186,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:32:55.000  245.0.NN (kernel.all.cpu.user): value 0.0048000002
+21:32:55.000000  245.0.NN (kernel.all.cpu.user): value 0.0048000002
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0015
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -5490,7 +5490,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:00.000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
+21:33:00.000000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -5794,7 +5794,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:05.000  245.0.NN (kernel.all.cpu.user): value 0.0044999998
+21:33:05.000000  245.0.NN (kernel.all.cpu.user): value 0.0044999998
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0013
               245.0.NN (kernel.all.cpu.wait.total): value 0.00079999998
@@ -6098,7 +6098,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:10.000  245.0.NN (kernel.all.cpu.user): value 0.0044999998
+21:33:10.000000  245.0.NN (kernel.all.cpu.user): value 0.0044999998
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0013
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -6402,7 +6402,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:15.000  245.0.NN (kernel.all.cpu.user): value 0.0043000001
+21:33:15.000000  245.0.NN (kernel.all.cpu.user): value 0.0043000001
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -6706,7 +6706,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:20.000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
+21:33:20.000000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -7010,7 +7010,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:25.000  245.0.NN (kernel.all.cpu.user): value 0.0057999999
+21:33:25.000000  245.0.NN (kernel.all.cpu.user): value 0.0057999999
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -7314,7 +7314,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:30.000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
+21:33:30.000000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0023000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00079999998
@@ -7618,7 +7618,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:35.000  245.0.NN (kernel.all.cpu.user): value 0.0089999996
+21:33:35.000000  245.0.NN (kernel.all.cpu.user): value 0.0089999996
               245.0.NN (kernel.all.cpu.nice): value 0.00019999999
               245.0.NN (kernel.all.cpu.sys): value 0.0052
               245.0.NN (kernel.all.cpu.wait.total): value 0.001
@@ -7922,7 +7922,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:40.000  245.0.NN (kernel.all.cpu.user): value 0.0152
+21:33:40.000000  245.0.NN (kernel.all.cpu.user): value 0.0152
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0052
               245.0.NN (kernel.all.cpu.wait.total): value 0.0015
@@ -8226,7 +8226,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:45.000  245.0.NN (kernel.all.cpu.user): value 0.0115
+21:33:45.000000  245.0.NN (kernel.all.cpu.user): value 0.0115
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00069999998
@@ -8530,7 +8530,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:50.000  245.0.NN (kernel.all.cpu.user): value 0.0057000001
+21:33:50.000000  245.0.NN (kernel.all.cpu.user): value 0.0057000001
               245.0.NN (kernel.all.cpu.nice): value 0.00019999999
               245.0.NN (kernel.all.cpu.sys): value 0.0022
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -8834,7 +8834,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:33:55.000  245.0.NN (kernel.all.cpu.user): value 0.017999999
+21:33:55.000000  245.0.NN (kernel.all.cpu.user): value 0.017999999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.003
               245.0.NN (kernel.all.cpu.wait.total): value 0.00079999998
@@ -9138,7 +9138,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:34:00.000  245.0.NN (kernel.all.cpu.user): value 0.0263
+21:34:00.000000  245.0.NN (kernel.all.cpu.user): value 0.0263
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.003
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -9442,7 +9442,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:34:05.000  245.0.NN (kernel.all.cpu.user): value 0.036600001
+21:34:05.000000  245.0.NN (kernel.all.cpu.user): value 0.036600001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0023000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -9746,7 +9746,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:34:10.000  245.0.NN (kernel.all.cpu.user): value 0.031599998
+21:34:10.000000  245.0.NN (kernel.all.cpu.user): value 0.031599998
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
               245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -10050,7 +10050,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:34:15.000  245.0.NN (kernel.all.cpu.user): value 0.025800001
+21:34:15.000000  245.0.NN (kernel.all.cpu.user): value 0.025800001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -10354,7 +10354,7 @@ Performance metrics from host slack
                 inst [1 or "/dev/sda1"] value 437
                 inst [2 or "/dev/mapper/fedora-home"] value 19044
 
-21:34:20.000  245.0.NN (kernel.all.cpu.user): value 0.0208
+21:34:20.000000  245.0.NN (kernel.all.cpu.user): value 0.0208
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0024999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001

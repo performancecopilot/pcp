@@ -14,10 +14,10 @@ Note: timezone set to local timezone of host "vm08.localdomain" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host vm08.localdomain
-  commencing Thu Jan 28 06:25:47.000 2016
-  ending     Thu Jan 28 06:28:37.000 2016
+  commencing Thu Jan 28 06:25:47.000000 2016
+  ending     Thu Jan 28 06:28:37.000000 2016
 
-06:25:47.000  245.0.NN (hinv.ncpu): value 1
+06:25:47.000000  245.0.NN (hinv.ncpu): value 1
               245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
@@ -171,7 +171,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:25:52.000  245.0.NN (kernel.all.cpu.user): value 0
+06:25:52.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -324,7 +324,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:25:57.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:25:57.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.072400004
@@ -477,7 +477,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:02.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:26:02.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -630,7 +630,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:07.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:26:07.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0040000002
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -783,7 +783,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:12.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:12.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -936,7 +936,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:17.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:17.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1089,7 +1089,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:22.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:22.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1242,7 +1242,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:27.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:27.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1395,7 +1395,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:32.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:32.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1548,7 +1548,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:37.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:26:37.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1701,7 +1701,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:42.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:42.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -1854,7 +1854,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:47.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:47.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2007,7 +2007,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:52.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:52.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2160,7 +2160,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:26:57.000  245.0.NN (kernel.all.cpu.user): value 0
+06:26:57.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2313,7 +2313,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:02.000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
+06:27:02.000000  245.0.NN (kernel.all.cpu.user): value 0.0040000002
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2466,7 +2466,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:07.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:27:07.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2619,7 +2619,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:12.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:12.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2772,7 +2772,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:17.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:17.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -2925,7 +2925,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:22.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:22.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3078,7 +3078,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:27.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:27.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3231,7 +3231,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:32.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:27:32.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3384,7 +3384,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:37.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:37.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3537,7 +3537,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:42.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:42.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3690,7 +3690,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:47.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:47.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3843,7 +3843,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:52.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:52.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -3996,7 +3996,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:27:57.000  245.0.NN (kernel.all.cpu.user): value 0
+06:27:57.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4149,7 +4149,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:02.000  245.0.NN (kernel.all.cpu.user): value 0.034299999
+06:28:02.000000  245.0.NN (kernel.all.cpu.user): value 0.034299999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0283
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4302,7 +4302,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:07.000  245.0.NN (kernel.all.cpu.user): value 0.050799999
+06:28:07.000000  245.0.NN (kernel.all.cpu.user): value 0.050799999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.091499999
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4455,7 +4455,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:12.000  245.0.NN (kernel.all.cpu.user): value 0
+06:28:12.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4608,7 +4608,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:17.000  245.0.NN (kernel.all.cpu.user): value 0
+06:28:17.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4761,7 +4761,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:22.000  245.0.NN (kernel.all.cpu.user): value 0
+06:28:22.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -4914,7 +4914,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:27.000  245.0.NN (kernel.all.cpu.user): value 0
+06:28:27.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0020000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -5067,7 +5067,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:32.000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
+06:28:32.000000  245.0.NN (kernel.all.cpu.user): value 0.0020000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0060000001
               245.0.NN (kernel.all.cpu.wait.total): value 0
@@ -5220,7 +5220,7 @@ Performance metrics from host vm08.localdomain
                 inst [0 or "ens3"] value 0
                 inst [1 or "lo"] value 0
 
-06:28:37.000  245.0.NN (kernel.all.cpu.user): value 0
+06:28:37.000000  245.0.NN (kernel.all.cpu.user): value 0
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0
               245.0.NN (kernel.all.cpu.wait.total): value 0

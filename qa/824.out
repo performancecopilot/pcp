@@ -3,8 +3,8 @@ Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host mortenb.oslo.sgi.com
-  commencing Thu Nov 25 00:10:06.248 2004
-  ending     Thu Nov 25 00:58:06.250 2004
+    commencing Thu Nov 25 00:10:06.248424 2004
+    ending     Thu Nov 25 00:58:06.250880 2004
 Archive timezone: CET-1
 PID for pmlogger: 7553
 

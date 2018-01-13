@@ -297,32 +297,33 @@ old -> new changes
      Semantics: counter  Units: count
  
  Instance Domains in the Log ...
-@@ -234,14 +234,14 @@
+@@ -234,7 +234,7 @@
  Temporal Index
-              Log Vol    end(meta)     end(log)
- 21:49:30.119       0          132          132
--21:49:32.119       0         4762         1664
-+21:49:32.119       0         4762         2504
+ 		Log Vol    end(meta)     end(log)
+ 21:49:30.119325	      0          132          132
+-21:49:32.119225	      0         4762         1664
++21:49:32.119225	      0         4762         2504
  
  [112 bytes]
- 21:49:30.119  2.3.3 (pmcd.pmlogger.host): inst [22801 or "22801"] value "smash"
-               2.3.0 (pmcd.pmlogger.port): inst [22801 or "22801"] value 4330
-               2.3.2 (pmcd.pmlogger.archive): inst [22801 or "22801"] value "/tmp/new_snmp"
+ 21:49:30.119325 3 metrics
+@@ -242,7 +242,7 @@
+     2.3.0 (pmcd.pmlogger.port): inst [22801 or "22801"] value 4330
+     2.3.2 (pmcd.pmlogger.archive): inst [22801 or "22801"] value "/tmp/new_snmp"
  
 -[1420 bytes]
 +[2260 bytes]
- 21:49:31.119  60.14.82 (network.udplite.sndbuferrors): value 0
-               60.14.81 (network.udplite.recvbuferrors): value 0
-               60.14.80 (network.udplite.outdatagrams): value 0
-@@ -313,7 +313,7 @@
-               60.14.1 (network.ip.defaultttl): value 64
-               60.14.0 (network.ip.forwarding): value 1
+ 21:49:31.119176 70 metrics
+     60.14.82 (network.udplite.sndbuferrors): value 0
+     60.14.81 (network.udplite.recvbuferrors): value 0
+@@ -315,7 +315,7 @@
+     60.14.1 (network.ip.defaultttl): value 64
+     60.14.0 (network.ip.forwarding): value 1
  
 -[1420 bytes]
 +[2260 bytes]
- 21:49:32.119  60.14.82 (network.udplite.sndbuferrors): value 0
-               60.14.81 (network.udplite.recvbuferrors): value 0
-               60.14.80 (network.udplite.outdatagrams): value 0
+ 21:49:32.119225 70 metrics
+     60.14.82 (network.udplite.sndbuferrors): value 0
+     60.14.81 (network.udplite.recvbuferrors): value 0
 
 new -> ref changes ... expect at most, metadata offset change for temporal index
 
@@ -378,10 +379,10 @@ old -> new changes
 new -> ref changes ... expect at most, metadata offset change for temporal index
 @@ -375,7 +375,7 @@
  Temporal Index
-              Log Vol    end(meta)     end(log)
- 10:10:27.854       0          132          132
--10:10:27.855       0         7893          272
-+10:10:27.855       0          351          272
+ 		Log Vol    end(meta)     end(log)
+ 10:10:27.854449	      0          132          132
+-10:10:27.855335	      0         7893          272
++10:10:27.855335	      0          351          272
  
  [140 bytes]
- 10:10:27.854  2.3.3 (pmcd.pmlogger.host): inst [16936 or "16936"] value "slack"
+ 10:10:27.854449 3 metrics

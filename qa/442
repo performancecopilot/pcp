@@ -35,7 +35,7 @@ ls -l tmparch/big1* tmparch/big2* >$seq.full 2>&1
 _filter()
 {
     sed \
-	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 }
 
 # real QA test starts here

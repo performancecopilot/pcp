@@ -31,30 +31,36 @@ QA output created by 921
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 
-Sat Jan 11 10:48:09.957 2014  <mark>
+Sat Jan 11 10:48:09.957106 2014  <mark>
 
-Sat Jan 11 10:49:47.697 2014  2.0.2 (pmcd.numagents): value 4
+Sat Jan 11 10:49:47.697863 2014 1 metric
+    2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 10:48:47.695 2014  <mark>
+Sun Jan 12 10:48:47.695244 2014  <mark>
 
-Sun Jan 12 10:50:27.000 2014  2.0.2 (pmcd.numagents): value 4
+Sun Jan 12 10:50:27.000221 2014 1 metric
+    2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 17:47:27.000 2014  <mark>
+Sun Jan 12 17:47:27.000808 2014  <mark>
 
-Sun Jan 12 17:48:50.231 2014  2.0.2 (pmcd.numagents): value 4
+Sun Jan 12 17:48:50.231867 2014 1 metric
+    2.0.2 (pmcd.numagents): value 4
 
 +++ -Mxxz pmcd.numagents
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 
-Sat Jan 11 10:48:09.957 2014 (60600.356759)  <mark>
+Sat Jan 11 10:48:09.957106 2014 (60600.356759)  <mark>
 
-Sat Jan 11 10:49:47.697 2014 (60698.097516)  2.0.2 (pmcd.numagents): value 4
+Sat Jan 11 10:49:47.697863 2014 (60698.097516) 1 metric
+    2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 10:48:47.695 2014 (147038.094897)  <mark>
+Sun Jan 12 10:48:47.695244 2014 (147038.094897)  <mark>
 
-Sun Jan 12 10:50:27.000 2014 (147137.399874)  2.0.2 (pmcd.numagents): value 4
+Sun Jan 12 10:50:27.000221 2014 (147137.399874) 1 metric
+    2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 17:47:27.000 2014 (172157.400461)  <mark>
+Sun Jan 12 17:47:27.000808 2014 (172157.400461)  <mark>
 
-Sun Jan 12 17:48:50.231 2014 (172240.631520)  2.0.2 (pmcd.numagents): value 4
+Sun Jan 12 17:48:50.231867 2014 (172240.631520) 1 metric
+    2.0.2 (pmcd.numagents): value 4

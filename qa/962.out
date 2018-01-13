@@ -1,10 +1,14 @@
 QA output created by 962
 <mark> records ...
-Fri Jan 17 00:09:13.492 2014  60.0.13 (kernel.all.pswitch): value 13339783
-Fri Jan 17 00:09:13.621 2014  60.0.13 (kernel.all.pswitch): value 13339837
-Fri Jan 17 00:09:13.622 2014  <mark>
-Fri Jan 17 00:11:12.573 2014  60.0.13 (kernel.all.pswitch): value 13365180
-Fri Jan 17 00:11:12.895 2014  60.0.13 (kernel.all.pswitch): value 13365260
+Fri Jan 17 00:09:13.492028 2014 1 metric
+    60.0.13 (kernel.all.pswitch): value 13339783
+Fri Jan 17 00:09:13.621554 2014 1 metric
+    60.0.13 (kernel.all.pswitch): value 13339837
+Fri Jan 17 00:09:13.622554 2014  <mark>
+Fri Jan 17 00:11:12.573249 2014 1 metric
+    60.0.13 (kernel.all.pswitch): value 13365180
+Fri Jan 17 00:11:12.895245 2014 1 metric
+    60.0.13 (kernel.all.pswitch): value 13365260
 
 Note: timezone set to local timezone of host "bozo-vm" from archive
 

@@ -5,8 +5,8 @@ Note: timezone set to local timezone of host "gangliatest.32" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gangliatest.32
-  commencing Wed Feb 11 17:02:00.000 2015
-  ending     Wed Feb 11 17:21:00.000 2015
+  commencing Wed Feb 11 17:02:00.000000 2015
+  ending     Wed Feb 11 17:21:00.000000 2015
 
 Descriptions for Metrics in the Log ...
 PMID: 60.1.8 (swap.free)
@@ -69,25 +69,25 @@ PMID: 60.0.23 (kernel.all.cpu.idle)
 
 Instance Domains in the Log ...
 InDom: 60.2
-17:02:00.000 3 instances
+17:02:00.000000 3 instances
                  15 or "15 minute"
                  5 or "5 minute"
                  1 or "1 minute"
 InDom: 60.0
-17:02:00.000 1 instances
+17:02:00.000000 1 instances
                  0 or "cpu0"
 InDom: 60.3
-17:02:00.000 1 instances
+17:02:00.000000 1 instances
                  1000 or "total"
 
 Temporal Index
              Log Vol    end(meta)     end(log)
-17:02:00.000       0          132          132
-17:02:00.000       0         1395          132
-17:21:00.000       0         1395        12452
+17:02:00.000000       0          132          132
+17:02:00.000000       0         1395          132
+17:21:00.000000       0         1395        12452
 
 [616 bytes]
-17:02:00.000  60.26.0 (kernel.all.uptime): value 170620
+17:02:00.000000  60.26.0 (kernel.all.uptime): value 170620
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 1506
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 1451
               60.0.23 (kernel.all.cpu.idle): value 59940
@@ -111,7 +111,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:03:00.000  60.26.0 (kernel.all.uptime): value 170680
+17:03:00.000000  60.26.0 (kernel.all.uptime): value 170680
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 2969
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 2618
               60.0.23 (kernel.all.cpu.idle): value 119880
@@ -135,7 +135,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:04:00.000  60.26.0 (kernel.all.uptime): value 170740
+17:04:00.000000  60.26.0 (kernel.all.uptime): value 170740
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 4394
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 3536
               60.0.23 (kernel.all.cpu.idle): value 179820
@@ -159,7 +159,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:05:00.000  60.26.0 (kernel.all.uptime): value 170800
+17:05:00.000000  60.26.0 (kernel.all.uptime): value 170800
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 5819
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 4454
               60.0.23 (kernel.all.cpu.idle): value 239760
@@ -183,7 +183,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:06:00.000  60.26.0 (kernel.all.uptime): value 170860
+17:06:00.000000  60.26.0 (kernel.all.uptime): value 170860
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 7244
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 5372
               60.0.23 (kernel.all.cpu.idle): value 299668
@@ -207,7 +207,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:07:00.000  60.26.0 (kernel.all.uptime): value 170920
+17:07:00.000000  60.26.0 (kernel.all.uptime): value 170920
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 8669
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 6290
               60.0.23 (kernel.all.cpu.idle): value 359550
@@ -231,7 +231,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:08:00.000  60.26.0 (kernel.all.uptime): value 170980
+17:08:00.000000  60.26.0 (kernel.all.uptime): value 170980
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 10370
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 7737
               60.0.23 (kernel.all.cpu.idle): value 419490
@@ -255,7 +255,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:09:00.000  60.26.0 (kernel.all.uptime): value 171040
+17:09:00.000000  60.26.0 (kernel.all.uptime): value 171040
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 12298
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 9618
               60.0.23 (kernel.all.cpu.idle): value 479430
@@ -279,7 +279,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:10:00.000  60.26.0 (kernel.all.uptime): value 171100
+17:10:00.000000  60.26.0 (kernel.all.uptime): value 171100
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 14225
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 11499
               60.0.23 (kernel.all.cpu.idle): value 539371
@@ -303,7 +303,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:11:00.000  60.26.0 (kernel.all.uptime): value 171160
+17:11:00.000000  60.26.0 (kernel.all.uptime): value 171160
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 16152
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 13380
               60.0.23 (kernel.all.cpu.idle): value 599371
@@ -327,7 +327,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:12:00.000  60.26.0 (kernel.all.uptime): value 171220
+17:12:00.000000  60.26.0 (kernel.all.uptime): value 171220
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 18079
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 15261
               60.0.23 (kernel.all.cpu.idle): value 659340
@@ -351,7 +351,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:13:00.000  60.26.0 (kernel.all.uptime): value 171280
+17:13:00.000000  60.26.0 (kernel.all.uptime): value 171280
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 20329
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 17871
               60.0.23 (kernel.all.cpu.idle): value 719280
@@ -375,7 +375,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:14:00.000  60.26.0 (kernel.all.uptime): value 171340
+17:14:00.000000  60.26.0 (kernel.all.uptime): value 171340
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 22901
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 21210
               60.0.23 (kernel.all.cpu.idle): value 779220
@@ -399,7 +399,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:15:00.000  60.26.0 (kernel.all.uptime): value 171400
+17:15:00.000000  60.26.0 (kernel.all.uptime): value 171400
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 25473
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 24549
               60.0.23 (kernel.all.cpu.idle): value 839160
@@ -423,7 +423,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:16:00.000  60.26.0 (kernel.all.uptime): value 171460
+17:16:00.000000  60.26.0 (kernel.all.uptime): value 171460
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 28045
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 27888
               60.0.23 (kernel.all.cpu.idle): value 899100
@@ -447,7 +447,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:17:00.000  60.26.0 (kernel.all.uptime): value 171520
+17:17:00.000000  60.26.0 (kernel.all.uptime): value 171520
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 30618
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 31227
               60.0.23 (kernel.all.cpu.idle): value 959040
@@ -471,7 +471,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:18:00.000  60.26.0 (kernel.all.uptime): value 171580
+17:18:00.000000  60.26.0 (kernel.all.uptime): value 171580
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 41369
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 41143
               60.0.23 (kernel.all.cpu.idle): value 1018560
@@ -495,7 +495,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:19:00.000  60.26.0 (kernel.all.uptime): value 171640
+17:19:00.000000  60.26.0 (kernel.all.uptime): value 171640
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 60301
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 57634
               60.0.23 (kernel.all.cpu.idle): value 1078320
@@ -519,7 +519,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:20:00.000  60.26.0 (kernel.all.uptime): value 171700
+17:20:00.000000  60.26.0 (kernel.all.uptime): value 171700
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 79232
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 74126
               60.0.23 (kernel.all.cpu.idle): value 1138200
@@ -543,7 +543,7 @@ Temporal Index
               60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:21:00.000  60.26.0 (kernel.all.uptime): value 171760
+17:21:00.000000  60.26.0 (kernel.all.uptime): value 171760
               60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 461103
               60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 692656
               60.0.23 (kernel.all.cpu.idle): value 1193926

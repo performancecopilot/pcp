@@ -14,45 +14,50 @@ Note: timezone set to local timezone of host "rattle" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host rattle
-  commencing Sat May 17 22:22:42.025 1997
-  ending     Sat May 17 22:22:42.060 1997
+    commencing Sat May 17 22:22:42.025955 1997
+    ending     Sat May 17 22:22:42.060877 1997
 
-22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
+22:22:42.025955 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
+    2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
 
-22:22:42.060  1.26.7 (hinv.ndisk): value 2
-              1.18.2 (hinv.ncpu): value 1
+22:22:42.060877 2 metrics
+    1.26.7 (hinv.ndisk): value 2
+    1.18.2 (hinv.ncpu): value 1
 
 ::: 19970709.22.30-02 :::
 Note: timezone set to local timezone of host "rattle" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host rattle
-  commencing Sat May 17 23:22:42.011 1997
-  ending     Sat May 17 23:22:42.011 1997
+    commencing Sat May 17 23:22:42.011766 1997
+    ending     Sat May 17 23:22:42.011766 1997
 
-23:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+23:22:42.011766 1 metric
+    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
 ::: 19970709.22.30 :::
 Note: timezone set to local timezone of host "rattle" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host rattle
-  commencing Sun May 18 00:22:42.011 1997
-  ending     Sun May 18 00:22:42.011 1997
+    commencing Sun May 18 00:22:42.011769 1997
+    ending     Sun May 18 00:22:42.011769 1997
 
-00:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+00:22:42.011769 1 metric
+    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
 ::: 19970709.23.10 :::
 Note: timezone set to local timezone of host "rattle" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host rattle
-  commencing Sun May 18 01:22:42.021 1997
-  ending     Sun May 18 01:22:42.021 1997
+    commencing Sun May 18 01:22:42.021786 1997
+    ending     Sun May 18 01:22:42.021786 1997
 
-01:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+01:22:42.021786 1 metric
+    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
 === cron.logmerge ===
 Input archives to be merged:
@@ -75,21 +80,26 @@ Removing input archive files ... done
 Note: timezone set to local timezone of host "rattle" from archive
 
 
-22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
+22:22:42.025955 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
+    2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
 
-22:22:42.060  1.26.7 (hinv.ndisk): value 2
-              1.18.2 (hinv.ncpu): value 1
+22:22:42.060877 2 metrics
+    1.26.7 (hinv.ndisk): value 2
+    1.18.2 (hinv.ncpu): value 1
 
-22:22:42.061  <mark>
+22:22:42.061877  <mark>
 
-23:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+23:22:42.011766 1 metric
+    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
-23:22:42.012  <mark>
+23:22:42.012766  <mark>
 
-00:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+00:22:42.011769 1 metric
+    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
-00:22:42.012  <mark>
+00:22:42.012769  <mark>
 
-01:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+01:22:42.021786 1 metric
+    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0

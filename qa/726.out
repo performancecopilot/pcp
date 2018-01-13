@@ -1,18 +1,21 @@
 QA output created by 726
 
 [NNN bytes]
+TIMESTAMP 5 metrics
 
 [NNN bytes]
-TIMESTAMP  29.0.31 (sample.string.hullo): value "hullo world!"
-              29.0.30 (sample.string.null): value ""
-              29.0.25 (sample.double.one): value 1
-              29.0.15 (sample.float.one): value 1
-              29.0.10 (sample.long.one): value 1
-              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [500 or "bin-500"] value 500
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-              29.0.0 (sample.control): value 0
+TIMESTAMP 7 metrics
+    29.0.31 (sample.string.hullo): value "hullo world!"
+    29.0.30 (sample.string.null): value ""
+    29.0.25 (sample.double.one): value 1
+    29.0.15 (sample.float.one): value 1
+    29.0.10 (sample.long.one): value 1
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [500 or "bin-500"] value 500
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+    29.0.0 (sample.control): value 0
 
 [NNN bytes]
+TIMESTAMP 5 metrics

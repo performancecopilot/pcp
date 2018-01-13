@@ -14,10 +14,10 @@ Note: timezone set to local timezone of host "bozo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo
-  commencing Wed Jan  4 20:17:24.000 2017
-  ending     Wed Jan  4 20:20:14.000 2017
+  commencing Wed Jan  4 20:17:24.000000 2017
+  ending     Wed Jan  4 20:20:14.000000 2017
 
-20:17:24.000  245.0.NN (hinv.ncpu): value 12
+20:17:24.000000  245.0.NN (hinv.ncpu): value 12
               245.0.NN (kernel.all.cpu.user): value 0.0078999996
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.003
@@ -715,7 +715,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:29.000  245.0.NN (kernel.all.cpu.user): value 0.0054000001
+20:17:29.000000  245.0.NN (kernel.all.cpu.user): value 0.0054000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0027000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -1412,7 +1412,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:34.000  245.0.NN (kernel.all.cpu.user): value 0.0137
+20:17:34.000000  245.0.NN (kernel.all.cpu.user): value 0.0137
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0049000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0052
@@ -2109,7 +2109,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:39.000  245.0.NN (kernel.all.cpu.user): value 0.0099999998
+20:17:39.000000  245.0.NN (kernel.all.cpu.user): value 0.0099999998
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0038000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0031999999
@@ -2806,7 +2806,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:44.000  245.0.NN (kernel.all.cpu.user): value 0.0055
+20:17:44.000000  245.0.NN (kernel.all.cpu.user): value 0.0055
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0141
               245.0.NN (kernel.all.cpu.wait.total): value 0.0027999999
@@ -3503,7 +3503,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:49.000  245.0.NN (kernel.all.cpu.user): value 0.0115
+20:17:49.000000  245.0.NN (kernel.all.cpu.user): value 0.0115
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0145
               245.0.NN (kernel.all.cpu.wait.total): value 0.0040000002
@@ -4200,7 +4200,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:54.000  245.0.NN (kernel.all.cpu.user): value 0.0221
+20:17:54.000000  245.0.NN (kernel.all.cpu.user): value 0.0221
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0139
               245.0.NN (kernel.all.cpu.wait.total): value 0.0022
@@ -4897,7 +4897,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:17:59.000  245.0.NN (kernel.all.cpu.user): value 0.0065000001
+20:17:59.000000  245.0.NN (kernel.all.cpu.user): value 0.0065000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0077
               245.0.NN (kernel.all.cpu.wait.total): value 0.00079999998
@@ -5594,7 +5594,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:04.000  245.0.NN (kernel.all.cpu.user): value 0.0083999997
+20:18:04.000000  245.0.NN (kernel.all.cpu.user): value 0.0083999997
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0109
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -6291,7 +6291,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:09.000  245.0.NN (kernel.all.cpu.user): value 0.0139
+20:18:09.000000  245.0.NN (kernel.all.cpu.user): value 0.0139
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0041999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.0074
@@ -6988,7 +6988,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:14.000  245.0.NN (kernel.all.cpu.user): value 0.0054000001
+20:18:14.000000  245.0.NN (kernel.all.cpu.user): value 0.0054000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0023000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.001
@@ -7685,7 +7685,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:19.000  245.0.NN (kernel.all.cpu.user): value 0.0070000002
+20:18:19.000000  245.0.NN (kernel.all.cpu.user): value 0.0070000002
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0027999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.0020000001
@@ -8382,7 +8382,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:24.000  245.0.NN (kernel.all.cpu.user): value 0.0109
+20:18:24.000000  245.0.NN (kernel.all.cpu.user): value 0.0109
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0022
               245.0.NN (kernel.all.cpu.wait.total): value 0.0023000001
@@ -9079,7 +9079,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:29.000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
+20:18:29.000000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0054000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0015
@@ -9776,7 +9776,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:34.000  245.0.NN (kernel.all.cpu.user): value 0.0078999996
+20:18:34.000000  245.0.NN (kernel.all.cpu.user): value 0.0078999996
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0049000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0013
@@ -10473,7 +10473,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:39.000  245.0.NN (kernel.all.cpu.user): value 0.0151
+20:18:39.000000  245.0.NN (kernel.all.cpu.user): value 0.0151
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0060000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0068999999
@@ -11170,7 +11170,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:44.000  245.0.NN (kernel.all.cpu.user): value 0.0054000001
+20:18:44.000000  245.0.NN (kernel.all.cpu.user): value 0.0054000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0055
               245.0.NN (kernel.all.cpu.wait.total): value 0.0017
@@ -11867,7 +11867,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:49.000  245.0.NN (kernel.all.cpu.user): value 0.0099999998
+20:18:49.000000  245.0.NN (kernel.all.cpu.user): value 0.0099999998
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0052
               245.0.NN (kernel.all.cpu.wait.total): value 0.00050000002
@@ -12564,7 +12564,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:54.000  245.0.NN (kernel.all.cpu.user): value 0.0119
+20:18:54.000000  245.0.NN (kernel.all.cpu.user): value 0.0119
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0043000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.0035000001
@@ -13261,7 +13261,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:18:59.000  245.0.NN (kernel.all.cpu.user): value 0.0092000002
+20:18:59.000000  245.0.NN (kernel.all.cpu.user): value 0.0092000002
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0031999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.00019999999
@@ -13958,7 +13958,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:04.000  245.0.NN (kernel.all.cpu.user): value 0.0087000001
+20:19:04.000000  245.0.NN (kernel.all.cpu.user): value 0.0087000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0024999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -14655,7 +14655,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:09.000  245.0.NN (kernel.all.cpu.user): value 0.0117
+20:19:09.000000  245.0.NN (kernel.all.cpu.user): value 0.0117
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0119
               245.0.NN (kernel.all.cpu.wait.total): value 0.0049999999
@@ -15352,7 +15352,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:14.000  245.0.NN (kernel.all.cpu.user): value 0.0109
+20:19:14.000000  245.0.NN (kernel.all.cpu.user): value 0.0109
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0082
               245.0.NN (kernel.all.cpu.wait.total): value 0.0044999998
@@ -16049,7 +16049,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:19.000  245.0.NN (kernel.all.cpu.user): value 0.0091000004
+20:19:19.000000  245.0.NN (kernel.all.cpu.user): value 0.0091000004
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0041999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.0017
@@ -16746,7 +16746,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:24.000  245.0.NN (kernel.all.cpu.user): value 0.0080000004
+20:19:24.000000  245.0.NN (kernel.all.cpu.user): value 0.0080000004
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0044
               245.0.NN (kernel.all.cpu.wait.total): value 0.0040000002
@@ -17443,7 +17443,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:29.000  245.0.NN (kernel.all.cpu.user): value 0.0060000001
+20:19:29.000000  245.0.NN (kernel.all.cpu.user): value 0.0060000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0027999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.00069999998
@@ -18140,7 +18140,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:34.000  245.0.NN (kernel.all.cpu.user): value 0.0083999997
+20:19:34.000000  245.0.NN (kernel.all.cpu.user): value 0.0083999997
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0044999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.0020000001
@@ -18837,7 +18837,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:39.000  245.0.NN (kernel.all.cpu.user): value 0.012
+20:19:39.000000  245.0.NN (kernel.all.cpu.user): value 0.012
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0117
               245.0.NN (kernel.all.cpu.wait.total): value 0.0046999999
@@ -19534,7 +19534,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:44.000  245.0.NN (kernel.all.cpu.user): value 0.0087000001
+20:19:44.000000  245.0.NN (kernel.all.cpu.user): value 0.0087000001
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0104
               245.0.NN (kernel.all.cpu.wait.total): value 0.0043000001
@@ -20231,7 +20231,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:49.000  245.0.NN (kernel.all.cpu.user): value 0.0222
+20:19:49.000000  245.0.NN (kernel.all.cpu.user): value 0.0222
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0209
               245.0.NN (kernel.all.cpu.wait.total): value 0.0035000001
@@ -20928,7 +20928,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:54.000  245.0.NN (kernel.all.cpu.user): value 0.0112
+20:19:54.000000  245.0.NN (kernel.all.cpu.user): value 0.0112
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0062000002
               245.0.NN (kernel.all.cpu.wait.total): value 0.0041999999
@@ -21625,7 +21625,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:19:59.000  245.0.NN (kernel.all.cpu.user): value 0.0071999999
+20:19:59.000000  245.0.NN (kernel.all.cpu.user): value 0.0071999999
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0033
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
@@ -22322,7 +22322,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:20:04.000  245.0.NN (kernel.all.cpu.user): value 0.0142
+20:20:04.000000  245.0.NN (kernel.all.cpu.user): value 0.0142
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0060000001
               245.0.NN (kernel.all.cpu.wait.total): value 0.00079999998
@@ -23019,7 +23019,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:20:09.000  245.0.NN (kernel.all.cpu.user): value 0.0109
+20:20:09.000000  245.0.NN (kernel.all.cpu.user): value 0.0109
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0066999998
               245.0.NN (kernel.all.cpu.wait.total): value 0.0068999999
@@ -23716,7 +23716,7 @@ Performance metrics from host bozo
                 inst [8 or "/dev/sdb5"] value 1054644
                 inst [9 or "/dev/sdb7"] value 40
 
-20:20:14.000  245.0.NN (kernel.all.cpu.user): value 0.0107
+20:20:14.000000  245.0.NN (kernel.all.cpu.user): value 0.0107
               245.0.NN (kernel.all.cpu.nice): value 0
               245.0.NN (kernel.all.cpu.sys): value 0.0038999999
               245.0.NN (kernel.all.cpu.wait.total): value 0.0063999998

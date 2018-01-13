@@ -134,128 +134,128 @@ WARNING: This archive is sufficiently damaged that it may not be possible to
 
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
-16:02:31.554       0         1644          132
-16:02:31.842       0         4949          776
-16:02:44.394       0         5974        17720
-             Error: offset to log file past end of file (3076)
-16:02:52.126       0        10829        26312
-             Error: offset to log file past end of file (3076)
-16:02:57.161       0        16255        34200
-             Error: offset to log file past end of file (3076)
-16:09:59.184       0        21581       904248
-             Error: offset to log file past end of file (3076)
-16:10:12.524       0        26722       932696
-             Error: offset to log file past end of file (3076)
-16:10:22.471       0        31712       952816
-             Error: offset to log file past end of file (3076)
-16:10:26.115       0        36430       956800
-             Error: offset to log file past end of file (3076)
-16:10:30.222       0        40879       960744
-             Error: offset to log file past end of file (3076)
-16:10:40.330       0        45185       987512
-             Error: offset to log file past end of file (3076)
-16:10:48.730       0        49355      1002648
-             Error: offset to log file past end of file (3076)
-16:10:51.373       0        53400      1006392
-             Error: offset to log file past end of file (3076)
-16:10:58.243       0        57141      1021208
-             Error: offset to log file past end of file (3076)
-16:11:01.070       0        60380      1024872
-             Error: offset to log file past end of file (3076)
-16:11:04.194       0        63475      1028416
-             Error: offset to log file past end of file (3076)
-16:11:08.796       0        65966      1038688
-             Error: offset to log file past end of file (3076)
-16:11:11.264       0        68180      1042032
-             Error: offset to log file past end of file (3076)
-16:11:13.259       0        69936      1045256
-             Error: offset to log file past end of file (3076)
-11:02:12.1342514    29015    816930151       554564
-             Warning: file missing or compressed for log volume 29015
-             Error: illegal timestamp value (132 sec, 1342514690 usec)
-             Error: offset to meta file past end of file (75462)
-             Error: timestamp went backwards in time 816930673.259723 -> 132.1342514690
-10:59:58.1836019    1650524160            0            0
-             Warning: file missing or compressed for log volume 1650524160
-             Error: illegal timestamp value (-2 sec, 1836019565 usec)
-             Error: timestamp went backwards in time 132.1342514690 -> -2.1836019565
-11:00:00.000       0            0            0
-             Error: volume number decreased
-11:00:00.000       0            0            0
-11:00:00.000    1163088941    825312595   1412247856
-             Warning: file missing or compressed for log volume 1163088941
-             Error: offset to meta file past end of file (75462)
-00:09:51.842674    741552179    791820848    805306368
-             Warning: file missing or compressed for log volume 741552179
-             Error: illegal timestamp value (741881391 sec, 842674224 usec)
-             Error: offset to meta file past end of file (75462)
-             Error: volume number decreased
-11:00:00.000     132    816930151       554564
-             Warning: file missing or compressed for log volume 132
-             Error: offset to meta file past end of file (75462)
-             Error: timestamp went backwards in time 741881391.842674224 -> 0.000000
-             Error: volume number decreased
-11:00:00.001     132    816930151       842927
-             Error: offset to meta file past end of file (75462)
-11:00:00.004     776    816930164       394424
-             Warning: file missing or compressed for log volume 776
-             Error: offset to meta file past end of file (75462)
-11:00:00.005    17720    816930172       126787
-             Warning: file missing or compressed for log volume 17720
-             Error: offset to meta file past end of file (75462)
-11:00:00.010    26312    816930177       161532
-             Warning: file missing or compressed for log volume 26312
-             Error: offset to meta file past end of file (75462)
-11:00:00.016    34200    816930599       184043
-             Warning: file missing or compressed for log volume 34200
-             Error: offset to meta file past end of file (75462)
-11:00:00.021    904248    816930612       524938
-             Warning: file missing or compressed for log volume 904248
-             Error: offset to meta file past end of file (75462)
-11:00:00.026    932696    816930622       471061
-             Warning: file missing or compressed for log volume 932696
-             Error: offset to meta file past end of file (75462)
-11:00:00.031    952816    816930626       115458
-             Warning: file missing or compressed for log volume 952816
-             Error: offset to meta file past end of file (75462)
-11:00:00.036    956800    816930630       222020
-             Warning: file missing or compressed for log volume 956800
-             Error: offset to meta file past end of file (75462)
-11:00:00.040    960744    816930640       330045
-             Warning: file missing or compressed for log volume 960744
-             Error: offset to meta file past end of file (75462)
-11:00:00.045    987512    816930648       730269
-             Warning: file missing or compressed for log volume 987512
-             Error: offset to meta file past end of file (75462)
-11:00:00.049    1002648    816930651       373224
-             Warning: file missing or compressed for log volume 1002648
-             Error: offset to meta file past end of file (75462)
-11:00:00.053    1006392    816930658       243284
-             Warning: file missing or compressed for log volume 1006392
-             Error: offset to meta file past end of file (75462)
-11:00:00.057    1021208    816930661        70416
-             Warning: file missing or compressed for log volume 1021208
-             Error: offset to meta file past end of file (75462)
-11:00:00.060    1024872    816930664       194088
-             Warning: file missing or compressed for log volume 1024872
-             Error: offset to meta file past end of file (75462)
-11:00:00.063    1028416    816930668       796477
-             Warning: file missing or compressed for log volume 1028416
-             Error: offset to meta file past end of file (75462)
-11:00:00.065    1038688    816930671       264798
-             Warning: file missing or compressed for log volume 1038688
-             Error: offset to meta file past end of file (75462)
-11:00:00.068    1042032    816930673       259723
-             Warning: file missing or compressed for log volume 1042032
-             Error: offset to meta file past end of file (75462)
+		Log Vol    end(meta)     end(log)
+16:02:31.554564	      0         1644          132
+16:02:31.842927	      0         4949          776
+16:02:44.394424	      0         5974        17720
+		Error: offset to log file past end of file (3076)
+16:02:52.126787	      0        10829        26312
+		Error: offset to log file past end of file (3076)
+16:02:57.161532	      0        16255        34200
+		Error: offset to log file past end of file (3076)
+16:09:59.184043	      0        21581       904248
+		Error: offset to log file past end of file (3076)
+16:10:12.524938	      0        26722       932696
+		Error: offset to log file past end of file (3076)
+16:10:22.471061	      0        31712       952816
+		Error: offset to log file past end of file (3076)
+16:10:26.115458	      0        36430       956800
+		Error: offset to log file past end of file (3076)
+16:10:30.222020	      0        40879       960744
+		Error: offset to log file past end of file (3076)
+16:10:40.330045	      0        45185       987512
+		Error: offset to log file past end of file (3076)
+16:10:48.730269	      0        49355      1002648
+		Error: offset to log file past end of file (3076)
+16:10:51.373224	      0        53400      1006392
+		Error: offset to log file past end of file (3076)
+16:10:58.243284	      0        57141      1021208
+		Error: offset to log file past end of file (3076)
+16:11:01.070416	      0        60380      1024872
+		Error: offset to log file past end of file (3076)
+16:11:04.194088	      0        63475      1028416
+		Error: offset to log file past end of file (3076)
+16:11:08.796477	      0        65966      1038688
+		Error: offset to log file past end of file (3076)
+16:11:11.264798	      0        68180      1042032
+		Error: offset to log file past end of file (3076)
+16:11:13.259723	      0        69936      1045256
+		Error: offset to log file past end of file (3076)
+11:02:12.1342514690	  29015    816930151       554564
+		Warning: file missing or compressed for log volume 29015
+		Error: illegal timestamp value (132 sec, 1342514690 usec)
+		Error: offset to meta file past end of file (75462)
+		Error: timestamp went backwards in time 816930673.259723 -> 132.1342514690
+10:59:58.1836019565	  1650524160            0            0
+		Warning: file missing or compressed for log volume 1650524160
+		Error: illegal timestamp value (-2 sec, 1836019565 usec)
+		Error: timestamp went backwards in time 132.1342514690 -> -2.1836019565
+11:00:00.000000	      0            0            0
+		Error: volume number decreased
+11:00:00.000000	      0            0            0
+11:00:00.000000	  1163088941    825312595   1412247856
+		Warning: file missing or compressed for log volume 1163088941
+		Error: offset to meta file past end of file (75462)
+00:09:51.842674224	  741552179    791820848    805306368
+		Warning: file missing or compressed for log volume 741552179
+		Error: illegal timestamp value (741881391 sec, 842674224 usec)
+		Error: offset to meta file past end of file (75462)
+		Error: volume number decreased
+11:00:00.000000	    132    816930151       554564
+		Warning: file missing or compressed for log volume 132
+		Error: offset to meta file past end of file (75462)
+		Error: timestamp went backwards in time 741881391.842674224 -> 0.000000
+		Error: volume number decreased
+11:00:00.001644	    132    816930151       842927
+		Error: offset to meta file past end of file (75462)
+11:00:00.004949	    776    816930164       394424
+		Warning: file missing or compressed for log volume 776
+		Error: offset to meta file past end of file (75462)
+11:00:00.005974	  17720    816930172       126787
+		Warning: file missing or compressed for log volume 17720
+		Error: offset to meta file past end of file (75462)
+11:00:00.010829	  26312    816930177       161532
+		Warning: file missing or compressed for log volume 26312
+		Error: offset to meta file past end of file (75462)
+11:00:00.016255	  34200    816930599       184043
+		Warning: file missing or compressed for log volume 34200
+		Error: offset to meta file past end of file (75462)
+11:00:00.021581	  904248    816930612       524938
+		Warning: file missing or compressed for log volume 904248
+		Error: offset to meta file past end of file (75462)
+11:00:00.026722	  932696    816930622       471061
+		Warning: file missing or compressed for log volume 932696
+		Error: offset to meta file past end of file (75462)
+11:00:00.031712	  952816    816930626       115458
+		Warning: file missing or compressed for log volume 952816
+		Error: offset to meta file past end of file (75462)
+11:00:00.036430	  956800    816930630       222020
+		Warning: file missing or compressed for log volume 956800
+		Error: offset to meta file past end of file (75462)
+11:00:00.040879	  960744    816930640       330045
+		Warning: file missing or compressed for log volume 960744
+		Error: offset to meta file past end of file (75462)
+11:00:00.045185	  987512    816930648       730269
+		Warning: file missing or compressed for log volume 987512
+		Error: offset to meta file past end of file (75462)
+11:00:00.049355	  1002648    816930651       373224
+		Warning: file missing or compressed for log volume 1002648
+		Error: offset to meta file past end of file (75462)
+11:00:00.053400	  1006392    816930658       243284
+		Warning: file missing or compressed for log volume 1006392
+		Error: offset to meta file past end of file (75462)
+11:00:00.057141	  1021208    816930661        70416
+		Warning: file missing or compressed for log volume 1021208
+		Error: offset to meta file past end of file (75462)
+11:00:00.060380	  1024872    816930664       194088
+		Warning: file missing or compressed for log volume 1024872
+		Error: offset to meta file past end of file (75462)
+11:00:00.063475	  1028416    816930668       796477
+		Warning: file missing or compressed for log volume 1028416
+		Error: offset to meta file past end of file (75462)
+11:00:00.065966	  1038688    816930671       264798
+		Warning: file missing or compressed for log volume 1038688
+		Error: offset to meta file past end of file (75462)
+11:00:00.068180	  1042032    816930673       259723
+		Warning: file missing or compressed for log volume 1042032
+		Error: offset to meta file past end of file (75462)
 
 === pmdumplog -t, no index ===
 Note: timezone set to local timezone of host "moomba" from archive
 
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 
 === pmdumplog -l ===
 Note: timezone set to local timezone of host "moomba" from archive
@@ -267,8 +267,8 @@ WARNING: This archive is sufficiently damaged that it may not be possible to
 
 Log Label (Log Format Version 2)
 Performance metrics from host moomba
-  commencing Tue Nov 21 16:02:31.554 1995
-  ending     UNKNOWN
+    commencing Tue Nov 21 16:02:31.554564 1995
+    ending     UNKNOWN
 
 === pmdumplog -L ===
 Note: timezone set to local timezone of host "moomba" from archive
@@ -280,8 +280,8 @@ WARNING: This archive is sufficiently damaged that it may not be possible to
 
 Log Label (Log Format Version 2)
 Performance metrics from host moomba
-  commencing Tue Nov 21 16:02:31.554 1995
-  ending     UNKNOWN
+    commencing Tue Nov 21 16:02:31.554564 1995
+    ending     UNKNOWN
 Archive timezone: EST-11EST-10,86/2:00,303/2:00
 PID for pmlogger: 29015
 
@@ -295,60 +295,61 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive log
 Note: timezone set to local timezone of host "moomba" from archive
 
 
-16:02:31.554  1.80.7 (irix.disk.dev.total):
-                inst [131329 or "dks1d1"] value 2818602300
-                inst [131330 or "dks1d2"] value 2818572381
-                inst [131331 or "dks1d3"] value 2818572576
-                inst [131841 or "dks3d1"] value 2818572974
-                inst [131842 or "dks3d2"] value 2818575973
-                inst [131843 or "dks3d3"] value 2818572531
-                inst [131844 or "dks3d4"] value 2818589119
-                inst [132097 or "dks4d1"] value 2818573902
-                inst [132098 or "dks4d2"] value 2818623279
-              1.80.2 (irix.disk.dev.write):
-                inst [131329 or "dks1d1"] value 12082
-                inst [131330 or "dks1d2"] value 11
-                inst [131331 or "dks1d3"] value 8
-                inst [131841 or "dks3d1"] value 310
-                inst [131842 or "dks3d2"] value 1181
-                inst [131843 or "dks3d3"] value 5
-                inst [131844 or "dks3d4"] value 1656
-                inst [132097 or "dks4d1"] value 524
-                inst [132098 or "dks4d2"] value 47856
-              1.80.1 (irix.disk.dev.read):
-                inst [131329 or "dks1d1"] value 2818590218
-                inst [131330 or "dks1d2"] value 2818572370
-                inst [131331 or "dks1d3"] value 2818572568
-                inst [131841 or "dks3d1"] value 2818572664
-                inst [131842 or "dks3d2"] value 2818574792
-                inst [131843 or "dks3d3"] value 2818572526
-                inst [131844 or "dks3d4"] value 2818587463
-                inst [132097 or "dks4d1"] value 2818573378
-                inst [132098 or "dks4d2"] value 2818575423
-              1.25.12 (irix.network.interface.out.bytes):
-                inst [1 or "et0"] value 154960710
-                inst [2 or "lo0"] value 19752688
-              1.25.7 (irix.network.interface.in.bytes):
-                inst [1 or "et0"] value 22534841
-                inst [2 or "lo0"] value 19752688
-              1.18.3 (irix.kernel.all.load):
-                inst [1 or "1 minute"] value 0.453125
-                inst [5 or "5 minute"] value 1.9179688
-                inst [15 or "15 minute"] value 1.7792969
-              1.10.54 (irix.kernel.all.ipc.sema): value 0
-              1.10.53 (irix.kernel.all.ipc.msg): value 0
-              1.10.29 (irix.kernel.all.writech): value 157316163
-              1.10.19 (irix.kernel.all.syscall): value 8332101
-              1.10.16 (irix.kernel.all.runque): value 4388
-              1.10.15 (irix.kernel.all.runocc): value 2109
-              1.10.14 (irix.kernel.all.readch): value 197783843
-              1.10.12 (irix.kernel.all.cpu.wait.total): value 2481550
-              1.10.11 (irix.kernel.all.cpu.user): value 1748450
-              1.10.10 (irix.kernel.all.cpu.sxbrk): value 0
-              1.10.9 (irix.kernel.all.cpu.sys): value 2215310
-              1.10.8 (irix.kernel.all.cpu.intr): value 241150
-              1.10.7 (irix.kernel.all.cpu.idle): value 3536037
-              1.10.3 (irix.kernel.all.pswitch): value 4195911
+16:02:31.554564 20 metrics
+    1.80.7 (irix.disk.dev.total):
+        inst [131329 or "dks1d1"] value 2818602300
+        inst [131330 or "dks1d2"] value 2818572381
+        inst [131331 or "dks1d3"] value 2818572576
+        inst [131841 or "dks3d1"] value 2818572974
+        inst [131842 or "dks3d2"] value 2818575973
+        inst [131843 or "dks3d3"] value 2818572531
+        inst [131844 or "dks3d4"] value 2818589119
+        inst [132097 or "dks4d1"] value 2818573902
+        inst [132098 or "dks4d2"] value 2818623279
+    1.80.2 (irix.disk.dev.write):
+        inst [131329 or "dks1d1"] value 12082
+        inst [131330 or "dks1d2"] value 11
+        inst [131331 or "dks1d3"] value 8
+        inst [131841 or "dks3d1"] value 310
+        inst [131842 or "dks3d2"] value 1181
+        inst [131843 or "dks3d3"] value 5
+        inst [131844 or "dks3d4"] value 1656
+        inst [132097 or "dks4d1"] value 524
+        inst [132098 or "dks4d2"] value 47856
+    1.80.1 (irix.disk.dev.read):
+        inst [131329 or "dks1d1"] value 2818590218
+        inst [131330 or "dks1d2"] value 2818572370
+        inst [131331 or "dks1d3"] value 2818572568
+        inst [131841 or "dks3d1"] value 2818572664
+        inst [131842 or "dks3d2"] value 2818574792
+        inst [131843 or "dks3d3"] value 2818572526
+        inst [131844 or "dks3d4"] value 2818587463
+        inst [132097 or "dks4d1"] value 2818573378
+        inst [132098 or "dks4d2"] value 2818575423
+    1.25.12 (irix.network.interface.out.bytes):
+        inst [1 or "et0"] value 154960710
+        inst [2 or "lo0"] value 19752688
+    1.25.7 (irix.network.interface.in.bytes):
+        inst [1 or "et0"] value 22534841
+        inst [2 or "lo0"] value 19752688
+    1.18.3 (irix.kernel.all.load):
+        inst [1 or "1 minute"] value 0.453125
+        inst [5 or "5 minute"] value 1.9179688
+        inst [15 or "15 minute"] value 1.7792969
+    1.10.54 (irix.kernel.all.ipc.sema): value 0
+    1.10.53 (irix.kernel.all.ipc.msg): value 0
+    1.10.29 (irix.kernel.all.writech): value 157316163
+    1.10.19 (irix.kernel.all.syscall): value 8332101
+    1.10.16 (irix.kernel.all.runque): value 4388
+    1.10.15 (irix.kernel.all.runocc): value 2109
+    1.10.14 (irix.kernel.all.readch): value 197783843
+    1.10.12 (irix.kernel.all.cpu.wait.total): value 2481550
+    1.10.11 (irix.kernel.all.cpu.user): value 1748450
+    1.10.10 (irix.kernel.all.cpu.sxbrk): value 0
+    1.10.9 (irix.kernel.all.cpu.sys): value 2215310
+    1.10.8 (irix.kernel.all.cpu.intr): value 241150
+    1.10.7 (irix.kernel.all.cpu.idle): value 3536037
+    1.10.3 (irix.kernel.all.pswitch): value 4195911
 
 === pmlogsummary ===
 pmlogsummary: Cannot locate end of archive bad: Corrupted record in a PCP archive log

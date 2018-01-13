@@ -7,8 +7,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Tue Feb 25 10:45:08.440 1997
-  ending     Tue Feb 25 11:05:07.411 1997
+    commencing Tue Feb 25 10:45:08.440968 1997
+    ending     Tue Feb 25 11:05:07.411966 1997
 Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
@@ -18,8 +18,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Tue Feb 25 10:50:07.407 1997
-  ending     Tue Feb 25 10:59:07.410 1997
+    commencing Tue Feb 25 10:50:07.407387 1997
+    ending     Tue Feb 25 10:59:07.410254 1997
 Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
@@ -29,8 +29,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Tue Feb 25 10:45:08.440 1997
-  ending     Tue Feb 25 11:05:07.411 1997
+    commencing Tue Feb 25 10:45:08.440968 1997
+    ending     Tue Feb 25 11:05:07.411966 1997
 Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
@@ -40,8 +40,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Tue Feb 25 10:45:08.440 1997
-  ending     Tue Feb 25 11:05:07.411 1997
+    commencing Tue Feb 25 10:45:08.440968 1997
+    ending     Tue Feb 25 11:05:07.411966 1997
 Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
@@ -65,326 +65,386 @@ PMID: 29.0.37 (sample.mirage)
 Note: timezone set to local timezone of host "gonzo" from archive
 Instance Domains in the Log ...
 InDom: 29.2
-10:46:07.406 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
+10:46:07.406806 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
 InDom: 29.3
-10:46:07.406 5 instances
-                 0 or "m-00"
-                 12 or "m-12"
-                 13 or "m-13"
-                 14 or "m-14"
-                 15 or "m-15"
-10:47:07.419 5 instances
-                 0 or "m-00"
-                 12 or "m-12"
-                 13 or "m-13"
-                 15 or "m-15"
-                 16 or "m-16"
-10:48:07.406 7 instances
-                 0 or "m-00"
-                 12 or "m-12"
-                 13 or "m-13"
-                 15 or "m-15"
-                 16 or "m-16"
-                 17 or "m-17"
-                 18 or "m-18"
-10:49:07.407 8 instances
-                 0 or "m-00"
-                 12 or "m-12"
-                 13 or "m-13"
-                 15 or "m-15"
-                 17 or "m-17"
-                 18 or "m-18"
-                 19 or "m-19"
-                 20 or "m-20"
-10:50:07.407 8 instances
-                 0 or "m-00"
-                 12 or "m-12"
-                 15 or "m-15"
-                 17 or "m-17"
-                 18 or "m-18"
-                 19 or "m-19"
-                 20 or "m-20"
-                 21 or "m-21"
-10:51:07.407 6 instances
-                 0 or "m-00"
-                 15 or "m-15"
-                 17 or "m-17"
-                 18 or "m-18"
-                 19 or "m-19"
-                 21 or "m-21"
-10:53:07.408 7 instances
-                 0 or "m-00"
-                 15 or "m-15"
-                 17 or "m-17"
-                 18 or "m-18"
-                 19 or "m-19"
-                 21 or "m-21"
-                 22 or "m-22"
-10:54:07.408 8 instances
-                 0 or "m-00"
-                 15 or "m-15"
-                 17 or "m-17"
-                 18 or "m-18"
-                 19 or "m-19"
-                 21 or "m-21"
-                 22 or "m-22"
-                 23 or "m-23"
-10:55:07.409 7 instances
-                 0 or "m-00"
-                 15 or "m-15"
-                 17 or "m-17"
-                 19 or "m-19"
-                 22 or "m-22"
-                 23 or "m-23"
-                 24 or "m-24"
-10:56:07.409 6 instances
-                 0 or "m-00"
-                 17 or "m-17"
-                 22 or "m-22"
-                 23 or "m-23"
-                 24 or "m-24"
-                 25 or "m-25"
-10:57:07.409 5 instances
-                 0 or "m-00"
-                 22 or "m-22"
-                 23 or "m-23"
-                 24 or "m-24"
-                 25 or "m-25"
-10:58:07.409 5 instances
-                 0 or "m-00"
-                 22 or "m-22"
-                 23 or "m-23"
-                 24 or "m-24"
-                 26 or "m-26"
-10:59:07.410 7 instances
-                 0 or "m-00"
-                 22 or "m-22"
-                 23 or "m-23"
-                 24 or "m-24"
-                 26 or "m-26"
-                 27 or "m-27"
-                 28 or "m-28"
-11:00:07.410 6 instances
-                 0 or "m-00"
-                 24 or "m-24"
-                 26 or "m-26"
-                 27 or "m-27"
-                 28 or "m-28"
-                 29 or "m-29"
-11:01:07.410 5 instances
-                 0 or "m-00"
-                 24 or "m-24"
-                 26 or "m-26"
-                 27 or "m-27"
-                 28 or "m-28"
-11:02:07.411 5 instances
-                 0 or "m-00"
-                 24 or "m-24"
-                 27 or "m-27"
-                 28 or "m-28"
-                 30 or "m-30"
-11:03:07.411 6 instances
-                 0 or "m-00"
-                 24 or "m-24"
-                 27 or "m-27"
-                 28 or "m-28"
-                 30 or "m-30"
-                 31 or "m-31"
-11:04:07.411 6 instances
-                 0 or "m-00"
-                 24 or "m-24"
-                 27 or "m-27"
-                 30 or "m-30"
-                 32 or "m-32"
-                 33 or "m-33"
-11:05:07.411 5 instances
-                 0 or "m-00"
-                 24 or "m-24"
-                 27 or "m-27"
-                 30 or "m-30"
-                 33 or "m-33"
+10:46:07.406806 5 instances
+   0 or "m-00"
+   12 or "m-12"
+   13 or "m-13"
+   14 or "m-14"
+   15 or "m-15"
+10:47:07.419122 5 instances
+   0 or "m-00"
+   12 or "m-12"
+   13 or "m-13"
+   15 or "m-15"
+   16 or "m-16"
+10:48:07.406714 7 instances
+   0 or "m-00"
+   12 or "m-12"
+   13 or "m-13"
+   15 or "m-15"
+   16 or "m-16"
+   17 or "m-17"
+   18 or "m-18"
+10:49:07.407160 8 instances
+   0 or "m-00"
+   12 or "m-12"
+   13 or "m-13"
+   15 or "m-15"
+   17 or "m-17"
+   18 or "m-18"
+   19 or "m-19"
+   20 or "m-20"
+10:50:07.407387 8 instances
+   0 or "m-00"
+   12 or "m-12"
+   15 or "m-15"
+   17 or "m-17"
+   18 or "m-18"
+   19 or "m-19"
+   20 or "m-20"
+   21 or "m-21"
+10:51:07.407667 6 instances
+   0 or "m-00"
+   15 or "m-15"
+   17 or "m-17"
+   18 or "m-18"
+   19 or "m-19"
+   21 or "m-21"
+10:53:07.408341 7 instances
+   0 or "m-00"
+   15 or "m-15"
+   17 or "m-17"
+   18 or "m-18"
+   19 or "m-19"
+   21 or "m-21"
+   22 or "m-22"
+10:54:07.408606 8 instances
+   0 or "m-00"
+   15 or "m-15"
+   17 or "m-17"
+   18 or "m-18"
+   19 or "m-19"
+   21 or "m-21"
+   22 or "m-22"
+   23 or "m-23"
+10:55:07.409073 7 instances
+   0 or "m-00"
+   15 or "m-15"
+   17 or "m-17"
+   19 or "m-19"
+   22 or "m-22"
+   23 or "m-23"
+   24 or "m-24"
+10:56:07.409201 6 instances
+   0 or "m-00"
+   17 or "m-17"
+   22 or "m-22"
+   23 or "m-23"
+   24 or "m-24"
+   25 or "m-25"
+10:57:07.409462 5 instances
+   0 or "m-00"
+   22 or "m-22"
+   23 or "m-23"
+   24 or "m-24"
+   25 or "m-25"
+10:58:07.409875 5 instances
+   0 or "m-00"
+   22 or "m-22"
+   23 or "m-23"
+   24 or "m-24"
+   26 or "m-26"
+10:59:07.410254 7 instances
+   0 or "m-00"
+   22 or "m-22"
+   23 or "m-23"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   28 or "m-28"
+11:00:07.410567 6 instances
+   0 or "m-00"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   28 or "m-28"
+   29 or "m-29"
+11:01:07.410735 5 instances
+   0 or "m-00"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   28 or "m-28"
+11:02:07.411038 5 instances
+   0 or "m-00"
+   24 or "m-24"
+   27 or "m-27"
+   28 or "m-28"
+   30 or "m-30"
+11:03:07.411488 6 instances
+   0 or "m-00"
+   24 or "m-24"
+   27 or "m-27"
+   28 or "m-28"
+   30 or "m-30"
+   31 or "m-31"
+11:04:07.411683 6 instances
+   0 or "m-00"
+   24 or "m-24"
+   27 or "m-27"
+   30 or "m-30"
+   32 or "m-32"
+   33 or "m-33"
+11:05:07.411966 5 instances
+   0 or "m-00"
+   24 or "m-24"
+   27 or "m-27"
+   30 or "m-30"
+   33 or "m-33"
 
 --- dump values for sample.bin ---
 Note: timezone set to local timezone of host "gonzo" from archive
-10:46:07.406  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:47:07.419  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:48:07.406  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:49:07.407  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:50:07.407  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:51:07.407  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:52:07.407  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:53:07.408  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:54:07.408  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:55:07.409  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:56:07.409  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:57:07.409  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:58:07.409  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-10:59:07.410  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-11:00:07.410  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-11:01:07.410  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-11:02:07.411  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-11:03:07.411  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-11:04:07.411  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
-11:05:07.411  29.0.6 (sample.bin):
-                inst [300 or "bin-300"] value 300
-                inst [700 or "bin-700"] value 700
-                inst [100 or "bin-100"] value 100
+10:46:07.406806 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:47:07.419122 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:48:07.406714 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:49:07.407160 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:50:07.407387 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:51:07.407667 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:52:07.407885 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:53:07.408341 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:54:07.408606 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:55:07.409073 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:56:07.409201 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:57:07.409462 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:58:07.409875 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+10:59:07.410254 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+11:00:07.410567 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+11:01:07.410735 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+11:02:07.411038 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+11:03:07.411488 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+11:04:07.411683 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
+11:05:07.411966 1 metric
+    29.0.6 (sample.bin):
+        inst [300 or "bin-300"] value 300
+        inst [700 or "bin-700"] value 700
+        inst [100 or "bin-100"] value 100
 
 --- dump values for sample.drift ---
 Note: timezone set to local timezone of host "gonzo" from archive
-10:46:07.406  29.0.7 (sample.drift): value 111
-10:47:07.419  29.0.7 (sample.drift): value 88
-10:48:07.406  29.0.7 (sample.drift): value 83
-10:49:07.407  29.0.7 (sample.drift): value 58
-10:50:07.407  29.0.7 (sample.drift): value 26
-10:51:07.407  29.0.7 (sample.drift): value 74
-10:52:07.407  29.0.7 (sample.drift): value 75
-10:53:07.408  29.0.7 (sample.drift): value 86
-10:54:07.408  29.0.7 (sample.drift): value 119
-10:55:07.409  29.0.7 (sample.drift): value 150
-10:56:07.409  29.0.7 (sample.drift): value 153
-10:57:07.409  29.0.7 (sample.drift): value 189
-10:58:07.409  29.0.7 (sample.drift): value 234
-10:59:07.410  29.0.7 (sample.drift): value 282
-11:00:07.410  29.0.7 (sample.drift): value 303
-11:01:07.410  29.0.7 (sample.drift): value 271
-11:02:07.411  29.0.7 (sample.drift): value 267
-11:03:07.411  29.0.7 (sample.drift): value 249
-11:04:07.411  29.0.7 (sample.drift): value 242
-11:05:07.411  29.0.7 (sample.drift): value 208
+10:46:07.406806 1 metric
+    29.0.7 (sample.drift): value 111
+10:47:07.419122 1 metric
+    29.0.7 (sample.drift): value 88
+10:48:07.406714 1 metric
+    29.0.7 (sample.drift): value 83
+10:49:07.407160 1 metric
+    29.0.7 (sample.drift): value 58
+10:50:07.407387 1 metric
+    29.0.7 (sample.drift): value 26
+10:51:07.407667 1 metric
+    29.0.7 (sample.drift): value 74
+10:52:07.407885 1 metric
+    29.0.7 (sample.drift): value 75
+10:53:07.408341 1 metric
+    29.0.7 (sample.drift): value 86
+10:54:07.408606 1 metric
+    29.0.7 (sample.drift): value 119
+10:55:07.409073 1 metric
+    29.0.7 (sample.drift): value 150
+10:56:07.409201 1 metric
+    29.0.7 (sample.drift): value 153
+10:57:07.409462 1 metric
+    29.0.7 (sample.drift): value 189
+10:58:07.409875 1 metric
+    29.0.7 (sample.drift): value 234
+10:59:07.410254 1 metric
+    29.0.7 (sample.drift): value 282
+11:00:07.410567 1 metric
+    29.0.7 (sample.drift): value 303
+11:01:07.410735 1 metric
+    29.0.7 (sample.drift): value 271
+11:02:07.411038 1 metric
+    29.0.7 (sample.drift): value 267
+11:03:07.411488 1 metric
+    29.0.7 (sample.drift): value 249
+11:04:07.411683 1 metric
+    29.0.7 (sample.drift): value 242
+11:05:07.411966 1 metric
+    29.0.7 (sample.drift): value 208
 
 --- dump values for sample.mirage ---
 Note: timezone set to local timezone of host "gonzo" from archive
-10:46:07.406  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 32
-                inst [13 or "m-13"] value 1330
-10:47:07.419  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 27
-                inst [13 or "m-13"] value 1325
-10:48:07.406  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 22
-                inst [13 or "m-13"] value 1320
-                inst [17 or "m-17"] value 1717
-10:49:07.407  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 15
-                inst [13 or "m-13"] value 1313
-                inst [17 or "m-17"] value 1711
-10:50:07.407  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 7
-                inst [17 or "m-17"] value 1704
-10:51:07.407  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 99
-                inst [17 or "m-17"] value 1797
-10:52:07.407  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 93
-                inst [17 or "m-17"] value 1791
-10:53:07.408  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 87
-                inst [17 or "m-17"] value 1785
-10:54:07.408  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 80
-                inst [17 or "m-17"] value 1778
-10:55:07.409  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 72
-                inst [17 or "m-17"] value 1770
-                inst [24 or "m-24"] value 2466
-10:56:07.409  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 65
-                inst [17 or "m-17"] value 1764
-                inst [24 or "m-24"] value 2461
-10:57:07.409  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 59
-                inst [24 or "m-24"] value 2456
-10:58:07.409  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 54
-                inst [24 or "m-24"] value 2451
-10:59:07.410  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 49
-                inst [24 or "m-24"] value 2446
-11:00:07.410  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 42
-                inst [24 or "m-24"] value 2441
-11:01:07.410  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 36
-                inst [24 or "m-24"] value 2435
-11:02:07.411  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 31
-                inst [24 or "m-24"] value 2430
-11:03:07.411  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 26
-                inst [24 or "m-24"] value 2425
-11:04:07.411  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 20
-                inst [24 or "m-24"] value 2419
-11:05:07.411  29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 14
-                inst [24 or "m-24"] value 2413
+10:46:07.406806 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 32
+        inst [13 or "m-13"] value 1330
+10:47:07.419122 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 27
+        inst [13 or "m-13"] value 1325
+10:48:07.406714 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 22
+        inst [13 or "m-13"] value 1320
+        inst [17 or "m-17"] value 1717
+10:49:07.407160 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 15
+        inst [13 or "m-13"] value 1313
+        inst [17 or "m-17"] value 1711
+10:50:07.407387 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 7
+        inst [17 or "m-17"] value 1704
+10:51:07.407667 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 99
+        inst [17 or "m-17"] value 1797
+10:52:07.407885 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 93
+        inst [17 or "m-17"] value 1791
+10:53:07.408341 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 87
+        inst [17 or "m-17"] value 1785
+10:54:07.408606 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 80
+        inst [17 or "m-17"] value 1778
+10:55:07.409073 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 72
+        inst [17 or "m-17"] value 1770
+        inst [24 or "m-24"] value 2466
+10:56:07.409201 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 65
+        inst [17 or "m-17"] value 1764
+        inst [24 or "m-24"] value 2461
+10:57:07.409462 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 59
+        inst [24 or "m-24"] value 2456
+10:58:07.409875 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 54
+        inst [24 or "m-24"] value 2451
+10:59:07.410254 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 49
+        inst [24 or "m-24"] value 2446
+11:00:07.410567 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 42
+        inst [24 or "m-24"] value 2441
+11:01:07.410735 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 36
+        inst [24 or "m-24"] value 2435
+11:02:07.411038 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 31
+        inst [24 or "m-24"] value 2430
+11:03:07.411488 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 26
+        inst [24 or "m-24"] value 2425
+11:04:07.411683 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 20
+        inst [24 or "m-24"] value 2419
+11:05:07.411966 1 metric
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 14
+        inst [24 or "m-24"] value 2413
 
  --- step 7: test config file, plus -S, -T and -z flags ---
 (output depends on archives/mirage{0,index,meta})
