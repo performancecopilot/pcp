@@ -140,7 +140,7 @@ Requires: initscripts
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
 %global pmda_remove() %{expand:
-if [ "%1" -eq 0 ]
+if [ %1 -eq 0 ]
 then
     PCP_PMDAS_DIR=@pcp_pmdas_dir@
     PCP_ETC_DIR=@pcp_etc_dir@
@@ -154,23 +154,23 @@ fi
 %global selinux_handle_policy() %{expand:
 if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
 then
-    if [ "%1" -eq 1 ]
+    if [ %1 -eq 1 ]
     then
 	PCP_SELINUX_DIR=@pcp_selinux_dir@
 	if [ -f "$PCP_SELINUX_DIR/%2" ]
 	then
-	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
 	    then
 		(semodule -X 400 -i $PCP_SELINUX_DIR/%2)
 	    else
 		(semodule -i $PCP_SELINUX_DIR/%2)
 	    fi #semodule -X flag check
 	fi
-    elif [ "%1" -eq 0 ]
+    elif [ %1 -eq 0 ]
     then
 	if semodule -l | grep %2 >/dev/null 2>&1
 	then
-	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
 	    then
 		(semodule -X 400 -r %2 >/dev/null)
 	    else
