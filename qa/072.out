@@ -10,10 +10,10 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 number of InDom entries is OK
 expect 2 sets of values for disks and 2 sets of values for networks ...
-              PMID (disk.dev.total)
-              PMID (disk.dev.total)
-              PMID (network.interface.in.bytes)
-              PMID (network.interface.in.bytes)
+    PMID (disk.dev.total)
+    PMID (disk.dev.total)
+    PMID (network.interface.in.bytes)
+    PMID (network.interface.in.bytes)
 
 Log for pmlogger on HOST started DATE
 
@@ -25,7 +25,7 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 number of InDom entries is OK
 expect 2 sets of values for disks and 2 sets of values for networks ...
-              PMID (disk.dev.total)
-              PMID (disk.dev.total)
-              PMID (network.interface.in.bytes)
-              PMID (network.interface.in.bytes)
+    PMID (disk.dev.total)
+    PMID (disk.dev.total)
+    PMID (network.interface.in.bytes)
+    PMID (network.interface.in.bytes)
