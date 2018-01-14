@@ -1,5 +1,4 @@
 QA output created by 764
-[TIMESTAMP] pmie(PID) Info: Cannot connect to pmcd no.such.host.pcp.io
 pmie: warning - pmcd via no.such.host.pcp.io is unreachable
 DATE: [1] no value for first fetch
 DATE: [2] no value for first two fetches
@@ -13,4 +12,3 @@ DATE: [3] unknown as expected
 DATE: [1] pmcd sees PDUs as expected
 DATE: [2] pmcd sees PDUs for 2 samples as expected
 DATE: [3] unknown as expected
-[TIMESTAMP] pmie(PID) Info: evaluator exiting

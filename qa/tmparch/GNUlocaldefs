@@ -117,6 +117,7 @@ noti-interp.0:	interp.0
 # gap: 10 sec data, 5 sec gap, 10 sec data
 # gap2: 10 sec data, 5 sec gap, 10 sec data, 5 sec gap, 10 sec data
 # sample.bin instances change across gaps
+# force <mark> at gaps
 #
 gap.0 gap2.0:
 	rm -rf tmp
@@ -126,8 +127,10 @@ gap.0 gap2.0:
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-400"] }' >tmp/C.config
 	pmlogger -s 10 -c tmp/A.config tmp/A
 	sleep 5
+	pmstore pmcd.seqnum 2060
 	pmlogger -s 10 -c tmp/B.config tmp/B
 	sleep 5
+	pmstore pmcd.seqnum 2061
 	pmlogger -s 10 -c tmp/C.config tmp/C
 	rm -f gap.index gap.meta gap.0
 	pmlogextract tmp/A tmp/B gap

@@ -7,7 +7,7 @@ MYLOG.4 700-900 bytes
 
 
 Temporal Index
-             month-day end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0            0       OFFSET       OFFSET
 TIMESTAMP-1            1       OFFSET       OFFSET
 TIMESTAMP-2            2       OFFSET       OFFSET
@@ -15,5 +15,5 @@ TIMESTAMP-3            3       OFFSET       OFFSET
 TIMESTAMP-4            4       OFFSET       OFFSET
 TIMESTAMP-5            4       OFFSET       OFFSET
 
-=== samples, expect 50 + 5 for prologue + 5 for epilogue ===
-60
+=== samples, expect 50 + 1 for prologue + 1 for epilogue ===
+52

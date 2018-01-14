@@ -75,31 +75,36 @@ DATE: Bingo!
 
 pmlogger ...
 
+TIMESTAMP 5 metrics
 
-TIMESTAMP  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
-              30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
-              30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
-              30.0.1004 (sampledso.secret.foo.bar.four): value 4
-              30.0.1003 (sampledso.secret.foo.bar.three): value 3
-              30.0.1002 (sampledso.secret.foo.two): value 2
-              30.0.1001 (sampledso.secret.foo.one): value 1
-              30.0.1000 (sampledso.secret.bar): value "foo"
+TIMESTAMP 8 metrics
+    30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+    30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
+    30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
+    30.0.1004 (sampledso.secret.foo.bar.four): value 4
+    30.0.1003 (sampledso.secret.foo.bar.three): value 3
+    30.0.1002 (sampledso.secret.foo.two): value 2
+    30.0.1001 (sampledso.secret.foo.one): value 1
+    30.0.1000 (sampledso.secret.bar): value "foo"
 
-TIMESTAMP  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
-              30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
-              30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
-              30.0.1004 (sampledso.secret.foo.bar.four): value 4
-              30.0.1003 (sampledso.secret.foo.bar.three): value 3
-              30.0.1002 (sampledso.secret.foo.two): value 2
-              30.0.1001 (sampledso.secret.foo.one): value 1
-              30.0.1000 (sampledso.secret.bar): value "foo"
+TIMESTAMP 8 metrics
+    30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+    30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
+    30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
+    30.0.1004 (sampledso.secret.foo.bar.four): value 4
+    30.0.1003 (sampledso.secret.foo.bar.three): value 3
+    30.0.1002 (sampledso.secret.foo.two): value 2
+    30.0.1001 (sampledso.secret.foo.one): value 1
+    30.0.1000 (sampledso.secret.bar): value "foo"
 
-TIMESTAMP  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
-              30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
-              30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
-              30.0.1004 (sampledso.secret.foo.bar.four): value 4
-              30.0.1003 (sampledso.secret.foo.bar.three): value 3
-              30.0.1002 (sampledso.secret.foo.two): value 2
-              30.0.1001 (sampledso.secret.foo.one): value 1
-              30.0.1000 (sampledso.secret.bar): value "foo"
+TIMESTAMP 8 metrics
+    30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+    30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
+    30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
+    30.0.1004 (sampledso.secret.foo.bar.four): value 4
+    30.0.1003 (sampledso.secret.foo.bar.three): value 3
+    30.0.1002 (sampledso.secret.foo.two): value 2
+    30.0.1001 (sampledso.secret.foo.one): value 1
+    30.0.1000 (sampledso.secret.bar): value "foo"
 
+TIMESTAMP 5 metrics

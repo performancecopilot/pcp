@@ -66,8 +66,8 @@ Removing input archive files ... done
  Log Label (Log Format Version 2)
 -Performance metrics from host bozo-laptop
 +Performance metrics from host dreaming
-   commencing Sat Oct  1 21:10:11.751 2011
-   ending     Sat Oct  1 22:10:12.128 2011
+     commencing Sat Oct  1 21:10:11.751520 2011
+     ending     Sat Oct  1 22:10:12.128378 2011
  
 
 +++ expect fix via local symlink config file +++
@@ -95,8 +95,8 @@ Removing input archive files ... done
  Log Label (Log Format Version 2)
 -Performance metrics from host bozo-laptop
 +Performance metrics from host dreaming
-   commencing Sat Oct  1 21:10:11.751 2011
-   ending     Sat Oct  1 22:10:12.128 2011
+     commencing Sat Oct  1 21:10:11.751520 2011
+     ending     Sat Oct  1 22:10:12.128378 2011
  
 
 +++ expect fix via global config dir +++
@@ -124,8 +124,8 @@ Removing input archive files ... done
  Log Label (Log Format Version 2)
 -Performance metrics from host bozo-laptop
 +Performance metrics from host dreaming
-   commencing Sat Oct  1 21:10:11.751 2011
-   ending     Sat Oct  1 22:10:12.128 2011
+     commencing Sat Oct  1 21:10:11.751520 2011
+     ending     Sat Oct  1 22:10:12.128378 2011
  
 
 +++ expect fix via symlink to global config dir +++
@@ -153,8 +153,8 @@ Removing input archive files ... done
  Log Label (Log Format Version 2)
 -Performance metrics from host bozo-laptop
 +Performance metrics from host dreaming
-   commencing Sat Oct  1 21:10:11.751 2011
-   ending     Sat Oct  1 22:10:12.128 2011
+     commencing Sat Oct  1 21:10:11.751520 2011
+     ending     Sat Oct  1 22:10:12.128378 2011
  
 
 !!! metric sampledso.double.hundred { type -> float } !!!
@@ -208,20 +208,20 @@ Removing input archive files ... done
  PMID: 30.0.3 (sampledso.milliseconds)
      Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 @@ -121,10 +121,10 @@
- 21:10:11.751       0          132          132
- 21:10:11.876       0          350          284
- 21:10:11.878       0          652          428
--22:10:11.751       0         1727         3456
--22:10:11.876       0         1768         3608
--22:10:11.878       0         1940         3752
--22:10:12.128       0         2112         6248
-+22:10:11.751       0         1727         3448
-+22:10:11.876       0         1768         3600
-+22:10:11.878       0         1940         3744
-+22:10:12.128       0         2112         6232
+ 21:10:11.751520	      0          132          132
+ 21:10:11.876269	      0          350          284
+ 21:10:11.878990	      0          652          428
+-22:10:11.751520	      0         1727         3456
+-22:10:11.876269	      0         1768         3608
+-22:10:11.878990	      0         1940         3752
+-22:10:12.128378	      0         2112         6248
++22:10:11.751520	      0         1727         3448
++22:10:11.876269	      0         1768         3600
++22:10:11.878990	      0         1940         3744
++22:10:12.128378	      0         2112         6232
  
- 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
-               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+ 21:10:11.751520 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fix via local symlink config file +++
 
@@ -251,20 +251,20 @@ Removing input archive files ... done
  PMID: 30.0.3 (sampledso.milliseconds)
      Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 @@ -121,10 +121,10 @@
- 21:10:11.751       0          132          132
- 21:10:11.876       0          350          284
- 21:10:11.878       0          652          428
--22:10:11.751       0         1727         3456
--22:10:11.876       0         1768         3608
--22:10:11.878       0         1940         3752
--22:10:12.128       0         2112         6248
-+22:10:11.751       0         1727         3448
-+22:10:11.876       0         1768         3600
-+22:10:11.878       0         1940         3744
-+22:10:12.128       0         2112         6232
+ 21:10:11.751520	      0          132          132
+ 21:10:11.876269	      0          350          284
+ 21:10:11.878990	      0          652          428
+-22:10:11.751520	      0         1727         3456
+-22:10:11.876269	      0         1768         3608
+-22:10:11.878990	      0         1940         3752
+-22:10:12.128378	      0         2112         6248
++22:10:11.751520	      0         1727         3448
++22:10:11.876269	      0         1768         3600
++22:10:11.878990	      0         1940         3744
++22:10:12.128378	      0         2112         6232
  
- 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
-               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+ 21:10:11.751520 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fix via global config dir +++
 
@@ -294,20 +294,20 @@ Removing input archive files ... done
  PMID: 30.0.3 (sampledso.milliseconds)
      Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 @@ -121,10 +121,10 @@
- 21:10:11.751       0          132          132
- 21:10:11.876       0          350          284
- 21:10:11.878       0          652          428
--22:10:11.751       0         1727         3456
--22:10:11.876       0         1768         3608
--22:10:11.878       0         1940         3752
--22:10:12.128       0         2112         6248
-+22:10:11.751       0         1727         3448
-+22:10:11.876       0         1768         3600
-+22:10:11.878       0         1940         3744
-+22:10:12.128       0         2112         6232
+ 21:10:11.751520	      0          132          132
+ 21:10:11.876269	      0          350          284
+ 21:10:11.878990	      0          652          428
+-22:10:11.751520	      0         1727         3456
+-22:10:11.876269	      0         1768         3608
+-22:10:11.878990	      0         1940         3752
+-22:10:12.128378	      0         2112         6248
++22:10:11.751520	      0         1727         3448
++22:10:11.876269	      0         1768         3600
++22:10:11.878990	      0         1940         3744
++22:10:12.128378	      0         2112         6232
  
- 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
-               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+ 21:10:11.751520 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fix via symlink to global config dir +++
 
@@ -337,20 +337,20 @@ Removing input archive files ... done
  PMID: 30.0.3 (sampledso.milliseconds)
      Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 @@ -121,10 +121,10 @@
- 21:10:11.751       0          132          132
- 21:10:11.876       0          350          284
- 21:10:11.878       0          652          428
--22:10:11.751       0         1727         3456
--22:10:11.876       0         1768         3608
--22:10:11.878       0         1940         3752
--22:10:12.128       0         2112         6248
-+22:10:11.751       0         1727         3448
-+22:10:11.876       0         1768         3600
-+22:10:11.878       0         1940         3744
-+22:10:12.128       0         2112         6232
+ 21:10:11.751520	      0          132          132
+ 21:10:11.876269	      0          350          284
+ 21:10:11.878990	      0          652          428
+-22:10:11.751520	      0         1727         3456
+-22:10:11.876269	      0         1768         3608
+-22:10:11.878990	      0         1940         3752
+-22:10:12.128378	      0         2112         6248
++22:10:11.751520	      0         1727         3448
++22:10:11.876269	      0         1768         3600
++22:10:11.878990	      0         1940         3744
++22:10:12.128378	      0         2112         6232
  
- 21:10:11.751  2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
-               2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
+ 21:10:11.751520 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fail when -r used and local config file present +++
 

@@ -66,8 +66,8 @@ event.missed PMID: 511.0.2
     Semantics: discrete  Units: none
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 Descriptions for Metrics in the Log ...
 PMID: 245.0.5 (my.metric.string)
@@ -80,17 +80,20 @@ PMID: 245.0.7 (my.metric.strung)
 Instance Domains in the Log ...
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
-TIMESTAMP       0          132          132
-TIMESTAMP       0          244          132
+		Log Vol    end(meta)     end(log)
+TIMESTAMP      0          132          132
+TIMESTAMP      0          244          132
 
 [116 bytes]
-TIMESTAMP  245.0.7 (my.metric.strung): value "a first string value"
-              245.0.5 (my.metric.string): value "a second string value"
+TIMESTAMP 2 metrics
+    245.0.7 (my.metric.strung): value "a first string value"
+    245.0.5 (my.metric.string): value "a second string value"
 
 [68 bytes]
-TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+TIMESTAMP 1 metric
+    245.0.5 (my.metric.string): value "a third string value"
 
 [116 bytes]
-TIMESTAMP  245.0.5 (my.metric.string): value "a fourth string value"
-              245.0.7 (my.metric.strung): value "a fifth string value"
+TIMESTAMP 2 metrics
+    245.0.5 (my.metric.string): value "a fourth string value"
+    245.0.7 (my.metric.strung): value "a fifth string value"

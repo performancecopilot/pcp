@@ -24,12 +24,12 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 Instance Domains in the Log ...
 InDom: 29.1
 TIMESTAMP 3 instances
-                 0 or "red"
-                 1 or "green"
-                 2 or "blue"
+   0 or "red"
+   1 or "green"
+   2 or "blue"
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Complete, expect meta data and 4 sets of results
 Log Label (Log Format Version 2)
@@ -58,50 +58,56 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 Instance Domains in the Log ...
 InDom: 29.1
 TIMESTAMP 3 instances
-                 0 or "red"
-                 1 or "green"
-                 2 or "blue"
+   0 or "red"
+   1 or "green"
+   2 or "blue"
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 
-TIMESTAMP  29.0.5 (sample.colour):
-                inst [0 or "red"] value INTEGER
-                inst [1 or "green"] value INTEGER
-                inst [2 or "blue"] value INTEGER
+TIMESTAMP 1 metric
+    29.0.5 (sample.colour):
+        inst [0 or "red"] value INTEGER
+        inst [1 or "green"] value INTEGER
+        inst [2 or "blue"] value INTEGER
 
-TIMESTAMP  29.0.5 (sample.colour):
-                inst [0 or "red"] value INTEGER
-                inst [1 or "green"] value INTEGER
-                inst [2 or "blue"] value INTEGER
+TIMESTAMP 1 metric
+    29.0.5 (sample.colour):
+        inst [0 or "red"] value INTEGER
+        inst [1 or "green"] value INTEGER
+        inst [2 or "blue"] value INTEGER
 
-TIMESTAMP  29.0.5 (sample.colour):
-                inst [0 or "red"] value INTEGER
-                inst [1 or "green"] value INTEGER
-                inst [2 or "blue"] value INTEGER
+TIMESTAMP 1 metric
+    29.0.5 (sample.colour):
+        inst [0 or "red"] value INTEGER
+        inst [1 or "green"] value INTEGER
+        inst [2 or "blue"] value INTEGER
 
-TIMESTAMP  29.0.5 (sample.colour):
-                inst [0 or "red"] value INTEGER
-                inst [1 or "green"] value INTEGER
-                inst [2 or "blue"] value INTEGER
+TIMESTAMP 1 metric
+    29.0.5 (sample.colour):
+        inst [0 or "red"] value INTEGER
+        inst [1 or "green"] value INTEGER
+        inst [2 or "blue"] value INTEGER
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 
 pmlogger log
 Log for pmlogger on HOST started DATE

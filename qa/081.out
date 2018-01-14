@@ -26,13 +26,13 @@ From archive on bozo ...
 
 Instance Domains in the Log ...
 InDom: 1.5
-05:27:09.991 3 instances
-                 1 or "1 minute"
-                 5 or "5 minute"
-                 15 or "15 minute"
+05:27:09.991915 3 instances
+   1 or "1 minute"
+   5 or "5 minute"
+   15 or "15 minute"
 InDom: 1.1
-05:27:09.991 1 instances
-                 0 or "cpu0"
+05:27:09.991915 1 instances
+   0 or "cpu0"
 kernel.all.load:
 pm*InDom: inst=0 Instance domain identifier not defined in the PCP archive log
 pm*InDomArchive: inst=0 Instance identifier not defined in the PCP archive log

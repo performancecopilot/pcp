@@ -18,8 +18,8 @@ trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 _filter()
 {
     $PCP_AWK_PROG '
-BEGIN		{ min["0.1"] = 58; max["0.1"] = 62
-		  min["0.2"] = 28; max["0.2"] = 32
+BEGIN		{ min["0.1"] = 58; max["0.1"] = 68
+		  min["0.2"] = 26; max["0.2"] = 34
 		  min["0.4"] = 13; max["0.4"] = 17
 		  xx = "'$1'"
 		}
@@ -44,17 +44,17 @@ _filter_err()
     | uniq -c \
     | $PCP_AWK_PROG '
 BEGIN           {
-		  min["0.1-interp"] = 116; max["0.1-interp"] = 120
+		  min["0.1-interp"] = 116; max["0.1-interp"] = 136
 		  min["0.1-back"] = 1; max["0.1-back"] = 5
 		  min["0.1-forw"] = 51; max["0.1-forw"] = 58
 		  min["0.1-peek"] = 1; max["0.1-peek"] = 1
 
-		  min["0.2-interp"] = 58; max["0.2-interp"] = 60
+		  min["0.2-interp"] = 58; max["0.2-interp"] = 68
 		  min["0.2-back"] = 1; max["0.2-back"] = 5
 		  min["0.2-forw"] = 51; max["0.2-forw"] = 58
 		  min["0.2-peek"] = 1; max["0.2-peek"] = 1
 
-		  min["0.4-interp"] = 29; max["0.4-interp"] = 30
+		  min["0.4-interp"] = 29; max["0.4-interp"] = 34
 		  min["0.4-back"] = 1; max["0.4-back"] = 5
 		  min["0.4-forw"] = 51; max["0.4-forw"] = 58
 		  min["0.4-peek"] = 1; max["0.4-peek"] = 1
@@ -117,7 +117,16 @@ cat $tmp.log >>$seq.full
 
 echo
 echo "=== pmdumplog ===" | tee -a $seq.full
-pmdumplog -m $tmp | tee -a $seq.full | _filter_dump
+pmdumplog -L $tmp >>$seq.full
+pmdumplog -m $tmp \
+| tee -a $seq.full \
+| sed \
+    -e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
+| _filter_dump
 
 offset=`_arch_start $tmp 0.05`
 echo "offset=$offset" >>$seq.full

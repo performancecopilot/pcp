@@ -5,8 +5,8 @@ Note: timezone set to local timezone of host "gangliatest.64" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gangliatest.64
-  commencing Wed Feb 11 17:02:00.000 2015
-  ending     Wed Feb 11 17:21:00.000 2015
+    commencing Wed Feb 11 17:02:00.000000 2015
+    ending     Wed Feb 11 17:21:00.000000 2015
 
 Descriptions for Metrics in the Log ...
 PMID: 60.1.8 (swap.free)
@@ -69,499 +69,519 @@ PMID: 60.0.23 (kernel.all.cpu.idle)
 
 Instance Domains in the Log ...
 InDom: 60.2
-17:02:00.000 3 instances
-                 15 or "15 minute"
-                 5 or "5 minute"
-                 1 or "1 minute"
+17:02:00.000000 3 instances
+   15 or "15 minute"
+   5 or "5 minute"
+   1 or "1 minute"
 InDom: 60.0
-17:02:00.000 1 instances
-                 0 or "cpu0"
+17:02:00.000000 1 instances
+   0 or "cpu0"
 InDom: 60.3
-17:02:00.000 1 instances
-                 1000 or "total"
+17:02:00.000000 1 instances
+   1000 or "total"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
-17:02:00.000       0          132          132
-17:02:00.000       0         1395          132
-17:21:00.000       0         1395        12452
+		Log Vol    end(meta)     end(log)
+17:02:00.000000	      0          132          132
+17:02:00.000000	      0         1395          132
+17:21:00.000000	      0         1395        12452
 
 [616 bytes]
-17:02:00.000  60.26.0 (kernel.all.uptime): value 170620
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 1506
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 1451
-              60.0.23 (kernel.all.cpu.idle): value 59940
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 60
-              60.0.20 (kernel.all.cpu.user): value 0
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.079999998
-              60.1.4 (mem.util.bufmem): value 74900
-              60.1.5 (mem.util.cached): value 1537236
-              60.1.2 (mem.util.free): value 173724
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 19
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 16
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:02:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170620
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 1506
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 1451
+    60.0.23 (kernel.all.cpu.idle): value 59940
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 60
+    60.0.20 (kernel.all.cpu.user): value 0
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.079999998
+    60.1.4 (mem.util.bufmem): value 74900
+    60.1.5 (mem.util.cached): value 1537236
+    60.1.2 (mem.util.free): value 173724
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 19
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 16
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:03:00.000  60.26.0 (kernel.all.uptime): value 170680
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 2969
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 2618
-              60.0.23 (kernel.all.cpu.idle): value 119880
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 120
-              60.0.20 (kernel.all.cpu.user): value 0
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.079999998
-              60.1.4 (mem.util.bufmem): value 74900
-              60.1.5 (mem.util.cached): value 1537237
-              60.1.2 (mem.util.free): value 173724
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 36
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 29
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:03:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170680
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 2969
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 2618
+    60.0.23 (kernel.all.cpu.idle): value 119880
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 120
+    60.0.20 (kernel.all.cpu.user): value 0
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.079999998
+    60.1.4 (mem.util.bufmem): value 74900
+    60.1.5 (mem.util.cached): value 1537237
+    60.1.2 (mem.util.free): value 173724
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 36
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 29
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:04:00.000  60.26.0 (kernel.all.uptime): value 170740
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 4394
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 3536
-              60.0.23 (kernel.all.cpu.idle): value 179820
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 178
-              60.0.20 (kernel.all.cpu.user): value 2
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.079666667
-              60.1.4 (mem.util.bufmem): value 74928
-              60.1.5 (mem.util.cached): value 1537284
-              60.1.2 (mem.util.free): value 173728
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 53
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 39
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:04:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170740
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 4394
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 3536
+    60.0.23 (kernel.all.cpu.idle): value 179820
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 178
+    60.0.20 (kernel.all.cpu.user): value 2
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.079666667
+    60.1.4 (mem.util.bufmem): value 74928
+    60.1.5 (mem.util.cached): value 1537284
+    60.1.2 (mem.util.free): value 173728
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 53
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 39
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:05:00.000  60.26.0 (kernel.all.uptime): value 170800
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 5819
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 4454
-              60.0.23 (kernel.all.cpu.idle): value 239760
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 178
-              60.0.20 (kernel.all.cpu.user): value 62
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.07
-              60.1.4 (mem.util.bufmem): value 74928
-              60.1.5 (mem.util.cached): value 1537284
-              60.1.2 (mem.util.free): value 173728
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 69
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 49
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:05:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170800
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 5819
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 4454
+    60.0.23 (kernel.all.cpu.idle): value 239760
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 178
+    60.0.20 (kernel.all.cpu.user): value 62
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.07
+    60.1.4 (mem.util.bufmem): value 74928
+    60.1.5 (mem.util.cached): value 1537284
+    60.1.2 (mem.util.free): value 173728
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 69
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 49
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:06:00.000  60.26.0 (kernel.all.uptime): value 170860
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 7244
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 5372
-              60.0.23 (kernel.all.cpu.idle): value 299668
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 210
-              60.0.20 (kernel.all.cpu.user): value 122
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.064666666
-              60.1.4 (mem.util.bufmem): value 74928
-              60.1.5 (mem.util.cached): value 1537285
-              60.1.2 (mem.util.free): value 173727
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 85
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 59
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:06:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170860
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 7244
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 5372
+    60.0.23 (kernel.all.cpu.idle): value 299668
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 210
+    60.0.20 (kernel.all.cpu.user): value 122
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.064666666
+    60.1.4 (mem.util.bufmem): value 74928
+    60.1.5 (mem.util.cached): value 1537285
+    60.1.2 (mem.util.free): value 173727
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 85
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 59
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:07:00.000  60.26.0 (kernel.all.uptime): value 170920
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 8669
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 6290
-              60.0.23 (kernel.all.cpu.idle): value 359550
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 270
-              60.0.20 (kernel.all.cpu.user): value 182
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.059666667
-              60.1.4 (mem.util.bufmem): value 74932
-              60.1.5 (mem.util.cached): value 1537328
-              60.1.2 (mem.util.free): value 173720
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 101
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 70
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:07:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170920
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 8669
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 6290
+    60.0.23 (kernel.all.cpu.idle): value 359550
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 270
+    60.0.20 (kernel.all.cpu.user): value 182
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.059666667
+    60.1.4 (mem.util.bufmem): value 74932
+    60.1.5 (mem.util.cached): value 1537328
+    60.1.2 (mem.util.free): value 173720
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 101
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 70
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:08:00.000  60.26.0 (kernel.all.uptime): value 170980
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 10370
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 7737
-              60.0.23 (kernel.all.cpu.idle): value 419490
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 330
-              60.0.20 (kernel.all.cpu.user): value 242
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74932
-              60.1.5 (mem.util.cached): value 1537328
-              60.1.2 (mem.util.free): value 173720
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 122
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 86
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:08:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 170980
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 10370
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 7737
+    60.0.23 (kernel.all.cpu.idle): value 419490
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 330
+    60.0.20 (kernel.all.cpu.user): value 242
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74932
+    60.1.5 (mem.util.cached): value 1537328
+    60.1.2 (mem.util.free): value 173720
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 122
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 86
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:09:00.000  60.26.0 (kernel.all.uptime): value 171040
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 12298
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 9618
-              60.0.23 (kernel.all.cpu.idle): value 479430
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 390
-              60.0.20 (kernel.all.cpu.user): value 270
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74932
-              60.1.5 (mem.util.cached): value 1537328
-              60.1.2 (mem.util.free): value 173719
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 147
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 107
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:09:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171040
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 12298
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 9618
+    60.0.23 (kernel.all.cpu.idle): value 479430
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 390
+    60.0.20 (kernel.all.cpu.user): value 270
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74932
+    60.1.5 (mem.util.cached): value 1537328
+    60.1.2 (mem.util.free): value 173719
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 147
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 107
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:10:00.000  60.26.0 (kernel.all.uptime): value 171100
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 14225
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 11499
-              60.0.23 (kernel.all.cpu.idle): value 539371
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 449
-              60.0.20 (kernel.all.cpu.user): value 270
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74936
-              60.1.5 (mem.util.cached): value 1537372
-              60.1.2 (mem.util.free): value 173716
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 173
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 128
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:10:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171100
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 14225
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 11499
+    60.0.23 (kernel.all.cpu.idle): value 539371
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 449
+    60.0.20 (kernel.all.cpu.user): value 270
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74936
+    60.1.5 (mem.util.cached): value 1537372
+    60.1.2 (mem.util.free): value 173716
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 173
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 128
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:11:00.000  60.26.0 (kernel.all.uptime): value 171160
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 16152
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 13380
-              60.0.23 (kernel.all.cpu.idle): value 599371
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 449
-              60.0.20 (kernel.all.cpu.user): value 270
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74936
-              60.1.5 (mem.util.cached): value 1537372
-              60.1.2 (mem.util.free): value 173716
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 198
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 149
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:11:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171160
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 16152
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 13380
+    60.0.23 (kernel.all.cpu.idle): value 599371
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 449
+    60.0.20 (kernel.all.cpu.user): value 270
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74936
+    60.1.5 (mem.util.cached): value 1537372
+    60.1.2 (mem.util.free): value 173716
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 198
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 149
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:12:00.000  60.26.0 (kernel.all.uptime): value 171220
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 18079
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 15261
-              60.0.23 (kernel.all.cpu.idle): value 659340
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 480
-              60.0.20 (kernel.all.cpu.user): value 301
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74939
-              60.1.5 (mem.util.cached): value 1537384
-              60.1.2 (mem.util.free): value 173716
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 223
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 170
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:12:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171220
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 18079
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 15261
+    60.0.23 (kernel.all.cpu.idle): value 659340
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 480
+    60.0.20 (kernel.all.cpu.user): value 301
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74939
+    60.1.5 (mem.util.cached): value 1537384
+    60.1.2 (mem.util.free): value 173716
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 223
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 170
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:13:00.000  60.26.0 (kernel.all.uptime): value 171280
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 20329
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 17871
-              60.0.23 (kernel.all.cpu.idle): value 719280
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 540
-              60.0.20 (kernel.all.cpu.user): value 361
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74948
-              60.1.5 (mem.util.cached): value 1537420
-              60.1.2 (mem.util.free): value 173716
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 253
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 199
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:13:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171280
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 20329
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 17871
+    60.0.23 (kernel.all.cpu.idle): value 719280
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 540
+    60.0.20 (kernel.all.cpu.user): value 361
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74948
+    60.1.5 (mem.util.cached): value 1537420
+    60.1.2 (mem.util.free): value 173716
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 253
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 199
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:14:00.000  60.26.0 (kernel.all.uptime): value 171340
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 22901
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 21210
-              60.0.23 (kernel.all.cpu.idle): value 779220
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 600
-              60.0.20 (kernel.all.cpu.user): value 361
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74948
-              60.1.5 (mem.util.cached): value 1537420
-              60.1.2 (mem.util.free): value 173716
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 287
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 236
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:14:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171340
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 22901
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 21210
+    60.0.23 (kernel.all.cpu.idle): value 779220
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 600
+    60.0.20 (kernel.all.cpu.user): value 361
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74948
+    60.1.5 (mem.util.cached): value 1537420
+    60.1.2 (mem.util.free): value 173716
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 287
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 236
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:15:00.000  60.26.0 (kernel.all.uptime): value 171400
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 25473
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 24549
-              60.0.23 (kernel.all.cpu.idle): value 839160
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 660
-              60.0.20 (kernel.all.cpu.user): value 390
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74950
-              60.1.5 (mem.util.cached): value 1537430
-              60.1.2 (mem.util.free): value 173716
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 321
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 273
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:15:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171400
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 25473
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 24549
+    60.0.23 (kernel.all.cpu.idle): value 839160
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 660
+    60.0.20 (kernel.all.cpu.user): value 390
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74950
+    60.1.5 (mem.util.cached): value 1537430
+    60.1.2 (mem.util.free): value 173716
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 321
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 273
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:16:00.000  60.26.0 (kernel.all.uptime): value 171460
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 28045
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 27888
-              60.0.23 (kernel.all.cpu.idle): value 899100
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 720
-              60.0.20 (kernel.all.cpu.user): value 450
-              60.0.35 (kernel.all.cpu.wait.total): value 0
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74960
-              60.1.5 (mem.util.cached): value 1537695
-              60.1.2 (mem.util.free): value 172681
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 355
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 310
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:16:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171460
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 28045
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 27888
+    60.0.23 (kernel.all.cpu.idle): value 899100
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 720
+    60.0.20 (kernel.all.cpu.user): value 450
+    60.0.35 (kernel.all.cpu.wait.total): value 0
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74960
+    60.1.5 (mem.util.cached): value 1537695
+    60.1.2 (mem.util.free): value 172681
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 355
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 310
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:17:00.000  60.26.0 (kernel.all.uptime): value 171520
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 30618
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 31227
-              60.0.23 (kernel.all.cpu.idle): value 959040
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 780
-              60.0.20 (kernel.all.cpu.user): value 450
-              60.0.35 (kernel.all.cpu.wait.total): value 60
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 74960
-              60.1.5 (mem.util.cached): value 1537772
-              60.1.2 (mem.util.free): value 172336
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 390
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 348
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:17:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171520
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 30618
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 31227
+    60.0.23 (kernel.all.cpu.idle): value 959040
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 780
+    60.0.20 (kernel.all.cpu.user): value 450
+    60.0.35 (kernel.all.cpu.wait.total): value 60
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 74960
+    60.1.5 (mem.util.cached): value 1537772
+    60.1.2 (mem.util.free): value 172336
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 390
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 348
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:18:00.000  60.26.0 (kernel.all.uptime): value 171580
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 41369
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 41143
-              60.0.23 (kernel.all.cpu.idle): value 1018560
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 960
-              60.0.20 (kernel.all.cpu.user): value 630
-              60.0.35 (kernel.all.cpu.wait.total): value 240
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 75167
-              60.1.5 (mem.util.cached): value 1540181
-              60.1.2 (mem.util.free): value 169186
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 540
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 455
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:18:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171580
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 41369
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 41143
+    60.0.23 (kernel.all.cpu.idle): value 1018560
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 960
+    60.0.20 (kernel.all.cpu.user): value 630
+    60.0.35 (kernel.all.cpu.wait.total): value 240
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 75167
+    60.1.5 (mem.util.cached): value 1540181
+    60.1.2 (mem.util.free): value 169186
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 540
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 455
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:19:00.000  60.26.0 (kernel.all.uptime): value 171640
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 60301
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 57634
-              60.0.23 (kernel.all.cpu.idle): value 1078320
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 1080
-              60.0.20 (kernel.all.cpu.user): value 810
-              60.0.35 (kernel.all.cpu.wait.total): value 240
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 75236
-              60.1.5 (mem.util.cached): value 1540984
-              60.1.2 (mem.util.free): value 168136
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 807
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 632
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:19:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171640
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 60301
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 57634
+    60.0.23 (kernel.all.cpu.idle): value 1078320
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 1080
+    60.0.20 (kernel.all.cpu.user): value 810
+    60.0.35 (kernel.all.cpu.wait.total): value 240
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 75236
+    60.1.5 (mem.util.cached): value 1540984
+    60.1.2 (mem.util.free): value 168136
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 807
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 632
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:20:00.000  60.26.0 (kernel.all.uptime): value 171700
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 79232
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 74126
-              60.0.23 (kernel.all.cpu.idle): value 1138200
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 1140
-              60.0.20 (kernel.all.cpu.user): value 870
-              60.0.35 (kernel.all.cpu.wait.total): value 240
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 75236
-              60.1.5 (mem.util.cached): value 1540984
-              60.1.2 (mem.util.free): value 168136
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 1074
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 809
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:20:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171700
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 79232
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 74126
+    60.0.23 (kernel.all.cpu.idle): value 1138200
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 1140
+    60.0.20 (kernel.all.cpu.user): value 870
+    60.0.35 (kernel.all.cpu.wait.total): value 240
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 75236
+    60.1.5 (mem.util.cached): value 1540984
+    60.1.2 (mem.util.free): value 168136
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 1074
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 809
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0
 
 [616 bytes]
-17:21:00.000  60.26.0 (kernel.all.uptime): value 171760
-              60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 461103
-              60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 692656
-              60.0.23 (kernel.all.cpu.idle): value 1193926
-              60.0.21 (kernel.all.cpu.nice): value 0
-              60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
-              60.0.22 (kernel.all.cpu.sys): value 4486
-              60.0.20 (kernel.all.cpu.user): value 1798
-              60.0.35 (kernel.all.cpu.wait.total): value 240
-              60.2.0 (kernel.all.load):
-                inst [1 or "1 minute"] value 0
-                inst [5 or "5 minute"] value 0.0099999998
-                inst [15 or "15 minute"] value 0.050000001
-              60.1.4 (mem.util.bufmem): value 75242
-              60.1.5 (mem.util.cached): value 1541434
-              60.1.2 (mem.util.free): value 167660
-              60.1.9 (hinv.physmem): value 2050
-              60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 7382
-              60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 7013
-              60.1.8 (swap.free): value 0
-              60.1.6 (swap.length): value 0
+17:21:00.000000 19 metrics
+    60.26.0 (kernel.all.uptime): value 171760
+    60.3.0 (network.interface.in.bytes): inst [1000 or "total"] value 461103
+    60.3.8 (network.interface.out.bytes): inst [1000 or "total"] value 692656
+    60.0.23 (kernel.all.cpu.idle): value 1193926
+    60.0.21 (kernel.all.cpu.nice): value 0
+    60.0.32 (hinv.ncpu): value 1
+    60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
+    60.0.22 (kernel.all.cpu.sys): value 4486
+    60.0.20 (kernel.all.cpu.user): value 1798
+    60.0.35 (kernel.all.cpu.wait.total): value 240
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0
+        inst [5 or "5 minute"] value 0.0099999998
+        inst [15 or "15 minute"] value 0.050000001
+    60.1.4 (mem.util.bufmem): value 75242
+    60.1.5 (mem.util.cached): value 1541434
+    60.1.2 (mem.util.free): value 167660
+    60.1.9 (hinv.physmem): value 2050
+    60.3.1 (network.interface.in.packets): inst [1000 or "total"] value 7382
+    60.3.9 (network.interface.out.packets): inst [1000 or "total"] value 7013
+    60.1.8 (swap.free): value 0
+    60.1.6 (swap.length): value 0

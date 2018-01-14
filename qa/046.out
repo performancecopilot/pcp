@@ -9,8 +9,8 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 Descriptions for Metrics in the Log ...
 PMID: 29.0.9 (sample.noinst)
@@ -38,33 +38,38 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 Instance Domains in the Log ...
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value PID
-              2.0.24 (pmcd.seqnum): value SEQNUM
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value PID
+    2.0.24 (pmcd.seqnum): value SEQNUM
 
-TIMESTAMP  30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
-              29.0.9 (sample.noinst): No values returned!
+TIMESTAMP 2 metrics
+    30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
+    29.0.9 (sample.noinst): No values returned!
 
-TIMESTAMP  30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
-              29.0.9 (sample.noinst): No values returned!
+TIMESTAMP 2 metrics
+    30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
+    29.0.9 (sample.noinst): No values returned!
 
-TIMESTAMP  30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
-              29.0.9 (sample.noinst): No values returned!
+TIMESTAMP 2 metrics
+    30.0.49 (sampledso.needprofile): Explicit instance identifier(s) required
+    29.0.9 (sample.noinst): No values returned!
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value PID
-              2.0.24 (pmcd.seqnum): value SEQNUM
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value PID
+    2.0.24 (pmcd.seqnum): value SEQNUM
 Log for pmlogger on HOST started DATE
 
 Config parsed
@@ -75,8 +80,8 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 Descriptions for Metrics in the Log ...
 PMID: 30.0.49 (sampledso.needprofile)
@@ -101,44 +106,49 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 Instance Domains in the Log ...
 InDom: 30.4
 TIMESTAMP 5 instances
-                 0 or "colleen"
-                 1 or "terry"
-                 2 or "emma"
-                 3 or "cathy"
-                 4 or "fat bald bastard"
+   0 or "colleen"
+   1 or "terry"
+   2 or "emma"
+   3 or "cathy"
+   4 or "fat bald bastard"
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value PID
-              2.0.24 (pmcd.seqnum): value SEQNUM
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value PID
+    2.0.24 (pmcd.seqnum): value SEQNUM
 
-TIMESTAMP  30.0.49 (sampledso.needprofile):
-                inst [1 or "terry"] value 12.05
-                inst [2 or "emma"] value 11.09
-                inst [3 or "cathy"] value 11.09
+TIMESTAMP 1 metric
+    30.0.49 (sampledso.needprofile):
+        inst [1 or "terry"] value 12.05
+        inst [2 or "emma"] value 11.09
+        inst [3 or "cathy"] value 11.09
 
-TIMESTAMP  30.0.49 (sampledso.needprofile):
-                inst [1 or "terry"] value 12.05
-                inst [2 or "emma"] value 11.09
-                inst [3 or "cathy"] value 11.09
+TIMESTAMP 1 metric
+    30.0.49 (sampledso.needprofile):
+        inst [1 or "terry"] value 12.05
+        inst [2 or "emma"] value 11.09
+        inst [3 or "cathy"] value 11.09
 
-TIMESTAMP  30.0.49 (sampledso.needprofile):
-                inst [1 or "terry"] value 12.05
-                inst [2 or "emma"] value 11.09
-                inst [3 or "cathy"] value 11.09
+TIMESTAMP 1 metric
+    30.0.49 (sampledso.needprofile):
+        inst [1 or "terry"] value 12.05
+        inst [2 or "emma"] value 11.09
+        inst [3 or "cathy"] value 11.09
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value PID
-              2.0.24 (pmcd.seqnum): value SEQNUM
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value PID
+    2.0.24 (pmcd.seqnum): value SEQNUM

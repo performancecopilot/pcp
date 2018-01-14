@@ -22,7 +22,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g' \
     | $PCP_AWK_PROG '
 want == 1	{ print "        value [blob]"; want = 0; next }
 $1 == "sampledso.event.param_aggregate"	{ want = 1 }

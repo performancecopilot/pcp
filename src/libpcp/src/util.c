@@ -1201,6 +1201,9 @@ __pmTimevalSub(const pmTimeval *ap, const pmTimeval *bp)
 
 /*
  * print timeval timestamp in HH:MM:SS.XXX format
+ * Note: to minimize ABI surprises, this one still reports to msec precision,
+ *       but the internal and diagnostic variant __pmPrintTimeval() reports
+ *       to usec precision.
  */
 void
 pmPrintStamp(FILE *f, const struct timeval *tp)
@@ -1228,7 +1231,7 @@ pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 }
 
 /*
- * print pmTimeval timestamp in HH:MM:SS.XXX format
+ * print pmTimeval timestamp in HH:MM:SS.XXXXXX format (usec precision)
  * (pmTimeval variant used in PDUs, archives and internally)
  */
 void
@@ -1239,7 +1242,7 @@ __pmPrintTimeval(FILE *f, const pmTimeval *tp)
 
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
-    fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
+    fprintf(f, "%02d:%02d:%02d.%06d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_usec);
 }
 
 /*

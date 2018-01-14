@@ -5,8 +5,8 @@ For PCP 2.0 -l tmparch/foo.meta is a synonym for -l src/foo, so this works ...
 === tmparch/foo.meta: exists ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 [filtered and sorted stderr]
 __pmFopen: index_compress -> -1
 __pmFopen: index_compress -> -1

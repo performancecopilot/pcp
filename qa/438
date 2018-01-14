@@ -24,7 +24,7 @@ _filter()
     sed \
 	-e 's/pid=[0-9][0-9]*/pid=PID/' \
 	-e 's/host=[a-zA-Z][a-zA-Z0-9_]*/host=HOST/' \
-	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIME/g' \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIME/g' \
 	-e 's/TIME (t=[0-9][0-9.]*)/TIME/g' \
 	-e 's/bad trailer len=132/bad trailer len=0/' \
 	-e '/__pmLogChkLabel/s/fd=[0-9]/fd=N/' \

@@ -39,7 +39,7 @@ _do_time()
 	-e "s;$tmp;MYLOG;" \
 	-e 's/from host .*/from host LOCALHOST/'
     sed -n <$tmp.tmp \
-      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]\).*/\1/p' \
+      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]*[0-9]\).*/\1/p' \
     | sort -u \
     | while read time
     do
@@ -82,5 +82,5 @@ $1 ~ /TIMESTAMP/ && NF == 4	{ print $1 "            " $2 "       OFFSET       OF
 				{ print }'
 
 echo
-echo "=== samples, expect 50 + 5 for prologue + 5 for epilogue ==="
-pmdumplog -m $tmp | sed -e '/^$/d' | wc -l | sed -e 's/  *//g'
+echo "=== samples, expect 50 + 1 for prologue + 1 for epilogue ==="
+pmdumplog -m $tmp | sed -n '/^[0-9]/p' | wc -l | sed -e 's/  *//g'

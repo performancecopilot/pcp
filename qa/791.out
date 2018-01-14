@@ -34,72 +34,86 @@ event.missed
 Note: timezone set to local timezone of host "bozo" from archive
 
 
-20:13:17.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:17.586683 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:18.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:18.586644 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:19.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:19.586625 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:20.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:20.586701 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:21.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:21.586683 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:22.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:22.586687 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:23.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:23.586686 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:24.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:24.586678 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:25.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:25.586702 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:26.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:26.586687 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:27.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:27.586694 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:28.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:28.586618 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:29.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:29.586670 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
 
-20:13:30.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
+20:13:30.586636 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600

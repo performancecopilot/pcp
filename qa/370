@@ -174,7 +174,7 @@ echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" >$tmp.config
 export PCP_DERIVED_CONFIG=$tmp.config
 pmval -f 8 -t 5 -a $tmp user \
 | sed -n '/^[0-2][0-9]:/{
-s/\.[0-9][0-9][0-9]//
+s/\.[0-9][0-9]*[0-9]//
 p
 }' >$tmp.pcp
 ( echo ""; echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" ) >>$seq.full

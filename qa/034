@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+$sudo rm -f $seq.full
 
 # real QA test starts here
 #
@@ -34,9 +35,17 @@ do
     echo
     echo "=== $arch ==="
     pmdumplog $arch \
-    | sed -e '/(pmcd\./d' -e 's/:/ /g' \
+    | sed \
+	-e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
+	-e 's/:/ /g' \
+	-e '/(pmcd\./d' \
     | $PCP_AWK_PROG '
-    /^[0-9]/	{ print $3,$NF }' \
+/^[0-9]/	{ print $3,$NF }' \
+    | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
 	    { if (l[$2] != "") {
 		delta = $1 - l[$2];

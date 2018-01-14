@@ -16,85 +16,93 @@ Archive basename: ARCHIVE
 pmlogger: Sample limit reached, exiting
 
 Log finished DATE
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.0.23 (pmcd.pid): value NUMBER
-              2.0.24 (pmcd.seqnum): value NUMBER
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value NUMBER
-                inst [200 or "bin-200"] value NUMBER
-                inst [300 or "bin-300"] value NUMBER
-                inst [400 or "bin-400"] value NUMBER
-                inst [500 or "bin-500"] value NUMBER
-                inst [600 or "bin-600"] value NUMBER
-                inst [700 or "bin-700"] value NUMBER
-                inst [800 or "bin-800"] value NUMBER
-                inst [900 or "bin-900"] value NUMBER
-              29.0.3 (sample.milliseconds): value NUMBER
-              29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value NUMBER
-                inst [200 or "bin-200"] value NUMBER
-                inst [300 or "bin-300"] value NUMBER
-                inst [400 or "bin-400"] value NUMBER
-                inst [500 or "bin-500"] value NUMBER
-                inst [600 or "bin-600"] value NUMBER
-                inst [700 or "bin-700"] value NUMBER
-                inst [800 or "bin-800"] value NUMBER
-                inst [900 or "bin-900"] value NUMBER
-              29.0.3 (sample.milliseconds): value NUMBER
-              29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value NUMBER
-                inst [200 or "bin-200"] value NUMBER
-                inst [300 or "bin-300"] value NUMBER
-                inst [400 or "bin-400"] value NUMBER
-                inst [500 or "bin-500"] value NUMBER
-                inst [600 or "bin-600"] value NUMBER
-                inst [700 or "bin-700"] value NUMBER
-                inst [800 or "bin-800"] value NUMBER
-                inst [900 or "bin-900"] value NUMBER
-              29.0.3 (sample.milliseconds): value NUMBER
-              29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value NUMBER
-                inst [200 or "bin-200"] value NUMBER
-                inst [300 or "bin-300"] value NUMBER
-                inst [400 or "bin-400"] value NUMBER
-                inst [500 or "bin-500"] value NUMBER
-                inst [600 or "bin-600"] value NUMBER
-                inst [700 or "bin-700"] value NUMBER
-                inst [800 or "bin-800"] value NUMBER
-                inst [900 or "bin-900"] value NUMBER
-              29.0.3 (sample.milliseconds): value NUMBER
-              29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value NUMBER
-                inst [200 or "bin-200"] value NUMBER
-                inst [300 or "bin-300"] value NUMBER
-                inst [400 or "bin-400"] value NUMBER
-                inst [500 or "bin-500"] value NUMBER
-                inst [600 or "bin-600"] value NUMBER
-                inst [700 or "bin-700"] value NUMBER
-                inst [800 or "bin-800"] value NUMBER
-                inst [900 or "bin-900"] value NUMBER
-              29.0.3 (sample.milliseconds): value NUMBER
-              29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value NUMBER
-                inst [200 or "bin-200"] value NUMBER
-                inst [300 or "bin-300"] value NUMBER
-                inst [400 or "bin-400"] value NUMBER
-                inst [500 or "bin-500"] value NUMBER
-                inst [600 or "bin-600"] value NUMBER
-                inst [700 or "bin-700"] value NUMBER
-                inst [800 or "bin-800"] value NUMBER
-                inst [900 or "bin-900"] value NUMBER
-              29.0.3 (sample.milliseconds): value NUMBER
-              29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-              2.0.23 (pmcd.pid): value NUMBER
-              2.0.24 (pmcd.seqnum): value NUMBER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+TIMESTAMP 3 metrics
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value NUMBER
+        inst [200 or "bin-200"] value NUMBER
+        inst [300 or "bin-300"] value NUMBER
+        inst [400 or "bin-400"] value NUMBER
+        inst [500 or "bin-500"] value NUMBER
+        inst [600 or "bin-600"] value NUMBER
+        inst [700 or "bin-700"] value NUMBER
+        inst [800 or "bin-800"] value NUMBER
+        inst [900 or "bin-900"] value NUMBER
+    29.0.3 (sample.milliseconds): value NUMBER
+    29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
+TIMESTAMP 3 metrics
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value NUMBER
+        inst [200 or "bin-200"] value NUMBER
+        inst [300 or "bin-300"] value NUMBER
+        inst [400 or "bin-400"] value NUMBER
+        inst [500 or "bin-500"] value NUMBER
+        inst [600 or "bin-600"] value NUMBER
+        inst [700 or "bin-700"] value NUMBER
+        inst [800 or "bin-800"] value NUMBER
+        inst [900 or "bin-900"] value NUMBER
+    29.0.3 (sample.milliseconds): value NUMBER
+    29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
+TIMESTAMP 3 metrics
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value NUMBER
+        inst [200 or "bin-200"] value NUMBER
+        inst [300 or "bin-300"] value NUMBER
+        inst [400 or "bin-400"] value NUMBER
+        inst [500 or "bin-500"] value NUMBER
+        inst [600 or "bin-600"] value NUMBER
+        inst [700 or "bin-700"] value NUMBER
+        inst [800 or "bin-800"] value NUMBER
+        inst [900 or "bin-900"] value NUMBER
+    29.0.3 (sample.milliseconds): value NUMBER
+    29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
+TIMESTAMP 3 metrics
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value NUMBER
+        inst [200 or "bin-200"] value NUMBER
+        inst [300 or "bin-300"] value NUMBER
+        inst [400 or "bin-400"] value NUMBER
+        inst [500 or "bin-500"] value NUMBER
+        inst [600 or "bin-600"] value NUMBER
+        inst [700 or "bin-700"] value NUMBER
+        inst [800 or "bin-800"] value NUMBER
+        inst [900 or "bin-900"] value NUMBER
+    29.0.3 (sample.milliseconds): value NUMBER
+    29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
+TIMESTAMP 3 metrics
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value NUMBER
+        inst [200 or "bin-200"] value NUMBER
+        inst [300 or "bin-300"] value NUMBER
+        inst [400 or "bin-400"] value NUMBER
+        inst [500 or "bin-500"] value NUMBER
+        inst [600 or "bin-600"] value NUMBER
+        inst [700 or "bin-700"] value NUMBER
+        inst [800 or "bin-800"] value NUMBER
+        inst [900 or "bin-900"] value NUMBER
+    29.0.3 (sample.milliseconds): value NUMBER
+    29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
+TIMESTAMP 3 metrics
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value NUMBER
+        inst [200 or "bin-200"] value NUMBER
+        inst [300 or "bin-300"] value NUMBER
+        inst [400 or "bin-400"] value NUMBER
+        inst [500 or "bin-500"] value NUMBER
+        inst [600 or "bin-600"] value NUMBER
+        inst [700 or "bin-700"] value NUMBER
+        inst [800 or "bin-800"] value NUMBER
+        inst [900 or "bin-900"] value NUMBER
+    29.0.3 (sample.milliseconds): value NUMBER
+    29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
