@@ -9,6 +9,8 @@
 
 /*
  * filter to copy archive.0 and strip mark records
+ *
+ * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  */
 
 int
