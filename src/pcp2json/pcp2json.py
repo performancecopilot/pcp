@@ -62,7 +62,7 @@ class PCP2JSON(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'timefmt', 'extended', 'everything',
+                     'timefmt', 'extended', 'everything', 'exact_types',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force',
@@ -110,6 +110,7 @@ class PCP2JSON(object):
 
         self.extended = 0
         self.everything = 0
+        self.exact_types = 0
 
         # Internal
         self.runtime = -1
@@ -137,7 +138,7 @@ class PCP2JSON(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxXE")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -188,6 +189,7 @@ class PCP2JSON(object):
 
         opts.pmSetLongOption("with-extended", 0, "x", "", "write extended information about metrics")
         opts.pmSetLongOption("with-everything", 0, "X", "", "write everything, incl. internal IDs")
+        opts.pmSetLongOption("exact-types", 0, "E", "", "output numbers as number data types not strings")
 
         return opts
 
@@ -265,6 +267,8 @@ class PCP2JSON(object):
             self.extended = 1
         elif opt == 'X':
             self.everything = 1
+        elif opt == 'E':
+            self.exact_types = 1
         else:
             raise pmapi.pmUsageErr()
 
@@ -455,7 +459,10 @@ class PCP2JSON(object):
 
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
-                value = format(value, fmt) if isinstance(value, float) else str(value)
+                if self.exact_types:
+                    value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
+                else:
+                    value = format(value, fmt) if isinstance(value, float) else str(value)
                 pmns_leaf_dict = self.data['@pcp']['@hosts'][0]['@metrics'][-1]
 
                 # Find/create the parent dictionary into which to insert the final component

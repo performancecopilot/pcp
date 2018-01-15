@@ -19,7 +19,7 @@
 \f3pcp2json\f1 \- pcp-to-json metrics exporter
 .SH SYNOPSIS
 \fBpcp2json\fP
-[\fB\-CGHIjLnrRvVxXz?\fP]
+[\fB\-CEGHIjLnrRvVxXz?\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -133,6 +133,14 @@ everything (boolean)
 .RS 4
 Write everything known about metrics, including PCP internal IDs.
 Corresponding command line option is \fB\-X\fP.
+Default is \fBno\fP.
+.RE
+.PP
+exact_types (boolean)
+.RS 4
+Write numbers as number data types, not as strings, potentially
+losing some precision.
+Corresponding command line option is \fB\-E\fP.
 Default is \fBno\fP.
 .RE
 .SH OPTIONS
