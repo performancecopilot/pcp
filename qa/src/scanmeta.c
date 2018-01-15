@@ -445,8 +445,8 @@ main(int argc, char *argv[])
 	mflag = 1;	/* default */
 
     if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[optind])) < 0) {
-	fprintf(stderr, "Warning: pmNewContext failed: %s\n",
-	    pmGetProgname(), pmErrStr(tzh));
+	fprintf(stderr, "%s: Warning: pmNewContext failed: %s\n",
+	    pmGetProgname(), pmErrStr(sts));
     }
 
     if (zflag) {
