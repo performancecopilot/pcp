@@ -1,4 +1,4 @@
-module pcpupstream 1.0;
+module pcpupstream @PACKAGE_VERSION@;
 
 require {
 	type pcp_pmcd_t;

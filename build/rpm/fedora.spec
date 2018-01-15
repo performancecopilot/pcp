@@ -322,7 +322,7 @@ fi
 %global selinux_handle_policy() %{expand:
 if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
 then
-    if [ %1 -eq 1 ]
+    if [ %1 -ge 1 ]
     then
 	PCP_SELINUX_DIR=%{_selinuxdir}
 	if [ -f "$PCP_SELINUX_DIR/%2" ]

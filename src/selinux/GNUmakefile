@@ -61,6 +61,7 @@ $(IAM).te: $(IAM).te.in
 		-e 's;@PCP_SOCK_FILE_GETATTR@;'$(PCP_SOCK_FILE_GETATTR)';' \
 		-e 's;@PCP_SOCK_FILE_GETATTR_RULE@;'$(PCP_SOCK_FILE_GETATTR_RULE)';' \
 		-e 's;@PCP_HOSTNAME_EXEC_MAP@;'$(PCP_HOSTNAME_EXEC_MAP)';' \
+		-e 's;@PACKAGE_VERSION@;'$(PACKAGE_VERSION)';' \
 
 	# END
 	make -f /usr/share/selinux/devel/Makefile
