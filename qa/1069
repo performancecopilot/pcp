@@ -395,9 +395,9 @@ foo.instances = sda
 instances = sdx
 disk.dev.read = label,'sda,sdx'
 EOF
-pmrep -s 1 $log2 -c $tmp.iiconfig :test1
-pmrep -s 1 $log2 -c $tmp.iiconfig :test2
-pmrep -s 1 $log2 -c $tmp.iiconfig :test3
+pmrep -s 1 $log2 -c $tmp.iiconfig :test1 | sed -e "s,u',',g"
+pmrep -s 1 $log2 -c $tmp.iiconfig :test2 | sed -e "s,u',',g"
+pmrep -s 1 $log2 -c $tmp.iiconfig :test3 | sed -e "s,u',',g"
 pmrep -s 1 $log2 -c $tmp.iiconfig :test4
 pmrep -s 1 $log2 -c $tmp.iiconfig :test5
 pmrep -s 1 $log2 -c $tmp.iiconfig :test6

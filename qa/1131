@@ -33,6 +33,8 @@ _filter()
 echo "---"
 pcp2json -a $A -H -I -z "" | _filter
 echo "---"
+pcp2json -a $A -H -I -z -E "" | _filter
+echo "---"
 pcp2json -a $A -H -I -Z UTC+0 -x "" | _filter
 echo "---"
 pcp2json -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""

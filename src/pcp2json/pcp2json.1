@@ -19,7 +19,7 @@
 \f3pcp2json\f1 \- pcp-to-json metrics exporter
 .SH SYNOPSIS
 \fBpcp2json\fP
-[\fB\-CGHIjLnrRvVxXz?\fP]
+[\fB\-CEGHIjLnrRvVxXz?\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -135,6 +135,14 @@ Write everything known about metrics, including PCP internal IDs.
 Corresponding command line option is \fB\-X\fP.
 Default is \fBno\fP.
 .RE
+.PP
+exact_types (boolean)
+.RS 4
+Write numbers as number data types, not as strings, potentially
+losing some precision.
+Corresponding command line option is \fB\-E\fP.
+Default is \fBno\fP.
+.RE
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -179,7 +187,7 @@ See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-B
-As
+Like
 .B \-b
 but this option \fIwill\fP override per-metric specifications.
 .TP
@@ -396,7 +404,7 @@ See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-Q
-As
+Like
 .B \-q
 but this option \fIwill\fP override per-metric specifications.
 .TP
@@ -513,7 +521,7 @@ See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-Y
-As
+Like
 .B \-y
 but this option \fIwill\fP override per-metric specifications.
 .TP

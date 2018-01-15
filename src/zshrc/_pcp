@@ -171,6 +171,7 @@ _pcp () {
       "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
+      "(-E --exact-types $exargs)"{-E,--exact-types}'[write numbers as number data types]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
