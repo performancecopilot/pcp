@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013,2015,2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -229,7 +229,7 @@ DeleteClient(ClientInfo *cp)
 }
 
 void
-MarkStateChanges(int changes)
+MarkStateChanges(unsigned int changes)
 {
     int i;
 

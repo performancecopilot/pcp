@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -159,11 +159,13 @@ typedef struct pmdaExt {
     pmdaLabelCallBack	e_labelCallBack; /* callback to lookup metric instance labels */
 } pmdaExt;
 
-#define PMDA_EXT_FLAG_DIRECT	0x01	/* direct mapped PMID metric table */
-#define PMDA_EXT_FLAG_HASHED	0x02	/* hashed PMID metric table lookup */
-#define PMDA_EXT_SETUPDONE	0x04	/* __pmdaSetup() has been called */
-#define PMDA_EXT_CONNECTED	0x08	/* pmdaConnect() done */
-#define PMDA_EXT_NOTREADY	0x10	/* pmcd connection marked NOTREADY */
+#define PMDA_EXT_FLAG_DIRECT	(1<<0)	/* direct mapped PMID metric table */
+#define PMDA_EXT_FLAG_HASHED	(1<<1)	/* hashed PMID metric table lookup */
+#define PMDA_EXT_SETUPDONE	(1<<2)	/*  __pmdaSetup() has been called */
+#define PMDA_EXT_CONNECTED	(1<<3)	/* pmdaConnect() done */
+#define PMDA_EXT_NOTREADY	(1<<4)	/* pmcd connection marked NOTREADY */
+#define PMDA_EXT_LABEL_CHANGE	(1<<5)	/* new label metadata notification */
+#define PMDA_EXT_NAMES_CHANGE	(1<<6)	/* metric name change notification */
 
 /*
  * Optionally restrict symbol visibility for DSO PMDAs
@@ -399,12 +401,14 @@ typedef struct pmdaOptions {
  * pmdaOpenLog
  *	Redirects stderr to the logfile.
  *
- * pmdaSetFlags
+ * pmdaSetFlags / pmdaExtSetFlags
  *      Allow behaviour flags to be set to enable features, such as to request
  *      libpcp_pmda internally use direct or hashed PMID metric table mapping.
  *      Can be called multiple times - effects are cumulative - no flag can be
  *      cleared, although libpcp_pmda may disable a flag later on if it cannot
- *      enact the requested behaviour. Must be called before pmdaInit.
+ *      enact the requested behaviour.  Must be called before pmdaInit for any
+ *      flags involving early setup (such as metric table hashing), otherwise
+ *      can be called at any time (such as for namespace change notification).
  *
  * pmdaInit
  *      Further initialises the pmdaExt structure with the instance domain and
@@ -458,6 +462,7 @@ PMDA_CALL extern void pmdaUsageMessage(pmdaOptions *);
 PMDA_CALL extern void pmdaDaemon(pmdaInterface *, int, const char *, int , const char *, const char *);
 PMDA_CALL extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 PMDA_CALL extern void pmdaOpenLog(pmdaInterface *);
+PMDA_CALL extern void pmdaExtSetFlags(pmdaExt *, int);
 PMDA_CALL extern void pmdaSetFlags(pmdaInterface *, int);
 PMDA_CALL extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
 PMDA_CALL extern void pmdaConnect(pmdaInterface *);

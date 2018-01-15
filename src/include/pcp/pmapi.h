@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -534,6 +534,7 @@ PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
 #define PMCD_AGENT_CHANGE	\
 	(PMCD_ADD_AGENT | PMCD_RESTART_AGENT | PMCD_DROP_AGENT)
 #define PMCD_LABEL_CHANGE	(1<<3)
+#define PMCD_NAMES_CHANGE	(1<<4)
 
 /*
  * Variant that is used to return a pmResult from an archive

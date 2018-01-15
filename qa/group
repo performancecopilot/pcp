@@ -1465,6 +1465,7 @@ collectl
 1331 verify local
 1343 pmmgr local
 1344 pmmgr local
+1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
 1367 labels pmda.simple local

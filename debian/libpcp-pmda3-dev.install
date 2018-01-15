@@ -57,6 +57,7 @@ usr/share/man/man3/pmdaEventReleaseArray.3.gz
 usr/share/man/man3/pmdaEventReleaseHighResArray.3.gz
 usr/share/man/man3/pmdaEventResetArray.3.gz
 usr/share/man/man3/pmdaEventResetHighResArray.3.gz
+usr/share/man/man3/pmdaExtSetFlags.3.gz
 usr/share/man/man3/pmdafetch.3.gz
 usr/share/man/man3/pmdaFetch.3.gz
 usr/share/man/man3/pmdaGetContext.3.gz

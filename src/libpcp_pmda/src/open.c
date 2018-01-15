@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -541,8 +541,7 @@ pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 	    continue;
 
 	pmda->e_direct = 0;
-	if ((pmda->e_flags & PMDA_EXT_FLAG_DIRECT) ||
-	    pmDebugOptions.libpmda)
+	if ((pmda->e_flags & PMDA_EXT_FLAG_DIRECT) || pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_WARNING, "pmdaDirect: PMDA %s: "
 		"Direct mapping for metrics disabled @ metrics[%d] %s\n",
 		pmda->e_name, m,
@@ -552,18 +551,23 @@ pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 }
 
 void
+pmdaExtSetFlags(pmdaExt *pmda, int flags)
+{
+    if (pmDebugOptions.libpmda)
+	pmNotifyErr(LOG_DEBUG, "pmdaExtSetFlags: flags=%x", flags);
+    pmda->e_flags |= flags;
+}
+
+void
 pmdaSetFlags(pmdaInterface *dispatch, int flags)
 {
-    pmdaExt	*pmda;
-
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	pmNotifyErr(LOG_CRIT, "pmdaSetFlags: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
-    pmda = dispatch->version.any.ext;
-    pmda->e_flags |= flags;
+    pmdaExtSetFlags(dispatch->version.any.ext, flags);
 }
 
 /*
@@ -726,7 +730,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 }
 
 /*
- * version exchange with pmcd via credentials PDU
+ * Version exchange with pmcd via credentials PDU
  */
 
 static int
@@ -785,7 +789,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 }
 
 /* 
- * set up connection to PMCD 
+ * Set up connection to PMCD 
  */
 
 void
@@ -877,7 +881,7 @@ pmdaConnect(pmdaInterface *dispatch)
 }
 
 /*
- * initialise the pmdaExt and pmdaInterface structures for a daemon or DSO PMDA.
+ * Initialise the pmdaExt and pmdaInterface structures for a daemon or DSO PMDA.
  */
 
 static void
@@ -955,8 +959,8 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
 }
 
 /*
- * initialise the pmdaExt and pmdaInterface structures for a daemon
- * also set some globals
+ * Initialise the pmdaExt and pmdaInterface structures for a daemon
+ * also set some globals.
  */
 
 void
@@ -979,8 +983,8 @@ pmdaDaemon(pmdaInterface *dispatch, int version, const char *name, int domain,
 }
 
 /*
- * initialise the pmdaExt structure for a DSO
- * also set some globals
+ * Initialise the pmdaExt and pmdaInterface structures for a DSO,
+ * also set some globals.
  */
 
 void
