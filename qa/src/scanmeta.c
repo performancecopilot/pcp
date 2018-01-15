@@ -62,6 +62,8 @@ usage(void)
     fprintf(stderr, " -m               report metric records [default]\n");
     fprintf(stderr, " -w               only warn about badness\n");
     fprintf(stderr, " -W               only warn verbosely about badness\n");
+    fprintf(stderr, " -z               set reporting timezone to pmcd from archive\n");
+    fprintf(stderr, " -Z timezone      set reporting timezone\n");
 }
 
 /*
@@ -361,11 +363,17 @@ main(int argc, char *argv[])
     int		c;
     int		sts;
     int		errflag = 0;
+    int		tzh;				/* initial timezone handle */
+    int		zflag = 0;			/* for -z */
+    char 	*tz = NULL;			/* for -Z timezone */
+    off_t	offset;
     __pmLogHdr	hdr;
 
     pmSetProgname(argv[0]);
+    setlinebuf(stdout);
+    setlinebuf(stderr);
 
-    while ((c = getopt(argc, argv, "aD:hilmwW")) != EOF) {
+    while ((c = getopt(argc, argv, "aD:hilmwWzZ:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* report all */
@@ -405,6 +413,22 @@ main(int argc, char *argv[])
 	    wflag = 2;
 	    break;
 
+	case 'z':	/* timezone from archive */
+	    if (tz != NULL) {
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
+		errflag++;
+	    }
+	    zflag++;
+	    break;
+
+	case 'Z':	/* $TZ timezone */
+	    if (zflag) {
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
+		errflag++;
+	    }
+	    tz = optarg;
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
@@ -420,6 +444,36 @@ main(int argc, char *argv[])
     if (hflag + iflag + lflag + mflag + wflag == 0)
 	mflag = 1;	/* default */
 
+    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[optind])) < 0) {
+	fprintf(stderr, "Warning: pmNewContext failed: %s\n",
+	    pmGetProgname(), pmErrStr(tzh));
+    }
+
+    if (zflag) {
+	if (sts >= 0) {
+	    if ((tzh = pmNewContextZone()) < 0) {
+		fprintf(stderr, "%s: Cannot set context timezone: %s\n",
+		    pmGetProgname(), pmErrStr(tzh));
+		exit(1);
+	    }
+	    printf("Note: timezone set to local timezone of pmcd from archive\n");
+	}
+	else
+	    fprintf(stderr, "No context, skipping -z\n");
+    }
+    else if (tz != NULL) {
+	if (sts >= 0) {
+	    if ((tzh = pmNewZone(tz)) < 0) {
+		fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
+		    pmGetProgname(), tz, pmErrStr(tzh));
+		exit(1);
+	    }
+	    printf("Note: timezone set to \"TZ=%s\"\n", tz);
+	}
+	else
+	    fprintf(stderr, "No context, skipping -Z\n");
+    }
+
     if ((in = open(argv[optind], O_RDONLY)) < 0) {
 	fprintf(stderr, "Failed to open %s: %s\n", argv[optind], strerror(errno));
 	exit(1);
@@ -432,6 +486,7 @@ main(int argc, char *argv[])
     }
 
     for (nrec = 0; ; nrec++) {
+	offset = lseek(in, 0, SEEK_CUR);
 	if ((nb = read(in, &hdr, sizeof(hdr))) != sizeof(hdr)) {
 	    if (nb == 0) {
 		if (nrec == 0)
@@ -440,13 +495,18 @@ main(int argc, char *argv[])
 	    }
 	    if (nb < 0)
 		fprintf(stderr, "[%d] hdr read error: %s\n", nrec, strerror(errno));
-	    else
-		fprintf(stderr, "[%d] hdr read error: expected %d bytes, got %d\n",
-			nrec, (int)sizeof(hdr), nb);
+	    else {
+		/* Strange eof logic here ... from __pmLogLoadMeta(), a short
+		 * read is treated as end-of-file
+		 */
+		break;
+	    }
 	    exit(1);
 	}
 	hdr.len = ntohl(hdr.len);
 	hdr.type = ntohl(hdr.type);
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "read: len=%d type=%d @ offset=%ld\n", hdr.len, hdr.type, (long)offset);
 	if (nrec == 0 && hdr.len != sizeof(pmLogLabel)+sizeof(int)) {
 	    fprintf(stderr, "error: %s does not start with label record, not a PCP archive file?\n", argv[optind]);
 	    exit(1);
