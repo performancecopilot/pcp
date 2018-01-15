@@ -60,7 +60,7 @@ get_ttyname(int pid, dev_t dev, char *devpath)
 	    continue;
 	pmsprintf(fullpath, sizeof(fullpath), "%s/%s", devpath, path);
 	fullpath[sizeof(fullpath)-1] = '\0';
-	if (!stat(fullpath, &statbuf)) {
+	if (stat(fullpath, &statbuf) != 0) {
 	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 		fprintf(stderr, "get_ttyname %s stat: %s\n",
 			fullpath, strerror(errno));
