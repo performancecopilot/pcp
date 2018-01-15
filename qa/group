@@ -962,6 +962,7 @@ collectl
 609 pmdumplog local
 610 libpcp local
 611 pmlogger pmdumplog local
+612 other local
 614 pmns local
 617 dbpmda help local
 622 pmie remote

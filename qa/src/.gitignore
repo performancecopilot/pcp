@@ -189,6 +189,7 @@ record-setarg
 rootclient
 rtimetest
 scale
+scanmeta
 semstr
 slow_af
 sortinst
