@@ -49,6 +49,19 @@ skipv == 2			{ next }
     | src/hex2nbo
 }
 
+# cull lines for pmdas that may not be present ...
+#
+_filter_pmdas()
+{
+    sed \
+	-e '/inst \[62 or "nfsclient"]/d' \
+	-e '/inst \[68 or "apache"]/d' \
+	-e '/inst \[126 or "papi"]/d' \
+	-e '/inst \[129 or "dm"]/d' \
+	-e '/inst \[144 or "prometheus"]/d' \
+    # end
+}
+
 # real QA test starts here
 
 echo "Test case - one metric, remapped ID"
@@ -63,7 +76,7 @@ pid=$!
 echo "= metric names recorded"
 pminfo -a $tmp.1
 echo "= archive contents..."
-pmdumplog -dilmst $tmp.1 | _filter $pid
+pmdumplog -dilmst $tmp.1 | _filter $pid | _filter_pmdas
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
@@ -80,7 +93,7 @@ pid=$!
 echo "= metric names recorded"
 pminfo -a $tmp.2
 echo "= archive contents..."
-pmdumplog -dilmst $tmp.2 | _filter $pid
+pmdumplog -dilmst $tmp.2 | _filter $pid | _filter_pmdas
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
@@ -99,7 +112,7 @@ pid=$!
 echo "= metric names recorded"
 pminfo -a $tmp.3
 echo "= archive contents..."
-pmdumplog -dilmst $tmp.3 | _filter $pid
+pmdumplog -dilmst $tmp.3 | _filter $pid | _filter_pmdas
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
