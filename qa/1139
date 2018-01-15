@@ -44,35 +44,35 @@ pmrep -s 15 $log -p -r -u -J  1 -N disk.dev.read,kernel.pernode.cpu.sys disk.dev
 echo "== test instance filter, live filter, invert filter, ranking, predicate"
 pmrep -s 15 $log $out -p -r -u                       disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2                 disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2                 disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2 -i sda          disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda          disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2 -i sda -j       disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda -j       disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2 -i sda -j -n    disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda -j -n    disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2 -i sda -j -n -N disk.dev.read disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda -j -n -N disk.dev.read disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2           -n -N disk.dev.read disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2           -n -N disk.dev.read disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -s 15 $log $out -p -r -u -J  2              -N disk.dev.read disk.dev.read disk.dev.write | \
+pmrep -z -s 15 $log $out -p -r -u -J  2              -N disk.dev.read disk.dev.read disk.dev.write | \
 _msg_filter
-pmrep -a $tmp.archive -p -r -u disk
+pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
 
 # success, all done
