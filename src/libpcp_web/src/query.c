@@ -462,7 +462,6 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
 		sp->replies[sp->index++] = reply;
 		pmsprintf(id, sizeof(id), "pcp:map:%s.%s.value",
 			node_subtype(np), reply->str);
-		solvermsg(sp, PMSERIES_RESPONSE, msg);
 		np->key = strdup(id);
 	    }
 	}
