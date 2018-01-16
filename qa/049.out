@@ -54,6 +54,7 @@ __pmLogChangeVol: change to volume 9
 Pass 1: forward scan
 Found 1000 samples
 __pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
+__pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
 __pmLogFetch: ctx=0 skip reverse 1 to unknown time, found=0
 __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 8
@@ -89,6 +90,7 @@ __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
 __pmLogSetTime(1) TIME delta=0__pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 9
  after end ti@TIME vol=9 posn=OFFSET serial=0
+__pmLogSetTime(1) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
 __pmLogFetch: ctx=1 skip reverse 1 to unknown time, found=0
 __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 8
@@ -150,7 +152,8 @@ Found 2000 samples
 __pmLogSetTime(0) TIME delta=0__pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 0
  before ti[1]@TIME vol=0 posn=OFFSET serial=0
-__pmLogFetch: ctx=0 skip reverse 1 to unknown time, found=0
+__pmLogSetTime(0) TIME delta=0 before ti[1]@TIME vol=0 posn=OFFSET serial=0
+__pmLogFetch: ctx=0 skip reverse 1 to TIME, found=0
 __pmLogFetch: ctx=0 skip 1 to TIME
 __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 1
@@ -206,6 +209,7 @@ __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 Found 750 samples
 __pmLogSetTime ...
+__pmLogSetTime ...
 __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
@@ -241,7 +245,8 @@ __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 Found 250 samples
 __pmLogSetTime(0) TIME delta=0 before ti[11]@TIME vol=9 posn=OFFSET serial=0
-__pmLogFetch: ctx=0 skip reverse 1 to unknown time, found=0
+__pmLogSetTime(0) TIME delta=0 before ti[11]@TIME vol=9 posn=OFFSET serial=0
+__pmLogFetch: ctx=0 skip reverse 1 to TIME, found=0
 __pmLogFetch: ctx=0 skip 1 to TIME
 Found 0 samples
 __pmLogSetTime(0) TIME delta=0 before ti[11]@TIME vol=9 posn=OFFSET serial=1
@@ -278,7 +283,8 @@ Found 1000 samples
 __pmLogSetTime(0) TIME delta=0__pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 7
  after ti[8]@TIME vol=7 posn=OFFSET serial=0
-__pmLogFetch: ctx=0 skip reverse 44 to unknown time, found=0
+__pmLogSetTime(0) TIME delta=0 after ti[8]@TIME vol=7 posn=OFFSET serial=0
+__pmLogFetch: ctx=0 skip reverse 44 to TIME, found=0
 __pmLogFetch: ctx=0 skip 1 to TIME
 __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 6
@@ -316,6 +322,7 @@ __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
 Found 500 samples
+__pmLogSetTime ...
 __pmLogSetTime ...
 __pmFopen: index_compress -> -1
 __pmLogChangeVol: change to volume 1

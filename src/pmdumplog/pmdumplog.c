@@ -984,7 +984,10 @@ main(int argc, char *argv[])
      */
     PM_UNLOCK(ctxp->c_lock);
 
-    pmSetMode(mode, &opts.start, 0);
+    if (mode == PM_MODE_FORW)
+	pmSetMode(mode, &opts.start, 0);
+    else
+	pmSetMode(mode, &opts.finish, 0);
 
     if (lflag)
 	dumpLabel(Lflag);
@@ -1008,31 +1011,23 @@ main(int argc, char *argv[])
 	if (mode == PM_MODE_FORW) {
 	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
-		sts = pmSetMode(mode, &opts.start, 0);
 		done = opts.finish;
 	    }
 	    else {
 		/* read the whole archive */
-		done.tv_sec = 0;
-		done.tv_usec = 0;
-		sts = pmSetMode(mode, &done, 0);
 		done.tv_sec = INT_MAX;
+		done.tv_usec = 0;
 	    }
 	}
 	else {
 	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
-		done.tv_sec = INT_MAX;
-		done.tv_usec = 0;
-		sts = pmSetMode(mode, &done, 0);
 		done = opts.start;
 	    }
 	    else {
 		/* read the whole archive backwards */
-		done.tv_sec = INT_MAX;
-		done.tv_usec = 0;
-		sts = pmSetMode(mode, &done, 0);
 		done.tv_sec = 0;
+		done.tv_usec = 0;
 	    }
 	}
 	if (sts < 0) {
