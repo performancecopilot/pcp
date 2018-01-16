@@ -123,6 +123,8 @@ enum {
     PROC_PID_STATUS_NSSID,
     PROC_PID_STATUS_TGID,
     PROC_PID_STATUS_ENVID,	/* OpenVZ kernel, not in mainline */
+    PROC_PID_STATUS_VMREAL,
+    PROC_PID_STATUS_VMNONLIB,
 
     /* number of metrics from /proc/<pid>/status */
     NR_PROC_PID_STATUS

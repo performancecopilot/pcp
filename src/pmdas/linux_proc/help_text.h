@@ -24,6 +24,8 @@ help_text_t  help_text[] = {
 { .name = "memory.vmexe",            .shorthelp = "virtual memory used for non-library executable code (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "id.egid_nm",            .shorthelp = "effective group name based on effective group ID from /proc/<pid>/status",        .longhelp = "" },
 { .name = "memory.vmswap",            .shorthelp = "virtual memory size currently swapped out (from /proc/<pid>/status)",        .longhelp = "" },
+{ .name = "memory.vmreal",            .shorthelp = "sum of resident set size and virtual memory swapped out",        .longhelp = "" },
+{ .name = "memory.vmnonlib",            .shorthelp = "difference between process real memory use (vmreal) and libraries (vmlib)",        .longhelp = "" },
 { .name = "psinfo.sigcatch_s",            .shorthelp = "caught signals mask in string form (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "id.egid",            .shorthelp = "effective group ID from /proc/<pid>/status",        .longhelp = "" },
 { .name = "psinfo.minflt",            .shorthelp = "count of minor page faults (i.e. reclaims)",        .longhelp = "" },

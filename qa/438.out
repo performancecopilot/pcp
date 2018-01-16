@@ -13,7 +13,6 @@ __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
 __pmLogChkLabel: fd=N vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOST]
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=1928 @TIME len=header+200+trailer
 __pmLogSetTime(0) TIME delta=0 at ti[0]@TIME vol=0 posn=132 serial=1
-__pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 
 Error: record length mismatch: header (132) != trailer (128)
 pmdumplog: pmFetch: Corrupted record in a PCP archive log
@@ -47,7 +46,6 @@ WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
 __pmLogSetTime(0) TIME delta=0 at ti[0]@TIME vol=0 posn=132 serial=1
-__pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 AFTER end
 
 --- badarchives/badlen-2 ---
@@ -69,7 +67,6 @@ WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
 __pmLogSetTime(0) TIME delta=0 at ti[0]@TIME vol=0 posn=132 serial=1
-__pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 
 Error: trailer fread got 0 expected 4
 pmdumplog: pmFetch: Corrupted record in a PCP archive log
@@ -93,7 +90,6 @@ WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
 __pmLogSetTime(0) TIME delta=0 at ti[0]@TIME vol=0 posn=132 serial=1
-__pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 
 Error: data fread got 116 expected 124
 pmdumplog: pmFetch: Corrupted record in a PCP archive log

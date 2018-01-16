@@ -38,9 +38,11 @@ proc.memory.vmexe
 proc.memory.vmhwm
 proc.memory.vmlib
 proc.memory.vmlock
+proc.memory.vmnonlib
 proc.memory.vmpeak
 proc.memory.vmpin
 proc.memory.vmpte
+proc.memory.vmreal
 proc.memory.vmrss
 proc.memory.vmsize
 proc.memory.vmstack
