@@ -10,5 +10,5 @@ Log finished DATE
 host should be HOST ...
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE

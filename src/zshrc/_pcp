@@ -75,7 +75,7 @@ _pcp () {
     "(-R --raw-prefer -r --raw $exargs)"{-R,--raw-prefer}'[prefer reporting raw values]'
     "(-I --ignore-incompat)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
     "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances'
-    "(-v --omit-flat)"{-v,--omit-flat}'[omit single-valued metrics with -i]'
+    "(-v --omit-flat)"{-v,--omit-flat}'[omit single-valued metrics]'
     "(-P --precision $exargs)"{-P+,--precision}'[set default floating point precision]:precision:'
     "(-0 --precision-force $exargs)"{-0+,--precision-force}'[force floating point precision]:precision:'
     "(-q --count-scale -Q --count-scale-force $exargs)"{-q+,--count-scale}'[set default count unit]:scale:->scales_count'
@@ -171,6 +171,7 @@ _pcp () {
       "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
+      "(-E --exact-types $exargs)"{-E,--exact-types}'[write numbers as number data types]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \

@@ -191,17 +191,25 @@ pmapi_return:
     if (pmDebugOptions.fetch) {
 	fprintf(stderr, "pmFetch returns ...\n");
 	if (sts > 0) {
+	    int flag = 0;
+
 	    fprintf(stderr, "PMCD state changes: ");
 	    if (sts & PMCD_AGENT_CHANGE) {
 		fprintf(stderr, "agent(s)");
 		if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
 		if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
 		if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
+		flag++;
 	    }
 	    if (sts & PMCD_LABEL_CHANGE) {
-		if (sts & PMCD_AGENT_CHANGE)
+		if (flag++)
 		    fprintf(stderr, ", ");
-		fprintf(stderr, "labels reset");
+		fprintf(stderr, "label change");
+	    }
+	    if (sts & PMCD_NAMES_CHANGE) {
+		if (flag++)
+		    fprintf(stderr, ", ");
+		fprintf(stderr, "names change");
 	    }
 	    fputc('\n', stderr);
 	}

@@ -33,7 +33,7 @@ _filter()
 	-e "/lookupDesc:/s/29\.0\.135$/<pmid for sample.event.param_aggregate>/" \
 	-e "/lookupDesc:/s/29\.0\.136$/<pmid for sample.event.records>/" \
 	-e "/lookupInDom:/s/29\.10$/<indom for sample.event.records>/" \
-	-e 's/^  [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/  <timestamp>/' \
+	-e 's/^  [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/  <timestamp>/' \
 
 }
 

@@ -27,11 +27,11 @@ _filter()
     $PCP_AWK_PROG '
 BEGIN	{ stamp = nprocs = ncpu = nagents = mark = 0 }
 NF==0						{ next }
-/^[0-2][0-9]:/					{ stamp++ }
 /\(kernel.all.nprocs\).* value [0-9][0-9]*$/	{ nprocs++; next }
 /\(hinv.ncpu\).* value [0-9][0-9]*$/		{ ncpu++; next }
 /\(pmcd.numagents\).* value [0-9][0-9]*$/	{ nagents++; next }
-/\<mark\>/					{ mark++; next }
+/\<mark\>/					{ mark++; }
+/^[0-2][0-9]:/					{ stamp++; next }
     { print }
 END	{ print nprocs,"values for kernel.all.nprocs"
 	  print ncpu,"values for hinv.ncpu"

@@ -34,7 +34,7 @@ _filter()
     | sed \
 	-e "s/\(host:[ 	]*\)`hostname`/\1localhost/" \
 	-e '/__pmFaultInject(.*) not registered/d' \
-	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g' \
 	-e 's/Not enough space/Cannot allocate memory/'
 }
 

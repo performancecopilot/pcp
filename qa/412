@@ -76,7 +76,13 @@ _reset()
 #
 _process_log()
 {
-    $PCP_AWK_PROG -v dowrap=$dowrap -v half_delta=$half_delta '
+    sed <$tmp.dump \
+	-e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
+    | $PCP_AWK_PROG -v dowrap=$dowrap -v half_delta=$half_delta '
       BEGIN {
 	    maxuint = 4294967295;
 	    debug=0
@@ -108,7 +114,7 @@ _process_log()
 	    prev_time = curr_time;
 	    prev_value = curr_value;
       }
-    ' <$tmp.dump
+    '
 }
 
 #

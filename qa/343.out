@@ -18,25 +18,35 @@ Note: timezone set to local timezone of host "app1" from archive
 Note: timezone set to local timezone of host "app1" from archive
 
 
-08:10:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+08:10:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-08:30:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+08:30:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
-08:50:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
+08:50:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
 
-09:10:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+09:10:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-09:30:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+09:30:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
-09:50:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+09:50:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-10:10:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 6
+10:10:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 6
 
-10:30:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+10:30:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
-10:50:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
+10:50:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
 
-11:10:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
+11:10:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
 
 ==============================================
 -A 15m -S +8h -T +2h -t 15min ... expect 9 results
@@ -57,23 +67,32 @@ Note: timezone set to local timezone of host "app1" from archive
 Note: timezone set to local timezone of host "app1" from archive
 
 
-08:15:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+08:15:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-08:30:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
+08:30:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
-08:45:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+08:45:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-09:00:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
+09:00:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
 
-09:15:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+09:15:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
-09:30:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
+09:30:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
-09:45:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
+09:45:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
 
-10:00:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 6
+10:00:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 6
 
-10:15:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+10:15:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
 ==============================================
 -Z UTC -S @16:00:00 -T +2h -t 15min ... expect 9 results
@@ -94,23 +113,32 @@ Note: timezone set to "TZ=UTC"
 Note: timezone set to "TZ=GMT"
 
 
-16:00:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+16:00:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-16:15:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+16:15:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-16:30:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+16:30:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-16:45:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+16:45:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-17:00:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+17:00:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-17:15:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+17:15:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-17:30:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+17:30:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-17:45:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+17:45:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-18:00:00.000  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+18:00:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
 ==============================================
 -s 6 ... expect 6 results
@@ -118,14 +146,20 @@ Note: timezone set to "TZ=GMT"
 Note: timezone set to local timezone of host "app1" from archive
 
 
-00:10:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+00:10:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
-00:20:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+00:20:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-00:30:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
+00:30:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
-00:40:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+00:40:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-00:50:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+00:50:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
-01:00:47.856  129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+01:00:47.856414 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0

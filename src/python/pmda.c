@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015,2017 Red Hat.
+ * Copyright (C) 2013-2015,2017-2018 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -1239,6 +1239,15 @@ pmda_uptime(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+set_notify_change(PyObject *self, PyObject *args)
+{
+    const int flags = PMDA_EXT_LABEL_CHANGE | PMDA_EXT_NAMES_CHANGE;
+    pmdaExtSetFlags(dispatch.version.any.ext, flags);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 set_need_refresh(PyObject *self, PyObject *args)
 {
     need_refresh = 1;
@@ -1348,6 +1357,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "indom_longtext_refresh",
         .ml_meth = (PyCFunction)indom_longtext_refresh,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_notify_change", .ml_meth = (PyCFunction)set_notify_change,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "set_need_refresh", .ml_meth = (PyCFunction)set_need_refresh,
         .ml_flags = METH_NOARGS },
     { .ml_name = "set_fetch", .ml_meth = (PyCFunction)set_fetch,

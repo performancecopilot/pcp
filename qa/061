@@ -33,7 +33,7 @@ _filter_pmlogger()
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/(nil)/ADDR/g' \
 	-e 's/value [0-9]*/value INT/g' \
-	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e 's/[0-2][0-9]:00:00.00*0/TIME/' \
 	-e '/logputresult/{
 s/len=[0-9]*/len=NNN/g
 s/posn=[0-9]*/posn=NNN/
@@ -62,7 +62,7 @@ s/value [0-9][0-9]*/value NUMBER/
 s/value \[.*]/value AGGREGATE/
 s/value ".*"/value STRING/
 }' \
-	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]*[0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e "/pmcd\.pmlogger\./s/$logger_pid/LOGGER_PID/g" \
 	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
 	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \

@@ -34,7 +34,7 @@ sed <$tmp.out \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
     -e "s/   value \"$host\"/   value \"HOST\"/g" \
     -e "s/host:      $host/host:      localhost/g" \
-    -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+    -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g' \
     -e 's/fd=[0-9][0-9]*/fd=<fd>/g' \
 | $PCP_AWK_PROG ' BEGIN { hostskip=0 }
 /^pmXmitPDU: FETCH fd=<fd> len=/	{ hostskip++; }

@@ -160,9 +160,9 @@ class PCP2XLSX(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
-        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
-        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "xlsxwriter timestamp format")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
@@ -175,7 +175,7 @@ class PCP2XLSX(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt in ('g','H','K','n','N','p'):
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 

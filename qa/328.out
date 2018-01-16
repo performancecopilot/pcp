@@ -1,12 +1,12 @@
 QA output created by 328
 
 marks in one archive ...
-09:54:54.682  <mark>
-09:54:59.171  <mark>
+09:54:54.682675  <mark>
+09:54:59.171412  <mark>
 
 marks in other archive ...
-09:59:49.007  <mark>
-09:59:53.523  <mark>
+09:59:49.007629  <mark>
+09:59:53.523639  <mark>
 
 pmlogextract ... and marks ... and diffs (expect an extra one in the middle)
 
@@ -15,11 +15,11 @@ pmlogextract ... and marks ... and diffs (expect an extra one in the middle)
 ***************
 *** 1,4 ****
 --- 1,5 ----
-  09:54:54.682  <mark>
-  09:54:59.171  <mark>
-+ 09:55:01.679  <mark>
-  09:59:49.007  <mark>
-  09:59:53.523  <mark>
+  09:54:54.682675  <mark>
+  09:54:59.171412  <mark>
++ 09:55:01.679140  <mark>
+  09:59:49.007629  <mark>
+  09:59:53.523639  <mark>
 
 pmlogextract ... and marks ... and diffs (expect an extra one in the middle)
 
@@ -28,8 +28,8 @@ pmlogextract ... and marks ... and diffs (expect an extra one in the middle)
 ***************
 *** 1,4 ****
 --- 1,5 ----
-  09:54:54.682  <mark>
-  09:54:59.171  <mark>
-+ 09:55:01.679  <mark>
-  09:59:49.007  <mark>
-  09:59:53.523  <mark>
+  09:54:54.682675  <mark>
+  09:54:59.171412  <mark>
++ 09:55:01.679140  <mark>
+  09:59:49.007629  <mark>
+  09:59:53.523639  <mark>

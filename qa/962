@@ -20,11 +20,11 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "<mark> records ..."
-pmdumplog -z -x archives/count-mark | grep '^[^ ]' >$tmp.out
+pmdumplog -z -x archives/count-mark | egrep '(^[^ ])|(pswitch)' >$tmp.out
 for line in `$PCP_AWK_PROG <$tmp.out '/\<mark\>/ { print NR }'`
 do
-    a=`expr $line - 2`
-    b=`expr $line + 2`
+    a=`expr $line - 4`
+    b=`expr $line + 4`
     sed -n -e "${a},${b}p" <$tmp.out
 done
 echo

@@ -25,7 +25,7 @@ _pcp_complete()
         arg_regex="-[0ahKceASTOstZiJNPqbyQBYgxUEX]"
     ;;
     pcp2json)
-        all_args="0ahLKcCeVHGASTOstRrZzrIijJnNvPqbyQBYFfXx"
+        all_args="0ahLKcCeVHGASTOstRrZzrIijJnNvPqbyQBYFfxXE"
         arg_regex="-[0ahKceASTOstZiJNPqbyQBYgFf]"
     ;;
     pcp2xlsx)

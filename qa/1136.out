@@ -3,19 +3,19 @@ QA output created by 1136
 Recording metrics...
 11 samples(s) with 0.5 sec interval ~ 5 sec duration.
   s.d.instant  s.d.instant  s.d.instant  s.d.instant  s.d.instant  s.d.discrete  s.d.discrete  s.d.discrete  s.d.discrete  s.d.discrete  s.d.counter  s.d.counter  s.d.counter  s.d.counter  s.d.counter
-          one          two        three       twenty         four           one           two         three        twenty          four          one          two        three       twenty         four
+          one          two        three         four       twenty           one           two         three          four        twenty          one          two        three         four       twenty
         count        count        count        count        count         count         count         count         count         count        count        count        count        count        count
             1            1            1            1            1             1             1             1             1             1            1            1            1            1            1
             1            1          N/A          N/A          N/A             1             1           N/A           N/A           N/A            1            1          N/A          N/A          N/A
-            1            1            1            1          N/A             1             1             1             1           N/A            1            1            1            1          N/A
-            2            2            2            2          N/A             2             2             2             2           N/A            2            2            2            2          N/A
-            3            3            3            3          N/A             3             3             3             3           N/A            3            3            3            3          N/A
-            4            4            4            4          N/A             4             4             4             4           N/A            4            4            4            4          N/A
-            5            5            5            5          N/A             5             5             5             5           N/A            5            5            5            5          N/A
-            6            6            6            6          N/A             6             6             6             6           N/A            6            6            6            6          N/A
-            7            7            7            7          N/A             7             7             7             7           N/A            7            7            7            7          N/A
-            8            8            8            8          N/A             8             8             8             8           N/A            8            8            8            8          N/A
-            9            9            9            9          N/A             9             9             9             9           N/A            9            9            9            9          N/A
+            1            1            1          N/A            1             1             1             1           N/A             1            1            1            1          N/A            1
+            2            2            2          N/A            2             2             2             2           N/A             2            2            2            2          N/A            2
+            3            3            3          N/A            3             3             3             3           N/A             3            3            3            3          N/A            3
+            4            4            4          N/A            4             4             4             4           N/A             4            4            4            4          N/A            4
+            5            5            5          N/A            5             5             5             5           N/A             5            5            5            5          N/A            5
+            6            6            6          N/A            6             6             6             6           N/A             6            6            6            6          N/A            6
+            7            7            7          N/A            7             7             7             7           N/A             7            7            7            7          N/A            7
+            8            8            8          N/A            8             8             8             8           N/A             8            8            8            8          N/A            8
+            9            9            9          N/A            9             9             9             9           N/A             9            9            9            9          N/A            9
 === pmrep archive output - filter
 Recording metrics...
 11 samples(s) with 0.5 sec interval ~ 5 sec duration.

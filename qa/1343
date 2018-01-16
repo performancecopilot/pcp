@@ -154,7 +154,12 @@ do
 
     _service pmcd stop >>$seq.full 2>&1
     sleep 10 # pmmgr daemon shutdown
-    [ -f $tmp.xfsmount/$hostname/pmlogger.log ] && mv $tmp.xfsmount/$hostname/pmlogger.log $tmp.xfsmount/$hostname/pmlogger-$x.log
+    if [ -f $tmp.xfsmount/$hostname/pmlogger.log ]
+    then
+	# this may not work of course if the test fs is full
+	#
+	mv $tmp.xfsmount/$hostname/pmlogger.log $tmp.xfsmount/$hostname/pmlogger-$x.log 2>>$seq.full 
+    fi
 done
 
 echo "add log-merging/rewriting" | tee -a $seq.full

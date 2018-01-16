@@ -26,22 +26,22 @@ Log finished DATE
 32-32 timestamps
 
 === pmval -t 0.1 ===
-58-62 samples
+58-68 samples
 __pmLogRead-back 1-5 calls
 __pmLogRead-forw 51-58 calls
 __pmLogRead-peek 1-1 calls
-_pmFetchInterp 116-120 calls
+_pmFetchInterp 116-136 calls
 
 === pmval -t 0.2 ===
-28-32 samples
+26-34 samples
 __pmLogRead-back 1-5 calls
 __pmLogRead-forw 51-58 calls
 __pmLogRead-peek 1-1 calls
-_pmFetchInterp 58-60 calls
+_pmFetchInterp 58-68 calls
 
 === pmval -t 0.4 ===
 13-17 samples
 __pmLogRead-back 1-5 calls
 __pmLogRead-forw 51-58 calls
 __pmLogRead-peek 1-1 calls
-_pmFetchInterp 29-30 calls
+_pmFetchInterp 29-34 calls

@@ -13,8 +13,8 @@ pmdumplog diffs ...
  Log Label (Log Format Version 2)
 -Performance metrics from host snort
 +Performance metrics from host foo.bar.com
-   commencing Mon Nov  3 09:33:24.637 1997
-   ending     Mon Nov  3 09:33:24.637 1997
+     commencing Mon Nov  3 09:33:24.637736 1997
+     ending     Mon Nov  3 09:33:24.637736 1997
  
 
 === global tz -> GMT ===
@@ -27,31 +27,32 @@ pmdumplog diffs ...
  
  Log Label (Log Format Version 2)
  Performance metrics from host snort
--  commencing Mon Nov  3 09:33:24.637 1997
--  ending     Mon Nov  3 09:33:24.637 1997
-+  commencing Sun Nov  2 22:33:24.637 1997
-+  ending     Sun Nov  2 22:33:24.637 1997
+-    commencing Mon Nov  3 09:33:24.637736 1997
+-    ending     Mon Nov  3 09:33:24.637736 1997
++    commencing Sun Nov  2 22:33:24.637736 1997
++    ending     Sun Nov  2 22:33:24.637736 1997
  
  Descriptions for Metrics in the Log ...
  PMID: 2.3.2 (pmcd.pmlogger.archive)
-@@ -18,14 +18,14 @@
+@@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637 1 instances
-+22:33:24.637 1 instances
-                  21308 or "21308"
+-09:33:24.637736 1 instances
++22:33:24.637736 1 instances
+    21308 or "21308"
  
  Temporal Index
-              Log Vol    end(meta)     end(log)
--09:33:24.637       0          132          132
-+22:33:24.637       0          132          132
+ 		Log Vol    end(meta)     end(log)
+-09:33:24.637736	      0          132          132
++22:33:24.637736	      0          132          132
  
  [136 bytes]
--09:33:24.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-+22:33:24.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
-               2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
+-09:33:24.637736 3 metrics
++22:33:24.637736 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
+     2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
+     2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->10:20:30 ===
 PCP Archive Log Rewrite Specifications Summary
@@ -63,31 +64,32 @@ pmdumplog diffs ...
  
  Log Label (Log Format Version 2)
  Performance metrics from host snort
--  commencing Mon Nov  3 09:33:24.637 1997
--  ending     Mon Nov  3 09:33:24.637 1997
-+  commencing Mon Nov  3 19:53:54.637 1997
-+  ending     Mon Nov  3 19:53:54.637 1997
+-    commencing Mon Nov  3 09:33:24.637736 1997
+-    ending     Mon Nov  3 09:33:24.637736 1997
++    commencing Mon Nov  3 19:53:54.637736 1997
++    ending     Mon Nov  3 19:53:54.637736 1997
  
  Descriptions for Metrics in the Log ...
  PMID: 2.3.2 (pmcd.pmlogger.archive)
-@@ -18,14 +18,14 @@
+@@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637 1 instances
-+19:53:54.637 1 instances
-                  21308 or "21308"
+-09:33:24.637736 1 instances
++19:53:54.637736 1 instances
+    21308 or "21308"
  
  Temporal Index
-              Log Vol    end(meta)     end(log)
--09:33:24.637       0          132          132
-+19:53:54.637       0          132          132
+ 		Log Vol    end(meta)     end(log)
+-09:33:24.637736	      0          132          132
++19:53:54.637736	      0          132          132
  
  [136 bytes]
--09:33:24.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-+19:53:54.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
-               2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
+-09:33:24.637736 3 metrics
++19:53:54.637736 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
+     2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
+     2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->+10:20:30 ===
 PCP Archive Log Rewrite Specifications Summary
@@ -99,31 +101,32 @@ pmdumplog diffs ...
  
  Log Label (Log Format Version 2)
  Performance metrics from host snort
--  commencing Mon Nov  3 09:33:24.637 1997
--  ending     Mon Nov  3 09:33:24.637 1997
-+  commencing Mon Nov  3 19:53:54.637 1997
-+  ending     Mon Nov  3 19:53:54.637 1997
+-    commencing Mon Nov  3 09:33:24.637736 1997
+-    ending     Mon Nov  3 09:33:24.637736 1997
++    commencing Mon Nov  3 19:53:54.637736 1997
++    ending     Mon Nov  3 19:53:54.637736 1997
  
  Descriptions for Metrics in the Log ...
  PMID: 2.3.2 (pmcd.pmlogger.archive)
-@@ -18,14 +18,14 @@
+@@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637 1 instances
-+19:53:54.637 1 instances
-                  21308 or "21308"
+-09:33:24.637736 1 instances
++19:53:54.637736 1 instances
+    21308 or "21308"
  
  Temporal Index
-              Log Vol    end(meta)     end(log)
--09:33:24.637       0          132          132
-+19:53:54.637       0          132          132
+ 		Log Vol    end(meta)     end(log)
+-09:33:24.637736	      0          132          132
++19:53:54.637736	      0          132          132
  
  [136 bytes]
--09:33:24.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-+19:53:54.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
-               2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
+-09:33:24.637736 3 metrics
++19:53:54.637736 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
+     2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
+     2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->-10:20:30 ===
 PCP Archive Log Rewrite Specifications Summary
@@ -135,31 +138,32 @@ pmdumplog diffs ...
  
  Log Label (Log Format Version 2)
  Performance metrics from host snort
--  commencing Mon Nov  3 09:33:24.637 1997
--  ending     Mon Nov  3 09:33:24.637 1997
-+  commencing Sun Nov  2 23:12:54.637 1997
-+  ending     Sun Nov  2 23:12:54.637 1997
+-    commencing Mon Nov  3 09:33:24.637736 1997
+-    ending     Mon Nov  3 09:33:24.637736 1997
++    commencing Sun Nov  2 23:12:54.637736 1997
++    ending     Sun Nov  2 23:12:54.637736 1997
  
  Descriptions for Metrics in the Log ...
  PMID: 2.3.2 (pmcd.pmlogger.archive)
-@@ -18,14 +18,14 @@
+@@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637 1 instances
-+23:12:54.637 1 instances
-                  21308 or "21308"
+-09:33:24.637736 1 instances
++23:12:54.637736 1 instances
+    21308 or "21308"
  
  Temporal Index
-              Log Vol    end(meta)     end(log)
--09:33:24.637       0          132          132
-+23:12:54.637       0          132          132
+ 		Log Vol    end(meta)     end(log)
+-09:33:24.637736	      0          132          132
++23:12:54.637736	      0          132          132
  
  [136 bytes]
--09:33:24.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-+23:12:54.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
-               2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
+-09:33:24.637736 3 metrics
++23:12:54.637736 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
+     2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
+     2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->-22:33:24.637 tz->"GMT" hostname->eek ===
 PCP Archive Log Rewrite Specifications Summary
@@ -175,29 +179,30 @@ pmdumplog diffs ...
  
  Log Label (Log Format Version 2)
 -Performance metrics from host snort
--  commencing Mon Nov  3 09:33:24.637 1997
--  ending     Mon Nov  3 09:33:24.637 1997
+-    commencing Mon Nov  3 09:33:24.637736 1997
+-    ending     Mon Nov  3 09:33:24.637736 1997
 +Performance metrics from host eek
-+  commencing Sun Nov  2 00:00:00.000 1997
-+  ending     Sun Nov  2 00:00:00.000 1997
++    commencing Sun Nov  2 00:00:00.000736 1997
++    ending     Sun Nov  2 00:00:00.000736 1997
  
  Descriptions for Metrics in the Log ...
  PMID: 2.3.2 (pmcd.pmlogger.archive)
-@@ -18,14 +18,14 @@
+@@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637 1 instances
-+00:00:00.000 1 instances
-                  21308 or "21308"
+-09:33:24.637736 1 instances
++00:00:00.000736 1 instances
+    21308 or "21308"
  
  Temporal Index
-              Log Vol    end(meta)     end(log)
--09:33:24.637       0          132          132
-+00:00:00.000       0          132          132
+ 		Log Vol    end(meta)     end(log)
+-09:33:24.637736	      0          132          132
++00:00:00.000736	      0          132          132
  
  [136 bytes]
--09:33:24.637  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-+00:00:00.000  2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
-               2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
+-09:33:24.637736 3 metrics
++00:00:00.000736 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
+     2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
+     2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"

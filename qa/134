@@ -74,7 +74,7 @@ _do_time()
 	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
 	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/'
     sed -n <$tmp.tmp \
-      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]\).*/\1/p' \
+      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]*[0-9]\).*/\1/p' \
     | LC_COLLATE=POSIX sort -u \
     | while read time
     do

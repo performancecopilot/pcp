@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2017 Red Hat.
+ * Copyright (C) 2012-2018 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -1540,6 +1540,7 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PMCD_DROP_AGENT", PMCD_DROP_AGENT);
     dict_add(dict, "PMCD_AGENT_CHANGE", PMCD_AGENT_CHANGE);
     dict_add(dict, "PMCD_LABEL_CHANGE", PMCD_LABEL_CHANGE);
+    dict_add(dict, "PMCD_NAMES_CHANGE", PMCD_NAMES_CHANGE);
 
     dict_add(dict, "PM_MAXLABELS", PM_MAXLABELS);
     dict_add(dict, "PM_MAXLABELJSONLEN", PM_MAXLABELJSONLEN);

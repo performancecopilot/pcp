@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2016-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2016-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 
-# Last updated for: libvirt 3.9.0
+# Last updated for: libvirt 4.0.0
 
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use

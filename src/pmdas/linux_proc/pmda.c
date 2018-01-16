@@ -1926,7 +1926,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.ttyname */
 		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
-		if (f == NULL)
+		if (f == NULL || strcmp(f, "0") == 0)
 		    atom->cp = "?";
 		else
 		    atom->cp = get_ttyname_info(inst, f);

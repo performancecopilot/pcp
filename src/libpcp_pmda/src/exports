@@ -164,4 +164,5 @@ PCP_PMDA_3.7 {
     pmdaAddNotes;
 
     pmdaExtDynamicPMNS;
+    pmdaExtSetFlags;
 } PCP_PMDA_3.6;

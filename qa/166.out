@@ -3,9 +3,9 @@ pmlogreduce: sample.aggregate.null: Warning: skipping AGGREGATE metric
 pmlogreduce: sample.aggregate.hullo: Warning: skipping AGGREGATE metric
 pmlogreduce: sample.aggregate.write_me: Warning: skipping AGGREGATE metric
 --- mark records in input archive ---
-22:01:48.423  <mark>
+22:01:48.423650  <mark>
 --- mark records in reduced archive ---
-22:01:48.423  <mark>
+22:01:48.423650  <mark>
 
 === sample.milliseconds ===
 --- pmval using input archive ---

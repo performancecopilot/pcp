@@ -105,7 +105,14 @@ _check_noncounter_stocave()
     from_summary=`pmlogsummary -x $tmp.merge $1 \
 		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
     
-    from_qa=`pmdumplog -m $tmp.merge $1 | $PCP_AWK_PROG '
+    from_qa=`pmdumplog -m $tmp.merge $1 \
+	     | sed \
+		-e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
+             | $PCP_AWK_PROG '
 /\('"$1"'\)/	{ sum += $5; count++; next }
 END		{ print sum/count }'`
 
@@ -158,14 +165,28 @@ END	{ print avg/(prevtime-firsttime) }'`
 
 _qa_minimum()
 {
-    pmdumplog -m $tmp.merge sample.drift | $PCP_AWK_PROG '
+    pmdumplog -m $tmp.merge sample.drift \
+    | sed \
+	-e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
+    | $PCP_AWK_PROG '
 /sample.drift/	{ if (($5 < min) || (count < 1)) min = $5; count++; next }
 END		{ printf "%.3f",min }'
 }
 
 _qa_maximum()
 {
-    pmdumplog -m $tmp.merge sample.drift | $PCP_AWK_PROG '
+    pmdumplog -m $tmp.merge sample.drift \
+    | sed \
+	-e '/^[0-9]/{
+s/[0-9][0-9]* metrics*//
+N
+s/\n/ /
+}' \
+    | $PCP_AWK_PROG '
 /sample.drift/	{ if (($5 > max) || (count < 1)) max = $5; count++; next }
 END		{ printf "%.3f",max }'
 }

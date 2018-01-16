@@ -207,9 +207,9 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
-        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
-        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
@@ -227,7 +227,7 @@ class PCP2Zabbix(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt in ('g','H','K','n','N','p'):
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 

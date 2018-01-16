@@ -27,7 +27,7 @@ echo "=== pmPrintValue ==="
 for i in 0 1 2 3
 do
     pminfo -f sample.event.records \
-    | sed -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+    | sed -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 done
 
 echo
@@ -42,7 +42,7 @@ echo "=== pmPrintValue ==="
 for i in 0 1 2 3
 do
     pminfo -f sample.event.no_indom_records \
-    | sed -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+    | sed -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 done
 
 echo

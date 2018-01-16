@@ -836,6 +836,7 @@ do
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		;;
+
 	    vm32)
 		# Only selected groups this stage for FreeBSD:
 		#	sanity trace
@@ -843,6 +844,7 @@ do
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity -g trace -X 603'
 		;;
+
 	    vm07|vm11)
 		# Exclude -x valgrind at this stage for Debian stretch
 		# until
@@ -852,10 +854,17 @@ do
 		# tests (20 Jul 2016)
 		#
 		;;
+
 	    vm01)
 		# 739 segv's sometimes deep inside Python
 		[ X"$what" = Xall ] && check_what='-X 739'
 		;;
+
+	    vm15)
+		# 1123 loops forever lost in an X11 wasteland
+		[ X"$what" = Xall ] && check_what='-X 1123'
+		;;
+
 	    vm35)
 		# this is PCP 2.7.8, need to run as user pcpqa and just
 		# the sanity group and no -p or -m or -i flags
