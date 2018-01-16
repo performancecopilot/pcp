@@ -40,9 +40,11 @@ proc.memory.vmexe -12387 No permission to perform requested operation
 proc.memory.vmhwm -12387 No permission to perform requested operation
 proc.memory.vmlib -12387 No permission to perform requested operation
 proc.memory.vmlock -12387 No permission to perform requested operation
+proc.memory.vmnonlib -12387 No permission to perform requested operation
 proc.memory.vmpeak -12387 No permission to perform requested operation
 proc.memory.vmpin -12387 No permission to perform requested operation
 proc.memory.vmpte -12387 No permission to perform requested operation
+proc.memory.vmreal -12387 No permission to perform requested operation
 proc.memory.vmrss -12387 No permission to perform requested operation
 proc.memory.vmsize -12387 No permission to perform requested operation
 proc.memory.vmstack -12387 No permission to perform requested operation
@@ -137,9 +139,11 @@ proc.memory.vmexe COUNT
 proc.memory.vmhwm COUNT
 proc.memory.vmlib COUNT
 proc.memory.vmlock COUNT
+proc.memory.vmnonlib COUNT
 proc.memory.vmpeak COUNT
 proc.memory.vmpin COUNT
 proc.memory.vmpte COUNT
+proc.memory.vmreal COUNT
 proc.memory.vmrss COUNT
 proc.memory.vmsize COUNT
 proc.memory.vmstack COUNT

@@ -1,0 +1,5 @@
+QA output created by 1269
+pmval: invalid time window.
+0
+^ -- alignment specified by -A switch could not be applied
+
