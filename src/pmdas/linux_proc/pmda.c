@@ -524,6 +524,18 @@ static pmdaMetric metrictab[] = {
     PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
+/* proc.memory.vmreal */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMREAL),
+    PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmnonlib */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMNONLIB),
+    PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
 /* proc.psinfo.threads */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_THREADS),
@@ -2349,6 +2361,26 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMREAL: /* proc.memory.vmreal and */
+	case PROC_PID_STATUS_VMNONLIB: /* proc.memory.vmnonlib */
+	if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL) {
+	    atom->ull = 0;
+	    break;
+	}
+	atom->ull = (__uint64_t)strtoull(f, &tail, 0);
+	if ((f = _pm_getfield(entry->status_lines.vmswap, 1)) == NULL) {
+	    atom->ull = 0;
+	    break;
+	}
+	atom->ull += (__uint64_t)strtoull(f, &tail, 0);
+	if (item == PROC_PID_STATUS_VMREAL)
+	    break;
+	if ((f = _pm_getfield(entry->status_lines.vmlib, 1)) == NULL)
+	    atom->ull = 0;
+	else
+	    atom->ull -= (__uint64_t)strtoull(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_THREADS: /* proc.psinfo.threads */

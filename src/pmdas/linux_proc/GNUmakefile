@@ -105,7 +105,8 @@ gram.tab.o:	hotproc.h
 lex.o:	hotproc.h
 cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
-cgroups.o pmda.o proc_pid.o proc_runq.o:	proc_pid.h
+cgroups.o pmda.o proc_pid.o proc_runq.o proc_dynamic.o:	proc_pid.h
+proc_dynamic.o:	help_text.h
 pmda.o proc_runq.o:	proc_runq.h
 indom.o pmda.o:	indom.h
 ksym.o pmda.o:		ksym.h

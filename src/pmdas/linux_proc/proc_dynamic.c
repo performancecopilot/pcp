@@ -183,6 +183,8 @@ static dynproc_metric_t memory_metrics[] = {
 	{ .name = "vmpin",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPIN },
 	{ .name = "vmhwm",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMHWM },
 	{ .name = "vmpte",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPTE },
+	{ .name = "vmreal",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMREAL },
+	{ .name = "vmnonlib",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMNONLIB },
 };
 
 static dynproc_metric_t namespace_metrics[] = {
