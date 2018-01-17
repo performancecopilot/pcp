@@ -1163,6 +1163,11 @@ void pmmgr_daemon::poll()
       pid = fork();
       if (pid == 0) // child process
 	{
+          // Close file descriptors that might be open.
+#ifdef _SC_OPEN_MAX
+          for (int fd = sysconf(_SC_OPEN_MAX); fd >= 3; fd--)
+            (void) close(fd);
+#endif
 	  int rc = execl ("/bin/sh", "sh", "-c", commandline.c_str(), NULL);
 	  timestamp(obatched(cerr)) << "failed to execl sh -c " << commandline << " rc=" << rc << endl;
 	  _exit (1);
