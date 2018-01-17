@@ -755,7 +755,8 @@ class pmConfig(object):
         """ Finalize util options """
         # Runtime overrides samples/interval
         if self.util.opts.pmGetOptionFinishOptarg():
-            self.util.runtime = float(self.util.opts.pmGetOptionFinish()) - float(self.util.opts.pmGetOptionOrigin())
+            origin = float(self.util.opts.pmGetOptionOrigin()) if self.util.opts.pmGetOptionOrigin() is not None else 0
+            self.util.runtime = float(self.util.opts.pmGetOptionFinish()) - origin
             if self.util.opts.pmGetOptionSamples():
                 self.util.samples = self.util.opts.pmGetOptionSamples()
                 if self.util.samples < 2:
