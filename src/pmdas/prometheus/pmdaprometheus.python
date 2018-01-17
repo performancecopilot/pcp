@@ -688,17 +688,21 @@ class PrometheusPMDA(PMDA):
                         assert s == self.source_by_name[s.name]
 
                        
-        def traverse(self, dir):
+        def traverse(self, dir, mtime):
                 ''' return list of files below dir, recursively '''
                 ret = []
+                m = os.path.getmtime(dir)
+                if mtime is None or m > mtime:
+                        mtime = m
+
                 for path, subdirs, files in os.walk(dir):
                         for f in files:
                                 ret.append(path + "/" + f)
                         for d in subdirs:
-                                r = self.traverse(d)
-                                if len(r):
-                                        ret.append(r)
-                return ret
+                                m, r = self.traverse(path + "/" + d, mtime)
+                                if mtime is None or m > mtime:
+                                        mtime = m
+                return mtime, ret
 
         def rescan_confdir(self):
                 '''Scan the configuration directories for any new .url files
@@ -710,27 +714,16 @@ class PrometheusPMDA(PMDA):
                 invoked -all-the-time- by src/python/pmda.c.
                 '''
 
-                mtime = os.path.getmtime(self.config_dir)
-                conf_filelist = self.traverse(self.config_dir)
-                for f in conf_filelist:
-                        try:
-                                t = os.path.getmtime(f)
-                                if t > mtime:
-                                        mtime = t
-                        except:
-                                # If the stat failed, there's not much we can do.
-                                # Just assume the config file hasn't changed
-                                pass
-
-                if not self.config_dir_mtime or self.config_dir_mtime < mtime:
-                        self.config_dir_mtime = mtime
-                else: # no change, don't rescan directory
+                dir_mtime, conf_filelist = self.traverse(self.config_dir, self.config_dir_mtime)
+                if self.config_dir_mtime is None or self.config_dir_mtime < dir_mtime:
+                        self.log("Config change detected - scanning ...")
+                        self.config_dir_mtime = dir_mtime
+                else: # no new or deleted conf files, don't rescan directory
                         return
                 
                 nickname_regexp = re.compile(r"^[A-Za-z][A-Za-z0-9_.]*$")
                 
                 # XXX: nuke sources related to removed files
-                self.log("walking %s, mtime %s" % (self.config_dir, self.config_dir_mtime))
                 save_cluster_table = False
                 for file in sorted(conf_filelist): # sorted for indom cluster consistency
                         # compute nickname for source:
@@ -742,7 +735,7 @@ class PrometheusPMDA(PMDA):
                         is_scripted = os.stat(file)[ST_MODE] & S_IXUSR != 0
                         if not is_scripted and (len(file_split) != 2 or file_split[1] != ".url"):
                                 # ignore this file - not executable and doesn't end in ".url"
-                                self.err("Warning: ignored config '%s'" % file)
+                                self.log("Warning: ignored config '%s'" % file)
                                 continue
                         # convert file path name into a PCP metric name
                         name = file_split[0].replace(self.config_dir + "/", "").replace("/",".")
