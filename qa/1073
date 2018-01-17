@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1073
-# Exercise the vfs and random entropy metrics (/proc/sys)
+# Exercise the vfs and /proc/sys/kernel metrics
 #
-# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+# Copyright (c) 2017-2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -32,7 +32,8 @@ pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 
 vfs_metrics=`pminfo $local vfs | LC_COLLATE=POSIX sort`
-entropy_metrics=`pminfo $local kernel.all.entropy | LC_COLLATE=POSIX sort`
+sys_metrics=`pminfo $local kernel.all.entropy | LC_COLLATE=POSIX sort`
+sys_metrics="$sys_metrics  kernel.all.pid_max"
 for tgz in $here/linux/procsys-*.tgz
 do
     rm -fr $root
@@ -45,8 +46,8 @@ do
     pminfo $local -f $vfs_metrics
     echo && echo "== done" && echo
 
-    echo "== Checking entropy metric values - $base"
-    pminfo $local -f $entropy_metrics
+    echo "== Checking /proc/sys/kernel metric values - $base"
+    pminfo $local -f $sys_metrics
     echo && echo "== done" && echo
 
     cd $here
