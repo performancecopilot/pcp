@@ -1445,7 +1445,7 @@ collectl
 1191 pmda.prometheus local
 1196 pmcd local
 1199 libpcp pmcd local
-1202 pmdadm local
+1202 pmdadm local pmrep
 1203 derive pmval libpcp local
 1220 pmda.proc local
 1221 labels pmda.prometheus local

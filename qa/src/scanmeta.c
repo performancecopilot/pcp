@@ -507,8 +507,8 @@ main(int argc, char *argv[])
 	hdr.type = ntohl(hdr.type);
 	if (pmDebugOptions.log)
 	    fprintf(stderr, "read: len=%d type=%d @ offset=%ld\n", hdr.len, hdr.type, (long)offset);
-	if (nrec == 0 && hdr.len != sizeof(pmLogLabel)+sizeof(int)) {
-	    fprintf(stderr, "error: %s does not start with label record, not a PCP archive file?\n", argv[optind]);
+	if (nrec == 0 && hdr.len != (int)sizeof(__pmLogLabel)+2*(int)sizeof(int)) {
+	    fprintf(stderr, "error: %s does not start with label record (hdr len=%d not %d), not a PCP archive file?\n", argv[optind], hdr.len, (int)sizeof(pmLogLabel)+2*(int)sizeof(int));
 	    exit(1);
 	}
 	len = hdr.len - sizeof(hdr);

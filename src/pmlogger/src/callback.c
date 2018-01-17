@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -370,7 +370,7 @@ manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
 	else if (type == PM_LABEL_DOMAIN)
 	    ident = pmID_domain(desc->pmid);
 	else if (type == PM_LABEL_CLUSTER)
-	    ident = pmID_build(pmID_domain(ident), pmID_cluster(ident), 0);
+	    ident = pmID_build(pmID_domain(desc->pmid), pmID_cluster(desc->pmid), 0);
 	else if (type == PM_LABEL_ITEM)
 	    ident = desc->pmid;
 	else
