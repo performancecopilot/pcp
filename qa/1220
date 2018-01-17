@@ -14,6 +14,14 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific pmdaproc testing"
+which tty >/dev/null 2>&1 || _notrun "no tty(1) installed"
+tty
+case `tty`
+in
+    'not a tty')
+	_notrun "no tty assigned"
+	;;
+esac
 
 _cleanup()
 {
