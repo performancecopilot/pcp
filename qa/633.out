@@ -2,7 +2,7 @@ QA output created by 633
 2 pmGetPDU: DESC
 2 pmGetPDU: ERROR
 1001 pmGetPDU: INSTANCE
-9 pmGetPDU: LABEL
+8 pmGetPDU: LABEL
 5 pmGetPDU: PMNS_IDS
 4 pmGetPDU: PMNS_NAMES
 6 pmGetPDU: RESULT
@@ -11,7 +11,7 @@ QA output created by 633
 2 pmXmitPDU: DESC_REQ
 6 pmXmitPDU: FETCH
 1001 pmXmitPDU: INSTANCE_REQ
-9 pmXmitPDU: LABEL_REQ
+8 pmXmitPDU: LABEL_REQ
 2 pmXmitPDU: PMNS_IDS
 5 pmXmitPDU: PMNS_NAMES
 2 pmXmitPDU: PMNS_TRAVERSE
