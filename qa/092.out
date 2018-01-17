@@ -4,7 +4,7 @@ pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
-required 1 log reads
+required 2 log reads
 
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
@@ -18,7 +18,7 @@ pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
-required 1 log reads
+required 2 log reads
 
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
@@ -32,7 +32,7 @@ pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 9 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
-required 7 log reads
+required 8 log reads
 
 last result time (indirect): MY-EOL-TIMESTAMP
 required 8 log reads
@@ -61,7 +61,7 @@ pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
-required 1 log reads
+required 2 log reads
 
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
@@ -75,7 +75,7 @@ pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
-required 1 log reads
+required 2 log reads
 
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
