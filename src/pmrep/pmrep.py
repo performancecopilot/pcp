@@ -581,6 +581,8 @@ class PMReporter(object):
         if timezone != self.context.posix_tz_to_utc_offset(self.localtz):
             timezone += " (reporting, current is " + self.context.posix_tz_to_utc_offset(self.localtz) + ")"
 
+        origin = float(self.opts.pmGetOptionOrigin()) if self.opts.pmGetOptionOrigin() is not None else 0
+
         if self.runtime != -1:
             duration = self.runtime
             samples = self.samples
@@ -589,18 +591,18 @@ class PMReporter(object):
                 duration = (self.samples - 1) * float(self.interval)
                 samples = self.samples
             else:
-                duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+                duration = float(self.opts.pmGetOptionFinish()) - origin
                 samples = int(duration / float(self.interval) + 1)
                 samples = max(0, samples)
                 duration = (samples - 1) * float(self.interval)
                 duration = max(0, duration)
-        endtime = float(self.opts.pmGetOptionOrigin()) + duration
+        endtime = origin + duration
 
         instances = sum([len(x[0]) for x in self.pmconfig.insts])
         insts_txt = "instances" if instances != 1 else "instance"
 
         if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
-            duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+            duration = float(self.opts.pmGetOptionFinish()) - origin
             duration = max(0, duration)
 
         def secs_to_readable(seconds):
@@ -626,7 +628,7 @@ class PMReporter(object):
             self.writer.write(comm + "  archive: " + self.source + "\n")
         self.writer.write(comm + "     host: " + host + "\n")
         self.writer.write(comm + " timezone: " + timezone + "\n")
-        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
+        self.writer.write(comm + "    start: " + time.asctime(time.localtime(origin)) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
         self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + " (" + str(instances) + " " + insts_txt + ")\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
