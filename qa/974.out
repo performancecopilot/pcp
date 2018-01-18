@@ -1925,6 +1925,69 @@ Error: Metric not supported by this version of monitored application
 
 == done
 
+== Extracting subtrees for later use - procpid-4.14.5-root-005.tgz
+== Checking namespace and metric numbering - procpid-4.14.5-root-005.tgz
+== Checking metric descriptors and a fetch - procpid-4.14.5-root-005.tgz
+
+proc.control.all.threads
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
+proc.fd.count
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.id.egid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 0
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value 0
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 0
+    inst [N or "026304 /bin/prometheus"] value 65534
+
+proc.io.cancelled_write_bytes
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: byte
+    inst [N or "026304 /bin/prometheus"] value 12288
+
+proc.memory.datrss
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 29096
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value 185880
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 70672
+    inst [N or "026304 /bin/prometheus"] value 68748
+
+proc.namespaces.envid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+Error: Metric not supported by this version of monitored application
+
+proc.psinfo.blocked
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 671173123
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value 2079991845
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 1073741824
+    inst [N or "026304 /bin/prometheus"] value 2079996452
+
+proc.runq.blocked
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 0
+
+proc.schedstat.cpu_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 277938397257
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value 11539926
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 1895075
+    inst [N or "026304 /bin/prometheus"] value 83549863
+
+== done
+
 == Extracting subtrees for later use - procpid-4.2.3-root-004.tgz
 == Checking namespace and metric numbering - procpid-4.2.3-root-004.tgz
 == Checking metric descriptors and a fetch - procpid-4.2.3-root-004.tgz

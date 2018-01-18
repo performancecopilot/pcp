@@ -174,7 +174,12 @@ class pmConfig(object):
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
-            config.read(self.util.config)
+            try:
+                config.read(self.util.config)
+            except ConfigParser.Error as error:
+                sys.stderr.write("Failed to read configuration file '%s', line %d:\n%s\n"
+                                 % (self.util.config, error.lineno, str(error.message).split("\n")[0])) # pylint: disable=no-member
+                sys.exit(1)
         self.read_section_options(config, 'options')
         for arg in iter(sys.argv[1:]):
             if arg.startswith(":") and arg[1:] in config.sections():
@@ -245,7 +250,7 @@ class pmConfig(object):
             if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
                 metrics[key] = [value]
-                for index in range(0, 7):
+                for index in range(0, 8):
                     if len(metrics[key]) <= index:
                         if index == 2:
                             metrics[key].append([])
@@ -281,7 +286,12 @@ class pmConfig(object):
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
-            config.read(self.util.config)
+            try:
+                config.read(self.util.config)
+            except ConfigParser.Error as error:
+                sys.stderr.write("Failed to read configuration file '%s', line %d:\n%s\n"
+                                 % (self.util.config, error.lineno, str(error.message).split("\n")[0])) # pylint: disable=no-member
+                sys.exit(1)
 
         # First read global metrics (if not disabled already)
         globmet = OrderedDict()
@@ -390,8 +400,8 @@ class pmConfig(object):
                                 found[0].append(inst[0][i])
                                 found[1].append(inst[1][i])
                         del cr
-                    except Exception as e:
-                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                    except Exception as error:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
                         sys.exit(1)
                 if not found[0]:
                     return
@@ -429,10 +439,14 @@ class pmConfig(object):
         """ Validate common utility options """
         try:
             err = "Integer expected"
-            if hasattr(self.util, 'rank'):
+            if hasattr(self.util, 'rank') and self.util.rank:
                 self.util.rank = int(self.util.rank)
+            if hasattr(self.util, 'limit_filter') and self.util.limit_filter:
+                self.util.limit_filter = int(self.util.limit_filter)
+            if hasattr(self.util, 'limit_filter_force') and self.util.limit_filter_force:
+                self.util.limit_filter_force = int(self.util.limit_filter_force)
             err = "Non-negative integer expected"
-            if hasattr(self.util, 'width'):
+            if hasattr(self.util, 'width') and self.util.width:
                 self.util.width = int(self.util.width)
                 if self.util.width < 0:
                     raise ValueError(err)
@@ -440,7 +454,7 @@ class pmConfig(object):
                 self.util.width_force = int(self.util.width_force)
                 if self.util.width_force < 0:
                     raise ValueError(err)
-            if hasattr(self.util, 'precision'):
+            if hasattr(self.util, 'precision') and self.util.precision:
                 self.util.precision = int(self.util.precision)
                 if self.util.precision < 0:
                     raise ValueError(err)
@@ -448,7 +462,7 @@ class pmConfig(object):
                 self.util.precision_force = int(self.util.precision_force)
                 if self.util.precision_force < 0:
                     raise ValueError(err)
-            if hasattr(self.util, 'repeat_header'):
+            if hasattr(self.util, 'repeat_header') and self.util.repeat_header:
                 self.util.repeat_header = int(self.util.repeat_header)
                 if self.util.repeat_header < 0:
                     raise ValueError(err)
@@ -499,6 +513,25 @@ class pmConfig(object):
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
 
+        branch = set()
+        def metric_base_check(metric):
+            """ Helper to support non-leaf metricspecs """
+            from copy import deepcopy
+            if metric != self._tmp:
+                if metric not in metrics:
+                    metrics[metric] = deepcopy(metrics[self._tmp])
+                    branch.add(self._tmp)
+
+        # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
+        for metric in metrics:
+            self._tmp = metric
+            try:
+                self.util.context.pmTraversePMNS(metric, metric_base_check)
+            except pmapi.pmErr as error:
+                pass
+        for b in branch:
+            del metrics[b]
+
         for metric in metrics:
             try:
                 l = len(self.pmids)
@@ -507,19 +540,8 @@ class pmConfig(object):
                 if len(self.pmids) == l:
                     # No compatible metrics found
                     continue
-                elif len(self.pmids) == l + 1:
-                    # Leaf
-                    if metric in self.util.context.pmNameAll(self.pmids[l]):
-                        self.util.metrics[metric] = metrics[metric]
-                    else:
-                        # Handle single non-leaf case in an archive
-                        self.util.metrics[self.util.context.pmNameID(self.pmids[l])] = []
                 else:
-                    # Non-leaf
-                    for i in range(l, len(self.pmids)):
-                        name = self.util.context.pmNameID(self.pmids[i])
-                        # We ignore specs like disk.dm,,,MB on purpose, for now
-                        self.util.metrics[name] = []
+                    self.util.metrics[metric] = metrics[metric]
             except pmapi.pmErr as error:
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
                 sys.exit(1)
@@ -537,7 +559,7 @@ class pmConfig(object):
         incompat_metrics = OrderedDict()
         for i, metric in enumerate(self.util.metrics):
             # Fill in all fields for easier checking later
-            for index in range(0, 7):
+            for index in range(0, 8):
                 if len(self.util.metrics[metric]) <= index:
                     if index == 1:
                         self.util.metrics[metric].append([])
@@ -691,6 +713,20 @@ class pmConfig(object):
                 self.util.metrics[metric][6] = self.util.precision_force
             self.util.metrics[metric][5] = None
 
+            # Set value limit filter
+            if self.util.metrics[metric][7]:
+                try:
+                    self.util.metrics[metric][7] = int(self.util.metrics[metric][7])
+                except Exception:
+                    sys.stderr.write("Integer expected: %s\n" % metric)
+                    sys.exit(1)
+            elif hasattr(self.util, 'limit_filter'):
+                self.util.metrics[metric][7] = self.util.limit_filter
+            if hasattr(self.util, 'limit_filter_force') and self.util.limit_filter_force:
+                self.util.metrics[metric][7] = self.util.limit_filter_force
+            if self.descs[i].contents.type == pmapi.c_api.PM_TYPE_STRING:
+                self.util.metrics[metric][7] = None
+
             # Add fetchgroup items
             try:
                 items = []
@@ -725,8 +761,8 @@ class pmConfig(object):
                         self._re_cache[metric] = []
                         for r in self.util.metrics[metric][1]:
                             self._re_cache[metric].append(re.compile(r'\A' + r + r'\Z'))
-                    except Exception as e:
-                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                    except Exception as error:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
                         sys.exit(1)
             except Exception:
                 if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
@@ -839,6 +875,10 @@ class pmConfig(object):
     def get_sorted_results(self):
         """ Get filtered and ranked results """
         results = OrderedDict()
+        if hasattr(self.util, 'predicate') and self.util.predicate:
+            predicates = self.util.predicate.split(",")
+        else:
+            predicates = ()
         early_live_filter = self.do_live_filtering() and not self.do_invert_filtering()
         for i, metric in enumerate(self.util.metrics):
             results[metric] = []
@@ -852,15 +892,21 @@ class pmConfig(object):
                           not self.filter_instance(metric, name):
                             continue
                         value = val()
+                        if self.util.metrics[metric][7]:
+                            if metric not in predicates:
+                                limit = self.util.metrics[metric][7]
+                                if limit > 0 and value < limit:
+                                    continue
+                                elif limit < 0 and value > abs(limit):
+                                    continue
                         results[metric].append((inst, name, value))
                     except Exception:
                         pass
             except Exception:
                 pass
 
-        if hasattr(self.util, 'predicate') and self.util.predicate:
+        if predicates:
             pred_insts = {}
-            predicates = self.util.predicate.split(",")
             for _pred_index, predicate in enumerate(predicates):
                 results[predicate] = self.rank(results[predicate])
                 if self._pred_indom[_pred_index] not in pred_insts:
@@ -868,6 +914,15 @@ class pmConfig(object):
                 pred_insts[self._pred_indom[_pred_index]].extend([i[0] for i in results[predicate]])
             for i, metric in enumerate(results):
                 if metric in predicates:
+                    # Predicate instance values may all get filtered,
+                    # but other metrics' instance values may be above
+                    # the filter so predicate is filtered after rank.
+                    if self.util.metrics[metric][7]:
+                        limit = self.util.metrics[metric][7]
+                        if limit > 0:
+                            results[metric] = [x for x in results[metric] if x[2] >= limit]
+                        elif limit < 0:
+                            results[metric] = [x for x in results[metric] if x[2] <= abs(limit)]
                     continue
                 if self.descs[i].contents.indom not in self._pred_indom:
                     results[metric] = self.rank(results[metric])

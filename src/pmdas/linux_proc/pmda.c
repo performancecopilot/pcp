@@ -608,6 +608,12 @@ static pmdaMetric metrictab[] = {
     PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_CGROUP, PROC_PID_CONTAINER),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /* proc.psinfo.labels */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_LABEL, PROC_PID_LABEL),
@@ -3035,11 +3041,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_CGROUP:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if (item > PROC_PID_CGROUP)
-	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL) /* proc.psinfo.cgroups */
+	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
-	atom->cp = proc_strings_lookup(entry->cgroup_id);
+	switch (item) {
+	case PROC_PID_CGROUP: /* proc.psinfo.cgroups */
+	    atom->cp = proc_strings_lookup(entry->cgroup_id);
+	    break;
+	case PROC_PID_CONTAINER: /* proc.id.container */
+	    atom->cp = proc_strings_lookup(entry->container_id);
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
 	break;
 
     case CLUSTER_HOTPROC_PID_LABEL:

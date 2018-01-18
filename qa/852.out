@@ -1818,6 +1818,30 @@ proc.psinfo.psargs
     inst [N or "010697 gpg-agent"] value "gpg-agent --daemon"
     inst [N or "013162 /bin/sh"] value "/bin/sh ./mk.procpid"
 
+== Fetching per-thread proc.psinfo.rss metric - procpid-4.14.5-root-005.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 9624
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value 6916
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 2852
+    inst [N or "026304 /bin/prometheus"] value 47980
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-4.14.5-root-005.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 1
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value 996
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 26287
+    inst [N or "026304 /bin/prometheus"] value 26304
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-4.14.5-root-005.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --system --deserialize 24"
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value "/usr/libexec/docker/docker-containerd-current --listen unix:///run/containerd.sock --shim /usr/libexec/docker/docker-containerd-shim-current --start-timeout 2m"
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value "/usr/libexec/docker/docker-containerd-shim-current 0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736 /var/run/docker/libcontainerd/0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736 /usr/libexec/docker/docker-runc-current"
+    inst [N or "026304 /bin/prometheus"] value "/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles"
+
 == Fetching per-thread proc.psinfo.rss metric - procpid-4.2.3-root-004.tgz
 
 proc.psinfo.rss

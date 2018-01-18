@@ -24,6 +24,7 @@ _filter()
 	-e '/No value(s) available/d' \
 	-e '/Metric not supported by this version of monitored application/d' \
 	-e '/cgroup\.groups: pmLookupName: Unknown metric name/d' \
+	-e '/proc\.id\.container: No data available/d' \
 	-e '/proc\.psinfo\.cgroups: No data available/d' \
 	-e '/^sample\.needprofile:/d' \
 	-e '/^sample\.bad\.unknown:/d' \
@@ -36,6 +37,7 @@ _filter()
 	-e '/^proc\.schedstat.*: Unknown or .*/d' \
 	-e '/^proc\.schedstat.*: No permission/d' \
 	-e '/^proc\.psinfo.*: No permission/d' \
+	-e '/^proc\.id\.container: Unknown or illegal instance identifier/d' \
 	-e '/^proc\.psinfo\.cgroups: Unknown or illegal instance identifier/d' \
 	-e '/^proc\.psinfo\.labels: Unknown or illegal instance identifier/d' \
 	-e '/^proc\.memory.*: No permission/d' \

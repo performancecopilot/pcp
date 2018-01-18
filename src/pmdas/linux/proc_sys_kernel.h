@@ -1,7 +1,7 @@
 /* 
  * Linux /proc/sys/kernel metrics cluster
  *
- * Copyright (c) 2017 Rad Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@ typedef struct {
     int		errcode;	/* error from previous refresh */
     uint32_t	entropy_avail;
     uint32_t	random_poolsize;
+    uint32_t	pid_max;
 } proc_sys_kernel_t;
 
 extern int refresh_proc_sys_kernel(proc_sys_kernel_t *);

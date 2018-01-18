@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 735
-# Exercise the Linux kernel proc.psinfo.cgroup metric
+# Exercise the Linux proc.psinfo.cgroup and proc.id.container metrics
 #
-# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+# Copyright (c) 2013,2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -41,12 +41,48 @@ cat $tmp.cgroups >> $seq.full
 if [ "$pcpcgroups" = "$syscgroups" ]
 then
     echo "Control group list for current process checks out"
-    status=0
 else
     echo "Mismatch on control group list:"
     echo "PCP cgroups: $pcpcgroups"
     echo "SYS cgroups: $syscgroups"
     status=1
+    exit
 fi
 
+echo
+echo "Checking logged control group proc data ..."
+
+root=$tmp.root
+export PROC_STATSPATH=$root
+export PROC_PAGESIZE=4096
+export PROC_THREADS=1
+export PROC_HERTZ=100
+pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
+metrics="proc.psinfo.cgroups proc.id.container"
+
+_filter()
+{
+    cat >$tmp.out
+    grep -v 'inst \[' $tmp.out
+    sed -n -e 's/inst \[[0-9][0-9]*/inst [N/p' $tmp.out \
+    | LC_COLLATE=POSIX sort
+}
+
+for tgz in $here/linux/procpid-4.14.5-root-005.tgz
+do
+    cd $here
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    for metric in $metrics
+    do
+	echo; echo "== Fetching $metric metric - $base"
+	pminfo -L -K clear -K add,3,$pmda -f $metric | _filter
+    done
+done
+
+status=0
 exit
