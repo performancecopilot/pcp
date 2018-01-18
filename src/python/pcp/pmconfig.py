@@ -174,7 +174,12 @@ class pmConfig(object):
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
-            config.read(self.util.config)
+            try:
+                config.read(self.util.config)
+            except ConfigParser.Error as error:
+                sys.stderr.write("Failed to read configuration file '%s', line %d:\n%s\n"
+                                 % (self.util.config, error.lineno, str(error.message).split("\n")[0])) # pylint: disable=no-member
+                sys.exit(1)
         self.read_section_options(config, 'options')
         for arg in iter(sys.argv[1:]):
             if arg.startswith(":") and arg[1:] in config.sections():
@@ -281,7 +286,12 @@ class pmConfig(object):
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
-            config.read(self.util.config)
+            try:
+                config.read(self.util.config)
+            except ConfigParser.Error as error:
+                sys.stderr.write("Failed to read configuration file '%s', line %d:\n%s\n"
+                                 % (self.util.config, error.lineno, str(error.message).split("\n")[0])) # pylint: disable=no-member
+                sys.exit(1)
 
         # First read global metrics (if not disabled already)
         globmet = OrderedDict()
@@ -390,8 +400,8 @@ class pmConfig(object):
                                 found[0].append(inst[0][i])
                                 found[1].append(inst[1][i])
                         del cr
-                    except Exception as e:
-                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                    except Exception as error:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
                         sys.exit(1)
                 if not found[0]:
                     return
@@ -503,6 +513,25 @@ class pmConfig(object):
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
 
+        branch = set()
+        def metric_base_check(metric):
+            """ Helper to support non-leaf metricspecs """
+            from copy import deepcopy
+            if metric != self._tmp:
+                if metric not in metrics:
+                    metrics[metric] = deepcopy(metrics[self._tmp])
+                    branch.add(self._tmp)
+
+        # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
+        for metric in metrics:
+            self._tmp = metric
+            try:
+                self.util.context.pmTraversePMNS(metric, metric_base_check)
+            except pmapi.pmErr as error:
+                pass
+        for b in branch:
+            del metrics[b]
+
         for metric in metrics:
             try:
                 l = len(self.pmids)
@@ -511,19 +540,8 @@ class pmConfig(object):
                 if len(self.pmids) == l:
                     # No compatible metrics found
                     continue
-                elif len(self.pmids) == l + 1:
-                    # Leaf
-                    if metric in self.util.context.pmNameAll(self.pmids[l]):
-                        self.util.metrics[metric] = metrics[metric]
-                    else:
-                        # Handle single non-leaf case in an archive
-                        self.util.metrics[self.util.context.pmNameID(self.pmids[l])] = []
                 else:
-                    # Non-leaf
-                    for i in range(l, len(self.pmids)):
-                        name = self.util.context.pmNameID(self.pmids[i])
-                        # We ignore specs like disk.dm,,,MB on purpose, for now
-                        self.util.metrics[name] = []
+                    self.util.metrics[metric] = metrics[metric]
             except pmapi.pmErr as error:
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
                 sys.exit(1)
@@ -743,8 +761,8 @@ class pmConfig(object):
                         self._re_cache[metric] = []
                         for r in self.util.metrics[metric][1]:
                             self._re_cache[metric].append(re.compile(r'\A' + r + r'\Z'))
-                    except Exception as e:
-                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, e))
+                    except Exception as error:
+                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
                         sys.exit(1)
             except Exception:
                 if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:

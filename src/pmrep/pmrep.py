@@ -1246,7 +1246,7 @@ class PMReporter(object):
         results = self.pmconfig.get_sorted_results()
 
         if self.prev_insts is None:
-            self.all_ranked = results
+            self.all_ranked = results # pylint: disable=attribute-defined-outside-init
             self.prev_insts = []
 
         revs = True if self.rank > 0 else False
