@@ -24,13 +24,16 @@ vfs.inodes.free
 
 == done
 
-== Checking entropy metric values - procsys-root-001.tgz
+== Checking /proc/sys/kernel metric values - procsys-root-001.tgz
 
 kernel.all.entropy.avail
     value 3944
 
 kernel.all.entropy.poolsize
     value 4096
+
+kernel.all.pid_max
+    value 65536
 
 == done
 

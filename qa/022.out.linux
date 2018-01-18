@@ -2,6 +2,7 @@ QA output created by 022
 proc.control.all.threads
 proc.control.perclient.cgroups
 proc.control.perclient.threads
+proc.id.container
 proc.id.egid
 proc.id.egid_nm
 proc.id.euid

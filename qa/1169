@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 1169
+# pmrep dynamic header tests.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1        # failure is the default!
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+#  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
+#  this is not deterministic .... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_archive_filter()
+{
+    sed \
+       -e '/timezone/s/ (reporting.*)//' \
+       -e "s#$here#QAPATH#g" \
+    #end
+}
+
+log="--archive $here/archives/dyninsts -z"
+
+# real QA test starts here
+echo "== stdout/std test"
+pmrep $log -p -u -1            disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/std test for extended header"
+pmrep $log -p -u -1 -x -C      disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/std test with repeating header"
+pmrep $log -p -u -1 -E 3       disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/std test with separate header"
+pmrep $log -p -u -1 -g         disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/std test with extended/repeating/separate header"
+pmrep $log -p -u -1 -x -E 3 -g disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+
+echo "== stdout/colxrow test"
+pmrep $log -p -u -X test -1            disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/colxrow test for extended header"
+pmrep $log -p -u -X test -1 -x -C      disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/colxrow test with repeating header"
+pmrep $log -p -u -X test -1 -E 3       disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/colxrow test with separate header"
+pmrep $log -p -u -X test -1 -g         disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/colxrow test with extended/repeating/separate header"
+pmrep $log -p -u -X test -1 -x -E 3 -g disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+
+echo "== csv test"
+pmrep $log -p -u -o csv -1         disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== csv test for extended header"
+pmrep $log -p -u -o csv -1 -x -C   disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== csv test with repeating header"
+pmrep $log -p -u -o csv -1 -E 3    disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== csv test with extended/repeating header"
+pmrep $log -p -u -o csv -1 -x -E 3 disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+
+# success, all done
+status=0
+exit

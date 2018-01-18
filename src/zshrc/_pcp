@@ -73,17 +73,17 @@ _pcp () {
     "(-G --no-globals $exargs)"{-G,--no-globals}'[omit global metrics]'
     "(-r --raw -R --raw-prefer $exargs)"{-r,--raw}'[force reporting raw values]'
     "(-R --raw-prefer -r --raw $exargs)"{-R,--raw-prefer}'[prefer reporting raw values]'
-    "(-I --ignore-incompat)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
+    "(-I --ignore-incompat $exargs)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
     "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances'
-    "(-v --omit-flat)"{-v,--omit-flat}'[omit single-valued metrics]'
+    "(-v --omit-flat $exargs)"{-v,--omit-flat}'[omit single-valued metrics]'
     "(-P --precision $exargs)"{-P+,--precision}'[set default floating point precision]:precision:'
-    "(-0 --precision-force $exargs)"{-0+,--precision-force}'[force floating point precision]:precision:'
+    "(-0 --precision-force $exargs)"{-0+,--precision-force}'[set forced floating point precision]:precision:'
     "(-q --count-scale -Q --count-scale-force $exargs)"{-q+,--count-scale}'[set default count unit]:scale:->scales_count'
+    "(-Q --count-scale-force -q --count-scale $exargs)"{-Q+,--count-scale-force}'[set forced count unit]:scale:->scales_count'
     "(-b --space-scale -B --space-scale-force $exargs)"{-b+,--space-scale}'[set default space unit]:scale:->scales_space'
+    "(-B --space-scale-force -b --space-scale $exargs)"{-B+,--space-scale-force}'[set forced space unit]:scale:->scales_space'
     "(-y --time-scale -Y --time-scale-force $exargs)"{-y+,--time-scale}'[set default time unit]:scale:->scales_time'
-    "(-Q --count-scale-force -q --count-scale $exargs)"{-Q+,--count-scale-force}'[force count unit]:scale:->scales_count'
-    "(-B --space-scale-force -b --space-scale $exargs)"{-B+,--space-scale-force}'[force space unit]:scale:->scales_space'
-    "(-Y --time-scale-force -y --time-scale $exargs)"{-Y+,--time-scale-force}'[force time unit]:scale:->scales_time'
+    "(-Y --time-scale-force -y --time-scale $exargs)"{-Y+,--time-scale-force}'[set forced time unit]:scale:->scales_time'
   )
 
   case $service in
@@ -114,10 +114,12 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-g --es-host $exargs)"{-g+,--es-host}'[elasticsearch server]:host:_hosts' \
       "(-x --es-index $exargs)"{-x+,--es-index}'[elasticsearch index]:index:' \
       "(-X --es-hostid $exargs)"{-X+,--es-hostid}'[elasticsearch host-id]:host-id:' \
@@ -129,10 +131,12 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-E --text-port -p --pickle-port -X --pickle-protocol $exargs)"{-E+,--text-port}'[graphite plaintext port]:port:' \
       "(-g --graphite-host $exargs)"{-g+,--graphite-host}'[graphite server]:host:_hosts' \
       "(-p --pickle-port -E --text-port $exargs)"{-p+,--pickle-port}'[graphite pickle port]:port:' \
@@ -146,10 +150,12 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-E --db-pass $exargs)"{-E+,--db-pass}'[password for database]:password:' \
       "(-g --db-server $exargs)"{-g+,--db-server}'[server URL]:url:_urls' \
       "(-U --db-user $exargs)"{-U+,--db-user}'[username for database]:username:_users' \
@@ -165,10 +171,12 @@ _pcp () {
       "$common_python[@]" \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-E --exact-types $exargs)"{-E,--exact-types}'[write numbers as number data types]' \
@@ -196,10 +204,12 @@ _pcp () {
       "$common_python[@]" \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
@@ -212,10 +222,12 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-E --zabbix-interval $exargs)"{-E+,--zabbix-interval}'[send interval]:interval:' \
       "(-g --zabbix-server $exargs)"{-g+,--zabbix-server}'[zabbix server]:host:_hosts' \
       "(-p --zabbix-port $exargs)"{-p+,--zabbix-port}'[zabbix port]:port:' \
@@ -612,13 +624,18 @@ _pcp () {
       "(-w --width -W --width-force $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-W --width-force -w --width $exargs)"{-W+,--width-force}'[forced column width]:width:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
-      "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
-      "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-2 --overall-rank -3 --overall-rank-alt -N --predicate $exargs)"{-2,--overall-rank}'[perform overall ranking from archive]' \
+      "(-3 --overall-rank-alt -2 --overall-rank -N --predicate $exargs)"{-3,--overall-rank-alt}'[perform overall ranking using pmrep format]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate -2 --overall-rank -3 --overall-rank-alt $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
-      "(-E --repeat $exargs)"{-E+,--repeat}'[set header repeat frequency]:samples:' \
+      "(-E --repeat-header $exargs)"{-E+,--repeat-header}'[set header repeat frequency]:samples:' \
+      "(-1 --dynamic-header $exargs)"{-1,--dynamic-header}'[update header dynamically]:samples:' \
       "(-g --separate-header $exargs)"{-g,--separate-header}'[print separate header]' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
       "(-u --no-interpol --container -d --delay -h --host -L --local-PMDA -K --spec-local -t --interval $exargs)"{-u,--no-interpol}'[disable interpolation]' \
@@ -775,10 +792,10 @@ _pcp () {
     if [[ $words[CURRENT] != :* ]]; then
       if zstyle -T ":completion:*:${curcontext}:pcp:metrics" full-names; then
         _wanted metrics expl metric compadd -M 'r:|.=* r:|=*' $drvm \
-          $(pminfo $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null) && ret=0
+          $(pminfo -d $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null | grep -Ev '( |^$|^event)') && ret=0
       else
         local -a res
-        res=( $(pminfo $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null) )
+        res=( $(pminfo -d $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null | grep -Ev '( |^$|^event)') )
         res+=( $drvm )
         _wanted metrics expl metric _multi_parts -i . res
       fi

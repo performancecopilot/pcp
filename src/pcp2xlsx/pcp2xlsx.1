@@ -69,6 +69,10 @@ configuration file overall syntax, this page describes
 .B pcp2xlsx
 specific options and configuration file differences with
 .BR pmrep.conf (5).
+.BR pmrep (1)
+also lists some usage examples of which most are applicable with
+.B pcp2xlsx
+as well.
 .PP
 Only the command line options listed on this page are supported,
 other options recognized by
@@ -104,10 +108,10 @@ The following options are common with
 .BR precision ,
 .BR precision_force ,
 .BR count_scale ,
-.BR space_scale ,
-.BR time_scale ,
 .BR count_scale_force ,
+.BR space_scale ,
 .BR space_scale_force ,
+.BR time_scale ,
 .BR time_scale_force .
 The
 .B output
@@ -301,7 +305,7 @@ The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
 .TP
 .B \-0
-As
+Like
 .B \-P
 but this option \fIwill\fP override per-metric specifications.
 .TP

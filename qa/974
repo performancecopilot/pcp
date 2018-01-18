@@ -46,7 +46,7 @@ do
     base=`basename $tgz`
 
     echo "== Extracting subtrees for later use - $base" | tee -a $seq.full
-    trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | egrep -v nproc`
+    trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | egrep -v 'nproc'`
     echo $trees >> $here/$seq.full
 
     echo "== Checking namespace and metric numbering - $base"
@@ -58,7 +58,9 @@ do
     for tree in $trees
     do
 	metric=`grep $tree $tmp.names | head -1`
-	echo $metric >> $here/$seq.full
+	[ $tree = "id" ] && metric="proc.id.egid"
+	echo T: $tree >> $here/$seq.full
+	echo M: $metric >> $here/$seq.full
 	pminfo -L -K clear -K add,3,$pmda -d -f $metric | _filter
     done
 

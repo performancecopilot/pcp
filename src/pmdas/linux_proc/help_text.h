@@ -47,6 +47,7 @@ help_text_t  help_text[] = {
 { .name = "psinfo.cmaj_flt",            .shorthelp = "count of page faults other than reclaims of all exited children",        .longhelp = "" },
 { .name = "memory.dirty",            .shorthelp = "instantaneous amount of memory that has been modified by the process, in Kbytes",        .longhelp = "" },
 { .name = "psinfo.cgroups",            .shorthelp = "list of processes cgroups (from /proc/<pid>/cgroup)",        .longhelp = "" },
+{ .name = "id.container",            .shorthelp = "name of processes container (from /proc/<pid>/cgroup heuristics)",        .longhelp = "" },
 { .name = "schedstat.pcount",            .shorthelp = "number of times a process is allowed to run",        .longhelp = "Number of times a process has been scheduled to run on a CPU (this is\nincremented when a task actually reaches a CPU to run on, not simply\nwhen it is added to the run queue).\n" },
 { .name = "id.fsuid_nm",            .shorthelp = "filesystem user name based on filesystem user ID from /proc/<pid>/status",        .longhelp = "" },
 { .name = "memory.vmlock",            .shorthelp = "locked virtual memory (from /proc/<pid>/status)",        .longhelp = "" },

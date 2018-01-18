@@ -20,6 +20,7 @@
 .SH SYNOPSIS
 \fBpcp2json\fP
 [\fB\-CEGHIjLnrRvVxXz?\fP]
+[\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -71,6 +72,10 @@ configuration file overall syntax, this page describes
 .B pcp2json
 specific options and configuration file differences with
 .BR pmrep.conf (5).
+.BR pmrep (1)
+also lists some usage examples of which most are applicable with
+.B pcp2json
+as well.
 .PP
 Only the command line options listed on this page are supported,
 other options recognized by
@@ -104,16 +109,18 @@ The following options are common with
 .BR instances ,
 .BR live_filter ,
 .BR rank ,
+.BR limit_filter ,
+.BR limit_filter_force ,
 .BR invert_filter ,
 .BR predicate ,
 .BR omit_flat ,
 .BR precision ,
 .BR precision_force ,
 .BR count_scale ,
-.BR space_scale ,
-.BR time_scale ,
 .BR count_scale_force ,
+.BR space_scale ,
 .BR space_scale_force ,
+.BR time_scale ,
 .BR time_scale_force .
 The
 .B output
@@ -146,6 +153,24 @@ Default is \fBno\fP.
 .SH OPTIONS
 The available command line options are:
 .TP 5
+.B \-8
+Limit results to instances with values above/below
+.IR limit .
+A positive integer will include instances with values
+at or above the limit in reporting.
+A negative integer will include instances with values
+at or below the limit in reporting.
+A value of zero performs no limit filtering.
+This option will \fInot\fP override possible per-metric specifications.
+See also
+.BR \-J " and "
+.BR \-N .
+.TP
+.B \-9
+Like
+.B \-8
+but this option \fIwill\fP override per-metric specifications.
+.TP
 .B \-a
 Performance metric values are retrieved from the set of Performance
 Co-Pilot (PCP) archive log files identified by the argument
@@ -263,8 +288,9 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-from current instances (if present).
-By default all instances are reported.
+from current instances (if present, see also
+.BR \-j ).
+By default all instances, present and future, are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
@@ -302,6 +328,8 @@ instances of set-valued metrics.
 A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
+See also
+.BR \-8 .
 .TP
 .B \-K
 When fetching metrics from a local context (see
@@ -382,7 +410,7 @@ The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
 .TP
 .B \-0
-As
+Like
 .B \-P
 but this option \fIwill\fP override per-metric specifications.
 .TP

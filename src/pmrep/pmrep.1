@@ -19,7 +19,8 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \fBpmrep\fP
-[\fB\-CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-123CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -144,16 +145,15 @@ which can then consist of any number of metricspecs.
 Second, a
 .I metricspec
 starting with non-colon specifies a PMNS node as described above,
-optionally followed by metric formatting definitions (applicable
-only to leaf nodes).
+optionally followed by metric formatting definitions.
 This so-called
 .I compact form
 of a metricspec is defined as follows:
 .PP
-.in 1.0i
+.in 0.5i
 .ft CW
 .nf
-metric[,label[,instances[,unit/scale[,type[,width[,precision]]]]]]
+metric[,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
 .fi
 .ft R
 .in
@@ -193,9 +193,12 @@ can be used to set the width of the output column for this metric.
 Too-wide numeric values for output will not be printed (apart from
 trailing decimals, numeric values will never be silently truncated).
 Too-wide strings will be truncated.
-Lastly, a metric-specific
+Then, a metric-specific
 .I precision
 can be provided for numeric non-integer output values.
+Lastly, a metric-specific
+.I limit
+can be set for filtering numeric values per limit.
 .PP
 As a special case with metrics that are counters with time units
 (nanoseconds to hours), the
@@ -247,6 +250,48 @@ file options (if any).
 .SH OPTIONS
 The available command line options are:
 .TP 5
+.B \-1
+Print a new dynamically adjusted header every time changes in
+availability of metric and instance values occur.
+By default a static header that never changes is printed once.
+See also
+.BR \-E .
+.TP
+.B \-2
+Perform overall ranking of instances in archive.
+By default ranking (see
+.BR \-J )
+and reporting happens on each interval.
+With this option all instances and values are ranked
+before a summary is reported.
+See
+.BR pmlogsummary (1)
+for further archive summary reporting alternatives,
+including averages and peak times for values.
+.TP
+.B \-3
+Like
+.B \-2
+but print results in \fBpmrep\fP \fImetricspec\fP format.
+.TP
+.B \-8
+Limit results to instances with values above/below
+.IR limit .
+A positive integer will include instances with values
+at or above the limit in reporting.
+A negative integer will include instances with values
+at or below the limit in reporting.
+A value of zero performs no limit filtering.
+This option will \fInot\fP override possible per-metric specifications.
+See also
+.BR \-J " and "
+.BR \-N .
+.TP
+.B \-9
+Like
+.B \-8
+but this option \fIwill\fP override per-metric specifications.
+.TP
 .B \-a
 Performance metric values are retrieved from the set of Performance
 Co-Pilot (PCP) archive log files identified by the argument
@@ -345,6 +390,8 @@ and
 Repeat the header every
 .I lines
 of output.
+See also
+.BR \-1 .
 .TP
 .B \-f
 Use the
@@ -395,11 +442,12 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-from current instances (if present).
+from current instances (if present, see also
+.BR \-j ).
 By default all current instances are reported,
 except when writing an archive (see
 .BR \-o )
-when all instances are reported.
+when all instances, present and future, are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
@@ -460,17 +508,8 @@ This allows capturing all filtered instances even if processes
 are restarted at some point (unlike without live filtering).
 Doing live filtering over a huge amount of instances naturally
 comes with some overhead so a bit of user caution is advised.
-.RS
-.PP
-Since both
-.I stdout
-and
-.I csv
-output targets write a static header at the beginning this option
-can only be used with
-.I archive
-output.
-.RE
+See also
+.BR \-1 .
 .TP
 .B \-J
 Limit results to highest/lowest
@@ -479,17 +518,9 @@ instances of set-valued metrics.
 A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
-.RS
-.PP
-Since both
-.I stdout
-and
-.I csv
-output targets write a static header at the beginning this option
-is most useful with
-.I archive
-output.
-.RE
+See also
+.BR \-2 " and "
+.BR \-8 .
 .TP
 .B \-k
 Write extended CSV output, similar to
@@ -627,7 +658,7 @@ The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
 .TP
 .B \-0
-As
+Like
 .B \-P
 but this option \fIwill\fP override per-metric specifications.
 .TP
@@ -767,7 +798,7 @@ to disable).
 .RE
 .TP
 .B \-U
-Omit unit information from of headers.
+Omit unit information from headers.
 .TP
 .B \-v
 Omit single-valued ``flat'' metrics from reporting, only consider
@@ -792,7 +823,7 @@ is the shortest that can fit the metric text label, the forced minimum is 3.
 This option will \fInot\fP override possible per-metric specifications.
 .TP
 .B \-W
-As
+Like
 .B \-w
 but this option \fIwill\fP override per-metric specifications.
 .TP
@@ -880,39 +911,50 @@ $ pmrep \-i wlan0 \-v network.interface.out
 .ft P
 .RE
 .PP
-Display the predefined set of metrics from the default
-.BR pmrep.conf (5)
-containing information about I/O issued by
-.I firefox
-(tab after the colon can be used to complete available
-metricset definitions):
+Display timestamped
+.BR vmstat (8)
+like information using megabytes instead of kilobytes and also include
+the number of inodes used (tab completes available metrics and
+after a colon metricsets with bash and zsh):
 .RS +4
 .ft B
 .nf
-$ pmrep \-i '.*firefox.*' :proc-io
+$ pmrep \-p \-B MB :vmstat vfs.inodes.count
 .fi
 .ft P
 .RE
 .PP
 Display per-device disk reads and writes from the host
 .I server1
-using two seconds interval and CSV output format:
+using two seconds interval and
+.BR sadf (1)
+like CSV output format:
 .RS +4
 .ft B
 .nf
-$ pmrep \-h server1 \-o csv \-t 2s disk.dev.read disk.dev.write
+$ pmrep \-h server1 \-t 2s \-o csv \-k disk.dev.read disk.dev.write
 .fi
 .ft P
 .RE
 .PP
-Display timestamped
-.BR vmstat (8)
-like information using MBs instead of kilobytes and also include
-the number of in-use inodes:
+Display processes using at least 100MB of memory using
+dynamic headers:
 .RS +4
 .ft B
 .nf
-$ pmrep \-p \-B MB vfs.inodes.count :vmstat
+$ pmrep -b MB -8 100 -1 proc.memory.rss
+.fi
+.ft P
+.RE
+.PP
+Display the predefined set of metrics from the default
+.BR pmrep.conf (5)
+containing information about I/O issued by current
+.IR firefox " process(es):"
+.RS +4
+.ft B
+.nf
+$ pmrep \-i '.*firefox.*' :proc-io
 .fi
 .ft P
 .RE
@@ -932,24 +974,36 @@ $ pmrep \-a ./20150921.09.13 \-S @15:00 \-T @17:00 :sar\-w :sar\-W
 .ft P
 .RE
 .PP
-Record all 389 Directory Server, XFS file system and CPU/disk/memory
-related metrics every five seconds for the next five minutes to the PCP
-archive
+Record most relevant CPU, memory, and I/O related information about
+every Java process on the system, present and future, to an archive
+.I ./a
+on one minute interval at every full minute in a background process:
+.RS +4
+.ft B
+.nf
+$ pmrep \-\-daemonize \-A 1m \-t 1m \-i '.*java.*' \-j \-o archive \-F ./a \\
+    :proc-info :proc-cpu :proc-mem :proc-io
+.fi
+.ft P
+.RE
+.PP
+Record all 389 Directory Server, XFS file system, and CPU/memory/disk
+metrics every five seconds for five minutes to a PCP archive
 .IR ./a :
 .RS +1
 .ft B
 .nf
-$ pmrep \-o archive \-F ./a \-t 5s \-T 5m ds389 xfs kernel.all.cpu disk mem
+$ pmrep \-t 5s \-T 5m \-o archive \-F ./a ds389 xfs kernel.all.cpu mem disk
 .fi
 .ft P
 .RE
 .PP
 Record process memory and I/O information for those processes
 which are the three most memory-consuming processes:
-.RS +4
+.RS +1
 .ft B
 .nf
-$ pmrep \-o archive \-F ./a \-J 3 \-n proc.memory.rss proc.io
+$ pmrep \-o archive \-F ./a \-J 3 \-N proc.memory.rss proc.memory proc.io
 .fi
 .ft P
 .RE
