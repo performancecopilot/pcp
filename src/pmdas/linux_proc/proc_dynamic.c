@@ -160,6 +160,7 @@ static dynproc_metric_t id_metrics[] = {
         { .name = "egid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=13 },
         { .name = "sgid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=14 },
         { .name = "fsgid_nm",   .cluster = CLUSTER_PID_STATUS,  .item=15 },
+        { .name = "container",  .cluster = CLUSTER_PID_CGROUP,  .item=1 },
 };
 
 static dynproc_metric_t memory_metrics[] = {

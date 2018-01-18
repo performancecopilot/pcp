@@ -32,6 +32,7 @@ _filter()
 {
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/^proc\.id\.container: No data available/d' \
 	-e '/^proc\.schedstat\.envid: Metric not supported/d' \
 	-e '/^proc\.schedstat\.pcount: Metric not supported/d' \
 	-e '/^proc\.schedstat\..*: No value(s) available/d' \
