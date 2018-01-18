@@ -1023,7 +1023,7 @@ class PMReporter(object):
                     if len(t.format(value)) > width:
                         c -= 1
                     else:
-                        #fmt[k] = t
+                        #fmt[k] = t.replace("0:", ":")
                         fmt[k] = t.replace("0:", "X:")
                         break
         elif isinstance(value, str):

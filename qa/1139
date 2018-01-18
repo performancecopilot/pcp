@@ -38,43 +38,54 @@ pmrep -s  7 $log -p -r -u -J  2 disk.dev.read mem.util.used
 pmrep -s  7 $log -p -r -u -J -3 disk.dev.read kernel.pernode.cpu.user
 
 echo "== test limit filtering"
-pmrep -s 15 $log -p -r -u -9  5 disk.dev.read disk.dev.write
-pmrep -s 15 $log -p -r -u -9 -5 disk.dev.read disk.dev.write
+pmrep -s 14 $log -p -r -u -9  5 disk.dev.read disk.dev.write
+pmrep -s 14 $log -p -r -u -9 -5 disk.dev.read disk.dev.write
 
 echo "== test predicate"
-pmrep -s 15 $log -p -r -u -J  2 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used
-pmrep -s 15 $log -p -r -u -J  1 -N disk.dev.read,kernel.pernode.cpu.sys disk.dev.read disk.dev.write mem.util.used kernel.pernode.cpu.user kernel.pernode.cpu.sys
+pmrep -s 14 $log -p -r -u -J  2 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used
+pmrep -s 14 $log -p -r -u -J  1 -N disk.dev.read,kernel.pernode.cpu.sys \
+  disk.dev.read disk.dev.write mem.util.used kernel.pernode.cpu.user kernel.pernode.cpu.sys
+
+echo "== test predicate with limit filtering"
+pmrep -s 14 $log -p -r -u -J  2 -8  10 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used
+pmrep -s 14 $log -p -r -u -J  2 -8 -10 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used
+
+echo "== test predicate with limit filtering with dynamic header and predicate values above/below limit"
+pmrep -s  4 $log -p -r -u -J  2 -8  50 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used \
+  -S @00:00:14 -1
+pmrep -s  4 $log -p -r -u -J  2 -8 -50 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used \
+  -S @00:00:14 -1
 
 echo "== test instance filter, live filter, invert filter, ranking, predicate"
-pmrep -s 15 $log $out -p -r -u                       disk.dev.read disk.dev.write | \
+pmrep -s 14 $log $out -p -r -u                          disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2                 disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2                 disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda          disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2 -i sda          disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda -j       disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2 -i sda -j       disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda -j -n    disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2 -i sda -j -n    disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2 -i sda -j -n -N disk.dev.read disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2 -i sda -j -n -N disk.dev.read disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2           -n -N disk.dev.read disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2           -n -N disk.dev.read disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
-pmrep -z -s 15 $log $out -p -r -u -J  2              -N disk.dev.read disk.dev.read disk.dev.write | \
+pmrep -z -s 14 $log $out -p -r -u -J  2              -N disk.dev.read disk.dev.read disk.dev.write | \
 _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta

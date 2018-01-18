@@ -875,6 +875,10 @@ class pmConfig(object):
     def get_sorted_results(self):
         """ Get filtered and ranked results """
         results = OrderedDict()
+        if hasattr(self.util, 'predicate') and self.util.predicate:
+            predicates = self.util.predicate.split(",")
+        else:
+            predicates = ()
         early_live_filter = self.do_live_filtering() and not self.do_invert_filtering()
         for i, metric in enumerate(self.util.metrics):
             results[metric] = []
@@ -889,20 +893,20 @@ class pmConfig(object):
                             continue
                         value = val()
                         if self.util.metrics[metric][7]:
-                            limit = self.util.metrics[metric][7]
-                            if limit > 0 and value < limit:
-                                continue
-                            elif limit < 0 and value > abs(limit):
-                                continue
+                            if metric not in predicates:
+                                limit = self.util.metrics[metric][7]
+                                if limit > 0 and value < limit:
+                                    continue
+                                elif limit < 0 and value > abs(limit):
+                                    continue
                         results[metric].append((inst, name, value))
                     except Exception:
                         pass
             except Exception:
                 pass
 
-        if hasattr(self.util, 'predicate') and self.util.predicate:
+        if predicates:
             pred_insts = {}
-            predicates = self.util.predicate.split(",")
             for _pred_index, predicate in enumerate(predicates):
                 results[predicate] = self.rank(results[predicate])
                 if self._pred_indom[_pred_index] not in pred_insts:
@@ -910,6 +914,15 @@ class pmConfig(object):
                 pred_insts[self._pred_indom[_pred_index]].extend([i[0] for i in results[predicate]])
             for i, metric in enumerate(results):
                 if metric in predicates:
+                    # Predicate instance values may all get filtered,
+                    # but other metrics' instance values may be above
+                    # the filter so predicate is filtered after rank.
+                    if self.util.metrics[metric][7]:
+                        limit = self.util.metrics[metric][7]
+                        if limit > 0:
+                            results[metric] = [x for x in results[metric] if x[2] >= limit]
+                        elif limit < 0:
+                            results[metric] = [x for x in results[metric] if x[2] <= abs(limit)]
                     continue
                 if self.descs[i].contents.indom not in self._pred_indom:
                     results[metric] = self.rank(results[metric])
