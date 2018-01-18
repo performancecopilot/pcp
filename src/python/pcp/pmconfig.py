@@ -523,7 +523,7 @@ class pmConfig(object):
                     branch.add(self._tmp)
 
         # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
-        for metric in metrics:
+        for metric in list(metrics):
             self._tmp = metric
             try:
                 self.util.context.pmTraversePMNS(metric, metric_base_check)
