@@ -15,7 +15,7 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 7
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else
 %global __python2 python
@@ -1976,6 +1976,10 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
++%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
++# on these platforms, python2-pcp replaces python-pcp
++Obsoletes: python-pcp
++%endif
 %if 0%{?rhel} == 5
 Requires: python%{default_python}
 %else
