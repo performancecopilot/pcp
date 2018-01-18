@@ -792,10 +792,10 @@ _pcp () {
     if [[ $words[CURRENT] != :* ]]; then
       if zstyle -T ":completion:*:${curcontext}:pcp:metrics" full-names; then
         _wanted metrics expl metric compadd -M 'r:|.=* r:|=*' $drvm \
-          $(pminfo $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null) && ret=0
+          $(pminfo -d $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null | grep -Ev '( |^$|^event)') && ret=0
       else
         local -a res
-        res=( $(pminfo $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null) )
+        res=( $(pminfo -d $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null | grep -Ev '( |^$|^event)') )
         res+=( $drvm )
         _wanted metrics expl metric _multi_parts -i . res
       fi
