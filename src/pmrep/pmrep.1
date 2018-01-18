@@ -19,7 +19,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \fBpmrep\fP
-[\fB\-CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-1CdgGHIjkLnprRuUvVxz?\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -247,6 +247,13 @@ file options (if any).
 .SH OPTIONS
 The available command line options are:
 .TP 5
+.B \-1
+Print a new dynamically adjusted header every time changes in
+availability of metric and instance values occur.
+By default a static header that never changes is printed once.
+See also
+.BR \-E .
+.TP
 .B \-a
 Performance metric values are retrieved from the set of Performance
 Co-Pilot (PCP) archive log files identified by the argument
@@ -345,6 +352,8 @@ and
 Repeat the header every
 .I lines
 of output.
+See also
+.BR \-1 .
 .TP
 .B \-f
 Use the
@@ -460,17 +469,6 @@ This allows capturing all filtered instances even if processes
 are restarted at some point (unlike without live filtering).
 Doing live filtering over a huge amount of instances naturally
 comes with some overhead so a bit of user caution is advised.
-.RS
-.PP
-Since both
-.I stdout
-and
-.I csv
-output targets write a static header at the beginning this option
-can only be used with
-.I archive
-output.
-.RE
 .TP
 .B \-J
 Limit results to highest/lowest
@@ -479,17 +477,6 @@ instances of set-valued metrics.
 A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
-.RS
-.PP
-Since both
-.I stdout
-and
-.I csv
-output targets write a static header at the beginning this option
-is most useful with
-.I archive
-output.
-.RE
 .TP
 .B \-k
 Write extended CSV output, similar to
@@ -767,7 +754,7 @@ to disable).
 .RE
 .TP
 .B \-U
-Omit unit information from of headers.
+Omit unit information from headers.
 .TP
 .B \-v
 Omit single-valued ``flat'' metrics from reporting, only consider
