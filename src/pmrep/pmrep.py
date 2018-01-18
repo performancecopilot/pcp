@@ -902,6 +902,10 @@ class PMReporter(object):
 
     def dynamic_header_update(self, results, line=None):
         """ Update dynamic header as needed """
+        if self.rank:
+            for metric in results:
+                for i in results[metric]:
+                    results[metric] = sorted(results[metric], key=lambda x: x[0])
         insts = [i[0] for metric in results for i in results[metric]]
         if insts and (self.repeat_header == self.lines or insts != self.prev_insts):
             if self.output == OUTPUT_CSV:

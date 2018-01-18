@@ -141,10 +141,10 @@ QA output created by 1139
 00:00:15  N/A
 
           d.d.read  d.d.read  m.u.used
-               sde       sdd
+               sdd       sde
              count     count     Kbyte
-00:00:16        14        13        16
-00:00:17        14        13        17
+00:00:16        13        14        16
+00:00:17        13        14        17
 == test instance filter, live filter, invert filter, ranking, predicate
 Recording metrics...
 14 samples(s) with 1.0 sec interval ~ 13 sec duration.
