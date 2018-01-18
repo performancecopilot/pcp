@@ -999,28 +999,36 @@ class PMReporter(object):
 
         self.writer.write(line + "\n")
 
-    def format_stdout_value(self, value, width, numfmt, fmt, k):
+    def format_stdout_value(self, value, width, precision, fmt, k):
         """ Format a value for stdout output """
-        if isinstance(value, str):
-            value = self.remove_delimiter(value)
-            value = value.replace("\n", "\\n")
+        if isinstance(value, (int, long)):
+            if len(str(value)) > width:
+                value = pmconfig.TRUNC
+            else:
+                #fmt[k] = "{:" + str(width) + "d}"
+                fmt[k] = "{X:" + str(width) + "d}"
         elif isinstance(value, float) and \
              not math.isinf(value) and \
              not math.isnan(value):
             s = len(str(int(value)))
             if s > width:
                 value = pmconfig.TRUNC
-            elif s+2 > width:
+            elif s + 2 > width:
                 fmt[k] = "{X:" + str(width) + "d}"
                 value = int(value) # pylint: disable=redefined-variable-type
             else:
-                fmt[k] = "{X:" + str(width) + numfmt + "}"
-        elif isinstance(value, (int, long)):
-            if len(str(value)) > width:
-                value = pmconfig.TRUNC
-            else:
-                #fmt[k] = "{:" + str(width) + "d}"
-                fmt[k] = "{X:" + str(width) + "d}"
+                c = precision
+                for _ in reversed(range(c+1)):
+                    t = "{0:" + str(width) + "." + str(c) + "f}"
+                    if len(t.format(value)) > width:
+                        c -= 1
+                    else:
+                        #fmt[k] = t
+                        fmt[k] = t.replace("0:", "X:")
+                        break
+        elif isinstance(value, str):
+            value = self.remove_delimiter(value)
+            value = value.replace("\n", "\\n")
         else:
             value = self.parse_non_number(value, width)
 
@@ -1062,14 +1070,12 @@ class PMReporter(object):
         # Add corresponding values for each column in the static header
         k = 0
         for i, metric in enumerate(self.metrics):
-            p = self.metrics[metric][6] if self.metrics[metric][4] > self.metrics[metric][6] else self.metrics[metric][4]
-            numfmt = "." + str(p) + "f"
             for j, n in self.get_results_iter(i, metric, results):
                 k += 1
                 try:
                     ref = str(self.pmconfig.insts[i][0][j]) if not self.dynamic_header else str(n[0])
                     value = res[metric + "+" + ref]
-                    value = self.format_stdout_value(value, self.metrics[metric][4], numfmt, fmt, k)
+                    value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
                 except Exception:
                     value = NO_VAL
                 line.extend([value, self.delimiter])
@@ -1139,8 +1145,6 @@ class PMReporter(object):
                 for metric, i in self.labels[label]:
                     if found:
                         break
-                    p = self.metrics[metric][6] if self.metrics[metric][4] > self.metrics[metric][6] else self.metrics[metric][4]
-                    numfmt = "." + str(p) + "f"
                     insts = self.pmconfig.insts[i][1] if not self.dynamic_header else self.found_insts
                     if label == self.metrics[metric][0] and instance in insts:
                         found = 1
@@ -1150,7 +1154,7 @@ class PMReporter(object):
                             else:
                                 ref = instance
                             value = res[metric + "+" + str(ref)]
-                            value = self.format_stdout_value(value, self.metrics[metric][4], numfmt, fmt, k)
+                            value = self.format_stdout_value(value, self.metrics[metric][4], self.metrics[metric][6], fmt, k)
                         except Exception:
                             value = NO_VAL if not self.dynamic_header else NO_INST
 

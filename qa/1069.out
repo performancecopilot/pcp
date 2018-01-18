@@ -208,6 +208,21 @@ HH:MM:SS        1
 00:47:09|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
+== exercise precision correctness
+  s.seconds
+        s/s
+        N/A
+        N/A
+  1.0000000
+  1.0000000
+  1.0000000
+  s.seconds
+        s/s
+        N/A
+        N/A
+      1.000
+      1.000
+      1.000
 == exercise extended header
 
   archive: QAPATH/archives/rep
@@ -343,16 +358,16 @@ HH:MM:SS        1
 00:47:01  cpu0         ~   N/A         ~           ~
 00:47:01  cpu1         ~   N/A         ~           ~
 00:47:03     =   6068648   404     38220         N/A
-00:47:03  cpu0         ~  21.000         ~           ~
+00:47:03  cpu0         ~  21.0         ~           ~
 00:47:03  cpu1         ~   384         ~           ~
 00:47:05     =   6068648   404     38220         N/A
-00:47:05  cpu0         ~  20.500         ~           ~
+00:47:05  cpu0         ~  20.5         ~           ~
 00:47:05  cpu1         ~   384         ~           ~
 00:47:07     =   6068648   405     38220         N/A
-00:47:07  cpu0         ~  21.000         ~           ~
+00:47:07  cpu0         ~  21.0         ~           ~
 00:47:07  cpu1         ~   384         ~           ~
 00:47:09     =   6068648   404     38220         N/A
-00:47:09  cpu0         ~  21.000         ~           ~
+00:47:09  cpu0         ~  21.0         ~           ~
 00:47:09  cpu1         ~   384         ~           ~
 == invalid command line parameters
 Error while parsing options: Non-negative integer expected.
@@ -986,11 +1001,11 @@ pmrep: Impossible value or scale conversion
           m.u.used  n.i.speed
                       enp0s25
              GB/ms      GB/hr
-14:39:13       N/A  2746623.999
-14:39:14     0.000  2746623.999
-14:39:15    -0.000  2746623.999
-14:39:16     0.000  2746623.999
-14:39:17     0.000  2746623.999
+14:39:13       N/A  2746624.0
+14:39:14     0.000  2746624.0
+14:39:15    -0.000  2746624.0
+14:39:16     0.000  2746624.0
+14:39:17     0.000  2746624.0
 == exercise compact metricset specification and overrides
                  mem free         mem-used
                        MB               GB

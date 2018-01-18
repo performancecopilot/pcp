@@ -79,6 +79,10 @@ pmrep -s 5 -t 2 $log -G -H -U sample
 pmrep -s 5 -t 2 $log2 -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 pmrep -s 5 -t 2 $log2 -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 
+echo "== exercise precision correctness"
+pmrep -s 5 -t 2 $log -P 1 sample.seconds,,,,,,50
+pmrep -s 5 -t 2 $log -0 3 sample.seconds,,,,,,50
+
 echo "== exercise extended header"
 pmrep -z -a $here/archives/rep -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/20130706 -x -H -U -C -u -I "" | _archive_filter
