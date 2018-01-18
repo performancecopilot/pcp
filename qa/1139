@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1139
-# Ranking and predicates pmrep.
+# Ranking, limit filter, and predicates tests with pmrep.
 #
 # Copyright (c) 2018 Red Hat.
 #
@@ -36,6 +36,10 @@ out="-o archive -F $tmp.archive"
 echo "== test ranking"
 pmrep -s  7 $log -p -r -u -J  2 disk.dev.read mem.util.used
 pmrep -s  7 $log -p -r -u -J -3 disk.dev.read kernel.pernode.cpu.user
+
+echo "== test limit filtering"
+pmrep -s 15 $log -p -r -u -9  5 disk.dev.read disk.dev.write
+pmrep -s 15 $log -p -r -u -9 -5 disk.dev.read disk.dev.write
 
 echo "== test predicate"
 pmrep -s 15 $log -p -r -u -J  2 -N disk.dev.read disk.dev.read disk.dev.write mem.util.used

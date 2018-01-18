@@ -216,7 +216,8 @@ Allowed values are \fBdefault\fP or \fBraw\fP.
 .PP
 type_prefer (string)
 .RS 4
-As \fBtype\fP but does not override possible per-metric type specifications.
+As \fBtype\fP but does not override possible per-metric type
+specifications.
 Corresponding command line option is \fB\-R\fP.
 Allowed values are \fBdefault\fP or \fBraw\fP.
 .RE
@@ -262,6 +263,21 @@ Indicates that overall ranking with alternative output format
 should be performed.
 Corresponding command line option is \fB\-3\fP.
 Defaults to \fBno\fP.
+.RE
+.PP
+limit_filter (integer)
+.RS 4
+Indicates the value to be used with limit filtering.
+Corresponding command line option is \fB\-8\fP.
+Undefined (all instances are reported) by default.
+.RE
+.PP
+limit_filter_force (integer)
+.RS 4
+As \fBlimit_filter\fP but overrides possible possible per-metric
+specifications.
+Corresponding command line option is \fB\-9\fP.
+Undefined (all instances are reported) by default.
 .RE
 .PP
 invert_filter (boolean)

@@ -61,7 +61,7 @@ class PCP2XML(object):
                      'timefmt', 'extended', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
@@ -87,18 +87,20 @@ class PCP2XML(object):
         self.instances = []
         self.live_filter = 0
         self.rank = 0
-        self.predicate = None
+        self.limit_filter = 0
+        self.limit_filter_force = 0
         self.invert_filter = 0
+        self.predicate = None
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
         self.interpol = 0
         self.count_scale = None
-        self.space_scale = None
-        self.time_scale = None
         self.count_scale_force = None
+        self.space_scale = None
         self.space_scale_force = None
+        self.time_scale = None
         self.time_scale_force = None
 
         # Not in pcp2xml.conf, won't overwrite
@@ -115,7 +117,8 @@ class PCP2XML(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
+        #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -132,7 +135,7 @@ class PCP2XML(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:8:9:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -168,6 +171,8 @@ class PCP2XML(object):
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
+        opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
+        opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
@@ -175,10 +180,10 @@ class PCP2XML(object):
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
-        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
-        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("with-extended", 0, "x", "", "write extended information about metrics")
@@ -232,6 +237,10 @@ class PCP2XML(object):
             self.live_filter = 1
         elif opt == 'J':
             self.rank = optarg
+        elif opt == '8':
+            self.limit_filter = optarg
+        elif opt == '9':
+            self.limit_filter_force = optarg
         elif opt == 'n':
             self.invert_filter = 1
         elif opt == 'N':
@@ -246,14 +255,14 @@ class PCP2XML(object):
             self.timefmt = optarg
         elif opt == 'q':
             self.count_scale = optarg
-        elif opt == 'b':
-            self.space_scale = optarg
-        elif opt == 'y':
-            self.time_scale = optarg
         elif opt == 'Q':
             self.count_scale_force = optarg
+        elif opt == 'b':
+            self.space_scale = optarg
         elif opt == 'B':
             self.space_scale_force = optarg
+        elif opt == 'y':
+            self.time_scale = optarg
         elif opt == 'Y':
             self.time_scale_force = optarg
         elif opt == 'x':

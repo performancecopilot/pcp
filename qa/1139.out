@@ -20,6 +20,41 @@ QA output created by 1139
 00:00:04         4       N/A         4       N/A         4           4         N/A           4         N/A           4         N/A         N/A         N/A
 00:00:05         5       N/A         5       N/A         5           5         N/A           5         N/A           5         N/A         N/A         N/A
 00:00:06         6       N/A         6       N/A         6           6         N/A           6         N/A           6         N/A         N/A         N/A
+== test limit filtering
+          d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.write  d.d.write  d.d.write  d.d.write  d.d.write
+               sda       sdb       sdc       sdd       sde        sda        sdb        sdc        sdd        sde
+             count     count     count     count     count      count      count      count      count      count
+00:00:00       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:01       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:02       N/A       N/A       N/A         6       N/A        N/A        N/A        N/A          6        N/A
+00:00:03       N/A         6       N/A         9       N/A        N/A          6        N/A          9        N/A
+00:00:04       N/A         8       N/A        12       N/A        N/A          8        N/A         12        N/A
+00:00:05         5        10         5        15         5          5         10          5         15          5
+00:00:06         6        12         6        18         6          6         12          6         18          6
+00:00:07         7         7       107         7         7          7          7          7          7          7
+00:00:08         8         8       108         8         8          8          8          8          8          8
+00:00:09         9         9       109         9         9          9          9          9          9          9
+00:00:10        10        10       110        10        10         10         10         10         10         10
+00:00:11        11        11       111        11        11         11         11         11         11         11
+00:00:12      1000      1000      1000      1000      1000       1000       1000       1000       1000       1000
+00:00:13      1000      1000      1000      1000      1000       1000       1000       1000       1000       1000
+          d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.write  d.d.write  d.d.write  d.d.write  d.d.write
+               sda       sdb       sdc       sdd       sde        sda        sdb        sdc        sdd        sde
+             count     count     count     count     count      count      count      count      count      count
+00:00:00         0         0         0         0         0          0          0          0          0          0
+00:00:01         1         1         1         1         1          1          1          1          1          1
+00:00:02         2         4         2       N/A         2          2          4          2        N/A          2
+00:00:03         3       N/A         3       N/A         3          3        N/A          3        N/A          3
+00:00:04         4       N/A         4       N/A         4          4        N/A          4        N/A          4
+00:00:05         5       N/A         5       N/A         5          5        N/A          5        N/A          5
+00:00:06       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:07       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:08       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:09       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:10       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:11       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:12       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
+00:00:13       N/A       N/A       N/A       N/A       N/A        N/A        N/A        N/A        N/A        N/A
 == test predicate
           d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.write  d.d.write  d.d.write  d.d.write  d.d.write  m.u.used
                sda       sdb       sdc       sdd       sde        sda        sdb        sdc        sdd        sde          

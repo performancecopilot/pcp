@@ -82,7 +82,7 @@ class PMReporter(object):
                      'dynamic_header', 'overall_rank', 'overall_rank_alt',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
@@ -112,6 +112,8 @@ class PMReporter(object):
         self.rank = 0
         self.overall_rank = 0
         self.overall_rank_alt = 0
+        self.limit_filter = 0
+        self.limit_filter_force = 0
         self.invert_filter = 0
         self.predicate = None
         self.omit_flat = 0
@@ -129,10 +131,10 @@ class PMReporter(object):
         self.timefmt = None
         self.interpol = 1
         self.count_scale = None
-        self.space_scale = None
-        self.time_scale = None
         self.count_scale_force = None
+        self.space_scale = None
         self.space_scale_force = None
+        self.time_scale = None
         self.time_scale_force = None
 
         # Not in pmrep.conf, won't overwrite
@@ -151,7 +153,8 @@ class PMReporter(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
+        #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -168,7 +171,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:23nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:238:9:nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -210,6 +213,8 @@ class PMReporter(object):
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
         opts.pmSetLongOption("overall-rank", 0, "2", "", "report overall ranking from archive")
         opts.pmSetLongOption("overall-rank-alt", 0, "3", "", "report overall ranking from archive in pmrep format")
+        opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
+        opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
@@ -227,10 +232,10 @@ class PMReporter(object):
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
-        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
-        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         return opts
@@ -297,6 +302,10 @@ class PMReporter(object):
             self.overall_rank = 1
         elif opt == '3':
             self.overall_rank_alt = 1
+        elif opt == '8':
+            self.limit_filter = optarg
+        elif opt == '9':
+            self.limit_filter_force = optarg
         elif opt == 'n':
             self.invert_filter = 1
         elif opt == 'N':
@@ -331,14 +340,14 @@ class PMReporter(object):
             self.interpol = 0
         elif opt == 'q':
             self.count_scale = optarg
-        elif opt == 'b':
-            self.space_scale = optarg
-        elif opt == 'y':
-            self.time_scale = optarg
         elif opt == 'Q':
             self.count_scale_force = optarg
+        elif opt == 'b':
+            self.space_scale = optarg
         elif opt == 'B':
             self.space_scale_force = optarg
+        elif opt == 'y':
+            self.time_scale = optarg
         elif opt == 'Y':
             self.time_scale_force = optarg
         else:

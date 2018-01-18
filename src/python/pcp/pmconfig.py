@@ -245,7 +245,7 @@ class pmConfig(object):
             if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
                 metrics[key] = [value]
-                for index in range(0, 7):
+                for index in range(0, 8):
                     if len(metrics[key]) <= index:
                         if index == 2:
                             metrics[key].append([])
@@ -429,10 +429,14 @@ class pmConfig(object):
         """ Validate common utility options """
         try:
             err = "Integer expected"
-            if hasattr(self.util, 'rank'):
+            if hasattr(self.util, 'rank') and self.util.rank:
                 self.util.rank = int(self.util.rank)
+            if hasattr(self.util, 'limit_filter') and self.util.limit_filter:
+                self.util.limit_filter = int(self.util.limit_filter)
+            if hasattr(self.util, 'limit_filter_force') and self.util.limit_filter_force:
+                self.util.limit_filter_force = int(self.util.limit_filter_force)
             err = "Non-negative integer expected"
-            if hasattr(self.util, 'width'):
+            if hasattr(self.util, 'width') and self.util.width:
                 self.util.width = int(self.util.width)
                 if self.util.width < 0:
                     raise ValueError(err)
@@ -440,7 +444,7 @@ class pmConfig(object):
                 self.util.width_force = int(self.util.width_force)
                 if self.util.width_force < 0:
                     raise ValueError(err)
-            if hasattr(self.util, 'precision'):
+            if hasattr(self.util, 'precision') and self.util.precision:
                 self.util.precision = int(self.util.precision)
                 if self.util.precision < 0:
                     raise ValueError(err)
@@ -448,7 +452,7 @@ class pmConfig(object):
                 self.util.precision_force = int(self.util.precision_force)
                 if self.util.precision_force < 0:
                     raise ValueError(err)
-            if hasattr(self.util, 'repeat_header'):
+            if hasattr(self.util, 'repeat_header') and self.util.repeat_header:
                 self.util.repeat_header = int(self.util.repeat_header)
                 if self.util.repeat_header < 0:
                     raise ValueError(err)
@@ -537,7 +541,7 @@ class pmConfig(object):
         incompat_metrics = OrderedDict()
         for i, metric in enumerate(self.util.metrics):
             # Fill in all fields for easier checking later
-            for index in range(0, 7):
+            for index in range(0, 8):
                 if len(self.util.metrics[metric]) <= index:
                     if index == 1:
                         self.util.metrics[metric].append([])
@@ -690,6 +694,20 @@ class pmConfig(object):
             if hasattr(self.util, 'precision_force') and self.util.precision_force is not None:
                 self.util.metrics[metric][6] = self.util.precision_force
             self.util.metrics[metric][5] = None
+
+            # Set value limit filter
+            if self.util.metrics[metric][7]:
+                try:
+                    self.util.metrics[metric][7] = int(self.util.metrics[metric][7])
+                except Exception:
+                    sys.stderr.write("Integer expected: %s\n" % metric)
+                    sys.exit(1)
+            elif hasattr(self.util, 'limit_filter'):
+                self.util.metrics[metric][7] = self.util.limit_filter
+            if hasattr(self.util, 'limit_filter_force') and self.util.limit_filter_force:
+                self.util.metrics[metric][7] = self.util.limit_filter_force
+            if self.descs[i].contents.type == pmapi.c_api.PM_TYPE_STRING:
+                self.util.metrics[metric][7] = None
 
             # Add fetchgroup items
             try:
@@ -852,6 +870,12 @@ class pmConfig(object):
                           not self.filter_instance(metric, name):
                             continue
                         value = val()
+                        if self.util.metrics[metric][7]:
+                            limit = self.util.metrics[metric][7]
+                            if limit > 0 and value < limit:
+                                continue
+                            elif limit < 0 and value > abs(limit):
+                                continue
                         results[metric].append((inst, name, value))
                     except Exception:
                         pass
