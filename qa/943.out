@@ -11,6 +11,7 @@ proc.runq.swapped COUNT
 proc.runq.unknown COUNT
 == Check protected per-process metric fetches (expect errors)
 proc.fd.count -12387 No permission to perform requested operation
+proc.id.container -12387 No permission to perform requested operation
 proc.id.egid -12387 No permission to perform requested operation
 proc.id.egid_nm -12387 No permission to perform requested operation
 proc.id.euid -12387 No permission to perform requested operation
@@ -110,6 +111,7 @@ proc.psinfo.wchan -12387 No permission to perform requested operation
 proc.psinfo.wchan_s -12387 No permission to perform requested operation
 == Check authentic per-process metric fetches (expect values)
 proc.fd.count COUNT
+proc.id.container COUNT
 proc.id.egid COUNT
 proc.id.egid_nm COUNT
 proc.id.euid COUNT

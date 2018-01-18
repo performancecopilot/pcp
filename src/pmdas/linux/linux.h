@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Red Hat.
+ * Copyright (c) 2016-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,7 +94,7 @@ enum {
 	CLUSTER_KSM_INFO,	/* 69 /sys/kernel/mm/ksm */
 	CLUSTER_ZONEINFO_PROTECTION,	/* 70 /proc/zoneinfo protection item */
 	CLUSTER_TAPEDEV,	/* 71 /sys/class/scsi_tape */
-	CLUSTER_RANDOM,		/* 72 /proc/sys/kernel/random entropy state */
+	CLUSTER_SYS_KERNEL,	/* 72 /proc/sys/kernel metrics */
 	CLUSTER_NET_SOCKSTAT6,	/* 73 /proc/net/sockstat6 */
 	CLUSTER_TTY,            /* 74 proc/tty/device/serial metrics */
 

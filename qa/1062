@@ -26,7 +26,7 @@ echo "== exercise vmstat config section, live"
 pmrep -s 2 -c $config :vmstat | sed -e 's/[0-9][0-9]*/xxx/g' | tr -s ' '
 
 echo "== exercise vmstat config section, archive"
-pmrep -z -t 1 -a ./archives/pcp-vmstat -c $config :vmstat
+pmrep -z -W 10 -t 1 -a ./archives/pcp-vmstat -c $config :vmstat
 
 # success, all done
 status=0

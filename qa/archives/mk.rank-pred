@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 # -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
-""" Generate a test archive for testing ranking and predicates """
+""" Generate a test archive for testing ranking, predicates, and limit filtering """
 
 from pcp import pmapi, pmi
 
@@ -111,7 +111,7 @@ for _ in range(5):
     arch.pmiPutValue("mem.util.used", None, "%d" % batch)
     arch.pmiWrite(start + batch, 0)
 
-# End values
+# End values before limit tests
 for _ in range(2):
     batch += 1
     for name in insts_d:
@@ -121,6 +121,30 @@ for _ in range(2):
         arch.pmiPutValue("kernel.pernode.cpu.user", name, "%d" % 1000)
         arch.pmiPutValue("kernel.pernode.cpu.sys", name, "%d" % 1000)
     arch.pmiPutValue("mem.util.used", None, "%d" % 1000)
+    arch.pmiWrite(start + batch, 0)
+
+# Continue with even values
+for _ in range(2):
+    batch += 1
+    for name in insts_d:
+        arch.pmiPutValue("disk.dev.read", name, "%d" % 1000)
+        arch.pmiPutValue("disk.dev.write", name, "%d" % 1000)
+    for name in insts_k:
+        arch.pmiPutValue("kernel.pernode.cpu.user", name, "%d" % 1000)
+        arch.pmiPutValue("kernel.pernode.cpu.sys", name, "%d" % 1000)
+    arch.pmiPutValue("mem.util.used", None, "%d" % 1000)
+    arch.pmiWrite(start + batch, 0)
+
+# End with predicate instances low, others high, all varying
+for i in range(2):
+    batch += 1
+    for j, name in enumerate(insts_d):
+        arch.pmiPutValue("disk.dev.read", name, "%d" % (10 + j))
+        arch.pmiPutValue("disk.dev.write", name, "%d" % (100 - j))
+    for j, name in enumerate(insts_k):
+        arch.pmiPutValue("kernel.pernode.cpu.user", name, "%d" % (10 + j))
+        arch.pmiPutValue("kernel.pernode.cpu.sys", name, "%d" % (100 - j))
+    arch.pmiPutValue("mem.util.used", None, "%d" % batch)
     arch.pmiWrite(start + batch, 0)
 
 # Done

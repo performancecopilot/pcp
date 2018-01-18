@@ -1,2 +1,20 @@
 QA output created by 735
 Control group list for current process checks out
+
+Checking logged control group proc data ...
+
+== Fetching proc.psinfo.cgroups metric - procpid-4.14.5-root-005.tgz
+
+proc.psinfo.cgroups
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "cpuset:/;hugetlb:/;memory:/init.scope;pids:/init.scope;devices:/init.scope;freezer:/;blkio:/init.scope;net_cls,net_prio:/;perf_event:/;cpu,cpuacct:/init.scope;name=systemd:/init.scope;:/init.scope"
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value "cpuset:/;hugetlb:/;memory:/system.slice/docker-containerd.service;pids:/system.slice/docker-containerd.service;devices:/system.slice/docker-containerd.service;freezer:/;blkio:/system.slice/docker-containerd.service;net_cls,net_prio:/;perf_event:/;cpu,cpuacct:/system.slice/docker-containerd.service;name=systemd:/system.slice/docker-containerd.service;:/system.slice/docker-containerd.service"
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value "cpuset:/;hugetlb:/;memory:/system.slice/docker-containerd.service;pids:/system.slice/docker-containerd.service;devices:/system.slice/docker-containerd.service;freezer:/;blkio:/system.slice/docker-containerd.service;net_cls,net_prio:/;perf_event:/;cpu,cpuacct:/system.slice/docker-containerd.service;name=systemd:/system.slice/docker-containerd.service;:/system.slice/docker-containerd.service"
+    inst [N or "026304 /bin/prometheus"] value "cpuset:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;hugetlb:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;memory:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;pids:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;devices:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;freezer:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;blkio:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;net_cls,net_prio:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope;perf_event:/system.slice/docker-0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736.scope"
+
+== Fetching proc.id.container metric - procpid-4.14.5-root-005.tgz
+
+proc.id.container
+    inst [N or "000001 /usr/lib/systemd/systemd"] value ""
+    inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value ""
+    inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value ""
+    inst [N or "026304 /bin/prometheus"] value "0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736"

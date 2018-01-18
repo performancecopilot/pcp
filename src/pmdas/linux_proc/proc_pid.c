@@ -1918,6 +1918,38 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid, int *sts)
 }
 
 /*
+ * From a kernel proc cgroups file entry attempt to extract a container ID
+ *    cpuset:/system.slice/docker-0ea0c4[...]3bc0.scope (e.g. RHEL/Fedora)
+ *    cpuset:/docker/0ea0c4[...]3bc0  (e.g. Debian/Ubuntu/SUSE))
+ */
+static char *
+proc_container_search(char *buf, int buflen, char *cid, int cidlen)
+{
+    char *p, *end;
+    int len;
+
+    if (strncmp(buf, "cpuset:", 7) != 0)
+	return NULL;
+    p = buf + 7;
+    if (strncmp(p, "/system.slice/docker-", 21) == 0) {
+	p += 21;
+	if ((end = strchr(p, '.')) != NULL && ((len = end - p) < cidlen)) {
+	    strncpy(cid, p, len);
+	    cid[len] = '\0';
+	    return cid;
+	}
+    } else if (strncmp(p, "/docker/", 8) == 0) {
+	p += 8;
+	if ((end = strchr(p, '\n')) != NULL && ((len = end - p) < cidlen)) {
+	    strncpy(cid, p, len);
+	    cid[len] = '\0';
+	    return cid;
+	}
+    }
+    return NULL;
+}
+
+/*
  * From the kernel format for a single process cgroup set:
  *     2:cpu:/
  *     1:cpuset:/
@@ -1926,24 +1958,32 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid, int *sts)
  *     "cpu:/;cpuset:/"
  */
 static void
-proc_cgroup_reformat(char *buf, int len, char *fmt)
+proc_cgroup_reformat(char *buf, int buflen, char *fmt, int fmtlen, char *cid, int cidlen)
 {
-    char *target = fmt, *p, *s = NULL;
+    char *target = fmt, *p, *s = NULL, *c = NULL;
+    int off, len;
 
-    *target = '\0';
-    for (p = buf; p - buf < len; p++) {
+    *target = *cid = '\0';
+    for (p = buf; p - buf < buflen; p++) {
 	if (*p == '\0')
 	    break;
-        if (*p == ':' && !s)	/* position "s" at start */
-            s = p + 1;
-        if (*p != '\n' || !s)	/* find end of this line */
-            continue;
-        if (target != fmt)      /* not the first cgroup? */
-            strncat(target, ";", 2);
+	if (*p == ':' && !s)	/* position "s" at start */
+	    s = p + 1;
+	if (*p != '\n' || !s)	/* find end of this line */
+	    continue;
+	if (target != fmt)      /* not the first cgroup? */
+	    strncat(target, ";", 2);
 	/* have a complete cgroup line now, copy it over */
-        strncat(target, s, (p - s));
-        target += (p - s);
-        s = NULL;		/* reset it for new line */
+	/* (but first try out container name heuristics) */
+	off = target - fmt;
+	len = p - s;
+	if (off + len >= fmtlen)
+	    break;
+	if (!c)
+	    c = proc_container_search(s, len, cid, cidlen);
+	strncat(target, s, len);
+	target += len;
+	s = NULL;		/* reset it for new line */
     }
 }
 
@@ -1969,6 +2009,7 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
     if (!(ep->flags & PROC_PID_FLAG_CGROUP_FETCHED)) {
 	char	buf[1024];
 	char	fmt[1024];
+	char	cid[72];
 	int	n, fd;
 
 	if ((fd = proc_open("cgroup", ep)) < 0)
@@ -1990,8 +2031,10 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 		}
 	    }
 	    else {
-		/* reformat the buffer to match "ps" output format, then hash */
-		proc_cgroup_reformat(&buf[0], n, &fmt[0]);
+		/* reformat the buffer to match "ps" output format and */
+		/* try any container name heuristics, then hash (both) */
+		proc_cgroup_reformat(buf, n, fmt, sizeof(fmt), cid, sizeof(cid));
+		ep->container_id = proc_strings_insert(cid);
 		ep->cgroup_id = proc_strings_insert(fmt);
 	    }
 	}

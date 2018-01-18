@@ -29,6 +29,7 @@ _filter()
 	-e '/^sampledso\.bad\./d' \
 	-e '/^pipe\..*: Not Connected/d' \
 	-e '/^cgroup.groups: pmLookupName: Unknown metric name/d' \
+	-e '/^proc.id.container: No data available/d' \
 	-e '/^proc.psinfo.cgroups: No data available/d' \
 	-e '/^papi.*: No permission to perform requested operation/d' \
 	-e '/^elasticsearch.*: Try again. Information not currently /d' \
@@ -37,6 +38,7 @@ _filter()
 	-e '/^zswap.*: Try again. Information not currently available/d' \
 	-e '/^nginx.*: Try again. Information not currently available/d' \
 	-e '/^postgresql.*: Missing metric value(s)/d' \
+	-e '/^hotproc.id.container: No data available/d' \
 	-e '/^hotproc.psinfo.cgroups: No data available/d' \
     #end
 }

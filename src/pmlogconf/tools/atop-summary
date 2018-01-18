@@ -9,6 +9,7 @@ delta	once
 	hinv.map.dmname
 	hinv.map.mdname
 	kernel.all.hz
+	kernel.all.pid_max
 	kernel.uname.release
 	kernel.uname.version
 	kernel.uname.machine

@@ -89,10 +89,10 @@ class PCP2XLSX(object):
         self.timefmt = TIMEFMT
         self.interpol = 0
         self.count_scale = None
-        self.space_scale = None
-        self.time_scale = None
         self.count_scale_force = None
+        self.space_scale = None
         self.space_scale_force = None
+        self.time_scale = None
         self.time_scale_force = None
 
         # Not in pcp2xlsx.conf, won't overwrite
@@ -109,7 +109,8 @@ class PCP2XLSX(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
+        #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -165,10 +166,10 @@ class PCP2XLSX(object):
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "xlsxwriter timestamp format")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
-        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
-        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         return opts
@@ -225,14 +226,14 @@ class PCP2XLSX(object):
             self.timefmt = optarg
         elif opt == 'q':
             self.count_scale = optarg
-        elif opt == 'b':
-            self.space_scale = optarg
-        elif opt == 'y':
-            self.time_scale = optarg
         elif opt == 'Q':
             self.count_scale_force = optarg
+        elif opt == 'b':
+            self.space_scale = optarg
         elif opt == 'B':
             self.space_scale_force = optarg
+        elif opt == 'y':
+            self.time_scale = optarg
         elif opt == 'Y':
             self.time_scale_force = optarg
         else:
