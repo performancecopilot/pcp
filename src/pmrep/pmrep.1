@@ -19,7 +19,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \fBpmrep\fP
-[\fB\-1CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-123CdgGHIjkLnprRuUvVxz?\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -254,6 +254,22 @@ By default a static header that never changes is printed once.
 See also
 .BR \-E .
 .TP
+.B \-2
+Perform overall ranking of instances in archive.
+By default ranking (see
+.BR \-J )
+and reporting happens on each interval.
+With this option all instances and values are ranked
+before a summary is reported.
+See
+.BR pmlogsummary (1)
+for further archive summary reporting alternatives.
+.TP
+.B \-3
+Like
+.B \-2
+but print results in \fBpmrep\fP \fImetricspec\fP format.
+.TP
 .B \-a
 Performance metric values are retrieved from the set of Performance
 Co-Pilot (PCP) archive log files identified by the argument
@@ -477,6 +493,8 @@ instances of set-valued metrics.
 A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
+See also
+.BR \-2 .
 .TP
 .B \-k
 Write extended CSV output, similar to

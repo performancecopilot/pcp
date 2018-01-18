@@ -614,8 +614,10 @@ _pcp () {
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
       "(-j --live-filter)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank)"{-J,--rank}'[set limit for results of valued instances]' \
+      "(-2 --overall-rank -3 --overall-rank-alt -N --predicate)"{-2,--overall-rank}'[perform overall ranking from archive]' \
+      "(-3 --overall-rank-alt -2 --overall-rank -N --predicate)"{-3,--overall-rank-alt}'[perform overall ranking using pmrep format]' \
       "(-n --invert-filter)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-N --predicate -2 --overall-rank -3 --overall-rank-alt)"{-N,--predicate}'[specify predicate metric]:metric:->metrics' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
       "(-E --repeat-header $exargs)"{-E+,--repeat-header}'[set header repeat frequency]:samples:' \

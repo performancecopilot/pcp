@@ -198,3 +198,32 @@ Recording metrics...
 00:00:11         11        N/A        N/A         11        11       N/A       N/A       111
 00:00:12       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 00:00:13       1000       1000        N/A        N/A      1000      1000       N/A       N/A
+== overall ranking
+disk.dev.write          - sdd  -    count -  18
+disk.dev.write          - sdb  -    count -  12
+disk.dev.read           - sdc  -    count - 111
+disk.dev.read           - sdd  -    count -  18
+kernel.pernode.cpu.sys  - cpu2 - millisec - 111
+kernel.pernode.cpu.sys  - cpu3 - millisec -  18
+kernel.pernode.cpu.user - cpu3 - millisec -  18
+kernel.pernode.cpu.user - cpu1 - millisec -  12
+mem.util.used           -      -    Kbyte -  11
+disk.dev.write          X sdd  X    count X  18
+disk.dev.write          X sdb  X    count X  12
+disk.dev.read           X sdc  X    count X 110
+disk.dev.read           X sdd  X    count X  18
+kernel.pernode.cpu.sys  X cpu2 X millisec X 110
+kernel.pernode.cpu.sys  X cpu3 X millisec X  18
+kernel.pernode.cpu.user X cpu3 X millisec X  18
+kernel.pernode.cpu.user X cpu1 X millisec X  12
+mem.util.used           X      X    Kbyte X  10
+disk.dev.write,,"'sdd','sdb'"
+disk.dev.read,,"'sdc','sdd'"
+mem.util.used,,
+kernel.pernode.cpu.sys,,"'cpu2','cpu3'"
+kernel.pernode.cpu.user,,"'cpu3','cpu1'"
+mem.util.used,,
+disk.dev.write,,"'sdd','sdb'"
+disk.dev.read,,"'sdc','sdd'"
+kernel.pernode.cpu.sys,,"'cpu2','cpu3'"
+kernel.pernode.cpu.user,,"'cpu3','cpu1'"

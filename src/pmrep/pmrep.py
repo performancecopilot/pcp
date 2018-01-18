@@ -79,7 +79,7 @@ class PMReporter(object):
                      'timestamp', 'unitinfo', 'colxrow', 'separate_header',
                      'delay', 'width', 'delimiter', 'extcsv', 'width_force',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
-                     'dynamic_header',
+                     'dynamic_header', 'overall_rank', 'overall_rank_alt',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force',
@@ -110,8 +110,10 @@ class PMReporter(object):
         self.instances = []
         self.live_filter = 0
         self.rank = 0
-        self.predicate = None
+        self.overall_rank = 0
+        self.overall_rank_alt = 0
         self.invert_filter = 0
+        self.predicate = None
         self.omit_flat = 0
         self.colxrow = None
         self.width = 0
@@ -166,7 +168,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:23nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -206,6 +208,8 @@ class PMReporter(object):
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
+        opts.pmSetLongOption("overall-rank", 0, "2", "", "report overall ranking from archive")
+        opts.pmSetLongOption("overall-rank-alt", 0, "3", "", "report overall ranking from archive in pmrep format")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
@@ -289,6 +293,10 @@ class PMReporter(object):
             self.live_filter = 1
         elif opt == 'J':
             self.rank = optarg
+        elif opt == '2':
+            self.overall_rank = 1
+        elif opt == '3':
+            self.overall_rank_alt = 1
         elif opt == 'n':
             self.invert_filter = 1
         elif opt == 'N':
@@ -373,6 +381,21 @@ class PMReporter(object):
            not os.access(os.path.dirname(self.outfile), os.W_OK|os.X_OK):
             sys.stderr.write("Output directory %s not accessible.\n" % os.path.dirname(self.outfile))
             sys.exit(1)
+
+        # Adjustments and checks for for overall rankings
+        if not self.rank:
+            self.overall_rank = 0
+            self.overall_rank_alt = 0
+        if self.overall_rank_alt:
+            self.overall_rank = 1
+        if self.overall_rank and \
+           (self.context.type != PM_CONTEXT_ARCHIVE or self.output != OUTPUT_STDOUT):
+            sys.stderr.write("Overall ranking supported only with archive input and stdout output.\n")
+            sys.exit(1)
+        if self.overall_rank:
+            self.header = 0
+            self.colxrow = None
+            self.predicate = None
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
@@ -473,11 +496,13 @@ class PMReporter(object):
         if tstamp != None:
             tstamp = tstamp.strftime(self.timefmt)
 
-        if self.output == OUTPUT_ARCHIVE:
+        if self.overall_rank:
+            self.overall_ranking(tstamp)
+        elif self.output == OUTPUT_ARCHIVE:
             self.write_archive(tstamp)
-        if self.output == OUTPUT_CSV:
+        elif self.output == OUTPUT_CSV:
             self.write_csv(tstamp)
-        if self.output == OUTPUT_STDOUT:
+        elif self.output == OUTPUT_STDOUT:
             self.write_stdout(tstamp)
 
     def prepare_writer(self):
@@ -495,7 +520,7 @@ class PMReporter(object):
         else:
             self.prepare_stdout_colxrow()
 
-    def prepare_stdout_std(self, results={}):
+    def prepare_stdout_std(self, results=()):
         """ Prepare standard/default stdout output format """
         index = 0
         if self.timestamp == 0:
@@ -530,7 +555,7 @@ class PMReporter(object):
         l = len(str(index-1)) + 2
         self.format = self.format[:-l]
 
-    def prepare_stdout_colxrow(self, results={}):
+    def prepare_stdout_colxrow(self, results=()):
         """ Prepare columns and rows swapped stdout output """
         index = 0
 
@@ -678,7 +703,7 @@ class PMReporter(object):
                 c = len(str(len(results)))
         return c
 
-    def write_separate_header(self, results={}):
+    def write_separate_header(self, results=()):
         """ Write separate header """
         c = self.get_instance_count(results) + 1
         def write_line(metric, k, i, name):
@@ -745,7 +770,7 @@ class PMReporter(object):
             self.writer.write("\n")
         return
 
-    def write_header_csv(self, results={}):
+    def write_header_csv(self, results=()):
         """ Write info header for CSV output """
         if not self.header:
             return
@@ -770,7 +795,7 @@ class PMReporter(object):
                 self.writer.write(self.delimiter + "\"" + name + "\"")
         self.writer.write("\n")
 
-    def write_header_stdout(self, repeat=False, results={}):
+    def write_header_stdout(self, repeat=False, results=()):
         """ Write info header for stdout output """
         if not self.header:
             return
@@ -1130,7 +1155,7 @@ class PMReporter(object):
                     k += 1
                     continue
 
-            # Filter metric output with only unavailable instances
+            # Skip metric output when only unavailable instances
             if self.dynamic_header:
                 values = set(line[4::2])
                 if len(values) == 1 and NO_INST in values:
@@ -1156,6 +1181,76 @@ class PMReporter(object):
             output = self.format.format(*line) + "\n"
 
         self.writer.write(output)
+
+    def overall_ranking(self, timestamp):
+        """ Perform overall ranking """
+        if not hasattr(self, 'all_ranked'):
+            self.all_ranked = None # pylint: disable=attribute-defined-outside-init
+
+        if timestamp is None:
+            # All results available, pretty print results in requested format
+            m_len = i_len = u_len = v_len = 3
+            for metric in self.all_ranked:
+                m_len = m_len if len(metric) < m_len else len(metric)
+                u_len = u_len if len(self.metrics[metric][2][0]) < u_len else len(self.metrics[metric][2][0])
+                for _, name, value in self.all_ranked[metric]:
+                    name = name.replace("\n", " ") if name else name
+                    if name:
+                        i_len = i_len if len(name) < i_len else len(name)
+                    p = self.metrics[metric][6] if self.metrics[metric][4] > self.metrics[metric][6] else self.metrics[metric][4]
+                    numfmt = "." + str(p) + "f"
+                    value = format(value, numfmt) if isinstance(value, float) else str(value)
+                    v_len = v_len if len(value) < v_len else len(value)
+            d = self.delimiter
+            for metric in self.all_ranked:
+                index = -1
+                for i, m in enumerate(self.metrics):
+                    if m == metric:
+                        index = i
+                        break
+                if self.pmconfig.descs[index].contents.type == PM_TYPE_STRING:
+                    continue
+                alt_line = ""
+                for _, name, value in self.all_ranked[metric]:
+                    name = name.replace("\n", " ") if name else name
+                    if not self.overall_rank_alt:
+                        line = [metric, d, "", d] if not name else [metric, d, name, d]
+                        line.append(self.metrics[metric][2][0])
+                        p = self.metrics[metric][6] if self.metrics[metric][4] > self.metrics[metric][6] else self.metrics[metric][4]
+                        numfmt = "." + str(p) + "f"
+                        value = format(value, numfmt) if isinstance(value, float) else str(value)
+                        line.append(value)
+                        output = "{0:<" + str(m_len+1) + "}{1:<2}{2:<" + str(i_len+1) + "}"
+                        output += "{3:<2}{4:>" + str(u_len) + "} " + d + "{5:>" + str(v_len+1) + "}"
+                    else:
+                        if not alt_line:
+                            alt_line = [metric, ",,", ""] if not name else [metric, ",,\"'", name + "'\""]
+                            output = "{0}{1}{2}"
+                        else:
+                            alt_line[2] = alt_line[2][:-1] + ",'" + name + "'\""
+                    if not self.overall_rank_alt:
+                        self.writer.write(output.format(*line) + "\n")
+                if self.overall_rank_alt:
+                    self.writer.write(output.format(*alt_line) + "\n")
+            return
+
+        results = self.pmconfig.get_sorted_results()
+
+        if self.prev_insts is None:
+            self.all_ranked = results
+            self.prev_insts = []
+
+        revs = True if self.rank > 0 else False
+
+        for i, metric in enumerate(results):
+            rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_IN_NULL else 1
+            c, r, t = (0, [], [])
+            for i in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
+                if i[0] not in t and c < rank:
+                    c += 1
+                    r.append(i)
+                    t.append(i[0])
+            self.all_ranked[metric] = r
 
     def finalize(self):
         """ Finalize and clean up """

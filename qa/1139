@@ -75,6 +75,12 @@ _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
 
+echo "== overall ranking"
+pmrep $log -I -s 12 -r -u   -J 2 -l - -2 disk kernel mem
+pmrep $log -I -s  6 -r -t 2 -J 2 -l X -2 disk kernel mem
+pmrep $log -I -s 12 -r -u   -J 2 -l - -3 disk mem kernel
+pmrep $log -I -s  6 -r -t 2 -J 2 -l X -3 mem disk kernel
+
 # success, all done
 status=0
 exit
