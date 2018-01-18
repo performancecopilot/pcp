@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -984,6 +984,7 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
     load_prepare_source(sp, np->right, level+1);
 
     switch (np->type) {
+    case N_STRING:
     case N_NAME:
 	length = strlen(np->value);
 	if ((name = series_instance_name(np->value, length)) != NULL)
@@ -1001,7 +1002,7 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
     case N_EQ:
 	if (np->right->type != N_STRING)
 	    break;
-	if (np->left->type == N_NAME) {
+	if (np->left->type == N_NAME || np->left->type == N_STRING) {
 	    subtype = np->left->subtype;
 	    if (subtype == N_LABEL)
 		 set_context_source(sp, np->right->value);
@@ -1037,7 +1038,7 @@ load_resolve_source(SOURCE *sp)
     } else {
 	cp->context = sts;
 
-	if ((sts = pmGetContextLabels(&cp->labels)) < 0 &&
+	if ((sts = pmGetContextLabels(&cp->labels)) <= 0 &&
 	    (default_labelset(cp->context, &cp->labels) < 0)) {
 	    pmsprintf(msg, sizeof(msg), "failed to get context labels: %s",
 		    pmErrStr(sts));

@@ -11,7 +11,7 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 7
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else
 %global __python2 python
@@ -728,6 +728,10 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 BuildRequires: %{__python2}-devel
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+# on these platforms, python2-pcp replaces python-pcp
+Obsoletes: python-pcp
+%endif
 %if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5 && 0%{?fedora} <= 25
 Requires: %{__python2}-ctypes
 %endif
