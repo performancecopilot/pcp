@@ -442,11 +442,12 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-from current instances (if present).
+from current instances (if present, see also
+.BR \-j ).
 By default all current instances are reported,
 except when writing an archive (see
 .BR \-o )
-when all instances are reported.
+when all instances, present and future, are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
@@ -507,6 +508,8 @@ This allows capturing all filtered instances even if processes
 are restarted at some point (unlike without live filtering).
 Doing live filtering over a huge amount of instances naturally
 comes with some overhead so a bit of user caution is advised.
+See also
+.BR \-1 .
 .TP
 .B \-J
 Limit results to highest/lowest
@@ -908,39 +911,50 @@ $ pmrep \-i wlan0 \-v network.interface.out
 .ft P
 .RE
 .PP
-Display the predefined set of metrics from the default
-.BR pmrep.conf (5)
-containing information about I/O issued by
-.I firefox
-(tab after the colon can be used to complete available
-metricset definitions):
+Display timestamped
+.BR vmstat (8)
+like information using megabytes instead of kilobytes and also include
+the number of inodes used (tab completes available metrics and
+after a colon metricsets with bash and zsh):
 .RS +4
 .ft B
 .nf
-$ pmrep \-i '.*firefox.*' :proc-io
+$ pmrep \-p \-B MB :vmstat vfs.inodes.count
 .fi
 .ft P
 .RE
 .PP
 Display per-device disk reads and writes from the host
 .I server1
-using two seconds interval and CSV output format:
+using two seconds interval and
+.BR sadf (1)
+like CSV output format:
 .RS +4
 .ft B
 .nf
-$ pmrep \-h server1 \-o csv \-t 2s disk.dev.read disk.dev.write
+$ pmrep \-h server1 \-t 2s \-o csv \-k disk.dev.read disk.dev.write
 .fi
 .ft P
 .RE
 .PP
-Display timestamped
-.BR vmstat (8)
-like information using MBs instead of kilobytes and also include
-the number of in-use inodes:
+Display processes using at least 100MB of memory using
+dynamic headers:
 .RS +4
 .ft B
 .nf
-$ pmrep \-p \-B MB vfs.inodes.count :vmstat
+$ pmrep -b MB -8 100 -1 proc.memory.rss
+.fi
+.ft P
+.RE
+.PP
+Display the predefined set of metrics from the default
+.BR pmrep.conf (5)
+containing information about I/O issued by current
+.IR firefox " process(es):"
+.RS +4
+.ft B
+.nf
+$ pmrep \-i '.*firefox.*' :proc-io
 .fi
 .ft P
 .RE
@@ -960,24 +974,36 @@ $ pmrep \-a ./20150921.09.13 \-S @15:00 \-T @17:00 :sar\-w :sar\-W
 .ft P
 .RE
 .PP
-Record all 389 Directory Server, XFS file system and CPU/disk/memory
-related metrics every five seconds for the next five minutes to the PCP
-archive
+Record most relevant CPU, memory, and I/O related information about
+every Java process on the system, present and future, to an archive
+.I ./a
+on one minute interval at every full minute in a background process:
+.RS +4
+.ft B
+.nf
+$ pmrep \-\-daemonize \-A 1m \-t 1m \-i '.*java.*' \-j \-o archive \-F ./a \\
+    :proc-info :proc-cpu :proc-mem :proc-io
+.fi
+.ft P
+.RE
+.PP
+Record all 389 Directory Server, XFS file system, and CPU/memory/disk
+metrics every five seconds for five minutes to a PCP archive
 .IR ./a :
 .RS +1
 .ft B
 .nf
-$ pmrep \-o archive \-F ./a \-t 5s \-T 5m ds389 xfs kernel.all.cpu disk mem
+$ pmrep \-t 5s \-T 5m \-o archive \-F ./a ds389 xfs kernel.all.cpu mem disk
 .fi
 .ft P
 .RE
 .PP
 Record process memory and I/O information for those processes
 which are the three most memory-consuming processes:
-.RS +4
+.RS +1
 .ft B
 .nf
-$ pmrep \-o archive \-F ./a \-J 3 \-n proc.memory.rss proc.io
+$ pmrep \-o archive \-F ./a \-J 3 \-N proc.memory.rss proc.memory proc.io
 .fi
 .ft P
 .RE

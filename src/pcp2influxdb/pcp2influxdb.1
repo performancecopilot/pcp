@@ -74,6 +74,10 @@ configuration file overall syntax, this page describes
 .B pcp2influxdb
 specific options and configuration file differences with
 .BR pmrep.conf (5).
+.BR pmrep (1)
+also lists some usage examples of which most are applicable with
+.B pcp2influxdb
+as well.
 .PP
 Only the command line options listed on this page are supported,
 other options recognized by
@@ -290,8 +294,9 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-from current instances (if present).
-By default all instances are reported.
+from current instances (if present, see also
+.BR \-j ).
+By default all instances, present and future, are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
