@@ -672,6 +672,8 @@ setup_globals(pmOptions *opts)
 
 	if ((hertz = extract_integer(result, descs, HOST_HERTZ)) <= 0)
 		hertz = sysconf(_SC_CLK_TCK);
+	if ((pidmax = extract_integer(result, descs, HOST_PID_MAX)) <= 0)
+		pidmax = (1 << 15);
 	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
 		pagesize = getpagesize();
 	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
@@ -980,35 +982,6 @@ rawlocalhost(pmOptions *opts)
 	return host;
 }
 
-/*
-** Extract active PCP archive file from latest archive folio,
-** use pmcd.hostname by default, unless directed elsewhere.
-*/
-void
-rawfolio(pmOptions *opts)
-{
-	int		sep = pmPathSeparator();
-	char		path[MAXPATHLEN];
-	char		*logdir;
-
-	if ((logdir = pmGetOptionalConfig("PCP_LOG_DIR")) == NULL)
-	{
-		fprintf(stderr, "%s: cannot find PCP_LOG_DIR\n", pmGetProgname());
-		cleanstop(1);
-	}
-
-	pmsprintf(path, sizeof(path), "%s%c%s%c%s%c",
-		logdir, sep, "pmlogger", sep, rawlocalhost(opts), sep);
-
-	if (chdir(path) < 0)
-	{
-		fprintf(stderr, "%s: cannot change to %s: %s\n",
-			pmGetProgname(), path, pmErrStr(-oserror()));
-		cleanstop(1);
-	}
-	__pmAddOptArchiveFolio(opts, "Latest");
-}
-
 static int
 lookslikedatetome(const char *p)
 {
@@ -1041,8 +1014,10 @@ rawarchive(pmOptions *opts, const char *name)
 	int		sep = pmPathSeparator();
 	int		sts, len = (name? strlen(name) : 0);
 
-	if (len == 0)
-		return rawfolio(opts);
+	if (len == 0) {
+		__pmAddOptArchivePath(opts);
+		return;
+	}
 
 	/* see if a valid archive exists as specified */
 	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, name)) >= 0)

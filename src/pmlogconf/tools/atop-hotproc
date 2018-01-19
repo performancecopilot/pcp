@@ -42,3 +42,4 @@ probe   hotproc.control.config != "" ? include : exclude
 	hotproc.id.euid_nm
 	hotproc.id.suid_nm
 	hotproc.id.fsuid_nm
+	hotproc.id.container

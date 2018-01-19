@@ -42,3 +42,4 @@ force	available
 	proc.id.euid_nm
 	proc.id.suid_nm
 	proc.id.fsuid_nm
+	proc.id.container
