@@ -1205,6 +1205,8 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.interface.duplex value one for half or two for full duplex interface
 @ network.interface.up boolean for whether interface is currently up or down
 @ network.interface.running boolean for whether interface has resources allocated
+@ network.interface.wireless boolean for whether interface is wireless
+@ network.interface.type sysfs interface name assignment type value
 @ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
 @ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)

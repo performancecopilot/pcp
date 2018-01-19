@@ -1,7 +1,7 @@
 /*
  * Linux /proc/net/dev metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2018 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,10 +18,11 @@
 typedef struct {
     uint32_t	mtu;
     uint32_t	speed;
+    uint32_t	type;
     uint8_t	duplex;
     uint8_t	linkup;
     uint8_t	running;
-    uint8_t	pad;
+    uint8_t	wireless;
 } net_dev_t;
 
 #define HWADDRSTRLEN 64

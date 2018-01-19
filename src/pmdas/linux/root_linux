@@ -608,6 +608,8 @@ network.interface {
     duplex		60:3:24
     up			60:3:25
     running		60:3:26
+    wireless		60:3:28
+    type		60:3:29
     inet_addr		60:33:0
     ipv6_addr		60:33:1
     ipv6_scope		60:33:2
