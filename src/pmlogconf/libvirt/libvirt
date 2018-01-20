@@ -1,0 +1,13 @@
+#pmlogconf-setup 2.0
+ident   metrics used by the pcp-libvirt(1) command
+probe   libvirt.dominfo.name values ? include : exclude
+
+        libvirt.dominfo.memory.current
+	libvirt.dominfo.name
+        libvirt.dominfo.uuid
+        libvirt.dominfo.vcpu.current
+        libvirt.domstats.block.rd.reqs
+        libvirt.domstats.block.wr.reqs
+        libvirt.domstats.cpu.time
+        libvirt.domstats.net.rx.bytes
+        libvirt.domstats.net.tx.bytes

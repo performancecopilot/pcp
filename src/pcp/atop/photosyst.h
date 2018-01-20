@@ -157,6 +157,7 @@ struct	perintf {
 	long 	speed;	/* interface speed in megabits/second	*/
 	long 	speedp;	/* previous interface speed 		*/
 	char	duplex;	/* full duplex (boolean) 		*/
+	char 	type;	/* interface type ('e'/'w'/'?')  	*/
 };
 
 struct intfstat {
@@ -212,8 +213,10 @@ struct nfsstat {
 		count_t rpcwrite;
 	} client;
 
-	int             	nrmounts;
-	struct pernfsmount	*nfsmnt;
+	struct {
+		int             	nrmounts;
+		struct pernfsmount	*nfsmnt;
+	} nfsmounts;
 };
 
 /************************************************************************/

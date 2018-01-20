@@ -40,7 +40,8 @@ Every
 on system level (cpu, memory, disks and network layers), followed
 by a list of processes which have been active during the last interval
 (note that all processes that were unchanged during the last interval
-are not shown, unless the key 'a' has been pressed).
+are not shown, unless the key 'a' has been pressed or unless sorting on
+memory occupation is done).
 If the list of active processes does not entirely fit on
 the screen, only the top of the list is shown (sorted in order of activity).
 .br
@@ -220,6 +221,9 @@ process size, total resident process size, virtual and resident growth during
 last interval, memory occupation percentage and process name.
 
 When more than 80 positions are available, other information is added.
+
+For memory consumption, always all processes are shown (also the processes
+that were not active during the interval).
 .PP
 .TP 5
 .B d
@@ -331,6 +335,24 @@ The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the program name.
 .PP
 .TP 5
+.B j
+Show the process activity accumulated per Docker container.
+
+Per container the following fields are shown: number of processes active
+or terminated during last interval (or in total if combined with command `a'),
+accumulated cpu consumption during last interval in system and user mode,
+the current virtual and resident memory space consumed by active processes
+(or all processes of the user if combined with command `a'). 
+.br
+When "storage accounting" is active in the kernel,
+the accumulated read and write throughput on disk is shown.
+When the kernel module `netatop' has been installed,
+the number of received and sent network packets are shown.
+.br
+The last columns contain the accumulated occupation percentage for the
+chosen resource (default: cpu) and the Docker container id (CID).
+.PP
+.TP 5
 .B C 
 Sort the current list in the order of cpu consumption (default).
 The one-but-last column changes to ``CPU''.
@@ -338,7 +360,8 @@ The one-but-last column changes to ``CPU''.
 .TP 5
 .B M 
 Sort the current list in the order of resident memory consumption.
-The one-but-last column changes to ``MEM''.
+The one-but-last column changes to ``MEM''. In case of sorting on memory,
+the full process list will be shown (not only the active processes).
 .PP
 .TP 5
 .B D
@@ -483,6 +506,17 @@ processes will be shown again.
 Whether this key is active or not can be seen in the header line.
 .PP
 .TP 5
+.B J
+Specify a Docker container id of 12 (hexadecimal) characters.
+From now on, only processes will be shown that run in that specific
+Docker container (CID).
+The system statistics are still system wide.
+If the Enter-key is pressed without specifying a container id,
+all (active) processes will be shown again.
+.br
+Whether this key is active or not can be seen in the header line.
+.PP
+.TP 5
 .B S
 Specify search strings for specific logical volume names,
 specific disk names and specific network interface names. All
@@ -602,10 +636,7 @@ can store the system and process level statistics in the PCP archive format,
 as an archive folio (see
 .BR mkaf (1)).
 .br
-By default only processes which have been active during the interval
-are stored in the raw file. When the flag
-.B \-a
-is specified, all processes will be stored.
+All processes/threads are stored in the raw file.
 .br
 The interval (default: 10 seconds) and number of samples (default: infinite)
 can be passed as last arguments. Instead of the number of samples, the flag
@@ -970,6 +1001,14 @@ The average size of one read-action on disk.
 The average size of one write-action on disk.
 .PP
 .TP 9
+.B CID
+Container ID (Docker) of 12 hexadecimal digits, referring to the container
+in which the process/thread is running.
+If a process has been started and finished during the last
+interval, a `?' is shown because the container ID is not part of
+the standard process accounting record.
+.PP
+.TP 9
 .B CMD
 The name of the process.
 This name can be surrounded by "less/greater than" 
@@ -997,6 +1036,13 @@ for this resource on system level.
 .B CPUNR
 The identification of the CPU the (main) thread is running on
 or has recently been running on.  
+.PP
+.TP 9
+.B CTID
+Container ID (OpenVZ).
+If a process has been started and finished during the last
+interval, a `?' is shown because the container ID is not part of
+the standard process accounting record.
 .PP
 .TP 9
 .B DSK
@@ -1281,6 +1327,13 @@ For a process which started during the last interval, the virtual growth
 reflects the total virtual size of the process at that moment.
 .PP
 .TP 9
+.B VPID
+Virtual process-id (within an OpenVZ container).
+If a process has been started and finished during the last
+interval, a `?' is shown because the virtual process-id is not part of
+the standard process accounting record.
+.PP
+.TP 9
 .B VSIZE
 The total virtual memory usage consumed by this process (or user).
 .PP
@@ -1418,7 +1471,7 @@ size of buffer cache (pages),
 size of slab (pages),
 dirty pages in cache (pages),
 reclaimable part of slab (pages),
-size of vmware's balloon pages (pages),
+total size of vmware's balloon pages (pages),
 total size of shared memory (pages),
 size of resident shared memory (pages),
 size of swapped shared memory (pages),
@@ -1533,7 +1586,8 @@ number of threads in state 'uninterruptible sleeping' (D),
 effective uid, effective gid,
 saved uid, saved gid,
 filesystem uid, filesystem gid, elapsed time (hertz),
-is_process (y/n), virtual pid and container id.
+is_process (y/n), OpenVZ  virtual pid (VPID), OpenVZ container id (CTID)
+and Docker container id (CID).
 .TP 9
 .B PRC
 For every process one line is shown.

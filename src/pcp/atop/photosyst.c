@@ -55,7 +55,7 @@ sstat_alloc(const char *purpose)
 
 	ptr = calloc(1, sizeof(struct pernfsmount));
 	ptrverify(ptr, "Alloc failed for %s (NFS mounts)\n", purpose);
-	sstat->nfs.nfsmnt = (struct pernfsmount *)ptr;
+	sstat->nfs.nfsmounts.nfsmnt = (struct pernfsmount *)ptr;
 
 	return sstat;
 }
@@ -75,14 +75,14 @@ sstat_reset(struct sstat *sstat)
 	dsk = sstat->dsk.dsk;
 	lvm = sstat->dsk.lvm;
 	mdd = sstat->dsk.mdd;
-	nfs = sstat->nfs.nfsmnt;
+	nfs = sstat->nfs.nfsmounts.nfsmnt;
 
 	nrcpu = sstat->cpu.nrcpu;
 	nrintf = sstat->intf.nrintf;
 	nrdsk = sstat->dsk.ndsk;
 	nrlvm = sstat->dsk.nlvm;
 	nrmdd = sstat->dsk.nmdd;
-	nrnfs = sstat->nfs.nrmounts;
+	nrnfs = sstat->nfs.nfsmounts.nrmounts;
 
 	/* clear fixed portion now that pointers/sized are safe */
 	memset(sstat, 0, sizeof(struct sstat));
@@ -101,14 +101,14 @@ sstat_reset(struct sstat *sstat)
 	sstat->dsk.dsk = dsk;
 	sstat->dsk.lvm = lvm;
 	sstat->dsk.mdd = mdd;
-	sstat->nfs.nfsmnt = nfs;
+	sstat->nfs.nfsmounts.nfsmnt = nfs;
 
 	sstat->cpu.nrcpu = nrcpu;
 	sstat->intf.nrintf = nrintf;
 	sstat->dsk.ndsk = nrdsk;
 	sstat->dsk.nlvm = nrlvm;
 	sstat->dsk.nmdd = nrmdd;
-	sstat->nfs.nrmounts = nrnfs;
+	sstat->nfs.nfsmounts.nrmounts = nrnfs;
 }
 
 static void
@@ -245,7 +245,7 @@ photosyst(struct sstat *si)
 	onrdisk = si->dsk.ndsk;
 	onrlvm  = si->dsk.nlvm;
 	onrmdd  = si->dsk.nmdd;
-	onrnfs  = si->nfs.nrmounts;
+	onrnfs  = si->nfs.nfsmounts.nrmounts;
 
 	sstat_reset(si);
 	si->stamp = result->timestamp;
@@ -598,8 +598,8 @@ photosyst(struct sstat *si)
 	if (nrnfs > onrnfs)
 	{
 		size = (nrnfs + 1) * sizeof(struct pernfsmount);
-		si->nfs.nfsmnt = (struct pernfsmount *)realloc(si->nfs.nfsmnt, size);
-		ptrverify(si->nfs.nfsmnt, "photosyst nfs [%ld]\n", (long)size);
+		si->nfs.nfsmounts.nfsmnt = (struct pernfsmount *)realloc(si->nfs.nfsmounts.nfsmnt, size);
+		ptrverify(si->nfs.nfsmounts.nfsmnt, "photosyst nfs [%ld]\n", (long)size);
 	}
 
 	for (i=0; i < nrnfs; i++)
@@ -607,10 +607,10 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating nfsmnt %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_mnt(&si->nfs.nfsmnt[i], ids[i], insts[i], result, descs);
+		update_mnt(&si->nfs.nfsmounts.nfsmnt[i], ids[i], insts[i], result, descs);
 	}
-	si->nfs.nfsmnt[nrnfs].mountdev[0] = '\0'; 
-	si->nfs.nrmounts = nrnfs;
+	si->nfs.nfsmounts.nfsmnt[nrnfs].mountdev[0] = '\0'; 
+	si->nfs.nfsmounts.nrmounts = nrnfs;
 	free(insts);
 	free(ids);
 

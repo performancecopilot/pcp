@@ -15,7 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking tools
+SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking tools kvm libvirt
 
 # Only evaluate zeroconf configurations if we package that.
 # Otherwise zeroconf will be installed for all platforms as

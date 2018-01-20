@@ -1526,6 +1526,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.interface.wireless */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,28), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.type */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,29), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* network.interface.inet_addr */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_ADDR,0), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
@@ -5532,10 +5542,12 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_TMPFS] ||
 	need_refresh[REFRESH_NET_MTU] ||
+	need_refresh[REFRESH_NET_TYPE] ||
 	need_refresh[REFRESH_NET_SPEED] ||
 	need_refresh[REFRESH_NET_DUPLEX] ||
 	need_refresh[REFRESH_NET_LINKUP] ||
 	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NET_WIRELESS] ||
 	need_refresh[REFRESH_NETADDR_INET] ||
 	need_refresh[REFRESH_NETADDR_IPV6] ||
 	need_refresh[REFRESH_NETADDR_HW]) {
@@ -6597,6 +6609,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 26: /* network.interface.running */
 	    atom->ul = netip->ioc.running;
+	    break;
+	case 28: /* network.interface.wireless */
+	    atom->ul = netip->ioc.wireless;
+	    break;
+	case 29: /* network.interface.type */
+	    atom->ul = netip->ioc.type;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -7749,6 +7767,12 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		break;
 	    case 26:	/* network.interface.running */
 		need_refresh[REFRESH_NET_RUNNING]++;
+		break;
+	    case 28:	/* network.interface.wireless */
+		need_refresh[REFRESH_NET_WIRELESS]++;
+		break;
+	    case 29:	/* network.interface.type */
+		need_refresh[REFRESH_NET_TYPE]++;
 		break;
 	    }
 	    break;

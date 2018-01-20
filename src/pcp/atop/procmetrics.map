@@ -53,6 +53,9 @@ procmetrics {
 	hotproc.id.suid_nm			TASK_GEN_SUIDNM
 	hotproc.id.fsuid_nm			TASK_GEN_FSUIDNM
 
+	# /proc/pid/cgroup
+	hotproc.id.container			TASK_GEN_CONTAINER
+
 	# end marker - provides count
 	.					TASK_NMETRICS
 }

@@ -1,0 +1,11 @@
+#pmlogconf-setup 2.0
+ident   slabinfo metrics from the Linux VM subsystem
+probe   mem.slabinfo.objects.active values ? include : exclude
+
+        mem.slabinfo.objects.active
+	mem.slabinfo.objects.total
+	mem.slabinfo.slabs.active
+	mem.slabinfo.slabs.objects_per_slab
+	mem.slabinfo.slabs.pages_per_slab
+	mem.slabinfo.slabs.total
+	mem.slabinfo.slabs.total_size

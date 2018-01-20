@@ -81,8 +81,10 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	}
     }
 
-    if (need_refresh[REFRESH_NET_SPEED] ||
-	need_refresh[REFRESH_NET_DUPLEX]) {
+    if (need_refresh[REFRESH_NET_TYPE] ||
+	need_refresh[REFRESH_NET_SPEED] ||
+	need_refresh[REFRESH_NET_DUPLEX] ||
+	need_refresh[REFRESH_NET_WIRELESS]) {
 	/* ETHTOOL ioctl -> non-root permissions issues for old kernels */
 	ecmd.cmd = ETHTOOL_GSET;
 	ifr.ifr_data = (caddr_t)&ecmd;
@@ -99,15 +101,19 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	     * For kernel ABI reasons, this is split into two 16 bits
 	     * fields, which must be combined for speeds above 1Gbps.
 	     */
+	    netip->ioc.type = 1;
 	    netip->ioc.speed = (ecmd.speed_hi << 16) | ecmd.speed;
 	    netip->ioc.duplex = ecmd.duplex + 1;
+	    netip->ioc.wireless = 0;
 	} else if (!(ioctl(fd, SIOCGIWRATE, &iwreq) < 0)) {
 	    /*
 	     * Wireless interface if the above succeeds; calculate the
 	     * canonical speed and set duplex according to iface type.
 	     */
+	    netip->ioc.type = 0;
 	    netip->ioc.speed = (iwreq.u.bitrate.value + 500000) / 1000000;
 	    netip->ioc.duplex = 1;
+	    netip->ioc.wireless = 1;
 	}
     }
 }
@@ -160,7 +166,6 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
     if (need_refresh[REFRESH_NET_SPEED]) {
 	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/speed",
 		linux_statspath, name);
-	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
 	if (value == NULL)
 	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
@@ -169,7 +174,6 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
     if (need_refresh[REFRESH_NET_MTU]) {
 	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/mtu",
 		linux_statspath, name);
-	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
 	if (value == NULL)
 	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
@@ -179,7 +183,6 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 	need_refresh[REFRESH_NET_RUNNING]) {
 	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/flags",
 		linux_statspath, name);
-	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
 	if (value == NULL)
 	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
@@ -192,14 +195,35 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
     if (need_refresh[REFRESH_NET_DUPLEX]) {
 	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/duplex",
 		linux_statspath, name);
-	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
-	if (value == NULL)
+	if (value == NULL) {
+	    if (access(dirname(path), F_OK) != 0)
+		return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
 	    netip->ioc.duplex = 0;
+	}
 	else if (strcmp(value, "half") == 0)
 	    netip->ioc.duplex = 1;
 	else if (strcmp(value, "full") == 0)
 	    netip->ioc.duplex = 2;
+	else
+	    netip->ioc.duplex = 0;
+    }
+    if (need_refresh[REFRESH_NET_WIRELESS]) {
+	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/wireless",
+		linux_statspath, name);
+	if (access(path, F_OK) == 0)
+	    netip->ioc.wireless = 1;
+	else if (access(dirname(path), F_OK) != 0)
+	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
+	netip->ioc.wireless = 0;
+    }
+    if (need_refresh[REFRESH_NET_TYPE]) {
+	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/type",
+		linux_statspath, name);
+	value = read_oneline(path, line);
+	if (value == NULL)
+	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
+	netip->ioc.type = atoi(value);
     }
     return 0;
 }
@@ -213,7 +237,6 @@ refresh_net_hw_addr(char *name, net_addr_t *netip)
 
     pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/address",
 		linux_statspath, name);
-    path[sizeof(path)-1] = '\0';
     value = read_oneline(path, line);
     if (value) {
 	netip->has_hw = 1;

@@ -1,0 +1,13 @@
+#pmlogconf-setup 2.0
+ident   KVM metrics from the Linux VM subsystem
+probe   mem.ksm.full_scans values ? include : exclude
+
+        mem.ksm.full_scans
+	mem.ksm.merge_across_nodes
+	mem.ksm.pages_shared
+	mem.ksm.pages_sharing
+	mem.ksm.pages_to_scan
+	mem.ksm.pages_unshared
+	mem.ksm.pages_volatile
+	mem.ksm.run_state
+	mem.ksm.sleep_time

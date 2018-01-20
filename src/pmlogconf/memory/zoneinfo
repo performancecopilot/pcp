@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+ident   zoneinfo metrics from the Linux VM subsystem
+probe   mem.zoneinfo.free values ? include : exclude
+
+        mem.zoneinfo.free
+	mem.zoneinfo.high
+	mem.zoneinfo.low
+	mem.zoneinfo.managed

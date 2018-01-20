@@ -9,7 +9,7 @@
 ** 
 ** Copyright (C) 2009-2010 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015,2018 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -22,19 +22,8 @@
 ** See the GNU General Public License for more details.
 */
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <signal.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <termio.h>
-#include <unistd.h>
-#include <stdarg.h>
+#include <pcp/pmapi.h>
+
 #ifdef HAVE_NCURSES_CURSES_H
 #include <ncurses/curses.h>
 #else
@@ -43,8 +32,6 @@
 #include <pwd.h>
 #include <grp.h>
 #include <regex.h>
-
-#include <pcp/pmapi.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -248,9 +235,9 @@ sys_printdef *netnetsyspdefs[] = {
 };
 sys_printdef *netintfsyspdefs[] = {
 	&syspdef_NETNAME,
-	&syspdef_NETSPEEDMAX,
 	&syspdef_NETPCKI,
 	&syspdef_NETPCKO,
+	&syspdef_NETSPEEDMAX,
 	&syspdef_NETSPEEDIN,
 	&syspdef_NETSPEEDOUT,
 	&syspdef_NETCOLLIS,
@@ -262,6 +249,7 @@ sys_printdef *netintfsyspdefs[] = {
 	&syspdef_BLANKBOX,
         0
 };
+
 
 /*
  * table with all proc_printdefs
@@ -296,6 +284,7 @@ proc_printdef *allprocpdefs[]=
 	&procprt_FSGID,
 	&procprt_CTID,
 	&procprt_VPID,
+	&procprt_CID,
 	&procprt_STDATE,
 	&procprt_STTIME,
 	&procprt_ENDATE,
@@ -328,10 +317,22 @@ proc_printdef *allprocpdefs[]=
 	&procprt_UDPSASZ,
 	&procprt_RNET,
 	&procprt_SNET,
-	&procprt_RNETBW,
-	&procprt_SNETBW,
+	&procprt_BANDWI,
+	&procprt_BANDWO,
 	&procprt_SORTITEM,
         0
+};
+
+/*
+ * table with all proc_printdefs with PID/TID width to be initialized
+ */
+proc_printdef *idprocpdefs[]= 
+{
+	&procprt_PID,
+	&procprt_TID,
+	&procprt_PPID,
+	&procprt_VPID,
+	0
 };
 
 
@@ -351,6 +352,7 @@ proc_printpair cmdprocs[MAXITEMS];
 proc_printpair ownprocs[MAXITEMS];
 proc_printpair totusers[MAXITEMS];
 proc_printpair totprocs[MAXITEMS];
+proc_printpair totconts[MAXITEMS];
 
 
 /*****************************************************************/
@@ -385,7 +387,7 @@ typedef struct {
 **         output: { { "ABCD", 3 }, {"EFG", 1},  { "QWE", 16}, { 0, 0 }  }
 */
 static void
-makeargv(char *line, const char *linename, name_prio *vec)
+makeargv(char *line, const char *linename, name_prio *vec) 
 {
         int   i=0;
         char *p=line;
@@ -494,6 +496,45 @@ make_sys_prints(sys_printpair *ar, int maxn, const char *pairs,
 }
 
 
+
+/*
+ * init_proc_prints: determine width of columns that are
+ *                   dependent of dynamic values 
+ */
+void 
+init_proc_prints()
+{
+	int 	i, numdigits = 5;
+	char	linebuf[64];
+
+	/*
+	** determine maximum number of digits for PID/TID
+	*/
+	if (pmsprintf(linebuf, sizeof linebuf, "%d", pidmax))
+		numdigits = strlen(linebuf);
+
+	/*
+	** fill number of digits for various PID/TID columns
+	** and reformat header to new width
+	*/
+	for (i=0; idprocpdefs[i] != 0; i++)
+	{
+		idprocpdefs[i]->width = numdigits;
+
+		if ( strlen(idprocpdefs[i]->head) < numdigits)
+		{
+			char *p = malloc(numdigits + 1);
+
+			ptrverify(p,
+			          "Malloc failed for formatted header\n",
+			          numdigits + 1);
+
+			sprintf(p, "%*s", numdigits, idprocpdefs[i]->head);
+			idprocpdefs[i]->head = p;
+		}
+	}
+}
+
 /*
  * make_proc_prints: make array of proc_printpairs
  * input: string, proc_printpair array, maxentries
@@ -587,10 +628,8 @@ totalcap(struct syscap *psc, struct sstat *sstat,
 ** calculate cumulative system- and user-time for all active processes
 */
 void
-pricumproc(struct sstat *sstat, struct tstat **proclist,
-           int nactproc, int ntask, int totproc,
-	   int totrun, int totslpi, int totslpu, int totzomb,
-           int nexit, unsigned int noverflow, int avgval, int nsecs)
+pricumproc(struct sstat *sstat, struct devtstat *devtstat,
+           int nexit, unsigned int noverflow, int avgval, double delta)
 {
 
         static int firsttime=1;
@@ -819,11 +858,11 @@ pricumproc(struct sstat *sstat, struct tstat **proclist,
                 {
                     make_sys_prints(netinterfaceline, MAXITEMS,
 	                "NETNAME:8 "
-	                "NETSPEEDMAX:5 "
 	                "BLANKBOX:0 "
 	                "NETPCKI:7 "
 	                "NETPCKO:7 "
 	                "BLANKBOX:0 "
+	                "NETSPEEDMAX:5 "
 	                "NETSPEEDIN:6 "
 	                "NETSPEEDOUT:6 "
 	                "BLANKBOX:0 "
@@ -841,23 +880,23 @@ pricumproc(struct sstat *sstat, struct tstat **proclist,
         extraparam extra;
 
 
-        for (i=0, extra.totut=extra.totst=0; i < nactproc; i++)
+        for (i=0, extra.totut=extra.totst=0; i < devtstat->nprocactive; i++)
         {
-		struct tstat *curstat = *(proclist+i);
+		struct tstat *curstat = *(devtstat->procactive+i);
 
                 extra.totut	+= curstat->cpu.utime;
                 extra.totst 	+= curstat->cpu.stime;
         }
 
-        extra.nproc	= totproc;
-	extra.ntrun	= totrun;
-	extra.ntslpi	= totslpi;
-	extra.ntslpu	= totslpu;
-        extra.nzomb	= totzomb;
+        extra.nproc	= devtstat->nprocall;
+	extra.ntrun	= devtstat->totrun;
+	extra.ntslpi	= devtstat->totslpi;
+	extra.ntslpu	= devtstat->totslpu;
+        extra.nzomb	= devtstat->totzombie;
         extra.nexit	= nexit;
         extra.noverflow	= noverflow;
         extra.avgval	= avgval;
-        extra.nsecs	= nsecs;
+        extra.nsecs	= (int)(delta > 1.0 ? delta : 1.0);
 
         move(1, 0);
         showsysline(sysprcline, sstat, &extra, "PRC", 0);
@@ -871,7 +910,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 							char autosort)
 {
         static int      firsttime=1;
-        static int      prev_supportflags = -1;;
+        static int      prev_supportflags = -1, prev_threadview = -1;
 
 	/*
  	** determine once the layout of all per-process reports
@@ -879,6 +918,8 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 	*/
         if (firsttime) 
         {
+		init_proc_prints();
+
                 make_proc_prints(memprocs, MAXITEMS, 
                         "PID:10 TID:3 MINFLT:2 MAJFLT:2 VSTEXT:4 VSLIBS:4 "
 			"VDATA:4 VSTACK:4 VSIZE:6 RSIZE:7 PSIZE:5 "
@@ -887,9 +928,9 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                         "built-in memprocs");
 
                 make_proc_prints(schedprocs, MAXITEMS, 
-                        "PID:10 TID:6 VPID:5 CTID:5 TRUN:7 TSLPI:7 TSLPU:7 "
-			"POLI:8 NICE:9 PRI:9 RTPR:9 CPUNR:8 ST:8 EXC:8 "
-                        "S:8 SORTITEM:10 CMD:10", 
+                        "PID:10 TID:6 CID:5 VPID:4 CTID:4 TRUN:7 TSLPI:7 "
+			"TSLPU:7 POLI:8 NICE:9 PRI:9 RTPR:9 CPUNR:8 ST:8 "
+			"EXC:8 S:8 SORTITEM:10 CMD:10", 
                         "built-in schedprocs");
 
                 make_proc_prints(dskprocs, MAXITEMS, 
@@ -902,12 +943,12 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                         "PID:10 TID:6 "
 			"TCPRCV:9 TCPRASZ:4 TCPSND:9 TCPSASZ:4 "
 			"UDPRCV:8 UDPRASZ:3 UDPSND:8 UDPSASZ:3 "
-			"RNETBW:10 SNETBW:10 "
+			"BANDWI:10 BANDWO:10 "
                         "SORTITEM:10 CMD:10", 
                         "built-in netprocs");
 
                 make_proc_prints(varprocs, MAXITEMS,
-                        "PID:10 TID:4 PPID:9 VPID:1 CTID:1 "
+                        "PID:10 TID:4 PPID:9 CID:2 VPID:1 CTID:1 "
 			"RUID:8 RGID:8 EUID:5 EGID:4 "
      			"SUID:3 SGID:2 FSUID:3 FSGID:2 "
                         "STDATE:7 STTIME:7 ENDATE:5 ENTIME:5 "
@@ -929,15 +970,23 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                         "RSIZE:8 PSIZE:8 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
 			"RNET:6 SNET:6 SORTITEM:10 CMD:10", 
                         "built-in totprocs");
+
+                make_proc_prints(totconts, MAXITEMS, 
+                        "NPROCS:10 SYSCPU:9 USRCPU:9 VSIZE:6 "
+                        "RSIZE:8 PSIZE:8 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
+			"RNET:6 SNET:6 SORTITEM:10 CID:10", 
+                        "built-in totconts");
         }
 
 	/*
  	** update the generic report if needed
 	*/
-	if (prev_supportflags != supportflags)
+	if (prev_supportflags != supportflags || prev_threadview != threadview)
 	{
 		make_proc_dynamicgen();
+
 		prev_supportflags = supportflags;
+		prev_threadview   = threadview;
 
 		if (*showtype == MPROCNET && !(supportflags&NETATOP) )
 		{
@@ -990,56 +1039,73 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
            case MCUMPROC:
                 showhdrline(totprocs, curlist, totlist, *showorder, autosort);
                 break;
+
+           case MCUMCONT:
+                showhdrline(totconts, curlist, totlist, *showorder, autosort);
+                break;
         }
 }
+
+/*
+** assemble the layout of the generic line,
+** depending on the supported features (like
+** I/O stats, network stats) and current view
+*/
+#define	FORMPID	"PID:10 "
+#define	FORMTID	"TID:6 "
+#define	FORMCID	"CID:5 "
+#define	FORMCPU	"SYSCPU:9 USRCPU:9 "
+#define FORMMEM	"VGROW:8 RGROW:8 "
+#define FORMDSK	"RDDSK:7 CWRDSK:7 "
+#define FORMNET	"RNET:6 SNET:6 "
+#define FORMMSC	"RUID:3 EUID:2 ST:4 EXC:4 THR:4 S:4 CPUNR:4 "
+#define FORMEND	"SORTITEM:10 CMD:10"
 
 static void
 make_proc_dynamicgen()
 {
-	if ( (supportflags & (IOSTAT|NETATOP)) == (IOSTAT|NETATOP)) 
+	char format[300], *p = format;
+
+	memcpy(p, FORMPID, sizeof FORMPID -1);
+	p += sizeof FORMPID -1;
+
+	if (threadview)
 	{
-		// iostat and netatop data is available
-		make_proc_prints(genprocs, MAXITEMS, 
-			"PID:10 TID:4 SYSCPU:9 USRCPU:9 "
-			"VGROW:8 RGROW:8 "
-			"RDDSK:7 CWRDSK:7 "
-			"RNET:6 SNET:6 S:5 "
-			"SORTITEM:10 CMD:10", 
-			"built-in genprocs");
+		memcpy(p, FORMTID, sizeof FORMTID -1);
+		p += sizeof FORMTID -1;
 	}
-	else if (supportflags & IOSTAT) 
+
+	if (supportflags & DOCKSTAT)
 	{
-		// only iostat data is available
-		make_proc_prints(genprocs, MAXITEMS, 
-			"PID:10 TID:4 RUID:3 EUID:2 THR:4 "
-			"SYSCPU:9 USRCPU:9 "
-			"VGROW:8 RGROW:8 "
-			"RDDSK:7 CWRDSK:7 "
-			"ST:6 EXC:6 S:6 "
-			"CPUNR:5 SORTITEM:10 CMD:10", 
-			"built-in genprocs");
-	} 
-	else if (supportflags & NETATOP) 
-	{
-		// only netatop data is available
-		make_proc_prints(genprocs, MAXITEMS, 
-			"PID:10 TID:4 SYSCPU:9 USRCPU:9 "
-			"VGROW:8 RGROW:8 "
-			"RNET:7 SNET:7 "
-			"ST:5 EXC:5 S:6 "
-			"CPUNR:5 SORTITEM:10 CMD:10", 
-			"built-in genprocs");
+		memcpy(p, FORMCID, sizeof FORMCID -1);
+		p += sizeof FORMCID -1;
 	}
-	else 
+
+	memcpy(p, FORMCPU, sizeof FORMCPU -1);
+	p += sizeof FORMCPU -1;
+
+	memcpy(p, FORMMEM, sizeof FORMMEM -1);
+	p += sizeof FORMMEM -1;
+
+	if (supportflags & IOSTAT)
 	{
-		// no optional data is available
-		make_proc_prints(genprocs, MAXITEMS, 
-			"PID:10 TID:4 SYSCPU:9 USRCPU:9 "
-			"VGROW:8 RGROW:8 RUID:4 EUID:3 "
-			"THR:7 ST:7 EXC:7 S:7 "
-			"SORTITEM:10 CMD:10", 
-			"built-in genprocs");
+		memcpy(p, FORMDSK, sizeof FORMDSK -1);
+		p += sizeof FORMDSK -1;
 	}
+
+	if (supportflags & NETATOP)
+	{
+		memcpy(p, FORMNET, sizeof FORMNET -1);
+		p += sizeof FORMNET -1;
+	}
+
+	memcpy(p, FORMMSC, sizeof FORMMSC -1);
+	p += sizeof FORMMSC -1;
+
+	memcpy(p, FORMEND, sizeof FORMEND);
+	p += sizeof FORMEND;
+
+	make_proc_prints(genprocs, MAXITEMS, format, "built-in genprocs");
 }
 
 /*
@@ -1189,6 +1255,10 @@ priproc(struct tstat **proclist, int firstproc, int lastproc, int curline,
 
                    case MCUMPROC:
                         showprocline(totprocs, curstat, perc, nsecs, avgval);
+                        break;
+
+                   case MCUMCONT:
+                        showprocline(totconts, curstat, perc, nsecs, avgval);
                         break;
                 }
 
@@ -1449,20 +1519,20 @@ prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
         ** NFS server and client statistics
         */
 	for (extra.index=0, lin=0;
-	     extra.index < sstat->nfs.nrmounts && lin < maxnfslines;
+	     extra.index < sstat->nfs.nfsmounts.nrmounts && lin < maxnfslines;
 								extra.index++)
 	{
 		int i = extra.index;
 
-		if ( (sstat->nfs.nfsmnt[i].bytesread     +
-		      sstat->nfs.nfsmnt[i].byteswrite    +
-		      sstat->nfs.nfsmnt[i].bytesdread    +
-		      sstat->nfs.nfsmnt[i].bytesdwrite   +
-		      sstat->nfs.nfsmnt[i].bytestotread  +
-		      sstat->nfs.nfsmnt[i].bytestotwrite +
-		      sstat->nfs.nfsmnt[i].pagesmread    +
-		      sstat->nfs.nfsmnt[i].pagesmwrite    ) ||
-		      sstat->nfs.nfsmnt[i].age < nsecs      ||
+		if ( (sstat->nfs.nfsmounts.nfsmnt[i].bytesread     +
+		      sstat->nfs.nfsmounts.nfsmnt[i].byteswrite    +
+		      sstat->nfs.nfsmounts.nfsmnt[i].bytesdread    +
+		      sstat->nfs.nfsmounts.nfsmnt[i].bytesdwrite   +
+		      sstat->nfs.nfsmounts.nfsmnt[i].bytestotread  +
+		      sstat->nfs.nfsmounts.nfsmnt[i].bytestotwrite +
+		      sstat->nfs.nfsmounts.nfsmnt[i].pagesmread    +
+		      sstat->nfs.nfsmounts.nfsmnt[i].pagesmwrite    ) ||
+		      sstat->nfs.nfsmounts.nfsmnt[i].age < nsecs      ||
 		      fixedhead                                         )
 		{
 			if (screen)
@@ -1595,7 +1665,7 @@ prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
         */
         if (sstat->www.accesses > 1 || fixedhead )
         {
-		char	format1[8], format2[8], format3[8], format4[8], format5[8];
+		char format1[8], format2[8], format3[8], format4[8], format5[8];
 
 		if (screen)
                		move(curline, 0);
@@ -1689,7 +1759,7 @@ compcpu(const void *a, const void *b)
 
         if (acpu < bcpu) return  1;
         if (acpu > bcpu) return -1;
-	return compmem(a, b);
+	else             return compmem(a, b);
 }
 
 int
@@ -1713,7 +1783,7 @@ compdsk(const void *a, const void *b)
 
         if (adsk < bdsk) return  1;
         if (adsk > bdsk) return -1;
-	return compcpu(a, b);
+	else             return compcpu(a, b);
 }
 
 int
@@ -1724,7 +1794,7 @@ compmem(const void *a, const void *b)
 
         if (amem < bmem) return  1;
         if (amem > bmem) return -1;
-	return  0;
+	else             return  0;
 }
 
 int
@@ -1741,7 +1811,7 @@ compnet(const void *a, const void *b)
 
         if (anet < bnet) return  1;
         if (anet > bnet) return -1;
-	return compcpu(a, b);
+	else             return compcpu(a, b);
 }
 
 int
@@ -1752,7 +1822,7 @@ compusr(const void *a, const void *b)
 
         if (uida > uidb) return  1;
         if (uida < uidb) return -1;
-	return  0;
+	else             return  0;
 }
 
 int
@@ -1765,6 +1835,15 @@ compnam(const void *a, const void *b)
 }
 
 int
+compcon(const void *a, const void *b)
+{
+        register char *containera = (*(struct tstat **)a)->gen.container;
+        register char *containerb = (*(struct tstat **)b)->gen.container;
+
+       return strcmp(containera, containerb);
+}
+
+int
 cpucompar(const void *a, const void *b)
 {
         register count_t aidle = ((struct percpu *)a)->itime +
@@ -1774,7 +1853,7 @@ cpucompar(const void *a, const void *b)
 
         if (aidle < bidle) return -1;
         if (aidle > bidle) return  1;
-	return  0;
+	else               return  0;
 }
 
 int
@@ -1785,7 +1864,7 @@ diskcompar(const void *a, const void *b)
 
         if (amsio < bmsio) return  1;
         if (amsio > bmsio) return -1;
-	return  0;
+	else               return  0;
 }
 
 int
@@ -1809,7 +1888,7 @@ intfcompar(const void *a, const void *b)
         if (aspeed)
         {
                 if (aduplex)
-                        afactor = (arbyte > asbyte ? arbyte : asbyte)
+                        afactor = (arbyte > asbyte ? arbyte : asbyte) 
                                                                 * 10 / aspeed;
                 else
                         afactor = (arbyte + asbyte)             * 10 / aspeed;
@@ -1834,14 +1913,14 @@ intfcompar(const void *a, const void *b)
         {
                 if (afactor < bfactor)  return  1;
                 if (afactor > bfactor)  return -1;
-		return  0;
+		else                    return  0;
         }
 
         if (!aspeed && !bspeed)
         {
                 if ((arbyte + asbyte) < (brbyte + bsbyte))      return  1;
                 if ((arbyte + asbyte) > (brbyte + bsbyte))      return -1;
-		return  0;
+		else                                            return  0;
         }
 
         if (aspeed)
@@ -1867,7 +1946,7 @@ nfsmcompar(const void *a, const void *b)
 
         if (aused < bused) return  1;
         if (aused > bused) return -1;
-	return  0;
+	else               return  0;
 }
 
 int
@@ -1881,7 +1960,7 @@ contcompar(const void *a, const void *b)
 
         if (aused < bused) return  1;
         if (aused > bused) return -1;
-	return  0;
+	else               return  0;
 }
 
 /*

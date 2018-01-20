@@ -1,4 +1,4 @@
 int 	parsedef(char *);
-char	parseout(double, double, struct sstat *, struct tstat *, struct tstat **,
-                 int, int, int, int, int, int, int, int,
+char	parseout(double, double,
+		 struct devtstat *, struct sstat *,
 	         int, unsigned int, int);

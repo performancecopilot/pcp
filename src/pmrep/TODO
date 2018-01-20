@@ -4,6 +4,14 @@
 
 -  add labels support [-m/-M]
 
+-  pmvis (or pmvisual) - report archive (or even live) metrics
+   visually as diagrams / histograms on text based terminals -
+   & pmrep style output with top-like (static) fields/columns.
+
+-  pmdiag (or pmdoctor) - inspect archives, report anomalies,
+   information, offer suggestions, send reports, build on top
+   of pmie/pmrep/pmlogsummary, allow using for automation.
+
 -  includedir config file support (?)
 -  copy directive conf file support (?)
 -  generalized zabbix_interval (write to target in batches) (?)

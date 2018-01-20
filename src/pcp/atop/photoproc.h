@@ -22,6 +22,7 @@
 
 #define	PNAMLEN		15
 #define	CMDLEN		255
+#define	CLEN		13
 
 /* 
 ** structure containing only relevant process-info extracted 
@@ -54,6 +55,10 @@ struct tstat {
 		int	nthrrun;	/* # threads in state 'R'       */
 		int	ctid;		/* OpenVZ container ID		*/
 		int	vpid;		/* OpenVZ virtual PID		*/
+
+		int	wasinactive;	/* boolean: task inactive       */
+
+		char	container[CLEN];/* Docker container id (12 pos) */
 	} gen;
 
 	/* CPU STATISTICS						*/
@@ -65,6 +70,7 @@ struct tstat {
 		int	rtprio;		/* realtime priority            */
 		int	policy;		/* scheduling policy            */
 		int	curcpu;		/* current processor            */
+		int	sleepavg;	/* sleep average percentage	*/
 	} cpu;
 
 	/* DISK STATISTICS						*/
@@ -115,6 +121,22 @@ struct pinfo {
 };
 
 /*
+** structure to maintains all deviation info related to one sample
+*/
+struct devtstat {
+	struct tstat	*taskall;
+	struct tstat	**procall;
+	struct tstat	**procactive;
+
+	unsigned long	ntaskall;
+	unsigned long	ntaskactive;
+	unsigned long	nprocall;
+	unsigned long	nprocactive;
+
+	unsigned long	totrun, totslpi, totslpu, totzombie;
+};
+
+/*
 ** prototypes of process-database functions
 */
 int		pdb_gettask(int, char, time_t, struct pinfo **);
@@ -127,9 +149,9 @@ int		pdb_srchresidue(struct tstat *, struct pinfo **);
 /*
 ** prototypes for raw process-statistics functions
 */
-int		deviattask(struct tstat *, int, struct tstat *, int, int,
-				struct tstat *, struct sstat *, unsigned int *,
-				int *, int *, int *, int *, int *);
+void		deviattask(struct tstat *, int,
+			   struct tstat *, int,
+			   struct devtstat *, struct sstat *);
 
 int		photoproc(struct tstat **, int *);
 unsigned int	countprocs(void);
