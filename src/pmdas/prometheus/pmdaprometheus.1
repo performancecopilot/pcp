@@ -144,7 +144,9 @@ will be exported as PCP metrics with the
 .I prometheus.FOO
 metric name prefix.
 Therefore, the FOO name must be a valid non-leaf name for PCP PMNS metric names.
-If the FOO name has multiple dot-separated components, the resulting
+If the
+.I FOO
+name has multiple dot-separated components, the resulting
 PMNS names will include those components and care is needed to ensure
 there are no overlapping definitions, e.g. metrics returned by
 .B foo.bar.url
@@ -160,6 +162,46 @@ will result in metrics being created (by fetching that source URL) below
 in the PCP namespace.
 Scripts found in subdirectories of the config directory similarly result in hirarchical
 PCP metric names.
+.SH "DYNAMIC METRIC NAMES"
+As described above, changes and new additions can be made to files in the configuration
+directory without having to restart the PMDA.
+These changes are detected automatically and the PCP metric names below
+.B prometheus
+in the PMNS will be updated accordingly, i.e. new metrics will be dynamically added and/or existing metrics removed.
+In addition, the
+.B prometheus
+PMDA honors the
+.B PMCD_NAMES_CHANGE
+protocol that was inntroduced in PCP version 4.0 and later.
+This protocol extension is only recognised by PCP version 4 clients.
+In particular, if
+.B prometheus
+metrics are being logged by a PCP v4.0 or later
+.BR pmlogger (1),
+new metrics that appear as a result of changes in the PMDA configuration directory
+will automatically start to be logged, provided the root of the
+.B prometheus
+PMDA namespace is configured for logging in the
+.B pmlogger
+configuration file.
+See
+.BR pmlogger (1)
+for details.
+An example of such a
+.B pmlogger
+configuration file is :
+.in 1i
+.ft CW
+.nf
+
+log mandatory on 2 second {
+	# log all metrics below the root of the prometheus namespace
+	prometheus
+}
+.in
+.fi
+.ft 1
+
 .SH LIMITATIONS
 .B pmdaprometheus
 and
@@ -211,6 +253,7 @@ configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pminfo (1),
+.BR pmlogger (1),
 .BR pmwebd (1),
 and
 .IR https://prometheus.io/docs/instrumenting/exposition_formats .

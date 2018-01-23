@@ -496,6 +496,11 @@ class Source(object):
                                 self.metrics_by_name[sp.name] = m
                                 self.metrics_by_num[metricnum] = m  # not pmid!
 
+                                # Set the PMNS change flag so clients (especially pmlogger) will be notified
+                                # synchronously (next fetch) that there has been a change to the PCP namespace.
+                                self.pmda.debug("set_notify_change flag for PMNS changes")
+                                self.pmda.set_notify_change()
+
                         m.store_inst(sp.labels,sp.value)
                 except Exception as e:
                         self.pmda.err("cannot parse/store %s: %s" % (line, e))
