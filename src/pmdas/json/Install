@@ -22,6 +22,13 @@ iam=json
 python_opt=true
 daemon_opt=false
 
+if [ ! -e "$PCP_TMP_DIR/json" ]
+then
+    echo "creating $PCP_TMP_DIR/json"
+    mkdir -p -m 1777 "$PCP_TMP_DIR/json"
+fi
+chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/json"
+
 pmdaSetup
 pmdaInstall
 exit
