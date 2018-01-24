@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2018 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -112,6 +113,8 @@ extern int _pmLogPut(__pmFILE *, __pmPDU *);
 extern pmUnits ntoh_pmUnits(pmUnits);
 #define ntoh_pmInDom(indom) ntohl(indom)
 #define ntoh_pmID(pmid) ntohl(pmid)
+#define ntoh_pmLabelType(ltype) ntohl(ltype)
+#define ntoh_pmTextType(ltype) ntohl(ltype)
 
 /* internal routines */
 extern void insertresult(rlist_t **, pmResult *);

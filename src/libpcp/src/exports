@@ -631,4 +631,6 @@ PCP_3.22 {
     __pmRecvLabel;
     __pmSendLabel;
     __pmSendLabelReq;
+    __pmLabelIdentString;
+    __pmLabelTypeString;
 } PCP_3.21;

@@ -1,7 +1,7 @@
 /*
  * pmlogextract - extract desired metrics from PCP archive logs
  *
- * Copyright (c) 2014,2017 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -286,8 +286,12 @@ static off_t	flushsize = 100000;		/* bytes before flush */
 
 /* archive control stuff */
 char			*outarchname = NULL;	/* name of output archive */
+#if 0 /* not used? */
 static __pmHashCtl	mdesc_hash;	/* pmids that have been written */
 static __pmHashCtl	mindom_hash;	/* indoms that have been written */
+static __pmHashCtl	mlabelset_hash;	/* label sets that have been written */
+static __pmHashCtl	mtext_hash;	/* text that have been written */
+#endif
 static __pmLogCtl	logctl;		/* output log control */
 static __pmArchCtl	archctl;	/* output archive control */
 inarch_t		*inarch;	/* input archive control(s) */
@@ -298,6 +302,8 @@ int			ilog;		/* index of earliest log */
 static reclist_t	*rlog;		/* log records to be written */
 static reclist_t	*rdesc;		/* meta desc records to be written */
 static reclist_t	*rindom;	/* meta indom records to be written */
+static reclist_t	*rtext;		/* meta text records to be written */
+static __pmHashCtl	rlabelset;	/* label sets to be written */
 
 static pmTimeval	curlog;		/* most recent timestamp in log */
 static pmTimeval	current;	/* most recent timestamp overall */
@@ -855,7 +861,180 @@ append_indomreclist(int i)
 }
 
 /*
- *  write out one desc/indom record
+ * Append a new record to the label set meta record hash
+ */
+void
+append_labelsetreclist(int i)
+{
+    inarch_t		*iap;
+    __pmHashNode	*hp;
+    __pmHashCtl		*hash2;
+    reclist_t		*rec;
+    int			sts;
+    int			type;
+    int			id;
+
+    iap = &inarch[i];
+
+    /* Initialize the new record. */
+    rec = mk_reclist_t();
+    rec->pdu = iap->pb[META];
+    rec->stamp.tv_sec = ntohl(rec->pdu[2]);
+    rec->stamp.tv_usec = ntohl(rec->pdu[3]);
+
+    /*
+     * Label sets are stored in a 2 level hash table. First hashed by type.
+     */
+    type = ntoh_pmLabelType(rec->pdu[4]);
+    if ((hp = __pmHashSearch(type, &rlabelset)) == NULL) {
+	/* This label type was not found. Create a hash table for it. */
+	if ((hash2 = (__pmHashCtl *) malloc(sizeof(*hash2))) == NULL) {
+	    fprintf(stderr, "%s: Error: cannot malloc space for hash table.\n",
+		    pmGetProgname());
+	    abandon_extract();
+	}
+	__pmHashInit(hash2);
+
+	sts = __pmHashAdd(type, (void *)hash2, &rlabelset);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Error: cannot add secondary hash table.\n",
+		    pmGetProgname());
+	    abandon_extract();
+	}
+    }
+    else
+	hash2 = (__pmHashCtl *)hp->data;
+
+    /*
+     * Add the new label set record, even if one with the same type and id
+     * already exists.
+     */
+    id = ntoh_pmID(iap->pb[META][5]);
+    sts = __pmHashAdd(id, (void *)rec, hash2);
+    if (sts < 0) {
+	fprintf(stderr, "%s: Error: cannot add label set record.\n",
+		pmGetProgname());
+	abandon_extract();
+    }
+
+    iap->pb[META] = NULL;
+}
+
+/*
+ *  append a new record to the text meta record list if not seen
+ *  before, else check the text meta record is the
+ *  same as the existing text record for this pmid/indom from this source
+ */
+void
+append_textreclist(int i)
+{
+    inarch_t	*iap;
+    reclist_t	*curr;
+    reclist_t	*prev;
+    int		type;
+    int		type_mask;
+    int		ident;
+    const char *str1, *str2;
+
+    iap = &inarch[i];
+    type = ntoh_pmTextType(iap->pb[META][2]);
+    if ((type & PM_TEXT_PMID))
+	ident = ntoh_pmID(iap->pb[META][3]);
+    else /* (type & PM_TEXT_INDOM) */
+	ident = ntoh_pmInDom(iap->pb[META][3]);
+
+    if (pmDebugOptions.appl1) {
+	fprintf(stderr, "update_textreclist: looking for ");
+	if ((type & PM_TEXT_PMID))
+	    fprintf(stderr, "(pmid:%s)", pmIDStr(ident));
+	else /* (type & PM_TEXT_INDOM) */
+	    fprintf(stderr, "(pmid:%s)", pmInDomStr(ident));
+	fprintf(stderr, "(type:%s)\n",
+		(type & PM_TEXT_ONELINE) ? "oneline" : "help");
+    }
+
+    /*
+     * Find matching record, if any. We want the record with the same
+     * target (pmid vs indom and class (one line vs help).
+     */
+    type_mask = PM_TEXT_PMID | PM_TEXT_INDOM | PM_TEXT_ONELINE | PM_TEXT_HELP;
+    for (prev = NULL, curr = rtext; curr != NULL; prev = curr, curr = curr->next) {
+	/* Same type of record? */
+	if ((curr->desc.type & type_mask) != (type & type_mask))
+	    continue;
+
+	/* Same target? */
+	if ((type & PM_TEXT_PMID)) {
+	    if (ident == curr->desc.pmid)
+		break; /* found it */
+	    continue;
+	}
+	if (ident == curr->desc.indom)
+	    break; /* found it */
+    }
+
+    /* Did we find an existing record? */
+    if (curr != NULL) {
+	/* We did. Check that the text is still the same */
+	if (pmDebugOptions.appl1) {
+	    fprintf(stderr, "update_textreclist: ");
+	    if ((type & PM_TEXT_PMID)) {
+		fprintf(stderr, "pmid match ");
+		printmetricnames(stderr, curr->pdu);
+		fputc('\n', stderr);
+	    }
+	    else { /* (type & PM_TEXT_INDOM) */
+		fprintf(stderr, "indom match %s\n",pmInDomStr(curr->desc.indom));
+	    }
+	}
+	str1 = (const char *)&curr->pdu[4];
+	str2 = (const char *)&iap->pb[META][4];
+	if (strcmp(str1, str2) != 0) {
+	    fprintf(stderr, "%s: Error: ", pmGetProgname());
+	    if ((type & PM_TEXT_PMID))
+		fprintf(stderr, "metric PMID %s", pmIDStr(curr->desc.pmid));
+	    else /* (type & PM_TEXT_INDOM) */
+		fprintf(stderr, "instance domain %s",pmInDomStr(curr->desc.indom));
+	    if ((type & PM_TEXT_ONELINE)) {
+		fprintf(stderr, " one line text changed from\n");
+		fprintf(stderr, "  \"%s\" to\n", str1);
+		fprintf(stderr, "  \"%s\"!\n", str2);
+	    }
+	    else { /* (type & PM_TEXT_HELP) */
+		/*
+		 * It's not practical to print the entire help text of each as
+		 * part of an error message.
+		 */
+		fprintf(stderr, " help text changed!\n");
+	    }
+	    abandon_extract();
+	}
+	/* not adding, so META: discard new record */
+	free(iap->pb[META]);
+	iap->pb[META] = NULL;
+	return;
+    }
+
+    /* No existing record found. Add the new record to the list. */
+    curr = mk_reclist_t();
+    if (prev == NULL)
+	rtext = curr;
+    else
+	prev->next = curr;
+
+    /* Populate the new record. */
+    curr->desc.type = type;
+    if ((type & PM_TEXT_PMID))
+	curr->desc.pmid = ident;
+    else
+	curr->desc.indom = ident;
+    curr->pdu = iap->pb[META];
+    curr->next = NULL;
+    iap->pb[META] = NULL;
+}
+
+/*
+ *  write out one desc/indom/label/text record
  */
 void
 write_rec(reclist_t *rec)
@@ -923,6 +1102,45 @@ write_rec(reclist_t *rec)
 		}
 		fputc('\n', stderr);
 	    }
+	    else if (type == TYPE_LABEL) {
+		pmTimeval	*tvp;
+		pmTimeval	when;
+		int		k = 2;
+		int		type;
+		int		ident;
+		char		buf[1024];
+
+		tvp = (pmTimeval *)&rec->pdu[k];
+		when.tv_sec = ntohl(tvp->tv_sec);
+		when.tv_usec = ntohl(tvp->tv_usec);
+		k += sizeof(pmTimeval)/sizeof(rec->pdu[0]);
+		type = ntoh_pmLabelType((unsigned int)rec->pdu[k++]);
+		ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
+		fprintf(stderr, "LABELSET: %s when: ",
+			__pmLabelIdentString(ident, type, buf, sizeof(buf)));
+		__pmPrintTimeval(stderr, &when);
+		fputc('\n', stderr);
+	    }
+	    else if (type == TYPE_TEXT) {
+		int		k = 2;
+		int		type;
+		int		ident;
+
+		type = ntoh_pmTextType((unsigned int)rec->pdu[k++]);
+		fprintf(stderr, "TEXT: type: %s ",
+			((type & PM_TEXT_ONELINE)) ? "oneline" : "help");
+		if ((type & PM_TEXT_PMID)) {
+		    ident = ntoh_pmID((unsigned int)rec->pdu[k++]);
+		    fprintf(stderr, "TEXT: PMID: %s", pmIDStr(ident));
+		}
+		else { /* (type & PM_TEXT_PMINDOM) */
+		    ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
+		    fprintf(stderr, "TEXT: INDOM: %s", pmInDomStr(ident));
+		}
+		if ((type & PM_TEXT_DIRECT))
+		    fprintf(stderr, " DIRECT");
+		fputc('\n', stderr);
+	    }
 	    else {
 		fprintf(stderr, "Botch: bad type\n");
 	    }
@@ -948,10 +1166,132 @@ write_rec(reclist_t *rec)
     }
 }
 
+/*
+ * Write out the label set record associated with this indom or pmid
+ * at the given time.
+ */
+static void
+write_priorlabelset(int type, int ident, const struct timeval *now)
+{
+    __pmHashNode	*hp;
+    reclist_t		*curr_labelset;	/* current labelset record */
+    reclist_t   	*other_labelset;/* other labelset record */
+
+    /* Find the label sets of this type. */
+    if ((hp = __pmHashSearch(type, &rlabelset)) == NULL) {
+	/* No label sets of this type. That's OK. */
+	return;
+    }
+
+    switch(type) {
+    case PM_LABEL_DOMAIN:
+	/* ident is the full pmid, but we only want the domain. */
+	ident = pmID_domain(ident);
+	break;
+    case PM_LABEL_CLUSTER:
+	/* ident is the full pmid, but we only want the domain and cluster. */
+	ident = pmID_build(pmID_domain(ident), pmID_cluster(ident), 0);
+	break;
+    default:
+	/* We can hash against the ident directly. */
+	break;
+    }
+
+    if ((hp = __pmHashSearch(ident, (__pmHashCtl *)hp->data)) == NULL) {
+	/* No label sets of this type with this ident. That's also OK. */
+	return;
+    }
+
+    /*
+     * There may be more than one record.
+     *	- we can safely ignore all labet sets after the current timestamp
+     *	- we want the latest label set at, or before the current timestamp
+     */
+    other_labelset = NULL;
+    curr_labelset = (reclist_t *)hp->data;
+    while (curr_labelset != NULL) {
+	if (curr_labelset->stamp.tv_sec < now->tv_sec ||
+	    (curr_labelset->stamp.tv_sec == now->tv_sec &&
+	     curr_labelset->stamp.tv_usec <= now->tv_usec)) {
+	    /*
+	     * labelset is in list, labelset has pdu
+	     * and timestamp in pdu suits us
+	     */
+	    if (other_labelset == NULL ||
+		other_labelset->stamp.tv_sec < curr_labelset->stamp.tv_sec ||
+		(other_labelset->stamp.tv_sec == curr_labelset->stamp.tv_sec &&
+		 other_labelset->stamp.tv_usec <= curr_labelset->stamp.tv_usec)){
+		/*
+		 * We already have a perfectly good labelset,
+		 * but curr_labelset has a better timestamp
+		 */
+		other_labelset = curr_labelset;
+	    }
+	}
+	curr_labelset = curr_labelset->next;
+    } /*while()*/
+
+    /* Write the chosen record, if it has not already been written. */
+    if (other_labelset != NULL && other_labelset->pdu != NULL &&
+	other_labelset->written != WRITTEN) {
+	other_labelset->written = MARK_FOR_WRITE;
+	other_labelset->pdu[2] = htonl(now->tv_sec);
+	other_labelset->pdu[3] = htonl(now->tv_usec);
+	write_rec(other_labelset);
+    }
+}
+
+/*
+ * Write out the text records associated with this indom or pmid.
+ */
+static void
+write_textreclist(int type, int ident)
+{
+    reclist_t	*curr;
+    int		found;
+
+    /*
+     * Search for text records of the given type associated with the
+     * given identifier. There are two classes of text records:
+     * PM_TEXT_ONELINE and PM_TEXT_HELP. We can therefore abandon the
+     * seach once we've found both.
+     */
+    found = 0;
+    for (curr = rtext; curr != NULL; curr = curr->next) {
+	/* Is it the same type? */
+	if (curr->desc.type != type)
+	    continue;
+
+	/* Is it the same target? */
+	if ((curr->desc.type & PM_TEXT_PMID)) {
+	    if (curr->desc.pmid != ident)
+		continue;
+	}
+	else { /* (curr->type & PM_TEXT_INDOM) */
+	    if (curr->desc.indom != ident)
+		continue;
+	}
+
+	/* We have a record of the same type with the same target.
+	 * Write it, if it has not already been written.
+	 */
+	if (curr->pdu != NULL && curr->written != WRITTEN) {
+	    curr->written = MARK_FOR_WRITE;
+	    write_rec(curr);
+	}
+
+	/* Have we found both classes of record? */
+	++found;
+	if (found >= 2)
+	    break;
+    }
+}
+
 void
 write_metareclist(pmResult *result, int *needti)
 {
     int			i;
+    int			write_indomtext;
     reclist_t		*curr_desc;	/* current desc record */
     reclist_t		*curr_indom;	/* current indom record */
     reclist_t   	*othr_indom;	/* other indom record */
@@ -1007,6 +1347,24 @@ write_metareclist(pmResult *result, int *needti)
 	    }
 	}
 
+	/* Write out the label set records associated with this pmid. */
+	write_priorlabelset(PM_LABEL_ITEM, pmid, this);
+	write_priorlabelset(PM_LABEL_DOMAIN, pmid, this);
+	write_priorlabelset(PM_LABEL_CLUSTER, pmid, this);
+
+	/*
+	 * While not strictly necessary for correctness, it makes testing
+	 * with pmdumplog(1) easier if we output the text records in the
+	 * same order in which they were originally found. The correct
+	 * order appears to be:
+	 *    PM_TEXT_PMID  | PM_TEXT_ONELINE
+	 *    PM_TEXT_INDOM | PM_TEXT_ONELINE
+	 *    PM_TEXT_PMID  | PM_TEXT_HELP
+	 *    PM_TEXT_INDOM | PM_TEXT_HELP
+	 * Write out any one line text records associated with this pmid.
+	 */
+	write_textreclist(PM_TEXT_PMID | PM_TEXT_ONELINE, pmid);
+	
 	/*
 	 * descriptor has been found and written,
 	 * now go and find & write the indom
@@ -1045,6 +1403,7 @@ write_metareclist(pmResult *result, int *needti)
 		curr_indom = curr_indom->next;
 	    } /*while()*/
 
+	    write_indomtext = 0;
 	    if (othr_indom != NULL && othr_indom->pdu != NULL && othr_indom->written != WRITTEN) {
 		othr_indom->written = MARK_FOR_WRITE;
 		othr_indom->pdu[2] = htonl(this->tv_sec);
@@ -1053,7 +1412,37 @@ write_metareclist(pmResult *result, int *needti)
 		/* make sure to set needti, when writing out the indom */
 		*needti = 1;
 		write_rec(othr_indom);
+
+		/*
+		 * While not strictly necessary for correctness, it makes testing
+		 * with pmdumplog(1) easier if we output the text records in the
+		 * same order in which they were originally found. The correct
+		 * order appears to be:
+		 *    PM_TEXT_PMID  | PM_TEXT_ONELINE
+		 *    PM_TEXT_INDOM | PM_TEXT_ONELINE
+		 *    PM_TEXT_PMID  | PM_TEXT_HELP
+		 *    PM_TEXT_INDOM | PM_TEXT_HELP
+		 *
+		 * PM_TEXT_PMID | PM_TEXT_ONELINE was written above.
+		 * Write out any one line text records associated with this
+		 * indom.
+		 */
+		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE,
+				  othr_indom->desc.indom);
+		write_indomtext = 1;
 	    }
+
+	    /*
+	     * Only possible PM_TEXT_PMID | PM_TEXT_HELP and
+	     * PM_TEXT_INDOM | PM_TEXT_HELP records remain to be written.
+	     */
+	    write_textreclist(PM_TEXT_PMID | PM_TEXT_HELP, pmid);
+	    if (write_indomtext)
+		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP, othr_indom->desc.indom);
+	    
+	    /* Write out the label set records associated with this indom. */
+	    write_priorlabelset(PM_LABEL_INDOM, othr_indom->desc.indom, this);
+	    write_priorlabelset(PM_LABEL_INSTANCES, othr_indom->desc.indom, this);
 	}
     } /*for(i)*/
 }
@@ -1165,7 +1554,7 @@ againmeta:
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
-
+	
 	type = ntohl(iap->pb[META][1]);
 
 	/*
@@ -1190,8 +1579,10 @@ againmeta:
 	    }
 
 	    if (want) {
+#if 0 /* not used? */
 		if (__pmHashSearch((int)pmid, &mdesc_hash) == NULL)
 		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
+#endif
 		/*
 		 * update the desc list (add first time, check on subsequent
 		 * sightings of desc for this pmid from this source
@@ -1223,10 +1614,12 @@ againmeta:
 	    }
 
 	    if (want) {
+#if 0 /* not used? */
 	        if (__pmHashSearch((int)indom, &mindom_hash) == NULL) {
 		    /* meta record has never been seen ... add it to the list */
 		    __pmHashAdd((int)indom, NULL, &mindom_hash);
 	        }
+#endif
 		/*
 		 * add to indom list 
 		 * append_indomreclist() sets pb[META] to NULL
@@ -1242,22 +1635,143 @@ againmeta:
 	    }
 	}
 	else if (type == TYPE_LABEL) {
-	    /* TODO: support label metadata extraction */
-	    if (pmDebugOptions.logmeta)
-		fprintf(stderr, "%s: Warning: %s\n",
-			pmGetProgname(), pmErrStr(PM_ERR_NOLABELS));
-	    free(iap->pb[META]);
-	    iap->pb[META] = NULL;
-	    goto againmeta;
+	    /* Decide which label sets we want to keep. */
+	    want = 0;
+	    if (ml == NULL) {
+		/* ml is not defined, then all metrics and indoms are being kept.
+		   Keep all label sets as well. */
+	        want = 1;
+	    }
+	    else {
+		type = ntoh_pmLabelType(iap->pb[META][4]);
+		switch (type) {
+		case PM_LABEL_CONTEXT:
+		    /*
+		     * Keep all label sets not associated with a specific metric
+		     * or indom. We can assume that any referenced indoms have
+		     * already been processed.
+		     */
+		    want = 1;
+		    break;
+		case PM_LABEL_DOMAIN:
+		    /*
+		     * Keep only the label sets whose metrics also being kept.
+		     */
+		    pmid = ntoh_pmID(iap->pb[META][5]);
+		    pmid = pmID_domain(pmid); /* Extract the domain */
+		    for (j=0; j<ml_numpmid; j++) {
+			if (pmid == pmID_domain(ml[j].idesc->pmid))
+			    want = 1;
+		    }
+		    break;
+		case PM_LABEL_CLUSTER:
+		    /*
+		     * Keep only the label sets whose metrics also being kept.
+		     */
+		    pmid = ntoh_pmID(iap->pb[META][5]);
+		    pmid = pmID_build(pmID_domain(pmid), pmID_cluster(pmid), 0);
+		    for (j=0; j<ml_numpmid; j++) {
+			if (pmid == pmID_build(pmID_domain(ml[j].idesc->pmid),
+					       pmID_cluster(ml[j].idesc->pmid), 0))
+			    want = 1;
+		    }
+		    break;
+		case PM_LABEL_ITEM:
+		    /*
+		     * Keep only the label sets whose metrics also being kept.
+		     */
+		    pmid = ntoh_pmID(iap->pb[META][5]);
+		    for (j=0; j<ml_numpmid; j++) {
+			if (pmid == ml[j].idesc->pmid)
+			    want = 1;
+		    }
+		    break;
+		case PM_LABEL_INDOM:
+		case PM_LABEL_INSTANCES:
+		    /*
+		     * Keep only the label sets whose instance domains are also being kept.
+		     * These are the domains of the metrics which are being kept.
+		     */
+		    indom = ntoh_pmInDom(iap->pb[META][5]);
+		    for (j=0; j<ml_numpmid; j++) {
+			if (indom == ml[j].idesc->indom)
+			    want = 1;
+		    }
+		    break;
+		default:
+		    fprintf(stderr, "%s: Error: invalid label set type: %d\n",
+			    pmGetProgname(), type);
+		    abandon_extract();
+		    break;
+		}
+	    }
+
+	    if (want) {
+		/*
+		 * Add to label set list.
+		 * append_labelsetreclist() sets pb[META] to NULL
+		 */
+		append_labelsetreclist(i);
+	    }
+	    else {
+	        /* META: don't want this meta */
+	        free(iap->pb[META]);
+	        iap->pb[META] = NULL;
+	        goto againmeta;
+	    }
 	}
 	else if (type == TYPE_TEXT) {
-	    /* TODO: support help text extraction */
-	    if (pmDebugOptions.logmeta)
-		fprintf(stderr, "%s: Warning: %s\n",
-			pmGetProgname(), pmErrStr(PM_ERR_TEXT));
-	    free(iap->pb[META]);
-	    iap->pb[META] = NULL;
-	    goto againmeta;
+	    /* Decide which text we want to keep. */
+	    want = 0;
+	    if (ml == NULL) {
+		/* ml is not defined, then all metrics and indoms are being kept.
+		   Keep all text as well. */
+	        want = 1;
+	    }
+	    else {
+		type = ntoh_pmTextType(iap->pb[META][2]);
+		if ((type & PM_TEXT_PMID)) {
+		    /*
+		     * Keep only the label sets whose metrics also being kept.
+		     */
+		    pmid = ntoh_pmID(iap->pb[META][3]);
+		    for (j=0; j<ml_numpmid; j++) {
+			if (pmid == ml[j].idesc->pmid)
+			    want = 1;
+		    }
+		}
+		else if ((type & PM_TEXT_INDOM)) {
+		    /*
+		     * Keep only the label sets whose instance domains are also being kept.
+		     * These are the domains of the metrics which are being kept.
+		     */
+		    indom = ntoh_pmInDom(iap->pb[META][3]);
+		    for (j=0; j<ml_numpmid; j++) {
+			if (indom == ml[j].idesc->indom)
+			    want = 1;
+		    }
+		}
+		else {
+		    fprintf(stderr, "%s: Error: invalid text type: %d\n",
+			    pmGetProgname(), type);
+		    abandon_extract();
+		    break;
+		}
+	    }
+
+	    if (want) {
+		/*
+		 * Add to text list.
+		 * append_textreclist() sets pb[META] to NULL
+		 */
+		append_textreclist(i);
+	    }
+	    else {
+	        /* META: don't want this meta */
+	        free(iap->pb[META]);
+	        iap->pb[META] = NULL;
+	        goto againmeta;
+	    }
 	}
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
@@ -1677,6 +2191,7 @@ writerlist(rlist_t **rlready, pmTimeval mintime)
     int		needti = 0;	/* need to flush/update */
     pmTimeval	titime  = {0,0};/* time of last temporal index write */
     pmTimeval	restime;	/* time of result */
+    struct timeval tstamp;	/* temporary time stamp */
     rlist_t	*elm;		/* element of rlready to be written out */
     __pmPDU	*pb;		/* pdu buffer */
     unsigned long	peek_offset;
@@ -1718,6 +2233,10 @@ fprintf(stderr, " break!\n");
 	if (pre_startwin)
 	    pre_startwin = 0;
 
+	/* We need to write out the relevant context labelsm if any. */
+	tstamp.tv_sec = mintime.tv_sec;
+	tstamp.tv_usec = mintime.tv_usec;
+	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, &tstamp);
 
 	/* convert log record to a pdu */
 	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
@@ -1914,7 +2433,9 @@ main(int argc, char **argv)
     rlog = NULL;	/* list of log records to write */
     rdesc = NULL;	/* list of meta desc records to write */
     rindom = NULL;	/* list of meta indom records to write */
+    rtext = NULL;	/* list of meta text records to write */
     rlready = NULL;
+    __pmHashInit(&rlabelset);	/* list of meta label set records to write */
 
     /*
      * These come from the PMCD PMDA and pmlogger's epilogue/prologue

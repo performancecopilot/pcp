@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -244,14 +244,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 		return -oserror();
 
 	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashlabels);
-	    if (sts > 0) {
-		/* __pmHashAdd returns 1 for success, but we want 0. */
-		sts = 0;
-	    }
+	    if (sts < 0)
+		return sts;
 	} else {
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	}
 
+	/* __pmHashAdd returns 1 for success, but we want 0. */
 	sts = __pmHashAdd(ident, (void *)idp, l_hashtype);
 	if (sts > 0)
 	    sts = 0;

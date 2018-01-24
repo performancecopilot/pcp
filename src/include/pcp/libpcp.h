@@ -7,7 +7,7 @@
  *	remain fixed across releases, and they may not work, or may
  *	provide different semantics at some point in the future.
  *
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -1297,6 +1297,8 @@ PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
 PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
 PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
+PCP_CALL extern char *__pmLabelIdentString(int, int, char *, size_t);
+PCP_CALL extern const char *__pmLabelTypeString(int);
 
 /* log file rotation */
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
