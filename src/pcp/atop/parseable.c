@@ -32,9 +32,9 @@ void 	print_PAG();
 void 	print_LVM();
 void 	print_MDD();
 void 	print_DSK();
-void	print_NFM();
-void	print_NFC();
-void	print_NFS();
+void 	print_NFM();
+void 	print_NFC();
+void 	print_NFS();
 void 	print_NET();
 
 void 	print_PRG();
@@ -155,9 +155,7 @@ parsedef(char *pd)
 */
 char
 parseout(double timed, double delta,
-	 struct sstat *ss, struct tstat *ts, struct tstat **proclist,
-	 int ndeviat, int ntask, int nactproc,
-         int totproc, int totrun, int totslpi, int totslpu, int totzomb,
+	 struct devtstat *devtstat, struct sstat *sstat,
 	 int nexit, unsigned int noverflow, int flags)
 {
 	register int	i;
@@ -192,7 +190,8 @@ parseout(double timed, double delta,
 			/*
 			** call a selected print-function
 			*/
-			(labeldef[i].prifunc)(header, ss, ts, ndeviat);
+			(labeldef[i].prifunc)(header, sstat,
+				devtstat->taskall, devtstat->ntaskall);
 		}
 	}
 
@@ -405,23 +404,41 @@ print_MDD(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 }
 
 void
+print_DSK(char *hp, struct sstat *ss, struct tstat *ps, int nact)
+{
+	register int	i;
+
+        for (i=0; ss->dsk.dsk[i].name[0]; i++)
+	{
+		printf(	"%s %s %lld %lld %lld %lld %lld\n",
+			hp,
+			ss->dsk.dsk[i].name,
+			ss->dsk.dsk[i].io_ms,
+			ss->dsk.dsk[i].nread,
+			ss->dsk.dsk[i].nrsect,
+			ss->dsk.dsk[i].nwrite,
+			ss->dsk.dsk[i].nwsect);
+	}
+}
+
+void
 print_NFM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
 	register int	i;
 
-        for (i=0; i < ss->nfs.nrmounts; i++)
+        for (i=0; i < ss->nfs.nfsmounts.nrmounts; i++)
 	{
 		printf("%s %s %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
-			ss->nfs.nfsmnt[i].mountdev,
-			ss->nfs.nfsmnt[i].bytestotread,
-			ss->nfs.nfsmnt[i].bytestotread,
-			ss->nfs.nfsmnt[i].bytesread,
-			ss->nfs.nfsmnt[i].byteswrite,
-			ss->nfs.nfsmnt[i].bytesdread,
-			ss->nfs.nfsmnt[i].bytesdwrite,
-			ss->nfs.nfsmnt[i].pagesmread,
-			ss->nfs.nfsmnt[i].pagesmwrite);
+			ss->nfs.nfsmounts.nfsmnt[i].mountdev,
+			ss->nfs.nfsmounts.nfsmnt[i].bytestotread,
+			ss->nfs.nfsmounts.nfsmnt[i].bytestotread,
+			ss->nfs.nfsmounts.nfsmnt[i].bytesread,
+			ss->nfs.nfsmounts.nfsmnt[i].byteswrite,
+			ss->nfs.nfsmounts.nfsmnt[i].bytesdread,
+			ss->nfs.nfsmounts.nfsmnt[i].bytesdwrite,
+			ss->nfs.nfsmounts.nfsmnt[i].pagesmread,
+			ss->nfs.nfsmounts.nfsmnt[i].pagesmwrite);
 	}
 }
 
@@ -458,24 +475,6 @@ print_NFS(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->nfs.server.rchits,
 			ss->nfs.server.rcmiss,
 			ss->nfs.server.rcnoca);
-}
-
-void
-print_DSK(char *hp, struct sstat *ss, struct tstat *ps, int nact)
-{
-	register int	i;
-
-        for (i=0; ss->dsk.dsk[i].name[0]; i++)
-	{
-		printf(	"%s %s %lld %lld %lld %lld %lld\n",
-			hp,
-			ss->dsk.dsk[i].name,
-			ss->dsk.dsk[i].io_ms,
-			ss->dsk.dsk[i].nread,
-			ss->dsk.dsk[i].nrsect,
-			ss->dsk.dsk[i].nwrite,
-			ss->dsk.dsk[i].nwsect);
-	}
 }
 
 void
@@ -526,32 +525,33 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 	for (i=0; i < nact; i++, ps++)
 	{
 		printf("%s %d (%s) %c %d %d %d %d %d %ld (%s) %d %d %d %d "
- 		       "%d %d %d %d %d %d %ld %c %d %d\n",
-				hp,
-				ps->gen.pid,
-				ps->gen.name,
-				ps->gen.state,
-				ps->gen.ruid,
-				ps->gen.rgid,
-				ps->gen.tgid,
-				ps->gen.nthr,
-				ps->gen.excode,
-				ps->gen.btime,
-				ps->gen.cmdline,
-				ps->gen.ppid,
-				ps->gen.nthrrun,
-				ps->gen.nthrslpi,
-				ps->gen.nthrslpu,
-				ps->gen.euid,
-				ps->gen.egid,
-				ps->gen.suid,
-				ps->gen.sgid,
-				ps->gen.fsuid,
-				ps->gen.fsgid,
-				ps->gen.elaps,
-				ps->gen.isproc ? 'y':'n',
-				ps->gen.vpid,
-				ps->gen.ctid);
+ 		       "%d %d %d %d %d %d %ld %c %d %d %s\n",
+			hp,
+			ps->gen.pid,
+			ps->gen.name,
+			ps->gen.state,
+			ps->gen.ruid,
+			ps->gen.rgid,
+			ps->gen.tgid,
+			ps->gen.nthr,
+			ps->gen.excode,
+			ps->gen.btime,
+			ps->gen.cmdline,
+			ps->gen.ppid,
+			ps->gen.nthrrun,
+			ps->gen.nthrslpi,
+			ps->gen.nthrslpu,
+			ps->gen.euid,
+			ps->gen.egid,
+			ps->gen.suid,
+			ps->gen.sgid,
+			ps->gen.fsuid,
+			ps->gen.fsgid,
+			ps->gen.elaps,
+			ps->gen.isproc ? 'y':'n',
+			ps->gen.vpid,
+			ps->gen.ctid,
+			ps->gen.container[0] ? ps->gen.container:"-");
 	}
 }
 
@@ -575,7 +575,7 @@ print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 				ps->cpu.rtprio,
 				ps->cpu.policy,
 				ps->cpu.curcpu,
-				0, /* ps->cpu.sleepavg - not in kernel now */
+				ps->cpu.sleepavg,
 				ps->gen.tgid,
 				ps->gen.isproc ? 'y':'n');
 	}

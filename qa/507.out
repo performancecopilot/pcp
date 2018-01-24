@@ -36,3 +36,13 @@ Performance Co-Pilot configuration on wobbly:
  pmlogger: primary logger: /var/adm/pcplog/wobbly/19981006.00.35
            wobbly.melbourne.sgi.com: /tmp/foo
      pmie: 0: 0
+=== Checking transient problem
+Performance Co-Pilot configuration on vm34:
+
+  archive: archives/tricky_4_507
+ platform: Linux vm34 4.14.10-1-ARCH #1 SMP PREEMPT Fri Dec 29 20:17:35 UTC 2017 x86_64
+ hardware: 2 cpus, 1 disk, 1 node, 992MB RAM
+ timezone: AEDT-11
+ services: pmcd
+     pmcd: Version 4.0.0-28, 10 agents, 1 client
+     pmda: root pmcd proc xfs sample sampledso linux mmv jbd2 simple

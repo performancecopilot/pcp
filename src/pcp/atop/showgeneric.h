@@ -44,6 +44,8 @@ struct pselection {
 	char	argname[64];
 	int	argnamesz;
 	regex_t	argregex;
+
+	char 	container[16];
 };
 
 struct sselection {
@@ -82,6 +84,7 @@ struct sselection {
 
 #define	MCUMUSER	'u'
 #define	MCUMPROC	'p'
+#define	MCUMCONT	'j'
 
 #define	MSORTCPU	'C'
 #define	MSORTDSK	'D'
@@ -99,6 +102,7 @@ struct sselection {
 
 #define	MSELUSER	'U'
 #define	MSELPROC	'P'
+#define	MSELCONT	'J'
 #define	MSELPID		'I'
 #define	MSELARG		'/'
 #define	MSELSYS		'S'
@@ -124,8 +128,8 @@ struct sselection {
 ** general function prototypes
 */
 void	totalcap   (struct syscap *, struct sstat *, struct tstat **, int);
-void	pricumproc (struct sstat *,  struct tstat **, int, int, int,
-			int, int, int, int, int, unsigned int, int, int);
+void	pricumproc (struct sstat *,  struct devtstat *,
+				int, unsigned int, int, double);
 
 void	showgenproc(struct tstat *, double, int, int);
 void	showmemproc(struct tstat *, double, int, int);

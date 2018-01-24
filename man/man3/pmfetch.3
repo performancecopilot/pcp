@@ -1,6 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012-2018 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -63,8 +64,7 @@ and
 .PP
 The principal result from
 .B pmFetch
-is returned in the
-argument
+is returned in the argument
 .I result
 as a tree, using the following component data structures;
 .PP
@@ -295,11 +295,15 @@ PMCD has noticed the termination of at least one PMDA.
 .IP \fBPMCD_AGENT_CHANGE\fR
 A convenience macro for any of the three PMDA changes.
 .IP \fBPMCD_LABEL_CHANGE\fR
-PMCD has been informed of changes to global (context) labels.
+PMCD has been informed of changes to global (context) labels,
+or new metrics have appeared which have associated labels.
+.IP \fBPMCD_NAMES_CHANGE\fR
+PMCD has been informed that the namespace has been modified,
+such that new metrics have appeared or existing metrics have
+been removed.
 .PP
-The default is to return zero to indicate
-no change in state, however
-the
+The default is to return zero to indicate no change in state,
+however the
 .CW pmResult
 returned by
 .B pmFetch

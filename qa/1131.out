@@ -702,6 +702,700 @@ QA output created by 1131
         "@metrics": [
           {
             "@interval": "0",
+            "@timestamp": "2016-02-10 14:39:13",
+            "hinv": {
+              "cpu": {
+                "bogomips": {
+                  "@instances": [
+                    {
+                      "name": "cpu0",
+                      "value": 5587.42
+                    }
+                  ]
+                },
+                "clock": {
+                  "@instances": [
+                    {
+                      "@unit": "count",
+                      "name": "cpu0",
+                      "value": 3029.031
+                    }
+                  ]
+                }
+              },
+              "machine": {
+                "value": "linux"
+              },
+              "ncpu": {
+                "value": 8
+              },
+              "nfilesys": {
+                "@unit": "count",
+                "value": 3
+              }
+            },
+            "kernel": {
+              "all": {
+                "hz": {
+                  "@unit": "count/s",
+                  "value": 100
+                },
+                "lastpid": {
+                  "value": 15707
+                },
+                "load": {
+                  "@instances": [
+                    {
+                      "name": "1 minute",
+                      "value": 0.09
+                    }
+                  ]
+                },
+                "uptime": {
+                  "@unit": "sec",
+                  "value": 507689
+                }
+              },
+              "uname": {
+                "sysname": {
+                  "value": "Linux"
+                }
+              }
+            },
+            "mem": {
+              "physmem": {
+                "@unit": "Kbyte",
+                "value": 16053852
+              },
+              "util": {
+                "used": {
+                  "@unit": "Kbyte",
+                  "value": 13573328
+                }
+              }
+            },
+            "network": {
+              "interface": {
+                "baudrate": {
+                  "@instances": [
+                    {
+                      "@unit": "byte/s",
+                      "name": "enp0s25",
+                      "value": 3168713760
+                    }
+                  ]
+                },
+                "speed": {
+                  "@instances": [
+                    {
+                      "@unit": "Mbyte/s",
+                      "name": "enp0s25",
+                      "value": 781261.938
+                    }
+                  ]
+                }
+              },
+              "tcpconn": {
+                "close": {
+                  "@unit": "count",
+                  "value": 0
+                }
+              }
+            },
+            "proc": {
+              "psinfo": {
+                "start_time": {
+                  "@instances": [
+                    {
+                      "@unit": "millisec",
+                      "name": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "@interval": "1",
+            "@timestamp": "2016-02-10 14:39:14",
+            "disk": {
+              "all": {
+                "read_bytes": {
+                  "@unit": "Kbyte/s",
+                  "value": 0.0
+                }
+              }
+            },
+            "hinv": {
+              "cpu": {
+                "bogomips": {
+                  "@instances": [
+                    {
+                      "name": "cpu0",
+                      "value": 5587.42
+                    }
+                  ]
+                },
+                "clock": {
+                  "@instances": [
+                    {
+                      "@unit": "count",
+                      "name": "cpu0",
+                      "value": 2723.437
+                    }
+                  ]
+                }
+              },
+              "machine": {
+                "value": "linux"
+              },
+              "ncpu": {
+                "value": 8
+              },
+              "nfilesys": {
+                "@unit": "count",
+                "value": 3
+              }
+            },
+            "kernel": {
+              "all": {
+                "hz": {
+                  "@unit": "count/s",
+                  "value": 100
+                },
+                "lastpid": {
+                  "value": 15707
+                },
+                "load": {
+                  "@instances": [
+                    {
+                      "name": "1 minute",
+                      "value": 0.09
+                    }
+                  ]
+                },
+                "sysfork": {
+                  "@unit": "count/s",
+                  "value": 0.0
+                },
+                "uptime": {
+                  "@unit": "sec",
+                  "value": 507690
+                }
+              },
+              "percpu": {
+                "cpu": {
+                  "user": {
+                    "@instances": [
+                      {
+                        "@unit": "ms/s",
+                        "name": "cpu0",
+                        "value": 0.0
+                      }
+                    ]
+                  }
+                }
+              },
+              "uname": {
+                "sysname": {
+                  "value": "Linux"
+                }
+              }
+            },
+            "mem": {
+              "physmem": {
+                "@unit": "Kbyte",
+                "value": 16053852
+              },
+              "util": {
+                "used": {
+                  "@unit": "Kbyte",
+                  "value": 13573380
+                }
+              }
+            },
+            "network": {
+              "interface": {
+                "baudrate": {
+                  "@instances": [
+                    {
+                      "@unit": "byte/s",
+                      "name": "enp0s25",
+                      "value": 3168713760
+                    }
+                  ]
+                },
+                "speed": {
+                  "@instances": [
+                    {
+                      "@unit": "Mbyte/s",
+                      "name": "enp0s25",
+                      "value": 781261.938
+                    }
+                  ]
+                }
+              },
+              "tcpconn": {
+                "close": {
+                  "@unit": "count",
+                  "value": 0
+                }
+              }
+            },
+            "proc": {
+              "psinfo": {
+                "start_time": {
+                  "@instances": [
+                    {
+                      "@unit": "millisec",
+                      "name": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "@interval": "1",
+            "@timestamp": "2016-02-10 14:39:15",
+            "disk": {
+              "all": {
+                "read_bytes": {
+                  "@unit": "Kbyte/s",
+                  "value": 0.0
+                }
+              }
+            },
+            "hinv": {
+              "cpu": {
+                "bogomips": {
+                  "@instances": [
+                    {
+                      "name": "cpu0",
+                      "value": 5587.42
+                    }
+                  ]
+                },
+                "clock": {
+                  "@instances": [
+                    {
+                      "@unit": "count",
+                      "name": "cpu0",
+                      "value": 2800.0
+                    }
+                  ]
+                }
+              },
+              "machine": {
+                "value": "linux"
+              },
+              "ncpu": {
+                "value": 8
+              },
+              "nfilesys": {
+                "@unit": "count",
+                "value": 3
+              }
+            },
+            "kernel": {
+              "all": {
+                "hz": {
+                  "@unit": "count/s",
+                  "value": 100
+                },
+                "lastpid": {
+                  "value": 15707
+                },
+                "load": {
+                  "@instances": [
+                    {
+                      "name": "1 minute",
+                      "value": 0.08
+                    }
+                  ]
+                },
+                "sysfork": {
+                  "@unit": "count/s",
+                  "value": 0.0
+                },
+                "uptime": {
+                  "@unit": "sec",
+                  "value": 507691
+                }
+              },
+              "percpu": {
+                "cpu": {
+                  "user": {
+                    "@instances": [
+                      {
+                        "@unit": "ms/s",
+                        "name": "cpu0",
+                        "value": 0.0
+                      }
+                    ]
+                  }
+                }
+              },
+              "uname": {
+                "sysname": {
+                  "value": "Linux"
+                }
+              }
+            },
+            "mem": {
+              "physmem": {
+                "@unit": "Kbyte",
+                "value": 16053852
+              },
+              "util": {
+                "used": {
+                  "@unit": "Kbyte",
+                  "value": 13573256
+                }
+              }
+            },
+            "network": {
+              "interface": {
+                "baudrate": {
+                  "@instances": [
+                    {
+                      "@unit": "byte/s",
+                      "name": "enp0s25",
+                      "value": 3168713760
+                    }
+                  ]
+                },
+                "speed": {
+                  "@instances": [
+                    {
+                      "@unit": "Mbyte/s",
+                      "name": "enp0s25",
+                      "value": 781261.938
+                    }
+                  ]
+                }
+              },
+              "tcpconn": {
+                "close": {
+                  "@unit": "count",
+                  "value": 0
+                }
+              }
+            },
+            "proc": {
+              "psinfo": {
+                "start_time": {
+                  "@instances": [
+                    {
+                      "@unit": "millisec",
+                      "name": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "@interval": "1",
+            "@timestamp": "2016-02-10 14:39:16",
+            "disk": {
+              "all": {
+                "read_bytes": {
+                  "@unit": "Kbyte/s",
+                  "value": 0.0
+                }
+              }
+            },
+            "hinv": {
+              "cpu": {
+                "bogomips": {
+                  "@instances": [
+                    {
+                      "name": "cpu0",
+                      "value": 5587.42
+                    }
+                  ]
+                },
+                "clock": {
+                  "@instances": [
+                    {
+                      "@unit": "count",
+                      "name": "cpu0",
+                      "value": 2800.0
+                    }
+                  ]
+                }
+              },
+              "machine": {
+                "value": "linux"
+              },
+              "ncpu": {
+                "value": 8
+              },
+              "nfilesys": {
+                "@unit": "count",
+                "value": 3
+              }
+            },
+            "kernel": {
+              "all": {
+                "hz": {
+                  "@unit": "count/s",
+                  "value": 100
+                },
+                "lastpid": {
+                  "value": 15708
+                },
+                "load": {
+                  "@instances": [
+                    {
+                      "name": "1 minute",
+                      "value": 0.08
+                    }
+                  ]
+                },
+                "sysfork": {
+                  "@unit": "count/s",
+                  "value": 1.0
+                },
+                "uptime": {
+                  "@unit": "sec",
+                  "value": 507692
+                }
+              },
+              "percpu": {
+                "cpu": {
+                  "user": {
+                    "@instances": [
+                      {
+                        "@unit": "ms/s",
+                        "name": "cpu0",
+                        "value": 9.999
+                      }
+                    ]
+                  }
+                }
+              },
+              "uname": {
+                "sysname": {
+                  "value": "Linux"
+                }
+              }
+            },
+            "mem": {
+              "physmem": {
+                "@unit": "Kbyte",
+                "value": 16053852
+              },
+              "util": {
+                "used": {
+                  "@unit": "Kbyte",
+                  "value": 13573256
+                }
+              }
+            },
+            "network": {
+              "interface": {
+                "baudrate": {
+                  "@instances": [
+                    {
+                      "@unit": "byte/s",
+                      "name": "enp0s25",
+                      "value": 3168713760
+                    }
+                  ]
+                },
+                "speed": {
+                  "@instances": [
+                    {
+                      "@unit": "Mbyte/s",
+                      "name": "enp0s25",
+                      "value": 781261.938
+                    }
+                  ]
+                }
+              },
+              "tcpconn": {
+                "close": {
+                  "@unit": "count",
+                  "value": 0
+                }
+              }
+            },
+            "proc": {
+              "psinfo": {
+                "start_time": {
+                  "@instances": [
+                    {
+                      "@unit": "millisec",
+                      "name": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "@interval": "1",
+            "@timestamp": "2016-02-10 14:39:17",
+            "disk": {
+              "all": {
+                "read_bytes": {
+                  "@unit": "Kbyte/s",
+                  "value": 0.0
+                }
+              }
+            },
+            "hinv": {
+              "cpu": {
+                "bogomips": {
+                  "@instances": [
+                    {
+                      "name": "cpu0",
+                      "value": 5587.42
+                    }
+                  ]
+                },
+                "clock": {
+                  "@instances": [
+                    {
+                      "@unit": "count",
+                      "name": "cpu0",
+                      "value": 2800.109
+                    }
+                  ]
+                }
+              },
+              "machine": {
+                "value": "linux"
+              },
+              "ncpu": {
+                "value": 8
+              },
+              "nfilesys": {
+                "@unit": "count",
+                "value": 3
+              }
+            },
+            "kernel": {
+              "all": {
+                "hz": {
+                  "@unit": "count/s",
+                  "value": 100
+                },
+                "lastpid": {
+                  "value": 15710
+                },
+                "load": {
+                  "@instances": [
+                    {
+                      "name": "1 minute",
+                      "value": 0.08
+                    }
+                  ]
+                },
+                "sysfork": {
+                  "@unit": "count/s",
+                  "value": 2.0
+                },
+                "uptime": {
+                  "@unit": "sec",
+                  "value": 507693
+                }
+              },
+              "percpu": {
+                "cpu": {
+                  "user": {
+                    "@instances": [
+                      {
+                        "@unit": "ms/s",
+                        "name": "cpu0",
+                        "value": 0.0
+                      }
+                    ]
+                  }
+                }
+              },
+              "uname": {
+                "sysname": {
+                  "value": "Linux"
+                }
+              }
+            },
+            "mem": {
+              "physmem": {
+                "@unit": "Kbyte",
+                "value": 16053852
+              },
+              "util": {
+                "used": {
+                  "@unit": "Kbyte",
+                  "value": 13573800
+                }
+              }
+            },
+            "network": {
+              "interface": {
+                "baudrate": {
+                  "@instances": [
+                    {
+                      "@unit": "byte/s",
+                      "name": "enp0s25",
+                      "value": 3168713760
+                    }
+                  ]
+                },
+                "speed": {
+                  "@instances": [
+                    {
+                      "@unit": "Mbyte/s",
+                      "name": "enp0s25",
+                      "value": 781261.938
+                    }
+                  ]
+                }
+              },
+              "tcpconn": {
+                "close": {
+                  "@unit": "count",
+                  "value": 0
+                }
+              }
+            },
+            "proc": {
+              "psinfo": {
+                "start_time": {
+                  "@instances": [
+                    {
+                      "@unit": "millisec",
+                      "name": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "@source": "ARCHIVE_PATH",
+        "@timezone": "UTC+11"
+      }
+    ]
+  }
+}
+---
+{
+  "@pcp": {
+    "@hosts": [
+      {
+        "@host": "slack",
+        "@metrics": [
+          {
+            "@interval": "0",
             "@timestamp": "2016-02-10 03:39:13",
             "hinv": {
               "cpu": {

@@ -200,21 +200,21 @@ pmID:		29.0.110 -> 1.2.3
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
-@@ -168,7 +168,7 @@
-                 inst [200 or "bin-200"] value 200
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
--              29.0.110 (sample.longlong.bin_ctr):
-+              1.2.3 (sample.longlong.bin_ctr):
-                 inst [100 or "bin-100"] value 100
-                 inst [200 or "bin-200"] value 200
-                 inst [300 or "bin-300"] value 300
-@@ -258,7 +258,7 @@
-                 inst [200 or "bin-200"] value 200
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
--              29.0.110 (sample.longlong.bin_ctr):
-+              1.2.3 (sample.longlong.bin_ctr):
-                 inst [100 or "bin-100"] value 100
-                 inst [200 or "bin-200"] value 200
-                 inst [300 or "bin-300"] value 300
+@@ -172,7 +172,7 @@
+         inst [200 or "bin-200"] value 200
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
+-    29.0.110 (sample.longlong.bin_ctr):
++    1.2.3 (sample.longlong.bin_ctr):
+         inst [100 or "bin-100"] value 100
+         inst [200 or "bin-200"] value 200
+         inst [300 or "bin-300"] value 300
+@@ -265,7 +265,7 @@
+         inst [200 or "bin-200"] value 200
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
+-    29.0.110 (sample.longlong.bin_ctr):
++    1.2.3 (sample.longlong.bin_ctr):
+         inst [100 or "bin-100"] value 100
+         inst [200 or "bin-200"] value 200
+         inst [300 or "bin-300"] value 300

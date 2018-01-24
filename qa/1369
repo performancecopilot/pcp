@@ -35,7 +35,7 @@ _filter_labels()
 	-e "s/.userid.:$userid/\"userid\":UID/g" \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e "s,pmda_sample.$DSO_SUFFIX ,pmda_sample.dso ,g" \
-	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/[TIMESTAMP]/' \
+	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/[TIMESTAMP]/' \
 	-e 's/Context labels ([0-9][0-9]* bytes)/Context labels (N bytes)/' \
 	-e '/.*name.* : value.*\[context]$/d' \
     #end

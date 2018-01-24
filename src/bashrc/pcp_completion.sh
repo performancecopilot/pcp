@@ -13,32 +13,32 @@ _pcp_complete()
     # Register arguments
     case $cmd in
     pcp2elasticsearch)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgXx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgXx]"
+        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgXx"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgXx]"
     ;;
     pcp2graphite)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgpXEx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
+        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgpXEx"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgpXEx]"
     ;;
     pcp2influxdb)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgxUEX"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgxUEX]"
+        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgxUEX"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgxUEX]"
     ;;
     pcp2json)
-        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFfXx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
+        all_args="ahLKcCeVHGASTOstRrZzrIijJ89nNvP0qQbByYFfxXE"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgFf]"
     ;;
     pcp2xlsx)
-        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFf"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
+        all_args="ahLKcCeVHGASTOstRrZzrIivP0qQbByYFf"
+        arg_regex="-[ahKceASTOstZiP0qQbByYgFf]"
     ;;
     pcp2xml)
-        all_args="0ahLKcCeVHGASTOstRrZzrIivPqbyQBYFfXx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgFf]"
+        all_args="ahLKcCeVHGASTOstRrZzrIijJ89nNvP0qQbByYFfXx"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgFf]"
     ;;
     pcp2zabbix)
-        all_args="0ahLKcCeVHGASTOstRrIivPqbyQBYgpXEx"
-        arg_regex="-[0ahKceASTOstZiPqbyQBYgpXEx]"
+        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgpXEx"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgpXEx]"
     ;;
     pmdumplog)
         all_args="adehiLlmnrSsTtVvxZz"
@@ -62,7 +62,7 @@ _pcp_complete()
     ;;
     pmlogextract)
         all_args="cdfmSsTvwZz"
-        arg_regex="-[cmSsTvZ]"
+        arg_regex="-[cSsTvZ]"
     ;;
     pmlogsummary)
         all_args="aBbFfHIilMmNnpSTVvxZz"
@@ -73,12 +73,12 @@ _pcp_complete()
         arg_regex="-[ahKnOZ]"
     ;;
     pmrep)
-        all_args="0AaBbCcdEeFfGgHhIiKkLlOoPpQqRrSsTtUuVvWwXxYyZz"
-        arg_regex="-[0ABabcEeFfhiKlOoPQqSsTtWwXYyZ]"
+        all_args="012389AaBbCcdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz"
+        arg_regex="-[089ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
     ;;
     pmstore)
-        all_args="fFhiKLnV"
-        arg_regex="-[FhiKn]"
+        all_args="FfhiKLnV"
+        arg_regex="-[hiKn]"
     ;;
     pmval)
         all_args="AadfghiKLnOprSsTtUvVwxZz"

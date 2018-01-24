@@ -2,51 +2,62 @@
 .\"
 .\" Copyright (C) 2016 Marko Myllynen <myllynen@redhat.com>
 .\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License as published by
-.\" the Free Software Foundation; either version 2 of the License, or
-.\" (at your option) any later version.
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
 .\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
 .\"
 .TH PMDALIBVIRT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdalibvirt\f1 \- libvirt PMDA
 .SH DESCRIPTION
-\f3pmdalibvirt\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
+\fBpmdalibvirt\fP is a Performance Metrics Domain Agent (PMDA) which
 extracts live performance data from libvirt hypervisor and domains (VMs).
 .PP
 See the libvirt documentation for detailed description of each metric.
 .PP
 .SH INSTALLATION
-\f3pmdalibvirt\f1 reads an optional ini-style configuration file
-.IP "\(bu" 4
-.I $PCP_PMDAS_DIR/libvirt/libvirt.conf
+\fBpmdalibvirt\fP reads an optional ini-style configuration file
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
+.I \f(CW$PCP_PMDAS_DIR\fP/libvirt/libvirt.conf
+.RE
+.PD
 .PP
-This file can contain in its \f3[pmda]\f1 section overriding values
+This file can contain in its \fB[pmda]\fP section overriding values
 for the following PMDA options:
-.IP "\(bu" 4
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
 user
-.IP "\(bu" 4
+.IP \(bu
 uri
-.IP "\(bu" 4
+.IP \(bu
 backing
-.IP "\(bu" 4
+.IP \(bu
 oldapi
+.RE
+.PD
 .PP
-By default, \f3root\f1, \f3qemu:///system\f1, \f3False\f1 and \f3False\f1
-are used as values, respectively.
+By default, \fBroot\fP, \fBqemu:///system\fP, \fBFalse\fP, and \fBFalse\fP
+are used as values for these options, respectively.
 .PP
 The backing setting can be used to expand block device information to
 cover backing chains with recent libvirt versions.
 .PP
 The old API setting can be used in environments where recent libvirt API
 additions are not available (e.g., RHEL 6 / libvirt-0.10.2) to provide
-some of the metrics available with the newer API. Regardless of the API
-version, no guest agent is needed for the metrics.
+some of the metrics available with the newer API.
+Regardless of the API version, no guest agent is needed for the metrics.
 .PP
 Note that using non-root user typically requires also libvirt side
 configuration; please refer to libvirt documentation for further details
@@ -54,40 +65,57 @@ on this.
 .PP
 Once the needed setup is ready, you can test the connection and install
 the PMDA to enable access to the names and values for the libvirt
-performance metrics. To install, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/libvirt
-.br
-      # ./connect
-.br
-      # ./Install
-.PP
+performance metrics.
+To install, do the following as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/libvirt
+# ./connect
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/libvirt
-.br
-      # ./Remove
-.PP
-\fBpmdalibvirt\fR is launched by \fIpmcd\fR(1) and should never be executed
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/libvirt
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdalibvirt\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The Install and Remove scripts notify \fBpmcd\fP(1) when the
 agent is installed or removed.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/libvirt/libvirt.conf\fR" 4
-configuration file for the \fBpmdalibvirt\fR agent
-.IP "\fB$PCP_PMDAS_DIR/libvirt/connect\fR" 4
-connection test helper using the \fBpmdalibvirt\fR agent configuration
-.IP "\fB$PCP_PMDAS_DIR/libvirt/Install\fR" 4
-installation script for the \fBpmdalibvirt\fR agent
-.IP "\fB$PCP_PMDAS_DIR/libvirt/Remove\fR" 4
-undo installation script for the \fBpmdalibvirt\fR agent
-.IP "\fB$PCP_LOG_DIR/pmcd/libvirt.log\fR" 4
-default log file for messages from the \fBpmdalibvirt\fR agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/libvirt/libvirt.conf
+configuration file for the \fBpmdalibvirt\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/libvirt/connect
+connection test helper using the \fBpmdalibvirt\fP agent configuration
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/libvirt/Install
+installation script for the \fBpmdalibvirt\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/libvirt/Remove
+undo installation script for the \fBpmdalibvirt\fP agent
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/libvirt.log
+default log file for messages from the \fBpmdalibvirt\fP agent
 .SH PCP ENVIRONMENT
-Environment variables with the prefix \fBPCP_\fR are used to parameterize
-the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables.
-The \fB$PCP_CONF\fR variable may be used to specify an alternative
-configuration file, as described in \fIpcp.conf\fR(5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

@@ -1,7 +1,7 @@
 /*
  * Linux /proc/sys/kernel metrics cluster
  *
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,8 @@
 
 #define ENTROPY_AVAILABLE "/proc/sys/kernel/random/entropy_avail"
 #define ENTROPY_POOLSIZE  "/proc/sys/kernel/random/poolsize"
+#define KERNEL_PID_MAX	"/proc/sys/kernel/pid_max"
+#define PID_MAX_LIMIT	(1<<22)
 
 int
 refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
@@ -26,8 +28,17 @@ refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
     char buf[MAXPATHLEN];
     FILE *eavail = NULL;
     FILE *poolsz = NULL;
+    FILE *pidmax;
 
     memset(proc_sys_kernel, 0, sizeof(proc_sys_kernel_t));
+
+    if ((pidmax = linux_statsfile(KERNEL_PID_MAX, buf, sizeof(buf))) == NULL)
+	proc_sys_kernel->pid_max = PID_MAX_LIMIT;
+    else {
+	if (fscanf(pidmax, "%u", &proc_sys_kernel->pid_max) != 1)
+	    proc_sys_kernel->pid_max = PID_MAX_LIMIT;
+	fclose(pidmax);
+    }
 
     if ((eavail = linux_statsfile(ENTROPY_AVAILABLE, buf, sizeof(buf))) == NULL ||
 	(poolsz = linux_statsfile(ENTROPY_POOLSIZE, buf, sizeof(buf))) == NULL) {

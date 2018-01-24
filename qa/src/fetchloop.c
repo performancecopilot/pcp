@@ -10,11 +10,9 @@
 #include <sys/times.h>
 #include <unistd.h>
 
-#define BUILD_STANDALONE
-
-char	**namelist = NULL;
-pmID	*pmidlist = NULL;
-int	numpmid = 0;
+static char	**namelist;
+static pmID	*pmidlist;
+static int	numpmid;
 
 static void
 dometric(const char *name)
@@ -38,6 +36,27 @@ dometric(const char *name)
     }
 }
 
+static void
+dumpstate(int flags)
+{
+    char	buffer[64];
+
+    sprintf(buffer, "PMCD state change(s): ");
+    if (flags & PMCD_AGENT_CHANGE)
+	strcat(buffer, "agent ");
+    if (flags & PMCD_LABEL_CHANGE)
+	strcat(buffer, "label ");
+    if (flags & PMCD_NAMES_CHANGE)
+	strcat(buffer, "names ");
+
+    if (flags)
+	buffer[strlen(buffer)-1] = '\0';
+    else
+	strcat(buffer, "none");
+
+    puts(buffer);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -47,8 +66,9 @@ main(int argc, char **argv)
     int		type = 0;
     char	*host = NULL;			/* pander to gcc */
     char 	*configfile = NULL;
-    char	*pmnsfile = PM_NS_DEFAULT;
     int		samples = 1000;
+    int		interval = 0;
+    int		verbose = 0;
     int		save_samples;
     char	*endnum;
     pmResult	*rp;
@@ -56,10 +76,9 @@ main(int argc, char **argv)
     clock_t	ticks;
     long	hz = sysconf(_SC_CLK_TCK);
 
-    /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "c:D:h:Ln:s:?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:Ln:s:t:v?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* configfile */
@@ -80,18 +99,15 @@ main(int argc, char **argv)
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
-#ifdef BUILD_STANDALONE
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmGetProgname());
 		errflag++;
 	    }
-#endif
 	    host = optarg;
 	    type = PM_CONTEXT_HOST;
 	    break;
 
-#ifdef BUILD_STANDALONE
-	case 'L':	/* LOCAL, no PMCD */
+	case 'L':	/* LOCAL context mode, not PMCD */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -h and -L allowed\n", pmGetProgname());
 		errflag++;
@@ -101,18 +117,25 @@ main(int argc, char **argv)
 	    putenv("PMDA_LOCAL_PROC=");		/* if proc PMDA needed */
 	    putenv("PMDA_LOCAL_SAMPLE=");	/* if sampledso PMDA needed */
 	    break;
-#endif
-
-	case 'n':	/* alternative name space file */
-	    pmnsfile = optarg;
-	    break;
 
 	case 's':	/* sample count */
 	    samples = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || samples < 0) {
+	    if (*endnum != '\0') {
 		fprintf(stderr, "%s: -s requires numeric argument\n", pmGetProgname());
 		errflag++;
 	    }
+	    break;
+
+	case 't':	/* sample delay */
+	    interval = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || interval < 0) {
+		fprintf(stderr, "%s: -t requires numeric argument\n", pmGetProgname());
+		errflag++;
+	    }
+	    break;
+
+	case 'v':	/* report collector state (change) on each fetch */
+	    verbose++;
 	    break;
 
 	case '?':
@@ -128,20 +151,12 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -c configfile  file to load configuration from\n\
-  -h host        metrics source is PMCD on host\n"
-#ifdef BUILD_STANDALONE
-"  -L             use local context instead of PMCD\n"
-#endif
-"  -n pmnsfile    use an alternative PMNS\n\
-  -s samples     terminate after this many samples [default 1000]\n",
-                pmGetProgname());
+  -h host        metrics source is PMCD on host\n\
+  -L             use local context instead of PMCD\n\
+  -s samples     terminate after this many samples [default 1000]\n\
+  -t interval    sleep for interval seconds samples [default 0]\n\
+  -v             verbose mode, report any state changes\n", pmGetProgname());
         exit(1);
-    }
-
-    if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
-	       pmnsfile, pmErrStr(sts));
-	exit(1);
     }
 
     if (type == 0) {
@@ -204,14 +219,20 @@ Options:\n\
 
     save_samples = samples;
     times(&then);
-    while (samples == -1 || samples-- > 0) {
+    while (samples < 0 || samples-- > 0) {
 	sts = pmFetch(numpmid, pmidlist, &rp);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	pmFreeResult(rp);
+	if (verbose)
+	    dumpstate(sts);
+	if (interval && samples != 0)
+	    sleep(interval);
     }
+    if (save_samples < 0)
+	return 0;
     times(&now);
     ticks = now.tms_utime - then.tms_utime + now.tms_stime - then.tms_stime;
     printf("pmFetch time: %d iterations, CPU time %.3f sec (%.1f usec / fetch)\n", save_samples, ((double)(ticks))/hz, 1000000*((double)(ticks))/(hz*save_samples));

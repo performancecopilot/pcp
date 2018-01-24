@@ -1901,38 +1901,55 @@ more:
 	     * no serial access, so need to make sure we are
 	     * starting in the correct place
 	     */
-	    int		tmp_mode;
+	    __pmLogSetTime(ctxp);
+	    ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
+	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_curvol;
+	    /*
+	     * we're in the approximate place (thanks to the temporal
+	     * index, now fine-tuning by backing up (opposite direction
+	     * to desired direction) until we're in the right place
+	     */
 	    nskip = 0;
-	    if (ctxp_mode == PM_MODE_FORW)
-		tmp_mode = PM_MODE_BACK;
-	    else
-		tmp_mode = PM_MODE_FORW;
-	    while (__pmLogRead_ctx(ctxp, tmp_mode, NULL, result, PMLOGREAD_NEXT) >= 0) {
+	    while (__pmLogRead_ctx(ctxp, ctxp_mode == PM_MODE_FORW ? PM_MODE_BACK : PM_MODE_FORW, NULL, result, PMLOGREAD_NEXT) >= 0) {
 		nskip++;
 		tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 		tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
-		if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
-		    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
+		if (ctxp_mode == PM_MODE_FORW && tdiff < 0) {
+		    /* too far ... next one forward is the one we need */
+		    pmFreeResult(*result);
+		    *result = NULL;
+		    break;
+		}
+		else if (ctxp_mode == PM_MODE_BACK && tdiff > 0) {
+		    /* too far ... next one back is the one we need */
 		    pmFreeResult(*result);
 		    *result = NULL;
 		    break;
 		}
 		else if (tdiff == 0) {
-		    /* exactly the one we wanted */
-		    found = 1;
+		    /*
+		     * exactly the one we wanted, but we're going in the
+		     * wrong direction, so we need to read this one again
+		     * in the right direction to avoid reading it twice
+		     * (once above and once the next time through here)
+		     */
+		    pmFreeResult(*result);
+		    *result = NULL;
 		    break;
 		}
+		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
+		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_curvol;
 		pmFreeResult(*result);
-		*result = NULL;
+		tmp.tv_sec = -1;
 	    }
 	    ctxp->c_archctl->ac_serial = 1;
 	    if (pmDebugOptions.log) {
 		if (nskip) {
 		    fprintf(stderr, "__pmLogFetch: ctx=%d skip reverse %d to ",
 			pmWhichContext(), nskip);
-		    if (*result  != NULL)
-			pmPrintStamp(stderr, &(*result)->timestamp);
+		    if (tmp.tv_sec != -1)
+			__pmPrintTimeval(stderr, &tmp);
 		    else
 			fprintf(stderr, "unknown time");
 		    fprintf(stderr, ", found=%d\n", found);
@@ -1945,8 +1962,6 @@ more:
 	    }
 	    nskip = 0;
 	}
-	if (found)
-	    break;
 	if ((sts = __pmLogRead_ctx(ctxp, ctxp->c_mode, NULL, result, PMLOGREAD_NEXT)) < 0)
 	    break;
 	tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;

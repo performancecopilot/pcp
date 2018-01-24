@@ -160,6 +160,7 @@ static dynproc_metric_t id_metrics[] = {
         { .name = "egid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=13 },
         { .name = "sgid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=14 },
         { .name = "fsgid_nm",   .cluster = CLUSTER_PID_STATUS,  .item=15 },
+        { .name = "container",  .cluster = CLUSTER_PID_CGROUP,  .item=1 },
 };
 
 static dynproc_metric_t memory_metrics[] = {
@@ -183,6 +184,8 @@ static dynproc_metric_t memory_metrics[] = {
 	{ .name = "vmpin",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPIN },
 	{ .name = "vmhwm",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMHWM },
 	{ .name = "vmpte",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPTE },
+	{ .name = "vmreal",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMREAL },
+	{ .name = "vmnonlib",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMNONLIB },
 };
 
 static dynproc_metric_t namespace_metrics[] = {

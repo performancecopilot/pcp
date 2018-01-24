@@ -18,13 +18,17 @@ pmlogger: Sample limit reached, exiting
 
 Log finished DATE
 
+TIMESTAMP 5 metrics
 
-TIMESTAMP  29.0.11 (sample.long.ten): value 10
-              29.0.10 (sample.long.one): value 1
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value 10
+    29.0.10 (sample.long.one): value 1
 
-TIMESTAMP  29.0.11 (sample.long.ten): value 10
-              29.0.10 (sample.long.one): value 1
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value 10
+    29.0.10 (sample.long.one): value 1
 
+TIMESTAMP 5 metrics
 
 Now with derived metrics defined ...
 
@@ -51,25 +55,30 @@ pmlogger: Sample limit reached, exiting
 
 Log finished DATE
 
+TIMESTAMP 5 metrics
 
-TIMESTAMP  511.2048.5 (sample.long.lots): value 999900
-              511.2048.4 (sample.long.ninety_nine): value 99
-              511.2048.3 (sample.long.nine): value 9
-              29.0.11 (sample.long.ten): value 10
-              29.0.10 (sample.long.one): value 1
+TIMESTAMP 5 metrics
+    511.2048.5 (sample.long.lots): value 999900
+    511.2048.4 (sample.long.ninety_nine): value 99
+    511.2048.3 (sample.long.nine): value 9
+    29.0.11 (sample.long.ten): value 10
+    29.0.10 (sample.long.one): value 1
 
-TIMESTAMP  511.2048.5 (sample.long.lots): value 999900
-              511.2048.4 (sample.long.ninety_nine): value 99
-              511.2048.3 (sample.long.nine): value 9
-              29.0.11 (sample.long.ten): value 10
-              29.0.10 (sample.long.one): value 1
+TIMESTAMP 5 metrics
+    511.2048.5 (sample.long.lots): value 999900
+    511.2048.4 (sample.long.ninety_nine): value 99
+    511.2048.3 (sample.long.nine): value 9
+    29.0.11 (sample.long.ten): value 10
+    29.0.10 (sample.long.one): value 1
 
-TIMESTAMP  511.2048.5 (sample.long.lots): value 999900
-              511.2048.4 (sample.long.ninety_nine): value 99
-              511.2048.3 (sample.long.nine): value 9
-              29.0.11 (sample.long.ten): value 10
-              29.0.10 (sample.long.one): value 1
+TIMESTAMP 5 metrics
+    511.2048.5 (sample.long.lots): value 999900
+    511.2048.4 (sample.long.ninety_nine): value 99
+    511.2048.3 (sample.long.nine): value 9
+    29.0.11 (sample.long.ten): value 10
+    29.0.10 (sample.long.one): value 1
 
+TIMESTAMP 5 metrics
 
 sample.long.one
     value 1

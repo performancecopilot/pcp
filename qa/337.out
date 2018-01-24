@@ -27,488 +27,504 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:47.240 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
+13:33:47.240183 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
 InDom: 29.3
-13:33:47.240 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 11 or "m-11"
-13:33:59.246 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 12 or "m-12"
-13:34:20.240 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 12 or "m-12"
-                 13 or "m-13"
-                 14 or "m-14"
+13:33:47.240183 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   11 or "m-11"
+13:33:59.246804 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   12 or "m-12"
+13:34:20.240151 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   12 or "m-12"
+   13 or "m-13"
+   14 or "m-14"
 InDom: 29.8
-13:33:47.240 5 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-13:33:53.239 8 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-13:33:56.240 11 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-                 9 or "i-9"
-                 10 or "i-10"
+13:33:47.240183 5 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+13:33:53.239873 8 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+13:33:56.240149 11 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+   9 or "i-9"
+   10 or "i-10"
 InDom: 2.1
-13:33:44.278 1 instances
-                 32221 or "32221"
+13:33:44.278486 1 instances
+   32221 or "32221"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+13:33:44.278486 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+    2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+    2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
 
-13:33:47.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 99
-                inst [4 or "m-04"] value 498
-                inst [9 or "m-09"] value 997
-                inst [10 or "m-10"] value 1096
-                inst [11 or "m-11"] value 1195
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:47.240183 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 99
+        inst [4 or "m-04"] value 498
+        inst [9 or "m-09"] value 997
+        inst [10 or "m-10"] value 1096
+        inst [11 or "m-11"] value 1195
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:50.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 94
-                inst [4 or "m-04"] value 493
-                inst [9 or "m-09"] value 992
-                inst [10 or "m-10"] value 1091
-                inst [11 or "m-11"] value 1190
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:50.240133 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 94
+        inst [4 or "m-04"] value 493
+        inst [9 or "m-09"] value 992
+        inst [10 or "m-10"] value 1091
+        inst [11 or "m-11"] value 1190
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:53.239  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 74
-                inst [4 or "m-04"] value 473
-                inst [9 or "m-09"] value 972
-                inst [10 or "m-10"] value 1071
-                inst [11 or "m-11"] value 1170
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:53.239873 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 74
+        inst [4 or "m-04"] value 473
+        inst [9 or "m-09"] value 972
+        inst [10 or "m-10"] value 1071
+        inst [11 or "m-11"] value 1170
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:56.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 54
-                inst [4 or "m-04"] value 453
-                inst [9 or "m-09"] value 952
-                inst [10 or "m-10"] value 1051
-                inst [11 or "m-11"] value 1150
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:56.240149 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 54
+        inst [4 or "m-04"] value 453
+        inst [9 or "m-09"] value 952
+        inst [10 or "m-10"] value 1051
+        inst [11 or "m-11"] value 1150
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:59.246  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 34
-                inst [4 or "m-04"] value 433
-                inst [9 or "m-09"] value 932
-                inst [10 or "m-10"] value 1031
-                inst [12 or "m-12"] value 1230
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:59.246804 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 34
+        inst [4 or "m-04"] value 433
+        inst [9 or "m-09"] value 932
+        inst [10 or "m-10"] value 1031
+        inst [12 or "m-12"] value 1230
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:02.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 24
-                inst [4 or "m-04"] value 423
-                inst [9 or "m-09"] value 922
-                inst [10 or "m-10"] value 1021
-                inst [12 or "m-12"] value 1220
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:02.240135 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 24
+        inst [4 or "m-04"] value 423
+        inst [9 or "m-09"] value 922
+        inst [10 or "m-10"] value 1021
+        inst [12 or "m-12"] value 1220
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:05.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 19
-                inst [4 or "m-04"] value 418
-                inst [9 or "m-09"] value 917
-                inst [10 or "m-10"] value 1016
-                inst [12 or "m-12"] value 1215
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:05.240135 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 19
+        inst [4 or "m-04"] value 418
+        inst [9 or "m-09"] value 917
+        inst [10 or "m-10"] value 1016
+        inst [12 or "m-12"] value 1215
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:08.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 14
-                inst [4 or "m-04"] value 413
-                inst [10 or "m-10"] value 1012
-                inst [12 or "m-12"] value 1211
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:08.240144 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 14
+        inst [4 or "m-04"] value 413
+        inst [10 or "m-10"] value 1012
+        inst [12 or "m-12"] value 1211
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:11.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 10
-                inst [4 or "m-04"] value 409
-                inst [10 or "m-10"] value 1008
-                inst [12 or "m-12"] value 1207
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:11.240044 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 10
+        inst [4 or "m-04"] value 409
+        inst [10 or "m-10"] value 1008
+        inst [12 or "m-12"] value 1207
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:14.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 6
-                inst [4 or "m-04"] value 405
-                inst [10 or "m-10"] value 1004
-                inst [12 or "m-12"] value 1203
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:14.240141 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 6
+        inst [4 or "m-04"] value 405
+        inst [10 or "m-10"] value 1004
+        inst [12 or "m-12"] value 1203
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:17.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 2
-                inst [4 or "m-04"] value 401
-                inst [10 or "m-10"] value 1100
-                inst [12 or "m-12"] value 1299
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:17.240135 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 2
+        inst [4 or "m-04"] value 401
+        inst [10 or "m-10"] value 1100
+        inst [12 or "m-12"] value 1299
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:20.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 98
-                inst [4 or "m-04"] value 497
-                inst [12 or "m-12"] value 1296
-                inst [13 or "m-13"] value 1395
-                inst [14 or "m-14"] value 1494
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:20.240151 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 98
+        inst [4 or "m-04"] value 497
+        inst [12 or "m-12"] value 1296
+        inst [13 or "m-13"] value 1395
+        inst [14 or "m-14"] value 1494
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:23.239  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 93
-                inst [4 or "m-04"] value 492
-                inst [12 or "m-12"] value 1291
-                inst [13 or "m-13"] value 1390
-                inst [14 or "m-14"] value 1489
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:23.239994 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 93
+        inst [4 or "m-04"] value 492
+        inst [12 or "m-12"] value 1291
+        inst [13 or "m-13"] value 1390
+        inst [14 or "m-14"] value 1489
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:26.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 88
-                inst [4 or "m-04"] value 487
-                inst [12 or "m-12"] value 1286
-                inst [13 or "m-13"] value 1385
-                inst [14 or "m-14"] value 1484
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:26.240139 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 88
+        inst [4 or "m-04"] value 487
+        inst [12 or "m-12"] value 1286
+        inst [13 or "m-13"] value 1385
+        inst [14 or "m-14"] value 1484
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:29.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 83
-                inst [4 or "m-04"] value 482
-                inst [12 or "m-12"] value 1281
-                inst [13 or "m-13"] value 1380
-                inst [14 or "m-14"] value 1479
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:29.240141 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 83
+        inst [4 or "m-04"] value 482
+        inst [12 or "m-12"] value 1281
+        inst [13 or "m-13"] value 1380
+        inst [14 or "m-14"] value 1479
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage
@@ -592,371 +608,382 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:50.622 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
+13:33:50.622527 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
 InDom: 29.3
-13:33:50.622 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 11 or "m-11"
-13:33:57.622 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 12 or "m-12"
+13:33:50.622527 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   11 or "m-11"
+13:33:57.622530 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   12 or "m-12"
 InDom: 29.8
-13:33:50.622 5 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-13:33:51.622 6 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-13:33:52.622 7 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-13:33:53.622 8 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-13:33:54.622 9 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-13:33:55.622 10 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-                 9 or "i-9"
-13:33:56.622 11 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-                 9 or "i-9"
-                 10 or "i-10"
+13:33:50.622527 5 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+13:33:51.622526 6 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+13:33:52.622521 7 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+13:33:53.622515 8 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+13:33:54.622336 9 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+13:33:55.622548 10 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+   9 or "i-9"
+13:33:56.622470 11 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+   9 or "i-9"
+   10 or "i-10"
 InDom: 2.1
-13:33:49.623 1 instances
-                 32224 or "32224"
+13:33:49.623143 1 instances
+   32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:49.623  2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
+13:33:49.623143 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
+    2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
 
-13:33:50.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 89
-                inst [4 or "m-04"] value 488
-                inst [9 or "m-09"] value 987
-                inst [10 or "m-10"] value 1086
-                inst [11 or "m-11"] value 1185
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:50.622527 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 89
+        inst [4 or "m-04"] value 488
+        inst [9 or "m-09"] value 987
+        inst [10 or "m-10"] value 1086
+        inst [11 or "m-11"] value 1185
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:51.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 84
-                inst [4 or "m-04"] value 483
-                inst [9 or "m-09"] value 982
-                inst [10 or "m-10"] value 1081
-                inst [11 or "m-11"] value 1180
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:51.622526 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 84
+        inst [4 or "m-04"] value 483
+        inst [9 or "m-09"] value 982
+        inst [10 or "m-10"] value 1081
+        inst [11 or "m-11"] value 1180
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:52.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 79
-                inst [4 or "m-04"] value 478
-                inst [9 or "m-09"] value 977
-                inst [10 or "m-10"] value 1076
-                inst [11 or "m-11"] value 1175
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:52.622521 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 79
+        inst [4 or "m-04"] value 478
+        inst [9 or "m-09"] value 977
+        inst [10 or "m-10"] value 1076
+        inst [11 or "m-11"] value 1175
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:53.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 69
-                inst [4 or "m-04"] value 468
-                inst [9 or "m-09"] value 967
-                inst [10 or "m-10"] value 1066
-                inst [11 or "m-11"] value 1165
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:53.622515 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 69
+        inst [4 or "m-04"] value 468
+        inst [9 or "m-09"] value 967
+        inst [10 or "m-10"] value 1066
+        inst [11 or "m-11"] value 1165
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:54.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 64
-                inst [4 or "m-04"] value 463
-                inst [9 or "m-09"] value 962
-                inst [10 or "m-10"] value 1061
-                inst [11 or "m-11"] value 1160
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:54.622336 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 64
+        inst [4 or "m-04"] value 463
+        inst [9 or "m-09"] value 962
+        inst [10 or "m-10"] value 1061
+        inst [11 or "m-11"] value 1160
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:55.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 59
-                inst [4 or "m-04"] value 458
-                inst [9 or "m-09"] value 957
-                inst [10 or "m-10"] value 1056
-                inst [11 or "m-11"] value 1155
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:55.622548 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 59
+        inst [4 or "m-04"] value 458
+        inst [9 or "m-09"] value 957
+        inst [10 or "m-10"] value 1056
+        inst [11 or "m-11"] value 1155
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:56.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 49
-                inst [4 or "m-04"] value 448
-                inst [9 or "m-09"] value 947
-                inst [10 or "m-10"] value 1046
-                inst [11 or "m-11"] value 1145
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:56.622470 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 49
+        inst [4 or "m-04"] value 448
+        inst [9 or "m-09"] value 947
+        inst [10 or "m-10"] value 1046
+        inst [11 or "m-11"] value 1145
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:57.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 44
-                inst [4 or "m-04"] value 443
-                inst [9 or "m-09"] value 942
-                inst [10 or "m-10"] value 1041
-                inst [12 or "m-12"] value 1240
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:57.622530 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 44
+        inst [4 or "m-04"] value 443
+        inst [9 or "m-09"] value 942
+        inst [10 or "m-10"] value 1041
+        inst [12 or "m-12"] value 1240
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:58.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 39
-                inst [4 or "m-04"] value 438
-                inst [9 or "m-09"] value 937
-                inst [10 or "m-10"] value 1036
-                inst [12 or "m-12"] value 1235
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:58.622527 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 39
+        inst [4 or "m-04"] value 438
+        inst [9 or "m-09"] value 937
+        inst [10 or "m-10"] value 1036
+        inst [12 or "m-12"] value 1235
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:59.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 29
-                inst [4 or "m-04"] value 428
-                inst [9 or "m-09"] value 927
-                inst [10 or "m-10"] value 1026
-                inst [12 or "m-12"] value 1225
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:59.622493 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 29
+        inst [4 or "m-04"] value 428
+        inst [9 or "m-09"] value 927
+        inst [10 or "m-10"] value 1026
+        inst [12 or "m-12"] value 1225
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage
@@ -1030,850 +1057,877 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:47.240 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
-13:33:50.622 9 instances
-                 100 or "bin-100"
-                 200 or "bin-200"
-                 300 or "bin-300"
-                 400 or "bin-400"
-                 500 or "bin-500"
-                 600 or "bin-600"
-                 700 or "bin-700"
-                 800 or "bin-800"
-                 900 or "bin-900"
+13:33:47.240183 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+13:33:50.622527 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
 InDom: 29.3
-13:33:47.240 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 11 or "m-11"
-13:33:50.622 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 11 or "m-11"
-13:33:57.622 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 12 or "m-12"
-13:33:59.246 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 9 or "m-09"
-                 10 or "m-10"
-                 12 or "m-12"
-13:34:20.240 5 instances
-                 0 or "m-00"
-                 4 or "m-04"
-                 12 or "m-12"
-                 13 or "m-13"
-                 14 or "m-14"
+13:33:47.240183 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   11 or "m-11"
+13:33:50.622527 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   11 or "m-11"
+13:33:57.622530 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   12 or "m-12"
+13:33:59.246804 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   9 or "m-09"
+   10 or "m-10"
+   12 or "m-12"
+13:34:20.240151 5 instances
+   0 or "m-00"
+   4 or "m-04"
+   12 or "m-12"
+   13 or "m-13"
+   14 or "m-14"
 InDom: 29.8
-13:33:47.240 5 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-13:33:50.622 5 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-13:33:51.622 6 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-13:33:52.622 7 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-13:33:53.239 8 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-13:33:53.622 8 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-13:33:54.622 9 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-13:33:55.622 10 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-                 9 or "i-9"
-13:33:56.240 11 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-                 9 or "i-9"
-                 10 or "i-10"
-13:33:56.622 11 instances
-                 0 or "i-0"
-                 1 or "i-1"
-                 2 or "i-2"
-                 3 or "i-3"
-                 4 or "i-4"
-                 5 or "i-5"
-                 6 or "i-6"
-                 7 or "i-7"
-                 8 or "i-8"
-                 9 or "i-9"
-                 10 or "i-10"
+13:33:47.240183 5 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+13:33:50.622527 5 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+13:33:51.622526 6 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+13:33:52.622521 7 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+13:33:53.239873 8 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+13:33:53.622515 8 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+13:33:54.622336 9 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+13:33:55.622548 10 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+   9 or "i-9"
+13:33:56.240149 11 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+   9 or "i-9"
+   10 or "i-10"
+13:33:56.622470 11 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+   8 or "i-8"
+   9 or "i-9"
+   10 or "i-10"
 InDom: 2.1
-13:33:44.278 1 instances
-                 32221 or "32221"
-13:33:49.623 1 instances
-                 32224 or "32224"
+13:33:44.278486 1 instances
+   32221 or "32221"
+13:33:49.623143 1 instances
+   32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
-              2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+13:33:44.278486 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+    2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+    2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
 
-13:33:47.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 99
-                inst [4 or "m-04"] value 498
-                inst [9 or "m-09"] value 997
-                inst [10 or "m-10"] value 1096
-                inst [11 or "m-11"] value 1195
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:47.240183 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 99
+        inst [4 or "m-04"] value 498
+        inst [9 or "m-09"] value 997
+        inst [10 or "m-10"] value 1096
+        inst [11 or "m-11"] value 1195
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:49.623  2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
-              2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
-              2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
+13:33:49.623143 3 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
+    2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
+    2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
 
-13:33:50.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 94
-                inst [4 or "m-04"] value 493
-                inst [9 or "m-09"] value 992
-                inst [10 or "m-10"] value 1091
-                inst [11 or "m-11"] value 1190
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:50.240133 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 94
+        inst [4 or "m-04"] value 493
+        inst [9 or "m-09"] value 992
+        inst [10 or "m-10"] value 1091
+        inst [11 or "m-11"] value 1190
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:50.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 89
-                inst [4 or "m-04"] value 488
-                inst [9 or "m-09"] value 987
-                inst [10 or "m-10"] value 1086
-                inst [11 or "m-11"] value 1185
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:50.622527 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 89
+        inst [4 or "m-04"] value 488
+        inst [9 or "m-09"] value 987
+        inst [10 or "m-10"] value 1086
+        inst [11 or "m-11"] value 1185
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:51.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 84
-                inst [4 or "m-04"] value 483
-                inst [9 or "m-09"] value 982
-                inst [10 or "m-10"] value 1081
-                inst [11 or "m-11"] value 1180
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:51.622526 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 84
+        inst [4 or "m-04"] value 483
+        inst [9 or "m-09"] value 982
+        inst [10 or "m-10"] value 1081
+        inst [11 or "m-11"] value 1180
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:52.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 79
-                inst [4 or "m-04"] value 478
-                inst [9 or "m-09"] value 977
-                inst [10 or "m-10"] value 1076
-                inst [11 or "m-11"] value 1175
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:52.622521 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 79
+        inst [4 or "m-04"] value 478
+        inst [9 or "m-09"] value 977
+        inst [10 or "m-10"] value 1076
+        inst [11 or "m-11"] value 1175
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:53.239  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 74
-                inst [4 or "m-04"] value 473
-                inst [9 or "m-09"] value 972
-                inst [10 or "m-10"] value 1071
-                inst [11 or "m-11"] value 1170
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:53.239873 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 74
+        inst [4 or "m-04"] value 473
+        inst [9 or "m-09"] value 972
+        inst [10 or "m-10"] value 1071
+        inst [11 or "m-11"] value 1170
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:53.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 69
-                inst [4 or "m-04"] value 468
-                inst [9 or "m-09"] value 967
-                inst [10 or "m-10"] value 1066
-                inst [11 or "m-11"] value 1165
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:53.622515 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 69
+        inst [4 or "m-04"] value 468
+        inst [9 or "m-09"] value 967
+        inst [10 or "m-10"] value 1066
+        inst [11 or "m-11"] value 1165
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:54.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 64
-                inst [4 or "m-04"] value 463
-                inst [9 or "m-09"] value 962
-                inst [10 or "m-10"] value 1061
-                inst [11 or "m-11"] value 1160
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:54.622336 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 64
+        inst [4 or "m-04"] value 463
+        inst [9 or "m-09"] value 962
+        inst [10 or "m-10"] value 1061
+        inst [11 or "m-11"] value 1160
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:55.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 59
-                inst [4 or "m-04"] value 458
-                inst [9 or "m-09"] value 957
-                inst [10 or "m-10"] value 1056
-                inst [11 or "m-11"] value 1155
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:55.622548 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 59
+        inst [4 or "m-04"] value 458
+        inst [9 or "m-09"] value 957
+        inst [10 or "m-10"] value 1056
+        inst [11 or "m-11"] value 1155
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:56.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 54
-                inst [4 or "m-04"] value 453
-                inst [9 or "m-09"] value 952
-                inst [10 or "m-10"] value 1051
-                inst [11 or "m-11"] value 1150
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:56.240149 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 54
+        inst [4 or "m-04"] value 453
+        inst [9 or "m-09"] value 952
+        inst [10 or "m-10"] value 1051
+        inst [11 or "m-11"] value 1150
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:56.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 49
-                inst [4 or "m-04"] value 448
-                inst [9 or "m-09"] value 947
-                inst [10 or "m-10"] value 1046
-                inst [11 or "m-11"] value 1145
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:56.622470 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 49
+        inst [4 or "m-04"] value 448
+        inst [9 or "m-09"] value 947
+        inst [10 or "m-10"] value 1046
+        inst [11 or "m-11"] value 1145
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:57.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 44
-                inst [4 or "m-04"] value 443
-                inst [9 or "m-09"] value 942
-                inst [10 or "m-10"] value 1041
-                inst [12 or "m-12"] value 1240
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:57.622530 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 44
+        inst [4 or "m-04"] value 443
+        inst [9 or "m-09"] value 942
+        inst [10 or "m-10"] value 1041
+        inst [12 or "m-12"] value 1240
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:58.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 39
-                inst [4 or "m-04"] value 438
-                inst [9 or "m-09"] value 937
-                inst [10 or "m-10"] value 1036
-                inst [12 or "m-12"] value 1235
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:58.622527 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 39
+        inst [4 or "m-04"] value 438
+        inst [9 or "m-09"] value 937
+        inst [10 or "m-10"] value 1036
+        inst [12 or "m-12"] value 1235
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:59.246  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 34
-                inst [4 or "m-04"] value 433
-                inst [9 or "m-09"] value 932
-                inst [10 or "m-10"] value 1031
-                inst [12 or "m-12"] value 1230
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:59.246804 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 34
+        inst [4 or "m-04"] value 433
+        inst [9 or "m-09"] value 932
+        inst [10 or "m-10"] value 1031
+        inst [12 or "m-12"] value 1230
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:59.622  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 29
-                inst [4 or "m-04"] value 428
-                inst [9 or "m-09"] value 927
-                inst [10 or "m-10"] value 1026
-                inst [12 or "m-12"] value 1225
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:33:59.622493 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 29
+        inst [4 or "m-04"] value 428
+        inst [9 or "m-09"] value 927
+        inst [10 or "m-10"] value 1026
+        inst [12 or "m-12"] value 1225
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:33:59.623  <mark>
+13:33:59.623493  <mark>
 
-13:34:02.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 24
-                inst [4 or "m-04"] value 423
-                inst [9 or "m-09"] value 922
-                inst [10 or "m-10"] value 1021
-                inst [12 or "m-12"] value 1220
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:02.240135 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 24
+        inst [4 or "m-04"] value 423
+        inst [9 or "m-09"] value 922
+        inst [10 or "m-10"] value 1021
+        inst [12 or "m-12"] value 1220
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:05.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 19
-                inst [4 or "m-04"] value 418
-                inst [9 or "m-09"] value 917
-                inst [10 or "m-10"] value 1016
-                inst [12 or "m-12"] value 1215
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:05.240135 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 19
+        inst [4 or "m-04"] value 418
+        inst [9 or "m-09"] value 917
+        inst [10 or "m-10"] value 1016
+        inst [12 or "m-12"] value 1215
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:08.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 14
-                inst [4 or "m-04"] value 413
-                inst [10 or "m-10"] value 1012
-                inst [12 or "m-12"] value 1211
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:08.240144 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 14
+        inst [4 or "m-04"] value 413
+        inst [10 or "m-10"] value 1012
+        inst [12 or "m-12"] value 1211
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:11.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 10
-                inst [4 or "m-04"] value 409
-                inst [10 or "m-10"] value 1008
-                inst [12 or "m-12"] value 1207
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:11.240044 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 10
+        inst [4 or "m-04"] value 409
+        inst [10 or "m-10"] value 1008
+        inst [12 or "m-12"] value 1207
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:14.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 6
-                inst [4 or "m-04"] value 405
-                inst [10 or "m-10"] value 1004
-                inst [12 or "m-12"] value 1203
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:14.240141 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 6
+        inst [4 or "m-04"] value 405
+        inst [10 or "m-10"] value 1004
+        inst [12 or "m-12"] value 1203
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:17.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 2
-                inst [4 or "m-04"] value 401
-                inst [10 or "m-10"] value 1100
-                inst [12 or "m-12"] value 1299
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:17.240135 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 2
+        inst [4 or "m-04"] value 401
+        inst [10 or "m-10"] value 1100
+        inst [12 or "m-12"] value 1299
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:20.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 98
-                inst [4 or "m-04"] value 497
-                inst [12 or "m-12"] value 1296
-                inst [13 or "m-13"] value 1395
-                inst [14 or "m-14"] value 1494
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:20.240151 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 98
+        inst [4 or "m-04"] value 497
+        inst [12 or "m-12"] value 1296
+        inst [13 or "m-13"] value 1395
+        inst [14 or "m-14"] value 1494
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:23.239  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 93
-                inst [4 or "m-04"] value 492
-                inst [12 or "m-12"] value 1291
-                inst [13 or "m-13"] value 1390
-                inst [14 or "m-14"] value 1489
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:23.239994 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 93
+        inst [4 or "m-04"] value 492
+        inst [12 or "m-12"] value 1291
+        inst [13 or "m-13"] value 1390
+        inst [14 or "m-14"] value 1489
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:26.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 88
-                inst [4 or "m-04"] value 487
-                inst [12 or "m-12"] value 1286
-                inst [13 or "m-13"] value 1385
-                inst [14 or "m-14"] value 1484
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:26.240139 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 88
+        inst [4 or "m-04"] value 487
+        inst [12 or "m-12"] value 1286
+        inst [13 or "m-13"] value 1385
+        inst [14 or "m-14"] value 1484
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-13:34:29.240  29.0.80 (sample.many.int):
-                inst [0 or "i-0"] value 0
-                inst [1 or "i-1"] value 1
-                inst [2 or "i-2"] value 2
-                inst [3 or "i-3"] value 3
-                inst [4 or "i-4"] value 4
-                inst [5 or "i-5"] value 5
-                inst [6 or "i-6"] value 6
-                inst [7 or "i-7"] value 7
-                inst [8 or "i-8"] value 8
-                inst [9 or "i-9"] value 9
-                inst [10 or "i-10"] value 10
-              29.0.37 (sample.mirage):
-                inst [0 or "m-00"] value 83
-                inst [4 or "m-04"] value 482
-                inst [12 or "m-12"] value 1281
-                inst [13 or "m-13"] value 1380
-                inst [14 or "m-14"] value 1479
-              29.0.6 (sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+13:34:29.240141 3 metrics
+    29.0.80 (sample.many.int):
+        inst [0 or "i-0"] value 0
+        inst [1 or "i-1"] value 1
+        inst [2 or "i-2"] value 2
+        inst [3 or "i-3"] value 3
+        inst [4 or "i-4"] value 4
+        inst [5 or "i-5"] value 5
+        inst [6 or "i-6"] value 6
+        inst [7 or "i-7"] value 7
+        inst [8 or "i-8"] value 8
+        inst [9 or "i-9"] value 9
+        inst [10 or "i-10"] value 10
+    29.0.37 (sample.mirage):
+        inst [0 or "m-00"] value 83
+        inst [4 or "m-04"] value 482
+        inst [12 or "m-12"] value 1281
+        inst [13 or "m-13"] value 1380
+        inst [14 or "m-14"] value 1479
+    29.0.6 (sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage

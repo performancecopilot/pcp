@@ -23,27 +23,30 @@ QA output created by 488
  PMID: 1.26.7 (hinv.ndisk)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
-@@ -39,17 +36,16 @@
-              Log Vol    end(meta)     end(log)
- 22:22:42.025       0          132          132
- 22:22:42.060       0          351          284
--23:22:42.011       0          450          344
--11:22:42.021       0          590         1784
-+23:22:42.011       0          401          324
-+11:22:42.021       0          541         1764
+@@ -39,8 +36,8 @@
+ 		Log Vol    end(meta)     end(log)
+ 22:22:42.025955	      0          132          132
+ 22:22:42.060877	      0          351          284
+-23:22:42.011766	      0          450          344
+-11:22:42.021829	      0          590         1784
++23:22:42.011766	      0          401          324
++11:22:42.021829	      0          541         1764
  
  [152 bytes]
- 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
+ 22:22:42.025955 3 metrics
+@@ -48,10 +45,9 @@
+     2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
+     2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
 -[60 bytes]
+-22:22:42.060877 2 metrics
 +[40 bytes]
- 22:22:42.060  1.26.7 (hinv.ndisk): value 2
--              1.18.2 (hinv.ncpu): value 1
++22:22:42.060877 1 metric
+     1.26.7 (hinv.ndisk): value 2
+-    1.18.2 (hinv.ncpu): value 1
  
  [40 bytes]
- 23:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+ 23:22:42.011766 1 metric
 
 === metric hinv.ncpu { delete } metric hinv.ndisk { delete } ===
 --- pmns diffs ---
@@ -72,27 +75,29 @@ QA output created by 488
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
      Semantics: instant  Units: none
-@@ -39,18 +33,14 @@
-              Log Vol    end(meta)     end(log)
- 22:22:42.025       0          132          132
- 22:22:42.060       0          351          284
--23:22:42.011       0          450          344
--11:22:42.021       0          590         1784
-+23:22:42.011       0          351          284
-+11:22:42.021       0          491         1724
+@@ -39,8 +33,8 @@
+ 		Log Vol    end(meta)     end(log)
+ 22:22:42.025955	      0          132          132
+ 22:22:42.060877	      0          351          284
+-23:22:42.011766	      0          450          344
+-11:22:42.021829	      0          590         1784
++23:22:42.011766	      0          351          284
++11:22:42.021829	      0          491         1724
  
  [152 bytes]
- 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
+ 22:22:42.025955 3 metrics
+@@ -48,11 +42,6 @@
+     2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
+     2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
 -[60 bytes]
--22:22:42.060  1.26.7 (hinv.ndisk): value 2
--              1.18.2 (hinv.ncpu): value 1
+-22:22:42.060877 2 metrics
+-    1.26.7 (hinv.ndisk): value 2
+-    1.18.2 (hinv.ncpu): value 1
 -
  [40 bytes]
- 23:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
- 
+ 23:22:42.011766 1 metric
+     1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
 === metric 1.*.* { delete } ===
 --- pmns diffs ---
@@ -111,9 +116,9 @@ QA output created by 488
 @@ -3,18 +3,9 @@
  Log Label (Log Format Version 2)
  Performance metrics from host rattle
-   commencing Sat May 17 22:22:42.025 1997
--  ending     Mon May 19 11:22:42.021 1997
-+  ending     Sat May 17 22:22:42.025 1997
+     commencing Sat May 17 22:22:42.025955 1997
+-    ending     Mon May 19 11:22:42.021829 1997
++    ending     Sat May 17 22:22:42.025955 1997
  
  Descriptions for Metrics in the Log ...
 -PMID: 1.18.3 (irix.kernel.all.load)
@@ -128,134 +133,173 @@ QA output created by 488
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
      Semantics: instant  Units: none
-@@ -39,125 +30,10 @@
-              Log Vol    end(meta)     end(log)
- 22:22:42.025       0          132          132
- 22:22:42.060       0          351          284
--23:22:42.011       0          450          344
--11:22:42.021       0          590         1784
-+23:22:42.011       0          351          284
-+11:22:42.021       0          431          284
+@@ -39,164 +30,11 @@
+ 		Log Vol    end(meta)     end(log)
+ 22:22:42.025955	      0          132          132
+ 22:22:42.060877	      0          351          284
+-23:22:42.011766	      0          450          344
+-11:22:42.021829	      0          590         1784
++23:22:42.011766	      0          351          284
++11:22:42.021829	      0          431          284
  
  [152 bytes]
- 22:22:42.025  2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
-               2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
+ 22:22:42.025955 3 metrics
+     2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
+     2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
+     2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
 -
 -[60 bytes]
--22:22:42.060  1.26.7 (hinv.ndisk): value 2
--              1.18.2 (hinv.ncpu): value 1
+-22:22:42.060877 2 metrics
+-    1.26.7 (hinv.ndisk): value 2
+-    1.18.2 (hinv.ncpu): value 1
 -
 -[40 bytes]
--23:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-23:22:42.011766 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--00:22:42.011  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-00:22:42.011769 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--01:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-01:22:42.021786 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--02:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-02:22:42.021860 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--03:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.013671875
+-03:22:42.021802 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.013671875
 -
 -[40 bytes]
--04:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01953125
+-04:22:42.021770 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01953125
 -
 -[40 bytes]
--05:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
+-05:22:42.021778 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--06:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
+-06:22:42.021821 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
 -
 -[40 bytes]
--07:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-07:22:42.021856 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--08:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-08:22:42.021800 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--09:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.043945312
+-09:22:42.021779 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.043945312
 -
 -[40 bytes]
--10:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.015625
+-10:22:42.021778 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.015625
 -
 -[40 bytes]
--11:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-11:22:42.021792 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--12:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-12:22:42.021765 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--13:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-13:22:42.021842 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--14:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-14:22:42.021790 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--15:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-15:22:42.021773 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--16:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
+-16:22:42.021805 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--17:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-17:22:42.021780 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--18:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-18:22:42.021791 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--19:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-19:22:42.021793 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--20:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.025390625
+-20:22:42.021801 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.025390625
 -
 -[40 bytes]
--21:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.0019531
+-21:22:42.021790 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.0019531
 -
 -[40 bytes]
--22:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
+-22:22:42.021803 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--23:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
+-23:22:42.021802 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--00:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
+-00:22:42.021807 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
 -
 -[40 bytes]
--01:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01171875
+-01:22:42.021768 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01171875
 -
 -[40 bytes]
--02:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.0087890625
+-02:22:42.021793 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.0087890625
 -
 -[40 bytes]
--03:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-03:22:42.021779 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--04:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
+-04:22:42.021751 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
 -
 -[40 bytes]
--05:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-05:22:42.021823 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--06:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.9785156
+-06:22:42.021848 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.9785156
 -
 -[40 bytes]
--07:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-07:22:42.021907 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--08:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-08:22:42.021884 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--09:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-09:22:42.021802 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--10:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
+-10:22:42.021782 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--11:22:42.021  1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.032226562
+-11:22:42.021829 1 metric
+-    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.032226562
 
 === metric 40.*.* { delete } metric 1.25.* { delete } ===
 --- pmns diffs ---
@@ -284,7 +328,7 @@ QA output created by 488
 --- TMP.in
 +++ TMP.out
 @@ -6,90 +6,60 @@
-   ending     Mon Oct 30 14:25:20.177 1995
+     ending     Mon Oct 30 14:25:20.177207 1995
  
  Descriptions for Metrics in the Log ...
 -PMID: 40.0.4 (40.0.4)
@@ -403,245 +447,245 @@ QA output created by 488
 @@ -116,18 +86,11 @@
  
  Temporal Index
-              Log Vol    end(meta)     end(log)
--14:25:09.043       0         1978          132
-+14:25:09.043       0          132          132
-+14:25:20.177       0         1477         3660
+ 		Log Vol    end(meta)     end(log)
+-14:25:09.043538	      0         1978          132
++14:25:09.043538	      0          132          132
++14:25:20.177207	      0         1477         3660
  
 -[724 bytes]
--14:25:09.043  40.0.8 (40.0.8): No values returned!
--              40.0.7 (40.0.7): No values returned!
--              40.0.5 (40.0.5): No values returned!
--              40.0.4 (40.0.4): No values returned!
--              40.0.3 (40.0.3): No values returned!
--              40.0.2 (40.0.2): No values returned!
--              40.0.1 (40.0.1): No values returned!
--              40.0.0 (40.0.0): No values returned!
--              1.80.7 (disk.dev.total):
+-14:25:09.043538 28 metrics
+-    40.0.8 (40.0.8): No values returned!
+-    40.0.7 (40.0.7): No values returned!
+-    40.0.5 (40.0.5): No values returned!
+-    40.0.4 (40.0.4): No values returned!
+-    40.0.3 (40.0.3): No values returned!
+-    40.0.2 (40.0.2): No values returned!
+-    40.0.1 (40.0.1): No values returned!
+-    40.0.0 (40.0.0): No values returned!
 +[588 bytes]
-+14:25:09.043  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705566
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -157,14 +120,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577309
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6701821
--                inst [2 or "lo0"] value 13162348
--                inst [3 or "sl0"] value 1142102
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53296083
--                inst [2 or "lo0"] value 13162348
--                inst [3 or "sl0"] value 38741
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.20703125
-                 inst [5 or "5 minute"] value 0.13867188
-@@ -184,16 +139,8 @@
-               1.10.7 (kernel.all.cpu.idle): value 4274422426
-               1.10.3 (kernel.all.pswitch): value 4563510
++14:25:09.043538 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705566
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -158,14 +121,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577309
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6701821
+-        inst [2 or "lo0"] value 13162348
+-        inst [3 or "sl0"] value 1142102
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53296083
+-        inst [2 or "lo0"] value 13162348
+-        inst [3 or "sl0"] value 38741
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.20703125
+         inst [5 or "5 minute"] value 0.13867188
+@@ -185,16 +140,8 @@
+     1.10.7 (kernel.all.cpu.idle): value 4274422426
+     1.10.3 (kernel.all.pswitch): value 4563510
  
 -[820 bytes]
--14:25:10.198  40.0.8 (40.0.8): value 817
--              40.0.7 (40.0.7): value 1917
--              40.0.5 (40.0.5): value 17
--              40.0.4 (40.0.4): value 15
--              40.0.3 (40.0.3): value 1
--              40.0.2 (40.0.2): value 96300
--              40.0.1 (40.0.1): value 26300
--              40.0.0 (40.0.0): value 1800
--              1.80.7 (disk.dev.total):
+-14:25:10.198847 28 metrics
+-    40.0.8 (40.0.8): value 817
+-    40.0.7 (40.0.7): value 1917
+-    40.0.5 (40.0.5): value 17
+-    40.0.4 (40.0.4): value 15
+-    40.0.3 (40.0.3): value 1
+-    40.0.2 (40.0.2): value 96300
+-    40.0.1 (40.0.1): value 26300
+-    40.0.0 (40.0.0): value 1800
 +[588 bytes]
-+14:25:10.198  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705566
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -223,14 +170,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577352
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6702789
--                inst [2 or "lo0"] value 13171330
--                inst [3 or "sl0"] value 1143484
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53302497
--                inst [2 or "lo0"] value 13171330
--                inst [3 or "sl0"] value 38767
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.32226562
-                 inst [5 or "5 minute"] value 0.1640625
-@@ -250,16 +189,8 @@
-               1.10.7 (kernel.all.cpu.idle): value 4274427856
-               1.10.3 (kernel.all.pswitch): value 4564200
++14:25:10.198847 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705566
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -225,14 +172,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577352
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6702789
+-        inst [2 or "lo0"] value 13171330
+-        inst [3 or "sl0"] value 1143484
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53302497
+-        inst [2 or "lo0"] value 13171330
+-        inst [3 or "sl0"] value 38767
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.32226562
+         inst [5 or "5 minute"] value 0.1640625
+@@ -252,16 +191,8 @@
+     1.10.7 (kernel.all.cpu.idle): value 4274427856
+     1.10.3 (kernel.all.pswitch): value 4564200
  
 -[820 bytes]
--14:25:12.206  40.0.8 (40.0.8): value 870
--              40.0.7 (40.0.7): value 1941
--              40.0.5 (40.0.5): value 23
--              40.0.4 (40.0.4): value 19
--              40.0.3 (40.0.3): value 2
--              40.0.2 (40.0.2): value 97400
--              40.0.1 (40.0.1): value 27100
--              40.0.0 (40.0.0): value 1900
--              1.80.7 (disk.dev.total):
+-14:25:12.206910 28 metrics
+-    40.0.8 (40.0.8): value 870
+-    40.0.7 (40.0.7): value 1941
+-    40.0.5 (40.0.5): value 23
+-    40.0.4 (40.0.4): value 19
+-    40.0.3 (40.0.3): value 2
+-    40.0.2 (40.0.2): value 97400
+-    40.0.1 (40.0.1): value 27100
+-    40.0.0 (40.0.0): value 1900
 +[588 bytes]
-+14:25:12.206  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705570
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -289,14 +220,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577376
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6705922
--                inst [2 or "lo0"] value 13174828
--                inst [3 or "sl0"] value 1144492
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53311220
--                inst [2 or "lo0"] value 13174828
--                inst [3 or "sl0"] value 38786
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.32226562
-                 inst [5 or "5 minute"] value 0.1640625
-@@ -316,16 +239,8 @@
-               1.10.7 (kernel.all.cpu.idle): value 4274432136
-               1.10.3 (kernel.all.pswitch): value 4564693
++14:25:12.206910 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705570
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -292,14 +223,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577376
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6705922
+-        inst [2 or "lo0"] value 13174828
+-        inst [3 or "sl0"] value 1144492
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53311220
+-        inst [2 or "lo0"] value 13174828
+-        inst [3 or "sl0"] value 38786
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.32226562
+         inst [5 or "5 minute"] value 0.1640625
+@@ -319,16 +242,8 @@
+     1.10.7 (kernel.all.cpu.idle): value 4274432136
+     1.10.3 (kernel.all.pswitch): value 4564693
  
 -[820 bytes]
--14:25:14.181  40.0.8 (40.0.8): value 870
--              40.0.7 (40.0.7): value 2124
--              40.0.5 (40.0.5): value 29
--              40.0.4 (40.0.4): value 23
--              40.0.3 (40.0.3): value 3
--              40.0.2 (40.0.2): value 97600
--              40.0.1 (40.0.1): value 28600
--              40.0.0 (40.0.0): value 2200
--              1.80.7 (disk.dev.total):
+-14:25:14.181366 28 metrics
+-    40.0.8 (40.0.8): value 870
+-    40.0.7 (40.0.7): value 2124
+-    40.0.5 (40.0.5): value 29
+-    40.0.4 (40.0.4): value 23
+-    40.0.3 (40.0.3): value 3
+-    40.0.2 (40.0.2): value 97600
+-    40.0.1 (40.0.1): value 28600
+-    40.0.0 (40.0.0): value 2200
 +[588 bytes]
-+14:25:14.181  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705571
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -355,14 +270,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577559
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6706042
--                inst [2 or "lo0"] value 13178281
--                inst [3 or "sl0"] value 1144507
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53311982
--                inst [2 or "lo0"] value 13178281
--                inst [3 or "sl0"] value 38791
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.36523438
-                 inst [5 or "5 minute"] value 0.17480469
-@@ -382,16 +289,8 @@
-               1.10.7 (kernel.all.cpu.idle): value 4274433496
-               1.10.3 (kernel.all.pswitch): value 4565347
++14:25:14.181366 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705571
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -359,14 +274,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577559
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6706042
+-        inst [2 or "lo0"] value 13178281
+-        inst [3 or "sl0"] value 1144507
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53311982
+-        inst [2 or "lo0"] value 13178281
+-        inst [3 or "sl0"] value 38791
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.36523438
+         inst [5 or "5 minute"] value 0.17480469
+@@ -386,16 +293,8 @@
+     1.10.7 (kernel.all.cpu.idle): value 4274433496
+     1.10.3 (kernel.all.pswitch): value 4565347
  
 -[820 bytes]
--14:25:16.183  40.0.8 (40.0.8): value 873
--              40.0.7 (40.0.7): value 2312
--              40.0.5 (40.0.5): value 30
--              40.0.4 (40.0.4): value 25
--              40.0.3 (40.0.3): value 3
--              40.0.2 (40.0.2): value 97600
--              40.0.1 (40.0.1): value 30500
--              40.0.0 (40.0.0): value 2300
--              1.80.7 (disk.dev.total):
+-14:25:16.183338 28 metrics
+-    40.0.8 (40.0.8): value 873
+-    40.0.7 (40.0.7): value 2312
+-    40.0.5 (40.0.5): value 30
+-    40.0.4 (40.0.4): value 25
+-    40.0.3 (40.0.3): value 3
+-    40.0.2 (40.0.2): value 97600
+-    40.0.1 (40.0.1): value 30500
+-    40.0.0 (40.0.0): value 2300
 +[588 bytes]
-+14:25:16.183  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705571
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -421,14 +320,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577747
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6706282
--                inst [2 or "lo0"] value 13180515
--                inst [3 or "sl0"] value 1144507
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53314246
--                inst [2 or "lo0"] value 13180515
--                inst [3 or "sl0"] value 38843
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.36523438
-                 inst [5 or "5 minute"] value 0.17480469
-@@ -448,16 +339,8 @@
-               1.10.7 (kernel.all.cpu.idle): value 4274434256
-               1.10.3 (kernel.all.pswitch): value 4566026
++14:25:16.183338 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705571
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -426,14 +325,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577747
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6706282
+-        inst [2 or "lo0"] value 13180515
+-        inst [3 or "sl0"] value 1144507
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53314246
+-        inst [2 or "lo0"] value 13180515
+-        inst [3 or "sl0"] value 38843
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.36523438
+         inst [5 or "5 minute"] value 0.17480469
+@@ -453,16 +344,8 @@
+     1.10.7 (kernel.all.cpu.idle): value 4274434256
+     1.10.3 (kernel.all.pswitch): value 4566026
  
 -[820 bytes]
--14:25:18.175  40.0.8 (40.0.8): value 907
--              40.0.7 (40.0.7): value 2378
--              40.0.5 (40.0.5): value 39
--              40.0.4 (40.0.4): value 43
--              40.0.3 (40.0.3): value 3
--              40.0.2 (40.0.2): value 97800
--              40.0.1 (40.0.1): value 32200
--              40.0.0 (40.0.0): value 2400
--              1.80.7 (disk.dev.total):
+-14:25:18.175695 28 metrics
+-    40.0.8 (40.0.8): value 907
+-    40.0.7 (40.0.7): value 2378
+-    40.0.5 (40.0.5): value 39
+-    40.0.4 (40.0.4): value 43
+-    40.0.3 (40.0.3): value 3
+-    40.0.2 (40.0.2): value 97800
+-    40.0.1 (40.0.1): value 32200
+-    40.0.0 (40.0.0): value 2400
 +[588 bytes]
-+14:25:18.175  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705571
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -487,14 +370,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577813
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6706368
--                inst [2 or "lo0"] value 13191160
--                inst [3 or "sl0"] value 1150091
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53314246
--                inst [2 or "lo0"] value 13191160
--                inst [3 or "sl0"] value 38843
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.46972656
-                 inst [5 or "5 minute"] value 0.19921875
-@@ -514,16 +389,8 @@
-               1.10.7 (kernel.all.cpu.idle): value 4274436636
-               1.10.3 (kernel.all.pswitch): value 4566488
++14:25:18.175695 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705571
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -493,14 +376,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577813
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6706368
+-        inst [2 or "lo0"] value 13191160
+-        inst [3 or "sl0"] value 1150091
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53314246
+-        inst [2 or "lo0"] value 13191160
+-        inst [3 or "sl0"] value 38843
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.46972656
+         inst [5 or "5 minute"] value 0.19921875
+@@ -520,16 +395,8 @@
+     1.10.7 (kernel.all.cpu.idle): value 4274436636
+     1.10.3 (kernel.all.pswitch): value 4566488
  
 -[820 bytes]
--14:25:20.177  40.0.8 (40.0.8): value 941
--              40.0.7 (40.0.7): value 2436
--              40.0.5 (40.0.5): value 50
--              40.0.4 (40.0.4): value 64
--              40.0.3 (40.0.3): value 3
--              40.0.2 (40.0.2): value 98000
--              40.0.1 (40.0.1): value 33700
--              40.0.0 (40.0.0): value 2700
--              1.80.7 (disk.dev.total):
+-14:25:20.177207 28 metrics
+-    40.0.8 (40.0.8): value 941
+-    40.0.7 (40.0.7): value 2436
+-    40.0.5 (40.0.5): value 50
+-    40.0.4 (40.0.4): value 64
+-    40.0.3 (40.0.3): value 3
+-    40.0.2 (40.0.2): value 98000
+-    40.0.1 (40.0.1): value 33700
+-    40.0.0 (40.0.0): value 2700
 +[588 bytes]
-+14:25:20.177  1.80.7 (disk.dev.total):
-                 inst [131329 or "dks1d1"] value 2818705571
-                 inst [131330 or "dks1d2"] value 2818573273
-                 inst [131331 or "dks1d3"] value 2818576430
-@@ -553,14 +420,6 @@
-                 inst [131844 or "dks3d4"] value 2818591226
-                 inst [132097 or "dks4d1"] value 2818573658
-                 inst [132098 or "dks4d2"] value 2818577871
--              1.25.12 (network.interface.out.bytes):
--                inst [1 or "et0"] value 6706608
--                inst [2 or "lo0"] value 13203131
--                inst [3 or "sl0"] value 1151094
--              1.25.7 (network.interface.in.bytes):
--                inst [1 or "et0"] value 53317642
--                inst [2 or "lo0"] value 13203131
--                inst [3 or "sl0"] value 38843
-               1.18.3 (kernel.all.load):
-                 inst [1 or "1 minute"] value 0.46972656
-                 inst [5 or "5 minute"] value 0.19921875
++14:25:20.177207 18 metrics
+     1.80.7 (disk.dev.total):
+         inst [131329 or "dks1d1"] value 2818705571
+         inst [131330 or "dks1d2"] value 2818573273
+@@ -560,14 +427,6 @@
+         inst [131844 or "dks3d4"] value 2818591226
+         inst [132097 or "dks4d1"] value 2818573658
+         inst [132098 or "dks4d2"] value 2818577871
+-    1.25.12 (network.interface.out.bytes):
+-        inst [1 or "et0"] value 6706608
+-        inst [2 or "lo0"] value 13203131
+-        inst [3 or "sl0"] value 1151094
+-    1.25.7 (network.interface.in.bytes):
+-        inst [1 or "et0"] value 53317642
+-        inst [2 or "lo0"] value 13203131
+-        inst [3 or "sl0"] value 38843
+     1.18.3 (kernel.all.load):
+         inst [1 or "1 minute"] value 0.46972656
+         inst [5 or "5 minute"] value 0.19921875
 
 === indom 29.3 { iname "m-00" -> delete inst 33 -> delete } ===
 --- pmns diffs ---
@@ -649,435 +693,456 @@ QA output created by 488
 --- TMP.in
 +++ TMP.out
 @@ -38,28 +38,24 @@
-                  800 or "bin-800"
-                  900 or "bin-900"
+    800 or "bin-800"
+    900 or "bin-900"
  InDom: 29.3
--10:46:07.406 5 instances
--                 0 or "m-00"
-+10:46:07.406 4 instances
-                  12 or "m-12"
-                  13 or "m-13"
-                  14 or "m-14"
-                  15 or "m-15"
--10:47:07.419 5 instances
--                 0 or "m-00"
-+10:47:07.419 4 instances
-                  12 or "m-12"
-                  13 or "m-13"
-                  15 or "m-15"
-                  16 or "m-16"
--10:48:07.406 7 instances
--                 0 or "m-00"
-+10:48:07.406 6 instances
-                  12 or "m-12"
-                  13 or "m-13"
-                  15 or "m-15"
-                  16 or "m-16"
-                  17 or "m-17"
-                  18 or "m-18"
--10:49:07.407 8 instances
--                 0 or "m-00"
-+10:49:07.407 7 instances
-                  12 or "m-12"
-                  13 or "m-13"
-                  15 or "m-15"
+-10:46:07.406806 5 instances
+-   0 or "m-00"
++10:46:07.406806 4 instances
+    12 or "m-12"
+    13 or "m-13"
+    14 or "m-14"
+    15 or "m-15"
+-10:47:07.419122 5 instances
+-   0 or "m-00"
++10:47:07.419122 4 instances
+    12 or "m-12"
+    13 or "m-13"
+    15 or "m-15"
+    16 or "m-16"
+-10:48:07.406714 7 instances
+-   0 or "m-00"
++10:48:07.406714 6 instances
+    12 or "m-12"
+    13 or "m-13"
+    15 or "m-15"
+    16 or "m-16"
+    17 or "m-17"
+    18 or "m-18"
+-10:49:07.407160 8 instances
+-   0 or "m-00"
++10:49:07.407160 7 instances
+    12 or "m-12"
+    13 or "m-13"
+    15 or "m-15"
 @@ -67,8 +63,7 @@
-                  18 or "m-18"
-                  19 or "m-19"
-                  20 or "m-20"
--10:50:07.407 8 instances
--                 0 or "m-00"
-+10:50:07.407 7 instances
-                  12 or "m-12"
-                  15 or "m-15"
-                  17 or "m-17"
+    18 or "m-18"
+    19 or "m-19"
+    20 or "m-20"
+-10:50:07.407387 8 instances
+-   0 or "m-00"
++10:50:07.407387 7 instances
+    12 or "m-12"
+    15 or "m-15"
+    17 or "m-17"
 @@ -76,23 +71,20 @@
-                  19 or "m-19"
-                  20 or "m-20"
-                  21 or "m-21"
--10:51:07.407 6 instances
--                 0 or "m-00"
-+10:51:07.407 5 instances
-                  15 or "m-15"
-                  17 or "m-17"
-                  18 or "m-18"
-                  19 or "m-19"
-                  21 or "m-21"
--10:53:07.408 7 instances
--                 0 or "m-00"
-+10:53:07.408 6 instances
-                  15 or "m-15"
-                  17 or "m-17"
-                  18 or "m-18"
-                  19 or "m-19"
-                  21 or "m-21"
-                  22 or "m-22"
--10:54:07.408 8 instances
--                 0 or "m-00"
-+10:54:07.408 7 instances
-                  15 or "m-15"
-                  17 or "m-17"
-                  18 or "m-18"
+    19 or "m-19"
+    20 or "m-20"
+    21 or "m-21"
+-10:51:07.407667 6 instances
+-   0 or "m-00"
++10:51:07.407667 5 instances
+    15 or "m-15"
+    17 or "m-17"
+    18 or "m-18"
+    19 or "m-19"
+    21 or "m-21"
+-10:53:07.408341 7 instances
+-   0 or "m-00"
++10:53:07.408341 6 instances
+    15 or "m-15"
+    17 or "m-17"
+    18 or "m-18"
+    19 or "m-19"
+    21 or "m-21"
+    22 or "m-22"
+-10:54:07.408606 8 instances
+-   0 or "m-00"
++10:54:07.408606 7 instances
+    15 or "m-15"
+    17 or "m-17"
+    18 or "m-18"
 @@ -100,80 +92,67 @@
-                  21 or "m-21"
-                  22 or "m-22"
-                  23 or "m-23"
--10:55:07.409 7 instances
--                 0 or "m-00"
-+10:55:07.409 6 instances
-                  15 or "m-15"
-                  17 or "m-17"
-                  19 or "m-19"
-                  22 or "m-22"
-                  23 or "m-23"
-                  24 or "m-24"
--10:56:07.409 6 instances
--                 0 or "m-00"
-+10:56:07.409 5 instances
-                  17 or "m-17"
-                  22 or "m-22"
-                  23 or "m-23"
-                  24 or "m-24"
-                  25 or "m-25"
--10:57:07.409 5 instances
--                 0 or "m-00"
-+10:57:07.409 4 instances
-                  22 or "m-22"
-                  23 or "m-23"
-                  24 or "m-24"
-                  25 or "m-25"
--10:58:07.409 5 instances
--                 0 or "m-00"
-+10:58:07.409 4 instances
-                  22 or "m-22"
-                  23 or "m-23"
-                  24 or "m-24"
-                  26 or "m-26"
--10:59:07.410 7 instances
--                 0 or "m-00"
-+10:59:07.410 6 instances
-                  22 or "m-22"
-                  23 or "m-23"
-                  24 or "m-24"
-                  26 or "m-26"
-                  27 or "m-27"
-                  28 or "m-28"
--11:00:07.410 6 instances
--                 0 or "m-00"
-+11:00:07.410 5 instances
-                  24 or "m-24"
-                  26 or "m-26"
-                  27 or "m-27"
-                  28 or "m-28"
-                  29 or "m-29"
--11:01:07.410 5 instances
--                 0 or "m-00"
-+11:01:07.410 4 instances
-                  24 or "m-24"
-                  26 or "m-26"
-                  27 or "m-27"
-                  28 or "m-28"
--11:02:07.411 5 instances
--                 0 or "m-00"
-+11:02:07.411 4 instances
-                  24 or "m-24"
-                  27 or "m-27"
-                  28 or "m-28"
-                  30 or "m-30"
--11:03:07.411 6 instances
--                 0 or "m-00"
-+11:03:07.411 5 instances
-                  24 or "m-24"
-                  27 or "m-27"
-                  28 or "m-28"
-                  30 or "m-30"
-                  31 or "m-31"
--11:04:07.411 6 instances
--                 0 or "m-00"
-+11:04:07.411 4 instances
-                  24 or "m-24"
-                  27 or "m-27"
-                  30 or "m-30"
-                  32 or "m-32"
--                 33 or "m-33"
--11:05:07.411 5 instances
--                 0 or "m-00"
-+11:05:07.411 3 instances
-                  24 or "m-24"
-                  27 or "m-27"
-                  30 or "m-30"
--                 33 or "m-33"
+    21 or "m-21"
+    22 or "m-22"
+    23 or "m-23"
+-10:55:07.409073 7 instances
+-   0 or "m-00"
++10:55:07.409073 6 instances
+    15 or "m-15"
+    17 or "m-17"
+    19 or "m-19"
+    22 or "m-22"
+    23 or "m-23"
+    24 or "m-24"
+-10:56:07.409201 6 instances
+-   0 or "m-00"
++10:56:07.409201 5 instances
+    17 or "m-17"
+    22 or "m-22"
+    23 or "m-23"
+    24 or "m-24"
+    25 or "m-25"
+-10:57:07.409462 5 instances
+-   0 or "m-00"
++10:57:07.409462 4 instances
+    22 or "m-22"
+    23 or "m-23"
+    24 or "m-24"
+    25 or "m-25"
+-10:58:07.409875 5 instances
+-   0 or "m-00"
++10:58:07.409875 4 instances
+    22 or "m-22"
+    23 or "m-23"
+    24 or "m-24"
+    26 or "m-26"
+-10:59:07.410254 7 instances
+-   0 or "m-00"
++10:59:07.410254 6 instances
+    22 or "m-22"
+    23 or "m-23"
+    24 or "m-24"
+    26 or "m-26"
+    27 or "m-27"
+    28 or "m-28"
+-11:00:07.410567 6 instances
+-   0 or "m-00"
++11:00:07.410567 5 instances
+    24 or "m-24"
+    26 or "m-26"
+    27 or "m-27"
+    28 or "m-28"
+    29 or "m-29"
+-11:01:07.410735 5 instances
+-   0 or "m-00"
++11:01:07.410735 4 instances
+    24 or "m-24"
+    26 or "m-26"
+    27 or "m-27"
+    28 or "m-28"
+-11:02:07.411038 5 instances
+-   0 or "m-00"
++11:02:07.411038 4 instances
+    24 or "m-24"
+    27 or "m-27"
+    28 or "m-28"
+    30 or "m-30"
+-11:03:07.411488 6 instances
+-   0 or "m-00"
++11:03:07.411488 5 instances
+    24 or "m-24"
+    27 or "m-27"
+    28 or "m-28"
+    30 or "m-30"
+    31 or "m-31"
+-11:04:07.411683 6 instances
+-   0 or "m-00"
++11:04:07.411683 4 instances
+    24 or "m-24"
+    27 or "m-27"
+    30 or "m-30"
+    32 or "m-32"
+-   33 or "m-33"
+-11:05:07.411966 5 instances
+-   0 or "m-00"
++11:05:07.411966 3 instances
+    24 or "m-24"
+    27 or "m-27"
+    30 or "m-30"
+-   33 or "m-33"
  InDom: 2.1
- 10:45:08.440 1 instances
-                  24763 or "24763"
-@@ -182,33 +161,32 @@
-              Log Vol    end(meta)     end(log)
- 10:45:08.440       0          132          132
- 10:46:07.406       0          351          288
--10:47:07.419       0          771          464
--10:48:07.406       0          864          640
--10:49:07.407       0          983          832
--10:50:07.407       0         1115         1032
--10:51:07.407       0         1247         1232
--10:53:07.408       0         1353         1600
--10:54:07.408       0         1472         1792
--10:55:07.409       0         1604         1992
--10:56:07.409       0         1723         2184
--10:57:07.409       0         1829         2368
--10:58:07.409       0         1922         2544
--10:59:07.410       0         2015         2720
--11:00:07.410       0         2134         2912
--11:01:07.410       0         2240         3096
--11:02:07.411       0         2333         3272
--11:03:07.411       0         2426         3448
--11:04:07.411       0         2532         3632
--11:05:07.411       0         2638         3816
-+10:47:07.419       0          758          456
-+10:48:07.406       0          838          624
-+10:49:07.407       0          944          808
-+10:50:07.407       0         1063         1000
-+10:51:07.407       0         1182         1192
-+10:53:07.408       0         1275         1544
-+10:54:07.408       0         1381         1728
-+10:55:07.409       0         1500         1920
-+10:56:07.409       0         1606         2104
-+10:57:07.409       0         1699         2280
-+10:58:07.409       0         1779         2448
-+10:59:07.410       0         1859         2616
-+11:00:07.410       0         1965         2800
-+11:01:07.410       0         2058         2976
-+11:02:07.411       0         2138         3144
-+11:03:07.411       0         2218         3312
-+11:04:07.411       0         2311         3488
-+11:05:07.411       0         2391         3656
+ 10:45:08.440968 1 instances
+    24763 or "24763"
+@@ -182,24 +161,24 @@
+ 		Log Vol    end(meta)     end(log)
+ 10:45:08.440968	      0          132          132
+ 10:46:07.406806	      0          351          288
+-10:47:07.419122	      0          771          464
+-10:48:07.406714	      0          864          640
+-10:49:07.407160	      0          983          832
+-10:50:07.407387	      0         1115         1032
+-10:51:07.407667	      0         1247         1232
+-10:53:07.408341	      0         1353         1600
+-10:54:07.408606	      0         1472         1792
+-10:55:07.409073	      0         1604         1992
+-10:56:07.409201	      0         1723         2184
+-10:57:07.409462	      0         1829         2368
+-10:58:07.409875	      0         1922         2544
+-10:59:07.410254	      0         2015         2720
+-11:00:07.410567	      0         2134         2912
+-11:01:07.410735	      0         2240         3096
+-11:02:07.411038	      0         2333         3272
+-11:03:07.411488	      0         2426         3448
+-11:04:07.411683	      0         2532         3632
+-11:05:07.411966	      0         2638         3816
++10:47:07.419122	      0          758          456
++10:48:07.406714	      0          838          624
++10:49:07.407160	      0          944          808
++10:50:07.407387	      0         1063         1000
++10:51:07.407667	      0         1182         1192
++10:53:07.408341	      0         1275         1544
++10:54:07.408606	      0         1381         1728
++10:55:07.409073	      0         1500         1920
++10:56:07.409201	      0         1606         2104
++10:57:07.409462	      0         1699         2280
++10:58:07.409875	      0         1779         2448
++10:59:07.410254	      0         1859         2616
++11:00:07.410567	      0         1965         2800
++11:01:07.410735	      0         2058         2976
++11:02:07.411038	      0         2138         3144
++11:03:07.411488	      0         2218         3312
++11:04:07.411683	      0         2311         3488
++11:05:07.411966	      0         2391         3656
  
  [156 bytes]
- 10:45:08.440  2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
-               2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
-               2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
+ 10:45:08.440968 3 metrics
+@@ -207,10 +186,9 @@
+     2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
+     2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
  
 -[176 bytes]
 +[168 bytes]
- 10:46:07.406  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 32
-                 inst [12 or "m-12"] value 1231
-                 inst [13 or "m-13"] value 1330
-                 inst [14 or "m-14"] value 1429
-@@ -225,9 +203,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:46:07.406806 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 32
+         inst [12 or "m-12"] value 1231
+         inst [13 or "m-13"] value 1330
+         inst [14 or "m-14"] value 1429
+@@ -227,10 +205,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[176 bytes]
 +[168 bytes]
- 10:47:07.419  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 27
-                 inst [12 or "m-12"] value 1226
-                 inst [13 or "m-13"] value 1325
-                 inst [15 or "m-15"] value 1524
-@@ -244,9 +221,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:47:07.419122 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 27
+         inst [12 or "m-12"] value 1226
+         inst [13 or "m-13"] value 1325
+         inst [15 or "m-15"] value 1524
+@@ -247,10 +224,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[192 bytes]
 +[184 bytes]
- 10:48:07.406  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 22
-                 inst [12 or "m-12"] value 1221
-                 inst [13 or "m-13"] value 1320
-                 inst [15 or "m-15"] value 1519
-@@ -265,9 +241,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:48:07.406714 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 22
+         inst [12 or "m-12"] value 1221
+         inst [13 or "m-13"] value 1320
+         inst [15 or "m-15"] value 1519
+@@ -269,10 +245,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[200 bytes]
 +[192 bytes]
- 10:49:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 15
-                 inst [12 or "m-12"] value 1214
-                 inst [13 or "m-13"] value 1313
-                 inst [15 or "m-15"] value 1512
-@@ -287,9 +262,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:49:07.407160 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 15
+         inst [12 or "m-12"] value 1214
+         inst [13 or "m-13"] value 1313
+         inst [15 or "m-15"] value 1512
+@@ -292,10 +267,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[200 bytes]
 +[192 bytes]
- 10:50:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 7
-                 inst [12 or "m-12"] value 1206
-                 inst [15 or "m-15"] value 1505
-                 inst [17 or "m-17"] value 1704
-@@ -309,9 +283,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:50:07.407387 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 7
+         inst [12 or "m-12"] value 1206
+         inst [15 or "m-15"] value 1505
+         inst [17 or "m-17"] value 1704
+@@ -315,10 +289,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[184 bytes]
 +[176 bytes]
- 10:51:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 99
-                 inst [15 or "m-15"] value 1598
-                 inst [17 or "m-17"] value 1797
-                 inst [18 or "m-18"] value 1896
-@@ -329,9 +302,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:51:07.407667 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 99
+         inst [15 or "m-15"] value 1598
+         inst [17 or "m-17"] value 1797
+         inst [18 or "m-18"] value 1896
+@@ -336,10 +309,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[184 bytes]
 +[176 bytes]
- 10:52:07.407  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 93
-                 inst [15 or "m-15"] value 1592
-                 inst [17 or "m-17"] value 1791
-                 inst [18 or "m-18"] value 1890
-@@ -349,9 +321,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:52:07.407885 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 93
+         inst [15 or "m-15"] value 1592
+         inst [17 or "m-17"] value 1791
+         inst [18 or "m-18"] value 1890
+@@ -357,10 +329,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[192 bytes]
 +[184 bytes]
- 10:53:07.408  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 87
-                 inst [15 or "m-15"] value 1586
-                 inst [17 or "m-17"] value 1785
-                 inst [18 or "m-18"] value 1884
-@@ -370,9 +341,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:53:07.408341 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 87
+         inst [15 or "m-15"] value 1586
+         inst [17 or "m-17"] value 1785
+         inst [18 or "m-18"] value 1884
+@@ -379,10 +350,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[200 bytes]
 +[192 bytes]
- 10:54:07.408  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 80
-                 inst [15 or "m-15"] value 1579
-                 inst [17 or "m-17"] value 1778
-                 inst [18 or "m-18"] value 1877
-@@ -392,9 +362,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:54:07.408606 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 80
+         inst [15 or "m-15"] value 1579
+         inst [17 or "m-17"] value 1778
+         inst [18 or "m-18"] value 1877
+@@ -402,10 +372,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[192 bytes]
 +[184 bytes]
- 10:55:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 72
-                 inst [15 or "m-15"] value 1571
-                 inst [17 or "m-17"] value 1770
-                 inst [19 or "m-19"] value 1969
-@@ -413,9 +382,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:55:07.409073 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 72
+         inst [15 or "m-15"] value 1571
+         inst [17 or "m-17"] value 1770
+         inst [19 or "m-19"] value 1969
+@@ -424,10 +393,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[184 bytes]
 +[176 bytes]
- 10:56:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 65
-                 inst [17 or "m-17"] value 1764
-                 inst [22 or "m-22"] value 2263
-                 inst [23 or "m-23"] value 2362
-@@ -433,9 +401,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:56:07.409201 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 65
+         inst [17 or "m-17"] value 1764
+         inst [22 or "m-22"] value 2263
+         inst [23 or "m-23"] value 2362
+@@ -445,10 +413,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[176 bytes]
 +[168 bytes]
- 10:57:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 59
-                 inst [22 or "m-22"] value 2258
-                 inst [23 or "m-23"] value 2357
-                 inst [24 or "m-24"] value 2456
-@@ -452,9 +419,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:57:07.409462 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 59
+         inst [22 or "m-22"] value 2258
+         inst [23 or "m-23"] value 2357
+         inst [24 or "m-24"] value 2456
+@@ -465,10 +432,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[176 bytes]
 +[168 bytes]
- 10:58:07.409  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 54
-                 inst [22 or "m-22"] value 2253
-                 inst [23 or "m-23"] value 2352
-                 inst [24 or "m-24"] value 2451
-@@ -471,9 +437,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:58:07.409875 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 54
+         inst [22 or "m-22"] value 2253
+         inst [23 or "m-23"] value 2352
+         inst [24 or "m-24"] value 2451
+@@ -485,10 +451,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[192 bytes]
 +[184 bytes]
- 10:59:07.410  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 49
-                 inst [22 or "m-22"] value 2248
-                 inst [23 or "m-23"] value 2347
-                 inst [24 or "m-24"] value 2446
-@@ -492,9 +457,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 10:59:07.410254 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 49
+         inst [22 or "m-22"] value 2248
+         inst [23 or "m-23"] value 2347
+         inst [24 or "m-24"] value 2446
+@@ -507,10 +472,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[184 bytes]
 +[176 bytes]
- 11:00:07.410  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 42
-                 inst [24 or "m-24"] value 2441
-                 inst [26 or "m-26"] value 2640
-                 inst [27 or "m-27"] value 2739
-@@ -512,9 +476,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 11:00:07.410567 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 42
+         inst [24 or "m-24"] value 2441
+         inst [26 or "m-26"] value 2640
+         inst [27 or "m-27"] value 2739
+@@ -528,10 +492,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[176 bytes]
 +[168 bytes]
- 11:01:07.410  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 36
-                 inst [24 or "m-24"] value 2435
-                 inst [26 or "m-26"] value 2634
-                 inst [27 or "m-27"] value 2733
-@@ -531,9 +494,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 11:01:07.410735 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 36
+         inst [24 or "m-24"] value 2435
+         inst [26 or "m-26"] value 2634
+         inst [27 or "m-27"] value 2733
+@@ -548,10 +511,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[176 bytes]
 +[168 bytes]
- 11:02:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 31
-                 inst [24 or "m-24"] value 2430
-                 inst [27 or "m-27"] value 2729
-                 inst [28 or "m-28"] value 2828
-@@ -550,9 +512,8 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 11:02:07.411038 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 31
+         inst [24 or "m-24"] value 2430
+         inst [27 or "m-27"] value 2729
+         inst [28 or "m-28"] value 2828
+@@ -568,10 +530,9 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[184 bytes]
 +[176 bytes]
- 11:03:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 26
-                 inst [24 or "m-24"] value 2425
-                 inst [27 or "m-27"] value 2724
-                 inst [28 or "m-28"] value 2823
-@@ -570,14 +531,12 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 11:03:07.411488 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 26
+         inst [24 or "m-24"] value 2425
+         inst [27 or "m-27"] value 2724
+         inst [28 or "m-28"] value 2823
+@@ -589,15 +550,13 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[184 bytes]
 +[168 bytes]
- 11:04:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 20
-                 inst [24 or "m-24"] value 2419
-                 inst [27 or "m-27"] value 2718
-                 inst [30 or "m-30"] value 3017
-                 inst [32 or "m-32"] value 3216
--                inst [33 or "m-33"] value 3315
-               29.0.7 (sample.drift): value 242
-               29.0.6 (sample.bin):
-                 inst [100 or "bin-100"] value 100
-@@ -590,13 +549,11 @@
-                 inst [800 or "bin-800"] value 800
-                 inst [900 or "bin-900"] value 900
+ 11:04:07.411683 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 20
+         inst [24 or "m-24"] value 2419
+         inst [27 or "m-27"] value 2718
+         inst [30 or "m-30"] value 3017
+         inst [32 or "m-32"] value 3216
+-        inst [33 or "m-33"] value 3315
+     29.0.7 (sample.drift): value 242
+     29.0.6 (sample.bin):
+         inst [100 or "bin-100"] value 100
+@@ -610,14 +569,12 @@
+         inst [800 or "bin-800"] value 800
+         inst [900 or "bin-900"] value 900
  
 -[176 bytes]
 +[160 bytes]
- 11:05:07.411  29.0.37 (sample.mirage):
--                inst [0 or "m-00"] value 14
-                 inst [24 or "m-24"] value 2413
-                 inst [27 or "m-27"] value 2712
-                 inst [30 or "m-30"] value 3011
--                inst [33 or "m-33"] value 3310
-               29.0.7 (sample.drift): value 208
-               29.0.6 (sample.bin):
-                 inst [100 or "bin-100"] value 100
+ 11:05:07.411966 3 metrics
+     29.0.37 (sample.mirage):
+-        inst [0 or "m-00"] value 14
+         inst [24 or "m-24"] value 2413
+         inst [27 or "m-27"] value 2712
+         inst [30 or "m-30"] value 3011
+-        inst [33 or "m-33"] value 3310
+     29.0.7 (sample.drift): value 208
+     29.0.6 (sample.bin):
+         inst [100 or "bin-100"] value 100

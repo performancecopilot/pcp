@@ -214,23 +214,23 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		     * Note, on Linux select would return 'time remaining'
 		     * in timeout value, so report the expected timeout
 		     */
-		    int tosec, tomsec;
+		    int tosec, tousec;
 
 		    if ( timeout != TIMEOUT_NEVER && timeout > 0 ) {
 			tosec = (int)timeout;
-			tomsec = 0;
+			tousec = 0;
 		    } else {
 			PM_LOCK(pdu_lock);
 			tosec = (int)req_wait.tv_sec;
-			tomsec = 1000*(int)req_wait.tv_usec;
+			tousec = (int)req_wait.tv_usec;
 			PM_UNLOCK(pdu_lock);
 		    }
 
 		    pmNotifyErr(LOG_WARNING, 
-				  "pduread: timeout (after %d.%03d "
+				  "pduread: timeout (after %d.%06d "
 				  "sec) while attempting to read %d "
 				  "bytes out of %d in %s on fd=%d",
-				  tosec, tomsec, len - have, len, 
+				  tosec, tousec, len - have, len, 
 				  part == HEADER ? "HDR" : "BODY", fd);
 		}
 		return PM_ERR_TIMEOUT;

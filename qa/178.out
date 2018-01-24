@@ -42,10 +42,10 @@ sample.drift ... expect 30 samples
 merge -s 10
 merge (expect 10): 10
 
-merge -T 6.9
-merge (expect 32 + 1 prologue + 1 epilogue + 1 mark): 35
+merge -T 16
+merge (expect 49): 49
 
-merge -S 6.9 -T 7.2
+merge -S 16
 merge (expect 12): 12
 
 Full merge with volume switch ...
@@ -57,7 +57,7 @@ Log record counts ...
 a: 27
 b: 22
 c: 12
-merge: 61
+merge-mv: 61
 Log record counts per merged volume ...
 volume 0: 15
 volume 1: 15

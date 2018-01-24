@@ -39,12 +39,12 @@ DEFLATE = small.0.xz small.meta small.index \
 	  bozo-20170904.0.xz bozo-20170904.meta bozo-20170904.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
-	  mk.dynmetric mk.instant \
+	  mk.dynmetric mk.instant mk.dyninsts \
 	  mk.mirage mk.proc \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all mk.atop mk.hotatop \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
-	  mk.ipcs mk.value-test
+	  mk.ipcs mk.value-test mk.rank-pred
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \

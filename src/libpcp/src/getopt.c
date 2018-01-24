@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -207,6 +207,10 @@ __pmEndOptions(pmOptions *opts)
 	    opts->context = PM_CONTEXT_HOST;
 	else if (opts->narchives && !opts->nhosts)
 	    opts->context = PM_CONTEXT_ARCHIVE;
+	else if (opts->origin_optarg) {
+	    opts->context = PM_CONTEXT_ARCHIVE;
+	    __pmAddOptArchivePath(opts);
+	}
     }
 
     if ((opts->start_optarg || opts->align_optarg || opts->origin_optarg) &&
@@ -327,7 +331,7 @@ addArchive(pmOptions *opts, char *arg)
 	 */
 	if (archives == NULL) {
 	    /* The initial name. */
-	    size = sizeof (*archives);
+	    size = sizeof(*archives);
 	    if ((archives = malloc(size)) == NULL)
 		goto noMem;
 	    size = strlen(arg); /* for noMem below */
@@ -344,12 +348,12 @@ addArchive(pmOptions *opts, char *arg)
 		    return; /* duplicate */
 	    }
 	    /* Add a comma plus the additional name. */
-	    size = strlen (*archives) + 1 + strlen (arg) + 1;
+	    size = strlen (*archives) + 1 + strlen(arg) + 1;
 	    if ((tmp_archives = realloc(*archives, size)) == NULL)
 		goto noMem;
 	    *archives = tmp_archives;
-	    strcat (*archives, ",");
-	    strcat (*archives, arg);
+	    strcat(*archives, ",");
+	    strcat(*archives, arg);
 	}
     }
 
@@ -361,16 +365,53 @@ addArchive(pmOptions *opts, char *arg)
     /*NOTREACHED*/
 }
 
+/*
+ * Add a path to the default archive location for localhost,
+ * as an archive argument.  Used when -O/--origin given but
+ * no explicit path to archives is passed in, automatically
+ * provides a best-effort guess.
+ */
+void
+__pmAddOptArchivePath(pmOptions *opts)
+{
+    const char	fallback[] = "/var/log/pcp";
+    const char	*paths[] = { "pmlogger", "pmmgr" };
+    const char	*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
+    char	hostname[MAXHOSTNAMELEN];
+    char	sep = pmPathSeparator();
+    char	dir[MAXPATHLEN];
+    int		i, found = 0;
+
+    if (!logdir)
+	logdir = fallback;
+    if (gethostname(hostname, sizeof(hostname)) < 0)
+	pmsprintf(hostname, sizeof(hostname), "localhost");
+
+    for (i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
+	pmsprintf(dir, sizeof(dir), "%s%c%s%c%s",
+			logdir, sep, paths[i], sep, hostname);
+	if (access(dir, F_OK) == 0) {
+	    addArchive(opts, dir);
+	    found = 1;
+	    break;
+	}
+    }
+    if (!found) {
+	pmsprintf(dir, sizeof(dir), "%s%c%s%c%s",
+			logdir, sep, paths[0], sep, hostname);
+	addArchive(opts, dir);
+    }
+}
+
 void
 __pmAddOptArchive(pmOptions *opts, char *arg)
 {
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one host or archive allowed\n", pmGetProgname());
 	opts->errors++;
-	return;
+    } else {
+	addArchive(opts, arg);
     }
-
-    addArchive(opts, arg);
 }
 
 static char *
@@ -786,7 +827,18 @@ __pmStartOptions(pmOptions *opts)
     if (opts->flags & PM_OPTFLAG_INIT)
 	return;
 
+    /* need to check for PCP_DEBUG first ... */
     for (p = _environ; *p != NULL; p++) {
+	s = *p;
+	if (strncmp(s, "PCP_DEBUG=", 10) != 0)
+	    continue;
+	value = &s[10];
+	__pmSetDebugFlag(opts, value);
+	break;
+    }
+
+    for (p = _environ; *p != NULL; p++) {
+	int	found;
 	s = *p;
 	if (strncmp(s, "PCP_", 4) != 0)
 	    continue;	/* short circuit if not PCP-prefixed */
@@ -796,51 +848,95 @@ __pmStartOptions(pmOptions *opts)
 	    value++;	/* skip over the equals sign */
 	}
 
-	if (strcmp(s, "ALIGN_TIME") == 0)
+	found = 0;
+	if (strcmp(s, "ALIGN_TIME") == 0) {
 	    __pmSetAlignment(opts, value);
-	else if (strcmp(s, "ARCHIVE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "ARCHIVE") == 0) {
 	    __pmAddOptArchive(opts, value);
-	else if (strcmp(s, "ARCHIVE_LIST") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "ARCHIVE_LIST") == 0) {
 	    __pmAddOptArchiveList(opts, value);
-	else if (strcmp(s, "DEBUG") == 0)
-	    __pmSetDebugFlag(opts, value);
-	else if (strcmp(s, "FOLIO") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "DEBUG") == 0) {
+	    /* processed above */
+	    found = 1;
+	}
+	else if (strcmp(s, "FOLIO") == 0) {
 	    __pmAddOptArchiveFolio(opts, value);
-	else if (strcmp(s, "GUIMODE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "GUIMODE") == 0) {
 	    __pmSetGuiModeFlag(opts);
-	else if (strcmp(s, "HOST") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "HOST") == 0) {
 	    __pmAddOptHost(opts, value);
-	else if (strcmp(s, "HOST_LIST") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "HOST_LIST") == 0) {
 	    __pmAddOptHostList(opts, value);
-	else if (strcmp(s, "SPECLOCAL") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "SPECLOCAL") == 0) {
 	    __pmSetLocalContextTable(opts, value);
+	    found = 1;
+	}
 	else if (strcmp(s, "LOCALMODE") == 0 ||
-		 strcmp(s, "LOCALPMDA") == 0)
+		 strcmp(s, "LOCALPMDA") == 0) {
 	    __pmSetLocalContextFlag(opts);
-	else if (strcmp(s, "NAMESPACE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "NAMESPACE") == 0) {
 	    __pmSetNameSpace(opts, value, 1);
-	else if (strcmp(s, "UNIQNAMES") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "UNIQNAMES") == 0) {
 	    __pmSetNameSpace(opts, value, 0);
+	    found = 1;
+	}
 	else if (strcmp(s, "ORIGIN") == 0 ||
-		 strcmp(s, "ORIGIN_TIME") == 0)
+		 strcmp(s, "ORIGIN_TIME") == 0) {
 	    __pmSetOrigin(opts, value);
-	else if (strcmp(s, "GUIPORT") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "GUIPORT") == 0) {
 	    __pmSetGuiPort(opts, value);
-	else if (strcmp(s, "START_TIME") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "START_TIME") == 0) {
 	    __pmSetStartTime(opts, value);
-	else if (strcmp(s, "SAMPLES") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "SAMPLES") == 0) {
 	    __pmSetSampleCount(opts, value);
-	else if (strcmp(s, "FINISH_TIME") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "FINISH_TIME") == 0) {
 	    __pmSetFinishTime(opts, value);
-	else if (strcmp(s, "INTERVAL") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "INTERVAL") == 0) {
 	    __pmSetSampleInterval(opts, value);
-	else if (strcmp(s, "TIMEZONE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "TIMEZONE") == 0) {
 	    __pmSetTimeZone(opts, value);
-	else if (strcmp(s, "HOSTZONE") == 0)
+	    found = 1;
+	}
+	else if (strcmp(s, "HOSTZONE") == 0) {
 	    __pmSetHostZone(opts);
+	    found = 1;
+	}
 
 	if (value)		/* reset the environment */
 	    *(value-1) = '=';
+
+	if (found && pmDebugOptions.config)
+	    fprintf(stderr, "pmGetOptions: %s set from the environment\n", *p);
     }
 
     opts->flags |= PM_OPTFLAG_INIT;

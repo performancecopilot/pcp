@@ -462,7 +462,6 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
 		sp->replies[sp->index++] = reply;
 		pmsprintf(id, sizeof(id), "pcp:map:%s.%s.value",
 			node_subtype(np), reply->str);
-		solvermsg(sp, PMSERIES_RESPONSE, msg);
 		np->key = strdup(id);
 	    }
 	}
@@ -689,8 +688,8 @@ int
 seriesid_copy(const char *series, pmSeriesID *seriesid)
 {
     char *name = (char *)seriesid->name;
-    int	bytes = pmsprintf(name, PMSIDSZ, "%.*s", PMSIDSZ, series);
-    name[PMSIDSZ] = '\0';
+    int	bytes = pmsprintf(name, PMSIDSZ+1, "%.*s", PMSIDSZ, series);
+    name[PMSIDSZ] = '\0'; //pmsprintf looks like it already does this? util.c:1818?
     return bytes == PMSIDSZ? 0 : -E2BIG;
 }
 

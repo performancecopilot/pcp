@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2017 Red Hat.
+ * Portions Copyright (c) 2012-2018 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -524,6 +524,18 @@ static pmdaMetric metrictab[] = {
     PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
+/* proc.memory.vmreal */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMREAL),
+    PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmnonlib */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMNONLIB),
+    PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
 /* proc.psinfo.threads */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_THREADS),
@@ -594,6 +606,12 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_PID_CGROUP, PROC_PID_CGROUP),
     PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_CGROUP, PROC_PID_CONTAINER),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.labels */
@@ -1924,14 +1942,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul = entry->id;
 		break;
 
-	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.tty */
+	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.ttyname */
 		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
-		if (f == NULL)
+		if (f == NULL || strcmp(f, "0") == 0)
 		    atom->cp = "?";
-		else {
-		    dev_t dev = get_encoded_dev(f);
-		    atom->cp = get_ttyname_info(inst, dev);
-		}
+		else
+		    atom->cp = get_ttyname_info(inst, f);
 		break;
 
 	    case PROC_PID_STAT_TTY_PGRP: /* proc.psinfo.tty_pgrp */
@@ -2351,6 +2367,26 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMREAL: /* proc.memory.vmreal and */
+	case PROC_PID_STATUS_VMNONLIB: /* proc.memory.vmnonlib */
+	if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL) {
+	    atom->ull = 0;
+	    break;
+	}
+	atom->ull = (__uint64_t)strtoull(f, &tail, 0);
+	if ((f = _pm_getfield(entry->status_lines.vmswap, 1)) == NULL) {
+	    atom->ull = 0;
+	    break;
+	}
+	atom->ull += (__uint64_t)strtoull(f, &tail, 0);
+	if (item == PROC_PID_STATUS_VMREAL)
+	    break;
+	if ((f = _pm_getfield(entry->status_lines.vmlib, 1)) == NULL)
+	    atom->ull = 0;
+	else
+	    atom->ull -= (__uint64_t)strtoull(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_THREADS: /* proc.psinfo.threads */
@@ -3005,11 +3041,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_CGROUP:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if (item > PROC_PID_CGROUP)
-	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL) /* proc.psinfo.cgroups */
+	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
-	atom->cp = proc_strings_lookup(entry->cgroup_id);
+	switch (item) {
+	case PROC_PID_CGROUP: /* proc.psinfo.cgroups */
+	    atom->cp = proc_strings_lookup(entry->cgroup_id);
+	    break;
+	case PROC_PID_CONTAINER: /* proc.id.container */
+	    atom->cp = proc_strings_lookup(entry->container_id);
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
 	break;
 
     case CLUSTER_HOTPROC_PID_LABEL:

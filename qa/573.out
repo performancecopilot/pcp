@@ -1,24 +1,27 @@
 QA output created by 573
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [INST] value "HOSTNAME"
-              2.3.0 (pmcd.pmlogger.port): inst [INST] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [INST] value "TMP"
-              2.0.23 (pmcd.pid): value PID
-              2.0.24 (pmcd.seqnum): value SEQNUM
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [INST] value "HOSTNAME"
+    2.3.0 (pmcd.pmlogger.port): inst [INST] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [INST] value "TMP"
+    2.0.23 (pmcd.pid): value PID
+    2.0.24 (pmcd.seqnum): value SEQNUM
 
-TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
-                inst [100 or "bin-100"] value 100
-                inst [200 or "bin-200"] value 200
-                inst [300 or "bin-300"] value 300
-                inst [400 or "bin-400"] value 400
-                inst [500 or "bin-500"] value 500
-                inst [600 or "bin-600"] value 600
-                inst [700 or "bin-700"] value 700
-                inst [800 or "bin-800"] value 800
-                inst [900 or "bin-900"] value 900
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [INST] value "HOSTNAME"
-              2.3.0 (pmcd.pmlogger.port): inst [INST] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [INST] value "TMP"
-              2.0.23 (pmcd.pid): value PID
-              2.0.24 (pmcd.seqnum): value SEQNUM
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [INST] value "HOSTNAME"
+    2.3.0 (pmcd.pmlogger.port): inst [INST] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [INST] value "TMP"
+    2.0.23 (pmcd.pid): value PID
+    2.0.24 (pmcd.seqnum): value SEQNUM

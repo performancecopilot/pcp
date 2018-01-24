@@ -75,31 +75,36 @@ DATE: Bingo!
 
 pmlogger ...
 
+TIMESTAMP 5 metrics
 
-TIMESTAMP  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
-              29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
-              29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
-              29.0.1004 (sample.secret.foo.bar.four): value 4
-              29.0.1003 (sample.secret.foo.bar.three): value 3
-              29.0.1002 (sample.secret.foo.two): value 2
-              29.0.1001 (sample.secret.foo.one): value 1
-              29.0.1000 (sample.secret.bar): value "foo"
+TIMESTAMP 8 metrics
+    29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+    29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
+    29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
+    29.0.1004 (sample.secret.foo.bar.four): value 4
+    29.0.1003 (sample.secret.foo.bar.three): value 3
+    29.0.1002 (sample.secret.foo.two): value 2
+    29.0.1001 (sample.secret.foo.one): value 1
+    29.0.1000 (sample.secret.bar): value "foo"
 
-TIMESTAMP  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
-              29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
-              29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
-              29.0.1004 (sample.secret.foo.bar.four): value 4
-              29.0.1003 (sample.secret.foo.bar.three): value 3
-              29.0.1002 (sample.secret.foo.two): value 2
-              29.0.1001 (sample.secret.foo.one): value 1
-              29.0.1000 (sample.secret.bar): value "foo"
+TIMESTAMP 8 metrics
+    29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+    29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
+    29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
+    29.0.1004 (sample.secret.foo.bar.four): value 4
+    29.0.1003 (sample.secret.foo.bar.three): value 3
+    29.0.1002 (sample.secret.foo.two): value 2
+    29.0.1001 (sample.secret.foo.one): value 1
+    29.0.1000 (sample.secret.bar): value "foo"
 
-TIMESTAMP  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
-              29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
-              29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
-              29.0.1004 (sample.secret.foo.bar.four): value 4
-              29.0.1003 (sample.secret.foo.bar.three): value 3
-              29.0.1002 (sample.secret.foo.two): value 2
-              29.0.1001 (sample.secret.foo.one): value 1
-              29.0.1000 (sample.secret.bar): value "foo"
+TIMESTAMP 8 metrics
+    29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+    29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
+    29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
+    29.0.1004 (sample.secret.foo.bar.four): value 4
+    29.0.1003 (sample.secret.foo.bar.three): value 3
+    29.0.1002 (sample.secret.foo.two): value 2
+    29.0.1001 (sample.secret.foo.one): value 1
+    29.0.1000 (sample.secret.bar): value "foo"
 
+TIMESTAMP 5 metrics

@@ -79,13 +79,19 @@ pmrep -s 5 -t 2 $log -G -H -U sample
 pmrep -s 5 -t 2 $log2 -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 pmrep -s 5 -t 2 $log2 -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 
+echo "== exercise precision correctness"
+pmrep -s 5 -t 2 $log -P 1 sample.seconds,,,,,,50
+pmrep -s 5 -t 2 $log -0 3 sample.seconds,,,,,,50
+
 echo "== exercise extended header"
 pmrep -z -a $here/archives/rep -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/20130706 -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/bug-1044.meta -x -H -U -C -u -I "" | _archive_filter
 
 echo "== exercise separate header"
-pmrep -s 4 -t 1 $log2 -E 2 -g mem.util.free disk.dev.read mem.util.used
+pmrep -s 5 -t 2 $log2 -E 2 -g mem.util.free disk.dev.read mem.util.used
+pmrep -s 5 -t 2 $log2 -p -l '|' -X "" -g mem.util.free disk.dev.read disk.dev.write mem.util.used
+pmrep -s 5 -t 2 $log2 -p -X test -g mem.util.used kernel.all.cpu.user,%usr mem.util.free kernel.percpu.cpu.user,%usr mem.util.shared
 
 echo "== invalid command line parameters"
 pmrep -s 1 -t 1 -b GB -E 1x mem.util.free
@@ -175,8 +181,8 @@ echo "== exercise starttime handling / confirm no negative duration/samples"
 pmrep -C -x -H -U -Z UTC -a $here/archives/19970807.09.54 -S "@22:59:00" sample.milliseconds | _archive_filter
 
 echo "== exercise extended CSV output"
-pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
-pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 | _archive_filter
+pmrep -z -u -H -k -o csv -r -a $here/archives/bug1057 -I "" | wc -l
+pmrep -s 5 -t 2 $log -o csv -r -k sample 2>&1 | _archive_filter
 
 echo "== exercise delimiter corner cases"
 pmrep -s 1 -t 1 $log2 -l '' -w 16 -U hinv.machine
@@ -187,13 +193,15 @@ echo 'mem.util.used = usedmem' >> $tmp.dconfig
 pmrep -s 2 -t 2 $log2 -c $tmp.dconfig -p :testing | _archive_filter
 
 echo "== exercise CSV and alternate delimiters"
-pmrep -s 5 -t 2 $log -o csv -p -P 1 sample
-pmrep -s 5 -t 2 $log -o csv --delimiter '|' sample | \
+pmrep -s 5 -t 2 $log -o csv -r -p -P 1 sample
+pmrep -s 5 -t 2 $log -o csv -r --delimiter '|' sample | \
     tee -a $tmp.out1
+pmrep -s 5 -t 2 $log -o csv -r -k -l ';' sample 2>&1 | _archive_filter
+
 echo "== exercise CSV and instance handling"
-pmrep -s 5 -t 2 $log2 -o csv hinv.map.scsi kernel.all.load
+pmrep -s 5 -t 2 $log2 -o csv -r hinv.map.scsi kernel.all.load
 echo "== compare output-to-file versus stdout"
-pmrep -s 5 -t 2 $log -o csv --delimiter '|' -F $tmp.out2 sample
+pmrep -s 5 -t 2 $log -o csv -r --delimiter '|' -F $tmp.out2 sample
 diff $tmp.out1 $tmp.out2
 test $? -eq 0 && echo ok
 
@@ -246,6 +254,17 @@ combo="sample.combo = sample.seconds + (sample.milliseconds / 1000)"
 pmrep -s 5 -t 2 $log -e "$combo" sample.combo
 pmrep -C -H -U -e 'derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes);derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))' derived_a derived_b
 pmrep -C -H -U -e 'derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes)' -e 'derived_b = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))' derived_a derived_b
+
+echo "== derived metrics definition files on command line"
+cat > $tmp.derived.conf1 <<EOF
+derived_a = delta(disk.all.read_bytes) + delta(disk.all.write_bytes)
+EOF
+cat > $tmp.derived.conf2 <<EOF
+derived_b = delta(proc.io.read_bytes) + delta(proc.io.write_bytes)
+EOF
+pmrep -C -H -U -e $tmp.derived.conf1 -e $tmp.derived.conf2 derived_a derived_b
+pmrep -C -H -U -e $tmp.derived.conf1\;$tmp.derived.conf2 derived_a derived_b
+echo "No output expected."
 
 echo "== derived metrics in pmrep.conf"
 cat > $tmp.derived-test.conf <<EOF
@@ -380,9 +399,9 @@ foo.instances = sda
 instances = sdx
 disk.dev.read = label,'sda,sdx'
 EOF
-pmrep -s 1 $log2 -c $tmp.iiconfig :test1
-pmrep -s 1 $log2 -c $tmp.iiconfig :test2
-pmrep -s 1 $log2 -c $tmp.iiconfig :test3
+pmrep -s 1 $log2 -c $tmp.iiconfig :test1 | sed -e "s,u',',g"
+pmrep -s 1 $log2 -c $tmp.iiconfig :test2 | sed -e "s,u',',g"
+pmrep -s 1 $log2 -c $tmp.iiconfig :test3 | sed -e "s,u',',g"
 pmrep -s 1 $log2 -c $tmp.iiconfig :test4
 pmrep -s 1 $log2 -c $tmp.iiconfig :test5
 pmrep -s 1 $log2 -c $tmp.iiconfig :test6

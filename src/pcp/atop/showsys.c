@@ -28,9 +28,9 @@
 #else
 #include <curses.h>
 #endif
-#include <regex.h>
 #include <pwd.h>
 #include <grp.h>
+#include <regex.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -1936,7 +1936,8 @@ sysprt_NFMSERVER(void *p, void *q, int badness, int *color)
 	static char buf[16] = "srv ";
         char mntdev[128], *ps;
 
-        memcpy(mntdev, sstat->nfs.nfsmnt[as->index].mountdev, sizeof mntdev);
+        memcpy(mntdev, sstat->nfs.nfsmounts.nfsmnt[as->index].mountdev,
+								sizeof mntdev);
 
 	if ( (ps = strchr(mntdev, ':')) )		// colon found?
 		*ps = '\0';
@@ -1958,7 +1959,8 @@ sysprt_NFMPATH(void *p, void *q, int badness, int *color)
         char mntdev[128], *ps;
 	int len;
 
-        memcpy(mntdev, sstat->nfs.nfsmnt[as->index].mountdev, sizeof mntdev);
+        memcpy(mntdev, sstat->nfs.nfsmounts.nfsmnt[as->index].mountdev,
+								sizeof mntdev);
 
 	if ( (ps = strchr(mntdev, ':')) )		// colon found?
 		ps++;
@@ -1982,7 +1984,7 @@ sysprt_NFMTOTREAD(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="read   ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].bytestotread,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].bytestotread,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -1996,7 +1998,7 @@ sysprt_NFMTOTWRITE(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="write   ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].bytestotwrite,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].bytestotwrite,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -2010,7 +2012,7 @@ sysprt_NFMNREAD(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="nread    ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].bytesread,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].bytesread,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -2024,7 +2026,7 @@ sysprt_NFMNWRITE(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="nwrit    ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].byteswrite,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].byteswrite,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -2038,7 +2040,7 @@ sysprt_NFMDREAD(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="dread    ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].bytesdread,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].bytesdread,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -2052,7 +2054,7 @@ sysprt_NFMDWRITE(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="dwrit    ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].bytesdwrite,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].bytesdwrite,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -2066,7 +2068,7 @@ sysprt_NFMMREAD(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="mread    ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].pagesmread *pagesize,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].pagesmread *pagesize,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }
@@ -2080,7 +2082,7 @@ sysprt_NFMMWRITE(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="mwrit    ";
 
-        val2memstr(sstat->nfs.nfsmnt[as->index].pagesmwrite *pagesize,
+        val2memstr(sstat->nfs.nfsmounts.nfsmnt[as->index].pagesmwrite *pagesize,
 			buf+6, sizeof buf-6, KBFORMAT, as->avgval, as->nsecs);
         return buf;
 }

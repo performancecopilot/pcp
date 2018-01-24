@@ -11,8 +11,8 @@ Note: timezone set to local timezone of host "bozo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo
-  commencing Thu Sep 22 16:40:01.388 2011
-  ending     Thu Sep 22 16:40:09.688 2011
+    commencing Thu Sep 22 16:40:01.388249 2011
+    ending     Thu Sep 22 16:40:09.688004 2011
 
 Verifying new log is not corrupt
 Done

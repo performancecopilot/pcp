@@ -54,7 +54,10 @@ sed <$tmp.out \
     | _filter_make
 
 echo "in \$PCP_PMCDCONF_PATH ..."
-sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
+sed -n <$PCP_PMCDCONF_PATH \
+    -e '/^simple/s@/private/@/@' \
+    -e "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p"
+# end
 
 $sudo ./Remove
 

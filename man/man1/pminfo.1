@@ -2,33 +2,32 @@
 .\"
 .\" Copyright (c) 2016-2017 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
 .TH PMINFO 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
-\f3pminfo\f1
-[\f3\-dfFlLmMtTvxz\f1]
-[\f3\-a\f1 \f2archive\f1]
-[\f3\-b\f1 \f2batchsize\f1]
-[\f3\-c\f1 \f2dmfile\f1]
-[\f3\-h\f1 \f2hostname\f1]
-[\f3\-K\f1 \f2spec\f1]
-[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
-[\f3\-O\f1 \f2time\f1]
-[\f3\-Z\f1 \f2timezone\f1]
-[\f2metricname\f1 | \f2pmid\f1 | \f2indom\f1]...
+\fBpminfo\fR
+[\fB\-dfFlLmMtTvxz\fR]
+[\fB\-a\fR \fIarchive\fR]
+[\fB\-b\fR \fIbatchsize\fR]
+[\fB\-c\fR \fIdmfile\fR]
+[\fB\-h\fR \fIhostname\fR]
+[\fB\-K\fR \fIspec\fR]
+[\fB\-\fR[\fBn\fR|\fBN\fR] \fIpmnsfile\fR]
+[\fB\-O\fR \fItime\fR]
+[\fB\-Z\fR \fItimezone\fR]
+[\fImetricname\fR | \fIpmid\fR | \fIindom\fR]...
 .SH DESCRIPTION
 .B pminfo
 displays various types of information about performance metrics
@@ -36,11 +35,10 @@ available through the facilities of the Performance Co-Pilot (PCP).
 .PP
 Normally
 .B pminfo
-operates on the distributed Performance Metrics Name Space (PMNS), however
-if the
+operates on the distributed Performance Metrics Name Space (PMNS),
+however if the
 .B \-n
-option is specified an alternative local PMNS is loaded
-from the file
+option is specified an alternative local PMNS is loaded from the file
 .IR pmnsfile.
 The
 .B \-N
@@ -51,7 +49,7 @@ duplicate names for the same Performance Metric Identifier (PMID) in
 .I pmnsfile
 \- duplicate names are allowed with
 .B \-n
-they are not allowed with
+but they are not allowed with
 .BR \-N .
 .PP
 The metrics of interest are named in the
@@ -68,8 +66,8 @@ argument is given, the root of the PMNS is used.
 .PP
 If the
 .I metricname
-argument is in numeric dotted notation, it is interpreted as either
-a 3-dotted
+argument is in numeric dotted notation,
+it is interpreted as either a 3-dotted
 .I pmid
 (metric identifier \- domain, cluster, item numbers) or
 a 2-dotted
@@ -79,7 +77,7 @@ In the
 .I pmid
 case, a reverse PMID-to-name lookup is performed, and in the
 .I indom
-case, the instance domain is reported on directly.
+case, the instance domain is reported directly.
 This latter mode can be used to report the instance domain
 ``one line'' and long form help text summaries.
 .PP
@@ -101,9 +99,9 @@ option causes
 to use the specified set of archives rather than connecting to a PMCD.
 The argument to
 .B \-a
-is a comma-separated list of names, each
-of which may be the base name of an archive or the name of a directory containing
-one or more archives.
+is a comma-separated list of names,
+each of which may be the base name of an archive or
+the name of a directory containing one or more archives.
 The
 .B \-a , \-h
 and
@@ -115,7 +113,8 @@ The
 option causes
 .B pminfo
 to use a local context to collect metrics from PMDAs on the local host
-without PMCD.  Only some metrics are available in this mode.
+without PMCD.
+Only some metrics are available in this mode.
 The
 .BR \-a , \-h
 and
@@ -129,7 +128,8 @@ be fetched in a single request for the
 .B \-f
 and
 .B \-v
-options.  The default value for
+options.
+The default value for
 .I batchsize
 is 128.
 .PP
@@ -183,10 +183,11 @@ When using the
 option to fetch metrics from a local context, the
 .B \-K
 option may be used to control the DSO PMDAs that should be
-made accessible.  The
+made accessible.
+The
 .I spec
 argument conforms to the syntax described in
-.BR __pmSpecLocalPMDA (3).
+.BR pmSpecLocalPMDA (3).
 More than one
 .B \-K
 option may be used.
@@ -226,8 +227,8 @@ Print the help text, if available.
 .TP
 .B \-v
 Verify mode in which descriptions and values are retrieved, but only
-error conditions are reported.  This option silently disables any
-output from the options
+error conditions are reported.
+This option silently disables any output from the options
 .BR \-f ,
 .BR \-M ,
 .BR \-m ,
@@ -273,7 +274,7 @@ as described in
 .BR PMAPI (3),
 .BR pmLookupLabels (3),
 .BR pmLoadDerivedConfig (3),
-.BR __pmSpecLocalPMDA (3),
+.BR pmSpecLocalPMDA (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

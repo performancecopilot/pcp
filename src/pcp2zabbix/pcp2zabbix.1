@@ -1,8 +1,7 @@
-'\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2017 Red Hat.
-.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (c) 2016-2018 Red Hat.
+.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -19,57 +18,45 @@
 .SH NAME
 \f3pcp2zabbix\f1 \- pcp-to-zabbix metrics exporter
 .SH SYNOPSIS
-\f3pcp2zabbix\f1
-[\f3\-CGHILrRvV?\f1]
-[\f3\-a\f1 \f2archive\f1]
-[\f3\-\-archive-folio\f1 \f2folio\f1]
-[\f3\-A\f1 \f2align\f1]
-[\f3\-b|\-B\f1 \f2space-scale\f1]
-[\f3\-c\f1 \f2config\f1]
-[\f3\-\-container\f1 \f2container\f1]
-[\f3\-\-daemonize\f1]
-[\f3\-e\f1 \f2derived\f1]
-[\f3\-E\f1 \f2send-interval\f1]
-[\f3\-g\f1 \f2server\f1]
-[\f3\-h\f1 \f2host\f1]
-[\f3\-i\f1 \f2instances\f1]
-[\f3\-K\f1 \f2spec\f1]
-[\f3\-O\f1 \f2origin\f1]
-[\f3\-p\f1 \f2port\f1]
-[\f3\-P|\-0\f1 \f2precision\f1]
-[\f3\-q|\-Q\f1 \f2count-scale\f1]
-[\f3\-s\f1 \f2samples\f1]
-[\f3\-S\f1 \f2starttime\f1]
-[\f3\-t\f1 \f2interval\f1]
-[\f3\-T\f1 \f2endtime\f1]
-[\f3\-x\f1 \f2prefix\f1]
-[\f3\-X\f1 \f2hostname\f1]
-[\f3\-y|\-Y\f1 \f2time-scale\f1]
-\f2metricspec [...]\f1
+\fBpcp2zabbix\fP
+[\fB\-CGHIjLnrRvV?\fP]
+[\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
+[\fB\-a\fP \fIarchive\fP]
+[\fB\-\-archive\-folio\fP \fIfolio\fP]
+[\fB\-A\fP \fIalign\fP]
+[\fB\-b\fP|\fB\-B\fP \fIspace-scale\fP]
+[\fB\-c\fP \fIconfig\fP]
+[\fB\-\-container\fP \fIcontainer\fP]
+[\fB\-\-daemonize\fP]
+[\fB\-e\fP \fIderived\fP]
+[\fB\-E\fP \fIsend-interval\fP]
+[\fB\-g\fP \fIserver\fP]
+[\fB\-h\fP \fIhost\fP]
+[\fB\-i\fP \fIinstances\fP]
+[\fB\-J\fP \fIrank\fP]
+[\fB\-K\fP \fIspec\fP]
+[\fB\-N\fP \fIpredicate\fP]
+[\fB\-O\fP \fIorigin\fP]
+[\fB\-p\fP \fIport\fP]
+[\fB\-P\fP|\fB\-0\fP \fIprecision\fP]
+[\fB\-q\fP|\fB\-Q\fP \fIcount-scale\fP]
+[\fB\-s\fP \fIsamples\fP]
+[\fB\-S\fP \fIstarttime\fP]
+[\fB\-t\fP \fIinterval\fP]
+[\fB\-T\fP \fIendtime\fP]
+[\fB\-x\fP \fIprefix\fP]
+[\fB\-X\fP \fIhostname\fP]
+[\fB\-y\fP|\fB\-Y\fP \fItime-scale\fP]
+\fImetricspec\fP
+\fI[...]\fP
 .SH DESCRIPTION
-.de EX
-.in +0.5i
-.ie t .ft CB
-.el .ft B
-.ie t .sp .5v
-.el .sp
-.ta \\w' 'u*8
-.nf
-..
-.de EE
-.fi
-.ie t .sp .5v
-.el .sp
-.ft R
-.in
-..
 .B pcp2zabbix
 is a customizable performance metrics exporter tool from PCP to
 Zabbix.
-Any available performance metric, live or archived, system and/or application,
-can be selected for exporting using either command line arguments or a
-configuration file.
-.P
+Any available performance metric, live or archived, system and/or
+application, can be selected for exporting using either command line
+arguments or a configuration file.
+.PP
 .B pcp2zabbix
 is a close relative of
 .BR pmrep (1).
@@ -87,16 +74,23 @@ configuration file overall syntax, this page describes
 .B pcp2zabbix
 specific options and configuration file differences with
 .BR pmrep.conf (5).
-.P
+.BR pmrep (1)
+also lists some usage examples of which most are applicable with
+.B pcp2zabbix
+as well.
+.PP
 Only the command line options listed on this page are supported,
 other options recognized by
 .BR pmrep (1)
 are not supported.
-.P
-Configuration file options override the corresponding built-in
-default values (if any).
-Command line options override the
-corresponding configuration file options (if any).
+.PP
+Options via environment values (see
+.BR pmGetOptions (3))
+override the corresponding built-in default values (if any).
+Configuration file options override the corresponding
+environment variables (if any).
+Command line options override the corresponding configuration
+file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2zabbix
 uses a configuration file with overall syntax described in
@@ -115,82 +109,109 @@ The following options are common with
 .BR type_prefer ,
 .BR ignore_incompat ,
 .BR instances ,
+.BR live_filter ,
+.BR rank ,
+.BR limit_filter ,
+.BR limit_filter_force ,
+.BR invert_filter ,
+.BR predicate ,
 .BR omit_flat ,
 .BR precision ,
 .BR precision_force ,
 .BR count_scale ,
-.BR space_scale ,
-.BR time_scale ,
 .BR count_scale_force ,
+.BR space_scale ,
 .BR space_scale_force ,
+.BR time_scale ,
 .BR time_scale_force .
 The
 .B output
 option is recognized but ignored for
 .B pmrep.conf
 compatibility.
-.P
-\fBpcp2zabbix specific options\fR
-.P
+.SS pcp2zabbix specific options
+.PP
 zabbix_server (string)
 .RS 4
-Hostname or IP address of Zabbix server to send the metrics to. If a
-host is monitored by a proxy, proxy hostname or IP address should be
-used instead.
-Corresponding command line option is \fB-g\fR.
-Default is \fBlocalhost\fR.
+Hostname or IP address of Zabbix server to send the metrics to.
+If a host is monitored by a proxy, proxy hostname or IP address
+should be used instead.
+Corresponding command line option is \fB\-g\fP.
+Default is \fBlocalhost\fP.
 .RE
-.P
+.PP
 zabbix_port (integer)
 .RS 4
 Specify port number of server trapper running on the server.
-Corresponding command line option is \fB-p\fR.
-Default is \fB10051\fR.
+Corresponding command line option is \fB\-p\fP.
+Default is \fB10051\fP.
 .RE
-.P
+.PP
 zabbix_host (string)
 .RS 4
-Specify agent hostname as registered in Zabbix frontend. Host IP address
-and DNS name will not work.
-Corresponding command line option is \fB-X\fR.
+Specify agent hostname as registered in Zabbix frontend.
+Host IP address and DNS name will not work.
+Corresponding command line option is \fB\-X\fP.
 Defaults to the metrics source host.
 .RE
-.P
+.PP
 zabbix_interval (string)
 .RS 4
-Indicates the interval to send the metrics to the Zabbix server. This
-can be longer than the generic \fIinterval\fR to minimize the overhead
-when communicating with the server (as each send creates a new
-connection). Follows the time syntax described in
+Indicates the interval to send the metrics to the Zabbix server.
+This can be longer than the generic \fIinterval\fP to minimize
+the overhead when communicating with the server (as each send
+creates a new connection).
+Follows the time syntax described in
 .BR PCPIntro (1).
-Corresponding command line option is \fB-E\fR.
-Defaults to the generic \fIinterval\fR. Zabbix tools send at most 250
-metrics at a time. Ignored when reading metrics from PCP archives,
+Corresponding command line option is \fB\-E\fP.
+Defaults to the generic \fIinterval\fP.
+Zabbix tools send at most 250 metrics at a time.
+Ignored when reading metrics from PCP archives,
 in which case metrics will be sent roughly at 250 metric batches.
 .RE
-.P
+.PP
 zabbix_prefix (string)
 .RS 4
 Specify the prefix for metrics sent to the Zabbix server.
-Corresponding command line option is \fB-x\fR.
-Default is \fB.pcp\fR.
+Corresponding command line option is \fB\-x\fP.
+Default is \fB.pcp\fP.
 .RE
-.SH COMMAND LINE OPTIONS
+.SH OPTIONS
 The available command line options are:
 .TP 5
+.B \-8
+Limit results to instances with values above/below
+.IR limit .
+A positive integer will include instances with values
+at or above the limit in reporting.
+A negative integer will include instances with values
+at or below the limit in reporting.
+A value of zero performs no limit filtering.
+This option will \fInot\fP override possible per-metric specifications.
+See also
+.BR \-J " and "
+.BR \-N .
+.TP
+.B \-9
+Like
+.B \-8
+but this option \fIwill\fP override per-metric specifications.
+.TP
 .B \-a
-Performance metric values are retrieved from the set of Performance Co-Pilot
-(PCP) archive log files identified by the argument
+Performance metric values are retrieved from the set of Performance
+Co-Pilot (PCP) archive log files identified by the argument
 .IR archive ,
 which is a comma-separated list of names, each
-of which may be the base name of an archive or the name of a directory containing
-one or more archives.
+of which may be the base name of an archive or the name of
+a directory containing one or more archives.
 .TP
 .B \-\-archive\-folio
 Read metric source archives from the PCP archive
-.IR folio
-(see
-.BR mkaf (1)).
+.I folio
+created by tools like
+.BR pmchart (1)
+or, less often, manually with
+.BR mkaf (1).
 .TP
 .B \-A
 Force the initial sample to be
@@ -212,29 +233,25 @@ for space (byte) metrics, possible values include
 and so forth up to
 .BR Ebytes ,
 .BR EB .
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-B
-As
+Like
 .B \-b
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-c
 Specify the
 .I config
 file to use.
 The default is the first found of:
-.BR ./pcp2zabbix.conf ,
-.BR $HOME/.pcp2zabbix.conf ,
-.BR $HOME/pcp/pcp2zabbix.conf ,
+.IR ./pcp2zabbix.conf ,
+.IR \f(CW$HOME\fP/.pcp2zabbix.conf ,
+.IR \f(CW$HOME\fP/pcp/pcp2zabbix.conf ,
 and
-.BR $PCP_SYSCONF_DIR/pcp2zabbix.conf .
+.IR \f(CW$PCP_SYSCONF_DIR\fP/pcp2zabbix.conf .
 For details, see the above section and
 .BR pmrep.conf (5).
 .TP
@@ -254,7 +271,8 @@ Daemonize on startup.
 .B \-e
 Specify
 .I derived
-performance metrics. If
+performance metrics.
+If
 .I derived
 starts with a slash (``/'') or with a dot (``.'') it will be
 interpreted as a derived metrics configuration file, otherwise it will
@@ -268,7 +286,7 @@ and
 Specify the
 .I interval
 to send metrics to the server.
-See \fBzabbix_interval\fR description above for details.
+See \fBzabbix_interval\fP description above for details.
 .TP
 .B \-g
 Zabbix
@@ -284,7 +302,7 @@ Fetch performance metrics from
 .BR pmcd (1)
 on
 .IR host ,
-rather than the default localhost.
+rather than from the default localhost.
 .TP
 .B \-H
 Do not print any headers.
@@ -292,12 +310,14 @@ Do not print any headers.
 .B \-i
 Report only the listed
 .I instances
-(if present).
-By default all instances are reported.
+from current instances (if present, see also
+.BR \-j ).
+By default all instances, present and future, are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
-By default metrics without instances are reported as usual, use
+By default single-valued ``flat'' metrics without multiple
+instances are still reported as usual, use
 .B \-v
 to change this.
 Please refer to
@@ -305,26 +325,44 @@ Please refer to
 for more details on this option.
 .TP
 .B \-I
-Ignore incompatible metrics. By default incompatible metrics
-(that is, their type is unsupported or they cannot be scaled
-as requested) will cause
+Ignore incompatible metrics.
+By default incompatible metrics (that is,
+their type is unsupported or they cannot be scaled as requested)
+will cause
 .B pcp2zabbix
 to terminate with an error message.
 With this option all incompatible metrics are silently omitted
-from reporting. This may be especially useful when requesting
+from reporting.
+This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
+.TP
+.B \-j
+Perform instance live filtering.
+This allows capturing all filtered instances even if processes
+are restarted at some point (unlike without live filtering).
+Doing live filtering over a huge amount of instances naturally
+comes with some overhead so a bit of user caution is advised.
+.TP
+.B \-J
+Limit results to highest/lowest
+.I rank
+instances of set-valued metrics.
+A positive integer will include highest valued instances in reporting.
+A negative integer will include lowest valued instances in reporting.
+A value of zero performs no ranking.
+See also
+.BR \-8 .
 .TP
 .B \-K
 When fetching metrics from a local context (see
 .BR \-L ),
 the
 .B \-K
-option may be used to control the DSO PMDAs that should be made
-accessible.
+option may be used to control the DSO PMDAs that should be made accessible.
 The
 .I spec
 argument conforms to the syntax described in
-.BR pmSpecLocalPMDA(3).
+.BR pmSpecLocalPMDA (3).
 More than one
 .B \-K
 option may be used.
@@ -334,6 +372,45 @@ Use a local context to collect metrics from DSO PMDAs on the local host
 without PMCD.
 See also
 .BR \-K .
+.TP
+.B \-n
+Perform ranking before live filtering.
+By default instance live filter filtering (when requested, see
+.BR \-j )
+happens before instance ranking (when requested, see
+.BR \-J ).
+With this option the logic is inverted and ranking happens before
+live filtering.
+.TP
+.B \-N
+Specify a comma-separated list of
+.I predicate
+filter reference metrics.
+By default ranking (see
+.BR \-J )
+happens for each metric individually.
+With predicate filter reference metrics, ranking is done only for the
+specified metrics.
+When reporting, the rest of the metrics sharing the same
+.I instance domain
+(see
+.BR PCPIntro (1))
+as the predicates will include only the highest/lowest ranking
+instances of the corresponding predicates.
+.RS
+.PP
+So for example, when the using \fBproc.memory.rss\fP
+(resident size of process)
+as the
+.I predicate
+and including \fBproc.io.total_bytes\fP and \fBmem.util.used\fP as metrics
+to be reported, only the processes using most/least memory (as per
+.BR \-J )
+will be included when reporting total bytes written by processes.
+Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
+same instance domain as the process-related metrics),
+it will be reported as usual.
+.RE
 .TP
 .B \-O
 When reporting archived metrics, start reporting at
@@ -357,53 +434,43 @@ Use
 .I precision
 for numeric non-integer output values.
 The default is to use 3 decimal places (when applicable).
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 .TP
 .B \-0
-As
+Like
 .B \-P
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-q
 .I Unit/scale
 for count metrics, possible values include
-.BR "count x 10^-1" ,
+.BR "count x 10^\-1" ,
 .BR "count" ,
 .BR "count x 10" ,
 .BR "count x 10^2" ,
 and so forth from
-.B 10^-8
+.B 10^\-8
 to
 .BR 10^7 .
 .\" https://bugzilla.redhat.com/show_bug.cgi?id=1264124
 (These values are currently space-sensitive.)
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-Q
-As
+Like
 .B \-q
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-r
 Output raw metric values, do not convert cumulative counters to rates.
-This option \fIwill\fR override possible per-metric specifications.
+This option \fIwill\fP override possible per-metric specifications.
 .TP
 .B \-R
 As
 .B \-r
-but this option will
-.I not
-override per-metric specifications.
+but this option will \fInot\fP override per-metric specifications.
 .TP
 .B \-s
 The argument
@@ -437,8 +504,8 @@ The
 .I interval
 argument follows the syntax described in
 .BR PCPIntro (1),
-and in the simplest form may be an unsigned integer (the implied units
-in this case are seconds).
+and in the simplest form may be an unsigned integer
+(the implied units in this case are seconds).
 See also the
 .B \-T
 option.
@@ -453,9 +520,9 @@ for a complete description of the syntax for
 .IR endtime .
 .RS
 .PP
-When used to define the runtime before \fBpcp2zabbix\fR will exit,
-if no \fIsamples\fR is given (see \fB-s\fR) then the number of
-reported samples depends on \fIinterval\fR (see \fB-t\fR).
+When used to define the runtime before \fBpcp2zabbix\fP will exit,
+if no \fIsamples\fP is given (see \fB\-s\fP) then the number of
+reported samples depends on \fIinterval\fP (see \fB\-t\fP).
 If
 .I samples
 is given then
@@ -476,12 +543,12 @@ will run.
 .RE
 .TP
 .B \-v
-Omit single-valued ``flat'' metrics from reporting when instances
-were requested.
+Omit single-valued ``flat'' metrics from reporting, only consider
+set-valued metrics (i.e., metrics with multiple values) for reporting.
 See
-.B -\i
+.B \-i
 and
-.BR -\I .
+.BR \-I .
 .TP
 .B \-V
 Display version number and exit.
@@ -508,41 +575,30 @@ for time metrics, possible values include
 and so forth up to
 .BR hour ,
 .BR hr .
-This option will
-.I not
-override possible per-metric specifications.
+This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
 .B \-Y
-As
+Like
 .B \-y
-but this option
-.I will
-override per-metric specifications.
+but this option \fIwill\fP override per-metric specifications.
 .TP
 .B \-?
 Display usage message and exit.
 .SH FILES
-.PD 0
-.TP 10
-.BI pcp2zabbix.conf
-\fBpcp2zabbix\fR configuration file (see \fB-c\fR).
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parametrize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.TP
+.I pcp2zabbix.conf
+\fBpcp2zabbix\fP configuration file (see \fB\-c\fP)
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR mkaf (1),
 .BR PCPIntro (1),
@@ -556,13 +612,14 @@ as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmrep (1),
+.BR pmGetOptions (3),
 .BR pmSpecLocalPMDA (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),
 .BR pmRegisterDerived (3),
 .BR zbxpcp (3),
+.BR LOGARCHIVE (5),
 .BR pcp.conf (5),
-.BR pmlogger (5),
 .BR pmns (5)
 and
 .BR pmrep.conf (5).

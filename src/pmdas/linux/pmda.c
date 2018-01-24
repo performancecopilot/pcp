@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -1524,6 +1524,16 @@ static pmdaMetric metrictab[] = {
 /* hinv.ninterface */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_DEV,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.wireless */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,28), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.type */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,29), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* network.interface.inet_addr */
@@ -4338,16 +4348,21 @@ static pmdaMetric metrictab[] = {
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
- * /proc/sys/kernel random cluster
+ * /proc/sys/kernel cluster (random number state, pid_max, etc)
  */
 
     /* random.entropy_avail */
     { &proc_sys_kernel.entropy_avail,
-      { PMDA_PMID(CLUSTER_RANDOM,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_SYS_KERNEL,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* random.poolsize */
     { &proc_sys_kernel.random_poolsize,
-      { PMDA_PMID(CLUSTER_RANDOM,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_SYS_KERNEL,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* kernel.pid_max */
+    { &proc_sys_kernel.pid_max,
+      { PMDA_PMID(CLUSTER_SYS_KERNEL,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /*
@@ -5527,10 +5542,12 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_TMPFS] ||
 	need_refresh[REFRESH_NET_MTU] ||
+	need_refresh[REFRESH_NET_TYPE] ||
 	need_refresh[REFRESH_NET_SPEED] ||
 	need_refresh[REFRESH_NET_DUPLEX] ||
 	need_refresh[REFRESH_NET_LINKUP] ||
 	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NET_WIRELESS] ||
 	need_refresh[REFRESH_NETADDR_INET] ||
 	need_refresh[REFRESH_NETADDR_IPV6] ||
 	need_refresh[REFRESH_NETADDR_HW]) {
@@ -5625,7 +5642,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_VFS])
     	refresh_proc_sys_fs(&proc_sys_fs);
 
-    if (need_refresh[CLUSTER_RANDOM])
+    if (need_refresh[CLUSTER_SYS_KERNEL])
     	refresh_proc_sys_kernel(&proc_sys_kernel);
 
     if (need_refresh[CLUSTER_VMSTAT])
@@ -6592,6 +6609,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 26: /* network.interface.running */
 	    atom->ul = netip->ioc.running;
+	    break;
+	case 28: /* network.interface.wireless */
+	    atom->ul = netip->ioc.wireless;
+	    break;
+	case 29: /* network.interface.type */
+	    atom->ul = netip->ioc.type;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -7744,6 +7767,12 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		break;
 	    case 26:	/* network.interface.running */
 		need_refresh[REFRESH_NET_RUNNING]++;
+		break;
+	    case 28:	/* network.interface.wireless */
+		need_refresh[REFRESH_NET_WIRELESS]++;
+		break;
+	    case 29:	/* network.interface.type */
+		need_refresh[REFRESH_NET_TYPE]++;
 		break;
 	    }
 	    break;

@@ -9,9 +9,12 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -53,7 +56,7 @@ cat $tmp.out
 cat $tmp.err
 
 echo && echo "Verify no pmrep coredump..."
-pmrep -z -I -o csv -a badarchives/logsummary-bug.meta "" >$tmp.out 2>$tmp.err
+pmrep -z -I -o csv -r -a badarchives/logsummary-bug.meta "" >$tmp.out 2>$tmp.err
 cat $tmp.out
 cat $tmp.err
 

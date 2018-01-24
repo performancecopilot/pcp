@@ -4,8 +4,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:14.259 2009
-  ending     Fri Oct 16 10:49:15.060 2009
+    commencing Fri Oct 16 10:49:14.259840 2009
+    ending     Fri Oct 16 10:49:15.060030 2009
 Archive timezone: EST-10
 
 === archives/tzchange-10-b ===
@@ -13,8 +13,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:15.066 2009
-  ending     Fri Oct 16 10:49:15.866 2009
+    commencing Fri Oct 16 10:49:15.066632 2009
+    ending     Fri Oct 16 10:49:15.866505 2009
 Archive timezone: EST-10
 
 === archives/tzchange-11-a ===
@@ -22,8 +22,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 11:49:19.458 2009
-  ending     Fri Oct 16 11:49:20.258 2009
+    commencing Fri Oct 16 11:49:19.458227 2009
+    ending     Fri Oct 16 11:49:20.258314 2009
 Archive timezone: EST-11
 
 === archives/tzchange-11-b ===
@@ -31,8 +31,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 11:49:20.262 2009
-  ending     Fri Oct 16 11:49:21.062 2009
+    commencing Fri Oct 16 11:49:20.262737 2009
+    ending     Fri Oct 16 11:49:21.062806 2009
 Archive timezone: EST-11
 
 === archives/tzchange-12-a ===
@@ -40,8 +40,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 12:49:24.572 2009
-  ending     Fri Oct 16 12:49:25.372 2009
+    commencing Fri Oct 16 12:49:24.572380 2009
+    ending     Fri Oct 16 12:49:25.372588 2009
 Archive timezone: EST-12
 
 === archives/tzchange-12-b ===
@@ -49,8 +49,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 12:49:25.379 2009
-  ending     Fri Oct 16 12:49:26.178 2009
+    commencing Fri Oct 16 12:49:25.379192 2009
+    ending     Fri Oct 16 12:49:26.178825 2009
 Archive timezone: EST-12
 
 
@@ -73,8 +73,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 12:49:14.259 2009
-  ending     Fri Oct 16 12:49:26.178 2009
+    commencing Fri Oct 16 12:49:14.259840 2009
+    ending     Fri Oct 16 12:49:26.178825 2009
 Archive timezone: EST-12
 
 === pmlogextract -f archives/tzchange-10-a archives/tzchange-10-b archives/tzchange-11-a archives/tzchange-11-b archives/tzchange-12-a archives/tzchange-12-b ===
@@ -96,8 +96,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:14.259 2009
-  ending     Fri Oct 16 10:49:26.178 2009
+    commencing Fri Oct 16 10:49:14.259840 2009
+    ending     Fri Oct 16 10:49:26.178825 2009
 Archive timezone: EST-10
 
 === pmlogextract  archives/tzchange-10-a.0 archives/tzchange-11-a.0 archives/tzchange-12-a.0 ===
@@ -113,8 +113,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 12:49:14.259 2009
-  ending     Fri Oct 16 12:49:25.372 2009
+    commencing Fri Oct 16 12:49:14.259840 2009
+    ending     Fri Oct 16 12:49:25.372588 2009
 Archive timezone: EST-12
 
 === pmlogextract -f archives/tzchange-10-a.0 archives/tzchange-11-a.0 archives/tzchange-12-a.0 ===
@@ -130,8 +130,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:14.259 2009
-  ending     Fri Oct 16 10:49:25.372 2009
+    commencing Fri Oct 16 10:49:14.259840 2009
+    ending     Fri Oct 16 10:49:25.372588 2009
 Archive timezone: EST-10
 
 === pmlogextract  archives/tzchange-10-a.0 archives/tzchange-11-a.0 ===
@@ -144,8 +144,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 11:49:14.259 2009
-  ending     Fri Oct 16 11:49:20.258 2009
+    commencing Fri Oct 16 11:49:14.259840 2009
+    ending     Fri Oct 16 11:49:20.258314 2009
 Archive timezone: EST-11
 
 === pmlogextract -f archives/tzchange-10-a.0 archives/tzchange-11-a.0 ===
@@ -158,8 +158,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:14.259 2009
-  ending     Fri Oct 16 10:49:20.258 2009
+    commencing Fri Oct 16 10:49:14.259840 2009
+    ending     Fri Oct 16 10:49:20.258314 2009
 Archive timezone: EST-10
 
 === pmlogextract  archives/tzchange-10-a.0 ===
@@ -169,8 +169,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:14.259 2009
-  ending     Fri Oct 16 10:49:15.060 2009
+    commencing Fri Oct 16 10:49:14.259840 2009
+    ending     Fri Oct 16 10:49:15.060030 2009
 Archive timezone: EST-10
 
 === pmlogextract -f archives/tzchange-10-a.0 ===
@@ -180,8 +180,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 10:49:14.259 2009
-  ending     Fri Oct 16 10:49:15.060 2009
+    commencing Fri Oct 16 10:49:14.259840 2009
+    ending     Fri Oct 16 10:49:15.060030 2009
 Archive timezone: EST-10
 
 === pmlogextract  archives/tzchange-11-a.0 archives/tzchange-11-b.0 ===
@@ -191,8 +191,8 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 11:49:19.458 2009
-  ending     Fri Oct 16 11:49:21.062 2009
+    commencing Fri Oct 16 11:49:19.458227 2009
+    ending     Fri Oct 16 11:49:21.062806 2009
 Archive timezone: EST-11
 
 === pmlogextract -f archives/tzchange-11-a.0 archives/tzchange-11-b.0 ===
@@ -202,6 +202,6 @@ Note: timezone set to local timezone of host "bozo-laptop" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host bozo-laptop
-  commencing Fri Oct 16 11:49:19.458 2009
-  ending     Fri Oct 16 11:49:21.062 2009
+    commencing Fri Oct 16 11:49:19.458227 2009
+    ending     Fri Oct 16 11:49:21.062806 2009
 Archive timezone: EST-11

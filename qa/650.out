@@ -40,40 +40,87 @@ TIMESTAMP <some> instances
                  ...
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 = pmlogger log
 Log for pmlogger on HOST started DATE
 
@@ -124,40 +171,87 @@ TIMESTAMP <some> instances
                  ...
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 = pmlogger log
 Log for pmlogger on HOST started DATE
 
@@ -208,40 +302,87 @@ TIMESTAMP <some> instances
                  ...
 InDom: 2.1
 TIMESTAMP 1 instances
-                 LOGGER_PID or "LOGGER_PID"
+   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
-                <some values>
+TIMESTAMP 1 metric
+    2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect):
+        inst [1 or "root"] value INTEGER
+        inst [2 or "pmcd"] value INTEGER
+        inst [3 or "proc"] value INTEGER
+        inst [11 or "xfs"] value INTEGER
+        inst [29 or "sample"] value INTEGER
+        inst [30 or "sampledso"] value INTEGER
+        inst [70 or "mmv"] value INTEGER
+        inst [122 or "jbd2"] value INTEGER
+        inst [253 or "simple"] value INTEGER
 
-TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
-              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
-              2.0.23 (pmcd.pid): value INTEGER
-              2.0.24 (pmcd.seqnum): value INTEGER
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+    2.0.23 (pmcd.pid): value INTEGER
+    2.0.24 (pmcd.seqnum): value INTEGER
 = pmlogger log
 Log for pmlogger on HOST started DATE
 

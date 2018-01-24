@@ -2,8 +2,8 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2017 Red Hat.
 # Portions Copyright (c) 2016-2017 Fujitsu.
+# Portions Copyright (c) 2013-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -1205,6 +1205,8 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.interface.duplex value one for half or two for full duplex interface
 @ network.interface.up boolean for whether interface is currently up or down
 @ network.interface.running boolean for whether interface has resources allocated
+@ network.interface.wireless boolean for whether interface is wireless
+@ network.interface.type sysfs interface name assignment type value
 @ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
 @ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)
@@ -1670,7 +1672,8 @@ See also the kernel.uname.* metrics
 @ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
 @ kernel.all.uptime time the current kernel has been running
 @ kernel.all.idletime time the current kernel has been idle since boot
-@ kernel.all.lastpid most recently allocated process id
+@ kernel.all.lastpid most recently allocated process identifier
+@ kernel.all.pid_max maximum process identifier from /proc/sys/kernel/pid_max
 @ kernel.all.runnable total number of processes in the (per-CPU) run queues
 @ kernel.all.nprocs total number of processes (lightweight)
 @ mem.slabinfo.objects.active number of active objects in each cache

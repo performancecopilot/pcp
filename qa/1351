@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1351
+# Exercise asynchronous namespace change notification from
+# PMDAs through to PMAPI clients.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f $PCP_TMP_DIR/mmv/test
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+$here/src/fetchloop -s 5 -t 1 -v mmv.control.files > $tmp.out &
+
+pmsleep 1.5
+$here/src/mmv_genstats
+
+#
+# remove duplicate output lines - we expect to see several fetches
+# with state change "none" and one change with a "names" notifier.
+#
+wait
+LC_COLLATE=POSIX sort -u $tmp.out | sed -e '/^pmFetch time/d'
+
+# success, all done
+status=0
+exit

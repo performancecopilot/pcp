@@ -52,11 +52,7 @@ LDIRT	= *.log help.pag help.dir $(subst .c,.o,$(CFILES)) \
 
 default default_pcp setup: $(TARGETS)
 
-MYFILES = broken_help broken_pmns
-MYSCRIPTS = broken_Install broken_Remove
-
 include $(PCP_INC_DIR)/buildrules
-
 
 install install_pcp:
 

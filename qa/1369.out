@@ -4,6 +4,9 @@ QA output created by 1369
 
 Metric Labels in the Log ...
 [TIMESTAMP]
+    Cluster 29.0 labels (18 bytes): {"cluster":"zero"}
+        [0] name(2,7) : value(11,6) [cluster]
+[TIMESTAMP]
     Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
         [0] name(2,5) : value(9,8) [domain]
         [1] name(19,4) : value(25,9) [domain]

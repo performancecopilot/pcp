@@ -1,24 +1,25 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2013,2018 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAINIT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaInit\f1,
 \f3pmdaRehash\f1,
-\f3pmdaSetFlags\f1 \- initialize a PMDA
+\f3pmdaSetFlags\f1,
+\f3pmdaExtSetFlags\f1 \- initialize a PMDA
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -36,6 +37,9 @@ void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetric
 .br
 .ti -8n
 void pmdaSetFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
+.br
+.ti -8n
+void pmdaExtSetFlags(pmdaExt *\fIpmda\fP, int \fIflags\fP);
 .sp
 .in
 .hy
@@ -58,8 +62,7 @@ should be set to the number of instances and metrics in the tables,
 respectively.
 .PP
 Much of the
-.B
-pmdaInterface
+.B pmdaInterface
 structure can be automatically initialized with 
 .BR pmdaDaemon (3),
 .BR pmdaGetOpt (3)
@@ -178,7 +181,7 @@ additional processing overhead).
 If the PMID numbering requirement is met by the PMDA, it is ideal.
 This strategy can be explicitly requested by calling
 .BR pmdaSetFlags \c
-(\f2pmda\f1, \f2PMDA_FLAG_EXT_DIRECT\f1)
+(\f2pmda\f1, \f2PMDA_EXT_FLAG_DIRECT\f1)
 before calling
 .BR pmdaInit .
 In this case, if the direct mapping is not possible (e.g. due to
@@ -197,7 +200,7 @@ request.
 .PP
 The third strategy (hash lookup) can be requested by calling
 .BR pmdaSetFlags \c
-(\f2pmda\f1, \f2PMDA_FLAG_EXT_HASHED\f1)
+(\f2pmda\f1, \f2PMDA_EXT_FLAG_HASHED\f1)
 before calling
 .BR pmdaInit .
 This strategy is most useful for PMDAs with large numbers of metrics
@@ -216,7 +219,42 @@ function should be used to replace the metric table when new metrics
 become available, or existing metrics are removed.
 The PMID hash mapping will be recomputed at the same time that the
 new metric table is installed.
-
+.SH "METRIC CHANGES"
+It should be well understood by PMDA authors that metric metadata
+for individual metrics is fixed, and ideally would not ever change.
+In the situation where metadata is incorrect and is updated, such a
+change requires correction to logged metrics using
+.BR pmlogrewrite (1),
+and as a result should be avoided whenever possible.
+.PP
+However, a PMDA may become aware of new domain metrics at runtime,
+and in this case it is ideal to export them immediately (without
+any collector system restart).
+In this situation, the PMDA can inform all running PMAPI clients
+that may have already explored the metric namespace (for example,
+using
+.BR pmTraversePMNS (3))
+of the change to the metric namespace.
+.PP
+This is achieved using
+.BR pmdaSetFlags \c
+(\fIpmda\fR, \fIPMDA_EXT_NAMES_CHANGE\fR)
+which will result in the PMCD_NAMES_CHANGE state change notification
+being sent to each PMAPI client on next fetch.
+If the newly discovered metrics have label metadata associated,
+then the
+.I PMDA_EXT_LABEL_CHANGE
+flag may also be set, which will result in the PMCD_LABEL_CHANGE
+notification being sent as well.
+.PP
+.B pmdaExtSetFlags
+is equivalent to
+.BR pmdaSetFlags ,
+and is provided as a convenience interface in situations where the
+.B pmdaExt
+is more readily available than the
+.B pmdaInterface
+structure.
 .SH DIAGNOSTICS
 .B pmdaInit
 will set
@@ -282,16 +320,28 @@ The PMDA must be using
 or later, as specified in the call to 
 .BR pmdaDSO (3)
 or 
-.BR pmdaDaemon (3).
+.BR pmdaDaemon (3)
+to use
+.BR pmdaInit .
+.PP
+The PMDA must use
+.B PMDA_INTERFACE_7
+or later to issue state change notifications using
+.BR pmdaSetFlags
+or
+.BR pmdaExtSetFlags .
+.PP
 .SH SEE ALSO
 .BR newhelp (1),
 .BR pmcd (1),
+.BR pmlogrewrite (1),
 .BR PMAPI (3),
 .BR PMDA (3),
 .BR pmdaDaemon (3),
 .BR pmdaDSO (3),
 .BR pmdaFetch (3),
 .BR pmdaGetOpt (3),
-.BR pmdaText (3)
+.BR pmdaText (3),
+.BR pmLookupDesc (3)
 and
-.BR pmLookupDesc (3).
+.BR pmTraversePMNS (3).

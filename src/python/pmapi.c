@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2017 Red Hat.
+ * Copyright (C) 2012-2018 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -1061,6 +1061,11 @@ getOptionArchives(PyObject *self, PyObject *args)
     PyObject	*result;
     int		i;
 
+    /* default to localhost archives with unqualified -O/--origin option */
+    if (options.origin_optarg != NULL &&
+	options.narchives <= 0 && options.nhosts <= 0 && !options.Lflag)
+	__pmAddOptArchivePath(&options);
+
     if (options.narchives > 0) {
 	if ((result = PyList_New(options.narchives)) == NULL)
 	    return PyErr_NoMemory();
@@ -1075,6 +1080,7 @@ getOptionArchives(PyObject *self, PyObject *args)
 	Py_INCREF(result);
 	return result;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1534,6 +1540,7 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PMCD_DROP_AGENT", PMCD_DROP_AGENT);
     dict_add(dict, "PMCD_AGENT_CHANGE", PMCD_AGENT_CHANGE);
     dict_add(dict, "PMCD_LABEL_CHANGE", PMCD_LABEL_CHANGE);
+    dict_add(dict, "PMCD_NAMES_CHANGE", PMCD_NAMES_CHANGE);
 
     dict_add(dict, "PM_MAXLABELS", PM_MAXLABELS);
     dict_add(dict, "PM_MAXLABELJSONLEN", PM_MAXLABELJSONLEN);

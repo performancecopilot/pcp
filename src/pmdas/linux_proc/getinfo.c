@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Red Hat.
+ * Copyright (c) 2016-2018 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -22,8 +22,8 @@
 
 /*
  * Convert kernels string device number encoding into a dev_t.
-*/
-dev_t
+ */
+static dev_t
 get_encoded_dev(const char *devnum)
 {
     unsigned device = (unsigned int)strtoul(devnum, NULL, 0);
@@ -42,14 +42,14 @@ get_encoded_dev(const char *devnum)
  * Returns a pointer into a static buffer, so no free'ing needed.
  */
 char *
-get_ttyname_info(int pid, dev_t dev)
+get_ttyname(int pid, dev_t dev, char *devpath)
 {
-    struct stat statbuf;
-    char fullpath[MAXPATHLEN];
-    static char ttyname[MAXPATHLEN];
-    char *path, *devpath = "/dev/";
+    static char	ttyname[MAXPATHLEN];
+    char	fullpath[MAXPATHLEN];
+    struct stat	statbuf;
+    char	*path;
     struct dirent *drp;
-    DIR *rundir;
+    DIR		*rundir;
 
     strcpy(ttyname, "?");
     if ((rundir = opendir(devpath)) == NULL)
@@ -58,16 +58,32 @@ get_ttyname_info(int pid, dev_t dev)
     while ((drp = readdir(rundir)) != NULL) {
 	if (*(path = &drp->d_name[0]) == '.')
 	    continue;
-	pmsprintf(fullpath, sizeof(fullpath), "%s%s", devpath, path);
+	pmsprintf(fullpath, sizeof(fullpath), "%s/%s", devpath, path);
 	fullpath[sizeof(fullpath)-1] = '\0';
-	if (!stat(fullpath, &statbuf))
-	    continue;
-	if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
-	    strncpy(ttyname, &fullpath[5], sizeof(ttyname));
-	    ttyname[sizeof(ttyname)-1] = '\0';
-	    break;
+	if (stat(fullpath, &statbuf) != 0) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		fprintf(stderr, "get_ttyname %s stat: %s\n",
+			fullpath, strerror(errno));
+	}
+	else if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
+	   /* note - this depends on all paths being /dev prefixed */
+	   strncpy(ttyname, &fullpath[5], sizeof(ttyname));
+	   ttyname[sizeof(ttyname)-1] = '\0';
+	   break;
 	}
     }
     closedir(rundir);
     return ttyname;
+}
+
+char *
+get_ttyname_info(int pid, const char *devnum)
+{
+    dev_t	dev = get_encoded_dev(devnum);
+    char	*name;
+
+    name = get_ttyname(pid, dev, "/dev/pts");
+    if (*name != '?')
+	return name;
+    return get_ttyname(pid, dev, "/dev");
 }

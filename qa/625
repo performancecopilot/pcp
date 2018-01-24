@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 625
+# Exercise pmGetOptions handling of a -O/--offset argument
+# when no archive(s) have been explicitly presented.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMPDIR,g" \
+	-e "s,$DEFAULT_HOST,DEFAULT_HOST,g" \
+    #end
+}
+
+# real QA test starts here
+export DEFAULT_HOST=`hostname`
+mkdir -p $tmp/pmlogger/$DEFAULT_HOST
+export PCP_LOG_DIR=$tmp
+
+echo "== Exercise scanning for the default localhost archives"
+$here/src/getoptions -O today | _filter
+echo
+
+echo "== Check default path not used with an explicit archive"
+$here/src/getoptions -O today -a $DEFAULT_HOST | _filter
+echo
+
+echo "== Check default path not used with an explicit hostname"
+$here/src/getoptions -O today -h $DEFAULT_HOST | _filter
+echo
+
+echo "== Check default path not used with local context option"
+$here/src/getoptions -O today -L | _filter
+echo
+
+echo "== Exercise simple pmval use with a default archive path"
+cp $here/archives/snort-disks.* $tmp/pmlogger/$DEFAULT_HOST
+pmval -z -t 5sec -O'@Thu May 26 12:37:15 2005' disk.dev.read | _filter
+echo
+
+# success, all done
+status=0
+exit

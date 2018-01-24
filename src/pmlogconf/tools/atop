@@ -76,6 +76,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	swap.free
 
 	network.interface.baudrate
+	network.interface.wireless
 	network.interface.duplex
 	network.interface.in.bytes
 	network.interface.in.packets
@@ -176,6 +177,10 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	rpc.client.rpccnt
 	rpc.client.rpcretrans
 	rpc.client.rpcauthrefresh
+	rpc.client.netcnt
+	rpc.client.nettcpcnt
+	rpc.client.nettcpconn
+	rpc.client.netudpcnt
 	nfs.client.reqs[read,write]
 	nfs3.client.reqs[read,write]
 	nfs4.client.reqs[read,write]

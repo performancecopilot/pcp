@@ -1,22 +1,23 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2017 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
 .\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License as published by
-.\" the Free Software Foundation; either version 2 of the License, or
-.\" (at your option) any later version.
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
 .\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
 .\"
 .TH PMDAHAPROXY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdahaproxy\f1 \- HAProxy PMDA
 .SH DESCRIPTION
-\f3pmdahaproxy\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
+\fBpmdahaproxy\fP is a Performance Metrics Domain Agent (PMDA) which
 extracts live performance data from HAProxy statistics socket or URL.
 .PP
 By default the HAProxy stats socket is used to retrieve the metric but
@@ -26,76 +27,108 @@ is used instead.
 See the HAProxy documentation for detailed description of each metric.
 .PP
 .SH INSTALLATION
-\f3pmdahaproxy\f1 reads an optional ini-style configuration file
-.IP "\(bu" 4
-.I $PCP_PMDAS_DIR/haproxy/haproxy.conf
+\fBpmdahaproxy\fP reads an optional ini-style configuration file
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
+.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/haproxy.conf
+.RE
+.PD
 .PP
-This file can contain in its \f3[pmda]\f1 section overriding values
+This file can contain in its \fB[pmda]\fP section overriding values
 for the following PMDA options:
-.IP "\(bu" 4
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
 user
-.IP "\(bu" 4
+.IP \(bu
 socket
+.RE
+.PD
 .PP
-By default, \f3root\f1 and \f3/var/lib/haproxy/stats\f1,
+By default, \fBroot\fP and \fB/var/lib/haproxy/stats\fP,
 are used as values for these options, respectively.
 .PP
 The section can also contain the following parameters:
-.IP "\(bu" 4
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
 url
-.IP "\(bu" 4
+.IP \(bu
 auth
-.IP "\(bu" 4
+.IP \(bu
 pass
+.RE
+.PD
 .PP
-When the \f2url\f1 option is defined, URL connection to HAProxy is used.
-\f3pmdahaproxy\f1 expects CSV data from the HAProxy URL; an example
-of a compatible URL is \f3http://127.0.0.1:9000/?stats;csv\f1.
+When the \fIurl\fP option is defined, URL connection to HAProxy is used.
+\fBpmdahaproxy\fP expects CSV data from the HAProxy URL; an example
+of a compatible URL is \fBhttp://127.0.0.1:9000/?stats;csv\fP.
 .PP
 Note that the HAProxy statistics socket and/or URL need to be separately
-enabled in the HAProxy configuration file; please refer to the HAProxy
-configuration documentation for details. Depending on system and HAProxy
-configuration, using non-root user may also be possible, especially
-with URL based connections.
+enabled in the HAProxy configuration file;
+please refer to the HAProxy configuration documentation for details.
+Depending on system and HAProxy configuration, using non-root user
+may also be possible, especially with URL based connections.
 .PP
 Once the needed setup is ready, you can test the connection and install
 the PMDA to enable access to the names and values for the HAProxy
-performance metrics. To install, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/haproxy
-.br
-      # ./connect
-.br
-      # ./Install
-.PP
+performance metrics.
+To install, do the following as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/haproxy
+# ./connect
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/haproxy
-.br
-      # ./Remove
-.PP
-\fBpmdahaproxy\fR is launched by \fIpmcd\fR(1) and should never be executed
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/haproxy
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdahaproxy\fR is launched by \fBpmcd\fR(1) and should never be executed
+directly.
+The Install and Remove scripts notify \fBpmcd\fR(1) when the
 agent is installed or removed.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/haproxy/haproxy.conf\fR" 4
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/haproxy.conf
 configuration file for the \fBpmdahaproxy\fR agent
-.IP "\fB$PCP_PMDAS_DIR/haproxy/connect\fR" 4
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/connect
 connection test helper using the \fBpmdahaproxy\fR agent configuration
-.IP "\fB$PCP_PMDAS_DIR/haproxy/Install\fR" 4
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/Install
 installation script for the \fBpmdahaproxy\fR agent
-.IP "\fB$PCP_PMDAS_DIR/haproxy/Remove\fR" 4
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/Remove
 undo installation script for the \fBpmdahaproxy\fR agent
-.IP "\fB$PCP_LOG_DIR/pmcd/haproxy.log\fR" 4
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/haproxy.log
 default log file for messages from the \fBpmdahaproxy\fR agent
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
-the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables.
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fR contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
-configuration file, as described in \fIpcp.conf\fR(5).
+configuration file, as described in \fBpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR haproxy (1),
+.BR haproxy (1)
 and
 .BR pmcd (1).

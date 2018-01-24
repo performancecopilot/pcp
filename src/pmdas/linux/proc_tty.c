@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,9 +24,12 @@ refresh_tty(pmInDom tty_indom)
 {
     char buf[MAXPATHLEN];
     char port[64];
+    char uart[64];
     char *p;
+    char *u;
     FILE *fp;
     int sts = 0;
+    int port_result = -1;
     ttydev_t *device;
 
     if ((fp = linux_statsfile("/proc/tty/driver/serial", buf, sizeof(buf))) == NULL)
@@ -34,11 +37,19 @@ refresh_tty(pmInDom tty_indom)
 
     pmdaCacheOp(tty_indom, PMDA_CACHE_INACTIVE);
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if ((p = strstr(buf, "port:")) != NULL) {
-	    sscanf(p+5, "%s", port);
-	    if (strncmp(port, "00000000", 8)){
+	if (((p = strstr(buf, ":")) != NULL) && ((u = strstr(buf, "uart:")) != NULL)) {
+	    strncpy(port, buf, (int)(p - buf));
+	    port[(int)(p - buf)] = '\0';
+	    errno = 0;
+	    port_result = (int)strtol(port, NULL, 10);
+	    if (errno != 0 || port_result < 0) {
+		pmNotifyErr(LOG_DEBUG, "Invalid tty number: %d %s (%d)\n", errno, strerror(errno), port_result);
+		goto done;
+	    }
+	    sscanf(u+5, "%s", uart);
+	    if (strcmp(uart, "unknown") && strcmp(port, "serinfo")) {
 		sts = pmdaCacheLookupName(tty_indom, port, NULL, (void **)&device);
-		if (sts < 0){
+		if (sts < 0) {
 		    device = (ttydev_t*)malloc(sizeof(ttydev_t));
 		    memset(device, 0, sizeof(ttydev_t));
 		}
@@ -58,6 +69,9 @@ refresh_tty(pmInDom tty_indom)
 		    sscanf(p+3, "%u", &device->overrun);
 		pmdaCacheStore(tty_indom, PMDA_CACHE_ADD, port, (void*) device);
 	    }
+	done:
+	    memset(&port, 0, sizeof(port));
+	    memset(&uart, 0, sizeof(uart));
 	}
     }
     fclose(fp);

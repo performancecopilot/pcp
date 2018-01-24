@@ -302,7 +302,43 @@ QA output created by 366
 > #+ kernel/syscalls-linux:n:default:
 > ## context switches and fork system calls over all CPUs [Linux]
 > #----
+> #+ kvm/kvm:x::
+> #----
+> #+ libvirt/libvirt:x::
+> #----
 > #+ mailq/summary:x::
+> #----
+> #+ memory/buddyinfo:y:default:
+> ## buddyinfo metrics from the Linux VM subsystem
+> log advisory on default {
+> 	mem.buddyinfo.pages
+> 	mem.buddyinfo.total
+> }
+> #----
+> #+ memory/ksminfo:y:default:
+> ## KVM metrics from the Linux VM subsystem
+> log advisory on default {
+> 	mem.ksm.full_scans
+> 	mem.ksm.merge_across_nodes
+> 	mem.ksm.pages_shared
+> 	mem.ksm.pages_sharing
+> 	mem.ksm.pages_to_scan
+> 	mem.ksm.pages_unshared
+> 	mem.ksm.pages_volatile
+> 	mem.ksm.run_state
+> 	mem.ksm.sleep_time
+> }
+> #----
+> #+ memory/slabinfo:x::
+> #----
+> #+ memory/zoneinfo:y:default:
+> ## zoneinfo metrics from the Linux VM subsystem
+> log advisory on default {
+> 	mem.zoneinfo.free
+> 	mem.zoneinfo.high
+> 	mem.zoneinfo.low
+> 	mem.zoneinfo.managed
+> }
 > #----
 > #+ netfilter/config:x::
 > #----
@@ -338,6 +374,7 @@ QA output created by 366
 > 	hinv.map.dmname
 > 	hinv.map.mdname
 > 	kernel.all.hz
+> 	kernel.all.pid_max
 > 	kernel.uname.release
 > 	kernel.uname.version
 > 	kernel.uname.machine
@@ -446,6 +483,10 @@ QA output created by 366
 > ## metrics sampled once by the sar(1) command
 > log advisory on once {
 > 	hinv.ncpu
+> 	kernel.all.entropy.avail
+> 	kernel.all.entropy.poolsize
+> 	kernel.all.interrupts.errors
+> 	kernel.all.lastpid
 > }
 > #----
 > #+ tools/uptime:y:default:

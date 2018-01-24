@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 1135
+# Live filtering using dynamic indoms test with pmrep, uses the dyninsts archive.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2017-2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1        # failure is the default!
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; exit \$status" 0 1 2 3 15
+
+log="--archive $here/archives/dyninsts -z"
+
+# real QA test starts here
+pmrep $log -p -I -r -u -j -1 disk.dev.read disk.dev.write mem.util.free mem.util.used
+
+# success, all done
+status=0
+exit

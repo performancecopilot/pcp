@@ -2,6 +2,7 @@ QA output created by 022
 proc.control.all.threads
 proc.control.perclient.cgroups
 proc.control.perclient.threads
+proc.id.container
 proc.id.egid
 proc.id.egid_nm
 proc.id.euid
@@ -38,9 +39,11 @@ proc.memory.vmexe
 proc.memory.vmhwm
 proc.memory.vmlib
 proc.memory.vmlock
+proc.memory.vmnonlib
 proc.memory.vmpeak
 proc.memory.vmpin
 proc.memory.vmpte
+proc.memory.vmreal
 proc.memory.vmrss
 proc.memory.vmsize
 proc.memory.vmstack

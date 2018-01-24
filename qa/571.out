@@ -4,62 +4,66 @@ Instance Domains in the Log ...
 
 Instance Domains in the Log ...
 InDom: 29.7
-TIMESTAMP 4 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
+TIMESTAMP-1 4 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
 
 Instance Domains in the Log ...
 InDom: 29.7
-TIMESTAMP 4 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-TIMESTAMP 5 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-                 400 or "fourty"
+TIMESTAMP-1 4 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+TIMESTAMP-2 5 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+   400 or "fourty"
 
 Instance Domains in the Log ...
 InDom: 29.7
-TIMESTAMP 4 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-TIMESTAMP 5 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-                 400 or "fourty"
-TIMESTAMP 5 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-                 500 or "fifty"
+TIMESTAMP-1 4 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+TIMESTAMP-2 5 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+   400 or "fourty"
+TIMESTAMP-3 5 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+   500 or "fifty"
 
 Instance Domains in the Log ...
 InDom: 29.7
-TIMESTAMP 4 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-TIMESTAMP 5 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-                 400 or "fourty"
-TIMESTAMP 5 instances
-                 10 or "one"
-                 20 or "two"
-                 30 or "three"
-                 200 or "twenty"
-                 500 or "fifty"
+TIMESTAMP-1 4 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+TIMESTAMP-2 5 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+   400 or "fourty"
+TIMESTAMP-3 5 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"
+   200 or "twenty"
+   500 or "fifty"
+TIMESTAMP-4 3 instances
+   10 or "one"
+   20 or "two"
+   30 or "three"

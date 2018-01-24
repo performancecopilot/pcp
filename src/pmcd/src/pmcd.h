@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -225,7 +225,7 @@ extern int ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
 extern void CheckLabelChange(void);
-extern void MarkStateChanges(int);
+extern void MarkStateChanges(unsigned int);
 extern void CleanupClient(ClientInfo *, int);
 extern int ClientsAttributes(AgentInfo *);
 extern int AgentsAttributes(int);

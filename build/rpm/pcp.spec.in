@@ -11,6 +11,11 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+%global __python2 python2
+%else
+%global __python2 python
+%endif
 %if 0%{?sles_version} == 11
 # rpmbuild is in the rpm (not rpm-build) package for SLES11
 %else
@@ -583,8 +588,8 @@ Requires: pcp-libs >= %{version}-%{release}
 Requires: python3-pcp = @package_version@
 Requires: python3-elasticsearch
 %else
-Requires: python-pcp = @package_version@
-Requires: python-elasticsearch
+Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-elasticsearch
 %endif
 
 %description export-pcp2elasticsearch
@@ -606,7 +611,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
-Requires: python-pcp = @package_version@
+Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description export-pcp2graphite
@@ -626,8 +631,8 @@ Requires: pcp-libs >= %{version}-%{release}
 Requires: python3-pcp = @package_version@
 Requires: python3-requests
 %else
-Requires: python-pcp = @package_version@
-Requires: python-requests
+Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-requests
 %endif
 
 %description export-pcp2influxdb
@@ -646,7 +651,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
-Requires: python-pcp = @package_version@
+Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description export-pcp2json
@@ -665,7 +670,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
-Requires: python-pcp = @package_version@
+Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description export-pcp2xml
@@ -684,7 +689,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
-Requires: python-pcp = @package_version@
+Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description export-pcp2zabbix
@@ -705,7 +710,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
-Requires: python-pcp = @package_version@
+Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description export-pcp2xlsx
@@ -715,21 +720,25 @@ in Excel spreadsheet format.
 
 %if "@enable_python2@" == "true"
 #
-# python-pcp. This is the PCP library bindings for python.
+# python2-pcp. This is the PCP library bindings for python.
 #
-%package -n python-pcp
+%package -n %{__python2}-pcp
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
-BuildRequires: python-devel
+BuildRequires: %{__python2}-devel
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+# on these platforms, python2-pcp replaces python-pcp
+Obsoletes: python-pcp
+%endif
 %if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5 && 0%{?fedora} <= 25
-Requires: python-ctypes
+Requires: %{__python2}-ctypes
 %endif
 Requires: pcp-libs = @package_version@
-Requires: python
+Requires: %{__python2}
 
-%description -n python-pcp
+%description -n %{__python2}-pcp
 This python PCP module contains the language bindings for
 Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agents (PMDA) collector tools written in Python.
@@ -767,7 +776,7 @@ URL: http://www.pcp.io
 Requires: python3-pcp = @package_version@
 %endif
 %if "@enable_python2@" == "true"
-Requires: python-pcp = @package_version@
+Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description system-tools
@@ -1462,7 +1471,7 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-gluster
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1480,7 +1489,7 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-zswap
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1498,7 +1507,7 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-unbound
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1516,7 +1525,7 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-mic
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1534,7 +1543,7 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-haproxy
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1556,13 +1565,13 @@ Requires: pcp-libs = @package_version@
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %if "%{_vendor}" == "suse"
-Requires: libvirt-python python-lxml
+Requires: libvirt-python %{__python2}-lxml
 %else
 Requires: libvirt-python3 python3-lxml
 %endif
 %else
-Requires: libvirt-python python-lxml
-Requires: python-pcp
+Requires: libvirt-python %{__python2}-lxml
+Requires: %{__python2}-pcp
 %endif
 
 %description pmda-libvirt
@@ -1585,8 +1594,8 @@ URL: http://www.pcp.io
 Requires: python3-pcp
 Requires: python3-rtslib
 %else
-Requires: python-rtslib
-Requires: python-pcp
+Requires: %{__python2}-rtslib
+Requires: %{__python2}-pcp
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
@@ -1611,8 +1620,8 @@ Requires: pcp-libs = @package_version@
 Requires: python3-pcp = @package_version@
 Requires: python3-requests
 %else
-Requires: python-pcp = @package_version@
-Requires: python-requests
+Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-requests
 %endif
 
 %description pmda-prometheus
@@ -1633,15 +1642,15 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 %if "%{_vendor}" == "suse"
-Requires: python-jsonpointer
+Requires: %{__python2}-jsonpointer
 %else
 Requires: python3-jsonpointer
 %endif
 Requires: python3-six
 %else
-Requires: python-pcp
-Requires: python-jsonpointer
-Requires: python-six
+Requires: %{__python2}-pcp
+Requires: %{__python2}-jsonpointer
+Requires: %{__python2}-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2045,8 +2054,11 @@ done
 %endif
 
 %if 0%{?fedora} > 26
+if [ "$1" -eq 1 ]
+then
 sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmlogger"
 sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmcd"
+fi
 %endif
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
@@ -3389,7 +3401,7 @@ cd
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 
 %if "@enable_python2@" == "true"
-%files -n python-pcp -f python-pcp.list.rpm
+%files -n %{__python2}-pcp -f python-pcp.list.rpm
 %endif
 
 %if "@enable_python3@" == "true"

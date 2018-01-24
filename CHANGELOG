@@ -1,4 +1,4 @@
-pcp-4.0.0 (19 January 2018)
+pcp-4.0.0 (16 February 2018)
     - Work-in-progress, see http://pcp.io/roadmap
 
 pcp-3.12.2 (18 October 2017)
@@ -1339,7 +1339,7 @@ pcp-3.9.0 (19 February 2014)
     - pmdas: Install scripts can run even when pmcd is stopped
     - pmdanfsclient: add source code (not yet enabled in build),
       thanks to Ben Myers
-    - pcp-archive.5 man page: new, documents on-disk log format
+    - LOGARCHIVE(5) man page: new, documents on-disk log format
     - pmdammv: fix sigsegv when no MMV tempdir is present
     - pmclient: updated to match the Programmers Guide examples
     - pmapi.py: fix python interface to pmLocaltime and pmCtime

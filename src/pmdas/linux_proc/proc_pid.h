@@ -123,6 +123,8 @@ enum {
     PROC_PID_STATUS_NSSID,
     PROC_PID_STATUS_TGID,
     PROC_PID_STATUS_ENVID,	/* OpenVZ kernel, not in mainline */
+    PROC_PID_STATUS_VMREAL,
+    PROC_PID_STATUS_VMNONLIB,
 
     /* number of metrics from /proc/<pid>/status */
     NR_PROC_PID_STATUS
@@ -167,12 +169,12 @@ enum {
  */
 #define PROC_PID_FD_COUNT		0
 
-
 /*
  * metrics in /proc/<pid>/cgroup
  */
 enum {
     PROC_PID_CGROUP = 0,
+    PROC_PID_CONTAINER,
 };
 
 /*
@@ -283,6 +285,7 @@ typedef struct {
 
     /* /proc/<pid>/cgroup cluster */
     int			cgroup_id;
+    int			container_id;
 
     /* /proc/<pid>/attr/current cluster */
     int			label_id;

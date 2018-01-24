@@ -15,6 +15,12 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+%global __python2 python2
+%else
+%global __python2 python
+%endif
+
 %if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
@@ -41,6 +47,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %endif
 
 %global disable_microhttpd 0
+%global disable_webapps 0
 %global disable_cairo 0
 
 %global disable_python2 0
@@ -163,7 +170,7 @@ BuildRequires: zlib-devel
 %if 0%{?default_python} != 3
 BuildRequires: python%{?default_python}-devel
 %else
-BuildRequires: python-devel
+BuildRequires: %{__python2}-devel
 %endif
 %endif
 %if !%{disable_python3}
@@ -294,6 +301,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_snmp --with-pmdasnmp=no
 %else
 %global _with_snmp --with-pmdasnmp=yes
+%endif
+
+%if %{disable_webapps}
+%global _with_webapps --with-webapps=no
+%else
+%global _with_webapps --with-webapps=yes
 %endif
 
 %global pmda_remove() %{expand:
@@ -451,6 +464,7 @@ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
 %endif
 
+%if !%{disable_webapps}
 #
 # pcp-webjs and pcp-webapp packages
 #
@@ -530,6 +544,7 @@ URL: http://pcp.io
 %description webapp-blinkenlights
 Demo web application showing traffic lights that change colour based
 on the periodic evaluation of performance metric expressions.
+%endif
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -710,9 +725,9 @@ Requires: python3-pcp = %{version}-%{release}
 Requires: python3-elasticsearch
 BuildRequires: python3-elasticsearch
 %else
-Requires: python-pcp = %{version}-%{release}
-Requires: python-elasticsearch
-BuildRequires: python-elasticsearch
+Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-elasticsearch
+BuildRequires: %{__python2}-elasticsearch
 %endif
 
 %description export-pcp2elasticsearch
@@ -732,7 +747,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2graphite
@@ -751,8 +766,8 @@ Requires: pcp-libs >= %{version}-%{release}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-requests
 %else
-Requires: python-pcp = %{version}-%{release}
-Requires: python-requests
+Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-requests
 %endif
 
 %description export-pcp2influxdb
@@ -771,7 +786,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2json
@@ -791,7 +806,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2xlsx
@@ -810,7 +825,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2xml
@@ -829,7 +844,7 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description export-pcp2zabbix
@@ -1435,7 +1450,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-gluster
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1453,7 +1468,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-zswap
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1471,7 +1486,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-unbound
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1489,7 +1504,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-mic
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1507,7 +1522,7 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
-Requires: python-pcp
+Requires: %{__python2}-pcp
 %endif
 %description pmda-haproxy
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1527,10 +1542,10 @@ Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
 BuildRequires: libvirt-python3 python3-lxml
 %else
-Requires: python-pcp
-Requires: libvirt-python python-lxml
+Requires: %{__python2}-pcp
+Requires: libvirt-python %{__python2}-lxml
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: libvirt-python python-lxml
+BuildRequires: libvirt-python %{__python2}-lxml
 %endif
 %endif
 %description pmda-libvirt
@@ -1552,9 +1567,9 @@ Requires: python3-pcp
 Requires: python3-rtslib
 BuildRequires: python3-rtslib
 %else
-Requires: python-pcp
-Requires: python-rtslib
-BuildRequires: python-rtslib
+Requires: %{__python2}-pcp
+Requires: %{__python2}-rtslib
+BuildRequires: %{__python2}-rtslib
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
@@ -1578,9 +1593,9 @@ Requires: python3-pcp
 Requires: python3-requests
 BuildRequires: python3-requests
 %else
-Requires: python-pcp
-Requires: python-requests
-BuildRequires: python-requests
+Requires: %{__python2}-pcp
+Requires: %{__python2}-requests
+BuildRequires: %{__python2}-requests
 %endif
 
 %description pmda-prometheus
@@ -1604,9 +1619,9 @@ Requires: python3-pcp
 Requires: python3-jsonpointer python3-six
 BuildRequires: python3-jsonpointer python3-six
 %else
-Requires: python-pcp
-Requires: python-jsonpointer python-six
-BuildRequires: python-jsonpointer python-six
+Requires: %{__python2}-pcp
+Requires: %{__python2}-jsonpointer %{__python2}-six
+BuildRequires: %{__python2}-jsonpointer %{__python2}-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1953,21 +1968,25 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 
 %if !%{disable_python2}
 #
-# python-pcp. This is the PCP library bindings for python.
+# python2-pcp. This is the PCP library bindings for python.
 #
-%package -n python-pcp
+%package -n %{__python2}-pcp
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
++%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
++# on these platforms, python2-pcp replaces python-pcp
++Obsoletes: python-pcp
++%endif
 %if 0%{?rhel} == 5
 Requires: python%{default_python}
 %else
 Requires: python
 %endif
 
-%description -n python-pcp
+%description -n %{__python2}-pcp
 This python PCP module contains the language bindings for
 Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agent (PMDA) collector tools written in Python.
@@ -2004,7 +2023,7 @@ URL: http://www.pcp.io
 Requires: python3-pcp = %{version}-%{release}
 %endif
 %if !%{disable_python2}
-Requires: python-pcp = %{version}-%{release}
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 
@@ -2097,7 +2116,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2123,11 +2142,13 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
+%if !%{disable_webapps}
 for app in vector grafana graphite blinkenlights; do
     pwd
     webapp=`find ../$app -mindepth 1 -maxdepth 1`
     mv $webapp $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps/$app
 done
+%endif
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -2160,9 +2181,12 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmpro
 done
 
 %if 0%{?fedora} > 26
+if [ "$1" -eq 1 ]
+then
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
 sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmlogger"
 sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmcd"
+fi
 %endif
 
 # list of PMDAs in the base pkg
@@ -2897,13 +2921,14 @@ cd
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
-# duplicate directories from pcp and pcp-webjs, but rpm copes with that.
+# duplicate pcp, pcp-webapi and pcp-webjs directories, but rpm copes with that.
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %endif
 
+%if !%{disable_webapps}
 %files webjs
-# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+# duplicate pcp, pcp-webapi and pcp-webjs directories, but rpm copes with that.
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/*.png
@@ -2929,6 +2954,7 @@ cd
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/vector
+%endif
 
 %files manager
 %{_initddir}/pmmgr
@@ -3201,7 +3227,7 @@ cd
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 
 %if !%{disable_python2}
-%files -n python-pcp -f python-pcp.list.rpm
+%files -n %{__python2}-pcp -f python-pcp.list.rpm
 %endif
 
 %if !%{disable_python3}
@@ -3232,7 +3258,7 @@ cd
 %endif
 
 %changelog
-* Fri Jan 19 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
+* Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1

@@ -109,7 +109,6 @@
 #include <pcp/pmapi.h>
 #include <pcp/libpcp.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
 #include <sys/resource.h>
 #include <regex.h>
 
@@ -147,6 +146,7 @@ char		threadview = 0;	 /* boolean: show individual threads     */
 char      	calcpss    = 0;  /* boolean: read/calculate process PSS  */
 
 unsigned short	hertz;
+unsigned int	pidmax;
 unsigned int	pagesize;
 unsigned int	hinv_nrcpus;
 unsigned int	hinv_nrdisk;
@@ -475,7 +475,6 @@ main(int argc, char *argv[])
 void
 engine(void)
 {
-	int 			i, j;
 	struct sigaction 	sigact;
 	double 			timed, delta;
 	void			getusr1(int), getusr2(int);
@@ -493,20 +492,15 @@ engine(void)
 	*/
 	static struct tstat	*curtpres;	/* current present list      */
 	static int		 curtlen;	/* size of present list      */
-
 	struct tstat		*curpexit;	/* exited process list	     */
-	struct tstat		*devtstat;	/* deviation list	     */
-	struct tstat		**devpstat;	/* pointers to processes     */
-						/* in deviation list         */
+
+	static struct devtstat	devtstat;	/* deviation info	     */
 
 	unsigned int		ntaskpres;	/* number of tasks present   */
 	unsigned int		nprocexit;	/* number of exited procs    */
 	unsigned int		nprocexitnet;	/* number of exited procs    */
 						/* via netatopd daemon       */
-	unsigned int		ntaskdev;       /* nr of tasks deviated      */
-	unsigned int		nprocdev;       /* nr of procs deviated      */
-	int			nprocpres;	/* nr of procs present       */
-	int			totrun, totslpi, totslpu, totzombie;
+
 	unsigned int		noverflow;
 
 	/*
@@ -522,7 +516,7 @@ engine(void)
 
 	/*
 	** install the signal-handler for ALARM, USR1 and USR2 (triggers
-	** for the next sample)
+	* for the next sample)
 	*/
 	memset(&sigact, 0, sizeof sigact);
 	sigact.sa_handler = getusr1;
@@ -654,31 +648,8 @@ engine(void)
 
 		deviatsyst(cursstat, presstat, devsstat, delta);
 
-		devtstat = malloc((ntaskpres+nprocexit) * sizeof(struct tstat));
-
-		ptrverify(devtstat, "Malloc failed for %d modified tasks\n",
-			          			ntaskpres+nprocexit);
-
-		ntaskdev = deviattask(curtpres,  ntaskpres,
-		                      curpexit,  nprocexit, deviatonly,
-		                      devtstat,  devsstat,
-		                      &nprocdev, &nprocpres,
-		                      &totrun, &totslpi, &totslpu, &totzombie);
-
-  	      	/*
- 		** create list of pointers specifically to the process entries
-		** in the task list
-		*/
-       		devpstat = malloc(sizeof (struct tstat *) * nprocdev);
-
-		ptrverify(devpstat, "Malloc failed for %d process ptrs\n",
-			          				nprocdev);
-
-		for (i=0, j=0; i < ntaskdev; i++)
-		{
-			if ( (devtstat+i)->gen.isproc)
-				devpstat[j++] = devtstat+i;
-		}
+		deviattask(curtpres, ntaskpres, curpexit,  nprocexit,
+		           	     &devtstat, devsstat);
 
 		/*
 		** activate the installed print-function to visualize
@@ -686,9 +657,7 @@ engine(void)
 		*/
 		lastcmd = (vis.show_samp)(timed,
 				     delta > 1.0 ? delta : 1.0,
-		           	     devsstat,  devtstat, devpstat,
-		                     ntaskdev,  ntaskpres, nprocdev, nprocpres, 
-		                     totrun, totslpi, totslpu, totzombie, 
+		           	     &devtstat, devsstat,
 		                     nprocexit, noverflow, sampcnt==0);
 
 		if (rawreadflag)
@@ -702,9 +671,6 @@ engine(void)
 
 		if (nprocexitnet > 0)
 			netatop_exiterase();
-
-		free(devtstat);
-		free(devpstat);
 
 		if (lastcmd == 'r')	/* reset requested ? */
 		{
@@ -738,6 +704,7 @@ prusage(char *myname, pmOptions *opts)
 					myname);
 	printf("\n");
 	printf("\tgeneric flags:\n");
+	printf("\t  -%c  show version information\n", MVERSION);
 	printf("\t  -%c  show or log all processes (i.s.o. active processes "
 	                "only)\n", MALLPROC);
 	printf("\t  -%c  calculate proportional set size (PSS) per process\n", 

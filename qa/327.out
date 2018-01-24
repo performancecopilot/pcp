@@ -7,8 +7,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
@@ -18,8 +18,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** mismatched pid ***
@@ -32,8 +32,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
@@ -43,8 +43,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched hostname ***
@@ -57,8 +57,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched timezone ***
@@ -66,8 +66,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: BADTZ1EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Mismatched timezone (EST-11EST-10,87/2:00,297/2:00/BADTZ1EST-10,87/2:00,297/2:00) between data volume 1 and data volume 0
@@ -78,8 +78,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 *** bad suffix length ***
@@ -89,8 +89,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 === checking corrupt ok-mv-foo.1 label ===
@@ -99,8 +99,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
@@ -109,8 +109,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
@@ -118,8 +118,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
@@ -128,8 +128,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** mismatched pid ***
@@ -137,8 +137,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 Mismatched PID (808523039/5407) between data volume 1 and data volume 0
@@ -146,8 +146,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
@@ -155,8 +155,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
@@ -164,8 +164,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched hostname ***
@@ -173,8 +173,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Mismatched hostname (HNAME/gonzo) between data volume 1 and data volume 0
@@ -182,8 +182,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched timezone ***
@@ -191,8 +191,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Mismatched timezone (BADTZ1EST-10,87/2:00,297/2:00/EST-11EST-10,87/2:00,297/2:00) between data volume 1 and data volume 0
@@ -200,8 +200,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 *** bad suffix length ***
@@ -209,8 +209,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
@@ -219,8 +219,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 === checking corrupt ok-mv-foo.meta label ===
@@ -232,8 +232,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
@@ -244,8 +244,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** mismatched pid ***
@@ -255,8 +255,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
@@ -266,8 +266,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched hostname ***
@@ -277,8 +277,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched timezone ***
@@ -286,8 +286,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Mismatched timezone (BADTZ1EST-10,87/2:00,297/2:00/EST-11EST-10,87/2:00,297/2:00) between metadata volume and data volume 0
@@ -295,8 +295,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 *** bad suffix length ***
@@ -307,8 +307,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 === checking corrupt ok-mv-foo.index label ===
@@ -320,8 +320,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
@@ -332,8 +332,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** mismatched pid ***
@@ -343,8 +343,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
@@ -354,8 +354,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched hostname ***
@@ -365,8 +365,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** mismatched timezone ***
@@ -374,8 +374,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Fri Aug  7 04:34:40.368 1998
-  ending     Fri Aug  7 04:34:48.368 1998
+    commencing Fri Aug  7 04:34:40.368661 1998
+    ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Mismatched timezone (BADTZ1EST-10,87/2:00,297/2:00/EST-11EST-10,87/2:00,297/2:00) between temporal index and data volume 0
@@ -383,8 +383,8 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345
 *** bad suffix length ***
@@ -395,7 +395,7 @@ Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host gonzo.com
-  commencing Thu Aug  6 18:34:40.368 1998
-  ending     Thu Aug  6 18:34:48.368 1998
+    commencing Thu Aug  6 18:34:40.368661 1998
+    ending     Thu Aug  6 18:34:48.368813 1998
 Archive timezone: GMT
 PID for pmlogger: 12345

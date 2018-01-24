@@ -1,7 +1,6 @@
-'\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -19,20 +18,21 @@
 \f3pmrep.conf\f1 \- pmrep configuration file
 .SH DESCRIPTION
 .B pmrep
-is a customizable performance metrics reporting tool. Any available
-performance metric, live or archived, system and/or application, can be
-selected for reporting using one of the available output alternatives
-together with applicable formatting options.
-.P
+is a customizable performance metrics reporting tool.
+Any available performance metric, live or archived, system and/or
+application, can be selected for reporting using one of the available
+output alternatives together with applicable formatting options.
+.PP
 The metrics of interest are named in the
 .I metricspec
 argument(s) on the
 .B pmrep
-command line. These metricspecs define individual metrics or pre-defined
-performance metricsets to be read from the configuration file described
-below. For command line argument details see
+command line.
+These metricspecs define individual metrics or pre-defined performance
+metricsets to be read from the configuration file described below.
+For command line argument details see
 .BR pmrep (1).
-.P
+.PP
 The
 .B pmrep.conf
 configuration file allows setting default runtime values and defining
@@ -40,48 +40,48 @@ any number of custom
 .I metricsets
 for
 .BR pmrep .
-A metricset is a user-defined set of arbitrary performance metrics. This
-allows the user to create specifically crafted metricsets particularly
-relevant for their application or environment. Instead of being
-dependent on what existing tools provide or collecting the needed data
-with several disjoint utilities the user can create and modify
-custom metricsets by editing
+A metricset is a user-defined set of arbitrary performance metrics.
+This allows the user to create specifically crafted metricsets
+particularly relevant for their application or environment.
+Instead of being dependent on what existing tools provide or collecting
+the needed data with several disjoint utilities the user can create and
+modify custom metricsets by editing
 .BR pmrep.conf .
-See below for the \fImetricset\fR specification.
-.P
-Configuration file options override the corresponding built-in
-default values (if any). Command line options override the
-corresponding configuration file options (if any).
+See below for the \fImetricset\fP specification.
+.PP
+Options via environment values (see
+.BR pmGetOptions (3))
+override the corresponding built-in default values (if any).
+Configuration file options override the corresponding
+environment variables (if any).
+Command line options override the corresponding configuration
+file options (if any).
 .SH FILE FORMAT
 The file has an ini-style syntax and consists of sections and options.
 A section begins with the name of the section in square brackets and
-continues until the next section begins. An example section with two
-options follows:
-.sp
-.if n \{\
+continues until the next section begins.
+An example section with two options follows:
+.sp 1
 .RS 4
-.\}
 .nf
-\fI[section]\fR
-\fIkey\fR = \fIvalue\fR
-\fIkey2\fR = \fIvalue2\fR
+[\fIsection\fP]
+\fIkey\fP = \fIvalue\fP
+\fIkey2\fP = \fIvalue2\fP
 .fi
-.if n \{\
 .RE
-.\}
-.P
+.PP
 The supported value data types are string, integer, and boolean.
 String values need not to be quoted expect when whitespace needs to
 be included in the value (for instance, for the column separator);
 double quotes from quoted strings will be removed.
-.P
+.PP
 A line comment starts with a hash sign (``#'') or a semicolon (``;'').
 Inline comments are not supported.
-.P
+.PP
 .B pmrep.conf
 must be readable by the user invoking
 .BR pmrep .
-.P
+.PP
 Any option described below with a corresponding command line
 option contains additional description in
 .BR pmrep (1).
@@ -92,304 +92,400 @@ The
 section is read every time
 .B pmrep
 is run and it defines the default runtime values (which may be
-overridden by the corresponding command line options). Metric
-specifications are not allowed in this section.
-.P
-\fBSection options\fR
-.P
+overridden by the corresponding command line options).
+Metric specifications are not allowed in this section.
+.PP
+\fBSection options\fP
+.PP
 version (integer)
 .RS 4
-Indicates the configuration file version. Defaults to \fB1\fR. The
-only currently supported value is \fB1\fR.
+Indicates the configuration file version.
+Defaults to \fB1\fP.
+The only currently supported value is \fB1\fP.
 .RE
-.P
+.PP
 source (string)
 .RS 4
-Indicates the source for metrics. Interpreted as a PCP archive if the
-string contains a slash (``/''). If set to the special character ``@'',
-local DSO PMDA context is used. Otherwise interpreted as a hostname.
-Corresponding command line paraters are \fB-a\fR, \fB-h\fR, and
-\fB-L\fR. Defaults to \fBlocal:\fR (see
+Indicates the source for metrics.
+Interpreted as a PCP archive if the string contains a slash (``/'').
+If set to the special character ``@'', local DSO PMDA context is used.
+Otherwise interpreted as a hostname.
+Corresponding command line paraters are \fB\-a\fP, \fB\-h\fP,
+and \fB\-L\fP.
+Defaults to \fBlocal:\fP (see
 .BR PCPIntro (1)).
 .RE
-.P
+.PP
 output (string)
 .RS 4
-Indicates the output target. Corresponding command line option is
-\fB-o\fR. For supported output targets, see
+Indicates the output target.
+Corresponding command line option is \fB\-o\fP.
+For supported output targets, see
 .BR pmrep (1).
-Defaults to \fBstdout\fR.
+Defaults to \fBstdout\fP.
 .RE
-.P
+.PP
 speclocal (string)
 .RS 4
 Indicates the local DSO PMDAs to be made available when using the local
-DSO PMDA context. Corresponding command line option is \fB\-K\fR.
+DSO PMDA context.
+Corresponding command line option is \fB\-K\fP.
 For syntax description, see
 .BR pmSpecLocalPMDA (3).
-Use a semicolon (``;'') to separate more than one \fIspec\fR.
+Use a semicolon (``;'') to separate more than one \fIspec\fP.
 Undefined by default.
 .RE
-.P
+.PP
 derived (string)
 .RS 4
-Derived metric specifications. Corresponding command line option is
-\fB-e\fR. For syntax description, see
+Derived metric specifications.
+Corresponding command line option is \fB\-e\fP.
+For syntax description, see
 .BR pmrep (1).
 Undefined by default.
 .RE
-.P
+.PP
 daemonize (boolean)
 .RS 4
-Indicates whether to daemonize on startup. Corresponding command line option is
-\fB--daemonize\fR. Defaults to \fBno\fR.
+Indicates whether to daemonize on startup.
+Corresponding command line option is \fB\-\-daemonize\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 header (boolean)
 .RS 4
-Indicates whether to print headers. Corresponding command line option
-is \fB-H\fR. Defaults to \fByes\fR.
+Indicates whether to print headers.
+Corresponding command line option is \fB\-H\fP.
+Defaults to \fByes\fP.
 .RE
-.P
+.PP
 unitinfo (boolean)
 .RS 4
 Indicates whether to include unit information as part of headers.
-Corresponding command line option is \fB-U\fR. Defaults to \fByes\fR.
+Corresponding command line option is \fB\-U\fP.
+Defaults to \fByes\fP.
 .RE
-.P
+.PP
 globals (boolean)
 .RS 4
-Indicates whether to include metrics from the \fB[global]\fR section
-(see below) for reporting. Corresponding command line option is
-\fB-G\fR. Defaults to \fByes\fR.
+Indicates whether to include metrics from the \fB[global]\fP section
+(see below) for reporting.
+Corresponding command line option is \fB\-G\fP.
+Defaults to \fByes\fP.
 .RE
-.P
+.PP
 timestamp (boolean)
 .RS 4
-Indicates whether to print the timestamp. Corresponding command line
-option is \fB-p\fR. Defaults to \fBno\fR.
+Indicates whether to print the timestamp.
+Corresponding command line option is \fB\-p\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 samples (integer)
 .RS 4
-Indicates the number of samples to print. Corresponding command line
-option is \fB-s\fR. Undefined by default (meaning unlimited number
-of samples if not limited by other options).
+Indicates the number of samples to print.
+Corresponding command line option is \fB\-s\fP.
+Undefined by default (meaning unlimited number of samples if not
+limited by other options).
 .RE
-.P
+.PP
 interval (string)
 .RS 4
-Indicates the interval between samples. Corresponding command line
-option is \fB-o\fR. Follows the time syntax described in
+Indicates the interval between samples.
+Corresponding command line option is \fB\-o\fP.
+Follows the time syntax described in
 .BR PCPIntro (1).
-Defaults to \fB1s\fR.
+Defaults to \fB1s\fP.
 .RE
-.P
+.PP
 delay (boolean)
 .RS 4
 Indicates whether to pause between samples when replaying from an
-archive rather than replaying at full speed. Corresponding command line
-option is \fB-d\fR. Defaults to \fBno\fR.
+archive rather than replaying at full speed.
+Corresponding command line option is \fB\-d\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 type (string)
 .RS 4
 Indicates whether to output raw metric values by disabling all rate
 conversions or convert cumulative counters to rates (default).
-Corresponding command line option is \fB-r\fR. Allowed values are
-\fBdefault\fR or \fBraw\fR.
+Corresponding command line option is \fB\-r\fP.
+Allowed values are \fBdefault\fP or \fBraw\fP.
 .RE
-.P
+.PP
 type_prefer (string)
 .RS 4
-As \fBtype\fR but does not override possible per-metric type specifications.
-Corresponding command line option is \fB-R\fR. Allowed values are
-\fBdefault\fR or \fBraw\fR.
+As \fBtype\fP but does not override possible per-metric type
+specifications.
+Corresponding command line option is \fB\-R\fP.
+Allowed values are \fBdefault\fP or \fBraw\fP.
 .RE
-.P
+.PP
 ignore_incompat (string)
 .RS 4
-Indicates that incompatible metrics are to be ignored. Corresponding
-command line option is \fB-I\fR. Defaults to \fBno\fR.
+Indicates that incompatible metrics are to be ignored.
+Corresponding command line option is \fB\-I\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 instances (string)
 .RS 4
-Indicates the instances to be reported. Corresponding command line
-option is \fB-i\fR. Undefined (all current instances are reported)
-by default.
+Indicates the instances to be reported.
+Corresponding command line option is \fB\-i\fP.
+Undefined (all instances are reported) by default.
 .RE
-.P
+.PP
+live_filter (boolean)
+.RS 4
+Indicates that live filtering should be enabled.
+Corresponding command line option is \fB\-j\fP.
+Defaults to \fBno\fP.
+.RE
+.PP
+rank (integer)
+.RS 4
+Indicates the value to be used for ranking instances.
+Corresponding command line option is \fB\-J\fP.
+Undefined (all instances are reported) by default.
+.RE
+.PP
+overall_rank (boolean)
+.RS 4
+Indicates that overall ranking should be performed.
+Corresponding command line option is \fB\-2\fP.
+Defaults to \fBno\fP.
+.RE
+.PP
+overall_rank_alt (boolean)
+.RS 4
+Indicates that overall ranking with alternative output format
+should be performed.
+Corresponding command line option is \fB\-3\fP.
+Defaults to \fBno\fP.
+.RE
+.PP
+limit_filter (integer)
+.RS 4
+Indicates the value to be used with limit filtering.
+Corresponding command line option is \fB\-8\fP.
+Undefined (all instances are reported) by default.
+.RE
+.PP
+limit_filter_force (integer)
+.RS 4
+As \fBlimit_filter\fP but overrides possible possible per-metric
+specifications.
+Corresponding command line option is \fB\-9\fP.
+Undefined (all instances are reported) by default.
+.RE
+.PP
+invert_filter (boolean)
+.RS 4
+Indicates that invert filtering should be performed.
+Corresponding command line option is \fB\-n\fP.
+Defaults to \fBno\fP.
+.RE
+.PP
+predicate (string)
+.RS 4
+Indicates the metrics to be used as predicate metrics.
+Corresponding command line option is \fB\-N\fP.
+Undefined by default.
+.RE
+.PP
 omit_flat (string)
 .RS 4
-Indicates that single-valued ``flat'' metrics are to be omitted when
-instances were requested. Corresponding command line option is \fB-v\fR.
-Defaults to \fBno\fR.
+Indicates that single-valued ``flat'' metrics are to be omitted
+from reporting.
+Corresponding command line option is \fB\-v\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 colxrow (string)
 .RS 4
-Indicates to swap columns and rows in \fIstdout\fR output using
-the given label. Corresponding command line option is \fB-X\fR.
+Indicates to swap columns and rows in \fIstdout\fP output using
+the given text label.
+Corresponding command line option is \fB\-X\fP.
 Undefined (no swapping) by default.
 .RE
-.P
+.PP
 width (integer)
 .RS 4
-Indicates the width of stdout output columns. Corresponding command line
-option is \fB-w\fR. Forced minimum is \fB3\fR. Defaults to the
-shortest width that can fit the metric label.
+Indicates the width of stdout output columns.
+Corresponding command line option is \fB\-w\fP.
+Forced minimum is \fB3\fP.
+Defaults to the shortest width that can fit the metric text label.
 .RE
-.P
+.PP
 width_force (integer)
 .RS 4
-As \fBwidth\fR but overrides possible possible per-metric specifications.
-Corresponding command line option is \fB-W\fR. Forced minimum is
-\fB3\fR.
+As \fBwidth\fP but overrides possible possible per-metric specifications.
+Corresponding command line option is \fB\-W\fP.
+Forced minimum is \fB3\fP.
 .RE
-.P
+.PP
 precision (integer)
 .RS 4
 Indicates how many decimals to use for numeric non-integer output
-values. Corresponding command line option is \fB-P\fR. Defaults to
-\fB3\fR.
+values.
+Corresponding command line option is \fB\-P\fP.
+Defaults to \fB3\fP.
 .RE
-.P
+.PP
 precision_force (integer)
 .RS 4
-As \fBprecision\fR but overrides possible per-metric specifications.
-Corresponding command line option is \fB-0\fR. Undefined by default.
+As \fBprecision\fP but overrides possible per-metric specifications.
+Corresponding command line option is \fB\-0\fP.
+Undefined by default.
 .RE
-.P
+.PP
 delimiter (string)
 .RS 4
-Indicates the column separator. Corresponding command line option is
-\fB-l\fR. Default depends on the output target, see
+Indicates the column separator.
+Corresponding command line option is \fB\-l\fP.
+Default depends on the output target, see
 .BR pmrep (1).
 .RE
-.P
+.PP
 extcsv (boolean)
 .RS 4
 Indicates whether to write extended CSV output similar to
 .BR sadf (1).
-Corresponding command line option is \fB-k\fR. Defaults to \fBno\fR.
+Corresponding command line option is \fB\-k\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 extheader (boolean)
 .RS 4
-Indicates whether to print extended header. Corresponding command line
-option is \fB-x\fR. Defaults to \fBno\fR.
+Indicates whether to print extended header.
+Corresponding command line option is \fB\-x\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 repeat_header (integer)
 .RS 4
-Indicates how often to repeat the header. Corresponding command line
-option is \fB-E\fR. Defaults to \fB0\fR.
+Indicates how often to repeat the header.
+Corresponding command line option is \fB\-E\fP.
+Defaults to \fB0\fP.
 .RE
-.P
+.PP
+dynamic_header (boolean)
+.RS 4
+Indicates that a dynamic header should be used.
+Corresponding command line option is \fB\-1\fP.
+Defaults to \fBno\fP.
+.RE
+.PP
 separate_header (boolean)
 .RS 4
-Indicates whether to print separate header. Corresponding command line
-option is \fB-g\fR. Defaults to \fBno\fR.
+Indicates whether to print a separate header.
+Corresponding command line option is \fB\-g\fP.
+Defaults to \fBno\fP.
 .RE
-.P
+.PP
 timefmt (string)
 .RS 4
-Indicates the format string for formatting the timestamp. Corresponding
-command line option is \fB-f\fR. Defaults to \fB%H:%M:%S\fR.
+Indicates the format string for formatting the timestamp.
+Corresponding command line option is \fB\-f\fP.
+Defaults to \fB%H:%M:%S\fP.
 .RE
-.P
+.PP
 interpol (boolean)
 .RS 4
-Indicates whether to interpolate reported archive values. Corresponding
-command line option is \fB-u\fR. See
+Indicates whether to interpolate reported archive values.
+Corresponding command line option is \fB\-u\fP.
+See
 .BR pmrep (1)
-for complete description. Defaults to \fByes\fR.
+for complete description.
+Defaults to \fByes\fP.
 .RE
-.P
+.PP
 count_scale (string)
 .RS 4
-Indicates the unit/scale for counter metrics. Corresponding command line
-option is \fB-q\fR. For supported syntax, see
+Indicates the unit/scale for counter metrics.
+Corresponding command line option is \fB\-q\fP.
+For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
-.P
+.PP
 count_scale_force (string)
 .RS 4
-As \fBcount_scale\fR but overrides possible per-metric specifications.
-Corresponding command line option is \fB-Q\fR. Undefined by default.
+Like \fBcount_scale\fP but overrides possible per-metric specifications.
+Corresponding command line option is \fB\-Q\fP.
+Undefined by default.
 .RE
-.P
+.PP
 space_scale (string)
 .RS 4
-Indicates the unit/scale for space metrics. Corresponding command line
-option is \fB-b\fR. For supported syntax, see
+Indicates the unit/scale for space metrics.
+Corresponding command line option is \fB\-b\fP.
+For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
-.P
+.PP
 space_scale_force (string)
 .RS 4
-As \fBspace_scale\fR but overrides possible per-metric specifications.
-Corresponding command line option is \fB-B\fR. Undefined by default.
+Like \fBspace_scale\fP but overrides possible per-metric specifications.
+Corresponding command line option is \fB\-B\fP.
+Undefined by default.
 .RE
-.P
+.PP
 time_scale (string)
 .RS 4
-Indicates the unit/scale for time metrics. Corresponding command line
-option is \fB-y\fR. For supported syntax, see
+Indicates the unit/scale for time metrics.
+Corresponding command line option is \fB\-y\fP.
+For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
-.P
+.PP
 time_scale_force (string)
 .RS 4
-As \fBtime_scale\fR but overrides possible per-metric specifications.
-Corresponding command line option is \fB-Y\fR. Undefined by default.
-.RE
-.P
-\fBOutput target specific options\fR
-.P
-.RS 4
-The following options are also accepted in the \fB[options]\fR
-section but are typically used only in custom sections as they are
-applicable only to certain output targets.
+Like \fBtime_scale\fP but overrides possible per-metric specifications.
+Corresponding command line option is \fB\-Y\fP.
+Undefined by default.
 .RE
 .SS The [global] section
 The
 .B [global]
 section is used to define metrics that will be reported in addition to
-any other separately defined metrics or metricsets. Configuration
-options are not allowed in this section. Global metrics are reported
-by default, the command line option \fB-G\fR or the configuration file
-option \fBglobals\fR can be used to disable global metrics.
-.P
-\fBSection options\fR
-.P
+any other separately defined metrics or metricsets.
+Configuration options are not allowed in this section.
+Global metrics are reported by default, the command line option \fB\-G\fP
+or the configuration file option \fBglobals\fP can be used to disable
+global metrics.
+.PP
+\fBSection options\fP
+.PP
 .RS 4
-No predefined options, only \fImetricspecs\fR allowed in this
-section. See below for the metricspec specification.
+No predefined options, only \fImetricspecs\fP allowed in this
+section.
+See below for the metricspec specification.
 .RE
 .SH CUSTOM SECTIONS
-Any other section than \fB[options]\fR or \fB[global]\fR will be
-interpreted as a new \fImetricset\fR specification. The section name is
-arbitrary, typically a reference to its coverage or purpose. A custom
-section can contain options, metricspecs, or both.
-.P
+Any other section than \fB[options]\fP or \fB[global]\fP will be
+interpreted as a new \fImetricset\fP specification.
+The section name is arbitrary, typically a reference to its
+coverage or purpose.
+A custom section can contain options, metricspecs, or both.
+.PP
 All the metrics specified in a custom section will be reported when
-\fBpmrep\fR is instructed to use the particular custom section.
-\fBpmrep\fR can be executed with more than one custom section (i.e.,
+\fBpmrep\fP is instructed to use the particular custom section.
+\fBpmrep\fP can be executed with more than one custom section (i.e.,
 metricset) defined in which case the combination of all the metrics
 specified in them will be reported.
-.P
-\fBSection options\fR
-.P
+.PP
+\fBSection options\fP
+.PP
 .RS 4
-Any option valid in the \fB[options]\fR section is also valid in a
-custom section. Any option or metric defined in the custom section will
-override the same option or metric possibly defined in an earlier
-section. See below for the metricspec specification.
+Any option valid in the \fB[options]\fP section is also valid in a
+custom section.
+Any option or metric defined in the custom section will override
+the same option or metric possibly defined in an earlier section.
+See below for the metricspec specification.
 .RE
 .SH METRICSET SPECIFICATION
 There are three forms of the
@@ -399,53 +495,55 @@ First, on the command line a metricspec can start with a colon
 .I metricset
 to be read from the
 .B pmrep
-configuration file. Second, the \fIcompact form\fR of a metricspec is a
-one-line metric specification which can be used both on the command line
-and in the \fB[global]\fR and custom sections of the configuration file.
+configuration file.
+Second, the \fIcompact form\fP of a metricspec is a one-line metric
+specification which can be used both on the command line and in the
+\fB[global]\fP and custom sections of the configuration file.
 The only difference of its usage in the configuration file is that the
 metric name is used as the key and the optional specifiers as values.
 The compact form of the metricspec is specified in detail in
 .BR pmrep (1).
-The third, \fIverbose form\fR of a metricspec is valid only in the
-configuration file.
-.P
+The third, \fIverbose form\fP of a metricspec, is valid only in the
+configuration file (see below).
+.PP
 A key containing a dot (``.'') is interpreted as a metric name (see
 above), a non-option key not containing a dot is interpreted as an
 identifier (see below).
-.P
-The verbose form of a metricspec starts with a declaration consisting of
-a mandatory \fIidentifier\fR as the key and the actual performance
-metric name (a PMNS leaf node) as its value. This equals to the compact
-form of the metricspec defining the same performance metric without any
-of optional specifiers defined. The identifier is arbitrary and is not
-used otherwise except for binding the below specifiers and the metric
-together.
-.P
+.PP
+The verbose form of a metricspec starts with a declaration consisting
+of a mandatory \fIidentifier\fP as the key and the actual performance
+metric name (a PMNS leaf node) as its value.
+This equals to the compact form of the metricspec defining the same
+performance metric without any of optional specifiers defined.
+The identifier is arbitrary and is not used otherwise except for
+binding the below specifiers and the metric together.
+.PP
 The following specifiers are optional in the verbose form and can be
 used as keys in any order with an earlier declared identifier followed
-by a dot and the specifier (as in \fIidentifier\fR.\fIspecifier\fR):
+by a dot and the specifier (as in \fIidentifier\fP.\fIspecifier\fP):
 .RS
 .TP 2
 .I label
 Defines a text label for the metric used by supporting output targets.
 .TP 2
 .I formula
-Defines the needed arithmetic expression for the metric. For details
-see
+Defines the needed arithmetic expression for the metric.
+For details, see
 .BR pmRegisterDerived (3).
 .TP 2
 .I instances
-Defines the instances to be reported for the metric. For details, see
+Defines the instances to be reported for the metric.
+For details, see
 .BR pmrep (1).
 .TP 2
 .I unit
-Defines the unit/scale conversion for the metric. Needs to be
-dimension-compatible and is used with non-string metrics.
+Defines the unit/scale conversion for the metric.
+Needs to be dimension-compatible and is used with non-string metrics.
 For allowed values, see
 .BR pmrep (1).
 .TP 2
 .I type
-If set to \fBraw\fR rate conversion for the metric will be disabled.
+If set to \fBraw\fP rate conversion for the metric will be disabled.
 .TP 2
 .I width
 Defines the width of the output column for the metric.
@@ -455,33 +553,32 @@ Defines how many decimals to use for numeric non-integer metric
 output values.
 .RE
 .SH EXAMPLE
-The following example contains a short \fB[options]\fR section setting
-some locally wanted default values. It then goes on to define the global
-metrics \fBkernel.all.sysfork\fR using the \fIcompact form\fR and
-\fBmem.util.allcache\fR using the \fIverbose form\fR of a metricspec.
-The latter is a derived metric using the later specified formula. Both
-of these metrics will be included in reporting unless disabled with
-\fB-G\fR or \fBglobals = no\fR.
-.P
-Three different \fImetricsets\fR are also specified: \fBdb1\fR,
-\fBdb2\fR, and \fBsar-w\fR.
-.P
-The DB sets define a host to be used as the source for the metrics. Both
-use the \fIverbose form\fR of a metricspec (as the non-option key
-\fBset\fR does not contain the dot) to include all \fBpostgresql\fR
+The following example contains a short \fB[options]\fP section setting
+some locally wanted default values.
+It then goes on to define the global metrics \fBkernel.all.sysfork\fP
+using the \fIcompact form\fP and \fBmem.util.allcache\fP using the
+\fIverbose form\fP of a metricspec.
+The latter is a derived metric using the later specified formula.
+Both of these metrics will be included in reporting unless disabled
+with \fB\-G\fP or \fBglobals = no\fP.
+.PP
+Three different \fImetricsets\fP are also specified: \fBdb1\fP,
+\fBdb2\fP, and \fBsar\-w\fP.
+.PP
+The DB sets define a host to be used as the source for the metrics.
+Both use the \fIverbose form\fP of a metricspec (as the non-option key
+\fBset\fP does not contain the dot) to include all \fBpostgresql\fP
 related metrics.
-.P
-The \fBsar-w\fR set is an example how to mimic an existing tool with
-\fBpmrep\fR.
-.P
-The system default \fBpmrep.conf\fR file contains many more examples.
+.PP
+The \fBsar\-w\fP set is an example how to mimic an existing tool with
+\fBpmrep\fP.
+.PP
+The system default \fBpmrep.conf\fP file contains many more examples.
 Using tab after the colon can be used to complete available metricsets
 (with bash and zsh).
-.P
-.sp
-.if n \{\
+.PP
+.sp 1
 .RS 4
-.\}
 .nf
 [options]
 timestamp = yes
@@ -497,14 +594,14 @@ allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
 allcache.width = 10
 
 [db1]
-source = db-host1.example.com
+source = db\-host1.example.com
 set = postgresql
 
 [db2]
-source = db-host2.example.com
+source = db\-host2.example.com
 set = postgresql
 
-[sar-w]
+[sar\-w]
 header = yes
 unitinfo = no
 globals = no
@@ -514,19 +611,25 @@ delimiter = " "
 kernel.all.sysfork = proc/s,,,,12
 kernel.all.pswitch = cswch/s,,,,9
 .fi
-.if n \{\
 .RE
-.\}
-.sp
+.sp 1
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
-System provided configuration file.
-.PD
+.TP
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/pmrep.conf
+system provided \fBpmrep\fP configuration file
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmrep (1),
-.BR pmSpecLocalPMDA (3),
+.BR pmGetOptions (3),
+.BR pmSpecLocalPMDA (3)
 and
 .BR pmRegisterDerived (3).

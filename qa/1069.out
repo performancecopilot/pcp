@@ -208,6 +208,21 @@ HH:MM:SS        1
 00:47:09|     1 minute|       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|     5 minute|       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|    15 minute|       ~|        ~|        ~|      ~|       ~|   0.590|       ~
+== exercise precision correctness
+  s.seconds
+        s/s
+        N/A
+        N/A
+  1.0000000
+  1.0000000
+  1.0000000
+  s.seconds
+        s/s
+        N/A
+        N/A
+      1.000
+      1.000
+      1.000
 == exercise extended header
 
   archive: QAPATH/archives/rep
@@ -254,7 +269,7 @@ HH:MM:SS        1
 
          1         2         3         4         5         6         7         8
      38220       N/A       N/A       N/A       N/A       N/A       N/A   6068648
-     38220     0.000    30.000     0.000     0.000     0.000     1.000   6068648
+     38220     0.000    30.000     0.500     0.000     0.000     1.000   6068648
 
 [ 1] - mem.util.free - Kbyte
 [ 2] - disk.dev.read["sda"] - count/s
@@ -266,8 +281,94 @@ HH:MM:SS        1
 [ 8] - mem.util.used - Kbyte
 
          1         2         3         4         5         6         7         8
-     38220     0.000    30.000     1.000     0.000     0.000     1.000   6068648
      38220     0.000    30.000     0.000     0.000     0.000     1.000   6068648
+     38220     0.000    30.000     0.500     0.000     0.000     1.000   6068648
+
+[ 1] - mem.util.free - Kbyte
+[ 2] - disk.dev.read["sda"] - count/s
+[ 3] - disk.dev.read["sdb"] - count/s
+[ 4] - disk.dev.read["sdc"] - count/s
+[ 5] - disk.dev.read["hdc"] - count/s
+[ 6] - disk.dev.read["sdd"] - count/s
+[ 7] - disk.dev.read["sde"] - count/s
+[ 8] - mem.util.used - Kbyte
+
+         1         2         3         4         5         6         7         8
+     38220     0.000    30.000     0.500     0.000     0.000     0.500   6068648
+[ 1] - mem.util.free - Kbyte
+[ 2] - disk.dev.read["sda"] - count/s
+[ 2] - disk.dev.read["sdb"] - count/s
+[ 2] - disk.dev.read["sdc"] - count/s
+[ 2] - disk.dev.read["hdc"] - count/s
+[ 2] - disk.dev.read["sdd"] - count/s
+[ 2] - disk.dev.read["sde"] - count/s
+[ 3] - disk.dev.write["sda"] - count/s
+[ 3] - disk.dev.write["sdb"] - count/s
+[ 3] - disk.dev.write["sdc"] - count/s
+[ 3] - disk.dev.write["hdc"] - count/s
+[ 3] - disk.dev.write["sdd"] - count/s
+[ 3] - disk.dev.write["sde"] - count/s
+[ 4] - mem.util.used - Kbyte
+
+        |        |       1|       2|        3|       4
+00:47:01|       =|   38220|       ~|        ~| 6068648
+00:47:01|     sda|       ~|     N/A|      N/A|       ~
+00:47:01|     sdb|       ~|     N/A|      N/A|       ~
+00:47:01|     sdc|       ~|     N/A|      N/A|       ~
+00:47:01|     hdc|       ~|     N/A|      N/A|       ~
+00:47:01|     sdd|       ~|     N/A|      N/A|       ~
+00:47:01|     sde|       ~|     N/A|      N/A|       ~
+00:47:03|       =|   38220|       ~|        ~| 6068648
+00:47:03|     sda|       ~|   0.000|    0.500|       ~
+00:47:03|     sdb|       ~|  30.000|  296.500|       ~
+00:47:03|     sdc|       ~|   0.500|    0.500|       ~
+00:47:03|     hdc|       ~|   0.000|    0.000|       ~
+00:47:03|     sdd|       ~|   0.000|    0.000|       ~
+00:47:03|     sde|       ~|   1.000|   12.000|       ~
+00:47:05|       =|   38220|       ~|        ~| 6068648
+00:47:05|     sda|       ~|   0.000|    0.500|       ~
+00:47:05|     sdb|       ~|  30.000|  296.000|       ~
+00:47:05|     sdc|       ~|   0.000|    0.500|       ~
+00:47:05|     hdc|       ~|   0.000|    0.000|       ~
+00:47:05|     sdd|       ~|   0.000|    0.000|       ~
+00:47:05|     sde|       ~|   1.000|   11.500|       ~
+00:47:07|       =|   38220|       ~|        ~| 6068648
+00:47:07|     sda|       ~|   0.000|    0.500|       ~
+00:47:07|     sdb|       ~|  30.000|  296.500|       ~
+00:47:07|     sdc|       ~|   0.500|    0.500|       ~
+00:47:07|     hdc|       ~|   0.000|    0.000|       ~
+00:47:07|     sdd|       ~|   0.000|    0.000|       ~
+00:47:07|     sde|       ~|   1.000|   11.500|       ~
+00:47:09|       =|   38220|       ~|        ~| 6068648
+00:47:09|     sda|       ~|   0.000|    0.500|       ~
+00:47:09|     sdb|       ~|  30.000|  296.000|       ~
+00:47:09|     sdc|       ~|   0.500|    0.500|       ~
+00:47:09|     hdc|       ~|   0.000|    0.000|       ~
+00:47:09|     sdd|       ~|   0.000|    0.000|       ~
+00:47:09|     sde|       ~|   0.500|   11.500|       ~
+[ 1] - mem.util.used - Kbyte
+[ 2] - kernel.all.cpu.user - ms/s
+[ 2] - kernel.percpu.cpu.user["cpu0"] - ms/s
+[ 2] - kernel.percpu.cpu.user["cpu1"] - ms/s
+[ 3] - mem.util.free - Kbyte
+[ 4] - mem.util.shared - Kbyte
+
+                       1     2         3           4
+00:47:01     =   6068648   N/A     38220         N/A
+00:47:01  cpu0         ~   N/A         ~           ~
+00:47:01  cpu1         ~   N/A         ~           ~
+00:47:03     =   6068648   404     38220         N/A
+00:47:03  cpu0         ~  21.0         ~           ~
+00:47:03  cpu1         ~   384         ~           ~
+00:47:05     =   6068648   404     38220         N/A
+00:47:05  cpu0         ~  20.5         ~           ~
+00:47:05  cpu1         ~   384         ~           ~
+00:47:07     =   6068648   405     38220         N/A
+00:47:07  cpu0         ~  21.0         ~           ~
+00:47:07  cpu1         ~   384         ~           ~
+00:47:09     =   6068648   404     38220         N/A
+00:47:09  cpu0         ~  21.0         ~           ~
+00:47:09  cpu1         ~   384         ~           ~
 == invalid command line parameters
 Error while parsing options: Non-negative integer expected.
 Error while parsing options: Non-negative integer expected.
@@ -792,13 +893,19 @@ Time|"sample.seconds"|"sample.milliseconds"
 2000-05-01 20:36:49|380436|380435679.381
 2000-05-01 20:36:51|380438|380437679.382
 2000-05-01 20:36:53|380440|380439679.413
+Host,Interval,Time;"sample.seconds";"sample.milliseconds"
+rattle;0;2000-05-01 20:36:45 UTC+10;;
+rattle;2;2000-05-01 20:36:47 UTC+10;380434;380433679.314
+rattle;2;2000-05-01 20:36:49 UTC+10;380436;380435679.381
+rattle;2;2000-05-01 20:36:51 UTC+10;380438;380437679.382
+rattle;2;2000-05-01 20:36:53 UTC+10;380440;380439679.413
 == exercise CSV and instance handling
 Time,"hinv.map.scsi-scsi0:0:0:0 Direct-Access","hinv.map.scsi-scsi0:0:1:0 Direct-Access","hinv.map.scsi-scsi0:0:2:0 Direct-Access","hinv.map.scsi-scsi0:0:3:0 Direct-Access","hinv.map.scsi-scsi0:0:4:0 Direct-Access","kernel.all.load-1 minute","kernel.all.load-5 minute","kernel.all.load-15 minute"
-2013-07-06 00:47:01,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
-2013-07-06 00:47:03,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
-2013-07-06 00:47:05,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
-2013-07-06 00:47:07,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
-2013-07-06 00:47:09,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
+2013-07-06 00:47:01,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:03,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:05,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:07,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:09,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
 == compare output-to-file versus stdout
 ok
 == exercise repeated headers option
@@ -989,6 +1096,8 @@ No such file or directory.
     1.001
     1.001
     1.001
+== derived metrics definition files on command line
+No output expected.
 == derived metrics in pmrep.conf
 No output expected.
 No output expected.

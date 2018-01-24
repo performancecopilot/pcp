@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2017 Red Hat.
+ * Copyright (c) 2013,2017-2018 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -53,7 +53,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmInDom		indom;
     int			inst;
     char		*iname;
-    pmInResult	*inres;
+    pmInResult		*inres;
     pmLabelSet		*labels = NULL;
     char		*buffer;
     pmProfile  		*new_profile;
@@ -177,13 +177,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
-	    /* this is for PURIFY to prevent a UMR in __pmXmitPDU */
-	    result->timestamp.tv_sec = 0;
-	    result->timestamp.tv_usec = 0;
 	    __pmSendResult(pmda->e_outfd, FROM_ANON, result);
-	    if (pmda->e_resultCallBack != NULL) {
-		(pmda->e_resultCallBack)(result);
-	    }
+	    if (pmda->e_resultCallBack)
+		pmda->e_resultCallBack(result);
 	}
 	break;
 

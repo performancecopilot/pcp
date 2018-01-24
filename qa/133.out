@@ -24,7 +24,7 @@ Log finished DATE
 Created 9 archive pieces.
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       1       OFFSET       OFFSET
 TIMESTAMP       2       OFFSET       OFFSET

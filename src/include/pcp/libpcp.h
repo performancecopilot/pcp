@@ -1152,6 +1152,7 @@ PCP_CALL extern int __pmLocalPMDA(int, int, const char *, const char *);
 PCP_CALL extern void __pmStartOptions(pmOptions *);
 PCP_CALL extern int  __pmGetLongOptions(pmOptions *);
 PCP_CALL extern void __pmAddOptArchive(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptArchivePath(pmOptions *);
 PCP_CALL extern void __pmAddOptArchiveList(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptContainer(pmOptions *, char *);

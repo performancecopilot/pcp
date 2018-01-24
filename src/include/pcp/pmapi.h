@@ -534,6 +534,7 @@ PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
 #define PMCD_AGENT_CHANGE	\
 	(PMCD_ADD_AGENT | PMCD_RESTART_AGENT | PMCD_DROP_AGENT)
 #define PMCD_LABEL_CHANGE	(1<<3)
+#define PMCD_NAMES_CHANGE	(1<<4)
 
 /*
  * Variant that is used to return a pmResult from an archive

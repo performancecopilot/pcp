@@ -289,6 +289,10 @@ static void set_pmcsetting_derived_scale(configuration_t *config,  double scale,
     if (context_derived)
     {
         setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
+        if (NULL == setting_lists)
+        {
+            return;
+        }
         while (setting_lists->next)
         {
             setting_lists = setting_lists->next;
@@ -318,6 +322,10 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
     if (context_derived)
     {
         setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
+        if (NULL == setting_lists)
+        {
+            return;
+        }
         while (setting_lists->next)
         {
             setting_lists = setting_lists->next;

@@ -1,82 +1,112 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.  All Rights Reserved.
-.\" 
+.\" Copyright (c) 2014-2018 Red Hat.
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
+.\"
 .TH PMDADS389 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdads389\f1 \- 389 Directory Server PMDA
 .SH DESCRIPTION
-\f3pmdads389\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
-extracts live performance data from a running 389 Directory Server instance.
+\fBpmdads389\fP is a Performance Metrics Domain Agent (PMDA) which
+extracts live performance data from a running 389 Directory Server
+instance.
 .PP
 See the Red Hat Directory Server Administration Guide for description
 for each metric.
 .PP
 .SH INSTALLATION
-\f3pmdads389\f1 uses a configuration file
-.IP "\(bu" 4
-.I $PCP_PMDAS_DIR/ds389/ds389.conf
+\fBpmdads389\fP reads an optional configuration file
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
+.I \f(CW$PCP_PMDAS_DIR\fP/ds389/ds389.conf
+.RE
+.PD
 .PP
 This file can contain overridden values (Perl code) for the settings
 listed at the start of
 .IR pmdads389.pl ,
 namely:
-.IP "\(bu" 4
-\&\s-1LDAP\s0 server
-.IP "\(bu" 4
-bind \s-1DN\s0
-.IP "\(bu" 4
+.IP
+.PD 0
+.RS +4
+.IP \(bu 2
+LDAP server
+.IP \(bu
+bind DN
+.IP \(bu
 bind password
-.IP "\(bu" 4
+.IP \(bu
 search scope
-.IP "\(bu" 4
+.IP \(bu
 search base
-.IP "\(bu" 4
+.IP \(bu
 search filter
-.IP "\(bu" 4
+.IP \(bu
 query interval
+.RE
+.PD
 .PP
 Once this is setup, you can access the names and values for the
 389 DS performance metrics by doing the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/ds389
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/ds389
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/ds389
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 .PP
-      # cd $PCP_PMDAS_DIR/ds389
-.br
-      # ./Remove
-.PP
-\fBpmdads389\fR is launched by \fIpmcd\fR(1) and should never be executed 
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+\fBpmdads389\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The Install and Remove scripts notify \fBpmcd\fP(1) when the
 agent is installed or removed.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/ds389/ds389.conf\fR" 4
-configuration file for the \fBpmdads389\fR agent
-.IP "\fB$PCP_PMDAS_DIR/ds389/Install\fR" 4 
-installation script for the \fBpmdads389\fR agent 
-.IP "\fB$PCP_PMDAS_DIR/ds389/Remove\fR" 4 
-undo installation script for the \fBpmdads389\fR agent 
-.IP "\fB$PCP_LOG_DIR/pmcd/ds389.log\fR" 4 
-default log file for error messages from \fBpmdads389\fR 
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/ds389/ds389.conf
+configuration file for the \fBpmdads389\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/ds389/Install
+installation script for the \fBpmdads389\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/ds389/Remove
+undo installation script for the \fBpmdads389\fP agent
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/ds389.log
+default log file for error messages from \fBpmdads389\fP
 .SH PCP ENVIRONMENT
-Environment variables with the prefix \fBPCP_\fR are used to parameterize
-the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables. 
-The \fB$PCP_CONF\fR variable may be used to specify an alternative 
-configuration file, as described in \fIpcp.conf\fR(5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR ldapsearch (1),

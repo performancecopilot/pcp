@@ -493,6 +493,7 @@ do
 	    err=true
 	fi
 
+	$sudo rm -f $seq.out.bad
 	if [ -f $seq.notrun ]
 	then
 	    [ $color = true ] && tput bold && tput setaf 4 # blue
@@ -500,7 +501,6 @@ do
 	    [ $color = true ] && tput sgr0 # reset
 	    notrun="$notrun $seq"
 	else
-	    $sudo rm -f $seq.out.bad
 	    if [ $sts -ne 0 ]
 	    then
 		$PCP_ECHO_PROG $PCP_ECHO_N " [failed, exit status $sts]""$PCP_ECHO_C"

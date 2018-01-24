@@ -13,7 +13,8 @@
 _filter_compression()
 {
     # Mac OS X, FreeBSD, OpenBSD and Solaris strangeness
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e '/: Undefined error: 0/s//: Success/' \
 	-e '/: Error 0/s//: Success/' \
 	-e '/: No error: 0/s//: Success/' \
@@ -118,12 +119,18 @@ _exercise_compression()
 	pmval -a $arch sample.milliseconds
 	pmie -a $arch </dev/null
     done
-    echo "--- compressed empty data volume ---"
+    echo "--- compressed empty data volume ---" | tee -a $here/$seq.full
     touch null.0 null.meta null.index
+    ls -l null.* >>$here/$seq.full
     $deflate null.0
+    ls -l null.* >>$here/$seq.full
     pminfo -a null 2>&1 | _filter_compression
-    echo "--- empty data volume pretending to be compressed ---"
-    rm -f null.0.$suffix
+    echo "--- empty data volume pretending to be compressed ---" | tee -a $here/$seq.full
+    # need null.0 here, because $deflate may do nothing above on an
+    # empty input file
+    #
+    rm -f null.0 null.0.$suffix
     touch null.0.$suffix
+    ls -l null.* >>$here/$seq.full
     pminfo -a null 2>&1 | _filter_compression
 }

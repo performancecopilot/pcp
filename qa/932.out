@@ -5,15 +5,15 @@ log sample.dynamic.meta.metric
 archive contents before pmda simple restart...
 expect no <mark> record
 ---------------------------------------------------------------
-TIMESTAMP  29.0.86 (sample.dynamic.meta.metric): value 42
+    29.0.86 (sample.dynamic.meta.metric): value 42
 ---------------------------------------------------------------
 restart the simple pmda
 archive contents after pmda simple restart...
 expect <mark> record
 ---------------------------------------------------------------
-TIMESTAMP  29.0.86 (sample.dynamic.meta.metric): value 42
+    29.0.86 (sample.dynamic.meta.metric): value 42
 TIMESTAMP  <mark>
-TIMESTAMP  29.0.86 (sample.dynamic.meta.metric): value 42
+    29.0.86 (sample.dynamic.meta.metric): value 42
 ---------------------------------------------------------------
 Restore pmcd.conf and restart PMCD ...
 Waiting for pmcd to terminate ...

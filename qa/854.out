@@ -5,7 +5,7 @@ log sample.dynamic.meta.metric
 archive contents before pmda simple restart...
 expect no <mark> record
 ---------------------------------------------------------------
-TIMESTAMP  29.0.86 (sample.dynamic.meta.metric): value 42
+    29.0.86 (sample.dynamic.meta.metric): value 42
 ---------------------------------------------------------------
 pminfo -f sample.dynamic.meta.pmdesc.sem
 changing semantics from 4 to 3
@@ -14,7 +14,7 @@ restart the simple pmda
 archive contents after pmda simple restart...
 expect no <mark> record
 ---------------------------------------------------------------
-TIMESTAMP  29.0.86 (sample.dynamic.meta.metric): value 42
+    29.0.86 (sample.dynamic.meta.metric): value 42
 ---------------------------------------------------------------
 Semantics of metric "sample.dynamic.meta.metric" have changed from discrete to instant
 One or more configured metrics have changed after pmcd state change. Exiting

@@ -957,11 +957,18 @@ collectl
 604 logutil archive pmval pmlogextract pmdumplog local
 605 trace local
 606 python archive pmns pmiostat local
+607 libpcp local
+608 pmpost local
+609 pmdumplog local
 610 libpcp local
+611 pmlogger pmdumplog local
+612 other local
+613 pmdumplog local
 614 pmns local
 617 dbpmda help local
 622 pmie remote
 624 pmlogrewrite pmdumplog xz-decompress local
+625 libpcp getopt pmval local
 628 pmda local pmda.simple
 633 pmlogger local
 634 libirixpmda local pmval timezone
@@ -1423,21 +1430,25 @@ collectl
 1132 pcp2xlsx python pcp2xxx local
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local
+1135 pmrep python pmda.sample archive local
 1136 pmrep python pmda.sample local
 1137 derive pmrep local
 1138 archive pmval multi-archive decompress-xz local pmlogextract
+1139 pmrep python local
 1140 pidstat local
 1141 selinux local
 1159 pmlogger local pmdumplog
 1166 libpcp local
+1169 pmrep python local
 1174 threads valgrind local
 1182 libpcp local
 1186 pmie local
 1191 pmda.prometheus local
 1196 pmcd local
 1199 libpcp pmcd local
-1202 pmdadm local
+1202 pmdadm local pmrep
 1203 derive pmval libpcp local
+1220 pmda.proc local
 1221 labels pmda.prometheus local
 1222 pmda.linux pmda.proc local
 1225 pmwebapi local
@@ -1445,11 +1456,10 @@ collectl
 1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
-1238 pmiostat archive multi-archive decompress-xz local
-1242 pmrep archive multi-archive decompress-xz local
 1245 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
+1269 libpcp local
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1324 pmclient archive multi-archive decompress-xz local pmlogextract
@@ -1458,6 +1468,7 @@ collectl
 1331 verify local
 1343 pmmgr local
 1344 pmmgr local
+1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
 1367 labels pmda.simple local

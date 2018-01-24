@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ PCP to XML Bridge """
 
@@ -61,7 +61,8 @@ class PCP2XML(object):
                      'timefmt', 'extended', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
+                     'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -84,16 +85,22 @@ class PCP2XML(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
+        self.rank = 0
+        self.limit_filter = 0
+        self.limit_filter_force = 0
+        self.invert_filter = 0
+        self.predicate = None
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
         self.interpol = 0
         self.count_scale = None
-        self.space_scale = None
-        self.time_scale = None
         self.count_scale_force = None
+        self.space_scale = None
         self.space_scale_force = None
+        self.time_scale = None
         self.time_scale_force = None
 
         # Not in pcp2xml.conf, won't overwrite
@@ -110,7 +117,8 @@ class PCP2XML(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
+        #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -127,7 +135,7 @@ class PCP2XML(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:8:9:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -161,15 +169,21 @@ class PCP2XML(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
-        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
-        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
+        opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
+        opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
+        opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
+        opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
+        opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
-        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
-        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("with-extended", 0, "x", "", "write extended information about metrics")
@@ -179,7 +193,7 @@ class PCP2XML(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K':
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 
@@ -219,6 +233,18 @@ class PCP2XML(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
+        elif opt == 'J':
+            self.rank = optarg
+        elif opt == '8':
+            self.limit_filter = optarg
+        elif opt == '9':
+            self.limit_filter_force = optarg
+        elif opt == 'n':
+            self.invert_filter = 1
+        elif opt == 'N':
+            self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
@@ -229,14 +255,14 @@ class PCP2XML(object):
             self.timefmt = optarg
         elif opt == 'q':
             self.count_scale = optarg
-        elif opt == 'b':
-            self.space_scale = optarg
-        elif opt == 'y':
-            self.time_scale = optarg
         elif opt == 'Q':
             self.count_scale_force = optarg
+        elif opt == 'b':
+            self.space_scale = optarg
         elif opt == 'B':
             self.space_scale_force = optarg
+        elif opt == 'y':
+            self.time_scale = optarg
         elif opt == 'Y':
             self.time_scale_force = optarg
         elif opt == 'x':
@@ -268,7 +294,7 @@ class PCP2XML(object):
         if self.everything:
             self.extended = 1
 
-        self.pmconfig.validate_metrics(curr_insts=True)
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -401,48 +427,43 @@ class PCP2XML(object):
                 return None
             return string.replace("&", "&amp;").replace("<", "&lt;")
 
-        for i, metric in enumerate(self.metrics):
-            try:
-                # Install value into dict in key1{key2{key3=value}} style:
-                # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
+        results = self.pmconfig.get_sorted_results()
 
-                pmns_parts = metric.split(".")
+        for i, metric in enumerate(results):
+            # Install value into dict in key1{key2{key3=value}} style:
+            # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
 
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    try:
-                        value = val()
-                        fmt = "." + str(self.metrics[metric][6]) + "f"
-                        value = format(value, fmt) if isinstance(value, float) else str(value)
-                        value = escape_xml_text(value)
-                        name = escape_xml_markup(name)
-                    except:
-                        continue
+            pmns_parts = metric.split(".")
 
-                    pmns_leaf_dict = data
+            fmt = "." + str(self.metrics[metric][6]) + "f"
+            for inst, name, value in results[metric]:
+                value = format(value, fmt) if isinstance(value, float) else str(value)
+                value = escape_xml_text(value)
+                name = escape_xml_markup(name)
 
-                    # Find/create the parent dictionary into which to insert the final component
-                    for pmns_part in pmns_parts[:-1]:
-                        if pmns_part not in pmns_leaf_dict:
-                            pmns_leaf_dict[pmns_part] = {}
-                        pmns_leaf_dict = pmns_leaf_dict[pmns_part]
-                    last_part = pmns_parts[-1]
+                pmns_leaf_dict = data
 
-                    if inst == PM_IN_NULL:
-                        pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
-                    else:
-                        if insts_key not in pmns_leaf_dict:
-                            pmns_leaf_dict[insts_key] = []
-                        insts = pmns_leaf_dict[insts_key]
-                        # Find a preexisting {@id: name} object in there, if any
-                        found = False
-                        for j in range(1, len(insts)):
-                            if insts[j][inst_key] == name:
-                                insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
-                                found = True
-                        if not found:
-                            insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
-            except:
-                pass
+                # Find/create the parent dictionary into which to insert the final component
+                for pmns_part in pmns_parts[:-1]:
+                    if pmns_part not in pmns_leaf_dict:
+                        pmns_leaf_dict[pmns_part] = {}
+                    pmns_leaf_dict = pmns_leaf_dict[pmns_part]
+                last_part = pmns_parts[-1]
+
+                if inst == PM_IN_NULL:
+                    pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                else:
+                    if insts_key not in pmns_leaf_dict:
+                        pmns_leaf_dict[insts_key] = []
+                    insts = pmns_leaf_dict[insts_key]
+                    # Find a preexisting {@id: name} object in there, if any
+                    found = False
+                    for j in range(1, len(insts)):
+                        if insts[j][inst_key] == name:
+                            insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                            found = True
+                    if not found:
+                        insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
 
         def get_type_string(desc):
             """ Get metric type as string """
@@ -527,7 +548,7 @@ class PCP2XML(object):
                     raise
             try:
                 self.writer.close()
-            except:
+            except: # pylint: disable=bare-except
                 pass
             self.writer = None
         return

@@ -20,7 +20,7 @@
 #include "libpcp.h"
 #include "logger.h"
 
-int	i;
+int	indx;
 int	found;
 int	argcount;		/* number of arguments in config file */
 char	*arglist[24];		/* arguments from config file */
@@ -70,12 +70,12 @@ metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 			    yyerror(emess);
 			}
 			found = 0;
-			for (i=0; i<inarchnum; i++) {
-			    if ((sts = pmUseContext(inarch[i].ctx)) < 0) {
+			for (indx=0; indx<inarchnum; indx++) {
+			    if ((sts = pmUseContext(inarch[indx].ctx)) < 0) {
 				fprintf(stderr, 
 				    "%s: Error: cannot use context (%d) "
 				    "from archive \"%s\"\n", 
-				    pmGetProgname(), inarch[i].ctx, inarch[i].name);
+				    pmGetProgname(), inarch[indx].ctx, inarch[indx].name);
 				exit(1);
 			    }
 

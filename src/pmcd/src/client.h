@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,15 +12,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#ifndef PMCD_CLIENT_H
+#define PMCD_CLIENT_H
 
 /* The table of clients, used by pmcd */
 typedef struct {
     int			fd;		/* Socket descriptor */
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
-	unsigned int	changes : 4;	/* PMCD_* bits for changes since last fetch */
+	unsigned int	changes : 6;	/* PMCD_* bits for changes since last fetch */
 	unsigned int	attributes: 1;	/* Connection attributes have changed */
     } status;
     /* There is a profile associated with each client context.
@@ -54,4 +54,4 @@ extern int CheckAccountAccess(ClientInfo *);
 
 extern char *nameclient(int);
 
-#endif /* _CLIENT_H */
+#endif /* PMCD_CLIENT_H */

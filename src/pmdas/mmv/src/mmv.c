@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -57,8 +57,9 @@ static int mtot;
 static pmdaIndom * indoms;
 static int intot;
 
-static int reload;
 static __pmnsTree * pmns;
+static int reload;			/* require reload of maps */
+static int notify;			/* notify pmcd of changes */
 static int statsdir_code;		/* last statsdir stat code */
 static time_t statsdir_ts;		/* last statsdir timestamp */
 static char * prefix = "mmv";
@@ -484,8 +485,10 @@ map_stats(pmdaExt *pmda)
     int i, j, k, sts, num;
     int sep = pmPathSeparator();
 
-    if (pmns)
+    if (pmns) {
 	__pmFreePMNS(pmns);
+	notify |= PMDA_EXT_NAMES_CHANGE;
+    }
 
     if ((sts = __pmNewPMNS(&pmns)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
@@ -881,7 +884,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     if (pmID_cluster(mdesc->m_desc.pmid) == 0) {
 	if (pmID_item(mdesc->m_desc.pmid) <= 2) {
 	    atom->l = *(int *)mdesc->m_user;
-	    return 1;
+	    return PMDA_FETCH_STATIC;
 	}
 	return PM_ERR_PMID;
 
@@ -917,17 +920,17 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
 		if ((fl & MMV_FLAG_SENTINEL) &&
 		    (memcmp(atom, &aNaN, sizeof(*atom)) == 0))
-		    return 0;
+		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_FLOAT:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
 		if ((fl & MMV_FLAG_SENTINEL) && atom->f == fNaN)
-		    return 0;
+		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_DOUBLE:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
 		if ((fl & MMV_FLAG_SENTINEL) && atom->d == dNaN)
-		    return 0;
+		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_ELAPSED: {
 		atom->ll = v->value.ll;
@@ -954,7 +957,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		str = (mmv_disk_string_t *)((char *)s->addr + offset);
 		memcpy(buffer, str->payload, sizeof(buffer));
 		if ((fl & MMV_FLAG_SENTINEL) && buffer[0] == '\0')
-		    return 0;
+		    return PMDA_FETCH_NOVALUES;
 		buffer[sizeof(buffer)-1] = '\0';
 		atom->cp = buffer;
 		break;
@@ -962,10 +965,10 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case MMV_TYPE_NOSUPPORT:
 		return PM_ERR_APPVERSION;
 	}
-	return 1;
+	return PMDA_FETCH_STATIC;
     }
 
-    return 0;
+    return PMDA_FETCH_NOVALUES;
 }
 
 static void
@@ -1138,6 +1141,10 @@ static int
 mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     mmv_reload_maybe(pmda);
+    if (notify) {
+	pmdaExtSetFlags(pmda, notify);
+	notify = 0;
+    }
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1200,6 +1207,22 @@ mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *p
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
+static int
+mmv_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
+{
+    return pmdaLabel(ident, type, lp, pmda);
+}
+
+static int
+mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    /* Requires MMV v3 on-disk format adding labels support */
+    (void)indom;
+    (void)inst;
+    (void)lp;
+    return 0;
+}
+
 void
 __PMDA_INIT_CALL
 mmv_init(pmdaInterface *dp)
@@ -1208,7 +1231,7 @@ mmv_init(pmdaInterface *dp)
     int sep = pmPathSeparator();
 
     if (isDSO) {
-	pmdaDSO(dp, PMDA_INTERFACE_4, "mmv", NULL);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "mmv", NULL);
     } else {
 	pmSetProcessIdentity(username);
     }
@@ -1254,15 +1277,17 @@ mmv_init(pmdaInterface *dp)
 	    exit(0);
 	}
 
-	dp->version.four.fetch = mmv_fetch;
-	dp->version.four.store = mmv_store;
-	dp->version.four.desc = mmv_desc;
-	dp->version.four.text = mmv_text;
-	dp->version.four.instance = mmv_instance;
-	dp->version.four.pmid = mmv_pmid;
-	dp->version.four.name = mmv_name;
-	dp->version.four.children = mmv_children;
+	dp->version.seven.fetch = mmv_fetch;
+	dp->version.seven.store = mmv_store;
+	dp->version.seven.desc = mmv_desc;
+	dp->version.seven.text = mmv_text;
+	dp->version.seven.instance = mmv_instance;
+	dp->version.seven.pmid = mmv_pmid;
+	dp->version.seven.name = mmv_name;
+	dp->version.seven.children = mmv_children;
+	dp->version.seven.label = mmv_label;
 	pmdaSetFetchCallBack(dp, mmv_fetchCallBack);
+	pmdaSetLabelCallBack(dp, mmv_labelCallBack);
 
 	pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
 	pmdaInit(dp, indoms, intot, metrics, mtot);
@@ -1272,6 +1297,7 @@ mmv_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
+    char	*progname;
     char	logfile[32];
     pmdaInterface dispatch = { 0 };
 
@@ -1279,10 +1305,11 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
     pmGetUsername(&username);
 
-    if (strncmp(pmGetProgname(), "pmda", 4) == 0 && strlen(pmGetProgname()) > 4)
-	prefix = pmGetProgname() + 4;
+    progname = pmGetProgname();
+    if (strncmp(progname, "pmda", 4) == 0 && strlen(progname) > 4)
+	prefix = progname + 4;
     pmsprintf(logfile, sizeof(logfile), "%s.log", prefix);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), MMV, logfile, NULL);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, progname, MMV, logfile, NULL);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

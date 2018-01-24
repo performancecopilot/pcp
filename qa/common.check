@@ -718,8 +718,8 @@ _wait_for_pmlogger()
     rm -f $tmp._wait_for_pmlogger.pmlc
     while [ $_i -lt $_maxdelay ]
     do
-	#debug# ps -ef | grep "[^0-9]$_pid[^0-9]"
-	echo "pmlc $_pid" >> $tmp._wait_for_pmlogger.pmlc
+	ps $PCP_PS_ALL_FLAGS | egrep "([p]mlogger|[P]ID)" >>$tmp._wait_for_pmlogger.pmlc
+	echo "pmlc $_pid" >>$tmp._wait_for_pmlogger.pmlc
 	if pmlc $_pid </dev/null 2>&1 \
 		| tee -a $tmp._wait_for_pmlogger.pmlc \
 		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
@@ -808,7 +808,7 @@ _wait_for_pmlogger()
 	done
 	echo
 	echo "Likely looking processes ..."
-	ps $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]ID'
+	ps $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
 	status=2
 	exit $status
     fi

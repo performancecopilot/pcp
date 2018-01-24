@@ -54,12 +54,15 @@ _pmdaprometheus_restore_config()
 _pmdaprometheus_wait_for_metric()
 {
     metric=$1
-    for i in `seq 1 30`; do
+    _i=0
+    while [ $_i -lt 30 ]
+    do
     	if pminfo $metric >/dev/null 2>&1
 	then
 	    return 0
 	fi
 	sleep 1
+	_i=`expr $_i + 1`
     done
     # timeout
     echo _pmdaprometheus_wait_for_metric FAILED for metric $metric

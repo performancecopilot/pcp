@@ -154,8 +154,8 @@ event.missed PMID: 511.0.2
     Semantics: discrete  Units: none
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 Descriptions for Metrics in the Log ...
 PMID: 245.0.6 (my.metric.float)
@@ -180,32 +180,35 @@ PMID: 245.0.1 (my.metric.foo)
 Instance Domains in the Log ...
 InDom: 245.1
 TIMESTAMP 3 instances
-                 1 or "eek really"
-                 2 or "eek"
-                 3 or "blah"
+   1 or "eek really"
+   2 or "eek"
+   3 or "blah"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
-TIMESTAMP       0          132          132
-TIMESTAMP       0          531          132
-TIMESTAMP       0          531          536
+		Log Vol    end(meta)     end(log)
+TIMESTAMP      0          132          132
+TIMESTAMP      0          531          132
+TIMESTAMP      0          531          536
 
 [228 bytes]
-TIMESTAMP  245.0.1 (my.metric.foo): value 123
-              245.0.2 (my.metric.bar):
-                inst [2 or "eek"] value 4567890123456
-                inst [3 or "blah"] value 4567890123457
-              245.0.5 (my.metric.string): value "a new string value"
-              245.0.3 (my.metric.long): value 123456789012345
-              245.0.4 (my.metric.double): value 1.23456789012
-              245.0.6 (my.metric.float): value -1.234567
+TIMESTAMP 6 metrics
+    245.0.1 (my.metric.foo): value 123
+    245.0.2 (my.metric.bar):
+        inst [2 or "eek"] value 4567890123456
+        inst [3 or "blah"] value 4567890123457
+    245.0.5 (my.metric.string): value "a new string value"
+    245.0.3 (my.metric.long): value 123456789012345
+    245.0.4 (my.metric.double): value 1.23456789012
+    245.0.6 (my.metric.float): value -1.234567
 
 [88 bytes]
-TIMESTAMP  245.0.1 (my.metric.foo): value 4321
-              245.0.5 (my.metric.string): value "a second string value"
+TIMESTAMP 2 metrics
+    245.0.1 (my.metric.foo): value 4321
+    245.0.5 (my.metric.string): value "a second string value"
 
 [68 bytes]
-TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+TIMESTAMP 1 metric
+    245.0.5 (my.metric.string): value "a third string value"
 
 [20 bytes]
 TIMESTAMP  <mark>
@@ -519,8 +522,8 @@ event.missed PMID: 511.0.2
     Semantics: discrete  Units: none
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
-  commencing DATE
-  ending     DATE
+    commencing DATE
+    ending     DATE
 
 Descriptions for Metrics in the Log ...
 PMID: 245.0.6 (my.metric.float)
@@ -545,32 +548,35 @@ PMID: 245.0.1 (my.metric.foo)
 Instance Domains in the Log ...
 InDom: 245.1
 TIMESTAMP 3 instances
-                 1 or "eek really"
-                 2 or "eek"
-                 3 or "blah"
+   1 or "eek really"
+   2 or "eek"
+   3 or "blah"
 
 Temporal Index
-             Log Vol    end(meta)     end(log)
-TIMESTAMP       0          132          132
-TIMESTAMP       0          531          132
-TIMESTAMP       0          531          536
+		Log Vol    end(meta)     end(log)
+TIMESTAMP      0          132          132
+TIMESTAMP      0          531          132
+TIMESTAMP      0          531          536
 
 [228 bytes]
-TIMESTAMP  245.0.1 (my.metric.foo): value 123
-              245.0.2 (my.metric.bar):
-                inst [2 or "eek"] value 4567890123456
-                inst [3 or "blah"] value 4567890123457
-              245.0.5 (my.metric.string): value "a new string value"
-              245.0.3 (my.metric.long): value 123456789012345
-              245.0.4 (my.metric.double): value 1.23456789012
-              245.0.6 (my.metric.float): value -1.234567
+TIMESTAMP 6 metrics
+    245.0.1 (my.metric.foo): value 123
+    245.0.2 (my.metric.bar):
+        inst [2 or "eek"] value 4567890123456
+        inst [3 or "blah"] value 4567890123457
+    245.0.5 (my.metric.string): value "a new string value"
+    245.0.3 (my.metric.long): value 123456789012345
+    245.0.4 (my.metric.double): value 1.23456789012
+    245.0.6 (my.metric.float): value -1.234567
 
 [88 bytes]
-TIMESTAMP  245.0.1 (my.metric.foo): value 4321
-              245.0.5 (my.metric.string): value "a second string value"
+TIMESTAMP 2 metrics
+    245.0.1 (my.metric.foo): value 4321
+    245.0.5 (my.metric.string): value "a second string value"
 
 [68 bytes]
-TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+TIMESTAMP 1 metric
+    245.0.5 (my.metric.string): value "a third string value"
 
 [20 bytes]
 TIMESTAMP  <mark>

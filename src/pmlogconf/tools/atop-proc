@@ -35,6 +35,8 @@ force	available
 	proc.memory.vmexe
 	proc.memory.vmlib
 	proc.memory.vmswap
+	proc.memory.share
+	proc.memory.vmsize
 	proc.io.read_bytes
 	proc.io.write_bytes
 	proc.io.cancelled_write_bytes
@@ -42,3 +44,4 @@ force	available
 	proc.id.euid_nm
 	proc.id.suid_nm
 	proc.id.fsuid_nm
+	proc.id.container

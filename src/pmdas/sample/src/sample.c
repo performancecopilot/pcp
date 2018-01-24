@@ -2823,6 +2823,14 @@ sample_label_indom(pmInDom indom, pmLabelSet **lp)
 }
 
 static int
+sample_label_cluster(pmID pmid, pmLabelSet **lp)
+{
+    if (pmID_cluster(pmid) != 0)
+	return 0;
+    return pmdaAddLabels(lp, "{\"cluster\":\"zero\"}");
+}
+
+static int
 sample_label_item(pmID pmid, pmLabelSet **lp)
 {
     if (pmID_cluster(pmid) != 0)
@@ -2930,6 +2938,9 @@ sample_label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 	    break;
 	case PM_LABEL_INDOM:
 	    sts = sample_label_indom((pmInDom)ident, lp);
+	    break;
+	case PM_LABEL_CLUSTER:
+	    sts = sample_label_cluster((pmID)ident, lp);
 	    break;
 	case PM_LABEL_ITEM:
 	    sts = sample_label_item((pmID)ident, lp);

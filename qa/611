@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 611
+# pmlogger emitting duplicate timestamps for indom metadata?
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+nval=`pmprobe proc.psinfo.pid | $PCP_AWK_PROG '{print $2}' 2>/dev/null`
+[ -z "$nval" -o "$nval" -le 0 ] && _notrun "No proc.psinfo metrics"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+# InDom: 60.5
+# then looking for duplicated timestamps in following lines like:
+# 00:10:12.282 10 instances
+#
+    last=1
+
+    cat >$tmp.dump
+
+    rm -f $tmp.prior
+
+    $PCP_AWK_PROG <$tmp.dump '
+$1 == "InDom:"	{ indom = $2
+		  stamp = ""
+		  next
+		}
+$3 == "instances" { if ($1 == stamp) {
+			print "InDom: " indom " dup stamp " $1 " [" numinst " & " $2 " numinst]"
+			print "match",NR
+		    }
+		    else
+			print "start",NR
+		    stamp = $1
+		    numinst = $2
+		  }' \
+    | while read key arg
+    do
+	case $key
+	in
+	    'InDom:')
+		    echo "$key $arg"
+		    ;;
+	    start|match)
+		    end=`expr $arg - 1`
+		    sed -n -e "$last,$end"p <$tmp.dump | sort >$tmp.this
+		    last=`expr $arg + 1`
+		    if [ "$key" = match ]
+		    then
+			if diff $tmp.prior $tmp.this
+			then
+			    echo "SURPRISE, indoms are the same"
+			fi
+		    fi
+		    mv $tmp.this $tmp.prior
+		    ;;
+	esac
+    done
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 250msec { proc.psinfo }
+End-of-File
+
+# real QA test starts here
+( pmlogger -s 40 -c $tmp.config -l $tmp.log $tmp; touch $tmp.done ) &
+
+while [ ! -f $tmp.done ]
+do
+    src/spawn 10000
+done
+
+cat $tmp.log >>$here/$seq.full
+
+echo
+echo "Expect no dups reported ..."
+
+pmdumplog -i $tmp \
+| tee -a $here/$seq.full \
+| _filter
+
+# success, all done
+status=0
+exit

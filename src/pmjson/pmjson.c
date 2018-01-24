@@ -32,7 +32,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:mi:o:p:qyV?",
+    .short_options = "D:mi:o:pqyV?",
     .long_options = longopts,
     .override = override,
 };

@@ -46,6 +46,7 @@ clienttimeout
 compare
 context_fd_leak
 context_test
+countmark
 crashpmcd
 defctx
 derived
@@ -188,9 +189,11 @@ record-setarg
 rootclient
 rtimetest
 scale
+scanmeta
 semstr
 slow_af
 sortinst
+spawn
 statvfs
 store
 storepast

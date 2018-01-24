@@ -159,7 +159,7 @@ fi
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
 egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[d]umb_pmda" $tmp.ps >/dev/null
+if grep "[^([][d]umb_pmda[^])]" $tmp.ps >/dev/null
 then
     :
 else
@@ -200,7 +200,7 @@ pminfo -n $pmns -d dummyproc >/dev/null 2>&1
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
 egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[d]umb_pmda" <$tmp.ps >/dev/null
+if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
 then
     _echo "Error: pmcd didn't terminate the dumb_pmda agent"
     cat $pmcdlog >>$seq.full
@@ -231,9 +231,9 @@ fi
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
 egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[d]umb_pmda" <$tmp.ps >/dev/null
+if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
 then
-    psline=`ps $PCP_PS_ALL_FLAGS | grep "[d]umb_pmda"`
+    psline=`ps $PCP_PS_ALL_FLAGS | grep "[^([][d]umb_pmda[^])]"`
     old_dummy_pid=`echo $psline | cut -d ' ' -f 2`
 else
     _echo "pmcd SIGHUP didn't restart the dumb_pmda agent"
@@ -264,12 +264,12 @@ _echo ""
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
 egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[d]umb_pmda" <$tmp.ps >/dev/null
+if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
 then 
     _echo "pmcd did NOT terminate the dumb_pmda agent as desired"
 
     # make sure it is really the same process - check pid
-    psline=`ps $PCP_PS_ALL_FLAGS | grep "[d]umb_pmda"`
+    psline=`ps $PCP_PS_ALL_FLAGS | grep "[^([][d]umb_pmda[^])]"`
     new_dummy_pid=`echo $psline | cut -d ' ' -f 2`
     if [ $old_dummy_pid -ne $new_dummy_pid ]
     then
@@ -290,7 +290,7 @@ sleep 8
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
 egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[d]umb_pmda" <$tmp.ps >/dev/null
+if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
 then
     _echo "Error: pmcd didn't terminate the dumb_pmda agent"
     cat $pmcdlog >>$seq.full

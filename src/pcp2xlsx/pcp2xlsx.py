@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ PCP to XLSX Bridge """
 
@@ -89,10 +89,10 @@ class PCP2XLSX(object):
         self.timefmt = TIMEFMT
         self.interpol = 0
         self.count_scale = None
-        self.space_scale = None
-        self.time_scale = None
         self.count_scale_force = None
+        self.space_scale = None
         self.space_scale_force = None
+        self.time_scale = None
         self.time_scale_force = None
 
         # Not in pcp2xlsx.conf, won't overwrite
@@ -109,7 +109,8 @@ class PCP2XLSX(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
+        #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -160,22 +161,22 @@ class PCP2XLSX(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
-        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
-        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "xlsxwriter timestamp format")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
-        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
-        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         return opts
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K':
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 
@@ -225,14 +226,14 @@ class PCP2XLSX(object):
             self.timefmt = optarg
         elif opt == 'q':
             self.count_scale = optarg
-        elif opt == 'b':
-            self.space_scale = optarg
-        elif opt == 'y':
-            self.time_scale = optarg
         elif opt == 'Q':
             self.count_scale_force = optarg
+        elif opt == 'b':
+            self.space_scale = optarg
         elif opt == 'B':
             self.space_scale_force = optarg
+        elif opt == 'y':
+            self.time_scale = optarg
         elif opt == 'Y':
             self.time_scale_force = optarg
         else:
@@ -385,7 +386,7 @@ class PCP2XLSX(object):
             fmt = self.sheet.add_format({'bold': True})
             fmt.set_align('right')
             self.ws.write_string(self.row, col, "Time", fmt)
-            # Labels, static
+            # Metrics/instances, static
             for i, metric in enumerate(self.metrics):
                 for j in range(len(self.pmconfig.insts[i][0])):
                     col += 1
@@ -425,19 +426,12 @@ class PCP2XLSX(object):
             float_fmt = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
             self.float_fmt.set_num_format(float_fmt)
 
-        # Avoid expensive PMAPI calls more than once per metric
+        results = self.pmconfig.get_sorted_results()
+
         res = {}
-        for metric in self.metrics:
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    if inst != PM_IN_NULL and not name:
-                        continue
-                    try:
-                        res[metric + "+" + str(inst)] = val
-                    except:
-                        pass
-            except:
-                pass
+        for i, metric in enumerate(results):
+            for inst, _, value in results[metric]:
+                res[metric + "+" + str(inst)] = value
 
         # Add corresponding values for each column in the static header
         col = 0
@@ -446,7 +440,7 @@ class PCP2XLSX(object):
             for j in range(len(self.pmconfig.insts[i][0])):
                 col += 1
                 try:
-                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]()
+                    value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]
                     if value is None:
                         self.ws.write_blank(self.row, col, None)
                     elif isinstance(value, str):
@@ -456,7 +450,7 @@ class PCP2XLSX(object):
                         self.ws.write_number(self.row, col, value, self.float_fmt)
                     else:
                         self.ws.write_number(self.row, col, value, self.int_fmt)
-                except:
+                except Exception:
                     self.ws.write_blank(self.row, col, None)
 
     def finalize(self):

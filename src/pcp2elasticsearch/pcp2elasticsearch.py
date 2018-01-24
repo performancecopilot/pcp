@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ PCP to Elasticsearch Bridge """
 
@@ -63,7 +63,8 @@ class pcp2elasticsearch(object):
                      'es_server', 'es_index', 'es_hostid',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',
+                     'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
+                     'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -86,16 +87,22 @@ class pcp2elasticsearch(object):
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.instances = []
+        self.live_filter = 0
+        self.rank = 0
+        self.limit_filter = 0
+        self.limit_filter_force = 0
+        self.invert_filter = 0
+        self.predicate = None
         self.omit_flat = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = "%H:%M:%S" # For compat only
         self.interpol = 0
         self.count_scale = None
-        self.space_scale = None
-        self.time_scale = None
         self.count_scale_force = None
+        self.space_scale = None
         self.space_scale_force = None
+        self.time_scale = None
         self.time_scale_force = None
 
         self.es_server = ES_SERVER
@@ -107,7 +114,8 @@ class pcp2elasticsearch(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width, 5:pmfg item, 6: precision
+        # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
+        #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -124,7 +132,7 @@ class pcp2elasticsearch(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:vP:0:q:b:y:Q:B:Y:g:x:X:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:8:9:nN:vP:0:q:b:y:Q:B:Y:g:x:X:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -155,14 +163,20 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
-        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
-        opts.pmSetLongOption("precision-force", 1, "0", "N", "forced precision")
+        opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
+        opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
+        opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
+        opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
+        opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
+        opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
+        opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
-        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
-        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
+        opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
+        opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("es-host", 1, "g", "SERVER", "elasticsearch server (default: " + ES_SERVER + ")")
@@ -173,7 +187,7 @@ class pcp2elasticsearch(object):
 
     def option_override(self, opt):
         """ Override standard PCP options """
-        if opt == 'H' or opt == 'K' or opt == 'g':
+        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
             return 1
         return 0
 
@@ -208,6 +222,18 @@ class pcp2elasticsearch(object):
             self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
+        elif opt == 'j':
+            self.live_filter = 1
+        elif opt == 'J':
+            self.rank = optarg
+        elif opt == '8':
+            self.limit_filter = optarg
+        elif opt == '9':
+            self.limit_filter_force = optarg
+        elif opt == 'n':
+            self.invert_filter = 1
+        elif opt == 'N':
+            self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
@@ -216,14 +242,14 @@ class pcp2elasticsearch(object):
             self.precision_force = optarg
         elif opt == 'q':
             self.count_scale = optarg
-        elif opt == 'b':
-            self.space_scale = optarg
-        elif opt == 'y':
-            self.time_scale = optarg
         elif opt == 'Q':
             self.count_scale_force = optarg
+        elif opt == 'b':
+            self.space_scale = optarg
         elif opt == 'B':
             self.space_scale_force = optarg
+        elif opt == 'y':
+            self.time_scale = optarg
         elif opt == 'Y':
             self.time_scale_force = optarg
         elif opt == 'g':
@@ -257,7 +283,7 @@ class pcp2elasticsearch(object):
         if self.es_hostid is None:
             self.es_hostid = self.context.pmGetContextHostName()
 
-        self.pmconfig.validate_metrics(curr_insts=True)
+        self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -367,46 +393,40 @@ class pcp2elasticsearch(object):
         insts_key = "@instances"
         inst_key = "@id"
 
-        for metric in self.metrics:
-            try:
-                # Install value into outgoing json/dict in key1{key2{key3=value}} style:
-                # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
-                # foo.bar.noo[0]=value =>  foo: { bar: { @instances:[{@id: 0, noo: value ...} ... ]}
+        results = self.pmconfig.get_sorted_results()
 
-                pmns_parts = metric.split(".")
+        for metric in results:
+            # Install value into outgoing json/dict in key1{key2{key3=value}} style:
+            # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
+            # foo.bar.noo[0]=value =>  foo: { bar: { @instances:[{@id: 0, noo: value ...} ... ]}
 
-                # Find/create the parent dictionary into which to insert the final component
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    try:
-                        value = val()
-                        value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
-                    except:
-                        continue
+            pmns_parts = metric.split(".")
 
-                    pmns_leaf_dict = es_doc
+            # Find/create the parent dictionary into which to insert the final component
+            for inst, name, value in results[metric]:
+                value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
+                pmns_leaf_dict = es_doc
 
-                    for pmns_part in pmns_parts[:-1]:
-                        if pmns_part not in pmns_leaf_dict:
-                            pmns_leaf_dict[pmns_part] = {}
-                        pmns_leaf_dict = pmns_leaf_dict[pmns_part]
-                    last_part = pmns_parts[-1]
+                for pmns_part in pmns_parts[:-1]:
+                    if pmns_part not in pmns_leaf_dict:
+                        pmns_leaf_dict[pmns_part] = {}
+                    pmns_leaf_dict = pmns_leaf_dict[pmns_part]
+                last_part = pmns_parts[-1]
 
-                    if inst == PM_IN_NULL:
-                        pmns_leaf_dict[last_part] = value
-                    else:
-                        if insts_key not in pmns_leaf_dict:
-                            pmns_leaf_dict[insts_key] = []
-                        insts = pmns_leaf_dict[insts_key]
-                        # Find a preexisting {@id: name} object in there, if any
-                        found = False
-                        for j in range(1, len(insts)):
-                            if insts[j][inst_key] == name:
-                                insts[j][last_part] = value
-                                found = True
-                        if not found:
-                            insts.append({inst_key: name, last_part: value})
-            except:
-                pass
+                if inst == PM_IN_NULL:
+                    pmns_leaf_dict[last_part] = value
+                else:
+                    if insts_key not in pmns_leaf_dict:
+                        pmns_leaf_dict[insts_key] = []
+                    insts = pmns_leaf_dict[insts_key]
+                    # Find a preexisting {@id: name} object in there, if any
+                    found = False
+                    for j in range(1, len(insts)):
+                        if insts[j][inst_key] == name:
+                            insts[j][last_part] = value
+                            found = True
+                    if not found:
+                        insts.append({inst_key: name, last_part: value})
 
         try:
             # pylint: disable=unexpected-keyword-arg

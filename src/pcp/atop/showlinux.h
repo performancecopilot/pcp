@@ -284,6 +284,7 @@ extern proc_printdef procprt_SGID;
 extern proc_printdef procprt_FSGID;
 extern proc_printdef procprt_CTID;
 extern proc_printdef procprt_VPID;
+extern proc_printdef procprt_CID;
 extern proc_printdef procprt_STDATE;
 extern proc_printdef procprt_STTIME;
 extern proc_printdef procprt_ENDATE;
@@ -316,8 +317,8 @@ extern proc_printdef procprt_UDPSND;
 extern proc_printdef procprt_UDPSASZ;
 extern proc_printdef procprt_RNET;
 extern proc_printdef procprt_SNET;
-extern proc_printdef procprt_RNETBW;
-extern proc_printdef procprt_SNETBW;
+extern proc_printdef procprt_BANDWI;
+extern proc_printdef procprt_BANDWO;
 extern proc_printdef procprt_SORTITEM;
 
 

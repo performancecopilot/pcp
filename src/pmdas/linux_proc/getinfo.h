@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2018 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -13,6 +13,5 @@
  * for more details.
  */
 
-extern dev_t get_encoded_dev(const char *);
-extern char *get_ttyname_info(int, dev_t);
+extern char *get_ttyname_info(int, const char *);
 
