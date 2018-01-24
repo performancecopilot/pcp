@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1116,6 +1116,7 @@ main(int argc, char **argv)
 		    __pmFD_CLR(fd, &fds);
 		    __pmCloseSocket(clientfd);
 		    clientfd = -1;
+		    pmlc_host[0] = '\0';
 		    numfds = maxfd() + 1;
 		    qa_case = 0;
 		}

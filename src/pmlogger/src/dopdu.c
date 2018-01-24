@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -938,14 +938,11 @@ no_info:
     return vsp;
 }
 
-static int
-do_control(__pmPDU *pb)
+
+int
+do_control_req(pmResult *request, int control, int state, int delta, int sendresult)
 {
     int			sts;
-    int			control;
-    int			state;
-    int			delta;
-    pmResult		*request;
     pmResult		*result;
     int			siamised = 0;	/* the verb from siamese (as in twins) */
     int			i;
@@ -957,12 +954,6 @@ do_control(__pmPDU *pb)
     time_t		now;
     int			reqstate = 0;
 
-    /*
-     * TODO	- encoding for logging interval in requests and results?
-     */
-    if ((sts = __pmDecodeLogControl(pb, &request, &control, &state, &delta)) < 0)
-	return sts;
-
     if (pmDebugOptions.log) {
 	fprintf(stderr, "do_control: control=%d state=%d delta=%d request ...\n",
 		control, state, delta);
@@ -973,7 +964,7 @@ do_control(__pmPDU *pb)
 	time(&now);
 	fprintf(stderr, "\n%s", ctime(&now));
 	fprintf(stderr, "pmlc request from %s: %s",
-	    pmlc_host, control == PM_LOG_MANDATORY ? "mandatory" : "advisory");
+	    pmlc_host[0] ? pmlc_host : "pmlogger", control == PM_LOG_MANDATORY ? "mandatory" : "advisory");
 	if (state == PM_LOG_ON) {
 	    if (delta == 0)
 		fprintf(stderr, " on once\n");
@@ -1017,12 +1008,6 @@ do_control(__pmPDU *pb)
 	    break;
     }
     if (sts < 0) {
-	fprintf(stderr, "Error: %s\n", pmErrStr(sts));
-	if ((sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
-	    pmNotifyErr(LOG_ERR,
-			 "do_control: error sending Error PDU to client: %s\n",
-			 pmErrStr(sts));
-	pmFreeResult(request);
 	return sts;
     }
 
@@ -1225,7 +1210,7 @@ do_control(__pmPDU *pb)
 	__pmDumpResult(stderr, result);
     }
 
-    if ((sts = __pmSendResult(clientfd, FROM_ANON, result)) < 0)
+    if (sendresult && (sts = __pmSendResult(clientfd, FROM_ANON, result)) < 0)
 		pmNotifyErr(LOG_ERR,
 			     "do_control: error sending Error PDU to client: %s\n",
 			     pmErrStr(sts));
@@ -1239,6 +1224,32 @@ do_control(__pmPDU *pb)
     pmFreeResult(request);
 
     return 0;
+}
+
+static int
+do_control(__pmPDU *pb)
+{
+    int			sts;
+    int			control;
+    int			state;
+    int			delta;
+    int			sendresult = 1;
+    pmResult		*request;
+
+    /*
+     * TODO	- encoding for logging interval in requests and results?
+     */
+    if ((sts = __pmDecodeLogControl(pb, &request, &control, &state, &delta)) < 0) {
+	fprintf(stderr, "Error: %s\n", pmErrStr(sts));
+	if ((sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
+	    pmNotifyErr(LOG_ERR,
+			 "do_control: error sending Error PDU to client: %s\n",
+			 pmErrStr(sts));
+	pmFreeResult(request);
+	return sts;
+    }
+    sts = do_control_req(request, control, state, delta, sendresult);
+    return sts;
 }
 
 /*
