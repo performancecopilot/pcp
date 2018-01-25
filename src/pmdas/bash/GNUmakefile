@@ -41,6 +41,7 @@ build-me: $(TARGETS)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/$(IAM)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 Install Remove $(SAMPLES) $(PMDADIR)
 	$(INSTALL) -m 644 root help pmns domain.h $(PMDADIR)

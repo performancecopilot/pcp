@@ -15,9 +15,18 @@ echo "QA output created by $seq"
 
 [ -f $PCP_PMDAS_DIR/bash/pmdabash ] || _notrun "Bash script PMDA not installed"
 
+_cleanup()
+{
+    cd $here
+    $culldir && _restore_config "$PCP_TMP_DIR/bash"
+    $sudo rm -rf $tmp $tmp.*
+    rm -f $tmp.*
+}
+
 status=1	# failure is the default!
+culldir=false
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmdabash_remove()
 {
@@ -30,8 +39,15 @@ pmdabash_remove()
 pmdabash_install()
 {
     # start from known starting points
-    $sudo rm -fr "$PCP_TMP_DIR/pmdabash"
-    $sudo mkdir -p -m 1777 "$PCP_TMP_DIR/pmdabash"
+    if [ -d "$PCP_TMP_DIR/bash" ]
+    then
+	_save_config "$PCP_TMP_DIR/bash"
+	$sudo rm -rf $PCP_TMP_DIR/bash
+    fi
+    culldir=true
+    $sudo mkdir -p -m 1777 "$PCP_TMP_DIR/bash"
+    $sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/bash"
+
     cd "$PCP_PMDAS_DIR/bash"
     $sudo ./Remove >/dev/null 2>&1
 

@@ -20,8 +20,6 @@
 #include "event.h"
 #include "pmda.h"
 
-static char *prefix = "pmdabash";
-static char *pcptmpdir;			/* probably /var/tmp */
 static char pidpath[MAXPATHLEN];
 
 /*
@@ -430,7 +428,6 @@ event_refresh(pmInDom bash_indom)
 void
 event_init(void)
 {
-    int sep = pmPathSeparator();
-    pcptmpdir = pmGetConfig("PCP_TMP_DIR");
-    pmsprintf(pidpath, sizeof(pidpath), "%s%c%s", pcptmpdir, sep, prefix);
+    char *tmpdir = pmGetConfig("PCP_TMP_DIR");
+    pmsprintf(pidpath, sizeof(pidpath), "%s%cbash", tmpdir, pmPathSeparator());
 }
