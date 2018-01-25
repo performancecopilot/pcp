@@ -1291,7 +1291,7 @@ void
 write_metareclist(pmResult *result, int *needti)
 {
     int			i;
-    int			write_indomtext;
+    int			wrote_indom;
     reclist_t		*curr_desc;	/* current desc record */
     reclist_t		*curr_indom;	/* current indom record */
     reclist_t   	*othr_indom;	/* other indom record */
@@ -1403,7 +1403,7 @@ write_metareclist(pmResult *result, int *needti)
 		curr_indom = curr_indom->next;
 	    } /*while()*/
 
-	    write_indomtext = 0;
+	    wrote_indom = 0;
 	    if (othr_indom != NULL && othr_indom->pdu != NULL && othr_indom->written != WRITTEN) {
 		othr_indom->written = MARK_FOR_WRITE;
 		othr_indom->pdu[2] = htonl(this->tv_sec);
@@ -1412,6 +1412,7 @@ write_metareclist(pmResult *result, int *needti)
 		/* make sure to set needti, when writing out the indom */
 		*needti = 1;
 		write_rec(othr_indom);
+		wrote_indom = 1;
 
 		/*
 		 * While not strictly necessary for correctness, it makes testing
@@ -1429,7 +1430,10 @@ write_metareclist(pmResult *result, int *needti)
 		 */
 		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE,
 				  othr_indom->desc.indom);
-		write_indomtext = 1;
+
+		/* Write out the label set records associated with this indom. */
+		write_priorlabelset(PM_LABEL_INDOM, othr_indom->desc.indom, this);
+		write_priorlabelset(PM_LABEL_INSTANCES, othr_indom->desc.indom, this);
 	    }
 
 	    /*
@@ -1437,12 +1441,9 @@ write_metareclist(pmResult *result, int *needti)
 	     * PM_TEXT_INDOM | PM_TEXT_HELP records remain to be written.
 	     */
 	    write_textreclist(PM_TEXT_PMID | PM_TEXT_HELP, pmid);
-	    if (write_indomtext)
+	    if (wrote_indom) {
 		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP, othr_indom->desc.indom);
-	    
-	    /* Write out the label set records associated with this indom. */
-	    write_priorlabelset(PM_LABEL_INDOM, othr_indom->desc.indom, this);
-	    write_priorlabelset(PM_LABEL_INSTANCES, othr_indom->desc.indom, this);
+	    }
 	}
     } /*for(indx)*/
 }
