@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=json
+domain=137
 python_opt=true
 daemon_opt=false
 
