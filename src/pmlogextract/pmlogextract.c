@@ -1711,7 +1711,7 @@ againmeta:
 		 * Add to label set list.
 		 * append_labelsetreclist() sets pb[META] to NULL
 		 */
-		append_labelsetreclist(i);
+		append_labelsetreclist(indx);
 	    }
 	    else {
 	        /* META: don't want this meta */
@@ -1764,7 +1764,7 @@ againmeta:
 		 * Add to text list.
 		 * append_textreclist() sets pb[META] to NULL
 		 */
-		append_textreclist(i);
+		append_textreclist(indx);
 	    }
 	    else {
 	        /* META: don't want this meta */
