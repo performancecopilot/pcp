@@ -133,14 +133,17 @@ is enabled by default on all modern PCP installations, and thus
 the names, help text and values for the mmv performance metrics are
 available without the usual PMDA ./Install process.
 .PP
-If no explicit security model has been selected (as described above),
-the ./Install script will create a world-writeable sticky-bit-set mmv
-directory for communication.  This is for backwards compatibility, as
-well as ease of use \- to use this, do the following as root:
+If the 
+.I $PCP_TMP_DIR/mmv
+directory does not exist, then the ./Install script can be used to
+create a world-writeable sticky-bit-set directory for communication.
+This is for backwards compatibility, as well as ease of use \- to use
+this mechanism, do the following as root:
 .PP
 .ft CW
 .nf
 .in +0.5i
+# rmdir $PCP_TMP_DIR/mmv
 # cd $PCP_PMDAS_DIR/mmv
 # ./Install
 .in

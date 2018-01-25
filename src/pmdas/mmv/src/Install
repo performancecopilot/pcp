@@ -1,7 +1,8 @@
 #! /bin/sh
 #
-# Copyright (C) 1997,2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (C) 2016,2018 Red Hat.
 # Copyright (C) 2009 Aconex.  All Rights Reserved.
+# Copyright (C) 1997,2009 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,13 +21,13 @@
 iam=mmv
 dso_opt=true
 daemon_opt=false
-pmda_interface=4
 pmns_source=root_mmv
 
 if [ ! -e "$PCP_TMP_DIR/mmv" ]
 then
     echo "creating $PCP_TMP_DIR/mmv"
     mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
+    chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
 fi
 
 pmdaSetup

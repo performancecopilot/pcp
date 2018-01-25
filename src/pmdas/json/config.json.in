@@ -1,6 +1,6 @@
 {
     "directory_list" : [
-	"/proc/systemtap", "/var/lib/pcp/tmp/json"
+	"/proc/systemtap", "@PCP_TMP_DIR@/json"
     ],
     "trusted_directory_list" : [
     ]
