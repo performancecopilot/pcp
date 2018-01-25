@@ -21,7 +21,7 @@ XFILES = jsmn.c jsmn.h http_parser.c http_parser.h
 
 LLDLIBS = $(PCPLIB) $(PCP_PMDALIB)
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
-LCFLAGS += -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0
+LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_HIREDIS)" "true"
 CFILES += query.c redis.c load.c crc16.c sha1.c util.c slots.c
