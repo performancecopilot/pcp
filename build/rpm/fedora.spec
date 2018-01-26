@@ -1976,10 +1976,10 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
-+# on these platforms, python2-pcp replaces python-pcp
-+Obsoletes: python-pcp
-+%endif
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+# on these platforms, python2-pcp replaces python-pcp
+Obsoletes: python-pcp
+%endif
 %if 0%{?rhel} == 5
 Requires: python%{default_python}
 %else
