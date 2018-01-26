@@ -146,7 +146,14 @@ done
 if $prepare_mail
 then
     var=0
-    rm -f /tmp/$seq.out.bad-*
+    rm -rf /tmp/show-me-all
+    if mkdir /tmp/show-me-all
+    then
+	:
+    else
+	echo "Arrgh: cannot mkdir /tmp/show-me-all"
+	exit
+    fi
     rm -f $tmp.map $tmp.mail
     touch $tmp.map
     cat $tmp.sum \
@@ -156,7 +163,7 @@ then
 	myvar=`grep " $sum\$" $tmp.map | sed -e 's/ .*//'`
 	if [ -z "$myvar" ]
 	then
-	    cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/$seq.out.bad-$var
+	    cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/show-me-all/$seq.out.bad-$var
 	    myvar=$var
 	    echo "$var $sum" >>$tmp.map
 	    var=`expr $var + 1`
@@ -179,17 +186,17 @@ then
     echo "Even better would be code changes if this indicates there is a"
     echo "real bug or QA changes if it represents a QA test failure."
     echo
-    numvar=`echo /tmp/$seq.out.bad-* | wc -w | sed -e 's/  */ /g'`
+    numvar=`echo /tmp/show-me-all/$seq.out.bad-* | wc -w | sed -e 's/  */ /g'`
     if [ "$numvar" -gt 1 ]
     then
 	echo "Details for qa/$seq failures."
 	echo
-	echo "-bad  Host        PCP      CPU     Operating System"
+	echo "bad-  Host        PCP      CPU     Operating System"
 	sort -k1,1n -k2,2 <$tmp.mail
 	echo
 	echo "The $numvar variants of the $seq.out.bad file are attached."
 	echo
-	echo "Attachments: `echo /tmp/$seq.out.bad-*`"
+	echo "Attachments: `echo /tmp/show-me-all/$seq.out.bad-*`"
     else
 	echo "The failure is the same on all the following hosts."
 	echo
@@ -198,8 +205,8 @@ then
 	echo
 	echo "The $seq.out.bad file is attached."
 	echo
-	mv /tmp/$seq.out.bad-0 /tmp/$seq.out.bad
-	echo "Attachment: /tmp/$seq.out.bad"
+	mv /tmp/show-me-all/$seq.out.bad-0 /tmp/show-me-all/$seq.out.bad
+	echo "Attachment: /tmp/show-me-all/$seq.out.bad"
     fi
 fi
 
