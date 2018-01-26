@@ -49,6 +49,12 @@ require {
 	type gpmctl_t; #RHBZ1517656
 	type proc_net_t; #RHBZ1517656
 	type postfix_spool_t; #RHBZ1517862
+	type container_runtime_tmpfs_t;
+	type unconfined_service_t;
+	type mock_var_lib_t;
+	type ldconfig_exec_t;
+	type httpd_t;
+        class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
@@ -111,7 +117,6 @@ allow pcp_pmcd_t proc_kcore_t:file getattr;
 
 #type=AVC msg=audit(1491581538.587:10952): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
 @PCP_CAPUSERNS_PTRACE_RULE@
-
 
 #type=AVC msg=audit(1485899863.032:3024): avc:  denied  { sys_chroot } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
 allow pcp_pmcd_t self:capability sys_chroot;
@@ -182,6 +187,21 @@ allow pcp_pmcd_t nfsd_fs_t:file { getattr open read };
 
 #RHBZ1517862
 allow pcp_pmcd_t postfix_spool_t:dir read;
+
+allow pcp_pmcd_t container_runtime_tmpfs_t:dir getattr;
+
+allow pcp_pmcd_t unconfined_service_t:sem { associate getattr };
+
+#type=AVC msg=audit(...): avc:  denied  { getattr } for  pid=NNN comm="pmdalinux" path="/var/lib/mock" dev="dm-1" ino=917749 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:mock_var_lib_t:s0 tclass=dir permissive=1
+allow pcp_pmcd_t mock_var_lib_t:dir getattr;
+
+#type=AVC msg=audit(...): avc:  denied  { map } for  pid=NNN comm="ldconfig" path="/usr/sbin/ldconfig" dev="dm-1" ino=1052382 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=1
+@PCP_LDCONFIG_EXEC_MAP_RULE@
+
+#RHBZ1488116
+allow pcp_pmcd_t httpd_t:shm { unix_read associate getattr };
+allow pcp_pmcd_t httpd_t:sem { unix_read associate getattr };
+
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
@@ -250,6 +270,11 @@ allow pcp_pmie_t pcp_pmie_exec_t:file execute_no_trans;
 #RHBZ1517656
 allow pcp_pmie_t proc_net_t:file read;
 
+#type=AVC msg=audit(...): avc:  denied  { open } for  pid=NNN comm="runlevel" path="/dev/kmsg" dev="devtmpfs" ino=1043 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=1
+allow pcp_pmie_t kmsg_device_t:chr_file open;
+
+#RHBZ1533080
+allow pcp_pmie_t pcp_pmcd_t:process signal;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };

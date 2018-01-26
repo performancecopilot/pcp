@@ -66,4 +66,5 @@ endif
 
 ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
 PCP_HOSTNAME_EXEC_MAP=" map "
+PCP_LDCONFIG_EXEC_MAP_RULE="allow pcp_pmcd_t ldconfig_exec_t:file map\;"
 endif
