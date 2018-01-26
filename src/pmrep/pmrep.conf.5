@@ -524,33 +524,35 @@ by a dot and the specifier (as in \fIidentifier\fP.\fIspecifier\fP):
 .RS
 .TP 2
 .I label
-Defines a text label for the metric used by supporting output targets.
-.TP 2
+Defines text label for the metric used by supporting output targets.
+.TP
 .I formula
 Defines the needed arithmetic expression for the metric.
 For details, see
 .BR pmRegisterDerived (3).
-.TP 2
+.TP
 .I instances
 Defines the instances to be reported for the metric.
 For details, see
 .BR pmrep (1).
-.TP 2
+.TP
 .I unit
 Defines the unit/scale conversion for the metric.
 Needs to be dimension-compatible and is used with non-string metrics.
 For allowed values, see
 .BR pmrep (1).
-.TP 2
+.TP
 .I type
 If set to \fBraw\fP rate conversion for the metric will be disabled.
-.TP 2
+.TP
 .I width
 Defines the width of the output column for the metric.
-.TP 2
+.TP
 .I precision
-Defines how many decimals to use for numeric non-integer metric
-output values.
+Defines precision for numeric non-integer output values.
+.TP
+.I limit
+Defines value limit filter for numeric metric values.
 .RE
 .SH EXAMPLE
 The following example contains a short \fB[options]\fP section setting

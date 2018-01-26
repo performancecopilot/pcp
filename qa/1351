@@ -30,7 +30,7 @@ $sudo rm -f $PCP_TMP_DIR/mmv/test
 $here/src/fetchloop -s 5 -t 1 -v mmv.control.files > $tmp.out &
 
 pmsleep 1.5
-$here/src/mmv_genstats
+$sudo -u $PCP_USER $here/src/mmv_genstats
 
 #
 # remove duplicate output lines - we expect to see several fetches

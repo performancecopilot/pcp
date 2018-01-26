@@ -28,13 +28,12 @@ Output:
 
 Input: -}
 Output:
-pmjson: failed - Invalid argument
+pmjson failed: Invalid argument
   => Minimal: exitsts = 1
-pmjson: failed - Invalid argument
+pmjson failed: Invalid argument
   => Pretty: exitsts = 1
-pmjson: failed - Invalid argument
   => Quiet: exitsts = 1
-pmjson: failed - Invalid argument
+pmjson failed: Invalid argument
   => YAML: exitsts = 1
 
 == Basic data types

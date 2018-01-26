@@ -23,7 +23,7 @@ pcp_trace()
         setup|init)
             [ -z "${PCP_TMP_DIR}" ] && return 0	# incorrect call sequence
             trap "pcp_trace off" 0
-            export PCP_TRACE_DIR="${PCP_TMP_DIR}/pmdabash"
+            export PCP_TRACE_DIR="${PCP_TMP_DIR}/bash"
             export PCP_TRACE_HEADER="${PCP_TRACE_DIR}/.$$"
             export PCP_TRACE_DATA="${PCP_TRACE_DIR}/$$"
             ;;

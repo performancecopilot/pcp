@@ -46,7 +46,8 @@ class pmConfig(object):
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # Supported metricset specifiers
-        self.metricspec = ('label', 'instances', 'unit', 'type', 'width', 'precision', 'formula')
+        self.metricspec = ('label', 'instances', 'unit', 'type',
+                           'width', 'precision', 'limit', 'formula')
 
         # Main utility reference
         self.util = util
