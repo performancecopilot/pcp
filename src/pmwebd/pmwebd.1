@@ -38,7 +38,6 @@
 [\f3\-S\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
-[\f3\-x\f1 \f2file\f1]
 [\f3\-v\f1]
 [\f3\-?\f1]
 .SH DESCRIPTION
@@ -220,18 +219,6 @@ will advertise its presence on the network using any available
 mechanisms (such as Avahi/DNS-SD), assisting remote monitoring
 tools with finding it.
 These mechanisms are disabled with this option.
-.TP
-\f3\-x\f1 \f2file\f1
-Before the
-.B pmwebd
-.I logfile
-can be opened,
-.B pmwebd
-may encounter a fatal error which prevents it from starting.  By default, the
-output describing this error is sent to
-.B /dev/tty
-but it may redirected to
-.IR file .
 .TP
 \f3\-v\f1
 Increase the verbosity of
