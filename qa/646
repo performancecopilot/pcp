@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2016 Red Hat.
+# Copyright (c) 2016,2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -22,9 +22,9 @@ culldir=false
 
 _cleanup()
 {
-    rm -f $tmp.*
+    $culldir && _restore_config "$PCP_TMP_DIR/mmv"
     $sudo rm -f $files1 $files2
-    $culldir && $sudo rm -fr "$PCP_TMP_DIR/mmv"
+    rm -f $tmp.*
 }
 
 $sudo rm -rf $tmp.* $seq.full $files1 $files2
@@ -33,13 +33,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # is a pre-existing mmv directory in place?  if so, write access needed
 if [ -d "$PCP_TMP_DIR/mmv" ]
 then
-    [ -w "$PCP_TMP_DIR/mmv" ] || _notrun "Cannot write to $PCP_TMP_DIR/mmv"
-else
-    culldir=true
-    $sudo mkdir -p "$PCP_TMP_DIR/mmv"
-    $sudo chown `whoami` "$PCP_TMP_DIR/mmv"    # local user - tmpdir writing
-    $sudo chgrp $PCP_GROUP "$PCP_TMP_DIR/mmv"  # group pcp - pmdammv reading
+    _save_config "$PCP_TMP_DIR/mmv"
+    $sudo rm -rf $PCP_TMP_DIR/mmv
 fi
+culldir=true
+$sudo mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
 
 _filter_mmvdump()
 {

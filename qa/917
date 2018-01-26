@@ -37,6 +37,7 @@ class_status=`seinfo -x --class=system | grep "status$"`
 sock_file_getattr=`seinfo -x --class=sock_file | grep "getattr$"`
 hostname_exec_map_a=`seinfo -x --class=file | grep "map$"`
 hostname_exec_map_b=`seinfo -x --common=file 2>/dev/null | grep "map$"`
+container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
 
 _filter_semodule()
 {
@@ -54,6 +55,7 @@ _filter_sedismod1()
 _filter_outfile()
 {
     awk -v container_t="$container_runtime_t" \
+	-v container_tmpfs_t="$container_runtime_tmpfs_t" \
 	-v nsfs_t="$nsfs_t" \
 	-v docker_var_lib_t="$docker_var_lib_t" \
 	-v svirt_lxc_net_t="$svirt_lxc_net_t" \
@@ -70,8 +72,10 @@ _filter_outfile()
 	-v hostname_exec_map_a="$hostname_exec_map_a" \
 	-v hostname_exec_map_b="$hostname_exec_map_b" \
     '{
-    	if (container_t == "" && /container_runtime_t/)
-	   !/container_runtime_t/ ;
+    	if (container_t == "" && /container_runtime_t /)
+	   !/container_runtime_t / ;
+	else if (container_tmpfs_t == "" && /container_runtime_tmpfs_t/)
+	   !/container_runtime_tmpfs_t/ ;
 	else if (nsfs_t == "" && /nsfs_t/)
 	   !/nsfs_t/ ;
     	else if (docker_var_lib_t == "" && /docker_var_lib_t/)

@@ -310,7 +310,7 @@ Requires: pcp-libs = %{version}-%{release}
 %endif
 
 %global pmda_remove() %{expand:
-if [ "%1" -eq 0 ]
+if [ %1 -eq 0 ]
 then
     if [ -f "%{_confdir}/pmcd/pmcd.conf" ] && [ -f "%{_pmdasdir}/%2/domain.h" ]
     then
@@ -322,23 +322,23 @@ fi
 %global selinux_handle_policy() %{expand:
 if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
 then
-    if [ "%1" -eq 1 ]
+    if [ %1 -ge 1 ]
     then
 	PCP_SELINUX_DIR=%{_selinuxdir}
 	if [ -f "$PCP_SELINUX_DIR/%2" ]
 	then
-	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
 	    then
 		(semodule -X 400 -i %{_selinuxdir}/%2)
 	    else
 		(semodule -i %{_selinuxdir}/%2)
 	    fi #semodule -X flag check
 	fi
-    elif [ "%1" -eq 0 ]
+    elif [ %1 -eq 0 ]
     then
 	if semodule -l | grep %2 >/dev/null 2>&1
 	then
-	    if semodule -h | grep -q "\-X" >/dev/null 2>&1
+	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
 	    then
 		(semodule -X 400 -r %2 >/dev/null)
 	    else
@@ -1976,10 +1976,10 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
-+# on these platforms, python2-pcp replaces python-pcp
-+Obsoletes: python-pcp
-+%endif
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+# on these platforms, python2-pcp replaces python-pcp
+Obsoletes: python-pcp
+%endif
 %if 0%{?rhel} == 5
 Requires: python%{default_python}
 %else

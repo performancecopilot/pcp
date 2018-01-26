@@ -48,6 +48,12 @@ decl 1:
   allow [pcp_pmcd_t] [nfsd_fs_t] : [file] { getattr open read };
   allow [pcp_pmcd_t] [gpmctl_t] : [sock_file] { getattr };
   allow [pcp_pmcd_t] [postfix_spool_t] : [dir] { read };
+  allow [pcp_pmcd_t] [container_runtime_tmpfs_t] : [dir] { getattr };
+  allow [pcp_pmcd_t] [unconfined_service_t] : [sem] { associate getattr };
+  allow [pcp_pmcd_t] [mock_var_lib_t] : [dir] { getattr };
+  allow [pcp_pmcd_t] [ldconfig_exec_t] : [file] { map };
+  allow [pcp_pmcd_t] [httpd_t] : [shm] { unix_read associate getattr };
+  allow [pcp_pmcd_t] [httpd_t] : [sem] { unix_read associate getattr };
   allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
   allow [pcp_pmlogger_t] self : [capability] { kill };
   allow [pcp_pmlogger_t] [init_t] : [system] { status };
@@ -68,6 +74,8 @@ decl 1:
   allow [pcp_pmie_t] [unconfined_t] : [unix_stream_socket] { connectto };
   allow [pcp_pmie_t] [pcp_pmie_exec_t] : [file] { execute_no_trans };
   allow [pcp_pmie_t] [proc_net_t] : [file] { read };
+  allow [pcp_pmie_t] [kmsg_device_t] : [chr_file] { open };
+  allow [pcp_pmie_t] [pcp_pmcd_t] : [process] { signal };
   allow [pcp_pmcd_t] [configfs_t] : [dir] { open read search };
   allow [pcp_pmcd_t] [configfs_t] : [file] { getattr open read };
   allow [pcp_pmcd_t] [configfs_t] : [lnk_file] { read getattr };

@@ -112,7 +112,8 @@ main(int argc, char **argv)
     }
 
     if ((sts = pmjsonPrint(out, flags, pointer, read_json, (void *)in)) < 0)
-	fprintf(stderr, "%s: failed - %s\n", pmGetProgname(), pmErrStr(sts));
+	if (flags != pmjson_flag_quiet)
+	    fprintf(stderr, "%s failed: %s\n", pmGetProgname(), pmErrStr(sts));
 
     if (out != stdout)
 	fclose(out);
