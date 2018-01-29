@@ -102,6 +102,8 @@ _filter_outfile()
            !/system.*status/ ;
 	else if (sock_file_getattr == "" && /gpmctl_t/)
 	   !/gpmctl_t/ ;
+        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /ldconfig_exec_t/ && /map/)
+           !/ldconfig_exec_t/ ;
 	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
 	     printf("  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };\n")
 	   }
