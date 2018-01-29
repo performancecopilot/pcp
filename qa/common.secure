@@ -164,7 +164,7 @@ nss_setup_collector()
     fi
 
     cat <<End-Of-File >$tmp.options
-# Dummy lines added by PCP QA test $seq
+# Dummy lines added by PCP QA test $seq on `date`
 #
 -l $tmp.pmcd.log
 -C $PCP_SECURE_DB_METHOD$collectordb
