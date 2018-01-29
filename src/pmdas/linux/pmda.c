@@ -7047,15 +7047,15 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
     case CLUSTER_ZONEINFO_PROTECTION: {
-	unsigned long long *value;
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&value);
+	zoneprot_entry_t *prot;
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&prot);
 	if (sts < 0)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* mem.zoneinfo.protection */
-            atom->ull = (__uint64_t)*value;
+            atom->ull = (__uint64_t)prot->value;
 	}
 	break;
     }
