@@ -6,36 +6,36 @@ metrics from arbitrary sources generating Javascript Object Notation
 
 BASIC CONFIGURATION
 
-PCP_PMDAS_DIR/json/config.json is used to define the JSON data sources
+PCP_PMDAS_DIR/json/config.json is used to define the JSON data source
 directories:
 
-JSON sources that come from "directory_list" config file option are not
-"trusted", and any command that needs to be run to get JSON data is run
-as user "nobody".
+JSON data sources listed for the directory_list option are not trusted,
+meaning that if external commands to generate the needed JSON data are
+used, these commands are run as user nobody.
 
-JSON sources that come from "trusted_directory_list" config file option
-are trusted, and any command that needs to be run to get JSON data is
-run as user "root".
+JSON data sources listed for the trusted_directory_list option are
+trusted, meaning that if external commands to generate the needed JSON
+data are used, these commands are run as user root.
 
 Example config.json:
 
   {
-    "trusted_directory_list" : [ "/var/lib/pcp/pmdas/json/trusted" ]
+    "trusted_directory_list": [ "/var/lib/pcp/pmdas/json/trusted-app" ]
   }
 
-Note that the config.json config file is read once when the JSON pmda
-starts. Every time metrics are refreshed, the directories listed in
-the 'directory_list' and 'trusted_directory_list' config file options
-are traversed, looking for new (and deleted) JSON data sources
-(described below).
+Note that the config.json config file is read once when the JSON PMDA
+starts. Every time metric values are requested, the directories listed
+in the 'directory_list' and 'trusted_directory_list' config file options
+are traversed, looking for updated JSON data sources (described below).
 
 JSON DATA SOURCES
 
-There are 2 sets of information needed for a particular JSON source: a
-JSON metadata file and the associated JSON data file. The combination of
-the JSON metadata file and JSON data is called a JSON source. pmdajson
-exports the metrics for each JSON source as a separate hierarchy under
-the JSON pmda.
+There are two sets of information needed for a particular JSON source: a
+JSON metadata file and the associated JSON data (read either from a file
+or from output of an external command). The combination of the JSON
+metadata file and JSON data is called a JSON source. pmdajson exports the
+metrics for each JSON source as a separate hierarchy under the JSON PMNS
+(see PMNS(5)).
 
 For example, let us assume the following simple json.data file:
 
@@ -64,8 +64,8 @@ The associated metadata.json file would look like the following:
   }
 
 After pmdajson is installed and the config file points to the directory
-where the above JSON metadata and data files are, we can ask PCP for the
-all the metrics under 'json.simple':
+where the above JSON metadata and data files are, we can ask PCP for all
+the metrics under PMNS 'json.simple':
 
   # pminfo -f json.simple
 
@@ -76,8 +76,8 @@ all the metrics under 'json.simple':
       value "testing, 1, 2, 3"
 
 Note that the metadata.json file is read only once. If changes to a
-metadata.json file are needed, the JSON pmda will need to be restarted
-after the metadata.json changes are made.
+metadata.json file are needed, pmdajson needs to be restarted after
+the metadata.json changes have been made.
 
 METADATA FILE SYNTAX
 
@@ -107,34 +107,34 @@ Here's a description of metadata file syntax. First the "global" options:
 
   - 'name' (required): Metric name as a string.
 
+  - 'pointer' (required): JSON pointers (RFC 6901) that describes with
+    metric location within the JSON data (typically "/name"). Please
+    refer to <https://tools.ietf.org/html/rfc6901> for more details on
+    JSON pointer syntax.
+
   - 'type' (required): Metric type as a string. Possible values are
     'integer', 'double', 'string', or 'array'.
 
-  - 'pointer' (required): JSON pointers (RFC 6901) that describes with
-    metric location within the JSON data. Please refer to
-    <https://tools.ietf.org/html/rfc6901> for more details on JSON
-    pointer syntax.
+  - 'units' (optional): Metric unit description as a string. Values
+    include the standard PCP unit names like 'sec' or 'bytes', see
+    pmLookupDesc(3).
+
+  - 'semantics' (optional): Metric semantic description as a string.
+     Values include the standard PCP semantic types which are
+    'counter', 'instant', 'discrete', see pmLookupDesc(3).
 
   - 'description' (optional): Metric description as a string.
 
   - 'index' (required for arrays): Array index as a string. See the
-    'ARRAY METADATA FILE SYNTAX' section for more details.
+    'ARRAY METADATA FILE SYNTAX' section for an example.
 
   - 'metrics' (required for arrays): List of array metrics. See the
-    'ARRAY METADATA FILE SYNTAX' section for more details.
-
-  - 'units' (optional): Metric unit description as a string. Values
-    include the standard PCP unit names.
-
-  - 'semantics' (optional): Metric semantic description as a string.
-     Values include the standard PCP semantic types.
-
+    'ARRAY METADATA FILE SYNTAX' section for an example.
 
 ARRAY METADATA FILE SYNTAX
 
-Here's an example of a metadata file with an array to make how an
-array works more clear. This example is from the net_xmit_json.stp
-systemtap example file:
+Below is an example of a metadata file with an array which are needed
+when using non-leaf nodes for the metrics in PMNS:
 
   {
     "prefix": "net_xmit",
@@ -150,14 +150,15 @@ systemtap example file:
             "name": "xmit_count",
             "pointer": "/xmit_count",
             "type": "integer",
-            "description": "number of packets for xmit device",
-            "units": "count"
+            "units": "count",
+            "semantics": "counter",
+            "description": "Number of packets for xmit device"
           },
           {
             "name": "xmit_latency",
             "pointer": "/xmit_latency",
             "type": "integer",
-            "description": "sum of latency for xmit device"
+            "description": "Sum of latency for xmit device"
           }
         ]
       }
@@ -165,7 +166,7 @@ systemtap example file:
   }
 
 According to the above metadata file, there is one metric called
-'net_xmit_data', which is an array. The array has 2 fields per array
+'net_xmit_data', which is an array. The array has two fields per array
 entry, 'xmit_count' and 'xmit_latency'. The data looks like this:
 
   {
@@ -176,29 +177,31 @@ entry, 'xmit_count' and 'xmit_latency'. The data looks like this:
         "xmit_latency": 55
       },
       {
-        "__id": "fake0",
+        "__id": "eth1",
         "xmit_count": 0,
         "xmit_latency": 0
       },
       {
-        "__id": "fake1",
+        "__id": "eth2",
         "xmit_count": 0,
         "xmit_latency": 0
       }
     ]
   }
 
-In the above example data, the 'net_xmit_data' array has 3
-entries. When pmdajson finds this data, it would look like this:
+In the above example data, the 'net_xmit_data' array has three entries
+which will map to three metric instances.
+
+When pmdajson finds this data, it would look like this:
 
   # pminfo -f json
   
   json.net_xmit.net_xmit_data.xmit_latency
       inst [0 or "eth0"] value 55
-      inst [1 or "fake0"] value 0
-      inst [2 or "fake1"] value 0
+      inst [1 or "eth1"] value 0
+      inst [2 or "eth2"] value 0
   
   json.net_xmit.net_xmit_data.xmit_count
       inst [0 or "eth0"] value 352551
-      inst [1 or "fake0"] value 0
-      inst [2 or "fake1"] value 0
+      inst [1 or "eth1"] value 0
+      inst [2 or "eth2"] value 0

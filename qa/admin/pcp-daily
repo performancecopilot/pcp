@@ -695,7 +695,11 @@ esac
 
 if which virsh >/dev/null 2>&1
 then
-    virsh list --all \
+    # sudo here is odd ... after Ubuntu 17.10 upgrade, virsh run
+    # from a cron-launched shell produces no output, sudo virsh does
+    # produce output again ... sigh.
+    #
+    sudo virsh list --all \
     | sed >>$tmp.domains \
         -e 1d \
         -e '/-----/d' \
@@ -723,7 +727,7 @@ do
 	echo "... using the first one."
     fi
     domain=`sed -e 1q $tmp.domain`
-    # used to be vmNN-osname&version, but now just vmMM ...
+    # used to be vmNN-osname&version, but now just vmNN ...
     # old sed now does nothing
     #
     host=`echo $domain | sed -e '/^vm/s/-.*//'`
@@ -731,7 +735,9 @@ do
 
     if which virsh >/dev/null 2>&1
     then
-	state=`virsh list --all | grep "$domain" | awk '{print $3}'`
+	# see note above re. sudo virsh
+	#
+	state=`sudo virsh list --all | grep "$domain" | awk '{print $3}'`
 	case "$state"
 	in
 	    shut)

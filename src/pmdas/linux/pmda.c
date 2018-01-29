@@ -7988,8 +7988,10 @@ linux_labelItem(pmID pmid, pmLabelSet **lp)
 static int
 linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
+    zoneinfo_entry_t	*info;
+    zoneprot_entry_t	*prot;
     unsigned int	numanode, value;
-    char		*name, zone[32];
+    char		*name;
     int			sts;
 
     if (indom == PM_INDOM_NULL)
@@ -8028,23 +8030,19 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			value);
 
     case ZONEINFO_INDOM:
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, &name, NULL);
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, &name, (void **)&info);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
-	if (sscanf(name, "%s::node%u", zone, &numanode) != 2)
-	    return PM_ERR_INST;
 	return pmdaAddLabels(lp, "{\"numa_node\":%u,\"zone\":\"%s\"}",
-			numanode, zone);
+			info->node, info->zone);
 
     case ZONEINFO_PROTECTION_INDOM:
-	sts = pmdaCacheLookup(indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, (void **)&prot);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
-	if (sscanf(name, "%s::node%u::lowmem_reserved%u", zone, &numanode, &value) != 3)
-	    return PM_ERR_INST;
 	return pmdaAddLabels(lp,
 			"{\"numa_node\":%u,\"zone\":\"%s\",\"lowmem_reserved\":%u}",
-			numanode, zone, value);
+			prot->node, prot->zone, prot->lowmem);
 
     default:
 	break;

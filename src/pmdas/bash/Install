@@ -24,10 +24,11 @@ dso_opt=false
 socket_opt=false
 pmda_interface=5
 
-if [ ! -e "$PCP_TMP_DIR/pmdabash" ]
+if [ ! -e "$PCP_TMP_DIR/bash" ]
 then
-    echo "creating $PCP_TMP_DIR/pmdabash"
-    mkdir -p -m 1777 "$PCP_TMP_DIR/pmdabash"
+    echo "creating $PCP_TMP_DIR/bash"
+    mkdir -p -m 1777 "$PCP_TMP_DIR/bash"
+    chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/bash"
 fi
 
 pmdaSetup

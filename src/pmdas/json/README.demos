@@ -1,16 +1,16 @@
-sample pcp json application
+Sample PCP JSON Application
 ===========================
 
 acme_json.c
- is a sample application that is instrumented with the pcp json
+ is a sample application that is instrumented with the PCP JSON
 interface to generate metrics available from the JSON PMDA
 (Performance Metrics Domain Agent).  It runs without exiting,
 and continually updates the json.acme.* metric values.  Detailed
 discussion about the workings of this application and each of
-the instrumentation API calls it uses, is available as part of
+the instrumentation API calls it uses is available as part of
 the "Performance Co-Pilot Programmer's Guide".
 
-All source is shipped as part of pcp as well and is installed in
+All source is shipped as part of PCP as well and is installed in
 ${PCP_DEMOS_DIR}/json.  If you have a C toolchain installed, the
 sources and Makefile in this directory may be used to create the
 functionally equivalent binaries, by entering the command
@@ -18,5 +18,5 @@ functionally equivalent binaries, by entering the command
 	% make acme_json
 
 You will need to add ${PCP_DEMOS_DIR}/json to
-${PCP_PMDAS_DIR}/json/config.json and restart the json pmda before
+${PCP_PMDAS_DIR}/json/config.json and restart the JSON PMDA before
 running the demo program.

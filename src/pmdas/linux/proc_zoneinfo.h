@@ -2,7 +2,7 @@
  * Linux /proc/zoneinfo metrics cluster
  *
  * Copyright (c) 2016-2017 Fujitsu.
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,9 +66,20 @@ enum {
     ZONE_VALUES	/* maximum value */
 };
 
+#define ZONE_NAMELEN	32
+
 typedef struct {
+    __uint32_t	node;
+    char	zone[ZONE_NAMELEN];
     __uint64_t	values[ZONE_VALUES];
 } zoneinfo_entry_t;
+
+typedef struct {
+    __uint32_t	node;
+    __uint32_t	lowmem;
+    char	zone[ZONE_NAMELEN];
+    __uint64_t	value;
+} zoneprot_entry_t;
 
 extern int refresh_proc_zoneinfo(pmInDom indom,
                                  pmInDom zoneinfo_protection_indom);

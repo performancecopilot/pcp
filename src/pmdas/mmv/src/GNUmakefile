@@ -39,6 +39,7 @@ include $(BUILDRULES)
 
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/$(IAM)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmns $(PMDADIR)/root_mmv

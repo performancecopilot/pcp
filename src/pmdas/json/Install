@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2015,2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,8 +19,16 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=json
+domain=137
 python_opt=true
 daemon_opt=false
+
+if [ ! -e "$PCP_TMP_DIR/json" ]
+then
+    echo "creating $PCP_TMP_DIR/json"
+    mkdir -p -m 1777 "$PCP_TMP_DIR/json"
+    chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/json"
+fi
 
 pmdaSetup
 pmdaInstall
