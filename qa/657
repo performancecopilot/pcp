@@ -45,7 +45,7 @@ _install_pmda()
     # install the PMDA
     # Note: warnings from dmstats install are optional, so filter 'em out
     #
-    cd $PCP_PMDAS_DIR/$iam
+    cd $PCP_PMDAS_DIR/dm
     $sudo ./Remove < /dev/null >/dev/null 2>&1
     $sudo ./Install < /dev/null >$tmp.out 2>&1
     cat $tmp.out \
@@ -64,7 +64,7 @@ _install_pmda()
 
 _remove_pmda()
 {
-    cd $PCP_PMDAS_DIR/$iam
+    cd $PCP_PMDAS_DIR/dm
     $sudo ./Remove < /dev/null > /dev/null 2>&1
 }
 
@@ -76,6 +76,7 @@ _cleanup()
     else
 	unset PCPQA_SYSTEMD
     fi
+    _restore_pmda_install dm
     _service pcp restart | _filter_pcp_start
     _restore_auto_restart pmcd
     _wait_for_pmcd
@@ -86,9 +87,8 @@ _cleanup()
     exit $status
 }
 
-iam=dm
 status=1 # failure is the default!
-trap "_cleanup $iam" 0 1 2 3 15
+trap "_cleanup" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 $sudo rm -fr $root
@@ -112,7 +112,7 @@ cd $here
 
 echo
 echo "=== Installing Device Mapper PMDA ==="
-_prepare_pmda_install $iam
+_prepare_pmda_install dm
 _install_pmda
 
 echo
