@@ -3,18 +3,6 @@
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
 
-/* sizeof long */
-#undef HAVE_32BIT_LONG
-
-/* pointer size */
-#undef HAVE_32BIT_PTR
-
-/* sizeof long */
-#undef HAVE_64BIT_LONG
-
-/* pointer size */
-#undef HAVE_64BIT_PTR
-
 /* AI_ADDRCONFIG macro */
 #undef HAVE_AI_ADDRCONFIG
 
