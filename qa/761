@@ -38,6 +38,7 @@ root_cleanup()
     cd $here
     [ -d $root ] && sudo rm -fr $root
     [ -f $tmp.conf.backup ] && sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    _restore_pmda_install root
     rm -f $tmp.*
 }
 

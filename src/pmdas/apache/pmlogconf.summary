@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident	Apache web server summary information
-probe	apache.uptime exists ? include : exclude
+probe	apache.uptime values ? include : exclude
 
 	apache.total_accesses
 	apache.total_kbytes

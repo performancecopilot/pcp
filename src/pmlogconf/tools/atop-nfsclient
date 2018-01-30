@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident   NFS client metrics sampled by the atop command
-probe	nfsclient.age exists ? include : exclude
+probe	nfsclient.age values ? include : exclude
 
 	nfsclient.age
 	nfsclient.export
