@@ -154,7 +154,7 @@ cat > ${SRC1_METADATA} <<EOF
       "pointer": "/value",
       "type": "integer",
       "description": "Integer value",
-      "semanatics": "instantaneous"
+      "semantics": "instantaneous"
     },
     {
       "name": "counter",
