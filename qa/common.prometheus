@@ -7,11 +7,20 @@
 # get standard environment, filters and checks
 . ./common.python
 
+CONFIG_DIR=$PCP_PMDAS_DIR/prometheus/config.d
+
 _pmdaprometheus_check()
 {
     [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || return 1
     [ -f $here/prometheus/prometheus_endpoint.python ] || return 1
     return 0
+}
+
+_have_python266()
+{
+    v=`python -V 2>&1 | awk '{print $NF}'`
+    [ "$v" = "2.6.6" ] && return 0
+    return 1
 }
 
 _pmdaprometheus_remove()
@@ -37,34 +46,58 @@ _pmdaprometheus_install()
 
 _pmdaprometheus_save_config()
 {
-    _save_config $PCP_PMDAS_DIR/prometheus/urls.d
+    _save_config $CONFIG_DIR
     _save_config $PCP_VAR_DIR/config/pmda
-    $sudo rm -f $PCP_PMDAS_DIR/prometheus/urls.d/*
+    $sudo rm -rf $CONFIG_DIR/*
     $sudo rm -f $PCP_VAR_DIR/config/pmda/*
-    $sudo chmod 777 $PCP_PMDAS_DIR/prometheus/urls.d/
+    $sudo chmod 777 $CONFIG_DIR
 }
 
 _pmdaprometheus_restore_config()
 {
-    _restore_config $PCP_PMDAS_DIR/prometheus/urls.d
+    _restore_config $CONFIG_DIR
     _restore_config $PCP_VAR_DIR/config/pmda
 }
 
 # wait for the PMDA to dynamically create a named metric (or subtree)
 _pmdaprometheus_wait_for_metric()
 {
-    metric=$1
+    metric="$1"
+    configdir="$2"
+    [ -z "$configdir" ] && configdir=$CONFIG_DIR
+
+    # first wait for some config files - for QA, these should be created
+    # by the load generator, or by the calling QA script itself. Either
+    # way, if there are no config files, then there will be no metrics.
+    _i=0
+    _n=0
+    while [ $_i -lt 30 ]
+    do
+	_n=`ls -1 "$configdir" | wc -l`
+	[ "$_n" -gt 0 ] && break
+	sleep 1
+	_i=`expr $_i + 1`
+    done
+
+    if [ -z "$_n" -o "$_n" -eq 0 ]; then
+	echo _pmdaprometheus_wait_for_metric FAILED. No config files in \"$configdir\"
+	return 1
+    fi
+
+    # now wait for the requested metric
     _i=0
     while [ $_i -lt 30 ]
     do
     	if pminfo $metric >/dev/null 2>&1
 	then
+	    # all good
 	    return 0
 	fi
 	sleep 1
 	_i=`expr $_i + 1`
     done
-    # timeout
+
+    # timeout, fail
     echo _pmdaprometheus_wait_for_metric FAILED for metric $metric
     return 1
 }
