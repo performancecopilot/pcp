@@ -42,12 +42,16 @@ $PCP_BINADM_DIR/pmwebd $webargs -GX -R $PCP_SHARE_DIR/webapps -i 15 -A `pwd` -N 
 pid=$!
 _wait_for_pmwebd_logfile $tmp.out $webport
 
+# Not sure what this is trying to do ... just echoing GET HTTP/1.0 will
+# cause telnet-probe to hang waiting for a response from pmwebd ...
+# sending "GET HTTP/1.0" followed by "FOO" gets no response to the
+# illegal request ... is that what we're trying to test?
+#
 echo "crashers"
-# TODO: telnet-probe hanging in read(2) here:
-#echo "GET  HTTP/1.0
-# | $PCP_BINADM_DIR/telnet-probe localhost $webport
-#echo "GET  HTTP/1.0
-# | $PCP_BINADM_DIR/telnet-probe localhost $webport
+( echo "GET  HTTP/1.0"; echo FOO ) \
+| $PCP_BINADM_DIR/telnet-probe localhost $webport
+( echo "GET HTTP/1.0"; echo FOO ) \
+| $PCP_BINADM_DIR/telnet-probe localhost $webport
 
 _filter_curl_i()
 {

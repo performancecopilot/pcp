@@ -44,20 +44,20 @@ _filter2()
 
 # simple error test
 echo; echo === 1st test
-echo quit | $PCP_BINADM_DIR/telnet-probe $host abc >$tmp.out 2>&1
+$PCP_BINADM_DIR/telnet-probe -c $host abc >$tmp.out 2>&1
 sts=$?
 cat $tmp.out | _filter
 echo "exit status is $sts (should be 1 with error msg)"
-echo quit | $PCP_BINADM_DIR/telnet-probe 1 2 3 >$tmp.out 2>&1
+$PCP_BINADM_DIR/telnet-probe -c 1 2 3 >$tmp.out 2>&1
 sts=$?
 cat $tmp.out | _filter
 echo "exit status is $sts (should be 1 with error msg)"
 
 # should exit with good status
 echo; echo === 2nd test
-echo quit | $PCP_BINADM_DIR/telnet-probe localhost 22
+$PCP_BINADM_DIR/telnet-probe -c localhost 22
 echo "exit status is $? (should be 0)"
-echo quit | $PCP_BINADM_DIR/telnet-probe $host 22
+$PCP_BINADM_DIR/telnet-probe -c $host 22
 echo "exit status is $? (should be 0)"
 
 # should fail to connect
@@ -71,15 +71,15 @@ echo "exit status is $? (should be 0)"
 # 	rather than "Connection refused", so treat these as equivalent
 #
 echo; echo === 3rd test
-echo quit | $PCP_BINADM_DIR/telnet-probe -v localhost 26 >$tmp.out 2>$tmp.err
+$PCP_BINADM_DIR/telnet-probe -c -v localhost 26 >$tmp.out 2>$tmp.err
 sts=$?
 cat $tmp.err $tmp.out | _filter2
 echo "exit status is $sts (should be 1 with verbosity)"
-echo quit | $PCP_BINADM_DIR/telnet-probe -v $host 26 >$tmp.out 2>$tmp.err
+$PCP_BINADM_DIR/telnet-probe -c -v $host 26 >$tmp.out 2>$tmp.err
 sts=$?
 cat $tmp.err $tmp.out | _filter2
 echo "exit status is $sts (should be 1 with verbosity)"
-echo quit | $PCP_BINADM_DIR/telnet-probe -v no.such.host.pcp.io 26 >$tmp.out 2>$tmp.err
+$PCP_BINADM_DIR/telnet-probe -c -v no.such.host.pcp.io 26 >$tmp.out 2>$tmp.err
 sts=$?
 cat $tmp.err $tmp.out | _filter2
 echo "exit status is $sts (should be 1 with verbosity)"

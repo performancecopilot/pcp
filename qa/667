@@ -16,9 +16,9 @@ which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
 
 port_pickled=2004
 port_text=2003
-echo | $PCP_BINADM_DIR/telnet-probe localhost $port_pickled \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port_pickled \
 	&& _notrun "Someone already listening on graphite pickled port $port_pickled"
-echo | $PCP_BINADM_DIR/telnet-probe localhost $port_text \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port_text \
 	&& _notrun "Someone already listening on graphite text port $port_text"
 
 $sudo rm -rf $seq.full $tmp.*

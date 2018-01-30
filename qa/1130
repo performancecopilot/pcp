@@ -19,7 +19,7 @@ $python -c "from elasticsearch import Elasticsearch" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python elasticsearch module not installed"
 
 port=9200
-echo | $PCP_BINADM_DIR/telnet-probe localhost $port \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port \
        && _notrun "Someone already listening on typical Elasticsearch $port"
 
 $sudo rm -rf $seq.full $tmp.*

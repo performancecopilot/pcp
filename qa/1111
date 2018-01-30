@@ -20,7 +20,7 @@ major=`$python -c 'import requests; print(requests.__version__.split(".")[0])'`
 [ $major -ge 1 ] || _notrun "python requests module too old (v$major)"
 
 port=8086
-echo | $PCP_BINADM_DIR/telnet-probe localhost $port \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port \
 	&& _notrun "Someone already listening on typical InfluxDB $port"
 
 $sudo rm -rf $seq.full $tmp.*
