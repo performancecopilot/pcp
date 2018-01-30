@@ -232,9 +232,9 @@ but it may redirected to
 .IR file .
 .TP
 \f3\-v\f1
-Increase the verbosity of the
+Increase the verbosity of
 .B pmwebd
-program as it logs to its standard output/error.
+as it logs to its standard output/error.
 .TP
 \f3\-?\f1
 Show
@@ -242,20 +242,18 @@ Show
 invocation help and exit.
 .SH SECURITY
 .PP
-The current release of
 .B pmwebd
 is suitable for direct exposure to
 trusted networks only, due to several security limitations.  Most or
 all of these limitations may be worked around by use of a web
-application firewall (for example, an Apache HTTPD proxy), which would
+application firewall (for example, an Apache HTTP proxy), which would
 add the constraints and capabilities absent within
 .BR pmwebd .
 Such configuration is beyond the scope of this document.
 .TP
 encryption/confidentiality
-The
 .BR pmwebd
-program is does not currently support HTTPS (SSL/TLS), so
+does not currently support HTTPS (SSL/TLS), so
 the HTTP traffic is not protected against network-level attacks.
 .TP
 authentication
@@ -268,15 +266,13 @@ Use of resulting pmwebapi contexts later requires matching HTTP PLAIN
 authentication; see below.
 .TP
 inbound admission control
-The
 .B pmwebd
-program does not impose access control on the origin or rate of its
-incoming requests.  It may be possible for some clients to starve others.
+does not impose access control on the origin or rate of its incoming requests.
+It may be possible for some clients to starve others.
 .TP
 outbound admission control
-The
 .B pmwebd
-program does not impose access control on outbound connections
+does not impose access control on outbound connections
 when a new PMAPI context is created for a PMCD.
 (Without the
 .BR \-P
