@@ -1462,6 +1462,7 @@ collectl
 1269 libpcp local
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
+1321:reserved pmlogger local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract
 1326 pmstore pmda.pmcd local
 1330 pmda.prometheus local
