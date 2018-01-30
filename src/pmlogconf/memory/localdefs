@@ -1,1 +1,1 @@
-FILES = tlb-irix swap-all swap-config swap-activity proc-linux buddyinfo slabinfo zoneinfo ksminfo
+FILES = tlb-irix swap-all swap-config swap-activity proc-linux buddyinfo slabinfo zoneinfo ksminfo meminfo vmstat

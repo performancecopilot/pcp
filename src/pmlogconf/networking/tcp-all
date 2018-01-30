@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
 ident	all available TCP data
-force	available
+probe   network.tcp.abortfailed values ? include : exclude
 	network.tcp

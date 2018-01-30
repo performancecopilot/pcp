@@ -1,1 +1,1 @@
-FILES = nfs2-client nfs2-server nfs3-client nfs3-server nfs4-client nfs4-server rpc interface-summary interface-all socket-irix socket-linux mbufs multicast streams tcp-all udp-all tcp-activity-irix tcp-activity-linux udp-packets-irix udp-packets-linux other-protocols softnet
+FILES = nfs2-client nfs2-server nfs3-client nfs3-server nfs4-client nfs4-server rpc interface-summary interface-all socket-irix socket-linux mbufs multicast streams tcp-all udp-all tcp-activity-irix tcp-activity-linux udp-packets-irix udp-packets-linux other-protocols softnet icmp6 ip6 udp6

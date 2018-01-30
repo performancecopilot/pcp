@@ -14,6 +14,7 @@ FILES = \
 	hotproc \
 	iostat \
 	ip \
+	ipcs \
 	mpstat \
 	mpstat-summary \
 	mpstat-interrupts \

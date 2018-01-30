@@ -113,6 +113,23 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	network.ip.fragoks
 	network.ip.fragfails
 	network.ip.fragcreates
+	network.ip.cepkts
+	network.ip.csumerrors
+	network.ip.ect0pkts
+	network.ip.ect1pkts
+	network.ip.inbcastoctets
+	network.ip.inbcastpkts
+	network.ip.inmcastoctets
+	network.ip.inmcastpkts
+	network.ip.innoroutes
+	network.ip.inoctets
+	network.ip.intruncatedpkts
+	network.ip.noectpkts
+	network.ip.outbcastoctets
+	network.ip.outbcastpkts
+	network.ip.outmcastoctets
+	network.ip.outmcastpkts
+	network.ip.outoctets
 	network.icmp.inmsgs
 	network.icmp.inerrors
 	network.icmp.indestunreachs

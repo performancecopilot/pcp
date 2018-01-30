@@ -1,0 +1,12 @@
+#pmlogconf-setup 2.0
+ident   UDP6 stats
+probe   network.udp6.ignoredmulti values ? include : exclude
+	
+	network.udp6.ignoredmulti
+	network.udp6.incsumerrors
+	network.udp6.indatagrams
+	network.udp6.inerrors
+	network.udp6.noports
+	network.udp6.outdatagrams
+	network.udp6.rcvbuferrors
+	network.udp6.sndbuferrors
