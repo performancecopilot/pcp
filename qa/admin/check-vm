@@ -1116,6 +1116,16 @@ pkg_add?	/usr/include/boost	[? (build optional)]
 pkg?		/usr/include/boost	[library/boost (build optional)]
 slackpkg?	/usr/include/boost	[? (build optional)]
 pacman?		/usr/include/boost	[boost? (build optional)]
+# -- json_reformat
+dpkg?		json_reformat		[yajl-tools (QA optional)]
+rpm?		json_reformat		[yajl (QA optional)]
+urpmi?		json_reformat		[yajl (QA optional)]
+emerge?		json_reformat		[? (QA optional)]
+pkgin?		json_reformat		[? (QA optional)]
+pkg_add?	json_reformat		[? (QA optional)]
+pkg?		json_reformat		[? (QA optional)]
+slackpkg?	json_reformat		[? (QA optional)]
+pacman?		json_reformat		[? (QA optional)]
 #
 # misc
 #
