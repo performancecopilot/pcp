@@ -21,6 +21,7 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f /tmp/thread_?.out
 }
 
 _report()
