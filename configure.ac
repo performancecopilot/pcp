@@ -2,17 +2,17 @@ dnl
 dnl Copyright (c) 2012-2017 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
-dnl 
+dnl
 dnl This program is free software; you can redistribute it and/or modify it
 dnl under the terms of the GNU General Public License as published by the
 dnl Free Software Foundation; either version 2 of the License, or (at your
 dnl option) any later version.
-dnl 
+dnl
 dnl This program is distributed in the hope that it will be useful, but
 dnl WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 dnl or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 dnl for more details.
-dnl 
+dnl
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pcp/pmapi.h)
@@ -239,7 +239,7 @@ else
     build_os=`echo $build_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]'`
 fi
 
-echo Building on $build for $target 
+echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
@@ -1129,7 +1129,7 @@ qt_release=release
 qt_version=0
 AS_IF([test "x$do_qt" != "xno"], [
     enable_qt=true
-    
+
     if test -z "$QMAKE"
     then
 	dnl default to qmake from qtchooser whenever it is available
@@ -1198,7 +1198,7 @@ dnl note: all makefiles in this package use the gmake syntax
 if test -z "$MAKE"
 then
     AC_PATH_PROG(MAKE, gmake)
-    if test -z "$MAKE" 
+    if test -z "$MAKE"
     then
 	# look elsewhere ...
 	AC_MSG_CHECKING([for GNU make elsewhere])
@@ -1227,7 +1227,7 @@ then
 	    fi
 	fi
 	AC_MSG_RESULT($MAKE)
-    fi 
+    fi
 fi
 make=$MAKE
 AC_SUBST(make)
@@ -1350,7 +1350,7 @@ then
 	    AC_MSG_WARN([PackageMaker not found, mac packages will not be made])
 	fi
     else
-	AC_MSG_RESULT([ no])	
+	AC_MSG_RESULT([ no])
     fi
 else
     package_maker="$PACKAGE_MAKER"
@@ -1594,8 +1594,8 @@ AC_CHECK_HEADERS(ncurses/curses.h)
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
 AC_TRY_COMPILE(
-[  
-    #include <sys/endian.h> 
+[
+    #include <sys/endian.h>
 ],
 [
 ], AC_DEFINE(HAVE_SYS_ENDIAN_H, [1], [sys/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
@@ -1603,8 +1603,8 @@ AC_TRY_COMPILE(
 dnl Check if we have <machine/endian.h> ... MacOSX way
 AC_MSG_CHECKING([for machine/endian.h ])
 AC_TRY_COMPILE(
-[  
-    #include <machine/endian.h> 
+[
+    #include <machine/endian.h>
 ],
 [
 ], AC_DEFINE(HAVE_MACHINE_ENDIAN_H, [1], [machine/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
@@ -1612,9 +1612,9 @@ AC_TRY_COMPILE(
 dnl Check if we have <sys/endian.h> ... IRIX strangeness
 AC_MSG_CHECKING([for sys/endian.h (IRIX variant) ])
 AC_TRY_COMPILE(
-[  
+[
     #include <standards.h>
-    #include <sys/endian.h> 
+    #include <sys/endian.h>
 ],
 [
 ], AC_DEFINE(HAVE_SYS_ENDIAN_H, [1], [IRIX sys/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
@@ -1939,6 +1939,8 @@ pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
 pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
+pcp_selinux_mock=false
+pcp_selinux_unconfined=false
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -2001,13 +2003,22 @@ do
 	fi
 	hostname_exec_map_a=`eval seinfo -x --class=file -- $policy_file | grep map | awk '{ print $1 }'`
 	hostname_exec_map_b=`eval seinfo -x --common file -- $policy_file 2>/dev/null | grep map | awk '{ print $1 }'`
-	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x" 
+	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x"
 	then
 	    pcp_selinux_hostname_exec_map=true
 	fi
-
+	mock_var_lib=`eval seinfo -t -- $policy_file | grep mock_var_lib_t | awk '{ print $1 }'`
+	if test "x$mock_var_lib" != "x"
+	then
+	    pcp_selinux_mock=true
+	fi
+       unconfined=`eval seinfo -t -- $policy_file | grep unconfined_service_t | awk '{ print $1 }'`
+       if test "x$unconfined" != "x"
+       then
+           pcp_selinux_unconfined=true
+       fi
     fi
-done  
+done
 ])
 AC_SUBST(pcp_selinux_class_status)
 AC_SUBST(pcp_selinux_cap_userns_ptrace)
@@ -2021,6 +2032,8 @@ AC_SUBST(pcp_selinux_unreserved_port)
 AC_SUBST(pcp_selinux_tracefs)
 AC_SUBST(pcp_selinux_sock_file_getattr)
 AC_SUBST(pcp_selinux_hostname_exec_map)
+AC_SUBST(pcp_selinux_mock)
+AC_SUBST(pcp_selinux_unconfined)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2065,9 +2078,9 @@ fi
 dnl check if we have a type for the pointer's size integer (__psint_t)
 AC_MSG_CHECKING([for __psint_t ])
 AC_TRY_COMPILE(
-[  
+[
     #include <sys/types.h>
-    #include <stdlib.h> 
+    #include <stdlib.h>
     #include <stddef.h>
 ], [ __psint_t psint; ],
 AC_DEFINE(HAVE___PSINT_T, [1], [__psint_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
@@ -2251,7 +2264,7 @@ _do_type()
     #
     if test $target_os = darwin
     then
-	# Need to strip -arch foo args for gcc -E 
+	# Need to strip -arch foo args for gcc -E
 	_myflags=`echo "$CPPFLAGS" "$CFLAGS" | sed -e 's/-arch [[^ ]]*//g'`
     else
 	_myflags="$CPPFLAGS $CFLAGS"
@@ -2525,7 +2538,7 @@ then
     AC_MSG_CHECKING([where pthread_create() is defined])
     for cand in "" pthreads pthread ; do
 	savedLIBS=$LIBS
-	if test -n "$cand" 
+	if test -n "$cand"
 	then
 	    LIBS=`echo $LIBS -l$cand`
 	fi
@@ -2923,7 +2936,7 @@ AC_TRY_LINK([#include <sys/wait.h>],
 ], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL, [1], [indirect signal.h]))
 
 dnl check for name and type of time fields in struct stat
-dnl IRIX example	timespec_t st_mtim;	
+dnl IRIX example	timespec_t st_mtim;
 dnl Linux example 	struct timespec st_mtim;
 dnl Darwin example 	struct timespec st_mtimespec;
 dnl Solaris example	timestruc_t st_mtim;
@@ -3260,7 +3273,7 @@ AC_ARG_WITH(demosdir,[AC_HELP_STRING([--with-demosdir],[run directory [DATADIR/p
                    [pcp_demos_dir=$pcp_share_dir/demos])
 AC_SUBST(pcp_demos_dir)
 
-if test -z "$XCONFIRM" 
+if test -z "$XCONFIRM"
 then
     AC_PATH_PROG(ac_xconfirm_prog, xconfirm, $pcp_bin_dir/pmconfirm)
 else
@@ -3499,7 +3512,7 @@ AC_TRY_COMPILE([
 ], [ struct timespec foo; ],
 AC_DEFINE(HAVE_STRUCT_TIMESPEC, [1], [timespec type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
-dnl check if we have IRIX style altzone 
+dnl check if we have IRIX style altzone
 AC_MSG_CHECKING([for altzone in time.h])
 AC_TRY_COMPILE([
     #include <time.h>
@@ -3568,7 +3581,7 @@ AC_SUBST(HAVE_ZLIB, [$have_zlib])
 dnl Check if we have AI_ADDRCONFIG
 AC_MSG_CHECKING([for AI_ADDRCONFIG])
 AC_TRY_COMPILE(
-[  
+[
     #include <netdb.h>
     int test = AI_ADDRCONFIG;
 ],

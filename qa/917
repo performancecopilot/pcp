@@ -37,7 +37,10 @@ class_status=`seinfo -x --class=system | grep "status$"`
 sock_file_getattr=`seinfo -x --class=sock_file | grep "getattr$"`
 hostname_exec_map_a=`seinfo -x --class=file | grep "map$"`
 hostname_exec_map_b=`seinfo -x --common=file 2>/dev/null | grep "map$"`
-container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
+#container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
+container_runtime_tmpfs_t=""
+unconfined_service=`seinfo -t | grep "unconfined_service_t$"`
+mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
 
 _filter_semodule()
 {
@@ -71,6 +74,8 @@ _filter_outfile()
 	-v sock_file_getattr="$sock_file_getattr" \
 	-v hostname_exec_map_a="$hostname_exec_map_a" \
 	-v hostname_exec_map_b="$hostname_exec_map_b" \
+	-v unconfined_service="$unconfined_service" \
+	-v mock_var_lib="$mock_var_lib" \
     '{
     	if (container_t == "" && /container_runtime_t /)
 	   !/container_runtime_t / ;
@@ -102,6 +107,10 @@ _filter_outfile()
            !/system.*status/ ;
 	else if (sock_file_getattr == "" && /gpmctl_t/)
 	   !/gpmctl_t/ ;
+	else if (unconfined_service == "" && /unconfined_service_t/)
+	   !/unconfined_service_t/ ;
+	else if (mock_var_lib == "" && /mock_var_lib_t/)
+	   !/mock_var_lib_t/ ;
         else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /ldconfig_exec_t/ && /map/)
            !/ldconfig_exec_t/ ;
 	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {

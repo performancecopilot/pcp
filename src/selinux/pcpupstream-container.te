@@ -2,8 +2,11 @@ module pcpupstream-container 1.0;
 
 require {
 	type container_runtime_t;
+	type container_runtime_tmpfs_t;
 	type pcp_pmcd_t;
 	class unix_stream_socket connectto;
+	class dir getattr;
 }
 
 allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto;
+allow pcp_pmcd_t container_runtime_tmpfs_t:dir getattr;

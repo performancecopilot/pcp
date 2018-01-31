@@ -708,6 +708,8 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_unconfined
+pcp_selinux_mock
 pcp_selinux_hostname_exec_map
 pcp_selinux_sock_file_getattr
 pcp_selinux_tracefs
@@ -11792,6 +11794,8 @@ pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
 pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
+pcp_selinux_mock=false
+pcp_selinux_unconfined=false
 if test "x$enable_selinux" != "xfalse"; then :
 
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -11859,11 +11863,22 @@ do
 	then
 	    pcp_selinux_hostname_exec_map=true
 	fi
-
+	mock_var_lib=`eval seinfo -t -- $policy_file | grep mock_var_lib_t | awk '{ print $1 }'`
+	if test "x$mock_var_lib" != "x"
+	then
+	    pcp_selinux_mock=true
+	fi
+       unconfined=`eval seinfo -t -- $policy_file | grep unconfined_service_t | awk '{ print $1 }'`
+       if test "x$unconfined" != "x"
+       then
+           pcp_selinux_unconfined=true
+       fi
     fi
 done
 
 fi
+
+
 
 
 

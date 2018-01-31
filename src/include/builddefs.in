@@ -2,17 +2,17 @@
 # Copyright (c) 2012-2017 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 # Common gmake macros for building
 #
@@ -267,6 +267,8 @@ PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
 PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
 PCP_SELINUX_SOCK_FILE_GETATTR = @pcp_selinux_sock_file_getattr@
 PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
+PCP_SELINUX_MOCK = @pcp_selinux_mock@
+PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
@@ -785,7 +787,7 @@ PYTHON3_INSTALL = \
 	fi
 else
 # default case if all of the above tests fail
-PYTHON_INSTALL = 
+PYTHON_INSTALL =
 endif	# openbsd if
 endif	# cocoa ... freebsd if
 endif	# linux && !gentoo if

@@ -1,11 +1,11 @@
 #
 # Copyright (c) 2017 Red Hat.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -62,6 +62,10 @@ $(IAM).te: $(IAM).te.in
 		-e 's;@PCP_SOCK_FILE_GETATTR_RULE@;'$(PCP_SOCK_FILE_GETATTR_RULE)';' \
 		-e 's;@PCP_HOSTNAME_EXEC_MAP@;'$(PCP_HOSTNAME_EXEC_MAP)';' \
 		-e 's;@PCP_LDCONFIG_EXEC_MAP_RULE@;'$(PCP_LDCONFIG_EXEC_MAP_RULE)';' \
+		-e 's;@PCP_MOCK_VAR_LIB@;'$(PCP_MOCK_VAR_LIB)';' \
+		-e 's;@PCP_MOCK_VAR_LIB_RULE@;'$(PCP_MOCK_VAR_LIB_RULE)';' \
+		-e 's;@PCP_UNCONFINED_SERVICE@;'$(PCP_UNCONFINED_SERVICE)';' \
+		-e 's;@PCP_UNCONFINED_SERVICE_RULE@;'$(PCP_UNCONFINED_SERVICE_RULE)';' \
 		-e 's;@PACKAGE_VERSION@;'$(PACKAGE_VERSION)';' \
 
 	# END
