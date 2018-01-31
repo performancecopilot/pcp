@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2016,2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -44,6 +44,16 @@ extern task_t		*tasklist;	/* master list of tasks */
 extern __pmLogCtl	logctl;		/* global log control */
 extern __pmArchCtl	archctl;	/* global archive control */
 extern int log_alarm;			/* set when log_callback() called for any task */
+
+typedef struct {
+    char		*name;
+    int			state;
+    int			control;
+    struct timeval	delta;
+} dynroot_t;
+
+extern dynroot_t	*dyn_roots;	/* dynamic root list - never free'd */
+extern int		n_dyn_roots;	/* and length of ~ */
 
 /* config file parser states */
 #define GLOBAL  0
@@ -127,6 +137,8 @@ extern int chk_one(task_t *, pmID, int);
 extern int chk_all(task_t *, pmID);
 extern int newvolume(int);
 extern void validate_metrics(void);
+extern void check_dynamic_metrics();
+extern int do_control_req(pmResult *, int, int, int, int);
 
 extern void disconnect(int);
 extern int reconnect(void);
