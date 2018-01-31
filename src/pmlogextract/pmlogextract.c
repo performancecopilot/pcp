@@ -798,8 +798,10 @@ append_indomreclist(int indx)
     inarch_t	*iap;
     reclist_t	*curr;
     reclist_t	*rec;
+    int		indom;
 
     iap = &inarch[indx];
+    indom = ntoh_pmInDom(iap->pb[META][4]);
 
     if (rindom == NULL) {
 	rindom = mk_reclist_t();
@@ -808,7 +810,7 @@ append_indomreclist(int indx)
 	rindom->stamp.tv_usec = ntohl(rindom->pdu[3]);
 	rindom->desc.pmid = PM_ID_NULL;
 	rindom->desc.type = PM_TYPE_NOSUPPORT;
-	rindom->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
+	rindom->desc.indom = indom;
 	rindom->desc.sem = 0;
 	rindom->desc.units = nullunits;	/* struct assignment */
     }
@@ -816,11 +818,11 @@ append_indomreclist(int indx)
 	curr = rindom;
 
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->desc.indom != ntoh_pmInDom(iap->pb[META][4])) {
+	while (curr->next != NULL && curr->desc.indom != indom) {
 	    curr = curr->next;
 	}
 
-	if (curr->desc.indom == ntoh_pmInDom(iap->pb[META][4])) {
+	if (curr->desc.indom == indom) {
 	    if (curr->pdu == NULL) {
 		/* insert new record */
 		curr->pdu = iap->pb[META];
@@ -835,7 +837,7 @@ append_indomreclist(int indx)
 		rec->stamp.tv_usec = ntohl(rec->pdu[3]);
 		rec->desc.pmid = PM_ID_NULL;
 		rec->desc.type = PM_TYPE_NOSUPPORT;
-		rec->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
+		rec->desc.indom = indom;
 		rec->desc.sem = 0;
 		rec->desc.units = nullunits;	/* struct assignment */
 		rec->next = curr->next;
@@ -851,7 +853,7 @@ append_indomreclist(int indx)
 	    curr->stamp.tv_usec = ntohl(curr->pdu[3]);
 	    curr->desc.pmid = PM_ID_NULL;
 	    curr->desc.type = PM_TYPE_NOSUPPORT;
-	    curr->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
+	    curr->desc.indom = indom;
 	    curr->desc.sem = 0;
 	    curr->desc.units = nullunits;	/* struct assignment */
 	}
@@ -1291,7 +1293,7 @@ void
 write_metareclist(pmResult *result, int *needti)
 {
     int			i;
-    int			wrote_indom;
+    int			new_indom;
     reclist_t		*curr_desc;	/* current desc record */
     reclist_t		*curr_indom;	/* current indom record */
     reclist_t   	*othr_indom;	/* other indom record */
@@ -1403,16 +1405,24 @@ write_metareclist(pmResult *result, int *needti)
 		curr_indom = curr_indom->next;
 	    } /*while()*/
 
-	    wrote_indom = 0;
-	    if (othr_indom != NULL && othr_indom->pdu != NULL && othr_indom->written != WRITTEN) {
-		othr_indom->written = MARK_FOR_WRITE;
-		othr_indom->pdu[2] = htonl(this->tv_sec);
-		othr_indom->pdu[3] = htonl(this->tv_usec);
+	    new_indom = 0;
+	    if (othr_indom != NULL && othr_indom->written != WRITTEN) {
+		new_indom = 1;
+		/*
+		 * There may be indoms which are referenced in desc records
+		 * which have no pdus. This is because the corresponding indom
+		 * record does not exist. There's no record to write, but we
+		 * still need to output the associated labels ahd help text.
+		 */
+		if (othr_indom->pdu != NULL) { 
+		    othr_indom->written = MARK_FOR_WRITE;
+		    othr_indom->pdu[2] = htonl(this->tv_sec);
+		    othr_indom->pdu[3] = htonl(this->tv_usec);
 
-		/* make sure to set needti, when writing out the indom */
-		*needti = 1;
-		write_rec(othr_indom);
-		wrote_indom = 1;
+		    /* make sure to set needti, when writing out the indom */
+		    *needti = 1;
+		    write_rec(othr_indom);
+		}
 
 		/*
 		 * While not strictly necessary for correctness, it makes testing
@@ -1441,7 +1451,7 @@ write_metareclist(pmResult *result, int *needti)
 	     * PM_TEXT_INDOM | PM_TEXT_HELP records remain to be written.
 	     */
 	    write_textreclist(PM_TEXT_PMID | PM_TEXT_HELP, pmid);
-	    if (wrote_indom) {
+	    if (new_indom) {
 		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP, othr_indom->desc.indom);
 	    }
 	}
