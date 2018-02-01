@@ -614,8 +614,17 @@ No value(s) available!
 mem.vmstat.numa_foreign
     value 0
 
+mem.vmstat.numa_hint_faults
+    value 0
+
+mem.vmstat.numa_hint_faults_local
+    value 0
+
 mem.vmstat.numa_hit
     value 326893040
+
+mem.vmstat.numa_huge_pte_updates
+    value 0
 
 mem.vmstat.numa_interleave
     value 23559
@@ -3001,8 +3010,17 @@ No value(s) available!
 mem.vmstat.numa_foreign
     value 0
 
+mem.vmstat.numa_hint_faults
+    value 123649353
+
+mem.vmstat.numa_hint_faults_local
+    value 115348620
+
 mem.vmstat.numa_hit
     value 622686531
+
+mem.vmstat.numa_huge_pte_updates
+    value 6740589
 
 mem.vmstat.numa_interleave
     value 71527
@@ -5375,8 +5393,17 @@ No value(s) available!
 mem.vmstat.numa_foreign
     value 0
 
+mem.vmstat.numa_hint_faults
+    value 123649353
+
+mem.vmstat.numa_hint_faults_local
+    value 115348620
+
 mem.vmstat.numa_hit
     value 622686531
+
+mem.vmstat.numa_huge_pte_updates
+    value 6740589
 
 mem.vmstat.numa_interleave
     value 71527
@@ -7712,8 +7739,17 @@ mem.vmstat.nr_zspages
 mem.vmstat.numa_foreign
     value 0
 
+mem.vmstat.numa_hint_faults
+    value 0
+
+mem.vmstat.numa_hint_faults_local
+    value 0
+
 mem.vmstat.numa_hit
     value 761863
+
+mem.vmstat.numa_huge_pte_updates
+    value 0
 
 mem.vmstat.numa_interleave
     value 19088
@@ -9790,8 +9826,17 @@ mem.vmstat.nr_zspages
 mem.vmstat.numa_foreign
     value 0
 
+mem.vmstat.numa_hint_faults
+    value 0
+
+mem.vmstat.numa_hint_faults_local
+    value 0
+
 mem.vmstat.numa_hit
     value 3710892851
+
+mem.vmstat.numa_huge_pte_updates
+    value 0
 
 mem.vmstat.numa_interleave
     value 21494

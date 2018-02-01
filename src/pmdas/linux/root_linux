@@ -1255,7 +1255,10 @@ mem.vmstat {
 	nr_writeback_temp		60:28:56
 	nr_written			60:28:94
 	numa_foreign			60:28:95
+	numa_hint_faults		60:28:152
+	numa_hint_faults_local		60:28:153
 	numa_hit			60:28:96
+	numa_huge_pte_updates		60:28:151
 	numa_interleave			60:28:97
 	numa_local			60:28:98
 	numa_miss			60:28:99
