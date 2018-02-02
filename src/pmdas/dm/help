@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015,2017 Red Hat.
+# Copyright (c) 2015-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,7 +29,9 @@
 @ DM.0 Device mapper cache block devices
 @ DM.1 Device mapper thin provisioning pools
 @ DM.2 Device mapper thin provisioning volumes
-@ DM.3 Device mapper latency histogram bins
+@ DM.3 Device mapper dmstats API devices
+@ DM.4 Device mapper latency histogram bins
+@ DM.5 Virtual Data Optimization devices
 
 @ dmcache.size Size of each cache device
 The total size of each cache device in Kbytes.
