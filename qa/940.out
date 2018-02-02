@@ -6,4 +6,5 @@ Checking policies.
 --- begin avrule block ---
 decl 1:
   allow [pcp_pmcd_t] [container_runtime_t] : [unix_stream_socket] { connectto };
+  allow [pcp_pmcd_t] [container_runtime_tmpfs_t] : [dir] { getattr };
 

@@ -44,7 +44,7 @@ install_pcp install :: $(SUBDIRS)
 
 install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 -d $(PMDADIR)/urls.d
+	$(INSTALL) -m 755 -d $(PMDADIR)/config.d
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
