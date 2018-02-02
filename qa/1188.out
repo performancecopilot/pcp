@@ -1,0 +1,850 @@
+QA output created by 1188
+
+=== Installing device mapper PMDA ===
+== Valgrind checking metric descriptors and values - vdo-root-001.tgz
+=== std out ===
+
+vdo.dev.blocksize PMID: 129.5.95 []
+    Data Type: 32-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: byte
+Help: <empty entry>
+    inst [0 or "vdo1"] value 4096
+
+vdo.dev.complete_recoveries PMID: 129.5.96 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.curr_dedupe_queries PMID: 129.5.97 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.curr_vios_in_progress PMID: 129.5.98 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 90
+
+vdo.dev.data_blocks_used PMID: 129.5.99 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1085494
+
+vdo.dev.flush_out PMID: 129.5.106 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 970
+
+vdo.dev.in_recovery_mode PMID: 129.5.107 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.instance PMID: 129.5.108 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.journal_disk_full PMID: 129.5.112 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.logical_blocksize PMID: 129.5.118 []
+    Data Type: 32-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: byte
+Help: <empty entry>
+    inst [0 or "vdo1"] value 4096
+
+vdo.dev.max_dedupe_queries PMID: 129.5.120 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 855
+
+vdo.dev.maxvios PMID: 129.5.121 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2000
+
+vdo.dev.mode PMID: 129.5.126 []
+    Data Type: string  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value "normal"
+
+vdo.dev.overhead_blocks_used PMID: 129.5.127 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 901859
+
+vdo.dev.physical_blocks PMID: 129.5.131 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 117212886
+
+vdo.dev.readonly_recoveries PMID: 129.5.135 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.recovery_percentage PMID: 129.5.136 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 100
+
+vdo.dev.write_policy PMID: 129.5.144 []
+    Data Type: string  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: none
+Help: <empty entry>
+    inst [0 or "vdo1"] value "sync"
+
+vdo.dev.allocator.slab_count PMID: 129.5.1 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 222
+
+vdo.dev.allocator.slabs_opened PMID: 129.5.2 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 3
+
+vdo.dev.allocator.slabs_reopened PMID: 129.5.3 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.acknowledged.discard PMID: 129.5.4 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1
+
+vdo.dev.bios.acknowledged.flush PMID: 129.5.5 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 970
+
+vdo.dev.bios.acknowledged.fua PMID: 129.5.6 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 969
+
+vdo.dev.bios.acknowledged.read PMID: 129.5.7 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1108
+
+vdo.dev.bios.acknowledged.write PMID: 129.5.8 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1673209
+
+vdo.dev.bios.acknowledged.partial.discard PMID: 129.5.9 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.acknowledged.partial.flush PMID: 129.5.10 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.acknowledged.partial.fua PMID: 129.5.11 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.acknowledged.partial.read PMID: 129.5.12 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.acknowledged.partial.write PMID: 129.5.13 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.discard PMID: 129.5.14 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1
+
+vdo.dev.bios.in.flush PMID: 129.5.15 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 970
+
+vdo.dev.bios.in.fua PMID: 129.5.16 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 969
+
+vdo.dev.bios.in.read PMID: 129.5.17 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1108
+
+vdo.dev.bios.in.write PMID: 129.5.18 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1673209
+
+vdo.dev.bios.in.partial.discard PMID: 129.5.19 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.partial.flush PMID: 129.5.20 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.partial.fua PMID: 129.5.21 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.partial.read PMID: 129.5.22 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.partial.write PMID: 129.5.23 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.progress.discard PMID: 129.5.24 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.progress.flush PMID: 129.5.25 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.progress.fua PMID: 129.5.26 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.progress.read PMID: 129.5.27 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.progress.write PMID: 129.5.28 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.discard PMID: 129.5.49 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.flush PMID: 129.5.50 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.fua PMID: 129.5.51 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.read PMID: 129.5.52 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 34415
+
+vdo.dev.bios.out.write PMID: 129.5.53 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1149535
+
+vdo.dev.bios.out.completed.discard PMID: 129.5.54 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.completed.flush PMID: 129.5.55 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.completed.fua PMID: 129.5.56 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.out.completed.read PMID: 129.5.57 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 34415
+
+vdo.dev.bios.out.completed.write PMID: 129.5.58 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1149535
+
+vdo.dev.bios.journal.discard PMID: 129.5.29 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.flush PMID: 129.5.30 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.fua PMID: 129.5.31 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.read PMID: 129.5.32 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.write PMID: 129.5.33 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 213386
+
+vdo.dev.bios.journal.completed.discard PMID: 129.5.34 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.completed.flush PMID: 129.5.35 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.completed.fua PMID: 129.5.36 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.completed.read PMID: 129.5.37 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.journal.completed.write PMID: 129.5.38 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 213386
+
+vdo.dev.bios.meta.discard PMID: 129.5.39 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.meta.flush PMID: 129.5.40 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.meta.fua PMID: 129.5.41 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.meta.read PMID: 129.5.42 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2124
+
+vdo.dev.bios.meta.write PMID: 129.5.43 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 239323
+
+vdo.dev.bios.meta.completed.discard PMID: 129.5.44 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.meta.completed.flush PMID: 129.5.45 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.meta.completed.fua PMID: 129.5.46 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.meta.completed.read PMID: 129.5.47 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2124
+
+vdo.dev.bios.meta.completed.write PMID: 129.5.48 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 239323
+
+vdo.dev.bios.page_cache.discard PMID: 129.5.69 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.flush PMID: 129.5.70 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.fua PMID: 129.5.71 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.read PMID: 129.5.72 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2063
+
+vdo.dev.bios.page_cache.write PMID: 129.5.73 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.completed.discard PMID: 129.5.64 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.completed.flush PMID: 129.5.65 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.completed.fua PMID: 129.5.66 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.completed.read PMID: 129.5.67 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2063
+
+vdo.dev.bios.page_cache.completed.write PMID: 129.5.68 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.cache_pressure PMID: 129.5.74 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.cache_size PMID: 129.5.75 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 134217728
+
+vdo.dev.block_map.clean_pages PMID: 129.5.76 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.dirty_pages PMID: 129.5.77 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2063
+
+vdo.dev.block_map.discard_required PMID: 129.5.78 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.failed_pages PMID: 129.5.79 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.failed_reads PMID: 129.5.80 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.failed_writes PMID: 129.5.81 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.fetch_required PMID: 129.5.82 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2063
+
+vdo.dev.block_map.flush_count PMID: 129.5.83 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.found_in_cache PMID: 129.5.84 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 3351107
+
+vdo.dev.block_map.free_pages PMID: 129.5.85 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 30705
+
+vdo.dev.block_map.incoming_pages PMID: 129.5.86 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.outgoing_pages PMID: 129.5.87 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.pages_loaded PMID: 129.5.88 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 2063
+
+vdo.dev.block_map.pages_saved PMID: 129.5.89 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.read_count PMID: 129.5.90 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1672796
+
+vdo.dev.block_map.read_outgoing PMID: 129.5.91 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.reclaimed PMID: 129.5.92 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.block_map.wait_for_page PMID: 129.5.93 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 79355
+
+vdo.dev.block_map.write_count PMID: 129.5.94 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1759729
+
+vdo.dev.dedupe_advice.stale PMID: 129.5.100 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.dedupe_advice.timeouuts PMID: 129.5.101 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.dedupe_advice.valid PMID: 129.5.102 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 34352
+
+vdo.dev.errors.invalid_advicepbncount PMID: 129.5.103 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.errors.no_space_error_count PMID: 129.5.104 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.errors.readonly_error_count PMID: 129.5.105 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.journal_blocks.committed PMID: 129.5.109 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 213386
+
+vdo.dev.journal_blocks.started PMID: 129.5.110 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 213386
+
+vdo.dev.journal_blocks.written PMID: 129.5.111 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 213386
+
+vdo.dev.journal_entries.committed PMID: 129.5.113 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 3521779
+
+vdo.dev.journal_entries.started PMID: 129.5.114 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 3521779
+
+vdo.dev.journal_entries.written PMID: 129.5.115 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 3521779
+
+vdo.dev.journal_slab.commits_requested PMID: 129.5.116 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.logical_blocks.count PMID: 129.5.117 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1073741824
+
+vdo.dev.logical_blocks.used PMID: 129.5.119 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1670221
+
+vdo.dev.memory_usage.bios_used PMID: 129.5.122 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 37285
+
+vdo.dev.memory_usage.bytes_used PMID: 129.5.123 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    inst [0 or "vdo1"] value 555927776
+
+vdo.dev.memory_usage.peak.bio_count PMID: 129.5.124 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 37573
+
+vdo.dev.memory_usage.peak.bytes_used PMID: 129.5.125 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    inst [0 or "vdo1"] value 555931616
+
+vdo.dev.packer.compressed_blocks.written PMID: 129.5.128 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 23516
+
+vdo.dev.packer.compressed_fragments.in_packer PMID: 129.5.129 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 90
+
+vdo.dev.packer.compressed_fragments.written PMID: 129.5.130 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 52033
+
+vdo.dev.read_cache.accesses PMID: 129.5.132 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.read_cache.data_hits PMID: 129.5.133 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.read_cache.hits PMID: 129.5.134 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.ref_counts.blocks_written PMID: 129.5.137 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 320
+
+vdo.dev.slab.journal.blocked_count PMID: 129.5.138 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.slab.journal.blocks_written PMID: 129.5.139 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1018
+
+vdo.dev.slab.journal.disk_full_count PMID: 129.5.140 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.slab.journal.flush_count PMID: 129.5.141 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 123
+
+vdo.dev.slab.journal.tail_busy_count PMID: 129.5.142 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 0
+
+vdo.dev.slab.summary.blocks_written PMID: 129.5.143 []
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "vdo1"] value 1018
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,129,PCP_PMDAS_DIR/dm/pmda_dm,dm_init -dfmtT vdo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

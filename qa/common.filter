@@ -389,6 +389,7 @@ _filter_top_pmns()
 	-e '/^    trivial /d' \
 	-e '/^    tty /d' \
 	-e '/^    txmon /d' \
+	-e '/^    vdo /d' \
 	-e '/^    vmware /d' \
 	-e '/^    web /d' \
 	-e '/^    webping /d' \
