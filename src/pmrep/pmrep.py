@@ -39,7 +39,7 @@ import os
 from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
-from cpmapi import PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
+from cpmapi import PM_SEM_DISCRETE, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmapi import PM_TIME_SEC
 from cpmi import PMI_ERR_DUPINSTNAME
 
@@ -863,6 +863,7 @@ class PMReporter(object):
         if self.pmi is None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
+            self.prev_res = {} # pylint: disable=attribute-defined-outside-init
             self.recorded = {} # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
@@ -888,6 +889,18 @@ class PMReporter(object):
                     except pmi.pmiErr as error:
                         if error.args[0] == PMI_ERR_DUPINSTNAME:
                             pass
+                if self.pmconfig.descs[i].contents.sem == PM_SEM_DISCRETE and metric in self.prev_res:
+                    def lookup_inst_index(mres, instance):
+                        """ Helper to lookup instance index """
+                        index = -1
+                        for inst, _, _ in mres:
+                            index += 1
+                            if inst == instance:
+                                return index
+                        return -1
+                    index = lookup_inst_index(self.prev_res[metric], inst)
+                    if index >= 0 and value == self.prev_res[metric][index][2]:
+                        continue
                 if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
                     self.pmi.pmiPutValue(metric, name, value)
                 elif self.pmconfig.descs[i].contents.type == PM_TYPE_FLOAT or \
@@ -896,6 +909,7 @@ class PMReporter(object):
                 else:
                     self.pmi.pmiPutValue(metric, name, "%d" % value)
                 data = 1
+        self.prev_res = results
 
         # Flush
         if data:
