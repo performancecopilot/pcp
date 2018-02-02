@@ -386,10 +386,11 @@ class PMReporter(object):
             sys.stderr.write("Output archive must be defined with archive output.\n")
             sys.exit(1)
 
-        if self.output == OUTPUT_ARCHIVE and \
-           not os.access(os.path.dirname(self.outfile), os.W_OK|os.X_OK):
-            sys.stderr.write("Output directory %s not accessible.\n" % os.path.dirname(self.outfile))
-            sys.exit(1)
+        if self.output == OUTPUT_ARCHIVE:
+            outdir = os.path.dirname(self.outfile) if os.path.dirname(self.outfile) else "."
+            if not os.access(outdir, os.W_OK|os.X_OK):
+                sys.stderr.write("Output directory %s not accessible.\n" % outdir)
+                sys.exit(1)
 
         # Adjustments and checks for for overall rankings
         if not self.rank:
