@@ -176,142 +176,151 @@ of ascending value. The instance name includes bin boundaries.
 @dmstats.histogram.hist_bins The number of latency histogram bins
 The number of latency histogram bins configured for the region.
 
-@ vdo.dev.allocator.slab_count
-@ vdo.dev.allocator.slabs_opened
-@ vdo.dev.allocator.slabs_reopened
-@ vdo.dev.bios.acknowledged.discard
-@ vdo.dev.bios.acknowledged.flush
-@ vdo.dev.bios.acknowledged.fua
-@ vdo.dev.bios.acknowledged.read
-@ vdo.dev.bios.acknowledged.write
-@ vdo.dev.bios.acknowledged.partial.discard
-@ vdo.dev.bios.acknowledged.partial.flush
-@ vdo.dev.bios.acknowledged.partial.fua
-@ vdo.dev.bios.acknowledged.partial.read
-@ vdo.dev.bios.acknowledged.partial.write
-@ vdo.dev.bios.in.discard
-@ vdo.dev.bios.in.flush
-@ vdo.dev.bios.in.fua
-@ vdo.dev.bios.in.read
-@ vdo.dev.bios.in.write
-@ vdo.dev.bios.in.partial.discard
-@ vdo.dev.bios.in.partial.flush
-@ vdo.dev.bios.in.partial.fua
-@ vdo.dev.bios.in.partial.read
-@ vdo.dev.bios.in.partial.write
-@ vdo.dev.bios.in.progress.discard
-@ vdo.dev.bios.in.progress.flush
-@ vdo.dev.bios.in.progress.fua
-@ vdo.dev.bios.in.progress.read
-@ vdo.dev.bios.in.progress.write
-@ vdo.dev.bios.out.discard
-@ vdo.dev.bios.out.flush
-@ vdo.dev.bios.out.fua
-@ vdo.dev.bios.out.read
-@ vdo.dev.bios.out.write
-@ vdo.dev.bios.out.completed.discard
-@ vdo.dev.bios.out.completed.flush
-@ vdo.dev.bios.out.completed.fua
-@ vdo.dev.bios.out.completed.read
-@ vdo.dev.bios.out.completed.write
-@ vdo.dev.bios.journal.discard
-@ vdo.dev.bios.journal.flush
-@ vdo.dev.bios.journal.fua
-@ vdo.dev.bios.journal.read
-@ vdo.dev.bios.journal.write
-@ vdo.dev.bios.journal.completed.discard
-@ vdo.dev.bios.journal.completed.flush
-@ vdo.dev.bios.journal.completed.fua
-@ vdo.dev.bios.journal.completed.read
-@ vdo.dev.bios.journal.completed.write
-@ vdo.dev.bios.meta.discard
-@ vdo.dev.bios.meta.flush
-@ vdo.dev.bios.meta.fua
-@ vdo.dev.bios.meta.read
-@ vdo.dev.bios.meta.write
-@ vdo.dev.bios.meta.completed.discard
-@ vdo.dev.bios.meta.completed.flush
-@ vdo.dev.bios.meta.completed.fua
-@ vdo.dev.bios.meta.completed.read
-@ vdo.dev.bios.meta.completed.write
-@ vdo.dev.bios.page_cache.discard
-@ vdo.dev.bios.page_cache.flush
-@ vdo.dev.bios.page_cache.fua
-@ vdo.dev.bios.page_cache.read
-@ vdo.dev.bios.page_cache.write
-@ vdo.dev.bios.page_cache.completed.discard
-@ vdo.dev.bios.page_cache.completed.flush
-@ vdo.dev.bios.page_cache.completed.fua
-@ vdo.dev.bios.page_cache.completed.read
-@ vdo.dev.bios.page_cache.completed.write
-@ vdo.dev.block_map.cache_pressure
-@ vdo.dev.block_map.cache_size
-@ vdo.dev.block_map.clean_pages
-@ vdo.dev.block_map.dirty_pages
-@ vdo.dev.block_map.discard_required
-@ vdo.dev.block_map.failed_pages
-@ vdo.dev.block_map.failed_reads
-@ vdo.dev.block_map.failed_writes
-@ vdo.dev.block_map.fetch_required
-@ vdo.dev.block_map.flush_count
-@ vdo.dev.block_map.found_in_cache
-@ vdo.dev.block_map.free_pages
-@ vdo.dev.block_map.incoming_pages
-@ vdo.dev.block_map.outgoing_pages
-@ vdo.dev.block_map.pages_loaded
-@ vdo.dev.block_map.pages_saved
-@ vdo.dev.block_map.read_count
-@ vdo.dev.block_map.read_outgoing
-@ vdo.dev.block_map.reclaimed
-@ vdo.dev.block_map.wait_for_page
-@ vdo.dev.block_map.write_count
-@ vdo.dev.blocksize
-@ vdo.dev.complete_recoveries
-@ vdo.dev.curr_dedupe_queries
-@ vdo.dev.curr_vios_in_progress
-@ vdo.dev.data_blocks_used
-@ vdo.dev.dedupe_advice.stale
-@ vdo.dev.dedupe_advice.timeouuts
-@ vdo.dev.dedupe_advice.valid
-@ vdo.dev.errors.invalid_advicepbncount
-@ vdo.dev.errors.no_space_error_count
-@ vdo.dev.errors.readonly_error_count
-@ vdo.dev.flush_out
-@ vdo.dev.in_recovery_mode
-@ vdo.dev.instance
-@ vdo.dev.journal_blocks.committed
-@ vdo.dev.journal_blocks.started
-@ vdo.dev.journal_blocks.written
-@ vdo.dev.journal_disk_full
-@ vdo.dev.journal_entries.committed
-@ vdo.dev.journal_entries.started
-@ vdo.dev.journal_entries.written
-@ vdo.dev.journal_slab.commits_requested
-@ vdo.dev.logical_blocks.count
-@ vdo.dev.logical_blocks.used
-@ vdo.dev.logical_blocksize
-@ vdo.dev.max_dedupe_queries
-@ vdo.dev.maxvios
-@ vdo.dev.memory_usage.bios_used
-@ vdo.dev.memory_usage.bytes_used
-@ vdo.dev.memory_usage.peak.bio_count
-@ vdo.dev.memory_usage.peak.bytes_used
-@ vdo.dev.mode
-@ vdo.dev.overhead_blocks_used
-@ vdo.dev.packer.compressed_blocks.written
-@ vdo.dev.packer.compressed_fragments.in_packer
-@ vdo.dev.packer.compressed_fragments.written
-@ vdo.dev.physical_blocks
-@ vdo.dev.read_cache.accesses
-@ vdo.dev.read_cache.data_hits
-@ vdo.dev.read_cache.hits
-@ vdo.dev.readonly_recoveries
-@ vdo.dev.recovery_percentage
-@ vdo.dev.ref_counts.blocks_written
-@ vdo.dev.slab.journal.blocked_count
-@ vdo.dev.slab.journal.blocks_written
-@ vdo.dev.slab.journal.disk_full_count
-@ vdo.dev.slab.journal.flush_count
-@ vdo.dev.slab.journal.tail_busy_count
-@ vdo.dev.slab.summary.blocks_written
-@ vdo.dev.write_policy
+@ vdo.dev.allocator.slab_count Number of slabs from which blocks may be allocated
+@ vdo.dev.allocator.slabs_opened Count of slabs from which blocks have ever been allocated
+@ vdo.dev.allocator.slabs_reopened Count of times that a slab has been re-opened
+@ vdo.dev.bios.acknowledged.discard Count of disacrd operations on ACKd bios
+@ vdo.dev.bios.acknowledged.flush Count of flush operations on ACKd bios
+@ vdo.dev.bios.acknowledged.fua Count of force unit access operations on ACKed bios
+@ vdo.dev.bios.acknowledged.read Count of read operations on ACKed bios
+@ vdo.dev.bios.acknowledged.write Count of write operations on ACKed bios
+@ vdo.dev.bios.acknowledged.partial.discard Count of discard operations on ACKed partial bios
+@ vdo.dev.bios.acknowledged.partial.flush Count of flush operations on ACKed partial bios
+@ vdo.dev.bios.acknowledged.partial.fua Count of force unit access operations on ACKed partial bios
+@ vdo.dev.bios.acknowledged.partial.read Count of read operations on ACKed partial bios
+@ vdo.dev.bios.acknowledged.partial.write Count of write operations on ACKed partial bios
+@ vdo.dev.bios.in.discard Count of discard operations on incoming bios
+@ vdo.dev.bios.in.flush Count of flush operations on incoming bios
+@ vdo.dev.bios.in.fua Count of force unit access operations on incoming bios
+@ vdo.dev.bios.in.read Count of read operations on incoming bios
+@ vdo.dev.bios.in.write Count of write operations on incoming bios
+@ vdo.dev.bios.in.partial.discard Count of discard operations on incoming partial bios
+@ vdo.dev.bios.in.partial.flush Count of flush operations on incoming partial bios
+@ vdo.dev.bios.in.partial.fua Count of force unit access operations on incoming partial bios
+@ vdo.dev.bios.in.partial.read Count of read operations on incoming partial bios
+@ vdo.dev.bios.in.partial.write Count of write operations on incoming partial bios
+@ vdo.dev.bios.in_progress.discard Count of discard operations on in-progress bios
+@ vdo.dev.bios.in_progress.flush Count of flush operations on in-progress bios
+@ vdo.dev.bios.in_progress.fua Count of force unit access operations on in-progress bios
+@ vdo.dev.bios.in_progress.read Count of read operations on in-progress bios
+@ vdo.dev.bios.in_progress.write Count of write operations on in-progress bios
+@ vdo.dev.bios.out.discard Count of discard operations on outgoing bios
+@ vdo.dev.bios.out.flush Count of flush operations on outgoing bios
+@ vdo.dev.bios.out.fua Count of force unit access operations on outgoing bios
+@ vdo.dev.bios.out.read Count of read operations on outgoing bios
+@ vdo.dev.bios.out.write Count of write operations on outgoing bios
+@ vdo.dev.bios.out.completed.discard Count of discard operations on completed outgoing bios
+@ vdo.dev.bios.out.completed.flush Count of flush operations on completed outgoing bios
+@ vdo.dev.bios.out.completed.fua Count of force unit access operations on completed outgoing bios
+@ vdo.dev.bios.out.completed.read Count of read operations on completed outgoing bios
+@ vdo.dev.bios.out.completed.write Count of write operations on completed outgoing bios
+@ vdo.dev.bios.journal.discard Count of discard operations on journal bios
+@ vdo.dev.bios.journal.flush Count of flush operations on journal bios
+@ vdo.dev.bios.journal.fua Count of force unit access operations on journal bios
+@ vdo.dev.bios.journal.read Count of read operations on journal bios
+@ vdo.dev.bios.journal.write Count of write operations on journal bios
+@ vdo.dev.bios.journal.completed.discard Count of discard operations on completed journal bios
+@ vdo.dev.bios.journal.completed.flush Count of flush operations on completed journal bios
+@ vdo.dev.bios.journal.completed.fua Count of force unit access operations on completed journal bios
+@ vdo.dev.bios.journal.completed.read Count of read operations on completed journal bios
+@ vdo.dev.bios.journal.completed.write Count of write operations on completed journal bios
+@ vdo.dev.bios.meta.discard Count of discard operations on metadata bios
+@ vdo.dev.bios.meta.flush Count of flush operations on metadata bios
+@ vdo.dev.bios.meta.fua Count of force unit access operations on metadata bios
+@ vdo.dev.bios.meta.read Count of read operations on metadata bios
+@ vdo.dev.bios.meta.write Count of write operations on metadata bios
+@ vdo.dev.bios.meta.completed.discard Count of discard operations on completed metadata bios
+@ vdo.dev.bios.meta.completed.flush Count of flush operations on completed metadata bios
+@ vdo.dev.bios.meta.completed.fua Count of force unit access operations on completed metadata bios
+@ vdo.dev.bios.meta.completed.read Count of read operations on completed metadata bios
+@ vdo.dev.bios.meta.completed.write Count of write operations on completed metadata bios
+@ vdo.dev.bios.page_cache.discard Count of discard operations on page cache bios
+@ vdo.dev.bios.page_cache.flush Count of flush operations on page cache bios
+@ vdo.dev.bios.page_cache.fua Count of force unit access operations on page cache bios
+@ vdo.dev.bios.page_cache.read Count of read operations on page cache bios
+@ vdo.dev.bios.page_cache.write Count of write operations on page cache bios
+@ vdo.dev.bios.page_cache.completed.discard Count of discard operations on completed page cache bios
+@ vdo.dev.bios.page_cache.completed.flush Count of flush operations on completed page cache bios
+@ vdo.dev.bios.page_cache.completed.fua Count of force unit access operations on completed page cache bios
+@ vdo.dev.bios.page_cache.completed.read Count of read operations on completed page cache bios
+@ vdo.dev.bios.page_cache.completed.write Count of discard operations on completed page cache bios
+@ vdo.dev.block_map.cache_pressure Count of times when a free page was not available
+@ vdo.dev.block_map.cache_size Size of the block map page cache
+@ vdo.dev.block_map.clean_pages Number of clean (resident) pages
+@ vdo.dev.block_map.dirty_pages Number of dirty (resident) pages
+@ vdo.dev.block_map.discard_required Count of gets requiring discard
+@ vdo.dev.block_map.failed_pages Number of pages in failed state
+@ vdo.dev.block_map.failed_reads Count of failed page reads
+@ vdo.dev.block_map.failed_writes Count of failed page writes
+@ vdo.dev.block_map.fetch_required Count of gets requiring fetch
+@ vdo.dev.block_map.flush_count Count of flushes issued
+@ vdo.dev.block_map.found_in_cache Count of gets that were already there
+@ vdo.dev.block_map.free_pages Number of free pages
+@ vdo.dev.block_map.incoming_pages Number of pages incoming
+@ vdo.dev.block_map.outgoing_pages Number of pages outgoing
+@ vdo.dev.block_map.pages_loaded Count of page fetches
+@ vdo.dev.block_map.pages_saved Count of page saves
+@ vdo.dev.block_map.read_count Count of getVDOPageAsync calls for read
+@ vdo.dev.block_map.read_outgoing Count of gets for outgoing pages
+@ vdo.dev.block_map.reclaimed Count of gets that are reclaimed
+@ vdo.dev.block_map.wait_for_page Count of gets enqueued for their page
+@ vdo.dev.block_map.write_count Count of getVDOPageAsync calls for write
+@ vdo.dev.blocksize The device physical block size
+@ vdo.dev.complete_recoveries Count of times the VDO has successfully recovered
+@ vdo.dev.curr_dedupe_queries Number of dedupe queries active
+@ vdo.dev.curr_vios_in_progress Number of VIOs in progress
+@ vdo.dev.data_blocks_used Number of blocks used for data
+@ vdo.dev.dedupe_advice.stale Count of times stale deduplication advice given
+@ vdo.dev.dedupe_advice.timeouts Count of times deduplication advice timed out
+@ vdo.dev.dedupe_advice.valid Count of times valid deduplication advice given
+@ vdo.dev.errors.invalid_advicepbncount Count of invalid advice PBN errors
+@ vdo.dev.errors.no_space_error_count Count of times a VIO completed with VDO_NO_SPACE error
+@ vdo.dev.errors.readonly_error_count Count of times a VIO completed with a VDO_READ_ONLY error
+@ vdo.dev.flush_out Count of flush events
+@ vdo.dev.in_recovery_mode Whether VDO is currently in recovery mode
+@ vdo.dev.instance Kernel instance number for this VDO
+@ vdo.dev.journal_blocks.batching Difference between journal blocks started and written
+@ vdo.dev.journal_blocks.committed Number of journal blocks for which a write operation has completed
+@ vdo.dev.journal_blocks.started Number of journal blocks for which processing has started
+@ vdo.dev.journal_blocks.written Number of journal blocks for which a write operation has been issued
+@ vdo.dev.journal_blocks.writing Difference between journal entries written and committed
+@ vdo.dev.journal_disk_full Count of times the on-disk journal was full
+@ vdo.dev.journal_entries.batching Difference between journal entries started and written
+@ vdo.dev.journal_entries.committed Number of journal entries for which a write operation has completed
+@ vdo.dev.journal_entries.started Number of journal entries for which processing has started
+@ vdo.dev.journal_entries.written Number of journal entries for which a write operation has been issued
+@ vdo.dev.journal_entries.writing Difference between journal entries written and committed
+@ vdo.dev.journal_slab.commits_requested Count of journal slab commits requested
+@ vdo.dev.logical_blocks.count Number of logical blocks
+@ vdo.dev.logical_blocks.used Number of logical blocks currently mapped to physical blocks
+@ vdo.dev.logical_blocksize Logical block size
+@ vdo.dev.max_dedupe_queries Maximum number of deduplication active queries
+@ vdo.dev.maxvios Maximum number of active VIOs
+@ vdo.dev.memory_usage.bios_used Count of all bios used
+@ vdo.dev.memory_usage.bytes_used Count of all bytes used
+@ vdo.dev.memory_usage.peak.bio_count Peak count of bios used
+@ vdo.dev.memory_usage.peak.bytes_used Peak count of bytes used
+@ vdo.dev.mode String describing the operating mode of the VDO
+@ vdo.dev.overhead_blocks_used Number of blocks used for VDO metadata
+@ vdo.dev.packer.compressed_blocks.written Count of blocks containing compressed items written
+@ vdo.dev.packer.compressed_fragments.in_packer Number of VIOs that are pending in the packer
+@ vdo.dev.packer.compressed_fragments.written Count of compressed data items written
+@ vdo.dev.physical_blocks Number of physical blocks
+@ vdo.dev.read_cache.accesses Count of accesses to the read cache
+@ vdo.dev.read_cache.data_hits Count of data hits in the read cache
+@ vdo.dev.read_cache.hits Count of all hits in the read cache
+@ vdo.dev.readonly_recoveries Count of readonly recoveries performed
+@ vdo.dev.recovery_percentage Percent complete when recovery is active
+@ vdo.dev.ref_counts.blocks_written Count of reference blocks written
+@ vdo.dev.slab.journal.blocked_count Count of times an entry was added over the block threshold
+@ vdo.dev.slab.journal.blocks_written Count of times a tail block was written
+@ vdo.dev.slab.journal.disk_full_count Count of times the on-disk journal was full
+@ vdo.dev.slab.journal.flush_count Count of times an entry was added over the flush threshold
+@ vdo.dev.slab.journal.tail_busy_count Count of times VDO had to wait for the tail to write
+@ vdo.dev.slab.summary.blocks_written Count of blocks written
+@ vdo.dev.write_policy String describing the active write policy of the VDO
+@ vdo.dev.capacity Total physical device capacity
+@ vdo.dev.used Used device space, including both data and metadata (overhead)
+@ vdo.dev.available Difference between device capacity and used space
+@ vdo.dev.used_percentage Percentage of physical device space used
+@ vdo.dev.savings_percentage Percentage of logical blocks not being used for data blocks

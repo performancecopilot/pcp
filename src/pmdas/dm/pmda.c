@@ -231,7 +231,7 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "allocator_slab_count",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_ALLOCATOR_SLAB_COUNT),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "allocator_slabs_opened",
       .m_desc = {
@@ -576,12 +576,12 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "block_map_cache_size",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_BLOCK_MAP_CACHE_SIZE),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "block_map_clean_pages",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_BLOCK_MAP_CLEAN_PAGES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "block_map_dirty_pages",
       .m_desc = {
@@ -596,7 +596,7 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "block_map_failed_pages",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_BLOCK_MAP_FAILED_PAGES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "block_map_failed_reads",
       .m_desc = {
@@ -626,17 +626,17 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "block_map_free_pages",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_BLOCK_MAP_FREE_PAGES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "block_map_incoming_pages",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_BLOCK_MAP_INCOMING_PAGES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "block_map_outgoing_pages",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_BLOCK_MAP_OUTGOING_PAGES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "block_map_pages_loaded",
       .m_desc = {
@@ -686,17 +686,17 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "curr_dedupe_queries",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_CURR_DEDUPE_QUERIES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "currentVIOs_in_progress",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_CURRENTVIOS_IN_PROGRESS),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "data_blocks_used",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_DATA_BLOCKS_USED),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "dedupe_advice_stale",
       .m_desc = {
@@ -796,17 +796,17 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "logical_blocks_used",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_LOGICAL_BLOCKS_USED),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "max_dedupe_queries",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_MAX_DEDUPE_QUERIES),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "maxVIOs",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_MAXVIOS),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "memory_usage_bios_used",
       .m_desc = {
@@ -821,12 +821,12 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "memory_usage_peak_bio_count",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_MEMORY_USAGE_PEAK_BIO_COUNT),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "memory_usage_peak_bytes_used",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_MEMORY_USAGE_PEAK_BYTES_USED),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
     { .m_user = (void *) "mode",
       .m_desc = {
@@ -836,7 +836,7 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "overhead_blocks_used",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_OVERHEAD_BLOCKS_USED),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "packer_compressed_blocks_written",
       .m_desc = {
@@ -846,7 +846,7 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "packer_compressed_fragments_in_packer",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_PACKER_COMPRESSED_FRAGMENTS_IN_PACKER),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "packer_compressed_fragments_written",
       .m_desc = {
@@ -856,7 +856,7 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "physical_blocks",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_PHYSICAL_BLOCKS),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_user = (void *) "read_cache_accesses",
       .m_desc = {
@@ -881,8 +881,8 @@ static pmdaMetric metrictable[] = {
     { .m_user = (void *) "recovery_percentage",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_RECOVERY_PERCENTAGE),
-        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
-        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+        PM_TYPE_FLOAT, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { .m_user = (void *) "ref_counts_blocks_written",
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_REF_COUNTS_BLOCKS_WRITTEN),
@@ -922,6 +922,53 @@ static pmdaMetric metrictable[] = {
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_WRITE_POLICY),
         PM_TYPE_STRING, DM_VDODEV_INDOM, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* Derived metrics */
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_JOURNAL_BLOCKS_BATCHING),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_JOURNAL_BLOCKS_WRITING),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_JOURNAL_ENTRIES_BATCHING),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_JOURNAL_ENTRIES_WRITING),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_CAPACITY),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_USED),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_AVAILABLE),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_USED_PERCENTAGE),
+        PM_TYPE_FLOAT, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_SAVINGS_PERCENTAGE),
+        PM_TYPE_FLOAT, DM_VDODEV_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 

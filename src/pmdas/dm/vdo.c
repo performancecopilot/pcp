@@ -55,7 +55,7 @@ vdo_fetch_ull(const char *file, const char *name)
     char *endnum = NULL;
     __uint64_t v = strtoull(value, &endnum, 10);
 
-    if (!endnum && *endnum != '\0')
+    if (!endnum || *endnum != '\0')
 	return 0;
     return v;
 }
@@ -72,30 +72,100 @@ vdo_fetch_ul(const char *file, const char *name)
     return v;
 }
 
+static float
+vdo_fetch_float(const char *file, const char *name)
+{
+    char *value = vdo_fetch_oneline(file, name);
+    char *endnum = NULL;
+    float v = strtof(value, &endnum);
+
+    if (!endnum || *endnum != '\0')
+	return 0;
+    return v;
+}
+
 /*
  * Fetches the value for the given metric instance and assigns to pmAtomValue.
  */
 int
 dm_vdodev_fetch(pmdaMetric *metric, const char *name, pmAtomValue *atom)
 {
-    unsigned int type = metric->m_desc.type;
     char *file = (char *)metric->m_user;
 
-    switch (type) {
+    if (file) {
+	unsigned int	type = metric->m_desc.type;
+
+	switch (type) {
 	case PM_TYPE_STRING:
 	    atom->cp = vdo_fetch_string(file, name);
-	    break;
+	    return 1;
+	case PM_TYPE_FLOAT:
+	    atom->f = vdo_fetch_float(file, name);
+	    return 1;
 	case PM_TYPE_U64:
 	    atom->ull = vdo_fetch_ull(file, name);
-	    break;
+	    return 1;
 	case PM_TYPE_U32:
 	    atom->ul = vdo_fetch_ul(file, name);
-	    break;
+	    return 1;
 	default:
-	    fprintf(stderr, "Bad VDO type=%u f=%s dev=%s\n", type, file, name);
-	    return 0;
+	    break;
+	}
+	fprintf(stderr, "Bad VDO type=%u f=%s dev=%s\n", type, file, name);
+    } else {	/* derived metrics */
+	unsigned int	item = pmID_item(metric->m_desc.pmid);
+	double		calc;
+
+	switch (item) {
+	case VDODEV_JOURNAL_BLOCKS_BATCHING:
+	    atom->ull = vdo_fetch_ull("journal_blocks_started", name) -
+			vdo_fetch_ull("journal_blocks_written", name);
+	    return 1;
+	case VDODEV_JOURNAL_BLOCKS_WRITING:
+	    atom->ull = vdo_fetch_ull("journal_blocks_written", name) -
+			vdo_fetch_ull("journal_blocks_committed", name);
+	    return 1;
+	case VDODEV_JOURNAL_ENTRIES_BATCHING:
+	    atom->ull = vdo_fetch_ull("journal_entries_started", name) -
+			vdo_fetch_ull("journal_entries_written", name);
+	    return 1;
+	case VDODEV_JOURNAL_ENTRIES_WRITING:
+	    atom->ull = vdo_fetch_ull("journal_entries_written", name) -
+			vdo_fetch_ull("journal_entries_committed", name);
+	    return 1;
+	case VDODEV_CAPACITY:
+	    atom->ull = vdo_fetch_ull("physical_blocks", name) *
+			vdo_fetch_ull("block_size", name) / 1024;
+	    return 1;
+	case VDODEV_USED:
+	    atom->ull = (vdo_fetch_ull("data_blocks_used", name) +
+			 vdo_fetch_ull("overhead_blocks_used", name)) *
+			 vdo_fetch_ull("block_size", name) / 1024;
+	    return 1;
+	case VDODEV_AVAILABLE:
+	    atom->ull = (vdo_fetch_ull("physical_blocks", name) -
+			 vdo_fetch_ull("data_blocks_used", name) -
+			 vdo_fetch_ull("overhead_blocks_used", name)) *
+			 vdo_fetch_ull("block_size", name) / 1024;
+	    return 1;
+	case VDODEV_USED_PERCENTAGE:
+	    atom->ull = vdo_fetch_ull("physical_blocks", name);
+	    calc = (double)(vdo_fetch_ull("data_blocks_used", name) +
+			    vdo_fetch_ull("overhead_blocks_used", name));
+	    atom->f = 100.0 * (calc / (double)atom->ull);
+	    return 1;
+	case VDODEV_SAVINGS_PERCENTAGE:
+	    atom->ull = vdo_fetch_ull("logical_blocks_used", name);
+	    calc = (double)(atom->ull -
+			    vdo_fetch_ull("data_blocks_used", name));
+	    atom->f = 100.0 * (calc / (double)atom->ull);
+	    return 1;
+	default:
+	    break;
+	}
+	fprintf(stderr, "Bad metric item=%u dev=%s\n", item, name);
     }
-    return 1;
+    return 0;
 }
 
 /*

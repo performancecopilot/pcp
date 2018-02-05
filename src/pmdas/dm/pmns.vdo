@@ -49,6 +49,11 @@ vdo.dev {
 	ref_counts
 	slab
 	write_policy		DM:5:144
+	capacity		DM:5:149
+	used			DM:5:150
+	available		DM:5:151
+	used_percentage		DM:5:152
+	savings_percentage	DM:5:153
 }
 
 vdo.dev.allocator {
@@ -60,6 +65,7 @@ vdo.dev.allocator {
 vdo.dev.bios {
 	acknowledged
 	in
+	in_progress
 	out
 	journal
 	meta
@@ -90,7 +96,6 @@ vdo.dev.bios.in {
 	read			DM:5:17
 	write			DM:5:18
 	partial
-	progress
 }
 
 vdo.dev.bios.in.partial {
@@ -101,7 +106,7 @@ vdo.dev.bios.in.partial {
 	write			DM:5:23
 }
 
-vdo.dev.bios.in.progress {
+vdo.dev.bios.in_progress {
 	discard			DM:5:24
 	flush			DM:5:25
 	fua			DM:5:26
@@ -203,7 +208,7 @@ vdo.dev.block_map {
 
 vdo.dev.dedupe_advice {
 	stale			DM:5:100
-	timeouuts		DM:5:101
+	timeouts		DM:5:101
 	valid			DM:5:102
 }
 
@@ -214,14 +219,18 @@ vdo.dev.errors {
 }
 
 vdo.dev.journal_blocks {
+	batching		DM:5:145
 	committed		DM:5:109
 	started			DM:5:110
+	writing			DM:5:146
 	written			DM:5:111
 }
 
 vdo.dev.journal_entries {
+	batching		DM:5:147
 	committed		DM:5:113
 	started			DM:5:114
+	writing			DM:5:148
 	written			DM:5:115
 }
 
