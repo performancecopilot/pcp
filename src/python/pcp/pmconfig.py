@@ -890,7 +890,7 @@ class pmConfig(object):
                         if inst != pmapi.c_api.PM_IN_NULL and not name:
                             continue
                         if early_live_filter and inst != pmapi.c_api.PM_IN_NULL and \
-                          not self.filter_instance(metric, name):
+                           not self.filter_instance(metric, name):
                             continue
                         value = val()
                         if self.util.metrics[metric][7]:

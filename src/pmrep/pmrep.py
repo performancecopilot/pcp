@@ -863,7 +863,7 @@ class PMReporter(object):
         if self.pmi is None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
-            self.prev_res = {} # pylint: disable=attribute-defined-outside-init
+            self.prev_res = OrderedDict() # pylint: disable=attribute-defined-outside-init
             self.recorded = {} # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
@@ -909,7 +909,7 @@ class PMReporter(object):
                 else:
                     self.pmi.pmiPutValue(metric, name, "%d" % value)
                 data = 1
-        self.prev_res = results
+        self.prev_res = results # pylint: disable=attribute-defined-outside-init
 
         # Flush
         if data:
@@ -1217,15 +1217,15 @@ class PMReporter(object):
     def overall_ranking(self, timestamp):
         """ Perform overall ranking """
         if not hasattr(self, 'all_ranked'):
-            self.all_ranked = None # pylint: disable=attribute-defined-outside-init
+            self.all_ranked = OrderedDict() # pylint: disable=attribute-defined-outside-init
 
         if timestamp is None:
             # All results available, pretty print results in requested format
             m_len = i_len = u_len = v_len = 3
             for metric in self.all_ranked:
-                m_len = m_len if len(metric) < m_len else len(metric)
-                u_len = u_len if len(self.metrics[metric][2][0]) < u_len else len(self.metrics[metric][2][0])
+                values = False
                 for _, name, value in self.all_ranked[metric]:
+                    values = True
                     name = name.replace("\n", " ") if name else name
                     if name:
                         i_len = i_len if len(name) < i_len else len(name)
@@ -1233,15 +1233,11 @@ class PMReporter(object):
                     numfmt = "." + str(p) + "f"
                     value = format(value, numfmt) if isinstance(value, float) else str(value)
                     v_len = v_len if len(value) < v_len else len(value)
+                if values:
+                    m_len = m_len if len(metric) < m_len else len(metric)
+                    u_len = u_len if len(self.metrics[metric][2][0]) < u_len else len(self.metrics[metric][2][0])
             d = self.delimiter
             for metric in self.all_ranked:
-                index = -1
-                for i, m in enumerate(self.metrics):
-                    if m == metric:
-                        index = i
-                        break
-                if self.pmconfig.descs[index].contents.type == PM_TYPE_STRING:
-                    continue
                 alt_line = ""
                 for _, name, value in self.all_ranked[metric]:
                     name = name.replace("\n", " ") if name else name
@@ -1262,19 +1258,23 @@ class PMReporter(object):
                             alt_line[2] = alt_line[2][:-1] + ",'" + name + "'\""
                     if not self.overall_rank_alt:
                         self.writer.write(output.format(*line) + "\n")
-                if self.overall_rank_alt:
+                if self.overall_rank_alt and alt_line:
                     self.writer.write(output.format(*alt_line) + "\n")
             return
 
         results = self.pmconfig.get_sorted_results()
 
         if self.prev_insts is None:
-            self.all_ranked = results # pylint: disable=attribute-defined-outside-init
+            for i, metric in enumerate(results):
+                if self.pmconfig.descs[i].contents.type != PM_TYPE_STRING:
+                    self.all_ranked[metric] = results[metric]
             self.prev_insts = []
 
         revs = True if self.rank > 0 else False
 
         for i, metric in enumerate(results):
+            if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
+                continue
             rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_IN_NULL else 1
             c, r, t = (0, [], [])
             for i in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
