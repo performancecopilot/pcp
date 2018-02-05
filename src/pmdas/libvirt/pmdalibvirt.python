@@ -108,7 +108,7 @@ class LibvirtPMDA(PMDA):
         ]
 
         self.vm_indom = self.indom(0)
-        self.vm_insts = pmdaIndom(self.vm_indom, [])
+        self.vm_insts = pmdaIndom(self.vm_indom, {})
         self.add_indom(self.vm_insts)
 
         self.vm_cluster = 1
@@ -140,7 +140,7 @@ class LibvirtPMDA(PMDA):
         ]
 
         self.vm_vcpu_indom = self.indom(1)
-        self.vm_vcpu_insts = pmdaIndom(self.vm_vcpu_indom, [])
+        self.vm_vcpu_insts = pmdaIndom(self.vm_vcpu_indom, {})
         self.add_indom(self.vm_vcpu_insts)
 
         self.vm_vcpustats_res = []
@@ -194,7 +194,7 @@ class LibvirtPMDA(PMDA):
         ]
 
         self.vm_block_indom = self.indom(2)
-        self.vm_block_insts = pmdaIndom(self.vm_block_indom, [])
+        self.vm_block_insts = pmdaIndom(self.vm_block_indom, {})
         self.add_indom(self.vm_block_insts)
 
         self.vm_blockstats_res = []
@@ -237,7 +237,7 @@ class LibvirtPMDA(PMDA):
         ]
 
         self.vm_net_indom = self.indom(3)
-        self.vm_net_insts = pmdaIndom(self.vm_net_indom, [])
+        self.vm_net_insts = pmdaIndom(self.vm_net_indom, {})
         self.add_indom(self.vm_net_insts)
 
         self.vm_netstats_res = []
