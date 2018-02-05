@@ -250,14 +250,14 @@ file options (if any).
 .SH OPTIONS
 The available command line options are:
 .TP 5
-.B \-1
+\fB\-1\fR, \fB\-\-dynamic\-header\fR
 Print a new dynamically adjusted header every time changes in
 availability of metric and instance values occur.
 By default a static header that never changes is printed once.
 See also
 .BR \-E .
 .TP
-.B \-2
+\fB\-2\fR, \fB\-\-overall\-rank\fR
 Perform overall ranking of instances in archive.
 By default ranking (see
 .BR \-J )
@@ -269,12 +269,12 @@ See
 for further archive summary reporting alternatives,
 including averages and peak times for values.
 .TP
-.B \-3
+\fB\-3\fR, \fB\-\-overall\-rank\-alt\fR
 Like
 .B \-2
 but print results in \fBpmrep\fP \fImetricspec\fP format.
 .TP
-.B \-8
+\fB\-8\fR \fIlimit\fR, \fB\-\-limit\-filter\fR=\fIlimit\fR
 Limit results to instances with values above/below
 .IR limit .
 A positive integer will include instances with values
@@ -287,12 +287,12 @@ See also
 .BR \-J " and "
 .BR \-N .
 .TP
-.B \-9
+\fB\-9\fR \fIlimit\fR, \fB\-\-limit\-filter\-force\fR=\fIlimit\fR
 Like
 .B \-8
 but this option \fIwill\fP override per-metric specifications.
 .TP
-.B \-a
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
 Co-Pilot (PCP) archive log files identified by the argument
 .IR archive ,
@@ -310,7 +310,7 @@ created by tools like
 or, less often, manually with
 .BR mkaf (1).
 .TP
-.B \-A
+\fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
 Force the initial sample to be
 aligned on the boundary of a natural time unit
 .IR align .
@@ -319,7 +319,7 @@ Refer to
 for a complete description of the syntax for
 .IR align .
 .TP
-.B \-b
+\fB\-b\fR \fIscale\fR, \fB\-\-space\-scale\fR=\fIscale\fR
 .I Unit/scale
 for space (byte) metrics, possible values include
 .BR bytes ,
@@ -334,12 +334,12 @@ This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
-.B \-B
+\fB\-B\fR \fIscale\fR, \fB\-\-space\-scale\-force\fR=\fIscale\fR
 Like
 .B \-b
 but this option \fIwill\fP override per-metric specifications.
 .TP
-.B \-c
+\fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
 Specify the
 .I config
 file to use.
@@ -358,11 +358,11 @@ Fetch performance metrics from the specified
 either local or remote (see
 .BR \-h ).
 .TP
-.B \-C
+\fB\-C\fR, \fB\-\-check\fR
 Exit before reporting any values, but after parsing the configuration
 and metrics and printing possible headers.
 .TP
-.B \-d
+\fB\-d\fR, \fB\-\-delay\fR
 When replaying from an archive, this option requests that the prevailing
 real-time delay be applied between samples (see
 .BR \-t )
@@ -372,7 +372,7 @@ the default behaviour of replaying at full speed.
 .B \-\-daemonize
 Daemonize on startup.
 .TP
-.B \-e
+\fB\-e\fR \fIderived\fR, \fB\-\-derived\fR=\fIderived\fR
 Specify
 .I derived
 performance metrics.
@@ -386,14 +386,14 @@ For details see
 and
 .BR pmRegisterDerived (3).
 .TP
-.B \-E
+\fB\-E\fR \fIlines\fR, \fB\-\-repeat\-header\fR=\fIlines\fR
 Repeat the header every
 .I lines
 of output.
 See also
 .BR \-1 .
 .TP
-.B \-f
+\fB\-f\fR \fIformat\fR, \fB\-\-timestamp\-format\fR=\fIformat\fR
 Use the
 .I format
 string for formatting the timestamp.
@@ -415,31 +415,31 @@ when using the
 .I csv
 output target.
 .TP
-.B \-F
+\fB\-F\fR \fIoutfile\fR, \fB\-\-output\-file\fR=\fIoutfile\fR
 Specify the output file
 .IR outfile .
 See
 .BR \-o .
 .TP
-.B \-g
+\fB\-g\fR, \fB\-\-separate\-header\fR
 Output the column number and complete metric information,
 one-per-line, before printing the metric values.
 .TP
-.B \-G
+\fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
 .BR pmrep.conf (5)).
 .TP
-.B \-h
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
 Fetch performance metrics from
 .BR pmcd (1)
 on
 .IR host ,
 rather than from the default localhost.
 .TP
-.B \-H
+\fB\-H\fR, \fB\-\-no\-header\fR
 Do not print any headers.
 .TP
-.B \-i
+\fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
 Report only the listed
 .I instances
 from current instances (if present, see also
@@ -490,7 +490,7 @@ $ pmrep \-i '"1 minute","5 minute"' 'kernel.all.load,,.*'
 .EE
 .RE
 .TP
-.B \-I
+\fB\-I\fR, \fB\-\-ignore\-incompat\fR
 Ignore incompatible metrics.
 By default incompatible metrics (that is,
 their type is unsupported or they cannot be scaled as requested)
@@ -502,7 +502,7 @@ from reporting.
 This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
 .TP
-.B \-j
+\fB\-j\fR, \fB\-\-live\-filter\fR
 Perform instance live filtering.
 This allows capturing all filtered instances even if processes
 are restarted at some point (unlike without live filtering).
@@ -511,7 +511,7 @@ comes with some overhead so a bit of user caution is advised.
 See also
 .BR \-1 .
 .TP
-.B \-J
+\fB\-J\fR \fIrank\fR, \fB\-\-rank\fR=\fIrank\fR
 Limit results to highest/lowest
 .I rank
 instances of set-valued metrics.
@@ -522,11 +522,11 @@ See also
 .BR \-2 " and "
 .BR \-8 .
 .TP
-.B \-k
+\fB\-k\fR, \fB\-\-extended\-csv\fR
 Write extended CSV output, similar to
 .BR sadf (1).
 .TP
-.B \-K
+\fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see
 .BR \-L ),
 the
@@ -540,7 +540,7 @@ More than one
 .B \-K
 option may be used.
 .TP
-.B \-l
+\fB\-l\fR \fIdelimiter\fR, \fB\-\-delimiter\fR=\fIdelimiter\fR
 Specify the
 .I delimiter
 that separates each column of
@@ -556,13 +556,13 @@ In case of CSV output or stdout output with non-whitespace delimiter,
 any instances of the delimiter in string values will be replaced by
 the underscore (``_'') character.
 .TP
-.B \-L
+\fB\-L\fR, \fB\-\-local\-PMDA\fR
 Use a local context to collect metrics from DSO PMDAs on the local host
 without PMCD.
 See also
 .BR \-K .
 .TP
-.B \-n
+\fB\-n\fR, \fB\-\-invert\-filter\fR
 Perform ranking before live filtering.
 By default instance live filter filtering (when requested, see
 .BR \-j )
@@ -571,7 +571,7 @@ happens before instance ranking (when requested, see
 With this option the logic is inverted and ranking happens before
 live filtering.
 .TP
-.B \-N
+\fB\-N\fR \fIpredicate\fR, \fB\-\-predicate\fR=\fIpredicate\fR
 Specify a comma-separated list of
 .I predicate
 filter reference metrics.
@@ -601,7 +601,7 @@ same instance domain as the process-related metrics),
 it will be reported as usual.
 .RE
 .TP
-.B \-o
+\fB\-o\fR \fIoutput\fR, \fB\-\-output\fR=\fIoutput\fR
 Use
 .I output
 target for reporting.
@@ -622,15 +622,15 @@ and
 for details about PCP archive files.
 Requires
 .BR \-F .
-.TP 2
+.TP
 .I csv
 Print metrics in CSV format (subject to formatting options).
-.TP 2
+.TP
 .I stdout
 Print metrics to stdout (format subject to formatting options).
 .RE
 .TP
-.B \-O
+\fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
 When reporting archived metrics, start reporting at
 .I origin
 within the time window (see
@@ -642,11 +642,11 @@ Refer to
 for a complete description of the syntax for
 .IR origin .
 .TP
-.B \-p
+\fB\-p\fR, \fB\-\-timestamps\fR
 Print timestamps.
 By default no timestamps are printed.
 .TP
-.B \-P
+\fB\-P\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Use
 .I precision
 for numeric non-integer output values.
@@ -657,12 +657,12 @@ or not printed at all if it does not.
 The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
 .TP
-.B \-0
+\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
 Like
 .B \-P
 but this option \fIwill\fP override per-metric specifications.
 .TP
-.B \-q
+\fB\-q\fR \fIscale\fR, \fB\-\-count\-scale\fR=\fIscale\fR
 .I Unit/scale
 for count metrics, possible values include
 .BR "count x 10^\-1" ,
@@ -679,22 +679,22 @@ This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
-.B \-Q
+\fB\-Q\fR \fIscale\fR, \fB\-\-count\-scale\-force\fR=\fIscale\fR
 Like
 .B \-q
 but this option \fIwill\fP override per-metric specifications.
 .TP
-.B \-r
+\fB\-r\fR, \fB\-\-raw\fR
 Output raw metric values, do not convert cumulative counters to rates.
 When writing archives, raw values are always used.
 This option \fIwill\fP override possible per-metric specifications.
 .TP
-.B \-R
-As
+\fB\-R\fR, \fB\-\-raw\-prefer\fR
+Like
 .B \-r
 but this option will \fInot\fP override per-metric specifications.
 .TP
-.B \-s
+\fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
 The argument
 .I samples
 defines the number of samples to be retrieved and reported.
@@ -709,7 +709,7 @@ of the set of PCP archives (in archive mode).
 See also
 .BR \-T .
 .TP
-.B \-S
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
 When reporting archived metrics, the report will be restricted to those
 records logged at or after
 .IR starttime .
@@ -718,7 +718,7 @@ Refer to
 for a complete description of the syntax for
 .IR starttime .
 .TP
-.B \-t
+\fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
 The default update
 .I interval
 may be set to something other than the default 1 second.
@@ -734,7 +734,7 @@ and
 .B \-u
 options.
 .TP
-.B \-T
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
 When reporting archived metrics, the report will be restricted to those
 records logged before or at
 .IR endtime .
@@ -766,7 +766,7 @@ determines the actual time
 will run.
 .RE
 .TP
-.B \-u
+\fB\-u\fR, \fB\-\-no\-interpol\fR
 When reporting archived metrics, by default values are reported
 according to the selected sample interval (\c
 .B \-t
@@ -797,10 +797,10 @@ or
 to disable).
 .RE
 .TP
-.B \-U
+\fB\-U\fR, \fB\-\-no\-unit\-info\fR
 Omit unit information from headers.
 .TP
-.B \-v
+\fB\-v\fR, \fB\-\-omit\-flat\fR
 Omit single-valued ``flat'' metrics from reporting, only consider
 set-valued metrics (i.e., metrics with multiple values) for reporting.
 See
@@ -808,10 +808,10 @@ See
 and
 .BR \-I .
 .TP
-.B \-V
+\fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
 .TP
-.B \-w
+\fB\-w\fR \fIwidth\fR, \fB\-\-width\fR=\fIwidth\fR
 Set the
 .I stdout
 output column
@@ -822,15 +822,15 @@ The default
 is the shortest that can fit the metric text label, the forced minimum is 3.
 This option will \fInot\fP override possible per-metric specifications.
 .TP
-.B \-W
+\fB\-W\fR \fIwidth\fR, \fB\-\-width\-force\fR=\fIwidth\fR
 Like
 .B \-w
 but this option \fIwill\fP override per-metric specifications.
 .TP
-.B \-x
+\fB\-x\fR, \fB\-\-extended\-header\fR
 Print extended header.
 .TP
-.B \-X
+\fB\-X\fR \fIlabel\fR, \fB\-\-colxrow\fR=\fIlabel\fR
 Swap columns and rows in \fIstdout\fP output, reporting one instance per
 line, using \fIlabel\fP as the text label for instance column (set to an
 empty string \fB""\fP to enable swapping without a specific text label).
@@ -840,7 +840,7 @@ to filter results or to more closely mimic other utilities.
 See also
 .BR \-i .
 .TP
-.B \-y
+\fB\-y\fR \fIscale\fR, \fB\-\-time\-scale\fR=\fIscale\fR
 .I Unit/scale
 for time metrics, possible values include
 .BR nanosec ,
@@ -856,12 +856,12 @@ This option will \fInot\fP override possible per-metric specifications.
 See also
 .BR pmParseUnitsStr (3).
 .TP
-.B \-Y
+\fB\-Y\fR \fIscale\fR, \fB\-\-time\-scale\-force\fR=\fIscale\fR
 Like
 .B \-y
 but this option \fIwill\fP override per-metric specifications.
 .TP
-.B \-z
+\fB\-z\fR, \fB\-\-hostzone\fR
 Use the local timezone of the host that is the source of the
 performance metrics, as identified by either the
 .B \-h
@@ -870,7 +870,7 @@ or the
 options.
 The default is to use the timezone of the local host.
 .TP
-.B \-Z
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 Use
 .I timezone
 for the date and time.
@@ -882,7 +882,7 @@ as described in
 Note that when including a timezone string in output, ISO 8601 -style
 UTC offsets are used (so something like \-Z EST+5 will become UTC-5).
 .TP
-.B \-?
+\fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
 .SH EXAMPLES
 The following examples use the standard PCP facilities for collecting
@@ -942,7 +942,7 @@ dynamic headers:
 .RS +4
 .ft B
 .nf
-$ pmrep -b MB -8 100 -1 proc.memory.rss
+$ pmrep \-b MB \-\-limit\-filter 100 \-\-dynamic\-header proc.memory.rss
 .fi
 .ft P
 .RE

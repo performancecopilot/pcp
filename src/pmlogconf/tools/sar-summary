@@ -3,6 +3,7 @@ ident	metrics sampled once by the sar(1) command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
 delta	once
 	hinv.ncpu
+	disk.dev.scheduler
 	kernel.all.entropy.avail
 	kernel.all.entropy.poolsize
 	kernel.all.interrupts.errors

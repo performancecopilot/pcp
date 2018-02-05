@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/nutcracker ] || _notrun "NutCracker PMDA is not installed"
 nutcracker_port=22222
-echo quit | $PCP_BINADM_DIR/telnet-probe localhost $nutcracker_port \
+$PCP_BINADM_DIR/telnet-probe -c localhost $nutcracker_port \
         || _notrun "Noone home on default NutCracker port $nutcracker_port"
 
 _filter()

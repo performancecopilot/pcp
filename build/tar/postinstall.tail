@@ -213,7 +213,7 @@ _do_dir "root:$grp" 700 $PCP_TMP_DIR/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 $PCP_SYSCONF_DIR/labels
 # from src/pmdas/prometheus
-_do_dir "root:$grp" 755 $PCP_PMDAS_DIR/prometheus/urls.d
+_do_dir "root:$grp" 755 $PCP_PMDAS_DIR/prometheus/config.d
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #

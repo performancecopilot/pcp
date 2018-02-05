@@ -987,6 +987,9 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.nr_vmscan_immediate_reclaim prioritise for reclaim when writeback ends
 @ mem.vmstat.numa_pages_migrated count of NUMA page migrations
 @ mem.vmstat.numa_pte_updates count of NUMA page table entry updates
+@ mem.vmstat.numa_huge_pte_updates count of NUMA huge page table entry updates
+@ mem.vmstat.numa_hint_faults count of page migrations from NUMA PTE fault hints
+@ mem.vmstat.numa_hint_faults_local count of NUMA PTE fault hints satisfied locally
 @ mem.vmstat.pglazyfreed count of pages lazily freed
 @ mem.vmstat.pgmigrate_fail count of unsuccessful NUMA page migrations
 @ mem.vmstat.pgmigrate_success count of successful NUMA page migrations

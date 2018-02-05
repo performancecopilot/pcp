@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
+    _restore_auto_restart pmcd
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -23,6 +24,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_stop_auto_restart pmcd
 _service pmcd restart | _filter_pcp_start
 pminfo -v sample >/dev/null
 

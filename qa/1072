@@ -80,6 +80,11 @@ pmrep -u -s 5 -o archive -F $tmp.new_archive3 -z $log2 -i 'sda' -i '.*sdc.*' \
 pmrep -u -s 5 -p -P 4 -w 12 -x -z -a $tmp.new_archive3 disk.dev.write_bytes | \
   _path_filter | _archive_filter | _pid_filter
 
+echo "=== pmrep archive creation with discrete values"
+pmrep -u -s 5 -o archive -F $tmp.new_archive4 -z $log hinv.machine mem.util.used | _pid_filter
+pmrep -u -a $tmp.new_archive4 -z hinv.machine mem.util.used
+pmdumplog -z -dim $tmp.new_archive4
+
 rm -f $tmp.a1-out* $tmp.a2-out* $tmp.new_archive*
 
 # success, all done

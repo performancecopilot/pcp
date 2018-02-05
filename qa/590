@@ -20,6 +20,7 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f /tmp/thread_?.out
 }
 
 status=1	# failure is the default!

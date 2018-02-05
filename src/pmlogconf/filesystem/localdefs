@@ -1,1 +1,1 @@
-FILES = all xfs-io-linux xfs-all summary
+FILES = all xfs-io-linux xfs-all summary rpc-server

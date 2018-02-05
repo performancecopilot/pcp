@@ -50,36 +50,36 @@ COV_FLAGS= --coverage
 COV_DIR=$(OUTDIR)/gcov
 COV_OBJS= $(patsubst %.c,$(COV_DIR)/%.o,$(notdir $(SRCS)))
 
-CFLAGS = -Wall -O0 -ggdb -fPIC
-CPPFLAGS = -I$(INCDIR) -I$(SRCDIR) -D_GNU_SOURCE -DFILESYSTEM_ROOT='"./fakefs/"'
-LDFLAGS = -Wl,--wrap,syscall -Wl,--wrap,ioctl -Wl,--wrap,read -Wl,--wrap,close -Wl,--wrap,malloc -Wl,--wrap,sysconf
-LDLIBS = -L$(TOPDIR)/src/libpcp/src -lpcp -lm
+CFLAGS_OPT = -O0 -ggdb
+LCFLAGS = -I$(SRCDIR) -DFILESYSTEM_ROOT='"./fakefs/"'
+LLDFLAGS = -Wl,--wrap,syscall -Wl,--wrap,ioctl -Wl,--wrap,read -Wl,--wrap,close -Wl,--wrap,malloc -Wl,--wrap,sysconf $(PCP_LIBS)
+LLDLIBS = $(PCPLIB) $(PCPLIB_EXTRAS)
 
 THREADLDFLAGS = 
-THREADLDLIBS = -lpthread -lrt
+THREADLDLIBS = $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
 
 $(OUTDIR)/rapl-test: $(RAPL_OBJS)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CCF) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(OUTDIR)/threadtest: $(THREAD_OBJS)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(THREADLDFLAGS) -o $@ $^ $(THREADLDLIBS)
+	$(CCF) $(THREADLDFLAGS) -o $@ $^ $(THREADLDLIBS)
 
 %.yytest.c: $(SRCDIR)/%.l
-	flex -P yyest -o $@ $<
+	$(LEX) -P yyest -o $@ $<
 
 perfevent_coverage: $(COV_OBJS)
-	$(CC) $(CFLAGS) $(COV_FLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CCF) $(COV_FLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 perfevent_test: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CCF) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(OUTDIR)/%.o: %.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^ 
+	$(CCF) -c -o $@ $^ 
 
 $(COV_DIR)/%.o: %.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(COV_FLAGS) $(CPPFLAGS) -c -o $@ $^
+	$(CCF) $(COV_FLAGS) -c -o $@ $^
 

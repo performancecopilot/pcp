@@ -17,9 +17,9 @@ which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 
 port2=55432 # just some random port
 port1=55431 # just some random port
-echo | $PCP_BINADM_DIR/telnet-probe localhost $port1 \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port1 \
     && _notrun "Someone already listening on port $port1"
-echo | $PCP_BINADM_DIR/telnet-probe localhost $port2 \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port2 \
     && _notrun "Someone already listening on port $port2"
 # (technically, this is a TOCTTOU race condition)
 

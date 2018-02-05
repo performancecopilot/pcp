@@ -11,8 +11,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.all.aveq
 	disk.all.blktotal
 	disk.all.total_rawactive
-	disk.dev.aveq
 	disk.dev.avactive
+	disk.dev.aveq
 	disk.dev.read
 	disk.dev.read_bytes
 	disk.dev.read_rawactive
@@ -21,14 +21,15 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.dev.write_rawactive
 	disk.dev.total
 	disk.dev.total_bytes
+	disk.dev.total_rawactive
 	#disk.dev.avg_qlen	- derived metric (iostat.conf)
 	#disk.dev.avg_rqsz      - derived metric (iostat.conf)
 	#disk.dev.await		- derived metric (iostat.conf)
 	#disk.dev.r_await	- derived metric (iostat.conf)
 	#disk.dev.w_await	- derived metric (iostat.conf)
 	#disk.dev.util		- derived metric (iostat.conf)
-	disk.dm.aveq
 	disk.dm.avactive
+	disk.dm.aveq
 	disk.dm.read
 	disk.dm.read_bytes
 	disk.dm.read_rawactive
@@ -44,6 +45,24 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	#disk.dm.r_await	- derived metric (iostat.conf)
 	#disk.dm.w_await	- derived metric (iostat.conf)
 	#disk.dm.util		- derived metric (iostat.conf)
+	disk.md.avactive
+	disk.md.aveq
+	disk.md.read_bytes
+	disk.md.read_merge
+	disk.md.read_rawactive
+	disk.md.write_bytes
+	disk.md.write_merge
+	disk.md.write_rawactive
+	disk.md.total
+	disk.md.total_bytes
+	disk.md.total_rawactive
+	disk.md.status
+	#disk.md.avg_qlen	- derived metric (iostat.conf)
+	#disk.md.avg_rqsz	- derived metric (iostat.conf)
+	#disk.md.await		- derived metric (iostat.conf)
+	#disk.md.r_await	- derived metric (iostat.conf)
+	#disk.md.w_await	- derived metric (iostat.conf)
+	#disk.md.util		- derived metric (iostat.conf)
 	kernel.all.cpu.guest
 	kernel.all.cpu.idle
 	kernel.all.cpu.intr
@@ -64,6 +83,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.user
 	kernel.percpu.cpu.wait.total
 	kernel.percpu.cpu.vuser	
+	kernel.percpu.cpu.vnice
 	mem.vmstat.pgfault
 	mem.vmstat.pgfree
 	mem.vmstat.pgmajfault
@@ -83,6 +103,19 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	network.interface.out.errors
 	network.interface.out.fifo
 	network.interface.out.packets
+	network.interface.hw_addr
+	network.interface.ipv6_addr
+	network.interface.ipv6_scope
+	network.interface.running
+	network.interface.total.bytes
+	network.interface.total.drops
+	network.interface.total.errors
+	network.interface.total.packets
+	network.interface.up
+	network.icmp.incsumerrors
+	network.udp.incsumerrors
+	network.udp.recvbuferrors
+	network.udp.sndbuferrors
 	proc.nprocs
 	proc.runq.runnable
 	swap.pagesin

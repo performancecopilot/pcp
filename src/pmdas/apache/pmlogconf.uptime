@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident	Apache uptime
-probe	apache.uptime exists ? include : exclude
+probe	apache.uptime values ? include : exclude
 delta	5 minutes
 	apache.uptime
 	apache.uptime_s

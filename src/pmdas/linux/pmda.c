@@ -5124,6 +5124,21 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.numa_huge_pte_updates */
+    { &_pm_proc_vmstat.numa_huge_pte_updates,
+    {PMDA_PMID(28,151), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.numa_hint_faults */
+    { &_pm_proc_vmstat.numa_hint_faults,
+    {PMDA_PMID(28,152), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.numa_hint_faults_local */
+    { &_pm_proc_vmstat.numa_hint_faults_local,
+    {PMDA_PMID(28,153), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
@@ -7047,15 +7062,15 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
     case CLUSTER_ZONEINFO_PROTECTION: {
-	unsigned long long *value;
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&value);
+	zoneprot_entry_t *prot;
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&prot);
 	if (sts < 0)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* mem.zoneinfo.protection */
-            atom->ull = (__uint64_t)*value;
+            atom->ull = (__uint64_t)prot->value;
 	}
 	break;
     }

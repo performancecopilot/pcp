@@ -6,7 +6,7 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus
 SERVER = prometheus_client_server.python
 ENDPOINT = prometheus_endpoint.python
-SUBDIRS = samples
+SUBDIRS = samples scripts
 
 default default_pcp setup: $(SERVER) $(ENDPOINT) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

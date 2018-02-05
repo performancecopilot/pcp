@@ -1,19 +1,19 @@
 '\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013-2017 Red Hat, Inc.  All Rights Reserved.
-.\" 
+.\" Copyright (c) 2013-2018 Red Hat.
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.\" 
+.\"
+.\"
 .TH PMWEBAPI 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3PMWEBAPI\f1 \- introduction to the Performance Metrics Web Application Programming Interface
@@ -58,10 +58,6 @@ Creates a PM_CONTEXT_HOST PMAPI context with the given host name and/or extended
 specification.  If the host specification contains a userid/password combination,
 then the corresponding PMAPI context operations will require HTTP Basic authentication
 credentials with matching userid/password.
-.TP
-.B /pmapi/context?archivefile=ARCHIVE
-Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.  Only
-metrics from the given archive are available.
 .PP
 In addition, the web client may add the parameter
 .B &polltimeout=MMMM

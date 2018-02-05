@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
 ident	swap configuration
-force	available
+probe   swapdev.free values ? include : exclude
 	swapdev

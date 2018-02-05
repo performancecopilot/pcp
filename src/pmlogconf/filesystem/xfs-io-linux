@@ -9,3 +9,4 @@ probe	xfs.log.writes exists ? include : exclude
 	xfs.read_bytes
 	xfs.write_bytes
 	xfs.buffer
+	xfs.quota.cachehits
