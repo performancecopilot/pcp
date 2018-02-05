@@ -393,9 +393,9 @@ class PMReporter(object):
                 sys.exit(1)
 
         # Adjustments and checks for for overall rankings
-        if not self.rank:
-            self.overall_rank = 0
-            self.overall_rank_alt = 0
+        if not self.rank and (self.overall_rank or self.overall_rank_alt):
+            sys.stderr.write("Overall ranking requires ranking enabled.\n")
+            sys.exit(1)
         if self.overall_rank_alt:
             self.overall_rank = 1
         if self.overall_rank and \
