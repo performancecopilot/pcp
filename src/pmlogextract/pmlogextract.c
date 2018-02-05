@@ -932,7 +932,6 @@ append_textreclist(int i)
 {
     inarch_t	*iap;
     reclist_t	*curr;
-    reclist_t	*prev;
     int		type;
     int		type_mask;
     int		ident;
@@ -960,7 +959,7 @@ append_textreclist(int i)
      * target (pmid vs indom and class (one line vs help).
      */
     type_mask = PM_TEXT_PMID | PM_TEXT_INDOM | PM_TEXT_ONELINE | PM_TEXT_HELP;
-    for (prev = NULL, curr = rtext; curr != NULL; prev = curr, curr = curr->next) {
+    for (curr = rtext; curr != NULL; curr = curr->next) {
 	/* Same type of record? */
 	if ((curr->desc.type & type_mask) != (type & type_mask))
 	    continue;
@@ -1017,12 +1016,10 @@ append_textreclist(int i)
 	return;
     }
 
-    /* No existing record found. Add the new record to the list. */
+    /* No existing record found. Add a new record to the list. */
     curr = mk_reclist_t();
-    if (prev == NULL)
-	rtext = curr;
-    else
-	prev->next = curr;
+    curr->next = rtext;
+    rtext = curr;
 
     /* Populate the new record. */
     curr->desc.type = type;
@@ -1031,7 +1028,6 @@ append_textreclist(int i)
     else
 	curr->desc.indom = ident;
     curr->pdu = iap->pb[META];
-    curr->next = NULL;
     iap->pb[META] = NULL;
 }
 
@@ -1250,7 +1246,6 @@ static void
 write_textreclist(int type, int ident)
 {
     reclist_t	*curr;
-    int		found;
 
     /*
      * Search for text records of the given type associated with the
@@ -1258,7 +1253,6 @@ write_textreclist(int type, int ident)
      * PM_TEXT_ONELINE and PM_TEXT_HELP. We can therefore abandon the
      * seach once we've found both.
      */
-    found = 0;
     for (curr = rtext; curr != NULL; curr = curr->next) {
 	/* Is it the same type? */
 	if (curr->desc.type != type)
@@ -1282,10 +1276,8 @@ write_textreclist(int type, int ident)
 	    write_rec(curr);
 	}
 
-	/* Have we found both classes of record? */
-	++found;
-	if (found >= 2)
-	    break;
+	/* There will be only one record of each type for each target. */
+	break;
     }
 }
 
@@ -1293,7 +1285,6 @@ void
 write_metareclist(pmResult *result, int *needti)
 {
     int			i;
-    int			new_indom;
     reclist_t		*curr_desc;	/* current desc record */
     reclist_t		*curr_indom;	/* current indom record */
     reclist_t   	*othr_indom;	/* other indom record */
@@ -1323,7 +1314,7 @@ write_metareclist(pmResult *result, int *needti)
 	    if (curr_desc->written == WRITTEN) {
 		/*
 		 * descriptor has been written before (no need to write again)
-		 * but still need to check indom
+		 * but still need to check indom and help text.
 		 */
 		indom = curr_desc->desc.indom;
 		curr_indom = curr_desc->ptr;
@@ -1355,17 +1346,10 @@ write_metareclist(pmResult *result, int *needti)
 	write_priorlabelset(PM_LABEL_CLUSTER, pmid, this);
 
 	/*
-	 * While not strictly necessary for correctness, it makes testing
-	 * with pmdumplog(1) easier if we output the text records in the
-	 * same order in which they were originally found. The correct
-	 * order appears to be:
-	 *    PM_TEXT_PMID  | PM_TEXT_ONELINE
-	 *    PM_TEXT_INDOM | PM_TEXT_ONELINE
-	 *    PM_TEXT_PMID  | PM_TEXT_HELP
-	 *    PM_TEXT_INDOM | PM_TEXT_HELP
-	 * Write out any one line text records associated with this pmid.
+	 * Write out any help text records associated with this pmid.
 	 */
 	write_textreclist(PM_TEXT_PMID | PM_TEXT_ONELINE, pmid);
+	write_textreclist(PM_TEXT_PMID | PM_TEXT_HELP, pmid);
 	
 	/*
 	 * descriptor has been found and written,
@@ -1405,9 +1389,7 @@ write_metareclist(pmResult *result, int *needti)
 		curr_indom = curr_indom->next;
 	    } /*while()*/
 
-	    new_indom = 0;
 	    if (othr_indom != NULL && othr_indom->written != WRITTEN) {
-		new_indom = 1;
 		/*
 		 * There may be indoms which are referenced in desc records
 		 * which have no pdus. This is because the corresponding indom
@@ -1424,35 +1406,17 @@ write_metareclist(pmResult *result, int *needti)
 		    write_rec(othr_indom);
 		}
 
+		/* Write out the label set records associated with this indom. */
+		write_priorlabelset(PM_LABEL_INDOM, othr_indom->desc.indom, this);
+		write_priorlabelset(PM_LABEL_INSTANCES, othr_indom->desc.indom, this);
 		/*
-		 * While not strictly necessary for correctness, it makes testing
-		 * with pmdumplog(1) easier if we output the text records in the
-		 * same order in which they were originally found. The correct
-		 * order appears to be:
-		 *    PM_TEXT_PMID  | PM_TEXT_ONELINE
-		 *    PM_TEXT_INDOM | PM_TEXT_ONELINE
-		 *    PM_TEXT_PMID  | PM_TEXT_HELP
-		 *    PM_TEXT_INDOM | PM_TEXT_HELP
-		 *
-		 * PM_TEXT_PMID | PM_TEXT_ONELINE was written above.
-		 * Write out any one line text records associated with this
+		 * Write out any help text records associated with this
 		 * indom.
 		 */
 		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE,
 				  othr_indom->desc.indom);
-
-		/* Write out the label set records associated with this indom. */
-		write_priorlabelset(PM_LABEL_INDOM, othr_indom->desc.indom, this);
-		write_priorlabelset(PM_LABEL_INSTANCES, othr_indom->desc.indom, this);
-	    }
-
-	    /*
-	     * Only possible PM_TEXT_PMID | PM_TEXT_HELP and
-	     * PM_TEXT_INDOM | PM_TEXT_HELP records remain to be written.
-	     */
-	    write_textreclist(PM_TEXT_PMID | PM_TEXT_HELP, pmid);
-	    if (new_indom) {
-		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP, othr_indom->desc.indom);
+		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP,
+				  othr_indom->desc.indom);
 	    }
 	}
     } /*for(indx)*/
