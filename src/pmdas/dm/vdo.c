@@ -15,6 +15,7 @@
  */
 
 #include <ctype.h>
+#include <unistd.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
@@ -99,6 +100,17 @@ dm_vdodev_fetch(pmdaMetric *metric, const char *name, pmAtomValue *atom)
 }
 
 /*
+ * Check whether 'name' in 'vdosysdir' is a VDO volume.
+ */
+bool dm_vdodev_isvdovolumedir(const char *vdosysdir, const char *name)
+{
+    static char buffer[MAXPATHLEN];
+    pmsprintf(buffer, sizeof(buffer), "%s/%s/instance", dir, name);
+    // This file should exist if this is a VDO volume, else it won't.
+    return (access(buffer, F_OK ) != -1)
+}
+
+/*
  * Update the VDO device instance domain. This will change as
  * VDO volumes are created, activated and removed.
  *
@@ -123,7 +135,7 @@ dm_vdodev_instance_refresh(void)
 	sysdev = sysentry->d_name;
 	if (sysdev[0] == '.')
 	    continue;
-	if (strncmp(sysdev, "vdo", 3) != 0 || !isdigit(sysdev[3]))
+	if (!dm_vdodev_isvdovolumedir(sysdir, sysentry))
 	    continue;
 	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "dm_vdodev_instance_refresh: added %s", sysdev);
