@@ -671,18 +671,35 @@ dumpLabelSets(__pmContext *ctxp)
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	    prev_item = NULL;
 	    for (;;) {
-		/*
-		 * Search the hash of identifiers looking for the next lowest
-		 * one.
-		 */
-		this_item = NULL;
-		for (tix = 0; tix < l_hashtype->hsize; tix++) {
-		    for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
-			ident = (unsigned int)tp->key;
-			if (prev_item && ident <= (unsigned int)prev_item->key)
-			    continue;
-			if (!this_item || ident < (unsigned int)this_item->key)
-			    this_item = tp;
+		if (type == PM_LABEL_CONTEXT) {
+		    /*
+		     * All context labels have the same identifier within a
+		     * single hash chain. Find it and Traverse it linearly.
+		     */
+		    if (prev_item == NULL) {
+			for (tix = 0; tix < l_hashtype->hsize; tix++) {
+			    this_item = l_hashtype->hash[tix];
+			    if (this_item != NULL)
+				break;
+			}
+		    }
+		    else
+			this_item = this_item->next;
+		}
+		else {
+		    /*
+		     * Search the hash of identifiers looking for the next lowest
+		     * one.
+		     */
+		    this_item = NULL;
+		    for (tix = 0; tix < l_hashtype->hsize; tix++) {
+			for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
+			    ident = (unsigned int)tp->key;
+			    if (prev_item && ident <= (unsigned int)prev_item->key)
+				continue;
+			    if (!this_item || ident < (unsigned int)this_item->key)
+				this_item = tp;
+			}
 		    }
 		}
 		if (this_item == NULL)
