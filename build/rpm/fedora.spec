@@ -1438,6 +1438,23 @@ collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
    
 
+%if !%{disable_python3}
+#
+# pcp-pmda-bcc
+#
+%package pmda-bcc
+License: ASL 2.0
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from eBPF/BCC modules
+URL: http://www.pcp.io
+Requires: python3-bcc
+Requires: python3-pcp
+%description pmda-bcc
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from eBPF/BCC Python modules.
+# end pcp-pmda-bcc
+%endif
+
 %if !%{disable_python2} || !%{disable_python3}
 #
 # pcp-pmda-gluster
@@ -1913,6 +1930,9 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
 %endif
+%if !%{disable_python3}
+Requires: pcp-pmda-bcc
+%endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
@@ -2249,6 +2269,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^rpm' |\
   grep -E -v '^json' |\
   grep -E -v '^mic' |\
+  grep -E -v '^bcc' |\
   grep -E -v '^gluster' |\
   grep -E -v '^zswap' |\
   grep -E -v '^unbound' |\
@@ -2547,6 +2568,11 @@ fi
 
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
+
+%if !%{disable_python3}
+%preun pmda-bcc
+%{pmda_remove "$1" "bcc"}
+%endif
 
 %if !%{disable_python2} || !%{disable_python3}
 %preun pmda-gluster
@@ -3106,6 +3132,11 @@ cd
 
 %files pmda-dm
 %{_pmdasdir}/dm
+
+%if !%{disable_python3}
+%files pmda-bcc
+%{_pmdasdir}/bcc
+%endif
 
 %if !%{disable_python2} || !%{disable_python3}
 %files pmda-gluster
