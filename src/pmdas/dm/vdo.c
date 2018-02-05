@@ -15,7 +15,6 @@
  */
 
 #include <ctype.h>
-#include <unistd.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
@@ -102,12 +101,14 @@ dm_vdodev_fetch(pmdaMetric *metric, const char *name, pmAtomValue *atom)
 /*
  * Check whether 'name' in 'vdosysdir' is a VDO volume.
  */
-bool dm_vdodev_isvdovolumedir(const char *vdosysdir, const char *name)
+static int
+dm_vdodev_isvdovolumedir(const char *dir, const char *name)
 {
     static char buffer[MAXPATHLEN];
-    pmsprintf(buffer, sizeof(buffer), "%s/%s/instance", dir, name);
-    // This file should exist if this is a VDO volume, else it won't.
-    return (access(buffer, F_OK ) != -1)
+
+    pmsprintf(buffer, sizeof(buffer), "%s/%s/statistics", dir, name);
+    /* This file should exist if this is a VDO volume */
+    return (access(buffer, F_OK) != -1);
 }
 
 /*
@@ -135,7 +136,7 @@ dm_vdodev_instance_refresh(void)
 	sysdev = sysentry->d_name;
 	if (sysdev[0] == '.')
 	    continue;
-	if (!dm_vdodev_isvdovolumedir(sysdir, sysentry))
+	if (!dm_vdodev_isvdovolumedir(dm_vdo_statspath, sysdev))
 	    continue;
 	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "dm_vdodev_instance_refresh: added %s", sysdev);
