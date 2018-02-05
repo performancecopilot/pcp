@@ -27,6 +27,10 @@ HH:MM:SS        1
 20:36:49       1.00         1000.03
 20:36:51       1.00         1000.00
 20:36:53       1.00         1000.02
+== basic archive indom handling
+Invalid metric tape.dev.io_ns (PM_ERR_INDOM_LOG Instance domain identifier not defined in the PCP archive log).
+  m.u.used
+     Kbyte
 == basic configuration file handling
   s.seconds  s.milliseconds
         s/s            ms/s
