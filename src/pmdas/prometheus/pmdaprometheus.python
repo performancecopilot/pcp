@@ -43,6 +43,10 @@ from socket import gethostname
 import subprocess
 from stat import ST_MODE, S_IXUSR
 
+#
+# write debugging messages to log, see --debug cmdline option
+dbg = False
+
 # Number of seconds to wait between poll attempts on a source that
 # we've never been able to connect to & collect a list of metrics from.
 empty_source_pmns_poll = 10.0
@@ -106,7 +110,8 @@ class Metric(object):
                         self.source.pmda.set_need_refresh()
                 except Exception as e:
                         self.source.pmda.err("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
-                self.source.pmda.debug("created metric %#x (%s) labels='%s'" % (self.pmid, self.mname, self.labels))
+                if dbg:
+                        self.source.pmda.debug("created metric %#x (%s) labels='%s'" % (self.pmid, self.mname, self.labels))
 
 
         def assign_metadata(self):
@@ -192,7 +197,8 @@ class Metric(object):
                                         self.labels[key] = val
                         inst = self.indom_table.intern_lookup_value(instname)
 
-                        # self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
+                        if dbg:
+                                self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
                         self.values[inst] = float(value)
 
         def save(self):
@@ -235,7 +241,8 @@ class PersistentNameTable(object):
                                         self.prefix_mode = pickle.load(f,encoding="bytes")
                                 except:
                                         pass
-                                self.pmda.debug("loaded %s%s, %d instances" %
+                                if dbg:
+                                        self.pmda.debug("loaded %s%s, %d instances" %
                                                 (self.store_file_name,
                                                  (" (pfx)" if self.prefix_mode else ""),
                                                  len(self.instances)))
@@ -257,13 +264,15 @@ class PersistentNameTable(object):
                 if self.need_save:
                         # save to the pmda C layer
                         indom_array = [] # pmdaInstid array, computed on demand
-                        #self.pmda.debug("indom %d:" % (self.pmda.indom(self.indom)))
+                        if dbg:
+                                self.pmda.debug("indom %d:" % (self.pmda.indom(self.indom)))
                         for i,n in enumerate(self.instances):
                                 if self.prefix_mode:
                                         instname=str(i)+" "+str(n)
                                 else:
                                         instname=str(n)
-                                #self.pmda.debug("%4d:\t%s" % (i, instname))
+                                if dbg:
+                                        self.pmda.debug("%4d:\t%s" % (i, instname))
                                 indom_array.append(pmdaInstid(c_int(i),instname))
 
                         # NB: use replace_indom(int,[...]) overload, to pass indom_array,
@@ -275,7 +284,8 @@ class PersistentNameTable(object):
                                 with open(self.store_file_name,'wb') as f:
                                         pickle.dump(self.instances, f, protocol=0) # 0: most compatible
                                         pickle.dump(self.prefix_mode, f, protocol=0)
-                                        self.pmda.debug("saved %s%s, %d instances" %
+                                        if dbg:
+                                                self.pmda.debug("saved %s%s, %d instances" %
                                                         (self.store_file_name,
                                                          (" (pfx)" if self.prefix_mode else ""),
                                                          len(self.instances)))
@@ -485,7 +495,8 @@ class Source(object):
                 '''
                 try:
                         sp = SampleLineParser(line)
-                        # self.pmda.debug("parsed '%s' -> %s %s %s" % (line, sp.name, sp.labels, sp.value))
+                        if dbg:
+                                self.pmda.debug("parsed '%s' -> %s %s %s" % (line, sp.name, sp.labels, sp.value))
                         if sp.name in self.metrics_by_name:
                                 m = self.metrics_by_name[sp.name]
                                 assert self.metrics_by_num[m.metricnum] == m
@@ -498,7 +509,8 @@ class Source(object):
 
                                 # Set the PMNS change flag so clients (especially pmlogger) will be notified
                                 # synchronously (next fetch) that there has been a change to the PCP namespace.
-                                self.pmda.debug("set_notify_change flag for PMNS changes")
+                                if dbg:
+                                        self.pmda.debug("set_notify_change flag for PMNS changes")
                                 self.pmda.set_notify_change()
 
                         m.store_inst(sp.labels,sp.value)
@@ -522,7 +534,8 @@ class Source(object):
                 typeline = None
                 state="metadata"
                 for line in lines:
-                        # self.pmda.debug("line: %s state: %s" % (line, state))
+                        if dbg:
+                                self.pmda.debug("line: %s state: %s" % (line, state))
                         l = line.strip() # whitespace
                         if l == "": # blank line, ignore, no state change
                                 continue
@@ -621,7 +634,8 @@ class Source(object):
                                 except: # ... which they won't, this is just belt & suspenders
                                         pass
                         self.pmids_table.save()
-                        self.pmda.debug("fetched %d bytes with %d metrics from URL or script %s" % (len(document), s, self.path))
+                        if dbg:
+                                self.pmda.debug("fetched %d bytes with %d metrics from URL or script %s" % (len(document), s, self.path))
                 except Exception as e:
                         self.pmda.err('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e))
                         return
@@ -633,7 +647,7 @@ class Source(object):
                         m = self.metrics_by_num[item]
                         return m.fetch_inst(inst)
                 except Exception as e:
-                        self.pmda.log("cannot fetch item %d inst %d: %s" % (item,inst,e))
+                        self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item,inst,e))
                         return [c_api.PM_ERR_AGAIN, 0]
 
 
@@ -645,14 +659,13 @@ class PrometheusPMDA(PMDA):
                 PMDA.__init__(self,pmda_name,domain)
                 if user is not None:
                         self.set_user(user)
-                        self.log('running as user "%s"' % user)
+                        self.log('Note: running as user "%s"' % user)
                 self.connect_pmcd()
                 # now everything else may take time
                 self.pmda_name = pmda_name
                 self.config_dir = os.path.normpath(config)
                 self.config_dir_ctime = None
                 self.timeout = timeout
-                self.debug_flag = ('PCP_PYTHON_DEBUG' in os.environ)
 
                 # the list of configured sources
                 self.source_by_name = {}
@@ -724,13 +737,16 @@ class PrometheusPMDA(PMDA):
                 invoked -all-the-time- by src/python/pmda.c.
                 '''
 
+                traverse_time = time.time()
                 dir_ctime, conf_filelist = self.traverse(self.config_dir, self.config_dir_ctime)
+                traverse_time = time.time() - traverse_time
+
                 if self.config_dir_ctime is None or self.config_dir_ctime < dir_ctime:
-                        self.log("Config change detected - scanning ...")
                         self.config_dir_ctime = dir_ctime
                 else: # no new or deleted conf files, don't rescan directory
                         return
                 
+                self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist),traverse_time))
                 nickname_regexp = re.compile(r"^[A-Za-z][A-Za-z0-9_.]*$")
                 
                 # XXX: nuke sources related to removed files
@@ -739,18 +755,20 @@ class PrometheusPMDA(PMDA):
                         # compute nickname for source:
                         # the part of the filename before .url
                         file_split = os.path.splitext(file)
-                        self.debug("found %s => %s" % (file, file_split))
+                        if dbg:
+                                self.debug("found %s => %s" % (file, file_split))
 
                         # check if it's executable, or has ".url" suffix
                         is_scripted = os.stat(file)[ST_MODE] & S_IXUSR != 0
                         if not is_scripted and (len(file_split) != 2 or file_split[1] != ".url"):
                                 # ignore this file - not executable and doesn't end in ".url"
-                                self.log("Warning: ignored config '%s'" % file)
+                                if dbg:
+                                        self.debug("Warning: ignored config file '%s', doesn't end in '.url' and not executable." % file)
                                 continue
                         # convert file path name into a PCP metric name
                         name = file_split[0].replace(self.config_dir + "/", "").replace("/",".")
                         if not nickname_regexp.match(name):
-                                self.err("Warning: ignored config '%s', not suitable for PCP namespace" % file)
+                                self.err("Warning: ignored config file '%s', unsuitable for PCP namespace" % file)
                                 continue
 
                         if name in self.source_by_name:
@@ -765,7 +783,8 @@ class PrometheusPMDA(PMDA):
                                         self.source_by_name[source.name] = source
                                         self.source_by_cluster[source.cluster] = source
                                         save_cluster_table = True
-                                        self.log("Found source %s cluster %d" % (name, cluster))
+                                        if dbg:
+                                                self.log("Found source %s cluster %d" % (name, cluster))
                                 except Exception as e:
                                         self.err("Error allocating new cluster/source %s (%s)" % (name, e))
                 if save_cluster_table:
@@ -803,7 +822,7 @@ class PrometheusPMDA(PMDA):
                         self.assert_source_invariants(cluster=cluster)
                         self.source_by_cluster[cluster].refresh(self.timeout)
                 except Exception as e:
-                        self.err("Cannot refresh cluster %d: %s" % (cluster, e))
+                        self.err("Error: Cannot refresh cluster %d: %s" % (cluster, e))
 
         def refresh_some_clusters_for_fetch(self,_clusters):
                 '''Called once per pmFetch batch handling, before
@@ -813,7 +832,8 @@ class PrometheusPMDA(PMDA):
                 clusters = [int(l) for l in _clusters] # convert from PyLong
                 threads = []
 
-                self.debug("refreshing clusters %s" % clusters)
+                if dbg:
+                        self.debug("refreshing clusters %s" % clusters)
                 for c in clusters:
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
@@ -839,7 +859,8 @@ class PrometheusPMDA(PMDA):
                 return a JSONb formatted string (labelset) for given ident of given type
                 '''
 
-                self.debug('prom_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[type]))
+                if dbg:
+                        self.debug('prom_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[type]))
                 if type == PM_LABEL_DOMAIN:
                         # labels for this domain
                         return '{"domain":"prometheus", "domainID":%d}' % 144
@@ -856,7 +877,6 @@ class PrometheusPMDA(PMDA):
                         # labels for a cluster, i.e. a prometheus source
                         # Note: if using dbpmda, test this with e.g. label cluster 144.1
                         # (you need the domain (144) and the cluster number (1, 2, ..)
-                        # self.debug('   source_by_cluster %s' % (self.source_by_cluster))
                         try:
                                 s = self.source_by_cluster[ident]
                                 if s.is_scripted:
@@ -886,7 +906,8 @@ class PrometheusPMDA(PMDA):
                         for k,v in self.source_by_cluster.items():
                                 for m,mv in v.metrics_by_name.items():
                                         if mv.pmid == ident:
-                                                # self.debug('prom_label PM_LABEL_ITEM, found pmid %#x, labels=%s' % (ident, mv.labels))
+                                                if dbg:
+                                                        self.debug('prom_label PM_LABEL_ITEM, found pmid %#x, labels=%s' % (ident, mv.labels))
                                                 for lname,lval in sorted(mv.labels.items()):
                                                         if len(L) > 0:
                                                                 L += ','
@@ -900,7 +921,8 @@ class PrometheusPMDA(PMDA):
                 '''
                 return label for given instance ID in given indom
                 '''
-                self.debug('prom_label_callback(indom=%#x, inst=%d)' % (indom, inst))
+                if dbg:
+                        self.debug('prom_label_callback(indom=%#x, inst=%d)' % (indom, inst))
                 for k,v in self.source_by_cluster.items():
                         for m,mv in v.metrics_by_name.items():
                                 if indom == mv.mindom:
@@ -912,24 +934,24 @@ class PrometheusPMDA(PMDA):
                 return '{}'
 
         def debug(self,s):
-                # XXX: conditionalize
                 super(PrometheusPMDA,self).log("debug: "+s)
-                # sys.stderr.write('debug:' + s + '\n')
 
         def log(self,s):
                 super(PrometheusPMDA,self).log(s)
-                # sys.stderr.write('log:' + s + '\n')
 
         def err(self,s):
                 super(PrometheusPMDA,self).err(s)
-                # sys.stderr.write('log:' + s + '\n')
                         
 if __name__ == '__main__':
+        pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'),'prometheus')
         parser = argparse.ArgumentParser(description='Prometheus PMDA.',
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        parser.add_argument('-D','--debug',
+                            default=False,
+                            help='enable debug messages in log (default disabled).', action='store_true')
         parser.add_argument('-c','--config',
                             type=str,
-                            default=os.getenv('PCP_PMDAS_DIR')+'/prometheus/config.d',
+                            default=os.path.join(pmdadir,'config.d'),
                             help='configuration directory')
         parser.add_argument('-t','--timeout',
                             type=int,
@@ -940,6 +962,7 @@ if __name__ == '__main__':
                             default=None,
                             help='set the username to run under. Default is no change (current user).')
         args = parser.parse_args()
+        dbg = args.debug
 
         pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout, args.user)
         pmda.run()
