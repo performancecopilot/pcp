@@ -24,8 +24,6 @@ SUBDIRS = src
 PMDADIR = $(PCP_PMDAS_DIR)/sample
 
 default_pcp default :: $(SUBDIRS)
-
-default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install_pcp install :: $(SUBDIRS)
