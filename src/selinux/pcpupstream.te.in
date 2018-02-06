@@ -53,6 +53,7 @@ require {
 	@PCP_MOCK_VAR_LIB@
 	type ldconfig_exec_t;
 	type httpd_t;
+	type zabbix_port_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -310,3 +311,5 @@ allow pcp_pmproxy_t proc_net_t:file read;
 
 #type=AVC msg=audit(1498835400.826:9769): avc:  denied  { connectto } for  pid=16715 comm="pmmgr" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
 allow pcp_pmmgr_t unconfined_t:unix_stream_socket connectto;
+allow pcp_pmmgr_t ldconfig_exec_t:file { execute execute_no_trans open read getattr };
+allow pcp_pmmgr_t zabbix_port_t:tcp_socket name_connect;
