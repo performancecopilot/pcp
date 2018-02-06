@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=dm
-pmns_name="dmcache dmthin dmstats"
+pmns_name="dmcache dmthin dmstats vdo"
 pmda_interface=4
 forced_restart=true	# for env vars
 

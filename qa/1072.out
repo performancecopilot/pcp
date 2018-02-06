@@ -55,4 +55,42 @@ Recording 1 metrics to /tmp/1072.new_archive3:
 00:30:01        6.8669        1.2667
 00:31:01       22.1338        2.8667
 00:32:01        6.8666        2.2000
+=== pmrep archive creation with discrete values
+Recording 2 metrics to /tmp/1072.new_archive4:
+5 samples(s) with 1.0 sec interval ~ 4 sec duration.
+  h.machine  m.u.used
+                Kbyte
+      linux  13573328
+      linux  13573380
+      linux  13573256
+      linux  13573256
+      linux  13573800
+Note: timezone set to local timezone of host "slack" from archive
+
+
+Descriptions for Metrics in the Log ...
+PMID: 60.1.1 (mem.util.used)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+PMID: 60.18.7 (hinv.machine)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+
+14:39:13.883258 2 metrics
+    60.18.7 (hinv.machine): value "linux"
+    60.1.1 (mem.util.used): value 13573328
+
+14:39:14.883562 1 metric
+    60.1.1 (mem.util.used): value 13573380
+
+14:39:15.882319 1 metric
+    60.1.1 (mem.util.used): value 13573256
+
+14:39:16.882447 1 metric
+    60.1.1 (mem.util.used): value 13573256
+
+14:39:17.882326 1 metric
+    60.1.1 (mem.util.used): value 13573800
 == done

@@ -167,6 +167,7 @@ pmda.install
 ## Assorted PMDAs
 pmda.activemq
 pmda.apache
+pmda.bcc
 pmda.bind2
 pmda.cifs
 pmda.cisco
@@ -1417,6 +1418,7 @@ collectl
 1112 pmda.linux local
 1113 pcp python local
 1114 archive pmval multi-archive local pmlogextract
+1115 pmda.bcc local
 1119 pmlogsummary archive multi-archive decompress-xz local pmlogextract
 1120 pmda.prometheus local
 1121 pmda.linux local
@@ -1443,6 +1445,7 @@ collectl
 1174 threads valgrind local
 1182 libpcp local
 1186 pmie local
+1188 pmda.dm local
 1191 pmda.prometheus local
 1196 pmcd local
 1199 libpcp pmcd local

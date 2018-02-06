@@ -149,7 +149,7 @@ class HAProxyPMDA(PMDA):
         ]
 
         self.stat_indom = self.indom(0)
-        self.stat_insts = pmdaIndom(self.stat_indom, [])
+        self.stat_insts = pmdaIndom(self.stat_indom, {})
         self.add_indom(self.stat_insts)
 
         self.stat_cluster = 1

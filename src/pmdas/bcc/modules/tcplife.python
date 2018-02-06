@@ -1,0 +1,191 @@
+#
+# Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA biotop module """
+
+# pylint: disable=invalid-name,too-few-public-methods
+
+from threading import Lock, Thread
+import ctypes as ct
+from ctypes import c_int
+from os import kill
+from bcc import BPF
+
+from modules.pcpbcc import PCPBCCBase
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
+from cpmapi import PM_ERR_AGAIN
+
+#
+# BPF program
+#
+bpf_src = "modules/tcplife.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'tcplife'
+BASENS = 'proc.io.net.tcp.'
+units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+
+TASK_COMM_LEN = 16      # linux/sched.h
+
+class Data_ipv4(ct.Structure):
+    """ IPv4 data struct """
+    _fields_ = [
+        ("ts_us", ct.c_ulonglong),
+        ("pid", ct.c_ulonglong),
+        ("saddr", ct.c_ulonglong),
+        ("daddr", ct.c_ulonglong),
+        ("ports", ct.c_ulonglong),
+        ("rx_b", ct.c_ulonglong),
+        ("tx_b", ct.c_ulonglong),
+        ("span_us", ct.c_ulonglong),
+        ("task", ct.c_char * TASK_COMM_LEN)
+    ]
+
+class Data_ipv6(ct.Structure):
+    """ IPv6 data struct """
+    _fields_ = [
+        ("ts_us", ct.c_ulonglong),
+        ("pid", ct.c_ulonglong),
+        ("saddr", (ct.c_ulonglong * 2)),
+        ("daddr", (ct.c_ulonglong * 2)),
+        ("ports", ct.c_ulonglong),
+        ("rx_b", ct.c_ulonglong),
+        ("tx_b", ct.c_ulonglong),
+        ("span_us", ct.c_ulonglong),
+        ("task", ct.c_char * TASK_COMM_LEN)
+    ]
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC biotop module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.ipv4_stats = {}
+        self.ipv6_stats = {}
+
+        self.lock = Lock()
+        self.thread = Thread(name="bpfpoller", target=self.poller)
+        self.thread.setDaemon(True)
+
+        self.log("Initialized.")
+
+    @staticmethod
+    def pid_alive(pid):
+        """ Test liveliness of PID """
+        try:
+            kill(int(pid), 0)
+            return True
+        except Exception: # pylint: disable=broad-except
+            return False
+
+    def poller(self):
+        """ BPF poller """
+        try:
+            while self.bpf:
+                self.bpf.kprobe_poll()
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("BPF kprobe poll failed!")
+        self.log("Poller thread exiting.")
+
+    def handle_ipv4_event(self, _cpu, data, _size):
+        """ IPv4 event handler """
+        event = ct.cast(data, ct.POINTER(Data_ipv4)).contents
+        pid = str(event.pid).zfill(6)
+        self.lock.acquire()
+        if pid not in self.ipv4_stats:
+            self.ipv4_stats[pid] = [int(event.tx_b), int(event.rx_b)]
+        else:
+            self.ipv4_stats[pid][0] += int(event.tx_b)
+            self.ipv4_stats[pid][1] += int(event.rx_b)
+        self.lock.release()
+
+    def handle_ipv6_event(self, _cpu, data, _size):
+        """ IPv6 event handler """
+        event = ct.cast(data, ct.POINTER(Data_ipv6)).contents
+        pid = str(event.pid).zfill(6)
+        self.lock.acquire()
+        if pid not in self.ipv6_stats:
+            self.ipv6_stats[pid] = [int(event.tx_b), int(event.rx_b)]
+        else:
+            self.ipv6_stats[pid][0] += int(event.tx_b)
+            self.ipv6_stats[pid][1] += int(event.rx_b)
+        self.lock.release()
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = BASENS
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (name + 'tx', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'tcp tx per pid'),
+            (name + 'rx', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'tcp rx per pid'),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            self.bpf = BPF(src_file=bpf_src)
+            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event, page_cnt=64)
+            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event, page_cnt=64)
+            self.thread.start()
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return
+
+        self.insts = {}
+
+        self.lock.acquire()
+        for pid in list(self.ipv4_stats):
+            if not self.pid_alive(pid):
+                del self.ipv4_stats[pid]
+            else:
+                self.insts[pid] = c_int(1)
+        for pid in list(self.ipv6_stats):
+            if not self.pid_alive(pid):
+                del self.ipv6_stats[pid]
+            else:
+                self.insts[pid] = c_int(1)
+        self.lock.release()
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            self.lock.acquire()
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            value = 0
+            if key in self.ipv4_stats:
+                value += self.ipv4_stats[key][item]
+            if key in self.ipv6_stats:
+                value += self.ipv6_stats[key][item]
+            self.lock.release()
+            return [value, 1]
+        except Exception: # pylint: disable=broad-except
+            self.lock.release()
+            return [PM_ERR_AGAIN, 0]

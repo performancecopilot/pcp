@@ -370,15 +370,15 @@ class pmConfig(object):
                 # Always ignore duplicates
                 return
             desc = self.util.context.pmLookupDescs(pmid)[0]
-            try:
+            if desc.contents.indom == pmapi.c_api.PM_IN_NULL:
+                inst = ([pmapi.c_api.PM_IN_NULL], [None])     # mem.util.free
+            else:
                 if self.util.context.type == pmapi.c_api.PM_CONTEXT_ARCHIVE:
                     inst = self.util.context.pmGetInDomArchive(desc)
                 else:
                     inst = self.util.context.pmGetInDom(desc) # disk.dev.read
                 if not inst[0]:
                     inst = ([pmapi.c_api.PM_IN_NULL], [None]) # pmcd.pmie.logfile
-            except pmapi.pmErr:
-                inst = ([pmapi.c_api.PM_IN_NULL], [None])     # mem.util.free
             # Reject unsupported types
             if not (desc.contents.type == pmapi.c_api.PM_TYPE_32 or
                     desc.contents.type == pmapi.c_api.PM_TYPE_U32 or
@@ -890,7 +890,7 @@ class pmConfig(object):
                         if inst != pmapi.c_api.PM_IN_NULL and not name:
                             continue
                         if early_live_filter and inst != pmapi.c_api.PM_IN_NULL and \
-                          not self.filter_instance(metric, name):
+                           not self.filter_instance(metric, name):
                             continue
                         value = val()
                         if self.util.metrics[metric][7]:

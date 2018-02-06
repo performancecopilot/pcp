@@ -1,7 +1,7 @@
 /*
  * Linux sysfs_tapestats cluster
  *
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,11 +47,12 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
     struct dirent *sysentry, *tapestats;
     int i, sts, fd;
 
+    pmdaCacheOp(tape_indom, PMDA_CACHE_INACTIVE);
+
     pmsprintf(sysname, sizeof(sysname), "%s/sys/class/scsi_tape", linux_statspath);
     if ((sysdir = opendir(sysname)) == NULL)
 	return -oserror();
 
-    pmdaCacheOp(tape_indom, PMDA_CACHE_INACTIVE);
     while ((sysentry = readdir(sysdir)) != NULL) {
 	char *sysdev = sysentry->d_name;
 

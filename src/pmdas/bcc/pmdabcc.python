@@ -1,0 +1,232 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC Performance Metrics Domain Agent """
+
+import configparser
+import importlib
+import atexit
+import glob
+import sys
+import os
+
+from collections import OrderedDict
+
+from pcp.pmapi import pmContext as PCP
+from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+from cpmapi import PM_INDOM_NULL
+from cpmapi import PM_ERR_VALUE
+
+# Module references
+CONFIG = 1
+MODULE = 2
+CLUSTER = 3
+PREFIX = 4
+METRICS = 5
+HELPERS = 6
+COMPILE = 7
+REFRESH = 8
+BPFDATA = 9
+CLEANUP = 10
+INDOM = 11
+INSTS = 12
+
+class BCCPMDA(PMDA):
+    """ PCP BCC PMDA """
+    def __init__(self, name, domain):
+        """ Constructor """
+        PMDA.__init__(self, name, domain)
+
+        self.modules = OrderedDict()
+        self.clusters = OrderedDict()
+        self.prefix = "bcc."
+
+        self.read_config_file()
+        self.connect_pmcd()
+
+        self.init_modules()
+        self.register_metrics()
+        self.register_helpers()
+        self.compile_modules()
+
+        self.set_refresh(self.bcc_refresh)
+        self.set_fetch_callback(self.bcc_fetch_callback)
+
+        @atexit.register
+        def cleanup(): # pylint: disable=unused-variable
+            """ Clean up """
+            if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+                self.log("Cleaning up modules:")
+                for module in self.modules:
+                    self.log(module)
+                    self.modules[module][CLEANUP]()
+                self.log("Modules cleaned up.")
+
+    def read_config_file(self):
+        """ Read configuration file """
+        conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
+
+        if not os.path.isfile(conffile):
+            self.err("Configuration file %s not found, aborting." % conffile)
+            sys.exit(1)
+
+        config = configparser.SafeConfigParser()
+        config.read(conffile)
+        if config.has_section('pmda'):
+            for opt in config.options('pmda'):
+                if opt == 'modules':
+                    if config.get('pmda', opt):
+                        for module in config.get('pmda', opt).split(","):
+                            self.modules[module] = {}
+                elif opt == 'prefix':
+                    self.prefix = config.get('pmda', opt)
+                else:
+                    self.err("Invalid directive '%s' in %s, aborting." % (opt, conffile))
+                    sys.exit(1)
+        else:
+            self.err("No [pmda] section found, aborting.")
+            sys.exit(1)
+
+        if not self.modules:
+            self.err("No modules configured, aborting.")
+            sys.exit(1)
+
+        self.log("Enabled modules:")
+        self.log(str([module for module in self.modules]))
+
+        self.log("Configuring modules:")
+        for module in self.modules:
+            self.log(module)
+            self.read_module_config(config, module)
+        self.log("Modules configured.")
+
+    def read_module_config(self, config, module):
+        """ Read common module configuration """
+        if config.has_section(module):
+            for opt in config.options(module):
+                if opt == 'module':
+                    self.modules[module][CONFIG] = config
+                    self.modules[module][MODULE] = config.get(module, opt)
+                if opt == 'cluster':
+                    try:
+                        self.modules[module][CLUSTER] = int(config.get(module, opt))
+                    except ValueError:
+                        self.err("Integer expected for 'cluster', aborting.")
+                        sys.exit(1)
+                if opt == 'prefix':
+                    self.modules[module][PREFIX] = config.get(module, opt)
+        else:
+            self.err("No [%s] section found, aborting." % module)
+            sys.exit(1)
+
+        if PREFIX not in self.modules[module]:
+            self.modules[module][PREFIX] = self.prefix
+
+        if MODULE not in self.modules[module] or CLUSTER not in self.modules[module]:
+            self.err("Both 'module' and 'cluster' are mandatory, aborting.")
+            sys.exit(1)
+
+    def init_modules(self):
+        """ Initialize modules """
+        self.log("Initializing modules:")
+
+        # for packaging, allow both .python and .py suffixed files
+        moduledir = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        moduledir += '/' + self.read_name() + '/' + 'modules'
+        modulepys = glob.glob(moduledir + '/*.python')
+        for python in modulepys:
+            py = python[:-4]
+            if not os.path.exists(py):
+                os.symlink(python, py)
+
+        for module in self.modules:
+            self.log(module)
+            try:
+                mod = importlib.import_module('modules.%s' % self.modules[module][MODULE])
+            except ModuleNotFoundError as error:
+                self.err(str(error))
+                self.err("Module %s not found, aborting." % module)
+                sys.exit(1)
+            obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
+            self.modules[module][METRICS] = obj.metrics
+            self.modules[module][HELPERS] = obj.helpers
+            self.modules[module][COMPILE] = obj.compile
+            self.modules[module][REFRESH] = obj.refresh
+            self.modules[module][BPFDATA] = obj.bpfdata
+            self.modules[module][CLEANUP] = obj.cleanup
+        self.log("Modules initialized.")
+
+    def register_metrics(self):
+        """ Register metrics """
+        self.log("Registering metrics:")
+        for module in self.modules:
+            self.log(module)
+            cluster = int(self.modules[module][CLUSTER])
+            indom, metrics = self.modules[module][METRICS]()
+            self.modules[module][INDOM] = PM_INDOM_NULL
+            if indom:
+                self.modules[module][INDOM] = self.indom(cluster)
+                self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], [])
+                self.add_indom(self.modules[module][INSTS])
+            for item, _ in enumerate(metrics):
+                self.add_metric(self.modules[module][PREFIX] + metrics[item][0],
+                                pmdaMetric(self.pmid(cluster, item), metrics[item][2],
+                                           self.modules[module][INDOM],
+                                           metrics[item][3], metrics[item][4]),
+                                metrics[item][5], metrics[item][5])
+            self.clusters[cluster] = module
+        self.log("Metrics registered.")
+
+    def register_helpers(self):
+        """ Register helper function references """
+        self.log("Registering helpers:")
+        for module in self.modules:
+            if self.modules[module][INDOM] != PM_INDOM_NULL:
+                self.log(module)
+                self.modules[module][HELPERS](self.modules[module][INSTS])
+        self.log("Helpers registered.")
+
+    def compile_modules(self):
+        """ Compile modules """
+        if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+            self.log("Compiling modules:")
+            for module in self.modules:
+                self.log(module)
+                self.modules[module][COMPILE]()
+            self.log("Modules compiled.")
+
+    def bcc_refresh(self, cluster):
+        """ Refresh """
+        module = self.clusters[cluster]
+        insts = {}
+        try:
+            insts = self.modules[module][REFRESH]()
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+        if self.modules[module][INDOM] != PM_INDOM_NULL:
+            self.modules[module][INSTS].set_instances(self.modules[module][INDOM], insts)
+            self.replace_indom(self.modules[module][INDOM], insts)
+
+    def bcc_fetch_callback(self, cluster, item, inst):
+        """ Fetch callback """
+        module = self.clusters[cluster]
+        try:
+            return self.modules[module][BPFDATA](item, inst)
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            return [PM_ERR_VALUE, 0]
+
+if __name__ == '__main__':
+    BCCPMDA('bcc', 149).run()

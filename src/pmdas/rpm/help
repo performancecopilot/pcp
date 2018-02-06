@@ -27,6 +27,8 @@
 # blank lines before the @ line are ignored
 #
 
+@ RPM.0 set of all installed RPM packages
+
 @ rpm.arch package architecture
 @ rpm.buildhost package build host
 @ rpm.buildtime package buildtime

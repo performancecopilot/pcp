@@ -1,4 +1,5 @@
-# Copyright (c) 2015-2017 Red Hat.
+#
+# Copyright (c) 2015-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -14,11 +15,19 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= pmda.c dmthin.c dmcache.c
-HFILES		= indom.h dmthin.h dmcache.h dmstats.h
-CMDTARGET	= pmdadm
+IAM		= dm
+DOMAIN		= DM
+PMNSFILES	= pmns.dmcache pmns.dmthin pmns.dmstats pmns.vdo
+CMDTARGET	= pmda$(IAM)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT	= $(IAM)_init
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+PMIEDIR		= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
+CFILES		= pmda.c dmthin.c dmcache.c vdo.c
+HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h
 LLDLIBS		= $(PCP_PMDALIB)
+LCFLAGS		= $(INVISIBILITY)
 
 ifeq "$(HAVE_DEVMAPPER)" "true"
 CFILES		+= dmstats.c
@@ -26,13 +35,9 @@ LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
 LCFLAGS		+= -DHAVE_DEVMAPPER=1
 endif
 
-IAM		= dm
-DOMAIN		= DM
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-PMDAINIT	= $(IAM)_init
-PMIEDIR		= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
-
-LDIRT		= domain.h $(IAM).log
+SCRIPTS		= Install Remove
+VERSION_SCRIPT	= exports
+LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -47,9 +52,9 @@ build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 root domain.h help $(PMDADIR)
-	$(INSTALL) -m 644 pmns.dmcache pmns.dmthin pmns.dmstats $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help $(PMDADIR)
+	$(INSTALL) -m 644 root $(PMNSFILES) $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
 	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
 	@$(INSTALL_MAN)
@@ -62,16 +67,19 @@ default_pcp : default
 
 install_pcp : install
 
-$(OBJECTS): domain.h
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmda.o dmcache.o dmthin.o dm.o: indom.h
+$(OBJECTS): domain.h
+pmda.o dmcache.o dmthin.o dm.o vdo.o: indom.h
 pmda.o dmcache.o: dmcache.h
 pmda.o dmthin.o: dmthin.h
 ifeq "$(HAVE_DEVMAPPER)" "true"
 pmda.o dmstats.o: dmstats.h
 endif
+pmda.o vdo.o: vdo.h
 
-dmcache.o dmthin.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+dmcache.o dmthin.o vdo.o:	$(TOPDIR)/src/include/pcp/libpcp.h
