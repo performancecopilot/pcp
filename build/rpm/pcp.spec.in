@@ -1464,7 +1464,7 @@ collecting metrics about the Device Mapper Cache and Thin Client.
 # pcp-pmda-bcc
 #
 %package pmda-bcc
-License: ASL 2.0
+License: ASL2.0 and GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics from eBPF/BCC modules
 URL: http://www.pcp.io

@@ -21,22 +21,30 @@ LDIRT    = domain.h root pmns $(IAM).log
 
 DOMAIN   = BCC
 PMDADIR  = $(PCP_PMDAS_DIR)/$(IAM)
+SUBDIRS  = modules
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default_pcp default:	build-me
+default_pcp default ::	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_PYTHON3)" "true"
 build-me:	check_domain
-install_pcp install:	default
+
+install_pcp install ::	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove connect $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 $(IAM).conf $(PMDADIR)/$(IAM).conf
+	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 644 README $(IAM).conf $(PMDADIR)
 	@$(INSTALL_MAN)
+
+default_pcp default ::	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+install_pcp install ::	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 else
 build-me:
 install_pcp install:

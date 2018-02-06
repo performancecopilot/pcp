@@ -211,6 +211,7 @@ _filter_optional_pmdas()
 	-e '/pmdaarray/d' \
 	-e '/pmdaash/d' \
 	-e '/pmdabash/d' \
+	-e '/pmdabcc/d' \
 	-e '/pmdabind2/d' \
 	-e '/pmdabonding/d' \
 	-e '/pmdabrocade/d' \
@@ -310,6 +311,7 @@ _filter_top_pmns()
 	-e '/^    array /d' \
 	-e '/^    ash /d' \
 	-e '/^    bash /d' \
+	-e '/^    bcc /d' \
 	-e '/^    bind2 /d' \
 	-e '/^    bonding /d' \
 	-e '/^    brocade /d' \
