@@ -507,11 +507,8 @@ class Source(object):
                                 self.metrics_by_name[sp.name] = m
                                 self.metrics_by_num[metricnum] = m  # not pmid!
 
-                                # Set the PMNS change flag so clients (especially pmlogger) will be notified
-                                # synchronously (next fetch) that there has been a change to the PCP namespace.
-                                if dbg:
-                                        self.pmda.debug("set_notify_change flag for PMNS changes")
-                                self.pmda.set_notify_change()
+                                # flag there has been a PMNS change
+                                self.pmda.pmns_changed = True
 
                         m.store_inst(sp.labels,sp.value)
                 except Exception as e:
@@ -594,6 +591,7 @@ class Source(object):
                 # clear cached values from all my metrics
                 for n,m in self.metrics_by_name.items():
                         m.clear_values()
+                self.pmda.pmns_changed = False
                 # XXX: ditch metrics no longer found in document
 
                 self.refresh_time = time.time()
@@ -639,7 +637,6 @@ class Source(object):
                 except Exception as e:
                         self.pmda.err('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e))
                         return
-                
         def fetch(self, item, inst):
                 ''' Retrieve metric/instance values that ought to have been found
                 by a recent refresh().  PM_ERR_AGAIN signals a no go.'''
@@ -666,6 +663,7 @@ class PrometheusPMDA(PMDA):
                 self.config_dir = os.path.normpath(config)
                 self.config_dir_ctime = None
                 self.timeout = timeout
+                self.pmns_changed = False
 
                 # the list of configured sources
                 self.source_by_name = {}
@@ -737,13 +735,15 @@ class PrometheusPMDA(PMDA):
                 invoked -all-the-time- by src/python/pmda.c.
                 '''
 
+                self.pmns_changed = False # set to true if a new metric is created for any Source
+
                 traverse_time = time.time()
                 dir_ctime, conf_filelist = self.traverse(self.config_dir, self.config_dir_ctime)
                 traverse_time = time.time() - traverse_time
 
                 if self.config_dir_ctime is None or self.config_dir_ctime < dir_ctime:
                         self.config_dir_ctime = dir_ctime
-                else: # no new or deleted conf files, don't rescan directory
+                else: # no new or changed conf files, don't rescan directory
                         return
                 
                 self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist),traverse_time))
@@ -789,6 +789,13 @@ class PrometheusPMDA(PMDA):
                                         self.err("Error allocating new cluster/source %s (%s)" % (name, e))
                 if save_cluster_table:
                         self.cluster_table.save()
+
+                if self.pmns_changed:
+                        # Set the PMNS change flag so clients (especially pmlogger) will be notified
+                        # synchronously (next fetch) that there has been a change to the PCP namespace.
+                        if dbg:
+                                self.debug("set_notify_change flag for PMNS changes")
+                        self.set_notify_change()
 
 
         def refresh_metrics_for_pmns(self):
