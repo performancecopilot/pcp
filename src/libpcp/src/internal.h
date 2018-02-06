@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -425,7 +425,5 @@ extern void __pmDumpLabelSet(FILE *, const pmLabelSet *) _PCP_HIDDEN;
 extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
 			 pmLabelSet **, int *) _PCP_HIDDEN;
 extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
-extern char *__pmLabelIdentString(int, int, char *, size_t) _PCP_HIDDEN;
-extern const char * __pmLabelTypeString(int) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

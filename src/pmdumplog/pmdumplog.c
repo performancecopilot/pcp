@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
 #include "libpcp.h"
 #include <ctype.h>
 #include <limits.h>
+#include <float.h>
 #include <sys/stat.h>
 
 static struct pmTimeval	pmtv;
@@ -472,7 +473,6 @@ dumpInDom(__pmContext *ctxp)
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmLogInDom	*ldp;
-
     printf("\nInstance Domains in the Log ...\n");
     for (i = 0; i < ctxp->c_archctl->ac_log->l_hashindom.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->l_hashindom.hash[i]; hp != NULL; hp = hp->next) {
@@ -501,33 +501,86 @@ dumpInDom(__pmContext *ctxp)
 static void
 dumpHelpText(__pmContext *ctxp)
 {
-    int		i;
-    int		j;
+    int			tix, cix, hix;
     unsigned int	type;
+    unsigned int	class;
     unsigned int	ident;
-    __pmHashCtl		*l_hashtype;
-    __pmHashNode	*hp, *tp;
+    __pmHashCtl		*l_hashtext;
+    const __pmHashCtl	*l_hashtype;
+    const __pmHashNode	*hp, *tp;
+    const __pmHashNode	*this_item[2], *prev_item[2];
     const char		*text;
+    int textTypes[2]   = { PM_TEXT_PMID, PM_TEXT_INDOM };
+    int textClasses[2] = { PM_TEXT_ONELINE, PM_TEXT_HELP };
 
     printf("\nMetric Help Text in the Log ...\n");
 
-    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashtext.hsize; i++) {
-	for (hp = ctxp->c_archctl->ac_log->l_hashtext.hash[i]; hp != NULL; hp = hp->next) {
-	    type = (unsigned int)hp->key;
-	    l_hashtype = (__pmHashCtl *)hp->data;
-	    for (j = 0; j < l_hashtype->hsize; j++) {
-		for (tp = l_hashtype->hash[j]; tp != NULL; tp = tp->next) {
-		    ident = (unsigned int)tp->key;
-		    text = (const char *)tp->data;
-		    if (type & PM_TEXT_PMID)
+    /*
+     * In order to make the output more deterministic for testing,
+     * output the help text sorted by
+     *   type (PM_TEXT_PMID, PM_TEXT_INDOM), then by
+     *   identifier, then by
+     *   class (PM_TEXT_ONELINE, PM_TEXT_HELP).
+     */
+    l_hashtext = &ctxp->c_archctl->ac_log->l_hashtext;
+    for (tix = 0; tix < 2; ++tix) {
+	type = textTypes[tix];
+
+	/*
+	 * Search the two hash tables representing the classes
+	 * for this type to find the next lowest identifier.
+	 */
+	prev_item[0] = NULL;
+	prev_item[1] = NULL;
+	for (;;) {
+	    for (cix = 0; cix < 2; ++cix) {
+		this_item[cix] = NULL;
+
+		class = textClasses[cix];
+		hp = __pmHashSearch(type | class, l_hashtext);
+		if (hp == NULL)
+		    continue;
+
+		l_hashtype = (__pmHashCtl *)hp->data;
+		for (hix = 0; hix < l_hashtype->hsize; hix++) {
+		    for (tp = l_hashtype->hash[hix]; tp != NULL; tp = tp->next) {
+			ident = (unsigned int)tp->key;
+			if (prev_item[cix] && ident <= (unsigned int)prev_item[cix]->key)
+			    continue;
+			if (!this_item[cix] || ident < (unsigned int)this_item[cix]->key)
+			    this_item[cix] = tp;
+		    }
+		}
+	    }
+
+	    /* Are there any items left to print? */
+	    if (this_item[0] == NULL && this_item[1] == NULL)
+		break;
+
+	    /*
+	     * Print the item(s) with the lowest identifier.
+	     * Careful. There will be either one or two items queued.
+	     */
+	    for (cix = 0; cix < 2; ++cix) {
+		if (this_item[cix] == NULL)
+		    continue;
+		if (this_item[cix ^ 1] == NULL ||
+		    ((unsigned int)this_item[cix]->key <=
+		     (unsigned int)this_item[cix ^ 1]->key)) {
+		    ident = (unsigned int)this_item[cix]->key;
+		    text = (const char *)this_item[cix]->data;
+		    if (type == PM_TEXT_PMID)
 			printf("PMID: %s", pmIDStr((pmID)ident));
-		    else if (type & PM_TEXT_INDOM)
+		    else if (type == PM_TEXT_INDOM)
 			printf("InDom: %s", pmInDomStr((pmInDom)ident));
-		    if (type & PM_TEXT_ONELINE)
+		    class = textClasses[cix];
+		    if (class == PM_TEXT_ONELINE)
 			printf(" [%s]", text);
-		    else if (type & PM_TEXT_HELP)
+		    else if (class == PM_TEXT_HELP)
 			printf("\n%s", text);
 		    putchar('\n');
+		    
+		    prev_item[cix] = this_item[cix];
 		}
 	    }
 	}
@@ -537,44 +590,138 @@ dumpHelpText(__pmContext *ctxp)
 static void
 dumpLabelSets(__pmContext *ctxp)
 {
-    int		i;
-    int		j;
-    unsigned int	type;
-    unsigned int	ident;
-    __pmHashCtl		*l_hashtype;
-    __pmHashNode	*hp, *tp;
-    __pmLogLabelSet	*ldp, *p;
+    int				lix;
+    int				tix;
+    unsigned int		type;
+    unsigned int		ident;
+    __pmHashCtl			*l_hashlabels;
+    const __pmHashCtl		*l_hashtype;
+    const __pmHashNode		*hp, *tp;
+    const __pmHashNode		*this_item, *prev_item;
+    const __pmLogLabelSet	*p;
+    double			tdiff, min_diff;
+    pmTimeval			this_stamp, prev_stamp;
+    /* Print the label types in this order. */
+    unsigned int labelTypes[] = {
+	PM_LABEL_CONTEXT,
+	PM_LABEL_DOMAIN,
+	PM_LABEL_CLUSTER,
+	PM_LABEL_ITEM,
+	PM_LABEL_INDOM,
+	PM_LABEL_INSTANCES
+    };
 
     printf("\nMetric Labels in the Log ...\n");
 
-    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashlabels.hsize; i++) {
-	hp = ctxp->c_archctl->ac_log->l_hashlabels.hash[i];
-	for (; hp != NULL; hp = hp->next) {
-	    type = (unsigned int)hp->key;
-	    l_hashtype = (__pmHashCtl *)hp->data;
-	    for (j = 0; j < l_hashtype->hsize; j++) {
-		for (tp = l_hashtype->hash[j]; tp != NULL; tp = tp->next) {
-		    ident = (unsigned int)tp->key;
-
-		    /*
-		     * in reverse chronological order, so iteration is odd
-		     */
-		    ldp = NULL;
-		    for ( ; ; ) {
-			p = (__pmLogLabelSet *)tp->data; 
-			for (; p->next != ldp; p = p->next)
-			    ;
-			__pmPrintTimeval(stdout, &p->stamp);
-			putchar('\n');
-			pmPrintLabelSets(stdout, ident, type,
-					p->labelsets, p->nsets);
-			if (p == (__pmLogLabelSet *)tp->data)
-			    break;
-			ldp = p;
+    /*
+     * In order to make the output more deterministic for testing,
+     * output the help text sorted by
+     *   time, then by
+     *   type, then by
+     *   identifier
+     */
+    l_hashlabels = &ctxp->c_archctl->ac_log->l_hashlabels;
+    prev_stamp.tv_sec = 0;
+    prev_stamp.tv_usec = 0;
+    for (;;) {
+	/* find the next earliest time stamp. */
+	min_diff = DBL_MAX;
+	for (lix = 0; lix < l_hashlabels->hsize; ++lix) {
+	    for (hp = l_hashlabels->hash[lix]; hp != NULL; hp = hp->next) {
+		l_hashtype = (__pmHashCtl *)hp->data;
+		for (tix = 0; tix < l_hashtype->hsize; tix++) {
+		    for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
+			for (p = (__pmLogLabelSet *)tp->data; p != NULL; p = p->next) {
+			    tdiff = __pmTimevalSub(&p->stamp, &prev_stamp);
+			    /*
+			     * The chains are sorted in reverse chronological
+			     * order so, if this time stamp is less than or
+			     * equal to the previously printed one, we can stop
+			     * looking.
+			     */
+			    if (tdiff <= 0.0)
+				break;
+			    /* Do we have a new candidate? */
+			    if (tdiff < min_diff) {
+				min_diff = tdiff;
+				this_stamp = p->stamp;
+			    }
+			}
 		    }
 		}
 	    }
 	}
+	if (min_diff == DBL_MAX)
+	    break; /* done */
+
+	/*
+	 * Now print all the label sets at this time stamp.
+	 * Sort by type and then identifier.
+	 */
+	__pmPrintTimeval(stdout, &this_stamp);
+	putchar('\n');
+	for (lix = 0; lix < sizeof(labelTypes) / sizeof(*labelTypes); ++lix) {
+	    /* Are there labels of this type? */
+	    type = labelTypes[lix];
+	    hp = __pmHashSearch(type, l_hashlabels);
+	    if (hp == NULL)
+		continue;
+
+	    /* Iterate over the label sets by increasing identifier. */
+	    l_hashtype = (__pmHashCtl *)hp->data;
+	    prev_item = NULL;
+	    for (;;) {
+		if (type == PM_LABEL_CONTEXT) {
+		    /*
+		     * All context labels have the same identifier within a
+		     * single hash chain. Find it and Traverse it linearly.
+		     */
+		    if (prev_item == NULL) {
+			for (tix = 0; tix < l_hashtype->hsize; tix++) {
+			    this_item = l_hashtype->hash[tix];
+			    if (this_item != NULL)
+				break;
+			}
+		    }
+		    else
+			this_item = this_item->next;
+		}
+		else {
+		    /*
+		     * Search the hash of identifiers looking for the next lowest
+		     * one.
+		     */
+		    this_item = NULL;
+		    for (tix = 0; tix < l_hashtype->hsize; tix++) {
+			for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
+			    ident = (unsigned int)tp->key;
+			    if (prev_item && ident <= (unsigned int)prev_item->key)
+				continue;
+			    if (!this_item || ident < (unsigned int)this_item->key)
+				this_item = tp;
+			}
+		    }
+		}
+		if (this_item == NULL)
+		    break; /* done */
+
+		/*
+		 * We've found the next lowest identifier.
+		 * Print the labels for this type and identifier at the current
+		 * time stamp.
+		 */
+		; 
+		for (p = (__pmLogLabelSet *)this_item->data; p != NULL; p = p->next){
+		    if (__pmTimevalSub(&p->stamp, &this_stamp) != 0.0)
+			continue;
+		    ident = (unsigned int)this_item->key;
+		    pmPrintLabelSets(stdout, ident, type, p->labelsets, p->nsets);
+		}
+
+		prev_item = this_item;
+	    }
+	}
+	prev_stamp = this_stamp;
     }
 }
 
