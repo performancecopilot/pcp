@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM       = bcc
 MODULEDIR = $(PCP_PMDAS_DIR)/$(IAM)/modules
-PYSCRIPTS = $(shell echo *.py | sed -e 's/\.py//g')
+PYSCRIPTS = $(shell echo *.python)
 EBPFPROGS = $(shell echo *.bpf)
 
 include $(BUILDRULES)
@@ -26,8 +26,4 @@ default_pcp default:	$(SCRIPTS) $(BCC_EBPF)
 
 install_pcp install:	default
 	$(INSTALL) -m 755 -d $(MODULEDIR)
-	for py in $(PYSCRIPTS); do \
-	    $(INSTALL) -m 644 $${py}.py $(MODULEDIR)/$${py}; \
-	done
-	$(INSTALL) -m 644 __init.py__ $(MODULEDIR)/__init.py__
-	$(INSTALL) -m 644 $(EBPFPROGS) $(MODULEDIR)
+	$(INSTALL) -m 644 $(EBPFPROGS) $(PYSCRIPTS) $(MODULEDIR)

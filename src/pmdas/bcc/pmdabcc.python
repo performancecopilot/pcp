@@ -17,6 +17,7 @@
 import configparser
 import importlib
 import atexit
+import glob
 import sys
 import os
 
@@ -140,6 +141,16 @@ class BCCPMDA(PMDA):
     def init_modules(self):
         """ Initialize modules """
         self.log("Initializing modules:")
+
+        # for packaging, allow both .python and .py suffixed files
+        moduledir = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        moduledir += '/' + self.read_name() + '/' + 'modules'
+        modulepys = glob.glob(moduledir + '/*.python')
+        for python in modulepys:
+            py = python[:-4]
+            if not os.path.exists(py):
+                os.symlink(python, py)
+
         for module in self.modules:
             self.log(module)
             try:
