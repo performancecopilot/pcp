@@ -4,7 +4,7 @@ Running pmdumplog -iteh archives/20180127.08.40
 Running pmdumplog -iteh TMP.pmlogextract
 Running diff TMP.original.txt TMP.extracted.txt
 Expect some time index differences
-10771,10803c10771,10831
+10773,10805c10773,10833
 < 08:40:29.125510	      0          450          340
 < 08:40:29.186612	      0        48194       154332
 < 08:40:29.306114	      0       113251       168896
