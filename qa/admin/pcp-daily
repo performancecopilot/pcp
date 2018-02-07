@@ -336,12 +336,14 @@ in
 	    exit 1
 	fi
 	cd pcp-$buildversion/build/rpm
-	if sudo rpm -U --force `./cherrypick` >$tmp.out 2>&1
+	if sudo rpm -U --force `./cherrypick 2>$tmp.err` >$tmp.out 2>&1
 	then
 	    cat $tmp.out >>$HOME/daily.log
+	    cat $tmp.err >>$HOME/daily.log
 	    echo "Info: rpm install" | tee -a $HOME/daily.log
 	else
 	    cat $tmp.out >>$HOME/daily.log
+	    cat $tmp.err >>$HOME/daily.log
 	    grep -v 'is already installed' $tmp.out >$tmp.tmp
 	    if [ -s $tmp.tmp ]
 	    then
