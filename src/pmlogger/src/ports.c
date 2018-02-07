@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2015,2018 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -814,6 +814,7 @@ control_req(int ctlfd)
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	__pmSockAddrFree(addr);
+	pmlc_host[0] = '\0';
 	return 0;
     }
     __pmSetSocketIPC(fd);
@@ -826,6 +827,7 @@ control_req(int ctlfd)
 			 pmErrStr(sts));
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
 
@@ -835,6 +837,7 @@ control_req(int ctlfd)
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
 
@@ -867,6 +870,7 @@ control_req(int ctlfd)
 	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
 
@@ -887,6 +891,7 @@ control_req(int ctlfd)
 			pmErrStr(sts));
 	    __pmSockAddrFree(addr);
 	    __pmCloseSocket(fd);
+	    pmlc_host[0] = '\0';
 	    return 0;
 	}
 
@@ -898,6 +903,7 @@ control_req(int ctlfd)
 			pmErrStr(sts));
 	    __pmSockAddrFree(addr);
 	    __pmCloseSocket(fd);
+	    pmlc_host[0] = '\0';
 	    return 0;
 	}
 
@@ -920,6 +926,7 @@ control_req(int ctlfd)
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
     clientfd = fd;
