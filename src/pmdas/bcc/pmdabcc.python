@@ -14,7 +14,10 @@
 #
 """ PCP BCC Performance Metrics Domain Agent """
 
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 import importlib
 import atexit
 import glob
@@ -155,7 +158,7 @@ class BCCPMDA(PMDA):
             self.log(module)
             try:
                 mod = importlib.import_module('modules.%s' % self.modules[module][MODULE])
-            except ModuleNotFoundError as error:
+            except ImportError as error:
                 self.err(str(error))
                 self.err("Module %s not found, aborting." % module)
                 sys.exit(1)
