@@ -142,6 +142,12 @@ AC_ARG_WITH([perfevent],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
+AC_ARG_WITH([pmdabcc],
+    [AC_HELP_STRING([--with-pmdabcc],
+		   [enable BCC pmda (default is on)])],
+    [do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"],
+    [do_pmdabcc=check])
+
 AC_ARG_WITH([pmdajson],
     [AC_HELP_STRING([--with-pmdajson],
 		   [enable JSON pmda (default is on)])],
@@ -899,6 +905,8 @@ AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
 	eval have_python_$1=false
     fi
   ])
+PCP_CHECK_PYTHON_MODULE(BPF, [from bcc import BPF])
+AC_SUBST(have_python_BPF)
 PCP_CHECK_PYTHON_MODULE(OrderedDict, [from collections import OrderedDict])
 AC_SUBST(have_python_OrderedDict)
 PCP_CHECK_PYTHON_MODULE(Elasticsearch, [from elasticsearch import Elasticsearch])
@@ -926,6 +934,17 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the bcc PMDA should be included])
+pmda_bcc=false
+AS_IF([test "x$do_pmdabcc" = "xyes"], [pmda_bcc=true])
+AS_IF([test "x$do_pmdabcc" = "xcheck"], [
+    dnl BCC PMDA needs python3, and OrderedDict and BPF Python modules
+    $enable_python3 && $have_python_BPF && \
+	$have_python_OrderedDict && pmda_bcc=true
+])
+AC_SUBST(PMDA_BCC, $pmda_bcc)
+if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)

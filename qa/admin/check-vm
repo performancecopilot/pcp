@@ -519,6 +519,16 @@ pkg?	/usr/lib/python*/*-packages/xlsxwriter		[N/A (build optional)]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/xlsxwriter	[?python-xlsxwriter]
 pacman?	/usr/lib/python2.*/site-packages/xlsxwriter	[python2-xlsxwriter?]
 pacman?	/usr/lib/python3.*/site-packages/xlsxwriter	[python-xlsxwriter?]
+# -- bcc
+dpkg?	/usr/lib/python3/*-packages/bcc.py	[python3-bcc]
+rpm?	/usr/lib*/python3.*/*-packages/bcc.py	[python3-bcc]
+urpmi?	/usr/lib*/python*/*-packages/bcc.py	[python-bcc]
+emerge?	/usr/lib/python*/*-packages/bcc.py	[dev-python/bcc]
+pkgin?	/usr/pkg/lib/python3.*/*-packages/bcc.py	[py36-bcc]
+pkg_add?	/usr/local/lib/python*/*-packages/bcc.py	[py-bcc]
+pkg?	/usr/lib/python*/*-packages/*/*/bcc.py	[N/A (build optional)]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/bcc.py	[?python-bcc]
+pacman?	/usr/lib/python3.*/site-packages/bcc.py	[python-bcc]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[perl]

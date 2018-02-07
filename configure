@@ -836,6 +836,7 @@ PMDA_SNMP
 have_perl
 pcp_perl_prog
 PERL
+PMDA_BCC
 PMDA_JSON
 have_python_six
 have_python_libvirt
@@ -845,6 +846,7 @@ have_python_xlsxwriter
 have_python_jsonpointer
 have_python_Elasticsearch
 have_python_OrderedDict
+have_python_BPF
 pcp_python_prog
 have_python
 enable_python3
@@ -995,6 +997,7 @@ with_books
 with_books_brand
 with_papi
 with_perfevent
+with_pmdabcc
 with_pmdajson
 with_pmdanutcracker
 with_pmdasnmp
@@ -1717,6 +1720,7 @@ Optional Packages:
                           The optional argument may be a full path of a PAPI
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
@@ -2964,6 +2968,15 @@ if test "${with_perfevent+set}" = set; then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdabcc was given.
+if test "${with_pmdabcc+set}" = set; then :
+  withval=$with_pmdabcc; do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"
+else
+  do_pmdabcc=check
 fi
 
 
@@ -7400,6 +7413,28 @@ fi
 
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module BPF" >&5
+$as_echo_n "checking for Python module BPF... " >&6; }
+    if test -n "from bcc import BPF"
+    then
+	txt="from bcc import BPF"
+    else
+	txt="import BPF"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_BPF=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_BPF=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module OrderedDict" >&5
 $as_echo_n "checking for Python module OrderedDict... " >&6; }
     if test -n "from collections import OrderedDict"
@@ -7592,6 +7627,24 @@ fi
 PMDA_JSON=$pmda_json
 
 if $pmda_json; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bcc PMDA should be included" >&5
+$as_echo_n "checking if the bcc PMDA should be included... " >&6; }
+pmda_bcc=false
+if test "x$do_pmdabcc" = "xyes"; then :
+  pmda_bcc=true
+fi
+if test "x$do_pmdabcc" = "xcheck"; then :
+
+        $enable_python3 && $have_python_BPF && \
+	$have_python_OrderedDict && pmda_bcc=true
+
+fi
+PMDA_BCC=$pmda_bcc
+
+if $pmda_bcc; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
