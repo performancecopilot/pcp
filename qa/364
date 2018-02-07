@@ -83,6 +83,8 @@ _filter_linux()
 	sed \
 	    -e '/^network.softnet.* Metric not supported/d' \
 	    -e '/^proc.namespaces.* Metric not supported/d' \
+	    -e '/^proc.psinfo.cgroups.* No data available/d' \
+	    -e '/^cgroup..*.container.* No data available/d' \
 	# linux
     fi
 }
