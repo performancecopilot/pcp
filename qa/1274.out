@@ -1,0 +1,24 @@
+QA output created by 1274
+Running pmlogextract archives/20180127.08.40 TMP.pmlogextract
+Running pmdumplog -aeh archives/20180127.08.40
+Running pmdumplog -aeh TMP.pmlogextract
+Running diff TMP.original.txt TMP.extracted.txt
+Expect some time index differences
+8c8
+< PID for pmlogger: PID
+---
+> PID for pmlogger: PID
+12272,12275c12272,12275
+< 08:40:29.125510	      0          450          340
+< 08:40:29.186612	      0        48194       154332
+< 08:40:29.306114	      0       113251       168896
+< 08:40:29.308973	      0       124663       176320
+---
+> 08:40:29.125510	      0          843          340
+> 08:40:29.186612	      0        48587       154332
+> 08:40:29.306114	      0       113644       168896
+> 08:40:29.308973	      0       125056       176320
+12304c12304
+< 08:46:09.147025	      0       412485      4711324
+---
+> 08:46:09.148025	      0       412485      4725888

@@ -86,19 +86,24 @@ cgroup.blkio.dev.throttle.io_serviced.sync
 cgroup.blkio.dev.throttle.io_serviced.total
 cgroup.blkio.dev.throttle.io_serviced.write
 cgroup.blkio.dev.time
+cgroup.blkio.id.container
+cgroup.cpuacct.id.container
 cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
 cgroup.cpusched.cfs_period
 cgroup.cpusched.cfs_quota
+cgroup.cpusched.id.container
 cgroup.cpusched.periods
 cgroup.cpusched.shares
 cgroup.cpusched.throttled
 cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
+cgroup.cpuset.id.container
 cgroup.cpuset.mems
 cgroup.memory.failcnt
+cgroup.memory.id.container
 cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
@@ -138,12 +143,13 @@ cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
+cgroup.netclass.id.container
 cgroup.subsys.count
 cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 629 instance values.
+and 644 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -250,19 +256,24 @@ cgroup.blkio.dev.throttle.io_serviced.sync
 cgroup.blkio.dev.throttle.io_serviced.total
 cgroup.blkio.dev.throttle.io_serviced.write
 cgroup.blkio.dev.time
+cgroup.blkio.id.container
+cgroup.cpuacct.id.container
 cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
 cgroup.cpusched.cfs_period
 cgroup.cpusched.cfs_quota
+cgroup.cpusched.id.container
 cgroup.cpusched.periods
 cgroup.cpusched.shares
 cgroup.cpusched.throttled
 cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
+cgroup.cpuset.id.container
 cgroup.cpuset.mems
 cgroup.memory.failcnt
+cgroup.memory.id.container
 cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
@@ -302,12 +313,13 @@ cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
+cgroup.netclass.id.container
 cgroup.subsys.count
 cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 263 instance values.
+and 268 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -403,19 +415,24 @@ cgroup.blkio.dev.throttle.io_serviced.sync
 cgroup.blkio.dev.throttle.io_serviced.total
 cgroup.blkio.dev.throttle.io_serviced.write
 cgroup.blkio.dev.time
+cgroup.blkio.id.container
+cgroup.cpuacct.id.container
 cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
 cgroup.cpusched.cfs_period
 cgroup.cpusched.cfs_quota
+cgroup.cpusched.id.container
 cgroup.cpusched.periods
 cgroup.cpusched.shares
 cgroup.cpusched.throttled
 cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
+cgroup.cpuset.id.container
 cgroup.cpuset.mems
 cgroup.memory.failcnt
+cgroup.memory.id.container
 cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
@@ -455,12 +472,13 @@ cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
+cgroup.netclass.id.container
 cgroup.subsys.count
 cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 5118 instance values.
+and 5356 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

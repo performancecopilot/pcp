@@ -560,6 +560,9 @@ typedef struct pmLabel {
     unsigned int	valuelen : 16;	/* length of value in bytes */
 } pmLabel;
 
+/* Bits for the flags field (above) */
+#define PM_LABEL_OPTIONAL	(1<<7)
+
 typedef struct pmLabelSet {
     unsigned int 	inst;		/* PM_IN_NULL or the instance ID */
     int			nlabels;	/* count of labels or error code */
@@ -572,13 +575,13 @@ typedef struct pmLabelSet {
 #define PM_MAXLABELS		((1<<8)-1)
 #define PM_MAXLABELJSONLEN	((1<<16)-1)
 
+/* These identify label set classes. */
 #define PM_LABEL_CONTEXT	(1<<0)
 #define PM_LABEL_DOMAIN		(1<<1)
 #define PM_LABEL_INDOM		(1<<2)
 #define PM_LABEL_CLUSTER	(1<<3)
 #define PM_LABEL_ITEM		(1<<4)
 #define PM_LABEL_INSTANCES	(1<<5)
-#define PM_LABEL_OPTIONAL	(1<<7)
 
 PCP_CALL extern int pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);

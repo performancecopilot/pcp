@@ -275,9 +275,6 @@ QA output created by 366
 < ## XBOW activity [xbowvis]
 ---
 > #+ sgi/xbow:x::
-> #+ filesystem/rpc-server:n:default:
-> ## RPC server stats
-> #----
 > #+ filesystem/summary:n:default:
 > ## filesystem size and fullness
 > #----
@@ -336,14 +333,6 @@ QA output created by 366
 > 	mem.ksm.pages_volatile
 > 	mem.ksm.run_state
 > 	mem.ksm.sleep_time
-> }
-> #----
-> #+ memory/meminfo:y:default:
-> ## metrics used by the pcp-meminfo(1) command
-> log advisory on default {
-> 	
-> 	mem.numa.max_bandwidth
-> 	mem.numa.util
 > }
 > #----
 > #+ memory/slabinfo:x::

@@ -107,10 +107,12 @@ tools.  pmStore(3) must be used to set this metric (not pmstore(1)).
 
 @ cgroup.cpuset.cpus CPUs assigned to each individual cgroup
 @ cgroup.cpuset.mems Memory nodes assigned to each individual cgroup
+@ cgroup.cpuset.id.container Each cpuset cgroups container based on heuristics
 @ cgroup.cpuacct.usage CPU time consumed by processes in each cgroup
 @ cgroup.cpuacct.usage_percpu Per-CPU time consumed by processes in each cgroup
 @ cgroup.cpuacct.stat.user Time spent by tasks of the cgroup in user mode
 @ cgroup.cpuacct.stat.system Time spent by tasks of the cgroup in kernel mode
+@ cgroup.cpuacct.id.container Each cpuacct cgroups container based on heuristics
 
 @ cgroup.cpusched.shares Processor scheduler cgroup shares
 Scheduler fairness CPU time division for each cgroup - details in
@@ -148,6 +150,8 @@ exceeds this limit (for that period), the tasks belonging to its hierarchy
 will be throttled and are not allowed to run again until the next period.
 Further discussion in Documentation/scheduler/sched-bwc.txt in the kernel
 sources.
+
+@ cgroup.cpusched.id.container Each cpusched cgroups container based on heuristics
 
 @ cgroup.memory.usage Current physical memory accounted to each cgroup
 @ cgroup.memory.limit Maximum memory that can be utilized by each cgroup
@@ -195,7 +199,10 @@ the cgroup.
 @ cgroup.memory.stat.recent.scanned_anon VM internal parameter (see mm/vmscan.c)
 @ cgroup.memory.stat.recent.scanned_file VM internal parameter (see mm/vmscan.c)
 
+@ cgroup.memory.id.container Each memory cgroups container based on heuristics
+
 @ cgroup.netclass.classid Network classifier cgroup class identifiers
+@ cgroup.netclass.id.container Each netclass cgroups container based on heuristics
 
 @ cgroup.blkio.dev.sectors Per-cgroup total (read+write) sectors
 @ cgroup.blkio.dev.time Per-device, per-cgroup total (read+write) time
@@ -282,6 +289,7 @@ the cgroup.
 @ cgroup.blkio.all.throttle.io_serviced.sync Per-cgroup throttle sync operations serviced
 @ cgroup.blkio.all.throttle.io_serviced.async Per-cgroup throttle async operations serviced
 @ cgroup.blkio.all.throttle.io_serviced.total Per-cgroup total throttle operations serviced
+@ cgroup.blkio.id.container Each blkio cgroups container based on heuristics
 
 @ hotproc.control.refresh time in secs between refreshes
 Controls how long it takes before the "interesting" process list is refreshed

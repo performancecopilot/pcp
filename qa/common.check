@@ -2390,7 +2390,7 @@ if conn != None:
 exit(0)
 End-of-File
 	    _libvirt_ver=`$PCP_PYTHON_PROG $tmp.py 2>/dev/null`
-	    echo "Ubuntu and libvert version $_libvirt_ver" >>$here/$seq.full
+	    echo "Ubuntu and libvirt version $_libvirt_ver" >>$here/$seq.full
 	    case "$_libvirt_ver"
 	    in
 		2005000)

@@ -32,6 +32,7 @@ _filter_papi_errors()
 	-e '/pfm_find_full_event(.*): event not found./d' \
 	-e '/events in papi_events.csv were not valid./d' \
 	-e '/PAPI Error: papi_preset: Error finding event MEM_LOAD_UOPS_RETIRED:L1_HIT:L1_MISS./d' \
+	-e '/PAPI Error: papi_preset: Error finding event OFFCORE_RESPONSE_0:HITM./d' \
 	-e '/ibwarn:/d' \
     # end
 }

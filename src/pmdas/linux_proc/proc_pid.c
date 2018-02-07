@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -1918,35 +1918,15 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid, int *sts)
 }
 
 /*
- * From a kernel proc cgroups file entry attempt to extract a container ID
- *    cpuset:/system.slice/docker-0ea0c4[...]3bc0.scope (e.g. RHEL/Fedora)
- *    cpuset:/docker/0ea0c4[...]3bc0  (e.g. Debian/Ubuntu/SUSE))
+ * From a kernel proc cgroups file entry attempt to extract a
+ * container ID using the cgroup_container_search routine.
  */
 static char *
-proc_container_search(char *buf, int buflen, char *cid, int cidlen)
+proc_container_search(const char *buf, int buflen, char *cid, int cidlen)
 {
-    char *p, *end;
-    int len;
-
     if (strncmp(buf, "cpuset:", 7) != 0)
 	return NULL;
-    p = buf + 7;
-    if (strncmp(p, "/system.slice/docker-", 21) == 0) {
-	p += 21;
-	if ((end = strchr(p, '.')) != NULL && ((len = end - p) < cidlen)) {
-	    strncpy(cid, p, len);
-	    cid[len] = '\0';
-	    return cid;
-	}
-    } else if (strncmp(p, "/docker/", 8) == 0) {
-	p += 8;
-	if ((end = strchr(p, '\n')) != NULL && ((len = end - p) < cidlen)) {
-	    strncpy(cid, p, len);
-	    cid[len] = '\0';
-	    return cid;
-	}
-    }
-    return NULL;
+    return cgroup_container_search(buf + 7, cid, cidlen);
 }
 
 /*

@@ -1456,6 +1456,7 @@ collectl
 1222 pmda.linux pmda.proc local
 1225 pmwebapi local
 1227 derive local
+1229 pmlogextract pmdumplog labels help local
 1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
@@ -1463,6 +1464,7 @@ collectl
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
 1269 libpcp local
+1274 pmlogextract pmdumplog labels help local
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1321:reserved pmlogger local
