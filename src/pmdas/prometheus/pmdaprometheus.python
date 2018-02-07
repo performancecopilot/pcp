@@ -602,8 +602,9 @@ class Source(object):
                 self.pmda.pmns_changed = False
                 # XXX: ditch metrics no longer found in document
 
-                # bump the fetch call counter
+                # bump the fetch call counter for this source, and for the total (cluster 0)
                 self.pmda.stats_fetch_calls[self.cluster] += 1
+                self.pmda.stats_fetch_calls[0] += 1
 
                 self.refresh_time = time.time()
                 try:
@@ -636,13 +637,17 @@ class Source(object):
 
                         # update fetch time counter stats, in ms
                         self.parse_time = time.time()
-                        self.pmda.stats_fetch_time[self.cluster] += int(1000 * (self.parse_time - self.refresh_time))
+                        incr = int(1000 * (self.parse_time - self.refresh_time))
+                        self.pmda.stats_fetch_time[self.cluster] += incr
+                        self.pmda.stats_fetch_time[0] += incr # total for all sources
 
                         # parse and handle the prometheus formatted metric data
                         s = self.parse_lines(document)
 
                         # update parse time counter stats, in ms
-                        self.pmda.stats_parse_time[self.cluster] += int(1000 * (time.time() - self.parse_time))
+                        incr = int(1000 * (time.time() - self.parse_time))
+                        self.pmda.stats_parse_time[self.cluster] += incr
+                        self.pmda.stats_parse_time[0] += incr # total
 
                         # save metric & indom lookup tables changes, if any 
                         for n,m in self.metrics_by_name.items():
@@ -660,6 +665,7 @@ class Source(object):
         def fetch(self, item, inst):
                 ''' Retrieve metric/instance values that ought to have been found
                 by a recent refresh().  PM_ERR_AGAIN signals a no go.'''
+
                 try:
                         m = self.metrics_by_num[item]
                         return m.fetch_inst(inst)
@@ -689,7 +695,7 @@ class PrometheusPMDA(PMDA):
                 self.source_by_name = {}
                 # persistently assign numeric id to source names -> pmid "cluster" numbers
                 self.cluster_table = PersistentNameTable(self, 0, MAX_CLUSTER)
-                reserved_cluster = self.cluster_table.intern_lookup_value("*reserved-source2cluster*")
+                reserved_cluster = self.cluster_table.intern_lookup_value("control")
                 assert reserved_cluster == 0
                 self.source_by_cluster = {}
 
@@ -704,21 +710,21 @@ class PrometheusPMDA(PMDA):
                 self.sources_indom = self.indom(0)
 
                 # fetch call counter, per-source end-point
-                self.stats_fetch_calls = {} # counter, keyed by cluster number
+                self.stats_fetch_calls = {0:0} # counter, keyed by cluster number
                 self.add_metric('prometheus.control.calls', pmdaMetric(self.pmid(0, 1),
                     c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
                     pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
                     'per-end-point source call counter')
 
                 # fetch time counter, per-source end-point
-                self.stats_fetch_time = {} # time counter in msec, keyed by cluster number
+                self.stats_fetch_time = {0:0} # time counter in msec, keyed by cluster number
                 self.add_metric('prometheus.control.fetch_time', pmdaMetric(self.pmid(0, 2),
                     c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)), # millisecond counter
                     'per-end-point source fetch time counter, excluding parse time')
 
                 # parse time counter, per-source end-point
-                self.stats_parse_time = {} # time counter in msec, keyed by cluster number
+                self.stats_parse_time = {0:0} # time counter in msec, keyed by cluster number
                 self.add_metric('prometheus.control.parse_time', pmdaMetric(self.pmid(0, 3),
                     c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)), # millisecond counter
@@ -817,7 +823,7 @@ class PrometheusPMDA(PMDA):
                         # convert file path name into a PCP metric name
                         name = file_split[0].replace(self.config_dir + "/", "").replace("/",".")
                         if name == "control":
-                                self.err("Warning: ignored config file '%s', 'prometheus.control' is a reserved subtree for PMDA statistics" % file)
+                                self.err("Warning: ignored config file '%s', 'prometheus.control' is a reserved PMNS subtree for PMDA statistics" % file)
                                 continue
                         if not nickname_regexp.match(name):
                                 self.err("Warning: ignored config file '%s', unsuitable for PCP namespace" % file)
@@ -873,22 +879,18 @@ class PrometheusPMDA(PMDA):
                 
         def fetch_callback(self, cluster, item, inst):
                 ''' Main fetch callback which returns the value of the metric '''
+                if cluster == 0: # The reserved 'control' cluster: statistics
+                        if item == 1: # per-source calls counter
+                                return [self.stats_fetch_calls[inst], 1]
+                        elif item == 2: # per-source fetch time counter
+                                return [self.stats_fetch_time[inst], 1]
+                        elif item == 3: # per-source parse time counter
+                                return [self.stats_parse_time[inst], 1]
+                        return [c_api.PM_ERR_PMID, 0]
+
                 self.assert_source_invariants(cluster=cluster)
                 try:
-                        if cluster == 0: # PMDA stats
-                                try:
-                                        if item == 1: # per-source calls counter
-                                                return [self.stats_fetch_calls[inst], 0]
-                                        elif item == 2: # per-source fetch time counter
-                                                return [self.stats_fetch_time[inst], 0]
-                                        elif item == 3: # per-source parse time counter
-                                                return [self.stats_parse_time[inst], 0]
-                                        else:
-                                                return [inst, 0]
-                                except Exception as e:
-                                        self.err("Error: fetch_callback: stats: item %d, inst %d : %s", (item, inst, e))
-                                        return [c_api.PM_ERR_INST, 0]
-                        elif cluster in self.source_by_cluster: # end-points
+                        if cluster in self.source_by_cluster: # end-points
                                 return self.source_by_cluster[cluster].fetch(item, inst)
                         else:
                                 return [c_api.PM_ERR_PMID, 0]
@@ -913,6 +915,8 @@ class PrometheusPMDA(PMDA):
                 if dbg:
                         self.debug("refreshing clusters %s" % clusters)
                 for c in clusters:
+                        if c == 0: # never refresh the reserved cluster
+                                continue
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
                         threads.append(t)
