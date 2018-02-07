@@ -202,6 +202,27 @@ log mandatory on 2 second {
 .fi
 .ft 1
 
+.SH "CONTROL METRICS"
+The PMDA maintains three special control metrics, as described below.
+Each of these metrics is a counter and has one instance for each configured metric source.
+The instance domain is adjusted dynamically as new sources are discovered.
+If there are no sources configured, the metric names are still defined
+but the instance domain will be empty and a fetch will return no values.
+.IP \fBprometheus.control.calls\fP
+The total number of times each configured metric source has been fetched (if it's a URL)
+or executed (if it's a script), since the PMDA started.
+.IP \fBprometheus.control.fetch_time\fP
+Total time in milliseconds that each configured metric source has taken to return a document,
+excluding the time to parse the document.
+.IP \fBprometheus.control.parse_time\fP
+Total time in milliseconds that each configured metric source has taken to parse each document,
+excluding the time to fetch the document.
+.PP
+When converted to a rate, the \fBcalls\fP metric represents the average fetch rate of each source
+over the sampling interval (time delta between samples).
+The \fBfetch_time\fP and \fBparse_time\fP counters, when converted to a rate, represent the
+average fetch and parsing latency (respectfully), during the sampling interval.
+
 .SH LIMITATIONS
 .B pmdaprometheus
 and
@@ -245,6 +266,12 @@ default log file for error messages from \fBpmdaprometheus\fR
 files containing internal tables for metric and instance ID number persistence (domain 144).
 
 .SH PCP ENVIRONMENT
+.IP \fB$PCP_PROMETHEUS_SORT_CONFLIST\fP
+If defined, the list of configuration files will be sorted prior to processing.
+This is generally only needed in a testing environment such as PCP QA because the
+.B os.walk ()
+function may return a different list order on different platforms and/or filesystems.
+.PP
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
 file \fB/etc/pcp.conf\fR contains the local values for these variables.

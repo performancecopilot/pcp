@@ -47,6 +47,14 @@ from stat import ST_MODE, S_IXUSR
 # write debugging messages to log, see --debug cmdline option
 dbg = False
 
+#
+# sort config file list - needed for QA because os.walk() returns
+# a different order on different platforms and/or filesystems.
+# But not needed for production use - the extra sorting is expensive
+# with a large number of URLs / scripts. Activated by setting
+# PCP_PROMETHEUS_SORT_CONFLIST in the environment (as QA tests do).
+sort_conf_list = False
+
 # Number of seconds to wait between poll attempts on a source that
 # we've never been able to connect to & collect a list of metrics from.
 empty_source_pmns_poll = 10.0
@@ -789,7 +797,10 @@ class PrometheusPMDA(PMDA):
                 
                 # XXX: nuke sources related to removed files
                 save_cluster_table = False
-                for file in sorted(conf_filelist): # sorted for indom cluster consistency
+                if sort_conf_list:
+                        # QA needs this sorted for indom cluster consistency
+                        conf_filelist = sorted(conf_filelist)
+                for file in conf_filelist:
                         # compute nickname for source:
                         # the part of the filename before .url
                         file_split = os.path.splitext(file)
@@ -1010,7 +1021,11 @@ class PrometheusPMDA(PMDA):
                 super(PrometheusPMDA,self).err(s)
                         
 if __name__ == '__main__':
+
+        if os.getenv('PCP_PROMETHEUS_SORT_CONFLIST') is not None:
+                sort_conf_list = True
         pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'),'prometheus')
+
         parser = argparse.ArgumentParser(description='Prometheus PMDA.',
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser.add_argument('-D','--debug',
