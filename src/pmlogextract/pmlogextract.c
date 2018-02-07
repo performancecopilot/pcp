@@ -561,6 +561,8 @@ mk_reclist_t(void)
         totalmalloc += sizeof(reclist_t);
         fprintf(stderr, "mk_reclist_t: allocated %d\n", (int)sizeof(reclist_t));
     }
+    rec->stamp.tv_sec = 0;
+    rec->stamp.tv_usec = 0;
     rec->pdu = NULL;
     rec->desc.pmid = PM_ID_NULL;
     rec->desc.type = PM_TYPE_NOSUPPORT;
@@ -614,7 +616,6 @@ findnadd_indomreclist(int indom)
 	    return(curr);
 	}
     }
-
 }
 
 /*
