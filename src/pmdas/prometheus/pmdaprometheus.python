@@ -697,21 +697,21 @@ class PrometheusPMDA(PMDA):
 
                 # fetch call counter, per-source end-point
                 self.stats_fetch_calls = {} # counter, keyed by cluster number
-                self.add_metric('prometheus.pmda_stats.calls', pmdaMetric(self.pmid(0, 1),
+                self.add_metric('prometheus.control.calls', pmdaMetric(self.pmid(0, 1),
                     c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
                     pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
                     'per-end-point source call counter')
 
                 # fetch time counter, per-source end-point
                 self.stats_fetch_time = {} # time counter in msec, keyed by cluster number
-                self.add_metric('prometheus.pmda_stats.fetch_time', pmdaMetric(self.pmid(0, 2),
+                self.add_metric('prometheus.control.fetch_time', pmdaMetric(self.pmid(0, 2),
                     c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)), # millisecond counter
                     'per-end-point source fetch time counter, excluding parse time')
 
                 # parse time counter, per-source end-point
                 self.stats_parse_time = {} # time counter in msec, keyed by cluster number
-                self.add_metric('prometheus.pmda_stats.parse_time', pmdaMetric(self.pmid(0, 3),
+                self.add_metric('prometheus.control.parse_time', pmdaMetric(self.pmid(0, 3),
                     c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)), # millisecond counter
                     'per-end-point source parse time counter, excluding fetch time')
@@ -805,6 +805,9 @@ class PrometheusPMDA(PMDA):
                                 continue
                         # convert file path name into a PCP metric name
                         name = file_split[0].replace(self.config_dir + "/", "").replace("/",".")
+                        if name == "control":
+                                self.err("Warning: ignored config file '%s', 'prometheus.control' is a reserved subtree for PMDA statistics" % file)
+                                continue
                         if not nickname_regexp.match(name):
                                 self.err("Warning: ignored config file '%s', unsuitable for PCP namespace" % file)
                                 continue
