@@ -22,6 +22,8 @@
 \f3pmdaprometheus\f1 \- Prometheus PMDA
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/prometheus/pmdaprometheus\f1
+[\f3\-D\f1]
+[\f3\-n\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-u\f1 \f2user\f1]
@@ -34,6 +36,16 @@ see \fBSOURCES\fP below.
 The default URL fetch \f2timeout\fP is \fB2\fP seconds.
 The default \f2user\fP, if not specified with the \f3\-u\fP option,
 is the current user.
+If the
+.B \-n
+option is given, the list of configuration files will not be sorted prior to processing.
+This list is sorted by default but that can be expensive if there are a large number of
+configuration files (URLs and/or scripts).
+.PP
+If the
+.B \-D
+option is given, additional diagnostic messages will be written to the PMDA log file,
+which is \fB$PCP_LOG_DIR/pmcd/prometheus.log\fP by default.
 .PP
 Further details on the Prometheus exposition format can be found at
 .I https://prometheus.io/docs/instrumenting/exposition_formats
@@ -266,12 +278,6 @@ default log file for error messages from \fBpmdaprometheus\fR
 files containing internal tables for metric and instance ID number persistence (domain 144).
 
 .SH PCP ENVIRONMENT
-.IP \fB$PCP_PROMETHEUS_SORT_CONFLIST\fP
-If defined, the list of configuration files will be sorted prior to processing.
-This is generally only needed in a testing environment such as PCP QA because the
-.B os.walk ()
-function may return a different list order on different platforms and/or filesystems.
-.PP
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
 file \fB/etc/pcp.conf\fR contains the local values for these variables.

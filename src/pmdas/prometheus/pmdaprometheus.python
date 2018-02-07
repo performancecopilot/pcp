@@ -48,12 +48,11 @@ from stat import ST_MODE, S_IXUSR
 dbg = False
 
 #
-# sort config file list - needed for QA because os.walk() returns
-# a different order on different platforms and/or filesystems.
-# But not needed for production use - the extra sorting is expensive
-# with a large number of URLs / scripts. Activated by setting
-# PCP_PROMETHEUS_SORT_CONFLIST in the environment (as QA tests do).
-sort_conf_list = False
+# sort config file list - generally needed because os.walk()
+# returns a different order on different platforms and/or filesystems.
+# Config file list sorting is expensive with a large number of URLs
+# and/or scripts. See the --nosort option to turn it off.
+sort_conf_list = True
 
 # Number of seconds to wait between poll attempts on a source that
 # we've never been able to connect to & collect a list of metrics from.
@@ -804,7 +803,7 @@ class PrometheusPMDA(PMDA):
                 # XXX: nuke sources related to removed files
                 save_cluster_table = False
                 if sort_conf_list:
-                        # QA needs this sorted for indom cluster consistency
+                        # sorted for indom cluster consistency
                         conf_filelist = sorted(conf_filelist)
                 for file in conf_filelist:
                         # compute nickname for source:
@@ -1026,8 +1025,6 @@ class PrometheusPMDA(PMDA):
                         
 if __name__ == '__main__':
 
-        if os.getenv('PCP_PROMETHEUS_SORT_CONFLIST') is not None:
-                sort_conf_list = True
         pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'),'prometheus')
 
         parser = argparse.ArgumentParser(description='Prometheus PMDA.',
@@ -1039,6 +1036,9 @@ if __name__ == '__main__':
                             type=str,
                             default=os.path.join(pmdadir,'config.d'),
                             help='configuration directory')
+        parser.add_argument('-n','--nosort',
+                            default=False,
+                            help='do not sort the config file list (default is to sort)', action='store_true')
         parser.add_argument('-t','--timeout',
                             type=int,
                             default=2,
@@ -1047,8 +1047,11 @@ if __name__ == '__main__':
                             type=str,
                             default=None,
                             help='set the username to run under. Default is no change (current user).')
+
         args = parser.parse_args()
         dbg = args.debug
+        if args.nosort:
+                sort_conf_list = False
 
         pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout, args.user)
         pmda.run()
