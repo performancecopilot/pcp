@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,17 +15,23 @@
 #ifndef _CGROUP_H
 #define _CGROUP_H
 
+#define MAXCIDLEN	128	/* maximum container name length */
+#define DOCKERCIDLEN	64	/* length of a docker container ID */
+#define MAXMNTOPTSLEN	256	/* maximum mount option string length */
+
 /*
  * Per-cgroup data structures for each of the cgroup subsystems.
  */
 typedef struct {
     int			cpus;
     int			mems;
+    int			container;
 } cgroup_cpuset_t;
 
 enum {
-    CG_CPUSET_CPUS	= 0,
-    CG_CPUSET_MEMS	= 1,
+    CG_CPUSET_CPUS		= 0,
+    CG_CPUSET_MEMS		= 1,
+    CG_CPUSET_ID_CONTAINER	= 2,
 };
 
 typedef struct {
@@ -36,6 +42,7 @@ typedef struct {
     __uint64_t		user;
     __uint64_t		system;
     __uint64_t		usage;
+    int			container;
 } cgroup_cpuacct_t;
 
 enum {
@@ -43,6 +50,7 @@ enum {
     CG_CPUACCT_SYSTEM		= 1,
     CG_CPUACCT_USAGE		= 2,
     CG_CPUACCT_PERCPU_USAGE	= 3,
+    CG_CPUACCT_ID_CONTAINER	= 4,
 };
 
 typedef struct {
@@ -56,6 +64,7 @@ typedef struct {
     cgroup_cpustat_t	stat;
     __uint64_t		cfs_period;
     __int64_t		cfs_quota;
+    int			container;
 } cgroup_cpusched_t;
 
 enum {
@@ -65,6 +74,7 @@ enum {
     CG_CPUSCHED_THROTTLED_TIME	= 3,
     CG_CPUSCHED_CFS_PERIOD	= 4,
     CG_CPUSCHED_CFS_QUOTA	= 5,
+    CG_CPUSCHED_ID_CONTAINER	= 6,
 };
 
 typedef struct {
@@ -95,6 +105,7 @@ typedef struct {
     __uint64_t		usage;
     __uint64_t		limit;
     __uint64_t		failcnt;
+    int			container;
 } cgroup_memory_t;
 
 enum {
@@ -113,6 +124,8 @@ enum {
     CG_MEMORY_STAT_INACTIVE_FILE	= 12,
     CG_MEMORY_STAT_ACTIVE_FILE		= 13,
     CG_MEMORY_STAT_UNEVICTABLE		= 14,
+
+    CG_MEMORY_ID_CONTAINER		= 29,
 
     CG_MEMORY_STAT_TOTAL_CACHE		= 30,
     CG_MEMORY_STAT_TOTAL_RSS		= 31,
@@ -142,10 +155,12 @@ enum {
 
 typedef struct {
     __uint64_t		classid;
+    int			container;
 } cgroup_netcls_t;
 
 enum {
-    CG_NETCLS_CLASSID	= 0,
+    CG_NETCLS_CLASSID			= 0,
+    CG_NETCLS_ID_CONTAINER		= 1,
 };
 
 typedef struct {
@@ -183,6 +198,7 @@ typedef struct {
 
 typedef struct {
     cgroup_blkstats_t	total;
+    int			container;
 } cgroup_blkio_t;
 
 enum {
@@ -228,6 +244,8 @@ enum {
     CG_PERDEVBLKIO_THROTTLEIOSERVICED_SYNC	= 39,
     CG_PERDEVBLKIO_THROTTLEIOSERVICED_ASYNC	= 40,
     CG_PERDEVBLKIO_THROTTLEIOSERVICED_TOTAL	= 41,
+
+    CG_BLKIO_ID_CONTAINER			= 42,
 
     CG_BLKIO_IOMERGED_READ		= 60,
     CG_BLKIO_IOMERGED_WRITE		= 61,
@@ -310,6 +328,8 @@ extern int cgroup_mounts_subsys(const char *, char *, int);
 
 extern void refresh_cgroup_subsys(void);
 extern void refresh_cgroup_filesys(void);
+
+extern char *cgroup_container_search(const char *, char *, int);
 
 /*
  * Indom-specific interfaces (iteratively populating)

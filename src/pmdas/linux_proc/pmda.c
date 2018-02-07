@@ -820,6 +820,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_CPUSET_GROUPS, CG_CPUSET_MEMS), PM_TYPE_STRING,
     CGROUP_CPUSET_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* cgroup.cpuset.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSET_GROUPS, CG_CPUSET_ID_CONTAINER), PM_TYPE_STRING,
+    CGROUP_CPUSET_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /* cgroup.cpuacct.stat.user */
   { NULL,
     { PMDA_PMID(CLUSTER_CPUACCT_GROUPS, CG_CPUACCT_USER), PM_TYPE_U64,
@@ -839,6 +844,11 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_CPUACCT_GROUPS, CG_CPUACCT_PERCPU_USAGE), PM_TYPE_U64,
     CGROUP_PERCPUACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+
+/* cgroup.cpuacct.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUACCT_GROUPS, CG_CPUACCT_ID_CONTAINER), PM_TYPE_STRING,
+    CGROUP_CPUACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* cgroup.cpusched.shares */
   { NULL,
@@ -869,6 +879,11 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_CFS_QUOTA), PM_TYPE_64,
     CGROUP_CPUSCHED_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) } },
+
+/* cgroup.cpusched.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_ID_CONTAINER), PM_TYPE_STRING,
+    CGROUP_CPUSCHED_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* cgroup.memory.stat.cache */
   { NULL,
@@ -1055,10 +1070,20 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_FAILCNT), PM_TYPE_U64,
     CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* cgroup.memory.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_ID_CONTAINER), PM_TYPE_STRING,
+    CGROUP_MEMORY_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /* cgroup.netclass.classid */
   { NULL,
     { PMDA_PMID(CLUSTER_NETCLS_GROUPS, CG_NETCLS_CLASSID), PM_TYPE_U64,
     CGROUP_NETCLS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* cgroup.netclass.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETCLS_GROUPS, CG_NETCLS_ID_CONTAINER), PM_TYPE_STRING,
+    CGROUP_NETCLS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* cgroup.blkio.dev.io_merged.read */
   { NULL,
@@ -1479,6 +1504,11 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICED_TOTAL), PM_TYPE_U64,
     CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.id.container */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_ID_CONTAINER), PM_TYPE_STRING,
+    CGROUP_BLKIO_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 
 /*
@@ -2525,6 +2555,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case CG_CPUSET_MEMS: /* cgroup.cpuset.mems */
 	    atom->cp = proc_strings_lookup(cpuset->mems);
 	    break;
+	case CG_CPUSET_ID_CONTAINER: /* cgroup.cpuset.id.container */
+	    atom->cp = proc_strings_lookup(cpuset->container);
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -2559,6 +2592,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case CG_CPUACCT_PERCPU_USAGE: /* cgroup.cpuacct.usage_percpu */
 	    atom->ull = percpuacct->usage;
 	    break;
+	case CG_CPUACCT_ID_CONTAINER: /* cgroup.cpuacct.id.container */
+	    atom->cp = proc_strings_lookup(cpuacct->container);
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -2591,6 +2627,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case CG_CPUSCHED_CFS_QUOTA: /* cgroup.cpusched.cfs_quota */
 	    atom->ll = cpusched->cfs_quota;
+	    break;
+	case CG_CPUSCHED_ID_CONTAINER: /* cgroup.cpusched.id.container */
+	    atom->cp = proc_strings_lookup(cpusched->container);
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -2718,6 +2757,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case CG_MEMORY_FAILCNT: /* cgroup.memory.failcnt */
 	    atom->ull = memory->failcnt;
 	    break;
+	case CG_MEMORY_ID_CONTAINER: /* cgroup.memory.id.container */
+	    atom->cp = proc_strings_lookup(memory->container);
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -2735,6 +2777,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (item) {
 	case CG_NETCLS_CLASSID: /* cgroup.netclass.classid */
 	    atom->ull = netcls->classid;
+	    break;
+	case CG_NETCLS_ID_CONTAINER: /* cgroup.netclass.id.container */
+	    atom->cp = proc_strings_lookup(netcls->container);
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -3014,6 +3059,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case CG_BLKIO_THROTTLEIOSERVICED_TOTAL: /* cgroup.blkio.all.throttle.io_serviced.total */
 	    atom->ull = blkio->total.throttle_io_serviced.total;
+	    break;
+	case CG_BLKIO_ID_CONTAINER: /* cgroup.blkio.id.container */
+	    atom->cp = proc_strings_lookup(blkio->container);
 	    break;
 
 	default:

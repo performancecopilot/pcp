@@ -42,17 +42,27 @@ cgroup.mounts {
 cgroup.cpuset {
     cpus		PROC:39:0
     mems		PROC:39:1
+    id
+}
+
+cgroup.cpuset.id {
+    container		PROC:39:2
 }
 
 cgroup.cpuacct {
     stat
     usage		PROC:41:2
     usage_percpu	PROC:41:3
+    id
 }
 
 cgroup.cpuacct.stat {
     user		PROC:41:0
     system		PROC:41:1
+}
+
+cgroup.cpuacct.id {
+    container		PROC:41:4
 }
 
 cgroup.cpusched {
@@ -62,6 +72,11 @@ cgroup.cpusched {
     throttled_time	PROC:43:3
     cfs_period		PROC:43:4
     cfs_quota		PROC:43:5
+    id
+}
+
+cgroup.cpusched.id {
+    container		PROC:43:6
 }
 
 cgroup.memory {
@@ -69,6 +84,7 @@ cgroup.memory {
     usage		PROC:45:80
     limit		PROC:45:81
     failcnt		PROC:45:82
+    id
 }
 
 cgroup.memory.stat {
@@ -116,13 +132,23 @@ cgroup.memory.stat.recent {
     scanned_file	PROC:45:63
 }
 
+cgroup.memory.id {
+    container		PROC:45:29
+}
+
 cgroup.netclass {
     classid		PROC:47:0
+    id
+}
+
+cgroup.netclass.id {
+    container		PROC:47:1
 }
 
 cgroup.blkio {
     dev
     all
+    id
 }
 
 cgroup.blkio.dev {
@@ -285,6 +311,10 @@ cgroup.blkio.all.throttle.io_serviced {
     sync		PROC:49:99
     async		PROC:49:100
     total		PROC:49:101
+}
+
+cgroup.blkio.id {
+    container		PROC:49:42
 }
 
 proc {
