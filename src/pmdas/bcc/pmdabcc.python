@@ -178,7 +178,7 @@ class BCCPMDA(PMDA):
             self.modules[module][INDOM] = PM_INDOM_NULL
             if indom:
                 self.modules[module][INDOM] = self.indom(cluster)
-                self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], [])
+                self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], {})
                 self.add_indom(self.modules[module][INSTS])
             for item, _ in enumerate(metrics):
                 self.add_metric(self.modules[module][PREFIX] + metrics[item][0],
