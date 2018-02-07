@@ -1459,7 +1459,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
    
-%if "@enable_python3@" == "true"
+%if "@pmda_bcc@" == "true"
 #
 # pcp-pmda-bcc
 #
@@ -1951,11 +1951,11 @@ Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker
-%if "@enable_python3@" == "true"
-Requires: pcp-pmda-bcc
-%endif
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-haproxy
+%endif
+%if "@pmda_bcc@" == "true"
+Requires: pcp-pmda-bcc
 %endif
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
@@ -2284,7 +2284,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
 %if "@pmda_prometheus@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/prometheus' > pmda_prometheus_files
 %endif
-%if "@enable_python3@" == "true"
+%if "@pmda_bcc@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bcc' > pmda_bcc_files
 %endif
 %if "@have_python@" == "true"
@@ -2335,12 +2335,12 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files \
       zeroconf_files
 
-%if "@enable_python3@" == "true"
-touch pmda_bcc_files
-%endif
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       pmda_mic_files pmda_haproxy_files system_tools_files
+%endif
+%if "@pmda_bcc@" == "true"
+touch pmda_bcc_files
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
@@ -2453,7 +2453,7 @@ BEGIN {
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
     while( getline < "pmda_dm_files") pmda_dm[$0]=1;
-%if "@enable_python3@" == "true"
+%if "@pmda_bcc@" == "true"
     while( getline < "pmda_bcc_files") pmda_bcc[$0]=1;
 %endif
 %if "@have_python@" == "true"
@@ -2587,7 +2587,7 @@ BEGIN {
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
     else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
-%if "@enable_python3@" == "true"
+%if "@pmda_bcc@" == "true"
     else if (pmda_bcc[$NF]) f="pmda_bcc_files.rpm";
 %endif
 %if "@have_python@" == "true"
@@ -3015,7 +3015,7 @@ pmieconf -c enable dmthin
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
 
-%if "@enable_python3@" == "true"
+%if "@pmda_bcc@" == "true"
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
 %endif
@@ -3329,7 +3329,7 @@ cd
 
 %files pmda-dm -f pmda_dm_files.rpm
 
-%if "@enable_python3@" == "true"
+%if "@pmda_bcc@" == "true"
 %files pmda-bcc -f pmda_bcc_files.rpm
 %endif
 

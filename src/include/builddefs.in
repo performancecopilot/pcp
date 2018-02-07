@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2017 Red Hat.
+# Copyright (c) 2012-2018 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -284,6 +284,7 @@ HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 HAVE_PYTHON_ELASTICSEARCH = @have_python_Elasticsearch@
 HAVE_PYTHON_XLSXWRITER = @have_python_xlsxwriter@
+HAVE_PYTHON_BPF = @have_python_BPF@
 
 # for building packages from external sources
 HAVE_WEBAPPS = @have_webapps@
@@ -329,6 +330,7 @@ PAPI_CFLAGS = @PAPI_CFLAGS@
 PAPI_LIBS = @PAPI_LIBS@
 PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
+PMDA_BCC = @PMDA_BCC@
 PMDA_RPM = @PMDA_RPM@
 PMDA_JSON = @PMDA_JSON@
 PMDA_PAPI = @PMDA_PAPI@

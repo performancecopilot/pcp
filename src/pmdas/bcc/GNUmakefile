@@ -31,7 +31,7 @@ default_pcp default ::	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(ENABLE_PYTHON3)" "true"
+ifeq "$(PMDA_BCC)" "true"
 build-me:	check_domain
 
 install_pcp install ::	default
