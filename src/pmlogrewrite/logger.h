@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2018 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -172,6 +172,7 @@ extern void	newvolume(int);
 
 extern void	do_desc(void);
 extern void	do_indom(void);
+extern void	do_labelset(void);
 extern void	do_result(void);
 
 extern void	abandon(void);
