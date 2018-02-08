@@ -27,6 +27,7 @@ _pmdaprometheus_remove()
 {
     echo
     echo "=== remove prometheus agent ==="
+    cd $PCP_PMDAS_DIR/prometheus
     $sudo ./Remove >$tmp.out 2>&1
     _filter_pmda_remove <$tmp.out
 }
@@ -46,17 +47,24 @@ _pmdaprometheus_install()
 
 _pmdaprometheus_save_config()
 {
-    _save_config $CONFIG_DIR
-    _save_config $PCP_VAR_DIR/config/pmda
-    $sudo rm -rf $CONFIG_DIR/*
-    $sudo rm -f $PCP_VAR_DIR/config/pmda/*
+    $sudo rm -rf $CONFIG_DIR.$seq
+    $sudo mv $CONFIG_DIR $CONFIG_DIR.$seq
+    $sudo mkdir -p $CONFIG_DIR
     $sudo chmod 777 $CONFIG_DIR
+    for f in $PCP_VAR_DIR/config/pmda/144.*.py; do
+	[ -f "$f" ] && $sudo mv -f $f $f.$seq
+    done
 }
 
 _pmdaprometheus_restore_config()
 {
-    _restore_config $CONFIG_DIR
-    _restore_config $PCP_VAR_DIR/config/pmda
+    $sudo rm -rf $CONFIG_DIR
+    $sudo mv $CONFIG_DIR.$seq $CONFIG_DIR
+    $sudo chmod 755 $CONFIG_DIR
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/144.*.py
+    for f in $PCP_VAR_DIR/config/pmda/144.*.py.$seq; do
+	[ -f "$f" ] && $sudo mv -f $f `echo $f | sed -e "s/\.$seq//"`
+    done
 }
 
 # wait for the PMDA to dynamically create a named metric (or subtree)

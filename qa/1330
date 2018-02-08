@@ -45,8 +45,7 @@ _cleanup()
     return 0
 }
 
-_prepare_pmda prometheus
-trap "_cleanup; _cleanup_pmda prometheus >>$here/$seq.full; exit \$status" 0 1 2 3 15
+trap "_cleanup; _pmdaprometheus_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
 
 _pmdaprometheus_save_config
 _pmdaprometheus_install
@@ -66,7 +65,6 @@ pid=$!
 
 if ! _pmdaprometheus_wait_for_metric prometheus.source4
 then
-    _pmdaprometheus_restore_config
     status=1
     exit
 fi
@@ -104,7 +102,6 @@ done
 #done
 
 _pmdaprometheus_remove
-_pmdaprometheus_restore_config
 
 # success, all done
 status=0

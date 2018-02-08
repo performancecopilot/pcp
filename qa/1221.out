@@ -4,24 +4,24 @@ Waiting for pmcd to terminate ...
 === prometheus agent installation ===
 
 prometheus.awk_scripted.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.bad_summary_nometa.sample_counter0001
     inst [0 or "0 baz:0.0"] labels {"baz":"2.8","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"baz:0.0","source":"bad_summary_nometa","url":FILEURL,"userid":NUM}
@@ -368,23 +368,23 @@ prometheus.collectd_sample.process_virtual_memory_bytes
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"collectd_sample","url":FILEURL,"userid":NUM}
 
 prometheus.curl.script.metric1
-    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
 
 prometheus.curl_filtered.metric1
-    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
 
 prometheus.curl_hostname_label.metric1
-    inst [0 or "0 abc:0 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0 hostname:remotehost","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123 hostname:remotehost","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
+    inst [0 or "0 abc:0 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0 hostname:remotehost","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123 hostname:remotehost","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
 
 prometheus.curl_scripted.metric1
-    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
 
 prometheus.curl_scripted.metric2
-    labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+    labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"script":"PCP_PMDAS_DIR/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
 
 prometheus.good_summary_nometa.sample_counter0010
     inst [0 or "0 baz:0.0"] labels {"baz":"2.8","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"baz:0.0","source":"good_summary_nometa","url":FILEURL,"userid":NUM}
@@ -414,44 +414,44 @@ prometheus.good_summary_nometa.sample_summary0011_sum
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"good_summary_nometa","url":FILEURL,"userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async
     inst [0 or "/"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instance":"/","instname":"/","source":"pmwebd_3_12_2","url":FILEURL,"userid":NUM}
@@ -738,8 +738,8 @@ prometheus.python_sample_client_server.summary_requests_sum
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"python_sample_client_server","url":FILEURL,"userid":NUM}
 
 prometheus.python_scripted.python_scripted_metric
-    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
-    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
+    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
 
 prometheus.reordered_labels.http_request_duration_microseconds
     inst [0 or "0 handler:alertmanagers quantile:0.5"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"handler":"alertmanagers","hostname":HOSTNAME,"instname":"handler:alertmanagers quantile:0.5","quantile":"0.99","source":"reordered_labels","url":FILEURL,"userid":NUM}
@@ -3063,47 +3063,47 @@ prometheus.sample_prometheus_metrics.prometheus_treecache_zookeeper_failures_tot
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"sample_prometheus_metrics","url":FILEURL,"userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_scripted.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.stderr_check.stderr_check
-    inst [0 or "0 abc:0"] labels {"abc":"0","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/stderr_check.sh","source":"stderr_check","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/stderr_check.sh","source":"stderr_check","userid":NUM}
 
 prometheus.thermostat.tms_jvm_cpu_4099dd5b_8226_4c13_a697_5e669380060b_cpuLoad
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"thermostat","url":FILEURL,"userid":NUM}
@@ -3134,24 +3134,24 @@ prometheus.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime
     inst [1 or "1 collector_name:MSC"] labels {"collector_name":"MSC","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"collector_name:MSC","source":"thermostat","url":FILEURL,"userid":NUM}
 
 prometheus.awk_scripted.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.awk_scripted.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/awk_scripted.sh","someinst":"001","source":"awk_scripted","userid":NUM}
 
 prometheus.bad_summary_nometa.sample_counter0001
     inst [0 or "0 baz:0.0"] labels {"baz":"2.8","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"baz:0.0","source":"bad_summary_nometa","url":FILEURL,"userid":NUM}
@@ -3498,23 +3498,23 @@ prometheus.collectd_sample.process_virtual_memory_bytes
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"collectd_sample","url":FILEURL,"userid":NUM}
 
 prometheus.curl.script.metric1
-    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/curl/script.sh","source":"curl.script","userid":NUM}
 
 prometheus.curl_filtered.metric1
-    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_filtered.sh","source":"curl_filtered","userid":NUM}
 
 prometheus.curl_hostname_label.metric1
-    inst [0 or "0 abc:0 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0 hostname:remotehost","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123 hostname:remotehost","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
+    inst [0 or "0 abc:0 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0 hostname:remotehost","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123 hostname:remotehost"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123 hostname:remotehost","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_hostname_label.sh","source":"curl_hostname_label","userid":NUM}
 
 prometheus.curl_scripted.metric1
-    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
-    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+    inst [1 or "1 anotherlabel:sometext def:123"] labels {"abc":"0","anotherlabel":"sometext","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"anotherlabel:sometext def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
 
 prometheus.curl_scripted.metric2
-    labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"script":"/var/lib/pcp/pmdas/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+    labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"script":"PCP_PMDAS_DIR/prometheus/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
 
 prometheus.good_summary_nometa.sample_counter0010
     inst [0 or "0 baz:0.0"] labels {"baz":"2.8","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"baz:0.0","source":"good_summary_nometa","url":FILEURL,"userid":NUM}
@@ -3544,44 +3544,44 @@ prometheus.good_summary_nometa.sample_summary0011_sum
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"good_summary_nometa","url":FILEURL,"userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.levels.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.levels.sh","someinst":"001","source":"multiple.namespace.levels","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.multiple.namespace.more.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/multiple.namespace.more.sh","someinst":"001","source":"multiple.namespace.more","userid":NUM}
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async
     inst [0 or "/"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instance":"/","instname":"/","source":"pmwebd_3_12_2","url":FILEURL,"userid":NUM}
@@ -3868,8 +3868,8 @@ prometheus.python_sample_client_server.summary_requests_sum
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"python_sample_client_server","url":FILEURL,"userid":NUM}
 
 prometheus.python_scripted.python_scripted_metric
-    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
-    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"/var/lib/pcp/pmdas/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
+    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
 
 prometheus.reordered_labels.http_request_duration_microseconds
     inst [0 or "0 handler:alertmanagers quantile:0.5"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"handler":"alertmanagers","hostname":HOSTNAME,"instname":"handler:alertmanagers quantile:0.5","quantile":"0.99","source":"reordered_labels","url":FILEURL,"userid":NUM}
@@ -6193,47 +6193,47 @@ prometheus.sample_prometheus_metrics.prometheus_treecache_zookeeper_failures_tot
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"sample_prometheus_metrics","url":FILEURL,"userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_script_no_suffix.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_script_no_suffix","someinst":"001","source":"sh_script_no_suffix","userid":NUM}
 
 prometheus.sh_scripted.some_metric000
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric001
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric002
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric003
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.sh_scripted.some_metric004
-    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
-    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"/var/lib/pcp/pmdas/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [0 or "0 someinst:000"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+    inst [1 or "1 someinst:001"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
 prometheus.stderr_check.stderr_check
-    inst [0 or "0 abc:0"] labels {"abc":"0","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"/var/lib/pcp/pmdas/prometheus/config.d/stderr_check.sh","source":"stderr_check","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/stderr_check.sh","source":"stderr_check","userid":NUM}
 
 prometheus.thermostat.tms_jvm_cpu_4099dd5b_8226_4c13_a697_5e669380060b_cpuLoad
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"thermostat","url":FILEURL,"userid":NUM}

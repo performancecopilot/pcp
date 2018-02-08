@@ -28,7 +28,12 @@ instances=10
 
 _cleanup()
 {
-    # no need to kill load generator
+    # kill the load generator, just in case it didn't exit
+    if [ -n "$pid" ]
+    then
+	$sudo $PCP_BINADM_DIR/pmsignal -s TERM $pid >/dev/null 2>&1
+	pid=""
+    fi
 
     echo "=== prometheus PMDA log ===" >>$here/$seq.full
     if [ -f $PCP_LOG_DIR/pmcd/prometheus.log ]
@@ -48,8 +53,7 @@ _cleanup()
     return 0
 }
 
-_prepare_pmda prometheus
-trap "_cleanup; _cleanup_pmda prometheus >>$here/$seq.full; exit \$status" 0 1 2 3 15
+trap "_cleanup; _pmdaprometheus_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
 
 _pmdaprometheus_save_config
 _pmdaprometheus_install
@@ -69,12 +73,11 @@ pid=$!
 
 if ! _pmdaprometheus_wait_for_metric prometheus.source0
 then
-    _pmdaprometheus_restore_config
     status=1
     exit
 fi
 
-if pminfo -b 10000000 -v `pminfo prometheus | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
+if pminfo -b 10000000 -v `pminfo prometheus | grep -v \.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
 then
     :
 else
@@ -83,7 +86,7 @@ else
 fi
 cat $tmp.info $tmp.err
 #sleep 120
-if pminfo -b 10000000 -fd `pminfo prometheus | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+if pminfo -b 10000000 -fd `pminfo prometheus | fgrep -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc prometheus metrics: success"
     cat $tmp.info
@@ -103,8 +106,6 @@ do
 done
 
 _pmdaprometheus_remove
-_pmdaprometheus_restore_config
-find $PCP_VAR_DIR/config/pmda -name "144.*" -type f -print0 | $sudo xargs -0 rm -rf
 
 # success, all done
 status=0
