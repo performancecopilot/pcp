@@ -10,8 +10,8 @@ Group:   Applications/System
 %global  github https://github.com/performancecopilot
 
 Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
-Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.2.1/pcp-webapp-vector-1.2.1.tar.gz
+Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2.tar.gz
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
