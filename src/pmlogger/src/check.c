@@ -338,9 +338,12 @@ add_dynamic_metric(const char *name, void *data)
     timedelta = d->delta.tv_sec*1000 + d->delta.tv_usec/1000;
     sts = do_control_req(logreq, d->control, d->state, timedelta, sendresult=0);
 
-    fprintf(stderr, "%s: request to activate new metric from dynamic root \"%s\", pmid %s, "
-	"name \"%s\", state=0x%x, control=0x%x: sts=%d\n",
-	pmGetProgname(), d->name, pmIDStr(pmid), name, d->state, d->control, sts);
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "%s: do_control_req from dynamic root \"%s\"\n",
+	    pmGetProgname(), d->name);
+	fprintf(stderr, "... pmid %s, name \"%s\", state=0x%x, control=0x%x: sts=%d\n",
+	    pmIDStr(pmid), name, d->state, d->control, sts);
+    }
 }
 
 /*
@@ -355,13 +358,15 @@ check_dynamic_metrics(void)
     int			sts;
     time_t		now;
 
-    time(&now);
-    fprintf(stderr, "%s: checking for new metrics after PMCD_NAMES_CHANGE state changed at %s",
-	pmGetProgname(), ctime(&now));
+    if (pmDebugOptions.log) {
+	time(&now);
+	fprintf(stderr, "%s: checking for new metrics after PMCD_NAMES_CHANGE state changed at %s",
+	    pmGetProgname(), ctime(&now));
+    }
 
     for (i=0; i < n_dyn_roots; i++) {
 	if ((sts = pmTraversePMNS_r(dyn_roots[i].name, add_dynamic_metric, (void *)&dyn_roots[i])) < 0 ) {
-	    ; /* ignore error, but maybe we should report it? */
+	    ; /* hmm. ignore error, but maybe we should report it? */
 	}
     }
 }
