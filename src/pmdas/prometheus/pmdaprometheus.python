@@ -515,7 +515,7 @@ class Source(object):
                                 self.metrics_by_num[metricnum] = m  # not pmid!
 
                                 # flag there has been a PMNS change
-                                self.pmda.pmns_changed = True
+                                self.pmda.pmns_changed += 1
 
                         m.store_inst(sp.labels,sp.value)
                 except Exception as e:
@@ -598,7 +598,6 @@ class Source(object):
                 # clear cached values from all my metrics
                 for n,m in self.metrics_by_name.items():
                         m.clear_values()
-                self.pmda.pmns_changed = False
                 # XXX: ditch metrics no longer found in document
 
                 # bump the fetch call counter for this source, and for the total (cluster 0)
@@ -688,7 +687,6 @@ class PrometheusPMDA(PMDA):
                 self.config_dir = os.path.normpath(config)
                 self.config_dir_ctime = None
                 self.timeout = timeout
-                self.pmns_changed = False
 
                 # the list of configured sources
                 self.source_by_name = {}
@@ -742,6 +740,9 @@ class PrometheusPMDA(PMDA):
                 self.set_label(self.prom_label)
                 self.set_label_callback(self.prom_label_callback)
 
+                # dynamic PMNS changed flag. bumped every time a new metric is created
+                self.pmns_changed = 0
+
 
         def assert_source_invariants(self, name=None, cluster=None):
                 '''
@@ -785,8 +786,6 @@ class PrometheusPMDA(PMDA):
                 else do nothing. This is important because this callback is
                 invoked -all-the-time- by src/python/pmda.c.
                 '''
-
-                self.pmns_changed = False # set to true if a new metric is created for any Source
 
                 traverse_time = time.time()
                 dir_ctime, conf_filelist = self.traverse(self.config_dir, self.config_dir_ctime)
@@ -853,12 +852,13 @@ class PrometheusPMDA(PMDA):
                 if save_cluster_table:
                         self.cluster_table.save()
 
-                if self.pmns_changed:
-                        # Set the PMNS change flag so clients (especially pmlogger) will be notified
+                if self.pmns_changed > 0:
+                        # Flag PMNS change so clients (especially pmlogger) will be notified
                         # synchronously (next fetch) that there has been a change to the PCP namespace.
                         if dbg:
-                                self.debug("set_notify_change flag for PMNS changes")
+                                self.debug("pmns_changed=%d => set_notify_change flag for PMNS changes" % self.pmns_changed)
                         self.set_notify_change()
+                        self.pmns_changed = 0 # reset count to 0
 
 
         def refresh_metrics_for_pmns(self):
