@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
-# Copyright (c) 2012 Red Hat, Inc. All Rights Reserved.
+# Copyright (c) 2012,2018 Red Hat, Inc. All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CFILES	= pmlogrewrite.c util.c logio.c metric.c indom.c result.c
+CFILES	= pmlogrewrite.c util.c logio.c metric.c indom.c result.c label.c text.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
@@ -41,10 +41,10 @@ install:	$(CMDTARGET)
 gram.tab.h gram.tab.c:	gram.y
 
 lex.o gram.tab.o:	gram.tab.h logger.h
-indom.o metric.o result.o util.o pmlogrewrite.o:	logger.h
+indom.o label.o text.o metric.o result.o util.o pmlogrewrite.o:	logger.h
 
 default_pcp:	default
 
 install_pcp:	install
 
-gram.tab.o indom.o lex.o logio.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+gram.tab.o indom.o label.o text.o lex.o logio.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h

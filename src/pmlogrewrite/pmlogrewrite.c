@@ -1,7 +1,7 @@
 /*
  * pmlogrewrite - config-driven stream editor for PCP archives
  *
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1219,16 +1219,27 @@ main(int argc, char **argv)
 		do_indom();
 	    }
 	    else if (stsmeta == TYPE_LABEL) {
-		/* TODO: support label metadata extraction */
-		if (pmDebugOptions.logmeta)
-		    fprintf(stderr, "%s: Warning: %s\n",
-			    pmGetProgname(), pmErrStr(PM_ERR_NOLABELS));
+		struct timeval	stamp;
+		pmTimeval	*tvp = (pmTimeval *)&inarch.metarec[2];
+		stamp.tv_sec = ntohl(tvp->tv_sec);
+		stamp.tv_usec = ntohl(tvp->tv_usec);
+		if (fixstamp(&stamp)) {
+		    /* global time adjustment specified */
+		    tvp->tv_sec = htonl(stamp.tv_sec);
+		    tvp->tv_usec = htonl(stamp.tv_usec);
+		}
+		/* if time of label set  > next pmResult stop processing metadata */
+		if (stamp.tv_sec > inarch.rp->timestamp.tv_sec)
+		    break;
+		if (stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
+		    stamp.tv_usec > inarch.rp->timestamp.tv_usec)
+		    break;
+		needti = 1;
+		do_labelset();
 	    }
 	    else if (stsmeta == TYPE_TEXT) {
-		/* TODO: support help text extraction */
-		if (pmDebugOptions.logmeta)
-		    fprintf(stderr, "%s: Warning: %s\n",
-			    pmGetProgname(), pmErrStr(PM_ERR_TEXT));
+		needti = 1;
+		do_text();
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",

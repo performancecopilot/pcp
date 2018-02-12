@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -293,5 +293,80 @@ validate_metrics(void)
     if (error) {
 	fprintf(stderr, "One or more configured metrics have changed after pmcd state change. Exiting\n");
 	exit(1);
+    }
+}
+
+/*
+ * PMNS traversal callback - if this is a metric we're not currently
+ * logging, activate it by making a control request .. just the same
+ * as if pmlc had sent such a request over the wire.
+ */
+static void
+add_dynamic_metric(const char *name, void *data)
+{
+    int		sts;
+    int		timedelta;
+    int		sendresult = 0;
+    pmID	pmid;
+    dynroot_t	*d = (dynroot_t *)data;
+    pmResult	*logreq;
+    __pmHashNode *hp;
+
+    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
+	/* hmm, that metric has gone away, or something went wrong  - ignore it */
+	return;
+    }
+
+    /* check if this metric is already being logged */
+    for (hp = __pmHashSearch(pmid, &pm_hash); hp != NULL; hp = hp->next) {
+        if (pmid == (pmID)hp->key)
+	    return;
+    }
+
+    /*
+     * construct the pmResult for the control request
+     * - only has one valueset, with one value
+     */
+    logreq = (pmResult *)malloc(sizeof(pmResult));
+    memset(logreq, 0, sizeof(pmResult));
+    logreq->vset[0] = (pmValueSet *)malloc(sizeof(pmValueSet));
+    memset(logreq->vset[0], 0, sizeof(pmValueSet));
+    logreq->numpmid = 1;
+    logreq->vset[0]->pmid = pmid;
+
+    /* Call the control request function - note: do_control_req() frees our logreq */
+    timedelta = d->delta.tv_sec*1000 + d->delta.tv_usec/1000;
+    sts = do_control_req(logreq, d->control, d->state, timedelta, sendresult=0);
+
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "%s: do_control_req from dynamic root \"%s\"\n",
+	    pmGetProgname(), d->name);
+	fprintf(stderr, "... pmid %s, name \"%s\", state=0x%x, control=0x%x: sts=%d\n",
+	    pmIDStr(pmid), name, d->state, d->control, sts);
+    }
+}
+
+/*
+ * In response to pmFetch returning with the PMCD_NAMES_CHANGE flag set,
+ * walk the dynamic root list and add any new metrics that have appeared
+ * to a suitable task.
+ */
+void
+check_dynamic_metrics(void)
+{
+    int			i;
+    int			sts;
+    time_t		now;
+
+    if (pmDebugOptions.log) {
+	time(&now);
+	fprintf(stderr, "%s: checking for new metrics after PMCD_NAMES_CHANGE state changed at %s",
+	    pmGetProgname(), ctime(&now));
+    }
+
+    for (i=0; i < n_dyn_roots; i++) {
+	if ((sts = pmTraversePMNS_r(dyn_roots[i].name, add_dynamic_metric, (void *)&dyn_roots[i])) < 0 ) {
+	    ; /* hmm. ignore error, but maybe we should report it? */
+	}
     }
 }
