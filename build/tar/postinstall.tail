@@ -88,82 +88,104 @@ then
 	sys_acc=''
 	nologin=`which false`
 	bash=`which bash`
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	no_home_dir=''
+	sys_acc=''
+	nologin=`which false`
+	bash=`which bash`
     else
 	no_home_dir='-M'
 	sys_acc='-r'
 	nologin=/usr/sbin/nologin
 	bash=/bin/bash
     fi
-    if grep '^pcp:' /etc/group >/dev/null
+
+    # user & group pcp
+    #
+    if [ $PCP_PLATFORM = darwin ]
     then
-	:
+	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d $PCP_VAR_DIR -s $nologin pcp
     else
-	if which groupadd >/dev/null 2>&1
+	if grep '^pcp:' /etc/group >/dev/null
 	then
-	    groupadd $sys_acc pcp
+	    :
 	else
-	    if [ $PCP_PLATFORM = freebsd ]
+	    if which groupadd >/dev/null 2>&1
 	    then
-		: adduser does this for us ...
+		groupadd $sys_acc pcp
 	    else
-		echo "postinstall: Error: don't know how to add group \"pcp\""
+		if [ $PCP_PLATFORM = freebsd ]
+		then
+		    : adduser does this for us ...
+		else
+		    echo "postinstall: Error: don't know how to add group \"pcp\""
+		    sts=1
+		    exit
+		fi
+	    fi
+	fi
+	if grep '^pcp:' /etc/passwd >/dev/null
+	then
+	    :
+	else
+	    if which useradd >/dev/null 2>&1
+	    then
+		useradd -c "Performance Co-Pilot" -g pcp -d $PCP_VAR_DIR $no_home_dir $sys_acc -s $nologin pcp
+	    elif which adduser >/dev/null 2>&1
+	    then
+		echo "pcp::::::Performance Co-Pilot:$PCP_VAR_DIR::" \
+		| adduser -f - -w no
+	    else
+		echo "postinstall: Error: don't know how to add user \"pcp\""
 		sts=1
 		exit
 	    fi
 	fi
     fi
-    if grep '^pcp:' /etc/passwd >/dev/null
+
+    # user & group pcpqa
+    #
+    if [ $PCP_PLATFORM = darwin ]
     then
-	:
+	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d $PCP_VAR_DIR/testsuite -s $bash pcpqa
     else
-	if which useradd >/dev/null 2>&1
+	if grep '^pcpqa:' /etc/group >/dev/null
 	then
-	    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp $no_home_dir $sys_acc -s $nologin pcp
-	elif which adduser >/dev/null 2>&1
-	then
-	    echo "pcp::::::Performance Co-Pilot:/var/lib/pcp::" \
-	    | adduser -f - -w no
+	    :
 	else
-	    echo "postinstall: Error: don't know how to add user \"pcp\""
-	    sts=1
-	    exit
-	fi
-    fi
-    if grep '^pcpqa:' /etc/group >/dev/null
-    then
-	:
-    else
-	if which groupadd >/dev/null 2>&1
-	then
-	    groupadd $sys_acc pcpqa
-	else
-	    if [ $PCP_PLATFORM = freebsd ]
+	    if which groupadd >/dev/null 2>&1
 	    then
-		: adduser does this for us ...
+		groupadd $sys_acc pcpqa
 	    else
-		echo "postinstall: Error: don't know how to add group \"pcpqa\""
+		if [ $PCP_PLATFORM = freebsd ]
+		then
+		    : adduser does this for us ...
+		else
+		    echo "postinstall: Error: don't know how to add group \"pcpqa\""
+		    sts=1
+		    exit
+		fi
+	    fi
+	fi
+	if grep '^pcpqa:' /etc/passwd >/dev/null
+	then
+	    :
+	else
+	    if which useradd >/dev/null 2>&1
+	    then
+		useradd -c "PCP Quality Assurance" -g pcpqa -d $PCP_VAR_DIR/testsuite $no_home_dir $sys_acc -s $bash pcpqa
+	    elif which adduser >/dev/null 2>&1
+	    then
+		# no bash for default FreeBSD
+		bash=`which sh`
+		echo "pcpqa::::::PCP Quality Assurance:$PCP_VAR_DIR/testsuite:$bash:" \
+		| adduser -f - -w no
+	    else
+		echo "postinstall: Error: don't know how to add user \"pcpqa\""
 		sts=1
 		exit
 	    fi
-	fi
-    fi
-    if grep '^pcpqa:' /etc/passwd >/dev/null
-    then
-	:
-    else
-	if which useradd >/dev/null 2>&1
-	then
-	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite $no_home_dir $sys_acc -s $bash pcpqa
-	elif which adduser >/dev/null 2>&1
-	then
-	    # no bash for default FreeBSD
-	    bash=`which sh`
-	    echo "pcpqa::::::PCP Quality Assurance:/var/lib/pcp/testsuite:$bash:" \
-	    | adduser -f - -w no
-	else
-	    echo "postinstall: Error: don't know how to add user \"pcpqa\""
-	    sts=1
-	    exit
 	fi
     fi
 fi
@@ -185,7 +207,7 @@ _do_dir()
 grp=root
 case $PCP_PLATFORM
 in
-    freebsd|netbsd|openbsd)
+    freebsd|netbsd|openbsd|darwin)
 	    grp=wheel
 	    ;;
 esac
@@ -212,8 +234,13 @@ chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 _do_dir "root:$grp" 700 $PCP_TMP_DIR/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 $PCP_SYSCONF_DIR/labels
-# from src/pmdas/prometheus
-_do_dir "root:$grp" 755 $PCP_PMDAS_DIR/prometheus/config.d
+if [ -d $PCP_PMDAS_DIR/prometheus ]
+then
+    # from src/pmdas/prometheus
+    _do_dir "root:$grp" 755 $PCP_PMDAS_DIR/prometheus/config.d
+fi
+# from src/webapps/GNUmakefile
+_do_dir "root:$grp" 755 $PCP_SHARE_DIR/webapps
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #

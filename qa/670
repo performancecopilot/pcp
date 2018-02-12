@@ -1,9 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 670
 #
-# exercise pm[Parse]UnitsStr
+# Exercise PMAPI pm[Parse]UnitsStr interfaces.
 #
-# Copyright (c) 2014-2015 Red Hat, Inc.
+# Copyright (c) 2014-2015,2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -14,90 +14,87 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_PMDAS_DIR/cifs/pmdacifs ] || _notrun "cifs pmda not installed"
-
-status=0	# success is the default!
+status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-_filter()
-{
-    cat
-}
-
-up=src/units-parse
-
-if [ ! -f $up ]
-then
-    echo "Arrgh .. $up is missing.  Need to"
-    echo "      $ cd src; make"
-    echo "in a git tree containg the PCP source and then try again."
-    status=1
-    exit
-fi
-
-
-
 # real QA test starts here
+src/units-parse scan | tee -a $seq.full
 
+src/units-parse tuple 0 0 0 1 1 1	# scales without dimensions
 
-$up scan | tee -a $seq.full
+src/units-parse parse "2e5"
+src/units-parse parse "-/2"		# bad floating point
+src/units-parse parse "2eg"		# bad floating point
+src/units-parse parse "25 sec/kb"
+src/units-parse parse "5 ms / 3 sec"
 
-$up tuple 0 0 0 1 1 1         # scales without dims
-
-$up parse "2e5"
-$up parse "-/2"               # bad floating point
-$up parse "2eg"               # bad floating point
-$up parse "25 sec/kb"
-$up parse "5 ms / 3 sec"
-                              # following set covers all keywords
-$up parse "nanoseconds^-8 bytes count x 10^-8 / nanosecond^-7 byte count x 10^-7"
-$up parse "NANOSEC kBytes^-6 count x 10^-6 / nS kByte^-5 count x 10^-5"
-$up parse "microseconds mbytes count x 10^-4^-3 / microsecond^-2 mbyte count x 10^-3"
-$up parse "microsec mb^-1 count x 10^-2 / us kb^0 count x 10^-1"
-$up parse "kilobytes / kilobyte"
-$up parse "megabytes / megabyte"
-$up parse "terabytes / terabyte"
-$up parse "petabytes / petabyte"
-$up parse "exabytes / exabyte"
-$up parse "milliseconds^-4 gbytes^-3 count x 10^0 / millisecond^-2 gbyte^-1 count x 10"
-$up parse "millisec gb^0 count / ms tbytes count x 10^1^1"
-$up parse "seconds^1 tbyte^2 count x 10^2 / second^3 tb^4 count x 10^3"
-$up parse "seconds tbyte^6 count x 10^2 / second tb^5 count x 10^3"
-$up parse "sec pbytes^8 count x 10^4 / minutes pbyte^7 count x 10^5"
-$up parse "minute^9 pb count x 10^5 / min^10 ebytes count x 10^6"
-$up parse "hours^11 ebyte count x 10^6 / hour^12 eb count x 10^8"
-$up parse "hr^11 space-0^12 / time-0^12 space-1^13"
-$up parse "time-1 space-2^14 / time-2 space-3^15"
-$up parse "time-3 space-3 / counts time-4 space-4"
+# following set covers all keywords
+src/units-parse parse "nanoseconds^-8 bytes count x 10^-8 / nanosecond^-7 byte count x 10^-7"
+src/units-parse parse "NANOSEC kBytes^-6 count x 10^-6 / nS kByte^-5 count x 10^-5"
+src/units-parse parse "microseconds mbytes count x 10^-4^-3 / microsecond^-2 mbyte count x 10^-3"
+src/units-parse parse "microsec mb^-1 count x 10^-2 / us kb^0 count x 10^-1"
+src/units-parse parse "kibibytes"	# correct SI unit names
+src/units-parse parse "mebibytes"	# correct SI unit names
+src/units-parse parse "gibibytes"	# correct SI unit names
+src/units-parse parse "tebibytes"	# correct SI unit names
+src/units-parse parse "pebibytes"	# correct SI unit names
+src/units-parse parse "exbibytes"	# correct SI unit names
+src/units-parse parse "zebibytes"	# correct SI unit names
+src/units-parse parse "yobibytes"	# correct SI unit names
+src/units-parse parse "kilobytes / kilobyte"
+src/units-parse parse "megabytes / megabyte"
+src/units-parse parse "gigabytes / gigabyte"
+src/units-parse parse "terabytes / terabyte"
+src/units-parse parse "petabytes / petabyte"
+src/units-parse parse "exabytes / exabyte"
+src/units-parse parse "kibibytes / kilobyte"	# correct SI unit aliases
+src/units-parse parse "mebibytes / megabyte"	# correct SI unit aliases
+src/units-parse parse "gibibytes / gigabyte"	# correct SI unit aliases
+src/units-parse parse "tebibytes / terabyte"	# correct SI unit aliases
+src/units-parse parse "pebibytes / petabyte"	# correct SI unit aliases
+src/units-parse parse "exbibytes / exabyte"	# correct SI unit aliases
+src/units-parse parse "zebibytes / zettabyte"	# correct SI unit aliases
+src/units-parse parse "yobibytes / yottabyte"	# correct SI unit aliases
+src/units-parse parse "milliseconds^-4 gbytes^-3 count x 10^0 / millisecond^-2 gbyte^-1 count x 10"
+src/units-parse parse "millisec gb^0 count / ms tbytes count x 10^1^1"
+src/units-parse parse "seconds^1 tbyte^2 count x 10^2 / second^3 tb^4 count x 10^3"
+src/units-parse parse "seconds tbyte^6 count x 10^2 / second tb^5 count x 10^3"
+src/units-parse parse "sec pbytes^8 count x 10^4 / minutes pbyte^7 count x 10^5"
+src/units-parse parse "minute^9 pb count x 10^5 / min^10 ebytes count x 10^6"
+src/units-parse parse "hours^11 ebyte count x 10^6 / hour^12 eb count x 10^8"
+src/units-parse parse "hr^11 space-0^12 / time-0^12 space-1^13"
+src/units-parse parse "time-1 space-2^14 / time-2 space-3^15"
+src/units-parse parse "time-3 space-3 / counts time-4 space-4"
 # can't put time-N (N>5) in both divisor & dividend, because no arithmetic scale exists past HOURS (time-5)
-$up parse "time-5 space-5 / space-6"
-$up parse "time-6 space-7 / space-8"
-$up parse "time-7 space-9 / space-10"
-$up parse "time-8 space-11 / space-12"
-$up parse "time-9 space-13 / space-14"
-$up parse "time-10 space-15 / space-0"
-$up parse "time-11"
-$up parse "time-12"
-$up parse "time-13"
-$up parse "time-14"
-$up parse "time-15"
-$up parse "s"
-$up parse "count x 10^6"
-$up parse "count x 10^6^1"
-$up parse "count x 10^1^6"
-$up parse "25kb^3/1sec^2"     # no whitespace
-$up parse "sec^-2 / kb^-3"    # negative exponents
-$up parse "sec^14 / sec^10"   # large intermediate exponents
-$up parse "kb kb"             # repeated units
-$up parse "kb / sec sec"      # repeated units
-$up parse "millisec / sec"    # repeated units
-$up parse " 25 / 1 "     
-$up parse " / 25"             # div by zero
-$up parse "25 sec^9"          # dimension too high 
-$up parse "Kbyte^8"           # exponent overflow
-$up parse "microsec^8"        # exponent overflow
-$up parse "count x 10^-7^-7 / count x 10^7^7"   # exponent overflow
+src/units-parse parse "time-5 space-5 / space-6"
+src/units-parse parse "time-6 space-7 / space-8"
+src/units-parse parse "time-7 space-9 / space-10"
+src/units-parse parse "time-8 space-11 / space-12"
+src/units-parse parse "time-9 space-13 / space-14"
+src/units-parse parse "time-10 space-15 / space-0"
+src/units-parse parse "time-11"
+src/units-parse parse "time-12"
+src/units-parse parse "time-13"
+src/units-parse parse "time-14"
+src/units-parse parse "time-15"
+src/units-parse parse "s"
+src/units-parse parse "count x 10^6"
+src/units-parse parse "count x 10^6^1"
+src/units-parse parse "count x 10^1^6"
+src/units-parse parse "25kb^3/1sec^2"	# no whitespace
+src/units-parse parse "sec^-2 / kb^-3"	# negative exponents
+src/units-parse parse "sec^14 / sec^10"	# large intermediate exponents
+src/units-parse parse "kb kb"		# repeated units
+src/units-parse parse "kb / sec sec"	# repeated units
+src/units-parse parse "millisec / sec"	# repeated units
+src/units-parse parse " 25 / 1 "
+src/units-parse parse " / 25"		# div by zero
+src/units-parse parse "25 sec^9"	# dimension too high 
+src/units-parse parse "Kbyte^8"		# exponent overflow
+src/units-parse parse "microsec^8"	# exponent overflow
+src/units-parse parse "count x 10^-7^-7 / count x 10^7^7"	# exponent overflow
 
 # success, all done
+status=0
 exit

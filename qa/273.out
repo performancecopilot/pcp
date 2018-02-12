@@ -1517,7 +1517,7 @@ sample.dynamic.meta.metric
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: space-7
+    Semantics: discrete  Units: Zbyte
 --- units.c case 7 (expect not output) ---
 --- units.c case 8 ---
 
@@ -1719,7 +1719,7 @@ output units=Ebyte value=4
 type=3 input units=Ebyte value=4
 output units=Pbyte value=4096
 --- units.c error case 43 ---
-type=3 input units=space-7 value=4096
+type=3 input units=Zbyte value=4096
 pmConvScale Error: Illegal pmUnits specification
 --- units.c error case 44 ---
 type=3 input units=Pbyte value=4096

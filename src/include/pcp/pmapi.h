@@ -101,12 +101,14 @@ typedef struct pmUnits {
 
 /* pmUnits.scaleSpace */
 #define PM_SPACE_BYTE	0	/* bytes */
-#define PM_SPACE_KBYTE	1	/* Kilobytes (1024) */
-#define PM_SPACE_MBYTE	2	/* Megabytes (1024^2) */
-#define PM_SPACE_GBYTE	3	/* Gigabytes (1024^3) */
-#define PM_SPACE_TBYTE	4	/* Terabytes (1024^4) */
-#define PM_SPACE_PBYTE	5	/* Petabytes (1024^5) */
-#define PM_SPACE_EBYTE	6	/* Exabytes  (1024^6) */
+#define PM_SPACE_KBYTE	1	/* Kibibytes (1024) */
+#define PM_SPACE_MBYTE	2	/* Mebibytes (1024^2) */
+#define PM_SPACE_GBYTE	3	/* Gibibytes (1024^3) */
+#define PM_SPACE_TBYTE	4	/* Tebibytes (1024^4) */
+#define PM_SPACE_PBYTE	5	/* Pebibytes (1024^5) */
+#define PM_SPACE_EBYTE	6	/* Exbibytes (1024^6) */
+#define PM_SPACE_ZBYTE	7	/* Zebibytes (1024^7) */
+#define PM_SPACE_YBYTE	8	/* Yobibytes (1024^8) */
 /* pmUnits.scaleTime */
 #define PM_TIME_NSEC	0	/* nanoseconds */
 #define PM_TIME_USEC	1	/* microseconds */
