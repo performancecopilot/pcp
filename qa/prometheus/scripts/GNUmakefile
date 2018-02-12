@@ -6,9 +6,6 @@ SCRIPTS = $(shell ls -1 | sed -e '/^GNU.*/d' -e '/^curl$$/d' -e '/not_exec/d')
 NONEXEC = script_not_executable.sh
 SUBDIRS = curl
 
-foo:
-	echo $(SCRIPTS)
-
 default setup default_pcp:	$(SCRIPTS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
