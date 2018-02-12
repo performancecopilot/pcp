@@ -1,0 +1,123 @@
+#!/bin/sh
+#
+# Wrapper with useradd(1) like args around dscl(1) for Mac OS X
+#
+
+_usage()
+{
+    echo "Usage: $0 [options] username"
+    echo "Options:"
+    echo "  -c    full name"
+    echo "  -d    home dir"
+    echo "  -g    groupname"
+    echo "  -n    show me, don't do it"
+    echo "  -s    path for login shell"
+    sts=1
+    exit
+}
+
+_dscl()
+{
+    if $showme
+    then
+	echo + dscl "$@"
+    else
+	if dscl "$@"
+	then
+	    :
+	else
+	    echo + dsl "$@"
+	    echo "dscl failed: aborting"
+	    sts=1
+	    exit
+	fi
+    fi
+}
+
+sts=0
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+showme=false
+fullname=''
+homedir=''
+group=''
+shell=''
+while getopts 'c:d:g:ns:?' p
+do
+    case "$p"
+    in
+	c)	fullname="$OPTARG"
+		;;
+
+	d)	homedir="$OPTARG"
+		;;
+
+	n)	showme=true
+		;;
+
+	g)	group="$OPTARG"
+		;;
+
+	s)	shell="$OPTARG"
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 1 ] || _usage
+user="$1"
+
+if dscl . -list /Users | grep "^$user\$" >/dev/null
+then
+    $showme && echo "user $user: already exists, do nothing"
+    exit
+fi
+
+if [ -n "$group" ]
+then
+    if dscl . -list /Groups PrimaryGroupID | grep "^$group\$" >$tmp.tmp
+    then
+	cat $tmp.tmp
+	gid=`awk '{print $2}' <$tmp.tmp`
+	$showme && echo "group $group ($gid): already exists, do nothing"
+    else
+	gid=`dscl . -list /Groups PrimaryGroupID \
+	     | awk '{print $2}' \
+	     | sort -nr \
+	     | head -1`
+	if [ -z "$gid" ]
+	then
+	    echo "Error: cannot extract largest gid from /Groups ..."
+	    dscl . -list /Groups PrimaryGroupID
+	    sts=1
+	    exit
+	fi
+	gid=`expr $gid + 1`
+	_dscl . -create /Groups/$group
+	_dscl . -create /Groups/$group PrimaryGroupID $gid
+    fi
+fi
+
+uid=`dscl . -list /Users UniqueID \
+     | awk '{print $2}' \
+     | sort -nr \
+     | head -1`
+if [ -z "$uid" ]
+then
+    echo "Error: cannot extract largest uid from /Users ..."
+    dscl . -list /Users UniqueID
+    sts=1
+    exit
+fi
+uid=`expr $uid + 1`
+_dscl . -create /Users/$user
+_dscl . -create /Users/$user UniqueID $uid
+_dscl . -create /Users/$user PrimaryGroupID $gid
+[ -n "$fullname" ] && _dscl . -create /Users/$user RealName "$fullname"
+[ -n "$homedir" ] && _dscl . -create /Users/$user NFSHomeDirectory "$homedir"
+[ -n "$shell" ] && _dscl . -create /Users/$user UserShell "$shell"
+
+exit
