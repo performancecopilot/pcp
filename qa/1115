@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+$python -c "import bcc" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python bcc module not installed"
 
 [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
 
