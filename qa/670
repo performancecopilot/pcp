@@ -35,7 +35,7 @@ src/units-parse parse "NANOSEC kBytes^-6 count x 10^-6 / nS kByte^-5 count x 10^
 src/units-parse parse "microseconds mbytes count x 10^-4^-3 / microsecond^-2 mbyte count x 10^-3"
 src/units-parse parse "microsec mb^-1 count x 10^-2 / us kb^0 count x 10^-1"
 src/units-parse parse "kibibytes"	# correct SI unit names
-src/units-parse parse "mibibytes"	# correct SI unit names
+src/units-parse parse "mebibytes"	# correct SI unit names
 src/units-parse parse "gibibytes"	# correct SI unit names
 src/units-parse parse "tebibytes"	# correct SI unit names
 src/units-parse parse "pebibytes"	# correct SI unit names
@@ -49,7 +49,7 @@ src/units-parse parse "terabytes / terabyte"
 src/units-parse parse "petabytes / petabyte"
 src/units-parse parse "exabytes / exabyte"
 src/units-parse parse "kibibytes / kilobyte"	# correct SI unit aliases
-src/units-parse parse "mibibytes / megabyte"	# correct SI unit aliases
+src/units-parse parse "mebibytes / megabyte"	# correct SI unit aliases
 src/units-parse parse "gibibytes / gigabyte"	# correct SI unit aliases
 src/units-parse parse "tebibytes / terabyte"	# correct SI unit aliases
 src/units-parse parse "pebibytes / petabyte"	# correct SI unit aliases

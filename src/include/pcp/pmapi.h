@@ -102,7 +102,7 @@ typedef struct pmUnits {
 /* pmUnits.scaleSpace */
 #define PM_SPACE_BYTE	0	/* bytes */
 #define PM_SPACE_KBYTE	1	/* Kibibytes (1024) */
-#define PM_SPACE_MBYTE	2	/* Mibibytes (1024^2) */
+#define PM_SPACE_MBYTE	2	/* Mebibytes (1024^2) */
 #define PM_SPACE_GBYTE	3	/* Gibibytes (1024^3) */
 #define PM_SPACE_TBYTE	4	/* Tebibytes (1024^4) */
 #define PM_SPACE_PBYTE	5	/* Pebibytes (1024^5) */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2018 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -1149,7 +1149,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	{"Kilobytes", PM_SPACE_KBYTE}, {"Kilobyte", PM_SPACE_KBYTE},	/* back-compat */
 	{"MB", PM_SPACE_MBYTE}, {"MiB", PM_SPACE_MBYTE},
 	{"Mbytes", PM_SPACE_MBYTE}, {"Mbyte", PM_SPACE_MBYTE},
-	{"Mibibytes", PM_SPACE_MBYTE}, {"Mibibyte", PM_SPACE_MBYTE},
+	{"Mebibytes", PM_SPACE_MBYTE}, {"Mebibyte", PM_SPACE_MBYTE},
 	{"Megabytes", PM_SPACE_MBYTE}, {"Megabyte", PM_SPACE_MBYTE},	/* back-compat */
 	{"GB", PM_SPACE_GBYTE}, {"GiB", PM_SPACE_GBYTE},
 	{"Gbytes", PM_SPACE_GBYTE}, {"Gbyte", PM_SPACE_GBYTE},

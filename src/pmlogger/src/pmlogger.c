@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -158,8 +158,8 @@ tolower_str(char *str)
  * The size can be in one of the following forms:
  *   "40"    = sample counter of 40
  *   "40b"   = byte size of 40
- *   "40Kb"  = byte size of 40*1024 bytes = 40 kilobytes
- *   "40Mb"  = byte size of 40*1024*1024 bytes = 40 megabytes
+ *   "40Kb"  = byte size of 40*1024 bytes = 40 kilobytes (kibibytes)
+ *   "40Mb"  = byte size of 40*1024*1024 bytes = 40 megabytes (mebibytes)
  *   time-format = time delta in seconds
  *
  */
@@ -208,8 +208,12 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
 	}  
 
 	/* if kilobytes */
-	if (strcmp(ptr, "k") == 0 || strcmp(ptr, "kb") == 0 ||
-	    strcmp(ptr, "kbyte") == 0 || strcmp(ptr, "kilobyte") == 0) {
+	if (strcmp(ptr, "k") == 0 ||
+	    strcmp(ptr, "kb") == 0 ||
+	    strcmp(ptr, "kib") == 0 ||
+	    strcmp(ptr, "kbyte") == 0 ||
+	    strcmp(ptr, "kibibyte") == 0 ||
+	    strcmp(ptr, "kilobyte") == 0) {
 	    *byte_size = x*1024;
 	    return 1;
 	}
@@ -217,7 +221,9 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
 	/* if megabytes */
 	if (strcmp(ptr, "m") == 0 ||
 	    strcmp(ptr, "mb") == 0 ||
+	    strcmp(ptr, "mib") == 0 ||
 	    strcmp(ptr, "mbyte") == 0 ||
+	    strcmp(ptr, "mebibyte") == 0 ||
 	    strcmp(ptr, "megabyte") == 0) {
 	    *byte_size = x*1024*1024;
 	    return 1;
@@ -226,7 +232,9 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
 	/* if gigabytes */
 	if (strcmp(ptr, "g") == 0 ||
 	    strcmp(ptr, "gb") == 0 ||
+	    strcmp(ptr, "gib") == 0 ||
 	    strcmp(ptr, "gbyte") == 0 ||
+	    strcmp(ptr, "gibibyte") == 0 ||
 	    strcmp(ptr, "gigabyte") == 0) {
 	    *byte_size = ((__int64_t)x)*1024*1024*1024;
 	    return 1;
