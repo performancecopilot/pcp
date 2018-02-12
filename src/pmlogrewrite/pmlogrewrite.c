@@ -1238,10 +1238,8 @@ main(int argc, char **argv)
 		do_labelset();
 	    }
 	    else if (stsmeta == TYPE_TEXT) {
-		/* TODO: support help text extraction */
-		if (pmDebugOptions.logmeta)
-		    fprintf(stderr, "%s: Warning: %s\n",
-			    pmGetProgname(), pmErrStr(PM_ERR_TEXT));
+		needti = 1;
+		do_text();
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",

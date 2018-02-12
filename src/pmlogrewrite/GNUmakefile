@@ -18,7 +18,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CFILES	= pmlogrewrite.c util.c logio.c metric.c indom.c result.c label.c
+CFILES	= pmlogrewrite.c util.c logio.c metric.c indom.c result.c label.c text.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
@@ -41,10 +41,10 @@ install:	$(CMDTARGET)
 gram.tab.h gram.tab.c:	gram.y
 
 lex.o gram.tab.o:	gram.tab.h logger.h
-indom.o label.o metric.o result.o util.o pmlogrewrite.o:	logger.h
+indom.o label.o text.o metric.o result.o util.o pmlogrewrite.o:	logger.h
 
 default_pcp:	default
 
 install_pcp:	install
 
-gram.tab.o indom.o label.o lex.o logio.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+gram.tab.o indom.o label.o text.o lex.o logio.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h

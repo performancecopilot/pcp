@@ -173,6 +173,7 @@ extern void	newvolume(int);
 extern void	do_desc(void);
 extern void	do_indom(void);
 extern void	do_labelset(void);
+extern void	do_text(void);
 extern void	do_result(void);
 
 extern void	abandon(void);

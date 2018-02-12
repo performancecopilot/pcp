@@ -1,5 +1,5 @@
 /*
- * Label metadata support for pmlogrewrite
+ * Text metadata support for pmlogrewrite
  *
  * Copyright (c) 2018 Red Hat.
  * 
@@ -19,121 +19,63 @@
 #include "libpcp.h"
 #include "logger.h"
 
-/* Stolen from libpcp. */
-static void
-_ntohpmLabel(pmLabel * const label)
-{
-    label->name = ntohs(label->name);
-    /* label->namelen is one byte */
-    /* label->flags is one byte */
-    label->value = ntohs(label->value);
-    label->valuelen = ntohs(label->valuelen);
-}
+#define __ntohpmInDom(a)	ntohl(a)
+#define __ntohpmID(a)		ntohl(a)
 
 /*
- * Reverse the logic of __pmLogPutLabel()
+ * Reverse the logic of __pmLogPutText()
  *
  * Mostly stolen from __pmLogLoadMeta. There may be a chance for some
  * code factoring here.
  */
  static void
-_pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
-		  int *nsets, pmLabelSet **labelsets, pmTimeval *stamp)
+_pmUnpackText(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
+	      char **buffer)
 {
     char	*tbuf;
-    int		i, j, k;
-    int		inst;
-    int		jsonlen;
-    int		nlabels;
+    int		k;
 
     /* Walk through the record extracting the data. */
     tbuf = (char *)pdubuf;
     k = 0;
     k += sizeof(__pmLogHdr);
 
-    *stamp = *((pmTimeval *)&tbuf[k]);
-    stamp->tv_sec = ntohl(stamp->tv_sec);
-    stamp->tv_usec = ntohl(stamp->tv_usec);
-    k += sizeof(*stamp);
-
-    *type = ntohl(*((unsigned int*)&tbuf[k]));
+    *type = ntohl(*((unsigned int *)&tbuf[k]));
     k += sizeof(*type);
 
-    *ident = ntohl(*((unsigned int*)&tbuf[k]));
+    if (!(*type & (PM_TEXT_ONELINE|PM_TEXT_HELP))) {
+	fprintf(stderr, "_pmUnpackText: invalid text type %u\n", *type);
+	abandon();
+	/*NOTREACHED*/
+    }
+    else if ((*type & PM_TEXT_INDOM))
+	*ident = __ntohpmInDom(*((unsigned int *)&tbuf[k]));
+    else if ((*type & PM_TEXT_PMID))
+	*ident = __ntohpmID(*((unsigned int *)&tbuf[k]));
+    else {
+	fprintf(stderr, "_pmUnpackText: invalid text type %u\n", *type);
+	abandon();
+	/*NOTREACHED*/
+    }
     k += sizeof(*ident);
 
-    *nsets = *((unsigned int *)&tbuf[k]);
-    *nsets = ntohl(*nsets);
-    k += sizeof(*nsets);
-
-    *labelsets = NULL;
-    if (*nsets > 0) {
-	*labelsets = (pmLabelSet *)calloc(*nsets, sizeof(pmLabelSet));
-	if (*labelsets == NULL) {
-	    fprintf(stderr, "_pmUnpackLabelSet labellist malloc(%d) failed: %s\n",
-		    (int)(*nsets * sizeof(pmLabelSet)), strerror(errno));
-	    abandon();
-	    /*NOTREACHED*/
-	}
-
-	/* No offset to JSONB string as in logarchive(5)???? */
-	for (i = 0; i < *nsets; i++) {
-	    inst = *((unsigned int*)&tbuf[k]);
-	    inst = ntohl(inst);
-	    k += sizeof(inst);
-	    (*labelsets)[i].inst = inst;
-
-	    jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
-	    k += sizeof(jsonlen);
-	    (*labelsets)[i].jsonlen = jsonlen;
-
-	    if (((*labelsets)[i].json = (char *)malloc(jsonlen+1)) == NULL) {
-		fprintf(stderr, "_pmUnpackLabelSet JSONB malloc(%d) failed: %s\n",
-			jsonlen+1, strerror(errno));
-		abandon();
-		/*NOTREACHED*/
-	    }
-
-	    memcpy((void *)(*labelsets)[i].json, (void *)&tbuf[k], jsonlen);
-	    (*labelsets)[i].json[jsonlen] = '\0';
-	    k += jsonlen;
-
-	    /* label nlabels */
-	    nlabels = ntohl(*((unsigned int *)&tbuf[k]));
-	    k += sizeof(nlabels);
-	    (*labelsets)[i].nlabels = nlabels;
-
-	    if (nlabels > 0) {
-		(*labelsets)[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel));
-		if ((*labelsets)[i].labels == NULL) {
-		    fprintf(stderr, "_pmUnpackLabelSet label malloc(%lu) failed: %s\n",
-			    nlabels * sizeof(pmLabel), strerror(errno));
-		    abandon();
-		    /*NOTREACHED*/
-		}
-
-		/* label pmLabels */
-		for (j = 0; j < nlabels; j++) {
-		    (*labelsets)[i].labels[j] = *((pmLabel *)&tbuf[k]);
-		    _ntohpmLabel(&(*labelsets)[i].labels[j]);
-		    k += sizeof(pmLabel);
-		}
-	    }
-	}
+    *buffer = strdup(&tbuf[k]);
+    if (*buffer == NULL) {
+	fprintf(stderr, "_pmUnpackText: malloc(%d) failed: %s\n",
+		(int)strlen(&tbuf[k]), strerror(errno));
+	abandon();
+	/*NOTREACHED*/
     }
 }
 
-
 void
-do_labelset(void)
+do_text(void)
 {
     long		out_offset;
     unsigned int	type = 0;
     unsigned int	ident = 0;
-    int			nsets = 0;
-    pmLabelSet		*labellist = NULL;
-    pmTimeval		stamp;
-    //    labelspec_t	*ip;
+    char		*buffer = NULL;
+    //    textspec_t	*ip;
     int			sts;
     //    int		i;
     //    int		j;
@@ -141,7 +83,7 @@ do_labelset(void)
 
     out_offset = __pmFtell(outarch.logctl.l_mdfp);
 
-    _pmUnpackLabelSet(inarch.metarec, &type, &ident, &nsets, &labellist, &stamp);
+    _pmUnpackText(inarch.metarec, &type, &ident, &buffer);
 
 #if 0 /* no rewriting yet */
     /*
@@ -246,14 +188,13 @@ do_labelset(void)
 #endif /* no rewriting yet */
 
     /*
-     * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
-     * to by labellist and inamelist.
+     * libpcp, via __pmLogPutText(), assumes control of the storage pointed
+     * to by buffer.
      */
-    if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
-	char buf[1024];
-	fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
-		pmGetProgname(),
-		__pmLabelIdentString(ident, type, buf, sizeof(buf)),
+
+    if ((sts = __pmLogPutText(&outarch.archctl, ident, type, buffer, 1/*cached*/)) < 0) {
+	fprintf(stderr, "%s: Error: __pmLogPutText: %u %u: %s\n",
+		pmGetProgname(), type, ident,
 		pmErrStr(sts));
 	abandon();
 	/*NOTREACHED*/
@@ -271,8 +212,7 @@ do_labelset(void)
     }
 #endif
     if (pmDebugOptions.appl0) {
-	char buf[1024];
-	fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
-		__pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
+	fprintf(stderr, "Metadata: write help text %u %u @ offset=%ld\n",
+		type, ident, out_offset);
     }
 }
