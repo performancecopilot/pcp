@@ -942,11 +942,7 @@ class PrometheusPMDA(PMDA):
 
                 if dbg:
                         self.debug('prom_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[type]))
-                if type == PM_LABEL_DOMAIN:
-                        # labels for this domain
-                        return '{"domain":"prometheus", "domainID":%d}' % 144
-
-                elif type == PM_LABEL_INDOM:
+                if type == PM_LABEL_INDOM:
                         # labels for indom=ident
                         indom = ident
                         for k,v in self.source_by_cluster.items():
