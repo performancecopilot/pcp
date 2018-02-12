@@ -65,6 +65,7 @@ _filter_pmdas()
 	-e '/inst \[114 or "systemd"]/d' \
 	-e '/inst \[123 or "rpm"]/d' \
 	-e '/inst \[129 or "dm"]/d' \
+	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "prometheus"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end
