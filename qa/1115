@@ -32,8 +32,7 @@ _install_filter()
 _value_filter()
 {
     sed \
-	-e "s/value .../value OK/g" \
-	-e "s/value ../value OK/g" \
+	-e "s/value [0-9][0-9]*/value OK/g" \
     #end
 }
 
