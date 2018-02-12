@@ -1008,6 +1008,12 @@ do_control_req(pmResult *request, int control, int state, int delta, int sendres
 	    break;
     }
     if (sts < 0) {
+	fprintf(stderr, "Error: %s\n", pmErrStr(sts));
+	if (sendresult && (sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
+	    pmNotifyErr(LOG_ERR,
+			 "do_control: error sending Error PDU to client: %s\n",
+			 pmErrStr(sts));
+	pmFreeResult(request);
 	return sts;
     }
 
