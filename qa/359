@@ -58,6 +58,7 @@ _filter()
 	-e '/^redis\..*_keys: Try again./d' \
 	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
 	-e '/^elasticsearch\..*: Try again./d' \
+	-e '/^rsyslog\..*: Try again./d' \
 	-e '/^libvirt\..*: Try again./d' \
 	-e '/^apache\..*: Try again./d' \
 	-e '/^oracle\..*: Try again./d' \
