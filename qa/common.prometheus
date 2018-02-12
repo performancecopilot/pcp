@@ -72,27 +72,10 @@ _pmdaprometheus_wait_for_metric()
 {
     metric="$1"
     configdir="$2"
+    [ -z "$metric" ] && metric=prometheus.control.calls
     [ -z "$configdir" ] && configdir=$CONFIG_DIR
 
-    # first wait for some config files - for QA, these should be created
-    # by the load generator, or by the calling QA script itself. Either
-    # way, if there are no config files, then there will be no metrics.
-    _i=0
-    _n=0
-    while [ $_i -lt 30 ]
-    do
-	_n=`ls -1 "$configdir" | wc -l`
-	[ "$_n" -gt 0 ] && break
-	sleep 1
-	_i=`expr $_i + 1`
-    done
-
-    if [ -z "$_n" -o "$_n" -eq 0 ]; then
-	echo _pmdaprometheus_wait_for_metric FAILED. No config files in \"$configdir\"
-	return 1
-    fi
-
-    # now wait for the requested metric
+    # wait for the requested metric to appear in the pmns
     _i=0
     while [ $_i -lt 30 ]
     do

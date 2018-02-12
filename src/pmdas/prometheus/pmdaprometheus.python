@@ -38,7 +38,7 @@ dbg = False
 # Sort config file list - generally needed because os.walk()
 # returns a different order on different platforms and/or filesystems.
 # Config file list sorting is expensive with a large number of URLs
-# and/or scripts. See the --nosort option to turn it off.
+# and/or scripts.  See the --nosort option to turn it off.
 sort_conf_list = True
 
 # Number of seconds to wait between poll attempts on a source that
@@ -307,8 +307,8 @@ class PersistentNameTable(object):
 
 
 class SampleLineParser(object):
-    '''A parser for one metric [{instance}] value [timestamp] line.  A
-    state machine required since we're lexing text with embedded
+    '''A parser for one metric [{instance}] value [timestamp] line.
+    State machine is required since we're lexing text with embedded
     quoted freeform strings with punctuation, etc., so can't
     simply do substring searching.
     '''
@@ -461,7 +461,7 @@ class Source(object):
 
         self.refresh_time = 0 # "never"
         if not is_scripted:
-            # source is a URL. Create a session for it.
+            # source is a URL.  Create a session for it.
             self.requests = requests.Session() # allow persistent connections etc.
 
         # persistently assign numeric id to our metrics
@@ -608,7 +608,7 @@ class Source(object):
         try:
             if self.is_scripted:
                 # Execute file, expecting prometheus metric data on stdout.
-                # stderr goes to the PMDA log. Failures are caught below.
+                # stderr goes to the PMDA log.  Failures are caught below.
                 document = subprocess.check_output(self.path, shell=False).decode()
             else:
                 # fetch the URL
@@ -662,12 +662,13 @@ class PrometheusPMDA(PMDA):
     def __init__(self, pmda_name, domain, config, timeout, user):
         ''' Initialize the PMDA
         '''
-        # urgent: set user, say hi the invoking pmcd, redirect stderr etc.
+        # must first set user and connect to the invoking pmcd
         PMDA.__init__(self, pmda_name, domain)
         if user is not None:
             self.set_user(user)
             self.log('Note: running as user "%s"' % user)
         self.connect_pmcd()
+
         # now everything else may take time
         self.pmda_name = pmda_name
         self.config_dir = os.path.normpath(config)
@@ -716,9 +717,8 @@ class PrometheusPMDA(PMDA):
         # schedule a refresh
         self.set_need_refresh()
 
-        # used all the time, but we welcome it only for initial pmns population purposes
+        # used frequently, but we welcome it only for initial pmns population purposes
         self.set_refresh_metrics(self.refresh_metrics_for_pmns)
-        # used during fetch
         self.set_refresh_all(self.refresh_some_clusters_for_fetch) # "all" is a misnomer
         self.set_fetch_callback(self.fetch_callback)
 
@@ -726,14 +726,12 @@ class PrometheusPMDA(PMDA):
         self.set_label(self.prom_label)
         self.set_label_callback(self.prom_label_callback)
 
-        # dynamic PMNS changed flag. bumped every time a new metric is created
+        # dynamic PMNS changed count - bumped every time a new metric is created
         self.pmns_changed = 0
 
 
     def assert_source_invariants(self, name=None, cluster=None):
-        '''
-        Assert some invariants about the known sources
-        '''
+        ''' Assert some invariants about the known sources '''
         if name:
             s = self.source_by_name[name]
             assert s == self.source_by_cluster[s.cluster]
@@ -743,7 +741,7 @@ class PrometheusPMDA(PMDA):
 
 
     def traverse(self, dir, ctime):
-        ''' return list of files below dir, recursively '''
+        ''' Return list of files below dir, recursively '''
         ret = []
         m = os.path.getctime(dir)
         if ctime is None or m > ctime:
@@ -765,12 +763,12 @@ class PrometheusPMDA(PMDA):
 
     def rescan_confdir(self):
         '''Scan the configuration directories for any new .url files
-        or scripts. Ensure there is a Source registered in the
+        or scripts.  Ensure there is a Source registered in the
         self.source_by_name dictionary for each one.
 
         First check if anything in the config dirs has changed lately,
-        else do nothing. This is important because this callback is
-        invoked -all-the-time- by src/python/pmda.c.
+        else do nothing.  This is important because this callback is
+        invoked frequently by src/python/pmda.c.
         '''
 
         traverse_time = time.time()
@@ -915,7 +913,8 @@ class PrometheusPMDA(PMDA):
         # calling the python pmda bindings from various threads.  This seems to
         # be OK.  The pmda main thread is the only one that will actually talk to
         # pmcd, based on the python shared dicts / callbacks, but that only happens
-        # when all these threads are dead.  The various threads don't share any python-side data structures.
+        # when all these threads are dead.  The various threads don't share any
+        # python-side data structures.
 
     def set_need_refresh(self):
         cpmda.set_need_refresh()
@@ -937,15 +936,15 @@ class PrometheusPMDA(PMDA):
                         return '{"source":"%s"}' % v.name
 
         elif type == c_api.PM_LABEL_CLUSTER:
-            # labels for a cluster, i.e. a prometheus source
+            # Labels for a cluster, i.e. an individual prometheus source.
             # Note: if using dbpmda, test this with e.g. label cluster 144.1
             # (you need the domain (144) and the cluster number (1, 2, ..)
             try:
                 s = self.source_by_cluster[ident]
                 if s.is_scripted:
                     # The script should insert a hostname="somewhere" label if it
-                    # fetches from a remote host. This will override the hostname
-                    # label inserted by pmcd (at the context label level). Details
+                    # fetches from a remote host.  This will override the hostname
+                    # label inserted by pmcd (at the context label level).  Details
                     # of the label hierarchy rules are in the "PRECEDENCE" section
                     # of the pmLookupLabels(3) man page.
                     return '{"script":"%s","source":"%s"}' % (s.path, s.name)

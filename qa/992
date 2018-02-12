@@ -35,6 +35,7 @@ _filter()
 	-e '/(kernel\./s/[0-9][0-9.]*/PMID/' \
 	-e '/(hinv\./s/[0-9][0-9.]*/PMID/' \
 	-e '/(disk\./s/[0-9][0-9.]*/PMID/' \
+	-e '/possible dynamic root/d' \
     | $PCP_AWK_PROG '
 /^Dump optfetch structures/	{ print "Dump optfetch structures ..."
 				  skip = 1
