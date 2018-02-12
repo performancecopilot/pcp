@@ -738,8 +738,8 @@ prometheus.python_sample_client_server.summary_requests_sum
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"python_sample_client_server","url":FILEURL,"userid":NUM}
 
 prometheus.python_scripted.python_scripted_metric
-    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
-    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.python","source":"python_scripted","userid":NUM}
+    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.python","source":"python_scripted","userid":NUM}
 
 prometheus.reordered_labels.http_request_duration_microseconds
     inst [0 or "0 handler:alertmanagers quantile:0.5"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"handler":"alertmanagers","hostname":HOSTNAME,"instname":"handler:alertmanagers quantile:0.5","quantile":"0.99","source":"reordered_labels","url":FILEURL,"userid":NUM}
@@ -3868,8 +3868,8 @@ prometheus.python_sample_client_server.summary_requests_sum
     labels {"domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"source":"python_sample_client_server","url":FILEURL,"userid":NUM}
 
 prometheus.python_scripted.python_scripted_metric
-    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
-    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.py","source":"python_scripted","userid":NUM}
+    inst [0 or "0 abc:0"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.python","source":"python_scripted","userid":NUM}
+    inst [1 or "1 def:123"] labels {"abc":"0","def":"123","domain":"prometheus","domainID":144,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","script":"PCP_PMDAS_DIR/prometheus/config.d/python_scripted.python","source":"python_scripted","userid":NUM}
 
 prometheus.reordered_labels.http_request_duration_microseconds
     inst [0 or "0 handler:alertmanagers quantile:0.5"] labels {"domain":"prometheus","domainID":144,"groupid":NUM,"handler":"alertmanagers","hostname":HOSTNAME,"instname":"handler:alertmanagers quantile:0.5","quantile":"0.99","source":"reordered_labels","url":FILEURL,"userid":NUM}
