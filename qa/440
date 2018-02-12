@@ -239,6 +239,7 @@ EOF
 _test_file_size 2000BYTE "4000bytes" 2 4000
 _test_file_size 1024b "4K" 4 4096
 _test_file_size 10Mbyte "4kilobytes" 1 4096
+_test_file_size 10Mebibytes "4kibibytes" 1 4096
 _test_file_size 3K 4194B 2 4194
 _test_sample_size 3 8 3
 _test_time_size 3.5secs 5secs 2 5

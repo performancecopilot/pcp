@@ -246,16 +246,19 @@ so this limit may be slightly surpassed).
 Other viable file size units include:
 .BR K ,
 .BR Kb ,
+.BR KiB ,
 .BR Kbyte ,
 .BR Kilobyte
 for kilobytes and
 .BR M ,
 .BR Mb ,
+.BR MiB ,
 .BR Mbyte ,
 .BR Megabyte
 for megabytes and
 .BR G ,
 .BR Gb ,
+.BR GiB ,
 .BR Gbyte ,
 .BR Gigabyte
 for gigabytes.
@@ -293,10 +296,9 @@ The
 option causes the size of the physical record(s) for each
 group of metrics and the expected contribution of
 the group to the size of the PCP archive for one full day
-of collection to be reported in the log file.  This
-information is reported
-the first time each group is successfully written
-to the archive.
+of collection to be reported in the log file.
+This information is reported the first time each group is
+successfully written to the archive.
 .PP
 The
 .B \-U
