@@ -15,28 +15,22 @@
 #
 ''' Performance Metrics Domain Agent exporting Prometheus endpoint metrics. '''
 
-import cpmapi as c_api
-import cpmda
-from pcp.pmapi import pmUnits, pmContext, pmErr
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
-
-import argparse
-from collections import OrderedDict
-from ctypes import c_int
-import copy
-import errno
-import math
-import json
 import os
 import re
-import sys
 import time
 import pickle
-import requests
+import argparse
 import threading
-from socket import gethostname
 import subprocess
+from ctypes import c_int
+from socket import gethostname
 from stat import ST_MODE, S_IXUSR
+import requests
+
+import cpmapi as c_api
+import cpmda
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 
 #
 # write debugging messages to log, see --debug cmdline option
@@ -67,9 +61,11 @@ MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
 # indom# 4096 + cluster#*1024 ...+1023:  actual pmns indom for each metric
 
 labeltype = {c_api.PM_LABEL_CONTEXT:"PM_LABEL_CONTEXT",
-c_api.PM_LABEL_DOMAIN:"PM_LABEL_DOMAIN", c_api.PM_LABEL_INDOM:"PM_LABEL_INDOM",
-c_api.PM_LABEL_CLUSTER:"PM_LABEL_CLUSTER", c_api.PM_LABEL_ITEM:"PM_LABEL_ITEM",
-c_api.PM_LABEL_INSTANCES:"PM_LABEL_INSTANCES"}
+             c_api.PM_LABEL_DOMAIN:"PM_LABEL_DOMAIN",
+             c_api.PM_LABEL_INDOM:"PM_LABEL_INDOM",
+             c_api.PM_LABEL_CLUSTER:"PM_LABEL_CLUSTER",
+             c_api.PM_LABEL_ITEM:"PM_LABEL_ITEM",
+             c_api.PM_LABEL_INSTANCES:"PM_LABEL_INSTANCES"}
 
 class Metric(object):
     ''' Metric information class '''
@@ -130,20 +126,20 @@ class Metric(object):
         else:
             pcpline_pieces = []
         
-        if (len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'instant'):
+        if len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'instant':
             self.msem = c_api.PM_SEM_INSTANT
-        elif (len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'counter'):
+        elif len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'counter':
             self.msem = c_api.PM_SEM_COUNTER
-        elif (len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'discrete'):
+        elif len(pcpline_pieces) >= 2 and pcpline_pieces[1] == 'discrete':
             self.msem = c_api.PM_SEM_DISCRETE
-        elif (self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
+        elif self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces:
             self.msem = c_api.PM_SEM_COUNTER
-        elif (self.typeline == 'histogram' and 'bucket' in pieces):
+        elif self.typeline == 'histogram' and 'bucket' in pieces:
             self.msem = c_api.PM_SEM_COUNTER
         else:
             self.msem = c_api.PM_SEM_INSTANT
 
-        if (len(pcpline_pieces) >= 1):
+        if len(pcpline_pieces) >= 1:
             self.mname = 'prometheus.' + self.source.name + '.' + pcpline_pieces[0]
         else:
             self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
@@ -160,13 +156,13 @@ class Metric(object):
         if ((self.typeline == 'histogram' or self.typeline == 'summary')
             and 'count' in pieces): # regardless of UNIT; *_sum peer is has proper type
             self.munits = pmUnits(0,0,1,0,0,0) # simple count
-        elif (self.typeline == 'histogram' and 'bucket' in pieces): # ditto
+        elif self.typeline == 'histogram' and 'bucket' in pieces: # ditto
             self.munits = pmUnits(0,0,1,0,0,0) # simple count            
-        elif ('seconds' in pieces):
+        elif 'seconds' in pieces:
             self.munits = pmUnits(0,1,0,0,3,0)
-        elif ('microseconds' in pieces): # not listed in https://prometheus.io/docs/practices/naming/
+        elif 'microseconds' in pieces: # not listed in https://prometheus.io/docs/practices/naming/
             self.munits = pmUnits(0,1,0,0,1,0)
-        elif ('bytes' in pieces):
+        elif 'bytes' in pieces:
             self.munits = pmUnits(1,0,0,0,0,0)
         else:
             self.munits = pmUnits(0,0,0,0,0,0) # default, dimensionless old-school count
@@ -303,7 +299,7 @@ class PersistentNameTable(object):
             return self.names_to_instances[name]
         else: # new name
             num = len(self.instances)
-            if (num > self.maxnum):
+            if num > self.maxnum:
                 raise ValueError('Too many (%d) different names' % num)
             self.instances.append(name)
             self.names_to_instances[name] = num
@@ -449,7 +445,7 @@ class SampleLineParser(object):
         assert self.name
         assert self.value
 
-                          
+
 class Source(object):
     '''An instance of this class represents a distinct Prometheus exporter,
     identified by a nickname (the next PMNS component beneath prometheus.*),
@@ -469,18 +465,18 @@ class Source(object):
         if not is_scripted:
             # source is a URL. Create a session for it.
             self.requests = requests.Session() # allow persistent connections etc.
-        
+
         # persistently assign numeric id to our metrics
         self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
-        
+
         self.metrics_by_name = {} # name -> Metric
         self.metrics_by_num = {} # number (last component of pmid) -> Metric
-        
+
 
     def old_enough_for_refresh(self):
         '''But what's "old"?  Aye, there's the rub.  If it's empty (no
         metrics), then it has probably never been connected to
-        successfully.  
+        successfully.
 
         OTOH, if it hasn't been fetched from "recently", maybe
         it grew new metrics, and may need a look-see.  So we
@@ -957,7 +953,7 @@ class PrometheusPMDA(PMDA):
                     # label inserted by pmcd (at the context label level). Details
                     # of the label hierarchy rules are in the "PRECEDENCE" section
                     # of the pmLookupLabels(3) man page.
-                    return '{"source":"%s", "script":"%s"}' % (s.name, s.path)
+                    return '{"script":"%s","source":"%s"}' % (s.path, s.name)
                 else:
                     # extract hostname label from the URL
                     if s.url.startswith("http"):
@@ -968,7 +964,7 @@ class PrometheusPMDA(PMDA):
                         host = "localhost"
                     if host == "localhost":
                         host = gethostname()
-                    return '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
+                    return '{"hostname":"%s","source":"%s","url":"%s"}' % (host, s.name, s.url)
             except:
                 pass # ignore key error for unknown cluster number
 
