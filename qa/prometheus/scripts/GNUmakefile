@@ -2,9 +2,12 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus/scripts
-SCRIPTS = $(shell ls -1 | sed -e '/^GNU.*/d' -e '/^curl$$/d' | -e '/not_exec/d')
+SCRIPTS = $(shell ls -1 | sed -e '/^GNU.*/d' -e '/^curl$$/d' -e '/not_exec/d')
 NONEXEC = script_not_executable.sh
 SUBDIRS = curl
+
+foo:
+	echo $(SCRIPTS)
 
 default setup default_pcp:	$(SCRIPTS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
