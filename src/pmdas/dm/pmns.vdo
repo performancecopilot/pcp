@@ -24,7 +24,7 @@ vdo.dev {
 	complete_recoveries	DM:5:96
 	curr_dedupe_queries	DM:5:97
 	curr_vios_in_progress	DM:5:98
-	data_blocks_used	DM:5:99
+	data_blocks
 	dedupe_advice
 	errors
 	flush_out		DM:5:106
@@ -40,7 +40,7 @@ vdo.dev {
 	maxvios			DM:5:121
 	memory_usage
 	mode			DM:5:126
-	overhead_blocks_used	DM:5:127
+	overhead_blocks
 	packer
 	physical_blocks		DM:5:131
 	read_cache
@@ -236,6 +236,14 @@ vdo.dev.journal_entries {
 
 vdo.dev.journal_slab {
 	commits_requested	DM:5:116
+}
+
+vdo.dev.data_blocks {
+	used			DM:5:99
+}
+
+vdo.dev.overhead_blocks {
+	used			DM:5:127
 }
 
 vdo.dev.logical_blocks {
