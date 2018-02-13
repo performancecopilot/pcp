@@ -4,14 +4,14 @@ Priority: extra
 Homepage: http://pcp.io
 Maintainer: PCP Development Team <pcp@groups.io>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>, Eric Desrochers <eric.desrochers@canonical.com>, Ken McDonell <kenj@kenj.id.au>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python3-all, python-all-dev, python3-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, ?{qt-dev} autotools-dev, zlib1g-dev, autoconf, libclass-dbi-perl, libdbd-mysql-perl, libdbd-pg-perl, ?{dh-python} libcairo2-dev, ?{libpapi-dev} ?{libpfm4-dev} libncurses5-dev, python-six, ?{python-json-pointer} libextutils-autoinstall-perl, libxml-tokeparser-perl, librrds-perl, libjson-perl, libwww-perl, libnet-snmp-perl, libnss3-tools, ?{libboost-dev} ?{liblzma-dev} manpages
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python3-all, python-dev, python3-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, ?{qt-dev} autotools-dev, zlib1g-dev, autoconf, libclass-dbi-perl, libdbd-mysql-perl, libdbd-pg-perl, ?{dh-python} libcairo2-dev, ?{libpapi-dev} ?{libpfm4-dev} libncurses5-dev, ?{python-six} ?{python-json-pointer} ?{python-requests} libextutils-autoinstall-perl, libxml-tokeparser-perl, librrds-perl, libjson-perl, libwww-perl, libnet-snmp-perl, libnss3-tools, ?{libboost-dev} ?{liblzma-dev} manpages
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python3-pcp | python-pcp, python3 | python, libpcp-web1
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp} ?{python} libpcp-web1
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
 Architecture: any
@@ -353,7 +353,7 @@ Description: Tool for importing data from collectl into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-export-pcp2graphite
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python3-pcp | python-pcp
+Depends: ?{python-pcp} ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 3.10.9)
 Architecture: any
 Description: Tool for exporting data from PCP to Graphite
@@ -361,7 +361,7 @@ Description: Tool for exporting data from PCP to Graphite
  into designated Graphite (Carbon/Whisper) databases.
 
 Package: pcp-export-pcp2influxdb
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, ?{python-requests} python3-pcp | python-pcp
+Depends: ?{python-pcp} ?{python-requests} ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Architecture: any
 Description: Tool for exporting data from PCP to InfluxDB
  Performance Co-Pilot (PCP) front-end tools for exporting metric values
