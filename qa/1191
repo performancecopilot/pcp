@@ -32,7 +32,7 @@ done
 
 # add all the sample scripts
 cp -a $here/prometheus/scripts/* $PCP_PMDAS_DIR/prometheus/config.d
-rm -f $PCP_PMDAS_DIR/prometheus/config.d/GNU*
+find $PCP_PMDAS_DIR/prometheus/config.d -name GNU\* -exec rm -f {} ";"
 
 _pmdaprometheus_install
 

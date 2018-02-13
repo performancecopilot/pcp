@@ -4946,7 +4946,7 @@ Simple gauge metric with some instances
     inst [1 or "1 someinst:001"] value 4
 
 prometheus.stderr_check.stderr_check [Simple gauge metric with one instance]
-    Data Type: double  InDom: 144.28672 0x24007000
+    Data Type: double  InDom: 144.26624 0x24006800
     Semantics: instant  Units: none
 Help:
 Simple gauge metric with one instance
@@ -4981,7 +4981,7 @@ CPU load for b5be5b9f_b0f1_47de_b436_27f167daf396
     value 0.6245374825293383
 
 prometheus.thermostat.tms_jvm_gc_4099dd5b_8226_4c13_a697_5e669380060b_wallTime [GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b]
-    Data Type: double  InDom: 144.29701 0x24007405
+    Data Type: double  InDom: 144.27653 0x24006c05
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
@@ -4989,7 +4989,7 @@ GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
     inst [1 or "1 collector_name:PSScavenge"] value 120532
 
 prometheus.thermostat.tms_jvm_gc_44157db5_4922_49d0_89de_f20f8bf71ceb_wallTime [GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb]
-    Data Type: double  InDom: 144.29698 0x24007402
+    Data Type: double  InDom: 144.27650 0x24006c02
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
@@ -4997,7 +4997,7 @@ GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
     inst [1 or "1 collector_name:PSScavenge"] value 4539165
 
 prometheus.thermostat.tms_jvm_gc_641b7232_19dd_47ae_9cc1_8294b2a09774_wallTime [GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774]
-    Data Type: double  InDom: 144.29702 0x24007406
+    Data Type: double  InDom: 144.27654 0x24006c06
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
@@ -5005,7 +5005,7 @@ GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
     inst [1 or "1 collector_name:CMS"] value 2932705
 
 prometheus.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime [GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396]
-    Data Type: double  InDom: 144.29697 0x24007401
+    Data Type: double  InDom: 144.27649 0x24006c01
     Semantics: instant  Units: none
 Help:
 GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396
