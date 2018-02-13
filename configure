@@ -4590,6 +4590,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"
+else
+  enable_shared=false
 fi
 
 
@@ -15971,6 +15973,8 @@ fi
 
 
 
+enable_lzma=false
+enable_decompression=false
 if test "x$do_decompression" != "xno"; then :
 
     # Check for -llzma
