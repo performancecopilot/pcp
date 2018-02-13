@@ -505,7 +505,8 @@ AC_LANG_POP([C++])
 dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
-  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
+  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"],
+  [enable_shared=false])
 AC_SUBST(enable_shared)
 
 dnl check if user wants to use any of their own commands;
@@ -3457,6 +3458,8 @@ AC_CHECK_LIB(atomic, __atomic_fetch_add_4, [lib_for_atomic="-latomic"])
 AC_SUBST(lib_for_atomic)
 
 dnl Check for decompression libraries
+enable_lzma=false
+enable_decompression=false
 AS_IF([test "x$do_decompression" != "xno"], [
     # Check for -llzma
     enable_lzma=true
