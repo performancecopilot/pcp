@@ -59,7 +59,7 @@ then
     exit 1
 fi
 
-eval `egrep '^(PMDA_|HAVE_)' ../src/include/builddefs | sed -e 's/ //g'`
+eval `egrep '^(PMDA_|HAVE_|QT_)' ../src/include/builddefs | sed -e 's/ //g'`
 
 if $PMDA_PAPI
 then
@@ -101,6 +101,16 @@ then
     echo "s/?{liblzma-dev}/liblzma-dev,/" >>$tmp.sed
 else
     echo "s/?{liblzma-dev}//" >>$tmp.sed
+fi
+
+if [ "$QT_VERSION" -ge 5 ]
+then
+    echo "s/?{qt-dev}/qtbase5-dev, qtbase5-dev-tools, libqt5svg5-dev, qtchooser,/" >>$tmp.sed
+elif [ "$QT_VERSION" -ge 4 ]
+then
+    echo "s/?{qt-dev}/libqt4-dev, qt4-qmake,/" >>$tmp.sed
+else
+    echo "s/?{qt-dev}//" >>$tmp.sed
 fi
 
 sed -f $tmp.sed <control.master
