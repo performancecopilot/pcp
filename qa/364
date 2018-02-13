@@ -85,6 +85,7 @@ _filter_linux()
 	    -e '/^proc.namespaces.* Metric not supported/d' \
 	    -e '/^proc.psinfo.cgroups.* No data available/d' \
 	    -e '/^cgroup..*.container.* No data available/d' \
+	    -e '/^proc.id.container.* No data available/d' \
 	# linux
     fi
 }
