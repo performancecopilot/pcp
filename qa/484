@@ -56,9 +56,6 @@ do
     cat $tmp.err >>$seq.full
     # strip any command line options preceding the archive basename
     arch=`echo $arch | sed -e 's/.* //'`
-    # Known issue:
-    # pmlogrewrite text+labels is a work-in-progress.
-    # (affects the bigbin archive diff on some hosts)
     _cmp $arch $tmp.new
 done
 
