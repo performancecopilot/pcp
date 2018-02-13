@@ -309,7 +309,7 @@ dpkg?	/usr/include/lzma.h		[liblzma-dev (build optional)]
 rpm?	/usr/include/lzma.h		[xz-devel (build optional)]
 urpmi?	/usr/include/lzma.h		[xz-devel (build optional)]
 emerge?	/usr/include/lzma.h		[xz-devel (build optional)]
-pkgin?	/usr/pkg/include/lzma.h		[xz-devel (build optional)]
+pkgin?	/usr/pkg/include/lzma.h		[xz (build optional)]
 pkg_add?	/usr/include/lzma.h	[xz-devel (build optional)]
 pkg?	/usr/include/lzma.h		[xz-devel (build optional)]
 slackpkg?	/usr/include/lzma.h	[xz-devel (build optional)]
@@ -812,7 +812,7 @@ pacman?	/etc/httpd/conf/httpd.conf	[apache (QA optional)]
 # -- realpath(1)
 dpkg?	realpath		[realpath]
 emerge?	realpath		[sys-apps/coreutils]
-pkgin?	realpath		[N/A]
+pkgin?	realpath		[?]
 pkg_add?	realpath	[N/A]
 pkg?	realpath		[gnu-coreutils]
 slackpkg?	realpath	[coreutils]
@@ -877,7 +877,7 @@ dpkg?	DBD::mysql		[libdbd-mysql-perl (mysql QA optional)]
 rpm?	DBD::mysql		[perl-DBD-mysql or 'perl(DBD::mysql)' (mysql QA optional)]
 urpmi?	DBD::mysql		[perl-DBD-mysql or 'perl(DBD::mysql)' (mysql QA optional)]
 emerge?	DBD::mysql		[dev-perl/DBD-mysql (mysql QA optional)]
-pkgin?	DBD::mysql		[N/A (mysql QA optional)]
+pkgin?	DBD::mysql		[p5-DBD-mysql (mysql QA optional)]
 pkg_add?	DBD::mysql	[p5-DBD-mysql (mysql QA optional)]
 pkg?	DBD::mysql		[perl-5/mysql-dbi (mysql QA optional)]
 slackpkg?	DBD::mysql	[mariadb (mysql QA optional)]
@@ -897,7 +897,7 @@ dpkg?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
 rpm?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
 urpmi?	zabbix_agentd		[N/A (zabbix QA optional)]
 emerge?	zabbix_agentd		[? (zabbix QA optional)]
-pkgin?	zabbix_agentd		[N/A (zabbix QA optional)]
+pkgin?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
 pkg_add?	zabbix_agentd	[? (zabbix QA optional)]
 pkg?	zabbix_agentd		[N/A (zabbix QA optional)]
 slackpkg?	zabbix_agentd	[N/A (zabbix QA optional)]
@@ -979,7 +979,7 @@ dpkg?		/usr/lib/*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qtbase5-dev (buil
 rpm?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel or libqt5Core-devel (build optional)]
 urpm?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel (build optional)]
 emerge?		libQt5Core.so			[? (build optional)]
-pkgin?		libQt5Core.so			[? (build optional)]
+pkgin?		libQt5Core.so			[qt5 (build optional)]
 pkg_add?	libQt5Core.so			[? (build optional)]
 pkg?		/usr/lib/qt/5.*/lib/libQt5Core.so	[library/qt5 (build optional)]
 slackpkg?	libQt5Core.so			[? (build optional)]
@@ -988,7 +988,7 @@ dpkg?		/usr/lib/*/qt5/bin/uic		[qtbase5-dev-tools (build optional)]
 rpm?		uic|/usr/lib/qtchooser/uic	[qtchooser (build optional)]
 urpm?		uic|/usr/lib/qtchooser/uic	[qtchooser (build optional)]
 emerge?		uic				[? (build optional)]
-pkgin?		uic				[? (build optional)]
+pkgin?		uic				[uic (build optional)]
 pkg_add?	uic				[? (build optional)]
 pkg?		/usr/lib/qt/5.*/bin/uic		[library/qt5 (build optional)]
 slackpkg?	uic				[? (build optional)]
@@ -1008,7 +1008,7 @@ urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
 rpm?	/usr/include/Inventor/Qt/SoQt.h|/usr/include/Coin*/Inventor/Qt/SoQt.h	[SoQt-devel (build optional)]
 urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
 emerge?	/usr/include/coin/Inventor/Qt/SoQt.h	[media-libs/SoQt (build optional)]
-pkgin?	/usr/pkg/include/coin/Inventor/Qt/SoQt.h	[N/A (build optional)]
+pkgin?	/usr/pkg/include/Coin/Inventor/Qt/SoQt.h	[Coin (build optional)]
 pkg_add?	/usr/local/include/coin/Inventor/Qt/SoQt.h	[? (build optional)]
 pkg?	SoQt.h				[N/A (build optional)]
 slackpkg?	SoQt.h			[N/A (build optional)]
@@ -1026,7 +1026,7 @@ dpkg?	/usr/lib*/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev 
 rpm?	/usr/lib*/libSoQt.so		[SoQt-devel (build optional)]
 urpmi?	/usr/lib*/libSoQt.so		[lib64soqt-devel (build optional)]
 emerge?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
-pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[N/A (build optional)]
+pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[Coin (build optional)]
 pkg_add?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
 pkg?	libSoQt.so			[N/A (build optional)]
 slackpkg?	libSoQt.so		[N/A (build optional)]
@@ -1232,13 +1232,16 @@ fi
 # explored and _know_ certain packages are not available
 #
 na=''
-case `hostname`
+case `hostname -s`
 in
     bozo-laptop)
 	na='dh-python libpapi-dev libpfm4-dev python3-json-pointer python3-libvirt python-prometheus-client python3-prometheus-client python-elasticsearch python3-elasticsearch python-xlsxwriter python3-xlsxwriter docker.io qtbase5-dev qtbase5-dev-tools libqt5svg5-dev'
 	;;
     vm07)
 	na='docker.io'
+	;;
+    vm09)
+	na='realpath p5-DBD-mysql zabbix-agent mkfs.gfs2 docker qtchooser qt5 uic QtSvg Coin dtrace boost json_reformat'
 	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
@@ -1268,7 +1271,7 @@ then
     do
 # s;[^ 	]*\('"$f"'\);\1;
 	sed <$tmp.main >$tmp.tmp -e "/$f/{"'
-s;\[.*;[N/A on host '"`hostname`"'];
+s;\[.*;[N/A on host '"`hostname -s`"'];
 }'
 	mv $tmp.tmp $tmp.main
     done
