@@ -52,6 +52,8 @@ if [ $? -eq 0 ]
 then
     xdpyinfo >/dev/null 2>&1
     [ $? -eq 0 ] || skip_pmchart=true
+else
+    skip_pmchart=true
 fi
 
 # sources
