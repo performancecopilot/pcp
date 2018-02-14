@@ -3296,6 +3296,7 @@ cd
 - Fix generic -s and -T option handling in libpcp (BZ 1352461)
 - Resolve crash in local context mode in libpcp_pmda (BZ 1451475)
 - python api: fix timezone segv from incorrect free (BZ 1352465)
+- Remove section 1 and 5 man pages for pmview tool (BZ 1289126)
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - selinux: add pmlogger_exec_t rule from (BZ 1483320)
