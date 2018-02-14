@@ -7,7 +7,7 @@ chmod 775 /var/log/pcp/pmmgr
 
 if which update-rc.d >/dev/null 2>&1
 then
-    update-rc.d pmmgr remove >/dev/null
+    update-rc.d -f pmmgr remove >/dev/null
     update-rc.d pmmgr defaults >/dev/null
 fi
 

@@ -73,13 +73,13 @@ fi
 
 if which update-rc.d >/dev/null 2>&1
 then
-    update-rc.d pmcd remove >/dev/null
+    update-rc.d -f pmcd remove >/dev/null
     update-rc.d pmcd defaults >/dev/null
-    update-rc.d pmlogger remove >/dev/null
+    update-rc.d -f pmlogger remove >/dev/null
     update-rc.d pmlogger defaults >/dev/null
-    update-rc.d pmie remove >/dev/null
+    update-rc.d -f pmie remove >/dev/null
     update-rc.d pmie defaults >/dev/null
-    update-rc.d pmproxy remove >/dev/null
+    update-rc.d -f pmproxy remove >/dev/null
     update-rc.d pmproxy defaults >/dev/null
 fi
 

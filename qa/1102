@@ -43,6 +43,8 @@ _cleanup()
     else
 	echo "Error: PMDA log file is missing" >>$here/$seq.full
     fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
 }
 
 trap "_cleanup; _pmdaprometheus_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15

@@ -7,7 +7,7 @@ chmod 775 /var/log/pcp/pmwebd
 
 if which update-rc.d >/dev/null 2>&1
 then
-    update-rc.d pmwebd remove >/dev/null
+    update-rc.d -f pmwebd remove >/dev/null
     update-rc.d pmwebd defaults >/dev/null
 fi
 
