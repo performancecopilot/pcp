@@ -372,6 +372,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     const char		*groupid;
     const char		*container;
     static char		host[MAXHOSTNAMELEN];
+    static char		domain[MAXDOMAINNAMELEN];
     char		buf[PM_MAXLABELJSONLEN];
     char		*hostname;
     int			sts;
@@ -381,6 +382,12 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	    (void)gethostname(host, MAXHOSTNAMELEN);
 	    hostname = pmcd_hostname = host;
 	}
+#ifdef HAVE_GETDOMAINNAME
+	if (domain[0] == '\0') {
+	    getdomainname(domain, MAXDOMAINNAMELEN);
+	    domain[sizeof(domain)-1] = '\0';
+	}
+#endif
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 	groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
@@ -389,6 +396,9 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 			(const char *)node->data : NULL);
 
 	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	if (domain[0] != '\0')
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"domainname\":\"%s\"",
+			    domain);
 	if (userid)
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
 			    userid);

@@ -27,6 +27,7 @@ _filter()
     -e 's/"groupid":[0-9]*/"groupid":NUM/' \
     -e 's/"url":"file:.*\.txt"/"url":FILEURL/' \
     -e 's/"hostname":"[a-z0-9][a-z0-9_.-]*"/"hostname":HOSTNAME/' \
+    -e 's/"domainname":"[a-z0-9][a-z0-9_.-]*"/"domainname":DOMAINNAME/' \
     -e 's;'$PCP_PMDAS_DIR';PCP_PMDAS_DIR;'
 }
 
