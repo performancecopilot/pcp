@@ -862,7 +862,7 @@ _pcp () {
   scales_space)
     _wanted space-scales expl 'space scale' compadd \
       -M 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' \
-      byte Kbyte KB Mbyte MB Gbyte GB Tbyte TB Pbyte PB Ebyte EB && ret=0
+      byte Kbyte KB Mbyte MB Gbyte GB Tbyte TB Pbyte PB Ebyte EB Zbyte ZB Ybyte YB && ret=0
   ;;
   scales_time)
     _values time-scale \
