@@ -3291,6 +3291,12 @@ cd
 %changelog
 * Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
 - Work-in-progress, see http://pcp.io/roadmap
+- pcp-atopsar: robustness around missing data (BZ 1508028)
+- python pmcc method checking for missing metrics (BZ 1508026)
+- Fix generic -s and -T option handling in libpcp (BZ 1352461)
+- Resolve crash in local context mode in libpcp_pmda (BZ 1451475)
+- python api: fix timezone segv from incorrect free (BZ 1352465)
+- Remove section 1 and 5 man pages for pmview tool (BZ 1289126)
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - selinux: add pmlogger_exec_t rule from (BZ 1483320)
