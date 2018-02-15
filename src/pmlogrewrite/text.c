@@ -59,13 +59,7 @@ _pmUnpackText(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
     }
     k += sizeof(*ident);
 
-    *buffer = strdup(&tbuf[k]);
-    if (*buffer == NULL) {
-	fprintf(stderr, "_pmUnpackText: malloc(%d) failed: %s\n",
-		(int)strlen(&tbuf[k]), strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
+    *buffer = &tbuf[k];
 }
 
 void
@@ -83,6 +77,7 @@ do_text(void)
 
     out_offset = __pmFtell(outarch.logctl.l_mdfp);
 
+    /* After this call, buffer will point into inarch.metarec */
     _pmUnpackText(inarch.metarec, &type, &ident, &buffer);
 
 #if 0 /* no rewriting yet */
@@ -188,7 +183,7 @@ do_text(void)
 #endif /* no rewriting yet */
 
     /*
-     * libpcp, via __pmLogPutText(), assumes control of the storage pointed
+     * libpcp, via __pmLogPutText(), makes a copy of the storage pointed
      * to by buffer.
      */
 
