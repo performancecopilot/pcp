@@ -842,7 +842,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
       </section>
     </section>
     <section id="LE97285-PARENT">
-      <title>Domains, Metrics, and Instances</title>
+      <title>Domains, Metrics, Instances and Labels</title>
       <para>This section defines metrics and instances, discusses how they should be designed for a particular target domain, and shows how to implement support for them.</para>
       <para>
         <indexterm id="IG31340177109">
@@ -1184,7 +1184,7 @@ transformations that the PMDA performs.</para>
           <para>Or  they can be represented as instances 1, 2, 3 for metric M1 and instances 1, 2, 3 for metric M2:</para>
           <programlisting>  M1[1]  M1[2]  M1[3] 
   M2[1]  M2[2]  M2[3]</programlisting>
-          <para>The PMDA implementer must decide and consistently export this encoding from the N-dimensional instrumentation to the 1-dimensional data model of the PCP.</para>
+          <para>The PMDA implementer must decide and consistently export this encoding from the N-dimensional instrumentation to the 1-dimensional data model of the PCP. The use of metric label metadata - arbitrary key/value pairs - allows the implementer to capture the higher dimensions of the performance data.</para>
           <para>In certain special cases (for example, such as for a histogram), it may be appropriate to export an array of values as raw binary data (the type encoding in the descriptor is <literal>PM_TYPE_AGGREGATE</literal>). However, this requires the development of special PMAPI client tools, because the standard PCP tools have no knowledge of the structure and interpretation of the binary data. The usual issues of platform-depdendence must also be kept in mind for this case - endianness, word-size, alignment and so on - the (possibly remote) special PMAPI client tools may need this information in order to decode the data successfully.</para>
         </section>
         <section id="id5190626">
@@ -1294,7 +1294,7 @@ static pmdaMetric metrictab[] = {
             <indexterm id="IG31340177143">
               <primary>COLOR_INDOM</primary>
             </indexterm>The metric <literal>simple.color</literal> is associated, via <literal>COLOR_INDOM</literal>,  with the first instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[0].it_indom</filename> and <filename>metrictab[1].m_desc.indom</filename>. This instance domain has three instances: red, green, and blue.</para>
-          <para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal><indexterm id="IG31340177144"><primary>NOW_INDOM</primary></indexterm>, with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
+          <para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal>, with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
           <para>
             <indexterm id="IG31340177145">
               <primary>PM_INDOM_NULL instance domain</primary>
@@ -1304,6 +1304,145 @@ static pmdaMetric metrictab[] = {
           <para>For the simple PMDA, the wrapper functions are <command>simple_fetch</command> and <command>simple_instance</command>, and defaults are over-ridden by the following assignments in the <command>simple_init</command> function:</para>
           <programlisting>dp-&gt;version.any.fetch = simple_fetch;
 dp-&gt;version.any.instance = simple_instance;</programlisting>
+        </section>
+      </section>
+      <section id="id5190482">
+        <title>Labels</title>
+	<para>Metrics and instances can be further described through the use of metadata labels, which are arbitrary name/value pairs associated with individual metrics and instances. There are several applications of this concept, but one of the most important is the ability to differentiate the components of a multi-dimensional instance name, such as the case of the <literal>mem.zoneinfo.numa_hit</literal> metric which has one value per memory zone, per NUMA node.</para>
+      <para>Consider <xref linkend="Z976548024nat"/>:</para>
+      <example id="Z976548024nat">
+        <title>Multi-dimensional Instance Domain Labels</title>
+        <para>
+<literallayout class="monospaced"> $ <userinput>pminfo -l mem.zoneinfo.numa_hit</userinput>
+
+ mem.zoneinfo.numa_hit
+    inst [0 or &quot;DMA::node0&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:0,&quot;zone&quot;:&quot;DMA&quot;}
+    inst [1 or &quot;Normal::node0&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:0,&quot;zone&quot;:&quot;Normal&quot;}
+    inst [2 or &quot;DMA::node1&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:1,&quot;zone&quot;:&quot;DMA&quot;}
+    inst [3 or &quot;Normal::node1&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:1,&quot;zone&quot;:&quot;Normal&quot;}</literallayout></para>
+      </example>
+      <note>
+        <para>Here we see the use of metric labels to individually describe the memory zone and NUMA node associated with each instance.</para>
+      </note>
+      <para>The PMDA implementation is only partially responsible for choosing the label identifiers that differentiate components of metrics and instances within an instance domain. Label sets for a singleton metric or individual instance of a set-valued metric are formed from a label hierarchy, which includes global labels applied to all metrics and instances from one PMAPI context.</para>
+      <para>Labels are stored and communicated within PCP using JSONB format. This format is a restricted form of JSON suitable for indexing and other operations. In JSONB form, insignificant whitespace is discarded, and the order of label names is not preserved. Within the PMCS a lexicographically sorted key space is always maintained, however. Duplicate label names are not permitted. The label with highest precedence is the only one presented. If duplicate names are presented at the same hierarchy level, only one will be preserved (exactly which
+      one wins is arbitrary, so do not rely on this).
+      </para>
+        <section id="id5190505nat">
+          <title>Label Hierarchy</title>
+          <para>The set of labels associated with any singleton metric or instance is formed by merging the sets of labels at each level of a hierarchy. The lower levels of the hierarchy have highest precendence when merging overlapping (duplicate) label names:</para>
+          <itemizedlist>
+            <listitem>
+		    <para>Global context labels (as reported by the <literal>pmcd.labels</literal> metric) are the lowest precedence. The PMDA implementor has no influence over labels at this level of the hierarchy, and these labels are typically supplied by <command>pmcd</command> from <filename>/etc/pcp/labels</filename> files.</para>
+            </listitem>
+            <listitem>
+              <para>Domain labels, for all metrics and instances of a PMDA, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Instance Domain labels, associated with an InDom, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Metric cluster labels, associated with a PMID cluster, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Metric item labels, associated with an individual PMID, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Instance labels, associated with a metric instance identifier, have the highest precedence.</para>
+            </listitem>
+          </itemizedlist>
+        </section>
+        <section id="id5190626nat">
+          <title>Data Structures</title>
+          <para>
+            <indexterm id="IG31340177137nat">
+              <primary>data structures</primary>
+            </indexterm>
+            <indexterm id="IG31340177138nat">
+              <primary>pmLabel structure</primary>
+            </indexterm>In any PMDA that supports labels at any level of the hierarchy, each individual label (one name:value pair) requires a <filename>pmLabel</filename> structure as shown in <xref linkend="Z975964618nat"/>:</para>
+          <example id="Z975964618nat">
+            <title>
+              <filename>pmLabel</filename> Structure</title>
+            <programlisting>typedef struct { 
+    uint     name : 16;      /* label name offset in JSONB string */
+    uint     namelen : 8;    /* length of name excluding the null */
+    uint     flags : 8;      /* information about this label */
+    uint     value : 16;     /* offset of the label value */
+    uint     valuelen : 16;  /* length of value in bytes */
+} pmLabel;</programlisting>
+	    <para>The <literal>flags</literal> field is a bitfield identifying the hierarchy level and whether this name:value pair is intrinsic (optional) or extrinsic (part of the mandatory, identifying metadata for the metric or instance). All other fields are offsets and lengths in the JSONB string from an associated <filename>pmLabelSet</filename> structure.
+	    </para>
+          </example>
+          <para>
+            <indexterm id="IG31340177139nat">
+              <primary>pmLabelSet structure</primary>
+            </indexterm>Zero or more labels are specified via a label set, in a <filename>pmLabelSet</filename> structure as shown in <xref linkend="Z975964773nat"/>:</para>
+          <example id="Z975964773nat">
+            <title>
+              <filename>pmLabelSet</filename> Structure</title>
+            <programlisting>typedef struct { 
+    uint     inst;          /* PM_IN_NULL or the instance ID */ 
+    int      nlabels;       /* count of labels or error code */
+    char     *json;         /* JSONB formatted labels string */
+    uint     jsonlen : 16;  /* JSON string length byte count */
+    uint     padding : 16;  /* zero, reserved for future use */
+    pmLabel  *labels;       /* indexing into the JSON string */
+} pmLabelSet;</programlisting>
+	    <para>This provides information about the set of labels associated  with an entity (context, domain, indom, metric cluster, item or instance). The entity will be from any one level of the label hierarchy. If at the lowest hierarchy level (which happens to be highest precedence - instances) then the <literal>inst</literal> field will contain an actual instance identifier instead of PM_IN_NULL.</para>
+          </example>
+          <para>
+            <indexterm id="IG31340177142nat">
+              <primary>pmdaLabel man page</primary>
+            </indexterm>For information about how a label can be associated with each level of the hierarchy, see the <command>pmdaLabel(3)</command> man page.</para>
+          <para>The simple PMDA, shown in <xref linkend="Z963524114nat"/>, associates labels at the domain, indom and instance levels of the hierarhy.</para>
+          <example id="Z963524114nat">
+            <title>Simple PMDA</title>
+            <programlisting>static int
+simple_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    int         serial;
+
+    switch (type) {
+    case PM_LABEL_DOMAIN:
+        pmdaAddLabels(lpp, &quot;{&quot;role&quot;:&quot;testing&quot;}&quot;);
+        break;
+    case PM_LABEL_INDOM:
+        serial = pmInDom_serial((pmInDom)ident);
+        if (serial == COLOR_INDOM) {
+            pmdaAddLabels(lpp, &quot;{&quot;indom_name&quot;:&quot;color&quot;}&quot;);
+            pmdaAddLabels(lpp, &quot;{&quot;model&quot;:&quot;RGB&quot;}&quot;);
+        }
+        if (serial == NOW_INDOM) {
+            pmdaAddLabels(lpp, &quot;{&quot;indom_name&quot;:&quot;time&quot;}&quot;);
+            pmdaAddLabels(lpp, &quot;{&quot;unitsystem&quot;:&quot;SI&quot;}&quot;);
+        }
+        break;
+    case PM_LABEL_CLUSTER:
+    case PM_LABEL_ITEM:
+        /* no labels to add for these types, fall through */
+    default:
+        break;
+    }
+    return pmdaLabel(ident, type, lpp, pmda);
+}
+
+static int
+simple_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    struct timeslice *tsp;
+
+    if (pmInDom_serial(indom) != NOW_INDOM)
+        return 0;
+    if (pmdaCacheLookup(indom, inst, NULL, (void *)&amp;tsp) != PMDA_CACHE_ACTIVE)
+        return 0;
+    /* SI units label, value: sec (seconds), min (minutes), hour (hours) */
+    return pmdaAddLabels(lp, &quot;{&quot;units&quot;:&quot;%s&quot;}&quot;, tsp-&lt;tm_name);
+}</programlisting>
+          </example>
+          <para>The <command>simple_labelCallBack</command> function is called indirectly via <command>pmdaLabel</command> for each instance of the <literal>NOW_INDOM</literal><indexterm id="IG31340177144"><primary>NOW_INDOM</primary></indexterm>. PMDA initialization ensures these functions are registered with the global PMDA interface structure for use when handling label requests, by the following assignments in the <command>simple_init</command> function:</para>
+          <programlisting>dp-&gt;version.seven.label = simple_label;
+pmdaSetLabelCallBack(dp, simple_labelCallBack);</programlisting>
         </section>
       </section>
     </section>
@@ -1652,6 +1791,12 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
               <indexterm id="IG31340180nat">
                 <primary>pmdaAttribute callback</primary>
               </indexterm> <command>pmdaAttribute</command></para>
+          </listitem>
+          <listitem>
+            <para>
+              <indexterm id="IG31340181nat">
+                <primary>pmdaLabel callback</primary>
+              </indexterm> <command>pmdaLabel</command></para>
           </listitem>
         </itemizedlist>
         <para>
@@ -2010,6 +2155,9 @@ simple_store(pmResult *result, pmdaExt *pmda)
           <listitem>
             <para>Version six added support for authenticated client contexts, where the PMDA is informed of user credentials and other PMCD attributes of the connection between individual PMAPI clients and PMCD (<command>pmdaAttribute</command> interface)</para>
           </listitem>
+          <listitem>
+            <para>Version seven added support for metadata labels, where the PMDA is able to associate name:value pairs in a hierarchy such that additional metadata, above and beyond the metric descriptors, is associated with metrics and instances (<command>pmdaLabel</command> interface)</para>
+          </listitem>
         </itemizedlist>
         <example id="Z964112160nat">
           <title>
@@ -2018,7 +2166,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
     union {
         ...
         /*
-         * PMDA_INTERFACE6
+         * PMDA_INTERFACE7
          */ 
         struct {
             pmdaExt *ext;
@@ -2032,7 +2180,8 @@ simple_store(pmResult *result, pmdaExt *pmda)
             int     (*name)(pmID, char ***, pmdaExt *);
             int     (*children)(const char *, int, char ***, int **, pmdaExt *);
             int     (*attribute)(int, int, const char *, int, pmdaExt *);
-        } six;
+            int     (*label)(int, int, pmLabelSet **, pmdaExt *);
+        } seven;
     } version;
 } pmdaInterface;</programlisting>
         </example>
@@ -2078,6 +2227,8 @@ For brevity, we have shown only the latest interface version (six) above, but al
     /* added for PMDA_INTERFACE_5 */
     int         e_context;      /* client context id from pmcd */
     pmdaEndContextCallBack e_endCallBack;  /* callback after client context closed */
+    /* added for PMDA_INTERFACE_7 */
+    pmdaLabelCallBack  e_labelCallBack;  /* callback to lookup metric instance labels */
 } pmdaExt;</programlisting>
         </example>
         <para>
@@ -2216,7 +2367,7 @@ static char     *username;
 void simple_init(pmdaInterface *dp)
 {
     if (isDSO)
-        pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
+        pmdaDSO(dp, PMDA_INTERFACE_7, &#x201C;simple DSO&#x201D;,
                 &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
     else
         pmSetProcessIdentity(username);
@@ -2227,7 +2378,9 @@ void simple_init(pmdaInterface *dp)
     dp-&gt;version.any.fetch = simple_fetch;
     dp-&gt;version.any.store = simple_store;
     dp-&gt;version.any.instance = simple_instance;
+    dp-&gt;version.seven.label = simple_label;
     pmdaSetFetchCallBack(dp, simple_fetchCallBack);
+    pmdaSetLabelCallBack(dp, simple_labelCallBack);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
              metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
@@ -2309,7 +2462,7 @@ main(int argc, char **argv)
     isDSO = 0;
     pmSetProgname(argv[0]);
     pmGetUsername(&amp;username);
-    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
+    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_7, pmGetProgname(), SIMPLE,
                &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 
     pmdaGetOptions(argc, argv, &amp;opts, &amp;dispatch);
@@ -2945,13 +3098,13 @@ integer value per disk spindle, representing the cumulative count of I/O operati
       <para>Consider <xref linkend="Z976548024sdc"/>:</para>
       <example id="Z976548024sdc">
         <title>Metrics Sharing the Same Instance Domain</title>
-        <programlisting>
-          <userinput>$ pminfo -f filesys.free</userinput>
+        <para>
+<literallayout class="monospaced"> $ <userinput>pminfo -f filesys.free</userinput>
 
-filesys.free
+ filesys.free
     inst [1 or &#x201C;/dev/disk0&#x201D;] value 1803
     inst [2 or &#x201C;/dev/disk1&#x201D;] value 22140
-    inst [3 or &#x201C;/dev/disk2&#x201D;] value 157938</programlisting>
+    inst [3 or &#x201C;/dev/disk2&#x201D;] value 157938</literallayout></para>
       </example>
       <para>The metric <literal>filesys.free</literal> has three values, currently 1803, 22140, and 157938. These values are respectively associated with the instances identified by the internal identifiers 1, 2 and 3, and the external identifiers <filename>/dev/disk0</filename>, <filename>/dev/disk1</filename>, and <filename>/dev/disk2</filename>. These instances form an instance domain that is shared by the performance metrics <literal>filesys.capacity</literal>, <literal>filesys.used</literal>, <literal>filesys.free</literal>, <literal>filesys.mountdir</literal>, and so on.</para>
       <para>Each performance metric is associated with an instance domain, while each instance domain may be associated with many performance metrics. Each instance domain is identified by a unique value, as defined by the following <literal>typedef</literal> declaration:</para>
@@ -7847,7 +8000,7 @@ trace.transact.rate</literallayout>
       <primaryie>data export <link linkend="IG31340177552">Application and PCP Relationship</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>data structures <link linkend="IG31340177118">Data Structures</link> <link linkend="IG31340177137">Data Structures</link></primaryie>
+      <primaryie>data structures <link linkend="IG31340177118">Data Structures</link> <link linkend="IG31340177137">Data Structures</link> <link linkend="IG31340177137nat">Data Structures</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>dbpmda man page <link linkend="IG3134017768">Implementing a PMDA</link> <link linkend="IG31340177229">Overview</link> <link linkend="IG31340177236"><command>dbpmda</command> Debug Utility</link></primaryie>
@@ -7927,7 +8080,7 @@ trace.transact.rate</literallayout>
       <secondaryie>programming issues <link linkend="IG31340177445">PMAPI Programming Issues and Examples</link></secondaryie>
       <secondaryie>Remove script <link linkend="IG31340177249">Removing a PMDA</link></secondaryie>
       <secondaryie>rolling-window sampling <link linkend="IG31340177493">Rolling-Window Periodic Sampling Example</link></secondaryie>
-      <secondaryie>simple and trivial PMDAs <link linkend="IG31340177109">Domains, Metrics, and Instances</link></secondaryie>
+      <secondaryie>simple and trivial PMDAs <link linkend="IG31340177109">Domains, Metrics, Instances and Labels</link></secondaryie>
       <secondaryie>time control functions <link linkend="IG31340177416">PMAPI Time Control Services</link></secondaryie>
       <secondaryie>trace PMDA <link linkend="IG31340177465">Instrumenting Applications</link></secondaryie>
     </indexentry>
@@ -8399,6 +8552,9 @@ trace.transact.rate</literallayout>
       <primaryie>pmdaInterface structure <link linkend="IG31340177200">PMDA Structures</link> <link linkend="IG31340177208">Overview</link></primaryie>
     </indexentry>
     <indexentry>
+      <primaryie>pmdaLabel callback <link linkend="IG31340181nat">Overview</link></primaryie>
+    </indexentry>
+    <indexentry>
       <primaryie>pmdaMain man page <link linkend="IG31340177224">Daemon Initialization</link></primaryie>
     </indexentry>
     <indexentry>
@@ -8504,6 +8660,12 @@ trace.transact.rate</literallayout>
     </indexentry>
     <indexentry>
       <primaryie>pmInDomStr function <link linkend="IG31340177431"><command>pmInDomStr</command> Function</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>pmLabel structure <link linkend="IG31340177138nat">Data Structures</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>pmLabelSet structure <link linkend="IG31340177139nat">Data Structures</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmLoadNameSpace function <link linkend="IG31340177296"><command>pmLoadNameSpace</command> Function</link></primaryie>

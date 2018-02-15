@@ -187,9 +187,9 @@ metric values take precedence:
 metric) are the lowest precedence.
 .TP 4n
 2. Domain labels
-(for all values from a PMDA) are the next highest precedence.
+(for all metrics and instances from a PMDA) are the next highest precedence.
 .TP 4n
-3. Instance Domain Labels
+3. Instance Domain labels
 associated with an InDom are the next highest precedence.
 .TP 4n
 4. Metric cluster labels
@@ -250,7 +250,7 @@ and whether it is an intrinsic or extrinsic label).
 Building on this, the
 .CW pmLabelSet
 provides information about the set of labels associated with an
-entity (context, domain, indom, metric or instance).
+entity (context, domain, indom, metric cluster, item or instance).
 The entity will be from any one level of the label hierarchy.
 If at the lowest hierarchy level (which happens to be highest
 precedence \- PM_LABEL_INSTANCES) then the
