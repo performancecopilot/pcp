@@ -473,17 +473,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
     if (pmDebugOptions.logmeta)
 	fprintf(stderr, "addtext( ..., %u, %u)\n", ident, type);
 
-    if ((sts = __pmLogLookupText(acp, ident, type, &buffer)) < 0) {
-
+    if ((sts = __pmLogLookupText(acp, ident, type, &text)) < 0) {
+	/* This is a new help text record. Add it to the hash structure. */
 	if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL) {
 	    if ((l_hashtype = (__pmHashCtl *)calloc(1, sizeof(__pmHashCtl))) == NULL)
 		return -oserror();
 
 	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashtext);
-	    if (sts > 0) {
-		/* __pmHashAdd returns 1 for success, but we want 0. */
-		sts = 0;
-	    }
+	    if (sts < 0)
+		return sts;
 	} else {
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	}
@@ -491,10 +489,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
 	if ((text = strdup(buffer)) == NULL)
 	    return -oserror();
 
-	if ((sts = __pmHashAdd(ident, (void *)text, l_hashtype)) > 0)
+	if ((sts = __pmHashAdd(ident, (void *)text, l_hashtype)) > 0) {
+	    /* __pmHashAdd returns 1 for success, but we want 0. */
 	    sts = 0;
+	}
+	return sts;
     }
 
+    /* This help text already exists. Make sure that the new text is the same. */
+    if (strcmp(buffer, text) != 0)
+	sts = PM_ERR_LOGCHANGETEXT;
+    
     return sts;
 }
 
@@ -938,8 +943,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    }
 	    k += sizeof(ident);
 
-	    addtext(acp, ident, type, (char *)&tbuf[k]);
+	    sts = addtext(acp, ident, type, (char *)&tbuf[k]);
 	    free(tbuf);
+	    if (sts < 0)
+		goto end;
 	}
 	else
 	    __pmFseek(f, (long)rlen, SEEK_CUR);
