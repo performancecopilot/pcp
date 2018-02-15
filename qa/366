@@ -68,6 +68,8 @@ networking/nfs3-server
 networking/nfs4-client
 networking/nfs4-server
 networking/softnet
+storage/vdo
+storage/vdo-summary
 tools/atop
 tools/atop-httpstats
 tools/atop-nfsclient

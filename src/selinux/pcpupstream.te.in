@@ -54,6 +54,7 @@ require {
 	type ldconfig_exec_t;
 	type httpd_t;
 	type zabbix_port_t;
+	type sysfs_t; #RHBZ1545245
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -199,6 +200,9 @@ allow pcp_pmcd_t postfix_spool_t:dir read;
 #RHBZ1488116
 allow pcp_pmcd_t httpd_t:shm { unix_read associate getattr };
 allow pcp_pmcd_t httpd_t:sem { unix_read associate getattr };
+
+#RHBZ1545245
+allow pcp_pmcd_t sysfs_t:dir write;
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };

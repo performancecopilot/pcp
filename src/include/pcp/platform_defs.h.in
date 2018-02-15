@@ -203,6 +203,10 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #define MAXHOSTNAMELEN 4096
 #endif
 
+#ifndef MAXDOMAINNAMELEN
+#define MAXDOMAINNAMELEN 64
+#endif
+
 #ifndef HAVE_FLOG10
 #if !defined(flog10)
 #define flog10(x) (float)log10((double)x)

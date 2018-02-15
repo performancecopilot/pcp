@@ -17,6 +17,7 @@ status=1	# failure is the default!
 userid=`id -u`
 groupid=`id -g`
 hostname=`hostname`
+domainname=`domainname`
 need_restore=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -37,6 +38,7 @@ _cleanup()
 _filter_labels()
 {
     sed \
+	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
 	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
 	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
 	-e "s/.userid.:$userid/\"userid\":UID/g" \

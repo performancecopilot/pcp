@@ -34,6 +34,10 @@ _cleanup()
     # primary pmlogger exiting during the test is racey depending on timing
     # of fetches and stopping/starting pmcd (this is also not under test).
     _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
+    echo >>$seq.full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
+    echo >>$seq.full
+    cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
     _restore_config $PCP_PMCDCONF_PATH
     _service pcp start >$tmp.start
     _restore_auto_restart pmcd
@@ -151,22 +155,22 @@ if _check_pmcd_procs 1
 then
     :
 else
-    _echo "pmcd didn't start!"
-    _echo ""
+    _echo "Error: pmcd didn't start!"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit
 fi
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[^([][d]umb_pmda[^])]" $tmp.ps >/dev/null
+egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+old_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+echo "old_dumb_pid=$old_dumb_pid" >>$seq.full
+old_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+echo "old_pmcd_pid=$old_pmcd_pid" >>$seq.full
+if [ -z "$old_dumb_pid" ]
 then
-    :
-else
-    _echo "pmcd didn't create the dumb_pmda agent"
-    _echo ""
+    _echo "Error: pmcd didn't create the dumb_pmda agent"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit
 fi
 
 # force to a known state
@@ -199,12 +203,28 @@ sleep 2
 pminfo -n $pmns -d dummyproc >/dev/null 2>&1
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
+egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
+if [ -z "$new_pmcd_pid" ]
+then
+    _echo "Error: pmcd died!"
+    cat $pmcdlog >>$seq.full
+    exit 
+fi
+if [ "$new_pmcd_pid" != "$old_pmcd_pid" ]
+then
+    _echo "Error: pmcd restarted!"
+    cat $pmcdlog >>$seq.full
+    exit 
+fi
+if [ -n "$new_dumb_pid" -a "$new_dumb_pid" = "$old_dumb_pid" ]
 then
     _echo "Error: pmcd didn't terminate the dumb_pmda agent"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit
 else
     _echo "pmcd terminated dummy the dumb_pmda agent as desired"
 fi
@@ -214,7 +234,8 @@ cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
 echo >>$seq.full
 cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
 
-# Restart pmcd and its agents
+# reset (not restart) pmcd and restart any dead PMDAs
+#
 _echo ""
 $sudo $signal -a -s HUP pmcd
 sleep 1
@@ -223,23 +244,41 @@ if _check_pmcd_procs 1
 then
     :
 else
-    _echo "pmcd was sent SIGHUP and died"
-    _echo ""
+    _echo "Error: pmcd was sent SIGHUP and died"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit
 fi
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
+egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
+if [ -z "$new_pmcd_pid" ]
 then
-    psline=`ps $PCP_PS_ALL_FLAGS | grep "[^([][d]umb_pmda[^])]"`
-    old_dummy_pid=`echo $psline | cut -d ' ' -f 2`
-else
-    _echo "pmcd SIGHUP didn't restart the dumb_pmda agent"
-    _echo ""
+    _echo "Error: pmcd died!"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit 
+fi
+if [ "$new_pmcd_pid" != "$old_pmcd_pid" ]
+then
+    _echo "Error: pmcd restarted!"
+    cat $pmcdlog >>$seq.full
+    exit 
+fi
+if [ -n "$new_dumb_pid" -a "$new_dumb_pid" != "$old_dumb_pid" ]
+then
+    old_dumb_pid=$new_dumb_pid
+elif [ -z "$new_dumb_pid" ]
+then
+    _echo "Error: pmcd SIGHUP didn't restart the dumb_pmda agent"
+    cat $pmcdlog >>$seq.full
+    exit
+else
+    _echo "Error: dumb_pmda agent with same pid has arisen from the dead!"
+    cat $pmcdlog >>$seq.full
+    exit
 fi
 
 #
@@ -263,24 +302,37 @@ pminfo -n $pmns -d dummyproc 2>&1 \
 _echo ""
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
+egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
+if [ -z "$new_pmcd_pid" ]
+then
+    _echo "Error: pmcd died!"
+    cat $pmcdlog >>$seq.full
+    exit 
+fi
+if [ "$new_pmcd_pid" != "$old_pmcd_pid" ]
+then
+    _echo "Error: pmcd restarted!"
+    cat $pmcdlog >>$seq.full
+    exit 
+fi
+if [ -n "$new_dumb_pid" ]
 then 
     _echo "pmcd did NOT terminate the dumb_pmda agent as desired"
 
-    # make sure it is really the same process - check pid
-    psline=`ps $PCP_PS_ALL_FLAGS | grep "[^([][d]umb_pmda[^])]"`
-    new_dummy_pid=`echo $psline | cut -d ' ' -f 2`
-    if [ $old_dummy_pid -ne $new_dummy_pid ]
+    if [ "$old_dumb_pid" != "$new_dumb_pid" ]
     then
 	_echo "Error: dumb_pmda proc has been recreated"
-	_echo "pid mismatch: $old_dummy_pid versus $new_dummy_pid"
-	exit 1
+	_echo "pid mismatch: $old_dumb_pid versus $new_dumb_pid"
+	exit
     fi
 else
     _echo "Error: pmcd terminated the dumb_pmda agent"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit
 fi
 
 _echo ""
@@ -289,20 +341,38 @@ _echo ""
 sleep 8
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
-if grep "[^([][d]umb_pmda[^])]" <$tmp.ps >/dev/null
+egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
+if [ -z "$new_pmcd_pid" ]
 then
-    _echo "Error: pmcd didn't terminate the dumb_pmda agent"
+    _echo "Error: pmcd died!"
     cat $pmcdlog >>$seq.full
-    exit 1
+    exit 
+fi
+if [ "$new_pmcd_pid" != "$old_pmcd_pid" ]
+then
+    _echo "Error: pmcd restarted!"
+    cat $pmcdlog >>$seq.full
+    exit 
+fi
+if [ -n "$new_dumb_pid" ]
+then
+    if [ "$new_dumb_pid" = "$old_dumb_pid" ]
+    then
+	_echo "Error: pmcd didn't terminate the dumb_pmda agent"
+	cat $pmcdlog >>$seq.full
+	exit
+    else
+	_echo "Error: dumb_pmda proc has been recreated"
+	_echo "pid mismatch: $old_dumb_pid versus $new_dumb_pid"
+	exit
+    fi
 else
     _echo "pmcd terminated the dumb_pmda agent as desired"
 fi
-
-echo >>$seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
-echo >>$seq.full
-cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
 
 _echo ""
 status=0

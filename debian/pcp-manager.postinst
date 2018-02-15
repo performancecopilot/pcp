@@ -5,12 +5,17 @@
 chown pcp:pcp /var/log/pcp/pmmgr
 chmod 775 /var/log/pcp/pmmgr
 
-update-rc.d pmmgr defaults >/dev/null
+if which update-rc.d >/dev/null 2>&1
+then
+    update-rc.d -f pmmgr remove >/dev/null
+    update-rc.d pmmgr defaults >/dev/null
+fi
 
 # Note: default pmlogger and pmie setups are guaranteed to be
 # installed also, so pmmgr disabled by default on deb install
 
-#if which invoke-rc.d >/dev/null 2>&1; then
+#if which invoke-rc.d >/dev/null 2>&1
+#then
 #    invoke-rc.d pmmgr start
 #else
 #    /etc/init.d/pmmgr start

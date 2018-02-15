@@ -1124,6 +1124,7 @@ main(int argc, char **argv)
 		    __pmFD_CLR(fd, &fds);
 		    __pmCloseSocket(clientfd);
 		    clientfd = -1;
+		    pmlc_host[0] = '\0';
 		    numfds = maxfd() + 1;
 		    qa_case = 0;
 		}

@@ -83,6 +83,11 @@ port2=`_find_free_port $port2`
 port3=`expr $port2 + 1`
 port3=`_find_free_port $port3`
 
+# Avoid derived metrics delay at startup ... want "a" and "b" to run
+# as close as possible to concurrently
+#
+export PCP_DERIVED_CONFIG=
+
 # a and b concurrently
 # a: 25 x 0.6 sec + prologue + epilogue = 27
 # b: 20 x 0.3 sec + prologue + epilogue = 22

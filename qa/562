@@ -18,6 +18,7 @@ userid=`id -u`
 groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
+domainname=`domainname`
 pipeargs=""
 id pcp >/dev/null 2>&1 && pipeargs="-U $username"
 need_restore=true
@@ -41,6 +42,7 @@ _filter_labels()
 {
     sed \
 	-e "s/-U ${username}/-U USERNAME/g" \
+	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
 	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
 	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
 	-e "s/.userid.:$userid/\"userid\":UID/g" \

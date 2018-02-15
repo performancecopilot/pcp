@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2017 Red Hat.
+dnl Copyright (c) 2012-2018 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -505,7 +505,8 @@ AC_LANG_POP([C++])
 dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
-  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
+  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"],
+  [enable_shared=false])
 AC_SUBST(enable_shared)
 
 dnl check if user wants to use any of their own commands;
@@ -2059,19 +2060,19 @@ AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
-AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
-AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
+AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
+AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid)
+AC_CHECK_FUNCS(uname gethostname getdomainname)
+AC_CHECK_FUNCS(__clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown fchmod getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strchrnul)
-AC_CHECK_FUNCS(getuid getgid)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
-AC_CHECK_FUNCS(sendmsg recvmsg setns)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
@@ -3457,6 +3458,8 @@ AC_CHECK_LIB(atomic, __atomic_fetch_add_4, [lib_for_atomic="-latomic"])
 AC_SUBST(lib_for_atomic)
 
 dnl Check for decompression libraries
+enable_lzma=false
+enable_decompression=false
 AS_IF([test "x$do_decompression" != "xno"], [
     # Check for -llzma
     enable_lzma=true

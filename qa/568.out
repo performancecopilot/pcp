@@ -1,6 +1,6 @@
 QA output created by 568
 sample.bin labels from 12 sets:
-  Context:	{"groupid":GID,"hostname":"HOST","pcpqa":"labels","userid":UID}
+  Context:	{"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","pcpqa":"labels","userid":UID}
   Domain:	{"agent":"sample","role":"testing"}
   Cluster:	{"cluster":"zero"}
   Inst[100]:	{"bin":100}
@@ -13,11 +13,11 @@ sample.bin labels from 12 sets:
   Inst[800]:	{"bin":800}
   Inst[900]:	{"bin":900}
 sample.colour labels from 7 sets:
-  Context:	{"groupid":GID,"hostname":"HOST","pcpqa":"labels","userid":UID}
+  Context:	{"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","pcpqa":"labels","userid":UID}
   Domain:	{"agent":"sample","role":"testing"}
   InDom:	{"model":"RGB"}
   Cluster:	{"cluster":"zero"}
 sample.long.one labels from 3 sets:
-  Context:	{"groupid":GID,"hostname":"HOST","pcpqa":"labels","userid":UID}
+  Context:	{"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","pcpqa":"labels","userid":UID}
   Domain:	{"agent":"sample","role":"testing"}
   Cluster:	{"cluster":"zero"}

@@ -7,6 +7,7 @@ cgroup.mounts.count 1 1
 cgroup.mounts.subsys 1 "cpu"
 cgroup.cpusched.cfs_period 1 "/"
 cgroup.cpusched.cfs_quota 1 "/"
+cgroup.cpusched.id.container 1 "/"
 cgroup.cpusched.periods 1 "/"
 cgroup.cpusched.shares 1 "/"
 cgroup.cpusched.throttled 1 "/"
@@ -14,26 +15,32 @@ cgroup.cpusched.throttled_time 1 "/"
 cpuacct and cpuset fetch, no user groups defined, dual controllers
 cgroup.mounts.count 1 1
 cgroup.mounts.subsys 1 "cpuacct,cpuset"
+cgroup.cpuacct.id.container 1 "/"
 cgroup.cpuacct.stat.system 1 "/"
 cgroup.cpuacct.stat.user 1 "/"
 cgroup.cpuacct.usage 1 "/"
 cgroup.cpuset.cpus 1 "/"
+cgroup.cpuset.id.container 1 "/"
 cgroup.cpuset.mems 1 "/"
 cpuacct and cpuset fetch, one user group defined, dual controllers
 cgroup.mounts.count 1 1
 cgroup.mounts.subsys 1 "cpuacct,cpuset"
+cgroup.cpuacct.id.container 2
 cgroup.cpuacct.stat.system 2
 cgroup.cpuacct.stat.user 2
 cgroup.cpuacct.usage 2
 cgroup.cpuset.cpus 2
+cgroup.cpuset.id.container 2
 cgroup.cpuset.mems 2
 cgroup.mounts.count 1
 cgroup.mounts.subsys 1
 cpuacct and cpuset fetch, one user group removed, dual controllers
+cgroup.cpuacct.id.container 1 "/"
 cgroup.cpuacct.stat.system 1 "/"
 cgroup.cpuacct.stat.user 1 "/"
 cgroup.cpuacct.usage 1 "/"
 cgroup.cpuset.cpus 1 "/"
+cgroup.cpuset.id.container 1 "/"
 cgroup.cpuset.mems 1 "/"
 cgroup.mounts.count 1 PM_IN_NULL
 cgroup.mounts.subsys 1 "/tmp/cgroup_361"

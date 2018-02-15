@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -199,6 +199,13 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		}
 	    } while (n == 0);
 
+	    if (changed & PMCD_NAMES_CHANGE) {
+		/*
+		 * Fetch has returned with the PMCD_NAMES_CHANGE flag set.
+		 */
+		check_dynamic_metrics();
+	    }
+
 	    if (changed & PMCD_ADD_AGENT) {
 		int	sts;
 		/*
@@ -220,14 +227,16 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 */
 		validate_metrics();
 
-		/*
-		 * All metrics have been validated, however, this state change
-		 * represents a potential gap in the stream of metrics. Generate
-		 * a <mark> record.
-		 */
-		if ((sts = putmark()) < 0) {
-		    fprintf(stderr, "putmark: %s\n", pmErrStr(sts));
-		    exit(1);
+		if (changed & PMCD_ADD_AGENT) {
+		     /*
+		      * All metrics have been validated, however, the state change
+		      * PMCD_ADD_AGENT represents a potential gap in the stream of
+		      * metrics. So we generate a <mark> record for this case.
+		      */
+		    if ((sts = putmark()) < 0) {
+			fprintf(stderr, "putmark: %s\n", pmErrStr(sts));
+			exit(1);
+		    }
 		}
 	    }
 	}

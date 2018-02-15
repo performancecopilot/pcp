@@ -71,10 +71,17 @@ then
     chmod 644 /var/lib/pcp/config/pmlogger/config.default
 fi
 
-update-rc.d pmcd defaults >/dev/null
-update-rc.d pmlogger defaults >/dev/null
-update-rc.d pmie defaults >/dev/null
-update-rc.d pmproxy defaults >/dev/null
+if which update-rc.d >/dev/null 2>&1
+then
+    update-rc.d -f pmcd remove >/dev/null
+    update-rc.d pmcd defaults >/dev/null
+    update-rc.d -f pmlogger remove >/dev/null
+    update-rc.d pmlogger defaults >/dev/null
+    update-rc.d -f pmie remove >/dev/null
+    update-rc.d pmie defaults >/dev/null
+    update-rc.d -f pmproxy remove >/dev/null
+    update-rc.d pmproxy defaults >/dev/null
+fi
 
 # transition pmdadmcache over to pmdadm (device mapper)
 #
@@ -87,7 +94,8 @@ then
     touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
 fi
 
-if which invoke-rc.d >/dev/null 2>&1; then
+if which invoke-rc.d >/dev/null 2>&1
+then
     invoke-rc.d pmcd start
     invoke-rc.d pmlogger start
 else

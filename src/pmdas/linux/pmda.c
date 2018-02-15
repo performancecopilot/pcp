@@ -7952,12 +7952,12 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 	pmdaAddLabels(lp, "{\"indom_name\":\"per slab\"}");
 	return 1;
     case ZONEINFO_INDOM:
-	pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"memory\"]}");
-	pmdaAddLabels(lp, "{\"indom_name\":\"per zone\"}");
+	pmdaAddLabels(lp, "{\"device_type\":[\"memory\",\"numa_node\"]}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per zone per numa_node\"}");
 	return 1;
     case BUDDYINFO_INDOM:
-	pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"memory\"]}");
-	pmdaAddLabels(lp, "{\"indom_name\":\"per buddy\"}");
+	pmdaAddLabels(lp, "{\"device_type\":[\"memory\",\"numa_node\"]}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per buddy per numa_node\"}");
 	return 1;
     default:
 	sts = 0;

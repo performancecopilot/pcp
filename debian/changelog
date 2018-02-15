@@ -1,9 +1,18 @@
 pcp (4.0.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Remove postinst insecure tmpfile handling (closes: #771793)
+  * Remove py2 or py3 alt build dependencies (closes: #882977)
+  * Fix sigsegv in pcp-atop with no devices (closes: #881822)
   * Fix FTBFS building arch-indep packages (closes: #805955)
+  * Remove bashism from the pcp-testsuite (closes: #772352)
+  * Build for the system python3 package (closes: #866700)
+  * Ship import.h in libpcp-import1-dev (closes: #781047)
+  * Fix broken devel man page symlinks (closes: #857406)
+  * Fix up Qt5 build dependency issue (closes: #882969)
+  * Remove dbus-launch use from pcp-testsuite (closes: #836285)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 16 Feb 2018 12:34:56 +1100
+ -- Nathan Scott <nathans@debian.org>  Fri, 16 Feb 2018 08:05:37 +1100
 
 pcp (3.12.2-2) unstable; urgency=low
 

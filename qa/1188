@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
+[ -d $PCP_PMDAS_DIR/dm ] || _notrun "dm PMDA directory is not installed"
+which dmsetup >/dev/null 2>&1 || _notrun "dmsetup is not installed"
 
 _cleanup()
 {
@@ -44,6 +46,7 @@ pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
 echo
 echo "=== Installing device mapper PMDA ===" | tee -a $here/$seq.full
 _prepare_pmda_install dm
+cd $PCP_PMDAS_DIR/dm
 $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $here/$seq.full
 
@@ -63,6 +66,11 @@ do
     echo && echo "== done" && echo
     cd $here
 done
+
+# cleanup ..
+#
+cd $PCP_PMDAS_DIR/dm
+$sudo ./Remove </dev/null >/dev/null 2>&1
 
 # success, all done
 status=0

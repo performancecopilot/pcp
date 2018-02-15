@@ -4590,6 +4590,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"
+else
+  enable_shared=false
 fi
 
 
@@ -12073,7 +12075,7 @@ _ACEOF
 fi
 done
 
-for ac_func in select socket gethostname getpeerucred getpeereid
+for ac_func in select socket syslog sendmsg recvmsg setns
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12085,7 +12087,31 @@ _ACEOF
 fi
 done
 
-for ac_func in uname syslog __clone pipe2 fcntl ioctl
+for ac_func in getuid getgid getpeerucred getpeereid
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in uname gethostname getdomainname
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in __clone pipe2 fcntl ioctl
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12169,18 +12195,6 @@ _ACEOF
 fi
 done
 
-for ac_func in getuid getgid
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
 for ac_func in getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
@@ -12206,18 +12220,6 @@ fi
 done
 
 for ac_func in sysinfo trace_back_stack backtrace
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-for ac_func in sendmsg recvmsg setns
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -15971,6 +15973,8 @@ fi
 
 
 
+enable_lzma=false
+enable_decompression=false
 if test "x$do_decompression" != "xno"; then :
 
     # Check for -llzma
