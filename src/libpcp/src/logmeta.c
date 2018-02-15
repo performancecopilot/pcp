@@ -496,9 +496,30 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
 	return sts;
     }
 
-    /* This help text already exists. Make sure that the new text is the same. */
-    if (strcmp(buffer, text) != 0)
-	sts = PM_ERR_LOGCHANGETEXT;
+    /*
+     * This help text already exists. Tolerate change for the purpose of making
+     * corrections over time. Do this by keeping the latest version and
+     * discarding the original, if they are different.
+     */
+    if (strcmp(buffer, text) != 0) {
+	/*
+	 * Find the hash table entry. We know it's there because
+	 * __pmLogLookupText() succeeded above.
+	 */
+	hp = __pmHashSearch(type, &lcp->l_hashtext);
+	assert(hp != NULL);
+
+	l_hashtype = (__pmHashCtl *)hp->data;
+	hp = __pmHashSearch(ident, l_hashtype);
+	assert(hp != NULL);
+
+	/* Free the existing text and keep the new text. */
+	assert (text == (char *)hp->data);
+	free(text);
+	hp->data = (void*)strdup(buffer);
+	if (hp->data == NULL)
+	    return -oserror();
+    }
     
     return sts;
 }

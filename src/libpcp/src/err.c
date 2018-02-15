@@ -185,8 +185,6 @@ static const struct {
 	"Derived metric definition failed" },
     { PM_ERR_NOLABELS,		"PM_ERR_NOLABELS",
 	"No support for metric label metadata" },
-    { PM_ERR_LOGCHANGETEXT,	"PM_ERR_LOGCHANGETEXT",
-	"The help text for a pmid or instance domain has changed" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
