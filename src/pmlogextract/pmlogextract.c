@@ -977,7 +977,7 @@ append_textreclist(int i)
 
     /* Did we find an existing record? */
     if (curr != NULL) {
-	/* We did. Check that the text is still the same */
+	/* We did. Check whether the text is still the same */
 	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "update_textreclist: ");
 	    if ((type & PM_TEXT_PMID)) {
@@ -992,7 +992,7 @@ append_textreclist(int i)
 	str1 = (const char *)&curr->pdu[4];
 	str2 = (const char *)&iap->pb[META][4];
 	if (strcmp(str1, str2) != 0) {
-	    fprintf(stderr, "%s: Error: ", pmGetProgname());
+	    fprintf(stderr, "%s: Warning: ", pmGetProgname());
 	    if ((type & PM_TEXT_PMID))
 		fprintf(stderr, "metric PMID %s", pmIDStr(curr->desc.pmid));
 	    else /* (type & PM_TEXT_INDOM) */
@@ -1009,25 +1009,32 @@ append_textreclist(int i)
 		 */
 		fprintf(stderr, " help text changed!\n");
 	    }
-	    abandon_extract();
 	}
-	/* not adding, so META: discard new record */
-	free(iap->pb[META]);
-	iap->pb[META] = NULL;
-	return;
+	/*
+	 * Tolerate change for the purpose of making
+	 * corrections over time. Do this by keeping the latest version and
+	 * discarding the original.
+	 */
+	free(curr->pdu);
+    }
+    else {
+	/* No existing record found. Add a new record to the list. */
+	curr = mk_reclist_t();
+	curr->next = rtext;
+	rtext = curr;
+
+	/* Populate the new record. */
+	curr->desc.type = type;
+	if ((type & PM_TEXT_PMID))
+	    curr->desc.pmid = ident;
+	else
+	    curr->desc.indom = ident;
     }
 
-    /* No existing record found. Add a new record to the list. */
-    curr = mk_reclist_t();
-    curr->next = rtext;
-    rtext = curr;
-
-    /* Populate the new record. */
-    curr->desc.type = type;
-    if ((type & PM_TEXT_PMID))
-	curr->desc.pmid = ident;
-    else
-	curr->desc.indom = ident;
+    /*
+     * Regardless of whether the help text already existed, we're keeping
+     * the latest pdu.
+     */
     curr->pdu = iap->pb[META];
     iap->pb[META] = NULL;
 }

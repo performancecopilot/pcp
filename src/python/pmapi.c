@@ -1667,7 +1667,6 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_LOGCHANGEUNITS", PM_ERR_LOGCHANGEUNITS);
     edict_add(dict, edict, "PM_ERR_NEEDCLIENTCERT", PM_ERR_NEEDCLIENTCERT);
     edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
-    edict_add(dict, edict, "PM_ERR_LOGCHANGETEXT", PM_ERR_LOGCHANGETEXT);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
     edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
 

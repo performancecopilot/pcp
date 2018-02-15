@@ -220,7 +220,6 @@ typedef struct pmDesc {
 #define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
 #define PM_ERR_BADDERIVE	(-PM_ERR_BASE-64)   /* Derived metric definition failed */
 #define PM_ERR_NOLABELS		(-PM_ERR_BASE-65)   /* No support for label metadata */
-#define PM_ERR_LOGCHANGETEXT	(-PM_ERR_BASE-66)   /* Help text for a pmid or instance domain has changed */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
