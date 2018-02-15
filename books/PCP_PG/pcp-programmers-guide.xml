@@ -30,6 +30,7 @@
       <year>2013</year>
       <year>2015</year>
       <year>2016</year>
+      <year>2018</year>
       <holder>Red Hat, Inc.</holder>
     </copyright>
     <legalnotice>
@@ -479,7 +480,7 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
           </varlistentry>
           <varlistentry>
             <term>
-              <literal>pmclient</literal>
+              <command>pmclient</command>
             </term>
             <listitem>
               <para>
@@ -678,19 +679,6 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
         </step>
         <step>
           <para>
-            <indexterm id="IG3134017769">
-              <primary>pmchart command</primary>
-            </indexterm>
-            <indexterm id="IG3134017770">
-              <primary>pmgadgets command</primary>
-            </indexterm>
-            <indexterm id="IG3134017774">
-              <primary>examples</primary>
-              <secondary>visualization tools</secondary>
-            </indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command> and <command>pmgadgets(1)</command> man pages. For examples of text-based tools, see the <command>pminfo(1)</command> and <command>pmval(1)</command> man pages.</para>
-        </step>
-        <step>
-          <para>
             <indexterm id="IG3134017772">
               <primary>pmie command</primary>
             </indexterm>
@@ -731,7 +719,7 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
             <see>PDU</see>
           </indexterm>All PMDAs are launched and controlled by the PMCD process on the local host. PMCD receives requests from the monitoring tools and forwards them to the PMDAs. Responses, when required, are returned through PMCD to the clients. The requests fall into a small number of categories, and the PMDA must handle each request type. For a DSO PMDA, each request type corresponds to a method in the agent. For a daemon PMDA, each request translates to a message or  protocol data unit (PDU) that may be sent to a PMDA from PMCD.</para>
         <para>For a daemon PMDA, the following request PDUs must be supported:<variablelist><varlistentry><term><literal>PDU_FETCH</literal></term><listitem><para><indexterm id="IG3134017782"><primary>pmFetch man page</primary></indexterm><indexterm id="IG3134017783"><primary>PDU_FETCH</primary></indexterm>Request for metric values (see the <command>pmFetch(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PROFILE</literal></term><listitem><para><indexterm id="IG3134017784"><primary>pmAddProfile function</primary></indexterm><indexterm id="IG3134017785"><primary>PDU_PROFILE</primary></indexterm>A list of instances required for the corresponding metrics in subsequent fetches (see the <command>pmAddProfile(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_INSTANCE_REQ</literal></term><listitem><para><indexterm id="IG3134017786"><primary>pmGetInDom function</primary></indexterm><indexterm id="IG3134017787"><primary>PDU_INSTANCE_REQ</primary></indexterm> Request for a particular instance domain for instance descriptions (see the <command>pmGetInDom(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_DESC_REQ</literal></term><listitem><para><indexterm id="IG3134017788"><primary>pmLookupDesc function</primary></indexterm><indexterm id="IG3134017789"><primary>PDU_DESC_REQ</primary></indexterm>Request for metadata describing metrics (see the <command>pmLookupDesc(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_TEXT_REQ</literal></term><listitem><para><indexterm id="IG3134017790"><primary>pmLookupText function</primary></indexterm><indexterm id="IG3134017791"><primary>PDU_TEXT_REQ</primary></indexterm><indexterm id="IG3134017792"><primary>help text</primary><secondary>PDU_TEXT_REQ</secondary></indexterm>Request for metric help text (see the <command>pmLookupText(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_RESULT</literal></term><listitem><para><indexterm id="IG3134017794"><primary>PDU_RESULT</primary></indexterm>Values to store into metrics (see the <command>pmStore(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
-        <para>The following request PDUs may optionally be supported:<variablelist><varlistentry><term><literal>PDU_PMNS_NAMES</literal></term><listitem><para><indexterm id="IG3134017782nat"><primary>pmLookupName function</primary></indexterm><indexterm id="IG3134017783nat"><primary>PDU_PMNS_NAMES</primary></indexterm>Request for metric names, given one or more identifiers (see the <command>pmLookupName(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_CHILD</literal></term><listitem><para><indexterm id="IG3134017784nat"><primary>pmGetChildren function</primary></indexterm><indexterm id="IG3134017785nat"><primary>PDU_PMNS_CHILD</primary></indexterm>A list of immediate descendent nodes of a given namespace node (see the <command>pmGetChildren(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_TRAVERSE</literal></term><listitem><para><indexterm id="IG3134017786nat"><primary>pmTraversePMNS function</primary></indexterm><indexterm id="IG3134017787nat"><primary>PDU_PMNS_TRAVERSE</primary></indexterm>Request for a particular sub-tree of a given namespace node (see the <command>pmTraversePMNS(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_IDS</literal></term><listitem><para><indexterm id="IG3134017788nat"><primary>pmNameID function</primary></indexterm><indexterm id="IG3134017789nat"><primary>PDU_PMNS_IDS</primary></indexterm>Perform a reverse name lookup, mapping a metric identifier to a name (see the <command>pmNameID(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_AUTH</literal></term><listitem><para><indexterm id="IG3134017790nat"><primary>__pmParseHostAttrsSpec function</primary></indexterm><indexterm id="IG3134017791nat"><primary>PDU_AUTH</primary></indexterm>Handle connection attributes (key/value pairs), such as client credentials and other authentication information (see the <command>__pmParseHostAttrsSpec(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
+	<para>The following request PDUs may optionally be supported:<variablelist><varlistentry><term><literal>PDU_PMNS_NAMES</literal></term><listitem><para><indexterm id="IG3134017782nat"><primary>pmLookupName function</primary></indexterm><indexterm id="IG3134017783nat"><primary>PDU_PMNS_NAMES</primary></indexterm>Request for metric names, given one or more identifiers (see the <command>pmLookupName(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_CHILD</literal></term><listitem><para><indexterm id="IG3134017784nat"><primary>pmGetChildren function</primary></indexterm><indexterm id="IG3134017785nat"><primary>PDU_PMNS_CHILD</primary></indexterm>A list of immediate descendent nodes of a given namespace node (see the <command>pmGetChildren(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_TRAVERSE</literal></term><listitem><para><indexterm id="IG3134017786nat"><primary>pmTraversePMNS function</primary></indexterm><indexterm id="IG3134017787nat"><primary>PDU_PMNS_TRAVERSE</primary></indexterm>Request for a particular sub-tree of a given namespace node (see the <command>pmTraversePMNS(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_IDS</literal></term><listitem><para><indexterm id="IG3134017788nat"><primary>pmNameID function</primary></indexterm><indexterm id="IG3134017789nat"><primary>PDU_PMNS_IDS</primary></indexterm>Perform a reverse name lookup, mapping a metric identifier to a name (see the <command>pmNameID(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_ATTR</literal></term><listitem><para><indexterm id="IG3134017790nat"><primary>__pmParseHostAttrsSpec function</primary></indexterm><indexterm id="IG3134017791nat"><primary>PDU_ATTR</primary></indexterm>Handle connection attributes (key/value pairs), such as client credentials and other authentication information (see the <command>__pmParseHostAttrsSpec(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_LABEL_REQ</literal></term><listitem><para><indexterm id="IG3134017790lab"><primary>pmLookupLabels function</primary></indexterm><indexterm id="IG3134017791lab"><primary>PDU_LABEL_REQ</primary></indexterm><indexterm id="IG3134017792lab"><primary>metric labels</primary><secondary>PDU_LABEL_REQ</secondary></indexterm>Request for metric labels (see the <command>pmLookupLabels(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
         <para>Each PMDA is associated with a unique domain number that is encoded in the domain field of metric and instance identifiers, and PMCD uses the domain number to determine which PMDA can handle the components of any given client request.</para>
       </section>
       <section id="LE82676-PARENT">
@@ -759,9 +747,11 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
+root    1       pipe    binary          /var/lib/pcp/pmdas/root/pmdaroot
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
-linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
 proc    3       pipe    binary          ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+mmv     70      dso     mmv_init        /var/lib/pcp/pmdas/mmv/pmda_mmv.so
 simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</programlisting>
           </example>
         </para>
@@ -777,7 +767,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
           <indexterm id="IG31340177100">
             <primary>DSO</primary>
             <secondary>disadvantages</secondary>
-          </indexterm>A DSO PMDA provides the most efficient communication between the PMDA and PMCD. This approach has some  disadvantages resulting from the DSO PMDA being the same process as PMCD:</para>
+          </indexterm>A DSO PMDA provides the most efficient communication between the PMDA and PMCD. This approach has some disadvantages resulting from the DSO PMDA being the same process as PMCD:</para>
         <itemizedlist>
           <listitem>
             <para>An error or bug that causes a DSO PMDA to exit also causes PMCD to exit, which affects all connected client tools.</para>
@@ -803,7 +793,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
           </indexterm>
           <indexterm id="IG31340177103">
             <primary>pipe</primary>
-          </indexterm>The PMCD process launches a daemon PMDA with  <command>fork</command> and <command>execv</command> (or <command>CreateProcess</command> on Windows). You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using IPv4 or IPv6 TCP/IP, or UNIX domain sockets if the platform supports that; see the <command>tcp(7)</command>,  <command>ip(7)</command>, <command>ipv6(7)</command> or <command>unix(7)</command> man pages.</para>
+          </indexterm>The PMCD process launches a daemon PMDA with <command>fork</command> and <command>execv</command> (or <command>CreateProcess</command> on Windows). You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using IPv4 or IPv6 TCP/IP, or UNIX domain sockets if the platform supports that; see the <command>tcp(7)</command>, <command>ip(7)</command>, <command>ipv6(7)</command> or <command>unix(7)</command> man pages.</para>
         <para>
           <indexterm id="IG31340177104">
             <primary>pipe</primary>
@@ -811,7 +801,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
           <indexterm id="IG31340177105">
             <primary>simple PMDA</primary>
             <secondary> as daemon</secondary>
-          </indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to operating system differences, other PMDAs already installed, or access control sections in the PMCD configuration file.</para>
+          </indexterm>As superuser, install the simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to operating system differences, other PMDAs already installed, or access control sections in the PMCD configuration file.</para>
         <para>
           <example id="Z1033576478tls">
             <title>Simple PMDA as a Daemon</title>
@@ -826,9 +816,11 @@ PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
+root    1       pipe    binary          /var/lib/pcp/pmdas/root/pmdaroot
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
-linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
 proc    3       pipe    binary          ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+mmv     70      dso     mmv_init        /var/lib/pcp/pmdas/mmv/pmda_mmv.so
 simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 253</programlisting></para>
           </example>
         </para>
@@ -1577,7 +1569,7 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
               </indexterm>
               <indexterm id="IG31340177177">
                 <primary>PM_ERR_CONV error code</primary>
-              </indexterm> The value extraction, conversion, and printing functions (<command>pmExtractValue</command>, <command>pmConvScale</command>, <command>pmAtomStr</command>, <command>pmTypeStr</command>, and <command>pmPrintValue</command>) return the  <literal>PM_ERR_CONV</literal> error or an appropriate diagnostic string, if an attempt is made to operate on a value for which <literal>type</literal> is <literal>PM_TYPE_NOSUPPORT</literal>.</para>
+              </indexterm>The value extraction, conversion, and printing functions (<command>pmExtractValue</command>, <command>pmConvScale</command>, <command>pmAtomStr</command>, <command>pmTypeStr</command>, and <command>pmPrintValue</command>) return the  <literal>PM_ERR_CONV</literal> error or an appropriate diagnostic string, if an attempt is made to operate on a value for which <literal>type</literal> is <literal>PM_TYPE_NOSUPPORT</literal>.</para>
             <para>If performance tools take note of the <literal>type</literal> field in the <filename>pmDesc</filename> structure, they should not manipulate values for unsupported metrics. Even if tools ignore <literal>type</literal> in the metric's description, following these development guidelines ensures that no misleading value is ever returned; so there is no reason to call the extraction, conversion, and printing functions.</para>
           </listitem>
         </itemizedlist>
@@ -7938,7 +7930,6 @@ trace.transact.rate</literallayout>
       <secondaryie>simple and trivial PMDAs <link linkend="IG31340177109">Domains, Metrics, and Instances</link></secondaryie>
       <secondaryie>time control functions <link linkend="IG31340177416">PMAPI Time Control Services</link></secondaryie>
       <secondaryie>trace PMDA <link linkend="IG31340177465">Instrumenting Applications</link></secondaryie>
-      <secondaryie>visualization tools <link linkend="IG3134017774">Implementing a PMDA</link></secondaryie>
     </indexentry>
     <indexentry>
       <primaryie>execv system call <link linkend="IG31340177102">Daemon PMDA</link></primaryie>
@@ -8147,7 +8138,7 @@ trace.transact.rate</literallayout>
       <primaryie>PDU <link linkend="IG3134017780">Overview</link> <link linkend="IG31340177475">Application Interaction</link> <link linkend="IG31340177542">Configuring the Trace Library</link> <link linkend="IG31340177571">Acronyms</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>PDU_AUTH <link linkend="IG3134017791nat">Overview</link></primaryie>
+      <primaryie>PDU_ATTR <link linkend="IG3134017791nat">Overview</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>PDU_DESC_REQ <link linkend="IG3134017789">Overview</link></primaryie>
@@ -8157,6 +8148,9 @@ trace.transact.rate</literallayout>
     </indexentry>
     <indexentry>
       <primaryie>PDU_INSTANCE_REQ <link linkend="IG3134017787">Overview</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>PDU_LABEL_REQ <link linkend="IG3134017790lab">Overview</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>PDU_PMNS_CHILD <link linkend="IG3134017785nat">Overview</link></primaryie>
@@ -8322,7 +8316,7 @@ trace.transact.rate</literallayout>
       <primaryie>PMCD_REQUEST_TIMOUT variable <link linkend="IG31340177389"><command>pmFetch</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>pmchart command <link linkend="IG313401779">PCP Architecture</link> <link linkend="IG3134017769">Implementing a PMDA</link> <link linkend="IG31340177499">Configuring the Trace PMDA</link></primaryie>
+      <primaryie>pmchart command <link linkend="IG313401779">PCP Architecture</link> <link linkend="IG31340177499">Configuring the Trace PMDA</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmclient tool <link linkend="IG3134017741">Application and Agent Development</link></primaryie>
@@ -8468,9 +8462,6 @@ trace.transact.rate</literallayout>
       <primaryie>pmFreeResult function <link linkend="IG31340177290">Variable Length Argument and Results Lists</link> <link linkend="IG31340177386"><command>pmFetch</command> Function</link> <link linkend="IG31340177391"><command>pmFreeResult</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>pmgadgets command <link linkend="IG3134017770">Implementing a PMDA</link></primaryie>
-    </indexentry>
-    <indexentry>
       <primaryie>pmgenmap tool <link linkend="IG3134017743">Application and Agent Development</link></primaryie>
     </indexentry>
     <indexentry>
@@ -8534,6 +8525,9 @@ trace.transact.rate</literallayout>
     </indexentry>
     <indexentry>
       <primaryie>pmLookupInDomText function <link linkend="IG31340177310"><command>pmLookupInDomText</command> Function</link> <link linkend="IG31340177337">PMAPI Context Services</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>pmLookupLabels function <link linkend="IG3134017791lab">Overview</link> <link linkend="IG3134017791lab"><command>pmLookupText</command> Function</link> <link linkend="IG3134017792lab">metric labels</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmLookupName function <link linkend="IG3134017782nat">Overview</link> <link linkend="IG31340177298"><command>pmLookupName</command> Function</link> <link linkend="IG31340177338">PMAPI Context Services</link> <link linkend="IG31340177448">Symbolic Association between a Metric's Name and Value</link></primaryie>
