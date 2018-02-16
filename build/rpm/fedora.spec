@@ -151,7 +151,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
 %global disable_elasticsearch 0
 %else
 %global disable_elasticsearch 1
@@ -168,14 +168,12 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
-BuildRequires: xz-devel
 BuildRequires: zlib-devel
 %if !%{disable_python2}
 %if 0%{?default_python} != 3
@@ -209,10 +207,7 @@ BuildRequires: systemtap-sdt-devel
 BuildRequires: boost-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: perl-devel
-%endif
-%if 0%{?fedora}
-BuildRequires: perl-generators
+BuildRequires: perl-devel perl-generators
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
@@ -229,7 +224,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash gawk sed grep fileutils findutils initscripts which
+Requires: bash gawk sed grep findutils initscripts which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -645,7 +640,6 @@ Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
-Requires: sysstat
 Requires: perl(XML::TokeParser)
 
 %description import-sar2pcp
@@ -662,7 +656,6 @@ Summary: Performance Co-Pilot tools for importing iostat data into PCP archive l
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
-Requires: sysstat
 
 %description import-iostat2pcp
 Performance Co-Pilot (PCP) front-end tools for importing iostat data
@@ -2146,9 +2139,6 @@ updated policy package.
 %setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
 
-%clean
-rm -Rf $RPM_BUILD_ROOT
-
 %build
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
@@ -3314,6 +3304,17 @@ cd
 - python api: fix timezone segv from incorrect free (BZ 1352465)
 - Remove section 1 and 5 man pages for pmview tool (BZ 1289126)
 - Update to latest PCP sources.
+
+* Thu Feb 08 2018 Nathan Scott <nathans@redhat.com> - 3.12.2-5
+- Update the Vector webapp to latest upstream (v1.2.1).
+
+* Wed Jan 10 2018 Lukas Berk <lberk@redhat.com> - 3.12.2-4
+- Remove Obsoletes line for pcp-gui-debuginfo
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
+* Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 3.12.2-2
+- Remove old crufty coreutils requires
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - selinux: add pmlogger_exec_t rule from (BZ 1483320)
