@@ -72,6 +72,17 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global perl_interpreter perl
 %endif
 
+# support for pmdabcc
+%if 0%{?fedora} >= 25 || 0%{?rhel} > 7
+%if !%{disable_python3}
+%global disable_bcc 0
+%else
+%global disable_bcc 1
+%endif
+%else
+%global disable_bcc 1
+%endif
+
 # support for pmdajson
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %if !%{disable_python2} || !%{disable_python3}
@@ -283,6 +294,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_perfevent --with-perfevent=no
 %else
 %global _with_perfevent --with-perfevent=yes
+%endif
+
+%if %{disable_bcc}
+%global _with_bcc --with-pmdabcc=no
+%else
+%global _with_bcc --with-pmdabcc=yes
 %endif
 
 %if %{disable_json}
@@ -1438,7 +1455,7 @@ collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
    
 
-%if !%{disable_python3}
+%if !%{disable_bcc}
 #
 # pcp-pmda-bcc
 #
@@ -1930,7 +1947,7 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
 %endif
-%if !%{disable_python3}
+%if !%{disable_bcc}
 Requires: pcp-pmda-bcc
 %endif
 %if !%{disable_python2} || !%{disable_python3}
@@ -2136,7 +2153,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2569,7 +2586,7 @@ fi
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
 
-%if !%{disable_python3}
+%if !%{disable_bcc}
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
 %endif
@@ -3133,7 +3150,7 @@ cd
 %files pmda-dm
 %{_pmdasdir}/dm
 
-%if !%{disable_python3}
+%if !%{disable_bcc}
 %files pmda-bcc
 %{_pmdasdir}/bcc
 %endif
@@ -3290,13 +3307,13 @@ cd
 
 %changelog
 * Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
-- Work-in-progress, see http://pcp.io/roadmap
 - pcp-atopsar: robustness around missing data (BZ 1508028)
 - python pmcc method checking for missing metrics (BZ 1508026)
 - Fix generic -s and -T option handling in libpcp (BZ 1352461)
 - Resolve crash in local context mode in libpcp_pmda (BZ 1451475)
 - python api: fix timezone segv from incorrect free (BZ 1352465)
 - Remove section 1 and 5 man pages for pmview tool (BZ 1289126)
+- Update to latest PCP sources.
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - selinux: add pmlogger_exec_t rule from (BZ 1483320)
