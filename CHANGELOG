@@ -1,3 +1,6 @@
+pcp-4.0.1 (30 March 2018)
+    - Work-in-progress, see http://pcp.io/roadmap
+
 pcp-4.0.0 (16 February 2018)
     - Support metric labels as first class PCP metadata
         - libpcp: over-the-wire protocol support for labels

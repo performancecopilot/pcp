@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.0.0
+Version: 4.0.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3296,6 +3296,9 @@ cd
 %endif
 
 %changelog
+* Fri Feb 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
 - pcp-atopsar: robustness around missing data (BZ 1508028)
 - python pmcc method checking for missing metrics (BZ 1508026)
