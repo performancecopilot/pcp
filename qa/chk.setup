@@ -5,7 +5,7 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-tmp=/var/tmp/$$
+tmp=/var/tmp/chk.setup-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 rm -rf $tmp.*
 

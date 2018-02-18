@@ -111,8 +111,18 @@ then
     fi
 fi
 here=`pwd`
-tmp=/tmp/$$
-[ "X$seq" != X ] && tmp=/tmp/$seq-$$
+
+if [ -z "$tmp" ]
+then
+    # $tmp not already set, do it here ...
+    #
+    if [ -z "$seq" ]
+    then
+	tmp=/tmp/$$
+    else
+	tmp=/tmp/$seq-$$
+    fi
+fi
 
 # We depend on [A-Za-z] and similar patterns all over ... for some
 # platforms this demands LC_COLLATE to be POSIX to avoid case

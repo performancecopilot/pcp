@@ -11,8 +11,8 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
-tmp=/tmp/$$
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

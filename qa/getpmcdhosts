@@ -13,8 +13,6 @@
 
 . ./common.rc
 
-tmp=/tmp/$$
-tmp=`pwd`/tmp
 rm -rf $tmp.*
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

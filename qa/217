@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 rm -f $seq.full
 LIST="archives/951127.23.01_v2.0 archives/960624.08.17_v2.0 archives/ace_v2.0 tmparch/bar.0 archives/bigace_v2.0 tmparch/bigbin.0 archives/bug_v2.0 tmparch/dodgey-all.0 tmparch/dodgey-mixed.0 tmparch/dodgey-some.0 tmparch/foo.0 tmparch/interp.0 archives/mirage.0 tmparch/mv-bar.0 tmparch/mv-bigbin.0 tmparch/mv-foo.0 tmparch/mv-interp.0 tmparch/truncbin.0"
 
-tmp=/var/tmp/$$"_pmafm"
 $sudo rm -rf $tmp $tmp.*
 
 status=0

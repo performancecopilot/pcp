@@ -23,7 +23,6 @@ echo "this tests access control for pmlogger and exercises pmlc"
 #
 here=`pwd`
 signal=$PCP_BINADM_DIR/pmsignal
-tmp=/var/tmp/qa083.$$
 config=$tmp/pmlogger.conf
 log=$tmp/pmlogger.log
 me=`_get_fqdn`
@@ -112,7 +111,6 @@ interrupt()
 cleanup()
 {
     cd $here
-    rm -rf $tmp $tmp.*
     # kill off any surviving pmloggers
     #
     $sudo $signal -a -s TERM pmlogger
@@ -125,6 +123,7 @@ cleanup()
     _restore_auto_restart pmlogger
     _wait_for_pmcd
     _wait_for_pmlogger
+    rm -rf $tmp $tmp.*
 }
 
 trap interrupt 1 2 3 15
