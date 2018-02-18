@@ -21,7 +21,7 @@
 tmp=`mktemp -d $PCP_TMPFILE_DIR/pmdaproc.XXXXXXXXX` || exit 1
 __tmp=$tmp	# (preserve backward compatibility)
 status=0
-trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 _setup_platform()
@@ -1168,7 +1168,7 @@ _install()
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
-    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp; exit \$status" 0 1 2 3 15
+    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
     echo "Updating the Performance Metrics Name Space (PMNS) ..."
 
@@ -1251,7 +1251,7 @@ _install()
         cd $__here
     done
 
-    trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+    trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 
     _install_views pmchart
@@ -1308,7 +1308,7 @@ _remove()
     #
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
-    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp; exit \$status" 0 1 2 3 15
+    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
     echo "Culling the Performance Metrics Name Space ..."
     cd $PMNSDIR
@@ -1381,7 +1381,7 @@ _remove()
 	done
     fi
 
-    trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+    trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 }
 
@@ -1522,7 +1522,7 @@ __verbose=false
 __ns_opt=''
 __args=''
 
-trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # Parse command line args
 #
