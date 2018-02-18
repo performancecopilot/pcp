@@ -46,7 +46,6 @@ _countem()
     cat $tmp.count | wc -l | tr -d ' '
 }
 
-tmp=/tmp/$$
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -96,6 +95,118 @@ src/pmprintf sent all this text to a file
 src/pmprintf and this too
 cat $tmp.pmprintf
 rm -f $tmp.pmprintf
+
+cat <<End-of-File >$tmp.joseph
+This is a long message to exercise the realloc for the internal
+message buffer.
+
+Hinmaton-Yalaktit (or Chief Joseph) (1840 - 1904) was leader of the Nez Perce;
+his Indian name means "Thunder Rolling Down the Mountain".
+
+Perhaps you think the Creator sent you here to dispose of us as you
+see fit. If I thought you were sent by the Creator, I might be induced
+to think you had a right to dispose of me. Do not misunderstand me,
+but understand fully with reference to my affection for the land. I
+never said the land was mine to do with as I choose. The one who has a
+right to dispose of it is the one who has created it. I claim a right
+to live on my land and accord you the privilege to return to yours.
+
+Speech rejecting the demands that he lead his people onto a
+reservation. (1876)
+
+...
+
+In the treaty councils the commissioners have claimed that our country
+had been sold to the Government. Suppose a white man should come to me
+and say, "Joseph, I like your horses, and I want to buy them." I say
+to him, "No, my horses suit me, I will not sell them." Then he goes
+to my neighbor, and says to him: "Joseph has some good horses. I
+want to buy them, but he refuses to sell." My neighbor answers,
+"Pay me the money, and I will sell you Joseph's horses." The white
+man returns to me and says, "Joseph, I have bought your horses, and
+you must let me have them." If we sold our lands to the Government,
+this is the way they were bought.
+
+Arguing against the right of the US Government to force his people
+to leave their lands (1876)
+
+...
+
+Tell General Howard I know his heart. What he told me before, I
+have it in my heart. I am tired of fighting. Our Chiefs are killed;
+Looking Glass is dead, Ta Hool Hool Shute is dead. The old men are
+all dead. It is the young men who say yes or no. He who led on the
+young men is dead. It is cold, and we have no blankets; the little
+children are freezing to death. My people, some of them, have run away
+to the hills, and have no blankets, no food. No one knows where they
+are — perhaps freezing to death. I want to have time to look for
+my children, and see how many of them I can find. Maybe I shall find
+them among the dead. Hear me, my Chiefs! I am tired; my heart is sick
+and sad. From where the Sun now stands, I will fight no more forever.
+
+Speech in surrendering to General Nelson Appleton Miles after long
+evading a pursuit nearly to the border of Canada. (October 5, 1877)
+
+...
+
+Too many misinterpretations have been made; too many misunderstandings
+have come up between the white men and the Indians. If the white man
+wants to live in peace with the Indian he can live in peace. There need
+be no trouble. Treat all men alike. Give them the same laws. Give them
+all an even chance to live and grow. All men were made by the same
+Great Spirit Chief. They are all brothers. The earth is the mother
+of all people, and all people should have equal rights upon it. You
+might as well expect all rivers to run backward as that any man who
+was born a free man should be contented penned up and denied liberty
+to go where he pleases. If you tie a horse to a stake, do you expect
+he will grow fat? If you pen an Indian up on a small spot of earth and
+compel him to stay there, he will not be contented nor will he grow
+and prosper. I have asked some of the Great White Chiefs where they get
+their authority to say to the Indian that he shall stay in one place,
+while he sees white men going where they please. They cannot tell me.
+
+I only ask of the Government to be treated as all other men are
+treated. If I cannot go to my own home, let me have a home in a
+country where my people will not die so fast.
+
+When I think of our condition, my heart is heavy. I see men of my
+own race treated as outlaws and driven from country to country,
+or shot down like animals.
+
+I know that my race must change. We cannot hold our own with the
+white men as we are. We only ask an even chance to live as other men
+live. We ask to be recognized as men. We ask that the same law shall
+work alike on all men. If an Indian breaks the law, punish him by
+the law. If a white man breaks the law, punish him also.
+
+Let me be a free man, free to travel, free to stop, free to work,
+free to trade where I choose, free to choose my own teachers, free
+to follow the religion of my fathers, free to talk, think and act
+for myself — and I will obey every law or submit to the penalty.
+
+Whenever the white man treats the Indian as they treat each other then
+we shall have no more wars. We shall be all alike — brothers of
+one father and mother, with one sky above us and one country around
+us and one government for all. Then the Great Spirit Chief who rules
+above will smile upon this land and send rain to wash out the bloody
+spots made by brothers' hands upon the face of the earth. For this
+time the Indian race is waiting and praying. I hope no more groans
+of wounded men and women will ever go to the ear of the Great Spirit
+Chief above, and that all people may be one people.
+
+[from https://en.wikiquote.org/wiki/Chief_Joseph included here under
+Creative Commons Attribution-ShareAlike License].
+End-of-File
+
+unset PCP_STDERR
+src/pmprintf "`cat $tmp.joseph`"
+
+for i in 4094 4095 4096
+do
+    echo
+    echo "=== $i bytes of message + space ==="
+    src/pmprintf "`dd if=$tmp.joseph ibs=1 count=$i 2>/dev/null`"
+done
 
 # success, all done
 status=0
