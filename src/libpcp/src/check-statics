@@ -480,20 +480,18 @@ util.o
     nfilelog			# guarded by util_lock mutex
     dosyslog			# no unsafe side-effects, see notes in util.c
     done_exit			# guarded by util_lock mutex
-    ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
-    ferr			# guarded by __pmLock_libpcp mutex
     errtype			# no unsafe side-effects, see notes in util.c
-    fptr			# guarded by util_lock mutex
-    fname			# guarded by __pmLock_libpcp mutex
-    msgsize			# guarded by __pmLock_libpcp mutex
+    msgbuf			# guarded by util_lock mutex
+    msgbuflen			# guarded by util_lock mutex
+    msgsize			# guarded by util_lock mutex
+    filename			# guarded by __pmLock_extcall mutex when set
+    				# in a one-trip initialization
     ?base			# no unsafe side-effects, see notes in util.c
     ?bp				# const
     ?dp_h			# const
     ?dp_l			# const
     xconfirm_init		# no unsafe side-effects, see notes in util.c
     xconfirm			# no unsafe side-effects, see notes in util.c
-    tmpdir_init			# no unsafe side-effects, see notes in util.c
-    tmpdir			# no unsafe side-effects, see notes in util.c
 deprecated.o
 ?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE

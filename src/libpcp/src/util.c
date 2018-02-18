@@ -28,21 +28,16 @@
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
  *
- * pmprintf_atexit_installed is protected by the util_lock mutex.
- *
  * done_exit is protected by the util_lock mutex.
  *
  * filelog[] and nfilelog are protected by the util_lock mutex.
  *
- * fptr, msgsize, fname and ferr are all protected by the util_lock
+ * msgbuf, msgbuflen and msgsize are all protected by the util_lock mutex.
+ *
+ * the one-trip initialiation of filename is guarded by the __pmLock_extcall
  * mutex.
  *
  * the one-trip initialization of xconfirm is guarded by xconfirm_init
- * ... there is no locking here as the same value would result from
- * concurrent execution, and we don't want to hold util_lock when
- * calling pmGetOptionalConfig()
- *
- * the one-trip initialization of tmpdir is guarded by tmpdir_init
  * ... there is no locking here as the same value would result from
  * concurrent execution, and we don't want to hold util_lock when
  * calling pmGetOptionalConfig()
@@ -89,9 +84,6 @@ static int	nfilelog;
 static int	dosyslog;
 static int	pmState = PM_STATE_APPL;
 static int	done_exit;
-#ifdef HAVE_ATEXIT
-static int	pmprintf_atexit_installed;
-#endif
 static int	xconfirm_init;
 static char 	*xconfirm;
 
@@ -1524,10 +1516,10 @@ __pmSetInternalState(int state)
  */
 
 #define MSGBUFLEN	256
-static FILE	*fptr;
-static int	msgsize;
-static char	*fname;		/* temporary file name for buffering errors */
-static char	*ferr;		/* error output filename from PCP_STDERR */
+static char	*msgbuf;	/* message(s) are assembled here */
+static int	msgbuflen;	/* allocated length of mbuf[] */
+static int	msgsize;	/* size of accumulated message(s) */
+static char	*filename;	/* output filename from $PCP_STDERR */
 
 #define PM_QUERYERR       -1
 #define PM_USEDIALOG       0
@@ -1552,12 +1544,12 @@ pmfstate(int state)
 	/* one-trip initialization */
 	errtype = PM_USESTDERR;
 	PM_LOCK(__pmLock_extcall);
-	ferr = getenv("PCP_STDERR");		/* THREADSAFE */
-	if (ferr != NULL)
-	    ferr = strdup(ferr);
+	filename = getenv("PCP_STDERR");		/* THREADSAFE */
+	if (filename != NULL)
+	    filename = strdup(filename);
 	PM_UNLOCK(__pmLock_extcall);
-	if (ferr != NULL) {
-	    if (strcasecmp(ferr, "DISPLAY") == 0) {
+	if (filename != NULL) {
+	    if (strcasecmp(filename, "DISPLAY") == 0) {
 		if (!xconfirm)
 		    fprintf(stderr, "%s: using stderr - no PCP_XCONFIRM_PROG\n",
 			    pmGetProgname());
@@ -1567,119 +1559,78 @@ pmfstate(int state)
 		else
 		    errtype = PM_USEDIALOG;
 	    }
-	    else if (strcmp(ferr, "") != 0)
+	    else if (strcmp(filename, "") != 0)
 		errtype = PM_USEFILE;
 	}
     }
     return errtype;
 }
 
-#ifdef HAVE_ATEXIT
-static void
-pmprintf_cleanup(void)
-{
-    if (fptr != NULL) {
-	unlink(fname);
-	free(fname);
-	fclose(fptr);
-	fptr = NULL;
-    }
-}
-#endif
-
 static int
-vpmprintf(const char *msg, va_list arg)
+vpmprintf(const char *fmt, va_list arg)
 {
-    int		bytes = 0;
-    static int	tmpdir_init = 0;
-    static char	*tmpdir;
+    int		bytes;
+    int		avail;
+    va_list	save_arg;
 
-    /* see thread-safe notes above */
-    if (!tmpdir_init) {
-	tmpdir = pmGetOptionalConfig("PCP_TMPFILE_DIR");
-	tmpdir_init = 1;
-    }
+#define MSGCHUNK 4096
 
     PM_LOCK(util_lock);
-    if (fptr == NULL && msgsize == 0) {		/* create scratch file */
-	int	fd = -1;
-
-#ifdef HAVE_ATEXIT
-	if (pmprintf_atexit_installed == 0) {
-	    /* install handler for temp file cleanup */
-	    atexit(pmprintf_cleanup);
-	    pmprintf_atexit_installed = 1;
+    if (msgbuf == NULL) {
+	/* initial 4K allocation */
+	msgbuf = malloc(MSGCHUNK);
+	if (msgbuf == NULL) {
+	    pmNoMem("vmprintf malloc", MSGCHUNK, PM_RECOV_ERR);
+	    vfprintf(stderr, fmt, arg);
+	    fflush(stderr);
+	    PM_UNLOCK(util_lock);
+	    return -ENOMEM;
 	}
-#endif
-
-	if (tmpdir && tmpdir[0] != '\0') {
-	    mode_t cur_umask;
-
-	    /*
-	     * PCP_TMPFILE_DIR found in the configuration/environment,
-	     * otherwise fall through to the stderr case
-	     */
-
-#if HAVE_MKSTEMP
-	    fname = (char *)malloc(MAXPATHLEN+1);
-	    if (fname == NULL) goto fail;
-	    pmsprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
-	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
-	    fd = mkstemp(fname);
-	    umask(cur_umask);
-#else
-	    fname = tempnam(tmpdir, "pcp-");
-	    if (fname == NULL) goto fail;
-	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
-	    fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
-	    umask(cur_umask);
-#endif /* HAVE_MKSTEMP */
-
-	    if (fd < 0) goto fail;
-	    if ((fptr = fdopen(fd, "a")) == NULL) {
-		char	errmsg[PM_MAXERRMSGLEN];
-fail:
-		if (fname != NULL) {
-		    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-			pmGetProgname(), fname, osstrerror_r(errmsg, sizeof(errmsg)));
-		    unlink(fname);
-		    free(fname);
-		}
-		else {
-		    fprintf(stderr, "%s: vpmprintf: failed to create temporary file: %s\n",
-			pmGetProgname(), osstrerror_r(errmsg, sizeof(errmsg)));
-		}
-		fprintf(stderr, "vpmprintf msg:\n");
-		if (fd >= 0)
-		    close(fd);
-		msgsize = -1;
-		fptr = NULL;
-	    }
-	}
-	else
-	    msgsize = -1;
+	msgbuflen = MSGCHUNK;
+	msgsize = 0;
     }
 
-    if (msgsize < 0) {
-	vfprintf(stderr, msg, arg);
-	fflush(stderr);
-	bytes = 0;
+    va_copy(save_arg, arg);
+    avail = msgbuflen - msgsize - 1;
+    for ( ; ; ) {
+	char	*msgbuf_tmp;
+	if (avail > 0) {
+	    bytes = vsnprintf(&msgbuf[msgsize], avail, fmt, arg);
+	    if (bytes < avail)
+		break;
+	    va_copy(arg, save_arg);	/* will need to call vsnprintf() again */
+	}
+	msgbuflen += MSGCHUNK;
+	msgbuf_tmp = realloc(msgbuf, msgbuflen);
+	if (msgbuf_tmp == NULL) {
+	    pmNoMem("vmprintf realloc", msgbuflen, PM_RECOV_ERR);
+	    fprintf(stderr, "%s", msgbuf);
+	    vfprintf(stderr, fmt, arg);
+	    fflush(stderr);
+	    free(msgbuf);
+	    msgbuf = NULL;
+	    msgbuflen = 0;
+	    msgsize = 0;
+	    PM_UNLOCK(util_lock);
+	    return -ENOMEM;
+	}
+	msgbuf = msgbuf_tmp;
+	avail = msgbuflen - msgsize - 1;
     }
-    else
-	msgsize += (bytes = vfprintf(fptr, msg, arg));
+    msgsize += bytes;
 
     PM_UNLOCK(util_lock);
     return bytes;
 }
 
 int
-pmprintf(const char *msg, ...)
+pmprintf(const char *fmt, ...)
 {
     va_list	arg;
     int		bytes;
 
-    va_start(arg, msg);
-    bytes = vpmprintf(msg, arg);
+    va_start(arg, fmt);
+    bytes = vpmprintf(fmt, arg);
     va_end(arg);
     return bytes;
 }
@@ -1688,11 +1639,9 @@ int
 pmflush(void)
 {
     int		sts = 0;
-    int		len;
     int		state;
     FILE	*eptr = NULL;
     __pmExecCtl_t	*argp = NULL;
-    char	outbuf[MSGBUFLEN];
     char	errmsg[PM_MAXERRMSGLEN];
 
     /* see thread-safe notes above */
@@ -1702,30 +1651,20 @@ pmflush(void)
     }
 
     PM_LOCK(util_lock);
-    if (fptr != NULL && msgsize > 0) {
-	fflush(fptr);
+    if (msgbuf != NULL) {
 	state = pmfstate(PM_QUERYERR);
 	if (state == PM_USEFILE) {
-	    if ((eptr = fopen(ferr, "a")) == NULL) {
+	    if ((eptr = fopen(filename, "a")) == NULL) {
 		fprintf(stderr, "pmflush: cannot append to file '%s' (from "
-			"$PCP_STDERR): %s\n", ferr, osstrerror_r(errmsg, sizeof(errmsg)));
+			"$PCP_STDERR): %s\n", filename, osstrerror_r(errmsg, sizeof(errmsg)));
 		state = PM_USESTDERR;
 	    }
 	}
 	switch (state) {
 	case PM_USESTDERR:
-	    rewind(fptr);
-	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
-		sts = write(fileno(stderr), outbuf, len);
-		if (sts != len) {
-		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror_r(errmsg, sizeof(errmsg)));
-		}
-		sts = 0;
-	    }
+	    fprintf(stderr, "%s", msgbuf);
 	    break;
 	case PM_USEDIALOG:
-	    /* If we're here, it means xconfirm has passed access test */
 	    if (xconfirm == NULL) {
 		fprintf(stderr, "%s: no PCP_XCONFIRM_PROG\n", pmGetProgname());
 		sts = PM_ERR_GENERIC;
@@ -1733,9 +1672,9 @@ pmflush(void)
 	    }
 	    if ((sts = __pmProcessAddArg(&argp, __pmNativePath(xconfirm))) < 0)
 		break;
-	    if ((sts = __pmProcessAddArg(&argp, "-file")) < 0)
+	    if ((sts = __pmProcessAddArg(&argp, "-t")) < 0)
 		break;
-	    if ((sts = __pmProcessAddArg(&argp, fname)) < 0)
+	    if ((sts = __pmProcessAddArg(&argp, msgbuf)) < 0)
 		break;
 	    if ((sts = __pmProcessAddArg(&argp, "-c")) < 0)
 		break;
@@ -1755,10 +1694,6 @@ pmflush(void)
 		break;
 	    if ((sts = __pmProcessAddArg(&argp, "PCP Information")) < 0)
 		break;
-	    pmsprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
-		    " %s -header 'PCP Information' >/dev/null",
-		    __pmNativePath(xconfirm), fname,
-		    (msgsize > 80 ? "-useslider" : ""));
 	    /* no thread-safe issue here ... we're executing xconfirm */
 	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT)) < 0) {
 		fprintf(stderr, "%s: __pmProcessExec(%s, ...) failed: %s\n",
@@ -1768,30 +1703,17 @@ pmflush(void)
 	    /*
 	     * Note, we don't care about the wait exit status in this case
 	     */
-	    sts = 0;
 	    break;
 	case PM_USEFILE:
-	    rewind(fptr);
-	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
-		sts = write(fileno(eptr), outbuf, len);
-		if (sts != len) {
-		    fprintf(stderr, "pmflush: write() failed: %s\n", 
-			osstrerror_r(errmsg, sizeof(errmsg)));
-		}
-		sts = 0;
-	    }
+	    fprintf(eptr, "%s", msgbuf);
 	    fclose(eptr);
 	    break;
 	}
-	unlink(fname);
-	free(fname);
-	fclose(fptr);
-	fptr = NULL;
-	if (sts >= 0)
-	    sts = msgsize;
+	free(msgbuf);
+	msgbuf = NULL;
+	msgbuflen = 0;
+	msgsize = 0;
     }
-
-    msgsize = 0;
 
     PM_UNLOCK(util_lock);
     return sts;
