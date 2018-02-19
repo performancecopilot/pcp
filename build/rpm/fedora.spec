@@ -74,10 +74,14 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 
 # support for pmdabcc
 %if 0%{?fedora} >= 25 || 0%{?rhel} > 7
+%ifarch s390 s390x armv7hl aarch64 i686
+%global disable_bcc 1
+%else
 %if !%{disable_python3}
 %global disable_bcc 0
 %else
 %global disable_bcc 1
+%endif
 %endif
 %else
 %global disable_bcc 1
@@ -3298,6 +3302,9 @@ cd
 %changelog
 * Fri Feb 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
 - Work-in-progress, see http://pcp.io/roadmap
+
+* Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2
+- Disable pmdabcc on architectures without BCC/eBPF support.
 
 * Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
 - pcp-atopsar: robustness around missing data (BZ 1508028)
