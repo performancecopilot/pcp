@@ -635,3 +635,19 @@ PCP_3.22 {
     __pmLabelIdentString;
     __pmLabelTypeString;
 } PCP_3.21;
+
+PCP_3.23 {
+  global:
+    fsync;
+    symlink;
+    readlink;
+    setlinebuf;
+    index;
+    rindex;
+    strcasestr;
+    strsep;
+    lrand48;
+    srand48;
+    random;
+    srandom;
+} PCP_3.22;
