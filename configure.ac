@@ -1607,6 +1607,7 @@ AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
+AC_CHECK_HEADERS(netioapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
 AC_CHECK_HEADERS(ncurses/curses.h)
@@ -1933,16 +1934,22 @@ AC_CHECK_PROGS(SEINFO, seinfo)
 AC_SUBST(SEINFO)
 AC_MSG_CHECKING([if selinux policy should be included])
 enable_selinux=false
-AS_IF([test "x$do_selinux" != "xno"], [
-for makefile in /usr/share/selinux/devel/Makefile
-do
-    if test -f "$makefile" -a "x$SEINFO" != "x"
-    then
-	enable_selinux=true
-	AC_MSG_RESULT(yes)
-    fi
-done
-])
+if test $target_os = mingw
+then
+    :
+else
+    AS_IF([test "x$do_selinux" != "xno"], [
+    for makefile in /usr/share/selinux/devel/Makefile
+    do
+	if test -f "$makefile" -a "x$SEINFO" != "x"
+	then
+	    enable_selinux=true
+	    AC_MSG_RESULT(yes)
+	fi
+    done
+
+    ])
+fi
 test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
