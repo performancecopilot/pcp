@@ -773,6 +773,7 @@ __pmServerAddNewClients(__pmFdSet *fdset, __pmServerCallback NewClient)
     }
 }
 
+#if defined(HAVE_STRUCT_UCRED) || defined(HAVE_GETPEEREID) || defined(HAVE_GETPEERUCRED)
 static int
 SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsigned int gid)
 {
@@ -798,6 +799,7 @@ SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsig
 
     return 0;
 }
+#endif
 
 /*
  * Set local connection credentials into given hash structure
