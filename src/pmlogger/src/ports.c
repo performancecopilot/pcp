@@ -507,8 +507,12 @@ init_ports(void)
     int		extlen, baselen;
     char	path[MAXPATHLEN];
     char	pidfile[MAXPATHLEN];
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     int		pidlen;
+#endif
+#ifndef IS_MINGW
     struct stat	sbuf;
+#endif
     pid_t	mypid = getpid();
     pid_t	pid;
 
@@ -629,7 +633,7 @@ init_ports(void)
 			    pmGetProgname(), linkfile, pid);
 		}
 		/* remove the stale control file too */
-		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
+		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%" FMT_PID,
 				pmGetConfig("PCP_TMP_DIR"), sep, sep, pid);
 	    	if (unlink(pidfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",

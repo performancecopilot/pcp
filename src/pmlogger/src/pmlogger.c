@@ -705,7 +705,7 @@ main(int argc, char **argv)
 			 pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    } else if (!__pmProcessExists(target_pid)) {
-		pmprintf("%s: PID error - no such process (%d)\n",
+		pmprintf("%s: PID error - no such process (%" FMT_PID ")\n",
 			 pmGetProgname(), target_pid);
 		opts.errors++;
 	    }
