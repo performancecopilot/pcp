@@ -29,13 +29,14 @@ void sort_r(void *base, size_t nel, size_t width,
 #elif (defined __NetBSD__ || defined __OpenBSD__)
   /* we may be using __GNU__ but we don't have any qsort_r in libc */
 #  define _SORT_R_INLINE
-#elif (defined _GNU_SOURCE || defined __gnu_hurd__ || defined __GNU__ || \
-       defined __linux__ || defined __MINGW32__ || defined __GLIBC__)
-#  define _SORT_R_LINUX
-#  define _SORT_R_INLINE inline
 #elif (defined _WIN32 || defined _WIN64 || defined __WINDOWS__)
 #  define _SORT_R_WINDOWS
 #  define _SORT_R_INLINE __inline
+#elif (defined _GNU_SOURCE || defined __gnu_hurd__ || defined __GNU__ || \
+       defined __linux__ || defined __MINGW32__ || defined __MINGW64__ || \
+       defined __GLIBC__)
+#  define _SORT_R_LINUX
+#  define _SORT_R_INLINE inline
 #else
   /* Using our own recursive quicksort sort_r_simple() */
 #  define _SORT_R_INLINE
