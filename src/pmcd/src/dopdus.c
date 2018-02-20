@@ -384,8 +384,14 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	}
 #ifdef HAVE_GETDOMAINNAME
 	if (domain[0] == '\0') {
-	    getdomainname(domain, MAXDOMAINNAMELEN);
-	    domain[sizeof(domain)-1] = '\0';
+	    int		lsts;
+	    if ((lsts = getdomainname(domain, MAXDOMAINNAMELEN)) < 0) {
+		if (pmDebugOptions.labels)
+		    fprintf(stderr, "GetContextLabels: getdomainname() -> %d (%s)\n", lsts, pmErrStr(lsts));
+		domain[0] = '\0';
+	    }
+	    else
+		domain[sizeof(domain)-1] = '\0';
 	}
 #endif
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
