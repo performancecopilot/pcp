@@ -735,8 +735,13 @@ mmv_stats_stop(const char *fname, void *addr)
     struct stat sbuf;
 
     mmv_stats_path(fname, path, sizeof(path));
-    if (stat(path, &sbuf) < 0)
-	sbuf.st_size = (size_t)-1;
+    if (stat(path, &sbuf) < 0) {
+	/*
+	 * file has gone, just want to unmap the region that starts
+	 * at addr ... a length of 1 would seem to suffice
+	 */
+	sbuf.st_size = 1;
+    }
     else if (hdr->flags & MMV_FLAG_PROCESS)
 	unlink(path);
     __pmMemoryUnmap(addr, sbuf.st_size);
