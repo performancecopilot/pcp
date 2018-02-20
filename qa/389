@@ -23,7 +23,7 @@ _filter()
 	-e '/pmlogger: Error: IPC protocol failure/d'
 }
 
-trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "[ -n "$pid" ] && $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pid >/dev/null 2>&1; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 $sudo rm -f $tmp.* $seq.full
 
 # real QA test starts here
