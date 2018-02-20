@@ -106,8 +106,8 @@ _pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
 	    if (nlabels > 0) {
 		(*labelsets)[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel));
 		if ((*labelsets)[i].labels == NULL) {
-		    fprintf(stderr, "_pmUnpackLabelSet label malloc(%lu) failed: %s\n",
-			    nlabels * sizeof(pmLabel), strerror(errno));
+		    fprintf(stderr, "_pmUnpackLabelSet label malloc(%d) failed: %s\n",
+			    (int)(nlabels * sizeof(pmLabel)), strerror(errno));
 		    abandon();
 		    /*NOTREACHED*/
 		}
