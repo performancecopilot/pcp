@@ -231,7 +231,7 @@ symFree(Symbol sym)
 	free(sym->entry.stat.used.name);
 
 	/* find correct place in ordered free list */
-	bckt = (SymUnion *) ((char *) sym - ((long) sym & MASK));
+	bckt = (SymUnion *) ((char *) sym - ((__psint_t)sym & MASK));
 	lead = bckt->hdr.free;
 	lag = NULL;
 	while ((lead != NULL) && (lead < sym)) {

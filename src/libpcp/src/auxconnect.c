@@ -21,6 +21,9 @@
 #ifdef HAVE_IPHLPAPI_H
 #include <iphlpapi.h>
 #endif
+#ifdef HAVE_NETIOAPI_H
+#include <netioapi.h>
+#endif
 #define SOCKET_INTERNAL
 #include "internal.h"
 
@@ -283,6 +286,10 @@ __pmSockAddrIsUnix(const __pmSockAddr *addr)
 #endif
 }
 
+#if defined(IS_MINGW)
+#define inet_pton win32_inet_pton
+#endif
+
 __pmSockAddr *
 __pmStringToSockAddr(const char *cp)
 {
@@ -356,6 +363,10 @@ __pmStringToSockAddr(const char *cp)
     return addr;
 }
 
+#if defined(IS_MINGW)
+#define inet_ntop win32_inet_ntop
+#endif
+
 /*
  * Convert an address to a string.
  * The caller must free the buffer.
@@ -370,9 +381,9 @@ __pmSockAddrToString(const __pmSockAddr *addr)
     sts = NULL;
     family = addr->sockaddr.raw.sa_family;
     if (family == AF_INET)
-	sts = inet_ntop(family, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
+	sts = inet_ntop(family, (void *)&addr->sockaddr.inet.sin_addr, str, sizeof(str));
     else if (family == AF_INET6)
-	sts = inet_ntop(family, &addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
+	sts = inet_ntop(family, (void *)&addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     else if (family == AF_UNIX)
 	return strdup(addr->sockaddr.local.sun_path);

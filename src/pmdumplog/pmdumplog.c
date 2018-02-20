@@ -843,7 +843,7 @@ dumpLabel(int verbose)
 
     if (verbose) {
 	printf("Archive timezone: %s\n", label.ll_tz);
-	printf("PID for pmlogger: %d\n", label.ll_pid);
+	printf("PID for pmlogger: %" FMT_PID "\n", label.ll_pid);
     }
 }
 
@@ -861,7 +861,7 @@ rawdump(FILE *f)
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
-	printf("Dump ... record len: %d @ offset: %ld", len, ftell(f) - sizeof(len));
+	printf("Dump ... record len: %d @ offset: %" FMT_UINT64, len, (__uint64_t)(ftell(f) - sizeof(len)));
 	len -= 2 * sizeof(len);
 	for (i = 0; i < len; i++) {
 	    check = fgetc(f);

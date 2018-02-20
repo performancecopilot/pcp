@@ -225,7 +225,7 @@ actAlarm(Expr *x)
 #ifdef IS_MINGW
 	alarmv[8] = ctime;
 	alarmv[10] = (char *)arg1->ring;
-	sts = spawnvp(_P_DETACH, alarmv[0], (const char * const *)alarmv);
+	sts = spawnvp(_P_DETACH, alarmv[0], alarmv);
 	if (sts < 0) {
 	    pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
 	    *(Boolean *)x->ring = B_FALSE;

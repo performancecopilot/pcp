@@ -44,12 +44,12 @@ typedef struct json_metric_desc {
 } json_metric_desc;
 
 typedef int (*json_get)(char *, int, void *);
-PCP_CALL extern int pmjsonGet(json_metric_desc *, int, pmInDom, json_get, void *);
+extern int pmjsonGet(json_metric_desc *, int, pmInDom, json_get, void *);
 
-PCP_CALL extern int pmjsonInit(int, json_metric_desc *, int);
-PCP_CALL extern int pmjsonInitIndom(int, json_metric_desc *, int, pmInDom);
+extern int pmjsonInit(int, json_metric_desc *, int);
+extern int pmjsonInitIndom(int, json_metric_desc *, int, pmInDom);
 
-PCP_CALL extern int pmjsonPrint(FILE *, json_flags, const char *, json_get, void *);
+extern int pmjsonPrint(FILE *, json_flags, const char *, json_get, void *);
 
 #ifdef __cplusplus
 }

@@ -269,11 +269,12 @@ main(int argc, char **argv)
 
     while (samples == -1 || samples-- > 0) {
 	if (lines % 15 == 0) {
+	    time_t	now = info.timestamp.tv_sec;
 	    if (opts.context == PM_CONTEXT_ARCHIVE)
 		printf("Archive: %s, ", opts.archives[0]);
 	    printf("Host: %s, %d cpu(s), %s",
 		   host, info.ncpu.l,
-		   pmCtime(&info.timestamp.tv_sec, timebuf));
+		   pmCtime(&now, timebuf));
 /* - report format
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
