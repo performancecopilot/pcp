@@ -671,6 +671,7 @@ dumpLabelSets(__pmContext *ctxp)
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	    prev_item = NULL;
 	    for (;;) {
+		this_item = NULL;
 		if (type == PM_LABEL_CONTEXT) {
 		    /*
 		     * All context labels have the same identifier within a
@@ -691,7 +692,6 @@ dumpLabelSets(__pmContext *ctxp)
 		     * Search the hash of identifiers looking for the next lowest
 		     * one.
 		     */
-		    this_item = NULL;
 		    for (tix = 0; tix < l_hashtype->hsize; tix++) {
 			for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
 			    ident = (unsigned int)tp->key;
