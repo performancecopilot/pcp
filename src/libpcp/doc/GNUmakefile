@@ -3,7 +3,7 @@
 #
 
 PNGFILES = access.png accounts.png AF.png auxconnect.png \
-	   auxserver.png avahi.png checksum.png config.png \
+	   auxserver.png avahi.png config.png \
 	   connect.png connectlocal.png context.png \
 	   derive_parser.png derive_fetch.png desc.png discovery.png \
 	   endian.png err.png events.png fault.png \
