@@ -31,8 +31,8 @@ extern "C" {
 #endif
 
 /* printf candy ... */
-#define FMT_PID @fmt_pid@
-#define FMT_PTHREAD @fmt_pthread@
+#define FMT_PID "@fmt_pid@"
+#define FMT_PTHREAD "@fmt_pthread@"
 
 #ifdef HAVE_BITS_WORDSIZE_H
 #include <bits/wordsize.h>
