@@ -7,7 +7,7 @@ sizeof_time_t=8
 bit_field_scheme=2100
 printf_p_prefix=0x
 # for x86_64 the MinGW headers #define _WIN64 which makes pid_t a __int64
-printf_fmt_pid='"I64d"'
+printf_fmt_pid=I64d
 printf_fmt_int64=I64d
 have_procfs=false
 have_python=false
