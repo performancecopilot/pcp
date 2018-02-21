@@ -305,7 +305,7 @@ struct MHD_Response *NOTMHD_compressible_response(struct MHD_Connection *connect
     /* if (strstr (useragent, "Trident/") != NULL) encodings = ""; */ /* ?? disable on MSIE */
 
     if (strstr (encodings, "gzip") != NULL) {
-        size_t heap_buf_len;
+        size_t heap_buf_len = 0;
         void *heap_buf = compress_string (buf, heap_buf_len);
         if (heap_buf != NULL) {
             resp = MHD_create_response_from_buffer (heap_buf_len, heap_buf,
