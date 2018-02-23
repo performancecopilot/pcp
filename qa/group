@@ -1443,6 +1443,7 @@ collectl
 1166 libpcp local
 1169 pmrep python local
 1174 threads valgrind local
+1177:reserved pmns pmlogger local
 1182 libpcp local
 1186 pmie local
 1188 pmda.dm local
