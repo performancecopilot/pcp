@@ -24,7 +24,7 @@ _cleanup()
     else
 	echo "Error: PMDA log file is missing" >>$here/$seq.full
     fi
-    return 0
+    rm -rf $tmp.*
 }
 
 _createURL()
