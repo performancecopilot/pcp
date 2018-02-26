@@ -87,9 +87,28 @@ argument.
 .PP
 On success
 .B pmTraversePMNS
-returns the number of children of
-.IR name ,
-which may be zero.
+and
+.B pmTraversePMNS_r
+return the number of leaf nodes found in the traversal,
+which will be one (1) if
+.I name
+is either a leaf node, or a derived metric or a non-leaf node with one child.
+If
+.I name
+is a non-leaf node, the returned value will be zero or greater
+(zero is returned in the special case where
+.I name
+is a dynamic root node that currently has no children).
+In all cases, derived metrics present in the PMNS subtree below
+.I name
+are counted as leaf-nodes.
+If an an error occurs,
+.B pmTraversePMNS
+and
+.B pmTraversePMNS_r
+will return a negative error code, as described in the
+.B DIAGNOSTICS
+section below.
 .SH SEE ALSO
 .BR PMAPI (3)
 and
