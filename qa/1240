@@ -42,4 +42,5 @@ export PCP_COUNTER_WRAP
 pmrep -z -w 15 -a archives/uwrap -t 1sec sample.wrap.ulong
 
 # success, all done
+status=0
 exit
