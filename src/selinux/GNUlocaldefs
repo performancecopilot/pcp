@@ -56,7 +56,7 @@ ifeq "$(PCP_SELINUX_TRACEFS)" "true"
 PCP_TRACEFS="type tracefs_t\;"
 PCP_TRACEFS_FS_RULE="allow pcp_pmcd_t tracefs_t:filesystem mount\;"
 PCP_TRACEFS_DIR_RULE="allow pcp_pmcd_t tracefs_t:dir { search read open }\;"
-PCP_TRACEFS_FILE_RULE="allow pcp_pmcd_t tracefs_t:file { read open }\;"
+PCP_TRACEFS_FILE_RULE="allow pcp_pmcd_t tracefs_t:file { read open append }\;"
 endif
 
 ifeq "$(PCP_SELINUX_SOCK_FILE_GETATTR)" "true"
