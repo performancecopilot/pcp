@@ -685,7 +685,7 @@ dumpLabelSets(__pmContext *ctxp)
 			}
 		    }
 		    else
-			this_item = this_item->next;
+			this_item = prev_item->next;
 		}
 		else {
 		    /*
