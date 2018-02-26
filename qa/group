@@ -345,6 +345,9 @@ zsh
 # pmcollectl and collectl2pcp
 collectl
 
+# pmlogsize
+pmlogsize
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -966,6 +969,7 @@ collectl
 612 other local
 613 pmdumplog local
 614 pmns local
+615:reserved pmlogsize local
 617 dbpmda help local
 622 pmie remote
 624 pmlogrewrite pmdumplog xz-decompress local
@@ -1443,6 +1447,7 @@ collectl
 1166 libpcp local
 1169 pmrep python local
 1174 threads valgrind local
+1177:reserved pmns pmlogger local
 1182 libpcp local
 1186 pmie local
 1188 pmda.dm local
@@ -1459,6 +1464,7 @@ collectl
 1229 pmlogextract pmdumplog labels help local
 1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
+1240 libpcp pmrep local
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
 1245 libpcp local
 1257 libpcp python local
