@@ -1,0 +1,10 @@
+QA output created by 615
+Simple case ...
+archives/ok-foo.index:
+  index: 60 bytes [31%, 3 entries]
+  overhead: 132 bytes [69%]
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records]
+  overhead: 220 bytes [26%]
+archives/ok-foo.0:
