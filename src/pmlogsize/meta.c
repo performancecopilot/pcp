@@ -22,7 +22,7 @@
 #include "logsize.h"
 
 typedef struct {
-    int		id;		/* internal instance identifier */
+    int		inst;		/* internal instance identifier */
     char	*name;		/* external instance identifier */
 } inst_t;
 
@@ -30,9 +30,10 @@ typedef struct {
 typedef struct {
     pmInDom	indom;
     long	bytes;			/* total bytes per indom */
-    long	replicated_bytes;	/* inst and iname the same */
     int		ninst;			/* number of unique instances */
     inst_t	*inst_tab;		/* unique instances */
+    int		ndup_inst;		/* inst and name the same */
+    long	dup_bytes;		/* bytes for inst and name the same */
 } indom_t;
 
 void
@@ -46,6 +47,8 @@ do_meta(__pmFILE *f)
     int		need;
     int		sts;
     int		i;
+    int		j;
+    int		k;
     int		buflen = 0;
     char	*buf = NULL;
     char	*bufp;
@@ -109,10 +112,15 @@ do_meta(__pmFILE *f)
 	    case TYPE_INDOM:
 		if (vflag || dflag || rflag) {
 		    pmInDom	indom;
+		    int		ninst;
+		    int		inst;
+		    __int32_t	*stridx;
+		    char	*str;
 
 		    bufp = buf;
 		    bufp += sizeof(pmTimeval);
 		    indom = __ntohpmInDom(*((__int32_t *)bufp));
+		    bufp += sizeof(pmInDom);
 		    if (vflag)
 			printf("INDOM: %s", pmInDomStr(indom));
 		    for (i = 0; i < nindom; i++) {
@@ -120,6 +128,7 @@ do_meta(__pmFILE *f)
 			    break;
 		    }
 		    if (i == nindom) {
+			/* first time seen for this indom */
 			indom_t		*indom_tab_tmp;
 			nindom++;
 			indom_tab_tmp = (indom_t *)realloc(indom_tab, nindom*sizeof(indom_t));
@@ -130,12 +139,61 @@ do_meta(__pmFILE *f)
 			indom_tab = indom_tab_tmp;
 			indom_tab[i].indom = indom;
 			indom_tab[i].bytes = 0;
-			indom_tab[i].replicated_bytes = 0;
 			indom_tab[i].ninst = 0;
 			indom_tab[i].inst_tab = NULL;
+			indom_tab[i].ndup_inst = 0;
+			indom_tab[i].dup_bytes = 0;
 		    }
 		    indom_tab[i].bytes += (int)sizeof(header.type) + need;
+		    ninst = ntohl(*((__int32_t *)bufp));
+		    bufp += sizeof(__int32_t);
+		    if (vflag) {
+			printf(" %d instance", ninst);
+			if (ninst > 1)
+			    putchar('s');
+		    }
+		    stridx = (__int32_t *)&bufp[ninst*sizeof(__int32_t)];
+		    str = (char *)&bufp[2*ninst*sizeof(__int32_t)];
+		    for (j = 0; j < ninst; j++) {
+			inst = ntohl(*((__int32_t *)bufp));
+			bufp += sizeof(__int32_t);
+			stridx[j] = ntohl(stridx[j]);
+			if (vflag) {
+			    if (j == 0)
+				printf(" %d \"%s\"", inst, &str[stridx[j]]);
+			    else if (j == ninst-1)
+				printf(" ... %d \"%s\"", inst, &str[stridx[j]]);
+			}
+			for (k = 0; k < indom_tab[i].ninst; k++) {
+			    if (indom_tab[i].inst_tab[k].inst != inst)
+				continue;
+			    if (strcmp(indom_tab[i].inst_tab[k].name, &str[stridx[j]]) == 0)
+				break;
+			}
+			if (k == indom_tab[i].ninst) {
+			    /* first time for this instance in this indom */
+			    inst_t	*inst_tab_tmp;
+			    indom_tab[i].ninst++;
+			    inst_tab_tmp = (inst_t *)realloc(indom_tab[i].inst_tab, indom_tab[i].ninst*sizeof(inst_t));
+			    if (inst_tab_tmp == NULL) {
+				fprintf(stderr, "Error: metadata inst_tab realloc(%d) failed\n", (int)(indom_tab[i].ninst*sizeof(inst_t)));
+				exit(1);
+			    }
+			    indom_tab[i].inst_tab = inst_tab_tmp;
+			    indom_tab[i].inst_tab[k].inst = inst;
+			    if ((indom_tab[i].inst_tab[k].name = strdup(&str[stridx[j]])) == NULL) {
+				fprintf(stderr, "Error: metadata inst name strdup(\"%s\") failed\n", &str[stridx[j]]);
+				exit(1);
+			    }
 
+			}
+			else {
+			    /* duplicate instance in this indom */
+			    indom_tab[i].ndup_inst++;
+			    indom_tab[i].dup_bytes += 2*sizeof(__int32_t) + strlen(indom_tab[i].inst_tab[k].name) + 1;
+			}
+			indom_tab[i].bytes += 2*sizeof(__int32_t) + strlen(indom_tab[i].inst_tab[k].name) + 1;
+		    }
 		    if (vflag)
 			putchar('\n');
 		}
@@ -150,22 +208,46 @@ do_meta(__pmFILE *f)
 	oheadbytes += sizeof(trailer);
     }
 
-    printf("  metrics: %ld bytes [%.0f%%, %d records]\n",
-	bytes[TYPE_DESC], 100*(float)bytes[TYPE_DESC]/sbuf.st_size, nrec[TYPE_DESC]);
-    printf("  indoms: %ld bytes [%.0f%%, %d records]\n",
-	bytes[TYPE_INDOM], 100*(float)bytes[TYPE_INDOM]/sbuf.st_size, nrec[TYPE_INDOM]);
-    if (dflag) {
-	for (i = 0; i < nindom; i++) {
-	    printf("    %s: %ld bytes\n", pmInDomStr(indom_tab[i].indom), indom_tab[i].bytes);
+    if (nrec[TYPE_DESC] > 0) {
+	printf("  metrics: %ld bytes [%.0f%%, %d records]\n",
+	    bytes[TYPE_DESC], 100*(float)bytes[TYPE_DESC]/sbuf.st_size, nrec[TYPE_DESC]);
+    }
+
+    if (nrec[TYPE_INDOM] > 0) {
+	printf("  indoms: %ld bytes [%.0f%%, %d records]\n",
+	    bytes[TYPE_INDOM], 100*(float)bytes[TYPE_INDOM]/sbuf.st_size, nrec[TYPE_INDOM]);
+	if (dflag) {
+	    for (i = 0; i < nindom; i++) {
+		printf("    %s: %ld bytes %d instance",
+		    pmInDomStr(indom_tab[i].indom), indom_tab[i].bytes,
+		    indom_tab[i].ninst + indom_tab[i].ndup_inst);
+		if (indom_tab[i].ninst + indom_tab[i].ndup_inst > 1)
+		    putchar('s');
+		if (indom_tab[i].ndup_inst > 0) {
+		    printf(" (%d duplicate instance", indom_tab[i].ndup_inst);
+		    if (indom_tab[i].ndup_inst > 1)
+			putchar('s');
+		    printf(" %ld bytes)", indom_tab[i].dup_bytes);
+		}
+		putchar('\n');
+	    }
 	}
     }
-    printf("  labels: %ld bytes [%.0f%%, %d records]\n",
-	bytes[TYPE_LABEL], 100*(float)bytes[TYPE_LABEL]/sbuf.st_size, nrec[TYPE_LABEL]);
-    printf("  texts: %ld bytes [%.0f%%, %d records]\n",
-	bytes[TYPE_TEXT], 100*(float)bytes[TYPE_TEXT]/sbuf.st_size, nrec[TYPE_TEXT]);
+
+    if (nrec[TYPE_LABEL] > 0) {
+	printf("  labels: %ld bytes [%.0f%%, %d records]\n",
+	    bytes[TYPE_LABEL], 100*(float)bytes[TYPE_LABEL]/sbuf.st_size, nrec[TYPE_LABEL]);
+    }
+
+    if (nrec[TYPE_TEXT] > 0) {
+	printf("  texts: %ld bytes [%.0f%%, %d records]\n",
+	    bytes[TYPE_TEXT], 100*(float)bytes[TYPE_TEXT]/sbuf.st_size, nrec[TYPE_TEXT]);
+    }
+
     printf("  overhead: %ld bytes [%.0f%%]\n",
 	oheadbytes, 100*(float)oheadbytes/sbuf.st_size);
     sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM] + bytes[TYPE_LABEL] + bytes[TYPE_TEXT] + oheadbytes);
+
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
 
