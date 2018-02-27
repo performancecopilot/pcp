@@ -255,27 +255,23 @@ metricspec	: NAME
 			}
 
 			/*
-			 * Unfortunately, pmTraversePMNS(name, func) returns 1
-			 * if name is a leaf node, *and* 1 if it's a non-leaf
-			 * node with one child. If name is a derived metric,
-			 * or a non-leaf with derived metrics in it's subtree,
-			 * it returns 0. 
+			 * Check if metricName is a potential dynamic root. If metricName
+			 * is not a leaf, then it could be a dynamic root non-leaf node,
+			 * even if it currently has no children. The PMAPI says that 
+			 * pmTraversePMNS(name, func) returns 1 if name is a leaf node
+			 * (or a derived metric) and _also_ 1 if it's a non-leaf node with
+			 * exactly one child.
 			 *
-			 * So we have to look up the name to see if it's a leaf
-			 * which is an unneccesary expense.
-			 *
-			 * man page says it should return the number of children
-			 * of name, which would be zero for a leaf node (or derived
-			 * metric), less than zero for an unresolved name (or error)
-			 * and greater than zero for a non-leaf node.
+			 * So metricName is a potential dynamic root if
+			 * sts < 0                   : unknown name or an error
+			 * sts == 0                  : childless dynamic root
+			 * sts > 1                   : non-leaf with children
+			 * sts == 1 and not a leaf   : non-leaf with exactly one child
 			 */
-
-			if (pmLookupName(1, &metricName, &id) != 1) {
+			if (sts <= 0 || sts > 1 || pmLookupName(1, &metricName, &id) != 1) {
 			    /*
-			     * Not a PMNS leaf node => could be a dynamic root,
-			     * whether it has children or not. Add it to the list
-			     * for future traversal when a fetch returns with the
-			     * PMCD_NAMES_CHANGE flag set.
+			     * Add it to the list for future traversal when a fetch returns
+			     * with the PMCD_NAMES_CHANGE flag set.
 			     */
 			    append_dynroot_list(metricName,
 				PMLC_GET_ON(tp->t_state) ? PM_LOG_ON : PM_LOG_MAYBE, /* TODO PMLOG_OFF? */

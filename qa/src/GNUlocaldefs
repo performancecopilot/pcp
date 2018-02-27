@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2017 Red Hat.
+# Copyright (c) 2012-2018 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -46,7 +46,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
 	unpickargs.c hanoi.c chain.c progname.c countmark.c spawn.c \
-	scanmeta.c
+	scanmeta.c traverse_return_codes.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -364,6 +364,10 @@ mergelabels:	mergelabels.c
 mergelabelsets:	mergelabelsets.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ mergelabelsets.c  $(LDLIBS)
+
+traverse_return_codes:	traverse_return_codes.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c  $(LDLIBS)
 
 
 # --- need libpcp but also PM_CONTEXT_LOCAL

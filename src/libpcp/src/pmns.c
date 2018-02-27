@@ -2890,16 +2890,21 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 	    *namelist = namelist_new;
 	}
 	(*namelist)[*numnames] = strdup(name);
+	if ((*namelist)[*numnames] == NULL) {
+	    pmNoMem("pmTraversePMNS_local: strdup name", strlen(name)+1, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
 	(*numnames)++;
     }
 
-    return sts;
+    return sts < 0 ? sts : *numnames;
 }
 
 static int
 TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
     int		sts;
+    int		numnames = 0;
     int		pmns_location;
     __pmContext  *ctxp;
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
@@ -2920,7 +2925,6 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     }
 
     if (pmns_location == PMNS_LOCAL || pmns_location == PMNS_ARCHIVE) {
-	int	numnames = 0;
 	char	**namelist = NULL;
 	int	sz_namelist = 0;
 	int	i;
@@ -2971,7 +2975,6 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	    goto pmapi_return;
 	}
 	else {
-	    int		numnames;
 	    int		i;
 	    int		xtra;
 	    char	**namelist;
@@ -3005,7 +3008,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 			else
 			    (*func_r)(namelist[i], closure);
 		    }
-		    numnames = sts;
 		    free(namelist);
 		}
 		else {
@@ -3063,7 +3065,7 @@ pmapi_return:
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
 
-    return sts;
+    return sts < 0 ? sts : numnames;
 }
 
 int
