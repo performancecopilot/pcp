@@ -55,6 +55,10 @@ require {
 	type httpd_t;
 	type zabbix_port_t;
 	type sysfs_t; #RHBZ1545245
+	type hugetlbfs_t;
+	type proc_mdstat_t;
+	type mdadm_exec_t;
+	type fixed_disk_device_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -71,6 +75,7 @@ require {
 	class tcp_socket { name_bind name_connect };
 	class shm { unix_read associate getattr };
 	class filesystem mount;
+	class blk_file { ioctl open read };
 }
 
 #============= init_t ==============
@@ -145,7 +150,8 @@ allow pcp_pmcd_t user_tmp_t:fifo_file { read getattr open };
 
 #type=AVC msg=audit(1498844147.316:3557): avc:  denied  { execute } for  pid=8648 comm="sh" name="8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(1498844147.316:3558): avc:  denied  { execute_no_trans } for  pid=8648 comm="sh" path="/tmp/8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans @PCP_HOSTNAME_EXEC_MAP@ };
+allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans };
+@PCP_TMP_T_MAP_RULE@
 
 #type=AVC msg=audit(1498844147.327:3559): avc:  denied  { getattr } for  pid=8656 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(1498844147.327:3560): avc:  denied  { execute } for  pid=8656 comm="sh" name="hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
@@ -205,6 +211,10 @@ allow pcp_pmcd_t httpd_t:sem { unix_read associate getattr };
 allow pcp_pmcd_t sysfs_t:dir write;
 
 #allow pcp_pmcd_t modules_object_t:lnk_file read;
+
+allow pcp_pmcd_t hugetlbfs_t:dir { open read };
+allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
+allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
