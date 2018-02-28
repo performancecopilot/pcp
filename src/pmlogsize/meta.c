@@ -29,12 +29,20 @@ typedef struct {
 
 typedef struct {
     pmInDom	indom;
+    int		nrec;
     long	bytes;			/* total bytes per indom */
-    int		ninst;			/* number of unique instances */
+    int		nuniq_inst;		/* number of unique instances */
     inst_t	*inst_tab;		/* unique instances */
     int		ndup_inst;		/* inst and name the same */
     long	dup_bytes;		/* bytes for inst and name the same */
 } indom_t;
+
+/* sort largest first */
+static int
+indom_compar(const void *a, const void *b)
+{
+    return ((indom_t *)a)->bytes < ((indom_t *)b)->bytes;
+}
 
 void
 do_meta(__pmFILE *f)
@@ -55,6 +63,7 @@ do_meta(__pmFILE *f)
     struct stat	sbuf;
     int		nindom = 0;		/* number of unique indoms seen */
     indom_t	*indom_tab = NULL;	/* nindom entries */
+    indom_t	*indomp;
 
     __pmFstat(f, &sbuf);
 
@@ -123,8 +132,8 @@ do_meta(__pmFILE *f)
 		    bufp += sizeof(pmInDom);
 		    if (vflag)
 			printf("INDOM: %s", pmInDomStr(indom));
-		    for (i = 0; i < nindom; i++) {
-			if (indom_tab[i].indom == indom)
+		    for (i = 0, indomp = indom_tab; i < nindom; i++, indomp++) {
+			if (indomp->indom == indom)
 			    break;
 		    }
 		    if (i == nindom) {
@@ -137,16 +146,21 @@ do_meta(__pmFILE *f)
 			    exit(1);
 			}
 			indom_tab = indom_tab_tmp;
-			indom_tab[i].indom = indom;
-			indom_tab[i].bytes = 0;
-			indom_tab[i].ninst = 0;
-			indom_tab[i].inst_tab = NULL;
-			indom_tab[i].ndup_inst = 0;
-			indom_tab[i].dup_bytes = 0;
+			indomp = &indom_tab[i];
+			indomp->indom = indom;
+			indomp->nrec = 0;
+			indomp->bytes = 0;
+			indomp->nuniq_inst = 0;
+			indomp->inst_tab = NULL;
+			indomp->ndup_inst = 0;
+			indomp->dup_bytes = 0;
 		    }
-		    indom_tab[i].bytes += (int)sizeof(header.type) + need;
+
+		    indomp->nrec++;
 		    ninst = ntohl(*((__int32_t *)bufp));
 		    bufp += sizeof(__int32_t);
+		    /* record type, timestamp, indom, numinst */
+		    indomp->bytes += sizeof(__int32_t) + sizeof(pmTimeval) + sizeof(pmInDom) + sizeof(__int32_t);
 		    if (vflag) {
 			printf(" %d instance", ninst);
 			if (ninst > 1)
@@ -164,24 +178,24 @@ do_meta(__pmFILE *f)
 			    else if (j == ninst-1)
 				printf(" ... %d \"%s\"", inst, &str[stridx[j]]);
 			}
-			for (k = 0; k < indom_tab[i].ninst; k++) {
-			    if (indom_tab[i].inst_tab[k].inst != inst)
+			for (k = 0; k < indomp->nuniq_inst; k++) {
+			    if (indomp->inst_tab[k].inst != inst)
 				continue;
-			    if (strcmp(indom_tab[i].inst_tab[k].name, &str[stridx[j]]) == 0)
+			    if (strcmp(indomp->inst_tab[k].name, &str[stridx[j]]) == 0)
 				break;
 			}
-			if (k == indom_tab[i].ninst) {
+			if (k == indomp->nuniq_inst) {
 			    /* first time for this instance in this indom */
 			    inst_t	*inst_tab_tmp;
-			    indom_tab[i].ninst++;
-			    inst_tab_tmp = (inst_t *)realloc(indom_tab[i].inst_tab, indom_tab[i].ninst*sizeof(inst_t));
+			    indomp->nuniq_inst++;
+			    inst_tab_tmp = (inst_t *)realloc(indomp->inst_tab, indomp->nuniq_inst*sizeof(inst_t));
 			    if (inst_tab_tmp == NULL) {
-				fprintf(stderr, "Error: metadata inst_tab realloc(%d) failed\n", (int)(indom_tab[i].ninst*sizeof(inst_t)));
+				fprintf(stderr, "Error: metadata inst_tab realloc(%d) failed\n", (int)(indomp->nuniq_inst*sizeof(inst_t)));
 				exit(1);
 			    }
-			    indom_tab[i].inst_tab = inst_tab_tmp;
-			    indom_tab[i].inst_tab[k].inst = inst;
-			    if ((indom_tab[i].inst_tab[k].name = strdup(&str[stridx[j]])) == NULL) {
+			    indomp->inst_tab = inst_tab_tmp;
+			    indomp->inst_tab[k].inst = inst;
+			    if ((indomp->inst_tab[k].name = strdup(&str[stridx[j]])) == NULL) {
 				fprintf(stderr, "Error: metadata inst name strdup(\"%s\") failed\n", &str[stridx[j]]);
 				exit(1);
 			    }
@@ -189,10 +203,10 @@ do_meta(__pmFILE *f)
 			}
 			else {
 			    /* duplicate instance in this indom */
-			    indom_tab[i].ndup_inst++;
-			    indom_tab[i].dup_bytes += 2*sizeof(__int32_t) + strlen(indom_tab[i].inst_tab[k].name) + 1;
+			    indomp->ndup_inst++;
+			    indomp->dup_bytes += 2*sizeof(__int32_t) + strlen(indomp->inst_tab[k].name) + 1;
 			}
-			indom_tab[i].bytes += 2*sizeof(__int32_t) + strlen(indom_tab[i].inst_tab[k].name) + 1;
+			indomp->bytes += 2*sizeof(__int32_t) + strlen(indomp->inst_tab[k].name) + 1;
 		    }
 		    if (vflag)
 			putchar('\n');
@@ -214,21 +228,37 @@ do_meta(__pmFILE *f)
     }
 
     if (nrec[TYPE_INDOM] > 0) {
-	printf("  indoms: %ld bytes [%.0f%%, %d records]\n",
+	printf("  indoms: %ld bytes [%.0f%%, %d records",
 	    bytes[TYPE_INDOM], 100*(float)bytes[TYPE_INDOM]/sbuf.st_size, nrec[TYPE_INDOM]);
 	if (dflag) {
-	    for (i = 0; i < nindom; i++) {
-		printf("    %s: %ld bytes %d instance",
-		    pmInDomStr(indom_tab[i].indom), indom_tab[i].bytes,
-		    indom_tab[i].ninst + indom_tab[i].ndup_inst);
-		if (indom_tab[i].ninst + indom_tab[i].ndup_inst > 1)
+	    j = 0;
+	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
+		j += indomp->nuniq_inst + indomp->ndup_inst;
+	    }
+	    printf(", %d instances", j);
+	}
+	printf("]\n");
+
+	if (dflag) {
+	    qsort(indom_tab, nindom, sizeof(indom_tab[0]), indom_compar);
+	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
+		printf("    %s: %ld bytes [%.0f%%, %d record",
+		    pmInDomStr(indomp->indom), indomp->bytes,
+		    100*(float)indomp->bytes/sbuf.st_size,
+		    indomp->nrec);
+		if (indomp->nrec > 1)
 		    putchar('s');
-		if (indom_tab[i].ndup_inst > 0) {
-		    printf(" (%d duplicate instance", indom_tab[i].ndup_inst);
-		    if (indom_tab[i].ndup_inst > 1)
+		printf(", %d instance", indomp->nuniq_inst + indomp->ndup_inst);
+		if (indomp->nuniq_inst + indomp->ndup_inst > 1)
+		    putchar('s');
+		if (indomp->ndup_inst > 0) {
+		    printf(" (%ld bytes for", indomp->dup_bytes);
+		    printf(" %d dup", indomp->ndup_inst);
+		    if (indomp->ndup_inst > 1)
 			putchar('s');
-		    printf(" %ld bytes)", indom_tab[i].dup_bytes);
+		    putchar(')');
 		}
+		putchar(']');
 		putchar('\n');
 	    }
 	}
