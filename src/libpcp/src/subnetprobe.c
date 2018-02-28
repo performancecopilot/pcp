@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -14,15 +14,9 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "internal.h"
-#include "probe.h"
+#include "subnetprobe.h"
 
-#if !defined(PTHREAD_STACK_MIN)
-#if defined(IS_SOLARIS)
-#define PTHREAD_STACK_MIN       ((size_t)_sysconf(_SC_THREAD_STACK_MIN))
-#else
-#define PTHREAD_STACK_MIN       16384
-#endif
-#endif
+#define PROBE	"__pmSubnetProbeDiscoverServices"
 
 /*
  * Service discovery by active probing. The given subnet is probed for the
@@ -51,14 +45,6 @@ typedef struct connectionContext {
     __pmMutex		urlLock;	/* lock for the above results */
 #endif
 } connectionContext;
-
-#if ! PM_MULTI_THREAD
-/* Make these disappear. */
-#undef PM_LOCK
-#undef PM_UNLOCK
-#define PM_LOCK(lock) do { } while (0)
-#define PM_UNLOCK(lock) do { } while (0)
-#endif
 
 /*
  * Attempt connection based on the given context until there are no more
@@ -140,16 +126,14 @@ attemptConnections(void *arg)
 	}
 	if (pmDebugOptions.discovery) {
 	    if (attempt > 0) {
-		pmNotifyErr(LOG_INFO,
-			      "Waited for %d attempts for an available fd\n",
-			      attempt);
+		pmNotifyErr(LOG_INFO, "%s: Waited %d times for available fd\n",
+			      PROBE, attempt);
 	    }
 	}
 	if (s < 0) {
 	    char *addrString = __pmSockAddrToString(addr);
-	    pmNotifyErr(LOG_WARNING,
-			  "__pmProbeDiscoverServices: Unable to create socket for address %s",
-			  addrString);
+	    pmNotifyErr(LOG_WARNING, "%s: Cannot create socket for address %s",
+			  PROBE, addrString);
 	    free(addrString);
 	    __pmSockAddrFree(addr);
 	    continue;
@@ -206,12 +190,8 @@ attemptConnections(void *arg)
 }
 
 static int
-probeForServices(
-    const char *service,
-    const connectionOptions *options,
-    int numUrls,
-    char ***urls
-)
+probeForServices(const char *service,
+    const connectionOptions *options, int numUrls, char ***urls)
 {
     int			*ports = NULL;
     int			nports;
@@ -230,9 +210,8 @@ probeForServices(
     nports = 0;
     nports = __pmServiceAddPorts(service, &ports, nports);
     if (nports <= 0) {
-	pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: could not find ports for service '%s'",
-		      service);
+	pmNotifyErr(LOG_ERR, "%s: could not find ports for service '%s'",
+			PROBE, service);
 	return 0;
     }
 
@@ -250,16 +229,16 @@ probeForServices(
 
     /*
      * Initialize the first address of the subnet. This pointer will become
-     * NULL and the mempry freed by __pmSockAddrNextSubnetAddr() when the
+     * NULL and the memory freed by __pmSockAddrNextSubnetAddr() when the
      * final address+port has been probed.
      */
     context.nextAddress =
 	__pmSockAddrFirstSubnetAddr(options->netAddress, options->maskBits);
     if (context.nextAddress == NULL) {
 	char *addrString = __pmSockAddrToString(options->netAddress);
-	pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: unable to determine the first address of the subnet: %s/%d",
-		      addrString, options->maskBits);
+	pmNotifyErr(LOG_ERR, "%s: unable to determine the first address"
+			     " of the subnet: %s/%d",
+			PROBE, addrString, options->maskBits);
 	free(addrString);
 	goto done;
     }
@@ -283,9 +262,8 @@ probeForServices(
 	     * Unable to allocate the thread table, however, We can still do the
 	     * probing on the main thread.
 	     */
-	    pmNotifyErr(LOG_ERR,
-			  "__pmProbeDiscoverServices: unable to allocate %u threads",
-			  options->maxThreads);
+	    pmNotifyErr(LOG_ERR, "%s: unable to allocate %u threads",
+			  PROBE, options->maxThreads);
 	}
 	else {
 	    /* We want our worker threads to be joinable. */
@@ -364,6 +342,7 @@ probeForServices(
  *
  * Subsequent options, if any, will be separated by commas. Currently supported:
  *
+ *   timeout=<double>      -- number of seconds before timing out an address
  *   maxThreads=<integer>  -- specifies a hard limit on the number of active
  *                            threads.
  */
@@ -389,15 +368,13 @@ parseOptions(const char *mechanism, connectionOptions *options)
     /* First extract the subnet argument, parse it and check it. */
     addressString = strchr(mechanism, '=');
     if (addressString == NULL || addressString[1] == '\0') {
-	pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: No argument provided");
+	pmNotifyErr(LOG_ERR, "%s: No argument provided", PROBE);
 	return -1;
     }
     ++addressString;
     maskString = strchr(addressString, '/');
     if (maskString == NULL || maskString[1] == '\0') {
-	pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: No subnet mask provided");
+	pmNotifyErr(LOG_ERR, "%s: No subnet mask provided", PROBE);
 	return -1;
     }
     ++maskString;
@@ -409,9 +386,7 @@ parseOptions(const char *mechanism, connectionOptions *options)
     buf[len - 1] = '\0';
     options->netAddress = __pmStringToSockAddr(buf);
     if (options->netAddress == NULL) {
-	pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: Address '%s' is not valid",
-		      buf);
+	pmNotifyErr(LOG_ERR, "%s: Address '%s' is not valid", PROBE, buf);
 	free(buf);
 	return -1;
     }
@@ -420,36 +395,35 @@ parseOptions(const char *mechanism, connectionOptions *options)
     /* Convert the mask string to an integer */
     options->maskBits = strtol(maskString, &end, 0);
     if (*end != '\0' && *end != ',') {
-	pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Subnet mask '%s' is not valid",
-		      maskString);
+	pmNotifyErr(LOG_ERR, "%s: Subnet mask '%s' is not valid",
+			PROBE, maskString);
 	return -1;
     }
 
     /* Check the number of bits in the mask against the address family. */
     if (options->maskBits < 0) {
-	pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Inet subnet mask must be >= 0 bits");
+	pmNotifyErr(LOG_ERR, "%s: Inet subnet mask must be >= 0 bits", PROBE);
 	return -1;
     }
     family = __pmSockAddrGetFamily(options->netAddress);
     switch (family) {
     case AF_INET:
 	if (options->maskBits > 32) {
-	    pmNotifyErr(LOG_ERR,
-			  "__pmProbeDiscoverServices: Inet subnet mask must be <= 32 bits");
+	    pmNotifyErr(LOG_ERR, "%s: Inet subnet mask must be <= 32 bits",
+			    PROBE);
 	    return -1;
 	}
 	break;
     case AF_INET6:
 	if (options->maskBits > 128) {
-	    pmNotifyErr(LOG_ERR,
-			  "__pmProbeDiscoverServices: Inet subnet mask must be <= 128 bits");
+	    pmNotifyErr(LOG_ERR, "%s: Inet subnet mask must be <= 128 bits",
+			    PROBE);
 	    return -1;
 	}
 	break;
     default:
-	pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: Unsupported address family, %d",
-		      family);
+	pmNotifyErr(LOG_ERR, "%s: Unsupported address family, %d",
+			PROBE, family);
 	return -1;
     }
 
@@ -479,19 +453,17 @@ parseOptions(const char *mechanism, connectionOptions *options)
 	 */
 	++option;
 	if (*option == '\0') {
-	    pmNotifyErr(LOG_ERR,
-			  "__pmProbeDiscoverServices: Missing option after ','");
+	    pmNotifyErr(LOG_ERR, "%s: Missing option after ','", PROBE);
 	    return -1;
-	    }
-	
+	}
+
 	/* Examine the option. */
 	if (strncmp(option, "maxThreads=", sizeof("maxThreads=") - 1) == 0) {
 	    option += sizeof("maxThreads=") - 1;
 	    longVal = strtol(option, &end, 0);
 	    if (*end != '\0' && *end != ',') {
-		pmNotifyErr(LOG_ERR,
-			      "__pmProbeDiscoverServices: maxThreads value '%s' is not valid",
-			      option);
+		pmNotifyErr(LOG_ERR, "%s: maxThreads value '%s' is not valid",
+				PROBE, option);
 		sts = -1;
 	    }
 	    else {
@@ -503,14 +475,14 @@ parseOptions(const char *mechanism, connectionOptions *options)
 		 */
 		if (longVal > options->maxThreads) {
 		    pmNotifyErr(LOG_ERR,
-				  "__pmProbeDiscoverServices: maxThreads value %ld must not exceed %u",
-				  longVal, options->maxThreads);
+				"%s: maxThreads value %ld must not exceed %u",
+				PROBE, longVal, options->maxThreads);
 		    sts = -1;
 		}
 		else if (longVal <= 0) {
 		    pmNotifyErr(LOG_ERR,
-				  "__pmProbeDiscoverServices: maxThreads value %ld must be positive",
-				  longVal);
+				  "%s: maxThreads value %ld must be positive",
+				  PROBE, longVal);
 		    sts = -1;
 		}
 		else {
@@ -518,9 +490,9 @@ parseOptions(const char *mechanism, connectionOptions *options)
 		    /* The main thread participates, so reduce this by one. */
 		    options->maxThreads = longVal - 1;
 #else
-		    pmNotifyErr(LOG_WARNING,
-				  "__pmProbeDiscoverServices: no thread support. Ignoring maxThreads value %ld",
-				  longVal);
+		    pmNotifyErr(LOG_WARNING, "%s: no thread support."
+					     " Ignoring maxThreads value %ld",
+				PROBE, longVal);
 #endif
 		}
 	    }
@@ -531,16 +503,14 @@ parseOptions(const char *mechanism, connectionOptions *options)
 	}
 	else {
 	    /* An invalid option. Skip it. */
-	    pmNotifyErr(LOG_ERR,
-			  "__pmProbeDiscoverServices: option '%s' is not valid",
-			  option);
+	    pmNotifyErr(LOG_ERR, "%s: option '%s' is not valid", PROBE, option);
 	    sts = -1;
 	    ++option;
 	}
 	/* Locate the next option, if any. */
 	for (/**/; *option != '\0' && *option != ','; ++option)
 	    ;
-    } /* Parse additional options */
+    }
 
     /*
      * We now have a maximum for the number of threads
@@ -568,11 +538,9 @@ parseOptions(const char *mechanism, connectionOptions *options)
 }
 
 int
-__pmProbeDiscoverServices(const char *service,
-			  const char *mechanism,
-			  const __pmServiceDiscoveryOptions *globalOptions,
-			  int numUrls,
-			  char ***urls)
+__pmSubnetProbeDiscoverServices(const char *service,
+	const char *mechanism, const __pmServiceDiscoveryOptions *globalOptions,
+	int numUrls, char ***urls)
 {
     connectionOptions options;
     int	sts;

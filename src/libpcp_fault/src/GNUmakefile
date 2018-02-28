@@ -1,13 +1,14 @@
 #
+# Copyright (c) 2018 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
-# 
+#
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
 # by the Free Software Foundation; either version 2.1 of the License, or
 # (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -28,10 +29,12 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
-	fault.c access.c getopt.c probe.c io.c io_stdio.c exec.c \
+	fault.c access.c getopt.c io.c io_stdio.c exec.c \
+	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h jsmn.h
-EXT_FILES = sort_r.h
+HFILES = derive.h internal.h compiler.h pmdbg.h jsmn.h sort_r.h \
+	avahi.h shellprobe.h subnetprobe.h
+EXT_FILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
 VERSION_SCRIPT = exports
 

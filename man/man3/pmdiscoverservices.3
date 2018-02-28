@@ -23,7 +23,7 @@
 .nf
 int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
 .fi
-.br
+.sp
 #include <pcp/libpcp.h>
 .sp
 .nf
@@ -71,7 +71,8 @@ is equivalent to calling
 __pmDiscoverServicesWithOptions(\fIservice\fP, \fImechanism\fP, NULL, NULL, \fIurls\fP);
 .PP 
 .I service
-specifies the PCP service to be discovered. Currently supported services are
+specifies the PCP service to be discovered.
+Currently supported services are
 .B PM_SERVER_SERVICE_SPEC,
 .B PM_PROXY_SERVICE_SPEC
 and
@@ -93,23 +94,42 @@ This searches for services which are broadcasting using mDNS via
 .BR avahi-daemon (8).
 An optional suffix \fB",timeout=N"\fP may be added
 to specify the discovery timeout in floating-point multiples of one
-second.  The default timeout is 0.5 seconds, which may be overridden
+second.
+The default timeout is 0.5 seconds, which may be overridden
 by the \fBAVAHI_DISCOVERY_TIMEOUT\fP environment variable, also
-specified in floating-point multiples of one second. If both are specified, then
+specified in floating-point multiples of one second.
+If both are specified, then
 the value specified in the environment variable takes precedence.
 .TP
 .B probe=<net-address>/<mask-bits>
 Actively probes the given subnet for the requested PCP service(s).
 <net-address> is an inet or ipv6
 network address and <mask-bits> is the number of bits used to define the
-subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
+subnet.
+For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
 addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
-threads used while probing. The default is no fixed limit, which is to say that
-the process' rlimits for the number of threads and open file descriptors
-will be respected. An optional suffix \fB",timeout=N"\fP may be added
-to specify the timeout for each connection attempt in floating-point multiples
-of one second.  The default timeout is 20 milliseconds.
+threads used while probing.
+The default is the value of FD_SETSIZE (which is typically 1024) or the
+number of addresses in the subnet, whichever is less.
+An optional suffix \fB",timeout=N"\fP may be added to specify the timeout
+for each connection attempt in floating-point multiples of one second.
+The default is 0.02 seconds (20 milliseconds).
+.TP
+.B shell
+Probes the list of addresses provided by scripts for requested PCP service(s).
+Several optional, comma-separated parameters can also be provided.
+Firstly, the \fB"path=DIR"\fP option specifies the directory where
+scripts are located (defaults to
+.IR "$PCP_BINADM_DIR/discover/" ).
+The \fB"maxThreads=N"\fP option limits the number of threads used while
+probing.
+The default is the value of FD_SETSIZE (which is typically 1024) or the
+number of addresses returned by the scripts, whichever is less.
+The \fB"timeout=N"\fP option may be added to limit the amount of
+time spent waiting for each connection attempt.
+N is a floating point number specifying the number of seconds to wait.
+The default is 0.02 seconds (20 milliseconds).
 .PP
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
@@ -117,8 +137,8 @@ may also be NULL, which means to use all available discovery mechanisms.
 For
 .B __pmDiscoverServicesWithOptions,
 .IR optionsString
-specifies global options to be applied to the discovery process. Options are
-comma-separated and may be one or more of the following:
+specifies global options to be applied to the discovery process.
+Options are comma-separated and may be one or more of the following:
 .TP
 .B resolve
 This requests that DNS name resolution be attempted for the addresses of any
@@ -126,7 +146,8 @@ discovered services.
 .TP
 .B timeout=N
 This specifies a timeout period after which the discovery process will be
-interrupted. N is a floating point number representing the number of seconds
+interrupted.
+N is a floating point number representing the number of seconds
 before timing out.
 .PP
 .IR optionsString
@@ -136,8 +157,8 @@ For
 .B __pmDiscoverServicesWithOptions,
 .IR flags
 specifies a pointer to an object of type \fIunsigned\fR which is a bit mask of
-options/status flags for the discovery process. The supported
-flags are:
+options/status flags for the discovery process.
+The supported flags are:
 .TP
 .B PM_SERVICE_DISCOVERY_RESOLVE
 Specifying this flag is equivalent to specifying \fIresolve\fR in the
@@ -163,8 +184,7 @@ The resulting list of pointers,
 .IR urls ,
 .B and
 the values
-(the URLs) that the pointers reference will have been
-allocated by
+(the URLs) that the pointers reference will have been allocated by
 .B pmDiscoverServices
 or
 .B __pmDiscoverServicesWithOptions
@@ -206,11 +226,11 @@ using the
 .BR pmGetConfig (3)
 function.
 .SH SEE ALSO
-.BR PMAPI (3),
 .BR pmcd (1),
 .BR pmproxy (1),
 .BR pmwebd (1),
 .BR pmfind (1),
+.BR PMAPI (3),
 .BR pmGetConfig (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)

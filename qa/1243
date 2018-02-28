@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 1243
+# Exercise shell mechanism in pmDiscoverServices(3).
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.discovery
+
+_check_valgrind
+_get_libpcp_config
+$service_discovery || _notrun "No support for service discovery"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full 
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s,$tmp.discover,DISCOVER_DIR,g"
+}
+
+# real QA test starts here
+mkdir -p $tmp.discover
+
+# test script with local addresses
+cat >$tmp.discover/localhost.sh <<EOF
+#!/bin/sh
+echo localhost
+echo 127.0.0.1
+EOF
+chmod 755 $tmp.discover/localhost.sh
+
+# test script with a mix of hostnames
+cat >$tmp.discover/hostnames.sh <<EOF
+#!/bin/sh
+echo $hostname
+echo no.such.host
+EOF
+chmod 755 $tmp.discover/hostnames.sh
+
+# drop-in kubectl so we can see args
+cat >$tmp.kubectl.sh <<EOF
+#!/bin/sh
+echo "$@" > $tmp.kubectl.args
+EOF
+chmod 755 $tmp.kubectl.sh
+cp $PCP_BINADM_DIR/discover/pcp-kube-pods $tmp.discover/
+
+export PCP_KUBECTL_PROG=$tmp.kubectl.sh
+
+echo "== discovery directory" >> $seq.full
+find $tmp.discover >> $seq.full
+echo "== localhost.sh" >> $seq.full
+$tmp.discover/localhost.sh >> $seq.full
+echo "== hostnames.sh" >> $seq.full
+$tmp.discover/hostnames.sh >> $seq.full
+
+echo "== checking pcp-kube-pods argument handling" | tee -a $seq.full
+$PCP_KUBECTL_PROG
+cat $tmp.kubectl.args | tee -a $seq.full | _filter
+
+# handy pmfind debug: -Ddiscovery
+echo "== checking pmfind results and memory access" | tee -a $seq.full
+_run_valgrind pmfind -m shell,path=$tmp.discover,maxThreads=1 -s pmcd \
+	| _filter
+
+echo "== checking pmfind results and thread locks" | tee -a $seq.full
+_run_helgrind pmfind -m shell,path=$tmp.discover,maxThreads=4 -s pmcd \
+	| _filter
+
+# success, all done
+status=0
+exit

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2017 Red Hat.
+# Copyright (c) 2012-2018 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -28,9 +28,11 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
-	fault.c access.c getopt.c probe.c io.c io_stdio.c exec.c \
+	fault.c access.c getopt.c io.c io_stdio.c exec.c \
+	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h jsmn.h
+HFILES = derive.h internal.h compiler.h pmdbg.h jsmn.h sort_r.h \
+	avahi.h subnetprobe.h shellprobe.h
 EXT_FILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
 GENERATED_HFILES = pmdbg.h
