@@ -24,8 +24,16 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "Simple case ..."
+echo "=== simple case ==="
 pmlogsize archives/ok-foo.index archives/ok-foo.meta archives/ok-foo.0
+
+echo
+echo "=== simple meta detailed report ==="
+pmlogsize -d archives/ok-foo.meta 
+
+echo
+echo "=== more complex meta detailed report ==="
+pmlogsize -d archives/20180102.meta
 
 # success, all done
 status=0

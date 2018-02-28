@@ -1,5 +1,5 @@
 QA output created by 615
-Simple case ...
+=== simple case ===
 archives/ok-foo.index:
   index: 60 bytes [31%, 3 entries]
   overhead: 132 bytes [69%]
@@ -8,3 +8,37 @@ archives/ok-foo.meta:
   indoms: 256 bytes [30%, 3 records]
   overhead: 220 bytes [26%]
 archives/ok-foo.0:
+
+=== simple meta detailed report ===
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    2.1: 33 bytes [4%, 1 record, 1 instance]
+  overhead: 220 bytes [26%]
+
+=== more complex meta detailed report ===
+archives/20180102.meta:
+  metrics: 21469 bytes [1%, 411 records]
+  indoms: 2077277 bytes [98%, 1576 records, 65717 instances]
+    3.9: 1866115 bytes [88%, 113 records, 53703 instances (1785065 bytes for 51241 dups)]
+    60.10: 34093 bytes [2%, 103 records, 2472 instances (31722 bytes for 2448 dups)]
+    60.17: 30694 bytes [1%, 103 records, 1957 instances (28356 bytes for 1938 dups)]
+    60.3: 28840 bytes [1%, 103 records, 1854 instances (26520 bytes for 1836 dups)]
+    60.11: 22351 bytes [1%, 103 records, 618 instances (20094 bytes for 612 dups)]
+    60.5: 20600 bytes [1%, 103 records, 1030 instances (18360 bytes for 1020 dups)]
+    60.0: 18334 bytes [1%, 103 records, 1236 instances (16116 bytes for 1224 dups)]
+    2.3: 16341 bytes [1%, 107 records, 1028 instances (13869 bytes for 1005 dups)]
+    2.1: 9747 bytes [0%, 223 records, 367 instances (3638 bytes for 247 dups)]
+    60.1: 8240 bytes [0%, 103 records, 515 instances (6120 bytes for 510 dups)]
+    60.2: 7416 bytes [0%, 103 records, 309 instances (5304 bytes for 306 dups)]
+    70.2050: 5900 bytes [0%, 100 records, 300 instances (3861 bytes for 297 dups)]
+    70.2049: 4600 bytes [0%, 100 records, 200 instances (2574 bytes for 198 dups)]
+    60.19: 3502 bytes [0%, 103 records, 103 instances (1428 bytes for 102 dups)]
+    30.2: 164 bytes [0%, 1 record, 9 instances]
+    29.2: 164 bytes [0%, 1 record, 9 instances]
+    2.4: 68 bytes [0%, 2 records, 2 instances (14 bytes for 1 dup)]
+    29.1: 59 bytes [0%, 1 record, 3 instances]
+    29.10: 49 bytes [0%, 1 record, 2 instances]
+  overhead: 16028 bytes [1%]
