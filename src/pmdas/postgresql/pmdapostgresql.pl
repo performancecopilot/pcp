@@ -23,7 +23,7 @@ my $password = '';		# DBI parameter, typically unused for postgres
 my $os_user = '';		# O/S user to run the PMDA (defaults to $username)
 my $version;			# DB version
 
-my $max_version = '9.4';	# Highest DB version PMDA has been tested with
+my $max_version = '9.6';	# Highest DB version PMDA has been tested with
 
 # Note on $max_version
 #	Testing is complete up to Postgresql Version 9.4.
@@ -480,6 +480,7 @@ sub cherrypick {
 #
 # 9.3 is the same as 9.2
 # 9.5 is the same as 9.4
+# 9.6 may be the same as 9.5
 
 # one map per version with a different schema
 # one map entry for each item in a PMID for the activity cluster, so
@@ -502,6 +503,7 @@ my %activity_ctl = (
     '9.3' => { ncol => 16, map => \@activity_map_9_2 },
     '9.4' => { ncol => 18, map => \@activity_map_9_4 },
     '9.5' => { ncol => 18, map => \@activity_map_9_4 },
+    '9.6' => { ncol => 18, map => \@activity_map_9_4 },
 );
 
 sub refresh_activity
@@ -587,6 +589,7 @@ my %bgwriter_ctl = (
     '9.3' => { ncol => 11, map => \@bgwriter_map_9_2 },
     '9.4' => { ncol => 11, map => \@bgwriter_map_9_2 },
     '9.5' => { ncol => 11, map => \@bgwriter_map_9_2 },
+    '9.6' => { ncol => 11, map => \@bgwriter_map_9_2 },
 );
 
 sub refresh_bgwriter
@@ -703,6 +706,7 @@ my %database_ctl = (
     '9.3' => { ncol => 19, map => \@database_map_9_2 },
     '9.4' => { ncol => 19, map => \@database_map_9_2 },
     '9.5' => { ncol => 19, map => \@database_map_9_2 },
+    '9.6' => { ncol => 19, map => \@database_map_9_2 },    
 );
 
 sub refresh_database
@@ -843,6 +847,7 @@ my %all_tables_ctl = (
     '9.3' => { ncol => 21, map => \@all_tables_map_9_1 },
     '9.4' => { ncol => 22, map => \@all_tables_map_9_4 },
     '9.5' => { ncol => 22, map => \@all_tables_map_9_4 },
+    '9.6' => { ncol => 22, map => \@all_tables_map_9_4 },    
 );
 
 sub refresh_all_tables
