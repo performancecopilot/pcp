@@ -1979,6 +1979,8 @@ pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
+pcp_selinux_numad=false
+
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -2055,6 +2057,11 @@ do
        then
            pcp_selinux_unconfined=true
        fi
+       numad=`eval seinfo -t -- $policy_file | grep numad_t | awk '{ print $1 }'`
+       if test "x$numad" != "x"
+       then
+           pcp_selinux_numad=true
+       fi
     fi
 done
 ])
@@ -2072,6 +2079,7 @@ AC_SUBST(pcp_selinux_sock_file_getattr)
 AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
+AC_SUBST(pcp_selinux_numad)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
