@@ -15,7 +15,7 @@
 .\"
 .TH PCP_KUBE_PODS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp-kube-pods\f1 \- Kubernetes pods to scan for running PCP services
+\f3pcp-kube-pods\f1 \- list Kubernetes pods to scan for running PCP services
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
@@ -59,7 +59,7 @@ indicating success is returned.
 .PD 0
 .TP 10
 .BI $PCP_BINADM_DIR/discover
-default path to address discovery scripts like
+default path to address discovery commands like
 .BR pcp-kube-pods .
 .PD
 .PD 0
@@ -67,6 +67,11 @@ default path to address discovery scripts like
 .BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf
 configuration file containing command line options passed to
 .BR kubectl-get .
+.PD
+.PD 0
+.TP 10
+.BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.disabled
+existence of this file causes the script to report nothing
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

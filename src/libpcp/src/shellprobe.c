@@ -30,6 +30,7 @@ typedef struct targetInfo {
 
 typedef struct connectionOptions {
     char		path[MAXPATHLEN]; /* Discovery script path */
+    char		cmd[128];	/* optional individual command */
     targetInfo		*targets;
     unsigned		numTargets;	/* Count of target addresses */
     unsigned		maxTargets;	/* High-water mark for targets */
@@ -425,6 +426,7 @@ probeForServices(const char *service, connectionOptions *options,
     DIR			*dir;
     int			sep = pmPathSeparator();
     char		path[MAXPATHLEN];
+    char		*command = options->cmd[0] ? options->cmd : NULL;
     struct dirent	*dp;
 
     if ((dir = opendir(options->path)) == NULL)
@@ -433,6 +435,8 @@ probeForServices(const char *service, connectionOptions *options,
     /* Scan directory for service probe scripts */
     while ((dp = readdir(dir)) != NULL) {
 	if (dp->d_name[0] == '.')
+	    continue;
+	if (command && strcmp(command, dp->d_name) != 0)
 	    continue;
 	pmsprintf(path, sizeof(path), "%s%c%s", options->path, sep, dp->d_name);
 	/* Run this script, add its output line-by-line to options->targets */
@@ -446,10 +450,29 @@ probeForServices(const char *service, connectionOptions *options,
     return shellProbeForServices(path, service, options, numUrls, urls);
 }
 
+static const char *
+parseFile(const char *option, char *buffer, int buflen)
+{
+    char		*end;
+
+    strncpy(buffer, option, buflen);
+    buffer[buflen-1] = '\0';
+
+    /* Remove back-slash escaped comma characters, if any. */
+    for (end = buffer; *end != '\0' && *end != ','; end++) {
+	if (*end == '\\' && *(end+1) == ',')
+	    memmove(end, end + 1, strlen(end) + 1);
+    }
+    end[0] = '\0';
+
+    return option + (end - buffer);
+}
+
 /*
  * Parse the mechanism string for any options, separated by commas.
  *
- *   path=<directory>      -- specifies location of the probe shell scripts
+ *   command=<file>        -- specifies an individual shell command basename
+ *   path=<directory>      -- specifies location of the probe shell commands
  *   timeout=<double>      -- number of seconds before timing out an address
  *   maxThreads=<integer>  -- specifies a hard limit on the number of active
  *                            threads.
@@ -457,7 +480,6 @@ probeForServices(const char *service, connectionOptions *options,
 static int
 parseOptions(const char *mechanism, connectionOptions *options)
 {
-    char		*buf;
     char		*end;
     const char		*option = mechanism;
     long		longVal;
@@ -544,12 +566,11 @@ parseOptions(const char *mechanism, connectionOptions *options)
 	}
 	else if (strncmp(option, "path=", sizeof("path=") - 1) == 0) {
 	    option += sizeof("path=") - 1;
-	    buf = strncpy(options->path, option, sizeof(options->path));
-	    options->path[sizeof(options->path)-1] = '\0';
-	    /* Remove back-slash escape characters, if any. */
-	    for (/**/; *buf != '\0' && *buf != ','; ++buf)
-		if (*buf == '\\' && *(buf+1) == ',')
-		    memmove(buf, buf+1, strlen(buf)+1);
+	    option = parseFile(option, options->path, sizeof(options->path));
+	}
+	else if (strncmp(option, "command=", sizeof("command=") - 1) == 0) {
+	    option += sizeof("command=") - 1;
+	    option = parseFile(option, options->cmd, sizeof(options->cmd));
 	}
 	else {
 	    /* An invalid option. Skip it. */

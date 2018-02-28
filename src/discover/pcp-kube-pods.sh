@@ -12,10 +12,11 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+. $PCP_DIR/etc/pcp.env
+
 PCP_KUBECTL_PROG=${PCP_KUBECTL_PROG-'kubectl'}
 which $PCP_KUBECTL_PROG >/dev/null 2>/dev/null || exit 0
-
-. $PCP_DIR/etc/pcp.env
+[ -e "$PCP_SYSCONF_DIR/discover/pcp-kube-pods.disabled" ] && exit 0
 
 args="--show-all -o jsonpath={.items[*].status.podIP}"
 file="$PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf" 

@@ -87,10 +87,13 @@ The default is 0.02 seconds (20 milliseconds).
 .B shell
 Probes the list of addresses provided by scripts for requested PCP service(s).
 Several optional, comma-separated parameters can also be provided.
-The \fB"path=DIR"\fP option specifies the directory where scripts like
-.BR pcp-kube-pods (3)
+The \fB"path=DIR"\fP option specifies the directory where commands like
+.BR pcp-kube-pods (1)
 are located (defaults to
 .IR "$PCP_BINADM_DIR/discover/" ).
+This setting can be further restricted to an individual command
+using the \fBcommand=CMD\fP option, but the default is to use all
+available commands from the \fBpath\fP.
 The \fB"maxThreads=N"\fP option limits the number of threads used while
 probing.
 The default is the value of FD_SETSIZE (which is typically 1024) or the
