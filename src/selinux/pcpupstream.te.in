@@ -59,6 +59,7 @@ require {
 	type proc_mdstat_t;
 	type mdadm_exec_t;
 	type fixed_disk_device_t;
+	@PCP_NUMAD_CONTEXT@
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -76,6 +77,7 @@ require {
 	class shm { unix_read associate getattr };
 	class filesystem mount;
 	class blk_file { ioctl open read };
+	class msgq { unix_read };
 }
 
 #============= init_t ==============
@@ -216,6 +218,9 @@ allow pcp_pmcd_t hugetlbfs_t:dir { open read };
 allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
 allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
 
+#type=AVC msg=audit(1519670939.873:2012): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+#type=AVC msg=audit(1519670949.871:2013): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+@PCP_NUMAD_RULE@
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
