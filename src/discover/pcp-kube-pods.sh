@@ -22,6 +22,6 @@ args="--show-all -o jsonpath={.items[*].status.podIP}"
 file="$PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf" 
 [ -f "$file" ] && args=`cat "$file"`
 file="$PCP_SYSCONF_DIR/pmmgr/target-kubectl-pod" # back-compat
-[ -f "$file" ] && args=`cat "$file"`
+[ -f "$file" ] && args="$args `cat "$file"`"
 
 exec $PCP_KUBECTL_PROG get pod $args
