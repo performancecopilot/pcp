@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2016,2018 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,9 +65,9 @@ static const char *services[] = {
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Discovery options"),
     PMOPT_DEBUG,
-    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
+    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|shell|probe=<subnet>|all]" },
     { "resolve", 0, 'r', 0, "resolve addresses" },
-    { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|...|all]" },
+    { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|all]" },
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },

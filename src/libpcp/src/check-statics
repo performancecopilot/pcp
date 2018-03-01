@@ -422,8 +422,6 @@ pmns.o
 p_pmns.o
 p_profile.o
 p_result.o
-probe.o
-    ?againWait			# const (LLVM)
 profile.o
 p_text.o
 rtime.o
@@ -436,10 +434,14 @@ rtime.o
     ?months			# const (MinGW)
     ?wdays			# const (MinGW)
     ?startend_relative_terms	# const
+shellprobe.o
+    ?againWait			# const (LLVM)
 sortinst.o
 spec.o
 store.o
 stuffvalue.o
+subnetprobe.o
+    ?againWait			# const (LLVM)
 tv.o
 tz.o
     curzone			# guarded by __pmLock_libpcp mutex

@@ -1466,6 +1466,7 @@ pmlogsize
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
 1240 libpcp pmrep local
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
+1243 pmfind libpcp local
 1245 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
