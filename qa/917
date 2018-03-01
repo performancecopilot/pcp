@@ -41,6 +41,7 @@ hostname_exec_map_b=`seinfo -x --common=file 2>/dev/null | grep "map$"`
 container_runtime_tmpfs_t=""
 unconfined_service=`seinfo -t | grep "unconfined_service_t$"`
 mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
+numad_context=`seinfo -t | grep "numad_t$"`
 
 _filter_semodule()
 {
@@ -76,6 +77,7 @@ _filter_outfile()
 	-v hostname_exec_map_b="$hostname_exec_map_b" \
 	-v unconfined_service="$unconfined_service" \
 	-v mock_var_lib="$mock_var_lib" \
+	-v numad_context="$numad_context" \
     '{
     	if (container_t == "" && /container_runtime_t /)
 	   !/container_runtime_t / ;
@@ -113,6 +115,10 @@ _filter_outfile()
 	   !/mock_var_lib_t/ ;
         else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /ldconfig_exec_t/ && /map/)
            !/ldconfig_exec_t/ ;
+        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_tmp_t/ && /map/)
+           !/pcp_tmp_t/ ;
+	else if (numad_context == "" && /numda_t/)
+	   !/numad_t/ ;
 	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
 	     printf("  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };\n")
 	   }
