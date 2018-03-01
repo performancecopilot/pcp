@@ -1,5 +1,6 @@
 
 # Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -26,13 +27,10 @@ my $version;			# DB version
 my $max_version = '9.6';	# Highest DB version PMDA has been tested with
 
 # Note on $max_version
-#	Testing is complete up to Postgresql Version 9.4.
-#	There are some references to 9.5 in the code below, although
-#	these are based on currently available documentation for the
-#	forthcoming 9.5 release, and as such should be treated as
-#	experimental until production versions of 9.5 are available
-#	for testing.
-#	Ken McDonell - Jul 2015
+#	Testing is complete up to Postgresql Version 9.6.7
+#	Version 10.2 has been released upstream but not yet in any distros
+#	and thus not yet supported by this PMDA. If you need it, open an
+#	issue at https://github.com/performancecopilot/pcp/issues
 
 # Configuration files for overriding the above settings
 # Note: each .conf file may override a setting from a previous .conf
@@ -458,29 +456,38 @@ sub cherrypick {
 # releases.
 #
 # Metric        item field  Columns in known releases (base 0)
-#			    9.0  9.1  9.2  9.4
-# ...datid		 0    0    0    0    0
-# ...datname		 1    1    1    1    1
-# n/a (pid)		 -    2    2    2    2
-# ...usesysid		 3    3    3    3    3
-# ...usename		 4    4    4    4    4
-# ...application_name	 5    5    5    5    5
-# ...client_addr	 6    6    6    6    6
-# ...client_hostname	 7    -    7    7    7
-# ...client_port	 8    7    8    8    8
-# ...backend_start	 9    8    9    9    9
-# ...xact_start		10    9   10   10   10
-# ...query_start	11   10   11   11   11
-# n/a (state_change)	 -    -    -   12   12
-# ...waiting		12   11   12   13   13
-# n/a (state)		 -    -    -   14   14
-# n/a (backend_xid)	 -    -    -    -   15
-# n/a (backend_xmin)	 -    -    -    -   16
-# ...current_query	13   12   13   15   17
+#                           9.0  9.1  9.2  9.4  9.6
+# ...datid               0    0    0    0    0    0
+# ...datname             1    1    1    1    1    1
+# n/a (pid)              -    2    2    2    2    2
+# ...usesysid            3    3    3    3    3    3
+# ...usename             4    4    4    4    4    4
+# ...application_name    5    5    5    5    5    5
+# ...client_addr         6    6    6    6    6    6
+# ...client_hostname     7    -    7    7    7    7
+# ...client_port         8    7    8    8    8    8
+# ...backend_start       9    8    9    9    9    9
+# ...xact_start         10    9   10   10   10   10
+# ...query_start        11   10   11   11   11   11
+# n/a (state_change)     -    -    -   12   12   12
+# ...waiting            12   11   12   13   13    - note: deprecated in 9.6 (now derived from wait_event_type)
+# n/a (wait_event_type)  -    -    -    -    -   13 note: new in 9.6. not implemented yet as a PCP metric
+# n/a (wait_event)       -    -    -    -    -   14 note: new in 9.6. not implemented yet as a PCP metric
+# n/a (state)            -    -    -   14   14   15
+# n/a (backend_xid)      -    -    -    -   15   16
+# n/a (backend_xmin)     -    -    -    -   16   17
+# ...current_query      13   12   13   15   17   18
 #
 # 9.3 is the same as 9.2
+#
 # 9.5 is the same as 9.4
-# 9.6 may be the same as 9.5
+#
+# 9.6 has replaced pg_stat_activity 'waiting' with 'wait_event_type' and
+# added a new column 'wait_event'. The 'waiting' column no longer exists
+# in the table, but the PCP metric is now derived as True if the string
+# value of 'wait_event_type' is not NULL. For details of the two new columns,
+# see the 9.6 documentation at :
+# https://www.postgresql.org/docs/9.6/static/monitoring-stats.html#WAIT-EVENT-TABLE
 
 # one map per version with a different schema
 # one map entry for each item in a PMID for the activity cluster, so
@@ -496,6 +503,8 @@ my @activity_map_9_1 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 );
 my @activity_map_9_2 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15 );
 # 9.4 and 9.5 are the same
 my @activity_map_9_4 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17 );
+# 9.6 has split pg_stat_activity.wait into wait_event_type and wait_event
+my @activity_map_9_6 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 18 );
 my %activity_ctl = (
     '9.0' => { ncol => 13, map => \@activity_map_9_0 },
     '9.1' => { ncol => 14, map => \@activity_map_9_1 },
@@ -503,7 +512,7 @@ my %activity_ctl = (
     '9.3' => { ncol => 16, map => \@activity_map_9_2 },
     '9.4' => { ncol => 18, map => \@activity_map_9_4 },
     '9.5' => { ncol => 18, map => \@activity_map_9_4 },
-    '9.6' => { ncol => 18, map => \@activity_map_9_4 },
+    '9.6' => { ncol => 19, map => \@activity_map_9_6 },
 );
 
 sub refresh_activity
@@ -516,8 +525,12 @@ sub refresh_activity
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $process_instances[($i*2)] = "$result->[$i][2]";
-	    $tableref = $result->[$i];
-	    $tableref = cherrypick('pg_stat_activity', \%activity_ctl, $tableref);
+
+	    $tableref = cherrypick('pg_stat_activity', \%activity_ctl, $result->[$i]);
+	    # In 9.6.x, if wait_event_type == NULL then we're not waiting on a lock
+	    # PCP metric is postgresql.stat.activity.waiting (boolean), see related comments
+	    if ($version >= "9.6") {$tableref->[12] = ($tableref->[12] ne "");}
+	    #debug# $pmda->log("refresh_activity: version=$version, db_activity.waiting[inst=$instid] = $tableref->[12]");
 	    $process_instances[($i*2)+1] = "$tableref->[2] $tableref->[5]";
 	    $table{values}{$instid} = $tableref;
 	}
