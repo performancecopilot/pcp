@@ -119,7 +119,7 @@ attemptConnections(void *arg)
 	enumIx = NULL;
 	for (addr = __pmHostEntGetSockAddr(target.servInfo, &enumIx);
 	     addr != NULL;
-             addr = __pmHostEntGetSockAddr(target.servInfo, &enumIx)) {
+	     addr = __pmHostEntGetSockAddr(target.servInfo, &enumIx)) {
 	    /*
 	     * We should be ignoring any entry without SOCK_STREAM (= 1),
 	     * since we're connecting with TCP only. The other entries
@@ -282,9 +282,9 @@ shellProbeForServices(const char *script, const char *service,
 	     * Our worker threads don't need much stack. PTHREAD_STACK_MIN is
 	     * enough except when resolving addresses, where twice that much is
 	     * sufficient.  Or it would be, except for error messages.  Those
-             * call pmNotifyErr -> pmprintf -> pmGetConfig, which are
-             * stack-intensive due to multiple large local variables
-             * (char[MAXPATHLEN]).
+	     * call pmNotifyErr -> pmprintf -> pmGetConfig, which are
+	     * stack-intensive due to multiple large local variables
+	     * (char[MAXPATHLEN]).
 	     */
 	    if (options->globalOptions->resolve ||
 		(options->globalOptions->flags &&
@@ -341,7 +341,7 @@ shellProbeForServices(const char *script, const char *service,
 }
 
 static void
-addTarget(const char *target, connectionOptions *options)
+addTarget(char *target, connectionOptions *options)
 {
     __pmHostEnt	*servInfo;
     targetInfo	*tp;
@@ -364,16 +364,29 @@ addTarget(const char *target, connectionOptions *options)
 	options->targets = tp;
     }
 
+    /* Remove any leading or trailing whitespace we've been handed */
+    while (*target != '\0' && isspace(*target))
+	target++;
+    bytes = strlen(target);
+    name = target + bytes - 1;
+    while (name < target && isspace(*name))
+	name--;
+    if (name > target) {
+	bytes = name - target;
+	*name = '\0';
+    }
+
+    /* Lookup address and stash target info into the array to scan */
     if ((servInfo = __pmGetAddrInfo(target)) == NULL) {
-        if (pmDebugOptions.discovery) {
-            const char  *errmsg;
-            PM_LOCK(__pmLock_extcall);
-            errmsg = hoststrerror();            /* THREADSAFE */
-            fprintf(stderr, "%s:(%s) : hosterror=%d, ``%s''\n",
-                    PROBE, target, hosterror(), errmsg);
-            PM_UNLOCK(__pmLock_extcall);
-        }
-    } else if ((name = strdup(target)) == NULL) {
+	if (pmDebugOptions.discovery) {
+	    const char  *errmsg;
+	    PM_LOCK(__pmLock_extcall);
+	    errmsg = hoststrerror();            /* THREADSAFE */
+	    fprintf(stderr, "%s:(%s) : hosterror=%d, ``%s''",
+		    PROBE, target, hosterror(), errmsg);
+	    PM_UNLOCK(__pmLock_extcall);
+	}
+    } else if ((name = strndup(target, bytes)) == NULL) {
 	if (pmDebugOptions.discovery)
 	    pmNotifyErr(LOG_ERR, "%s: failed target %s dup", PROBE, target);
 	__pmHostEntFree(servInfo);

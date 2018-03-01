@@ -23,12 +23,19 @@ _cleanup()
 
 status=1	# failure is the default!
 hostname=`hostname`
+hostip=`_host_to_ipaddr $hostname`
+localip=`_host_to_ipaddr localhost`
 $sudo rm -rf $tmp $tmp.* $seq.full 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed -e "s,$tmp.discover,DISCOVER_DIR,g"
+    sed \
+	-e "s,$tmp.discover,DISCOVER_DIR,g" \
+	-e "s,\[::1\],IP_ADDRESS,g" \
+	-e "s,$localip,IP_ADDRESS,g" \
+	-e "s,$hostip,IP_ADDRESS,g" \
+    #end
 }
 
 # real QA test starts here
@@ -53,10 +60,9 @@ chmod 755 $tmp.discover/hostnames.sh
 # drop-in kubectl so we can see args
 cat >$tmp.kubectl.sh <<EOF
 #!/bin/sh
-echo "$@" > $tmp.kubectl.args
+echo "\$@" > $tmp.kubectl.args
 EOF
 chmod 755 $tmp.kubectl.sh
-cp $PCP_BINADM_DIR/discover/pcp-kube-pods $tmp.discover/
 
 export PCP_KUBECTL_PROG=$tmp.kubectl.sh
 
@@ -68,10 +74,10 @@ echo "== hostnames.sh" >> $seq.full
 $tmp.discover/hostnames.sh >> $seq.full
 
 echo "== checking pcp-kube-pods argument handling" | tee -a $seq.full
-$PCP_KUBECTL_PROG
-cat $tmp.kubectl.args | tee -a $seq.full | _filter
+$PCP_BINADM_DIR/discover/pcp-kube-pods
+cat $tmp.kubectl.args | tee -a $seq.full
 
-# handy pmfind debug: -Ddiscovery
+# handy pmfind debugging option: -Ddiscovery
 echo "== checking pmfind results and memory access" | tee -a $seq.full
 _run_valgrind pmfind -m shell,path=$tmp.discover,maxThreads=1 -s pmcd \
 	| _filter
