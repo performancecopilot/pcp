@@ -49,6 +49,7 @@ do_meta(__pmFILE *f)
 {
     long	oheadbytes = __pmFtell(f);
     long	bytes[5] = { 0, 0, 0, 0, 0 };
+    long	sum_bytes;
     int		nrec[5] = { 0, 0, 0, 0, 0 };
     __pmLogHdr	header;
     int		trailer;
@@ -236,12 +237,18 @@ do_meta(__pmFILE *f)
 		j += indomp->nuniq_inst + indomp->ndup_inst;
 	    }
 	    printf(", %d instances", j);
+	    sum_bytes = 0;
 	}
 	printf("]\n");
 
 	if (dflag) {
 	    qsort(indom_tab, nindom, sizeof(indom_tab[0]), indom_compar);
 	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
+		if (thres != -1 && 100*(float)sum_bytes/bytes[TYPE_INDOM] > thres) {
+		    /* -x cutoff reached */
+		    printf("    ...\n");
+		    break;
+		}
 		printf("    %s: %ld bytes [%.0f%%, %d record",
 		    pmInDomStr(indomp->indom), indomp->bytes,
 		    100*(float)indomp->bytes/sbuf.st_size,
@@ -251,7 +258,7 @@ do_meta(__pmFILE *f)
 		printf(", %d instance", indomp->nuniq_inst + indomp->ndup_inst);
 		if (indomp->nuniq_inst + indomp->ndup_inst > 1)
 		    putchar('s');
-		if (indomp->ndup_inst > 0) {
+		if (rflag && indomp->ndup_inst > 0) {
 		    printf(" (%ld bytes for", indomp->dup_bytes);
 		    printf(" %d dup", indomp->ndup_inst);
 		    if (indomp->ndup_inst > 1)
@@ -260,6 +267,7 @@ do_meta(__pmFILE *f)
 		}
 		putchar(']');
 		putchar('\n');
+		sum_bytes += indomp->bytes;
 	    }
 	}
     }

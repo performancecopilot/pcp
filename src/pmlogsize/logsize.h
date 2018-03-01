@@ -5,6 +5,7 @@ extern void do_data(__pmFILE *);
 extern int	dflag;		/* detail off by default */
 extern int	rflag;		/* replication off by default */
 extern int	vflag;		/* verbose off by default */
+extern int	thres;		/* cut-off percentage from -x for -d */
 
 /* from libpcp's internal.h */
 #ifdef HAVE_NETWORK_BYTEORDER

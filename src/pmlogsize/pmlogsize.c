@@ -22,6 +22,7 @@
 int		dflag;		/* detail off by default */
 int		rflag;		/* replication off by default */
 int		vflag;		/* verbose off by default */
+int		thres = -1;	/* cut-off percentage from -x for -d */
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
@@ -29,6 +30,7 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     { "replication", 0, 'r', 0, "report replicated metric values and instances" },
     { "verbose", 0, 'v', 0, "verbose output" },
+    { "threshold", 1, 'x', "thres", "cull detailed report after thres % of space reported" },
     PMOPT_HOSTZONE,
     PMOPT_TIMEZONE,
     PMOPT_HELP,
@@ -37,7 +39,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "dD:vzZ:?",
+    .short_options = "dD:rvx:zZ:?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -104,6 +106,15 @@ main(int argc, char *argv[])
 	    rflag++;
 	    break;
 
+	case 'x':	/* cut-off threshold % for detailed reporting */
+	    thres = -1;
+	    thres = atoi(opts.optarg);
+	    if (thres < 1 || thres > 100) {
+		fprintf(stderr, "Bad arg for -x (%s): should be between 1 and 100\n", opts.optarg);
+		exit(1);
+	    }
+	    break;
+
 	case 'v':	/* bump verbosity */
 	    vflag++;
 	    break;
@@ -111,7 +122,7 @@ main(int argc, char *argv[])
     }
 
     if (!opts.errors && opts.optind >= argc) {
-	pmprintf("Error: no archive specified\n\n");
+	fprintf(stderr, "Error: no archive specified\n\n");
 	opts.errors++;
     }
 

@@ -28,12 +28,24 @@ echo "=== simple case ==="
 pmlogsize archives/ok-foo.index archives/ok-foo.meta archives/ok-foo.0
 
 echo
-echo "=== simple meta detailed report ==="
+echo "=== simple metadata detailed report ==="
 pmlogsize -d archives/ok-foo.meta 
 
 echo
-echo "=== more complex meta detailed report ==="
+echo "=== more complex metadata detailed report ==="
 pmlogsize -d archives/20180102.meta
+
+echo
+echo "=== and again with duplicates reported ==="
+pmlogsize -r -d archives/20180102.meta
+
+echo
+echo "=== -x cutoff for metadata ==="
+for x in 64 65 87 88
+do
+    echo "--- $x % ---"
+    pmlogsize -d -x $x archives/ok-foo.meta
+done
 
 # success, all done
 status=0
