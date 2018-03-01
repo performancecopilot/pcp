@@ -68,6 +68,13 @@ To uninstall, do the following as root:
 \fBpmdapostgresql\fR is launched by \fIpmcd\fR(1) and should never be executed 
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
 agent is installed or removed.
+.PP
+\fBpmdapostgresql\fR will automatically attempt to reconnect to the postgresql server
+if it's connection is lost - e.g. if the postgresql service is restarted.
+In addition, \fBpmdapostgresql\fR will disconnect if it is sent a
+.B SIGUSR1
+signal, and will then attempt to reconnect on the next fetch.
+This is mostly for quality assurance and test purposes, but may be useful in other circumstances.
 .SH "SUPPORTED VERSIONS"
 \fBpmdapostgresql\fR has been tested and verified with
 .B postgresql

@@ -18,6 +18,9 @@ use warnings;
 use PCP::PMDA;
 use DBI;
 
+# SIGUSR1 to disconnect - mostly for QA testing purposes.
+$SIG{USR1} = \&postgresql_connection_drop;
+
 my $database = 'dbi:Pg:dbname=postgres';
 my $username = 'postgres';	# DB username for DB login
 my $password = '';		# DBI parameter, typically unused for postgres
@@ -262,9 +265,27 @@ sub postgresql_version_query
     return 0;
 }
 
+sub postgresql_connection_drop
+{
+    if (defined($dbh) && $dbh->ping) {
+	$pmda->log("WARNING: disconnecting PostgreSQL connection");
+	$dbh->disconnect;
+	sleep 1;
+    }
+    else {
+	$pmda->log("WARNING: request to disconnect ignored - not connected");
+    }
+}
+
 sub postgresql_connection_setup
 {
-    if (!defined($dbh)) {
+    my $reconnect = 0;
+
+    if (defined($dbh) && !$dbh->ping) {
+	$pmda->log("WARNING: PostgreSQL connection lost: attempting to reconnect");
+	$reconnect = 1;
+    }
+    if (!defined($dbh) || $reconnect) {
 	$pmda->log("connect to DB $database as user $username");
 	$dbh = DBI->connect($database, $username, $password,
 			    {AutoCommit => 1, pg_bool_tf => 0});
