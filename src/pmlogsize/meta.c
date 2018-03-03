@@ -52,7 +52,7 @@ do_meta(__pmFILE *f)
     long	sum_bytes;
     int		nrec[5] = { 0, 0, 0, 0, 0 };
     __pmLogHdr	header;
-    int		trailer;
+    __pmPDU	trailer;
     int		need;
     int		sts;
     int		i;
@@ -98,18 +98,18 @@ do_meta(__pmFILE *f)
 	    case TYPE_DESC:
 		if (vflag) {
 		    pmDesc	*dp = (pmDesc *)buf;
-		    __int32_t	*ip;
+		    __pmPDU	*ip;
 		    int		numnames;
 
 		    dp->pmid = __ntohpmID(dp->pmid);
 		    printf("PMID: %s", pmIDStr(dp->pmid));
 		    dp++;
-		    ip = (__int32_t *)dp;
+		    ip = (__pmPDU *)dp;
 		    numnames = ntohl(*ip);
 		    ip++;
 		    bufp = (char *)ip;
 		    for (i = 0; i < numnames; i++) {
-			__int32_t	len;
+			__pmPDU	len;
 			memmove((void *)&len, (void*)bufp, sizeof(len));
 			len = ntohl(len);
 			bufp += sizeof(len);
@@ -124,12 +124,12 @@ do_meta(__pmFILE *f)
 		    pmInDom	indom;
 		    int		ninst;
 		    int		inst;
-		    __int32_t	*stridx;
+		    __pmPDU	*stridx;
 		    char	*str;
 
 		    bufp = buf;
 		    bufp += sizeof(pmTimeval);
-		    indom = __ntohpmInDom(*((__int32_t *)bufp));
+		    indom = __ntohpmInDom(*((__pmPDU *)bufp));
 		    bufp += sizeof(pmInDom);
 		    if (vflag)
 			printf("INDOM: %s", pmInDomStr(indom));
@@ -158,20 +158,20 @@ do_meta(__pmFILE *f)
 		    }
 
 		    indomp->nrec++;
-		    ninst = ntohl(*((__int32_t *)bufp));
-		    bufp += sizeof(__int32_t);
+		    ninst = ntohl(*((__pmPDU *)bufp));
+		    bufp += sizeof(__pmPDU);
 		    /* record type, timestamp, indom, numinst */
-		    indomp->bytes += sizeof(__int32_t) + sizeof(pmTimeval) + sizeof(pmInDom) + sizeof(__int32_t);
+		    indomp->bytes += sizeof(__pmPDU) + sizeof(pmTimeval) + sizeof(pmInDom) + sizeof(__pmPDU);
 		    if (vflag) {
 			printf(" %d instance", ninst);
 			if (ninst > 1)
 			    putchar('s');
 		    }
-		    stridx = (__int32_t *)&bufp[ninst*sizeof(__int32_t)];
-		    str = (char *)&bufp[2*ninst*sizeof(__int32_t)];
+		    stridx = (__pmPDU *)&bufp[ninst*sizeof(__pmPDU)];
+		    str = (char *)&bufp[2*ninst*sizeof(__pmPDU)];
 		    for (j = 0; j < ninst; j++) {
-			inst = ntohl(*((__int32_t *)bufp));
-			bufp += sizeof(__int32_t);
+			inst = ntohl(*((__pmPDU *)bufp));
+			bufp += sizeof(__pmPDU);
 			stridx[j] = ntohl(stridx[j]);
 			if (vflag) {
 			    if (j == 0)
@@ -205,17 +205,27 @@ do_meta(__pmFILE *f)
 			else {
 			    /* duplicate instance in this indom */
 			    indomp->ndup_inst++;
-			    indomp->dup_bytes += 2*sizeof(__int32_t) + strlen(indomp->inst_tab[k].name) + 1;
+			    indomp->dup_bytes += 2*sizeof(__pmPDU) + strlen(indomp->inst_tab[k].name) + 1;
 			}
-			indomp->bytes += 2*sizeof(__int32_t) + strlen(indomp->inst_tab[k].name) + 1;
+			indomp->bytes += 2*sizeof(__pmPDU) + strlen(indomp->inst_tab[k].name) + 1;
 		    }
 		    if (vflag)
 			putchar('\n');
 		}
 		break;
 	    case TYPE_LABEL:
+		if (dflag) {
+		    /* TODO */
+		    if (nrec[TYPE_LABEL] == 1)
+			printf("LABEL: TODO ... nothing reported as yet\n");
+		}
 		break;
 	    case TYPE_TEXT:
+		if (dflag) {
+		    /* TODO */
+		    if (nrec[TYPE_TEXT] == 1)
+			printf("TEXT: TODO ... nothing reported as yet\n");
+		}
 		break;
 	}
 

@@ -47,6 +47,10 @@ do
     pmlogsize -d -x $x archives/ok-foo.meta
 done
 
+echo
+echo "=== simple data detailed report ==="
+pmlogsize -d archives/ok-foo.0
+
 # success, all done
 status=0
 exit

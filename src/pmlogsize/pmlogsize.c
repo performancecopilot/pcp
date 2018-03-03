@@ -87,8 +87,8 @@ do_work(char *fname)
 	do_index(f);
     else if (label.ill_vol == PM_LOG_VOL_META)
 	do_meta(f);
-    //else
-	//do_data(f);
+    else
+	do_data(f, fname);
 }
 
 int

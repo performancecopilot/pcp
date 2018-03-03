@@ -32,7 +32,6 @@ do_index(__pmFILE *f)
     while ((sts = __pmFread(&tirec, 1, sizeof(tirec), f)) == sizeof(tirec)) {
 	nrec++;
 	indexbytes += sizeof(tirec);
-	//oheadbytes += sizeof(int);	/* record header length */
     }
 
     printf("  index: %ld bytes [%.0f%%, %d entries]\n", indexbytes, 100*(float)indexbytes/sbuf.st_size, nrec);

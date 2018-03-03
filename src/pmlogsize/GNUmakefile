@@ -15,7 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmlogsize.c index.c meta.c
+CFILES = pmlogsize.c index.c meta.c data.c
 HFILES = logsize.h
 CMDTARGET = pmlogsize$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)

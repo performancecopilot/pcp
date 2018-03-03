@@ -1,6 +1,6 @@
 extern void do_index(__pmFILE *);
 extern void do_meta(__pmFILE *);
-extern void do_data(__pmFILE *);
+extern void do_data(__pmFILE *, char *);
 
 extern int	dflag;		/* detail off by default */
 extern int	rflag;		/* replication off by default */
