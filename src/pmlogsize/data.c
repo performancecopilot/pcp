@@ -204,6 +204,15 @@ do_data(__pmFILE *f, char *fname)
 	    }
 #endif
 	    putchar(']');
+	    if (metricp->numnames > 0) {
+		printf(" (");
+		for (k = 0; k < metricp->numnames; k++) {
+		    if (k > 0)
+			printf(", ");
+		    printf("%s", metricp->names[k]);
+		}
+		printf(")");
+	    }
 	    putchar('\n');
 	    sum_bytes += metricp->bytes;
 	}
