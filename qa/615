@@ -51,6 +51,18 @@ echo
 echo "=== simple data detailed report ==="
 pmlogsize -d archives/ok-foo.0
 
+echo
+echo "=== and again with duplicate values reported ==="
+pmlogsize -dr archives/ok-foo.0
+
+echo
+echo "=== more complex data detailed report, with cutoff ==="
+pmlogsize -d -x 35 archives/20180102.0
+
+echo
+echo "=== and with duplicate values reported =="
+pmlogsize -dr -x 35 archives/20180102.0
+
 # success, all done
 status=0
 exit

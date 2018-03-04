@@ -31,14 +31,86 @@ typedef struct {
     int			ndup_val;	/* number of replicated values */
     long		dup_bytes;	
     int			valfmt;
-    __pmHashNode	*values;
+    __pmHashCtl		values;
 } metric_t;
+
+static int		nmetric = 0;		/* number of unique metrics seen */
+static metric_t		*metric_tab = NULL;	/* metric entries */
 
 /* sort largest first */
 static int
 metric_compar(const void *a, const void *b)
 {
     return ((metric_t *)a)->bytes < ((metric_t *)b)->bytes;
+}
+
+static int
+value_eq(pmValueBlock *ap, pmValueBlock *bp)
+{
+    char	*avp;
+    char	*bvp;
+    int		i;
+    int		vlen = ap->vlen - sizeof(int);
+
+    if (ap->vlen != bp->vlen)
+	return 0;
+    if (ap->vtype != bp->vtype)
+	return 0;
+
+    avp = ap->vbuf;
+    bvp = bp->vbuf;
+    for (i = 0; i < vlen; i++) {
+	if (*avp != *bvp)
+	    break;
+	avp++;
+	bvp++;
+    }
+
+    return i == vlen ? 1 : 0;
+}
+
+/*
+ * Callback to free space for value cached with an instance hash node
+ */
+static __pmHashWalkState
+hash_cb(const __pmHashNode *hptr, void *info)
+{
+    metric_t	*metricp = (metric_t *)info;
+    pmValue	*vp = (pmValue *)hptr->data;
+
+    if (metricp->valfmt != PM_VAL_INSITU)
+	free(vp->value.pval);
+    free(vp);
+
+    return PM_HASH_WALK_DELETE_NEXT;
+}
+
+/*
+ * if all == 0, cleanup cached values, e.g. after <mark>
+ * if all == 1, cleanup cached values and metric_tab
+ */
+static void
+cleanup(int all)
+{
+    metric_t	*metricp;
+
+    for (metricp = metric_tab; metricp < &metric_tab[nmetric]; metricp++) {
+	if (all && metricp->numnames > 0)
+	    free(metricp->names);
+	if (rflag) {
+	    /* free hash table for instance values */
+	    __pmHashWalkCB(hash_cb, metricp, &metricp->values);
+	    /* free hash table */
+	    if (metricp->values.hash != NULL)
+		free(metricp->values.hash);
+	    /* reset hash table */
+	    __pmHashInit(&metricp->values);
+	}
+
+    }
+    if (all)
+	free(metric_tab);
+
 }
 
 void
@@ -48,6 +120,7 @@ do_data(__pmFILE *f, char *fname)
     long	bytes = 0;
     long	sum_bytes;
     int		nrec = 0;
+    int		nmark = 0;
     __pmPDU	header;
     __pmPDU	trailer;
     int		need;
@@ -60,8 +133,6 @@ do_data(__pmFILE *f, char *fname)
     int		buflen = 0;
     char	*buf = NULL;
     struct stat	sbuf;
-    int		nmetric = 0;		/* number of unique metrics seen */
-    metric_t	*metric_tab = NULL;	/* metric entries */
     metric_t	*metricp;
     __pmPDUHdr *php;
     pmResult	*rp;
@@ -87,6 +158,11 @@ do_data(__pmFILE *f, char *fname)
 	    }
 	    buflen = need;
 	}
+
+	/*
+	 * read record, but leave prefix space for __pmPDUHdr so we can
+	 * use __pmDecodeResult() below
+	 */
 	if ((sts = __pmFread(&buf[sizeof(__pmPDUHdr)], 1, rlen, f)) != rlen) {
 	    fprintf(stderr, "Error: data read failed: len %d not %d\n", sts, need);
 	    exit(1);
@@ -103,11 +179,25 @@ do_data(__pmFILE *f, char *fname)
 	    exit(1);
 	}
 
+	__pmFread(&trailer, 1, sizeof(trailer), f);
+	oheadbytes += sizeof(trailer);
+
+	if (rp->numpmid == 0) {
+	    /* <mark> record */
+	    if (rflag)
+		cleanup(0);
+	    nmark++;
+	    continue;
+	}
+
 	if (dflag) {
+	    /* per metric details */
 	    for (i = 0; i < rp->numpmid; i++) {
 		pmValueSet	*vsp = rp->vset[i];
 		pmID		pmid = vsp->pmid;
 		int		len;
+		__pmHashNode	*hptr;
+		pmValue		*vp;
 
 		if (vflag)
 		    printf("PMID: %s", pmIDStr(pmid));
@@ -133,18 +223,21 @@ do_data(__pmFILE *f, char *fname)
 		    metricp->ndup_val = 0;
 		    metricp->dup_bytes = 0;
 		    metricp->valfmt = vsp->valfmt;
-		    metricp->values = NULL;
-		    if (ctx >= 0)
+		    if (rflag)
+			__pmHashInit(&metricp->values);
+		    if (ctx >= 0) {
+			/* we have a PMAPI context, so get the metric name(s) */
 			metricp->numnames = pmNameAll(pmid, &metricp->names);
-		    if (vflag) {
-			if (metricp->numnames > 0) {
-			    printf(" (");
-			    for (k = 0; k < metricp->numnames; k++) {
-				if (k > 0)
-				    printf(", ");
-				printf("%s", metricp->names[k]);
+			if (vflag) {
+			    if (metricp->numnames > 0) {
+				printf(" (");
+				for (k = 0; k < metricp->numnames; k++) {
+				    if (k > 0)
+					printf(", ");
+				    printf("%s", metricp->names[k]);
+				}
+				printf(")");
 			    }
-			    printf(")");
 			}
 		    }
 		}
@@ -154,9 +247,88 @@ do_data(__pmFILE *f, char *fname)
 		if (vsp->numval > 0)
 		    len += sizeof(vsp->valfmt) + vsp->numval * sizeof(__pmValue_PDU);
 		for (j = 0; j < vsp->numval; j++) {
-		    if (vsp->valfmt != PM_VAL_INSITU) {
+		    if (vsp->valfmt != PM_VAL_INSITU)
 			len += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
+		    metricp->nval++;
+
+		    if (!rflag)
+			continue;
+
+		    /*
+		     * replicated value?
+		     * check this value against previous value (if any)
+		     * for this metric-instance
+		     */
+		    if ((hptr = __pmHashSearch(vsp->vlist[j].inst, &metricp->values)) == NULL) {
+			if (__pmHashAdd(vsp->vlist[j].inst, NULL, &metricp->values) < 0) {
+			    fprintf(stderr, "Error: __pmHashAdd failed for pmid %s and inst %d\n", pmIDStr(vsp->pmid), vsp->vlist[j].inst);
+			    exit(1);
+			}
+			if ((hptr = __pmHashSearch(vsp->vlist[j].inst, &metricp->values)) == NULL) {
+			    fprintf(stderr, "Error: __pmHashSearch after __pmHashAdd failed for pmid %s and inst %d\n", pmIDStr(vsp->pmid), vsp->vlist[j].inst);
+			    exit(1);
+			}
 		    }
+		    if (hptr->data != NULL) {
+			/* have previous value */
+			vp = (pmValue *)hptr->data;
+			if (vsp->valfmt == PM_VAL_INSITU) {
+			    if (vsp->vlist[j].value.lval == vp->value.lval) {
+				/* replicated value */
+				metricp->ndup_val++;
+				metricp->dup_bytes += sizeof(__pmValue_PDU);
+			    }
+			    else {
+				/* different, save this value for next time */
+				vp->value.lval = vsp->vlist[j].value.lval;
+			    }
+			}
+			else {
+			    vp = hptr->data;
+			    if (value_eq(vsp->vlist[j].value.pval, vp->value.pval)) {
+				/* replicated value */
+				metricp->ndup_val++;
+				metricp->dup_bytes += sizeof(__pmValue_PDU) + vp->value.pval->vlen;
+			    }
+			    else {
+				/*
+				 * different, need to free old pmValueBlock
+				 * and initialize a new one for next time
+				 */
+				int	vlen = vsp->vlist[j].value.pval->vlen;
+				free(vp->value.pval);
+				vp->value.pval = (pmValueBlock *)malloc(vlen);
+				if (vp->value.pval == NULL) {
+				    fprintf(stderr, "Error: pmid %s inst %d pmValueBlock(%d) re-malloc failed\n", pmIDStr(vsp->pmid), vsp->vlist[j].inst, vlen);
+				    exit(1);
+				}
+				memcpy(vp->value.pval, vsp->vlist[j].value.pval, vlen);
+			    }
+			}
+		    }
+		    else {
+			/* no previous value, save this one for next time */
+			vp = (pmValue *)malloc(sizeof(pmValue));
+			if (vp == NULL) {
+			    fprintf(stderr, "Error: pmid %s inst %d pmValue malloc failed\n", pmIDStr(vsp->pmid), vsp->vlist[j].inst);
+			    exit(1);
+			}
+			hptr->data = vp;
+			vp->inst = vsp->vlist[j].inst;
+			if (vsp->valfmt == PM_VAL_INSITU) {
+			    vp->value.lval = vsp->vlist[j].value.lval;
+			}
+			else {
+			    int		vlen = vsp->vlist[j].value.pval->vlen;
+			    vp->value.pval = (pmValueBlock *)malloc(vlen);
+			    if (vp->value.pval == NULL) {
+				fprintf(stderr, "Error: pmid %s inst %d pmValueBlock(%d) malloc failed\n", pmIDStr(vsp->pmid), vsp->vlist[j].inst, vlen);
+				exit(1);
+			    }
+			    memcpy(vp->value.pval, vsp->vlist[j].value.pval, vlen);
+			}
+		    }
+		    
 		}
 		if (vflag)
 		    printf(" bytes=%d\n", len);
@@ -168,13 +340,14 @@ do_data(__pmFILE *f, char *fname)
 
 	pmFreeResult(rp);
 
-	__pmFread(&trailer, 1, sizeof(trailer), f);
-	oheadbytes += sizeof(trailer);
 	nrec++;
     }
 
-    printf("  data: %ld bytes [%.0f%%, %d records]\n",
+    printf("  data: %ld bytes [%.0f%%, %d records",
 	bytes, 100*(float)bytes/sbuf.st_size, nrec);
+    if (nmark > 0)
+	printf(" (+ %d <mark> records)", nmark);
+    printf("]\n");
 
     if (dflag) {
 	sum_bytes = 0;
@@ -189,20 +362,18 @@ do_data(__pmFILE *f, char *fname)
 		pmIDStr(metricp->pmid), metricp->bytes,
 		100*(float)metricp->bytes/sbuf.st_size,
 		metricp->nrec);
-	    if (metricp->nrec > 1)
+	    if (metricp->nrec != 1)
 		putchar('s');
-#if 0
-	    printf(", %d values", metricp->nuniq_inst + metricp->ndup_inst);
-	    if (metricp->nuniq_inst + metricp->ndup_inst > 1)
+	    printf(", %d value", metricp->nval);
+	    if (metricp->nval != 1)
 		putchar('s');
-	    if (rflag && metricp->ndup_inst > 0) {
+	    if (rflag && metricp->ndup_val > 0) {
 		printf(" (%ld bytes for", metricp->dup_bytes);
-		printf(" %d dup", metricp->ndup_inst);
-		if (metricp->ndup_inst > 1)
+		printf(" %d dup", metricp->ndup_val);
+		if (metricp->ndup_val != 1)
 		    putchar('s');
 		putchar(')');
 	    }
-#endif
 	    putchar(']');
 	    if (metricp->numnames > 0) {
 		printf(" (");
@@ -222,6 +393,9 @@ do_data(__pmFILE *f, char *fname)
     sbuf.st_size -= (bytes + oheadbytes);
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
+
+    free(buf);
+    cleanup(1);
 
     return;
 }

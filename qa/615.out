@@ -106,12 +106,55 @@ archives/ok-foo.meta:
 === simple data detailed report ===
 archives/ok-foo.0:
   data: 1664 bytes [84%, 9 records]
-    29.0.6: 672 bytes [34%, 8 records]
-    29.0.5: 288 bytes [15%, 8 records]
-    29.0.46: 252 bytes [13%, 8 records]
-    29.0.7: 160 bytes [8%, 8 records]
-    29.0.2: 160 bytes [8%, 8 records]
-    2.3.2: 64 bytes [3%, 1 record]
-    2.3.3: 48 bytes [2%, 1 record]
-    2.3.0: 20 bytes [1%, 1 record]
+    29.0.6: 672 bytes [34%, 8 records, 72 values] (sample.bin)
+    29.0.5: 288 bytes [15%, 8 records, 24 values] (sample.colour)
+    29.0.46: 252 bytes [13%, 8 records, 8 values] (sample.lights)
+    29.0.7: 160 bytes [8%, 8 records, 8 values] (sample.drift)
+    29.0.2: 160 bytes [8%, 8 records, 8 values] (sample.seconds)
+    2.3.2: 64 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 48 bytes [2%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
   overhead: 312 bytes [16%]
+
+=== and again with duplicate values reported ===
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+    29.0.6: 672 bytes [34%, 8 records, 72 values (504 bytes for 63 dups)] (sample.bin)
+    29.0.5: 288 bytes [15%, 8 records, 24 values] (sample.colour)
+    29.0.46: 252 bytes [13%, 8 records, 8 values (91 bytes for 5 dups)] (sample.lights)
+    29.0.7: 160 bytes [8%, 8 records, 8 values (8 bytes for 1 dup)] (sample.drift)
+    29.0.2: 160 bytes [8%, 8 records, 8 values] (sample.seconds)
+    2.3.2: 64 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 48 bytes [2%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 312 bytes [16%]
+
+=== more complex data detailed report, with cutoff ===
+archives/20180102.0:
+  data: 7097172 bytes [100%, 725 records (+ 120 <mark> records)]
+    60.18.10: 723060 bytes [10%, 103 records, 1236 values] (hinv.cpu.flags)
+    3.9.1: 438100 bytes [6%, 115 records, 54590 values] (proc.memory.rss)
+    3.9.0: 438100 bytes [6%, 115 records, 54590 values] (proc.memory.size)
+    3.8.11: 438036 bytes [6%, 115 records, 54582 values] (proc.psinfo.maj_flt)
+    60.10.4: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.blkwrite)
+    60.10.3: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.blkread)
+    60.10.1: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.write)
+    60.10.0: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.read)
+    60.3.20: 76260 bytes [1%, 205 records, 3690 values] (network.interface.total.mcasts)
+    ...
+  overhead: 17032 bytes [0%]
+
+=== and with duplicate values reported ==
+archives/20180102.0:
+  data: 7097172 bytes [100%, 725 records (+ 120 <mark> records)]
+    60.18.10: 723060 bytes [10%, 103 records, 1236 values (49056 bytes for 84 dups)] (hinv.cpu.flags)
+    3.9.1: 438100 bytes [6%, 115 records, 54590 values (78744 bytes for 9843 dups)] (proc.memory.rss)
+    3.9.0: 438100 bytes [6%, 115 records, 54590 values (80328 bytes for 10041 dups)] (proc.memory.size)
+    3.8.11: 438036 bytes [6%, 115 records, 54582 values (81168 bytes for 10146 dups)] (proc.psinfo.maj_flt)
+    60.10.4: 100860 bytes [1%, 205 records, 4920 values (37700 bytes for 1885 dups)] (disk.partitions.blkwrite)
+    60.10.3: 100860 bytes [1%, 205 records, 4920 values (45940 bytes for 2297 dups)] (disk.partitions.blkread)
+    60.10.1: 100860 bytes [1%, 205 records, 4920 values (37700 bytes for 1885 dups)] (disk.partitions.write)
+    60.10.0: 100860 bytes [1%, 205 records, 4920 values (45940 bytes for 2297 dups)] (disk.partitions.read)
+    60.3.20: 76260 bytes [1%, 205 records, 3690 values (34460 bytes for 1723 dups)] (network.interface.total.mcasts)
+    ...
+  overhead: 17032 bytes [0%]
