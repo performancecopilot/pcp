@@ -28,6 +28,10 @@ echo "=== simple case ==="
 pmlogsize archives/ok-foo.index archives/ok-foo.meta archives/ok-foo.0
 
 echo
+echo "=== simple case with archive basename ==="
+pmlogsize archives/ok-foo
+
+echo
 echo "=== simple metadata detailed report ==="
 pmlogsize -d archives/ok-foo.meta 
 

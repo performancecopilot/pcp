@@ -24,6 +24,8 @@ int		rflag;		/* replication off by default */
 int		vflag;		/* verbose off by default */
 int		thres = -1;	/* cut-off percentage from -x for -d */
 
+static char	*argbasename;
+
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "detail", 0, 'd', 0, "detailed output (per metric and per indom)" },
@@ -43,6 +45,62 @@ static pmOptions opts = {
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
+
+static int
+filter(const struct dirent *dp)
+{
+    char logBase[MAXPATHLEN];
+    static int	len = -1;
+
+    if (len == -1) {
+	len = strlen(argbasename);
+	if (vflag > 2) {
+	    fprintf(stderr, "argbasename=\"%s\" len=%d\n", argbasename, len);
+	}
+    }
+    if (vflag > 2)
+	fprintf(stderr, "d_name=\"%s\"? ", dp->d_name);
+
+    if (dp->d_name[len] != '.') {
+	if (vflag > 2)
+	    fprintf(stderr, "no (not expected extension after basename)\n");
+	return 0;
+    }
+    /*
+     * __pmLogBaseName will strip the suffix by modifying the data
+     * in place. The suffix can still be found after the base name.
+     */
+    strncpy(logBase, dp->d_name, sizeof(logBase));
+    logBase[sizeof(logBase)-1] = '\0';
+    if (__pmLogBaseName(logBase) == NULL ) {
+	if (vflag > 2)
+	    fprintf(stderr, "no (not expected extension after basename)\n");
+	return 0;
+    }
+    if (strcmp(logBase, argbasename) != 0) {
+	if (vflag > 2)
+	    fprintf(stderr, "no (first %d chars not matched)\n", len);
+	return 0;
+    }
+    if (strcmp(&logBase[len+1], "meta") == 0) {
+	if (vflag > 2)
+	    fprintf(stderr, "yes\n");
+	return 1;
+    }
+    if (strcmp(&logBase[len+1], "index") == 0) {
+	if (vflag > 2)
+	    fprintf(stderr, "yes\n");
+	return 1;
+    }
+    if (! isdigit((int)(logBase[len+1]))) {
+	if (vflag > 2)
+	    fprintf(stderr, "no (non-digit after basename)\n");
+	return 0;
+    }
+    if (vflag > 2)
+	fprintf(stderr, "yes\n");
+    return 1;
+}
 
 static void
 do_work(char *fname)
@@ -89,6 +147,15 @@ do_work(char *fname)
 	do_meta(f);
     else
 	do_data(f, fname);
+
+    __pmFclose(f);
+}
+
+/* sort lexicographically smallest file name first */
+static int
+fname_compar(const void *a, const void *b)
+{
+    return strcmp((*(struct dirent **)a)->d_name, (*(struct dirent **)b)->d_name);
 }
 
 int
@@ -145,7 +212,39 @@ main(int argc, char *argv[])
 	     * may be the basename of an archive, so process all
 	     * matching file names
 	     */
-	    fprintf(stderr, "TODO handle arg %s\n", argv[opts.optind]);
+	    char	*tmp1 = strdup(argv[opts.optind]);
+	    char	*tmp2 = strdup(argv[opts.optind]);
+	    char	*argdirname;
+	    int		nfile;
+	    struct dirent	**filelist;
+	    int		i;
+	    char	sep;
+	    char	path[MAXPATHLEN];
+
+	    sep = pmPathSeparator();
+
+	    argbasename = basename(tmp1);
+	    argdirname = dirname(tmp2);
+
+	    nfile = scandir(argdirname, &filelist, filter, NULL);
+	    if (nfile < 1) {
+		fprintf(stderr, "Error: no PCP archive files match \"%s\"\n", argv[opts.optind]);
+		exit(1);
+	    }
+	    qsort(filelist, nfile, sizeof(filelist[0]), fname_compar);
+	    for (i = 0; i < nfile; i++) {
+		if (strcmp(argdirname, ".") == 0) {
+		    /* skip ./ prefix */
+		    strncpy(path, filelist[i]->d_name, sizeof(path));
+		}
+		else {
+		    pmsprintf(path, sizeof(path), "%s%c%s", argdirname, sep, filelist[i]->d_name);
+		}
+		do_work(path);
+	    }
+	    free(tmp1);
+	    free(tmp2);
+	    free(filelist);
 	}
 	opts.optind++;
     }
