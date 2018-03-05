@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 1362
+# check postgresql PMDA can reconnect when db bounces
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/postgresql ] || _notrun "postgresql PMDA directory is not installed"
+
+echo '\q' | $sudo -u postgres psql >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "Cannot run psql as the postgres user, postgresql not installed or running?"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pmdapostgresql_remove()
+{
+    echo | tee -a $here/$seq.full
+    echo "=== remove postgresql agent ===" | tee -a $here/$seq.full
+    $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdapostgresql_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/postgresql
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo | tee -a $here/$seq.full
+    echo "=== postgresql agent installation ===" | tee -a $here/$seq.full
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # filter lines like ...
+    # Check postgresql metrics have appeared ... 4 warnings, 208 metrics and 6839 values
+    # into
+    # Check postgresql metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check postgresql metrics have appeared/   { if ($7 >= 200) $7 = "X"
+                                          if ($10 >= 5000) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda postgresql
+# note: _restore_auto_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda postgresql; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdapostgresql_install
+
+echo;echo == check initial fetch
+pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1 || exit
+echo OK
+
+echo === signaling pmdapostgresql to disconnect
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "perl $PCP_PMDAS_DIR.*pmdapostgresql" | fgrep -v grep | awk '{print $2}'`
+# echo pid is $pid
+$sudo kill -USR1 $pid
+
+sleep 1
+
+echo === checking log for disconnect messages
+pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1
+grep -i disconnect $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*WARN/WARN/'
+
+sleep 2
+
+echo;echo == fetch again .. should have reconnected
+pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1 || exit
+echo OK
+
+echo "PMDA log file ..." >>$here/$seq.full
+$sudo cat $PCP_LOG_DIR/pmcd/postgresql.log >>$here/$seq.full
+
+pmdapostgresql_remove
+
+status=0
+exit
