@@ -1,5 +1,6 @@
 etc/pcp.conf
 usr/include/pcp/builddefs
 usr/include/pcp/buildrules
+var/lib/pcp/config/derived/proc.conf
 var/lib/pcp/config/derived/iostat.conf
 var/lib/pcp/config/derived/cpu-util.conf

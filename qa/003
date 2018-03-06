@@ -267,6 +267,7 @@ do
 	    -e "/network\.tcp\.directcopyfromprequeue: $unavailable/d" \
 	    -e "/network\.tcp\.dsackignorednoundo: $unavailable/d" \
 	    -e "/network\.tcp\.dsackignoredold: $unavailable/d" \
+	    -e "/network\.tcp\.fackreorder: $unavailable/d" \
 	    -e "/network\.tcp\.fast.*: $unavailable/d" \
 	    -e "/network\.tcp\.forwardretrans: $unavailable/d" \
 	    -e "/network\.tcp\.from.*: $unavailable/d" \

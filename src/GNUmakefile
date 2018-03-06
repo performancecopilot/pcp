@@ -112,6 +112,7 @@ OTHER_SUBDIRS = \
 	win32ctl \
 	zabbix-agent \
 	pmpython \
+	discover \
 	derived \
 	selinux \
 	zeroconf \

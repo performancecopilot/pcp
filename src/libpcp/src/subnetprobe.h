@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,13 +11,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef PROBE_H
-#define PROBE_H
+#ifndef SUBNETPROBE_H
+#define SUBNETPROBE_H
 
-int __pmProbeDiscoverServices(const char *,
-			      const char *,
-			      const __pmServiceDiscoveryOptions *,
-			      int,
-			      char ***) _PCP_HIDDEN;
+int __pmSubnetProbeDiscoverServices(const char *, const char *,
+				    const __pmServiceDiscoveryOptions *,
+				    int, char ***) _PCP_HIDDEN;
 
-#endif /* PROBE_H */
+#endif /* SUBNETPROBE_H */

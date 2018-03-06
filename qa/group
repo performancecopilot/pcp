@@ -1466,6 +1466,7 @@ pmlogsize
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
 1240 libpcp pmrep local
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
+1243 pmfind libpcp local
 1245 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
@@ -1483,7 +1484,7 @@ pmlogsize
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
-1362:reserved pmda.postgresql local
+1362 pmda.postgresql local
 1367 labels pmda.simple local
 1368 labels help pmlogger pmdumplog local
 1369 labels pmcd pmlogger pmdumplog local
