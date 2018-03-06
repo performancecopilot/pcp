@@ -98,8 +98,13 @@ class PCPBCCModule(PCPBCCBase):
     def poller(self):
         """ BPF poller """
         try:
+            # pylint: disable=no-member
+            if 'perf_buffer_poll' in dir(self.bpf):
+                poll = self.bpf.perf_buffer_poll
+            else:
+                poll = self.bpf.kprobe_poll
             while self.bpf:
-                self.bpf.kprobe_poll()
+                poll()
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
             self.err("BPF kprobe poll failed!")
