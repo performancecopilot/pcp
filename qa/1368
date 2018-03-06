@@ -31,6 +31,7 @@ _filter_labels()
     sed \
 	-e "s/-U ${username}/-U USERNAME/g" \
 	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAINNAME\"/g" \
+	-e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINEID\"/g" \
 	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
 	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
 	-e "s/.userid.:$userid/\"userid\":UID/g" \
@@ -47,6 +48,7 @@ userid=`id -u`
 groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
+machineid=`_machine_id`
 domainname=`domainname`
 need_restore=true
 $sudo rm -rf $tmp $tmp.* $seq.full

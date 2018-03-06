@@ -557,6 +557,11 @@ _ipv6_localhost()
     return
 }
 
+_machine_id()
+{
+    cat /etc/machine-id 2> /dev/null || echo localmachine
+}
+
 _check_metric()
 {
     if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null

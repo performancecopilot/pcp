@@ -2088,7 +2088,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
 AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
 AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid)
-AC_CHECK_FUNCS(uname gethostname getdomainname)
+AC_CHECK_FUNCS(uname gethostname getdomainname getmachineid)
 AC_CHECK_FUNCS(__clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown fchmod getcwd scandir mkstemp)

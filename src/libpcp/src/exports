@@ -650,4 +650,6 @@ PCP_3.23 {
     srand48;
     random;
     srandom;
+    getdomainname;
+    getmachineid;
 } PCP_3.22;

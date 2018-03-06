@@ -17,6 +17,7 @@ status=1	# failure is the default!
 userid=`id -u`
 groupid=`id -g`
 hostname=`hostname`
+machineid=`_machine_id`
 domainname=`domainname`
 need_restore=true
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -39,6 +40,7 @@ _filter_labels()
 {
     sed \
 	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
+	-e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \
 	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOST\"/g" \
 	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
 	-e "s/.userid.:$userid/\"userid\":UID/g" \

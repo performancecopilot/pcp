@@ -136,6 +136,9 @@
 /* Define to 1 if you have the `gethostname' function. */
 #undef HAVE_GETHOSTNAME
 
+/* Define to 1 if you have the `getmachineid' function. */
+#undef HAVE_GETMACHINEID
+
 /* Define to 1 if you have the `getpeereid' function. */
 #undef HAVE_GETPEEREID
 

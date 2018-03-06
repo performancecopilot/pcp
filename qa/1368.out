@@ -4,7 +4,7 @@ QA output created by 1368
 
 Metric Labels in the Log ...
 [TIMESTAMP]
-    Context labels (N bytes): {"QA":1368,"domainname":"DOMAINNAME","groupid":GID,"hostname":"HOSTNAME","userid":UID}
+    Context labels (N bytes): {"QA":1368,"domainname":"DOMAINNAME","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINEID","userid":UID}
     Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
         [0] name(2,5) : value(9,8) [domain]
         [1] name(19,4) : value(25,9) [domain]
