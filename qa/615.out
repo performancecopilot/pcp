@@ -1,0 +1,172 @@
+QA output created by 615
+=== simple case ===
+archives/ok-foo.index:
+  index: 60 bytes [31%, 3 entries]
+  overhead: 132 bytes [69%]
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records]
+  overhead: 220 bytes [26%]
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+  overhead: 312 bytes [16%]
+
+=== simple case with archive basename ===
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+  overhead: 312 bytes [16%]
+archives/ok-foo.index:
+  index: 60 bytes [31%, 3 entries]
+  overhead: 132 bytes [69%]
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records]
+  overhead: 220 bytes [26%]
+
+=== simple metadata detailed report ===
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    2.1: 33 bytes [4%, 1 record, 1 instance]
+  overhead: 220 bytes [26%]
+
+=== more complex metadata detailed report ===
+archives/20180102.meta:
+  metrics: 21469 bytes [1%, 411 records]
+  indoms: 2077277 bytes [98%, 1576 records, 65717 instances]
+    3.9: 1866115 bytes [88%, 113 records, 53703 instances]
+    60.10: 34093 bytes [2%, 103 records, 2472 instances]
+    60.17: 30694 bytes [1%, 103 records, 1957 instances]
+    60.3: 28840 bytes [1%, 103 records, 1854 instances]
+    60.11: 22351 bytes [1%, 103 records, 618 instances]
+    60.5: 20600 bytes [1%, 103 records, 1030 instances]
+    60.0: 18334 bytes [1%, 103 records, 1236 instances]
+    2.3: 16341 bytes [1%, 107 records, 1028 instances]
+    2.1: 9747 bytes [0%, 223 records, 367 instances]
+    60.1: 8240 bytes [0%, 103 records, 515 instances]
+    60.2: 7416 bytes [0%, 103 records, 309 instances]
+    70.2050: 5900 bytes [0%, 100 records, 300 instances]
+    70.2049: 4600 bytes [0%, 100 records, 200 instances]
+    60.19: 3502 bytes [0%, 103 records, 103 instances]
+    30.2: 164 bytes [0%, 1 record, 9 instances]
+    29.2: 164 bytes [0%, 1 record, 9 instances]
+    2.4: 68 bytes [0%, 2 records, 2 instances]
+    29.1: 59 bytes [0%, 1 record, 3 instances]
+    29.10: 49 bytes [0%, 1 record, 2 instances]
+  overhead: 16028 bytes [1%]
+
+=== and again with duplicates reported ===
+archives/20180102.meta:
+  metrics: 21469 bytes [1%, 411 records]
+  indoms: 2077277 bytes [98%, 1576 records, 65717 instances]
+    3.9: 1866115 bytes [88%, 113 records, 53703 instances (1785065 bytes for 51241 dups)]
+    60.10: 34093 bytes [2%, 103 records, 2472 instances (31722 bytes for 2448 dups)]
+    60.17: 30694 bytes [1%, 103 records, 1957 instances (28356 bytes for 1938 dups)]
+    60.3: 28840 bytes [1%, 103 records, 1854 instances (26520 bytes for 1836 dups)]
+    60.11: 22351 bytes [1%, 103 records, 618 instances (20094 bytes for 612 dups)]
+    60.5: 20600 bytes [1%, 103 records, 1030 instances (18360 bytes for 1020 dups)]
+    60.0: 18334 bytes [1%, 103 records, 1236 instances (16116 bytes for 1224 dups)]
+    2.3: 16341 bytes [1%, 107 records, 1028 instances (13869 bytes for 1005 dups)]
+    2.1: 9747 bytes [0%, 223 records, 367 instances (3638 bytes for 247 dups)]
+    60.1: 8240 bytes [0%, 103 records, 515 instances (6120 bytes for 510 dups)]
+    60.2: 7416 bytes [0%, 103 records, 309 instances (5304 bytes for 306 dups)]
+    70.2050: 5900 bytes [0%, 100 records, 300 instances (3861 bytes for 297 dups)]
+    70.2049: 4600 bytes [0%, 100 records, 200 instances (2574 bytes for 198 dups)]
+    60.19: 3502 bytes [0%, 103 records, 103 instances (1428 bytes for 102 dups)]
+    30.2: 164 bytes [0%, 1 record, 9 instances]
+    29.2: 164 bytes [0%, 1 record, 9 instances]
+    2.4: 68 bytes [0%, 2 records, 2 instances (14 bytes for 1 dup)]
+    29.1: 59 bytes [0%, 1 record, 3 instances]
+    29.10: 49 bytes [0%, 1 record, 2 instances]
+  overhead: 16028 bytes [1%]
+
+=== -x cutoff for metadata ===
+--- 64 % ---
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    ...
+  overhead: 220 bytes [26%]
+--- 65 % ---
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    ...
+  overhead: 220 bytes [26%]
+--- 87 % ---
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    ...
+  overhead: 220 bytes [26%]
+--- 88 % ---
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    2.1: 33 bytes [4%, 1 record, 1 instance]
+  overhead: 220 bytes [26%]
+
+=== simple data detailed report ===
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+    29.0.6: 672 bytes [34%, 8 records, 72 values] (sample.bin)
+    29.0.5: 288 bytes [15%, 8 records, 24 values] (sample.colour)
+    29.0.46: 252 bytes [13%, 8 records, 8 values] (sample.lights)
+    29.0.7: 160 bytes [8%, 8 records, 8 values] (sample.drift)
+    29.0.2: 160 bytes [8%, 8 records, 8 values] (sample.seconds)
+    2.3.2: 64 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 48 bytes [2%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 312 bytes [16%]
+
+=== and again with duplicate values reported ===
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+    29.0.6: 672 bytes [34%, 8 records, 72 values (504 bytes for 63 dups)] (sample.bin)
+    29.0.5: 288 bytes [15%, 8 records, 24 values] (sample.colour)
+    29.0.46: 252 bytes [13%, 8 records, 8 values (91 bytes for 5 dups)] (sample.lights)
+    29.0.7: 160 bytes [8%, 8 records, 8 values (8 bytes for 1 dup)] (sample.drift)
+    29.0.2: 160 bytes [8%, 8 records, 8 values] (sample.seconds)
+    2.3.2: 64 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 48 bytes [2%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 312 bytes [16%]
+
+=== more complex data detailed report, with cutoff ===
+archives/20180102.0:
+  data: 7097172 bytes [100%, 725 records (+ 120 <mark> records)]
+    60.18.10: 723060 bytes [10%, 103 records, 1236 values] (hinv.cpu.flags)
+    3.9.1: 438100 bytes [6%, 115 records, 54590 values] (proc.memory.rss)
+    3.9.0: 438100 bytes [6%, 115 records, 54590 values] (proc.memory.size)
+    3.8.11: 438036 bytes [6%, 115 records, 54582 values] (proc.psinfo.maj_flt)
+    60.10.4: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.blkwrite)
+    60.10.3: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.blkread)
+    60.10.1: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.write)
+    60.10.0: 100860 bytes [1%, 205 records, 4920 values] (disk.partitions.read)
+    60.3.20: 76260 bytes [1%, 205 records, 3690 values] (network.interface.total.mcasts)
+    ...
+  overhead: 17032 bytes [0%]
+
+=== and with duplicate values reported ==
+archives/20180102.0:
+  data: 7097172 bytes [100%, 725 records (+ 120 <mark> records)]
+    60.18.10: 723060 bytes [10%, 103 records, 1236 values (49056 bytes for 84 dups)] (hinv.cpu.flags)
+    3.9.1: 438100 bytes [6%, 115 records, 54590 values (78744 bytes for 9843 dups)] (proc.memory.rss)
+    3.9.0: 438100 bytes [6%, 115 records, 54590 values (80328 bytes for 10041 dups)] (proc.memory.size)
+    3.8.11: 438036 bytes [6%, 115 records, 54582 values (81168 bytes for 10146 dups)] (proc.psinfo.maj_flt)
+    60.10.4: 100860 bytes [1%, 205 records, 4920 values (37700 bytes for 1885 dups)] (disk.partitions.blkwrite)
+    60.10.3: 100860 bytes [1%, 205 records, 4920 values (45940 bytes for 2297 dups)] (disk.partitions.blkread)
+    60.10.1: 100860 bytes [1%, 205 records, 4920 values (37700 bytes for 1885 dups)] (disk.partitions.write)
+    60.10.0: 100860 bytes [1%, 205 records, 4920 values (45940 bytes for 2297 dups)] (disk.partitions.read)
+    60.3.20: 76260 bytes [1%, 205 records, 3690 values (34460 bytes for 1723 dups)] (network.interface.total.mcasts)
+    ...
+  overhead: 17032 bytes [0%]

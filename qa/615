@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 615
+# pmlogsize checkout
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== simple case ==="
+pmlogsize archives/ok-foo.index archives/ok-foo.meta archives/ok-foo.0
+
+echo
+echo "=== simple case with archive basename ==="
+pmlogsize archives/ok-foo
+
+echo
+echo "=== simple metadata detailed report ==="
+pmlogsize -d archives/ok-foo.meta 
+
+echo
+echo "=== more complex metadata detailed report ==="
+pmlogsize -d archives/20180102.meta
+
+echo
+echo "=== and again with duplicates reported ==="
+pmlogsize -r -d archives/20180102.meta
+
+echo
+echo "=== -x cutoff for metadata ==="
+for x in 64 65 87 88
+do
+    echo "--- $x % ---"
+    pmlogsize -d -x $x archives/ok-foo.meta
+done
+
+echo
+echo "=== simple data detailed report ==="
+pmlogsize -d archives/ok-foo.0
+
+echo
+echo "=== and again with duplicate values reported ==="
+pmlogsize -dr archives/ok-foo.0
+
+echo
+echo "=== more complex data detailed report, with cutoff ==="
+pmlogsize -d -x 35 archives/20180102.0
+
+echo
+echo "=== and with duplicate values reported =="
+pmlogsize -dr -x 35 archives/20180102.0
+
+# success, all done
+status=0
+exit
