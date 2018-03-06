@@ -1794,9 +1794,12 @@ __pmAccDumpUsers(FILE *stream)
 			ID_WIDTH, u == 0 ? "*" :
 			__pmUserIDToString(up->userid, buf, sizeof(buf)),
 			NAME_WIDTH-ID_WIDTH-1, up->username);
-	for (i = 0; i < up->ngroups; i++)
-	    fprintf(stream, "%c%u(%s)", i ? ',' : ' ', up->groupids[i],
+	for (i = 0; i < up->ngroups; i++) {
+	    fprintf(stream, "%c%s", i ? ',' : ' ',
+		    __pmGroupIDToString(up->groupids[i], buf, sizeof(buf)));
+	    fprintf(stream, "(%s)",
 		    __pmGroupnameFromID(up->groupids[i], buf, sizeof(buf)));
+	}
 	fprintf(stream, "\n");
     }
 }
@@ -1853,17 +1856,16 @@ __pmAccDumpGroups(FILE *stream)
 		    fputs("   ", stream);
 	    }
 	}
-	if (g)
-	    pmsprintf(buf, sizeof(buf), "%6d", gp->groupid);
-	else
-	    pmsprintf(buf, sizeof(buf), "     *");
 	fprintf(stream, "%5d %5d %*s %-*s", gp->curcons, gp->maxcons,
 			ID_WIDTH, g == 0 ? "*" :
 			__pmGroupIDToString(gp->groupid, buf, sizeof(buf)),
 			NAME_WIDTH-ID_WIDTH-1, gp->groupname);
-	for (i = 0; i < gp->nusers; i++)
-	    fprintf(stream, "%c%u(%s)", i ? ',' : ' ', gp->userids[i],
+	for (i = 0; i < gp->nusers; i++) {
+	    fprintf(stream, "%c%s", i ? ',' : ' ',
+		    __pmUserIDToString(gp->userids[i], buf, sizeof(buf)));
+	    fprintf(stream, "(%s)",
 		    __pmUsernameFromID(gp->userids[i], buf, sizeof(buf)));
+	}
 	fprintf(stream, "\n");
     }
 }

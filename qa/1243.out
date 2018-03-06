@@ -1,0 +1,21 @@
+QA output created by 1243
+== checking pcp-kube-pods argument handling
+get pod --show-all -o jsonpath={.items[*].status.podIP}
+== checking pmfind results and memory access
+=== std out ===
+Discovered pmcd servers:
+  pcp://IP_ADDRESS:44321
+  pcp://IP_ADDRESS:44321
+  pcp://IP_ADDRESS:44321
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmfind -m shell,path=DISCOVER_DIR,maxThreads=1 -s pmcd
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== checking pmfind results and thread locks
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...

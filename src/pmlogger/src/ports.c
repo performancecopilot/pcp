@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2015,2018 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -507,8 +507,12 @@ init_ports(void)
     int		extlen, baselen;
     char	path[MAXPATHLEN];
     char	pidfile[MAXPATHLEN];
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     int		pidlen;
+#endif
+#ifndef IS_MINGW
     struct stat	sbuf;
+#endif
     pid_t	mypid = getpid();
     pid_t	pid;
 
@@ -629,7 +633,7 @@ init_ports(void)
 			    pmGetProgname(), linkfile, pid);
 		}
 		/* remove the stale control file too */
-		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
+		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%" FMT_PID,
 				pmGetConfig("PCP_TMP_DIR"), sep, sep, pid);
 	    	if (unlink(pidfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
@@ -814,6 +818,7 @@ control_req(int ctlfd)
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	__pmSockAddrFree(addr);
+	pmlc_host[0] = '\0';
 	return 0;
     }
     __pmSetSocketIPC(fd);
@@ -826,6 +831,7 @@ control_req(int ctlfd)
 			 pmErrStr(sts));
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
 
@@ -835,6 +841,7 @@ control_req(int ctlfd)
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
 
@@ -867,6 +874,7 @@ control_req(int ctlfd)
 	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
 
@@ -887,6 +895,7 @@ control_req(int ctlfd)
 			pmErrStr(sts));
 	    __pmSockAddrFree(addr);
 	    __pmCloseSocket(fd);
+	    pmlc_host[0] = '\0';
 	    return 0;
 	}
 
@@ -898,6 +907,7 @@ control_req(int ctlfd)
 			pmErrStr(sts));
 	    __pmSockAddrFree(addr);
 	    __pmCloseSocket(fd);
+	    pmlc_host[0] = '\0';
 	    return 0;
 	}
 
@@ -920,6 +930,7 @@ control_req(int ctlfd)
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
 	__pmCloseSocket(fd);
+	pmlc_host[0] = '\0';
 	return 0;
     }
     clientfd = fd;

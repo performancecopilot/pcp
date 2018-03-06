@@ -4,9 +4,13 @@ then
     _version_configs "$@"
 fi
 
-if [ "$1" = purge ]; then
-    update-rc.d pmproxy remove >/dev/null
-    update-rc.d pmie remove >/dev/null
-    update-rc.d pmlogger remove >/dev/null
-    update-rc.d pmcd remove >/dev/null
+if [ "$1" = purge ]
+then
+    if which update-rc.d >/dev/null 2>&1
+    then
+	update-rc.d pmproxy remove >/dev/null
+	update-rc.d pmie remove >/dev/null
+	update-rc.d pmlogger remove >/dev/null
+	update-rc.d pmcd remove >/dev/null
+    fi
 fi

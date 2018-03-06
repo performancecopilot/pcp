@@ -671,6 +671,7 @@ dumpLabelSets(__pmContext *ctxp)
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	    prev_item = NULL;
 	    for (;;) {
+		this_item = NULL;
 		if (type == PM_LABEL_CONTEXT) {
 		    /*
 		     * All context labels have the same identifier within a
@@ -684,14 +685,13 @@ dumpLabelSets(__pmContext *ctxp)
 			}
 		    }
 		    else
-			this_item = this_item->next;
+			this_item = prev_item->next;
 		}
 		else {
 		    /*
 		     * Search the hash of identifiers looking for the next lowest
 		     * one.
 		     */
-		    this_item = NULL;
 		    for (tix = 0; tix < l_hashtype->hsize; tix++) {
 			for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
 			    ident = (unsigned int)tp->key;
@@ -843,7 +843,7 @@ dumpLabel(int verbose)
 
     if (verbose) {
 	printf("Archive timezone: %s\n", label.ll_tz);
-	printf("PID for pmlogger: %d\n", label.ll_pid);
+	printf("PID for pmlogger: %" FMT_PID "\n", label.ll_pid);
     }
 }
 
@@ -861,7 +861,7 @@ rawdump(FILE *f)
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
-	printf("Dump ... record len: %d @ offset: %ld", len, ftell(f) - sizeof(len));
+	printf("Dump ... record len: %d @ offset: %" FMT_UINT64, len, (__uint64_t)(ftell(f) - sizeof(len)));
 	len -= 2 * sizeof(len);
 	for (i = 0; i < len; i++) {
 	    check = fgetc(f);

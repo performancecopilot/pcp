@@ -44,7 +44,7 @@ put_disk_ull(const char *leaf, char *inst, unsigned long long value)
 {
     char str[MAXPATHLEN];
 
-    pmsprintf(str, sizeof(str), "%llu", value);
+    pmsprintf(str, sizeof(str), "%" FMT_UINT64, (__int64_t)value);
     put_disk_str(leaf, inst, str);
 }
 

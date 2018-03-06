@@ -1,6 +1,10 @@
 #!/bin/sh -e
 #DEBHELPER#
 
-if [ "$1" = purge ]; then
-    update-rc.d pmwebd remove >/dev/null
+if [ "$1" = purge ]
+then
+    if which update-rc.d >/dev/null 2>&1
+    then
+	update-rc.d pmwebd remove >/dev/null
+    fi
 fi

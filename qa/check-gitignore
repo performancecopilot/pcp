@@ -3,10 +3,10 @@
 # check .gitignore
 #
 
-#debug# tmp=/var/tmp/$$
-tmp=`pwd`/tmp
+tmp=/var/tmp/check-gitignore-$$
+#debug# tmp=`pwd`/tmp
 sts=0
-#debug# trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
 
 if [ ! -f .gitignore ]

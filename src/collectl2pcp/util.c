@@ -111,7 +111,7 @@ put_ull_value(char *name, pmInDom indom, char *instance, unsigned long long val)
 {
     char valbuf[64];
 
-    pmsprintf(valbuf, sizeof(valbuf), "%llu", val);
+    pmsprintf(valbuf, sizeof(valbuf), "%" FMT_UINT64, (__uint64_t)val);
     return put_str_value(name, indom, instance, valbuf);
 }
 

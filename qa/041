@@ -40,7 +40,6 @@ _expect()
     echo "" | tee -a $seq.full
 }
 
-tmp=/var/tmp/qa041.$$
 _needclean=true
 TAG=000666000magic
 status=1

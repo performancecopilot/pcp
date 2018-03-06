@@ -310,6 +310,156 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
     return sts;
 }
 
+/* Return 1 (true) if the sets are the same, 0 (false) otherwise */
+static int
+samelabelset(const pmLabelSet *set1, const pmLabelSet *set2)
+{
+    int			n1, n2;
+    const pmLabel	*l1, *l2;
+
+    /*
+     * The instance identifiers must be the same. */
+    if (set1->inst != set2->inst)
+	return 0; /* not the same */
+    
+    /* The sets must be of the same size. */
+    if (set1->nlabels != set2->nlabels)
+	return 0; /* not the same */
+
+    /*
+     * Check that each label in set1 is also in set2 with the same value.
+     * We already know that the sets are of the same size, so that is
+     * sufficient to declare the sets to be the same.
+     */
+    for (n1 = 0; n1 < set1->nlabels; n1++) {
+	l1 = &set1->labels[n1];
+	for (n2 = 0; n2 < set2->nlabels; n2++) {
+	    l2 = &set2->labels[n2];
+
+	    /* Is the label name the same? */
+	    if (l1->namelen != l2->namelen)
+		continue;
+	    if (memcmp(& set1->json[l1->name], & set2->json[l2->name],
+		       l1->namelen) != 0)
+		continue;
+
+	    /* Is the label value the same? If not, then we can abandon the
+	     * comparison immediately, since we have labels with the same name
+	     * but different values.
+	     */
+	    if (l1->valuelen != l2->valuelen)
+		return 0; /* not the same */
+	    if (memcmp(& set1->json[l1->value], & set2->json[l2->value],
+		       l1->valuelen) != 0)
+		return 0; /* not the same */
+
+	    /* We found l1 in set2. */
+	    break;
+	}
+
+	/*
+	 * If l1 was not in set2, then we can abandon the comparison
+	 * immediately.
+	 */
+	if (n2 == set2->nlabels)
+	    return 0; /* not the same */
+    }
+		
+    /* All of the labels in set1 are in set2 with the same values. */
+    return 1; /* the same */
+}
+
+/*
+ * Discard any label sets within idp which are also within idp_next.
+ */
+static void
+discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
+{
+    int i, j;
+
+    for (i = 0; i < idp->nsets; ++i) {
+	for (j = 0; j < idp_next->nsets; ++j) {
+	    if (samelabelset(&idp->labelsets[i], &idp_next->labelsets[j])) {
+		/* We found a duplicate. Discard the one within idp. */
+		if (idp->labelsets[i].nlabels > 0)
+		    free(idp->labelsets[i].labels);
+		if (idp->labelsets[i].json)
+		    free(idp->labelsets[i].json);
+		--idp->nsets;
+		if (idp->nsets > i) {
+		    memmove(&idp->labelsets[i], &idp->labelsets[i+1],
+			    (idp->nsets - i) * sizeof(idp->labelsets[i]));
+		}
+		/* Careful with the next iteration. */
+		--i;
+		break;
+	    }
+	}
+    }
+}
+
+/*
+ * Check for duplicate label sets. This is very common in multi-archive
+ * contexts. Since label sets are timestamped, only identical ones
+ * adjacent in time are actually duplicates.
+ *
+ * addlabel() does not assume that label sets are added in chronological order
+ * so we do this after all of the meta data for each individual archive
+ * has been read. At this point we know that the label sets are stored in reverse
+ * chronological order.
+ */
+static void
+check_dup_labels(const __pmArchCtl *acp)
+{
+    __pmLogCtl		*lcp;
+    __pmLogLabelSet	*idp, *idp_prev, *idp_next;
+    __pmHashCtl		*l_hashlabels;
+    __pmHashCtl		*l_hashtype;
+    __pmHashNode	*hplabels, *hptype;
+    int			type;
+    int			ident;
+
+    /* Traverse the double hash table representing the label sets. */
+    lcp = acp->ac_log;
+    l_hashlabels = &lcp->l_hashlabels;
+    for (type = 0; type < l_hashlabels->hsize; ++type) {
+        for (hplabels = l_hashlabels->hash[type]; hplabels; hplabels = hplabels->next) {
+	    l_hashtype = (__pmHashCtl *)hplabels->data;
+	    for (ident = 0; ident < l_hashtype->hsize; ++ident) {
+		for (hptype = l_hashtype->hash[ident]; hptype; hptype = hptype->next) {
+		    idp_prev = NULL;
+		    for (idp = (__pmLogLabelSet *)hptype->data; idp; idp = idp_next) {
+			idp_next = idp->next;
+			if (idp_next == NULL)
+			    break; /* done */
+
+			/*
+			 * idp and idp_next each hold sets of label sets. Since idp is
+			 * later in time, we want to discard any label sets within
+			 * idp which are the same as any label sets in idp_next.
+			 */
+			discard_dup_labelsets(idp, idp_next);
+			if (idp->nsets == 0) {
+			    /*
+			     * All label sets within idp were discarded.
+			     * unlink it and free it.
+			     */
+			    if (idp_prev)
+				idp_prev->next = idp_next;
+			    else
+				hptype->data = idp_next;
+			    free(idp->labelsets);
+			    free(idp);
+			}
+			else
+			    idp_prev = idp;
+		    }
+		}
+	    }
+	}
+    }
+}
+
 static int
 addtext(__pmArchCtl *acp, unsigned int ident, unsigned int type, char *buffer)
 {
@@ -323,17 +473,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
     if (pmDebugOptions.logmeta)
 	fprintf(stderr, "addtext( ..., %u, %u)\n", ident, type);
 
-    if ((sts = __pmLogLookupText(acp, ident, type, &buffer)) < 0) {
-
+    if ((sts = __pmLogLookupText(acp, ident, type, &text)) < 0) {
+	/* This is a new help text record. Add it to the hash structure. */
 	if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL) {
 	    if ((l_hashtype = (__pmHashCtl *)calloc(1, sizeof(__pmHashCtl))) == NULL)
 		return -oserror();
 
 	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashtext);
-	    if (sts > 0) {
-		/* __pmHashAdd returns 1 for success, but we want 0. */
-		sts = 0;
-	    }
+	    if (sts < 0)
+		return sts;
 	} else {
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	}
@@ -341,10 +489,38 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
 	if ((text = strdup(buffer)) == NULL)
 	    return -oserror();
 
-	if ((sts = __pmHashAdd(ident, (void *)text, l_hashtype)) > 0)
+	if ((sts = __pmHashAdd(ident, (void *)text, l_hashtype)) > 0) {
+	    /* __pmHashAdd returns 1 for success, but we want 0. */
 	    sts = 0;
+	}
+	return sts;
     }
 
+    /*
+     * This help text already exists. Tolerate change for the purpose of making
+     * corrections over time. Do this by keeping the latest version and
+     * discarding the original, if they are different.
+     */
+    if (strcmp(buffer, text) != 0) {
+	/*
+	 * Find the hash table entry. We know it's there because
+	 * __pmLogLookupText() succeeded above.
+	 */
+	hp = __pmHashSearch(type, &lcp->l_hashtext);
+	assert(hp != NULL);
+
+	l_hashtype = (__pmHashCtl *)hp->data;
+	hp = __pmHashSearch(ident, l_hashtype);
+	assert(hp != NULL);
+
+	/* Free the existing text and keep the new text. */
+	assert (text == (char *)hp->data);
+	free(text);
+	hp->data = (void*)strdup(buffer);
+	if (hp->data == NULL)
+	    return -oserror();
+    }
+    
     return sts;
 }
 
@@ -709,7 +885,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		    goto end;
 		}
 
-		memmove((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
+		memcpy((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
 		labelsets[i].json[jsonlen] = '\0';
 		k += jsonlen;
 
@@ -788,8 +964,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    }
 	    k += sizeof(ident);
 
-	    addtext(acp, ident, type, (char *)&tbuf[k]);
+	    sts = addtext(acp, ident, type, (char *)&tbuf[k]);
 	    free(tbuf);
+	    if (sts < 0)
+		goto end;
 	}
 	else
 	    __pmFseek(f, (long)rlen, SEEK_CUR);
@@ -810,6 +988,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	}
     }/*for*/
 end:
+
+    /* Check for duplicate label sets. */
+    check_dup_labels(acp);
     
     __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 

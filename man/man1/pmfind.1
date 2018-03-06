@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014,2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -33,7 +33,10 @@ will search for all supported PCP services, however a specific PCP
 .I service
 to discover can be specified using the
 .B \-s
-option. Supported services are
+(or
+.BR \-\-service )
+option.
+Supported services are
 .BR pmcd (1),
 .BR pmproxy (1)
 and
@@ -41,46 +44,77 @@ and
 .PP
 The
 .B \-m
+(or
+.BR \-\-mechanism )
 option sets the
 .I mechanism
 that
 .B pmfind
 uses when performing service discovery.
 By default, or if the keyword "all" is specified, every available
-mechanism will be used (iteratively). Supported mechanisms are:
+mechanism will be used (iteratively).
+Supported mechanisms are:
 .TP
 .B avahi
 Searches for services which are broadcasting using mDNS via
-.BR avahi-daemon(8).
+.BR avahi-daemon (8).
 An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
 time waiting for the avahi-daemon. N is a floating point number
-specifying the number of seconds to wait. The default is 0.5 seconds.
+specifying the number of seconds to wait.
+The default is 0.5 seconds.
 This timeout may also be specified by setting the environment variable
 .B AVAHI_DISCOVERY_TIMEOUT
-to the desired number of seconds. If both are specified, then
+to the desired number of seconds.
+If both are specified, then
 the value specified in the environment variable takes precedence.
 .TP
 .B probe=<net-address>/<mask-bits>
 Actively probes the given subnet for the requested PCP service(s).
 <net-address> is an inet or ipv6
 network address and <mask-bits> is the number of bits used to define the
-subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
+subnet.
+For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
 addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
-threads used while probing. The default is the value of FD_SETSIZE or the
+threads used while probing.
+The default is the value of FD_SETSIZE (which is typically 1024) or the
 number of addresses in the subnet, whichever is less.
 An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
-time waiting for each connection attempt. N is a floating point number
-specifying the number of seconds to wait. The default is 20ms.
+time spent waiting for each connection attempt.
+N is a floating point number specifying the number of seconds to wait.
+The default is 0.02 seconds (20 milliseconds).
+.TP
+.B shell
+Probes the list of addresses provided by scripts for requested PCP service(s).
+Several optional, comma-separated parameters can also be provided.
+The \fB"path=DIR"\fP option specifies the directory where commands like
+.BR pcp-kube-pods (1)
+are located (defaults to
+.IR "$PCP_BINADM_DIR/discover/" ).
+This setting can be further restricted to an individual command
+using the \fBcommand=CMD\fP option, but the default is to use all
+available commands from the \fBpath\fP.
+The \fB"maxThreads=N"\fP option limits the number of threads used while
+probing.
+The default is the value of FD_SETSIZE (which is typically 1024) or the
+number of addresses returned by the scripts, whichever is less.
+The \fB"timeout=N"\fP option may be added to limit the amount of
+time spent waiting for each connection attempt.
+N is a floating point number specifying the number of seconds to wait.
+The default is 0.02 seconds (20 milliseconds).
 .PP
 The
 .B \-r
-option requests that DNS name resolution be attempted for the addresses of any
-discovered services. The default is to display the network addresses of any
-discovered services.
+(or
+.BR \-\-resolve )
+option requests that DNS name resolution be attempted for the addresses of
+any discovered services.
+The default is to display the network addresses of any discovered services.
 .PP
 The
 .B \-t
+(or
+.BR \-\-timeout )
 option sets the maximum amount of time that
 .B pmfind
 will take before interrupting the service discovery. The argument is a floating
@@ -89,7 +123,15 @@ is to take as much time as is needed to complete the process.
 .PP
 The
 .B \-q
+(or
+.BR \-\-quiet )
 option suppresses all output on the standard output stream.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_BINADM_DIR/discover
+default path to address discovery scripts
+.PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -122,6 +164,7 @@ will report any results which were discovered up to point of the interruption.
 .BR pmcd (1),
 .BR pmproxy (1),
 .BR pmwebd (1),
+.BR pcp-kube-pods (1),
 .BR PMAPI (3),
 .BR pmDiscoverServices (3),
 .BR pcp.conf (5)

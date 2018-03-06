@@ -124,7 +124,6 @@ _remove_rebuild()
     fi
 }
 
-tmp=/tmp/$$
 status=0
 $sudo rm -f $tmp.* $seq.full
 DO_VALIDATE=true

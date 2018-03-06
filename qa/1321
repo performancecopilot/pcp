@@ -1,38 +1,96 @@
 #!/bin/sh
 # PCP QA Test No. 1321
 # Test pmlogger dynamic PMNS support
-#
-# Copyright (c) 2018 Red Hat.  All Rights Reserved.
-#
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.prometheus
 
-# test for-some-thing || _notrun No support for some-thing
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
+_pmdaprometheus_check || _notrun "prometheus pmda and/or load generator not installed"
+_have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
+_cleanup()
+{
+    $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1
+    echo "=== prometheus PMDA log ===" >>$here/$seq.full
+    if [ -f $PCP_LOG_DIR/pmcd/prometheus.log ]
+    then
+	cat $PCP_LOG_DIR/pmcd/prometheus.log >>$here/$seq.full
+    else
+	echo "Error: PMDA log file is missing" >>$here/$seq.full
+    fi
+    rm -rf $tmp.*
+}
 
-# if error
-exit
+_createURL()
+{
+    SRC=$1
+    NMET=$2
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+    [ ! -d $tmp.datadir ] && mkdir -p $tmp.datadir
+
+    _txt=$tmp.datadir/source$SRC.txt
+    for j in $(seq 1 $NMET); do
+	echo "# HELP metric$j local test metric" >>$_txt
+	echo "# Type metric$j gauge" >>$_txt
+	echo "metric$j {somelabel=\"somevalue\"} 0.0" >>$_txt
+    done
+
+    _url="$CONFIG_DIR/source$SRC.url"
+    echo "file://$tmp.datadir/source$SRC.txt" >$_url
+    echo;echo == Created URL file $_url
+    # echo;echo == curl URL returns
+    # curl -G -s `cat $_url` || exit 1
+}
+
+trap "_cleanup; _pmdaprometheus_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
+
+_pmdaprometheus_save_config
+_pmdaprometheus_install
+_pmdaprometheus_wait_for_metric prometheus.control.calls
+pminfo prometheus >/dev/null && echo ... pmda install succeeded
+
+# start up pmlogger
+echo 'log mandatory on default { prometheus }' >$tmp.pmlogger.config
+
+echo;echo === pmlogger config ===
+cat $tmp.pmlogger.config
+
+rm -f $tmp.dynamic.*
+pmlogger -t 1s -l $tmp.pmlogger.log -c $tmp.pmlogger.config $tmp.dynamic &
+pmlogger_pid=$!
+
+for n in `seq 1 4`; do
+	# while pmlogger is fetching every 1s, we create a new URL every 2s.
+	sleep 2
+	_createURL $n $n
+	echo;echo === prometheus live PMNS is now ===
+	pminfo prometheus | LC_COLLATE=POSIX sort
+done
+
+# When new dynamic metrics are detected, the _next_ fetch will fetch them.
+# So wait for a bit so pmlogger has a chance to fetch the new metrics.
+sleep 2
+
+# now kill pmlogger and check the new metrics appeared dynamically
+$sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1
+
+echo;echo === resulting archive contains the following prometheus metrics ===
+pminfo -a $tmp.dynamic prometheus | LC_COLLATE=POSIX sort
+# rm -rf /tmp/saved; mkdir -p /tmp/saved; cp $tmp.dynamic.* $PCP_LOG_DIR/pmcd/prometheus.log $tmp.pmlogger.log /tmp/saved
+
+echo === prometheus.log === >> $here/$seq.full
+cat $PCP_LOG_DIR/pmcd/prometheus.log >> $here/$seq.full
+
+echo === pmlogger.log === >> $here/$seq.full
+cat $tmp.pmlogger.log >> $here/$seq.full
+
+_pmdaprometheus_remove
 
 # success, all done
 status=0

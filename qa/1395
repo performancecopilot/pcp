@@ -50,6 +50,9 @@ _cleanup()
 	echo "Error: endpoint log file is missing" >>$here/$seq.full
     fi
 
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+
     return 0
 }
 

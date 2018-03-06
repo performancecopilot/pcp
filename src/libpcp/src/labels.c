@@ -773,16 +773,26 @@ archive_context_labels(__pmContext *ctxp, pmLabelSet **sets)
     return 1;
 }
 
+#ifndef HAVE_GETDOMAINNAME
+#define getdomainname(domain, size)	(-ENOTSUP)
+#endif
+
 static char *
 local_host_labels(char *buffer, int buflen)
 {
     char	host[MAXHOSTNAMELEN];
+    char	domain[MAXDOMAINNAMELEN];
 
     if (gethostname(host, sizeof(host)) < 0)
-	host[0] = '\0';
+	pmsprintf(host, sizeof(host), "localhost");
     else
 	host[sizeof(host)-1] = '\0';
-    pmsprintf(buffer, buflen, "{\"hostname\":\"%s\"}", host);
+    if (getdomainname(domain, sizeof(domain)) < 0 || !strcmp(domain, "(none)"))
+	pmsprintf(domain, sizeof(domain), "localdomain");
+    else
+	domain[sizeof(domain)-1] = '\0';
+    pmsprintf(buffer, buflen, "{\"hostname\":\"%s\",\"domainname\":\"%s\"}",
+		host, domain);
     return buffer;
 }
 

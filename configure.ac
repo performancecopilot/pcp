@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2017 Red Hat.
+dnl Copyright (c) 2012-2018 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -505,7 +505,8 @@ AC_LANG_POP([C++])
 dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
-  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
+  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"],
+  [enable_shared=false])
 AC_SUBST(enable_shared)
 
 dnl check if user wants to use any of their own commands;
@@ -1161,6 +1162,13 @@ AS_IF([test "x$do_qt" != "xno"], [
 	enable_qt=false
     else
 	AC_MSG_CHECKING([Qt version])
+	if test ! -z "$QT_SELECT"; then
+	    # fallback to Qt v4 if given preference is not successful
+	    $qmake --version 2>&1 >/dev/null
+	    if test $? -eq 1; then
+		export QT_SELECT=4
+	    fi
+	fi
 	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
 	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
@@ -1168,16 +1176,20 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    $qmake --version
 	    echo Cannot include the Qt components in the build.
 	    enable_qt=false
+	    qt_version=0
 	elif test "$QT_MAJOR" -lt 4; then
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
+	    qt_version=0
 	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
 	    echo WARNING: Qt version 4.$QT_MINOR is too old.
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
+	    qt_version=0
+	else
+	    qt_version=$QT_MAJOR
 	fi
-	qt_version=$QT_MAJOR
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -1606,6 +1618,7 @@ AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
+AC_CHECK_HEADERS(netioapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
 AC_CHECK_HEADERS(ncurses/curses.h)
@@ -1932,16 +1945,22 @@ AC_CHECK_PROGS(SEINFO, seinfo)
 AC_SUBST(SEINFO)
 AC_MSG_CHECKING([if selinux policy should be included])
 enable_selinux=false
-AS_IF([test "x$do_selinux" != "xno"], [
-for makefile in /usr/share/selinux/devel/Makefile
-do
-    if test -f "$makefile" -a "x$SEINFO" != "x"
-    then
-	enable_selinux=true
-	AC_MSG_RESULT(yes)
-    fi
-done
-])
+if test $target_os = mingw
+then
+    :
+else
+    AS_IF([test "x$do_selinux" != "xno"], [
+    for makefile in /usr/share/selinux/devel/Makefile
+    do
+	if test -f "$makefile" -a "x$SEINFO" != "x"
+	then
+	    enable_selinux=true
+	    AC_MSG_RESULT(yes)
+	fi
+    done
+
+    ])
+fi
 test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
@@ -1960,6 +1979,8 @@ pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
+pcp_selinux_numad=false
+
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -2036,6 +2057,11 @@ do
        then
            pcp_selinux_unconfined=true
        fi
+       numad=`eval seinfo -t -- $policy_file | grep numad_t | awk '{ print $1 }'`
+       if test "x$numad" != "x"
+       then
+           pcp_selinux_numad=true
+       fi
     fi
 done
 ])
@@ -2053,25 +2079,26 @@ AC_SUBST(pcp_selinux_sock_file_getattr)
 AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
+AC_SUBST(pcp_selinux_numad)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
-AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
-AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
+AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
+AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid)
+AC_CHECK_FUNCS(uname gethostname getdomainname)
+AC_CHECK_FUNCS(__clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown fchmod getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strchrnul)
-AC_CHECK_FUNCS(getuid getgid)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
-AC_CHECK_FUNCS(sendmsg recvmsg setns)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
@@ -2343,36 +2370,36 @@ $2 == "bozo"	{ t = $1
     case "$_raw"
     in
     int)
-    	_fmt='"d"'
+    	_fmt='d'
 	;;
     unsigned|'unsigned int')
-    	_fmt='"u"'
+    	_fmt='u'
 	;;
     long|'long int')
-	_fmt='"ld"'
+	_fmt='ld'
 	;;
     'long long'|'long long int')
         if test $target_os = mingw; then
-            _fmt='"I64d"'
+            _fmt='I64d'
         else
-	    _fmt='"lld"'
+	    _fmt='lld'
         fi
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
-	_fmt='"lu"'
+	_fmt='lu'
 	;;
     'unsigned long long'|'unsigned long long int')
         if test $target_os = mingw; then
-            _fmt='"I64u"'
+            _fmt='I64u'
         else
-	    _fmt='"llu"'
+	    _fmt='llu'
         fi
 	;;
     *\*)	# pointer to a something
-	_fmt='"p"'
+	_fmt='p'
 	;;
     struct\ *)	# not much can be done here ...
-	_fmt='"p"'
+	_fmt='p'
 	;;
     *)
 	echo
@@ -2390,7 +2417,7 @@ AC_MSG_CHECKING([printf type for pid_t])
 if test "$cross_compiling" = "yes"; then
     ans=$printf_fmt_pid
     echo "cross-compile -> \"$ans\"" >&5
-    fmt_pid="$ans"
+    fmt_pid=$ans
 else
     cat <<End-of-File >conftest.c
 #include <sys/types.h>
@@ -2398,7 +2425,7 @@ else
 pid_t bozo;
 End-of-File
     _do_type
-    fmt_pid="$_fmt"
+    fmt_pid=$_fmt
 fi
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
@@ -2416,7 +2443,15 @@ else
 #include <inttypes.h>
 int main()
 {
-    printf("\"%s\"\n", __PRI64_PREFIX "d");
+#if defined(__PRI64_PREFIX)
+    /* most of the civilized universe */
+    printf("%s\n", __PRI64_PREFIX "d");
+#elif defined(__PRI_64_LENGTH_MODIFIER__)
+    /* Darwin */
+    printf("%s\n", __PRI_64_LENGTH_MODIFIER__ "d");
+#else
+    bozo!	/* fall through to the hardway below */
+#endif
     return(0);
 }
 End-of-File
@@ -2439,16 +2474,22 @@ int main()
 #ifdef __WORDSIZE
 /* logic copied from <inttypes.h> */
 #if __WORDSIZE == 64
-    printf("\"ld\"\n");
+    printf("ld\n");
 #else
-    printf("\"lld\"\n");
+    printf("lld\n");
 #endif
 #else
 /* on NetBSD, for example, there is no __WORDSIZE */
-    if (sizeof(int) == 8)
-	printf("\"ld\"\n");
-    else
-	printf("\"lld\"\n");
+    if (sizeof(long long) == 8)
+	printf("lld\n");
+    else if (sizeof(long) == 8)
+	printf("ld\n");
+    else if (sizeof(int) == 8)
+	printf("d\n");
+    else {
+	printf("no clue what printf format to use for __int64_t\n");
+	return(1);
+    }
 #endif
     return(0);
 }
@@ -2467,11 +2508,11 @@ then
     rm -rf conftest conftest.*
     exit 1
 fi
-fmt_int64="$ans"
-AC_MSG_RESULT("$fmt_int64")
+fmt_int64=$ans
+AC_MSG_RESULT($fmt_int64)
 AC_SUBST(fmt_int64)
 dnl and the unsigned version of this ...
-fmt_uint64=`echo $fmt_int64 | sed -e 's/d"/u"/'`
+fmt_uint64=`echo $fmt_int64 | sed -e 's/d$/u/'`
 AC_SUBST(fmt_uint64)
 rm -rf conftest.* conftest
 
@@ -2589,7 +2630,7 @@ then
 pthread_t bozo;
 End-of-File
 	_do_type
-	fmt_pthread="$_fmt"
+	fmt_pthread=$_fmt
 	AC_MSG_RESULT($fmt_pthread)
 	AC_SUBST(fmt_pthread)
 	rm -rf conftest.c conftest.debug
@@ -3457,6 +3498,8 @@ AC_CHECK_LIB(atomic, __atomic_fetch_add_4, [lib_for_atomic="-latomic"])
 AC_SUBST(lib_for_atomic)
 
 dnl Check for decompression libraries
+enable_lzma=false
+enable_decompression=false
 AS_IF([test "x$do_decompression" != "xno"], [
     # Check for -llzma
     enable_lzma=true

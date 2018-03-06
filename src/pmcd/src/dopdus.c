@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2017 Red Hat.
+ * Copyright (c) 2012-2014,2017-2018 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -372,15 +372,37 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     const char		*groupid;
     const char		*container;
     static char		host[MAXHOSTNAMELEN];
+    static char		domain[MAXDOMAINNAMELEN];
     char		buf[PM_MAXLABELJSONLEN];
     char		*hostname;
     int			sts;
 
     if ((sts = GetChangedContextLabels(sets, &labelChanged)) >= 0) {
 	if ((hostname = pmcd_hostname) == NULL) {
-	    (void)gethostname(host, MAXHOSTNAMELEN);
+	    if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
+		if (pmDebugOptions.labels)
+		    fprintf(stderr,
+			    "GetContextLabels: gethostname() -> %d (%s)\n",
+			    sts, pmErrStr(sts));
+		host[0] = '\0';
+	    }
+	    if (host[0] == '\0')
+		pmsprintf(host, sizeof(host), "localhost");
 	    hostname = pmcd_hostname = host;
 	}
+#ifdef HAVE_GETDOMAINNAME
+	if (domain[0] == '\0') {
+	    if ((sts = getdomainname(domain, MAXDOMAINNAMELEN)) < 0) {
+		if (pmDebugOptions.labels)
+		    fprintf(stderr,
+			    "GetContextLabels: getdomainname() -> %d (%s)\n",
+			    sts, pmErrStr(sts));
+		domain[0] = '\0';
+	    }
+	    if (domain[0] == '\0' || strcmp(domain, "(none)") == 0)
+		pmsprintf(domain, sizeof(domain), "localdomain");
+	}
+#endif
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 	groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
@@ -389,6 +411,9 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 			(const char *)node->data : NULL);
 
 	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	if (domain[0] != '\0')
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"domainname\":\"%s\"",
+			    domain);
 	if (userid)
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
 			    userid);

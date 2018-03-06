@@ -1,0 +1,105 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PCP_KUBE_PODS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-kube-pods\f1 \- list Kubernetes pods to scan for running PCP services
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/discover/pcp-kube-pods\f1
+.SH DESCRIPTION
+.B pcp-kube-pods
+uses
+.BR kubectl (1)
+to provide a list of IP addresses for PODs running in a local
+Kubenetes cluster, that may be running PCP services like
+.BR pmcd (1)
+and
+.BR pmproxy (1).
+.PP
+It is used by the
+.BR pmfind (1)
+command and the
+.BR pmDiscoverServices (3)
+API as a ``shell'' command.
+.PP
+The script invokes the
+.B "kubectl get pod"
+command line (see
+.BR kubectl-get (1))
+to discover IP addresses for pods.
+The
+.B .status.podIP
+output field is extracted from the Kubernetes pod object(s).
+Additional options can be specified via configuration file,
+such as
+.I "-l service=database"
+to restrict the results using Kubernetes pod labels.
+The default configuration file is
+.I $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf
+.PP
+If no local
+.B kubectl
+command is found, nothing is reported and an exit code
+indicating success is returned.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_BINADM_DIR/discover
+default path to address discovery commands like
+.BR pcp-kube-pods .
+.PD
+.PD 0
+.TP 10
+.BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf
+configuration file containing command line options passed to
+.BR kubectl-get .
+.PD
+.PD 0
+.TP 10
+.BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.disabled
+existence of this file causes the script to report nothing
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR kubectl-get (1),
+.BR kubectl (1),
+.BR pmcd (1),
+.BR pmfind (1),
+.BR pmDiscoverServices (3)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All diagnostics produced are provided by the
+.B kubectl
+command.
+.P
+The
+.BR kubectl
+exit status is propogated unchanged.

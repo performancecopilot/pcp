@@ -31,8 +31,8 @@ extern "C" {
 #endif
 
 /* printf candy ... */
-#define FMT_PID @fmt_pid@
-#define FMT_PTHREAD @fmt_pthread@
+#define FMT_PID "@fmt_pid@"
+#define FMT_PTHREAD "@fmt_pthread@"
 
 #ifdef HAVE_BITS_WORDSIZE_H
 #include <bits/wordsize.h>
@@ -203,6 +203,10 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #define MAXHOSTNAMELEN 4096
 #endif
 
+#ifndef MAXDOMAINNAMELEN
+#define MAXDOMAINNAMELEN 64
+#endif
+
 #ifndef HAVE_FLOG10
 #if !defined(flog10)
 #define flog10(x) (float)log10((double)x)
@@ -303,6 +307,7 @@ PCP_CALL extern void setlinebuf(FILE *);
 PCP_CALL extern char *index(const char *, int);
 PCP_CALL extern char *rindex(const char *, int);
 PCP_CALL extern char *strcasestr(const char *, const char *);
+PCP_CALL extern char *strsep(char **, const char *);
 PCP_CALL extern long int lrand48(void);
 PCP_CALL extern void srand48(long int);
 PCP_CALL extern long int random(void);
@@ -346,6 +351,9 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 
 PCP_CALL extern int setenv(const char *, const char *, int);
 PCP_CALL extern int unsetenv(const char *);
+
+PCP_CALL extern int win32_inet_pton(int, const char *, void *);
+PCP_CALL extern const char *win32_inet_ntop(int, void *, char *, socklen_t);
 
 #else /*!MINGW*/
 #define PCP_DATA

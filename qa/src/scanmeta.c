@@ -139,7 +139,7 @@ do_indom(uint32_t *buf)
     pmTimeval		this_stamp;
     int			this_numinst;
     int			warn;
-    elt_t		*ep;
+    elt_t		*ep = NULL;	/* pander to gcc */
     elt_t		*tp;
     elt_t		*dp = &dup;
 
@@ -207,6 +207,7 @@ do_indom(uint32_t *buf)
 	}
     }
     if (iflag || (warn && wflag > 0)) {
+	/* if warn is set, ep must have been assigned a value */
 	printf("[%d] @ ", nrec);
 	__pmPrintTimeval(stdout, &this_stamp);
 	printf(" indom %s numinst %d", pmInDomStr(this_indom), this_numinst);

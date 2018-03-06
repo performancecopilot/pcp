@@ -708,6 +708,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_numad
 pcp_selinux_unconfined
 pcp_selinux_mock
 pcp_selinux_hostname_exec_map
@@ -4590,6 +4591,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"
+else
+  enable_shared=false
 fi
 
 
@@ -7996,6 +7999,13 @@ done
     else
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Qt version" >&5
 $as_echo_n "checking Qt version... " >&6; }
+	if test ! -z "$QT_SELECT"; then
+	    # fallback to Qt v4 if given preference is not successful
+	    $qmake --version 2>&1 >/dev/null
+	    if test $? -eq 1; then
+		export QT_SELECT=4
+	    fi
+	fi
 	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $QT_MAJOR.$QT_MINOR.$QT_POINT" >&5
 $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
@@ -8004,16 +8014,20 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	    $qmake --version
 	    echo Cannot include the Qt components in the build.
 	    enable_qt=false
+	    qt_version=0
 	elif test "$QT_MAJOR" -lt 4; then
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
+	    qt_version=0
 	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
 	    echo WARNING: Qt version 4.$QT_MINOR is too old.
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
+	    qt_version=0
+	else
+	    qt_version=$QT_MAJOR
 	fi
-	qt_version=$QT_MAJOR
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -9964,6 +9978,19 @@ fi
 
 done
 
+for ac_header in netioapi.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "netioapi.h" "ac_cv_header_netioapi_h" "#include <winsock2.h>
+"
+if test "x$ac_cv_header_netioapi_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_NETIOAPI_H 1
+_ACEOF
+
+fi
+
+done
+
 for ac_header in fts.h libzfs.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
@@ -11817,18 +11844,24 @@ done
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if selinux policy should be included" >&5
 $as_echo_n "checking if selinux policy should be included... " >&6; }
 enable_selinux=false
-if test "x$do_selinux" != "xno"; then :
+if test $target_os = mingw
+then
+    :
+else
+    if test "x$do_selinux" != "xno"; then :
 
-for makefile in /usr/share/selinux/devel/Makefile
-do
-    if test -f "$makefile" -a "x$SEINFO" != "x"
-    then
-	enable_selinux=true
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+    for makefile in /usr/share/selinux/devel/Makefile
+    do
+	if test -f "$makefile" -a "x$SEINFO" != "x"
+	then
+	    enable_selinux=true
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-    fi
-done
+	fi
+    done
 
+
+fi
 fi
 test "$enable_selinux" = "false" && { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
@@ -11849,6 +11882,8 @@ pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
+pcp_selinux_numad=false
+
 if test "x$enable_selinux" != "xfalse"; then :
 
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -11926,10 +11961,16 @@ do
        then
            pcp_selinux_unconfined=true
        fi
+       numad=`eval seinfo -t -- $policy_file | grep numad_t | awk '{ print $1 }'`
+       if test "x$numad" != "x"
+       then
+           pcp_selinux_numad=true
+       fi
     fi
 done
 
 fi
+
 
 
 
@@ -12073,7 +12114,7 @@ _ACEOF
 fi
 done
 
-for ac_func in select socket gethostname getpeerucred getpeereid
+for ac_func in select socket syslog sendmsg recvmsg setns
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12085,7 +12126,31 @@ _ACEOF
 fi
 done
 
-for ac_func in uname syslog __clone pipe2 fcntl ioctl
+for ac_func in getuid getgid getpeerucred getpeereid
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in uname gethostname getdomainname
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in __clone pipe2 fcntl ioctl
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12169,18 +12234,6 @@ _ACEOF
 fi
 done
 
-for ac_func in getuid getgid
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
 for ac_func in getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
@@ -12206,18 +12259,6 @@ fi
 done
 
 for ac_func in sysinfo trace_back_stack backtrace
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-for ac_func in sendmsg recvmsg setns
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12877,36 +12918,36 @@ $2 == "bozo"	{ t = $1
     case "$_raw"
     in
     int)
-    	_fmt='"d"'
+    	_fmt='d'
 	;;
     unsigned|'unsigned int')
-    	_fmt='"u"'
+    	_fmt='u'
 	;;
     long|'long int')
-	_fmt='"ld"'
+	_fmt='ld'
 	;;
     'long long'|'long long int')
         if test $target_os = mingw; then
-            _fmt='"I64d"'
+            _fmt='I64d'
         else
-	    _fmt='"lld"'
+	    _fmt='lld'
         fi
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
-	_fmt='"lu"'
+	_fmt='lu'
 	;;
     'unsigned long long'|'unsigned long long int')
         if test $target_os = mingw; then
-            _fmt='"I64u"'
+            _fmt='I64u'
         else
-	    _fmt='"llu"'
+	    _fmt='llu'
         fi
 	;;
     *\*)	# pointer to a something
-	_fmt='"p"'
+	_fmt='p'
 	;;
     struct\ *)	# not much can be done here ...
-	_fmt='"p"'
+	_fmt='p'
 	;;
     *)
 	echo
@@ -12924,7 +12965,7 @@ $as_echo_n "checking printf type for pid_t... " >&6; }
 if test "$cross_compiling" = "yes"; then
     ans=$printf_fmt_pid
     echo "cross-compile -> \"$ans\"" >&5
-    fmt_pid="$ans"
+    fmt_pid=$ans
 else
     cat <<End-of-File >conftest.c
 #include <sys/types.h>
@@ -12932,7 +12973,7 @@ else
 pid_t bozo;
 End-of-File
     _do_type
-    fmt_pid="$_fmt"
+    fmt_pid=$_fmt
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $fmt_pid" >&5
 $as_echo "$fmt_pid" >&6; }
@@ -12951,7 +12992,15 @@ else
 #include <inttypes.h>
 int main()
 {
-    printf("\"%s\"\n", __PRI64_PREFIX "d");
+#if defined(__PRI64_PREFIX)
+    /* most of the civilized universe */
+    printf("%s\n", __PRI64_PREFIX "d");
+#elif defined(__PRI_64_LENGTH_MODIFIER__)
+    /* Darwin */
+    printf("%s\n", __PRI_64_LENGTH_MODIFIER__ "d");
+#else
+    bozo!	/* fall through to the hardway below */
+#endif
     return(0);
 }
 End-of-File
@@ -12973,16 +13022,22 @@ int main()
 #ifdef __WORDSIZE
 /* logic copied from <inttypes.h> */
 #if __WORDSIZE == 64
-    printf("\"ld\"\n");
+    printf("ld\n");
 #else
-    printf("\"lld\"\n");
+    printf("lld\n");
 #endif
 #else
 /* on NetBSD, for example, there is no __WORDSIZE */
-    if (sizeof(int) == 8)
-	printf("\"ld\"\n");
-    else
-	printf("\"lld\"\n");
+    if (sizeof(long long) == 8)
+	printf("lld\n");
+    else if (sizeof(long) == 8)
+	printf("ld\n");
+    else if (sizeof(int) == 8)
+	printf("d\n");
+    else {
+	printf("no clue what printf format to use for __int64_t\n");
+	return(1);
+    }
 #endif
     return(0);
 }
@@ -13001,11 +13056,11 @@ then
     rm -rf conftest conftest.*
     exit 1
 fi
-fmt_int64="$ans"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"$fmt_int64\"" >&5
-$as_echo "\"$fmt_int64\"" >&6; }
+fmt_int64=$ans
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $fmt_int64" >&5
+$as_echo "$fmt_int64" >&6; }
 
-fmt_uint64=`echo $fmt_int64 | sed -e 's/d"/u"/'`
+fmt_uint64=`echo $fmt_int64 | sed -e 's/d$/u/'`
 
 rm -rf conftest.* conftest
 
@@ -13177,7 +13232,7 @@ $as_echo_n "checking printf type for pthread_t... " >&6; }
 pthread_t bozo;
 End-of-File
 	_do_type
-	fmt_pthread="$_fmt"
+	fmt_pthread=$_fmt
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $fmt_pthread" >&5
 $as_echo "$fmt_pthread" >&6; }
 
@@ -15971,6 +16026,8 @@ fi
 
 
 
+enable_lzma=false
+enable_decompression=false
 if test "x$do_decompression" != "xno"; then :
 
     # Check for -llzma

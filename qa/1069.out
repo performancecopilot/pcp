@@ -1007,7 +1007,7 @@ pmrep: Impossible value or scale conversion
              GB/ms      GB/hr
 14:39:13       N/A  2746624.0
 14:39:14     0.000  2746624.0
-14:39:15    -0.000  2746624.0
+14:39:15       N/A  2746624.0
 14:39:16     0.000  2746624.0
 14:39:17     0.000  2746624.0
 == exercise compact metricset specification and overrides

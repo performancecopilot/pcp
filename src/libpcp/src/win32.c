@@ -35,6 +35,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "internal.h"
 #include "deprecated.h"
 #include <winbase.h>
 #include <psapi.h>
@@ -56,16 +57,17 @@ static struct {
 VOID CALLBACK
 SignalCallback(PVOID param, BOOLEAN timerorwait)
 {
-    int index = (int)param;
+    __psint_t index = (__psint_t)param;
 
     if (index >= 0 && index < MAX_SIGNALS)
 	signals[index].callback(signals[index].signal);
-    else
-	fprintf(stderr, "SignalCallback: bad signal index (%d)\n", index);
+    else {
+	fprintf(stderr, "SignalCallback: bad signal index (%" FMT_INT64 ")\n", (__int64_t)index);
+    }
 }
 
 static char *
-MapSignals(int sig, int *index)
+MapSignals(int sig, __psint_t *index)
 {
     static char name[8];
 
@@ -91,7 +93,8 @@ MapSignals(int sig, int *index)
 int
 __pmSetSignalHandler(int sig, __pmSignalHandler func)
 {
-    int sts, index = 0;
+    int sts;
+    __psint_t index = 0;
     char *signame, evname[64];
     HANDLE eventhdl, waithdl;
 
@@ -571,6 +574,33 @@ strcasestr(const char *string, const char *substr)
     return NULL;
 }
 
+char *
+strsep(char **stringp, const char *delim)
+{
+    char	*ss, *se;
+    const char	*dp;
+
+    if ((ss = *stringp) == NULL)
+	return NULL;
+
+    for (se = ss; *se; se++) {
+	for (dp = delim; *dp; dp++) {
+	    if (*se == *dp)
+		break;
+	}
+    }
+
+    if (*se != '\0') {
+	/* match: terminate and update stringp to point past match */
+	*se++ = '\0';
+	*stringp = se;
+    }
+    else
+	*stringp = NULL;
+
+    return ss;
+}
+
 void *
 dlopen(const char *filename, int flag)
 {
@@ -885,4 +915,16 @@ unsetenv(const char *name)
     sts = _putenv(ebuf);		/* THREADSAFE */
     free(ebuf);
     return sts;
+}
+
+int
+win32_inet_pton(int af, const char *src, void *dst)
+{
+    return InetPton(af, src, dst);
+}
+
+const char *
+win32_inet_ntop(int af, void *src, char *dst, socklen_t size)
+{
+    return InetNtop(af, src, dst, size);
 }

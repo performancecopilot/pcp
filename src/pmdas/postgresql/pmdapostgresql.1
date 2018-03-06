@@ -49,7 +49,7 @@ $username \- username to connect to the database [default: 'postgres']
 $password \- password to connect to the database [default: '']
 .IP "\(bu" 4
 $os_user \-
-operating system username (PMDA will run with the corresponding user id) [default: $username]
+operating system username (PMDA will run with the corresponding user id, if invoked as root) [default: $username]
 .PD
 .PP
 Once this is setup, you can access the names and values for the
@@ -68,6 +68,26 @@ To uninstall, do the following as root:
 \fBpmdapostgresql\fR is launched by \fIpmcd\fR(1) and should never be executed 
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
 agent is installed or removed.
+.PP
+\fBpmdapostgresql\fR will automatically attempt to reconnect to the postgresql server
+if it's connection is lost - e.g. if the postgresql service is restarted.
+In addition, \fBpmdapostgresql\fR will disconnect if it is sent a
+.B SIGUSR1
+signal, and will then attempt to reconnect on the next fetch.
+This is mostly for quality assurance and test purposes, but may be useful in other circumstances.
+.SH "SUPPORTED VERSIONS"
+\fBpmdapostgresql\fR has been tested and verified with
+.B postgresql
+server, version
+.B 9.6.7
+and earlier.
+The verification was done using the
+.BR pgbench (1)
+utility.
+It has not (yet) been tested or verified with
+.B postgresql
+version
+.BR 10.x .
 .SH FILES
 .PD 0
 .IP "\fB/etc/pcpdbi.conf\fR" 4

@@ -156,8 +156,8 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	    }
 	}
     }
-#ifndef IS_MINGW
     if (exit_status != -1) {
+#ifndef IS_MINGW
 	if (WIFEXITED(exit_status)) {
 	    fprintf(stderr, ", exit(%d)", WEXITSTATUS(exit_status));
 	    reason = (WEXITSTATUS(exit_status) << 8) | reason;
@@ -170,8 +170,10 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 #endif
 	    reason = (WTERMSIG(exit_status) << 16) | reason;
 	}
-    }
+#else
+	; /* no more information for Windows ... */
 #endif
+    }
     fputc('\n', stderr);
     aPtr->reason = reason;
     aPtr->status.connected = 0;

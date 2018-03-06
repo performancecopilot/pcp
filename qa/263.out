@@ -110,7 +110,7 @@ aggr.minu32
 
 aggr.sumu32
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+    Semantics: counter  Units: Kbyte
 
 aggr.avgf
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
@@ -150,7 +150,7 @@ aggr.min64
 
 aggr.sum64
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+    Semantics: counter  Units: Kbyte
 
 aggr.avgu64
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
@@ -170,7 +170,7 @@ aggr.minu64
 
 aggr.sumu64
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+    Semantics: counter  Units: Kbyte
 
 aggr.avgd
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
@@ -198,7 +198,7 @@ aggr.count_err
 
 aggr.sum_err
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 
 aggr.countblob
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -938,7 +938,7 @@ Derived metric expr dump from <addr-148>...
 expr node <addr-148> type=SUM left=<addr-149> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.19 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+    Semantics: counter  Units: Kbyte
 expr node <addr-149> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.bin_ctr] master=0
     PMID: 29.0.106 (29.0.106 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
@@ -1058,7 +1058,7 @@ Derived metric expr dump from <addr-168>...
 expr node <addr-168> type=SUM left=<addr-169> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.29 from pmDesc) numval: 0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+    Semantics: counter  Units: Kbyte
 expr node <addr-169> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.bin_ctr] master=0
     PMID: 29.0.110 (29.0.110 from pmDesc) numval: 0
     Data Type: 64-bit int  InDom: 29.2 0x7400002
@@ -1118,7 +1118,7 @@ Derived metric expr dump from <addr-178>...
 expr node <addr-178> type=SUM left=<addr-179> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.34 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+    Semantics: counter  Units: Kbyte
 expr node <addr-179> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.bin_ctr] master=0
     PMID: 29.0.112 (29.0.112 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
@@ -1202,7 +1202,7 @@ Derived metric expr dump from <addr-192>...
 expr node <addr-192> type=SUM left=<addr-193> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.41 from pmDesc) numval: 0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 expr node <addr-193> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
     PMID: 29.0.49 (29.0.49 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004

@@ -345,6 +345,9 @@ zsh
 # pmcollectl and collectl2pcp
 collectl
 
+# pmlogsize
+pmlogsize
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -966,7 +969,13 @@ collectl
 612 other local
 613 pmdumplog local
 614 pmns local
+615 pmlogsize local
+616 pmlogsize local
 617 dbpmda help local
+618 pmlogsize local
+619 pmlogsize local
+620 pmlogsize valgrind local
+621 pmlogsize local
 622 pmie remote
 624 pmlogrewrite pmdumplog xz-decompress local
 625 libpcp getopt pmval local
@@ -1443,6 +1452,7 @@ collectl
 1166 libpcp local
 1169 pmrep python local
 1174 threads valgrind local
+1177 pmns derive libpcp pmlogger local
 1182 libpcp local
 1186 pmie local
 1188 pmda.dm local
@@ -1459,7 +1469,9 @@ collectl
 1229 pmlogextract pmdumplog labels help local
 1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
+1240 libpcp pmrep local
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
+1243 pmfind libpcp local
 1245 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
@@ -1467,7 +1479,7 @@ collectl
 1274 pmlogextract pmdumplog labels help local
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
-1321:reserved pmlogger local
+1321 pmlogger pmda.prometheus local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract
 1326 pmstore pmda.pmcd local
 1330 pmda.prometheus local
@@ -1477,6 +1489,7 @@ collectl
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
+1362 pmda.postgresql local
 1367 labels pmda.simple local
 1368 labels help pmlogger pmdumplog local
 1369 labels pmcd pmlogger pmdumplog local

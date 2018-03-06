@@ -17,10 +17,10 @@ export PCP_TMP_DIR=$tmpdir
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
-tmp=$tmpdir/$$
 signal=$PCP_BINADM_DIR/pmsignal
-trap "$signal -a pmlogger >/dev/null 2>&1; cd; rm -rf $tmpdir; exit" 0 1 2 3 15
+trap "$signal -a pmlogger >/dev/null 2>&1; cd; rm -rf $tmpdir $tmp $tmp.* /tmp/pmlogger.log /tmp/pmlogger.log.prior /tmp/Latest; exit" 0 1 2 3 15
 
 _filter_dumplog()
 {

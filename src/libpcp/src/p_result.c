@@ -338,7 +338,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 		    }
 		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
 			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] third pduvp past end of PDU buffer\n", i, j);
+			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] pduvp past end of PDU buffer\n", i, j);
 			}
 			goto corrupt;
 		    }
@@ -563,7 +563,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 		    }
 		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
 			if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] third pduvp past end of PDU buffer\n", i, j);
+			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] pduvp past end of PDU buffer\n", i, j);
 			}
 			goto corrupt;
 		    }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -116,6 +116,7 @@ static int posix_style(void)
 {
     char	*s;
     int		sts;
+
     PM_LOCK(__pmLock_extcall);
     s = getenv("SHELL");		/* THREADSAFE */
     sts = (s && strncmp(s, "/bin/", 5) == 0);
@@ -124,22 +125,23 @@ static int posix_style(void)
 }
 
 /*
- * Called with __pmLock_extcall held, so putenv() is thread-safe.
+ * Called with __pmLock_extcall held, so setenv() is thread-safe.
  */
 static void
 dos_formatter(char *var, char *prefix, char *val)
 {
-    char envbuf[MAXPATHLEN];
     int msys = posix_style();
 
     if (prefix && dos_rewrite_path(var, val, msys)) {
 	char *p = msys ? msys_native_path(prefix) : prefix;
-	pmsprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
+	char envbuf[MAXPATHLEN];
+
+	pmsprintf(envbuf, sizeof(envbuf), "%s%s", p, val);
+	setenv(var, envbuf, 1);	/* THREADSAFE */
     }
     else {
-	pmsprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
+	setenv(var, val, 1);	/* THREADSAFE */
     }
-    putenv(strdup(envbuf));		/* THREADSAFE */
 }
 
 PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
@@ -152,17 +154,17 @@ int __pmAbsolutePath(char *path) { return path[0] == '/'; }
 int pmPathSeparator() { return '/'; }
 
 /*
- * Called with __pmLock_extcall held, so putenv() is thread-safe.
+ * Called with __pmLock_extcall held, so setenv() is thread-safe.
  */
 static void
 posix_formatter(char *var, char *prefix, char *val)
 {
-    /* +40 bytes for max PCP env variable name */
-    char	envbuf[MAXPATHLEN+40];
+    char	envbuf[MAXPATHLEN];
     char	*vp;
     char	*vend;
+    unsigned	length;
 
-    pmsprintf(envbuf, sizeof(envbuf), "%s=", var);
+    (void)prefix;
     vend = &val[strlen(val)-1];
     if (val[0] == *vend && (val[0] == '\'' || val[0] == '"')) {
 	/*
@@ -171,14 +173,13 @@ posix_formatter(char *var, char *prefix, char *val)
 	 */
 	vp = &val[1];
 	vend--;
-    }
-    else
+    } else {
 	vp = val;
-    strncat(envbuf, vp, vend-vp+1);
-    envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
-
-    putenv(strdup(envbuf));		/* THREADSAFE */
-    (void)prefix;
+    }
+    if ((length = vend - vp + 1) > sizeof(envbuf))
+	length = sizeof(envbuf);
+    pmsprintf(envbuf, sizeof(envbuf), "%.*s", length, vp);
+    setenv(var, envbuf, 1);		/* THREADSAFE */
 }
 
 PCP_DATA const __pmConfigCallback __pmNativeConfig = posix_formatter;

@@ -30,6 +30,7 @@
       <year>2013</year>
       <year>2015</year>
       <year>2016</year>
+      <year>2018</year>
       <holder>Red Hat, Inc.</holder>
     </copyright>
     <legalnotice>
@@ -479,7 +480,7 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
           </varlistentry>
           <varlistentry>
             <term>
-              <literal>pmclient</literal>
+              <command>pmclient</command>
             </term>
             <listitem>
               <para>
@@ -678,19 +679,6 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
         </step>
         <step>
           <para>
-            <indexterm id="IG3134017769">
-              <primary>pmchart command</primary>
-            </indexterm>
-            <indexterm id="IG3134017770">
-              <primary>pmgadgets command</primary>
-            </indexterm>
-            <indexterm id="IG3134017774">
-              <primary>examples</primary>
-              <secondary>visualization tools</secondary>
-            </indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command> and <command>pmgadgets(1)</command> man pages. For examples of text-based tools, see the <command>pminfo(1)</command> and <command>pmval(1)</command> man pages.</para>
-        </step>
-        <step>
-          <para>
             <indexterm id="IG3134017772">
               <primary>pmie command</primary>
             </indexterm>
@@ -731,7 +719,7 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
             <see>PDU</see>
           </indexterm>All PMDAs are launched and controlled by the PMCD process on the local host. PMCD receives requests from the monitoring tools and forwards them to the PMDAs. Responses, when required, are returned through PMCD to the clients. The requests fall into a small number of categories, and the PMDA must handle each request type. For a DSO PMDA, each request type corresponds to a method in the agent. For a daemon PMDA, each request translates to a message or  protocol data unit (PDU) that may be sent to a PMDA from PMCD.</para>
         <para>For a daemon PMDA, the following request PDUs must be supported:<variablelist><varlistentry><term><literal>PDU_FETCH</literal></term><listitem><para><indexterm id="IG3134017782"><primary>pmFetch man page</primary></indexterm><indexterm id="IG3134017783"><primary>PDU_FETCH</primary></indexterm>Request for metric values (see the <command>pmFetch(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PROFILE</literal></term><listitem><para><indexterm id="IG3134017784"><primary>pmAddProfile function</primary></indexterm><indexterm id="IG3134017785"><primary>PDU_PROFILE</primary></indexterm>A list of instances required for the corresponding metrics in subsequent fetches (see the <command>pmAddProfile(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_INSTANCE_REQ</literal></term><listitem><para><indexterm id="IG3134017786"><primary>pmGetInDom function</primary></indexterm><indexterm id="IG3134017787"><primary>PDU_INSTANCE_REQ</primary></indexterm> Request for a particular instance domain for instance descriptions (see the <command>pmGetInDom(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_DESC_REQ</literal></term><listitem><para><indexterm id="IG3134017788"><primary>pmLookupDesc function</primary></indexterm><indexterm id="IG3134017789"><primary>PDU_DESC_REQ</primary></indexterm>Request for metadata describing metrics (see the <command>pmLookupDesc(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_TEXT_REQ</literal></term><listitem><para><indexterm id="IG3134017790"><primary>pmLookupText function</primary></indexterm><indexterm id="IG3134017791"><primary>PDU_TEXT_REQ</primary></indexterm><indexterm id="IG3134017792"><primary>help text</primary><secondary>PDU_TEXT_REQ</secondary></indexterm>Request for metric help text (see the <command>pmLookupText(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_RESULT</literal></term><listitem><para><indexterm id="IG3134017794"><primary>PDU_RESULT</primary></indexterm>Values to store into metrics (see the <command>pmStore(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
-        <para>The following request PDUs may optionally be supported:<variablelist><varlistentry><term><literal>PDU_PMNS_NAMES</literal></term><listitem><para><indexterm id="IG3134017782nat"><primary>pmLookupName function</primary></indexterm><indexterm id="IG3134017783nat"><primary>PDU_PMNS_NAMES</primary></indexterm>Request for metric names, given one or more identifiers (see the <command>pmLookupName(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_CHILD</literal></term><listitem><para><indexterm id="IG3134017784nat"><primary>pmGetChildren function</primary></indexterm><indexterm id="IG3134017785nat"><primary>PDU_PMNS_CHILD</primary></indexterm>A list of immediate descendent nodes of a given namespace node (see the <command>pmGetChildren(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_TRAVERSE</literal></term><listitem><para><indexterm id="IG3134017786nat"><primary>pmTraversePMNS function</primary></indexterm><indexterm id="IG3134017787nat"><primary>PDU_PMNS_TRAVERSE</primary></indexterm>Request for a particular sub-tree of a given namespace node (see the <command>pmTraversePMNS(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_IDS</literal></term><listitem><para><indexterm id="IG3134017788nat"><primary>pmNameID function</primary></indexterm><indexterm id="IG3134017789nat"><primary>PDU_PMNS_IDS</primary></indexterm>Perform a reverse name lookup, mapping a metric identifier to a name (see the <command>pmNameID(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_AUTH</literal></term><listitem><para><indexterm id="IG3134017790nat"><primary>__pmParseHostAttrsSpec function</primary></indexterm><indexterm id="IG3134017791nat"><primary>PDU_AUTH</primary></indexterm>Handle connection attributes (key/value pairs), such as client credentials and other authentication information (see the <command>__pmParseHostAttrsSpec(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
+	<para>The following request PDUs may optionally be supported:<variablelist><varlistentry><term><literal>PDU_PMNS_NAMES</literal></term><listitem><para><indexterm id="IG3134017782nat"><primary>pmLookupName function</primary></indexterm><indexterm id="IG3134017783nat"><primary>PDU_PMNS_NAMES</primary></indexterm>Request for metric names, given one or more identifiers (see the <command>pmLookupName(3)</command> man page.)</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_CHILD</literal></term><listitem><para><indexterm id="IG3134017784nat"><primary>pmGetChildren function</primary></indexterm><indexterm id="IG3134017785nat"><primary>PDU_PMNS_CHILD</primary></indexterm>A list of immediate descendent nodes of a given namespace node (see the <command>pmGetChildren(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_TRAVERSE</literal></term><listitem><para><indexterm id="IG3134017786nat"><primary>pmTraversePMNS function</primary></indexterm><indexterm id="IG3134017787nat"><primary>PDU_PMNS_TRAVERSE</primary></indexterm>Request for a particular sub-tree of a given namespace node (see the <command>pmTraversePMNS(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_PMNS_IDS</literal></term><listitem><para><indexterm id="IG3134017788nat"><primary>pmNameID function</primary></indexterm><indexterm id="IG3134017789nat"><primary>PDU_PMNS_IDS</primary></indexterm>Perform a reverse name lookup, mapping a metric identifier to a name (see the <command>pmNameID(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_ATTR</literal></term><listitem><para><indexterm id="IG3134017790nat"><primary>__pmParseHostAttrsSpec function</primary></indexterm><indexterm id="IG3134017791nat"><primary>PDU_ATTR</primary></indexterm>Handle connection attributes (key/value pairs), such as client credentials and other authentication information (see the <command>__pmParseHostAttrsSpec(3)</command> man page).</para></listitem></varlistentry><varlistentry><term><literal>PDU_LABEL_REQ</literal></term><listitem><para><indexterm id="IG3134017790lab"><primary>pmLookupLabels function</primary></indexterm><indexterm id="IG3134017791lab"><primary>PDU_LABEL_REQ</primary></indexterm><indexterm id="IG3134017792lab"><primary>metric labels</primary><secondary>PDU_LABEL_REQ</secondary></indexterm>Request for metric labels (see the <command>pmLookupLabels(3)</command> man page).</para></listitem></varlistentry></variablelist></para>
         <para>Each PMDA is associated with a unique domain number that is encoded in the domain field of metric and instance identifiers, and PMCD uses the domain number to determine which PMDA can handle the components of any given client request.</para>
       </section>
       <section id="LE82676-PARENT">
@@ -759,9 +747,11 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
+root    1       pipe    binary          /var/lib/pcp/pmdas/root/pmdaroot
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
-linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
 proc    3       pipe    binary          ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+mmv     70      dso     mmv_init        /var/lib/pcp/pmdas/mmv/pmda_mmv.so
 simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</programlisting>
           </example>
         </para>
@@ -777,7 +767,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
           <indexterm id="IG31340177100">
             <primary>DSO</primary>
             <secondary>disadvantages</secondary>
-          </indexterm>A DSO PMDA provides the most efficient communication between the PMDA and PMCD. This approach has some  disadvantages resulting from the DSO PMDA being the same process as PMCD:</para>
+          </indexterm>A DSO PMDA provides the most efficient communication between the PMDA and PMCD. This approach has some disadvantages resulting from the DSO PMDA being the same process as PMCD:</para>
         <itemizedlist>
           <listitem>
             <para>An error or bug that causes a DSO PMDA to exit also causes PMCD to exit, which affects all connected client tools.</para>
@@ -803,7 +793,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
           </indexterm>
           <indexterm id="IG31340177103">
             <primary>pipe</primary>
-          </indexterm>The PMCD process launches a daemon PMDA with  <command>fork</command> and <command>execv</command> (or <command>CreateProcess</command> on Windows). You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using IPv4 or IPv6 TCP/IP, or UNIX domain sockets if the platform supports that; see the <command>tcp(7)</command>,  <command>ip(7)</command>, <command>ipv6(7)</command> or <command>unix(7)</command> man pages.</para>
+          </indexterm>The PMCD process launches a daemon PMDA with <command>fork</command> and <command>execv</command> (or <command>CreateProcess</command> on Windows). You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using IPv4 or IPv6 TCP/IP, or UNIX domain sockets if the platform supports that; see the <command>tcp(7)</command>, <command>ip(7)</command>, <command>ipv6(7)</command> or <command>unix(7)</command> man pages.</para>
         <para>
           <indexterm id="IG31340177104">
             <primary>pipe</primary>
@@ -811,7 +801,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
           <indexterm id="IG31340177105">
             <primary>simple PMDA</primary>
             <secondary> as daemon</secondary>
-          </indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to operating system differences, other PMDAs already installed, or access control sections in the PMCD configuration file.</para>
+          </indexterm>As superuser, install the simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to operating system differences, other PMDAs already installed, or access control sections in the PMCD configuration file.</para>
         <para>
           <example id="Z1033576478tls">
             <title>Simple PMDA as a Daemon</title>
@@ -826,9 +816,11 @@ PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
+root    1       pipe    binary          /var/lib/pcp/pmdas/root/pmdaroot
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
-linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
 proc    3       pipe    binary          ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+mmv     70      dso     mmv_init        /var/lib/pcp/pmdas/mmv/pmda_mmv.so
 simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 253</programlisting></para>
           </example>
         </para>
@@ -850,7 +842,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
       </section>
     </section>
     <section id="LE97285-PARENT">
-      <title>Domains, Metrics, and Instances</title>
+      <title>Domains, Metrics, Instances and Labels</title>
       <para>This section defines metrics and instances, discusses how they should be designed for a particular target domain, and shows how to implement support for them.</para>
       <para>
         <indexterm id="IG31340177109">
@@ -1192,7 +1184,7 @@ transformations that the PMDA performs.</para>
           <para>Or  they can be represented as instances 1, 2, 3 for metric M1 and instances 1, 2, 3 for metric M2:</para>
           <programlisting>  M1[1]  M1[2]  M1[3] 
   M2[1]  M2[2]  M2[3]</programlisting>
-          <para>The PMDA implementer must decide and consistently export this encoding from the N-dimensional instrumentation to the 1-dimensional data model of the PCP.</para>
+          <para>The PMDA implementer must decide and consistently export this encoding from the N-dimensional instrumentation to the 1-dimensional data model of the PCP. The use of metric label metadata - arbitrary key/value pairs - allows the implementer to capture the higher dimensions of the performance data.</para>
           <para>In certain special cases (for example, such as for a histogram), it may be appropriate to export an array of values as raw binary data (the type encoding in the descriptor is <literal>PM_TYPE_AGGREGATE</literal>). However, this requires the development of special PMAPI client tools, because the standard PCP tools have no knowledge of the structure and interpretation of the binary data. The usual issues of platform-depdendence must also be kept in mind for this case - endianness, word-size, alignment and so on - the (possibly remote) special PMAPI client tools may need this information in order to decode the data successfully.</para>
         </section>
         <section id="id5190626">
@@ -1302,7 +1294,7 @@ static pmdaMetric metrictab[] = {
             <indexterm id="IG31340177143">
               <primary>COLOR_INDOM</primary>
             </indexterm>The metric <literal>simple.color</literal> is associated, via <literal>COLOR_INDOM</literal>,  with the first instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[0].it_indom</filename> and <filename>metrictab[1].m_desc.indom</filename>. This instance domain has three instances: red, green, and blue.</para>
-          <para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal><indexterm id="IG31340177144"><primary>NOW_INDOM</primary></indexterm>, with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
+          <para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal>, with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
           <para>
             <indexterm id="IG31340177145">
               <primary>PM_INDOM_NULL instance domain</primary>
@@ -1312,6 +1304,143 @@ static pmdaMetric metrictab[] = {
           <para>For the simple PMDA, the wrapper functions are <command>simple_fetch</command> and <command>simple_instance</command>, and defaults are over-ridden by the following assignments in the <command>simple_init</command> function:</para>
           <programlisting>dp-&gt;version.any.fetch = simple_fetch;
 dp-&gt;version.any.instance = simple_instance;</programlisting>
+        </section>
+      </section>
+      <section id="id5190482">
+        <title>Labels</title>
+	<para>Metrics and instances can be further described through the use of metadata labels, which are arbitrary name:value pairs associated with individual metrics and instances. There are several applications of this concept, but one of the most important is the ability to differentiate the components of a multi-dimensional instance name, such as the case of the <literal>mem.zoneinfo.numa_hit</literal> metric which has one value per memory zone, per NUMA node.</para>
+      <para>Consider <xref linkend="Z976548024nat"/>:</para>
+      <example id="Z976548024nat">
+        <title>Multi-dimensional Instance Domain Labels</title>
+        <para>
+<literallayout class="monospaced"> $ <userinput>pminfo -l mem.zoneinfo.numa_hit</userinput>
+
+ mem.zoneinfo.numa_hit
+    inst [0 or &quot;DMA::node0&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:0,&quot;zone&quot;:&quot;DMA&quot;}
+    inst [1 or &quot;Normal::node0&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:0,&quot;zone&quot;:&quot;Normal&quot;}
+    inst [2 or &quot;DMA::node1&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:1,&quot;zone&quot;:&quot;DMA&quot;}
+    inst [3 or &quot;Normal::node1&quot;] labels {&quot;device_type&quot;:[&quot;numa_node&quot;,&quot;memory&quot;],&quot;indom_name&quot;:&quot;per zone per numa_node&quot;,&quot;numa_node&quot;:1,&quot;zone&quot;:&quot;Normal&quot;}</literallayout></para>
+      </example>
+      <note>
+        <para>The metric labels used here individually describe the memory zone and NUMA node associated with each instance.</para>
+      </note>
+      <para>The PMDA implementation is only partially responsible for choosing the label identifiers that differentiate components of metrics and instances within an instance domain. Label sets for a singleton metric or individual instance of a set-valued metric are formed from a label hierarchy, which includes global labels applied to all metrics and instances from one PMAPI context.</para>
+      <para>Labels are stored and communicated within PCP using JSONB format. This format is a restricted form of JSON suitable for indexing and other operations. In JSONB form, insignificant whitespace is discarded, and the order of label names is not preserved. Within the PMCS a lexicographically sorted key space is always maintained, however. Duplicate label names are not permitted. The label with highest precedence is the only one presented. If duplicate names are presented at the same hierarchy level, only one will be preserved (exactly which one wins is arbitrary, so do not rely on this).</para>
+        <section id="id5190505nat">
+          <title>Label Hierarchy</title>
+          <para>The set of labels associated with any singleton metric or instance is formed by merging the sets of labels at each level of a hierarchy. The lower levels of the hierarchy have highest precendence when merging overlapping (duplicate) label names:</para>
+          <itemizedlist>
+            <listitem>
+		    <para>Global context labels (as reported by the <literal>pmcd.labels</literal> metric) are the lowest precedence. The PMDA implementor has no influence over labels at this level of the hierarchy, and these labels are typically supplied by <command>pmcd</command> from <filename>/etc/pcp/labels</filename> files.</para>
+            </listitem>
+            <listitem>
+              <para>Domain labels, for all metrics and instances of a PMDA, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Instance Domain labels, associated with an InDom, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Metric cluster labels, associated with a PMID cluster, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Metric item labels, associated with an individual PMID, are the next highest precedence.</para>
+            </listitem>
+            <listitem>
+              <para>Instance labels, associated with a metric instance identifier, have the highest precedence.</para>
+            </listitem>
+          </itemizedlist>
+        </section>
+        <section id="id5190626nat">
+          <title>Data Structures</title>
+          <para>
+            <indexterm id="IG31340177137nat">
+              <primary>data structures</primary>
+            </indexterm>
+            <indexterm id="IG31340177138nat">
+              <primary>pmLabel structure</primary>
+            </indexterm>In any PMDA that supports labels at any level of the hierarchy, each individual label (one name:value pair) requires a <filename>pmLabel</filename> structure as shown in <xref linkend="Z975964618nat"/>:</para>
+          <example id="Z975964618nat">
+            <title>
+              <filename>pmLabel</filename> Structure</title>
+            <programlisting>typedef struct { 
+    uint     name : 16;      /* label name offset in JSONB string */
+    uint     namelen : 8;    /* length of name excluding the null */
+    uint     flags : 8;      /* information about this label */
+    uint     value : 16;     /* offset of the label value */
+    uint     valuelen : 16;  /* length of value in bytes */
+} pmLabel;</programlisting>
+            <para>The <literal>flags</literal> field is a bitfield identifying the hierarchy level and whether this name:value pair is intrinsic (optional) or extrinsic (part of the mandatory, identifying metadata for the metric or instance). All other fields are offsets and lengths in the JSONB string from an associated <filename>pmLabelSet</filename> structure.
+            </para>
+          </example>
+          <para>
+            <indexterm id="IG31340177139nat">
+              <primary>pmLabelSet structure</primary>
+            </indexterm>Zero or more labels are specified via a label set, in a <filename>pmLabelSet</filename> structure as shown in <xref linkend="Z975964773nat"/>:</para>
+          <example id="Z975964773nat">
+            <title>
+              <filename>pmLabelSet</filename> Structure</title>
+            <programlisting>typedef struct { 
+    uint     inst;          /* PM_IN_NULL or the instance ID */ 
+    int      nlabels;       /* count of labels or error code */
+    char     *json;         /* JSONB formatted labels string */
+    uint     jsonlen : 16;  /* JSON string length byte count */
+    uint     padding : 16;  /* zero, reserved for future use */
+    pmLabel  *labels;       /* indexing into the JSON string */
+} pmLabelSet;</programlisting>
+	    <para>This provides information about the set of labels associated  with an entity (context, domain, indom, metric cluster, item or instance). The entity will be from any one level of the label hierarchy. If at the lowest hierarchy level (which happens to be highest precedence - instances) then the <literal>inst</literal> field will contain an actual instance identifier instead of PM_IN_NULL.</para>
+          </example>
+          <para>
+            <indexterm id="IG31340177142nat">
+              <primary>pmdaLabel man page</primary>
+            </indexterm>For information about how a label can be associated with each level of the hierarchy, see the <command>pmdaLabel(3)</command> man page.</para>
+          <para>The simple PMDA, shown in <xref linkend="Z963524114nat"/>, associates labels at the domain, indom and instance levels of the hierarhy.</para>
+          <example id="Z963524114nat">
+            <title>Simple PMDA</title>
+            <programlisting>static int
+simple_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    int         serial;
+
+    switch (type) {
+    case PM_LABEL_DOMAIN:
+        pmdaAddLabels(lpp, &quot;{&quot;role&quot;:&quot;testing&quot;}&quot;);
+        break;
+    case PM_LABEL_INDOM:
+        serial = pmInDom_serial((pmInDom)ident);
+        if (serial == COLOR_INDOM) {
+            pmdaAddLabels(lpp, &quot;{&quot;indom_name&quot;:&quot;color&quot;}&quot;);
+            pmdaAddLabels(lpp, &quot;{&quot;model&quot;:&quot;RGB&quot;}&quot;);
+        }
+        if (serial == NOW_INDOM) {
+            pmdaAddLabels(lpp, &quot;{&quot;indom_name&quot;:&quot;time&quot;}&quot;);
+            pmdaAddLabels(lpp, &quot;{&quot;unitsystem&quot;:&quot;SI&quot;}&quot;);
+        }
+        break;
+    case PM_LABEL_CLUSTER:
+    case PM_LABEL_ITEM:
+        /* no labels to add for these types, fall through */
+    default:
+        break;
+    }
+    return pmdaLabel(ident, type, lpp, pmda);
+}
+
+static int
+simple_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    struct timeslice *tsp;
+
+    if (pmInDom_serial(indom) != NOW_INDOM)
+        return 0;
+    if (pmdaCacheLookup(indom, inst, NULL, (void *)&amp;tsp) != PMDA_CACHE_ACTIVE)
+        return 0;
+    /* SI units label, value: sec (seconds), min (minutes), hour (hours) */
+    return pmdaAddLabels(lp, &quot;{&quot;units&quot;:&quot;%s&quot;}&quot;, tsp-&lt;tm_name);
+}</programlisting>
+          </example>
+          <para>The <command>simple_labelCallBack</command> function is called indirectly via <command>pmdaLabel</command> for each instance of the <literal>NOW_INDOM</literal><indexterm id="IG31340177144"><primary>NOW_INDOM</primary></indexterm>. PMDA initialization ensures these functions are registered with the global PMDA interface structure for use when handling label requests, by the following assignments in the <command>simple_init</command> function:</para>
+          <programlisting>dp-&gt;version.seven.label = simple_label;
+pmdaSetLabelCallBack(dp, simple_labelCallBack);</programlisting>
         </section>
       </section>
     </section>
@@ -1577,7 +1706,7 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
               </indexterm>
               <indexterm id="IG31340177177">
                 <primary>PM_ERR_CONV error code</primary>
-              </indexterm> The value extraction, conversion, and printing functions (<command>pmExtractValue</command>, <command>pmConvScale</command>, <command>pmAtomStr</command>, <command>pmTypeStr</command>, and <command>pmPrintValue</command>) return the  <literal>PM_ERR_CONV</literal> error or an appropriate diagnostic string, if an attempt is made to operate on a value for which <literal>type</literal> is <literal>PM_TYPE_NOSUPPORT</literal>.</para>
+              </indexterm>The value extraction, conversion, and printing functions (<command>pmExtractValue</command>, <command>pmConvScale</command>, <command>pmAtomStr</command>, <command>pmTypeStr</command>, and <command>pmPrintValue</command>) return the  <literal>PM_ERR_CONV</literal> error or an appropriate diagnostic string, if an attempt is made to operate on a value for which <literal>type</literal> is <literal>PM_TYPE_NOSUPPORT</literal>.</para>
             <para>If performance tools take note of the <literal>type</literal> field in the <filename>pmDesc</filename> structure, they should not manipulate values for unsupported metrics. Even if tools ignore <literal>type</literal> in the metric's description, following these development guidelines ensures that no misleading value is ever returned; so there is no reason to call the extraction, conversion, and printing functions.</para>
           </listitem>
         </itemizedlist>
@@ -1660,6 +1789,12 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
               <indexterm id="IG31340180nat">
                 <primary>pmdaAttribute callback</primary>
               </indexterm> <command>pmdaAttribute</command></para>
+          </listitem>
+          <listitem>
+            <para>
+              <indexterm id="IG31340181nat">
+                <primary>pmdaLabel callback</primary>
+              </indexterm> <command>pmdaLabel</command></para>
           </listitem>
         </itemizedlist>
         <para>
@@ -2018,6 +2153,9 @@ simple_store(pmResult *result, pmdaExt *pmda)
           <listitem>
             <para>Version six added support for authenticated client contexts, where the PMDA is informed of user credentials and other PMCD attributes of the connection between individual PMAPI clients and PMCD (<command>pmdaAttribute</command> interface)</para>
           </listitem>
+          <listitem>
+            <para>Version seven added support for metadata labels, where the PMDA is able to associate name:value pairs in a hierarchy such that additional metadata, above and beyond the metric descriptors, is associated with metrics and instances (<command>pmdaLabel</command> interface)</para>
+          </listitem>
         </itemizedlist>
         <example id="Z964112160nat">
           <title>
@@ -2026,7 +2164,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
     union {
         ...
         /*
-         * PMDA_INTERFACE6
+         * PMDA_INTERFACE7
          */ 
         struct {
             pmdaExt *ext;
@@ -2040,13 +2178,14 @@ simple_store(pmResult *result, pmdaExt *pmda)
             int     (*name)(pmID, char ***, pmdaExt *);
             int     (*children)(const char *, int, char ***, int **, pmdaExt *);
             int     (*attribute)(int, int, const char *, int, pmdaExt *);
-        } six;
+            int     (*label)(int, int, pmLabelSet **, pmdaExt *);
+        } seven;
     } version;
 } pmdaInterface;</programlisting>
         </example>
         <note>
           <para>Each new interface version is always defined as a superset of those that preceded it, only adds fields at the end of the new structure in the union, and is always binary backwards-compatible. <literal>And thus it shall remain.</literal>
-For brevity, we have shown only the latest interface version (six) above, but all prior versions still exist, build, and function. In other words, PMDAs built against earlier versions of this header structure (and PMDA library) function correctly with the latest version of the PMDA library.
+For brevity, we have shown only the latest interface version (seven) above, but all prior versions still exist, build, and function. In other words, PMDAs built against earlier versions of this header structure (and PMDA library) function correctly with the latest version of the PMDA library.
 </para>
         </note>
         <example id="Z964117744sdc">
@@ -2086,6 +2225,8 @@ For brevity, we have shown only the latest interface version (six) above, but al
     /* added for PMDA_INTERFACE_5 */
     int         e_context;      /* client context id from pmcd */
     pmdaEndContextCallBack e_endCallBack;  /* callback after client context closed */
+    /* added for PMDA_INTERFACE_7 */
+    pmdaLabelCallBack  e_labelCallBack;  /* callback to lookup metric instance labels */
 } pmdaExt;</programlisting>
         </example>
         <para>
@@ -2224,7 +2365,7 @@ static char     *username;
 void simple_init(pmdaInterface *dp)
 {
     if (isDSO)
-        pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
+        pmdaDSO(dp, PMDA_INTERFACE_7, &#x201C;simple DSO&#x201D;,
                 &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
     else
         pmSetProcessIdentity(username);
@@ -2235,7 +2376,9 @@ void simple_init(pmdaInterface *dp)
     dp-&gt;version.any.fetch = simple_fetch;
     dp-&gt;version.any.store = simple_store;
     dp-&gt;version.any.instance = simple_instance;
+    dp-&gt;version.seven.label = simple_label;
     pmdaSetFetchCallBack(dp, simple_fetchCallBack);
+    pmdaSetLabelCallBack(dp, simple_labelCallBack);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
              metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
@@ -2317,7 +2460,7 @@ main(int argc, char **argv)
     isDSO = 0;
     pmSetProgname(argv[0]);
     pmGetUsername(&amp;username);
-    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmGetProgname(), SIMPLE,
+    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_7, pmGetProgname(), SIMPLE,
                &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 
     pmdaGetOptions(argc, argv, &amp;opts, &amp;dispatch);
@@ -2953,13 +3096,13 @@ integer value per disk spindle, representing the cumulative count of I/O operati
       <para>Consider <xref linkend="Z976548024sdc"/>:</para>
       <example id="Z976548024sdc">
         <title>Metrics Sharing the Same Instance Domain</title>
-        <programlisting>
-          <userinput>$ pminfo -f filesys.free</userinput>
+        <para>
+<literallayout class="monospaced"> $ <userinput>pminfo -f filesys.free</userinput>
 
-filesys.free
+ filesys.free
     inst [1 or &#x201C;/dev/disk0&#x201D;] value 1803
     inst [2 or &#x201C;/dev/disk1&#x201D;] value 22140
-    inst [3 or &#x201C;/dev/disk2&#x201D;] value 157938</programlisting>
+    inst [3 or &#x201C;/dev/disk2&#x201D;] value 157938</literallayout></para>
       </example>
       <para>The metric <literal>filesys.free</literal> has three values, currently 1803, 22140, and 157938. These values are respectively associated with the instances identified by the internal identifiers 1, 2 and 3, and the external identifiers <filename>/dev/disk0</filename>, <filename>/dev/disk1</filename>, and <filename>/dev/disk2</filename>. These instances form an instance domain that is shared by the performance metrics <literal>filesys.capacity</literal>, <literal>filesys.used</literal>, <literal>filesys.free</literal>, <literal>filesys.mountdir</literal>, and so on.</para>
       <para>Each performance metric is associated with an instance domain, while each instance domain may be associated with many performance metrics. Each instance domain is identified by a unique value, as defined by the following <literal>typedef</literal> declaration:</para>
@@ -3004,7 +3147,19 @@ filesys.free
       <para>
         <indexterm id="IG31340177268">
           <primary>pmDesc structure</primary>
-        </indexterm>For each defined performance metric, there is associated metadata encoded in a performance metric description (<command>pmDesc</command> structure) that describes the format and semantics of the performance metric. The <command>pmDesc</command> structure, in <xref linkend="Z976548425sdc"/>, provides all of the information required to interpret and manipulate a performance metric through the PMAPI. It has the following declaration:</para>
+  </indexterm>For each defined performance metric, there exists metadata describing it.</para>
+      <itemizedlist>
+        <listitem>
+          <para>A performance metric description (<command>pmDesc</command> structure) that describes the format and semantics of the performance metric.</para>
+        </listitem>
+        <listitem>
+          <para>Help text associated with the metric and any associated instance domain.</para>
+        </listitem>
+        <listitem>
+          <para>Performance metric labels (name:value pairs in <command>pmLabelSet</command> structures) associated with the metric and any associated instances.</para>
+        </listitem>
+      </itemizedlist>
+      <para>The <command>pmDesc</command> structure, in <xref linkend="Z976548425sdc"/>, provides all of the information required to interpret and manipulate a performance metric through the PMAPI. It has the following declaration:</para>
       <example id="Z976548425sdc">
         <title>
           <command>pmDesc</command> Structure</title>
@@ -3097,10 +3252,14 @@ typedef struct {
 } pmUnits;   /* dimensional units and scale of value */
 /* pmUnits.scaleSpace */
 #define PM_SPACE_BYTE 0  /* bytes */
-#define PM_SPACE_KBYTE 1 /* Kilobytes (1024) */
-#define PM_SPACE_MBYTE 2 /* Megabytes (1024^2) */
-#define PM_SPACE_GBYTE 3 /* Gigabytes (1024^3) */
-#define PM_SPACE_TBYTE 4 /* Terabytes (1024^4) */
+#define PM_SPACE_KBYTE 1 /* kibibytes (1024) */
+#define PM_SPACE_MBYTE 2 /* mebibytes (1024^2) */
+#define PM_SPACE_GBYTE 3 /* gibibytes (1024^3) */
+#define PM_SPACE_TBYTE 4 /* tebibytes (1024^4) */
+#define PM_SPACE_PBYTE 5 /* pebibytes (1024^5) */
+#define PM_SPACE_EBYTE 6 /* exbibytes (1024^6) */
+#define PM_SPACE_ZBYTE 7 /* zebibytes (1024^7) */
+#define PM_SPACE_YBYTE 8 /* yobibytes (1024^8) */
 /* pmUnits.scaleTime */
 #define PM_TIME_NSEC 0   /* nanoseconds */
 #define PM_TIME_USEC 1   /* microseconds */
@@ -3115,6 +3274,46 @@ typedef struct {
  * e.g. 6 for 10^6, or -3 for 10^-3
  */
 #define PM_COUNT_ONE 0 /* 1 */</programlisting>
+      </example>
+      <para>Metric and instance domain help text are simple ASCII strings. As a result, there are no special data structures associated with them. There are two forms of help text available for each metric and instance domain, however - one-line and long form.
+      </para>
+      <example id="Z1034792511nat">
+        <title>Help Text Flags</title>
+        <programlisting>#define PM_TEXT_ONELINE 1
+#define PM_TEXT_HELP    2</programlisting>
+      </example>
+      <para>Labels are stored and communicated within PCP using JSONB formatted strings in the <literal>json</literal> field of a <filename>pmLabelSet</filename> structure. This format is a restricted form of JSON suitable for indexing and other operations. In JSONB form, insignificant whitespace is discarded, and order of label names is not preserved. Within the PMCS, however, a lexicographically sorted key space is always maintained. Duplicate label names are not permitted. The label with highest precedence in the label hierarchy (context level labels, domain level labels, and so on) is the only one presented.</para>
+      <example id="Z975964619nat">
+        <title><filename>pmLabel</filename> and <filename>pmLabelSet</filename> Structures</title>
+            <programlisting>typedef struct {
+    uint     name : 16;      /* label name offset in JSONB string */
+    uint     namelen : 8;    /* length of name excluding the null */
+    uint     flags : 8;      /* information about this label */
+    uint     value : 16;     /* offset of the label value */
+    uint     valuelen : 16;  /* length of value in bytes */
+} pmLabel;
+
+/* flags identifying label hierarchy classes. */
+#define PM_LABEL_CONTEXT        (1&lt;&lt;0)
+#define PM_LABEL_DOMAIN         (1&lt;&lt;1)
+#define PM_LABEL_INDOM          (1&lt;&lt;2)
+#define PM_LABEL_CLUSTER        (1&lt;&lt;3)
+#define PM_LABEL_ITEM           (1&lt;&lt;4)
+#define PM_LABEL_INSTANCES      (1&lt;&lt;5)
+/* flag identifying extrinsic labels. */
+#define PM_LABEL_OPTIONAL       (1&lt;&lt;7)
+
+typedef struct { 
+    uint     inst;          /* PM_IN_NULL or the instance ID */ 
+    int      nlabels;       /* count of labels or error code */
+    char     *json;         /* JSONB formatted labels string */
+    uint     jsonlen : 16;  /* JSON string length byte count */
+    uint     padding : 16;  /* zero, reserved for future use */
+    pmLabel  *labels;       /* indexing into the JSON string */
+} pmLabelSet;</programlisting>
+	<para>The <filename>pmLabel</filename> <literal>labels</literal> array provides name and value indexes and lengths in the json string.</para>
+        <para>The <literal>flags</literal> field is a bitfield identifying the hierarchy level and whether this name:value pair is intrinsic (optional) or extrinsic (part of the mandatory, identifying metadata for the metric or instance). All other fields are offsets and lengths in the JSONB string from an associated <filename>pmLabelSet</filename> structure.
+        </para>
       </example>
     </section>
     <section id="LE82331-PARENT">
@@ -3518,6 +3717,12 @@ such a facility (PMDA_INTERFACE_6 or later).</para>
           <indexterm id="IG31340177285">
             <primary>pmLookupText function</primary>
           </indexterm>
+          <indexterm id="IG31340177285lab">
+            <primary>pmLookupLabels function</primary>
+          </indexterm>
+          <indexterm id="IG31340177290lab">
+            <primary>pmFreeLabelSet function</primary>
+          </indexterm>
           <indexterm id="IG31340177286">
             <primary>pmGetInDom function</primary>
           </indexterm>
@@ -3532,8 +3737,9 @@ such a facility (PMDA_INTERFACE_6 or later).</para>
           </indexterm>
           <indexterm id="IG31340177290">
             <primary>pmFreeResult function</primary>
-          </indexterm>Where a result is of variable size and that size cannot be known in advance (for example, <command>pmGetChildren</command>, <command>pmGetInDom</command>,  <command>pmNameInDom</command>, <command>pmNameID</command>, <command>pmLookupText</command>, and <command>pmFetch</command>), the underlying implementation uses dynamic allocation through <command>malloc</command>
-in the called function, with the caller responsible for subsequently calling <command>free</command> to release the storage when no longer required. In the case of the result from <command>pmFetch</command>, there is a function (<command>pmFreeResult</command>) to release the storage, due to the complexity of the data structure and the need to make multiple calls to <command>free</command> in the correct sequence. As a general rule, if the called function returns an error status, then no allocation is done, the pointer to the variable sized result is undefined, and <command>free</command> or <command>pmFreeResult</command> should not be called.</para>
+          </indexterm>Where a result is of variable size and that size cannot be known in advance (for example, <command>pmGetChildren</command>, <command>pmGetInDom</command>,  <command>pmNameInDom</command>, <command>pmNameID</command>, <command>pmLookupText</command>, <command>pmLookupLabels</command> and <command>pmFetch</command>), the underlying implementation uses dynamic allocation through <command>malloc</command> in the called function, with the caller responsible for subsequently calling <command>free</command> to release the storage when no longer required.</para>
+          <para>In the case of the result from <command>pmFetch</command>, there is a function (<command>pmFreeResult</command>) to release the storage, due to the complexity of the data structure and the need to make multiple calls to <command>free</command> in the correct sequence. Similarly, the <command>pmLookupLabels</command> function has an associated function (<command>pmFreeLabelSets</command>) to release the storage.</para>
+          <para>As a general rule, if the called function returns an error status, then no allocation is done, the pointer to the variable sized result is undefined, and <command>free</command>, <command>pmFreeLabelSets</command>, or <command>pmFreeResult</command> should not be called.</para>
       </section>
       <section>
         <title>Python Specific Issues</title>
@@ -3832,12 +4038,25 @@ The python bindings lookup the description text about the performance metrics pm
             <indexterm id="IG31340177313">
               <primary>help text</primary>
               <secondary>pmLookupText function</secondary>
-            </indexterm>Provided the source of metrics from the current PMAPI context is a host, retrieve descriptive text about the performance metric identified by <replaceable>pmid</replaceable>. The argument <replaceable>level</replaceable> should be <literal>PM_TEXT_ONELINE</literal> for a one-line summary, or <literal>PM_TEXT_HELP</literal> for a more verbose description, suited to a help dialogue.</para>
+            </indexterm>Retrieve descriptive text about the performance metric identified by <replaceable>pmid</replaceable>. The argument <replaceable>level</replaceable> should be <literal>PM_TEXT_ONELINE</literal> for a one-line summary, or <literal>PM_TEXT_HELP</literal> for a more verbose description, suited to a help dialogue.</para>
           <para>The space pointed to by <replaceable>buffer</replaceable> is allocated in <command>pmLookupText</command> with <command>malloc</command>, and it is the responsibility of the caller to <command>free</command> the space when it is no longer required; see the <command>malloc(3)</command> and <command>free(3)</command> man pages.</para>
           <para>The help text files used to implement <command>pmLookupText</command> are created using <command>newhelp</command> and accessed by the appropriate PMDA in response to requests forwarded to the PMDA by PMCD. Further details may be found in <xref linkend="LE72473-PARENT"/>.</para>
           <para>
 The python bindings lookup the description text about the performance metrics pmID <replaceable>pmid</replaceable>.  The default is a one line summary; for a more verbose description add an optional second parameter <replaceable>cpmapi.PM_TEXT_HELP</replaceable>.  The constant is available by importing cpmapi.   
 </para>
+        </section>
+        <section id="id5201140lab">
+          <title>
+            <command>pmLookupLabels</command> Function</title>
+          <programlisting>int pmLookupLabels(pmID <replaceable>pmid</replaceable>, pmLabelSet **<replaceable>labelsets</replaceable>)
+<command>Python:</command>
+(pmLabelSet* <replaceable>pmlabelset</replaceable>)[] pmLookupLabels(c_uint <replaceable>pmid</replaceable>)</programlisting>
+          <para>
+            <indexterm id="IG31340177312lab">
+              <primary>pmLookupLabels function</primary>
+            </indexterm>Retrieve <literal>name</literal>:<literal>value</literal> pairs providing additional identity and descriptive metadata about the performance metric identified by <replaceable>pmid</replaceable>.</para>
+          <para>The space pointed to by <replaceable>labelsets</replaceable> is allocated in <command>pmLookupLabels</command> with potentially multiple calls to <command>malloc</command> and it is the responsibility of the caller to <command>pmFreeLabelSets</command> the space when it is no longer required; see the <command>malloc(3)</command> and <command>pmFreeLabelSets(3)</command> man pages.</para>
+          <para>Additional helper interfaces are also available, used internally by <command>pmLookupLabels</command> and to help with post-processing of <replaceable>labelsets</replaceable>. See the <command>pmLookupLabels(3)</command> and <command>pmMergeLabelSets(3)</command> man pages.</para>
         </section>
       </section>
       <section id="LE27200-PARENT">
@@ -4259,7 +4478,26 @@ The python bindings return the text name of an instance corresponding to an inst
                   <para>&#xA0;</para>
                 </entry>
                 <entry align="left" valign="top">
-                  <para>(4)</para>
+                  <para>&#xA0;</para>
+                </entry>
+              </row>
+              <row valign="top">
+                <entry align="left" valign="top">
+                  <para>
+                    <command>pmLookupLabels<indexterm id="IG31340177339lab"><primary>pmLookupLabels function</primary></indexterm></command>
+                  </para>
+                </entry>
+                <entry align="left" valign="top">
+                  <para>Yes</para>
+                </entry>
+                <entry align="left" valign="top">
+                  <para>&#xA0;</para>
+                </entry>
+                <entry align="left" valign="top">
+                  <para>&#xA0;</para>
+                </entry>
+                <entry align="left" valign="top">
+                  <para>&#xA0;</para>
                 </entry>
               </row>
               <row valign="top">
@@ -4297,7 +4535,7 @@ The python bindings return the text name of an instance corresponding to an inst
                   <para>&#xA0;</para>
                 </entry>
                 <entry align="left" valign="top">
-                  <para>(4)</para>
+                  <para>&#xA0;</para>
                 </entry>
               </row>
               <row valign="top">
@@ -4411,7 +4649,7 @@ The python bindings return the text name of an instance corresponding to an inst
                   <para>&#xA0;</para>
                 </entry>
                 <entry align="left" valign="top">
-                  <para>(5)</para>
+                  <para>(4)</para>
                 </entry>
               </row>
               <row valign="top">
@@ -4449,13 +4687,6 @@ The python bindings return the text name of an instance corresponding to an inst
           </listitem>
           <listitem>
             <para>The metadata that describes a performance metric is sensitive to the source of the metrics, but independent of any instance profile and of the collection time.</para>
-          </listitem>
-          <listitem>
-            <para>
-              <indexterm id="IG31340177347">
-                <primary>archive logs</primary>
-                <secondary>context services</secondary>
-              </indexterm>Operation is supported only for PMAPI contexts where the source of metrics is a host. The text associated with a metric is assumed to be invariant with time and is definitely insensitive to the current members of the instance domain. In all cases this information is unavailable from an archive context (it is not included in the archive logs), and is directly available from a PMDA via PMCD in the other cases.</para>
           </listitem>
           <listitem>
             <para>This operation is supported only for contexts where the source of the metrics is a host. Further, the instance identifiers are included in the argument to the function, and the effects upon the current values of the metrics are immediate (retrospective changes are not allowed). Consequently, from the current PMAPI context, neither the instance profile nor the collection time influence the result of this function.</para>
@@ -5559,7 +5790,7 @@ pmResult* <replaceable>pmresult</replaceable> = pmFetchArchive()</literallayout>
           <literallayout class="monospaced">char *pmGetConfig(const char <replaceable>*variable</replaceable>)
 <command>Python:</command>
 "env variable value = pmGetConfig("env variable")</literallayout>
-          <para>The <command>pmGetConfig</command> function searches for a variable first in the environment and then, if one is not found, in the PCP configuration file and returns the string result. If a variable is not already in the environment, it is added with a call to the <command>putenv</command> function before returning.</para>
+          <para>The <command>pmGetConfig</command> function searches for a variable first in the environment and then, if one is not found, in the PCP configuration file and returns the string result. If a variable is not already in the environment, it is added with a call to the <command>setenv</command> function before returning.</para>
           <para>The default location of the PCP configuration file is <filename>/etc/pcp.conf</filename>, but this location may be changed by setting <literal>PCP_CONF</literal> in the environment to a new location, as described in the <command>pcp.conf(5)</command> man page.</para>
           <para>If the variable is not found in either the environment or the PCP configuration file (or the PCP configuration file is not found and <literal>PCP_CONF</literal> is not set in the environment), then a fatal error message is printed and the process will exit. Although this sounds drastic, it is the only course of action available because the PCP configuration or installation is fatally flawed.</para>
           <para>If this function returns, the returned value points to a string in the environment; and so although the function returns the same type as the <command>getenv</command> function (which should probably be a <literal>const char *</literal>), changing the content of the string is not recommended.</para>
@@ -7768,7 +7999,6 @@ trace.transact.rate</literallayout>
     </indexentry>
     <indexentry>
       <primaryie>archive logs</primaryie>
-      <secondaryie>context services <link linkend="IG31340177347">PMAPI Context Services</link></secondaryie>
       <secondaryie>performance data <link linkend="IG31340177258">PMAPI--The Performance Metrics API</link> <link linkend="IG31340177266">Current PMAPI Context</link></secondaryie>
       <secondaryie>performance management <link linkend="IG31340177562">Application and PCP Relationship</link></secondaryie>
       <secondaryie>pmGetArchiveEnd function <link linkend="IG31340177402"><command>pmGetArchiveEnd</command> Function</link></secondaryie>
@@ -7855,7 +8085,7 @@ trace.transact.rate</literallayout>
       <primaryie>data export <link linkend="IG31340177552">Application and PCP Relationship</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>data structures <link linkend="IG31340177118">Data Structures</link> <link linkend="IG31340177137">Data Structures</link></primaryie>
+      <primaryie>data structures <link linkend="IG31340177118">Data Structures</link> <link linkend="IG31340177137">Data Structures</link> <link linkend="IG31340177137nat">Data Structures</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>dbpmda man page <link linkend="IG3134017768">Implementing a PMDA</link> <link linkend="IG31340177229">Overview</link> <link linkend="IG31340177236"><command>dbpmda</command> Debug Utility</link></primaryie>
@@ -7935,10 +8165,9 @@ trace.transact.rate</literallayout>
       <secondaryie>programming issues <link linkend="IG31340177445">PMAPI Programming Issues and Examples</link></secondaryie>
       <secondaryie>Remove script <link linkend="IG31340177249">Removing a PMDA</link></secondaryie>
       <secondaryie>rolling-window sampling <link linkend="IG31340177493">Rolling-Window Periodic Sampling Example</link></secondaryie>
-      <secondaryie>simple and trivial PMDAs <link linkend="IG31340177109">Domains, Metrics, and Instances</link></secondaryie>
+      <secondaryie>simple and trivial PMDAs <link linkend="IG31340177109">Domains, Metrics, Instances and Labels</link></secondaryie>
       <secondaryie>time control functions <link linkend="IG31340177416">PMAPI Time Control Services</link></secondaryie>
       <secondaryie>trace PMDA <link linkend="IG31340177465">Instrumenting Applications</link></secondaryie>
-      <secondaryie>visualization tools <link linkend="IG3134017774">Implementing a PMDA</link></secondaryie>
     </indexentry>
     <indexentry>
       <primaryie>execv system call <link linkend="IG31340177102">Daemon PMDA</link></primaryie>
@@ -8147,7 +8376,7 @@ trace.transact.rate</literallayout>
       <primaryie>PDU <link linkend="IG3134017780">Overview</link> <link linkend="IG31340177475">Application Interaction</link> <link linkend="IG31340177542">Configuring the Trace Library</link> <link linkend="IG31340177571">Acronyms</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>PDU_AUTH <link linkend="IG3134017791nat">Overview</link></primaryie>
+      <primaryie>PDU_ATTR <link linkend="IG3134017791nat">Overview</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>PDU_DESC_REQ <link linkend="IG3134017789">Overview</link></primaryie>
@@ -8157,6 +8386,9 @@ trace.transact.rate</literallayout>
     </indexentry>
     <indexentry>
       <primaryie>PDU_INSTANCE_REQ <link linkend="IG3134017787">Overview</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>PDU_LABEL_REQ <link linkend="IG3134017790lab">Overview</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>PDU_PMNS_CHILD <link linkend="IG3134017785nat">Overview</link></primaryie>
@@ -8322,7 +8554,7 @@ trace.transact.rate</literallayout>
       <primaryie>PMCD_REQUEST_TIMOUT variable <link linkend="IG31340177389"><command>pmFetch</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>pmchart command <link linkend="IG313401779">PCP Architecture</link> <link linkend="IG3134017769">Implementing a PMDA</link> <link linkend="IG31340177499">Configuring the Trace PMDA</link></primaryie>
+      <primaryie>pmchart command <link linkend="IG313401779">PCP Architecture</link> <link linkend="IG31340177499">Configuring the Trace PMDA</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmclient tool <link linkend="IG3134017741">Application and Agent Development</link></primaryie>
@@ -8405,6 +8637,9 @@ trace.transact.rate</literallayout>
       <primaryie>pmdaInterface structure <link linkend="IG31340177200">PMDA Structures</link> <link linkend="IG31340177208">Overview</link></primaryie>
     </indexentry>
     <indexentry>
+      <primaryie>pmdaLabel callback <link linkend="IG31340181nat">Overview</link></primaryie>
+    </indexentry>
+    <indexentry>
       <primaryie>pmdaMain man page <link linkend="IG31340177224">Daemon Initialization</link></primaryie>
     </indexentry>
     <indexentry>
@@ -8465,10 +8700,10 @@ trace.transact.rate</literallayout>
       <primaryie>pmflush function <link linkend="IG31340177437"><command>pmflush</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>pmFreeResult function <link linkend="IG31340177290">Variable Length Argument and Results Lists</link> <link linkend="IG31340177386"><command>pmFetch</command> Function</link> <link linkend="IG31340177391"><command>pmFreeResult</command> Function</link></primaryie>
+      <primaryie>pmFreeLabelSet function <link linkend="IG31340177290lab">Variable Length Argument and Results Lists</link> </primaryie>
     </indexentry>
     <indexentry>
-      <primaryie>pmgadgets command <link linkend="IG3134017770">Implementing a PMDA</link></primaryie>
+      <primaryie>pmFreeResult function <link linkend="IG31340177290">Variable Length Argument and Results Lists</link> <link linkend="IG31340177386"><command>pmFetch</command> Function</link> <link linkend="IG31340177391"><command>pmFreeResult</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmgenmap tool <link linkend="IG3134017743">Application and Agent Development</link></primaryie>
@@ -8515,6 +8750,12 @@ trace.transact.rate</literallayout>
       <primaryie>pmInDomStr function <link linkend="IG31340177431"><command>pmInDomStr</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
+      <primaryie>pmLabel structure <link linkend="IG31340177138nat">Data Structures</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>pmLabelSet structure <link linkend="IG31340177139nat">Data Structures</link></primaryie>
+    </indexentry>
+    <indexentry>
       <primaryie>pmLoadNameSpace function <link linkend="IG31340177296"><command>pmLoadNameSpace</command> Function</link></primaryie>
     </indexentry>
     <indexentry>
@@ -8534,6 +8775,9 @@ trace.transact.rate</literallayout>
     </indexentry>
     <indexentry>
       <primaryie>pmLookupInDomText function <link linkend="IG31340177310"><command>pmLookupInDomText</command> Function</link> <link linkend="IG31340177337">PMAPI Context Services</link></primaryie>
+    </indexentry>
+    <indexentry>
+      <primaryie>pmLookupLabels function <link linkend="IG3134017791lab">Overview</link> <link linkend="IG31340177285lab">Variable Length Argument and Results Lists</link> <link linkend="IG3134017791lab"><command>pmLookupLabels</command> Function</link> <link linkend="IG3134017792lab">metric labels</link> <link linkend="IG31340177312lab"><command>pmLookupLabels</command> Function</link> <link linkend="IG31340177339lab">PMAPI Context Services</link></primaryie>
     </indexentry>
     <indexentry>
       <primaryie>pmLookupName function <link linkend="IG3134017782nat">Overview</link> <link linkend="IG31340177298"><command>pmLookupName</command> Function</link> <link linkend="IG31340177338">PMAPI Context Services</link> <link linkend="IG31340177448">Symbolic Association between a Metric's Name and Value</link></primaryie>

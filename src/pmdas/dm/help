@@ -269,7 +269,7 @@ The number of latency histogram bins configured for the region.
 @ vdo.dev.complete_recoveries Count of times the VDO has successfully recovered
 @ vdo.dev.curr_dedupe_queries Number of dedupe queries active
 @ vdo.dev.curr_vios_in_progress Number of VIOs in progress
-@ vdo.dev.data_blocks_used Number of blocks used for data
+@ vdo.dev.data_blocks.used Number of blocks used for data
 @ vdo.dev.dedupe_advice.stale Count of times stale deduplication advice given
 @ vdo.dev.dedupe_advice.timeouts Count of times deduplication advice timed out
 @ vdo.dev.dedupe_advice.valid Count of times valid deduplication advice given
@@ -301,7 +301,7 @@ The number of latency histogram bins configured for the region.
 @ vdo.dev.memory_usage.peak.bio_count Peak count of bios used
 @ vdo.dev.memory_usage.peak.bytes_used Peak count of bytes used
 @ vdo.dev.mode String describing the operating mode of the VDO
-@ vdo.dev.overhead_blocks_used Number of blocks used for VDO metadata
+@ vdo.dev.overhead_blocks.used Number of blocks used for VDO metadata
 @ vdo.dev.packer.compressed_blocks.written Count of blocks containing compressed items written
 @ vdo.dev.packer.compressed_fragments.in_packer Number of VIOs that are pending in the packer
 @ vdo.dev.packer.compressed_fragments.written Count of compressed data items written

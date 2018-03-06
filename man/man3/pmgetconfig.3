@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012,2015 Red Hat.
+.\" Copyright (c) 2012,2015,2018 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -45,7 +45,7 @@ If
 .I variable
 is not already in the environment,
 it is added with a call to
-.BR putenv (3)
+.BR setenv (3)
 before returning.
 .PP
 The
@@ -134,7 +134,7 @@ function.
 .BR exit (2),
 .BR PMAPI (3),
 .BR getenv (3),
-.BR putenv (3),
+.BR setenv (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

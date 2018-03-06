@@ -19,10 +19,16 @@ _have_python266 && _notrun "python load generator does not currently work with p
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
-trap "_pmdaprometheus_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
+_cleanup()
+{
+    _pmdaprometheus_restore_config >>$here/$seq.full
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _pmdaprometheus_save_config
-_pmdaprometheus_install
 
 # add all the sample text files as urls.
 ls -1 $here/prometheus/samples/*.txt | sort | while read file
@@ -33,7 +39,9 @@ done
 
 # add all the sample scripts
 cp -a $here/prometheus/scripts/* $PCP_PMDAS_DIR/prometheus/config.d
-rm -f $PCP_PMDAS_DIR/prometheus/config.d/GNU*
+find $PCP_PMDAS_DIR/prometheus/config.d -name GNU\* -exec rm -f {} ";"
+
+_pmdaprometheus_install
 
 if ! _pmdaprometheus_wait_for_metric prometheus.thermostat
 then

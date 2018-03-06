@@ -1,5 +1,129 @@
-pcp-4.0.0 (16 February 2018)
+pcp-4.0.1 (30 March 2018)
     - Work-in-progress, see http://pcp.io/roadmap
+
+pcp-4.0.0 (16 February 2018)
+    - Support metric labels as first class PCP metadata
+        - libpcp: over-the-wire protocol support for labels
+        - libpcp: store metric labels in archives
+        - dbpmda: new commands for exercising metric labels
+        - pmdaproc: add proc.* and cgroup.* metric labels
+        - pmdalinux: add disk, CPU, NUMA node and other labels
+        - pmdapmcd: add pmcd.labels metric (/etc/pcp/labels)
+        - pmdaprometheus: add support for Prometheus labels
+        - pmcd: support label PDUs between clients and PMDAs
+        - pminfo: add new -l/--labels option
+        - pmlogger: support storing labels in archives
+        - pmdumplog: support for dumping labels in archives
+        - pmlogextract: support for labels in input archives
+        - pmlogrewrite: support for changing labels in archives
+        - libpcp_pmda: support for metric label PDUs
+        - libpcp_pmda: new pmdaLabel(3), pmdaSetLabelCallBack(3) APIs
+        - docs: upate pmlogger on-disk format docs for labels
+    - libpcp: store metric help text in archives for pmLookupText(3)
+    - PMAPI and PMDA API refactoring, promotion and deprecation
+        - libpcp: pmapi.h, impl.h, libpcp.h header refactoring
+        - libpcp: several impl.h data structures made internal
+        - libpcp: several impl.h interfaces cleaned, documented and
+          promoted into new PMAPI routines - e.g. pmGetProgname(3),
+          pmSetProgname(3), pmID_build(3), pmInDom_build(3),
+          pmOpenLog(3), pmGetAPIConfig(3), pmNoMem(3), pmSyslog(3),
+          pmNotifyErr(3), pmPrintStamp(3), pmPathSeparator(3),
+          pmGetUsername(3), pmSpecLocalPMDA(3).
+        - libpcp: hide details of pmlc/pmlogger communication
+        - libpcp: hide all internal PDU and PDUbuf details
+    - Asynchronous notification of metric name changes
+        - libpcp: fetch protocol support for async name changes
+        - pmlogger: dynamic reevaluation of metric name changes
+        - libpcp_pmda: support for PMDAs with dynamic name changes
+        - docs: describe async name change protocol on pmFetch(3)
+    - pmdadm: add new VDO (virtual data optimizer) metrics
+    - pmdabcc: new PMDA exporting BCC/eBPF trace instrumentation
+    - pmdaproc: fix issue with resolving ttynames below /dev
+    - pmdaproc: add proc.id.container metric based on cgroups
+    - pmdaproc: add new cgroup.*.id.container metrics
+    - pmdalinux: additional /proc/vmstat pgscan, pgsteal metrics
+    - pmdalinux: fix scanf format for /proc/net/if_inet6
+    - pmdalinux: tty.serial metrics use tty number as indom instance
+    - pmdalinux: add kernel.all.pid_max metric from /proc/sys/kernel
+    - pmdalinux: add wireless and name type network interface metrics
+    - pmdalinux: additional NUMA migration metrics from /proc/vmstat
+    - pmdasolaris: update for ZFS snapshot API changes
+    - pmdaprometheus: improvements to auto-configuration
+    - pmdaprometheus: metadata inference tweaks
+    - pmdaprometheus: rework instance-name prefixing
+    - pmdaprometheus: add support for scripted configuation
+    - pmdabash: install a default directory with secure permissions
+    - pmdajson: install a default directory with secure permissions
+    - pmdammv: install a default directory with secure permissions
+    - pmdalibvirt: correctly restore previously persisted indoms
+    - pmdahaproxy: correctly restore previously persisted indoms
+    - pmdadocker: document PCP_DOCKER_DIR variable
+    - pmrep/pcp2xxx: clarify instances reported by default
+    - pmrep/pcp2xxx: introduce per-metric precision support
+    - pmrep/pcp2xxx: multiple derived metrics specs on command line
+    - pmrep/pcp2xxx: properly validate config file options
+    - pmrep/pcp2xxx: add force scaling/formatting options
+    - pmrep/pcp2xxx: add live filtering support
+    - pmrep/pcp2xxx: add support ranking, inverse filtering, predicates
+    - pmrep/pcp2xxx: add support for limit filtering
+    - pmrep: add support for overall ranking
+    - pmrep: add support for dynamic headers
+    - pmrep: make -g/--separate-header compatible with -X/--colxrow
+    - pmrep: pmdumptext -X/--extended alike output
+    - pmrep: do not force raw values with CSV output
+    - pmrep: avoid repeated pmi calls in write_archive
+    - pmrep: better delimiter handling
+    - pmrep: sar-y, sar-n-SOCK, numa-hint-faults configs in pmrep.conf
+    - pmrep: fix archive output dir access check
+    - pmrep: record discrete values to archive only when changed
+    - pcp2json: -E/--exact-types option for increased output control
+    - pmjson: new helper utility for json formatting
+    - iostat2pcp: support yet more incompatible changes to iostat
+    - pmstore: add -F/--fetch option to provide accurate new value
+    - pmdumplog: increase precision of timestamp output
+    - pmdumplog: support for dumping metric help text in archives
+    - pmlogger: avoid multiple metadata records for same indom and timestamp
+    - pmlogextract: change <mark> strategy if prologue + epilogue available
+    - pmlogconf: ensure values present before enabling apache group
+    - pmlogconf: ensure values present before enabling nfsclient group
+    - pmlogconf: additional kernel metrics for pmlogconf
+    - pmlogconf: added storage group for pmlogconf with VDO metrics
+    - pcp-atop: add Docker support, updates to upstream atop-2.3.0 code
+    - pcp-atopsar: improve robustness with missing data
+    - pcp-mpstat: fix typo in method call found by pylint
+    - pcp-summary: fix incorrect use of -O/--offset/$PCP_ORIGIN
+    - pmchart: fix uninitialized memory use in status bar
+    - pmchart: several improvements to the BusyCPU script
+    - desktop: new icon images for pmchart and pmtime applications
+    - libpcp: support transparent on-demand archive decompression
+    - libpcp: provide -O/--offset heuristics for local archives
+    - libpcp: fix non-standard space units handling
+    - python pmconfig: handle option priorities correctly
+    - python pmcc: add MetricGroupManager.checkMissingMetrics
+    - python api: use correct tm_gmtoff type in pmMktime call
+    - selinux: numerous corrections to policy files
+    - zshrc: series of updates for latest command arguments
+    - zshrc: recognize .xz compressed archive file names
+    - zshrc: don't complete unavailable derived metrics
+    - bashrc: series of updates for latest command arguments
+    - PMDA Install: removed "monitor, server or both" prompts
+    - build: update debian builds to quilt-based format
+    - build: fix Qt5 build dependency injection
+    - build: fix debian binary-indep packaging
+    - build: fix debian python package dependencies
+    - build: enable systemd in debian packages
+    - build: configure.ac and related fixes for Solaris builds
+    - build: numerous Windows portability fixes
+    - build: remove config transition mechanism for ancient releases
+    - build: get python basics going in Windows cross-comiles
+    - build: selinux - directly test existance of semodule -X option
+    - build: selinux - update policy package on upgrade
+    - build: rpm - move to explicit python2/python3 deps
+    - build: rpm - python->python2 naming, obsolete python-foo packaging
+    - series of small code improvements found by Coverity
+    - series of small code improvements found by cppcheck
+    - docs: start documenting long options on PCPIntro(1) and others
+    - docs: add some power user examples to pmrep(1)
 
 pcp-3.12.2 (18 October 2017)
     - dm pmda: fix memory corruption from a double free

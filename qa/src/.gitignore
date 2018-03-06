@@ -211,6 +211,7 @@ torture_indom
 torture_logmeta
 torture_pmns
 torture_trace
+traverse_return_codes
 tstate
 tztest
 unpack

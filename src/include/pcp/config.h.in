@@ -109,6 +109,9 @@
 /* Define to 1 if you have the `getcwd' function. */
 #undef HAVE_GETCWD
 
+/* Define to 1 if you have the `getdomainname' function. */
+#undef HAVE_GETDOMAINNAME
+
 /* Define to 1 if you have the `getgid' function. */
 #undef HAVE_GETGID
 
@@ -183,6 +186,9 @@
 
 /* Define to 1 if you have the <iphlpapi.h> header file. */
 #undef HAVE_IPHLPAPI_H
+
+/* Define to 1 if you have the <netioapi.h> header file. */
+#undef HAVE_NETIOAPI_H
 
 /* Define to 1 if you have the <iptypes.h> header file. */
 #undef HAVE_IPTYPES_H

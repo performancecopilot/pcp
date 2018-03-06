@@ -1485,6 +1485,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_SPACE_TBYTE", PM_SPACE_TBYTE);
     dict_add(dict, "PM_SPACE_PBYTE", PM_SPACE_PBYTE);
     dict_add(dict, "PM_SPACE_EBYTE", PM_SPACE_EBYTE);
+    dict_add(dict, "PM_SPACE_ZBYTE", PM_SPACE_ZBYTE);
+    dict_add(dict, "PM_SPACE_YBYTE", PM_SPACE_YBYTE);
 
     dict_add(dict, "PM_TIME_NSEC", PM_TIME_NSEC);
     dict_add(dict, "PM_TIME_USEC", PM_TIME_USEC);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2018 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,9 @@
 int		mystate = GLOBAL;	/* config file parser state */
 
 __pmHashCtl	pm_hash;
-task_t		*tasklist;
+task_t		*tasklist;		/* task list for logging configuration */
+dynroot_t	*dyn_roots;		/* dynamic root list for handling PMCD_NAMES_CHANGE */
+int		n_dyn_roots = 0;
 
 static task_t	*tp;
 static int	numinst;
@@ -62,6 +64,7 @@ static int lookup_metric_name(const char *);
 static void activate_new_metric(const char *);
 static void activate_cached_metric(const char *, int);
 static task_t *findtask(int, struct timeval *);
+static void append_dynroot_list(const char *, int, int, struct timeval *);
 
 %}
 %union {
@@ -233,6 +236,7 @@ metricspec	: NAME
 		optinst
 		{
 		    int index, sts;
+		    pmID id;
 
 		    /*
 		     * search names for previously seen metrics for this task
@@ -247,6 +251,32 @@ metricspec	: NAME
 				    "... logging not activated", metricName);
 			    yywarn(emess);
 			    fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
+
+			}
+
+			/*
+			 * Check if metricName is a potential dynamic root. If metricName
+			 * is not a leaf, then it could be a dynamic root non-leaf node,
+			 * even if it currently has no children. The PMAPI says that 
+			 * pmTraversePMNS(name, func) returns 1 if name is a leaf node
+			 * (or a derived metric) and _also_ 1 if it's a non-leaf node with
+			 * exactly one child.
+			 *
+			 * So metricName is a potential dynamic root if
+			 * sts < 0                   : unknown name or an error
+			 * sts == 0                  : childless dynamic root
+			 * sts > 1                   : non-leaf with children
+			 * sts == 1 and not a leaf   : non-leaf with exactly one child
+			 */
+			if (sts <= 0 || sts > 1 || pmLookupName(1, &metricName, &id) != 1) {
+			    /*
+			     * Add it to the list for future traversal when a fetch returns
+			     * with the PMCD_NAMES_CHANGE flag set.
+			     */
+			    append_dynroot_list(metricName,
+				PMLC_GET_ON(tp->t_state) ? PM_LOG_ON : PM_LOG_MAYBE, /* TODO PMLOG_OFF? */
+				PMLC_GET_MAND(tp->t_state) ? PM_LOG_MANDATORY : PM_LOG_ADVISORY,
+				&tp->t_delta);
 			}
 		    }
 		    else {	/* name is cached already, handle instances */
@@ -570,6 +600,39 @@ findtask(int state, struct timeval *delta)
 	    break;
     }
     return tp;
+}
+
+/*
+ * Append 'name' to the list of non-leaf PMNS nodes to be traversed for
+ * new metrics when a fetch returns with the PMCD_NAMES_CHANGE flag set.
+ * Note: 'name' is not a PMNS leaf and may or may not be a non-leaf,
+ * since it may appear dynamically in the future. This list is traversed
+ * by check_dynamic_metrics() when a fetch returns with the PMCD_NAMES_CHANGE
+ * flag set.
+ */
+static void
+append_dynroot_list(const char *name, int state, int control, struct timeval *timedelta)
+{
+    int i;
+    dynroot_t *d;
+
+    for (i=0, d=dyn_roots; i < n_dyn_roots; i++, d++) {
+	if (strcmp(d->name, name) == 0)
+	    return; /* already present, don't add it again */
+    }
+    if ((dyn_roots = (dynroot_t *)realloc(dyn_roots, ++n_dyn_roots * sizeof(dynroot_t))) == NULL)
+	pmNoMem("extending dyn_roots list", n_dyn_roots * sizeof(dynroot_t), PM_FATAL_ERR);
+    d = &dyn_roots[n_dyn_roots-1];
+    if ((d->name = strdup(name)) == NULL)
+	pmNoMem("strdup name in dyn_roots list", strlen(name) + 1, PM_FATAL_ERR);
+    d->state = state;
+    d->control = control;
+    d->delta = *timedelta;
+
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "pmlogger: possible dynamic root \"%s\", state=0x%x, control=0x%x, delta=%ld.%06ld\n",
+	    name, state, control, timedelta->tv_sec, (long)timedelta->tv_usec);
+    }
 }
 
 /*

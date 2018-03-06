@@ -32,6 +32,15 @@ squish.scott.net.au
 thing1.scott.net.au
 thing2.scott.net.au
 
+# Mark's section
+moonah.gateway
+moonahqa.qa
+rhel74.qa
+f27.qa
+f27-clone.qa
+# pcp.usersys.redhat.com
+# goody.usersys.redhat.com
+
 # sort control lines
 # each line here is a specification that includes the keyword #order and
 # then two or more strings in the style of fgrep
@@ -52,3 +61,6 @@ thing2.scott.net.au
 #order	.scott.net.au		.scott.net.au
 # Kenj Section
 #order	.localdomain		.localdomain
+# Mark's Section
+#order	.gateway		.qa
+#order	.usersys.redhat.com	.usersys.redhat.com

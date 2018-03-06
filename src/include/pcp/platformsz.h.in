@@ -15,7 +15,7 @@
 #define PCP_PLATFORMSZ_H
 
 /* printf candy ... */
-#define FMT_INT64 @fmt_int64@
-#define FMT_UINT64 @fmt_uint64@
+#define FMT_INT64 "@fmt_int64@"
+#define FMT_UINT64 "@fmt_uint64@"
 
 #endif /* PCP_PLATFORMSZ_H */

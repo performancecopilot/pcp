@@ -32,13 +32,6 @@ Help:
 Number of VIOs in progress
     inst [0 or "vdo1"] value 90
 
-vdo.dev.data_blocks_used PMID: 129.5.99 [Number of blocks used for data]
-    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
-    Semantics: instant  Units: count
-Help:
-Number of blocks used for data
-    inst [0 or "vdo1"] value 1085494
-
 vdo.dev.flush_out PMID: 129.5.106 [Count of flush events]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -94,13 +87,6 @@ vdo.dev.mode PMID: 129.5.126 [String describing the operating mode of the VDO]
 Help:
 String describing the operating mode of the VDO
     inst [0 or "vdo1"] value "normal"
-
-vdo.dev.overhead_blocks_used PMID: 129.5.127 [Number of blocks used for VDO metadata]
-    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
-    Semantics: instant  Units: count
-Help:
-Number of blocks used for VDO metadata
-    inst [0 or "vdo1"] value 901859
 
 vdo.dev.physical_blocks PMID: 129.5.131 [Number of physical blocks]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -788,6 +774,13 @@ Help:
 Count of getVDOPageAsync calls for write
     inst [0 or "vdo1"] value 1759729
 
+vdo.dev.data_blocks.used PMID: 129.5.99 [Number of blocks used for data]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of blocks used for data
+    inst [0 or "vdo1"] value 1085494
+
 vdo.dev.dedupe_advice.stale PMID: 129.5.100 [Count of times stale deduplication advice given]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -948,6 +941,13 @@ vdo.dev.memory_usage.peak.bytes_used PMID: 129.5.125 [Peak count of bytes used]
 Help:
 Peak count of bytes used
     inst [0 or "vdo1"] value 555931616
+
+vdo.dev.overhead_blocks.used PMID: 129.5.127 [Number of blocks used for VDO metadata]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of blocks used for VDO metadata
+    inst [0 or "vdo1"] value 901859
 
 vdo.dev.packer.compressed_blocks.written PMID: 129.5.128 [Count of blocks containing compressed items written]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005

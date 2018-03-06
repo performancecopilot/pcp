@@ -7,17 +7,6 @@
 # - Ken
 #
 {
-   pmConfig calls putenv permanently
-   Memcheck:Leak
-   fun:malloc
-   fun:strdup
-   fun:posix_formatter
-   fun:__pmconfig
-   fun:__pmConfig
-   fun:pm*Config
-}
-
-{
    pthreads initialization from pmLoadNameSpace
    Memcheck:Cond
    fun:pthread_mutex_init

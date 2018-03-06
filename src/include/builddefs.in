@@ -269,6 +269,7 @@ PCP_SELINUX_SOCK_FILE_GETATTR = @pcp_selinux_sock_file_getattr@
 PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
 PCP_SELINUX_MOCK = @pcp_selinux_mock@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
+PCP_SELINUX_NUMAD = @pcp_selinux_numad@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@

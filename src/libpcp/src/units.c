@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2018 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -172,7 +172,7 @@ pmTypeStr(int type)
 
 /* scale+units -> string, max length is 60 bytes */
 char *
-pmUnitsStr_r(const pmUnits * pu, char *buf, int buflen)
+pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 {
     char *spacestr = NULL;
     char *timestr = NULL;
@@ -213,6 +213,12 @@ pmUnitsStr_r(const pmUnits * pu, char *buf, int buflen)
 		break;
 	    case PM_SPACE_EBYTE:
 		spacestr = "Ebyte";
+		break;
+	    case PM_SPACE_ZBYTE:
+		spacestr = "Zbyte";
+		break;
+	    case PM_SPACE_YBYTE:
+		spacestr = "Ybyte";
 		break;
 	    default:
 		pmsprintf(sbuf, sizeof(sbuf), "space-%d", pu->scaleSpace);
@@ -1137,24 +1143,38 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
     const size_t num_time_keywords = sizeof(time_keywords) / sizeof(time_keywords[0]);
     static const struct unit_keyword_t space_keywords[] = {
 	{"bytes", PM_SPACE_BYTE}, {"byte", PM_SPACE_BYTE},
+	{"KB", PM_SPACE_KBYTE}, {"KiB", PM_SPACE_KBYTE},
 	{"Kbytes", PM_SPACE_KBYTE}, {"Kbyte", PM_SPACE_KBYTE},
-	{"Kilobytes", PM_SPACE_KBYTE}, {"Kilobyte", PM_SPACE_KBYTE},
-	{"KB", PM_SPACE_KBYTE},
+	{"Kibibytes", PM_SPACE_KBYTE}, {"Kibibyte", PM_SPACE_KBYTE},
+	{"Kilobytes", PM_SPACE_KBYTE}, {"Kilobyte", PM_SPACE_KBYTE},	/* back-compat */
+	{"MB", PM_SPACE_MBYTE}, {"MiB", PM_SPACE_MBYTE},
 	{"Mbytes", PM_SPACE_MBYTE}, {"Mbyte", PM_SPACE_MBYTE},
-	{"Megabytes", PM_SPACE_MBYTE}, {"Megabyte", PM_SPACE_MBYTE},
-	{"MB", PM_SPACE_MBYTE},
+	{"Mebibytes", PM_SPACE_MBYTE}, {"Mebibyte", PM_SPACE_MBYTE},
+	{"Megabytes", PM_SPACE_MBYTE}, {"Megabyte", PM_SPACE_MBYTE},	/* back-compat */
+	{"GB", PM_SPACE_GBYTE}, {"GiB", PM_SPACE_GBYTE},
 	{"Gbytes", PM_SPACE_GBYTE}, {"Gbyte", PM_SPACE_GBYTE},
-	{"Gigabytes", PM_SPACE_GBYTE}, {"Gigabyte", PM_SPACE_GBYTE},
-	{"GB", PM_SPACE_GBYTE},
+	{"Gibibytes", PM_SPACE_GBYTE}, {"Gibibyte", PM_SPACE_GBYTE},
+	{"Gigabytes", PM_SPACE_GBYTE}, {"Gigabyte", PM_SPACE_GBYTE},	/* back-compat */
+	{"TB", PM_SPACE_TBYTE}, {"TiB", PM_SPACE_TBYTE},
 	{"Tbytes", PM_SPACE_TBYTE}, {"Tbyte", PM_SPACE_TBYTE},
-	{"Terabytes", PM_SPACE_TBYTE}, {"Terabyte", PM_SPACE_TBYTE},
-	{"TB", PM_SPACE_TBYTE},
+	{"Tebibytes", PM_SPACE_TBYTE}, {"Tebibyte", PM_SPACE_TBYTE},
+	{"Terabytes", PM_SPACE_TBYTE}, {"Terabyte", PM_SPACE_TBYTE},	/* back-compat */
+	{"PB", PM_SPACE_PBYTE}, {"PiB", PM_SPACE_PBYTE},
 	{"Pbytes", PM_SPACE_PBYTE}, {"Pbyte", PM_SPACE_PBYTE},
-	{"Petabytes", PM_SPACE_PBYTE}, {"Petabyte", PM_SPACE_PBYTE},
-	{"PB", PM_SPACE_PBYTE},
+	{"Pebibytes", PM_SPACE_PBYTE}, {"Pebibyte", PM_SPACE_PBYTE},
+	{"Petabytes", PM_SPACE_PBYTE}, {"Petabyte", PM_SPACE_PBYTE},	/* back-compat */
+	{"EB", PM_SPACE_EBYTE}, {"EiB", PM_SPACE_EBYTE},
 	{"Ebytes", PM_SPACE_EBYTE}, {"Ebyte", PM_SPACE_EBYTE},
-	{"Exabytes", PM_SPACE_EBYTE}, {"Exabyte", PM_SPACE_EBYTE},
-	{"EB", PM_SPACE_EBYTE},
+	{"Exbibytes", PM_SPACE_EBYTE}, {"Exbibyte", PM_SPACE_EBYTE},
+	{"Exabytes", PM_SPACE_EBYTE}, {"Exabyte", PM_SPACE_EBYTE},	/* back-compat */
+	{"ZB", PM_SPACE_ZBYTE}, {"ZiB", PM_SPACE_ZBYTE},
+	{"Zbytes", PM_SPACE_ZBYTE}, {"Zbyte", PM_SPACE_ZBYTE},
+	{"Zebibytes", PM_SPACE_ZBYTE}, {"Zebibyte", PM_SPACE_ZBYTE},
+	{"Zettabytes", PM_SPACE_ZBYTE}, {"Zettabyte", PM_SPACE_ZBYTE},	/* back-compat */
+	{"YB", PM_SPACE_YBYTE}, {"YiB", PM_SPACE_YBYTE},
+	{"Ybytes", PM_SPACE_YBYTE}, {"Ybyte", PM_SPACE_YBYTE},
+	{"Yobibytes", PM_SPACE_YBYTE}, {"Yobibyte", PM_SPACE_YBYTE},
+	{"Yottabytes", PM_SPACE_YBYTE}, {"Yottabyte", PM_SPACE_YBYTE},	/* back-compat */
 	{"space-0", 0}, /* { "space-1", 1 }, */ {"space-2", 2}, {"space-3", 3},
 	{"space-4", 4}, {"space-5", 5}, {"space-6", 6}, {"space-7", 7},
 	{"space-8", 8}, {"space-9", 9}, {"space-10", 10}, {"space-11", 11},

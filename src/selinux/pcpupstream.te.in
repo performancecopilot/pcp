@@ -54,22 +54,30 @@ require {
 	type ldconfig_exec_t;
 	type httpd_t;
 	type zabbix_port_t;
+	type sysfs_t; #RHBZ1545245
+	type hugetlbfs_t;
+	type proc_mdstat_t;
+	type mdadm_exec_t;
+	type fixed_disk_device_t;
+	@PCP_NUMAD_CONTEXT@
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
-	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner };
+	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner sys_resource };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
-	class process signal; #RHBZ1443632
+	class process { signal execmem setrlimit }; #RHBZ1443632
 	class sock_file write; #RHBZ1449671
 	@PCP_SOCK_FILE_GETATTR@
 	@PCP_CLASS_STATUS@
 	class tcp_socket { name_bind name_connect };
 	class shm { unix_read associate getattr };
 	class filesystem mount;
+	class blk_file { ioctl open read };
+	class msgq { unix_read };
 }
 
 #============= init_t ==============
@@ -107,7 +115,7 @@ allow pcp_pmcd_t pcp_var_lib_t:fifo_file { getattr open read unlink }; #RHBZ1460
 #type=AVC msg=audit(1463754714.313:316): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 #type=AVC msg=audit(1491576442.619:1738169): avc:  denied  { sys_ptrace } for  pid=15205 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 #type=AVC msg=audit(1498833776.957:2094): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
-allow pcp_pmcd_t self:capability { net_admin sys_ptrace ipc_owner chown };
+allow pcp_pmcd_t self:capability { net_admin sys_ptrace ipc_owner chown kill sys_resource };
 
 #type=AVC msg=audit(1491581538.561:10949): avc:  denied  { getattr } for  pid=9375 comm="pmdaproc" path="/run/systemd/initctl/fifo" dev="tmpfs" ino=13290 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initctl_t:s0 tclass=fifo_file permissive=1
 allow pcp_pmcd_t initctl_t:fifo_file getattr;
@@ -119,7 +127,7 @@ allow pcp_pmcd_t proc_kcore_t:file getattr;
 @PCP_CAPUSERNS_PTRACE_RULE@
 
 #type=AVC msg=audit(1485899863.032:3024): avc:  denied  { sys_chroot } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
-allow pcp_pmcd_t self:capability sys_chroot;
+allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource };
 
 #type=AVC msg=audit(1485899838.438:13213): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
 @PCP_NSFS_RULE@
@@ -145,6 +153,7 @@ allow pcp_pmcd_t user_tmp_t:fifo_file { read getattr open };
 #type=AVC msg=audit(1498844147.316:3557): avc:  denied  { execute } for  pid=8648 comm="sh" name="8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(1498844147.316:3558): avc:  denied  { execute_no_trans } for  pid=8648 comm="sh" path="/tmp/8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans };
+@PCP_TMP_T_MAP_RULE@
 
 #type=AVC msg=audit(1498844147.327:3559): avc:  denied  { getattr } for  pid=8656 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(1498844147.327:3560): avc:  denied  { execute } for  pid=8656 comm="sh" name="hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
@@ -200,6 +209,18 @@ allow pcp_pmcd_t postfix_spool_t:dir read;
 allow pcp_pmcd_t httpd_t:shm { unix_read associate getattr };
 allow pcp_pmcd_t httpd_t:sem { unix_read associate getattr };
 
+#RHBZ1545245
+allow pcp_pmcd_t sysfs_t:dir write;
+
+#allow pcp_pmcd_t modules_object_t:lnk_file read;
+
+allow pcp_pmcd_t hugetlbfs_t:dir { open read };
+allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
+allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
+
+#type=AVC msg=audit(1519670939.873:2012): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+#type=AVC msg=audit(1519670949.871:2013): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+@PCP_NUMAD_RULE@
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;

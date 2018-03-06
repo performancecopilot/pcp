@@ -75,6 +75,31 @@ containers.state.running
 == Checking values for active containers
 
 containers.cgroup
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value "/system.slice/docker-a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c.scope"
+
+containers.engine
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value "docker"
+
+containers.name
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value "k8s_shipshift-client_shipshift-client-client-cfme.yaml-11-3cq70_dh-shipshift-staging_43e1c477-180a-11e8-8537-d4bed9f4c83b_0"
+
+containers.pid
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value 72769
+
+containers.state.paused
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value 0
+
+containers.state.restarting
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value 0
+
+containers.state.running
+    inst [N or "a02d125b564534172bd172c340b45511010cd7805cbd4d715d81e1491474e01c"] value 1
+
+== done
+
+== Checking values for active containers
+
+containers.cgroup
 No value(s) available!
 
 containers.engine

@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.0.0
+Version: 4.0.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -10,8 +10,8 @@ Group:   Applications/System
 %global  github https://github.com/performancecopilot
 
 Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
-Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.2.1/pcp-webapp-vector-1.2.1.tar.gz
+Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2.tar.gz
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
@@ -70,6 +70,21 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global perl_interpreter perl-interpreter
 %else
 %global perl_interpreter perl
+%endif
+
+# support for pmdabcc
+%if 0%{?fedora} >= 25 || 0%{?rhel} > 7
+%ifarch s390 s390x armv7hl aarch64 i686
+%global disable_bcc 1
+%else
+%if !%{disable_python3}
+%global disable_bcc 0
+%else
+%global disable_bcc 1
+%endif
+%endif
+%else
+%global disable_bcc 1
 %endif
 
 # support for pmdajson
@@ -140,7 +155,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
 %global disable_elasticsearch 0
 %else
 %global disable_elasticsearch 1
@@ -157,14 +172,12 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
-BuildRequires: xz-devel
 BuildRequires: zlib-devel
 %if !%{disable_python2}
 %if 0%{?default_python} != 3
@@ -198,10 +211,7 @@ BuildRequires: systemtap-sdt-devel
 BuildRequires: boost-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: perl-devel
-%endif
-%if 0%{?fedora}
-BuildRequires: perl-generators
+BuildRequires: perl-devel perl-generators
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
@@ -218,7 +228,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash gawk sed grep fileutils findutils initscripts which
+Requires: bash gawk sed grep findutils initscripts which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -283,6 +293,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_perfevent --with-perfevent=no
 %else
 %global _with_perfevent --with-perfevent=yes
+%endif
+
+%if %{disable_bcc}
+%global _with_bcc --with-pmdabcc=no
+%else
+%global _with_bcc --with-pmdabcc=yes
 %endif
 
 %if %{disable_json}
@@ -628,7 +644,6 @@ Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
-Requires: sysstat
 Requires: perl(XML::TokeParser)
 
 %description import-sar2pcp
@@ -645,7 +660,6 @@ Summary: Performance Co-Pilot tools for importing iostat data into PCP archive l
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
-Requires: sysstat
 
 %description import-iostat2pcp
 Performance Co-Pilot (PCP) front-end tools for importing iostat data
@@ -1438,7 +1452,7 @@ collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
    
 
-%if !%{disable_python3}
+%if !%{disable_bcc}
 #
 # pcp-pmda-bcc
 #
@@ -1930,7 +1944,7 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
 %endif
-%if !%{disable_python3}
+%if !%{disable_bcc}
 Requires: pcp-pmda-bcc
 %endif
 %if !%{disable_python2} || !%{disable_python3}
@@ -2129,14 +2143,11 @@ updated policy package.
 %setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
 
-%clean
-rm -Rf $RPM_BUILD_ROOT
-
 %build
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2569,7 +2580,7 @@ fi
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
 
-%if !%{disable_python3}
+%if !%{disable_bcc}
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
 %endif
@@ -3133,7 +3144,7 @@ cd
 %files pmda-dm
 %{_pmdasdir}/dm
 
-%if !%{disable_python3}
+%if !%{disable_bcc}
 %files pmda-bcc
 %{_pmdasdir}/bcc
 %endif
@@ -3289,8 +3300,31 @@ cd
 %endif
 
 %changelog
-* Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
+* Fri Feb 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
 - Work-in-progress, see http://pcp.io/roadmap
+
+* Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2
+- Disable pmdabcc on architectures without BCC/eBPF support.
+
+* Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
+- pcp-atopsar: robustness around missing data (BZ 1508028)
+- python pmcc method checking for missing metrics (BZ 1508026)
+- Fix generic -s and -T option handling in libpcp (BZ 1352461)
+- Resolve crash in local context mode in libpcp_pmda (BZ 1451475)
+- python api: fix timezone segv from incorrect free (BZ 1352465)
+- Remove section 1 and 5 man pages for pmview tool (BZ 1289126)
+- Update to latest PCP sources.
+
+* Thu Feb 08 2018 Nathan Scott <nathans@redhat.com> - 3.12.2-5
+- Update the Vector webapp to latest upstream (v1.2.1).
+
+* Wed Jan 10 2018 Lukas Berk <lberk@redhat.com> - 3.12.2-4
+- Remove Obsoletes line for pcp-gui-debuginfo
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
+* Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 3.12.2-2
+- Remove old crufty coreutils requires
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - selinux: add pmlogger_exec_t rule from (BZ 1483320)
