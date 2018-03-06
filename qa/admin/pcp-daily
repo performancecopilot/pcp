@@ -1038,7 +1038,7 @@ End-of-File
 		    echo "Warning: Already shutdown"
 		fi
 	    else
-		ssh -t -q $user@$host "sync; sleep 2; sync; ( sudo poweroff || sudo halt )" -f </dev/null >/dev/null 2>&1 &
+		ssh -t -q $user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; ( sudo poweroff || sudo halt )" -f </dev/null >/dev/null 2>&1 &
 		sleep 60
 		sudo virsh shutdown $domain >/dev/null 2>&1
 		sleep 10
