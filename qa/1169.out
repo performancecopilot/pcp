@@ -142,15 +142,15 @@ QA output created by 1169
            count/s    count/s
 00:00:19     1.000      1.000
 == stdout/std test with separate header
-00:00:00  N/A
+00:00:00       N/A
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdb"] - count/s
 [ 3] - disk.dev.write["sda"] - count/s
 [ 4] - disk.dev.write["sdb"] - count/s
 
-                 1         2          3          4
-00:00:01     1.000     1.000      1.000      1.000
+                 1         2         3         4
+00:00:01     1.000     1.000     1.000     1.000
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdb"] - count/s
@@ -158,8 +158,8 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdb"] - count/s
 [ 5] - mem.util.used - Kbyte
 
-                 1         2          3          4         5
-00:00:02     1.000     1.000      1.000      1.000         2
+                 1         2         3         4         5
+00:00:02     1.000     1.000     1.000     1.000         2
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdb"] - count/s
@@ -171,8 +171,8 @@ QA output created by 1169
 [ 8] - disk.dev.write["sdd"] - count/s
 [ 9] - mem.util.used - Kbyte
 
-                 1         2         3         4          5          6          7          8         9
-00:00:03     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000         3
+                 1         2         3         4         5         6         7         8         9
+00:00:03     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000         3
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
@@ -180,17 +180,17 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdd"] - count/s
 [ 5] - mem.util.used - Kbyte
 
-                 1         2          3          4         5
-00:00:04     1.000     1.000      1.000      1.000         4
-00:00:05     1.000     1.000      1.000      1.000         5
+                 1         2         3         4         5
+00:00:04     1.000     1.000     1.000     1.000         4
+00:00:05     1.000     1.000     1.000     1.000         5
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
 [ 3] - disk.dev.write["sdb"] - count/s
 [ 4] - disk.dev.write["sdd"] - count/s
 
-                 1         2          3          4
-00:00:06     1.000     1.000      1.000      1.000
+                 1         2         3         4
+00:00:06     1.000     1.000     1.000     1.000
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
@@ -198,8 +198,8 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdb"] - count/s
 [ 5] - disk.dev.write["sdd"] - count/s
 
-                 1         2         3          4          5
-00:00:07     1.000     1.000     1.000      1.000      1.000
+                 1         2         3         4         5
+00:00:07     1.000     1.000     1.000     1.000     1.000
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
@@ -208,8 +208,8 @@ QA output created by 1169
 [ 5] - disk.dev.write["sdd"] - count/s
 [ 6] - mem.util.used - Kbyte
 
-                 1         2         3          4          5         6
-00:00:08     1.000     1.000     1.000      1.000      1.000         8
+                 1         2         3         4         5         6
+00:00:08     1.000     1.000     1.000     1.000     1.000         8
 
 [  1] - disk.dev.read["sda"] - count/s
 [  2] - disk.dev.read["sdb"] - count/s
@@ -223,11 +223,11 @@ QA output created by 1169
 [ 10] - disk.dev.write["sde"] - count/s
 [ 11] - mem.util.used - Kbyte
 
-                 1         2         3         4         5          6          7          8          9         10        11
-00:00:09     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000         9
-00:00:10     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000        10
-00:00:11     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000        11
-00:00:12     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000        12
+                 1         2         3         4         5         6         7         8         9        10        11
+00:00:09     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000         9
+00:00:10     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000        10
+00:00:11     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000        11
+00:00:12     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000        12
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdc"] - count/s
@@ -235,10 +235,10 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdc"] - count/s
 [ 5] - mem.util.used - Kbyte
 
-                 1         2          3          4         5
-00:00:13     1.000     1.000      1.000      1.000        13
-00:00:14     1.000     1.000      1.000      1.000        14
-00:00:17  N/A
+                 1         2         3         4         5
+00:00:13     1.000     1.000     1.000     1.000        13
+00:00:14     1.000     1.000     1.000     1.000        14
+00:00:17       N/A
 
 [ 1] - disk.dev.read["sdb"] - count/s
 
@@ -248,8 +248,8 @@ QA output created by 1169
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 
-                 1          2
-00:00:19     1.000      1.000
+                 1         2
+00:00:19     1.000     1.000
 == stdout/std test with extended/repeating/separate header
 
   archive: QAPATH/archives/dyninsts
@@ -262,15 +262,15 @@ QA output created by 1169
  interval: N/A
  duration: 00:00:19
 
-00:00:00  N/A
+00:00:00       N/A
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdb"] - count/s
 [ 3] - disk.dev.write["sda"] - count/s
 [ 4] - disk.dev.write["sdb"] - count/s
 
-                 1         2          3          4
-00:00:01     1.000     1.000      1.000      1.000
+                 1         2         3         4
+00:00:01     1.000     1.000     1.000     1.000
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdb"] - count/s
@@ -278,8 +278,8 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdb"] - count/s
 [ 5] - mem.util.used - Kbyte
 
-                 1         2          3          4         5
-00:00:02     1.000     1.000      1.000      1.000         2
+                 1         2         3         4         5
+00:00:02     1.000     1.000     1.000     1.000         2
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdb"] - count/s
@@ -291,8 +291,8 @@ QA output created by 1169
 [ 8] - disk.dev.write["sdd"] - count/s
 [ 9] - mem.util.used - Kbyte
 
-                 1         2         3         4          5          6          7          8         9
-00:00:03     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000         3
+                 1         2         3         4         5         6         7         8         9
+00:00:03     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000         3
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
@@ -300,17 +300,17 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdd"] - count/s
 [ 5] - mem.util.used - Kbyte
 
-                 1         2          3          4         5
-00:00:04     1.000     1.000      1.000      1.000         4
-00:00:05     1.000     1.000      1.000      1.000         5
+                 1         2         3         4         5
+00:00:04     1.000     1.000     1.000     1.000         4
+00:00:05     1.000     1.000     1.000     1.000         5
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
 [ 3] - disk.dev.write["sdb"] - count/s
 [ 4] - disk.dev.write["sdd"] - count/s
 
-                 1         2          3          4
-00:00:06     1.000     1.000      1.000      1.000
+                 1         2         3         4
+00:00:06     1.000     1.000     1.000     1.000
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
@@ -318,8 +318,8 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdb"] - count/s
 [ 5] - disk.dev.write["sdd"] - count/s
 
-                 1         2         3          4          5
-00:00:07     1.000     1.000     1.000      1.000      1.000
+                 1         2         3         4         5
+00:00:07     1.000     1.000     1.000     1.000     1.000
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.read["sdd"] - count/s
@@ -328,8 +328,8 @@ QA output created by 1169
 [ 5] - disk.dev.write["sdd"] - count/s
 [ 6] - mem.util.used - Kbyte
 
-                 1         2         3          4          5         6
-00:00:08     1.000     1.000     1.000      1.000      1.000         8
+                 1         2         3         4         5         6
+00:00:08     1.000     1.000     1.000     1.000     1.000         8
 
 [  1] - disk.dev.read["sda"] - count/s
 [  2] - disk.dev.read["sdb"] - count/s
@@ -343,10 +343,10 @@ QA output created by 1169
 [ 10] - disk.dev.write["sde"] - count/s
 [ 11] - mem.util.used - Kbyte
 
-                 1         2         3         4         5          6          7          8          9         10        11
-00:00:09     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000         9
-00:00:10     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000        10
-00:00:11     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000        11
+                 1         2         3         4         5         6         7         8         9        10        11
+00:00:09     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000         9
+00:00:10     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000        10
+00:00:11     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000        11
 
 [  1] - disk.dev.read["sda"] - count/s
 [  2] - disk.dev.read["sdb"] - count/s
@@ -360,8 +360,8 @@ QA output created by 1169
 [ 10] - disk.dev.write["sde"] - count/s
 [ 11] - mem.util.used - Kbyte
 
-                 1         2         3         4         5          6          7          8          9         10        11
-00:00:12     1.000     1.000     1.000     1.000     1.000      1.000      1.000      1.000      1.000      1.000        12
+                 1         2         3         4         5         6         7         8         9        10        11
+00:00:12     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000     1.000        12
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 2] - disk.dev.read["sdc"] - count/s
@@ -369,10 +369,10 @@ QA output created by 1169
 [ 4] - disk.dev.write["sdc"] - count/s
 [ 5] - mem.util.used - Kbyte
 
-                 1         2          3          4         5
-00:00:13     1.000     1.000      1.000      1.000        13
-00:00:14     1.000     1.000      1.000      1.000        14
-00:00:17  N/A
+                 1         2         3         4         5
+00:00:13     1.000     1.000     1.000     1.000        13
+00:00:14     1.000     1.000     1.000     1.000        14
+00:00:17       N/A
 
 [ 1] - disk.dev.read["sdb"] - count/s
 
@@ -382,8 +382,8 @@ QA output created by 1169
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 
-                 1          2
-00:00:19     1.000      1.000
+                 1         2
+00:00:19     1.000     1.000
 == stdout/colxrow test
 00:00:00  N/A
 
@@ -586,16 +586,16 @@ QA output created by 1169
                  count/s    count/s
 00:00:19   sdb     1.000      1.000
 == stdout/colxrow test with separate header
-00:00:00  N/A
+00:00:00       N/A
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.write["sda"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 
-                       1          2
-00:00:01   sda     1.000      1.000
-00:00:01   sdb     1.000      1.000
+                       1         2
+00:00:01   sda     1.000     1.000
+00:00:01   sdb     1.000     1.000
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -603,10 +603,10 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdb"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:02   sda     1.000      1.000         ~
-00:00:02   sdb     1.000      1.000         ~
-00:00:02     =         ~          ~         2
+                       1         2         3
+00:00:02   sda     1.000     1.000         ~
+00:00:02   sdb     1.000     1.000         ~
+00:00:02     =         ~         ~         2
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -618,12 +618,12 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdd"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:03   sda     1.000      1.000         ~
-00:00:03   sdb     1.000      1.000         ~
-00:00:03   sdc     1.000      1.000         ~
-00:00:03   sdd     1.000      1.000         ~
-00:00:03     =         ~          ~         3
+                       1         2         3
+00:00:03   sda     1.000     1.000         ~
+00:00:03   sdb     1.000     1.000         ~
+00:00:03   sdc     1.000     1.000         ~
+00:00:03   sdd     1.000     1.000         ~
+00:00:03     =         ~         ~         3
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
@@ -631,22 +631,22 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdd"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:04   sdb     1.000      1.000         ~
-00:00:04   sdd     1.000      1.000         ~
-00:00:04     =         ~          ~         4
-00:00:05   sdb     1.000      1.000         ~
-00:00:05   sdd     1.000      1.000         ~
-00:00:05     =         ~          ~         5
+                       1         2         3
+00:00:04   sdb     1.000     1.000         ~
+00:00:04   sdd     1.000     1.000         ~
+00:00:04     =         ~         ~         4
+00:00:05   sdb     1.000     1.000         ~
+00:00:05   sdd     1.000     1.000         ~
+00:00:05     =         ~         ~         5
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 [ 2] - disk.dev.write["sdd"] - count/s
 
-                       1          2
-00:00:06   sdb     1.000      1.000
-00:00:06   sdd     1.000      1.000
+                       1         2
+00:00:06   sdb     1.000     1.000
+00:00:06   sdd     1.000     1.000
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
@@ -654,10 +654,10 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdb"] - count/s
 [ 2] - disk.dev.write["sdd"] - count/s
 
-                       1          2
-00:00:07   sdb     1.000      1.000
-00:00:07   sdd     1.000      1.000
-00:00:07   sde     1.000          ~
+                       1         2
+00:00:07   sdb     1.000     1.000
+00:00:07   sdd     1.000     1.000
+00:00:07   sde     1.000         ~
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
@@ -666,11 +666,11 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdd"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:08   sdb     1.000      1.000         ~
-00:00:08   sdd     1.000      1.000         ~
-00:00:08   sde     1.000          ~         ~
-00:00:08     =         ~          ~         8
+                       1         2         3
+00:00:08   sdb     1.000     1.000         ~
+00:00:08   sdd     1.000     1.000         ~
+00:00:08   sde     1.000         ~         ~
+00:00:08     =         ~         ~         8
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -684,31 +684,31 @@ QA output created by 1169
 [ 2] - disk.dev.write["sde"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:09   sda     1.000      1.000         ~
-00:00:09   sdb     1.000      1.000         ~
-00:00:09   sdc     1.000      1.000         ~
-00:00:09   sdd     1.000      1.000         ~
-00:00:09   sde     1.000      1.000         ~
-00:00:09     =         ~          ~         9
-00:00:10   sda     1.000      1.000         ~
-00:00:10   sdb     1.000      1.000         ~
-00:00:10   sdc     1.000      1.000         ~
-00:00:10   sdd     1.000      1.000         ~
-00:00:10   sde     1.000      1.000         ~
-00:00:10     =         ~          ~        10
-00:00:11   sda     1.000      1.000         ~
-00:00:11   sdb     1.000      1.000         ~
-00:00:11   sdc     1.000      1.000         ~
-00:00:11   sdd     1.000      1.000         ~
-00:00:11   sde     1.000      1.000         ~
-00:00:11     =         ~          ~        11
-00:00:12   sda     1.000      1.000         ~
-00:00:12   sdb     1.000      1.000         ~
-00:00:12   sdc     1.000      1.000         ~
-00:00:12   sdd     1.000      1.000         ~
-00:00:12   sde     1.000      1.000         ~
-00:00:12     =         ~          ~        12
+                       1         2         3
+00:00:09   sda     1.000     1.000         ~
+00:00:09   sdb     1.000     1.000         ~
+00:00:09   sdc     1.000     1.000         ~
+00:00:09   sdd     1.000     1.000         ~
+00:00:09   sde     1.000     1.000         ~
+00:00:09     =         ~         ~         9
+00:00:10   sda     1.000     1.000         ~
+00:00:10   sdb     1.000     1.000         ~
+00:00:10   sdc     1.000     1.000         ~
+00:00:10   sdd     1.000     1.000         ~
+00:00:10   sde     1.000     1.000         ~
+00:00:10     =         ~         ~        10
+00:00:11   sda     1.000     1.000         ~
+00:00:11   sdb     1.000     1.000         ~
+00:00:11   sdc     1.000     1.000         ~
+00:00:11   sdd     1.000     1.000         ~
+00:00:11   sde     1.000     1.000         ~
+00:00:11     =         ~         ~        11
+00:00:12   sda     1.000     1.000         ~
+00:00:12   sdb     1.000     1.000         ~
+00:00:12   sdc     1.000     1.000         ~
+00:00:12   sdd     1.000     1.000         ~
+00:00:12   sde     1.000     1.000         ~
+00:00:12     =         ~         ~        12
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdc"] - count/s
@@ -716,14 +716,14 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdc"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:13   sda     1.000      1.000         ~
-00:00:13   sdc     1.000      1.000         ~
-00:00:13     =         ~          ~        13
-00:00:14   sda     1.000      1.000         ~
-00:00:14   sdc     1.000      1.000         ~
-00:00:14     =         ~          ~        14
-00:00:17  N/A
+                       1         2         3
+00:00:13   sda     1.000     1.000         ~
+00:00:13   sdc     1.000     1.000         ~
+00:00:13     =         ~         ~        13
+00:00:14   sda     1.000     1.000         ~
+00:00:14   sdc     1.000     1.000         ~
+00:00:14     =         ~         ~        14
+00:00:17       N/A
 
 [ 1] - disk.dev.read["sdb"] - count/s
 
@@ -733,8 +733,8 @@ QA output created by 1169
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 
-                       1          2
-00:00:19   sdb     1.000      1.000
+                       1         2
+00:00:19   sdb     1.000     1.000
 == stdout/colxrow test with extended/repeating/separate header
 
   archive: QAPATH/archives/dyninsts
@@ -747,16 +747,16 @@ QA output created by 1169
  interval: N/A
  duration: 00:00:19
 
-00:00:00  N/A
+00:00:00       N/A
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.write["sda"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 
-                       1          2
-00:00:01   sda     1.000      1.000
-00:00:01   sdb     1.000      1.000
+                       1         2
+00:00:01   sda     1.000     1.000
+00:00:01   sdb     1.000     1.000
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -764,10 +764,10 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdb"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:02   sda     1.000      1.000         ~
-00:00:02   sdb     1.000      1.000         ~
-00:00:02     =         ~          ~         2
+                       1         2         3
+00:00:02   sda     1.000     1.000         ~
+00:00:02   sdb     1.000     1.000         ~
+00:00:02     =         ~         ~         2
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -779,12 +779,12 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdd"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:03   sda     1.000      1.000         ~
-00:00:03   sdb     1.000      1.000         ~
-00:00:03   sdc     1.000      1.000         ~
-00:00:03   sdd     1.000      1.000         ~
-00:00:03     =         ~          ~         3
+                       1         2         3
+00:00:03   sda     1.000     1.000         ~
+00:00:03   sdb     1.000     1.000         ~
+00:00:03   sdc     1.000     1.000         ~
+00:00:03   sdd     1.000     1.000         ~
+00:00:03     =         ~         ~         3
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
@@ -792,22 +792,22 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdd"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:04   sdb     1.000      1.000         ~
-00:00:04   sdd     1.000      1.000         ~
-00:00:04     =         ~          ~         4
-00:00:05   sdb     1.000      1.000         ~
-00:00:05   sdd     1.000      1.000         ~
-00:00:05     =         ~          ~         5
+                       1         2         3
+00:00:04   sdb     1.000     1.000         ~
+00:00:04   sdd     1.000     1.000         ~
+00:00:04     =         ~         ~         4
+00:00:05   sdb     1.000     1.000         ~
+00:00:05   sdd     1.000     1.000         ~
+00:00:05     =         ~         ~         5
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 [ 2] - disk.dev.write["sdd"] - count/s
 
-                       1          2
-00:00:06   sdb     1.000      1.000
-00:00:06   sdd     1.000      1.000
+                       1         2
+00:00:06   sdb     1.000     1.000
+00:00:06   sdd     1.000     1.000
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
@@ -815,10 +815,10 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdb"] - count/s
 [ 2] - disk.dev.write["sdd"] - count/s
 
-                       1          2
-00:00:07   sdb     1.000      1.000
-00:00:07   sdd     1.000      1.000
-00:00:07   sde     1.000          ~
+                       1         2
+00:00:07   sdb     1.000     1.000
+00:00:07   sdd     1.000     1.000
+00:00:07   sde     1.000         ~
 
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 1] - disk.dev.read["sdd"] - count/s
@@ -827,43 +827,11 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdd"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:08   sdb     1.000      1.000         ~
-00:00:08   sdd     1.000      1.000         ~
-00:00:08   sde     1.000          ~         ~
-00:00:08     =         ~          ~         8
-
-[ 1] - disk.dev.read["sda"] - count/s
-[ 1] - disk.dev.read["sdb"] - count/s
-[ 1] - disk.dev.read["sdc"] - count/s
-[ 1] - disk.dev.read["sdd"] - count/s
-[ 1] - disk.dev.read["sde"] - count/s
-[ 2] - disk.dev.write["sda"] - count/s
-[ 2] - disk.dev.write["sdb"] - count/s
-[ 2] - disk.dev.write["sdc"] - count/s
-[ 2] - disk.dev.write["sdd"] - count/s
-[ 2] - disk.dev.write["sde"] - count/s
-[ 3] - mem.util.used - Kbyte
-
-                       1          2         3
-00:00:09   sda     1.000      1.000         ~
-00:00:09   sdb     1.000      1.000         ~
-00:00:09   sdc     1.000      1.000         ~
-00:00:09   sdd     1.000      1.000         ~
-00:00:09   sde     1.000      1.000         ~
-00:00:09     =         ~          ~         9
-00:00:10   sda     1.000      1.000         ~
-00:00:10   sdb     1.000      1.000         ~
-00:00:10   sdc     1.000      1.000         ~
-00:00:10   sdd     1.000      1.000         ~
-00:00:10   sde     1.000      1.000         ~
-00:00:10     =         ~          ~        10
-00:00:11   sda     1.000      1.000         ~
-00:00:11   sdb     1.000      1.000         ~
-00:00:11   sdc     1.000      1.000         ~
-00:00:11   sdd     1.000      1.000         ~
-00:00:11   sde     1.000      1.000         ~
-00:00:11     =         ~          ~        11
+                       1         2         3
+00:00:08   sdb     1.000     1.000         ~
+00:00:08   sdd     1.000     1.000         ~
+00:00:08   sde     1.000         ~         ~
+00:00:08     =         ~         ~         8
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -877,13 +845,45 @@ QA output created by 1169
 [ 2] - disk.dev.write["sde"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:12   sda     1.000      1.000         ~
-00:00:12   sdb     1.000      1.000         ~
-00:00:12   sdc     1.000      1.000         ~
-00:00:12   sdd     1.000      1.000         ~
-00:00:12   sde     1.000      1.000         ~
-00:00:12     =         ~          ~        12
+                       1         2         3
+00:00:09   sda     1.000     1.000         ~
+00:00:09   sdb     1.000     1.000         ~
+00:00:09   sdc     1.000     1.000         ~
+00:00:09   sdd     1.000     1.000         ~
+00:00:09   sde     1.000     1.000         ~
+00:00:09     =         ~         ~         9
+00:00:10   sda     1.000     1.000         ~
+00:00:10   sdb     1.000     1.000         ~
+00:00:10   sdc     1.000     1.000         ~
+00:00:10   sdd     1.000     1.000         ~
+00:00:10   sde     1.000     1.000         ~
+00:00:10     =         ~         ~        10
+00:00:11   sda     1.000     1.000         ~
+00:00:11   sdb     1.000     1.000         ~
+00:00:11   sdc     1.000     1.000         ~
+00:00:11   sdd     1.000     1.000         ~
+00:00:11   sde     1.000     1.000         ~
+00:00:11     =         ~         ~        11
+
+[ 1] - disk.dev.read["sda"] - count/s
+[ 1] - disk.dev.read["sdb"] - count/s
+[ 1] - disk.dev.read["sdc"] - count/s
+[ 1] - disk.dev.read["sdd"] - count/s
+[ 1] - disk.dev.read["sde"] - count/s
+[ 2] - disk.dev.write["sda"] - count/s
+[ 2] - disk.dev.write["sdb"] - count/s
+[ 2] - disk.dev.write["sdc"] - count/s
+[ 2] - disk.dev.write["sdd"] - count/s
+[ 2] - disk.dev.write["sde"] - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:12   sda     1.000     1.000         ~
+00:00:12   sdb     1.000     1.000         ~
+00:00:12   sdc     1.000     1.000         ~
+00:00:12   sdd     1.000     1.000         ~
+00:00:12   sde     1.000     1.000         ~
+00:00:12     =         ~         ~        12
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdc"] - count/s
@@ -891,14 +891,14 @@ QA output created by 1169
 [ 2] - disk.dev.write["sdc"] - count/s
 [ 3] - mem.util.used - Kbyte
 
-                       1          2         3
-00:00:13   sda     1.000      1.000         ~
-00:00:13   sdc     1.000      1.000         ~
-00:00:13     =         ~          ~        13
-00:00:14   sda     1.000      1.000         ~
-00:00:14   sdc     1.000      1.000         ~
-00:00:14     =         ~          ~        14
-00:00:17  N/A
+                       1         2         3
+00:00:13   sda     1.000     1.000         ~
+00:00:13   sdc     1.000     1.000         ~
+00:00:13     =         ~         ~        13
+00:00:14   sda     1.000     1.000         ~
+00:00:14   sdc     1.000     1.000         ~
+00:00:14     =         ~         ~        14
+00:00:17       N/A
 
 [ 1] - disk.dev.read["sdb"] - count/s
 
@@ -908,8 +908,8 @@ QA output created by 1169
 [ 1] - disk.dev.read["sdb"] - count/s
 [ 2] - disk.dev.write["sdb"] - count/s
 
-                       1          2
-00:00:19   sdb     1.000      1.000
+                       1         2
+00:00:19   sdb     1.000     1.000
 == csv test
 1970-01-01 00:00:00
 Time,"disk.dev.read-sda","disk.dev.read-sdb","disk.dev.write-sda","disk.dev.write-sdb"
