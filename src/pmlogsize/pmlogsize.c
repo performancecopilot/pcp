@@ -33,15 +33,13 @@ static pmLongOptions longopts[] = {
     { "replication", 0, 'r', 0, "report replicated metric values and instances" },
     { "verbose", 0, 'v', 0, "verbose output" },
     { "threshold", 1, 'x', "thres", "cull detailed report after thres % of space reported" },
-    PMOPT_HOSTZONE,
-    PMOPT_TIMEZONE,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "dD:rvx:zZ:?",
+    .short_options = "dD:rvx:?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -51,6 +49,12 @@ filter(const struct dirent *dp)
 {
     char logBase[MAXPATHLEN];
     static int	len = -1;
+
+    if (dp == NULL) {
+	/* reset */
+	len = -1;
+	return 0;
+    }
 
     if (len == -1) {
 	len = strlen(argbasename);
@@ -151,26 +155,20 @@ do_work(char *fname)
     __pmFclose(f);
 }
 
-/* sort lexicographically smallest file name first */
-static int
-fname_compar(const void *a, const void *b)
-{
-    return strcmp((*(struct dirent **)a)->d_name, (*(struct dirent **)b)->d_name);
-}
-
 int
 main(int argc, char *argv[])
 {
     int			c;
+    struct stat		sbuf;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'd':	/* bump detail reporting */
-	    dflag++;
+	    dflag = 1;
 	    break;
 
 	case 'r':	/* bump replication reporting */
-	    rflag++;
+	    dflag = rflag = 1;
 	    break;
 
 	case 'x':	/* cut-off threshold % for detailed reporting */
@@ -205,8 +203,11 @@ main(int argc, char *argv[])
     __pmEndOptions(&opts);
 
     while (opts.optind < argc) {
-	if (access(argv[opts.optind], F_OK) == 0)
+	if (access(argv[opts.optind], F_OK) == 0 &&
+	    stat(argv[opts.optind], &sbuf) == 0 &&
+	    (sbuf.st_mode & S_IFMT) == S_IFREG) {
 	    do_work(argv[opts.optind]);
+	}
 	else {
 	    /*
 	     * may be the basename of an archive, so process all
@@ -226,12 +227,16 @@ main(int argc, char *argv[])
 	    argbasename = basename(tmp1);
 	    argdirname = dirname(tmp2);
 
-	    nfile = scandir(argdirname, &filelist, filter, NULL);
-	    if (nfile < 1) {
+	    filter(NULL);
+	    nfile = scandir(argdirname, &filelist, filter, alphasort);
+	    if (nfile < 0) {
+		fprintf(stderr, "Error: scandir(\"%s\", ...) failed: %s\n",  argdirname, pmErrStr(-errno));
+		exit(1);
+	    }
+	    else if (nfile == 0) {
 		fprintf(stderr, "Error: no PCP archive files match \"%s\"\n", argv[opts.optind]);
 		exit(1);
 	    }
-	    qsort(filelist, nfile, sizeof(filelist[0]), fname_compar);
 	    for (i = 0; i < nfile; i++) {
 		if (strcmp(argdirname, ".") == 0) {
 		    /* skip ./ prefix */
@@ -241,6 +246,7 @@ main(int argc, char *argv[])
 		    pmsprintf(path, sizeof(path), "%s%c%s", argdirname, sep, filelist[i]->d_name);
 		}
 		do_work(path);
+		free(filelist[i]);
 	    }
 	    free(tmp1);
 	    free(tmp2);

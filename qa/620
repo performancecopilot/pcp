@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 620
+# valgrind checkout for pmlogsize
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+for arg in "" -d -dr
+do
+    echo "=== arg=$arg ==="
+    _run_valgrind pmlogsize $arg archives/ok-mv-bar archives/ok-foo
+done
+
+# success, all done
+status=0
+exit

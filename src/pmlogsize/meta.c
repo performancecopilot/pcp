@@ -243,8 +243,10 @@ do_meta(__pmFILE *f)
 	    bytes[TYPE_INDOM], 100*(float)bytes[TYPE_INDOM]/sbuf.st_size, nrec[TYPE_INDOM]);
 	if (dflag) {
 	    j = 0;
-	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
-		j += indomp->nuniq_inst + indomp->ndup_inst;
+	    if (indom_tab != NULL) {
+		for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
+		    j += indomp->nuniq_inst + indomp->ndup_inst;
+		}
 	    }
 	    printf(", %d instances", j);
 	    sum_bytes = 0;
@@ -298,6 +300,17 @@ do_meta(__pmFILE *f)
 
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
+
+    free(buf);
+    if (indom_tab != NULL) {
+	for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
+	    for (k = 0; k < indomp->nuniq_inst; k++) {
+		free(indomp->inst_tab[k].name);
+	    }
+	    free(indomp->inst_tab);
+	}
+	free(indom_tab);
+    }
 
     return;
 }

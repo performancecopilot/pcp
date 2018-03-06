@@ -1,0 +1,15 @@
+QA output created by 621
+Error: no archive specified
+
+Usage: pmlogsize [options] archive
+
+Options:
+  -d, --detail          detailed output (per metric and per indom)
+  -r, --replication     report replicated metric values and instances
+  -v, --verbose         verbose output
+  -x thres, --threshold=thres
+                        cull detailed report after thres % of space reported
+  -?, --help            show this usage message and exit
+Error: no PCP archive files match "."
+Error: no PCP archive files match "dangling"
+empty.0: label header read botch: read returns 0 not 4 as expected

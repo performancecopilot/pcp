@@ -1,0 +1,166 @@
+QA output created by 620
+=== arg= ===
+=== std out ===
+archives/ok-mv-bar.0:
+  data: 1168 bytes [68%, 21 records]
+  overhead: 552 bytes [32%]
+archives/ok-mv-bar.1:
+  data: 1040 bytes [66%, 20 records]
+  overhead: 532 bytes [34%]
+archives/ok-mv-bar.2:
+  data: 1040 bytes [66%, 20 records]
+  overhead: 532 bytes [34%]
+archives/ok-mv-bar.3:
+  data: 520 bytes [61%, 10 records]
+  overhead: 332 bytes [39%]
+archives/ok-mv-bar.index:
+  index: 120 bytes [48%, 6 entries]
+  overhead: 132 bytes [52%]
+archives/ok-mv-bar.meta:
+  metrics: 314 bytes [45%, 5 records]
+  indoms: 198 bytes [28%, 2 records]
+  overhead: 188 bytes [27%]
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+  overhead: 312 bytes [16%]
+archives/ok-foo.index:
+  index: 60 bytes [31%, 3 entries]
+  overhead: 132 bytes [69%]
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records]
+  overhead: 220 bytes [26%]
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogsize archives/ok-mv-bar archives/ok-foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== arg=-d ===
+=== std out ===
+archives/ok-mv-bar.0:
+  data: 1168 bytes [68%, 21 records]
+    30.0.3: 640 bytes [37%, 20 records, 20 values] (sampledso.milliseconds)
+    30.0.6: 400 bytes [23%, 20 records, 20 values] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+    2.3.2: 64 bytes [4%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 44 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 552 bytes [32%]
+archives/ok-mv-bar.1:
+  data: 1040 bytes [66%, 20 records]
+    30.0.3: 640 bytes [41%, 20 records, 20 values] (sampledso.milliseconds)
+    30.0.6: 400 bytes [25%, 20 records, 20 values] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+  overhead: 532 bytes [34%]
+archives/ok-mv-bar.2:
+  data: 1040 bytes [66%, 20 records]
+    30.0.3: 640 bytes [41%, 20 records, 20 values] (sampledso.milliseconds)
+    30.0.6: 400 bytes [25%, 20 records, 20 values] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+  overhead: 532 bytes [34%]
+archives/ok-mv-bar.3:
+  data: 520 bytes [61%, 10 records]
+    30.0.3: 320 bytes [38%, 10 records, 10 values] (sampledso.milliseconds)
+    30.0.6: 200 bytes [23%, 10 records, 10 values] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+  overhead: 332 bytes [39%]
+archives/ok-mv-bar.index:
+  index: 120 bytes [48%, 6 entries]
+  overhead: 132 bytes [52%]
+archives/ok-mv-bar.meta:
+  metrics: 314 bytes [45%, 5 records]
+  indoms: 198 bytes [28%, 2 records, 10 instances]
+    30.2: 164 bytes [23%, 1 record, 9 instances]
+    2.1: 34 bytes [5%, 1 record, 1 instance]
+  overhead: 188 bytes [27%]
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+    29.0.6: 672 bytes [34%, 8 records, 72 values] (sample.bin)
+    29.0.5: 288 bytes [15%, 8 records, 24 values] (sample.colour)
+    29.0.46: 252 bytes [13%, 8 records, 8 values] (sample.lights)
+    29.0.7: 160 bytes [8%, 8 records, 8 values] (sample.drift)
+    29.0.2: 160 bytes [8%, 8 records, 8 values] (sample.seconds)
+    2.3.2: 64 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 48 bytes [2%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 312 bytes [16%]
+archives/ok-foo.index:
+  index: 60 bytes [31%, 3 entries]
+  overhead: 132 bytes [69%]
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    2.1: 33 bytes [4%, 1 record, 1 instance]
+  overhead: 220 bytes [26%]
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogsize -d archives/ok-mv-bar archives/ok-foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== arg=-dr ===
+=== std out ===
+archives/ok-mv-bar.0:
+  data: 1168 bytes [68%, 21 records]
+    30.0.3: 640 bytes [37%, 20 records, 20 values] (sampledso.milliseconds)
+    30.0.6: 400 bytes [23%, 20 records, 20 values (136 bytes for 17 dups)] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+    2.3.2: 64 bytes [4%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 44 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 552 bytes [32%]
+archives/ok-mv-bar.1:
+  data: 1040 bytes [66%, 20 records]
+    30.0.3: 640 bytes [41%, 20 records, 20 values] (sampledso.milliseconds)
+    30.0.6: 400 bytes [25%, 20 records, 20 values (136 bytes for 17 dups)] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+  overhead: 532 bytes [34%]
+archives/ok-mv-bar.2:
+  data: 1040 bytes [66%, 20 records]
+    30.0.3: 640 bytes [41%, 20 records, 20 values] (sampledso.milliseconds)
+    30.0.6: 400 bytes [25%, 20 records, 20 values (136 bytes for 17 dups)] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+  overhead: 532 bytes [34%]
+archives/ok-mv-bar.3:
+  data: 520 bytes [61%, 10 records]
+    30.0.3: 320 bytes [38%, 10 records, 10 values] (sampledso.milliseconds)
+    30.0.6: 200 bytes [23%, 10 records, 10 values (56 bytes for 7 dups)] (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin)
+  overhead: 332 bytes [39%]
+archives/ok-mv-bar.index:
+  index: 120 bytes [48%, 6 entries]
+  overhead: 132 bytes [52%]
+archives/ok-mv-bar.meta:
+  metrics: 314 bytes [45%, 5 records]
+  indoms: 198 bytes [28%, 2 records, 10 instances]
+    30.2: 164 bytes [23%, 1 record, 9 instances]
+    2.1: 34 bytes [5%, 1 record, 1 instance]
+  overhead: 188 bytes [27%]
+archives/ok-foo.0:
+  data: 1664 bytes [84%, 9 records]
+    29.0.6: 672 bytes [34%, 8 records, 72 values (504 bytes for 63 dups)] (sample.bin)
+    29.0.5: 288 bytes [15%, 8 records, 24 values] (sample.colour)
+    29.0.46: 252 bytes [13%, 8 records, 8 values (91 bytes for 5 dups)] (sample.lights)
+    29.0.7: 160 bytes [8%, 8 records, 8 values (8 bytes for 1 dup)] (sample.drift)
+    29.0.2: 160 bytes [8%, 8 records, 8 values] (sample.seconds)
+    2.3.2: 64 bytes [3%, 1 record, 1 value] (pmcd.pmlogger.archive)
+    2.3.3: 48 bytes [2%, 1 record, 1 value] (pmcd.pmlogger.host)
+    2.3.0: 20 bytes [1%, 1 record, 1 value] (pmcd.pmlogger.port)
+  overhead: 312 bytes [16%]
+archives/ok-foo.index:
+  index: 60 bytes [31%, 3 entries]
+  overhead: 132 bytes [69%]
+archives/ok-foo.meta:
+  metrics: 375 bytes [44%, 8 records]
+  indoms: 256 bytes [30%, 3 records, 13 instances]
+    29.2: 164 bytes [19%, 1 record, 9 instances]
+    29.1: 59 bytes [7%, 1 record, 3 instances]
+    2.1: 33 bytes [4%, 1 record, 1 instance]
+  overhead: 220 bytes [26%]
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogsize -dr archives/ok-mv-bar archives/ok-foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

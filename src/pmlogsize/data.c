@@ -34,8 +34,8 @@ typedef struct {
     __pmHashCtl		values;
 } metric_t;
 
-static int		nmetric = 0;		/* number of unique metrics seen */
-static metric_t		*metric_tab = NULL;	/* metric entries */
+static int		nmetric;	/* number of unique metrics seen */
+static metric_t		*metric_tab;	/* metric entries */
 
 /* sort largest first */
 static int
@@ -136,6 +136,9 @@ do_data(__pmFILE *f, char *fname)
     metric_t	*metricp;
     __pmPDUHdr *php;
     pmResult	*rp;
+
+    nmetric = 0;
+    metric_tab = NULL;
 
     ctx = pmNewContext(PM_CONTEXT_ARCHIVE, fname);	/* OK if this fails */
 

@@ -974,6 +974,8 @@ pmlogsize
 617 dbpmda help local
 618 pmlogsize local
 619 pmlogsize local
+620 pmlogsize valgrind local
+621 pmlogsize local
 622 pmie remote
 624 pmlogrewrite pmdumplog xz-decompress local
 625 libpcp getopt pmval local
