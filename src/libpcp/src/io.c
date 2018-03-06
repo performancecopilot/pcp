@@ -299,6 +299,7 @@ fopen_compress(const char *fname, int compress_ix)
 	setoserror(sts);
 	return NULL;
     }
+    __pmFseek(fp, 0L, SEEK_SET);	/* rewind temp file */
     /* success */
     return fp;
 }

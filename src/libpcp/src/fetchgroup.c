@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -40,6 +40,7 @@
  */
 struct __pmFetchGroup {
     int	ctx;			/* our pcp context */
+    int wrap;			/* wrap-handling flag, set at fg-create-time */
     pmResult *prevResult;
     struct __pmFetchGroupItem *items;
     pmID *unique_pmids;
@@ -682,6 +683,25 @@ pmfg_convert_double(const pmDesc *desc, const pmFGC conv, double *value)
 }
 
 static int
+pmfg_unwrap_counter(pmFG pmfg, int type, double *value)
+{
+    if (pmfg->wrap) {
+	switch (type) {
+	    case PM_TYPE_32:
+	    case PM_TYPE_U32:
+		*value += (double)UINT_MAX+1;
+		break;
+	    case PM_TYPE_64:
+	    case PM_TYPE_U64:
+		*value += (double)ULONGLONG_MAX+1;
+		break;
+	}
+	return 0;
+    }
+    return PM_ERR_VALUE;
+}
+
+static int
 pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 			  int first_vset, const pmDesc *desc, const pmFGC conv,
 			  pmValueSet **vsets, int numpmid,
@@ -720,7 +740,9 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 	    if (sts)
 		return sts;
 
-	    delta = (v.d - prev_v.d) / deltaT;
+	    delta = v.d - prev_v.d;
+	    if (delta < 0.0)
+		sts = pmfg_unwrap_counter(pmfg, desc->type, &delta);
 	    /*
 	     * NB: the units of this delta value are: "metric_units / second",
 	     * something we don't represent formally with another pmUnits
@@ -729,7 +751,10 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 	     * other, the pmfg_prep_conversion code will adjust the scalar
 	     * multiplier to map from /second to /hour etc.
 	     */
-	    sts = pmfg_convert_double(desc, conv, &delta);
+	    if (sts == 0) {
+		delta /= deltaT;
+		sts = pmfg_convert_double(desc, conv, &delta);
+	    }
 	    if (sts)
 		return sts;
 
@@ -1195,6 +1220,12 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
 	return sts;
     }
     pmfg->ctx = sts;
+
+    /* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */
+    PM_LOCK(__pmLock_extcall);
+    if (getenv("PCP_COUNTER_WRAP") != NULL)
+	pmfg->wrap = 1;
+    PM_UNLOCK(__pmLock_extcall);
 
     /*
      * Wipe clean all instances; we'll add them back incrementally as

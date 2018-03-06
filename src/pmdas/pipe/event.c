@@ -820,7 +820,6 @@ event_config_dir(const char *dname)
 	if (list[i]->d_name[0] == '.')
 	    continue;
 	pmsprintf(path, sizeof(path), "%s%c%s", dname, sep, list[i]->d_name);
-	path[sizeof(path)-1] = '\0';
 	if ((sts = event_config(path)) < 0)
 	    break;
     }

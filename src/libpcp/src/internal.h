@@ -163,6 +163,14 @@ extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
 #endif
 
+#if !defined(PTHREAD_STACK_MIN)
+#if defined(IS_SOLARIS)
+#define PTHREAD_STACK_MIN       ((size_t)_sysconf(_SC_THREAD_STACK_MIN))
+#else
+#define PTHREAD_STACK_MIN       16384
+#endif
+#endif
+
 /* AF_UNIX socket family internals */
 #define PM_HOST_SPEC_NPORTS_LOCAL (-1)
 #define PM_HOST_SPEC_NPORTS_UNIX  (-2)
@@ -292,12 +300,10 @@ typedef struct {
 } __pmServiceDiscoveryOptions;
 
 extern int __pmAddDiscoveredService(__pmServiceInfo *,
-				    const __pmServiceDiscoveryOptions *,
-				    int,
-				    char ***) _PCP_HIDDEN;
-extern char *__pmServiceDiscoveryParseTimeout (const char *s,
-					       struct timeval *timeout)
-					       _PCP_HIDDEN;
+				const __pmServiceDiscoveryOptions *,
+				int, char ***) _PCP_HIDDEN;
+extern char *__pmServiceDiscoveryParseTimeout(const char *s,
+				struct timeval *timeout) _PCP_HIDDEN;
 
 extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
 extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;

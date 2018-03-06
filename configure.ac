@@ -1979,6 +1979,8 @@ pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
+pcp_selinux_numad=false
+
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -2055,6 +2057,11 @@ do
        then
            pcp_selinux_unconfined=true
        fi
+       numad=`eval seinfo -t -- $policy_file | grep numad_t | awk '{ print $1 }'`
+       if test "x$numad" != "x"
+       then
+           pcp_selinux_numad=true
+       fi
     fi
 done
 ])
@@ -2072,6 +2079,7 @@ AC_SUBST(pcp_selinux_sock_file_getattr)
 AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
+AC_SUBST(pcp_selinux_numad)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2362,36 +2370,36 @@ $2 == "bozo"	{ t = $1
     case "$_raw"
     in
     int)
-    	_fmt='"d"'
+    	_fmt='d'
 	;;
     unsigned|'unsigned int')
-    	_fmt='"u"'
+    	_fmt='u'
 	;;
     long|'long int')
-	_fmt='"ld"'
+	_fmt='ld'
 	;;
     'long long'|'long long int')
         if test $target_os = mingw; then
-            _fmt='"I64d"'
+            _fmt='I64d'
         else
-	    _fmt='"lld"'
+	    _fmt='lld'
         fi
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
-	_fmt='"lu"'
+	_fmt='lu'
 	;;
     'unsigned long long'|'unsigned long long int')
         if test $target_os = mingw; then
-            _fmt='"I64u"'
+            _fmt='I64u'
         else
-	    _fmt='"llu"'
+	    _fmt='llu'
         fi
 	;;
     *\*)	# pointer to a something
-	_fmt='"p"'
+	_fmt='p'
 	;;
     struct\ *)	# not much can be done here ...
-	_fmt='"p"'
+	_fmt='p'
 	;;
     *)
 	echo
@@ -2409,7 +2417,7 @@ AC_MSG_CHECKING([printf type for pid_t])
 if test "$cross_compiling" = "yes"; then
     ans=$printf_fmt_pid
     echo "cross-compile -> \"$ans\"" >&5
-    fmt_pid="$ans"
+    fmt_pid=$ans
 else
     cat <<End-of-File >conftest.c
 #include <sys/types.h>
@@ -2417,7 +2425,7 @@ else
 pid_t bozo;
 End-of-File
     _do_type
-    fmt_pid="$_fmt"
+    fmt_pid=$_fmt
 fi
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
@@ -2435,7 +2443,15 @@ else
 #include <inttypes.h>
 int main()
 {
-    printf("\"%s\"\n", __PRI64_PREFIX "d");
+#if defined(__PRI64_PREFIX)
+    /* most of the civilized universe */
+    printf("%s\n", __PRI64_PREFIX "d");
+#elif defined(__PRI_64_LENGTH_MODIFIER__)
+    /* Darwin */
+    printf("%s\n", __PRI_64_LENGTH_MODIFIER__ "d");
+#else
+    bozo!	/* fall through to the hardway below */
+#endif
     return(0);
 }
 End-of-File
@@ -2458,16 +2474,22 @@ int main()
 #ifdef __WORDSIZE
 /* logic copied from <inttypes.h> */
 #if __WORDSIZE == 64
-    printf("\"ld\"\n");
+    printf("ld\n");
 #else
-    printf("\"lld\"\n");
+    printf("lld\n");
 #endif
 #else
 /* on NetBSD, for example, there is no __WORDSIZE */
-    if (sizeof(int) == 8)
-	printf("\"ld\"\n");
-    else
-	printf("\"lld\"\n");
+    if (sizeof(long long) == 8)
+	printf("lld\n");
+    else if (sizeof(long) == 8)
+	printf("ld\n");
+    else if (sizeof(int) == 8)
+	printf("d\n");
+    else {
+	printf("no clue what printf format to use for __int64_t\n");
+	return(1);
+    }
 #endif
     return(0);
 }
@@ -2486,11 +2508,11 @@ then
     rm -rf conftest conftest.*
     exit 1
 fi
-fmt_int64="$ans"
-AC_MSG_RESULT("$fmt_int64")
+fmt_int64=$ans
+AC_MSG_RESULT($fmt_int64)
 AC_SUBST(fmt_int64)
 dnl and the unsigned version of this ...
-fmt_uint64=`echo $fmt_int64 | sed -e 's/d"/u"/'`
+fmt_uint64=`echo $fmt_int64 | sed -e 's/d$/u/'`
 AC_SUBST(fmt_uint64)
 rm -rf conftest.* conftest
 
@@ -2608,7 +2630,7 @@ then
 pthread_t bozo;
 End-of-File
 	_do_type
-	fmt_pthread="$_fmt"
+	fmt_pthread=$_fmt
 	AC_MSG_RESULT($fmt_pthread)
 	AC_SUBST(fmt_pthread)
 	rm -rf conftest.c conftest.debug

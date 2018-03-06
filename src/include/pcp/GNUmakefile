@@ -1,12 +1,12 @@
 #
 # Copyright (c) 2013-2018 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -32,7 +32,9 @@ default :: default_pcp
 
 default_pcp : $(HEADERS) $(GENERATED_HFILES)
 	@if grep HAVE_64BIT config.h.in >/dev/null; then \
-	   echo "HAVE_64 in config.h.in; move to configsz.h.in for multilib"; \
+	   echo "HAVE_64 in config.h.in; move to configsz.h.in for multilib." \
+	   "This requires manual intervention after running an 'autoreconf'." \
+	   "Nuke it with fire... or just discard the change to config.h.in in git."; \
 	   exit 1; \
 	fi
 

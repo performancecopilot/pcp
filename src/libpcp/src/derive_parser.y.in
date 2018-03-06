@@ -1269,7 +1269,8 @@ check_expr(int n, node_t *np)
 		    report_sem_error(registered.mlist[n].name, np);
 		    return -1;
 	    }
-	    np->desc.sem = PM_SEM_INSTANT;
+	    if (np->type != N_SUM)
+		np->desc.sem = PM_SEM_INSTANT;
 	    if (np->type == N_DELTA || np->type == N_RATE || np->type == N_INSTANT || np->type == N_NEG) {
 		/* inherit indom */
 		if (np->type == N_RATE) {

@@ -1,0 +1,90 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGSIZE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogsize\f1 \- report sizes for parts of PCP archive(s)
+.SH SYNOPSIS
+\f3pmlogsize\f1
+[\f3\-drv\f1]
+[\f3\-x\f1 \f2thres\f1]
+\f2archive\f1 ...
+.SH DESCRIPTION
+.B pmlogsize
+prints information about the size of the index, metadata and data
+sections of a Performance Co-Pilot (PCP) archive.
+The output is intended to guide improvements in archive encoding
+format for PCP developers and to help trim
+.BR pmlogger (1)
+configuration files to remove metrics that are bloating the PCP archives
+with low-value data in production environments.
+.PP
+The
+.I archive
+arguments can be any mixture of the names of the physical files
+of a PCP archive or the basename that is common to all the
+component physical
+files in a single archive.  In the latter case
+.I archive
+is replaced by a list of all of the matching component file names.
+.PP
+Note the semantics is a little different to other PCP tools in
+that
+.B foo.meta
+means
+.B just
+the file
+.BR foo.meta ,
+not
+.BR foo.index ,
+.BR foo.meta ,
+.BR foo.0 ,
+etc.
+.PP
+The
+.B \-d
+flag requests more detailed reporting.  This means space per instance domain
+in a metadata file and space per metric (for values) in a data file.
+.PP
+The \-r
+flag requests additional information about possible replicated values
+in the data file and replicated instances in the metadata file.  It implies
+.BR \-d .
+.PP
+When the
+.B \-d
+(or
+.BR \-r )
+flag is specified, the
+.B \-x
+flag may be used to cut off the report after at least
+.I thres
+percent of the associated space (metric values or instance domains) has
+been reported.  The default behaviour is equivalent to
+.I thres
+being set to 100.
+.PP
+Additional verbosity can be enabled with one or more
+.B \-v
+flags.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlogcheck (1)
+and
+.BR pmlogger (1).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-
+explanatory.

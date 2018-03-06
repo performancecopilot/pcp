@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -15,7 +15,8 @@
 #include "libpcp.h"
 #include "internal.h"
 #include "avahi.h"
-#include "probe.h"
+#include "shellprobe.h"
+#include "subnetprobe.h"
 
 /*
  * Advertise the given service using all available means. The implementation
@@ -67,7 +68,7 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
  * Service discovery API entry points.
  */
 char *
-__pmServiceDiscoveryParseTimeout (const char *s, struct timeval *timeout)
+__pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
 {
     double seconds;
     char *end;
@@ -242,8 +243,17 @@ __pmDiscoverServicesWithOptions(const char *service,
 	}
 	numUrls += sts;
 	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
-	    sts = __pmProbeDiscoverServices(service, mechanism, &options,
-					    numUrls, urls);
+	    sts = __pmSubnetProbeDiscoverServices(service, mechanism, &options,
+					numUrls, urls);
+	    if (sts < 0) {
+		numUrls = sts;
+		goto done;
+	    }
+	    numUrls += sts;
+	}
+	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
+	    sts = __pmShellProbeDiscoverServices(service, mechanism, &options,
+					numUrls, urls);
 	    if (sts < 0) {
 		numUrls = sts;
 		goto done;
@@ -251,13 +261,17 @@ __pmDiscoverServicesWithOptions(const char *service,
 	    numUrls += sts;
 	}
     }
-    else if (strncmp(mechanism, "avahi", 5) == 0) {
+    else if (strncmp(mechanism, "avahi", sizeof("avahi")-1) == 0) {
 	numUrls = __pmAvahiDiscoverServices(service, mechanism, &options,
-					    numUrls, urls);
+					numUrls, urls);
     }
-    else if (strncmp(mechanism, "probe", 5) == 0) {
-	numUrls = __pmProbeDiscoverServices(service, mechanism, &options,
-					    numUrls, urls);
+    else if (strncmp(mechanism, "probe", sizeof("probe")-1) == 0) {
+	numUrls = __pmSubnetProbeDiscoverServices(service, mechanism, &options,
+					numUrls, urls);
+    }
+    else if (strncmp(mechanism, "shell", sizeof("shell")-1) == 0) {
+	numUrls = __pmShellProbeDiscoverServices(service, mechanism, &options,
+					numUrls, urls);
     }
     else
 	numUrls = -EOPNOTSUPP;
