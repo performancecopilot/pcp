@@ -1955,6 +1955,9 @@ if ($os_user eq '') {
 if (!defined($ENV{PCP_PERL_PMNS}) && !defined($ENV{PCP_PERL_DOMAIN})) {
     # really running as the PMDA, not setup from Install
     $pmda->log("Change to UID of user \"$os_user\"");
-    $pmda->set_user($os_user);
+    # attempt to switch uids only if running as root ($EUID == 0)
+    if ($> == 0) {
+        $pmda->set_user($os_user);
+    }
 }
 $pmda->run;
