@@ -392,6 +392,10 @@ class PMReporter(object):
                 sys.stderr.write("Output directory %s not accessible.\n" % outdir)
                 sys.exit(1)
 
+        # Metric text label width can be ignored
+        if self.separate_header and not self.width:
+            self.width = 8
+
         # Adjustments and checks for for overall rankings
         if not self.rank and (self.overall_rank or self.overall_rank_alt):
             sys.stderr.write("Overall ranking requires ranking enabled.\n")
