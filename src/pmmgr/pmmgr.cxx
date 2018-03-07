@@ -762,26 +762,8 @@ pmmgr_job_spec::poll()
       free ((void*) urls);
     }
 
-  // probe kubernetes pods; assume they may be running pmcd at default port
-  if (get_config_exists ("target-kubectl-pod"))
-    {
-      string target_kubectl_pod = get_config_single("target-kubectl-pod");
-      string kubectl_cmd = "kubectl get pod -o " + sh_quote("jsonpath={.items[*].status.podIP}") +" "+ target_kubectl_pod;
-      string ips_str = wrap_popen(kubectl_cmd);
-      istringstream ips(ips_str);
-      while(ips.good())
-        {
-          string ip;
-          ips >> ip;
-          if (ip != "")
-            new_specs.insert(ip);
-        }
-    }
-
   // fallback to logging the local server, if nothing else is configured/discovered
-  if (target_hosts.size() == 0 &&
-      target_discovery.size() == 0 &&
-      !get_config_exists ("target-kubectl-pod"))
+  if (target_hosts.size() == 0 && target_discovery.size() == 0)
     new_specs.insert("local:");
 
   if (pmDebugOptions.appl1)
