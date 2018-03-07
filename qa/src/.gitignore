@@ -85,6 +85,7 @@ hrunpack
 httpfetch
 import_limit_test.pl
 indom
+indom2int
 int2indom
 int2pmid
 interp0
@@ -169,6 +170,7 @@ pmconvscale
 pmdacache
 pmdaqueue
 pmdashutdown
+pmid2int
 pmlcmacro
 pmnsinarchives
 pmnsunload
