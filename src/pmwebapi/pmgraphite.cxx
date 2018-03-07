@@ -1,7 +1,7 @@
 /*
  * PMWEBD graphite-api emulation
  *
- * Copyright (c) 2014-2017 Red Hat Inc.
+ * Copyright (c) 2014-2018 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -343,13 +343,10 @@ struct archivecache_entry {
 };
 
 
-//typedef set<archivecache_entry*> archivecache_t;
-//archivecache_t archivecache;
 typedef map<string,archivecache_entry*> ac_by_fn_t;
 ac_by_fn_t archivecache_by_filename;
 typedef multimap<string,archivecache_entry*> ac_by_ap_t;
 ac_by_ap_t archivecache_by_archivepart;
-
 
 
 // Compute an "archivepart" for the given archive file name (.meta or
@@ -391,7 +388,9 @@ ac_archivepart (const string& filename, int ctx)
 // Given a PCP archive name, create (if new) or refresh (if needed) its
 // data in the archivecache.  If successful, we can count on it showing
 // up in the archivecache.  If unsuccessful, print an error message,
-// and possibly remove all traces of the entry from the archivecache.
+// but don't remove all traces of the entry from the archivecache.  A
+// negative-cache (for a suspected-corrupt archive file) is important
+// for performance.  We don't want to repeatedly reopen bad files.
 static void
 ac_refresh(struct MHD_Connection * connection, const string& filename)
 {
@@ -401,7 +400,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     int ctx = -1;
     time_t now = time(NULL);
 
-    // find our cache entry
+    // find our cache entry, if any
     ac_by_fn_t::iterator it = archivecache_by_filename.find(filename);
     if (it != archivecache_by_filename.end())
         e = it->second;
@@ -419,32 +418,37 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
         delete e;
         return;
     }
-    
+
     if (! e) { // not in cache yet - a new archive file
         // Fill in all permanent parts of the entry here, metrics/archive-end soon
+        // Accept possibly corrupt files too into the archivecache_by_filename[];
+        // treat as stale, archivepart "" (empty).
+
         e = new archivecache_entry;
 
         e->filename = filename;
         ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
         if (ctx < 0) {
-            delete e;
+            e->archive_begin.tv_sec = 0;
+            e->archivepart = "";
             connstamp (cerr, connection) << "cannot open " << filename << ": "
                                          << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
                                          << endl;
-            return;
+        } else {
+            pmLogLabel l;
+            rc = pmGetArchiveLabel(& l);
+            if (rc < 0) {
+                connstamp (cerr, connection) << "cannot get archive log label " << filename << ": "
+                                             << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
+                                             << endl;
+                e->archive_begin.tv_sec = 0;
+                e->archivepart = "";
+            } else {
+                e->archive_begin = l.ll_start;
+                e->archivepart = ac_archivepart (filename, ctx);
+            }
         }
-        pmLogLabel l;
-        rc = pmGetArchiveLabel(& l);
-        if (rc < 0) {
-            delete e;
-            connstamp (cerr, connection) << "cannot get archive log label " << filename << ": "
-                                         << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
-                                         << endl;
-            return;
-        }
-        e->archive_begin = l.ll_start;
-        e->archivepart = ac_archivepart (filename, ctx);
-        e->archive_end.tv_sec = std::numeric_limits<time_t>::max();
+        e->archive_end.tv_sec = now;
         e->archive_end.tv_usec = 0;
  
         // invalidate the caches
@@ -513,6 +517,10 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
         if (ctx < 0) {
             ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
             if (ctx < 0) {
+                // Suspected corrupt file -- give it a lastvol_mtime that is old enough
+                // that we won't frequently retry opening it.
+                e->archive_lastvol_mtime = e->metadata_mtime;
+                e->last_refresh_time = now;
                 connstamp (cerr, connection) << "cannot open " << filename << ": "
                                              << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
                                              << endl;
@@ -533,7 +541,6 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 
         e->last_refresh_time = now;
     }
-
 
     // Check freshness of archive end-time.  This will change with any
     // sort of write to the active volume file.  We don't want to pay
@@ -569,10 +576,6 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
         if (ctx < 0) {
             ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
             if (ctx < 0) {
-                // poison it
-                e->archive_end.tv_sec = 0;
-                e->archive_end.tv_usec = 0;
-                e->archive_lastvol_mtime = now;
                 connstamp (cerr, connection) << "cannot open " << filename << ": "
                                              << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
                                              << endl;
@@ -582,10 +585,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 
         rc = pmGetArchiveEnd(&e->archive_end);
         if (rc < 0) {
-            // poison it
-            e->archive_end.tv_sec = 0;
-            e->archive_end.tv_usec = 0;
-            e->archive_lastvol_mtime = now;
+            e->archive_end.tv_sec = now; // not INT_MAX that pmGetArchiveEnd returns in case of problems
             connstamp (cerr, connection) << "cannot get archive end " << filename << ": "
                                          << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
                                          << endl;
@@ -598,7 +598,9 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
             e->archive_lastvol_idx ++;
             rc = stat (nextvol_name, &st);
             if (rc < 0) {
-                // whoops, we can't stat the new volume??
+                // whoops, we can access but not stat the new volume??
+                // XXX: we hope it is not corrupted, so that the later st.st_mtime reflects,
+                // at worst, the lastvol_name mtime.
                 connstamp (cerr, connection) << "cannot stat new volume " << nextvol_name << ": "
                                              << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
                                              << endl;
@@ -607,7 +609,6 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 
         // update the cached mtim, whether it's the previous or next volume's stat
         e->archive_lastvol_mtime = st.st_mtime;
-
         e->last_refresh_time = now;
     }
 
@@ -686,7 +687,7 @@ ac_refresh_all(struct MHD_Connection* connection /* may be null */)
     fts_argv[0] = (char *) archivesdir.c_str ();
     fts_argv[1] = NULL;
     FTS *f = fts_open (fts_argv, (FTS_NOCHDIR |
-                                  FTS_LOGICAL /* resolve symlinks */ |
+                                  FTS_PHYSICAL /* don't resolve symlinks */ |
                                   FTS_NOSTAT /* don't care about mtime etc. */), NULL);
     if (f == NULL) {
         connstamp (cerr, connection) << "cannot fts_open " << archivesdir << endl;
@@ -697,6 +698,7 @@ ac_refresh_all(struct MHD_Connection* connection /* may be null */)
         
             switch(ent->fts_info) {
             case FTS_F:
+            case FTS_NSOK: /* FTS_NOSTAT in effect */
                 if (has_suffix (ent->fts_path, ".meta")) {
                     num_archives ++;
                     string archivename = string(ent->fts_path);
