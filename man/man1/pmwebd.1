@@ -95,6 +95,8 @@ protocols, if possible.
 .TP
 \f3\-A\f1 \f2archdir\f1
 Limit remote access to archives to only those beneath the given directory.
+For performance, symbolic links to other directories may not
+be followed.
 By default, only files beneath the initial
 .B pmwebd
 working directory may
