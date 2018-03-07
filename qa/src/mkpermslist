@@ -116,7 +116,7 @@ p
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
-	src/pmwebapi/GNUmakefile)
+	src/pmwebd/GNUmakefile)
 	    # all the INSTALL lines here are conditional, including this one
 	    # $(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
 	    sed -e '/PCP_LOG_DIR)\/pmwebd$/s/$/|optional/' <$tmp.raw >$tmp.tmp

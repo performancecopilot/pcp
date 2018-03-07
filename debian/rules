@@ -204,7 +204,7 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
 	$(pkgpcp_manager) $(MAKE) -C src/pmmgr install
-	$(pkgpcp_webapi) $(MAKE) -C src/pmwebapi install
+	$(pkgpcp_webapi) $(MAKE) -C src/pmwebd install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl

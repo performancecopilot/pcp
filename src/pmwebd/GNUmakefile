@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CXXMDTARGET = pmwebd$(EXECSUFFIX)
 HFILES = pmwebapi.h
 CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx util.cxx
+MAN_PAGES = pmwebd.1
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MICROHTTPD) $(LIB_FOR_PTHREADS) 
 LDIRT = pmwebd.log pmwebd.service
@@ -69,6 +70,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
+	@$(INSTALL_MAN)
 else
 build-me:
 install:

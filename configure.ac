@@ -1878,11 +1878,11 @@ fi
 AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
 if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have system microhttpd libraries for pmwebapi?
+dnl Do you have system microhttpd libraries for pmwebd?
 PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=true], [have_libmicrohttpd=false])
 AC_SUBST(HAVE_LIBMICROHTTPD, [$have_libmicrohttpd])
 
-dnl Do you have graphics libraries for pmwebapi?
+dnl Do you have graphics libraries for pmwebd?
 PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
 AC_SUBST(HAVE_CAIRO, [$have_cairo])
 
