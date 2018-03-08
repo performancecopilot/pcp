@@ -1,0 +1,234 @@
+#! /bin/sh
+#
+# Copyright (c) 2018 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# 
+# Administrative script for daily sysstat/sar style report summaries.
+# This is intened to be run from cron, an hour or two after the pmlogger_daily
+# cron script has completed, e.g. around 2am would be a suitable time.
+#
+# Suitable crontab entry:
+#
+# # daily processing of sar activity reports 
+# 0     2  *  *  *  pcp  /usr/libexec/pcp/bin/pmlogger_sar_report
+#
+#
+# By default, the daily report will be written to /var/log/sa/sarXX
+# where XX is the day of the month, yesterday.
+#
+. $PCP_DIR/etc/pcp.env
+
+status=0
+prog=`basename $0`
+
+# error messages should go to stderr, not the GUI notifiers
+unset PCP_STDERR
+
+# default message log file
+PROGLOG=$PCP_LOG_DIR/$prog.log
+USE_SYSLOG=true
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+
+_cleanup()
+{
+    $USE_SYSLOG && [ $status -ne 0 ] && \
+    $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
+    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    rm -rf $tmp
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+echo > $tmp/usage
+cat >> $tmp/usage <<EOF
+Options:
+  -a=FILE		  input archive file basename or directory path (default yesterdays $PCP_LOG_DIR/pmlogger/<hostname>/YYYYMMDD)
+  -f=FILE		  output filename (default "sarXX" in directory specified with -o, for XX yesterdays day of the month)
+  -h=HOSTNAME		  hostname, affects the default input archive file path (default local hostname)
+  -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
+  -o=DIRECTORY		  output directory (default /var/log/sa, see also -f option)
+  -t=TIME		  reporting interval, default 10m
+  -A			  use start and end times of input archive for the report (default midnight yesterday for 24hours)
+  -V,--verbose            verbose messages in log (multiple times for very verbose), see also -l option
+  --help
+EOF
+
+_usage()
+{
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
+    status=1
+    exit
+}
+
+# option parsing
+#
+VERBOSE=false
+ARCHIVETIMES=false
+VERY_VERBOSE=false
+MYARGS=""
+
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-a)	ARCHIVEPATH="$2"
+		shift
+		;;
+	-f)	REPORTFILE="$2"
+		shift
+		;;
+	-h)	HOSTNAME="$2"
+		shift
+		;;
+	-o)	REPORTDIR="$2"
+		shift
+		;;
+	-t)	INTERVAL="$2"
+		shift
+		;;
+	-l)	PROGLOG="$2"
+		USE_SYSLOG=false
+		shift
+		;;
+	-A)	ARCHIVETIMES=true
+		;;
+	-V)	if $VERBOSE
+		then
+		    VERY_VERBOSE=true
+		else
+		    VERBOSE=true
+		fi
+		MYARGS="$MYARGS -V"
+		;;
+	-\?)	_usage
+		;;
+    esac
+    shift
+done
+
+[ $# -ne 0 ] && _usage
+
+# after argument checking, everything must be logged to ensure no mail is
+# accidentally sent from cron.  Close stdout and stderr, then open stdout
+# as our logfile and redirect stderr there too.
+#
+[ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+exec 1>"$PROGLOG" 2>&1
+
+#
+# default hostname is the name of the local host
+[ -z "$HOSTNAME" ] && HOSTNAME=`hostname`
+
+#
+# Default input archive is the merged archive for yesterday.
+# Unfortunately we can't just specify the entire directory
+# and rely on multi-archive mode because this script could take
+# way too long to run. TODO: fallback to multiarchive mode if the
+# single merged archive for yesterday can't be found.
+[ -z "$ARCHIVEPATH" ] && ARCHIVEPATH=$PCP_LOG_DIR/pmlogger/$HOSTNAME/`pmdate -1d %Y%m%d`
+$verbose && echo ARCHIVEPATH=$ARCHIVEPATH
+
+#
+# Default output directory
+[ -z "$REPORTDIR" ] && REPORTDIR=/var/log/sa
+$verbose && echo REPORTDIR=$REPORTDIR
+# Create output directory - this may fail due to perms, but if so we exit below anyway
+[ -d "$REPORTDIR" ] || mkdir -p "$REPORTDIR" 
+
+#
+# Default output file is the day of month for yesterday in REPORTDIR
+[ -z "$REPORTFILE" ] && REPORTFILE=$REPORTDIR/sar`pmdate -1d %d`
+$verbose && echo REPORTFILE=$REPORTFILE
+
+#
+# Default reporting interval is 10m (same as sysstat uses)
+[ -z "$INTERVAL" ] && INTERVAL="10m"
+
+#
+# Common reporting options, including time window: midnight yesterday for 24h
+REPORT_OPTIONS="-a $ARCHIVEPATH -z -p -f%H:%M:%S -t$INTERVAL"
+if ! $ARCHIVETIMES
+then
+    # specific start/finish times - midnight yesterday for 24h
+    start=`pmdate -1d @%m/%d/%y`
+    finish=`pmdate @%m/%d/%y`
+    REPORT_OPTIONS="$REPORT_OPTIONS -S$start -T$finish"
+fi
+$verbose && echo REPORT_OPTIONS=$REPORT_OPTIONS
+
+# Truncate or create the output file. Exit if this fails.
+if ! cp /dev/null $REPORTFILE
+then
+    status=$?
+    echo "$prog: FATAL error: cannot create \"$REPORTFILE\""
+    exit
+fi
+
+# If the input archive doesn't exist, we exit.
+# TODO: fallback to whole directory in multi-archive mode.
+if [ ! -f "$ARCHIVEPATH.index" ]; then
+    # report this to the log
+    echo "$prog: FATAL error: Failed to find input archive \"$ARCHIVEPATH\"."
+    exit 1
+fi
+
+# common reporting funtion
+_report()
+{
+    _conf=$1
+    _comment="$2"
+
+    $verbose && echo Generating report for $_conf $_comment
+    echo >>$REPORTFILE; echo >>$REPORTFILE; pmdate -1d "# %a %b %d %Y" >>$REPORTFILE
+    echo $_comment >>$REPORTFILE
+    $verbose && echo pmrep $REPORT_OPTIONS $_conf
+    pmrep $REPORT_OPTIONS $_conf >$tmp/out
+    if [ -s $tmp/out ]; then
+    	cat $tmp/out >>$REPORTFILE
+    else
+    	echo "-- no report for config \"$_conf\"" >>$REPORTFILE
+    fi
+}
+
+_report :sar-u-ALL '# CPU Utilzation statistics, all CPUS' 
+_report :sar-u-ALL-P-ALL '# CPU Utilzation statistics, per-CPU' 
+_report :vmstat '# virtual memory (vmstat) statistics' 
+_report :vmstat-a '# virtual memory active/inactive memory statistics' 
+_report :sar-B '# Paging statistics' 
+_report :sar-b '# I/O and transfer rate statistics' 
+_report :sar-d-dev '# block device statistics' 
+_report :sar-d-dm '# device-mapper device statistics' 
+_report :sar-F '# currently mounted filesystem statistics' 
+_report :sar-H '# hugepages utilization statistics' 
+_report :sar-I-SUM '# interrupt statistics, summed' 
+_report :sar-n-DEV '# network statistics, per device' 
+_report :sar-n-EDEV '# network error statistics, per device' 
+_report :sar-n-NFSv4 '# NFSv4 client and RPC statistics' 
+_report :sar-n-NFSDv4 '# NFSv4 server and RPC statistics' 
+_report :sar-n-SOCK '# socket statistics' 
+_report :sar-n-TCP-ETCP '# TCP statistics' 
+_report :sar-q '# queue length and load averages' 
+_report :sar-r '# memory utilization statistics' 
+_report :sar-S '# swap usage statistics' 
+_report :sar-W '# swapping statistics' 
+_report :sar-w '# task creation and system switching statistics' 
+_report :sar-y '# TTY devices activity' 
+_report :numa-hint-faults '# NUMA hint fault statistics' 
+_report :numa-per-node-cpu '# NUMA per-node CPU statistics' 
+_report :numa-pgmigrate-per-node '# NUMA per-node page migration statistics' 
+
+[ -f $tmp/err ] && status=1
+exit

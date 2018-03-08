@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2018 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,18 +18,21 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
-	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh
-LDIRT	= crontab crontab.docker pmlogger.service
+	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh \
+	  pmlogger_sar_report.sh
+LDIRT	= crontab crontab.docker pmlogger.service crontab-sar-report
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
 CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmlogger
+CRONTAB_SAR_REPORT_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmlogger-sar-report
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
+CRONTAB_SAR_REPORT_PATH = $(PCP_SYSCONF_DIR)/pmlogger/pmlogger-sar-report
 endif
 
-default:: crontab crontab.docker pmlogger.service
+default:: crontab crontab.docker pmlogger.service crontab-sar-report
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -65,6 +68,10 @@ ifeq ($(TARGET_OS),linux)
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
 	$(INSTALL) -m 644 utilproc.sh $(PCP_SHARE_DIR)/lib/utilproc.sh
+	$(INSTALL) -m 755 pmlogger_sar_report.sh $(PCP_BINADM_DIR)/pmlogger_sar_report$(SHELLSUFFIX)
+	$(INSTALL) -m 644 crontab-sar-report $(CRONTAB_SAR_REPORT_PATH)
+	# may eventually be /var/log/sa
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/sa
 
 include $(BUILDRULES)
 
@@ -81,3 +88,6 @@ crontab : crontab.in
 crontab.docker : crontab.docker.in
 	# docker crontab runs as root. this may change in the future.
 	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
+
+crontab-sar-report : crontab-sar-report.in
+	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' -e 's;@dirpath@;'$(PCP_LOG_DIR)';' $< > $@
