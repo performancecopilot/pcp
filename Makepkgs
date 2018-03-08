@@ -318,21 +318,21 @@ esac
 . ./VERSION.pcp
 VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
-LOGDIR=$topdir/Logs
+LOGDIR="$topdir/Logs"
 rm -rf "$LOGDIR"
 mkdir -p "$LOGDIR"
 
-source=pcp-${VERSION}
+source="pcp-$VERSION"
 SRCDIR="$topdir/$source"
 SRCTREE="$topdir/$source"
-SRCTAR=$topdir/build/tar/$source.src.tar.gz
+SRCTAR="$topdir/build/tar/$source.src.tar.gz"
 
 build_failure()
 {
     # only print in non-verbose mode, otherwise we see double
     if ! $verbose ; then
-	echo $@ failed, see log in $LOGDIR/pcp
-	tail $LOGDIR/pcp
+	echo "$@ failed, see log in $LOGDIR/pcp"
+	tail "$LOGDIR/pcp"
     fi
     exit 1
 }
@@ -406,7 +406,7 @@ src_tar_build()
 	    echo "support in tar, so local changes would not be included in the build."
 	    exit 1
 	fi
-	git archive --format=tar --prefix=$source/ HEAD | $ZIP > $SRCTAR
+	git archive --format=tar --prefix=$source/ HEAD | $ZIP > "$SRCTAR"
     else
 	# build git file list and make tarball by hand to pick up any changes
 	#
@@ -427,7 +427,7 @@ src_tar_build()
 	echo "debian/control" >> .gitcensus
 
 	$TAR -cz --transform="s,^,$source/," --files-from=.gitcensus \
-		--file=$SRCTAR 
+		--file="$SRCTAR"
 	rm .gitcensus
     fi
     echo "Wrote: $SRCTAR"
@@ -517,9 +517,9 @@ debian_buildpackage()
     opts="$sign -r$SUDO -sa"
     rm -f $tmp/failed
     if $verbose ; then
-	(dpkg-buildpackage $opts || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	(dpkg-buildpackage $opts || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	(dpkg-buildpackage $opts || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	(dpkg-buildpackage $opts || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian buildpackage
 }
@@ -536,7 +536,7 @@ prepare_debian_sources()
     cd "$SRCTREE" || exit 1
     prepare_webapps
 
-    fix_version ${topdir}/VERSION.pcp VERSION.pcp
+    fix_version "$topdir"/VERSION.pcp VERSION.pcp
 }
 
 prepare_debian_control()
@@ -544,22 +544,22 @@ prepare_debian_control()
     echo
     echo "== Preparing source tree for dpkg-buildpackage"
     parent=`realpath ..`
-    source="$parent/pcp_${VERSION}.orig.tar.gz"
+    source="$parent/pcp_$VERSION.orig.tar.gz"
     mv "$SRCTAR" "$source"
     echo "Wrote: $source"
     rm -f $tmp/failed debian/control
     if $verbose ; then
-	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($MAKE -C debian control 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	($MAKE -C debian control 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian control
 }
 
 debian_build()
 {
-    SRCDIR="${topdir}/build/deb"
-    SRCTREE="${topdir}/build/deb/$source"
+    SRCDIR="$topdir/build/deb"
+    SRCTREE="$topdir/build/deb/$source"
     prepare_debian_sources
 
     # Note: we need to run configure here to get things like builddefs
@@ -587,7 +587,7 @@ debian_build()
 
     # success!
     if ! $verbose ; then
-	grep ^dpkg-deb $LOGDIR/pcp | \
+	grep ^dpkg-deb "$LOGDIR/pcp" | \
 	    sed -e 's,\.$,,g' -e "s,',,g" -e "s,\.\.,$topdir/build/deb,g" | \
 	    awk '{ print "Wrote:", $NF }'
     fi
@@ -602,7 +602,7 @@ prepare_build()
     if [ ! -d "$SRCDIR" ]; then
 	# extract gzipped tar archive
 	$TAR -xz --file="$SRCTAR" || exit 1
-	fix_version VERSION.pcp $SRCDIR/VERSION.pcp
+	fix_version VERSION.pcp "$SRCDIR"/VERSION.pcp
     fi
 }
 
@@ -633,9 +633,9 @@ configure_pcp()
     rm -f $tmp/failed
     if $verbose
     then
-	($configure $configopts 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	($configure $configopts 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($configure $configopts 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	($configure $configopts 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure Configure
 }
@@ -647,9 +647,9 @@ default_build()
 
     rm -f $tmp/failed
     if $verbose ; then
-	($MAKE default_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	($MAKE default_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($MAKE default_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	($MAKE default_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure Make default_pcp
 }
@@ -657,13 +657,13 @@ default_build()
 packaging_pcp()
 {
     echo
-    echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
 
     rm -f $tmp/failed
     if $verbose ; then
-	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure Packaging via pack_pcp
 }
@@ -671,16 +671,16 @@ packaging_pcp()
 packaging_rpm()
 {
     echo
-    echo "== Building rpm packages, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    echo "== Building rpm packages, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
 
     rm -f $tmp/failed
-    export DIST_ROOT=${topdir}/build/rpm/${source}
+    export DIST_ROOT="$topdir/build/rpm/$source"
     # sign if --signed and $RPM_SIGN_KEYID set in the environment
     $signed && [ -z "$RPM_SIGN_KEYID" ] && unset RPM_SIGN_KEYID
     if $verbose ; then
-	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
@@ -688,7 +688,7 @@ packaging_rpm()
 packaging_docker()
 {
     echo
-    echo "== Building docker container images, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    echo "== Building docker container images, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
     rm -f $tmp/failed
 
     if docker version >/dev/null 2>&1; then
@@ -710,9 +710,9 @@ packaging_docker()
     [ -f $tmp/failed ] && build_failure Packaging docker images, docker configuration
 
     if $verbose ; then
-	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
 
     [ -f $tmp/failed ] && build_failure Packaging docker containers via pack_pcp
@@ -759,6 +759,6 @@ fi
 
 # success!
 if ! $verbose ; then
-    grep '^Wrote:' $LOGDIR/pcp | sed -e 's/\.\.\/\.\.\///'
+    grep '^Wrote:' "$LOGDIR/pcp" | sed -e 's/\.\.\/\.\.\///'
 fi
 exit 0

@@ -50,17 +50,17 @@ _chown ()
 {
     _st=255
     if [ $# -eq 3 ] ; then
-	chown $1:$2 $3
+	chown "$1:$2" "$3"
 	_st=$?
 	if [ $_st -ne 0 ] ; then
 	    if [ $REAL_UID != '0' ] ; then
-		if [ ! -f $DIST_ROOT/.chown.quiet ] ; then
+		if [ ! -f "$DIST_ROOT"/.chown.quiet ] ; then
 		    echo '==============================================='
 		    echo Ownership of files under ${DIST_ROOT:-/}
 		    echo cannot be changed
 		    echo '==============================================='
 		    if [ -n "$DIST_ROOT" ] ; then
-			touch $DIST_ROOT/.chown.quiet
+			touch "$DIST_ROOT"/.chown.quiet
 		    fi
 		fi
 	       _st=0
@@ -122,7 +122,7 @@ while getopts "d:g:m:o:S:" c $*
 do
    case $c in
    d) 
-	dir=`echo $DIST_ROOT/$OPTARG | sed -e 's;//*;/;g'`
+	dir=`echo "$DIST_ROOT/$OPTARG" | sed -e 's;//*;/;g'`
 	dflag=true
 	;;
    g)
@@ -153,16 +153,16 @@ then
     #
     # first usage
     #
-    $MKDIR -p $dir
+    $MKDIR -p "$dir"
     status=$?
     if [ $status -eq 0 ]
     then
-	$CHMOD $DIRMODE $dir
+	$CHMOD $DIRMODE "$dir"
 	status=$?
     fi
     if [ $status -eq 0 ]
     then
-	$CHOWN $OWNER $GROUP $dir
+	$CHOWN $OWNER $GROUP "$dir"
 	status=$?
     fi
     $MANIFEST d $DIRMODE $OWNER $GROUP `echo "$dir" | sed -e "s;^$DIST_ROOT;;"`
@@ -175,14 +175,14 @@ then
     then
     	_usage
     else
-	target=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
+	target=`echo "$DIST_ROOT/$1" | sed -e 's;//*;/;g'`
     fi
-    $RM -f $target
-    dir=`dirname $target | sed -e 's;//*;/;g'`
-    [ ! -d $dir ] && mkdir -p $dir
-    $LN -s -f $symlink $target
+    $RM -f "$target"
+    dir=`dirname "$target" | sed -e 's;//*;/;g'`
+    [ ! -d "$dir" ] && mkdir -p "$dir"
+    $LN -s -f "$symlink" "$target"
     status=$?
-    $MANIFEST l $symlink `echo "$target" | sed -e "s;^$DIST_ROOT;;"`
+    $MANIFEST l "$symlink" `echo "$target" | sed -e "s;^$DIST_ROOT;;"`
 else
     list=""
     dir=""
@@ -193,47 +193,47 @@ else
 	# target 'name' is not necessarily the same as 'file'
 	# (Note: install file dir  is ambiguous and not supported
 	#
-	f=$1
-	dir=$DIST_ROOT/`dirname $2`
-	dir=`echo $dir | sed -e 's;//*;/;g'`
+	f="$1"
+	dir="$DIST_ROOT"/`dirname "$2"`
+	dir=`echo "$dir" | sed -e 's;//*;/;g'`
 	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;" | sed -e 's;//*;/;g'`
-	destfile=`basename $2`
-	if [ -f $f -a -f $f.exe ]
+	destfile=`basename "$2"`
+	if [ -f "$f" -a -f "$f.exe" ]
 	then
 	    # Windows hack -- executables present as foo and foo.exe,
 	    # the foo one is visible to test(1) and ls(1), but not to
 	    # cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
 	    #
-	    if cat $f >/dev/null 2>&1
+	    if cat "$f" >/dev/null 2>&1
 	    then
 		:
 	    else
-		f=$f.exe
-		destfile=$destfile.exe
+		f="$f.exe"
+		destfile="$destfile.exe"
 	    fi
 	fi
-	[ ! -d $dir ] && mkdir -p $dir
-	if [ -d $dir/$destfile ]
+	[ ! -d "$dir" ] && mkdir -p "$dir"
+	if [ -d "$dir/$destfile" ]
 	then
 	    echo ERROR: unsupported install usage
 	    _usage
 	    exit 1
 	else
-	    $RM -f $dir/$destfile
+	    $RM -f "$dir/$destfile"
 	fi
-	$CP $f $dir/$destfile
+	$CP "$f" "$dir/$destfile"
 	status=$?
 
 	if [ $status -eq 0 ]
 	then
-	    [ ! -d $dir/$destfile ] && $CHMOD $FILEMODE $dir/$destfile
+	    [ ! -d "$dir/$destfile" ] && $CHMOD $FILEMODE "$dir/$destfile"
 	    status=$?
 	    if [ $status -eq 0 ]
 	    then
-		$CHOWN $OWNER $GROUP $dir/$destfile
+		$CHOWN $OWNER $GROUP "$dir/$destfile"
 		status=$?
 	    fi
-	    $MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f $t_dir/$destfile
+	    $MANIFEST f $FILEMODE $OWNER $GROUP "$HERE/$f" "$t_dir/$destfile"
 	fi
 	[ $status -ne 0 ] && break
 
@@ -248,7 +248,7 @@ else
 	    then
 		list="$list $1"
 	    else
-		dir=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
+		dir=`echo "$DIST_ROOT/$1" | sed -e 's;//*;/;g'`
 	    fi
 	    shift
 	done
@@ -261,35 +261,35 @@ else
 
 	for f in $list
 	do
-	    if [ -f $f -a -f $f.exe ]
+	    if [ -f "$f" -a -f "$f.exe" ]
 	    then
 		# Windows hack -- executables present as foo and foo.exe,
 		# the foo one is visible to test(1) and ls(1), but not to
 		# cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
 		#
-		if cat $f >/dev/null 2>&1
+		if cat "$f" >/dev/null 2>&1
 		then
 		    :
 		else
-		    f=$f.exe
+		    f="$f.exe"
 		fi
 	    fi
 
-	    [ ! -d $dir ] && mkdir -p $dir
-	    $RM -f $dir/$f
-	    $CP $f $dir/$f
+	    [ ! -d "$dir" ] && mkdir -p "$dir"
+	    $RM -f "$dir/$f"
+	    $CP "$f" "$dir/$f"
 	    status=$?
 
 	    if [ $status -eq 0 ]
 	    then
-		$CHMOD $FILEMODE $dir/$f
+		$CHMOD $FILEMODE "$dir/$f"
 		status=$?
 		if [ $status -eq 0 ]
 		then
-		    $CHOWN $OWNER $GROUP $dir/$f
+		    $CHOWN $OWNER $GROUP "$dir/$f"
 		    status=$?
 		fi
-		$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f $t_dir/$f
+		$MANIFEST f $FILEMODE $OWNER $GROUP "$HERE/$f" "$t_dir/$f"
 	    fi
 	    [ $status -ne 0 ] && break
 	done
