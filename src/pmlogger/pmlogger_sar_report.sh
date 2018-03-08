@@ -192,7 +192,8 @@ _report()
     _comment="$2"
 
     $verbose && echo Generating report for $_conf $_comment
-    echo >>$REPORTFILE; echo >>$REPORTFILE; pmdate -1d "# %a %b %d %Y" >>$REPORTFILE
+    echo >>$REPORTFILE; echo >>$REPORTFILE
+    pmdumplog -z -l $ARCHIVEPATH | awk '/commencing/ {print "# ",$2,$3,$4,$5,$6}' >>$REPORTFILE
     echo $_comment >>$REPORTFILE
     $verbose && echo pmrep $REPORT_OPTIONS $_conf
     pmrep $REPORT_OPTIONS $_conf >$tmp/out
