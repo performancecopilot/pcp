@@ -94,36 +94,36 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_python2) $(dirpcp_python3)
 
 zip = export GZIP=-9qn
-pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
-pkgpcpgui = $(zip) DIST_ROOT=`pwd`/$(dirgui);
-pkgpcpdoc = $(zip) DIST_ROOT=`pwd`/$(dirdoc);
-pkgpcpcfg = $(zip) DIST_ROOT=`pwd`/$(dirpcpcfg);
-pkglibpcp = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp);
-pkglibpcp_gui = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_gui);
-pkglibpcp_mmv = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
-pkglibpcp_pmda = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
-pkglibpcp_trace = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_trace);
-pkglibpcp_import = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import);
-pkglibpcp_web = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_web);
-pkglibpcp_mmv_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
-pkglibpcp_pmda_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
-pkglibpcp_import_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
-pkgpcp_logsummary_perl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
-pkgpcp_import_sar = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sar);
-pkgpcp_import_ganglia = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_ganglia);
-pkgpcp_import_mrtg = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
-pkgpcp_import_sheet = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
-pkgpcp_import_iostat = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
-pkgpcp_import_collectl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
-pkgpcp_export_graphite = $(zip) DIST_ROOT=`pwd`/$(dirpcp_export_graphite);
-pkgpcp_export_influxdb = $(zip) DIST_ROOT=`pwd`/$(dirpcp_export_influxdb);
-pkgpcp_export_zabbix = $(zip) DIST_ROOT=`pwd`/$(dirpcp_export_zabbix);
-pkgpcp_pmda_infiniband = $(zip) DIST_ROOT=`pwd`/$(dirpcp_pmda_infiniband);
-pkgpcp_testsuite = $(zip) DIST_ROOT=`pwd`/$(dirpcp_testsuite);
-pkgpcp_manager = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_manager);
-pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
-pkgpcp_python2 = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python2);
-pkgpcp_python3 = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python3);
+pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT="`pwd`"/$(dirpcp);
+pkgpcpgui = $(zip) DIST_ROOT="`pwd`"/$(dirgui);
+pkgpcpdoc = $(zip) DIST_ROOT="`pwd`"/$(dirdoc);
+pkgpcpcfg = $(zip) DIST_ROOT="`pwd`"/$(dirpcpcfg);
+pkglibpcp = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp);
+pkglibpcp_gui = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_gui);
+pkglibpcp_mmv = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_mmv);
+pkglibpcp_pmda = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_pmda);
+pkglibpcp_trace = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_trace);
+pkglibpcp_import = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_import);
+pkglibpcp_web = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_web);
+pkglibpcp_mmv_perl = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_mmv_perl);
+pkglibpcp_pmda_perl = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_pmda_perl);
+pkglibpcp_import_perl = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_import_perl);
+pkgpcp_logsummary_perl = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_logsummary_perl);
+pkgpcp_import_sar = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_sar);
+pkgpcp_import_ganglia = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_ganglia);
+pkgpcp_import_mrtg = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_mrtg);
+pkgpcp_import_sheet = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_sheet);
+pkgpcp_import_iostat = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_iostat);
+pkgpcp_import_collectl = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_collectl);
+pkgpcp_export_graphite = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_graphite);
+pkgpcp_export_influxdb = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_influxdb);
+pkgpcp_export_zabbix = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_zabbix);
+pkgpcp_pmda_infiniband = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_pmda_infiniband);
+pkgpcp_testsuite = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_testsuite);
+pkgpcp_manager = $(zip) NO_CHOWN=true DIST_ROOT="`pwd`"/$(dirpcp_manager);
+pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT="`pwd`"/$(dirpcp_webapi);
+pkgpcp_python2 = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_python2);
+pkgpcp_python3 = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_python3);
 
 configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
 # Note: configure options come from $(configure_paths) here, _plus_
