@@ -1003,10 +1003,10 @@ pmlogsize
 655 pmda.gfs2 local pmstore
 656 pmda.cifs local valgrind
 657 pmda.dm local
-660 pmwebapi local
-661 pmwebapi local
-662 pmwebapi pmda.sample local
-663 pmwebapi local
+660 pmwebd local
+661 pmwebd local
+662 pmwebd pmda.sample local
+663 pmwebd local
 665 pmda.linux local
 666 pmmgr local slow valgrind
 667 pcp2graphite python pcp2xxx local
@@ -1095,9 +1095,9 @@ pmlogsize
 777 derive pmprobe pmie local pmval
 778 pmda.postgresql pmie local
 779 pmda local
-780 pmwebapi local
+780 pmwebd local
 781 logutil local
-782 pmwebapi local
+782 pmwebd local
 783 pmda.rpm local valgrind
 784 pmda.mic python local
 785 pcp atop local
@@ -1182,7 +1182,7 @@ pmlogsize
 864 pcp python local collectl
 865 pmda local
 866 fault libpcp local
-867 pmwebapi libpcp_web local
+867 pmwebd libpcp_web local
 868 pmda.install local
 869 pmda.linux local
 870 pmlogcheck local
@@ -1347,7 +1347,7 @@ pmlogsize
 1029 libqmc local pmstore
 1030 pmda.linux local
 1031 pmda.slurm perl local
-1032 pmwebapi containers local
+1032 pmwebd containers local
 1033 pmda.named local
 1034 pmda.named local
 1035 pmda.oracle local pmstore
@@ -1357,7 +1357,7 @@ pmlogsize
 1039 libpcp local
 1040 dbpmda local
 1041 pmda.libvirt local
-1042 pmwebapi pmda.proc local
+1042 pmwebd pmda.proc local
 1043 pmda.linux local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
@@ -1405,7 +1405,7 @@ pmlogsize
 1087 pmda.bind2 local
 1088 pmmgr local
 1089 atop local
-1090 pmwebapi local context
+1090 pmwebd local context
 1091 pmns libpcp context local
 1092 libpcp local
 1093 pmcpp local
@@ -1453,6 +1453,7 @@ pmlogsize
 1169 pmrep python local
 1174 threads valgrind local
 1177 pmns derive libpcp pmlogger local
+1180:reserved logutil local
 1182 libpcp local
 1186 pmie local
 1188 pmda.dm local
@@ -1464,7 +1465,7 @@ pmlogsize
 1220 pmda.proc local
 1221 labels pmda.prometheus local
 1222 pmda.linux pmda.proc local
-1225 pmwebapi local
+1225 pmwebd local
 1227 derive local
 1229 pmlogextract pmdumplog labels help local
 1234 libpcp_web local
@@ -1494,6 +1495,6 @@ pmlogsize
 1368 labels help pmlogger pmdumplog local
 1369 labels pmcd pmlogger pmdumplog local
 1385 pmda.prometheus local
-1388 pmwebapi local
+1388 pmwebd local
 1395 pmda.prometheus local
 4751 libpcp threads valgrind local

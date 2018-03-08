@@ -14,4 +14,4 @@ src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmlogger|op
 src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmlogger
 src/pmmgr/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmmgr|optional
 src/pmproxy/GNUmakefile|775|$(PCP_USER)|$(PCP_USER)|$(PCP_LOG_DIR)/pmproxy
-src/pmwebapi/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmwebd|optional
+src/pmwebd/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmwebd|optional

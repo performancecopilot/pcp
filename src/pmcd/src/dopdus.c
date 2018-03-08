@@ -371,8 +371,10 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     const char		*userid;
     const char		*groupid;
     const char		*container;
+    static const char	func[] = "GetContextLabels";
     static char		host[MAXHOSTNAMELEN];
     static char		domain[MAXDOMAINNAMELEN];
+    static char		machineid[MAXMACHINEIDLEN];
     char		buf[PM_MAXLABELJSONLEN];
     char		*hostname;
     int			sts;
@@ -381,28 +383,34 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	if ((hostname = pmcd_hostname) == NULL) {
 	    if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
 		if (pmDebugOptions.labels)
-		    fprintf(stderr,
-			    "GetContextLabels: gethostname() -> %d (%s)\n",
-			    sts, pmErrStr(sts));
+		    fprintf(stderr, "%s: gethostname() -> %d (%s)\n",
+			    func, sts, pmErrStr(sts));
 		host[0] = '\0';
 	    }
 	    if (host[0] == '\0')
 		pmsprintf(host, sizeof(host), "localhost");
 	    hostname = pmcd_hostname = host;
 	}
-#ifdef HAVE_GETDOMAINNAME
 	if (domain[0] == '\0') {
 	    if ((sts = getdomainname(domain, MAXDOMAINNAMELEN)) < 0) {
 		if (pmDebugOptions.labels)
-		    fprintf(stderr,
-			    "GetContextLabels: getdomainname() -> %d (%s)\n",
-			    sts, pmErrStr(sts));
+		    fprintf(stderr, "%s: getdomainname() -> %d (%s)\n",
+			    func, sts, pmErrStr(sts));
 		domain[0] = '\0';
 	    }
 	    if (domain[0] == '\0' || strcmp(domain, "(none)") == 0)
 		pmsprintf(domain, sizeof(domain), "localdomain");
 	}
-#endif
+	if (machineid[0] == '\0') {
+	    if ((sts = getmachineid(machineid, MAXMACHINEIDLEN)) < 0) {
+		if (pmDebugOptions.labels)
+		    fprintf(stderr, "%s: getmachineid() -> %d (%s)\n",
+			    func, sts, pmErrStr(sts));
+		machineid[0] = '\0';
+	    }
+	    if (machineid[0] == '\0')
+		pmsprintf(machineid, sizeof(machineid), "localmachine");
+	}
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 	groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
@@ -414,6 +422,9 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	if (domain[0] != '\0')
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"domainname\":\"%s\"",
 			    domain);
+	if (machineid[0] != '\0')
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"machineid\":\"%s\"",
+			    machineid);
 	if (userid)
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
 			    userid);

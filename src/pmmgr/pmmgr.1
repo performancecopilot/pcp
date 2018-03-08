@@ -228,22 +228,6 @@ five seconds each time).  Consider including
 .IR probe=192.168.1.0/24
 to quickly scan the given IP address range.
 .TP
-.I target\-kubectl\-pod
-If this file exists,
-.B pmmgr
-is assumed to run within a kubernetes cluster.
-The line of the configuration file is appended to a
-.B kubectl get pod
-command line to discover IP addresses of all matching pods running nearby.
-.B pmmgr
-extracts the
-.B .status.podIP
-field from the kubernetes pod object(s) and tries to connect to each at
-the default pmcd port number.  Use options like
-.I -l service=foobar
-to restrict the search with labels.  The default is to do
-.BR "no kubectl" .
-.TP
 .I subtarget\-containers
 If this file exists,
 .B pmmgr

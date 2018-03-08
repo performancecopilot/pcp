@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #DEBHELPER#
 
-# must match src/pmwebapi/GNUmakefile
+# must match src/pmwebd/GNUmakefile
 chown pcp:pcp /var/log/pcp/pmwebd
 chmod 775 /var/log/pcp/pmwebd
 

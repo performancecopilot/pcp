@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 include localdefs
 
 WORKDIR	:= $(shell pwd)
-GROUP	:= $(shell basename $(WORKDIR))
+GROUP	:= $(shell basename "$(WORKDIR)")
 RULESDIR	= $(PCP_VAR_DIR)/config/pmieconf
 
 LDIRT	= GNUmakefile

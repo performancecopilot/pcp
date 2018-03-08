@@ -323,6 +323,7 @@ LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 HAVE_ZLIB = @HAVE_ZLIB@
 LIB_FOR_ZLIB = @zlib_LIBS@
 HAVE_BOOST_FLYWEIGHT_HPP = @HAVE_BOOST_FLYWEIGHT_HPP@
+HAVE_BOOST = @have_boost@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
@@ -585,7 +586,7 @@ MAKEMAKER_EXTRA_OPTIONS=INSTALL_BASE=$(PERL_INSTALL_BASE)  INSTALLBASE=$(PERL_IN
 endif
 
 PERL_MAKE_MAKEFILE = \
-	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
+	export PCP_TOPDIR="`cd $(TOPDIR) && pwd`"; \
 	NSS_CFLAGS="$(NSS_CFLAGS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" \
         TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
 
@@ -610,15 +611,15 @@ ifeq "$(PACKAGE_DISTRIBUTION)" "gentoo"
 # Gentoo cannot rely on the .packlist files from the install, so create
 # a temporary pack.list file
 PERL_GET_FILELIST = \
-	$(PERLMAKE) -f Makefile $(1) DESTDIR=$$DIST_ROOT \
+	$(PERLMAKE) -f Makefile $(1) DESTDIR="$$DIST_ROOT" \
 	| tee pack.list; \
 	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^Installing $$DIST_ROOT@@p" <pack.list >$(2) || exit 1; \
 	if [ -s $(2) ]; then rm -f pack.list; \
 	else echo "Arrgh ... no files to include in package via $(2), see pack.list"; exit 1; \
 	fi; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(3).so -exec chmod 755 '{}' ';'
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name \*.bs  -exec rm -f '{}' ';' ; \
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name $(3).so -exec chmod 755 '{}' ';'
 else
 ifeq "$(PACKAGE_DISTRIBUTION)" "freebsd"
 # FreeBSD Perl packaging is a broken mystery at this point in time
@@ -634,8 +635,8 @@ else
 	man_suffix=gz
 endif
 PERL_GET_FILELIST = \
-	$(PERLMAKE) -f Makefile $(1) DESTDIR=$$DIST_ROOT; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name .packlist -exec mv '{}' $(2) ';' ; \
+	$(PERLMAKE) -f Makefile $(1) DESTDIR="$$DIST_ROOT"; \
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name .packlist -exec mv '{}' $(2) ';' ; \
 	if [ -s $(2) ] ; then \
 	    _sfx=.gz; \
 	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
@@ -644,15 +645,15 @@ PERL_GET_FILELIST = \
             if [ "$(HAVE_MANPAGES)" = "false" ] ; then \
 		sed -e '/.*man[1-9].*/d' -e '/.*3pm.*/d' $(2) >$(2).tmp; \
 		mv $(2).tmp $(2); \
-		find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name "*3pm*" -exec rm -rf '{}' ';' ; \
+		find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name "*3pm*" -exec rm -rf '{}' ';' ; \
 	    fi ;\
 	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(2) >$(2).tmp; \
 	    mv $(2).tmp $(2); \
 	else echo "Arrgh ... no files to include in package via $(2)"; exit 1; \
 	fi; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(3).so -exec chmod 755 '{}' ';'
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name \*.bs  -exec rm -f '{}' ';' ; \
+	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name $(3).so -exec chmod 755 '{}' ';'
 endif
 endif
 endif
@@ -689,7 +690,7 @@ PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include:$(TOPDIR)/src/include/pcp$(EXTRA_PY_INCLUDES)
 SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
-SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
+SETUP_PY_INSTALL_OPTIONS += --root="$${DIST_ROOT-/}"
 ifeq "$(PYTHON_PREFIX)" "/usr"
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
@@ -708,7 +709,7 @@ PYTHON_INSTALL = \
 	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
 	    < $(TOPDIR)/python-pcp.list >> $(TOPDIR)/python-pcp.list.rpm; \
 	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
-	    touch $${DIST_ROOT-/}$$f; \
+	    touch "$${DIST_ROOT-/}$$f"; \
 	done
 PYTHON3_INSTALL = \
 	cat $(TOPDIR)/python3-pcp.list | while read f; do \
@@ -719,7 +720,7 @@ PYTHON3_INSTALL = \
 	$(AWK) '/\.pyc$$/ {sub(/\.pyc$$/,".opt-1.pyc"); print}' \
 	    < $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
 	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
-	    touch $${DIST_ROOT-/}$$f; \
+	    touch "$${DIST_ROOT-/}$$f"; \
 	done
 else
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
@@ -773,7 +774,7 @@ PYTHON_INSTALL = \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $(DIST_ROOT)/usr/lib -name $$bn`; \
+		src=`find "$(DIST_ROOT)/usr/lib" -name $$bn`; \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
@@ -784,7 +785,7 @@ PYTHON3_INSTALL = \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $(DIST_ROOT)/usr/lib -name $$bn`; \
+		src=`find "$(DIST_ROOT)/usr/lib" -name $$bn`; \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
@@ -915,9 +916,5 @@ PCP_ALTLIBS =
 endif
 endif
 endif
-
-# libboost for pmwebapi?
-#
-HAVE_BOOST = @have_boost@
 
 endif # _BUILDDEFS_INCLUDED_

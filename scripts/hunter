@@ -49,7 +49,7 @@ do
 		;;
 	    src/pmie/src/andor.c|src/pmie/src/dstruct.c|src/pmie/src/eval.c|src/pmie/src/grammar.y|src/pmie/src/lexicon.c|src/pmie/src/match_inst.c|src/pmie/src/pmie.c|src/pmie/src/pragmatics.c|src/pmie/src/show.c|src/pmie/src/symbol.c|src/pmie/src/syntax.c|src/pmie/src/systemlog.c)
 		;;
-	    src/pmwebapi/main.cxx|src/pmwebapi/pmgraphite.cxx|src/pmwebapi/pmresapi.cxx|src/pmwebapi/pmwebapi.cxx|src/pmwebapi/util.cxx)
+	    src/pmwebd/main.cxx|src/pmwebd/pmgraphite.cxx|src/pmwebd/pmresapi.cxx|src/pmwebd/pmwebapi.cxx|src/pmwebd/util.cxx)
 		;;
 	    src/pmchart/*.cpp)
 		;;

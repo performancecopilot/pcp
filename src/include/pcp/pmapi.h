@@ -682,6 +682,18 @@ PCP_CALL extern int pmLookupInDomText(pmInDom, int, char **);
 #define PM_TEXT_HELP	2
 
 /*
+ * For the help text PDUs, the type (PM_TEXT_ONELINE or PM_TEXT_HELP)
+ * is 'or'd with the following to encode the request for a PMID or
+ * a pmInDom.  Default is to fallback to ONELINE if HELP unavailable;
+ * the (internal) PM_TEXT_DIRECT flag disables this behaviour.
+ * Note the values must therefore be (a) bit fields and (b) different
+ *	to the public macros PM_TEXT_* in pmapi.h 
+ */
+#define PM_TEXT_PMID	4
+#define PM_TEXT_INDOM	8
+#define PM_TEXT_DIRECT	16
+
+/*
  * Some handy formatting routines for messages, and other output
  */
 PCP_CALL extern const char *pmIDStr(pmID);			/* NOT thread-safe */

@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1042
 # Check that unauthenticated access to proc.* no longer
-# possible using the (deprecated) local pmwebapi methods.
+# possible using the (deprecated) local pmwebd methods.
 #
 # Copyright (c) 2015 Red Hat.
 #

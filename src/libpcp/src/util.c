@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -78,6 +78,9 @@
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
+
+#define STR2(x) #x
+#define STR(X) STR2(X)
 
 static FILE	**filelog;
 static int	nfilelog;
@@ -1958,6 +1961,42 @@ __pmMakePath(const char *dir, mode_t mode)
     }
     return mkdir2(path, mode);
 }
+
+#ifndef HAVE_GETDOMAINNAME
+int
+getdomainname(char *buffer, size_t length)
+{
+    FILE *fp = fopen("/etc/defaultdomain", "r");
+    char domain[MAXDOMAINNAMELEN];
+
+    if (fp) {
+	int i = fscanf(fp, "%" STR(MAXDOMAINNAMELEN) "s", domain);
+	fclose(fp);
+	if (i != 1)
+	    return -EINVAL;
+	return pmsprintf(buffer, length, "%.*s", MAXDOMAINNAMELEN, domain);
+    }
+    return -ENOTSUP;
+}
+#endif
+
+#ifndef HAVE_GETMACHINEID
+int
+getmachineid(char *buffer, size_t length)
+{
+    FILE *fp = fopen("/etc/machine-id", "r");
+    char machine[MAXMACHINEIDLEN];
+
+    if (fp) {
+	int i = fscanf(fp, "%" STR(MAXMACHINEIDLEN) "s", machine);
+	fclose(fp);
+	if (i != 1)
+	    return -EINVAL;
+	return pmsprintf(buffer, length, "%.*s", MAXMACHINEIDLEN, machine);
+    }
+    return -ENOTSUP;
+}
+#endif
 
 #ifndef HAVE_STRNDUP
 char *

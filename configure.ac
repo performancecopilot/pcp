@@ -1878,11 +1878,11 @@ fi
 AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
 if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have system microhttpd libraries for pmwebapi?
+dnl Do you have system microhttpd libraries for pmwebd?
 PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=true], [have_libmicrohttpd=false])
 AC_SUBST(HAVE_LIBMICROHTTPD, [$have_libmicrohttpd])
 
-dnl Do you have graphics libraries for pmwebapi?
+dnl Do you have graphics libraries for pmwebd?
 PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
 AC_SUBST(HAVE_CAIRO, [$have_cairo])
 
@@ -2088,7 +2088,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
 AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
 AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid)
-AC_CHECK_FUNCS(uname gethostname getdomainname)
+AC_CHECK_FUNCS(uname gethostname getdomainname getmachineid)
 AC_CHECK_FUNCS(__clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown fchmod getcwd scandir mkstemp)

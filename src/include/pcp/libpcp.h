@@ -226,18 +226,6 @@ typedef __uint32_t	__pmPDU;
 /* deprecated #define TIMEOUT_ASYNC -2 */
 #define TIMEOUT_CONNECT	-3
 
-/*
- * For the help text PDUs, the type (PM_TEXT_ONELINE or PM_TEXT_HELP)
- * is 'or'd with the following to encode the request for a PMID or
- * a pmInDom.  Default is to fallback to ONELINE if HELP unavailable;
- * the (internal) PM_TEXT_DIRECT flag disables this behaviour.
- * Note the values must therefore be (a) bit fields and (b) different
- *	to the public macros PM_TEXT_* in pmapi.h 
- */
-#define PM_TEXT_PMID	4
-#define PM_TEXT_INDOM	8
-#define PM_TEXT_DIRECT	16
-
 /* Version and capabilities information for PDU exchanges */
 #define UNKNOWN_VERSION	0
 #define PDU_VERSION2	2

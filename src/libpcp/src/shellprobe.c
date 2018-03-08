@@ -604,7 +604,7 @@ __pmShellProbeDiscoverServices(const char *service, const char *mechanism,
 	const __pmServiceDiscoveryOptions *globalOptions,
 	int numUrls, char ***urls)
 {
-    connectionOptions	options = { 0 };
+    connectionOptions	options = { { 0 }, { 0 }, 0 };
     targetInfo		*targetInfo;
     int			sts, i;
 
