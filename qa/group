@@ -1453,6 +1453,7 @@ pmlogsize
 1169 pmrep python local
 1174 threads valgrind local
 1177 pmns derive libpcp pmlogger local
+1180:reserved logutil local
 1182 libpcp local
 1186 pmie local
 1188 pmda.dm local
