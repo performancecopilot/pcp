@@ -310,6 +310,7 @@ interp.o
 io.o
     compress_ctl		# const
     ?ncompress			# const
+    sbuf			# one-trip initialization then read-only
 io_stdio.o
      __pm_stdio			# file operations using stdio
 ?io_xz.o

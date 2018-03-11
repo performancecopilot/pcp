@@ -566,3 +566,40 @@ __pmFclose(__pmFILE *f)
 
     return err;
 }
+
+/*
+ * for pmconfig -L
+ */
+#define SBUFLEN 100
+const char *
+compress_suffix_list(void)
+{
+    static char	sbuf[SBUFLEN] = { '\0' };
+
+    if (sbuf[0] == '\0') {
+	/* one-trip initialization */
+	int		i;
+	char		*p = sbuf;
+	const char	*q;
+
+	*p++ = '"';
+	for (i = 0; i < ncompress; i++) {
+	    q = compress_ctl[i].suff;
+	    if (i > 0)
+		*p++ = ' ';
+	    while (*q) {
+		if (p >= &sbuf[SBUFLEN-3]) {
+		    fprintf(stderr, "compress_suffix_list: botch: sbuf[%d] too short\n", SBUFLEN);
+		    break;
+		}
+		*p++ = *q++;
+	    }
+	    if (p >= &sbuf[SBUFLEN-3])
+		break;
+	}
+	*p++ = '"';
+	*p = '\0';
+    }
+
+    return sbuf;
+}

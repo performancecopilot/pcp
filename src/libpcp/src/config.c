@@ -380,6 +380,8 @@ ipv6_enabled(void)
 #endif
 }
 
+extern const char *compress_suffix_list(void);
+
 #ifdef PM_MULTI_THREAD
 #define MULTI_THREAD_ENABLED	enabled
 #else
@@ -446,6 +448,7 @@ static struct {
 	{ "multi_archive_contexts", enabled },			/* from pcp-3.11.1 */
 	{ "lock_asserts",	LOCK_ASSERTS_ENABLED },		/* from pcp-3.11.10 */
 	{ "lock_debug",		LOCK_DEBUG_ENABLED },		/* from pcp-3.11.10 */
+	{ "compress_suffixes",	compress_suffix_list },		/* from pcp-4.0.1 */
 };
 
 void
