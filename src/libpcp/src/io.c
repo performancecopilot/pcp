@@ -582,22 +582,20 @@ compress_suffix_list(void)
 	char		*p = sbuf;
 	const char	*q;
 
-	*p++ = '"';
 	for (i = 0; i < ncompress; i++) {
 	    q = compress_ctl[i].suff;
 	    if (i > 0)
 		*p++ = ' ';
 	    while (*q) {
-		if (p >= &sbuf[SBUFLEN-3]) {
+		if (p >= &sbuf[SBUFLEN-2]) {
 		    fprintf(stderr, "compress_suffix_list: botch: sbuf[%d] too short\n", SBUFLEN);
 		    break;
 		}
 		*p++ = *q++;
 	    }
-	    if (p >= &sbuf[SBUFLEN-3])
+	    if (p >= &sbuf[SBUFLEN-2])
 		break;
 	}
-	*p++ = '"';
 	*p = '\0';
     }
 
