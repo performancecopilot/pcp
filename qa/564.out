@@ -8,13 +8,15 @@ QA output created by 564
 pmlogger_daily: [TMP/SEQ-PID.ctl:3]
 Error: no pmlogger instance running for host "dist.engr"
 ... logging for host "dist.engr" unchanged
+pmlogger_daily: [TMP/SEQ-PID.ctl:3]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
-Archive files older than 3 days being compressed ...
-    FIVEMONTHS.0 FIVEDAYS.0
-+ bzip2 FIVEMONTHS.0 FIVEDAYS.0
+pmlogger_daily: [TMP/SEQ-PID.ctl:3]
+Error: pid of current pmlogger not found, compression not safe
+... logging for host "dist.engr" unchanged
 + cd TMP/SEQ-PID.relaydir
 
 === daily maintenance of PCP archives for host relay.engr ===
@@ -22,10 +24,12 @@ Archive files older than 3 days being compressed ...
 pmlogger_daily: [TMP/SEQ-PID.ctl:4]
 Error: no pmlogger instance running for host "relay.engr"
 ... logging for host "relay.engr" unchanged
+pmlogger_daily: [TMP/SEQ-PID.ctl:4]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
-Archive files older than 3 days being compressed ...
-    FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1
-+ bzip2 FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1
+pmlogger_daily: [TMP/SEQ-PID.ctl:4]
+Error: pid of current pmlogger not found, compression not safe
+... logging for host "relay.engr" unchanged

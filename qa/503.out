@@ -6,6 +6,8 @@ QA output created by 503
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -25,6 +27,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -48,6 +52,8 @@ pmlogger_merge: Error: file "20111001.0" not created
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -77,6 +83,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -106,6 +114,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -135,6 +145,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -166,6 +178,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -187,6 +201,8 @@ pmlogger_merge: Error: file "20111001.0" not created
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -230,6 +246,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -273,6 +291,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -316,6 +336,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
@@ -359,6 +381,8 @@ Removing input archive files ... done
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 Input archives to be merged:
 	20111001.21.10
