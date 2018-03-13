@@ -1,3 +1,19 @@
-# local primary logger
+#
+# PCP archive logging configuration/control
+#
+# see ../control for a description of the format
+#
+
+# === VARIABLE ASSIGNMENTS ===
+#
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+
+$PCP_COMPRESSAFTER=3
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
 #Host		P?  S?	directory				args
-LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default
+
+# local primary logger
+LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb
