@@ -26,7 +26,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-NorV\f1]
+[\f3\-KMNorV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -72,11 +72,41 @@ By default no compression is done.
 The
 .B \-x
 option enables compression and
+.I compress
 specifies the number of days after which to compress archive data
-files, and the
+files.
+If
+.I compress
+is
+.B 0
+then compression will be applied as soon as possible.
+The environment variable
+.B PCP_COMPRESSAFTER
+may be used as an alternative mechanism to define
+.IR compress .
+If both
+.B PCP_COMPRESSAFTER
+and
+.B \-x
+specify different values for
+.I compress
+then the environment variable value is used and a warning is issued.
+.PP
+The
 .B \-X
 option specifies the program to use for compression \- by default this is
 .BR xz (1).
+The environment variable
+.B PCP_COMPRESS
+may be used as an alternative mechanism to define
+.IR program .
+If both
+.B PCP_COMPRESS
+and
+.B \-X
+specify different compression programs
+then the environment variable value is used and a warning is issued.
+.PP
 Use of the
 .B \-Y
 option allows a regular expression to be specified causing files in
@@ -89,6 +119,17 @@ filtered using the
 .B \-v
 option to
 .BR egrep (1).
+The environment variable
+.B PCP_COMPRESSREGEX
+may be used as an alternative mechanism to define
+.IR regex .
+If both
+.B PCP_COMPRESSREGEX
+and
+.B \-Y
+specify different values for
+.I regex
+then the environment variable value is used and a warning is issued.
 .PP
 To accommodate the evolution of PMDAs and changes in production
 logging environments,
@@ -200,6 +241,48 @@ This daily summary is stored in the file
 .BR $PCP_LOG_DIR/NOTICES.daily ,
 which will be empty when no new ``notices'' entries were made in the previous
 24 hour period.
+.PP
+If the
+.B \-K
+option is specified for
+.B pmlogger_daily
+then only the compression tasks are attempted, so no
+.BR pmlogger (1)
+rotation, no culling, no rewriting, etc.
+When
+.B \-K
+is used and a
+.I compress
+value of
+.B 0
+is in effect
+(from
+.B \-x
+on the command line or
+.BR PCP_COMPRESSAFTER
+in the environment or via the
+.I control
+file)
+this is intended for environments where compression
+of archives is desired before the scheduled daily processing
+happens.
+To achieve this, once
+.B pmlogger_check
+has completed regular processing, it calls
+.B pmlogger_daily
+with just the
+.B \-K
+option.
+Provided
+.B PCP_COMPRESSAFTER
+is set to
+.B 0
+along with any other required compression options to match the
+scheduled invocation of
+.BR pmlogger_daily ,
+then this will compress all volumes except the ones being currently
+written by
+.BR pmlogger (1).
 .PP
 The script
 .B $PCP_BINADM_DIR/pmlogger_daily
