@@ -127,17 +127,24 @@ do
     done
 done
 
+eval `pmconfig -L -s compress_suffixes`
+if [ -z "$compress_suffixes" ]
+then
+    # should not happen, fallback to a fixed list
+    #
+    compress_suffixes='.xz .lzma .bz2 .bz .gz .Z .z'
+fi
+
 for input in `cat $tmp/input`
 do
-    for file in $input.index
+    for file in $input.meta
     do
-	file=`basename $file .index`
+	file=`basename $file .meta`
 	rmlist="$rmlist $file"
 	empty=0
 	if [ ! -f "$file.index" ]
 	then
-	    echo "$prog: Error: \"index\" file missing for archive \"$file\""
-	    fail=true
+	    echo "$prog: Warning: \"index\" file missing for archive \"$file\""
 	elif [ ! -s "$file.index" ]
 	then
 	    empty=`expr $empty + 1`
@@ -150,19 +157,32 @@ do
 	then
 	    empty=`expr $empty + 1`
 	fi
-	if [ ! -f "$file.0" ]
+	rm -f $tmp/found
+	for suff in "" $compress_suffixes
+	do
+	    if [ -f "$file.0$suff" ]
+	    then
+		touch $tmp/found
+		if [ ! -s "$file.0$suff" ]
+		then
+		    empty=`expr $empty + 1`
+		fi
+		break
+	    fi
+	done
+	if [ ! -f $tmp/found ]
 	then
 	    echo "$prog: Error: \"volume 0\" file missing for archive \"$file\""
+	    ls ${file}*
 	    fail=true
-	elif [ ! -s "$file.0" ]
-	then
-	    empty=`expr $empty + 1`
-	fi
-	if [ $empty -eq 3 ]
-	then
-	    echo "$prog: Warning: archive \"$file\" is empty and will be skipped"
 	else
-	    mergelist="$mergelist $file"
+	    rm -f $tmp/found
+	    if [ $empty -eq 3 ]
+	    then
+		echo "$prog: Warning: archive \"$file\" is empty and will be skipped"
+	    else
+		mergelist="$mergelist $file"
+	    fi
 	fi
     done
 done
@@ -226,10 +246,10 @@ else
 	    file=`basename $file .index`
 	    list="$list $file"
 	    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "	$file""$PCP_ECHO_C"
-	    numvol=`echo $file.[0-9]* | wc -w | sed -e 's/  *//g'`
-	    if [ $numvol -gt 1 ]
+	    numarch=`echo $file.[0-9]* | wc -w | sed -e 's/  *//g'`
+	    if [ $numarch -gt 1 ]
 	    then
-		$VERBOSE && echo " ($numvol volumes)"
+		$VERBOSE && echo " ($numarch archives)"
 	    else
 		$VERBOSE && echo
 	    fi
