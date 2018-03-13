@@ -2,6 +2,9 @@
 # PCP QA Test No. 1180
 # test pmlogger_sar_report(1)
 #
+# NOTE: if any of pmrep :sar-FOO configs get changed, then it's likely
+# the qualified output for this test will need to be remade.
+#
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
 
@@ -28,7 +31,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mkdir -p $tmp
 tar xf archives/crontab-sar-report.tar.xz -C $tmp
-$PCP_BINADM_DIR/pmlogger_sar_report -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
+$PCP_BINADM_DIR/pmlogger_sar_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
 cat $tmp/LOG >> $seq.full
 cat $tmp/OUT | tee -a $seq.full
 
