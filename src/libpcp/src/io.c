@@ -299,7 +299,6 @@ fopen_compress(const char *fname, int compress_ix)
 	setoserror(sts);
 	return NULL;
     }
-    __pmFseek(fp, 0L, SEEK_SET);	/* rewind temp file */
     /* success */
     return fp;
 }
@@ -374,7 +373,23 @@ __pmFopen(const char *path, const char *mode)
      * so pass a copy of path.
      */
     strncpy(tmpname, path, sizeof(tmpname));
-    if ((compress_ix = index_compress(tmpname, sizeof(tmpname))) >= 0) {
+    compress_ix = index_compress(tmpname, sizeof(tmpname));
+    if (pmDebugOptions.log) {
+	if (compress_ix == -1)
+	    fprintf(stderr, "__pmFopen(\"%s\", \"%s\"): no decompress\n", path, mode);
+	else {
+	    char *use;
+	    if (compress_ctl[compress_ix].appl == USE_BZIP2) use = "bzip2";
+	    else if (compress_ctl[compress_ix].appl == USE_GZIP) use = "gzip";
+	    else if (compress_ctl[compress_ix].appl == USE_XZ) use = "xz";
+	    else use = "???";
+	    fprintf(stderr, "__pmFopen(\"%s\", \"%s\"): decompress: %s", path, mode, use);
+	    if (compress_ctl[compress_ix].handler != NULL)
+		fprintf(stderr, " (on-the-fly)");
+	    fputc('\n', stderr);
+	}
+    }
+    if (compress_ix >= 0) {
 	if (mode[0] != 'r' || mode[1] != '\0') {
 	    /* We don't (yet) support opening compressed files for writing. */
 	    return NULL;
@@ -389,15 +404,10 @@ __pmFopen(const char *path, const char *mode)
 	     * Try decompressing it externally.
 	     */
 	    f = fopen_compress(path, compress_ix);
-	    return f;
+	    goto done;
 	}
 
  	/* Fall through and use the default handler. */
-    }
-    else {
-	if (pmDebugOptions.log) {
-	    fprintf(stderr, "__pmFopen: index_compress -> %d\n", compress_ix);
-	}
     }
 
     /*
@@ -424,6 +434,17 @@ __pmFopen(const char *path, const char *mode)
     	return NULL;
     }
 
+done:
+    /*
+     * position the stream as required ...
+     */
+    if (mode[0] == 'r' || mode[0] == 'w')
+	__pmRewind(f);
+    else {
+	if (pmDebugOptions.log) {
+	    fprintf(stderr, "__pmFopen(\"%s\", \"%s\"): not sure where to position stream for mode\n", path, mode);
+	}
+    }
     /*
      * This __pmFILE can now be used for I/O by calling f->fops.read(),
      * and other functions as needed, etc. 
