@@ -1,0 +1,255 @@
+#!/bin/sh
+# PCP QA Test No. 626
+# pmlogger_daily with -x 0 and previously failing to merge correctly
+# ... list of files below comes from an observed interactive run
+# of pmlogger_daily during -x 0 development
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which xz >/dev/null 2>&1
+then
+    PROG=xz
+    SUFF=xz
+elif which bzip2 >/dev/null 2>&1
+then
+    PROG=bzip2
+    SUFF=bz2
+elif which gzip >/dev/null 2>&1
+then
+    PROG=gzip
+    SUFF=gz
+else
+    _notrun "cannot find a compression program!"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_setup_control()
+{
+    echo '$version=1.1' >$tmp.control 
+    for arg
+    do
+	echo "\$$arg" >>$tmp.control
+    done
+    echo "LOCALHOSTNAME	n   n	$tmp	$tmp.config" >>$tmp.control
+    cat $tmp.control >>$seq.full
+}
+
+_filter()
+{
+    if [ $# -eq 0 ]
+    then
+	cmd=cat
+    elif [ -f "$1" ]
+    then
+	cmd="cat \"$1\""
+    else
+	return
+    fi
+    eval $cmd \
+    | tee -a $here/$seq.full \
+    | sed \
+	-e '/pmlogger_daily.pid: Permission denied/d' \
+	-e '/no pmlogger instance running for host/d' \
+	-e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \
+	-e '/logging for host .* unchanged/d' \
+    # end
+}
+
+_showfiles()
+{
+    ls $tmp/* \
+    | sed \
+	-e "s@$tmp@TMP@" \
+	-e "s/\.$SUFF$/.compressed/" \
+	-e "s/$DATE/DATE/" \
+    # end
+}
+
+cp archives/ok-foo.0 $tmp.0
+$PROG $tmp.0
+
+mkdir $tmp
+cat <<End-of-File | while read f
+20180225.0.xz
+20180225.index
+20180225.meta
+20180226.0.xz
+20180226.index
+20180226.meta
+20180227.0.xz
+20180227.index
+20180227.meta
+20180301.0.xz
+20180301.index
+20180301.meta
+20180302.0.xz
+20180302.index
+20180302.meta
+20180303.0.xz
+20180303.index
+20180303.meta
+20180304.0.xz
+20180304.index
+20180304.meta
+20180306.0.xz
+20180306.index
+20180306.meta
+20180307.0.xz
+20180307.index
+20180307.meta
+20180308.0.xz
+20180308.index
+20180308.meta
+20180311.00.10.0.xz
+20180311.00.10.index
+20180311.00.10.meta
+20180311.19.16.0.xz
+20180311.19.16.index
+20180311.19.16.meta
+20180311.19.17.0.xz
+20180311.19.17.index
+20180311.19.17.meta
+20180311.19.18.0.xz
+20180311.19.18.index
+20180311.19.18.meta
+20180311.19.20-00.0.xz
+20180311.19.20-00.index
+20180311.19.20-00.meta
+20180311.19.20-01.0.xz
+20180311.19.20-01.index
+20180311.19.20-01.meta
+20180311.19.22.0.xz
+20180311.19.22.index
+20180311.19.22.meta
+20180311.19.23-00.0.xz
+20180311.19.23-00.index
+20180311.19.23-00.meta
+20180311.19.23.0.xz
+20180311.19.23.index
+20180311.19.23.meta
+20180311.19.24-00.0.xz
+20180311.19.24-00.index
+20180311.19.24-00.meta
+20180311.19.24.0.xz
+20180311.19.24.index
+20180311.19.24.meta
+20180311.19.28-00.0.xz
+20180311.19.28-00.index
+20180311.19.28-00.meta
+20180311.19.28-01.0.xz
+20180311.19.28-01.index
+20180311.19.28-01.meta
+20180311.19.28.0.xz
+20180311.19.28.index
+20180311.19.28.meta
+20180311.20.51.0.xz
+20180311.20.51.index
+20180311.20.51.meta
+20180311.20.56.0.xz
+20180311.20.56.10.xz
+20180311.20.56.11.xz
+20180311.20.56.12.xz
+20180311.20.56.1.xz
+20180311.20.56.2.xz
+20180311.20.56.3.xz
+20180311.20.56.4.xz
+20180311.20.56.5.xz
+20180311.20.56.6.xz
+20180311.20.56.7.xz
+20180311.20.56.8.xz
+20180311.20.56.9.xz
+20180311.20.56.index
+20180311.20.56.meta
+20180312.00.10.0.xz
+20180312.00.10.10.xz
+20180312.00.10.11.xz
+20180312.00.10.12.xz
+20180312.00.10.13.xz
+20180312.00.10.14.xz
+20180312.00.10.15.xz
+20180312.00.10.16.xz
+20180312.00.10.17.xz
+20180312.00.10.18.xz
+20180312.00.10.19.xz
+20180312.00.10.1.xz
+20180312.00.10.20.xz
+20180312.00.10.21.xz
+20180312.00.10.22.xz
+20180312.00.10.23.xz
+20180312.00.10.24.xz
+20180312.00.10.25.xz
+20180312.00.10.26.xz
+20180312.00.10.27.xz
+20180312.00.10.28.xz
+20180312.00.10.29.xz
+20180312.00.10.2.xz
+20180312.00.10.30.xz
+20180312.00.10.31.xz
+20180312.00.10.32.xz
+20180312.00.10.33.xz
+20180312.00.10.34.xz
+20180312.00.10.3.xz
+20180312.00.10.4.xz
+20180312.00.10.5.xz
+20180312.00.10.6.xz
+20180312.00.10.7.xz
+20180312.00.10.8.xz
+20180312.00.10.9.xz
+20180312.00.10.index
+20180312.00.10.meta
+20180312.08.45.0.xz
+20180312.08.45.index
+20180312.08.45.meta
+End-of-File
+do
+    case $f
+    in
+	*.index)
+	    cp archives/ok-foo.index $tmp/$f
+	    ;;
+	*.meta)
+	    cp archives/ok-foo.meta $tmp/$f
+	    ;;
+	*.[0-9].xz|*.[0-9][0-9].xz)
+	    # fake out the .xz files with a compressed ok-foo.0
+	    cp $tmp.0.$SUFF $tmp/$f
+	    ;;
+	*)
+	    echo "$f - eh?"
+	    exit
+	    ;;
+    esac
+done
+_showfiles >$tmp.before
+
+# real QA test starts here
+_setup_control PCP_COMPRESSAFTER=0
+pmlogger_daily -f -c $tmp.control -l $tmp.log
+_filter $tmp.log
+_showfiles >$tmp.after
+
+echo
+echo "diffs ... expect 20180311 and 20180312 archives to be merged"
+diff $tmp.before $tmp.after
+
+# success, all done
+status=0
+exit

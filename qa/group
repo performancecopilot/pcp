@@ -977,8 +977,10 @@ pmlogsize
 620 pmlogsize valgrind local
 621 pmlogsize local
 622 pmie remote
+623 logutil local
 624 pmlogrewrite pmdumplog xz-decompress local
 625 libpcp getopt pmval local
+626 logutil local
 628 pmda local pmda.simple
 633 pmlogger local
 634 libirixpmda local pmval timezone
