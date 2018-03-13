@@ -78,6 +78,7 @@ OTHER_SUBDIRS = \
 	pmlogconf \
 	pmloglabel \
 	pmlogrewrite \
+	pmlogsize \
 	pmlogsummary \
 	pmlogcheck \
 	pmmgr \
