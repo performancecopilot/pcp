@@ -83,12 +83,17 @@ pass1(__pmContext *ctxp, char *archname)
 	    log_size = -1;
 	}
 	else if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
+	    __pmFILE *fp;
+	    log_size = -1;
 	    pmsprintf(path, sizeof(path), "%s.%d", archname, tip->ti_vol);
-	    if (stat(path, &sbuf) == 0)
-		log_size = sbuf.st_size;
-	    else {
-		log_size = -1;
-		fprintf(stderr, "%s: file missing or compressed for log volume %d\n", path, tip->ti_vol);
+	    fp = __pmFopen(path, "r");
+	    if (fp != NULL) {
+	        if (__pmFstat(fp, &sbuf) == 0)
+		    log_size = sbuf.st_size;
+		__pmFclose(fp);
+	    }
+	    if (log_size == -1) {
+		fprintf(stderr, "%s: file missing for log volume %d\n", path, tip->ti_vol);
 	    }
 	}
 	if (tip->ti_stamp.tv_sec < 0 || tip->ti_stamp.tv_usec < 0) {
