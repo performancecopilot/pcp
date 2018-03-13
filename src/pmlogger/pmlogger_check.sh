@@ -892,7 +892,7 @@ then
     pmloggerlist=`cat $tmp/pmloggers`
     if $PCP_PS_PROG -p "$pmloggerlist" >/dev/null 2>&1
     then
-        $VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $KILL -KILL `cat $tmp/pmies` ...""$PCP_ECHO_C" )
+        $VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $KILL -KILL $pmloggerlist ...""$PCP_ECHO_C" )
         eval $KILL -s KILL $pmloggerlist >/dev/null 2>&1
         delay=30        # tenths of a second
         while $PCP_PS_PROG -f -p "$pmloggerlist" >$tmp/alive 2>&1
@@ -910,6 +910,11 @@ then
         done
     fi
 fi
+
+# and if $PCP_COMPRESSAFTER=0 in the control file(s), compress archives now ...
+#
+$PCP_BINADM_DIR/pmlogger_daily -K
+
 
 [ -f $tmp/err ] && status=1
 exit
