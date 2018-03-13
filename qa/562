@@ -20,6 +20,7 @@ username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`
 domainname=`domainname`
+[ "$domainname" = "(none)" ] && domainname=localdomain
 pipeargs=""
 id pcp >/dev/null 2>&1 && pipeargs="-U $username"
 need_restore=true
