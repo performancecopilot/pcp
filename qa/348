@@ -105,6 +105,12 @@ echo "from pmprobe ..." >>$here/$seq.full
 cat $tmp.probe >>$here/$seq.full
 for stat in `$sudo find $kvm_stats_path -mindepth 1`
 do
+    case $stat
+    in
+	$kvm_stats_path/[0-9]*)
+	    continue
+	    ;;
+    esac
     value=`$sudo cat $stat`
     echo $stat 1 $value | sed -e "s,$kvm_stats_path/,kvm.,g" >> $tmp.stats
 done

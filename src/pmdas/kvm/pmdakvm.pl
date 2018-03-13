@@ -49,7 +49,7 @@ $pmda->connect_pmcd;
 my $pmid = 0;
 opendir(DIR, $kvm_path) || $pmda->err("pmdakvm failed to open $kvm_path: $!");
 my @metrics = grep {
-    unless (/^\./) {
+    unless (/^(\.|[0-9])/) {
 	$pmda->add_metric(pmda_pmid(0,$pmid++), PM_TYPE_U64, PM_INDOM_NULL,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		"kvm.$_", '', '');
