@@ -15,8 +15,7 @@ Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 pmlogger_daily: [TMP/SEQ-PID.ctl:3]
-Error: pid of current pmlogger not found, compression not safe
-... logging for host "dist.engr" unchanged
+Warning: current volume of current pmlogger not known, compression skipped
 + cd TMP/SEQ-PID.relaydir
 
 === daily maintenance of PCP archives for host relay.engr ===
@@ -31,5 +30,4 @@ Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 pmlogger_daily: [TMP/SEQ-PID.ctl:4]
-Error: pid of current pmlogger not found, compression not safe
-... logging for host "relay.engr" unchanged
+Warning: current volume of current pmlogger not known, compression skipped

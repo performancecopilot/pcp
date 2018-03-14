@@ -26,6 +26,7 @@ _filter_pmlogger()
 {
     _filter_pmlogger_log \
     | sed \
+	-e "s;$tmp;TMP;g" \
 	-e '/[Ss]ignalled (signal=.*), exiting/d' \
 	-e '/Warning: AF event queue is empty, nothing /d' \
 	-e "/Warning /s/[0-9]*-[0-9]*\.config/SEQ-MYPID.config/" \

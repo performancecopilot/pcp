@@ -219,7 +219,7 @@ Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "badarchives/badti-3.index"
 badarchives/badti-3.0: start pass0
-badarchives/badti-3.2: file missing or compressed for log volume 2
+badarchives/badti-3.2: file missing for log volume 2
 badarchives/badti-3.index: start pass0
 badarchives/badti-3.index[entry 3]: offset to log (1977) past end of file (1976)
 badarchives/badti-3.index[entry 3]: offset to metadata (852) past end of file (851)

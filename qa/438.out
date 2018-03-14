@@ -4,9 +4,9 @@ QA output created by 438
 __pmLogOpen: inspect file "badarchives/badlen-1.0"
 __pmLogOpen: inspect file "badarchives/badlen-1.index"
 __pmLogOpen: inspect file "badarchives/badlen-1.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-1.index", "r"): no decompress
+__pmFopen("badarchives/badlen-1.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-1.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -21,9 +21,9 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive log
 __pmLogOpen: inspect file "badarchives/badlen-10.0"
 __pmLogOpen: inspect file "badarchives/badlen-10.index"
 __pmLogOpen: inspect file "badarchives/badlen-10.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-10.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-10.index", "r"): no decompress
+__pmFopen("badarchives/badlen-10.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 trailer read -> 3 (expect 4) or bad trailer len=0 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-10": Illegal label record at start of a PCP archive log file
 
@@ -31,9 +31,9 @@ pmdumplog: Cannot open archive "badarchives/badlen-10": Illegal label record at 
 __pmLogOpen: inspect file "badarchives/badlen-11.0"
 __pmLogOpen: inspect file "badarchives/badlen-11.index"
 __pmLogOpen: inspect file "badarchives/badlen-11.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-11.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-11.index", "r"): no decompress
+__pmFopen("badarchives/badlen-11.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -52,9 +52,9 @@ __pmLogRead: fd=3 mode=forw vol=0 posn=132 AFTER end
 __pmLogOpen: inspect file "badarchives/badlen-2.0"
 __pmLogOpen: inspect file "badarchives/badlen-2.index"
 __pmLogOpen: inspect file "badarchives/badlen-2.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-2.index", "r"): no decompress
+__pmFopen("badarchives/badlen-2.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-2.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -75,9 +75,9 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive log
 __pmLogOpen: inspect file "badarchives/badlen-3.0"
 __pmLogOpen: inspect file "badarchives/badlen-3.index"
 __pmLogOpen: inspect file "badarchives/badlen-3.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-3.index", "r"): no decompress
+__pmFopen("badarchives/badlen-3.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-3.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -98,9 +98,9 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive log
 __pmLogOpen: inspect file "badarchives/badlen-4.0"
 __pmLogOpen: inspect file "badarchives/badlen-4.index"
 __pmLogOpen: inspect file "badarchives/badlen-4.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-4.index", "r"): no decompress
+__pmFopen("badarchives/badlen-4.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-4.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 file is empty
 pmdumplog: Cannot open archive "badarchives/badlen-4": Empty archive log file
 
@@ -108,9 +108,9 @@ pmdumplog: Cannot open archive "badarchives/badlen-4": Empty archive log file
 __pmLogOpen: inspect file "badarchives/badlen-5.0"
 __pmLogOpen: inspect file "badarchives/badlen-5.index"
 __pmLogOpen: inspect file "badarchives/badlen-5.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-5.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-5.index", "r"): no decompress
+__pmFopen("badarchives/badlen-5.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 bad label len=38: expected 124
 pmdumplog: Cannot open archive "badarchives/badlen-5": Illegal label record at start of a PCP archive log file
 
@@ -118,9 +118,9 @@ pmdumplog: Cannot open archive "badarchives/badlen-5": Illegal label record at s
 __pmLogOpen: inspect file "badarchives/badlen-6.0"
 __pmLogOpen: inspect file "badarchives/badlen-6.index"
 __pmLogOpen: inspect file "badarchives/badlen-6.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-6.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-6.index", "r"): no decompress
+__pmFopen("badarchives/badlen-6.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 header read -> 4 (expect 4) or bad header len=64 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-6": Illegal label record at start of a PCP archive log file
 
@@ -128,9 +128,9 @@ pmdumplog: Cannot open archive "badarchives/badlen-6": Illegal label record at s
 __pmLogOpen: inspect file "badarchives/badlen-7.0"
 __pmLogOpen: inspect file "badarchives/badlen-7.index"
 __pmLogOpen: inspect file "badarchives/badlen-7.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-7.index", "r"): no decompress
+__pmFopen("badarchives/badlen-7.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-7.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 trailer read -> 4 (expect 4) or bad trailer len=64 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-7": Illegal label record at start of a PCP archive log file
 
@@ -138,9 +138,9 @@ pmdumplog: Cannot open archive "badarchives/badlen-7": Illegal label record at s
 __pmLogOpen: inspect file "badarchives/badlen-8.0"
 __pmLogOpen: inspect file "badarchives/badlen-8.index"
 __pmLogOpen: inspect file "badarchives/badlen-8.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-8.index", "r"): no decompress
+__pmFopen("badarchives/badlen-8.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-8.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 label version 255 not supported
 pmdumplog: Cannot open archive "badarchives/badlen-8": Illegal label record at start of a PCP archive log file
 
@@ -148,9 +148,9 @@ pmdumplog: Cannot open archive "badarchives/badlen-8": Illegal label record at s
 __pmLogOpen: inspect file "badarchives/badlen-9.0"
 __pmLogOpen: inspect file "badarchives/badlen-9.index"
 __pmLogOpen: inspect file "badarchives/badlen-9.meta"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("badarchives/badlen-9.index", "r"): no decompress
+__pmFopen("badarchives/badlen-9.meta", "r"): no decompress
+__pmFopen("badarchives/badlen-9.0", "r"): no decompress
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST-laptop]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST-laptop]

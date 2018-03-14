@@ -24,9 +24,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -89,9 +89,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -149,9 +149,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -192,7 +192,7 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
-Warning [/tmp/SEQ-MYPID.config, line 6]
+Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) ON conflicts with current (mandatory) ON state
 Config parsed
@@ -212,9 +212,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -260,7 +260,7 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
-Warning [/tmp/SEQ-MYPID.config, line 6]
+Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) OFF conflicts with current (mandatory) ON state
 Config parsed
@@ -280,9 +280,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -345,9 +345,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -410,9 +410,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -470,9 +470,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -530,9 +530,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -595,9 +595,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -655,9 +655,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -720,9 +720,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -780,9 +780,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -823,7 +823,7 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
-Warning [/tmp/SEQ-MYPID.config, line 6]
+Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) ON conflicts with current (mandatory) OFF state
 Config parsed
@@ -843,9 +843,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -886,7 +886,7 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
-Warning [/tmp/SEQ-MYPID.config, line 6]
+Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) OFF conflicts with current (mandatory) OFF state
 Config parsed
@@ -906,9 +906,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -966,9 +966,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1031,9 +1031,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1091,9 +1091,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1151,9 +1151,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1216,9 +1216,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1276,9 +1276,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1341,9 +1341,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1401,9 +1401,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1461,9 +1461,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1526,9 +1526,9 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Starting logger for host "HOST"
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
-__pmFopen: index_compress -> -1
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
