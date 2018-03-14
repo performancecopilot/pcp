@@ -16,6 +16,7 @@
 #define SOCKET_INTERNAL
 #include "internal.h"
 #include "shellprobe.h"
+#include <ctype.h>
 
 #define PROBE	"__pmShellProbeDiscoverServices"
 
@@ -365,11 +366,11 @@ addTarget(char *target, connectionOptions *options)
     }
 
     /* Remove any leading or trailing whitespace we've been handed */
-    while (*target != '\0' && isspace(*target))
+    while (*target != '\0' && isspace((int)(*target)))
 	target++;
     bytes = strlen(target);
     name = target + bytes - 1;
-    while (name < target && isspace(*name))
+    while (name < target && isspace((int)(*name)))
 	name--;
     if (name > target) {
 	bytes = name - target;
