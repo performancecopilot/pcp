@@ -71,7 +71,13 @@ then
     chmod 644 /var/lib/pcp/config/pmlogger/config.default
 fi
 
-if which update-rc.d >/dev/null 2>&1
+if which deb-systemd-helper >/dev/null 2>&1
+then
+    deb-systemd-helper enable pmcd.service >/dev/null
+    deb-systemd-helper enable pmlogger.service >/dev/null
+    deb-systemd-helper enable pmie.service >/dev/null
+    deb-systemd-helper enable pmproxy.service >/dev/null
+elif which update-rc.d >/dev/null 2>&1
 then
     update-rc.d -f pmcd remove >/dev/null
     update-rc.d pmcd defaults >/dev/null
