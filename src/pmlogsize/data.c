@@ -130,8 +130,7 @@ do_data(__pmFILE *f, char *fname)
     int		j;
     int		k;
     int		ctx;
-    int		buflen = 0;
-    char	*buf = NULL;
+    char	*buf;
     struct stat	sbuf;
     metric_t	*metricp;
     __pmPDUHdr *php;
@@ -151,15 +150,10 @@ do_data(__pmFILE *f, char *fname)
 	bytes += rlen - sizeof(pmTimeval) - sizeof(__pmPDU);
 	oheadbytes += sizeof(pmTimeval) + sizeof(__pmPDU);
 	need = rlen + sizeof(__pmPDUHdr);
-	if (need > buflen) {
-	    if (buf != NULL)
-		free(buf);
-	    buf = (char *)malloc(need);
-	    if (buf == NULL) {
-		fprintf(stderr, "Error: data buffer malloc(%d) failed\n", need);
-		exit(1);
-	    }
-	    buflen = need;
+	buf = (char *)__pmFindPDUBuf(need);
+	if (buf == NULL) {
+	    fprintf(stderr, "Error: data buffer __pmFindPDUBuf(%d) failed\n", need);
+	    exit(1);
 	}
 
 	/*
@@ -342,6 +336,10 @@ do_data(__pmFILE *f, char *fname)
 	}
 
 	pmFreeResult(rp);
+	if ((sts = __pmUnpinPDUBuf(buf)) < 0) {
+	    fprintf(stderr, "Error: __pmUnpinPDUBuf failed: %s\n", pmErrStr(sts));
+	    exit(1);
+	}
 
 	nrec++;
     }
@@ -397,7 +395,6 @@ do_data(__pmFILE *f, char *fname)
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
 
-    free(buf);
     cleanup(1);
 
     return;
