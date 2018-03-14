@@ -438,8 +438,10 @@ done:
     /*
      * position the stream as required ...
      */
-    if (mode[0] == 'r' || mode[0] == 'w')
-	__pmRewind(f);
+    if (mode[0] == 'r' || mode[0] == 'w') {
+	if (f != NULL)
+	    __pmRewind(f);
+    }
     else {
 	if (pmDebugOptions.log) {
 	    fprintf(stderr, "__pmFopen(\"%s\", \"%s\"): not sure where to position stream for mode\n", path, mode);
