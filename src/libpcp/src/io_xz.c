@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -789,7 +789,7 @@ xz_getc(__pmFILE *f)
 	return EOF;
 
     /* It's a single byte. It is guaranteed that we can copy it. */
-    c = *(blk->data + blk->current_offset);
+    c = *(unsigned char *)(blk->data + blk->current_offset);
     ++xz->uncompressed_offset;
     ++blk->current_offset;
     return c;
