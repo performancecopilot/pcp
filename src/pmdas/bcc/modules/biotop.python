@@ -111,8 +111,17 @@ class PCPBCCModule(PCPBCCBase):
         # Update current data
         for k, v in counts.items():
             disk = str(k.major) + "," + str(k.minor)
-            if disk not in self.disklookup:
+
+            # unnamed devices (e.g. non-device mounts)
+            if k.major == 0:
+                continue
+            elif disk not in self.disklookup:
+                # check for hot swapped devices
                 self.update_disk_info()
+                if disk not in self.disklookup:
+                    self.log("Traced unknown device (major: {} minor: {})".format(k.major, k.minor))
+                    continue
+
             key = self.disklookup[disk] + "::" + str(k.pid).zfill(6)
             value = v.bytes if key not in self.cache else v.bytes + self.cache[key]
             self.cache[key] = value
