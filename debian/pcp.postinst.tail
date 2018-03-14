@@ -18,6 +18,8 @@ chown pcp:pcp /var/lib/pcp/tmp
 chmod 775 /var/lib/pcp/tmp
 chown pcp:pcp /var/log/pcp
 chmod 775 /var/log/pcp
+chown pcp:pcp /etc/pcp/nssdb
+chown 775 /etc/pcp/nssdb
 
 # must match src/pmcd/GNUmakefile
 chown pcp:pcp /var/log/pcp/pmcd
