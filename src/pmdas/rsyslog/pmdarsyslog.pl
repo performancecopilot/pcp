@@ -104,7 +104,7 @@ sub rsyslog_fetch_callback
     return (PM_ERR_PMID, 0);
 }
 
-die "Cannot find a valid rsyslog statistics named pipe\n" unless -p $statsfile;
+die "Cannot find a valid rsyslog statistics named pipe: " . $statsfile . "\n" unless -p $statsfile;
 
 $pmda->connect_pmcd;
 
