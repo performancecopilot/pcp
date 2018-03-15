@@ -23,6 +23,8 @@ _cleanup()
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	_sighup_pmcd
     fi
+    _wait_for_pmcd
+    _wait_for_pmlogger
     $sudo rm -rf $tmp $tmp.*
 }
 
