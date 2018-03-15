@@ -19,7 +19,13 @@ groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`
-domainname=`domainname`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
 [ "$domainname" = "(none)" ] && domainname=localdomain
 pipeargs=""
 id pcp >/dev/null 2>&1 && pipeargs="-U $username"
