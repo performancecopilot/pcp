@@ -2138,6 +2138,7 @@ etc/sysconfig/pmproxy
 etc/sysconfig/pmlogger
 etc/cron.d/pcp-pmie
 etc/cron.d/pcp-pmlogger
+etc/cron.d/pcp-pmlogger-sar-report
 pmcd/pmcd.conf
 pmcd/pmcd.options
 pmcd/rc.local

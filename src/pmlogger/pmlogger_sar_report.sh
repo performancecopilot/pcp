@@ -157,6 +157,14 @@ $verbose && echo REPORTFILE=$REPORTFILE
 # Default reporting interval is 10m (same as sysstat uses)
 [ -z "$INTERVAL" ] && INTERVAL="10m"
 
+# If the input archive doesn't exist, we exit.
+# TODO: fallback to whole directory in multi-archive mode.
+if [ ! -f "$ARCHIVEPATH.index" ]; then
+    # report this to the log
+    echo "$prog: FATAL error: Failed to find input archive \"$ARCHIVEPATH\"."
+    exit 1
+fi
+
 #
 # Common reporting options, including time window: midnight yesterday for 24h
 REPORT_OPTIONS="-a $ARCHIVEPATH -z -p -f%H:%M:%S -t$INTERVAL"
@@ -177,13 +185,6 @@ then
     exit
 fi
 
-# If the input archive doesn't exist, we exit.
-# TODO: fallback to whole directory in multi-archive mode.
-if [ ! -f "$ARCHIVEPATH.index" ]; then
-    # report this to the log
-    echo "$prog: FATAL error: Failed to find input archive \"$ARCHIVEPATH\"."
-    exit 1
-fi
 
 # common reporting funtion
 _report()

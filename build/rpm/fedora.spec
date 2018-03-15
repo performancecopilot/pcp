@@ -1993,12 +1993,16 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: http://www.pcp.io
-Requires: pcp
+Requires: pcp pcp-system-tools
 Requires: pcp-pmda-dm pcp-pmda-nfsclient
+# when we're ready, uncomment the next line
+# Obsoletes: sysstat
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
+A cron script also writes daily performance summary reports similar to
+those written by sysstat.
 
 %if !%{disable_python2}
 #
@@ -2875,6 +2879,8 @@ cd
 %config(noreplace) %{_confdir}/pmlogger/control
 %config(noreplace) %{_confdir}/pmlogger/control.d/local
 %dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
+%dir %{_confdir}/discover
+%config(noreplace) %{_confdir}/discover/pcp-kube-pods.conf
 
 %ghost %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
@@ -2900,6 +2906,8 @@ cd
 #empty
 
 %files zeroconf
+%{_libexecdir}/pcp/bin/pmlogger_sar_report
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-sar-report
 %{_localstatedir}/lib/pcp/config/pmlogconf/zeroconf
 
 #additional pmlogger config files
@@ -3300,7 +3308,7 @@ cd
 %endif
 
 %changelog
-* Fri Feb 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
+* Fri Mar 15 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2
