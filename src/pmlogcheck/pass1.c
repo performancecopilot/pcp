@@ -67,11 +67,20 @@ pass1(__pmContext *ctxp, char *archname)
 	tv.tv_sec = tip->ti_stamp.tv_sec;
 	tv.tv_usec = tip->ti_stamp.tv_usec;
 	if (i == 1) {
+	    __pmFILE *fp;
+	    meta_size = -1;
 	    pmsprintf(path, sizeof(path), "%s.meta", archname);
-	    if (stat(path, &sbuf) == 0)
-		meta_size = sbuf.st_size;
-	    else {
-		/* should not get here ... as detected in after pass0 */
+	    fp = __pmFopen(path, "r");
+	    if (fp != NULL) {
+	        if (__pmFstat(fp, &sbuf) == 0)
+		    meta_size = sbuf.st_size;
+		__pmFclose(fp);
+	    }
+	    if (meta_size == -1) {
+		/*
+		 * only get here if file exists, but __pmFopen() fails,
+		 * e.g. for decompression failure
+		 */
 		fprintf(stderr, "%s: pass1: botch: cannot open metadata file (%s)\n", pmGetProgname(), path);
 		exit(1);
 	    }
