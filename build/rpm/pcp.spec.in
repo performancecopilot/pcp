@@ -2035,7 +2035,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: http://www.pcp.io
-Requires: pcp pcp-system-tools
+Requires: pcp pcp-doc pcp-system-tools
 Requires: pcp-pmda-dm pcp-pmda-nfsclient
 # to make pcp-zeroconf replace sysstat, uncomment the next line
 # Obsoletes: sysstat
