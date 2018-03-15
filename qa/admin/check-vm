@@ -411,7 +411,7 @@ pkg?	/usr/include/ncurses/ncurses.h		[library/ncurses]
 slackpkg?	/usr/include/ncurses/ncurses.h		[ncurses]
 pacman?	/usr/include/ncurses.h		[ncurses]
 # python modules
-# -- six
+# -- python six
 dpkg?	/usr/lib/python2.*/*-packages/six.py	[python-six]
 dpkg?	/usr/lib/python3/*-packages/six.py	[python3-six]
 rpm?	/usr/lib*/python2.*/*-packages/six.py	[python-six]
@@ -424,7 +424,7 @@ pkg?	/usr/lib/python*/*-packages/*/*/six.py	[library.python-2]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/six.py	[python-setuptools]
 pacman?	/usr/lib/python2.*/site-packages/six.py	[python2-six]
 pacman?	/usr/lib/python3.*/site-packages/six.py	[python-six]
-# -- jsonpointer
+# -- python jsonpointer
 dpkg?	/usr/lib/python2.*/*-packages/jsonpointer.py	[python-json-pointer (build optional)]
 dpkg?	/usr/lib/python3/*-packages/jsonpointer.py	[python3-json-pointer (build optional)]
 rpm?	/usr/lib*/python2.*/*-packages/jsonpointer.py	[python-jsonpointer]
@@ -437,12 +437,12 @@ pkg?	jsonpointer.py					[N/A (build optional)]
 slackpkg?	jsonpointer.py				[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/jsonpointer.py	[python2-jsonpointer (build optional)
 pacman?	/usr/lib/python3.*/site-packages/jsonpointer.py	[python-jsonpointer (build optional)
-# -- lio
+# -- python lio
 rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
 rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
-# -- setuptools
+# -- python setuptools
 dpkg?	/usr/lib/python2.*/*-packages/setuptools	[python-setuptools]
 dpkg?	/usr/lib/python3/*-packages/setuptools	[python3-setuptools]
 rpm?	/usr/lib*/python2.*/*-packages/setuptools	[python-setuptools]
@@ -455,7 +455,7 @@ pkg?	/usr/lib/python*/*-packages/setuptools		[python/setuptools]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/setuptools	[?python-setuptools]
 pacman?	/usr/lib/python2.*/site-packages/setuptools	[python2-setuptools]
 pacman?	/usr/lib/python3.*/site-packages/setuptools	[python-setuptools]
-# -- libvirt and lxml
+# -- python libvirt and lxml
 dpkg?	/usr/lib/python2.*/*-packages/libvirt.py	[python-libvirt]
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt]
 rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python]
@@ -480,7 +480,7 @@ pkg?	lxml.py			[N/A (build optional)]
 slackpkg?	lxml.py	[?]
 pacman?	/usr/lib/python2.*/*-packages/defusedxml/lxml.py	[python2-defusedxml]
 pacman?	/usr/lib/python3.*/*-packages/defusedxml/lxml.py	[python-defusedxml]
-# -- python-prometheus-client
+# -- python prometheus-client
 dpkg?	/usr/lib/python2.*/*-packages/prometheus_client	[python-prometheus-client]
 dpkg?	/usr/lib/python3/*-packages/prometheus_client	[python3-prometheus-client]
 rpm?	/usr/lib*/python2.*/*-packages/prometheus_client	[python-prometheus-client]
@@ -493,7 +493,7 @@ pkg?	/usr/lib/python*/*-packages/prometheus_client	[N/A (build optional)]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/prometheus_client	[?python-prometheus-client]
 pacman?	/usr/lib/python2.*/site-packages/prometheus_client	[python2-prometheus-client?]
 pacman?	/usr/lib/python3.*/site-packages/prometheus_client	[python-prometheus-client?]
-# -- python-elasticsearch
+# -- python elasticsearch
 dpkg?	/usr/lib/python2.*/*-packages/elasticsearch	[python-elasticsearch]
 dpkg?	/usr/lib/python3/*-packages/elasticsearch	[python3-elasticsearch]
 rpm?	/usr/lib*/python2.*/*-packages/elasticsearch	[python-elasticsearch]
@@ -506,7 +506,7 @@ pkg?	/usr/lib/python*/*-packages/elasticsearch	[N/A (build optional)]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/elasticsearch	[?python-elasticsearch]
 pacman?	/usr/lib/python2.*/site-packages/elasticsearch	[python2-elasticsearch]
 pacman?	/usr/lib/python3.*/site-packages/elasticsearch	[python-elasticsearch]
-# -- python-xlsxwriter
+# -- python xlsxwriter
 dpkg?	/usr/lib/python2.*/*-packages/xlsxwriter	[python-xlsxwriter]
 dpkg?	/usr/lib/python3/*-packages/xlsxwriter		[python3-xlsxwriter]
 rpm?	/usr/lib*/python2.*/*-packages/xlsxwriter	[python-xlsxwriter]
@@ -519,7 +519,7 @@ pkg?	/usr/lib/python*/*-packages/xlsxwriter		[N/A (build optional)]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/xlsxwriter	[?python-xlsxwriter]
 pacman?	/usr/lib/python2.*/site-packages/xlsxwriter	[python2-xlsxwriter?]
 pacman?	/usr/lib/python3.*/site-packages/xlsxwriter	[python-xlsxwriter?]
-# -- bcc
+# -- python bcc
 dpkg?	/usr/lib/python3/*-packages/bcc.py	[python3-bcc (build optional)]
 rpm?	/usr/lib*/python3.*/*-packages/bcc.py	[python3-bcc (build optional)]
 urpmi?	/usr/lib*/python*/*-packages/bcc.py	[python-bcc (build optional)]
@@ -527,8 +527,18 @@ emerge?	/usr/lib/python*/*-packages/bcc.py	[dev-python/bcc (build optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/bcc.py	[py36-bcc (build optional)]
 pkg_add?	/usr/local/lib/python*/*-packages/bcc.py	[py-bcc (build optional)]
 pkg?	/usr/lib/python*/*-packages/*/*/bcc.py	[N/A (build optional)]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/bcc.py	[?python-bcc (build optional)]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/bcc.py	[python-bcc (build optional)]
 pacman?	/usr/lib/python3.*/site-packages/bcc.py	[python-bcc (build optional)]
+# -- python pillow
+dpkg?	/usr/lib/python3/*-packages/PIL/Image.py	[python3-pil (QA optional)]
+rpm?	/usr/lib*/python3.*/*-packages/PIL/Image.py	[python3-pillow (QA optional)]
+urpmi?	/usr/lib*/python3.*/*-packages/PIL/Image.py	[python3-pillow (QA optional)]
+emerge?	Image.py		[?]
+pkgin?	Image.py		[?]
+pkg_add?	Image.py	[?]
+pkg?	Image.py		[?]
+slackpkg?	Image.py	[?]
+pacman?		Image.py	[?]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[perl]
