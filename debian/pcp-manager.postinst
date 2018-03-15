@@ -5,7 +5,10 @@
 chown pcp:pcp /var/log/pcp/pmmgr
 chmod 775 /var/log/pcp/pmmgr
 
-if which update-rc.d >/dev/null 2>&1
+if which deb-systemd-helper >/dev/null 2>&1
+then
+   deb-systemd-helper enable pmmgr.service >/dev/null
+elif which update-rc.d >/dev/null 2>&1
 then
     update-rc.d -f pmmgr remove >/dev/null
     update-rc.d pmmgr defaults >/dev/null
