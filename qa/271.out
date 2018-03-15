@@ -4,9 +4,9 @@ QA output created by 271
 __pmLogOpen: inspect file "TMP.0"
 __pmLogOpen: inspect file "TMP.index"
 __pmLogOpen: inspect file "TMP.meta"
-__pmFopen("TMP.index", "r"): no decompress
-__pmFopen("TMP.meta", "r"): no decompress
-__pmFopen("TMP.0", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -23,9 +23,9 @@ Performance metrics from host HOST
 __pmLogOpen: inspect file "TMP.0"
 __pmLogOpen: inspect file "TMP.index"
 __pmLogOpen: inspect file "TMP.meta"
-__pmFopen("TMP.index", "r"): no decompress
-__pmFopen("TMP.meta", "r"): no decompress
-__pmFopen("TMP.0", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -42,9 +42,9 @@ Performance metrics from host HOST
 __pmLogOpen: inspect file "TMP.0"
 __pmLogOpen: inspect file "TMP.index"
 __pmLogOpen: inspect file "TMP.meta"
-__pmFopen("TMP.index", "r"): no decompress
-__pmFopen("TMP.meta", "r"): no decompress
-__pmFopen("TMP.0", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
+__pmFopen("TMP.???", "r"): no decompress
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]

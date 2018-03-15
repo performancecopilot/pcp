@@ -43,6 +43,7 @@ $1 == "__pmLogRead:"		{ if (fd4 == "") fd4 = $2
 				{ print }' \
     | sed >$tmp.tmp \
 	-e "s;$tmp;TMP;g" \
+	-e 's/^\(__pmFopen("TMP\.\)[^"]*"/\1???"/g' \
 	-e "s/$host.*\]/HOST]/g" \
 	-e "s/$host/HOST/g" \
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
