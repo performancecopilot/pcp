@@ -1,0 +1,6 @@
+#
+# Performance Co-Pilot crontab entry to write daily sar reports.
+#
+# Daily processing of sar activity reports. Must be an hour or
+# two after the pmlogger_daily cron script has finished.
+0     2  *  *  *  @user@  @path@/pmlogger_sar_report -o @dirpath@/sa

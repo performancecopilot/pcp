@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1180
+# test pmlogger_sar_report(1)
+#
+# NOTE: if any of pmrep :sar-FOO configs get changed, then it's likely
+# the qualified output for this test will need to be remade.
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -x $PCP_BINADM_DIR/pmlogger_sar_report ] || _notrun pcp-zeroconf not installed
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir -p $tmp
+tar xf archives/crontab-sar-report.tar.xz -C $tmp
+$PCP_BINADM_DIR/pmlogger_sar_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
+cat $tmp/LOG >> $seq.full
+cat $tmp/OUT | tee -a $seq.full
+
+# optional stuff if your test has verbose output to help resolve problems
+echo
+echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+exit
