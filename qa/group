@@ -981,6 +981,7 @@ pmlogsize
 624 pmlogrewrite pmdumplog xz-decompress local
 625 libpcp getopt pmval local
 626 logutil local
+627 pmlogcheck decompress-xz local
 628 pmda local pmda.simple
 633 pmlogger local
 634 libirixpmda local pmval timezone
