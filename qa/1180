@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1180
-# test pmlogger_sar_report(1)
+# test pmlogger_daily_report(1)
 #
 # NOTE: if any of pmrep :sar-FOO configs get changed, then it's likely
 # the qualified output for this test will need to be remade.
@@ -16,7 +16,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -x $PCP_BINADM_DIR/pmlogger_sar_report ] || _notrun pcp-zeroconf not installed
+[ -x $PCP_BINADM_DIR/pmlogger_daily_report ] || \
+	_notrun pmlogger_daily_report not installed
 
 _cleanup()
 {
@@ -31,7 +32,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mkdir -p $tmp
 tar xf archives/crontab-sar-report.tar.xz -C $tmp
-$PCP_BINADM_DIR/pmlogger_sar_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
+$PCP_BINADM_DIR/pmlogger_daily_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
 cat $tmp/LOG >> $seq.full
 cat $tmp/OUT | tee -a $seq.full
 

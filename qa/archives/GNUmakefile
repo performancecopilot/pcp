@@ -50,7 +50,8 @@ CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	  coverage.config
 
-OTHERS = ds390-access.gz collectl-qa bigace.pmns README
+OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
+	 crontab-sar-report.tar.xz
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp

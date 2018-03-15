@@ -3300,6 +3300,9 @@ pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
 AC_SUBST(pcp_log_dir)
 
+pcp_sa_dir=$pcp_log_dir/sa
+AC_SUBST(pcp_sa_dir)
+
 AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
                    [pcp_run_dir=$withval],
                    [pcp_run_dir=$localstatedir/run/pcp])

@@ -2037,7 +2037,7 @@ Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: http://www.pcp.io
 Requires: pcp pcp-system-tools
 Requires: pcp-pmda-dm pcp-pmda-nfsclient
-# when we're ready, uncomment the next line
+# to make pcp-zeroconf replace sysstat, uncomment the next line
 # Obsoletes: sysstat
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2138,7 +2138,7 @@ etc/sysconfig/pmproxy
 etc/sysconfig/pmlogger
 etc/cron.d/pcp-pmie
 etc/cron.d/pcp-pmlogger
-etc/cron.d/pcp-pmlogger-sar-report
+etc/cron.d/pcp-pmlogger-daily-report
 pmcd/pmcd.conf
 pmcd/pmcd.options
 pmcd/rc.local
@@ -2322,7 +2322,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/shping' > pmda_shping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|sar[-_]report|log/sa' > zeroconf_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
 
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_bonding_files pmda_dbping_files \

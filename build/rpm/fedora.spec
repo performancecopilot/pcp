@@ -1995,7 +1995,7 @@ Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: http://www.pcp.io
 Requires: pcp pcp-system-tools
 Requires: pcp-pmda-dm pcp-pmda-nfsclient
-# when we're ready, uncomment the next line
+# to make pcp-zeroconf replace sysstat, uncomment the next line
 # Obsoletes: sysstat
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2906,8 +2906,8 @@ cd
 #empty
 
 %files zeroconf
-%{_libexecdir}/pcp/bin/pmlogger_sar_report
-%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-sar-report
+%{_libexecdir}/pcp/bin/pmlogger_daily_report
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-daily-report
 %{_localstatedir}/lib/pcp/config/pmlogconf/zeroconf
 
 #additional pmlogger config files
@@ -3308,7 +3308,7 @@ cd
 %endif
 
 %changelog
-* Fri Mar 15 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
+* Fri Mar 30 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2

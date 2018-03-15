@@ -1,23 +1,22 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2018 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
-.TH PMLOGGER_SAR_REPORT 1 "PCP" "Performance Co-Pilot"
+.TH PMLOGGER_DAILY_REPORT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger_sar_report\f1 \- write Performance Co-Pilot daily summary reports
+\f3pmlogger_daily_report\f1 \- write Performance Co-Pilot daily summary reports
 .SH SYNOPSIS
-.B $PCP_BINADM_DIR/pmlogger_sar_report
+.B $PCP_BINADM_DIR/pmlogger_daily_report
 [\f3\-a\f1 \f2archivefile\f1]
 [\f3\-f\f1 \f2outputfile\f1]
 [\f3\-h\f1 \f2hostname\f1]
@@ -28,82 +27,101 @@
 [\f3\-V\f1]
 [\f3\--help\f1]
 .SH DESCRIPTION
-\f3pmlogger_sar_report\f1 and the associated crontab(5)
-.B /etc/cron.d/pcp-pmlogger-sar-report
+.B pmlogger_daily_report
+and the associated
+.BR crontab (5)
+entry (depending on local platform, either 
+.I $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
+or
+.IR $PCP_SYSCONF_DIR/pmlogger/crontab-daily-report )
 write daily performance summary reports, much like those produced by 
-.BR sysstat (1)
+.BR sadc (1)
 and the
 .BR sa2 (8)
 utility.
 .PP
-All of the command line arguments are optional and intended to be self explanatory.
-If no arguments are specified, \f3pmlogger_sar_report\f1 will be run by
+All of the command line arguments are optional and intended to be self
+explanatory.
+If no arguments are specified,
+.B pmlogger_daily_report
+will be run by
 .BR cron (8)
 at 2am each morning and write a performance summary report named
 .BI sar XX
 (where
 .I XX
-is the yesterdays day of the month, wrapping to the previous month if today is the 1st).
-The \f2outputfile\fP file may be changed with the
+is yesterdays day-of-the-month, wrapping to the previous month
+if today is the 1st).
+The
+.I outputfile
+may be changed with the
 .B \-f
 option.
-The report will be written to the \fB/var/log/sa\fP directory by default,
-but this may be changed with the
+The report will be written to the
+.I $PCP_LOG_DIR/sa
+directory by default, but this may be changed with the
 .B \-o
-option to a different \f2directory\fP.
+option to a different
+.IR directory .
 Note the default
 .BR crontab (5)
 entry currently specifies
-.B /var/log/pcp/sa
+.B $PCP_LOG_DIR/sa
 as the output directory; this may be changed in the future.
 .PP
 If the
 .B \-a
 option is not given, the default input
-.BR archivefile
+.IR archivefile
 is
-.B /var/log/pcp/pmlogger/\fIHOSTNAME\fP/\fIYYYYMMDD\fP ,
-where \fIHOSTNAME\fP defaults to the local hostname (may be changed
-with the
+.IR $PCP_LOG_DIR/pmlogger/HOSTNAME/YYYYMMDD ,
+where
+.I HOSTNAME
+defaults to the local hostname (may be changed with the
 .B \-h
-option) and \fIYYYYMMDD\fP is the base name of yesterdays merged archive,
-as produced by
+option) and
+.I YYYYMMDD
+is the base name of yesterdays merged archive, as produced by
 .BR pmlogger (1)
 and the
 .BR pmlogger_daily (1)
 scripts.
 If
-.B archivefile
-is a directory, then \f3pmlogger_sar_report\f1 will use all PCP archives found in that directory
-to write the report (this is known as multi-archive mode, and may be considerably slower than specifying
-a single archive as the input).
+.I archivefile
+is a directory, then
+.B pmlogger_daily_report
+will use all PCP archives found in that directory
+to write the report (this is known as multi-archive mode,
+and may be considerably slower than specifying a single
+archive as the input).
 .PP
-Note that there are suffciently flexible command line options for \f3pmlogger_sar_report\f1
+Note that there are suffciently flexible command line options for
+.B pmlogger_daily_report
 to be used to read any
 .B archivefile
 and write the report to any output directory.
 As such, this tool can be configured by editing the crontab entry,
-.B /etc/cron.d/pcp-pmlogger-sar-report
-and adding whatever command line options are required, e.g. to run with
-.BR pmmgr (1)
-managed archives.
+.B $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
+and adding whatever command line options are required.
 .PP
 The reports themselves are created by the
 .BR pmrep (1)
-utility using it's default configuration file, see
+utility using its default configuration file, see
 .BR pmrep.conf (5).
 The
 .BR pmrep (1)
 configuration entries used to write the reports is currently hardwired
-into the \f3pmlogger_sar_report\f1 script - this may change in the
-future.
+into the
+.B pmlogger_daily_report
+script.
 .PP
 Finally, the input archives must contain sufficient metrics as needed by
 .BR pmrep (1)
 to write the report.
-The
-.B pcp-zeroconf
-package configures PCP logging as required for this - and hence \f3pmlogger_sar_report\f1
+On platforms that support it, the
+.I pcp-zeroconf
+package configures PCP logging as required for this \- hence
+.B pmlogger_daily_report
 should be used with the
 .BR pmlogger (1)
 configuration that is set up by
@@ -111,15 +129,15 @@ configuration that is set up by
 As the name suggests,
 .BR pcp-zeroconf
 requires no additional configuration after installation in order to
-capture the required archives needed by \f3pmlogger_sar_report\f1.
-.SH FILES
+capture the required archives needed by
+.BR pmlogger_daily_report .
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
 are used to parameterize the file and directory names
 used by PCP.
 On each installation, the file
-.B /etc/pcp.conf
+.I /etc/pcp.conf
 contains the local values for these variables.
 The
 .B $PCP_CONF
@@ -131,9 +149,9 @@ as described in
 .BR PCPIntro (1),
 .BR pmlogger_daily (1),
 .BR pmlogger (1),
-.BR pmmgr (1),
 .BR pmrep (1),
-.BR sysstat (1),
+.BR sadc (1),
+.BR crontab (5),
 .BR sa2 (8)
 and
 .BR cron (8).

@@ -2,7 +2,7 @@ QA output created by 1180
 
 
 #  Wed Mar 7 16:36:43.514833 2018
-# CPU Utilzation statistics, all CPUS
+# CPU Utilization statistics, all CPUS
                 CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
 16:36:43          =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 17:06:43          =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
@@ -23,7 +23,7 @@ QA output created by 1180
 
 
 #  Wed Mar 7 16:36:43.514833 2018
-# CPU Utilzation statistics, per-CPU
+# CPU Utilization statistics, per-CPU
                 CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
 16:36:43          =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 16:36:43       cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
@@ -118,7 +118,7 @@ QA output created by 1180
 
 
 #  Wed Mar 7 16:36:43.514833 2018
-# Paging statistics
+# paging statistics
 -- no report for config ":sar-B"
 
 
@@ -154,7 +154,7 @@ QA output created by 1180
 
 
 #  Wed Mar 7 16:36:43.514833 2018
-# currently mounted filesystem statistics
+# mounted filesystem statistics
 -- no report for config ":sar-F"
 
 

@@ -13,17 +13,17 @@
 # for more details.
 #
 # 
-# Administrative script for daily sysstat/sar style report summaries.
+# Administrative script for daily sar-style report summaries.
 # This is intened to be run from cron, an hour or two after the pmlogger_daily
 # cron script has completed, e.g. around 2am would be a suitable time.
 #
-# Suitable crontab entry:
+# Sample crontab entry:
 #
-# # daily processing of sar activity reports 
-# 0     2  *  *  *  pcp  /usr/libexec/pcp/bin/pmlogger_sar_report
+# # daily generation of system activity reports 
+# 0     2  *  *  *  pcp  /usr/libexec/pcp/bin/pmlogger_daily_report
 #
 #
-# By default, the daily report will be written to /var/log/sa/sarXX
+# By default, the daily report will be written to /var/log/pcp/sa/sarXX
 # where XX is the day of the month, yesterday.
 #
 . $PCP_DIR/etc/pcp.env
@@ -55,7 +55,7 @@ Options:
   -f=FILE		  output filename (default "sarXX" in directory specified with -o, for XX yesterdays day of the month)
   -h=HOSTNAME		  hostname, affects the default input archive file path (default local hostname)
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
-  -o=DIRECTORY		  output directory (default /var/log/sa, see also -f option)
+  -o=DIRECTORY		  output directory (default $PCP_SA_DIR, see also -f option)
   -t=TIME		  reporting interval, default 10m
   -A			  use start and end times of input archive for the report (default midnight yesterday for 24hours)
   -V,--verbose            verbose messages in log (multiple times for very verbose), see also -l option
@@ -121,52 +121,53 @@ done
 
 [ $# -ne 0 ] && _usage
 
-# after argument checking, everything must be logged to ensure no mail is
+# After argument checking, everything must be logged to ensure no mail is
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
 # as our logfile and redirect stderr there too.
 #
 [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
 exec 1>"$PROGLOG" 2>&1
 
+# Default hostname is the name of the local host
 #
-# default hostname is the name of the local host
 [ -z "$HOSTNAME" ] && HOSTNAME=`hostname`
 
-#
 # Default input archive is the merged archive for yesterday.
 # Unfortunately we can't just specify the entire directory
-# and rely on multi-archive mode because this script could take
-# way too long to run. TODO: fallback to multiarchive mode if the
-# single merged archive for yesterday can't be found.
+# and rely on multi-archive mode because this script might
+# take a long time to run as a result.
+#
 [ -z "$ARCHIVEPATH" ] && ARCHIVEPATH=$PCP_LOG_DIR/pmlogger/$HOSTNAME/`pmdate -1d %Y%m%d`
 $verbose && echo ARCHIVEPATH=$ARCHIVEPATH
 
-#
 # Default output directory
-[ -z "$REPORTDIR" ] && REPORTDIR=/var/log/sa
-$verbose && echo REPORTDIR=$REPORTDIR
-# Create output directory - this may fail due to perms, but if so we exit below anyway
-[ -d "$REPORTDIR" ] || mkdir -p "$REPORTDIR" 
-
 #
+[ -z "$REPORTDIR" ] && REPORTDIR="$PCP_SA_DIR"
+$verbose && echo REPORTDIR=$REPORTDIR
+
+# Create output directory - if this fails due to permissions we exit later
+#
+[ -d "$REPORTDIR" ] || mkdir -p "$REPORTDIR" 2>/dev/null
+
 # Default output file is the day of month for yesterday in REPORTDIR
+#
 [ -z "$REPORTFILE" ] && REPORTFILE=$REPORTDIR/sar`pmdate -1d %d`
 $verbose && echo REPORTFILE=$REPORTFILE
 
-#
 # Default reporting interval is 10m (same as sysstat uses)
+#
 [ -z "$INTERVAL" ] && INTERVAL="10m"
 
 # If the input archive doesn't exist, we exit.
-# TODO: fallback to whole directory in multi-archive mode.
-if [ ! -f "$ARCHIVEPATH.index" ]; then
+#
+if [ ! -f "$ARCHIVEPATH.index" -a ! -f "$ARCHIVEPATH.index.xz"]; then
     # report this to the log
     echo "$prog: FATAL error: Failed to find input archive \"$ARCHIVEPATH\"."
     exit 1
 fi
 
-#
 # Common reporting options, including time window: midnight yesterday for 24h
+#
 REPORT_OPTIONS="-a $ARCHIVEPATH -z -p -f%H:%M:%S -t$INTERVAL"
 if ! $ARCHIVETIMES
 then
@@ -178,6 +179,7 @@ fi
 $verbose && echo REPORT_OPTIONS=$REPORT_OPTIONS
 
 # Truncate or create the output file. Exit if this fails.
+#
 if ! cp /dev/null $REPORTFILE
 then
     status=$?
@@ -185,8 +187,9 @@ then
     exit
 fi
 
-
-# common reporting funtion
+#
+# Common reporting funtion
+#
 _report()
 {
     _conf=$1
@@ -205,15 +208,15 @@ _report()
     fi
 }
 
-_report :sar-u-ALL '# CPU Utilzation statistics, all CPUS' 
-_report :sar-u-ALL-P-ALL '# CPU Utilzation statistics, per-CPU' 
+_report :sar-u-ALL '# CPU Utilization statistics, all CPUS' 
+_report :sar-u-ALL-P-ALL '# CPU Utilization statistics, per-CPU' 
 _report :vmstat '# virtual memory (vmstat) statistics' 
 _report :vmstat-a '# virtual memory active/inactive memory statistics' 
-_report :sar-B '# Paging statistics' 
+_report :sar-B '# paging statistics' 
 _report :sar-b '# I/O and transfer rate statistics' 
 _report :sar-d-dev '# block device statistics' 
 _report :sar-d-dm '# device-mapper device statistics' 
-_report :sar-F '# currently mounted filesystem statistics' 
+_report :sar-F '# mounted filesystem statistics' 
 _report :sar-H '# hugepages utilization statistics' 
 _report :sar-I-SUM '# interrupt statistics, summed' 
 _report :sar-n-DEV '# network statistics, per device' 

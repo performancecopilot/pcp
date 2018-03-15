@@ -133,6 +133,10 @@ PCP_RUN_DIR=@pcp_run_dir@
 # Subdirectories: pmcd pmlogger pmie
 PCP_LOG_DIR=@pcp_log_dir@
 
+# directory for daily PCP activity reports
+# Standard path: /var/log/pcp/sa
+PCP_SA_DIR=@pcp_sa_dir@
+
 # directory for PCP temp status files
 # Standard path: /var/lib/pcp/tmp
 # Subdirectories: pmie pmlogger

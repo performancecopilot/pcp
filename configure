@@ -648,6 +648,7 @@ pcp_doc_dir
 pcp_tmp_dir
 pcp_tmpfile_dir
 pcp_run_dir
+pcp_sa_dir
 pcp_log_dir
 pcp_sysconfig_dir
 pcp_rc_dir
@@ -15289,6 +15290,9 @@ fi
 
 pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
+
+
+pcp_sa_dir=$pcp_log_dir/sa
 
 
 
