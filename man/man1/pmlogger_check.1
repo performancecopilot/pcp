@@ -1,18 +1,17 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2016 Red Hat.
+.\" Copyright (c) 2013-2018 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
 .TH PMLOGGER_CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -50,25 +49,39 @@ archive log files.
 .PP
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
-soon after midnight as practicable.  Its task is to aggregate and rotate
-one or more sets of PCP archives.
-After some period, old PCP archives are discarded.  This period is
-14 days by default, but may be changed using the
+soon after midnight as practicable.
+Its task is to aggregate and rotate one or more sets of PCP archives.
+After some period, old PCP archives are discarded.
+This period is 14 days by default, but may be changed using the
 .B \-k
-option. Two special values are recognized for the period (\c
+option.
+Two special values are recognized for the period (\c
 .IR discard ),
 namely
 .B 0
 to keep no archives beyond the current one, and
 .B forever
 to prevent any archives being discarded.
+Note that the semantics of
+.I discard
+are that it is measured from the time of last modification of each
+archive, and not from the current day.
+This has subtle implications for compression (see below) \- the
+compression process results in the creation of new archive files
+which have new modification times.
+In this case, the
+.I discard
+period (re)starts from the time of compression.
 .PP
 Archive data files can optionally be compressed after some period
-to conserve disk space.  This is particularly useful for large numbers of
+to conserve disk space.
+This is particularly useful for large numbers of
 .B pmlogger
 processes under the control of
 .BR pmlogger_check .
-By default no compression is done.
+By default no compression is done by the script, however typical
+.B pmlogger_check
+configuration files will enable compression automatically.
 The
 .B \-x
 option enables compression and
@@ -663,6 +676,7 @@ as described in
 .BR pmlc (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
+.BR pmlogger_daily_report (1),
 .BR pmlogextract (1),
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
