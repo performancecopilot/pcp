@@ -16,6 +16,8 @@ test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
 	_notrun "blinkenlights webapp is not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
+$python -c "from PIL import Image" >/dev/null 2>&1 || $_notrun "$python PIL package is not installed"
+
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
 rm -f $seq.full
