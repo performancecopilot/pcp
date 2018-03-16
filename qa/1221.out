@@ -3102,6 +3102,10 @@ prometheus.sh_scripted.some_metric004
     inst [0 or "0 someinst:000"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","machineid":MACHINEID,"script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
     inst [1 or "1 someinst:001"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","machineid":MACHINEID,"script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
 
+prometheus.simple_metric.metric1
+    inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","def":"123","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","machineid":MACHINEID,"source":"simple_metric","url":FILEURL,"userid":NUM}
+    inst [1 or "1 def:123"] labels {"abc":"0","agent":"prometheus","def":"123","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","machineid":MACHINEID,"source":"simple_metric","url":FILEURL,"userid":NUM}
+
 prometheus.stderr_check.stderr_check
     inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","machineid":MACHINEID,"script":"PCP_PMDAS_DIR/prometheus/config.d/stderr_check.sh","source":"stderr_check","userid":NUM}
 
@@ -6231,6 +6235,10 @@ prometheus.sh_scripted.some_metric003
 prometheus.sh_scripted.some_metric004
     inst [0 or "0 someinst:000"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:000","machineid":MACHINEID,"script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
     inst [1 or "1 someinst:001"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"someinst:001","machineid":MACHINEID,"script":"PCP_PMDAS_DIR/prometheus/config.d/sh_scripted.sh","someinst":"001","source":"sh_scripted","userid":NUM}
+
+prometheus.simple_metric.metric1
+    inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","def":"123","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","machineid":MACHINEID,"source":"simple_metric","url":FILEURL,"userid":NUM}
+    inst [1 or "1 def:123"] labels {"abc":"0","agent":"prometheus","def":"123","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"def:123","machineid":MACHINEID,"source":"simple_metric","url":FILEURL,"userid":NUM}
 
 prometheus.stderr_check.stderr_check
     inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","machineid":MACHINEID,"script":"PCP_PMDAS_DIR/prometheus/config.d/stderr_check.sh","source":"stderr_check","userid":NUM}

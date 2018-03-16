@@ -458,11 +458,14 @@ class Source(object):
         self.url = None
         self.is_scripted = is_scripted
         self.pmda = pmda # the shared pmda
+        self.requests = None
+        self.headers = None
 
         self.refresh_time = 0 # "never"
         if not is_scripted:
             # source is a URL.  Create a session for it.
             self.requests = requests.Session() # allow persistent connections etc.
+            self.headers = {} # dict of headers for the http get
 
         # persistently assign numeric id to our metrics
         self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
@@ -571,6 +574,36 @@ class Source(object):
 
         return num_metrics
 
+    def parse_url_config(self, filepath):
+        '''
+        Parse a URL config file. The first line is always the URL.
+        Remaining lines are prefixed with a keyword. Supported keywords
+        include '#' for a comment, 'HEADER:' to add to the header passed
+        to the headers dict parameter to the get() call. Note the ':' are
+        important, and spaces are collapsed. e.g.
+
+        # here is an example
+        http://someserver/someplace/endpoint.html
+        HEADER: authtoken: some auth token
+
+        '''
+        conf = open(filepath, 'r').read().strip().split('\n')
+        self.url = conf[0]
+        for line in conf[1:]:
+            if len(line) == 0 or line.startswith('#'):
+                continue
+            elif line.startswith('HEADER:'):
+                header=line.split(':',2)
+                key=''.join(header[1].split())
+                val=' '.join(header[2:]).lstrip()
+                self.headers[key] = val
+            else:
+                self.pmda.log('Warning: %s has unrecognised config entry "%s"' % (self.url,line))
+        if dbg:
+            self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url,self.headers))
+
+        return
+
     def refresh(self, timeout):
         '''
         If the Source config entry is a URL (with ".url" extension), find the
@@ -598,8 +631,8 @@ class Source(object):
                     self.pmda.err("cannot execute '%s': %s" % self.path)
                     return
             else:
-                # (re)read the URL from given file
-                self.url = open(self.path,'r').read().strip()
+                # (re)parse the URL from given file
+                self.parse_url_config(self.path)
         except Exception as e:
             self.pmda.err("cannot read %s: %s" % (self.path, e))
             return
@@ -615,7 +648,7 @@ class Source(object):
                 if self.url.startswith('file://'):
                     document = open(self.url[7:],'r').read()
                 else:
-                    r = self.requests.get(self.url,timeout=timeout)
+                    r = self.requests.get(self.url,headers=self.headers,timeout=timeout)
                     r.raise_for_status() # non-200?  ERROR
                     document = r.text
 
