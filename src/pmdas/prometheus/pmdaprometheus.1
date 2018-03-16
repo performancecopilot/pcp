@@ -65,16 +65,6 @@ Any files that do not have the
 suffix or are not executable, are ignored - this allows documentation files
 such as "README" and non-executable "common" script function definitions to
 be present without being considered as config files.
-.SH "URL SOURCES"
-Each
-.B .url
-file found in the config directory or sub-directory contains
-one complete HTTP or HTTPS URL at which pmdaprometheus can reach a Prometheus endpoint.
-Local file access is also supported with a conventional
-.I file://somepath/somefile
-URL, in which case
-.I somepath/somefile
-should contain prometheus formatted metric data.
 .PP
 A remote server does not have to be up or stay running - the PMDA tolerates
 remote URLs that may come and go over time.
@@ -83,8 +73,69 @@ and will return errors when/if they are down.
 PCP metric IDs and instance domain names and IDs are saved and persistently
 restored when individual metric sources become available and/or when the
 PMDA is restarted. 
+In addition, the PMDA checks directory modification times and will rescan
+for new or changed configuration files dynamically.
+It is
+.I not
+necessary to restart the PMDA when adding, removing or changing configuration files.
+.SH "URL SOURCES"
+Each file with the
+.B .url
+suffix found in the config directory or sub-directory contains
+one complete HTTP or HTTPS URL at which pmdaprometheus can reach a Prometheus endpoint.
+Local file access is also supported with a conventional
+.I file://somepath/somefile
+URL, in which case
+.I somepath/somefile
+should contain prometheus formatted metric data.
+.PP
+The first line of a
+.B .url
+config file should be the URL, as described above.
+Subsequent lines, if any, are prefixed with a keyword that can be
+used to alter the http GET request.
+A keyword must end with
+.B ':'
+(colon) and the text extends to the end of the line.
+Comment lines that start with
+.B #
+and blank lines are ignored.
+The only currently supported keyword is
+.BR HEADER: .
+.PP
+.B HEADER:
+.I "headername\fB:\fP value ... to end of line"
+.br
+Adds
+.I headername
+and it's value
+to the headers passed in the http GET request for the configured URL.
+An example configuration file that provides 3 commonly used headers
+and an authentication token might be :
+.PP
+.in 1i
+.ft CW
+.nf
+http://somehost/path/endpoint.html
+# this is a comment
+HEADER: Accept: text/html
+HEADER: Keep-Alive: 300
+HEADER: Connection: keep-alive
+HEADER: Authorization: token ABCDEF1234567890
+.in
+.fi
+.ft 1
+.PP
+As mentioned above, header values extend to the end of the line.
+They may contain any valid characters, including colons.
+Multiple spaces will be collapsed to a single space and leading and trailing spaces are trimmed.
+A common use for headers is to configure a proxy agent
+and the assorted parameters it may require.
+Additional keywords may be added in future versions of \fBpmdaprometheus\fR
+e.g. to allow returned result filtering, label manipulation and so forth.
+Unrecognized keywords are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
-Likewise, executable scripts present in the 
+Executable scripts present in the 
 .I $PCP_PMDAS_DIR/prometheus/config.d
 directory or sub-directories will be executed and the
 .B stdout
