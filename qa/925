@@ -84,7 +84,7 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
 End-of-File
 
-$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -c $tmp.control -V -l $tmp.log
 _filter <$tmp.log
 
 _report | _filter

@@ -23,8 +23,14 @@
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 
-# delay in days before compressing archives, 0 is immediate compression
-$PCP_COMPRESSAFTER=0
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
 
 # if pmsocks is being used, edit the IP address for $SOCKS_SERVER
 #$SOCKS_SERVER=123.456.789.123

@@ -123,7 +123,7 @@ End-of-File
 # real QA test starts here
 echo "+++ should just work ... +++" | tee -a $seq.full
 _setup
-$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
 $sudo cat $tmp.log | _filter
 mkdir $tmp.ok
 mv $tmp.arch/20111001.* $tmp.ok
@@ -141,7 +141,7 @@ do
     echo "+++ expect mismatch +++" | tee -a $seq.full
     _setup
     pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
 
     echo | tee -a $seq.full
@@ -149,7 +149,7 @@ do
     _setup
     pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
     cp $tmp.conf $tmp.arch/pmlogrewrite
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
 
@@ -158,7 +158,7 @@ do
     _setup
     pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
     ln -s $tmp.conf $tmp.arch/pmlogrewrite
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
 
@@ -168,7 +168,7 @@ do
     pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
     $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
@@ -180,7 +180,7 @@ do
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     ln -s $PCP_VAR_DIR/config/pmlogrewrite $tmp.arch/pmlogrewrite
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
     $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
@@ -192,7 +192,7 @@ echo "+++ expect fail when -r used and local config file present +++" | tee -a $
 _setup
 pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
 cp $tmp.conf $tmp.arch/pmlogrewrite
-$sudo $PCP_BINADM_DIR/pmlogger_daily -r -c $tmp.control -V -l $tmp.log
+$sudo $PCP_BINADM_DIR/pmlogger_daily -r -c $tmp.control -x never -V -l $tmp.log
 $sudo cat $tmp.log | _filter
 
 # success, all done

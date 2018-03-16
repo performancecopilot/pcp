@@ -69,13 +69,19 @@ COMPRESS=""
 COMPRESS_CMDLINE=""
 COMPRESS_DEFAULT=xz
 COMPRESSAFTER_CMDLINE=""
-COMPRESSAFTER_DEFAULT=""
+eval `pmconfig -L -s transparent_decompress`
+if $transparent_decompress
+then
+    COMPRESSAFTER_DEFAULT=0
+else
+    COMPRESSAFTER_DEFAULT="never"
+fi
 if [ -n "$PCP_COMPRESSAFTER" ]
 then
     check=`echo "$PCP_COMPRESSAFTER" | sed -e 's/[0-9]//g'`
-    if [ ! -z "$check" ]
+    if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
     then
-	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be numeric"
+	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be numeric, \"forever\" or \"never\""
 	status=1
 	exit
     fi
@@ -177,9 +183,9 @@ do
 	-k)	CULLAFTER="$2"
 		shift
 		check=`echo "$CULLAFTER" | sed -e 's/[0-9]//g'`
-		if [ ! -z "$check" -a X"$check" != Xforever ]
+		if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
 		then
-		    echo "Error: -k value ($CULLAFTER) must be numeric"
+		    echo "Error: -k value ($CULLAFTER) must be numeric, \"forever\" or \"never\""
 		    status=1
 		    exit
 		fi
@@ -242,9 +248,9 @@ do
 		    continue
 		fi
 		check=`echo "$COMPRESSAFTER_CMDLINE" | sed -e 's/[0-9]//g'`
-		if [ ! -z "$check" ]
+		if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
 		then
-		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be numeric"
+		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be numeric, \"forever\" or \"never\""
 		    status=1
 		    exit
 		fi
@@ -608,9 +614,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			'export PCP_COMPRESSAFTER;'*)
 			    old_value="$PCP_COMPRESSAFTER"
 			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/[0-9]//g' -e 's/  *$//'`
-			    if [ ! -z "$check" ]
+			    if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
 			    then
-				_error "\$PCP_COMPRESSAFTER value ($check) must be numeric"
+				_error "\$PCP_COMPRESSAFTER value ($check) must be numeric, \"forever\" or \"never\""
 			    else
 				$SHOWME && echo "+ $cmd"
 				echo eval $cmd >>$tmp/cmd
@@ -1058,7 +1064,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 
 	    # and cull old archives
 	    #
-	    if [ X"$CULLAFTER" != X"forever" ]
+	    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
 	    then
 		if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
 		then
@@ -1099,9 +1105,13 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	# (after cull - don't compress unnecessarily)
 	#
 	COMPRESSAFTER="$PCP_COMPRESSAFTER"
-	[ -n "$COMPRESSAFTER_CMDLINE" ] && COMPRESSAFTER="$COMPRESSAFTER_CMDLINE"
-	if [ ! -z "$COMPRESSAFTER" ]
+	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_CMDLINE"
+	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_DEFAULT"
+	$VERY_VERBOSE && echo "$prog: COMPRESSAFTER=$COMPRESSAFTER"
+	if [ -n "$COMPRESSAFTER" -a X"$COMPRESSAFTER" != Xforever -a X"$COMPRESSAFTER" != Xnever ]
 	then
+	    # may have some compression to do ...
+	    #
 	    COMPRESS="$PCP_COMPRESS"
 	    [ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_CMDLINE"
 	    [ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_DEFAULT"
@@ -1218,6 +1228,10 @@ p
 		    else
 			$VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress"
 		    fi
+		elif [ -z "$COMPRESSAFTER" -o X"$COMPRESSAFTER" = Xforever -o X"$COMPRESSAFTER" = Xnever ]
+		then
+		    # never going to do compression, so don't warn ...
+		    :
 		else
 		    _warning "current volume of current pmlogger not known, compression skipped"
 		fi
