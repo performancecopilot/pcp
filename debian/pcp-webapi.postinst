@@ -5,7 +5,10 @@
 chown pcp:pcp /var/log/pcp/pmwebd
 chmod 775 /var/log/pcp/pmwebd
 
-if which update-rc.d >/dev/null 2>&1
+if which deb-systemd-helper >/dev/null 2>&1
+then
+    deb-systemd-helper enable pmwebd.service >/dev/null
+elif which update-rc.d >/dev/null 2>&1
 then
     update-rc.d -f pmwebd remove >/dev/null
     update-rc.d pmwebd defaults >/dev/null

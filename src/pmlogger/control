@@ -23,7 +23,8 @@
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 
-$PCP_COMPRESSAFTER=3
+# delay in days before compressing archives, 0 is immediate compression
+$PCP_COMPRESSAFTER=0
 
 # if pmsocks is being used, edit the IP address for $SOCKS_SERVER
 #$SOCKS_SERVER=123.456.789.123
