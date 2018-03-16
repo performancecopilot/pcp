@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2017-2018 Red Hat.
 .\" Copyright (c) 2017 Ronak Jain.
-.\" Copyright (c) 2017-2018 Red Hat Inc.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -13,9 +13,7 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.\"
 .ds ia prometheus
-.ds IA PROMETHEUS
 .ds Ia Prometheus
 .TH PMDAPROMETHEUS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -31,8 +29,9 @@
 \fBpmdaprometheus\fR is a Performance Metrics Domain Agent (PMDA) which
 creates PCP metrics from Prometheus endpoints, which provide HTTP based
 access to application metrics.
-The default \f2config\fP directory is \fB$PCP_PMDAS_DIR/prometheus/config.d/\fR,
-see \fBSOURCES\fP below.
+The default \f2config\fP directory is
+.IR $PCP_PMDAS_DIR/prometheus/config.d/ ,
+see ``CONFIGURATION SOURCES'' below.
 The default URL fetch \f2timeout\fP is \fB2\fP seconds.
 The default \f2user\fP, if not specified with the \f3\-u\fP option,
 is the current user.
@@ -45,11 +44,12 @@ configuration files (URLs and/or scripts).
 If the
 .B \-D
 option is given, additional diagnostic messages will be written to the PMDA log file,
-which is \fB$PCP_LOG_DIR/pmcd/prometheus.log\fP by default.
+which is
+.I $PCP_LOG_DIR/pmcd/prometheus.log
+by default.
 .PP
 Further details on the Prometheus exposition format can be found at
 .I https://prometheus.io/docs/instrumenting/exposition_formats
-
 .SH "CONFIGURATION SOURCES"
 As it runs,
 .B pmdaprometheus
@@ -62,17 +62,17 @@ option), looking for source URL files (\c
 and executable scripts or binaries.
 Any files that do not have the
 .B .url
-suffix or are not executable, are ignored - this allows documentation files
+suffix or are not executable, are ignored \- this allows documentation files
 such as "README" and non-executable "common" script function definitions to
 be present without being considered as config files.
 .PP
-A remote server does not have to be up or stay running - the PMDA tolerates
+A remote server does not have to be up or stay running \- the PMDA tolerates
 remote URLs that may come and go over time.
 The PMDA will relay data and metadata when/if they are available,
 and will return errors when/if they are down.
-PCP metric IDs and instance domain names and IDs are saved and persistently
-restored when individual metric sources become available and/or when the
-PMDA is restarted. 
+PCP metric IDs, internal and external instance domain identifiers are
+persisted and will be restored when individual metric sources become
+available and/or when the PMDA is restarted. 
 In addition, the PMDA checks directory modification times and will rescan
 for new or changed configuration files dynamically.
 It is
@@ -80,9 +80,11 @@ It is
 necessary to restart the PMDA when adding, removing or changing configuration files.
 .SH "URL SOURCES"
 Each file with the
-.B .url
+.I .url
 suffix found in the config directory or sub-directory contains
-one complete HTTP or HTTPS URL at which pmdaprometheus can reach a Prometheus endpoint.
+one complete HTTP or HTTPS URL at which
+.B pmdaprometheus
+can reach a Prometheus endpoint.
 Local file access is also supported with a conventional
 .I file://somepath/somefile
 URL, in which case
@@ -90,7 +92,7 @@ URL, in which case
 should contain prometheus formatted metric data.
 .PP
 The first line of a
-.B .url
+.I .url
 config file should be the URL, as described above.
 Subsequent lines, if any, are prefixed with a keyword that can be
 used to alter the http GET request.
@@ -108,7 +110,7 @@ The only currently supported keyword is
 .br
 Adds
 .I headername
-and it's value
+and its value
 to the headers passed in the http GET request for the configured URL.
 An example configuration file that provides 3 commonly used headers
 and an authentication token might be :
@@ -128,10 +130,12 @@ HEADER: Authorization: token ABCDEF1234567890
 .PP
 As mentioned above, header values extend to the end of the line.
 They may contain any valid characters, including colons.
-Multiple spaces will be collapsed to a single space and leading and trailing spaces are trimmed.
+Multiple spaces will be collapsed to a single space, and leading
+and trailing spaces are trimmed.
 A common use for headers is to configure a proxy agent
 and the assorted parameters it may require.
-Additional keywords may be added in future versions of \fBpmdaprometheus\fR
+Additional keywords may be added in future versions of
+.B pmdaprometheus
 e.g. to allow returned result filtering, label manipulation and so forth.
 Unrecognized keywords are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
@@ -162,7 +166,8 @@ awk '{
 .fi
 .ft 1
 
-This script produces the following prometheus formatted metric data when run :
+This script produces the following Prometheus-formatted metric
+data when run:
 .in 1i
 .ft CW
 .nf
@@ -176,8 +181,8 @@ loadavg {interval="15-minute"} 0.54
 .fi
 .ft 1
 
-If the above script was saved and made executable in a file named (assuming default settings)
-.B /var/lib/pcp/pmdas/prometheus/config.d/local/system.sh
+If the above script was saved and made executable in a file named
+.I $PCP_PMDAS_DIR/prometheus/config.d/local/system.sh
 then this would result in a new PCP metric named
 .B prometheus.local.system.loadavg
 which would have three instances for the current load average values:
@@ -189,60 +194,60 @@ and
 Scripted config entries may produce more than one PCP leaf metric name.
 For example, the above "system.sh" script could also export other metrics
 such as CPU statistics, by reading
-.B /proc/stat
+.I /proc/stat
 on the local system.
 Such additional metrics would appear as peer metrics in the
 same PCP metric subtree.
 In the case of CPU counters, the metric type definition should be
 .BR counter ,
 not
-.BR guage .
+.BR gauge .
 For full details of the prometheus exposition formats, see
 .IR https://prometheus.io/docs/instrumenting/exposition_formats .
-
 .SH "METRIC NAMING"
 All metrics from a file named
-.IR FOO .*
+.IR JOB .*
 will be exported as PCP metrics with the
-.I prometheus.FOO
+.I prometheus.JOB
 metric name prefix.
-Therefore, the FOO name must be a valid non-leaf name for PCP PMNS metric names.
+Therefore, the JOB name must be a valid non-leaf name for PCP PMNS
+metric names.
 If the
-.I FOO
+.I JOB
 name has multiple dot-separated components, the resulting
 PMNS names will include those components and care is needed to ensure
 there are no overlapping definitions, e.g. metrics returned by
-.B foo.bar.url
+.B JOB.response 
 may overlap or conflict with metrics returned by
-.BR foo.bar.baz.url .
+.BR JOB.response.time .
 .PP
-Config file entries (URLs or scripts) found in subdirectories of the config directory
-will also result in hierarical metric names.
+Config file entries (URLs or scripts) found in subdirectories of the
+config directory will also result in hierarchical metric names.
 For example, a config file named
-.B /var/lib/pcp/pmda/prometheus/config.d/mysource/latency/get.url
+.B $PCP_PMDAS_DIR/prometheus/config.d/mysource/latency/get.url
 will result in metrics being created (by fetching that source URL) below
 .BR prometheus.mysource.latency.get
 in the PCP namespace.
-Scripts found in subdirectories of the config directory similarly result in hirarchical
-PCP metric names.
+Scripts found in subdirectories of the config directory similarly result
+in hierarchical PCP metric names.
 .SH "DYNAMIC METRIC NAMES"
-As described above, changes and new additions can be made to files in the configuration
-directory without having to restart the PMDA.
+As described above, changes and new additions can be made to files in
+the configuration directory without having to restart the PMDA.
 These changes are detected automatically and the PCP metric names below
 .B prometheus
-in the PMNS will be updated accordingly, i.e. new metrics will be dynamically added and/or existing metrics removed.
-In addition, the
-.B prometheus
-PMDA honors the
-.B PMCD_NAMES_CHANGE
-protocol that was inntroduced in PCP version 4.0 and later.
-This protocol extension is only recognised by PCP version 4 clients.
+in the PMNS will be updated accordingly, i.e. new metrics will be
+dynamically added and/or existing metrics removed.
+In addition,
+.B pmdaprometheus
+honors the PMCD_NAMES_CHANGE
+.BR pmFetch (3)
+protocol that was introduced in PCP version 4.0.
 In particular, if
 .B prometheus
-metrics are being logged by a PCP v4.0 or later
+metrics are being logged by a PCP version 4.0 or later
 .BR pmlogger (1),
-new metrics that appear as a result of changes in the PMDA configuration directory
-will automatically start to be logged, provided the root of the
+new metrics that appear as a result of changes in the PMDA configuration
+directory will automatically start to be logged, provided the root of the
 .B prometheus
 PMDA namespace is configured for logging in the
 .B pmlogger
@@ -264,7 +269,6 @@ log mandatory on 2 second {
 .in
 .fi
 .ft 1
-
 .SH "CONTROL METRICS"
 The PMDA maintains three special control metrics, as described below.
 Each of these metrics is a counter and has one instance for each configured metric source.
@@ -272,7 +276,7 @@ The instance domain is adjusted dynamically as new sources are discovered.
 If there are no sources configured, the metric names are still defined
 but the instance domain will be empty and a fetch will return no values.
 .IP \fBprometheus.control.calls\fP
-The total number of times each configured metric source has been fetched (if it's a URL)
+total number of times each configured metric source has been fetched (if it's a URL)
 or executed (if it's a script), since the PMDA started.
 .IP \fBprometheus.control.fetch_time\fP
 Total time in milliseconds that each configured metric source has taken to return a document,
@@ -285,17 +289,12 @@ When converted to a rate, the \fBcalls\fP metric represents the average fetch ra
 over the sampling interval (time delta between samples).
 The \fBfetch_time\fP and \fBparse_time\fP counters, when converted to a rate, represent the
 average fetch and parsing latency (respectfully), during the sampling interval.
-
 .SH LIMITATIONS
 .B pmdaprometheus
 and
 .B libpcp
 internals impose some numerical constraints about the number of sources (4095),
-metrics (1024) within each source, and instance domain instances for each
-metric (4194304).
-
-\" errors 
-
+metrics (1024) within each source, and instances for each metric (4194304).
 .SH INSTALLATION
 Install the Prometheus PMDA by using the Install script as root:
 .PP
@@ -309,13 +308,19 @@ To uninstall, do the following as root:
 .br
       # ./Remove
 .PP
-\fBpmdaprometheus\fR is launched by \fIpmcd\fR(1) and should never be executed
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
-agent is installed or removed.
+.B pmdaprometheus
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.B pmcd 
+when the agent is installed or removed.
 .PP
-When scripts and .url files are added, removed or changed in the configuration directory,
-it is usually not necessary to restart the PMDA - the changes should be detected and
-managed on subsequent PCP requests to the PMDA.
+When scripts and
+.I .url
+files are added, removed or changed in the configuration directory,
+it is usually not necessary to restart the PMDA \- the changes will
+be detected and managed on subsequent requests to the PMDA.
 .SH FILES
 .IP "\fB$PCP_PMDAS_DIR/prometheus/Install\fR" 4
 installation script for the \fBpmdaprometheus\fR agent
@@ -327,17 +332,20 @@ contains URLs and scripts used by the \fBpmdaprometheus\fR agent as sources of p
 default log file for error messages from \fBpmdaprometheus\fR
 .IP "\fB$PCP_VAR_DIR/config/144.*\fR" 4
 files containing internal tables for metric and instance ID number persistence (domain 144).
-
 .SH PCP ENVIRONMENT
-Environment variables with the prefix \fBPCP_\fR are used to parameterize
-the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables.
+Environment variables with the prefix \fBPCP_\fR are used to
+parameterize the file and directory names used by \fBPCP\fR.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
-configuration file, as described in \fIpcp.conf\fR(5).
+configuration file, as described in
+.IR pcp.conf (5).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmlogger (1),
-.BR pmwebd (1),
+.BR PMWEBAPI (3),
+.BR pmFetch (3)
 and
 .IR https://prometheus.io/docs/instrumenting/exposition_formats .
