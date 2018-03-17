@@ -538,9 +538,9 @@ _parse_control()
     dirname=`dirname $PCP_PMLOGGERCONTROL_PATH`
     filename=`echo "$controlfile" | sed -e "s@$dirname/@@"`
 
-    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$'
+    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
     then
-	echo "Warning: ignored backup control file \"$controlfile\""
+	echo "Warning: ignoring backup control file \"$controlfile\""
 	return
     fi
 
