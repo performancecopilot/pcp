@@ -1,0 +1,134 @@
+#!/bin/sh
+# PCP QA Test No. 629
+# pmlogmv with compressed archive files
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which xz >/dev/null 2>&1
+then
+    PROG=xz
+    SUFF=xz
+elif which bzip2 >/dev/null 2>&1
+then
+    PROG=bzip2
+    SUFF=bz2
+elif which gzip >/dev/null 2>&1
+then
+    PROG=gzip
+    SUFF=gz
+else
+    _notrun "cannot find a compression program!"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir $tmp
+
+# real QA test starts here
+cd $tmp
+
+for arg in ok-mv-bigbin ok-mv-bigbin.index ok-mv-bigbin.meta ok-mv-bigbin.4
+do
+    echo | tee -a $here/$seq.full
+    echo "=== uncompressed, $arg as arg ===" | tee -a $here/$seq.full
+    rm -f foo.* ok-mv-bigbin.*
+    cp $here/archives/ok-mv-bigbin.* .
+    ( echo "before" ; ls ) >>$here/$seq.full
+    pmlogmv $arg foo
+    ( echo "after" ; ls ) >>$here/$seq.full
+    if pmlogcheck foo >$tmp.out 2>&1
+    then
+	echo OK
+	grep Processed $tmp.out
+    else
+	cat $tmp.out
+	echo "pmlogcheck failed!"
+    fi
+done
+
+for arg in ok-mv-bigbin ok-mv-bigbin.index ok-mv-bigbin.meta ok-mv-bigbin.4 ok-mv-bigbin.0.$SUFF
+do
+    echo | tee -a $here/$seq.full
+    echo "=== one data volume compressed, `echo $arg | sed -e s@$SUFF@SUFF@` as arg ===" | tee -a $here/$seq.full
+    rm -f foo.* ok-mv-bigbin.*
+    cp $here/archives/ok-mv-bigbin.* .
+    $PROG ok-mv-bigbin.0
+    ( echo "before" ; ls ) >>$here/$seq.full
+    pmlogmv $arg foo
+    ( echo "after" ; ls ) >>$here/$seq.full
+    if pmlogcheck foo >$tmp.out 2>&1
+    then
+	echo OK
+	grep Processed $tmp.out
+    else
+	cat $tmp.out
+	echo "pmlogcheck failed!"
+    fi
+done
+
+for arg in ok-mv-bigbin ok-mv-bigbin.index ok-mv-bigbin.meta ok-mv-bigbin.4.$SUFF
+do
+    echo | tee -a $here/$seq.full
+    echo "=== all data volumes compressed, arg as `echo $arg | sed -e s@$SUFF@SUFF@` ===" | tee -a $here/$seq.full
+    rm -f foo.* ok-mv-bigbin.*
+    cp $here/archives/ok-mv-bigbin.* .
+    for data in ok-mv-bigbin.[0-9]*
+    do
+	$PROG $data
+    done
+    ( echo "before" ; ls ) >>$here/$seq.full
+    pmlogmv $arg foo
+    ( echo "after" ; ls ) >>$here/$seq.full
+    if pmlogcheck foo >$tmp.out 2>&1
+    then
+	echo OK
+	grep Processed $tmp.out
+    else
+	cat $tmp.out
+	echo "pmlogcheck failed!"
+    fi
+done
+
+for arg in ok-mv-bigbin ok-mv-bigbin.index.$SUFF ok-mv-bigbin.meta.$SUFF ok-mv-bigbin.4.$SUFF
+do
+    echo | tee -a $here/$seq.full
+    echo "=== all files compressed, `echo $arg | sed -e s@$SUFF@SUFF@` as arg ===" | tee -a $here/$seq.full
+    rm -f foo.* ok-mv-bigbin.*
+    cp $here/archives/ok-mv-bigbin.* .
+    for file in ok-mv-bigbin.*
+    do
+	$PROG $file
+    done
+    ( echo "before" ; ls ) >>$here/$seq.full
+    pmlogmv $arg foo
+    ( echo "after" ; ls ) >>$here/$seq.full
+    if pmlogcheck foo >$tmp.out 2>&1
+    then
+	echo OK
+	grep Processed $tmp.out
+    else
+	cat $tmp.out
+	echo "pmlogcheck failed!"
+    fi
+done
+
+# success, all done
+status=0
+exit

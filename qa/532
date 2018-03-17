@@ -118,7 +118,7 @@ ls -l $tmp >>$seq.full
 # complexity at the end of this pipeline
 #
 echo
-$sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose -l $tmp.log
+$sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -x never -k 2 $verbose -l $tmp.log
 $sudo cat $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '

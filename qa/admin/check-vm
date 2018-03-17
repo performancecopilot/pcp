@@ -1247,6 +1247,9 @@ in
     bozo-laptop)
 	na='dh-python libpapi-dev libpfm4-dev python3-json-pointer python3-libvirt python-prometheus-client python3-prometheus-client python-elasticsearch python3-elasticsearch python-xlsxwriter python3-xlsxwriter docker.io qtbase5-dev qtbase5-dev-tools libqt5svg5-dev'
 	;;
+    bozo-vm)
+	na='python3-prometheus-client python3-bcc docker.io'
+	;;
     vm07)
 	na='docker.io'
 	;;

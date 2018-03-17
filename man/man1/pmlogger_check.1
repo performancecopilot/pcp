@@ -55,12 +55,14 @@ After some period, old PCP archives are discarded.
 This period is 14 days by default, but may be changed using the
 .B \-k
 option.
-Two special values are recognized for the period (\c
+Some special values are recognized for the period (\c
 .IR discard ),
 namely
 .B 0
 to keep no archives beyond the current one, and
 .B forever
+or
+.B never
 to prevent any archives being discarded.
 Note that the semantics of
 .I discard
@@ -79,12 +81,23 @@ This is particularly useful for large numbers of
 .B pmlogger
 processes under the control of
 .BR pmlogger_check .
-By default no compression is done by the script, however typical
-.B pmlogger_check
-configuration files will enable compression automatically.
+If
+.B transparent_decompress
+is enabled when
+.I libpcp
+was built
+(can be checked with
+.B pmconfig
+.BR \-L ),
+then the default behaviour is compression ``as soon as possible''
+otherwise the default behaviour is to
+.B not
+compress files (which matches the historical default behaviour
+in earlier PCP releases).
+.PP
 The
 .B \-x
-option enables compression and
+option controls compression and
 .I compress
 specifies the number of days after which to compress archive data
 files.
@@ -93,6 +106,13 @@ If
 is
 .B 0
 then compression will be applied as soon as possible.
+If
+.I compress
+is
+.B never
+or
+.B forever
+then no compression will be done.
 The environment variable
 .B PCP_COMPRESSAFTER
 may be used as an alternative mechanism to define
@@ -673,11 +693,12 @@ as described in
 .SH SEE ALSO
 .BR egrep (1),
 .BR PCPIntro (1),
+.BR pmconfig (1),
 .BR pmlc (1),
 .BR pmlogconf (1),
+.BR pmlogextract (1),
 .BR pmlogger (1),
 .BR pmlogger_daily_report (1),
-.BR pmlogextract (1),
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
 .BR pmnewlog (1),

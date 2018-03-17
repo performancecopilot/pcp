@@ -16,11 +16,15 @@ Options:
 exit status 1
 pmlogmv: Error: cannot find any files for the input archive (foo)
 exit status 1
-pmlogmv: Error: cannot find .metadata file for the input archive (foo)
+pmlogmv: Error: cannot find .meta file for the input archive (foo)
 ... ls data ... foo.0
+Inspecting files in this list ...
+foo.0
 exit status 1
 pmlogmv: Error: cannot find any data files for the input archive (foo)
 ... ls data ... foo.meta
+Inspecting files in this list ...
+foo.meta
 exit status 1
 
 === non-pcp archives and output files already exist ===

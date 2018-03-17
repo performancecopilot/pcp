@@ -152,8 +152,8 @@ ls -l $tmp >>$seq.full
 # complexity at the end of this pipeline
 #
 echo
-echo "pmlogger_daily -k 4 -V ..." >>$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -V -l $tmp.log
+echo "pmlogger_daily -k 4 -x never -V ..." >>$seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -x never -V -l $tmp.log
 $sudo cat $tmp.log \
 | tee -a $seq.full \
 | _filter \

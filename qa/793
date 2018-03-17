@@ -127,7 +127,7 @@ done
 
 echo
 echo "pmlogger_daily"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control -l $tmp/log
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -x never -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
 for x in A B C
 do

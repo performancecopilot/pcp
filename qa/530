@@ -126,7 +126,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo
     echo "=== [${verbose+verbose}] regular show ==="
     echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 3 $verbose -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -x never -c $tmp/control -k 3 $verbose -l $tmp.log
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
@@ -137,7 +137,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     do
 	mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -x never -c $tmp/control -k 2 $verbose -l $tmp.log
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
@@ -149,7 +149,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 	cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
 	mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose -l $tmp.log
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -x never -c $tmp/control -k 2 $verbose -l $tmp.log
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
