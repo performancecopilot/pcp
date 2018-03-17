@@ -6,13 +6,18 @@ The recipe is known to work with PCP 3.10.9 and Mac OS X 10.8
 Prelminaries
 ============
 
-I don't know how these bits were installed (that pre-dates keeping
-records of the build pain).  But, they are not optional.
+These are the main requirements, without intalling these do not move forward.
 
 - XCode  (as always, needs an Apple developer ID now too)
-- Auxillary Tools for XCode  (for packagemaker)
+	(https://itunes.apple.com/us/app/xcode/id497799835?mt=12)
+
+- pkgbuild (Latest MacOS comes with this preinstalled but later versions may need addtional files)
+
 - MacPorts.org  (now needed for pkg-config, gnutar)
-- Qt  (install and set QTDIR, as before)
+	(https://www.macports.org/install.php)
+
+- Qt (install and set QTDIR, as before)
+	(https://www.qt.io/download)
 
 Other prerequisites
 ===================
