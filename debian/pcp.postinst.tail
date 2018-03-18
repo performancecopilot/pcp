@@ -73,7 +73,13 @@ then
     chmod 644 /var/lib/pcp/config/pmlogger/config.default
 fi
 
-if which deb-systemd-helper >/dev/null 2>&1
+do_systemd=true
+which deb-systemd-helper >/dev/null 2>&1 || do_systemd=false
+# only need to check pmcd.service, if it is here they will all
+# be here
+[ -f /lib/systemd/system/pmcd.service ] || do_systemd=false
+
+if $do_systemd
 then
     deb-systemd-helper enable pmcd.service >/dev/null
     deb-systemd-helper enable pmlogger.service >/dev/null

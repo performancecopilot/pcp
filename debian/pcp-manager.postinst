@@ -5,10 +5,14 @@
 chown pcp:pcp /var/log/pcp/pmmgr
 chmod 775 /var/log/pcp/pmmgr
 
+do_systemd=true
+which deb-systemd-helper >/dev/null 2>&1 || do_systemd=false
+[ -f /lib/systemd/system/pmmgr.service ] || do_systemd=false
+
 # Note: default pmlogger and pmie setups are guaranteed to be
 # installed also, so pmmgr disabled by default on deb install
 
-if which deb-systemd-helper >/dev/null 2>&1
+if $do_systemd
 then
    :
    # deb-systemd-helper enable pmmgr.service >/dev/null
