@@ -1245,7 +1245,7 @@ na=''
 case `hostname -s`
 in
     bozo-laptop)
-	na='dh-python libpapi-dev libpfm4-dev python3-json-pointer python3-libvirt python-prometheus-client python3-prometheus-client python-elasticsearch python3-elasticsearch python-xlsxwriter python3-xlsxwriter docker.io qtbase5-dev qtbase5-dev-tools libqt5svg5-dev'
+	na='python3-bcc'
 	;;
     bozo-vm)
 	na='python3-prometheus-client python3-bcc docker.io'
@@ -1460,6 +1460,9 @@ do
 	    | sed -n \
 		-e '/N\/A on host/d' \
 		-e 's/QA optional//' \
+		-e 's/from cpan//' \
+		-e 's/cpan//' \
+		-e 's/[A-Za-z][A-Za-z_]*::[A-Za-z][A-Za-z_]*//' \
 		-e 's/[ 	]*\[[ 	()]*]//' \
 		-e '/[ 	]\[/{
 s/^.*[ 	]\[//
