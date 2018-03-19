@@ -117,6 +117,9 @@ enum {
 	REFRESH_NETADDR_IPV6,
 	REFRESH_NETADDR_HW,
 
+	REFRESH_PROC_DISKSTATS,
+	REFRESH_PROC_PARTITIONS,
+
 	NUM_REFRESHES		/* one more than highest refresh index */
 };
 

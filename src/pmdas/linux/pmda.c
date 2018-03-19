@@ -547,6 +547,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,79), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.dev.capacity */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,87), PM_TYPE_U64, DISK_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* disk.all.avactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
@@ -2134,6 +2139,11 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_PARTITIONS,15), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.capacity */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,16), PM_TYPE_U64, PARTITIONS_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.dev.read_bytes */
     { NULL, 
@@ -5246,6 +5256,10 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+    /* disk.dm.capacity */
+    { NULL, { PMDA_PMID(CLUSTER_DM,17), PM_TYPE_U64, DM_INDOM,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /*
  * disk.md cluster
  */
@@ -5320,6 +5334,10 @@ static pmdaMetric metrictab[] = {
     /* disk.md.status */
     { NULL, { PMDA_PMID(CLUSTER_MDADM,0), PM_TYPE_32, MD_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* disk.md.capacity */
+    { NULL, { PMDA_PMID(CLUSTER_MD,17), PM_TYPE_U64, MD_INDOM,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /*
  * network.softnet cluster
@@ -5500,10 +5518,14 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (cp && (sts = container_lookup(rootfd, cp)) < 0)
 	return sts;
 
-    if (need_refresh[CLUSTER_PARTITIONS])
+    if (need_refresh[CLUSTER_PARTITIONS] ||
+	need_refresh[REFRESH_PROC_DISKSTATS] ||
+	need_refresh[REFRESH_PROC_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
-				INDOM(PARTITIONS_INDOM),
-				INDOM(DM_INDOM), INDOM(MD_INDOM));
+			INDOM(PARTITIONS_INDOM),
+			INDOM(DM_INDOM), INDOM(MD_INDOM),
+			need_refresh[REFRESH_PROC_DISKSTATS],
+			need_refresh[REFRESH_PROC_PARTITIONS]);
 
     if (need_refresh[CLUSTER_STAT])
 	refresh_proc_stat(&proc_stat);
@@ -5719,6 +5741,7 @@ linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
     case DM_INDOM:
     case MD_INDOM:
 	need_refresh[CLUSTER_PARTITIONS]++;
+	need_refresh[REFRESH_PROC_DISKSTATS]++;
 	break;
     case CPU_INDOM:
 	need_refresh[CLUSTER_STAT]++;
@@ -7737,15 +7760,27 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_DM:
 	case CLUSTER_MD:
 	case CLUSTER_MDADM:
-	    if (is_partitions_metric(pmidlist[i]))
+	    if (is_partitions_metric(pmidlist[i])) {
+		need_refresh[REFRESH_PROC_DISKSTATS]++;
 		need_refresh[CLUSTER_PARTITIONS]++;
-	    else if (item != 48)	/* hz */
+	    }
+	    else if (!(item == 48 && cluster == CLUSTER_STAT))	/* hz */
 		need_refresh[cluster]++;
+	    /* disk.{dev,dm,md,partitions}.capacity is in /proc/partitions */
+	    if (is_capacity_metric(cluster, item))
+		need_refresh[REFRESH_PROC_PARTITIONS]++;
 	    /* In 2.6 kernels, swap.{pagesin,pagesout} are in /proc/vmstat */
 	    if (_pm_have_proc_vmstat && cluster == CLUSTER_STAT) {
 		if (item >= 8 && item <= 11)
 		    need_refresh[CLUSTER_VMSTAT]++;
 	    }
+	    break;
+
+	case CLUSTER_PARTITIONS:
+	    if (is_capacity_metric(cluster, item))
+		need_refresh[REFRESH_PROC_PARTITIONS]++;
+	    need_refresh[REFRESH_PROC_DISKSTATS]++;
+	    need_refresh[cluster]++;
 	    break;
 
 	case CLUSTER_CPUINFO:

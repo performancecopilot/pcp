@@ -1,7 +1,7 @@
 /*
  * Linux Partitions (disk and disk partition IO stats) Cluster
  *
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2015 Intel, Inc.  All Rights Reserved.
  * Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -338,161 +338,202 @@ persistent_md_name(char *namebuf, int namelen)
     return found;
 }
 
-int
-refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom,
-			pmInDom dm_indom, pmInDom md_indom)
+static partitions_entry_t *
+refresh_disk_indom(char *namebuf, size_t namelen, int devmaj, int devmin,
+		pmInDom disk_indom, pmInDom part_indom,
+		pmInDom dm_indom, pmInDom md_indom, int *indom_changes)
 {
-    FILE *fp;
-    int devmin;
-    int devmaj;
-    int n;
-    int indom;
-    int have_proc_diskstats;
-    int inst;
-    unsigned long long blocks;
-    partitions_entry_t *p;
-    int indom_changes = 0;
-    char *dmname, *mdname;
-    char buf[MAXPATHLEN];
-    char namebuf[MAXPATHLEN];
-    static int first = 1;
+    int			indom, inst;
+    char		*dmname = NULL, *mdname = NULL;
+    partitions_entry_t	*p = NULL;
 
-    if (first) {
-	/* initialize the instance domain caches */
-	pmdaCacheOp(disk_indom, PMDA_CACHE_LOAD);
-	pmdaCacheOp(partitions_indom, PMDA_CACHE_LOAD);
-	pmdaCacheOp(dm_indom, PMDA_CACHE_LOAD);
-	pmdaCacheOp(md_indom, PMDA_CACHE_LOAD);
+    if (_pm_isdm(namebuf)) {
+	indom = dm_indom;
+	dmname = strdup(namebuf);
+    }
+    else if (_pm_ismd(namebuf)) {
+	indom = md_indom;
+	mdname = strdup(namebuf);
+    }
+    else if (_pm_ispartition(namebuf))
+	indom = part_indom;
+    else if (_pm_isdisk(namebuf))
+	indom = disk_indom;
+    else
+	return NULL;
 
-	first = 0;
-	indom_changes = 1;
+    if (indom == dm_indom) {
+	/* replace dm-[0-9]* with the persistent name from /dev/mapper */
+	if (!persistent_dm_name(namebuf, namelen, devmaj, devmin)) {
+	    /* skip dm devices that have no persistent name mapping */
+	    free(dmname);
+	    return NULL;
+	}
+    } else if (indom == md_indom) {
+	/* replace md[0-9]* with the persistent name from /dev/md */
+	persistent_md_name(namebuf, namelen);
+	/* continue with md devices that have no persistent mapping */
     }
 
-    pmdaCacheOp(disk_indom, PMDA_CACHE_INACTIVE);
-    pmdaCacheOp(partitions_indom, PMDA_CACHE_INACTIVE);
-    pmdaCacheOp(dm_indom, PMDA_CACHE_INACTIVE);
-    pmdaCacheOp(md_indom, PMDA_CACHE_INACTIVE);
-
-    if ((fp = linux_statsfile("/proc/diskstats", buf, sizeof(buf))))
-	/* 2.6 style disk stats */
-	have_proc_diskstats = 1;
-    else if ((fp = linux_statsfile("/proc/partitions", buf, sizeof(buf))))
-	have_proc_diskstats = 0;
-    else
-	return -oserror();
-
-    while (fgets(buf, sizeof(buf), fp) != NULL) {
-	dmname = mdname = NULL;
-	if (buf[0] != ' ' || buf[0] == '\n') {
-	    /* skip heading */
-	    continue;
-	}
-
-	if (have_proc_diskstats) {
-	    if ((n = sscanf(buf, "%d %d %s", &devmaj, &devmin, namebuf)) != 3)
-		continue;
-	}
-	else {
-	    /* /proc/partitions */
-	    if ((n = sscanf(buf, "%d %d %llu %s", &devmaj, &devmin, &blocks, namebuf)) != 4)
-		continue;
-	}
-
-	if (_pm_isdm(namebuf)) {
-	    indom = dm_indom;
-	    dmname = strdup(namebuf);
-	}
-	else if (_pm_ismd(namebuf)) {
-	    indom = md_indom;
-	    mdname = strdup(namebuf);
-	}
-	else if (_pm_ispartition(namebuf))
-	    indom = partitions_indom;
-	else if (_pm_isdisk(namebuf))
-	    indom = disk_indom;
-	else
-	    continue;
-
-	if (indom == dm_indom) {
-	    /* replace dm-[0-9]* with the persistent name from /dev/mapper */
-	    if (!persistent_dm_name(namebuf, sizeof(namebuf), devmaj, devmin)) {
-		/* skip dm devices that have no persistent name mapping */
-		free(dmname);
-		continue;
-	    }
-	} else if (indom == md_indom) {
-	    /* replace md[0-9]* with the persistent name from /dev/md */
-	    persistent_md_name(namebuf, sizeof(namebuf));
-	    /* continue with md devices that have no persistent mapping */
-	}
-
-	p = NULL;
-	if (pmdaCacheLookupName(indom, namebuf, &inst, (void **)&p) < 0 || !p) {
-	    /* not found: allocate and add a new entry */
-	    p = (partitions_entry_t *)malloc(sizeof(partitions_entry_t));
-	    memset(p, 0, sizeof(partitions_entry_t));
-	    indom_changes++;
-	}
-
+    if (pmdaCacheLookupName(indom, namebuf, &inst, (void **)&p) < 0 || !p) {
+	/* not found: allocate and add a new entry */
+	p = (partitions_entry_t *)calloc(1, sizeof(partitions_entry_t));
+	*indom_changes += 1;
+    } else {
 	if (p->dmname)
 	    free(p->dmname);
 	if (p->mdname)
 	    free(p->mdname);
-	p->dmname = dmname; /* NULL if not a dm device */
-	p->mdname = mdname; /* NULL if not a dm device */
+	p->nr_blocks = 0;		/* zero if not read/needed */
+    }
 
-        if (!p->namebuf)
-            p->namebuf = strdup(namebuf);
-        else
-        if (strcmp(namebuf, p->namebuf) != 0) {
-            free(p->namebuf);
-            p->namebuf = strdup(namebuf);
-        }
+    p->dmname = dmname;		/* NULL if not a DM device */
+    p->mdname = mdname;		/* NULL if not a MD device */
 
-	/* activate this entry */
-	if (p->udevnamebuf)
-	    /* long xscsi name */
-	    inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, p->udevnamebuf, p);
-	else
-	    /* short /proc/diskstats or /proc/partitions name */
-	    inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, namebuf, p);
+    if (!p->namebuf) {
+	p->namebuf = strdup(namebuf);
+    } else if (strcmp(namebuf, p->namebuf) != 0) {
+	free(p->namebuf);
+	p->namebuf = strdup(namebuf);
+    }
 
-	if (have_proc_diskstats) {
-	    /* 2.6 style /proc/diskstats */
-	    p->nr_blocks = 0;
-	    namebuf[0] = '\0';
-	    /* Linux source: block/genhd.c::diskstats_show(1) */
-	    n = sscanf(buf, "%u %u %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
-		&p->major, &p->minor, namebuf,
+    /* activate and return this entry */
+    if (p->udevnamebuf)
+	/* long xscsi name */
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, p->udevnamebuf, p);
+    else
+	/* short /proc/diskstats or /proc/partitions name */
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, namebuf, p);
+    return p;
+}
+
+static int
+refresh_diskstats(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
+			    pmInDom dm_indom, pmInDom md_indom)
+{
+    int			indom_changes = 0;
+    int			devmin, devmaj, n;
+    char		buf[MAXPATHLEN];
+    char		name[MAXPATHLEN];
+    partitions_entry_t	*p;
+
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* skip heading */
+	if (buf[0] != ' ' || buf[0] == '\n')
+	    continue;
+
+	if ((n = sscanf(buf, "%d %d %s", &devmaj, &devmin, name)) != 3)
+	    continue;
+
+	if (!(p = refresh_disk_indom(name, sizeof(name), devmaj, devmin,
+		disk_indom, part_indom, dm_indom, md_indom, &indom_changes)))
+	    continue;
+
+	/* 2.6 style /proc/diskstats */
+	name[0] = '\0';
+	/* Linux source: block/genhd.c::diskstats_show(1) */
+	n = sscanf(buf, "%u %u %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+		&p->major, &p->minor, name,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors, &p->rd_ticks,
 		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
 		&p->ios_in_flight, &p->io_ticks, &p->aveq);
-	    if (n != 14) {
-                /*
-		 * From 2.6.25 onward, the full set of statistics is
-		 * available again for both partitions and disks.
-		 */
-		_pm_have_kernel_2_6_partition_stats = 1;
-		p->rd_merges = p->wr_merges = p->wr_ticks =
+	if (n != 14) {
+	    /*
+	     * From 2.6.25 onward, the full set of statistics is
+	     * available again for both partitions and disks.
+	     */
+	    _pm_have_kernel_2_6_partition_stats = 1;
+	    p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
-		/* Linux source: block/genhd.c::diskstats_show(2) */
-		n = sscanf(buf, "%u %u %s %u %u %u %u\n",
-		    &p->major, &p->minor, namebuf,
+	    /* Linux source: block/genhd.c::diskstats_show(2) */
+	    sscanf(buf, "%u %u %s %u %u %u %u\n",
+		    &p->major, &p->minor, name,
 		    (unsigned int *)&p->rd_ios, (unsigned int *)&p->rd_sectors,
 		    (unsigned int *)&p->wr_ios, (unsigned int *)&p->wr_sectors);
-	    }
 	}
-	else {
-	    /* 2.4 style /proc/partitions */
-	    namebuf[0] = '\0';
-	    n = sscanf(buf, "%u %u %lu %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
-		&p->major, &p->minor, &p->nr_blocks, namebuf,
+    }
+    return indom_changes;
+}
+
+static int
+refresh_partitions(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
+			     pmInDom dm_indom, pmInDom md_indom)
+{
+    int			indom_changes = 0;
+    int			devmin, devmaj, n;
+    unsigned long long	nop;
+    partitions_entry_t	*p;
+    char		buf[MAXPATHLEN];
+    char		name[MAXPATHLEN];
+
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* skip heading */
+	if (buf[0] != ' ' || buf[0] == '\n')
+	    continue;
+
+	/* /proc/partitions */
+	if ((n = sscanf(buf, "%d %d %llu %s", &devmaj, &devmin, &nop, name)) != 4)
+	    continue;
+
+	if (!(p = refresh_disk_indom(name, sizeof(name), devmaj, devmin,
+		disk_indom, part_indom, dm_indom, md_indom, &indom_changes)))
+	    continue;
+
+	/* 2.4 format /proc/partitions (distro patched) */
+	name[0] = '\0';
+	sscanf(buf, "%u %u %llu %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+		&p->major, &p->minor, &p->nr_blocks, name,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
 		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
 		&p->wr_sectors, &p->wr_ticks, &p->ios_in_flight,
 		&p->io_ticks, &p->aveq);
-	}
+    }
+    return indom_changes;
+}
 
+int
+refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
+			pmInDom dm_indom, pmInDom md_indom,
+			int need_diskstats, int need_partitions)
+{
+    FILE	*fp;
+    int		indom_changes = 0;
+    char	buf[MAXPATHLEN];
+    static int	first = 1;
+
+    if (first) {
+	/* initialize the instance domain caches */
+	pmdaCacheOp(disk_indom, PMDA_CACHE_LOAD);
+	pmdaCacheOp(part_indom, PMDA_CACHE_LOAD);
+	pmdaCacheOp(dm_indom, PMDA_CACHE_LOAD);
+	pmdaCacheOp(md_indom, PMDA_CACHE_LOAD);
+	indom_changes = 1;
+	first = 0;
+    }
+
+    pmdaCacheOp(disk_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(part_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(dm_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(md_indom, PMDA_CACHE_INACTIVE);
+
+    /* 2.6 style disk stats */
+    if (need_diskstats) {
+	if ((fp = linux_statsfile("/proc/diskstats", buf, sizeof(buf)))) {
+	    indom_changes += refresh_diskstats(fp, disk_indom, part_indom,
+						dm_indom, md_indom);
+	    fclose(fp);
+	} else {
+	    need_partitions = 1;
+	}
+    }
+
+    /* 2.4 style disk stats *and* device capacity */
+    if (need_partitions) {
+	if ((fp = linux_statsfile("/proc/partitions", buf, sizeof(buf)))) {
+	    indom_changes += refresh_partitions(fp, disk_indom, part_indom,
+						dm_indom, md_indom);
+	    fclose(fp);
+	}
     }
 
     /*
@@ -504,18 +545,13 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom,
      * (this doesn't happen very often, so is only a minor leak).
      */
     if (indom_changes) {
-	refresh_udev(disk_indom, partitions_indom);
+	refresh_udev(disk_indom, part_indom);
 	pmdaCacheOp(disk_indom, PMDA_CACHE_SAVE);
-	pmdaCacheOp(partitions_indom, PMDA_CACHE_SAVE);
+	pmdaCacheOp(part_indom, PMDA_CACHE_SAVE);
 	pmdaCacheOp(dm_indom, PMDA_CACHE_SAVE);
 	pmdaCacheOp(md_indom, PMDA_CACHE_SAVE);
     }
 
-    /*
-     * success
-     */
-    if (fp)
-	fclose(fp);
     return 0;
 }
 
@@ -529,6 +565,7 @@ static pmID disk_metric_table[] = {
     /* disk.dev.total */	     PMDA_PMID(CLUSTER_STAT,28),
     /* disk.dev.blkread */	     PMDA_PMID(CLUSTER_STAT,6),
     /* disk.dev.blkwrite */	     PMDA_PMID(CLUSTER_STAT,7),
+    /* hinv.ndisk */                 PMDA_PMID(CLUSTER_STAT,33),
     /* disk.dev.blktotal */	     PMDA_PMID(CLUSTER_STAT,36),
     /* disk.dev.read_bytes */	     PMDA_PMID(CLUSTER_STAT,38),
     /* disk.dev.write_bytes */	     PMDA_PMID(CLUSTER_STAT,39),
@@ -541,6 +578,7 @@ static pmID disk_metric_table[] = {
     /* disk.dev.read_rawactive */    PMDA_PMID(CLUSTER_STAT,72),
     /* disk.dev.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,73),
     /* disk.dev.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,79),
+    /* disk.dev.capacity */	     PMDA_PMID(CLUSTER_STAT,87),
 
     /* disk.all.read */		     PMDA_PMID(CLUSTER_STAT,24),
     /* disk.all.write */	     PMDA_PMID(CLUSTER_STAT,25),
@@ -575,9 +613,7 @@ static pmID disk_metric_table[] = {
     /* disk.partitions.read_rawactive */  PMDA_PMID(CLUSTER_PARTITIONS,13),
     /* disk.partitions.write_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,14),
     /* disk.partitions.total_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,15),
-
-
-    /* hinv.ndisk */                 PMDA_PMID(CLUSTER_STAT,33),
+    /* disk.partitions.capacity */   PMDA_PMID(CLUSTER_PARTITIONS,16),
 
     /* disk.dm.read */               PMDA_PMID(CLUSTER_DM,0),
     /* disk.dm.write */		     PMDA_PMID(CLUSTER_DM,1),
@@ -596,6 +632,7 @@ static pmID disk_metric_table[] = {
     /* disk.dm.read_rawactive */     PMDA_PMID(CLUSTER_DM,14),
     /* disk.dm.write_rawactive */    PMDA_PMID(CLUSTER_DM,15),
     /* disk.dm.total_rawactive */    PMDA_PMID(CLUSTER_DM,16),
+    /* disk.dm.capacity */	     PMDA_PMID(CLUSTER_DM,17),
 
     /* disk.md.read */               PMDA_PMID(CLUSTER_MD,0),
     /* disk.md.write */		     PMDA_PMID(CLUSTER_MD,1),
@@ -614,6 +651,7 @@ static pmID disk_metric_table[] = {
     /* disk.md.read_rawactive */     PMDA_PMID(CLUSTER_MD,14),
     /* disk.md.write_rawactive */    PMDA_PMID(CLUSTER_MD,15),
     /* disk.md.total_rawactive */    PMDA_PMID(CLUSTER_MD,16),
+    /* disk.md.capacity */	     PMDA_PMID(CLUSTER_MD,17),
 };
 
 int
@@ -637,6 +675,19 @@ is_partitions_metric(pmID full_pmid)
 
     /* no match, clear fast test state */
     p = NULL;
+    return 0;
+}
+
+int
+is_capacity_metric(int cluster, int item)
+{
+    /* test for disk.{dev,dm,md,partitions}.capacity metrics */
+    if (item == 87 && cluster == CLUSTER_STAT)
+	return 1;
+    if (item == 16 && cluster == CLUSTER_PARTITIONS)
+	return 1;
+    if (item == 17 && (cluster == CLUSTER_DM || cluster == CLUSTER_MD))
+	return 1;
     return 0;
 }
 
@@ -806,6 +857,13 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    atom->ul = p->rd_ticks + p->wr_ticks;
 	    break;
+	case 87: /* disk.dev.capacity already kb from /proc/partitions */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    if (!p->nr_blocks)
+		return 0;
+	    atom->ull = p->nr_blocks;
+	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
 	    atom->ull = 0;
@@ -945,8 +1003,13 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 else
                     atom->ul = p->rd_ticks + p->wr_ticks;
                 break;
+	    case 16: /* disk.partitions.capacity */
+		if (!p->nr_blocks)
+		    return 0;
+		atom->ull = p->nr_blocks;
+		break;
 	    default:
-	    return PM_ERR_PMID;
+		return PM_ERR_PMID;
 	}
 	break;
 
@@ -1005,6 +1068,11 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 16: /* disk.{dm,md}.total_rawactive */
 	    atom->ul = p->rd_ticks + p->wr_ticks;
+	    break;
+	case 17: /* disk.{dm,md}.capacity */
+	    if (!p->nr_blocks)
+		return 0;
+	    atom->ull = p->nr_blocks;
 	    break;
 	default:
 	    return PM_ERR_PMID;
