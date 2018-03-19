@@ -3,10 +3,10 @@
  */
 
 /*
- * General exerciser, checks (for licensed/unlicensed PMCDs)
+ * General exerciser for PMCDs
  *	- PMCD availability
  *	- pmDesc availability
- *	- indom availiability
+ *	- indom availability
  *	- metric value availability
  *	- memory leaks (when -i used to make iterations > 1)
  */
@@ -15,8 +15,6 @@
 #include <string.h>
 #include <pcp/pmapi.h>
 #include "libpcp.h"
-
-extern int	errno;
 
 static int	_metrics;
 static int	_indom;
@@ -88,9 +86,7 @@ dometric(const char *name)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char *argv[])
 {
     int		c;
     int		sts;
@@ -103,8 +99,8 @@ char *argv[];
     unsigned long datasize;
     static char	*usage = "[-D debugspec] [-h hostname] [-i iterations] [-n namespace] [-l licenseflag ] [name ...]";
 
+    pmSetProgname(argv[0]);
     __pmProcessDataSize(NULL);
-    pmSetProgname(pmGetProgname());
 
     while ((c = getopt(argc, argv, "D:h:i:l:n:")) != EOF) {
 	switch (c) {
@@ -169,10 +165,8 @@ char *argv[];
 	if (optind >= argc)
 	    pmTraversePMNS("", dometric);
 	else {
-	    int	a;
-	    for (a = optind; a < argc; a++) {
-		pmTraversePMNS(argv[a], dometric);
-	    }
+	    for (c = optind; c < argc; c++)
+		pmTraversePMNS(argv[c], dometric);
 	}
 	__pmProcessDataSize(&datasize);
 	printf("[%d] %d metrics, %d getindom, %d insitu, %d ptr",

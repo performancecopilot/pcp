@@ -1,7 +1,7 @@
 /*
  * Linux /proc/runq metrics cluster
  *
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016,2018 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -68,7 +68,7 @@ proc_runq_accounting(const char *path, proc_runq_t *proc_runq)
 	return 0;
     }
 
-    /* All other states */
+    /* All other states - fs/proc/array.c :: task_state_array */
     switch (sname) {
 	case 'R':
 	    proc_runq->runnable++;
@@ -76,9 +76,11 @@ proc_runq_accounting(const char *path, proc_runq_t *proc_runq)
 	case 'S':
 	    proc_runq->sleeping++;
 	    break;
+	case 't':
 	case 'T':
 	    proc_runq->stopped++;
 	    break;
+	case 'P':
 	case 'D':
 	    proc_runq->blocked++;
 	    break;

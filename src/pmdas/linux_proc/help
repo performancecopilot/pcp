@@ -49,19 +49,21 @@
 @ hotproc.nprocs instantaneous number of interesting ("hot") processes
 
 @ proc.runq.runnable number of runnable (on run queue) processes
-Instantaneous number of runnable (on run queue) processes, state 'R' in ps
+Instantaneous number of runnable (on run queue) processes;
+state 'R' in ps(1).
 @ proc.runq.blocked number of processes in uninterruptible sleep
-Instantaneous number of processes in uninterruptible sleep, state 'D' in ps
+Instantaneous number of processes in uninterruptible sleep or parked;
+state 'D' in ps(1).
 @ proc.runq.sleeping number of processes sleeping
-Instantaneous number of processes sleeping, state 'S' in ps
+Instantaneous number of processes sleeping; state 'S' in ps(1).
 @ proc.runq.stopped number of traced, stopped or suspended processes
-Instantaneous number of traced, stopped or suspended processes, state
-'T' in ps
+Instantaneous number of traced, stopped or suspended processes; state
+'tT' in ps(1).
 @ proc.runq.swapped number of processes that are swapped
 Instantaneous number of processes (excluding kernel threads) that are
-swapped, state 'SW' in ps
+swapped; state 'SW' in ps(1).
 @ proc.runq.defunct number of defunct/zombie processes
-Instantaneous number of defunct/zombie processes, state 'Z' in ps
+Instantaneous number of defunct/zombie processes; state 'Z' in ps(1).
 @ proc.runq.unknown number of processes is an unknown state
 Instantaneous number of processes is an unknown state, including all
 kernel threads

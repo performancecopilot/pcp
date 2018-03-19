@@ -1,0 +1,18 @@
+sudo: required
+
+services:
+  - docker
+
+language: c
+
+before_install:
+  - docker build -f build/containers/travis-ci/Dockerfile -t pcp-qa .
+
+before_script:
+  - docker run -d --privileged --name pcp-qa pcp-qa
+  - docker exec pcp-qa bash -c 'cd /pcp && ./Makepkgs'
+  - docker exec pcp-qa bash -c 'cd /pcp/pcp-*/build/rpm && VER=$(pwd | cut -d- -f2 | cut -d/ -f1) && dnf -y install pcp{,-conf,-libs,-libs-devel,-devel,-testsuite}-$VER-1.x86_64.rpm'
+  - docker exec pcp-qa systemctl start pmcd
+
+script:
+  - docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g sanity'

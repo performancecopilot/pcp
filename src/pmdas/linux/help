@@ -244,6 +244,9 @@ Count of read requests that were merged with an already queued read request.
 @ disk.dev.write_merge per-disk count of merged write requests
 Count of write requests that were merged with an already queued write request.
 
+@ disk.dev.capacity per-disk physical device capacity
+Total space presented by each block device, from /proc/partitions.
+
 @ disk.dm.read per-device-mapper device read operations
 @ disk.dm.write per-device-mapper device write operations
 @ disk.dm.total per-device-mapper device total (read+write) operations
@@ -312,6 +315,9 @@ It is suitable mainly for use in calculations with other metrics,
 e.g. mirroring the results from existing performance tools:
 
  iostat.dm.await = delta(disk.dm.total_rawactive) / delta(disk.dm.total)
+
+@ disk.dm.capacity per-device-mapper physical device capacity
+Total space presented by each device mapper device, from /proc/partitions.
 
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
 
@@ -385,6 +391,9 @@ e.g. mirroring the results from existing performance tools:
  iostat.md.await = delta(disk.md.total_rawactive) / delta(disk.md.total)
 
 @ disk.md.status per-multi-device "mdadm --test --detail <device>" return code
+@ disk.md.capacity per-multi-device device capacity
+Total space presented by each multi-device device, from /proc/partitions.
+
 @ hinv.map.mdname per-multi-device device persistent name mapping to md[0-9]*
 
 @ disk.all.read_merge total count of merged read requests, summed for all disks
@@ -572,6 +581,9 @@ average of the number of outstanding I/Os for a disk partition.
 When divided by the number of completed I/Os for a disk partition
 (disk.partitions.total), the value represents the stochastic average of
 the I/O response (or wait) time for that disk partition.
+
+@ disk.partitions.capacity per-disk-partition capacity
+Total space presented by each disk partition, from /proc/partitions.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
