@@ -35,7 +35,7 @@ prog=`basename $0`
 unset PCP_STDERR
 
 # default message log file
-PROGLOG=$PCP_LOG_DIR/$prog.log
+PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
 USE_SYSLOG=true
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 
