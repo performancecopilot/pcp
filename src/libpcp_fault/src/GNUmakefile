@@ -32,14 +32,14 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c \
 	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h jsmn.h sort_r.h \
+HFILES = derive.h internal.h compiler.h pmdbg.h \
 	avahi.h shellprobe.h subnetprobe.h
 EXT_FILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
 VERSION_SCRIPT = exports
 
 # files that will be symbolic-linked to here from libpcp directory
-LN_FILES = $(CFILES) $(HFILES) $(YFILES)
+LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) $(YFILES)
 
 CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 
@@ -105,7 +105,7 @@ endif
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
 	$(LN_FILES) $(EXT_FILES) exports *.c
 
-base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(INFILES) \
+base default : $(HFILES) $(CFILES) $(EXT_FILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 libpcp.so: $(SYMTARGET)
@@ -119,7 +119,7 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
-jsmn.o: jsmn.c jsmn.h
+jsmn.o: jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
