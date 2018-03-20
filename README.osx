@@ -3,15 +3,15 @@ These notes are for building and installing PCP on Mac OS X
 The recipe is known to work with PCP 3.10.9 and Mac OS X 10.8
 (Mountain Lion).
 
-Prelminaries
-============
+Preliminaries
+=============
 
-These are the main requirements, without intalling these do not move forward.
+These are the main requirements, do not move forward without installing these.
 
 - XCode  (as always, needs an Apple developer ID now too)
 	(https://itunes.apple.com/us/app/xcode/id497799835?mt=12)
 
-- pkgbuild (Latest MacOS comes with this preinstalled but later versions may need addtional files)
+- pkgbuild (Latest MacOS comes with this preinstalled but later versions may need additional files)
 
 - MacPorts.org  (now needed for pkg-config, gnutar)
 	(https://www.macports.org/install.php)
