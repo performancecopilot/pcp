@@ -3,15 +3,15 @@ These notes are for building and installing PCP on Mac OS X
 The recipe is known to work with PCP 3.10.9 and Mac OS X 10.8
 (Mountain Lion).
 
-Prelminaries
-============
+Preliminaries
+=============
 
-These are the main requirements, without intalling these do not move forward.
+These are the main requirements, do not move forward without installing these.
 
 - XCode  (as always, needs an Apple developer ID now too)
 	(https://itunes.apple.com/us/app/xcode/id497799835?mt=12)
 
-- pkgbuild (Latest MacOS comes with this preinstalled but later versions may need addtional files)
+- pkgbuild (Latest MacOS comes with this preinstalled but later versions may need additional files)
 
 - MacPorts.org  (now needed for pkg-config, gnutar)
 	(https://www.macports.org/install.php)
@@ -40,18 +40,18 @@ $ export CFLAGS="-Os -arch i386 -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.
 Latest cario tarball is compressed with xz, so need to get, make and
 install that first.
 
-$ LATEST=5.2.2
-$ curl http://tukaani.org/xz/xz-$LATEST.tar.gz -o xz.tgz
+$ LATEST=5.2.3
+$ curl -L http://tukaani.org/xz/xz-$LATEST.tar.gz -o xz.tgz
 $ tar xpf xz.tgz
 $ rm -rf xz
 $ mv xz-$LATEST xz
 $ cd xz
-$ ./configure --disable-dependency-tracking
+$ sudo ./configure --disable-dependency-tracking
 $ make
 $ sudo make install
 $ cd ..
 
-$ LATEST=1.6.17
+$ LATEST=1.6.34
 $ DIR=`echo $LATEST | sed -e 's/\.[^.]*$//' -e 's/\.//' -e 's/^/libpng/'`
 # should be libpng16 for LATEST=1.6.17
 $ curl ftp://ftp.simplesystems.org/pub/libpng/png/src/$DIR/libpng-$LATEST.tar.gz -o libpng.tgz
@@ -59,40 +59,40 @@ $ tar zxpf libpng.tgz
 $ rm -rf libpng
 $ mv libpng-$LATEST libpng
 $ cd libpng
-$ ./configure --disable-dependency-tracking
+$ sudo ./configure --disable-dependency-tracking
 $ make
 $ sudo make install
 $ cd ..
 
-$ LATEST=0.32.8
-$ curl http://www.cairographics.org/releases/pixman-$LATEST.tar.gz -o pixman.tgz
+$ LATEST=0.34.0
+$ curl -L http://www.cairographics.org/releases/pixman-$LATEST.tar.gz -o pixman.tgz
 $ tar zxpf pixman.tgz
 $ rm -rf pixman
 $ mv pixman-$LATEST pixman
 $ cd pixman
-$ ./configure --disable-dependency-tracking
+$ sudo ./configure --disable-dependency-tracking
 $ make
 $ sudo make install
 $ cd ..
 
-$ LATEST=1.14.4
-$ curl http://www.cairographics.org/releases/cairo-$LATEST.tar.xz -o cairo.txz
+$ LATEST=1.14.12
+$ curl -L http://www.cairographics.org/releases/cairo-$LATEST.tar.xz -o cairo.txz
 $ xzcat cairo.txz | tar xpf -
 $ rm -rf cairo
 $ mv cairo-$LATEST cairo
 $ cd cairo
-$ ./configure --disable-dependency-tracking
+$ sudo ./configure --disable-dependency-tracking
 $ make
 $ sudo make install
 $ cd ..
 
-$ LATEST=0.9.46
+$ LATEST=0.9.59
 $ curl ftp://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-$LATEST.tar.gz -o libmicrohttpd.tgz
 $ tar zxpf libmicrohttpd.tgz 
 $ rm -rf libmicrohttpd
 $ mv libmicrohttpd-$LATEST libmicrohttpd
 $ cd libmicrohttpd
-$ ./configure --disable-dependency-tracking
+$ sudo ./configure --disable-dependency-tracking
 $ make
 $ sudo make install
 $ cd ..

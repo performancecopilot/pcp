@@ -131,6 +131,29 @@ As the name suggests,
 requires no additional configuration after installation in order to
 capture the required archives needed by
 .BR pmlogger_daily_report .
+.PP
+In order to ensure that mail is not unintentionally sent when this
+script is run from
+.BR cron (8)
+diagnostics are always sent to a log file.
+By default, this file is
+.B $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.log
+but this can be changed using the
+.B \-l
+option.
+If this log file already exists when the script starts, it will be
+renamed with a
+.I .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the log file.
+.PP
+The output from the
+.BR cron
+execution of the script may be extended using the
+.B \-V
+option which enables verbose tracing of activity.
+By default the script generates no log output unless some error or
+warning condition is encountered.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
