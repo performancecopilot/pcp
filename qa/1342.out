@@ -3,13 +3,45 @@ Waiting for pmcd to terminate ...
 
 === prometheus agent installation ===
 
-prometheus.simple_metric.metric1 [Simple gauge metric with two instances]
+=== URL configuration file contains
+file:///home/mgoodwin/src/pcp-clean/qa/prometheus/samples/simple_metric.txt
+
+# this is a comment and the next line is blank
+
+# basic standard headers
+HEADER: Accept: text/html
+HEADER: Keep-Alive: 300
+HEADER: Connection: keep-alive
+
+# header with two words in the value
+HEADER: Authorization: bearer ababbdbbebbbebdbbe5538003023
+
+# header with multiple words in the value and colons and spaces
+HEADER: Someheader: has: colons: and spaces in: it!!!!!!
+
+# various headers with assorted characters
+HEADER: Accept-Language: en-us,en;q=0.5
+HEADER: Accept-Encoding: gzip,deflate
+HEADER: Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+
+# Filter to include metric1 and exclude all other metrics
+# note: these are anchored regex matches (whole metric name must match)
+FILTER: INCLUDE METRIC prometheus.*metric1
+FILTER: EXCLUDE METRIC .*
+
+# unrecognized keyword
+SOMECRAP: unrecognised
+
+=== pminfo listing. Note prometheus.simple_metric.metric2 should be filtered out
+
+prometheus.simple_metric.metric1 [Simple gauge metric with three instances]
     Data Type: double  InDom: 144.5120 0x24001400
     Semantics: instant  Units: none
 Help:
-Simple gauge metric with two instances
+Simple gauge metric with three instances
     inst [0 or "0 abc:0"] value 456
     inst [1 or "1 def:123"] value 123
+    inst [2 or "2 hig:246 xyz:something"] value 128
 == Note: check 1342.full for log entries for the expected headers
 
 === remove prometheus agent ===
