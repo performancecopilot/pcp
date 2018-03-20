@@ -47,9 +47,24 @@ option is given, additional diagnostic messages will be written to the PMDA log 
 which is
 .I $PCP_LOG_DIR/pmcd/prometheus.log
 by default.
-.PP
-Further details on the Prometheus exposition format can be found at
-.I https://prometheus.io/docs/instrumenting/exposition_formats
+In addition, the metric
+.B prometheus.control.debug
+controls the same debug flag and can be set with the following command:
+.br
+.in +0.5i
+.BI "pmstore prometheus.control.debug" " value"
+.in
+.br
+where
+.I value
+is either
+.B 1
+(to enable verbose log messages)
+or
+.BR 0
+(to disable verbose log messages).
+This is particularly useful for examining the http headers passed to each fetch request,
+filter settings and other processing details that are logged when the debugging flag is enabled.
 .SH "CONFIGURATION SOURCES"
 As it runs,
 .B pmdaprometheus
