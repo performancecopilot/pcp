@@ -19,7 +19,7 @@ typedef struct {
     int			id;
     unsigned int	major;
     unsigned int	minor;
-    unsigned long	nr_blocks;
+    unsigned long long	nr_blocks;    /* from /proc/partitions */
     char		*namebuf;     /* from /proc/{partitions,diskstats} */
     char		*udevnamebuf; /* from udev if we have it, else NULL */
     char		*dmname;      /* symlink from /dev/mapper, else NULL */
@@ -37,6 +37,7 @@ typedef struct {
     unsigned int	aveq;
 } partitions_entry_t;
 
-extern int refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm_indom, pmInDom md_indom);
+extern int refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm_indom, pmInDom md_indom, int, int);
 extern int is_partitions_metric(pmID);
+extern int is_capacity_metric(int, int);
 extern int proc_partitions_fetch(pmdaMetric *, unsigned int, pmAtomValue *);

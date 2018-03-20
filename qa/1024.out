@@ -64,6 +64,9 @@ disk.dev.blktotal
 disk.dev.blkwrite
     inst [N or "sda"] value 178999432
 
+disk.dev.capacity
+No value(s) available!
+
 disk.dev.read
     inst [N or "sda"] value 1132105
 
@@ -115,6 +118,9 @@ disk.dm.blktotal
 disk.dm.blkwrite
     inst [N or "docker-8:7-1974438-pool"] value 56256
 
+disk.dm.capacity
+No value(s) available!
+
 disk.dm.read
     inst [N or "docker-8:7-1974438-pool"] value 5454
 
@@ -161,6 +167,9 @@ disk.md.blktotal
 No value(s) available!
 
 disk.md.blkwrite
+No value(s) available!
+
+disk.md.capacity
 No value(s) available!
 
 disk.md.read
@@ -263,6 +272,9 @@ disk.partitions.blkwrite
     inst [N or "sda8"] value 0
     inst [N or "sda9"] value 2597080
     inst [N or "sr0"] value 0
+
+disk.partitions.capacity
+No value(s) available!
 
 disk.partitions.read
     inst [N or "sda1"] value 8457
@@ -485,6 +497,9 @@ disk.dev.blkwrite
     inst [N or "cciss/c12d11"] value 256
     inst [N or "sda"] value 178999432
 
+disk.dev.capacity
+No value(s) available!
+
 disk.dev.read
     inst [N or "cciss/c12d11"] value 545
     inst [N or "sda"] value 1132105
@@ -548,6 +563,9 @@ disk.dm.blktotal
 disk.dm.blkwrite
     inst [N or "docker-8:7-1974438-pool"] value 56256
 
+disk.dm.capacity
+No value(s) available!
+
 disk.dm.read
     inst [N or "docker-8:7-1974438-pool"] value 5454
 
@@ -594,6 +612,9 @@ disk.md.blktotal
 No value(s) available!
 
 disk.md.blkwrite
+No value(s) available!
+
+disk.md.capacity
 No value(s) available!
 
 disk.md.read
@@ -646,6 +667,9 @@ disk.partitions.blktotal
 
 disk.partitions.blkwrite
     inst [N or "sr0"] value 0
+
+disk.partitions.capacity
+No value(s) available!
 
 disk.partitions.read
     inst [N or "sr0"] value 0
@@ -892,6 +916,9 @@ disk.dev.blkwrite
     inst [N or "sdv"] value 0
     inst [N or "sdw"] value 0
     inst [N or "sdx"] value 0
+
+disk.dev.capacity
+No value(s) available!
 
 disk.dev.read
     inst [N or "cciss/c0d0"] value 177
@@ -1280,6 +1307,9 @@ No value(s) available!
 disk.dm.blkwrite
 No value(s) available!
 
+disk.dm.capacity
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -1327,6 +1357,9 @@ disk.md.blktotal
 
 disk.md.blkwrite
     inst [N or "md0"] value 0
+
+disk.md.capacity
+No value(s) available!
 
 disk.md.read
     inst [N or "md0"] value 0
@@ -1523,6 +1556,9 @@ disk.partitions.blkwrite
     inst [N or "sdx1"] value 0
     inst [N or "sr0"] value 0
     inst [N or "sr1"] value 0
+
+disk.partitions.capacity
+No value(s) available!
 
 disk.partitions.read
     inst [N or "cciss/c0d0p1"] value 34
@@ -1954,6 +1990,9 @@ disk.dev.blkwrite
     inst [N or "sda"] value 178999432
     inst [N or "sdb"] value 278999432
 
+disk.dev.capacity
+No value(s) available!
+
 disk.dev.read
     inst [N or "sda"] value 1132105
     inst [N or "sdb"] value 2132105
@@ -2017,6 +2056,9 @@ No value(s) available!
 disk.dm.blkwrite
 No value(s) available!
 
+disk.dm.capacity
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -2069,6 +2111,9 @@ disk.md.blktotal
 disk.md.blkwrite
     inst [N or "home"] value 66256
     inst [N or "md0"] value 56256
+
+disk.md.capacity
+No value(s) available!
 
 disk.md.read
     inst [N or "home"] value 6454
@@ -2131,6 +2176,9 @@ disk.partitions.blktotal
 No value(s) available!
 
 disk.partitions.blkwrite
+No value(s) available!
+
+disk.partitions.capacity
 No value(s) available!
 
 disk.partitions.read
@@ -2255,6 +2303,9 @@ disk.dev.blkwrite
     inst [N or "vda"] value 3119737
     inst [N or "vdb"] value 64595
 
+disk.dev.capacity
+No value(s) available!
+
 disk.dev.read
     inst [N or "rbd0"] value 536206
     inst [N or "rbd1"] value 1123
@@ -2342,6 +2393,9 @@ No value(s) available!
 disk.dm.blkwrite
 No value(s) available!
 
+disk.dm.capacity
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -2388,6 +2442,9 @@ disk.md.blktotal
 No value(s) available!
 
 disk.md.blkwrite
+No value(s) available!
+
+disk.md.capacity
 No value(s) available!
 
 disk.md.read
@@ -2465,6 +2522,9 @@ disk.partitions.blkwrite
     inst [N or "vda2"] value 3115561
     inst [N or "vdb1"] value 52075
     inst [N or "vdb2"] value 12520
+
+disk.partitions.capacity
+No value(s) available!
 
 disk.partitions.read
     inst [N or "rbd0p1"] value 535156
@@ -2711,6 +2771,9 @@ disk.dev.blkwrite
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 69995546
     inst [N or "sdb"] value 56882504
+
+disk.dev.capacity
+No value(s) available!
 
 disk.dev.read
     inst [N or "nbd0"] value 0
@@ -2967,6 +3030,9 @@ No value(s) available!
 disk.dm.blkwrite
 No value(s) available!
 
+disk.dm.capacity
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -3013,6 +3079,9 @@ disk.md.blktotal
 No value(s) available!
 
 disk.md.blkwrite
+No value(s) available!
+
+disk.md.capacity
 No value(s) available!
 
 disk.md.read
@@ -3085,6 +3154,9 @@ disk.partitions.blkwrite
     inst [N or "sda1"] value 274
     inst [N or "sda2"] value 0
     inst [N or "sda3"] value 69995272
+
+disk.partitions.capacity
+No value(s) available!
 
 disk.partitions.read
     inst [N or "nbd11p1"] value 32634
