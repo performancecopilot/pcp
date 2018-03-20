@@ -1,0 +1,47 @@
+QA output created by 1299
+
+=-= indom help text (present) =-=
+
+
+InDom: 60.0 0xf000000 [set of all processors]
+
+InDom: 60.0 0xf000000
+Help:
+set of all processors
+
+InDom: 60.0 0xf000000 [set of all processors]
+Help:
+set of all processors
+
+=-= indom help text (missing) =-=
+
+
+InDom: 60.5 0xf000005 One-line Help: Error: One-line or help text is not available
+
+InDom: 60.5 0xf000005
+Full Help: Error: One-line or help text is not available
+
+InDom: 60.5 0xf000005 One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+=-= metric help text (present) =-=
+
+kernel.percpu.cpu.user [percpu user CPU time metric from /proc/stat, including guest CPU time]
+
+kernel.percpu.cpu.user
+Help:
+percpu user CPU time metric from /proc/stat, including guest CPU time
+
+kernel.percpu.cpu.user [percpu user CPU time metric from /proc/stat, including guest CPU time]
+Help:
+percpu user CPU time metric from /proc/stat, including guest CPU time
+
+=-= metric help text (missing) =-=
+
+filesys.capacity One-line Help: Error: One-line or help text is not available
+
+filesys.capacity
+Full Help: Error: One-line or help text is not available
+
+filesys.capacity One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available

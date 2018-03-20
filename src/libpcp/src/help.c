@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2016-2017 Red Hat.
+ * Copyright (c) 2013,2016-2018 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -106,9 +106,10 @@ again_local:
 	}
     }
     else {
+	*buffer = NULL;
 again_archive:
 	sts = __pmLogLookupText(ctxp->c_archctl, ident, type, buffer);
-	if (sts == PM_ERR_NOTHOST && (type = fallbacktext(type, *buffer)) != 0)
+	if (sts == PM_ERR_TEXT && (type = fallbacktext(type, *buffer)) != 0)
 	    goto again_archive;
 	if (sts == 0)
 	    /* Points into archive hash tables - return a copy */

@@ -1484,6 +1484,7 @@ pmlogsize
 1274 pmlogextract pmdumplog labels help local
 1276 pmmgr containers local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
+1299 libpcp pminfo local
 1321 pmlogger pmda.prometheus local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract
 1326 pmstore pmda.pmcd local
