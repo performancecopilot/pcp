@@ -460,12 +460,14 @@ class Source(object):
         self.pmda = pmda # the shared pmda
         self.requests = None
         self.headers = None
+        self.filterlist = None
 
         self.refresh_time = 0 # "never"
         if not is_scripted:
             # source is a URL.  Create a session for it.
             self.requests = requests.Session() # allow persistent connections etc.
             self.headers = {} # dict of headers for the http get
+            self.filterlist = [] # list of filters
 
         # persistently assign numeric id to our metrics
         self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
@@ -486,6 +488,21 @@ class Source(object):
         last_try_age = now - self.refresh_time
         return len(self.metrics_by_name) == 0 and last_try_age > empty_source_pmns_poll
 
+    def check_metric_filter(self, fullname):
+        for f in self.filterlist:
+            fs = f.split() # INCLUDE|EXCLUDE METRIC regex
+            if fs[1] == "METRIC":
+                pat = ' '.join(fs[2:]) # regex may have spaces
+                rx = re.compile(r"%s" % pat)
+                if dbg:
+                    self.pmda.debug("check_metric_filter(%s) fs=%s regex='%s'" % (fullname,fs,pat))
+                if rx.match(fullname):
+                    if dbg:
+                        self.pmda.debug(".... rx.match(%s,%s) -> True" % (pat,fullname))
+                    return fs[0] == "INCLUDE"
+        # no regex match => include
+        return True
+
     def parse_metric_line(self, line, pcpline, helpline, typeline):
         '''
         Parse the sample line, identify/create corresponding metric & instance.
@@ -497,17 +514,24 @@ class Source(object):
             if sp.name in self.metrics_by_name:
                 m = self.metrics_by_name[sp.name]
                 assert self.metrics_by_num[m.metricnum] == m
+                m.store_inst(sp.labels, sp.value)
             else:
-                metricnum = self.pmids_table.intern_lookup_value(sp.name)
-                m = Metric(self,sp.name,metricnum,sp.labels,
-                       pcpline,helpline,typeline)
-                self.metrics_by_name[sp.name] = m
-                self.metrics_by_num[metricnum] = m  # not pmid!
+                # check metric is not excluded by filters
+                fullname = "prometheus.%s.%s" % (self.name, sp.name)
+                if dbg:
+                    self.pmda.debug("Checking metric '%s'" % (fullname))
+                if not self.check_metric_filter(fullname):
+                    self.pmda.log("Metric %s excluded by config filters" % fullname)
+                else:
+                    metricnum = self.pmids_table.intern_lookup_value(sp.name)
+                    m = Metric(self,sp.name,metricnum,sp.labels,
+                           pcpline,helpline,typeline)
+                    self.metrics_by_name[sp.name] = m
+                    self.metrics_by_num[metricnum] = m  # not pmid!
 
-                # flag there has been a PMNS change
-                self.pmda.pmns_changed += 1
-
-            m.store_inst(sp.labels, sp.value)
+                    # flag there has been a PMNS change
+                    self.pmda.pmns_changed += 1
+                    m.store_inst(sp.labels, sp.value)
         except Exception as e:
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
 
@@ -582,13 +606,18 @@ class Source(object):
         to the headers dict parameter to the get() call. Note the ':' are
         important, and spaces are collapsed. e.g.
 
-        # here is an example
+        # here is an example header
         http://someserver/someplace/endpoint.html
         HEADER: authtoken: some auth token
 
+        # filters are used to include/exclude metric names
+        FILTER: {INCLUDE|EXCLUDE} METRIC regex ...
         '''
+
         conf = open(filepath, 'r').read().strip().split('\n')
         self.url = conf[0]
+        self.filterlist = [] # filters matching metric names or labels
+
         for line in conf[1:]:
             if len(line) == 0 or line.startswith('#'):
                 continue
@@ -597,10 +626,16 @@ class Source(object):
                 key=''.join(header[1].split())
                 val=' '.join(header[2:]).lstrip()
                 self.headers[key] = val
+            elif line.startswith('FILTER:'):
+                # strip off 'FILTER:' and any leading space
+                # each list entry is {INCLUDE|EXCLUDE} METRIC regex ... to end of line
+                filter=''.join(line.split(':',2)[1]).lstrip()
+                self.filterlist.append(filter)
             else:
-                self.pmda.log('Warning: %s has unrecognised config entry "%s"' % (self.url,line))
+                self.pmda.log('Warning: %s ignored unrecognised config entry "%s"' % (self.url,line))
         if dbg:
             self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url,self.headers))
+            self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url,self.filterlist))
 
         return
 
@@ -843,7 +878,6 @@ class PrometheusPMDA(PMDA):
             if not nickname_regexp.match(name):
                 self.err("Warning: ignored config file '%s', unsuitable for PCP namespace" % file)
                 continue
-
             if name in self.source_by_name:
                 # this source is already known
                 self.assert_source_invariants(name=name)
@@ -1076,5 +1110,6 @@ if __name__ == '__main__':
     if args.nosort:
         sort_conf_list = False
 
+    # dbg = True
     pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout, args.user)
     pmda.run()
