@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2016 Red Hat Inc.
+ * Copyright (c) 2011-2018 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,6 +95,8 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
     unsigned int resp_code = MHD_HTTP_OK;
     struct MHD_Response *resp;
     const char *ctype = NULL;
+    char etag[128]; // plenty long for a bunch of decimal strings
+    const char *request_etag = NULL;
 
     assert (resourcedir != "");	/* facility is enabled at all */
     /* NB: formerly, we asserted (url[0] == '/'), and this is proper for normal HTTP requests.
@@ -126,8 +128,23 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
         goto error_response;
     }
 
-    /* XXX: handle if-modified-since */
+    // our ETag is simply a few stat numbers in decimal
+    pmsprintf(etag, sizeof(etag), "\"m%ldd%lui%lu\"", fds.st_mtime,
+              (unsigned long)fds.st_dev, (unsigned long)fds.st_ino);
 
+    // shortcut response with a 304 ("not modified") code if request header matches
+    request_etag = MHD_lookup_connection_value (connection, MHD_HEADER_KIND, MHD_HTTP_HEADER_IF_NONE_MATCH);
+    if (request_etag != NULL &&
+        strcmp (etag, request_etag) == 0) {
+        static char blank[] = "";
+        resp = MHD_create_response_from_buffer (strlen (blank), blank, MHD_RESPMEM_PERSISTENT);
+        if (! resp)
+            return MHD_NO;
+
+        resp_code = 304;
+        goto out_304;
+    }
+    
     if (S_ISDIR (fds.st_mode)) { // http level redirect to index.html
         close (fd); // don't leak directory fd
 
@@ -205,21 +222,17 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
         (void) MHD_add_response_header (resp, "Content-Type", ctype);
     }
 
+ out_304:
+    
     /* And since we're generous to a fault, supply a timestamp field to
        assist caching. */
     ctype = create_rfc822_date (fds.st_mtime);
     if (ctype) {
         (void) MHD_add_response_header (resp, "Last-Modified", ctype);
     }
-
-#if 0
-    /* Add a 5-minute expiry. */
-    ctype = create_rfc822_date (time (0) + 300);	/* XXX: configure */
-    if (ctype) {
-        (void) MHD_add_response_header (resp, "Expires", ctype);
-    }
-#endif
-
+    
+    (void) MHD_add_response_header (resp, "ETag", etag);
+        
     (void) MHD_add_response_header (resp, "Cache-Control", "public");
 
     /* Adding ACAO header */
