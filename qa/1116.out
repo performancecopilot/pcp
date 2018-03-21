@@ -1,0 +1,52 @@
+QA output created by 1116
+
+=== bcc agent installation ===
+Info: Enabled modules:
+Info: ['biotop']
+Info: Configuring modules:
+Info: biotop
+Info: Modules configured.
+Info: Initializing modules:
+Info: biotop
+Info: biotop: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: biotop
+Info: Metrics registered.
+Info: Registering helpers:
+Info: biotop
+Info: Helpers registered.
+Info: Enabled modules:
+Info: ['biotop']
+Info: Configuring modules:
+Info: biotop
+Info: Modules configured.
+Info: Initializing modules:
+Info: biotop
+Info: biotop: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: biotop
+Info: Metrics registered.
+Info: Registering helpers:
+Info: biotop
+Info: Helpers registered.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... 1 metrics and X values
+
+=== report metric values ===
+    inst [X or "DEV::PID"] value 3145728
+=== verify metric values ===
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
