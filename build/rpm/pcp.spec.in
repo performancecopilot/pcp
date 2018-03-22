@@ -6,7 +6,7 @@ License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
-BuildRoot: @build_root@ 
+BuildRoot: @build_root@
 Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
@@ -193,7 +193,7 @@ Obsoletes: pcp-gui-debuginfo
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
-system-level performance monitoring and performance management. 
+system-level performance monitoring and performance management.
 
 The PCP open source release provides a unifying abstraction for all of
 the interesting performance data in a system, and allows client
@@ -1458,7 +1458,7 @@ Requires: pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
-   
+
 %if "@pmda_bcc@" == "true"
 #
 # pcp-pmda-bcc
@@ -1494,7 +1494,7 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the gluster filesystem.
 # end pcp-pmda-gluster
-   
+
 #
 # pcp-pmda-zswap
 #
@@ -1587,7 +1587,7 @@ Requires: libvirt-python %{__python2}-lxml
 Requires: libvirt-python3 python3-lxml
 %endif
 %else
-Requires: libvirt-python %{__python2}-lxml
+Requires: %{__python2}-libvirt %{__python2}-lxml
 Requires: %{__python2}-pcp
 %endif
 
@@ -2020,7 +2020,7 @@ URL: http://www.pcp.io
 Requires: pcp-webapi
 %endif
 %if "@have_python@" == "true"
-Requires: pcp-system-tools 
+Requires: pcp-system-tools
 %endif
 %if "@enable_qt@" == "true"
 Requires: pcp-gui
@@ -2391,7 +2391,7 @@ touch pmda_postfix_files
 %endif
 
 rm -f *_files.rpm
-sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
+sort -u $DIST_MANIFEST | $PCP_AWK_PROG '
 BEGIN {
     while( getline < "cfg_files") cfg[$0]=1;
     while( getline < "gui_files") gui[$0]=1;
@@ -3473,4 +3473,3 @@ cd
 %files monitor
 
 %files zeroconf -f zeroconf.rpm
-

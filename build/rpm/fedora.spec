@@ -367,7 +367,7 @@ fi # check for an active selinux install
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
-system-level performance monitoring and performance management. 
+system-level performance monitoring and performance management.
 
 The PCP open source release provides a unifying abstraction for all of
 the interesting performance data in a system, and allows client
@@ -748,7 +748,7 @@ BuildRequires: %{__python2}-elasticsearch
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to Elasticsearch - a distributed, RESTful search and analytics engine.
 See https://www.elastic.co/community for further details.
-%endif 
+%endif
 #
 # pcp-export-pcp2graphite
 #
@@ -1140,7 +1140,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Lustre Filesystem.
 #end pcp-pmda-lustre
-   
+
 #
 # pcp-pmda-lustrecomm
 #
@@ -1450,7 +1450,7 @@ Requires: pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
-   
+
 
 %if !%{disable_bcc}
 #
@@ -1487,7 +1487,7 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the gluster filesystem.
 # end pcp-pmda-gluster
-   
+
 #
 # pcp-pmda-zswap
 #
@@ -1574,9 +1574,12 @@ Requires: libvirt-python3 python3-lxml
 BuildRequires: libvirt-python3 python3-lxml
 %else
 Requires: %{__python2}-pcp
-Requires: libvirt-python %{__python2}-lxml
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: libvirt-python %{__python2}-lxml
+Requires: %{__python2}-libvirt %{__python2}-lxml
+%if 0%{?rhel} == 0 || 0%{?fedora} >= 28
+BuildRequires: %{__python2}-libvirt %{__python2}-lxml
+%endif
+%if 0%{?rhel} > 5
+BuildRequires: libvirt-%{__python2}
 %endif
 %endif
 %description pmda-libvirt
@@ -1978,7 +1981,7 @@ URL: http://www.pcp.io
 Requires: pcp-webapi
 %endif
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-system-tools 
+Requires: pcp-system-tools
 %endif
 %if !%{disable_qt}
 Requires: pcp-gui
@@ -2021,7 +2024,7 @@ Obsoletes: python-pcp
 %if 0%{?rhel} == 5
 Requires: python%{default_python}
 %else
-Requires: python
+Requires: %{__python2}
 %endif
 
 %description -n %{__python2}-pcp
@@ -2069,7 +2072,7 @@ Requires: pcp-libs = %{version}-%{release}
 This PCP module contains additional system monitoring tools written
 in python.
 %endif #end pcp-system-tools
-   
+
 %if !%{disable_qt}
 #
 # pcp-gui package for Qt tools
@@ -3141,8 +3144,8 @@ cd
 %files pmda-rsyslog
 %{_pmdasdir}/rsyslog
 
-%files pmda-samba 
-%{_pmdasdir}/samba 
+%files pmda-samba
+%{_pmdasdir}/samba
 
 %if !%{disable_snmp}
 %files pmda-snmp
