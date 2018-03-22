@@ -16,7 +16,7 @@ test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
 	_notrun "blinkenlights webapp is not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
-$python -c "from PIL import Image" >/dev/null 2>&1 || $_notrun "$python PIL package is not installed"
+$python -c "from PIL import Image" >/dev/null 2>&1 || _notrun "$python PIL package is not installed"
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
@@ -58,7 +58,7 @@ echo "crashers"
 _filter_curl_i()
 {
     tr -d '\r' |                      # drop ^M from httpd results
-    sed -e 's,^Date:.*$,Date: XXX,' -e 's/302 Moved Temporarily/302 Found/' |
+    sed -e 's,^Date:.*$,Date: XXX,' -e 's/302 Moved Temporarily/302 Found/' -e 's/^ETag: .*/ETAG/' |
     grep -v 'Connection:.*Alive'      # some microhttpd versions add this
 }
 
@@ -79,6 +79,7 @@ echo "the catalog"
 curl -s -i "http://localhost:$webport/?zoo=goo&phantasm" | _filter_curl_i
 curl -s -i "http://localhost:$webport/blinkenlights" | _filter_curl_i
 curl -s -i "http://localhost:$webport/blinkenlights/" | _filter_curl_i
+curl -s -i "http://localhost:$webport/graphite/index.html" | _filter_curl_i | grep -i etag
 curl -s -S "http://localhost:$webport/graphite/index.html?foo=bar&ectoplasm=egon"
 
 echo

@@ -21,6 +21,7 @@ Access-Control-Allow-Origin: *
 Location: /blinkenlights/index.html
 Date: XXX
 
+ETAG
 <!-- Copyright 2008 Orbitz WorldWide
 
 Licensed under the Apache License, Version 2.0 (the "License");
