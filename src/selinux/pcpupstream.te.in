@@ -60,6 +60,9 @@ require {
 	type mdadm_exec_t;
 	type fixed_disk_device_t;
 	@PCP_NUMAD_CONTEXT@
+	type glusterd_log_t;
+	type glusterd_t;
+	type glusterd_var_lib_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -221,6 +224,10 @@ allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
 #type=AVC msg=audit(1519670939.873:2012): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
 #type=AVC msg=audit(1519670949.871:2013): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
 @PCP_NUMAD_RULE@
+
+allow pcp_pmcd_t glusterd_log_t:file { open read write };
+allow pcp_pmcd_t glusterd_t:unix_stream_socket connectto;
+allow pcp_pmcd_t glusterd_var_lib_t:dir search;
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
