@@ -446,6 +446,18 @@ class PMDA(MetricDispatch):
         if indent:
             print('}')
 
+    def pmda_notready(self):
+        """
+        Tell PMCD the PMDA is not ready to process requests.
+        """
+        cpmda.pmda_notready()
+
+    def pmda_ready(self):
+        """
+        Tell PMCD the PMDA is ready to process requests.
+        """
+        cpmda.pmda_ready()
+
     def run(self):
         """
         All the real work happens herein; we can be called in one of three

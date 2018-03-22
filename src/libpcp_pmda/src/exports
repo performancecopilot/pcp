@@ -166,3 +166,8 @@ PCP_PMDA_3.7 {
     pmdaExtDynamicPMNS;
     pmdaExtSetFlags;
 } PCP_PMDA_3.6;
+
+PCP_PMDA_3.8 {
+  global:
+    pmdaSendError;
+} PCP_PMDA_3.7;
