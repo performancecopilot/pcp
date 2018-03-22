@@ -105,6 +105,29 @@ typedef struct metricspec {
 extern metricspec_t	*metric_root;
 
 /*
+ * Rewrite specifications for a help text record
+ */
+typedef struct textspec {
+    struct textspec	*t_next;
+    int			flags;		/* TEXT_* flags */
+    int			old_type;
+    int			new_type;
+    int			old_id;
+    int			new_id;
+    char		*old_text;
+    char		*new_text;
+    indomspec_t		*ip;		/* for instance id changes */
+} textspec_t;
+
+/* values for textspec_t flags[] */
+#define TEXT_CHANGE_ID		1
+#define TEXT_CHANGE_TYPE	2
+#define TEXT_CHANGE_TEXT	4
+#define TEXT_DELETE		8
+
+extern textspec_t	*text_root;
+
+/*
  *  Input archive control
  */
 typedef struct {
@@ -163,6 +186,7 @@ extern pmUnits	ntoh_pmUnits(pmUnits);
 
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
+extern textspec_t	*start_text(int, int);
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		inst_name_eq(const char *, const char *);
