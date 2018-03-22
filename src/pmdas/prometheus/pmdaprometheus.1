@@ -316,8 +316,10 @@ log mandatory on 2 second {
 .fi
 .ft 1
 .SH "CONTROL METRICS"
-The PMDA maintains three special control metrics, as described below.
-Each of these metrics is a counter and has one instance for each configured metric source.
+The PMDA maintains special control metrics, as described below.
+Apart from
+.BR prometheus.control.debug ,
+each of these metrics is a counter and has one instance for each configured metric source.
 The instance domain is adjusted dynamically as new sources are discovered.
 If there are no sources configured, the metric names are still defined
 but the instance domain will be empty and a fetch will return no values.
@@ -335,6 +337,14 @@ When converted to a rate, the \fBcalls\fP metric represents the average fetch ra
 over the sampling interval (time delta between samples).
 The \fBfetch_time\fP and \fBparse_time\fP counters, when converted to a rate, represent the
 average fetch and parsing latency (respectfully), during the sampling interval.
+.PP
+The
+.BR prometheus.control.debug
+metric has a singular value, defaulting to
+.BR 0 .
+If a non-zero value is stored into this metric using
+.BR pmstore (1),
+additional debug messages will be written to the PMDA log file.
 .SH LIMITATIONS
 .B pmdaprometheus
 and
@@ -391,6 +401,7 @@ configuration file, as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmlogger (1),
+.BR pmstore (1),
 .BR PMWEBAPI (3),
 .BR pmFetch (3)
 and

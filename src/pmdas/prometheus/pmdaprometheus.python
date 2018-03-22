@@ -713,8 +713,14 @@ class Source(object):
 
 class PrometheusPMDA(PMDA):
     def __init__(self, pmda_name, domain, config, timeout, user, debugflag):
-        ''' Initialize the PMDA
         '''
+        Initialize the PMDA. This can take a while for large configurations.
+        The prometheus entry in pmcd.conf specifies to start up in "notready"
+        mode. Once startup and init is complete, we call pmda.pmda_ready()
+        to tell PMCD we are ready to process requests, just prior to calling
+        run() to enter the main loop. See below.
+        '''
+
         # must first set user and connect to the invoking pmcd
         PMDA.__init__(self, pmda_name, domain)
         if user is not None:
@@ -1117,5 +1123,18 @@ if __name__ == '__main__':
     if args.nosort:
         sort_conf_list = False
 
+    # This PMDA starts up in the "notready" state, see the Install script where
+    # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
+    # The "binary notready" setting can also be manually configured in pmcd.conf.
     pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout, args.user, args.debug)
+
+    # Scan initial config
+    pmda.log("Initializing ... currently in notready state.")
+    pmda.refresh_metrics_for_pmns()
+
+    # Tell PMCD that we are now ready to process requests.
+    pmda.pmda_ready()
+    pmda.log("Ready to process requests")
+
+    # Now enter the main loop
     pmda.run()

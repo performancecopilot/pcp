@@ -1,6 +1,7 @@
 #! /bin/sh
 #
 # Copyright (c) 2017 Ronak Jain.
+# Copyright (c) 2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,6 +22,13 @@
 iam=prometheus
 python_opt=true
 daemon_opt=false
+
+#
+# See pmcd(1). pmdaprometheus starts up in the "not ready" state.
+# When it has finished starting up, it sends a PM_ERR_PMDAREADY
+# error PDU to PMCD to indicate it's ready to start processing
+# requests.
+ipc_prot="binary notready"
 
 pmdaSetup
 pmdaInstall
