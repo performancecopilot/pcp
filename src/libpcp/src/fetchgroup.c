@@ -168,7 +168,9 @@ pmfg_add_pmid(pmFG pmfg, pmID pmid)
 /*
  * Populate given pmFGI item structure based on common lookup &
  * verification for pmfg inputs.  Adjust instance profile to
- * include requested instance.
+ * include requested instance.  If it's a derived metric, we 
+ * don't know what instance domain(s) it could involve, so we
+ * clear the instance profile entirely.
  */
 static int
 pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
@@ -184,15 +186,24 @@ pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
     sts = pmLookupDesc(item->u.item.metric_pmid, &item->u.item.metric_desc);
     if (sts < 0)
 	return sts;
+
     /* Validate domain instance */
     if ((item->u.item.metric_desc.indom == PM_INDOM_NULL && instance) ||
 	(item->u.item.metric_desc.indom != PM_INDOM_NULL && !instance))
 	return PM_ERR_INDOM;
+
+    /* Clear instance profile if this is an opaque derived metric. */
+    if (IS_DERIVED(item->u.item.metric_desc.pmid)) {
+        (void) pmAddProfile(PM_INDOM_NULL, 0, NULL);
+    }
+
+    /* Add given instance to profile. */
     if (item->u.item.metric_desc.indom != PM_INDOM_NULL) {
 	sts = pmLookupInDom(item->u.item.metric_desc.indom, instance);
 	if (sts < 0)
 	    return sts;
 	item->u.item.metric_inst = sts;
+        /* Moot & harmless if IS_DERIVED. */
 	sts = pmAddProfile(item->u.item.metric_desc.indom, 1,
 			   &item->u.item.metric_inst);
     }
@@ -215,6 +226,11 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
     if (sts < 0)
 	return sts;
 
+    /* Clear instance profile if this is an opaque derived metric. */
+    if (IS_DERIVED(item->u.item.metric_desc.pmid)) {
+        (void) pmAddProfile(PM_INDOM_NULL, 0, NULL);
+    }
+
     /* As a convenience to users, we also accept non-indom'd metrics */
     if (item->u.indom.metric_desc.indom == PM_INDOM_NULL)
 	return 0;
@@ -222,6 +238,7 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
     /*
      * Add all instances; this will override any other past or future
      * piecemeal instance requests from __pmExtendFetchGroup_lookup.
+     * Moot & harmless if IS_DERIVED.
      */
     return pmAddProfile(item->u.indom.metric_desc.indom, 0, NULL);
 }

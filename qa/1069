@@ -295,6 +295,11 @@ EOF
 pmrep -C -H -U -a $here/archives/proc -c $tmp.derived-test.conf :derived-test
 echo "No output expected."
 
+echo "== derived metrics v. instance profiles"  # GH#451
+pmrep -s 1 -w 8 -H -U -e 'y = sum(sample.bucket)' y sample.bucket
+pmrep -s 1 -w 8 -H -U -e 'y = sum(sample.bucket)' y
+# first column should have same values
+
 echo "== extended existing sample configuration"
 cat > $tmp.dconfig <<EOF
 [global]
