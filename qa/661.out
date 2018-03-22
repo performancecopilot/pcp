@@ -177,11 +177,6 @@ metric tree iteration
             "name": "all",
             "path": "archives/naslog.kernel.all.",
             "is_leaf": 0
-        },
-        {
-            "name": "cpu",
-            "path": "archives/naslog.kernel.cpu.",
-            "is_leaf": 0
         }
     ]
 }
