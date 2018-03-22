@@ -3,7 +3,7 @@
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2016 Red Hat.
+# Portions Copyright (c) 2013-2016,2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -1039,11 +1039,11 @@ _install()
 	__args="-d $domain $__args"
     elif [ "$pmda_type" = perl ]
     then
-	type="pipe	binary		perl $perl_name"
+	type="pipe	$ipc_prot		perl $perl_name"
 	__args=''
     elif [ "$pmda_type" = python ]
     then
-	type="pipe	binary		$python $python_name"
+	type="pipe	$ipc_prot		$python $python_name"
 	__args=''
     else
 	type="dso	$dso_entry	$dso_name"
