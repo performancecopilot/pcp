@@ -16,13 +16,13 @@ set of all processors
 =-= indom help text (missing) =-=
 
 
-InDom: 60.5 0xf000005 One-line Help: Error: One-line or help text is not available
+InDom: 60.5 0xf000005 One-line Help: Error: Operation requires context with host source of metrics
 
 InDom: 60.5 0xf000005
-Full Help: Error: One-line or help text is not available
+Full Help: Error: Operation requires context with host source of metrics
 
-InDom: 60.5 0xf000005 One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+InDom: 60.5 0xf000005 One-line Help: Error: Operation requires context with host source of metrics
+Full Help: Error: Operation requires context with host source of metrics
 
 =-= metric help text (present) =-=
 
@@ -38,10 +38,10 @@ percpu user CPU time metric from /proc/stat, including guest CPU time
 
 =-= metric help text (missing) =-=
 
-filesys.capacity One-line Help: Error: One-line or help text is not available
+filesys.capacity One-line Help: Error: Operation requires context with host source of metrics
 
 filesys.capacity
-Full Help: Error: One-line or help text is not available
+Full Help: Error: Operation requires context with host source of metrics
 
-filesys.capacity One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+filesys.capacity One-line Help: Error: Operation requires context with host source of metrics
+Full Help: Error: Operation requires context with host source of metrics
