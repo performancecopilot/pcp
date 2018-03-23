@@ -2080,6 +2080,7 @@ Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: liberation-sans-fonts
 BuildRequires: hicolor-icon-theme
 
 %description gui
