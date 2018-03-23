@@ -3309,7 +3309,7 @@ cd
 %endif
 
 %changelog
-* Fri Mar 30 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
+* Thu Mar 29 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2
