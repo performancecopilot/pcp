@@ -28,6 +28,7 @@
 global_t	global;
 indomspec_t	*indom_root;
 metricspec_t	*metric_root;
+textspec_t	*text_root;
 int		lineno;
 
 static pmLongOptions longopts[] = {
@@ -406,8 +407,9 @@ SemStr(int sem)
 static void
 reportconfig(void)
 {
-    indomspec_t		*ip;
-    metricspec_t	*mp;
+    const indomspec_t	*ip;
+    const metricspec_t	*mp;
+    const textspec_t	*tp;
     int			i;
     int			change = 0;
 
@@ -557,6 +559,35 @@ reportconfig(void)
 	if (mp->flags & METRIC_DELETE)
 	    printf("DELETE\n");
     }
+    for (tp = text_root; tp != NULL; tp = tp->t_next) {
+	if (tp->flags != 0) {
+	    change |= 1;
+	    printf("\nHelp Text: %s %s (%s)\n",
+		   (tp->old_type & PM_TEXT_ONELINE) ? "One Line" : "full",
+		   (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
+		   (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id));
+	}
+	if (tp->flags & TEXT_CHANGE_TYPE) {
+	    printf("Type:\t\t%s %s -> %s %s\n",
+		   (tp->old_type & PM_TEXT_ONELINE) ? "One Line" : "full",
+		   (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
+		   (tp->new_type & PM_TEXT_ONELINE) ? "One Line" : "full",
+		   (tp->new_type & PM_TEXT_PMID) ? "pmID" : "pmInDom");
+	}
+	if (tp->flags & TEXT_CHANGE_ID) {
+	    printf("ID:\t\t%s ->",
+		   (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id));
+	    printf(" %s\n",
+		   (tp->new_type & PM_TEXT_PMID) ? pmIDStr(tp->new_id) : pmInDomStr(tp->new_id));
+	}
+	if (tp->flags & TEXT_CHANGE_TEXT) {
+	    printf("Text:\t\t\"%s\"", tp->old_text); 
+	    printf("\t\t\t->\n");
+	    printf("\t\t\t\"%s\"\n", tp->new_text); 
+	}
+	if (tp->flags & TEXT_DELETE)
+	    printf("DELETE\n");
+    }
     if (change == 0)
 	printf("No changes\n");
 }
@@ -564,8 +595,9 @@ reportconfig(void)
 static int
 anychange(void)
 {
-    indomspec_t		*ip;
-    metricspec_t	*mp;
+    const indomspec_t	*ip;
+    const metricspec_t	*mp;
+    const textspec_t	*tp;
     int			i;
 
     if (global.flags != 0)
@@ -580,6 +612,10 @@ anychange(void)
     }
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->flags != 0 || mp->ip != NULL)
+	    return 1;
+    }
+    for (tp = text_root; tp != NULL; tp = tp->t_next) {
+	if (tp->flags != 0 || tp->ip != NULL)
 	    return 1;
     }
     
@@ -615,17 +651,23 @@ fixstamp(struct timeval *tvp)
  * Link metricspec_t entries to corresponding indom_t entry if there
  * are changes to instance identifiers or instance names (includes
  * instance deletion)
+ *
+ * Do the same for textspec_t entries to their corresponding metricspec_t
+ * and indomspec_t entries.
  */
 static void
 link_entries(void)
 {
     indomspec_t		*ip;
     metricspec_t	*mp;
-    __pmHashCtl		*hcp;
-    __pmHashNode	*node;
+    textspec_t		*tp;
+    __pmHashCtl		*hcp, *hcp2;
+    __pmHashNode	*node, *node2;
     int			i;
+    int			type;
     int			change;
 
+    /* Link metricspec_t entries to indomspec_t entries */
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashpmid;
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	change = 0;
@@ -659,22 +701,116 @@ link_entries(void)
 	    }
 	}
     }
+
+    /* Link textspec_t entries to indomspec_t entries */
+    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashtext;
+    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+	change = 0;
+	for (i = 0; i < ip->numinst; i++)
+	    change |= (ip->inst_flags[i] != 0);
+	if (change == 0 && ip->new_indom == ip->old_indom)
+	    continue;
+
+	for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+	    /* We are only interested in help text for indoms. */
+	    type = (int)(node->key);
+	    if (!(type & PM_TEXT_INDOM))
+		continue;
+
+	    /* Look for help text for the current indom spec. */
+	    hcp2 = (__pmHashCtl *)(node->data);
+	    for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
+		 node2 != NULL;
+		 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
+		if ((int)(node2->key) != ip->old_indom)
+		    continue;
+
+		/* Found one. */
+		tp = start_text(type, (int)(node2->key));
+		assert(tp->old_id == ip->old_indom);
+		if (change)
+		    tp->ip = ip;
+		if (ip->new_indom != ip->old_indom) {
+		    if (tp->flags & TEXT_CHANGE_ID) {
+			/* indom already changed via text clause */
+			if (tp->new_id != ip->new_indom) {
+			    char	strbuf[80];
+			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(tp->new_id));
+			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for help text (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
+			    yysemantic(mess);
+			}
+		    }
+		    else {
+			tp->flags |= TEXT_CHANGE_ID;
+			tp->new_id = ip->new_indom;
+		    }
+		}
+	    }
+	}
+    }
+
+    /* Link textspec_t entries to metricspec_t entries */
+    assert(hcp == &inarch.ctxp->c_archctl->ac_log->l_hashtext);
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if (mp->new_desc.pmid == mp->old_desc.pmid)
+	    continue;
+
+	for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+	    /* We are only interested in help text for pmids. */
+	    type = (int)(node->key);
+	    if (!(type & PM_TEXT_PMID))
+		continue;
+
+	    /* Look for help text for the current metric spec. */
+	    hcp2 = (__pmHashCtl *)(node->data);
+	    for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
+		 node2 != NULL;
+		 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
+		if ((int)(node2->key) != mp->old_desc.pmid)
+		    continue;
+
+		/* Found one. */
+		tp = start_text(type, (int)(node2->key));
+		assert(tp->old_id == mp->old_desc.pmid);
+		if (mp->new_desc.pmid != mp->old_desc.pmid) {
+		    if (tp->flags & TEXT_CHANGE_ID) {
+			/* pmid already changed via text clause */
+			if (tp->new_id != mp->new_desc.pmid) {
+			    char	strbuf[80];
+			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
+			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help text (%s from text clause, %s from pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
+			    yysemantic(mess);
+			}
+		    }
+		    else {
+			tp->flags |= TEXT_CHANGE_ID;
+			tp->new_id = mp->new_desc.pmid;
+		    }
+		}
+	    }
+	}
+    }
 }
 
 static void
 check_indoms()
 {
     /*
-     * For each metric, make sure the output instance domain will be in
-     * the output archive.
-     * Called after link_entries(), so if an input metric is associated
+     * For each metric, and help text, make sure the output instance domain
+     * will be in the output archive.
+     * Called after link_entries(), so if an item is associated
      * with an instance domain that has any instance rewriting, we're OK.
-     * The case to be checked here is a rewritten metric with an indom
+     * The case to be checked here is a rewritten item with an indom
      * clause and no associated indomspec_t (so no instance domain changes,
      * but the new indom may not match any indom in the archive.
      */
-    metricspec_t	*mp;
-    indomspec_t		*ip;
+    const metricspec_t	*mp;
+    const indomspec_t	*ip;
+    const textspec_t	*tp;
     __pmHashCtl		*hcp;
     __pmHashNode	*node;
 
@@ -711,6 +847,43 @@ check_indoms()
 	    }
 	    if (node == NULL) {
 		pmsprintf(mess, sizeof(mess), "New indom (%s) for metric %s is not in the output archive", pmInDomStr(mp->new_desc.indom), mp->old_name);
+		yysemantic(mess);
+	    }
+	}
+    }
+
+    for (tp = text_root; tp != NULL; tp = tp->t_next) {
+	if (tp->ip != NULL)
+	    /* associated indom has instance changes, we're OK */
+	    continue;
+	if (!(tp->new_type & PM_TEXT_INDOM))
+	    continue;
+	if ((tp->flags & TEXT_CHANGE_ID)) {
+	    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+		 node != NULL;
+		 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+		/*
+		 * if this indom has an indomspec_t, check that, else
+		 * this indom will go to the archive without change
+		 */
+		for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+		    if (ip->old_indom == tp->old_id)
+			break;
+		}
+		if (ip == NULL) {
+		    if ((pmInDom)(node->key) == tp->new_id)
+			/* we're OK */
+			break;
+		}
+		else {
+		    if (ip->new_indom != ip->old_indom &&
+		        ip->new_indom == tp->new_id)
+			/* we're OK */
+			break;
+		}
+	    }
+	    if (node == NULL) {
+		pmsprintf(mess, sizeof(mess), "New indom (%s) for help text is not in the output archive", pmInDomStr(tp->new_id));
 		yysemantic(mess);
 	    }
 	}
@@ -769,7 +942,7 @@ check_output()
      * additional semantic checks and perhaps a name -> instance id
      * mapping.
      *
-     * Note instance renumbering happens _after_ value selction from
+     * Note instance renumbering happens _after_ value selection from
      * 		the INDOM -> ,,,, OUTPUT clause, so all references to
      * 		instance names and instance ids are relative to the
      * 		"old" set.
