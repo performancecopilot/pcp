@@ -47,9 +47,24 @@ option is given, additional diagnostic messages will be written to the PMDA log 
 which is
 .I $PCP_LOG_DIR/pmcd/prometheus.log
 by default.
-.PP
-Further details on the Prometheus exposition format can be found at
-.I https://prometheus.io/docs/instrumenting/exposition_formats
+In addition, the metric
+.B prometheus.control.debug
+controls the same debug flag and can be set with the following command:
+.br
+.in +0.5i
+.BI "pmstore prometheus.control.debug" " value"
+.in
+.br
+where
+.I value
+is either
+.B 1
+(to enable verbose log messages)
+or
+.BR 0
+(to disable verbose log messages).
+This is particularly useful for examining the http headers passed to each fetch request,
+filter settings and other processing details that are logged when the debugging flag is enabled.
 .SH "CONFIGURATION SOURCES"
 As it runs,
 .B pmdaprometheus
@@ -102,8 +117,10 @@ A keyword must end with
 Comment lines that start with
 .B #
 and blank lines are ignored.
-The only currently supported keyword is
-.BR HEADER: .
+The only currently supported keywords are
+.B HEADER:
+and
+.BR FILTER: .
 .PP
 .B HEADER:
 .I "headername\fB:\fP value ... to end of line"
@@ -134,9 +151,38 @@ Multiple spaces will be collapsed to a single space, and leading
 and trailing spaces are trimmed.
 A common use for headers is to configure a proxy agent
 and the assorted parameters it may require.
+.PP
+.BI "FILTER: INCLUDE METRIC" " regex"
+.br
+or
+.br
+.BI "FILTER: EXCLUDE METRIC" " regex"
+.br
+Dynamically created metric names that match
+.I regex
+will be either included or excluded in the name space, as specified.
+The simple rule is that the \fIfirst matching\fP filter regex
+for a particular metric name is the rule that prevails.
+If no filter regex matches (or there are no filters), then the metric
+is included by default, i.e. the default filter if none are specified is
+.BR "FILTER: INCLUDE METRIC .*"
+This is backward compatible with older versions of the configuration
+file that did not support filters.
+Multiple
+.B FILTER:
+lines would normally be used, e.g. to include some metrics but exclude all others, use
+.B "FILTER: EXCLUDE METRIC .*"
+as the last of several filters that include the desired metrics.
+Conversely, to exclude some metrics but include all others, use
+.BI "FILTER: EXCLUDE METRIC" regex\fR.
+In this case it's not necessary (though doesn't hurt) to specify the final
+.B "FILTER: INCLUDE METRIC .*"
+because, as stated above, any metric that does not match
+any filter regex will be included by default.
+.PP
 Additional keywords may be added in future versions of
 .B pmdaprometheus
-e.g. to allow returned result filtering, label manipulation and so forth.
+e.g. for label manipulation and so forth.
 Unrecognized keywords are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
 Executable scripts present in the 
@@ -270,8 +316,10 @@ log mandatory on 2 second {
 .fi
 .ft 1
 .SH "CONTROL METRICS"
-The PMDA maintains three special control metrics, as described below.
-Each of these metrics is a counter and has one instance for each configured metric source.
+The PMDA maintains special control metrics, as described below.
+Apart from
+.BR prometheus.control.debug ,
+each of these metrics is a counter and has one instance for each configured metric source.
 The instance domain is adjusted dynamically as new sources are discovered.
 If there are no sources configured, the metric names are still defined
 but the instance domain will be empty and a fetch will return no values.
@@ -289,6 +337,14 @@ When converted to a rate, the \fBcalls\fP metric represents the average fetch ra
 over the sampling interval (time delta between samples).
 The \fBfetch_time\fP and \fBparse_time\fP counters, when converted to a rate, represent the
 average fetch and parsing latency (respectfully), during the sampling interval.
+.PP
+The
+.BR prometheus.control.debug
+metric has a singular value, defaulting to
+.BR 0 .
+If a non-zero value is stored into this metric using
+.BR pmstore (1),
+additional debug messages will be written to the PMDA log file.
 .SH LIMITATIONS
 .B pmdaprometheus
 and
@@ -345,6 +401,7 @@ configuration file, as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmlogger (1),
+.BR pmstore (1),
 .BR PMWEBAPI (3),
 .BR pmFetch (3)
 and

@@ -1,4 +1,4 @@
-#version psql (PostgreSQL) 9.6.5
+#version psql (PostgreSQL) 10.3
 #table pg_stat_activity
 000 pg_stat_activity datid
 001 pg_stat_activity datname
@@ -19,6 +19,7 @@
 016 pg_stat_activity backend_xid
 017 pg_stat_activity backend_xmin
 018 pg_stat_activity query
+019 pg_stat_activity backend_type
 #table pg_stat_bgwriter
 000 pg_stat_bgwriter checkpoints_timed
 001 pg_stat_bgwriter checkpoints_req
@@ -70,12 +71,15 @@
 007 pg_stat_replication backend_start
 008 pg_stat_replication backend_xmin
 009 pg_stat_replication state
-010 pg_stat_replication sent_location
-011 pg_stat_replication write_location
-012 pg_stat_replication flush_location
-013 pg_stat_replication replay_location
-014 pg_stat_replication sync_priority
-015 pg_stat_replication sync_state
+010 pg_stat_replication sent_lsn
+011 pg_stat_replication write_lsn
+012 pg_stat_replication flush_lsn
+013 pg_stat_replication replay_lsn
+014 pg_stat_replication write_lag
+015 pg_stat_replication flush_lag
+016 pg_stat_replication replay_lag
+017 pg_stat_replication sync_priority
+018 pg_stat_replication sync_state
 #table pg_stat_all_tables
 000 pg_stat_all_tables relid
 001 pg_stat_all_tables schemaname

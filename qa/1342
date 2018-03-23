@@ -55,6 +55,11 @@ HEADER: Accept-Language: en-us,en;q=0.5
 HEADER: Accept-Encoding: gzip,deflate
 HEADER: Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
 
+# Filter to include metric1 and exclude all other metrics
+# note: these are anchored regex matches (whole metric name must match)
+FILTER: INCLUDE METRIC prometheus.*metric1
+FILTER: EXCLUDE METRIC .*
+
 # unrecognized keyword
 SOMECRAP: unrecognised
 EOF
@@ -69,14 +74,23 @@ then
     exit
 fi
 
-if pminfo -dtTf `pminfo prometheus | fgrep -v prometheus.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
-then
-    :
+echo; echo === URL configuration file contains
+cat $PCP_PMDAS_DIR/prometheus/config.d/$urlbase.url
+
+echo; echo === pminfo listing. Note prometheus.simple_metric.metric2 should be filtered out
+names=`pminfo prometheus | fgrep -v prometheus.control | LC_COLLATE=POSIX sort` 2>$tmp.err
+if [ -z "$names" ]; then
+    echo "FAILED - no prometheus metrics to show"
 else
-    echo "... failed! ... here is the Install log ..."
-    cat $tmp.out
+    if pminfo -dtTf `pminfo prometheus | fgrep -v prometheus.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+    then
+	:
+    else
+	echo "... failed! ... here is the Install log ..."
+	cat $tmp.out
+    fi
+    cat $tmp.info $tmp.err
 fi
-cat $tmp.info $tmp.err
 
 echo == Note: check $seq.full for log entries for the expected headers
 echo == pmdaprometheus LOG == >>$here/$seq.full

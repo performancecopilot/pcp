@@ -11,6 +11,7 @@ log mandatory on default { prometheus }
 
 === prometheus live PMNS is now ===
 prometheus.control.calls
+prometheus.control.debug
 prometheus.control.fetch_time
 prometheus.control.parse_time
 prometheus.source1.metric1
@@ -19,6 +20,7 @@ prometheus.source1.metric1
 
 === prometheus live PMNS is now ===
 prometheus.control.calls
+prometheus.control.debug
 prometheus.control.fetch_time
 prometheus.control.parse_time
 prometheus.source1.metric1
@@ -29,6 +31,7 @@ prometheus.source2.metric2
 
 === prometheus live PMNS is now ===
 prometheus.control.calls
+prometheus.control.debug
 prometheus.control.fetch_time
 prometheus.control.parse_time
 prometheus.source1.metric1
@@ -42,6 +45,7 @@ prometheus.source3.metric3
 
 === prometheus live PMNS is now ===
 prometheus.control.calls
+prometheus.control.debug
 prometheus.control.fetch_time
 prometheus.control.parse_time
 prometheus.source1.metric1
@@ -57,6 +61,7 @@ prometheus.source4.metric4
 
 === resulting archive contains the following prometheus metrics ===
 prometheus.control.calls
+prometheus.control.debug
 prometheus.control.fetch_time
 prometheus.control.parse_time
 prometheus.source1.metric1

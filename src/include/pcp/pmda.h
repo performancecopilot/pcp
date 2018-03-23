@@ -424,6 +424,13 @@ typedef struct pmdaOptions {
  *	Loop which receives PDUs and dispatches the callbacks. Must be called
  *	by a daemon PMDA.
  *
+ * pmdaSendError
+ *	Used to inform PMCD the PMDA is ready/notready to process requests.
+ *	See pmcd(1) for details, in particular the protocol entry for the
+ *	PMDA in pmcd.conf can specify "notready", in which case the PMDA
+ *	must call pmdaSendError(dispatch, PM_ERR_PMDAREADY) when it is
+ *	ready after starting up.
+ *
  * pmdaSetResultCallBack
  *      Allows an application specific routine to be specified for cleaning up
  *      a pmResult after a fetch. Most PMDAs should not use this.
@@ -468,6 +475,7 @@ PMDA_CALL extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, 
 PMDA_CALL extern void pmdaConnect(pmdaInterface *);
 
 PMDA_CALL extern void pmdaMain(pmdaInterface *);
+PMDA_CALL extern void pmdaSendError(pmdaInterface *, int);
 
 PMDA_CALL extern void pmdaSetResultCallBack(pmdaInterface *, pmdaResultCallBack);
 PMDA_CALL extern void pmdaSetFetchCallBack(pmdaInterface *, pmdaFetchCallBack);

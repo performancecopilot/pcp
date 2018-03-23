@@ -496,3 +496,12 @@ pmdaSetLabelCallBack(pmdaInterface *dispatch, pmdaLabelCallBack callback)
 	dispatch->status = PM_ERR_GENERIC;
     }
 }
+
+void
+pmdaSendError(pmdaInterface *dispatch, int err)
+{
+    pmdaExt     *pmda = dispatch->version.any.ext;
+
+    /* Usually err is PM_ERR_PMDAREADY or PM_ERR_PMDANOTREADY */
+    __pmSendError(pmda->e_outfd, FROM_ANON, err);
+}

@@ -899,6 +899,22 @@ connect_pmcd(void)
     return Py_None;
 }
 
+static PyObject *
+pmda_notready(void)
+{
+    pmdaSendError(&dispatch, PM_ERR_PMDANOTREADY);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pmda_ready(void)
+{
+    pmdaSendError(&dispatch, PM_ERR_PMDAREADY);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static int
 update_indom_metric_buffers(void)
 {
@@ -1342,6 +1358,10 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "connect_pmcd", .ml_meth = (PyCFunction)connect_pmcd,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmda_notready", .ml_meth = (PyCFunction)pmda_notready,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmda_ready", .ml_meth = (PyCFunction)pmda_ready,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmns_refresh", .ml_meth = (PyCFunction)namespace_refresh,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
