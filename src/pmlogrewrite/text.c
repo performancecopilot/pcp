@@ -48,14 +48,14 @@ start_text(int type, int id)
 	    if (id == tp->old_id) {
 		if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
 		    if ((type & PM_TEXT_PMID))
-			fprintf(stderr, " -> %s", pmIDStr(tp->old_id));
+			fprintf(stderr, " -> %s", pmIDStr(tp->new_id));
 		    else
-			fprintf(stderr, " -> %s", pmInDomStr(tp->old_id));
+			fprintf(stderr, " -> %s", pmInDomStr(tp->new_id));
+		    if ((type & PM_TEXT_ONELINE))
+			fprintf(stderr, " one line\n");
+		    else
+			fprintf(stderr, " full\n");
 		}
-		if ((type & PM_TEXT_ONELINE))
-		    fprintf(stderr, " one line\n");
-		else
-		    fprintf(stderr, " full\n");
 		return tp;
 	    }
 	}
@@ -155,9 +155,6 @@ do_text(void)
     char		*buffer = NULL;
     textspec_t		*tp;
     int			sts;
-    //    int		i;
-    //    int		j;
-    //    int		need_alloc = 0;
 
     out_offset = __pmFtell(outarch.logctl.l_mdfp);
 
