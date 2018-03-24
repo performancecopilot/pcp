@@ -10,11 +10,13 @@ tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.c
-#include <pcp/config.h>
+#include <pcp/platform_defs.h>
 #if defined(HAVE_64BIT_LONG)
 KERNEL_ULONG=PM_TYPE_U64
-#else
+#elif defined(HAVE_32BIT_LONG)
 KERNEL_ULONG=PM_TYPE_U32
+#else
+# bozo!
 #endif
 End-of-File
 

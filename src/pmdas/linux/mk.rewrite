@@ -15,8 +15,10 @@ cat <<End-of-File >$tmp.c
 #include <pcp/platform_defs.h>
 #if defined(HAVE_64BIT_LONG)
 KERNEL_ULONG=PM_TYPE_U64
-#else
+#elif defined(HAVE_32BIT_LONG)
 KERNEL_ULONG=PM_TYPE_U32
+#else
+# bozo!
 #endif
 End-of-File
 
