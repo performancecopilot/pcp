@@ -283,7 +283,8 @@ s/ .*//p
 }'`
 	case "$apt_ver"
 	in
-	    0.*|1.0.*)
+	    #0.*|1.0.*)
+	    *)
 		# the old-school dpkg way
 		#
 		if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
@@ -294,7 +295,10 @@ s/ .*//p
 		    exit 1
 		fi
 		;;
-	    *)
+	    #*)
+	    do-not-do-this-any-more)
+		# this does not work reliably ...
+		#
 		# the new-school apt-get way
 		#
 		here=`pwd`
