@@ -29,6 +29,7 @@ global_t	global;
 indomspec_t	*indom_root;
 metricspec_t	*metric_root;
 textspec_t	*text_root;
+labelspec_t	*label_root;
 int		lineno;
 
 static pmLongOptions longopts[] = {
@@ -404,14 +405,64 @@ SemStr(int sem)
     return buf;
 }
 
+static const char *
+labelTypeStr(int type)
+{
+    if ((type & PM_LABEL_CONTEXT))
+	return "Context";
+    if ((type & PM_LABEL_DOMAIN))
+	return "Domain";
+    if ((type & PM_LABEL_CLUSTER))
+	return "Cluster";
+    if ((type & PM_LABEL_ITEM))
+	return "Metric";
+    if ((type & PM_LABEL_INDOM))
+	return "InDom";
+    if ((type & PM_LABEL_INSTANCES))
+	return "Instance";
+    return "Unknown";
+}
+
+static const char *
+labelIDStr(int type, int id, char *buf, size_t buflen)
+{
+    if ((type & PM_LABEL_CONTEXT)) {
+	*buf = '\0';
+	return buf;
+    }
+    if ((type & PM_LABEL_DOMAIN)) {
+	pmsprintf(buf, buflen, "Domain %u", id);
+	return buf;
+    }
+    if ((type & PM_LABEL_CLUSTER)) {
+	pmsprintf(buf, buflen, "Cluster %s", pmIDStr(id));
+	return buf;
+    }
+    if ((type & PM_LABEL_ITEM)) {
+	pmsprintf(buf, buflen, "PMID %s", pmIDStr(id));
+	return buf;
+    }
+    if ((type & PM_LABEL_INDOM)) {
+	pmsprintf(buf, buflen, "Indom %s", pmInDomStr(id));
+	return buf;
+    }
+    if ((type & PM_LABEL_INSTANCES)) {
+	pmsprintf(buf, buflen, "Instances %s", pmInDomStr(id));
+	return buf;
+    }
+    return "Unknown";
+}
+
 static void
 reportconfig(void)
 {
     const indomspec_t	*ip;
     const metricspec_t	*mp;
     const textspec_t	*tp;
+    const labelspec_t	*lp;
     int			i;
     int			change = 0;
+    char		buf[128];
 
     printf("PCP Archive Log Rewrite Specifications Summary\n");
     change |= (global.flags != 0);
@@ -588,6 +639,27 @@ reportconfig(void)
 	if (tp->flags & TEXT_DELETE)
 	    printf("DELETE\n");
     }
+    for (lp = label_root; lp != NULL; lp = lp->l_next) {
+	if (lp->flags != 0) {
+	    change |= 1;
+	    printf("\nLabel: %s\n",
+		   __pmLabelIdentString(lp->old_id, lp->old_type, buf, sizeof(buf)));
+	}
+	if (lp->flags & LABEL_CHANGE_TYPE) {
+	    printf("Type:\t\t%s -> %s\n",
+		   labelTypeStr(lp->old_type), labelTypeStr(lp->new_type));
+	}
+	if (lp->flags & LABEL_CHANGE_ID) {
+	    printf("ID:\t\t%s -> ", 
+		   labelIDStr(lp->old_type, lp->old_id, buf, sizeof(buf)));
+	    printf("%s\n", 
+		   labelIDStr(lp->new_type, lp->new_id, buf, sizeof(buf)));
+	}
+	if (lp->flags & LABEL_CHANGE_LABEL)
+	    printf("Label:\t\t\"%s\" -> \"%s\n", lp->old_label, lp->new_label); 
+	if (lp->flags & LABEL_DELETE)
+	    printf("DELETE\n");
+    }
     if (change == 0)
 	printf("No changes\n");
 }
@@ -598,6 +670,7 @@ anychange(void)
     const indomspec_t	*ip;
     const metricspec_t	*mp;
     const textspec_t	*tp;
+    const labelspec_t	*lp;
     int			i;
 
     if (global.flags != 0)
@@ -612,6 +685,10 @@ anychange(void)
     }
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->flags != 0 || mp->ip != NULL)
+	    return 1;
+    }
+    for (lp = label_root; lp != NULL; lp = lp->l_next) {
+	if (lp->flags != 0 || lp->ip != NULL)
 	    return 1;
     }
     for (tp = text_root; tp != NULL; tp = tp->t_next) {
@@ -652,8 +729,8 @@ fixstamp(struct timeval *tvp)
  * are changes to instance identifiers or instance names (includes
  * instance deletion)
  *
- * Do the same for textspec_t entries to their corresponding metricspec_t
- * and indomspec_t entries.
+ * Do the same for textspec_t and labelspec_t entries to their corresponding
+ * metricspec_t and indomspec_t entries.
  */
 static void
 link_entries(void)
@@ -661,8 +738,10 @@ link_entries(void)
     indomspec_t		*ip;
     metricspec_t	*mp;
     textspec_t		*tp;
+    labelspec_t		*lp;
     __pmHashCtl		*hcp, *hcp2;
     __pmHashNode	*node, *node2;
+    int			old_id, new_id;
     int			i;
     int			type;
     int			change;
@@ -794,14 +873,121 @@ link_entries(void)
 	    }
 	}
     }
+
+    /* Link labelspec_t entries to indomspec_t entries */
+    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashlabels;
+    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+	change = 0;
+	for (i = 0; i < ip->numinst; i++)
+	    change |= (ip->inst_flags[i] != 0);
+	if (change == 0 && ip->new_indom == ip->old_indom)
+	    continue;
+
+	for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+	    /* We are only interested in help text for indoms. */
+	    type = (int)(node->key);
+	    if (!(type & (PM_LABEL_INDOM | PM_LABEL_INSTANCES)))
+		continue;
+
+	    /* Look for help text for the current indom spec. */
+	    hcp2 = (__pmHashCtl *)(node->data);
+	    for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
+		 node2 != NULL;
+		 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
+		if ((int)(node2->key) != ip->old_indom)
+		    continue;
+
+		/* Found one. */
+		lp = start_label(type, (int)(node2->key));
+		assert(lp->old_id == ip->old_indom);
+		if (change)
+		    lp->ip = ip;
+		if (ip->new_indom != ip->old_indom) {
+		    if (lp->flags & TEXT_CHANGE_ID) {
+			/* indom already changed via text clause */
+			if (lp->new_id != ip->new_indom) {
+			    char	strbuf[80];
+			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
+			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
+			    yysemantic(mess);
+			}
+		    }
+		    else {
+			lp->flags |= TEXT_CHANGE_ID;
+			lp->new_id = ip->new_indom;
+		    }
+		}
+	    }
+	}
+    }
+
+    /* Link labelspec_t entries to metricspec_t entries */
+    assert(hcp == &inarch.ctxp->c_archctl->ac_log->l_hashlabels);
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if (mp->new_desc.pmid == mp->old_desc.pmid)
+	    continue;
+
+	for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+	    /* We are only interested in label sets for pmids. */
+	    type = (int)(node->key);
+	    if (!(type & (PM_LABEL_DOMAIN | PM_LABEL_CLUSTER | PM_LABEL_ITEM)))
+		continue;
+
+	    /* Look for label sets for the current metric spec. */
+	    hcp2 = (__pmHashCtl *)(node->data);
+	    for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
+		 node2 != NULL;
+		 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
+		if ((type & PM_LABEL_DOMAIN)) {
+		    old_id = pmID_domain(mp->old_desc.pmid);
+		    new_id = pmID_domain(mp->new_desc.pmid);
+		}
+		else if ((type & PM_LABEL_CLUSTER)) {
+		    old_id = pmID_domain(mp->old_desc.pmid) |
+			pmID_cluster(mp->old_desc.pmid);
+		    new_id = pmID_domain(mp->new_desc.pmid) |
+			pmID_cluster(mp->new_desc.pmid);
+		}
+		else {
+		    old_id = mp->old_desc.pmid;
+		    new_id = mp->new_desc.pmid;
+		}
+		if ((int)(node2->key) != old_id)
+		    continue;
+
+		/* Found one. */
+		lp = start_label(type, old_id);
+		assert(lp->old_id == old_id);
+		if (old_id != new_id) {
+		    if (lp->flags & LABEL_CHANGE_ID) {
+			/* pmid already changed via label clause */
+			if (lp->new_id != new_id) {
+			    char	strbuf[80];
+			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(lp->new_id));
+			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help label (%s from label clause, %s from pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
+			    yysemantic(mess);
+			}
+		    }
+		    else {
+			lp->flags |= LABEL_CHANGE_ID;
+			lp->new_id = new_id;
+		    }
+		}
+	    }
+	}
+    }
 }
 
 static void
 check_indoms()
 {
     /*
-     * For each metric, and help text, make sure the output instance domain
-     * will be in the output archive.
+     * For each metric, labelset, and help text, make sure the output instance
+     * domain will be in the output archive.
      * Called after link_entries(), so if an item is associated
      * with an instance domain that has any instance rewriting, we're OK.
      * The case to be checked here is a rewritten item with an indom
@@ -811,9 +997,10 @@ check_indoms()
     const metricspec_t	*mp;
     const indomspec_t	*ip;
     const textspec_t	*tp;
+    const labelspec_t	*lp;
     __pmHashCtl		*hcp;
     __pmHashNode	*node;
-
+    char		buf[128];
 
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
 
@@ -884,6 +1071,46 @@ check_indoms()
 	    }
 	    if (node == NULL) {
 		pmsprintf(mess, sizeof(mess), "New indom (%s) for help text is not in the output archive", pmInDomStr(tp->new_id));
+		yysemantic(mess);
+	    }
+	}
+    }
+
+    for (lp = label_root; lp != NULL; lp = lp->l_next) {
+	if (lp->ip != NULL)
+	    /* associated indom has instance changes, we're OK */
+	    continue;
+	if (!(lp->new_type & (PM_LABEL_INDOM | PM_LABEL_INSTANCES)))
+	    continue;
+	if ((lp->flags & LABEL_CHANGE_ID)) {
+	    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+		 node != NULL;
+		 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+		/*
+		 * if this indom has an indomspec_t, check that, else
+		 * this indom will go to the archive without change
+		 */
+		for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+		    if (ip->old_indom == lp->old_id)
+			break;
+		}
+		if (ip == NULL) {
+		    if ((pmInDom)(node->key) == lp->new_id)
+			/* we're OK */
+			break;
+		}
+		else {
+		    if (ip->new_indom != ip->old_indom &&
+		        ip->new_indom == lp->new_id)
+			/* we're OK */
+			break;
+		}
+	    }
+	    if (node == NULL) {
+		pmsprintf(mess, sizeof(mess), "New indom (%s) for label set %s is not in the oulput archive",
+			  pmInDomStr(lp->new_id),
+			  __pmLabelIdentString(lp->new_id, lp->new_type,
+					       buf, sizeof(buf)));
 		yysemantic(mess);
 	    }
 	}

@@ -19,6 +19,57 @@
 #include "libpcp.h"
 #include "logger.h"
 
+/*
+ * Find or create a new labelspec_t
+ */
+labelspec_t *
+start_label(int type, int id)
+{
+    labelspec_t	*lp;
+    char	buf[128];
+
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+	fprintf(stderr, "start_label(%s)",
+		__pmLabelIdentString(id, type, buf, sizeof(buf)));
+    }
+
+    /* Search for this help label in the existing list of changes. */
+    for (lp = label_root; lp != NULL; lp = lp->l_next) {
+	if (type == lp->old_type) {
+	    if (id == lp->old_id) {
+		if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+		    fprintf(stderr, " -> %s",
+			    __pmLabelIdentString(lp->new_id, lp->new_type,
+						 buf, sizeof(buf)));
+		}
+		return lp;
+	    }
+	}
+    }
+
+    /* The label set was not found. Create a new change spec. */
+    lp = (labelspec_t *)malloc(sizeof(labelspec_t));
+    if (lp == NULL) {
+	fprintf(stderr, "labelspec malloc(%d) failed: %s\n", (int)sizeof(labelspec_t), strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+
+    /* Initialize and link. */
+    lp->l_next = label_root;
+    label_root = lp;
+    lp->old_type = lp->new_type = type;
+    lp->old_id = lp->new_id = id;
+    lp->new_label = NULL;
+    lp->flags = 0;
+    lp->ip = NULL;
+
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+	fprintf(stderr, " -> [new entry]\n");
+
+    return lp;
+}
+
 /* Stolen from libpcp. */
 static void
 _ntohpmLabel(pmLabel * const label)
@@ -123,7 +174,6 @@ _pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
     }
 }
 
-
 void
 do_labelset(void)
 {
@@ -133,117 +183,55 @@ do_labelset(void)
     int			nsets = 0;
     pmLabelSet		*labellist = NULL;
     pmTimeval		stamp;
-    //    labelspec_t	*ip;
+    labelspec_t		*lp;
     int			sts;
-    //    int		i;
-    //    int		j;
-    //    int		need_alloc = 0;
+    char		buf[128];
 
     out_offset = __pmFtell(outarch.logctl.l_mdfp);
 
     _pmUnpackLabelSet(inarch.metarec, &type, &ident, &nsets, &labellist, &stamp);
 
-#if 0 /* no rewriting yet */
     /*
-     * global time stamp adjustment (if any) has already been done in the
+     * Global time stamp adjustment (if any) has already been done in the
      * PDU buffer, so this is reflected in the unpacked value of stamp.
      */
-    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (ip->old_indom != indom)
+    for (lp = label_root; lp != NULL; lp = lp->l_next) {
+	if (lp->old_id != ident)
 	    continue;
-	if (ip->indom_flags & INDOM_DUPLICATE) {
-	    /*
-	     * Save the old indom without changes, then operate on the
-	     * duplicate.
-	     */
-	    if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
-		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
-				pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
-		abandon();
-		/*NOTREACHED*/
-	    }
+	if (lp->old_type != type)
+	    continue;
 
-	    /*
-	     * If the old indom was not a duplicate, then libpcp, via
-	     * __pmLogPutInDom(), assumes control of the storage pointed to by
-	     * instlist and inamelist. In that case, we need to operate on copies
-	     * from this point on.
-	     */
-	    if (sts != PMLOGPUTINDOM_DUP)
-		_pmDupInDomData(numinst, &instlist, &inamelist);
-
-	    if (pmDebugOptions.appl0) {
-		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
+	/* Rewrite the record as specified. */
+	if ((lp->flags & LABEL_CHANGE_ID))
+	    ident = lp->new_id;
+	if ((lp->flags & LABEL_CHANGE_TYPE))
+	    type = lp->new_type;
+#if 0 /* not supported yet */
+	if ((lp->flags & LABEL_CHANGE_LABEL))
+	    buffer = lp->new_label;
+#endif
+	
+	if (pmDebugOptions.appl1) {
+	    if ((lp->flags & (LABEL_CHANGE_ID | LABEL_CHANGE_TYPE | LABEL_CHANGE_LABEL))) {
+		fprintf(stderr, "Rewrite: label set %s",
+			__pmLabelIdentString(lp->old_id, lp->old_type,
+					     buf, sizeof(buf)));
 	    }
-	    out_offset = __pmFtell(outarch.logctl.l_mdfp);
-	}
-	if (ip->new_indom != ip->old_indom)
-	    indom = ip->new_indom;
-	for (i = 0; i < ip->numinst; i++) {
-	    for (j = 0; j < numinst; j++) {
-		if (ip->old_inst[i] == instlist[j])
-		    break;
+	    if ((lp->flags & (LABEL_CHANGE_LABEL))) {
+		fprintf(stderr, " \"%s\"", lp->old_label);
 	    }
-	    if (j == numinst)
-		continue;
-	    if (ip->inst_flags[i] & INST_DELETE) {
-		if (pmDebugOptions.appl1)
-		    fprintf(stderr, "Delete: instance %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
-		j++;
-		while (j < numinst) {
-		    instlist[j-1] = instlist[j];
-		    inamelist[j-1] = inamelist[j];
-		    j++;
-		}
-		need_alloc = 1;
-		numinst--;
+	    if ((lp->flags & (LABEL_CHANGE_ID | LABEL_CHANGE_TYPE | LABEL_CHANGE_LABEL))) {
+		fprintf(stderr, " to\nlabel set %s",
+			__pmLabelIdentString(lp->new_id, lp->new_type,
+					     buf, sizeof(buf)));
 	    }
-	    else {
-		if (ip->inst_flags[i] & INST_CHANGE_INST)
-		    instlist[j] = ip->new_inst[i];
-		if (ip->inst_flags[i] & INST_CHANGE_INAME) {
-		    inamelist[j] = ip->new_iname[i];
-		    need_alloc = 1;
-		}
-		if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && pmDebugOptions.appl1) {
-		    if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == (INST_CHANGE_INST | INST_CHANGE_INAME))
-			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
-		    else if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == INST_CHANGE_INST)
-			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->old_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
-		    else
-			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
-		}
+	    if ((lp->flags & (LABEL_CHANGE_LABEL))) {
+		fprintf(stderr, " \"%s\"", lp->new_label);
 	    }
+	    if ((lp->flags & (LABEL_CHANGE_ID | LABEL_CHANGE_TYPE | LABEL_CHANGE_LABEL)))
+		fputc('\n', stderr);
 	}
     }
-
-    if (need_alloc) {
-	/*
-	 * __pmLogPutInDom assumes the elements of inamelist[] point into
-	 * of a contiguous allocation starting at inamelist[0] ... if we've
-	 * changed an instance name or moved instance names about, then we
-	 * need to reallocate the strings for inamelist[]
-	 */
-	int	need = 0;
-	char	*new;
-	char	*p;
-
-	for (j = 0; j < numinst; j++)
-	    need += strlen(inamelist[j]) + 1;
-	new = (char *)malloc(need);
-	if (new == NULL) {
-	    fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
-	    abandon();
-	    /*NOTREACHED*/
-	}
-	p = new;
-	for (j = 0; j < numinst; j++) {
-	    strcpy(p, inamelist[j]);
-	    inamelist[j] = p;
-	    p += strlen(p) + 1;
-	}
-    }
-#endif /* no rewriting yet */
 
     /*
      * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
@@ -258,18 +246,7 @@ do_labelset(void)
 	abandon();
 	/*NOTREACHED*/
     }
-#if 0 /* don't handle duplicates yet. */
-    /*
-     * If the indom was a duplicate, then we are responsible for freeing the
-     * associated storage.
-     */
-    if (sts == PMLOGPUTINDOM_DUP) {
-	if (need_alloc)
-	    free(inamelist[0]);
-	free(inamelist);
-	free(instlist);
-    }
-#endif
+
     if (pmDebugOptions.appl0) {
 	char buf[1024];
 	fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
