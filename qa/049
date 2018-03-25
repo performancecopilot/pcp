@@ -34,6 +34,12 @@ do
 	-e 's/TIME (t=[0-9][0-9.]*)/TIME/g' \
 	-e 's/pid=.*host=.*/pid=PID host=HOSTNAME/' \
     | $PCP_AWK_PROG '
+BEGIN				{ state = 0 }
+state == 0 && /^__pmFopen/	{ sub(/\.meta"/, ".SUFF", $0)
+				  sub(/\.index"/, ".SUFF", $0)
+				  sub(/\.0"/, ".SUFF", $0)
+				}
+$1 == "chkLabel:"		{ state = 1 }
 $1 == "chkLabel:" && /vol=0/	{ if (fd1 == "") fd1 = $2
 				  if (fd1 == $2) $2 = "fd=<n1>"
 				}

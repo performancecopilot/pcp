@@ -1,9 +1,9 @@
 QA output created by 049
 
 === tmparch/mv-bigbin ===
-__pmFopen("tmparch/mv-bigbin.index", "r"): no decompress
-__pmFopen("tmparch/mv-bigbin.meta", "r"): no decompress
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("tmparch/mv-bigbin.SUFF, "r"): no decompress
+__pmFopen("tmparch/mv-bigbin.SUFF, "r"): no decompress
+__pmFopen("tmparch/mv-bigbin.SUFF, "r"): no decompress
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOSTNAME
