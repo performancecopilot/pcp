@@ -21,7 +21,8 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
-write_size=$((3*1024*1024)) # number of bytes to write into testfile
+write_size=`expr 3 \* 1024 \* 1024` # number of bytes to write into testfile
+out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
 
 _install_filter()
 {
@@ -97,7 +98,7 @@ echo
 
 # Generate system activity for the BCC biotop module
 # block device required here, no tmpfs (e.g. /tmp)
-dd if=/dev/zero of=/var/tmp/pcp_qa_1116 bs=${write_size} count=1 oflag=direct 2>/dev/null
+dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.proc.io.perdev 2>&1 | _value_filter \
