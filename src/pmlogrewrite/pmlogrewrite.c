@@ -462,7 +462,7 @@ reportconfig(void)
     const labelspec_t	*lp;
     int			i;
     int			change = 0;
-    char		buf[128];
+    char		buf[64];
 
     printf("PCP Archive Log Rewrite Specifications Summary\n");
     change |= (global.flags != 0);
@@ -745,6 +745,7 @@ link_entries(void)
     int			i;
     int			type;
     int			change;
+    char		strbuf[64];
 
     /* Link metricspec_t entries to indomspec_t entries */
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashpmid;
@@ -766,7 +767,6 @@ link_entries(void)
 		    if (mp->flags & METRIC_CHANGE_INDOM) {
 			/* indom already changed via metric clause */
 			if (mp->new_desc.indom != ip->new_indom) {
-			    char	strbuf[80];
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(mp->new_desc.indom));
 			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for metric %s (%s from metric clause, %s from indom clause)", mp->old_name, strbuf, pmInDomStr(ip->new_indom));
 			    yysemantic(mess);
@@ -815,7 +815,6 @@ link_entries(void)
 		    if (tp->flags & TEXT_CHANGE_ID) {
 			/* indom already changed via text clause */
 			if (tp->new_id != ip->new_indom) {
-			    char	strbuf[80];
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(tp->new_id));
 			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for help text (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
 			    yysemantic(mess);
@@ -859,7 +858,6 @@ link_entries(void)
 		    if (tp->flags & TEXT_CHANGE_ID) {
 			/* pmid already changed via text clause */
 			if (tp->new_id != mp->new_desc.pmid) {
-			    char	strbuf[80];
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
 			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help text (%s from text clause, %s from pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
 			    yysemantic(mess);
@@ -908,7 +906,6 @@ link_entries(void)
 		    if (lp->flags & TEXT_CHANGE_ID) {
 			/* indom already changed via text clause */
 			if (lp->new_id != ip->new_indom) {
-			    char	strbuf[80];
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
 			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
 			    yysemantic(mess);
@@ -966,7 +963,6 @@ link_entries(void)
 		    if (lp->flags & LABEL_CHANGE_ID) {
 			/* pmid already changed via label clause */
 			if (lp->new_id != new_id) {
-			    char	strbuf[80];
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(lp->new_id));
 			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help label (%s from label clause, %s from pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
 			    yysemantic(mess);
@@ -1000,7 +996,7 @@ check_indoms()
     const labelspec_t	*lp;
     __pmHashCtl		*hcp;
     __pmHashNode	*node;
-    char		buf[128];
+    char		buf[64];
 
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
 
@@ -1107,7 +1103,7 @@ check_indoms()
 		}
 	    }
 	    if (node == NULL) {
-		pmsprintf(mess, sizeof(mess), "New indom (%s) for label set %s is not in the oulput archive",
+		pmsprintf(mess, sizeof(mess), "New indom (%s) for label set %s is not in the output archive",
 			  pmInDomStr(lp->new_id),
 			  __pmLabelIdentString(lp->new_id, lp->new_type,
 					       buf, sizeof(buf)));

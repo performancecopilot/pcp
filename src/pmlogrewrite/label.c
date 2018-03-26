@@ -26,7 +26,7 @@ labelspec_t *
 start_label(int type, int id)
 {
     labelspec_t	*lp;
-    char	buf[128];
+    char	buf[64];
 
     if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
 	fprintf(stderr, "start_label(%s)",
@@ -185,7 +185,7 @@ do_labelset(void)
     pmTimeval		stamp;
     labelspec_t		*lp;
     int			sts;
-    char		buf[128];
+    char		buf[64];
 
     out_offset = __pmFtell(outarch.logctl.l_mdfp);
 
@@ -238,7 +238,6 @@ do_labelset(void)
      * to by labellist and inamelist.
      */
     if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
-	char buf[1024];
 	fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
 		pmGetProgname(),
 		__pmLabelIdentString(ident, type, buf, sizeof(buf)),
@@ -248,7 +247,6 @@ do_labelset(void)
     }
 
     if (pmDebugOptions.appl0) {
-	char buf[1024];
 	fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
 		__pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
     }
