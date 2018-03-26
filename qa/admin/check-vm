@@ -520,7 +520,7 @@ slackpkg?	/usr/lib*/python*/*-packages/*/*/xlsxwriter	[?python-xlsxwriter]
 pacman?	/usr/lib/python2.*/site-packages/xlsxwriter	[python2-xlsxwriter?]
 pacman?	/usr/lib/python3.*/site-packages/xlsxwriter	[python-xlsxwriter?]
 # -- python bcc
-dpkg?	/usr/lib/python3/*-packages/bcc.py	[python3-bcc (build optional)]
+dpkg?	/usr/lib/python3/*-packages/bcc/__init__.py	[python3-bpfcc (build optional)]
 rpm?	/usr/lib*/python3.*/*-packages/bcc.py	[python3-bcc (build optional)]
 urpmi?	/usr/lib*/python*/*-packages/bcc.py	[python-bcc (build optional)]
 emerge?	/usr/lib/python*/*-packages/bcc.py	[dev-python/bcc (build optional)]
