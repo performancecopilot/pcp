@@ -234,8 +234,9 @@ shellProbeForServices(const char *script, const char *service,
     nports = 0;
     nports = __pmServiceAddPorts(service, &ports, nports);
     if (nports <= 0) {
-	pmNotifyErr(LOG_ERR, "%s: could not find ports for service '%s'",
-		      PROBE, service);
+	if (pmDebugOptions.discovery)
+	    pmNotifyErr(LOG_INFO, "%s: no recognised ports for service '%s'",
+			PROBE, service);
 	return 0;
     }
 
