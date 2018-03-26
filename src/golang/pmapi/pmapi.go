@@ -450,55 +450,72 @@ func (c *pmapiContext) PmFetch(pmids ...PmID) (*PmResult, error) {
 	*/
 	defer C.pmFreeResult(c_pm_result)
 
+	vset, err := vsetFromPmResult(c_pm_result)
+	if err != nil {
+		return nil, err
+	}
 	return &PmResult{
 		NumPmID:int(c_pm_result.numpmid),
 		Timestamp:time.Unix(int64(c_pm_result.timestamp.tv_sec), int64(c_pm_result.timestamp.tv_usec) * 1000),
-		VSet:vsetFromPmResult(c_pm_result),
+		VSet: vset,
 	}, nil
 }
 
-func vsetFromPmResult(c_pm_result *C.pmResult) []*PmValueSet {
+func vsetFromPmResult(c_pm_result *C.pmResult) ([]*PmValueSet, error) {
 	number_of_pmids_from_pmresult := int(c_pm_result.numpmid)
 	vset := make([]*PmValueSet, number_of_pmids_from_pmresult)
 
 	for i := 0; i < number_of_pmids_from_pmresult; i++ {
 		c_vset := C.getPmValueSetFromPmResult(C.int(i), c_pm_result)
+		vlist, err := vlistFromPmValueSet(c_vset)
+		if err != nil {
+			return nil, err
+		}
 		vset[i] = &PmValueSet{
 			PmID:PmID(c_vset.pmid),
 			NumVal:int(c_vset.numval),
 			ValFmt:int(c_vset.valfmt),
-			VList: vlistFromPmValueSet(c_vset),
+			VList: vlist,
 		}
 	}
-	return vset
+	return vset, nil
 }
 
-func vlistFromPmValueSet(c_vset *C.pmValueSet) []*PmValue {
+func vlistFromPmValueSet(c_vset *C.pmValueSet) ([]*PmValue, error) {
 	number_of_pm_values := int(c_vset.numval)
 	if(number_of_pm_values <= 0) {
-		return []*PmValue{}
+		return []*PmValue{}, nil
 	}
 	vlist := make([]*PmValue, number_of_pm_values)
 
 	for i := 0; i < number_of_pm_values; i++ {
-		vlist[i] = newPmValue(i, c_vset)
+		duplicate_pm_value, err :=  newPmValue(i, c_vset)
+		if err != nil {
+			return nil, err
+		}
+		vlist[i] = duplicate_pm_value
 	}
 
-	return vlist
+	return vlist, nil
 }
 
-func newPmValue(index int, c_vset *C.pmValueSet) *PmValue {
+var testMemoryPressure = 0
+
+func newPmValue(index int, c_vset *C.pmValueSet) (*PmValue, error) {
 	/* See comment in PmFetch() for an explanation */
-	c_pm_value := C.getDuplicatedPmValueFromPmValueSet(C.int(index), c_vset)
+	c_pm_value_wrapper := C.getDuplicatedPmValueFromPmValueSet(C.int(index), c_vset, C.int(testMemoryPressure))
+	if int(c_pm_value_wrapper.success) == 0 {
+		return nil, errors.New("could not allocate memory for pmValue")
+	}
 	pm_value := &PmValue{
-		Inst:int(c_pm_value.inst),
-		cPmValue:c_pm_value,
-		valfmt:c_vset.valfmt,
+		Inst:     int(c_pm_value_wrapper.value.inst),
+		cPmValue: c_pm_value_wrapper.value,
+		valfmt:   c_vset.valfmt,
 	}
 	runtime.SetFinalizer(pm_value, func(pm_value *PmValue){
 		C.freePmValue(pm_value.cPmValue, pm_value.valfmt)
 	})
-	return pm_value
+	return pm_value, nil
 }
 
 func (c *pmapiContext) PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error) {

@@ -23,6 +23,11 @@
 
 #include <pcp/pmapi.h>
 
+struct pm_value_duplicate_result {
+    int success;
+    pmValue value;
+};
+
 int getPmUnitsDimSpace(pmUnits units);
 int getPmUnitsDimTime(pmUnits units);
 int getPmUnitsDimCount(pmUnits units);
@@ -30,7 +35,7 @@ unsigned int getPmUnitsScaleSpace(pmUnits units);
 unsigned int getPmUnitsScaleTime(pmUnits units);
 int getPmUnitsScaleCount(pmUnits units);
 pmValueSet* getPmValueSetFromPmResult(int index, pmResult *pm_result);
-pmValue getDuplicatedPmValueFromPmValueSet(int index, pmValueSet *pm_value_set);
+struct pm_value_duplicate_result getDuplicatedPmValueFromPmValueSet(int index, pmValueSet *pm_value_set, int test_memory_pressure);
 void freePmValue(pmValue pm_value, int valfmt);
 __int32_t getInt32FromPmAtomValue(pmAtomValue atom);
 __uint32_t getUInt32FromPmAtomValue(pmAtomValue atom);

@@ -46,17 +46,30 @@ pmValueSet* getPmValueSetFromPmResult(int index, pmResult *pm_result) {
 }
 
 // See comment in PmFetch() for an explanation of why we do this
-pmValue getDuplicatedPmValueFromPmValueSet(int index, pmValueSet *pm_value_set) {
+struct pm_value_duplicate_result getDuplicatedPmValueFromPmValueSet(int index, pmValueSet *pm_value_set, int test_memory_pressure) {
+    struct pm_value_duplicate_result result;
 	pmValue pm_value = pm_value_set->vlist[index];
+
+	if(test_memory_pressure) {
+	    result.success = 0;
+	    return result;
+	}
 
 	if(pm_value_set->valfmt == PM_VAL_DPTR) {
 		pmValueBlock *orig_vblock = pm_value.value.pval;
 		pmValueBlock *new_vblock = (pmValueBlock*)malloc(orig_vblock->vlen);
+		if (new_vblock == NULL) {
+		    result.success = 0;
+		    return result;
+		}
 		memcpy(new_vblock, orig_vblock, orig_vblock->vlen);
 		pm_value.value.pval = new_vblock;
 	}
 
-	return pm_value;
+    result.value = pm_value;
+    result.success = 1;
+
+	return result;
 }
 
 void freePmValue(pmValue pm_value, int valfmt) {

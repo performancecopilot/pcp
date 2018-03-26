@@ -160,6 +160,22 @@ func TestPmapiContext_PmFetch_supportsMultiplePMIDs(t *testing.T) {
 	assert.Len(t, pm_result.VSet[1].VList, 1)
 }
 
+func TestPmapiContext_PmFetch_returnsAnErrorIfMemoryCannotBeAllocated(t *testing.T) {
+	testMemoryPressure = 1;
+	_, err := localContext().PmFetch(sampleDoubleMillionPmID, sampleStringHulloPmID)
+	testMemoryPressure = 0;
+
+	assert.Error(t, err)
+}
+
+func TestPmapiContext_PmFetch_returnsANilPmResultIfMemoryCannotBeAllocated(t *testing.T) {
+	testMemoryPressure = 1;
+	pm_result, _ := localContext().PmFetch(sampleDoubleMillionPmID, sampleStringHulloPmID)
+	testMemoryPressure = 0;
+
+	assert.Nil(t, pm_result)
+}
+
 func TestPmExtractValue_forADoubleValue(t *testing.T) {
 	pm_result, _ := localContext().PmFetch(sampleDoubleMillionPmID)
 
