@@ -567,7 +567,7 @@ pmlogsize
 210 pmns local pmval pmie sanity pmdumplog
 211 pmns local pmval pmie pmdumplog
 212:retired pmda pmda.cisco local
-213 dbpmda pmns local pmda.sample pmda.mmv
+213 dbpmda pmns local pmda.sample pmda.mmv sanity
 214 pmlogextract local pmdumplog timezone
 215 other pmsocks pmval remote pmdumplog
 216 pmda.linux local
@@ -915,14 +915,14 @@ pmlogsize
 558 pmie local
 559 pmlogsummary local
 560 pmda.simple local pmda.install
-561 libpcp python labels local
-562 pmcd pmda.sample dbpmda pminfo labels libpcp local
+561 libpcp python labels local sanity
+562 pmcd pmda.sample dbpmda pminfo labels libpcp local sanity
 563 pmcd pmda.pmcd pminfo labels libpcp local
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
-567 libpcp labels local
-568 pmcd pmda.sample pminfo labels libpcp local
+567 libpcp labels local sanity
+568 pmcd pmda.sample pminfo labels libpcp local sanity
 569 pmprobe #679693 local sanity pmstore
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
@@ -1021,12 +1021,12 @@ pmlogsize
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract
 701 pmlogcheck local
-702 python libpcp local
+702 python libpcp local sanity
 703 pmda.weblog local
 704 pmda.mmv python mmv local
 705 libpcp local
 706 libpcp local
-707 python libpcp local
+707 python libpcp local sanity
 708 python pmimport local
 709 python local collectl
 710 python pmimport local pmdumplog
@@ -1472,7 +1472,7 @@ pmlogsize
 1222 pmda.linux pmda.proc local
 1225 pmwebd local
 1227 derive local
-1229 pmlogextract pmdumplog labels help local
+1229 pmlogextract pmdumplog labels help local sanity
 1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
 1240 libpcp pmrep local
@@ -1482,7 +1482,7 @@ pmlogsize
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
 1269 libpcp local
-1274 pmlogextract pmdumplog labels help local
+1274 pmlogextract pmdumplog labels help local sanity
 1276 pmmgr containers local
 1287 pmda.install pmda.prometheus local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
@@ -1500,7 +1500,7 @@ pmlogsize
 1359 libpcp local
 1362 pmda.postgresql local
 1367 labels pmda.simple local
-1368 labels help pmlogger pmdumplog local
+1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local
 1385 pmda.prometheus local
 1388 pmwebd local
