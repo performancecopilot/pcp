@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014-2016 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2014-2018 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -86,7 +86,8 @@ Rate conversions between consecutive samples may be requested.
 .PP
 Each fetchgroup is associated with a private PMAPI context, so it can
 manipulate instance profiles and other such state without disrupting
-other contexts.
+other contexts.  The instance profile is manipulated to optimize
+fetches of individual items, even if some are derived metrics.
 This private PMAPI context belongs to the fetchgroup,
 is used for all of its internal operations, and will be destroyed.
 .PP

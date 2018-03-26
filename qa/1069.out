@@ -1106,6 +1106,9 @@ No output expected.
 No output expected.
 No output expected.
 No output expected.
+== derived metrics v. instance profiles
+      4500       100       200       300       400       500       600       700       800       900
+      4500
 == extended existing sample configuration
   s.combo  s.seconds  s.milliseconds
       s/s        s/s            ms/s
