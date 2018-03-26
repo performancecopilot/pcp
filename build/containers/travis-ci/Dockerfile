@@ -13,7 +13,7 @@ COPY . /pcp
 RUN cd /pcp && ./Makepkgs
 RUN cd /pcp/pcp-*/build/rpm && VER=$(pwd | cut -d- -f2 | cut -d/ -f1) && \
     dnf -y install \
-        pcp-$VER-1.x86_64.rpm \
+        pcp-$VER-1.x86_64.rpm pcp-{conf,libs}-$VER-1.x86_64.rpm \
         pcp-{libs-devel,devel,testsuite}-$VER-1.x86_64.rpm \
         pcp-{pmda-cisco,pmda-bcc}-$VER-1.x86_64.rpm \
         perl-PCP-{LogImport,LogSummary,MMV,PMDA}-$VER-1.x86_64.rpm \
