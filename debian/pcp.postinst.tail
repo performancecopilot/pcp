@@ -114,6 +114,13 @@ then
     touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
 fi
 
+# set the notready flag for pmdaprometheus (only if already ./Install'd)
+#
+if grep -q ^prometheus $PCP_PMCDCONF_PATH 2>/dev/null
+then
+    touch "$PCP_PMDAS_DIR/prometheus/.NeedInstall"
+fi
+
 if which invoke-rc.d >/dev/null 2>&1
 then
     invoke-rc.d pmcd start

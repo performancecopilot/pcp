@@ -2538,6 +2538,14 @@ fi
 %preun pmda-prometheus
 %{pmda_remove "$1" "prometheus"}
 
+%post pmda-prometheus
+# pcp-4.0.1 and later: pmdaprometheus starts "notready" - this is for upgrades
+. /etc/pcp.env
+if grep -q ^prometheus "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    touch $PCP_PMDAS_DIR/prometheus/.NeedInstall
+fi
+
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
 
