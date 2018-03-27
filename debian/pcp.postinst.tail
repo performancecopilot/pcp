@@ -25,6 +25,12 @@ chmod 775 /etc/pcp/nssdb
 chown pcp:pcp /var/log/pcp/pmcd
 chmod 775 /var/log/pcp/pmcd
 
+# must match src/pmdas/{json,bash,mmv}/GNUmakefile
+for PMDA in bash json mmv; do
+    chown pcp:pcp /var/lib/pcp/tmp/$PMDA
+    chmod 775 /var/lib/pcp/tmp/$PMDA
+done
+
 # must match src/pmie/GNUmakefile
 chown pcp:pcp /var/lib/pcp/config/pmie
 chmod 775 /var/lib/pcp/config/pmie
