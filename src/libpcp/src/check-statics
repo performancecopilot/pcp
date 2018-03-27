@@ -390,6 +390,7 @@ p_text.o
 p_fetch.o
 p_instance.o
 p_label.o
+    ?type			# const
 p_lcontrol.o
 p_lrequest.o
 p_lstatus.o
