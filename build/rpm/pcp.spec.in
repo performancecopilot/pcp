@@ -2904,6 +2904,16 @@ pmieconf -c enable dmthin
 %{pmda_remove "$1" "prometheus"}
 %endif #preun pmda-prometheus
 
+%if "@pmda_prometheus@" == "true"
+# pcp-4.0.1 and later: pmdaprometheus starts "notready" - this is for upgrades
+%post pmda-prometheus
+. /etc/pcp.env
+if grep -q ^prometheus "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    touch $PCP_PMDAS_DIR/prometheus/.NeedInstall
+fi
+%endif #post pmda-prometheus
+
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
