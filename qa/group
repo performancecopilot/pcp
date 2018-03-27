@@ -1479,8 +1479,10 @@ pmlogsize
 1242 pmrep archive multi-archive decompress-xz local pmlogextract
 1243 pmfind libpcp local
 1245 libpcp local
+1247 pmlogrewrite labels text pmdumplog local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
+1267 pmlogrewrite labels help pmdumplog local
 1269 libpcp local
 1274 pmlogextract pmdumplog labels help local sanity
 1276 pmmgr containers local
@@ -1488,6 +1490,7 @@ pmlogsize
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1299 libpcp pminfo local
 1321 pmlogger pmda.prometheus local
+1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract
 1326 pmstore pmda.pmcd local
 1330 pmda.prometheus local
