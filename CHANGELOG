@@ -1,5 +1,92 @@
 pcp-4.0.1 (29 March 2018)
-    - Work-in-progress, see http://pcp.io/roadmap
+    - log rotation, management scripts, compression and utilities
+	- pmlogger scripts: enable immediate daily compression by default
+	- pmlogmv.sh: learn how to handle compressed files
+	- pmlogger_daily: change default behaviour for compression
+	- pmlogger_merge.sh: handle compressed archives
+	- pmlogger_check.sh: add pmlogger_daily -K callback
+	- pmlogger: control: add $PCP_COMPRESSAFTER=3
+	- pmlogger: crontab: drop pmlogger_daily command line arguments
+	- pmlogsize: (new) report sizes for components of an archive
+	- pmlogsize: add support for data volume, summary and -d (detailed)
+	- pmdumplog: fix sigsegv causing intermittent qa failures
+	- pmlogrewrite: Indirect updates to label set and help text records.
+    - pcp-zeroconf: zero configuration package for support environments
+	- add pmlogger_daily_report(1) cron script like sa2(1) to pcp-zeroconf
+	- add pcp-doc and pcp-system-tools to pcp-zeroconf dependencies
+	- improved and more frequent daily archive compression (see above)
+    - pmrep:
+	- pmrep: add sar -n TCP -n ETCP config
+	- pmrep: add units to labels in :sar-n-TCP-ETCP pmrep config
+	- pmrep: use standard column width by default with separate header
+	- pmrep: add config to display page migration stats on NUMA machines
+	- pmrep.conf: add initial sar -n NFS/NFSD metric sets (NFSv4 too)
+    - pmdaprometheus: PMDA to ingest metrics from prometheus end-points
+	- pmdaprometheus: start in the "notready" state, for scalable startup
+	- pmdaprometheus: URL config support for HTTP GET / request headers
+	- pmdaprometheus: URL config support for metric filters in responses
+	- pmdaprometheus: add prometheus.control.debug metric (storable)
+    - pmdapostgresql: supporting PostgreSQL v9.6 (with plans for 10.x)
+	- pmdapostgresql: fixes and verification to support postgresql v9.6.x
+	- pmdapostgresql: attempt to switch uids only if running as root
+	- pmdapostgresql: automatically reconnect if DB connection is lost
+	- pmdapostgresql: update audit script, prep for v10.3.1 support
+    - misc PMDAs: Linux, Proc, KVM, Pipe, rsyslog, BCC
+	- pmdalinux: add per-block-device capacity metrics
+	- pmdaproc: additional kernel process states (parked, trace stopped)
+	- pmdarsyslog: improved diagnostics
+	- BCC PMDA: biotop: ignore (but log) unnamed devices
+	- BCC PMDA: prepare for upcoming BCC breaking API change
+    - pmwebd and pmmgr
+	- pmmgr: remove untested pmmgr k8s discovery code, use libpcp instead
+	- pmwebd: support for etag headers
+	- pmwebd: improve graphite archive-cache performance w.r.t. syscalls
+	- build: house pmwebd in a subdir named consistently with rest of PCP
+    - selinux
+	- selinux: add numad_t rules
+	- selinux: update for variety of avc denials
+	- selinux: fix avc denials uncovered from pmdabcc
+    - libpcp and libpcp_pmda
+	- libpcp: fix fetchgroup vs derivedmetric instance profile issues
+	- libpcp: fix segv in archive help text fallback handling
+	- libpcp: add pmconfig reporting of transparent decompression
+	- libpcp: Fix false EOF return by xz_getc().
+	- libpcp: io: be more careful with rewind, rework __pmFseek
+	- libpcp: add compress_suffix_list for pmconfig -L
+	- libpcp: general shell discovery mechanism, Kubernetes pod support
+	- libpcp: pmcd: add a 'machineid' label at context level
+	- libpcp: add command=CMD option to shell discovery mechanism
+	- libpcp: handle DSO and pmcd domain labels consistently
+	- libpcp: correct the fetchgroup handling of counter wrap
+	- libpcp: rewind temp file after decompression
+	- libpcp: fix return codes for pmTraversePMNS
+	- libpcp: fix semantics of sum() for derived metrics
+	- libpcp: add external symbols from win32.c
+	- libpcp: switch pmGetConfig API to using setenv for valgrind
+	- libpcp: remove temp file underneath pmprintf() et al
+	- libpcp_pmda: add pmdaSendError(3), with python bindings
+    - Misc build, infrastructure and packaging updates
+	- Debian: enable daemons, manager enabling semantics, improved systemd
+	- build: test pmda.bcc group by travis ci, integrate Travis CI
+	- Debian packaging: make deb-systemd-helper use conditional
+	- Debian/pcp.postinst.tail: improved access modes for /etc/pcp/nssdb
+	- build: add base sans font for pmchart on headless machine
+	- build: add 'sds' package for more efficient string handling
+	- build: fix deb bash/json/mmv PMDA tmpdirs permissions
+	- build: add pcp-conf and pcp-libs packages for CI, needed explicitly
+	- build: spec updates for pcp-zeroconf and /etc/pcp/discover
+	- build: fix Debian install after derived metric config moved
+	- build: house pmwebd in a subdir named consistently with rest of PCP
+	- build: add proc derived metric config into pcp-libs package
+	- build: fix configure script qmake vs QT_RELEASE corner case
+	- configure: changes for Windows build, fix mingw warnings
+	- pmdaproc.sh: bugfix for ipc_prot="binary notready" in Install
+	- pmdaproc.sh: fix temp file leakage
+    - Documentation
+	- Readme.osx updated for packagemaker
+	- man: document the pmlogger_daily_report -l and -V options
+	- document the pmlogger_daily -k and -x interaction
+	- add pmdaSendError(3) man page to pcp-doc package
 
 pcp-4.0.0 (16 February 2018)
     - Support metric labels as first class PCP metadata
