@@ -33,6 +33,7 @@ pcp-4.0.1 (29 March 2018)
 	- pmdapostgresql: update audit script, prep for v10.3.1 support
     - misc PMDAs: Linux, Proc, KVM, Pipe, rsyslog, BCC
 	- pmdalinux: add per-block-device capacity metrics
+	- pmdalinux: report CD/DVD devices correctly, not as partitions
 	- pmdaproc: additional kernel process states (parked, trace stopped)
 	- pmdarsyslog: improved diagnostics
 	- BCC PMDA: biotop: ignore (but log) unnamed devices
