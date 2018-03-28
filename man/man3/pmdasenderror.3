@@ -1,0 +1,63 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018 Red Hat, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDASENDERROR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaSendError\f1
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmda.h>
+.sp
+void pmdaSendError(pmdaInterface *\fIdispatch\fP, int \fIerr\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH "PYTHON SYNOPSIS"
+.ft 3
+from pcp.pmda import PMDA
+.br
+PMDA.pmda_notready()
+.br
+PMDA.pmda_ready()
+.PP
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+this routine allows a PMDA to send an error PDU to PMCD.
+There is presently only one use for this - so the PMDA can inform PMCD
+that it is ready (or not ready) to process requests.
+.PP
+The protocol details are described in 
+.BR pmcd (1),
+but basically if a PMDA starts in the
+.I notready
+state (as may be specified in
+.BR pmcd.conf ,
+see
+.BR pmcd (1))
+then PMCD will not send it any requests until the PMDA sends an
+.B PM_ERR_PMDAREADY
+error PDU using this function.
+This is used by a PMDA that may have a long startup time, e.g. to process a
+large configuration file or similar.
+.PP
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmcd (1),
+and
+.BR pmdaprometheus (1).
