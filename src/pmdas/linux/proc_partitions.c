@@ -125,6 +125,12 @@ _pm_isdm(char *dname)
     return strncmp(dname, "dm-", 3) == 0;
 }
 
+static int
+_pm_iscdrom(char *dname)
+{
+    return (strncmp(dname, "sr", 2) == 0) && (isdigit(dname[2]));
+}
+
 /*
  * slight improvement to heuristic suggested by
  * Tim Bradshaw <tfb@cley.com> on 29 Dec 2003
@@ -164,7 +170,8 @@ _pm_ispartition(char *dname)
 		!_pm_iscephrados(dname) &&
 		!_pm_isnbd(dname) &&
 		!_pm_ismd(dname) &&
-		!_pm_isdm(dname);
+		!_pm_isdm(dname) &&
+		!_pm_iscdrom(dname);
     }
 }
 
