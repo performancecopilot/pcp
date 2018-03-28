@@ -248,7 +248,7 @@ derive_parser.tab.o
     ?n_eh_str			# guarded by registered.mutex
     ?n_eh_c			# guarded by registered.mutex
     ?l_eh_str			# guarded by registered.mutex
-    noUnits			# const
+    ?noUnits			# const
     ?yyval_default		# local to parser ... depends on yacc/bison version
     ?__emutls_v.derive_errmsg	# thread private (MinGW)
     ?type_c			# const (MinGW)
@@ -298,6 +298,7 @@ getdate.tab.o
     yytable                	# const
     yytranslate            	# const
 getopt.o
+    ?fallback                	# const, may be optimized away
 hash.o
 help.o
 instance.o
