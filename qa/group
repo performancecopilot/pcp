@@ -1463,6 +1463,7 @@ pmlogsize
 1186 pmie local
 1188 pmda.dm local
 1191 pmda.prometheus local
+1193 pmlogrewrite labels help pmdumplog local
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local pmrep
@@ -1473,6 +1474,7 @@ pmlogsize
 1225 pmwebd local
 1227 derive local
 1229 pmlogextract pmdumplog labels help local sanity
+1231 pmlogrewrite labels help pmdumplog local
 1234 libpcp_web local
 1238 pmiostat archive multi-archive decompress-xz local pmlogextract
 1240 libpcp pmrep local

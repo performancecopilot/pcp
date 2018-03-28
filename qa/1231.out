@@ -1,0 +1,91 @@
+QA output created by 1231
+Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180127.08.40
+Running pmdumplog -zhide TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.extracted.txt
+567c567
+<     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+---
+>     Data Type: 32-bit unsigned int  InDom: 2.200 0x8000c8
+579c579
+<     Data Type: string  InDom: 2.1 0x800001
+---
+>     Data Type: string  InDom: 2.200 0x8000c8
+597c597
+<     Data Type: string  InDom: 2.1 0x800001
+---
+>     Data Type: string  InDom: 2.200 0x8000c8
+615c615
+<     Data Type: string  InDom: 2.1 0x800001
+---
+>     Data Type: string  InDom: 2.200 0x8000c8
+3836,3842d3835
+< InDom: 2.1 [Instance domain "pmloggers" from PMCD PMDA]
+< InDom: 2.1
+< This is the list of currently active pmlogger instances on the same
+< machine as this PMCD.  The instance names are the process IDs of the
+< pmlogger instances.  The primary pmlogger has an extra instance with the
+< instance name "primary" and an instance id of zero (in addition to its
+< normal process id instance).
+3851a3845,3851
+> InDom: 2.200 [Instance domain "pmloggers" from PMCD PMDA]
+> InDom: 2.200
+> This is the list of currently active pmlogger instances on the same
+> machine as this PMCD.  The instance names are the process IDs of the
+> pmlogger instances.  The primary pmlogger has an extra instance with the
+> instance name "primary" and an instance id of zero (in addition to its
+> normal process id instance).
+3942,3947d3941
+< InDom: 2.1
+< 08:40:29.081356 1 instances
+<    22069 or "22069"
+< 08:40:29.308973 2 instances
+<    22069 or "22069"
+<    0 or "primary"
+12230a12225,12230
+> InDom: 2.200
+> 08:40:29.081356 1 instances
+>    22069 or "22069"
+> 08:40:29.308973 2 instances
+>    22069 or "22069"
+>    0 or "primary"
+Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180127.08.40
+Running pmdumplog -zhide TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.extracted.txt
+567c567
+<     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+---
+>     Data Type: 32-bit unsigned int  InDom: 200.1 0x32000001
+579c579
+<     Data Type: string  InDom: 2.1 0x800001
+---
+>     Data Type: string  InDom: 200.1 0x32000001
+597c597
+<     Data Type: string  InDom: 2.1 0x800001
+---
+>     Data Type: string  InDom: 200.1 0x32000001
+615c615
+<     Data Type: string  InDom: 2.1 0x800001
+---
+>     Data Type: string  InDom: 200.1 0x32000001
+3836,3842d3835
+< InDom: 2.1 [Instance domain "pmloggers" from PMCD PMDA]
+< InDom: 2.1
+< This is the list of currently active pmlogger instances on the same
+< machine as this PMCD.  The instance names are the process IDs of the
+< pmlogger instances.  The primary pmlogger has an extra instance with the
+< instance name "primary" and an instance id of zero (in addition to its
+< normal process id instance).
+3876a3870,3876
+> InDom: 200.1 [Instance domain "pmloggers" from PMCD PMDA]
+> InDom: 200.1
+> This is the list of currently active pmlogger instances on the same
+> machine as this PMCD.  The instance names are the process IDs of the
+> pmlogger instances.  The primary pmlogger has an extra instance with the
+> instance name "primary" and an instance id of zero (in addition to its
+> normal process id instance).
+3942c3942
+< InDom: 2.1
+---
+> InDom: 200.1
