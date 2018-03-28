@@ -39,7 +39,7 @@ pcp-4.0.1 (29 March 2018)
 	- BCC PMDA: biotop: ignore (but log) unnamed devices
 	- BCC PMDA: prepare for upcoming BCC breaking API change
     - pmwebd and pmmgr
-	- pmmgr: remove untested pmmgr k8s discovery code, use libpcp instead
+	- pmmgr: remove pmmgr k8s discovery code, use libpcp discovery instead
 	- pmwebd: support for etag headers
 	- pmwebd: improve graphite archive-cache performance w.r.t. syscalls
 	- build: house pmwebd in a subdir named consistently with rest of PCP
@@ -47,6 +47,7 @@ pcp-4.0.1 (29 March 2018)
 	- selinux: add numad_t rules
 	- selinux: update for variety of avc denials
 	- selinux: fix avc denials uncovered from pmdabcc
+	- selinux: add rules for pmdagluster
     - libpcp and libpcp_pmda
 	- libpcp: fix fetchgroup vs derivedmetric instance profile issues
 	- libpcp: fix segv in archive help text fallback handling
