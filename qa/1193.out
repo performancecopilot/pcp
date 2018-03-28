@@ -1,7 +1,7 @@
 QA output created by 1193
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
+Running pmdumplog -zhid archives/20180127.08.40
+Running pmdumplog -zhid TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
 595a596,598
 > PMID: 200.0.2 (mmv.control.files)
@@ -18,8 +18,8 @@ Running diff TMP.original.txt TMP.extracted.txt
 > PMID: 200.0.2 [Memory mapped file count]
 > PMID: 200.0.2
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
+Running pmdumplog -zhid archives/20180127.08.40
+Running pmdumplog -zhid TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
 595a596,598
 > PMID: 70.100.2 (mmv.control.files)
@@ -36,8 +36,8 @@ Running diff TMP.original.txt TMP.extracted.txt
 > PMID: 70.100.2 [Memory mapped file count]
 > PMID: 70.100.2
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
+Running pmdumplog -zhid archives/20180127.08.40
+Running pmdumplog -zhid TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
 565a566,568
 > PMID: 70.0.400 (mmv.control.files)

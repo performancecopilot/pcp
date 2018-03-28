@@ -1,7 +1,7 @@
 QA output created by 1247
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
+Running pmdumplog -zide archives/20180127.08.40
+Running pmdumplog -zide TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
 6c6
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
@@ -168,8 +168,8 @@ Running diff TMP.original.txt TMP.extracted.txt
 >    2 or "cpu2"
 >    3 or "cpu3"
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
+Running pmdumplog -zide archives/20180127.08.40
+Running pmdumplog -zide TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
 6c6
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
