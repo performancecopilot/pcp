@@ -1,7 +1,7 @@
 QA output created by 1229
 Running pmlogextract archives/20180127.08.40 archives/20180127.08.40 TMP.pmlogextract
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogextract
+Running pmdumplog -ziteh archives/20180127.08.40
+Running pmdumplog -ziteh TMP.pmlogextract
 Running diff TMP.original.txt TMP.extracted.txt
 Expect some time index differences
 10773,10805c10773,10833
