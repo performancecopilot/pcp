@@ -3321,7 +3321,14 @@ cd
 
 %changelog
 * Thu Mar 29 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
-- Work-in-progress, see http://pcp.io/roadmap
+- selinux blocks pmdagluster (BZ 1558708)
+- pmcd binding only to localhost:44321 by default (BZ 1529915)
+- See also https://github.com/performancecopilot/pcp/issues
+- Update to latest PCP sources.
+
+* Thu Mar 01 2018 Iryna Shcherbina <ishcherb@redhat.com> - 4.0.0-3
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
 
 * Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2
 - Disable pmdabcc on architectures without BCC/eBPF support.
