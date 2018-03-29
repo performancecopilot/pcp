@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.0.1
+Version: 4.0.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3320,10 +3320,12 @@ cd
 %endif
 
 %changelog
+* Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Thu Mar 29 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
-- selinux blocks pmdagluster (BZ 1558708)
+- Fix selinux policy to allow pmdagluster to work (BZ 1558708)
 - pmcd binding only to localhost:44321 by default (BZ 1529915)
-- See also https://github.com/performancecopilot/pcp/issues
 - Update to latest PCP sources.
 
 * Thu Mar 01 2018 Iryna Shcherbina <ishcherb@redhat.com> - 4.0.0-3

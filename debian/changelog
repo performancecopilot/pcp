@@ -1,3 +1,9 @@
+pcp (4.0.2-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 11 May 2018 09:32:45 +1100
+
 pcp (4.0.1-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
