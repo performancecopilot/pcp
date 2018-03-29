@@ -27,8 +27,13 @@ chmod 775 /var/log/pcp/pmcd
 
 # must match src/pmdas/{json,bash,mmv}/GNUmakefile
 for PMDA in bash json mmv; do
-    chown pcp:pcp /var/lib/pcp/tmp/$PMDA
-    chmod 775 /var/lib/pcp/tmp/$PMDA
+    # directory may be in optionally build component, so test first
+    #
+    if [ -d /var/lib/pcp/tmp/$PMDA ]
+    then
+	chown pcp:pcp /var/lib/pcp/tmp/$PMDA
+	chmod 775 /var/lib/pcp/tmp/$PMDA
+    fi
 done
 
 # must match src/pmie/GNUmakefile
