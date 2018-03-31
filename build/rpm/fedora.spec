@@ -1579,7 +1579,7 @@ Requires: %{__python2}-libvirt %{__python2}-lxml
 BuildRequires: %{__python2}-libvirt %{__python2}-lxml
 %endif
 %if 0%{?rhel} > 5
-BuildRequires: libvirt-%{__python2}
+BuildRequires: libvirt-%{__python2} %{__python2}-lxml
 %endif
 %endif
 %description pmda-libvirt
