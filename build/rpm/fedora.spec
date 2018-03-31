@@ -1575,7 +1575,7 @@ BuildRequires: libvirt-python3 python3-lxml
 %else
 Requires: %{__python2}-pcp
 Requires: %{__python2}-libvirt %{__python2}-lxml
-%if 0%{?rhel} == 0 || 0%{?fedora} >= 28
+%if 0%{?rhel} == 0 || 0%{?fedora} >= 27
 BuildRequires: %{__python2}-libvirt %{__python2}-lxml
 %endif
 %if 0%{?rhel} > 5
