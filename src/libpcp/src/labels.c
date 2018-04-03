@@ -57,16 +57,17 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
     if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
 	return NULL;
 
-    for (i = 0; i < nsets; i++) {
+    for (i = 0; i < nsets; i++, source++) {
 	target = &sets[i];
 	memcpy(target, source, sizeof(pmLabelSet));
+	if (target->nlabels <= 0 || target->json == NULL)
+	    continue;
 	if ((target->json = strdup(source->json)) == NULL)
 	    break;
 	size = source->nlabels * sizeof(pmLabel);
 	if ((target->labels = malloc(size)) == NULL)
 	    break;
 	memcpy(target->labels, source->labels, size);
-	source++;
     }
     if (i == nsets)
 	return sets;

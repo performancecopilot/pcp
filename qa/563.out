@@ -10,7 +10,7 @@ pmcd.labels
 
 pmcd.labels
     value ""
-    labels {"agent":"pmcd"}
+    labels {"agent":"pmcd","hostname":"HOSTNAME"}
 
 == Empty global label
 
