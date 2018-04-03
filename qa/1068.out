@@ -1,4 +1,5 @@
 QA output created by 1068
+== Zabbix Archive ===
 == Zabbix server input ===
 header: 0000000   Z   B   X   D
 body:
@@ -35,4 +36,62 @@ body:
 			"key":"pcp.sample.milliseconds",
 			"value":"380436166.949",
 			"clock":957177409}]
+}
+== Zabbix LLD ===
+== Zabbix server input ===
+header: 0000000   Z   B   X   D
+body:
+{
+	"request":"sender data",
+	"data":[
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-100]",
+			"value":"100.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-200]",
+			"value":"200.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-300]",
+			"value":"300.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-400]",
+			"value":"400.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-500]",
+			"value":"500.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-600]",
+			"value":"600.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-700]",
+			"value":"700.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-800]",
+			"value":"800.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.float.bin[bin-900]",
+			"value":"900.000",
+			"clock":CLOCK},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.discovery[pcp.sample.float.bin]",
+			"value":"{ \"data\": [{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-100\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-200\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-300\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-400\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-500\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-600\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-700\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-800\"},{ \"{#PCP.SAMPLE.FLOAT.BIN}\":\"bin-900\"}] }",
+			"clock":CLOCK}]
 }
