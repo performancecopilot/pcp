@@ -555,33 +555,27 @@ pmEventFlagsStr(int flags)
     return ebuf;
 }
 
-char *
-pmSemStr_r(int sem, char *buf, int buflen)
-{
-    switch (sem) {
-	case PM_SEM_COUNTER:
-	    strncpy (buf, "counter", buflen);
-	    break;
-	case PM_SEM_INSTANT:
-	    strncpy (buf, "instant", buflen);
-	    break;
-	case PM_SEM_DISCRETE:
-	    strncpy (buf, "discrete", buflen);
-	    break;
-	default:
-	    strncpy (buf, "???", buflen);
-	    break;
-    }
-    buf[buflen - 1] = '\0';
-    return buf;
-}
-
 const char *
 pmSemStr(int sem)
 {
-    static char ebuf[64];
-    pmSemStr_r(sem, ebuf, sizeof(ebuf));
-    return ebuf;
+    switch (sem) {
+	case PM_SEM_COUNTER:
+	    return "counter";
+	case PM_SEM_INSTANT:
+	    return "instant";
+	case PM_SEM_DISCRETE:
+	    return "discrete";
+	default:
+	    break;
+    }
+    return "???";
+}
+
+char *
+pmSemStr_r(int sem, char *buf, int buflen)
+{
+    pmsprintf(buf, buflen, "%s", pmSemStr(sem));
+    return buf;
 }
 
 
@@ -1241,6 +1235,34 @@ __pmPrintTimeval(FILE *f, const pmTimeval *tp)
 }
 
 /*
+ * must be in agreement with ordinal values for PM_TYPE_* #defines
+ */
+/* PM_TYPE_* -> string, max length is 20 bytes */
+const char *
+pmTypeStr(int type)
+{
+    static const char *typename[] = {
+	"32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING",
+	"AGGREGATE", "AGGREGATE_STATIC", "EVENT", "HIGHRES_EVENT"
+    };
+
+    if (type >= 0 && type < sizeof(typename) / sizeof(typename[0]))
+	return typename[type];
+    else if (type == PM_TYPE_NOSUPPORT)
+	return "NO_SUPPORT";
+    else if (type == PM_TYPE_UNKNOWN)
+	return "UNKNOWN";
+    return "???";
+}
+
+char *
+pmTypeStr_r(int type, char *buf, int buflen)
+{
+    pmsprintf(buf, buflen, "%s", pmTypeStr(type));
+    return buf;
+}
+
+/*
  * descriptor
  */
 void
@@ -1248,7 +1270,6 @@ pmPrintDesc(FILE *f, const pmDesc *desc)
 {
     const char		*type;
     const char		*sem;
-    static const char	*unknownVal = "???";
     const char		*units;
     char		strbuf[60];
 
@@ -1292,18 +1313,18 @@ pmPrintDesc(FILE *f, const pmDesc *desc)
 	    type = "highres event record array";
 	    break;
 	default:
-	    type = unknownVal;
+	    type = "???";
 	    break;
     }
     fprintf(f, "    Data Type: %s", type);
-    if (type == unknownVal)
+    if (strcmp(type, "???") == 0)
 	fprintf(f, " (%d)", desc->type);
 
     fprintf(f, "  InDom: %s 0x%x\n", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)), desc->indom);
 
     sem = pmSemStr_r(desc->sem, strbuf, sizeof(strbuf));
     fprintf(f, "    Semantics: %s", sem);
-    if (strcmp(sem, unknownVal) == 0)
+    if (strcmp(sem, "???") == 0)
 	fprintf(f, " (%d)", desc->sem);
 
     fprintf(f, "  Units: ");

@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat, Inc.  All Rights Reserved.
-.\" 
+.\" Copyright (c) 2016,2018 Red Hat.
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMSEMSTR 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -70,18 +70,8 @@ equals
 equals
 .BR PM_SEM_INSTANT ),
 etc.
-.PP
-The string value result for
-.B pmSemStr
-is held in a single static buffer, so the returned value is
-only valid until the next call to
-.BR pmSemStr .
 .SH NOTES
-.B pmSemStr
-returns a pointer to a static buffer and hence is not thread-safe.
-Multi-threaded applications should use
-.B pmSemStr_r
-instead.
+Both of these routines are safe to call from threaded applications.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),

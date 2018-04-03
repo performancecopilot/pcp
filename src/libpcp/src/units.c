@@ -39,11 +39,12 @@
  * for a pmAtomValue pointer by the caller.
  */
 char *
-pmAtomStr_r(const pmAtomValue * avp, int type, char *buf, int buflen)
+pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
 {
     int i;
     int vlen;
     char strbuf[40];
+    const char errmsg[] = "Error: unexpected type";
 
     switch (type) {
 	case PM_TYPE_32:
@@ -103,7 +104,7 @@ pmAtomStr_r(const pmAtomValue * avp, int type, char *buf, int buflen)
 		}
 	    }
 	    break;
-	case PM_TYPE_EVENT:{
+	case PM_TYPE_EVENT: {
 	    /* have to assume alignment is OK in this case */
 	    pmEventArray *eap = (pmEventArray *) avp->vbp;
 	    if (eap->ea_nrecords == 1)
@@ -112,7 +113,7 @@ pmAtomStr_r(const pmAtomValue * avp, int type, char *buf, int buflen)
 		pmsprintf(buf, buflen, "[%d event records]", eap->ea_nrecords);
 	    break;
 	}
-	case PM_TYPE_HIGHRES_EVENT:{
+	case PM_TYPE_HIGHRES_EVENT: {
 	    /* have to assume alignment is OK in this case */
 	    pmHighResEventArray *hreap = (pmHighResEventArray *) avp->vbp;
 	    if (hreap->ea_nrecords == 1)
@@ -121,8 +122,15 @@ pmAtomStr_r(const pmAtomValue * avp, int type, char *buf, int buflen)
 		pmsprintf(buf, buflen, "[%d event records]", hreap->ea_nrecords);
 	    break;
 	}
+	case PM_TYPE_NOSUPPORT:
+	    pmsprintf(buf, buflen, "%s: Not Supported", errmsg);
+	    break;
+	case PM_TYPE_UNKNOWN:
+	    pmsprintf(buf, buflen, "%s: Unknown", errmsg);
+	    break;
 	default:
-	    pmsprintf(buf, buflen, "Error: unexpected type: %s", pmTypeStr_r(type, strbuf, sizeof(strbuf)));
+	    pmsprintf(buf, buflen, "%s: Illegal type=%d", errmsg, type);
+	    break;
     }
     return buf;
 }
@@ -132,42 +140,12 @@ pmAtomStr_r(const pmAtomValue * avp, int type, char *buf, int buflen)
  * for a pmAtomValue pointer by the caller.
  */
 const char *
-pmAtomStr(const pmAtomValue * avp, int type)
+pmAtomStr(const pmAtomValue *avp, int type)
 {
     static char abuf[80];
+
     pmAtomStr_r(avp, type, abuf, sizeof(abuf));
     return abuf;
-}
-
-/*
- * must be in agreement with ordinal values for PM_TYPE_* #defines
- */
-static const char *typename[] = {
-    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT", "HIGHRES_EVENT"
-};
-
-/* PM_TYPE_* -> string, max length is 20 bytes */
-char *
-pmTypeStr_r(int type, char *buf, int buflen)
-{
-    if (type >= 0 && type < sizeof(typename) / sizeof(typename[0]))
-	pmsprintf(buf, buflen, "%s", typename[type]);
-    else if (type == PM_TYPE_NOSUPPORT)
-	pmsprintf(buf, buflen, "%s", "Not Supported");
-    else if (type == PM_TYPE_UNKNOWN)
-	pmsprintf(buf, buflen, "%s", "Unknown");
-    else
-	pmsprintf(buf, buflen, "Illegal type=%d", type);
-
-    return buf;
-}
-
-const char *
-pmTypeStr(int type)
-{
-    static char tbuf[20];
-    pmTypeStr_r(type, tbuf, sizeof(tbuf));
-    return tbuf;
 }
 
 /* scale+units -> string, max length is 60 bytes */
@@ -350,9 +328,10 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 }
 
 const char *
-pmUnitsStr(const pmUnits * pu)
+pmUnitsStr(const pmUnits *pu)
 {
     static char ubuf[60];
+
     pmUnitsStr_r(pu, ubuf, sizeof(ubuf));
     return ubuf;
 }
@@ -1091,36 +1070,36 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
     return sts;
 }
 
+/*
+ * An internal variant of pmUnits, but without the narrow bitfields.
+ * That way, we can tolerate intermediate arithmetic that goes out of
+ * range of the 4-bit bitfields.
+ */
+typedef struct __pmUnits {
+    int			dimSpace;	/* space dimension */
+    int			dimTime;	/* time dimension */
+    int			dimCount;	/* event dimension */
+    unsigned int	scaleSpace;	/* one of PM_SPACE_* */
+    unsigned int	scaleTime;	/* one of PM_TIME_* */
+    int			scaleCount;	/* one of PM_COUNT_* */
+} __pmUnits;
 
-
-/* Parse a general "N $units" string into a pmUnits tuple and a multiplier. */
-/* $units can be a series of SCALE-UNIT^EXPONENT, each unit dimension appearing */
-/* at most once. */
-
-/* An internal variant of pmUnits, but without the narrow bitfields. */
-/* That way, we can tolerate intermediate arithmetic that goes out of */
-/* range of the 4-bit bitfields. */
-typedef struct pmUnitsBig
-{
-    int dimSpace;		/* space dimension */
-    int dimTime;		/* time dimension */
-    int dimCount;		/* event dimension */
-    unsigned scaleSpace;	/* one of PM_SPACE_* below */
-    unsigned scaleTime;		/* one of PM_TIME_* below */
-    int scaleCount;		/* one of PM_COUNT_* below */
-} pmUnitsBig;
+/*
+ * Parse a general "N $units" string into a pmUnits tuple and a multiplier.
+ * @units can be a series of SCALE-UNIT^EXPONENT, each unit dimension appearing
+ * at most once.
+ */
 
 static int
-__pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, double *multiplier, char **errMsg)
+__pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, double *multiplier, char **errMsg)
 {
     int sts = 0;
     unsigned i;
     const char *ptr;		/* scanning along str */
     enum { d_none, d_space, d_time, d_count } dimension;
-    struct unit_keyword_t
-    {
-	const char *keyword;
-	int scale;
+    struct unit_keyword_t {
+	const char	*keyword;
+	int		scale;
     };
     static const struct unit_keyword_t time_keywords[] = {
 	{"nanoseconds", PM_TIME_NSEC}, {"nanosecond", PM_TIME_NSEC},
@@ -1210,9 +1189,12 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	{"^-4", -4}, {"^-3", -3}, {"^-2", -2}, {"^-1", -1},
 	{"^0", 0}, /*{ "^1", 1 }, */ {"^2", 2}, {"^3", 3},
 	{"^4", 4}, {"^5", 5}, {"^6", 6}, {"^7", 7},
-	/* NB: the following larger exponents are enabled by use of pmUnitsBig above. */
-	/* They happen to be necessary because pmUnitsStr emits foo-dim=-8 as "/ foo^8", */
-	/* so the denominator could encounter wider-than-bitfield exponents. */
+	/*
+	 * NB: the following larger exponents are enabled by use of __pmUnits
+	 * above.  They are necessary because pmUnitsStr emits foo-dim=-8 as
+	 * "/ foo^8", * so the denominator can encounter wider-than-bitfield
+	 * exponents.
+	 */
 	{"^8", 8}, {"^9", 9}, {"^10", 10}, {"^11", 11},
 	{"^12", 12}, {"^13", 13}, {"^14", 14}, {"^15", 15},
 	{"^1", 1},
@@ -1231,8 +1213,8 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	    continue;
 	}
 
-	if (*ptr == '-' || *ptr == '.' || isdigit((int)(*ptr))) {	/* possible floating-point number */
-	    /* parse it with strtod(3). */
+	if (*ptr == '-' || *ptr == '.' || isdigit((int)(*ptr))) {
+	    /* possible floating-point number - parse with strtod(3). */
 	    char *newptr;
 	    errno = 0;
 	    double m = strtod(ptr, &newptr);
@@ -1256,9 +1238,11 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
                         (ptr+strlen(q)==str_end)))          \
                        ? (ptr += strlen(q), 1) : 0)
 
-	/* parse base unit, only once per input string.  We don't support */
-	/* "microsec millisec", as that would require arithmetic on the scales. */
-	/* We could support "sec sec" (and turn that into sec^2) in the future. */
+	/*
+	 * Parse base unit, only once per input string.  We don't support
+	 * "microsec millisec", as that would require arithmetic on the scales.
+	 * We could support "sec sec" (and turn that into sec^2) in the future.
+	 */
 	if (dimension == d_none && out->dimTime == 0)
 	    for (i = 0; i < num_time_keywords; i++)
 		if (streqskip(time_keywords[i].keyword)) {
@@ -1341,13 +1325,8 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier, char **errMsg
 {
     const char *slash;
     double dividend_mult, divisor_mult;
-    pmUnitsBig dividend, divisor;
-    int sts;
-    int dim;
-
-    assert(str);
-    assert(out);
-    assert(multiplier);
+    __pmUnits dividend, divisor;
+    int dim, sts;
 
     memset(out, 0, sizeof(*out));
 

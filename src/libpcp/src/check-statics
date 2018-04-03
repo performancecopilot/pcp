@@ -456,9 +456,7 @@ tz.o
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
 units.o
-    typename			# const
     abuf			# pmAtomStr deprecated by pmAtomStr_r
-    tbuf			# pmTypeStr deprecated by pmTypeStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
     count_keywords              # const
     exponent_keywords           # const
@@ -472,7 +470,6 @@ util.o
     indombuf			# pmInDomStr deprecated by pmInDomStr_r
     ebuf			# pmEventFlagsStr deprecated by pmEventFlagsStr_r
     nbuf			# pmNumberStr deprecated by pmNumberStr_r
-    ?unknownVal			# const, variable may be optimized away by gcc
     debug_map			# const
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
@@ -495,6 +492,7 @@ util.o
     ?bp				# const
     ?dp_h			# const
     ?dp_l			# const
+    typename			# const
     xconfirm_init		# no unsafe side-effects, see notes in util.c
     xconfirm			# no unsafe side-effects, see notes in util.c
 deprecated.o

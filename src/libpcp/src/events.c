@@ -112,9 +112,12 @@ dump_parameter(FILE *f, pmEventParameter *epp)
 	case PM_TYPE_AGGREGATE_STATIC:
 	    fprintf(f, " = [%08x...]", ((__uint32_t *)vbuf)[0]);
 	    break;
+	case PM_TYPE_UNKNOWN:
+	    fprintf(f, " : unknown type");
+	    break;
 	default:
-	    fprintf(f, " : bad type %s",
-		    pmTypeStr_r(epp->ep_type, strbuf, sizeof(strbuf)));
+	    fprintf(f, " : bad type %u", epp->ep_type);
+	    break;
     }
     fputc('\n', f);
 }
