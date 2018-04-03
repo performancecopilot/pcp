@@ -64,14 +64,16 @@ EOF
 
 cat $tmp.config >>$seq.full
 
-socat tcp-listen:$zabbix_port,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
+# start a longer-lived copy of socat we can use for consecutive tests
+socat tcp-listen:$zabbix_port,reuseaddr,fork - >>$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
+
+echo "== Zabbix Archive ==="
 pcp2zabbix -r -t 2 -s 3 $log -c $tmp.config sample >$tmp.pcp2zabbix.out 2>$tmp.pcp2zabbix.err &   # will error out after socket cat dies
 pmpid=$!
 sleep 2
-$signal $pid $pmpid 2>/dev/null
-wait
+$signal $pmpid 2>/dev/null
 _seq_store
 
 echo "== Zabbix server input ==="
@@ -81,6 +83,28 @@ echo "header: $header"
 echo "body:"
 echo '{' # ate this from the header
 sed -n '1!p' $tmp.socat.out
+echo #}
+# truncate the file so we get separate results for the second run
+true > $tmp.socat.out
+
+sleep 2
+echo "== Zabbix LLD ==="
+pcp2zabbix -r --lld -t 2 -s 3 -c $tmp.config sample.float.bin >$tmp.pcp2zabbix.out 2>$tmp.pcp2zabbix.err &
+pmpid=$!
+sleep 2
+$signal $pmpid 2>/dev/null
+
+$signal $pid 2>/dev/null
+wait
+_seq_store
+
+echo "== Zabbix server input ==="
+# check the first line has the initial ZBXD preamble (before JSON)
+header=`_zbx_header $tmp.socat.out`
+echo "header: $header"
+echo "body:"
+echo '{' # ate this from the header
+sed -n '1!p' $tmp.socat.out | sed -e 's,"clock":[0-9]*,"clock":CLOCK,'
 echo #}
 
 # success, all done
