@@ -38,24 +38,7 @@ built.$(BOOK_TOOLCHAIN):	$(XML) $(CFG)
 	$(LN_S) $(CWD)/tmp/en-US/pdf/$(IAM).pdf pdf/$(IAM).pdf
 endif
 
-ifeq "$(BOOK_TOOLCHAIN)" "dblatex"
-built.$(BOOK_TOOLCHAIN):	$(XML)
-	@rm -fr pdf figures
-	$(LN_S) $(CWD)/$(TOPDIR)/images figures
-	$(DBLATEX) --type=pdf --output-dir=pdf $(XML)
-endif
-
-ifeq "$(BOOK_TOOLCHAIN)" "xmlto"
-built.$(BOOK_TOOLCHAIN):	$(XML)
-	@rm -fr pdf html figures
-	@mkdir -p pdf html
-	$(LN_S) $(CWD)/$(TOPDIR)/images pdf/figures
-	$(LN_S) $(CWD)/$(TOPDIR)/images html/figures
-	$(XMLTO) --with-fop -o pdf pdf $(XML)
-	$(XMLTO) --with-fop -o html html $(XML)
-endif
-
-ifneq "$(findstring $(BOOK_TOOLCHAIN),publican dblatext xmlto)" ""
+ifneq "$(findstring $(BOOK_TOOLCHAIN),publican)" ""
 build-me: built.$(BOOK_TOOLCHAIN)
 	@touch built.$(BOOK_TOOLCHAIN)
 else

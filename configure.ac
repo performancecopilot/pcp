@@ -1498,12 +1498,6 @@ dnl check if a toolchain is available for the books
 test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
 publican=$PUBLICAN
 AC_SUBST(publican)
-test -z "$DBLATEX" && AC_PATH_PROG(DBLATEX, dblatex)
-dblatex=$DBLATEX
-AC_SUBST(dblatex)
-test -z "$XMLTO" && AC_PATH_PROG(XMLTO, xmlto)
-xmlto=$XMLTO
-AC_SUBST(xmlto)
 
 book_toolchain=""
 if test "$do_books" = "check" -o "$do_books" = "yes"
@@ -1511,15 +1505,9 @@ then
     if test "$BOOK_TOOLCHAIN" != ""
     then
         book_toolchain=$BOOK_TOOLCHAIN
-    elif test "$DBLATEX" != ""
-    then
-        book_toolchain=dblatex
     elif test "$PUBLICAN" != ""
     then
         book_toolchain=publican
-    elif test "$XMLTO" != ""
-    then
-        book_toolchain=xmlto
     elif test "$do_books" = "yes"
     then
 	AC_MSG_ERROR([cannot enable books build - no toolchain found])

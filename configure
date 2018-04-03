@@ -769,10 +769,6 @@ pcp_ps_prog
 LN_S
 book_brand
 book_toolchain
-xmlto
-XMLTO
-dblatex
-DBLATEX
 publican
 PUBLICAN
 makepkg
@@ -9251,90 +9247,6 @@ fi
 
 publican=$PUBLICAN
 
-test -z "$DBLATEX" && # Extract the first word of "dblatex", so it can be a program name with args.
-set dummy dblatex; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_DBLATEX+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $DBLATEX in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_DBLATEX="$DBLATEX" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_DBLATEX="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-DBLATEX=$ac_cv_path_DBLATEX
-if test -n "$DBLATEX"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DBLATEX" >&5
-$as_echo "$DBLATEX" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-dblatex=$DBLATEX
-
-test -z "$XMLTO" && # Extract the first word of "xmlto", so it can be a program name with args.
-set dummy xmlto; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_XMLTO+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $XMLTO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_XMLTO="$XMLTO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_XMLTO="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-XMLTO=$ac_cv_path_XMLTO
-if test -n "$XMLTO"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $XMLTO" >&5
-$as_echo "$XMLTO" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-xmlto=$XMLTO
-
 
 book_toolchain=""
 if test "$do_books" = "check" -o "$do_books" = "yes"
@@ -9342,15 +9254,9 @@ then
     if test "$BOOK_TOOLCHAIN" != ""
     then
         book_toolchain=$BOOK_TOOLCHAIN
-    elif test "$DBLATEX" != ""
-    then
-        book_toolchain=dblatex
     elif test "$PUBLICAN" != ""
     then
         book_toolchain=publican
-    elif test "$XMLTO" != ""
-    then
-        book_toolchain=xmlto
     elif test "$do_books" = "yes"
     then
 	as_fn_error $? "cannot enable books build - no toolchain found" "$LINENO" 5
