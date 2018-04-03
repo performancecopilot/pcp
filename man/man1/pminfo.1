@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2017 Red Hat.
+.\" Copyright (c) 2016-2018 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \fBpminfo\fR
-[\fB\-dfFlLmMtTvxz\fR]
+[\fB\-dfFIlLmMsStTvxz\fR]
 [\fB\-a\fR \fIarchive\fR]
 [\fB\-b\fR \fIbatchsize\fR]
 [\fB\-c\fR \fIdmfile\fR]
@@ -36,21 +36,15 @@ available through the facilities of the Performance Co-Pilot (PCP).
 Normally
 .B pminfo
 operates on the distributed Performance Metrics Name Space (PMNS),
-however if the
-.B \-n
-option is specified an alternative local PMNS is loaded from the file
+however if the \fB\-n\fR/\fB\-\-namespace\fR option is
+specified an alternative local PMNS is loaded from the file
 .IR pmnsfile.
-The
-.B \-N
-option supports the same function as
-.BR \-n ,
-except for the handling of
+The \fB\-N\fR/\fB\-\-uniqnames\fR option supports the same function
+as \fB\-n\fR/\fB\-\-namespace\fR, except for the handling of
 duplicate names for the same Performance Metric Identifier (PMID) in
 .I pmnsfile
-\- duplicate names are allowed with
-.B \-n
-but they are not allowed with
-.BR \-N .
+\- duplicate names are allowed with \fB\-n\fR/\fB\-\-namespace\fR
+but they are not allowed with \fB\-N\fR/\fB\-\-uniqnames\fR.
 .PP
 The metrics of interest are named in the
 .I metricname
@@ -81,8 +75,7 @@ case, the instance domain is reported directly.
 This latter mode can be used to report the instance domain
 ``one line'' and long form help text summaries.
 .PP
-Unless directed to another host by the
-.B \-h
+Unless directed to another host by the \fB\-h\fR/\fB\-\-host\fR
 option, by default
 .B pminfo
 will contact the Performance Metrics Collector Daemon
@@ -92,42 +85,25 @@ The connection to a PMCD is only required if
 requires distributed PMNS information, and/or meta-data
 describing metrics, and/or metric values, and/or help text.
 .PP
-The
-.B \-a
-option causes
+The \fB\-a\fR/\fB\-\-archive\fR option causes
 .B pminfo
 to use the specified set of archives rather than connecting to a PMCD.
-The argument to
-.B \-a
-is a comma-separated list of names,
-each of which may be the base name of an archive or
-the name of a directory containing one or more archives.
-The
-.B \-a , \-h
-and
-.B \-L
-options are mutually exclusive.
+The argument to \fB\-a\fR/\fB\-\-archive\fR is a comma-separated list
+of names, each of which may be the base name of an archive or the
+name of a directory containing one or more archives.
 .PP
-The
-.B \-L
-option causes
+The \fB\-L\fR/\fB\-\-local\-PMDA\fR option causes
 .B pminfo
 to use a local context to collect metrics from PMDAs on the local host
 without PMCD.
 Only some metrics are available in this mode.
-The
-.BR \-a , \-h
-and
-.B \-L
-options are mutually exclusive.
 .PP
-The
-.B \-b
-option may be used to define the maximum size of the group of metrics to
-be fetched in a single request for the
-.B \-f
-and
-.B \-v
+The \fB\-a\fR/\fB\-\-archive\fR, \fB\-h\fR/\fB\-\-host\fR
+and \fB\-L\fR/\fB\-\-local\-PMDA\fR options are mutually exclusive.
+.PP
+The \fB\-b\fR/\fB\-\-batch\fR option may be used to define the
+maximum size of the group of metrics to be fetched in a single
+request for the \fB\-f/\fB\-\-fetch\fR and \fB\-v/\fB\-\-verify\fR
 options.
 The default value for
 .I batchsize
@@ -135,81 +111,70 @@ is 128.
 .PP
 Other options control the specific information to be reported.
 .TP 5
-.B \-c
+\fB\-c\fR \fIdmfile\fR, \fB\-\-derived\fR=\fIdmfile\fR
 The
 .I dmfile
 argument specifies a file that contains derived metric definitions
 in the format described for
 .BR pmLoadDerivedConfig (3).
-The
-.B \-c
+The \fB\-c\fR/\fB\-\-derived\fR
 option provides a way to load derived metric definitions
 that is an alternative to the more generic use of the
 .B PCP_DERIVED_CONFIG
 environment variable as described in
 .BR PCPIntro (1).
-Using the
-.B \-c
-option and the
+Using the \fB\-c\fR/\fB\-\-derived\fR option and the
 .B PCP_DERIVED_CONFIG
 environment variable to specify the
 .B same
 configuration is a bad idea, so choose one or the other method.
 .TP
-.B \-d
+\fB\-d\fR, \fB\-\-desc\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
 .TP
-.B \-f
+\fB\-f\fR, \fB\-\-fetch\fR
 Fetch and print values for all instances.
 When fetching from a set of archives, only
 those instances present in the first archive record for a metric will be
-displayed; see also the
-.B \-O
-option, else use
+displayed; see also the \fB\-O\fR/\fB\-\-origin\fR option, else use
 .BR pmdumplog (1)
 which may be a better tool for examining archives.
 .TP
-.B \-F
+\fB\-F\fR, \fB\-\-fetchall\fR
 Same as
 .B \-f
 but try harder to fetch instances for metrics which have non-enumerable
 instance domains (e.g. metrics in the ``proc'' subtree of the default
-PMNS).
+PMNS on some platforms).
 .TP
-.B \-K
-When using the
-.B \-L
-option to fetch metrics from a local context, the
-.B \-K
-option may be used to control the DSO PMDAs that should be
-made accessible.
+\fB\-I\fR, \fB\-\-fullindom\fR
+Print the InDom in verbose mode.
+.TP
+\fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
+When using the \fB\-L/\fB\-\-local-PMDA\fR option to fetch metrics from
+a local context, this option controls the DSO PMDAs that should be made
+accessible.
 The
 .I spec
 argument conforms to the syntax described in
 .BR pmSpecLocalPMDA (3).
-More than one
-.B \-K
-option may be used.
+More than one \fB\-K\fR/\fB\-\-spec-local\fR option may be used.
 .TP
-.B \-l
-Print label sets associated with metrics, instance domains and values.
+\fB\-l\fR, \fB\-\-labels\fR
+Print label sets associated with metrics and instances.
 Labels are optional metric metadata described in detail in
 .BR pmLookupLabels (3).
 .TP
-.B \-m
+\fB\-m\fR, \fB\-\-pmid\fR
 Print the PMID in terse mode.
 .TP
-.B \-M
+\fB\-M\fR, \fB\-\-fullpmid\fR
 Print the PMID in verbose mode.
 .TP
-.B \-O
-When used in conjunction with an archive source of metrics and
-the options
-.B \-f
-or
-.BR \-F ,
-the
+\fB\-O\fR \fItime\fR, \fB\-\-origin\fR=\fItime\fR
+When used in conjunction with an archive source of metrics and the
+options \fB\-f/\fB\-\-fetch\fR, the
 .I time
 argument defines a time origin at which the metrics should be
 fetched from the set of archives.
@@ -219,29 +184,50 @@ for a complete description of this option, and the syntax for the
 .I time
 argument.
 .TP
-.B \-t
+\fB\-s\fR, \fB\-\-series\fR
+Print time series identifiers associated with metrics and instances.
+These unique identifiers are calculated from intrinsic (non-optional)
+labels and other metric metadata associated with every metric and
+instance.
+See also
+.BR pmLookupLabels (3)
+and the \fB\-l/\fB\-\-labels\fR option.
+.TP
+\fB\-S\fR, \fB\-\-source\fR
+Print the source identifier associated with the PMAPI context.
+These unique identifiers are calculated from the intrinsic labels
+associated with the context.
+Archive, local context or host connections for the same host will
+all produce the same source identifier.
+See also
+.BR pmLookupLabels (3)
+and the \fB\-l/\fB\-\-labels\fR option.
+.TP
+\fB\-t\fR, \fB\-\-oneline\fR
 Print the ``one line'' help summary, if available.
 .TP
-.B \-T
+\fB\-T\fR, \fB\-\-helptext\fR
 Print the help text, if available.
 .TP
-.B \-v
+\fB\-v\fR, \fB\-\-verify\fR
 Verify mode in which descriptions and values are retrieved, but only
 error conditions are reported.
 This option silently disables any output from the options
-.BR \-f ,
-.BR \-M ,
-.BR \-m ,
-.B \-t
+\fB\-f\fR/\fB\-\-fetch\fR,
+\fB\-l\fR/\fB\-\-labels\fR,
+\fB\-I\fR/\fB\-\-fullindom\fR,
+\fB\-M\fR/\fB\-\-fullpmid\fR,
+\fB\-m\fR/\fB\-\-pmid\fR,
+\fB\-t\fR/\fB\-\-oneline\fR
 and
-.BR \-T .
+\fB\-T\fR/\fB\-\-helptext\fR.
 .TP
-.B \-x
-Like the
-.B \-f
-option, but with the additional functionality that if a value is
-processed that is of type PM_TYPE_EVENT, then the event records
-will be unpacked and the details of each event record reported.
+\fB\-x\fR, \fB\-\-events\fR
+Like the \fB\-f\fR/\fB\-\-fetch\fR option,
+but with the additional functionality that if a value is
+processed that is of type PM_TYPE_EVENT or PM_TYPE_HIGHRES_EVENT, then
+the event records will be unpacked and the details of each event record
+reported.
 .SH FILES
 .PD 0
 .TP 10
@@ -267,7 +253,6 @@ as described in
 .BR pmcd (1),
 .BR pmchart (1),
 .BR pmdumplog (1),
-.BR pmdumptext (1),
 .BR pmprobe (1),
 .BR pmrep (1),
 .BR pmval (1),

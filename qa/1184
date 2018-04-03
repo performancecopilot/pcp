@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 1184
+# Exercise pminfo source and series identifier handling.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -f $PCP_SYSCONF_DIR/labels/$seq.json
+    _sighup_pmcd
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+metric="sample.long.one"
+pminfo -MIfdlS $metric | tee -a $seq.full > $tmp.source
+pminfo -MIfdlS $metric | tee -a $seq.full > $tmp.series
+
+source1=`pminfo -S $metric | tee -a $seq.full | awk '/Source:/ {print $2}'`
+series1=`pminfo -s $metric | tee -a $seq.full | awk '/Series:/ {print $2}'`
+
+echo "{\"pcpqa\":$seq}" > $tmp.qalabel
+$sudo cp $tmp.qalabel $PCP_SYSCONF_DIR/labels/$seq.json
+_sighup_pmcd
+
+source2=`pminfo -S $metric | tee -a $seq.full | awk '/Source:/ {print $2}'`
+series2=`pminfo -s $metric | tee -a $seq.full | awk '/Series:/ {print $2}'`
+
+if [ "$source1" != "$source2" ]
+then
+    echo "PASS: source identifier changed on label change"
+else
+    echo "Failed - $source1 unchanged after label added, now:"
+    pminfo -MIfdlS sample.long.one
+    echo "Compared to previously stashed:"
+    cat $tmp.source
+    status=1
+fi
+
+if [ "$series1" != "$series2" ]
+then
+    echo "PASS: series identifier changed on label change"
+else
+    echo "Failed - $series1 unchanged after label added, now:"
+    pminfo -MIfdls sample.long.one
+    echo "Compared to previously stashed:"
+    cat $tmp.series
+    status=1
+fi
+
+exit

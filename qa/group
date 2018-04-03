@@ -1460,6 +1460,7 @@ pmlogsize
 1177 pmns derive libpcp pmlogger local
 1180 logutil local
 1182 libpcp local
+1184 pminfo pmseries local
 1186 pmie local
 1188 pmda.dm local
 1191 pmda.prometheus local
