@@ -451,9 +451,12 @@ _pcp () {
       "(-d --desc $exargs)"{-d,--desc}'[print metric description]' \
       "(-f --fetch $exargs)"{-f,--fetch}'[fetch and print metric values]' \
       "(-F --fetchall $exargs)"{-F,--fetchall}'[fetch and print all metric values]' \
+      "(-I --fullindom $exargs)"{-I,--fullindom}'[print InDom in verbose format]' \
       "(-l --labels $exargs)"{-l,--labels}'[print metric value labels]' \
       "(-m --pmid $exargs)"{-m,--pmid}'[print PMID]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print PMID verbosely]' \
+      "(-s --series $exargs)"{-s,--series}'[print metric series identifier]' \
+      "(-S --source $exargs)"{-S,--source}'[print metric source identifier]' \
       "(-t --oneline $exargs)"{-t,--oneline}'[print terse help text]' \
       "(-T --helptext $exargs)"{-T,--helptext}'[print verbose help text]' \
       "(-c --derived $exargs)"{-c+,--derived}'[specify derived metrics config]:file:_files' \

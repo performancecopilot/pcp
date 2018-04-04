@@ -53,7 +53,7 @@ _pcp_complete()
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     pminfo)
-        all_args="abcdFfhKLlMmNnOTtVvxZz"
+        all_args="abcdFfhIKLlMmNnOSsTtVvxZz"
         arg_regex="-[abchKNnOZ]"
     ;;
     pmlogcheck)
