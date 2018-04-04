@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
-# Copyright (C) 2015-2018 Red Hat Inc.
+# Copyright (C) 2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -99,11 +99,12 @@ class PCP2Zabbix(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval', 'zabbix_prefix',
+                     'zabbix_server', 'zabbix_port', 'zabbix_host',
+                     'zabbix_interval', 'zabbix_prefix', 'zabbix_lld',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
-                     'live_filter', 'rank', 'invert_filter', 'predicate', 'lld',
+                     'live_filter', 'rank', 'invert_filter', 'predicate',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -143,16 +144,17 @@ class PCP2Zabbix(object):
         self.space_scale_force = None
         self.time_scale = None
         self.time_scale_force = None
-        self.lld = 0
-        # Dictionary storing metric:[instance, instance ...] objects
-        self.lld_history = {}
-        
+
         self.zabbix_server = ZBXSERVER
         self.zabbix_port = ZBXPORT
         self.zabbix_host = None
         self.zabbix_interval = None
         self.zabbix_prefix = ZBXPREFIX
-        
+
+        self.zabbix_lld = 0
+        # Dictionary storing metric:[instance, instance ...] objects
+        self.lld_history = {}
+
         # Internal
         self.runtime = -1
 
@@ -179,7 +181,7 @@ class PCP2Zabbix(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:l8:9:nN:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:8:9:nN:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:l")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -212,7 +214,6 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
-        opts.pmSetLongOption("lld", 0, "l", "KEY", "emit low level discovery keys for each metric")
         opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
         opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
@@ -232,6 +233,7 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("zabbix-host", 1, "X", "HOSTID", "zabbix host-id for measurements")
         opts.pmSetLongOption("zabbix-interval", 1, "E", "INTERVAL", "interval to send collected metrics")
         opts.pmSetLongOption("zabbix-prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + ZBXPREFIX + ")")
+        opts.pmSetLongOption("zabbix-lld", 0, "l", "", "emit low level discovery keys for each metric")
 
         return opts
 
@@ -313,7 +315,7 @@ class PCP2Zabbix(object):
         elif opt == 'x':
             self.zabbix_prefix = optarg
         elif opt == 'l':
-            self.lld = 1
+            self.zabbix_lld = 1
         else:
             raise pmapi.pmUsageErr()
 
@@ -515,35 +517,36 @@ class PCP2Zabbix(object):
         # Collect the results
         for metric in results:
             fmt = "." + str(self.metrics[metric][6]) + "f"
-            
-            send_lld = False
-            if metric in self.lld_history:
-                metric_lld = self.lld_history[metric]
+
+            if self.zabbix_lld:
                 send_lld = False
-            else:
-                metric_lld = self.lld_history[metric] = set()
-                send_lld = True
-                
+                if metric in self.lld_history:
+                    metric_lld = self.lld_history[metric]
+                    send_lld = False
+                else:
+                    metric_lld = self.lld_history[metric] = set()
+                    send_lld = True
+
             for _, name, value in results[metric]:
                 key = self.zabbix_prefix + metric
                 if name:
-                    if self.lld and name not in metric_lld:
+                    if self.zabbix_lld and name not in metric_lld:
                         metric_lld.add(name)
                         send_lld = True
                     key += "[" + name + "]"
                 value = format(value, fmt) if isinstance(value, float) else str(value)
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
                 
-            # construct extra lld pseudo-metric
-            if self.lld and send_lld:
+            # Construct extra LLD pseudo-metric if needed
+            if self.zabbix_lld and send_lld:
                 # https://www.zabbix.com/documentation/3.4/manual/discovery/low_level_discovery
                 # The key name goes into the zabbix discovery rule:
                 key = self.zabbix_prefix + "discovery[" + self.zabbix_prefix + metric + "]"
-                # The value is a string with json content; it will be quoted inside the outer
-                # JSON message.
+                # The value is a string with JSON content;
+                # it will be quoted inside the outer JSON message.
                 value = "{ \"data\": ["
                 values = []
-                for instance in sorted(metric_lld): # for qa reproducability
+                for instance in sorted(metric_lld): # For QA reproducability
                     macro_name = "\"{#" + (self.zabbix_prefix+metric).upper() + "}\""
                     macro_value = json.dumps(instance)
                     values.append("{ " + macro_name + ":" + macro_value + "}")

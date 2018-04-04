@@ -19,7 +19,7 @@
 \f3pcp2zabbix\f1 \- pcp-to-zabbix metrics exporter
 .SH SYNOPSIS
 \fBpcp2zabbix\fP
-[\fB\-CGHIjLnrRlvV?\fP]
+[\fB\-CGHIjlLnrRvV?\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
@@ -110,7 +110,6 @@ The following options are common with
 .BR ignore_incompat ,
 .BR instances ,
 .BR live_filter ,
-.BR lld ,
 .BR rank ,
 .BR limit_filter ,
 .BR limit_filter_force ,
@@ -176,6 +175,13 @@ zabbix_prefix (string)
 Specify the prefix for metrics sent to the Zabbix server.
 Corresponding command line option is \fB\-x\fP.
 Default is \fB.pcp\fP.
+.RE
+.PP
+zabbix_lld (boolean)
+.RS 4
+Specify whether to enable Zabbix low-level discovery.
+Corresponding command line option is \fB\-l\fP.
+Default is \fBno\fP.
 .RE
 .SH OPTIONS
 The available command line options are:
@@ -335,24 +341,24 @@ from reporting.
 This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
 .TP
-\fB\-l\fR, \fB\-\-lld\fR
-Add low-level discovery metrics.  This allows pcp metric instance
-domains to be sent to Zabbix, so that prototype items/triggers/graphs
-may be automatically constructed by Zabbix.  
-For each pcp metric with an instance domain, the key
+\fB\-l\fR, \fB\-\-zabbix\-lld\fR
+Add low-level discovery (LLD) metrics.
+This allows PCP metric instance domains to be sent to Zabbix,
+so that prototype items/triggers/graphs may be automatically
+constructed by Zabbix.
+For each PCP metric with an instance domain, the key
 .hy 0
 \fBpcp.discovery[pcp.met.ric]\fR
 .hy
 is sent periodically.
-This symbol should be added to a discovery rule, and 
-will define the
+This symbol should be added to a discovery rule, and will define the
 .hy 0
 \fB{#PCP.MET.RIC}\fR
 .hy
-LLD macro.  This macro can in
-turn be used to define prototype items/triggers/graphs.
-The names are adjusted if \fB\-x\fR was given to override the \fBpcp.\fR
-prefix.
+LLD macro.
+This macro can inturn be used to define prototype items/triggers/graphs.
+The names are adjusted if \fB\-x\fR was given to override the
+\fBpcp.\fR prefix.
 .TP
 \fB\-j\fR, \fB\-\-live\-filter\fR
 Perform instance live filtering.
