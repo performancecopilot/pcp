@@ -2,7 +2,7 @@
 # PCP QA Test No. 1068
 # Exercise pcp2zabbix.
 #
-# Copyright (c) 2015-2017 Red Hat.
+# Copyright (c) 2015-2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -89,7 +89,7 @@ true > $tmp.socat.out
 
 sleep 2
 echo "== Zabbix LLD ==="
-pcp2zabbix -r --lld -t 2 -s 3 -c $tmp.config sample.float.bin >$tmp.pcp2zabbix.out 2>$tmp.pcp2zabbix.err &
+pcp2zabbix -r --zabbix-lld -t 2 -s 3 -c $tmp.config sample.float.bin >$tmp.pcp2zabbix.out 2>$tmp.pcp2zabbix.err &
 pmpid=$!
 sleep 2
 $signal $pmpid 2>/dev/null
