@@ -207,4 +207,4 @@ Event Record [0] with 10 parameters
     Parameter [6]: 29.0.134 = "minus twenty-eight"
     Parameter [7]: 29.0.135 = [0f070301...]
     Parameter [8]: 29.0.135 = [0f070301...]
-    Parameter [9]: 29.0.128 : bad type Unknown
+    Parameter [9]: 29.0.128 : unknown type

@@ -141,7 +141,7 @@ broken pmda Debug: Received PDU_FETCH
 broken pmda Error: pmdaDesc: Requested metric 249.0.2 is not defined
 broken pmda Error: pmdaFetch: Requested metric 249.0.2 is not defined
 broken pmda Debug: Received PDU_FETCH
-broken pmda Error: pmdaFetch: Descriptor type (Not Supported) for metric 249.0.5 is bad
+broken pmda Error: pmdaFetch: Descriptor type (NO_SUPPORT) for metric 249.0.5 is bad
 broken pmda Debug: Received PDU_FETCH
 broken pmda Error: pmdaFetch: PMID 249.0.9 not handled by fetch callback
 broken pmda Debug: Received PDU_FETCH
