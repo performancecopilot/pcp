@@ -233,6 +233,7 @@ _pcp () {
       "(-p --zabbix-port $exargs)"{-p+,--zabbix-port}'[zabbix port]:port:' \
       "(-x --zabbix-prefix $exargs)"{-x+,--zabbix-prefix}'[prefix for metric names]:prefix:' \
       "(-X --zabbix-host $exargs)"{-X+,--zabbix-host}'[zabbix host-id]:host-id:' \
+      "(-l --zabbix-lld $exargs)"{-l,--zabbix-lld}'[enable low-level discovery]' \
       '*:metric:->metrics' \
       && return 0
   ;;

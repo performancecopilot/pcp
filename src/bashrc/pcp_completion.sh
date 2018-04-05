@@ -37,7 +37,7 @@ _pcp_complete()
         arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgFf]"
     ;;
     pcp2zabbix)
-        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgpXEx"
+        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgpXExl"
         arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgpXEx]"
     ;;
     pmdumplog)
