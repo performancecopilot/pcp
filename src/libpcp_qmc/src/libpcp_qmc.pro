@@ -5,7 +5,9 @@ CONFIG		+= qt staticlib warn_on
 INCLUDEPATH	+= ../../include
 release:DESTDIR = build/debug
 debug:DESTDIR   = build/release
-QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
+QMAKE_CFLAGS	+= $$(PCP_CFLAGS) $$(CFLAGS)
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS) $$(CXXFLAGS)
+QMAKE_LFLAGS	+= $$(LDFLAGS)
 
 HEADERS	= qmc_context.h qmc_desc.h qmc_group.h \
 	  qmc_indom.h qmc_metric.h qmc_source.h \

@@ -8,4 +8,6 @@ CONFIG		+= qt warn_on
 QT		+= widgets
 release:DESTDIR	= build/debug
 debug:DESTDIR	= build/release
-QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
+QMAKE_CFLAGS	+= $$(PCP_CFLAGS) $$(CFLAGS)
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS) $$(CXXFLAGS)
+QMAKE_LFLAGS	+= $$(LDFLAGS)

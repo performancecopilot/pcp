@@ -10,4 +10,6 @@ LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR
 LIBS		+= -lpcp_qmc -lpcp
 win32:LIBS	+= -lwsock32 -liphlpapi
 QT		-= gui
-QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
+QMAKE_CFLAGS	+= $$(PCP_CFLAGS) $$(CFLAGS)
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS) $$(CXXFLAGS)
+QMAKE_LFLAGS	+= $$(LDFLAGS)

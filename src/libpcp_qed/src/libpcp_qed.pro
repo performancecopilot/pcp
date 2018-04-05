@@ -6,7 +6,9 @@ INCLUDEPATH	+= ../../include ../../libpcp_qmc/src
 release:DESTDIR = build/debug
 debug:DESTDIR   = build/release
 QT		= core gui network printsupport svg widgets
-QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
+QMAKE_CFLAGS	+= $$(PCP_CFLAGS) $$(CFLAGS)
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS) $$(CXXFLAGS)
+QMAKE_LFLAGS	+= $$(LDFLAGS)
 
 HEADERS	= qed.h \
 	  qed_actionlist.h \

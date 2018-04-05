@@ -34,4 +34,6 @@ LIBS		+= -lpcp_qed -lpcp_qmc -lpcp -lCoin -lSoQt
 win32:LIBS	+= -lwsock32 -liphlpapi
 QT		+= printsupport network widgets
 QMAKE_INFO_PLIST = pmview.info
-QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
+QMAKE_CFLAGS	+= $$(PCP_CFLAGS) $$(CFLAGS)
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS) $$(CXXFLAGS)
+QMAKE_LFLAGS	+= $$(LDFLAGS)
