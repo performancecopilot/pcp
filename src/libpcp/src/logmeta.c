@@ -879,6 +879,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		k += sizeof(jsonlen);
 		labelsets[i].jsonlen = jsonlen;
 
+		if (jsonlen < 0 || jsonlen > PM_MAXLABELJSONLEN) {
+		    if (pmDebugOptions.logmeta)
+			fprintf(stderr, "__pmLogLoadMeta: corrupted json in labelset. jsonlen=%d\n", jsonlen);
+		    sts = PM_ERR_LOGREC;
+		    free(tbuf);
+		    goto end;
+		}
+
 		if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
 		    sts = -oserror();
 		    free(tbuf);
@@ -894,18 +902,28 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		k += sizeof(nlabels);
 		labelsets[i].nlabels = nlabels;
 
-		if (nlabels > 0 && 
-		    (labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
-		    sts = -oserror();
-		    free(tbuf);
-		    goto end;
-		}
+		if (nlabels > 0) { /* nlabels < 0 is an error code. skip it here */
+		    if (nlabels > PM_MAXLABELS || k + nlabels * sizeof(pmLabel) > rlen) {
+			/* corrupt archive metadata detected. GH #475 */
+			if (pmDebugOptions.logmeta)
+			    fprintf(stderr, "__pmLogLoadMeta: corrupted labelset. nlabels=%d\n", nlabels);
+			sts = PM_ERR_LOGREC;
+			free(tbuf);
+			goto end;
+		    }
 
-		/* label pmLabels */
-		for (j = 0; j < nlabels; j++) {
-		    labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
-		    __ntohpmLabel(&labelsets[i].labels[j]);
-		    k += sizeof(pmLabel);
+		    if ((labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
+			sts = -oserror();
+			free(tbuf);
+			goto end;
+		    }
+
+		    /* label pmLabels */
+		    for (j = 0; j < nlabels; j++) {
+			labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
+			__ntohpmLabel(&labelsets[i].labels[j]);
+			k += sizeof(pmLabel);
+		    }
 		}
 	    }
 	    free(tbuf);
