@@ -1,0 +1,5 @@
+QA output created by 1167
+Expect all of these to fail with PM_ERR_LOGREC
+pmdumplog: Cannot open archive "archives/corrupted_labelset": Corrupted record in a PCP archive log
+pminfo: Cannot open archive "archives/corrupted_labelset": Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive log

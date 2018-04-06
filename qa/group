@@ -1455,7 +1455,7 @@ pmlogsize
 1141 selinux local
 1159 pmlogger local pmdumplog
 1166 libpcp local
-1167:reserved pmdumplog local
+1167 pmdumplog labels archive local
 1169 pmrep python local
 1174 threads valgrind local
 1177 pmns derive libpcp pmlogger local

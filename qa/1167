@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 1138
+# Check various tools correctly fail with a corrupted archive
+# See GH#475 libpcp SEGV on corrupt archive
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+#
+# input archive has corrupted labelset metadata
+
+echo Expect all of these to fail with PM_ERR_LOGREC
+pmdumplog archives/corrupted_labelset && exit
+pminfo -fl -a archives/corrupted_labelset && exit
+pmrep -a archives/corrupted_labelset disk.dev.read && exit
+
+# success, all done
+status=0
+exit
