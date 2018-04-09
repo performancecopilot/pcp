@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "redis.h"
+#include "schema.h"
 #include "slots.h"
 #include "crc16.h"
 
@@ -132,7 +132,8 @@ redis_connect(char *server, struct timeval *timeout)
 	    else
 		*p = '\0';
 	}
-	redis = redisConnectWithTimeout(server, port, *timeout);
+	//redis = redisConnectWithTimeout(server, port, *timeout);
+	redis = redisConnect(server, port);
     }
 
     if (!redis || redis->err) {
@@ -145,7 +146,7 @@ redis_connect(char *server, struct timeval *timeout)
 	return NULL;
     }
 
-    redisSetTimeout(redis, *timeout);
+//  redisSetTimeout(redis, *timeout);
     redisEnableKeepAlive(redis);
     return redis;
 }

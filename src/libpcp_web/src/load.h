@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,59 +18,73 @@
 #include "series.h"
 
 typedef struct context {
-    int			type;
-    int			context;
-    const char		*source;	/* stored as a "note" (e.g. log) */
+    const char		*name;		/* source archive or hostspec */
+    unsigned char	hash[20];	/* context labels metadata SHA1 */
+    int			type	: 7;
+    int			cached	: 1;
+    int			context;	/* PMAPI context */
+    long long		mapid;		/* internal source identifier */
+    pmInDom		mapinst;	/* instance name identifier map */
+    pmInDom		mapnames;	/* label name identifier map */
+    pmInDom		mapvalues;	/* label value identifier map */
+    int			nmetrics;	/* TODO remove nmetrics/metrics */
     const char		**metrics;	/* metric specification strings */
-    int			nmetrics;
-    /*int		markcount;	-- num mark records seen (move?) */
     pmLabelSet		*labels;
 } context_t;
 
 typedef struct domain {
     unsigned int	domain;
-    pmLabelSet		*labels;
     context_t		*context;
+    pmLabelSet		*labels;
 } domain_t;
 
 typedef struct indom {
     pmInDom		indom;
-    pmLabelSet		*labels;
     domain_t		*domain;
+    pmLabelSet		*labels;
 } indom_t;
 
 typedef struct cluster {
     unsigned int	cluster;
-    pmLabelSet		*labels;
     domain_t		*domain;
+    pmLabelSet		*labels;
 } cluster_t;
 
+typedef struct value {
+    unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
+    int			inst;		/* internal instance identifier */
+    long long		mapid;		/* internal name identifier */
+    unsigned int	cached : 1;	/* metadata is already cached */
+    unsigned int	updated : 1;	/* last sample modified value */
+    unsigned int	padding : 30;	/* zero-fill structure padding */
+    char		*name;		/* external instance name or "?" */
+    pmLabelSet		*labels;	/* instance labels or NULL */
+    pmAtomValue		atom;		/* most recent sampled value */
+} value_t;
+
+typedef struct instlist {
+    unsigned int	listsize;	/* high-water-mark inst count */
+    unsigned int	listcount;	/* currently init'd inst count */
+    struct value	value[0];
+} instlist_t;
+
 typedef struct metric {
-    pmDesc		desc;
-    pmLabelSet		*labels;
-    char		**names;
-    int			*mapids;
-    unsigned int	numnames;
-    int			outype;
-    double		scale;
-    struct value	**vlist;
-    unsigned int	listsize;
+    unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
     cluster_t		*cluster;
     indom_t		*indom;
+    pmDesc		desc;
+    pmLabelSet		*labels;	/* metric item labels or NULL */
+    long long		*mapids;	/* internal name(s) identifiers */
+    char		**names;	/* PMNS entries for this metric */
+    unsigned int	numnames : 16;	/* count of metric PMNS entries */
+    unsigned int	padding : 13;	/* zero-fill structure padding */
+    unsigned int	updated : 1;	/* last sample returned success */
+    unsigned int	cached : 1;	/* metadata is already cached */
+    int			error;		/* a PMAPI negative error code */
+    union {
+	pmAtomValue	atom;		/* singleton value (PM_IN_NULL) */
+	struct instlist *inst;		/* instance values and metadata */
+    } u;
 } metric_t;
-
-typedef struct value {
-    int			inst;		/* instance ID or PM_IN_NULL */
-    char		*name;		/* instance name or NULL */
-    pmLabelSet		*labels;	/* instance labels of NULL */
-    char		hash[PMSIDSZ+1];/* SHA1 of mandatory metadata */
-    unsigned int	cached:1;	/* metadata is already cached */
-    unsigned int	marked:1;	/* seen since last "mark" record */
-    unsigned int	markcount;	/* num mark records seen (move?) */
-    unsigned int	count;		/* total number of samples */
-    struct timeval	firsttime;	/* time of first sample */
-    struct timeval	lasttime;	/* time of previous sample */
-    pmAtomValue		lastval;	/* value from previous sample */
-} value_t;
 
 #endif	/* SERIES_LOAD_H */

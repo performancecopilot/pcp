@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmseries.c
 CMDTARGET = pmseries$(EXECSUFFIX)
-LLDLIBS	= $(PCP_WEBLIB) $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
+LLDLIBS	= $(PCP_WEBLIB)
 
 default:	$(CMDTARGET)
 

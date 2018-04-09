@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,52 +14,94 @@
 #ifndef PCP_SERIES_H
 #define PCP_SERIES_H
 
-#define PMSIDSZ	40
-typedef struct { unsigned char name[PMSIDSZ+1]; } pmSeriesID;
-#define PMSERIESIDSZ	sizeof(pmSeriesID)
+#include <stdio.h>
 
-typedef enum pmseries_level {
-    PMSERIES_INFO,
-    PMSERIES_WARNING,
-    PMSERIES_ERROR,
-    PMSERIES_REQUEST,
-    PMSERIES_RESPONSE,
-    PMSERIES_CORRUPT,
-} pmseries_level;
+typedef char *sds;	/* simple dynamic strings */
+typedef sds pmSeriesID;	/* external 40-byte form of series identifier */
+typedef sds pmSourceID;	/* external 40-byte form of source identifier */
 
-typedef enum pmseries_flags {
-    PMSERIES_METADATA,	/* only load metric metadata not values */
-    PMSERIES_ACTIVE,	/* continual updates from metric source */
-} pmseries_flags;
+typedef enum pmloglevel {
+    PMLOG_INFO = 1,	/* general information */
+    PMLOG_WARNING,	/* generic warnings */
+    PMLOG_ERROR,	/* generic error */
+    PMLOG_REQUEST,	/* error processing a request */
+    PMLOG_RESPONSE,	/* error processing a response */
+    PMLOG_CORRUPTED,	/* corrupt time series database */
+} pmloglevel;
 
-typedef int (*pmSeriesMatchCallback)(pmSeriesID *, void *);
-typedef int (*pmSeriesValueCallback)(pmSeriesID *, const char *,
-	const char *, void *);
-typedef int (*pmSeriesDescCallback)(pmSeriesID *, const char *,
-	const char *, const char *, const char *, const char *, void *);
-typedef int (*pmSeriesInstanceCallback)(pmSeriesID *, int,
-		const char *, void *);
-typedef int (*pmSeriesStringCallback)(pmSeriesID *, const char *, void *);
-typedef void (*pmSeriesInfoCallback)(pmseries_level, const char *, void *);
-typedef void (*pmSeriesDoneCallback)(int, void *);
+extern int pmLogLevelIsTTY(void);
+extern void pmLogLevelPrint(FILE *, pmloglevel, sds, int);
+extern const char *pmLogLevelStr(pmloglevel);
+
+typedef enum pmflags {
+    PMFLAG_METADATA  = (1<<0),	/* only load metric metadata not values */
+    PMFLAG_ACTIVE    = (1<<1),	/* continual updates from metric source */
+} pmflags;
+
+typedef enum pmdescfields {
+    PMDESC_INDOM,		/* dotted-pair instance domain identifier */
+    PMDESC_PMID,		/* dotted-triple metric identifier */
+    PMDESC_SEMANTICS,		/* pmSemStr(3) metric semantics */
+    PMDESC_SOURCE,		/* source identifier, from whence we came */
+    PMDESC_TYPE,		/* pmTypeStr(3) metric type */
+    PMDESC_UNITS,		/* pmUnitsStr(3) metric units */
+    PMDESC_MAXFIELD
+} pmdescfields;
+
+typedef enum pminstfields {
+    PMINST_SERIES,		/* metric series identifier for values */
+    PMINST_NAME,		/* full external (string) instance name */
+    PMINST_INSTID,		/* first seen numeric instance identifier */
+    PMINST_MAXFIELD
+} pminstfields;
+
+typedef enum pmvaluefields {
+    PMVALUE_TIMESTAMP,		/* sample time this value was taken */
+    PMVALUE_SERIES,		/* series identifier for this value */
+    PMVALUE_DATA,		/* actual value, as binary safe sds */
+    PMVALUE_MAXFIELD
+} pmvaluefields;
+
+typedef enum pmlabelfields {
+    PMLABEL_NAME,		/* name (string) of this label */
+    PMLABEL_VALUE,		/* value of this label */
+    PMLABEL_MAXFIELD
+} pmlabelfields;
+
+typedef enum pmsourcefields {
+    PMSOURCE_SERIES,		/* source identifier from the context */
+    PMSOURCE_NAME,		/* archive path or host specification */
+    PMSOURCE_TYPE,		/* archive or host source context type */
+    PMSOURCE_MAXFIELD
+} pmsourcefields;
+
+typedef int (*pmSeriesMatchCallBack)(pmSeriesID, void *);
+typedef int (*pmSeriesStringCallBack)(pmSeriesID, sds, void *);
+typedef int (*pmSeriesStructCallBack)(pmSeriesID, int, sds *, void *);
+typedef void (*pmSeriesInfoCallBack)(pmloglevel, sds, void *);
+typedef void (*pmSeriesDoneCallBack)(int, void *);
 
 typedef struct pmSeriesSettings {
-    pmSeriesMatchCallback	on_match;	/* one timeseries ID */
-    pmSeriesValueCallback	on_value;	/* one timeseries value */
-    pmSeriesDescCallback	on_desc;	/* one descriptor */
-    pmSeriesInstanceCallback	on_instance;	/* one instance */
-    pmSeriesStringCallback	on_metric;	/* one metric name */
-    pmSeriesStringCallback	on_labels;	/* one set of labels */
-    pmSeriesInfoCallback	on_info;	/* diagnostics */
-    pmSeriesDoneCallback	on_done;	/* request completed */
+    pmSeriesMatchCallBack	on_match;	/* one series identifier */
+    pmSeriesStructCallBack	on_desc;	/* one metric descriptor */
+    pmSeriesStructCallBack	on_inst;	/* an instances details */
+    pmSeriesStringCallBack	on_instname;	/* one instance name */
+    pmSeriesStringCallBack	on_metric;	/* one metric name */
+    pmSeriesStructCallBack	on_source;	/* a sources details */
+    pmSeriesStringCallBack	on_context;	/* one metric source */
+    pmSeriesStructCallBack	on_value;	/* a time series value */
+    pmSeriesStringCallBack	on_label;	/* one label name */
+    pmSeriesStructCallBack	on_labelset;	/* one set of labels */
+    pmSeriesInfoCallBack	on_info;	/* diagnostics */
+    pmSeriesDoneCallBack	on_done;	/* request completed */
 } pmSeriesSettings;
 
-extern void pmSeriesDesc(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesLabel(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesMetric(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesInstance(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesQuery(pmSeriesSettings *, const char *, pmseries_flags, void *);
-extern void pmSeriesLoad(pmSeriesSettings *, const char *, pmseries_flags, void *);
-extern const char *pmSeriesLevelStr(pmseries_level);
+extern void pmSeriesDescs(pmSeriesSettings *, int, pmSeriesID *, void *);
+extern void pmSeriesLabels(pmSeriesSettings *, int, pmSeriesID *, void *);
+extern void pmSeriesInstances(pmSeriesSettings *, int, pmSeriesID *, void *);
+extern void pmSeriesMetrics(pmSeriesSettings *, int, pmSeriesID *, void *);
+extern void pmSeriesSources(pmSeriesSettings *, int, pmSeriesID *, void *);
+extern void pmSeriesQuery(pmSeriesSettings *, sds, pmflags, void *);
+extern void pmSeriesLoad(pmSeriesSettings *, sds, pmflags, void *);
 
 #endif /* PCP_SERIES_H */

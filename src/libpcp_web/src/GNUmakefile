@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017 Red Hat.
+# Copyright (c) 2015-2018 Red Hat.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -15,23 +15,21 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = jsmn.c http_client.c http_parser.c json_helpers.c
-HFILES = jsmn.h http_client.h http_parser.h private.h
-XFILES = jsmn.c jsmn.h http_parser.c http_parser.h
+CFILES = jsmn.c http_client.c http_parser.c sdsalloc.c \
+	 query.c schema.c load.c crc16.c sha1.c util.c slots.c \
+	 redis.c net.c \
+	 json_helpers.c sds.c
+HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h \
+	 query.h schema.h load.h crc16.h sha1.h util.h slots.h \
+	 redis.h net.h \
+	 libuv.h private.h
+YFILES = query_parser.y
+XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h sds.c \
+	 sha1.c sha1.h
 
-LLDLIBS = $(PCPLIB) $(PCP_PMDALIB)
+LLDLIBS = $(PCPLIB) $(PCP_PMDALIB) $(LIB_FOR_MATH)
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
-
-ifeq "$(HAVE_HIREDIS)" "true"
-CFILES += query.c redis.c load.c crc16.c sha1.c util.c slots.c
-HFILES += query.h redis.h load.h crc16.h sha1.h util.h slots.h
-YFILES += query_parser.y
-XFILES += crc16.c crc16.h sha1.c sha1.h
-LLDLIBS += $(LIB_FOR_HIREDIS) $(LIB_FOR_MATH)
-else
-CFILES += noseries.c
-endif
 
 STATICLIBTARGET = libpcp_web.a
 
@@ -65,7 +63,7 @@ ifneq ($(STATICLIBTARGET),)
 endif
 
 $(XFILES):
-	$(LN_S) $(TOPDIR)/src/external/$@ $@
+	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
 
 .NOTPARALLEL:
 query_parser.tab.h query_parser.tab.c: query_parser.y query.h

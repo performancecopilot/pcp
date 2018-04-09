@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,9 +11,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef SERIES_UTIL_H
+#define SERIES_UTIL_H
 
+#include "sds.h"
 #include "load.h"
 
 extern int tsub(struct timeval *, struct timeval *);
@@ -23,18 +24,35 @@ static inline double tv2real(struct timeval *tv)
 {
     return pmtimevalToReal(tv);
 }
+extern const char *timeval_str(struct timeval *);
 
 extern void fputstamp(struct timeval *, int, FILE *);
 
+extern int context_labels(int, pmLabelSet **);
 extern int merge_labelsets(struct metric *, struct value *,
 		char *, int,
 		int (*filter)(const pmLabel *, const char *, void *),
 		void *type);
 
-extern unsigned int value_instid(struct value *);
-extern const char *value_instname(struct value *);
+extern const char *indom_str(struct metric *);
+extern const char *pmid_str(struct metric *);
+extern const char *semantics_str(struct metric *);
+extern const char *type_str(struct metric *);
+extern const char *units_str(struct metric *);
 
-extern const char *value_atomstr(struct metric *, struct value *);
-extern char *value_labels(struct metric *, struct value *);
+extern sds json_escaped_str(const char *);
+extern const char *hash_str(const unsigned char *);
 
-#endif	/* UTIL_H */
+extern int source_hash(struct context *);
+extern void metric_hash(struct metric *, pmDesc *);
+extern void instance_hash(struct metric *, struct value *, sds, pmDesc *);
+
+/*
+ * More widely applicable web API helper routines
+ */
+extern int pmwebapi_source_labels(int, pmLabelSet **, char *, int);
+extern int pmwebapi_source_hash(unsigned char *, const char *, int);
+extern sds pmwebapi_hash_sds(const unsigned char *);
+extern char *pmwebapi_hash_str(const unsigned char *);
+
+#endif	/* SERIES_UTIL_H */

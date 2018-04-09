@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,6 +21,60 @@
  * Time series querying
  */
 
+/* Various query node_t types */
+typedef enum nodetype {
+    N_INTEGER	= 1,
+    N_NAME,
+    N_PLUS,
+    N_MINUS,
+    N_STAR,
+    N_SLASH,
+    N_AVG,
+    N_COUNT,
+    N_DELTA,
+    N_MAX,
+    N_MIN,
+    N_SUM,
+    N_ANON,
+    N_RATE,
+    N_INSTANT,
+    N_DOUBLE,
+    N_LT,
+    N_LEQ,
+    N_EQ,
+    N_GEQ,
+    N_GT,
+    N_NEQ,
+    N_AND,
+    N_OR,
+    N_REQ,
+    N_RNE,
+    N_NEG,
+    N_STRING,
+    N_RESCALE,
+    N_SCALE,
+    N_DEFINED,
+
+/* node_t time-related sub-types */
+    N_RANGE = 100,
+    N_INTERVAL,
+    N_TIMEZONE,
+    N_START,
+    N_FINISH,
+    N_SAMPLES,
+    N_ALIGN,
+    N_OFFSET,
+
+/* node_t name-related sub-types */
+    N_QUERY = 200,
+    N_SOURCE,
+    N_LABEL,
+    N_METRIC,
+    N_INSTANCE,
+
+    MAX_NODETYPE
+} nodetype_t;
+
 typedef struct meta {
     int			type;	/* PM_TYPE_* */
     int			sem;	/* PM_SEM_* */
@@ -29,26 +83,26 @@ typedef struct meta {
 
 typedef struct node {
     int			type;
-    int			subtype;
-    char		*value;
+    enum nodetype	subtype;
+    sds 		value;
     struct node		*left;
     struct node		*right;
     struct meta		meta;
-    char		*key;
+    sds			key;
     int			nseries;
-    void		*series;
+    unsigned char	*series;
 } node_t;
 
 typedef struct timing {
     /* input string */
-    char		*deltas;
-    char		*aligns;
-    char		*starts;
-    char		*ends;
-    char		*ranges;
-    char		*counts;
-    char		*offsets;
-    char		*zones;
+    sds			deltas;
+    sds			aligns;
+    sds			starts;
+    sds			ends;
+    sds			ranges;
+    sds			counts;
+    sds			offsets;
+    sds			zones;
 
     /* parsed inputs */
     struct timeval	delta;	
@@ -61,69 +115,19 @@ typedef struct timing {
 } timing_t;
 
 typedef struct series {
-    char		*name;
+    sds			name;
     node_t		*expr;
     timing_t		time;
 } series_t;
 
 typedef pmSeriesSettings settings_t;
-typedef pmseries_flags flags_t;
 
-extern int series_solve(settings_t *, node_t *, timing_t *, flags_t, void *);
-extern int series_source(settings_t *, node_t *, timing_t *, flags_t, void *);
+extern int series_solve(settings_t *, node_t *, timing_t *, pmflags, void *);
+extern int series_source(settings_t *, node_t *, timing_t *, pmflags, void *);
 
-extern char *series_instance_name(char *, size_t);
-extern char *series_metric_name(char *, size_t);
-extern char *series_label_name(char *, size_t);
-extern char *series_note_name(char *, size_t);
-
-/* node_t types */
-#define N_INTEGER	1
-#define N_NAME		2
-#define N_PLUS		3
-#define N_MINUS		4
-#define N_STAR		5
-#define N_SLASH		6
-#define N_AVG		7
-#define N_COUNT		8
-#define N_DELTA		9
-#define N_MAX		10
-#define N_MIN		11
-#define N_SUM		12
-#define N_ANON		13
-#define N_RATE		14
-#define N_INSTANT	15
-#define N_DOUBLE	16
-#define N_LT		17
-#define N_LEQ		18
-#define N_EQ		19
-#define N_GEQ		20
-#define N_GT		21
-#define N_NEQ		22
-#define N_AND		23
-#define N_OR		24
-#define N_REQ		25
-#define N_RNE		26
-#define N_NEG		27
-#define N_STRING	28
-#define N_RESCALE	29
-#define N_SCALE		30
-#define N_DEFINED	31
-
-/* node_t time-related sub-types */
-#define N_RANGE		100
-#define N_INTERVAL	101
-#define N_TIMEZONE	102
-#define N_START		103
-#define N_FINISH	104
-#define N_SAMPLES	105
-#define N_ALIGN		106
-#define N_OFFSET	107
-
-/* node_t name-related sub-types */
-#define N_QUERY		200
-#define N_METRIC	201
-#define N_INSTANCE	202
-#define N_LABEL		203
+extern const char *series_instance_name(sds);
+extern const char *series_source_name(sds);
+extern const char *series_metric_name(sds);
+extern const char *series_label_name(sds);
 
 #endif	/* SERIES_QUERY_H */

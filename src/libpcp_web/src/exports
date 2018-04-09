@@ -24,13 +24,53 @@ PCP_WEB_1.2 {
 
 PCP_WEB_1.3 {
   global:
-    pmSeriesDesc;
-    pmSeriesInstance;
-    pmSeriesLabel;
-    pmSeriesMetric;
     pmSeriesQuery;
     pmSeriesLoad;
-    pmSeriesLevelStr;
-
     pmjsonPrint;
 } PCP_WEB_1.2;
+
+PCP_WEB_1.4 {
+  global:
+    sdsnewlen;
+    sdsnew;
+    sdsempty;
+    sdsdup;
+    sdsfree;
+    sdsgrowzero;
+    sdscatlen;
+    sdscat;
+    sdscatsds;
+    sdscpylen;
+    sdscpy;
+    sdscatvprintf;
+    sdscatprintf;
+    sdscatfmt;
+    sdstrim;
+    sdsrange;
+    sdsupdatelen;
+    sdsclear;
+    sdscmp;
+    sdssplitlen;
+    sdsfreesplitres;
+    sdstolower;
+    sdstoupper;
+    sdsfromlonglong;
+    sdscatrepr;
+    sdssplitargs;
+    sdsmapchars;
+    sdsjoin;
+    sdsjoinsds;
+} PCP_WEB_1.3;
+
+PCP_WEB_1.5 {
+  global:
+    pmSeriesDescs;
+    pmSeriesLabels;
+    pmSeriesMetrics;
+    pmSeriesSources;
+    pmSeriesInstances;
+
+    pmLogLevelIsTTY;
+    pmLogLevelPrint;
+    pmLogLevelStr;
+} PCP_WEB_1.4;

@@ -1660,9 +1660,6 @@ AC_SUBST(lib_for_regex)
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
-PKG_CHECK_MODULES([hiredis], [hiredis], [have_hiredis=true], [have_hiredis=false])
-AC_SUBST(HAVE_HIREDIS, [$have_hiredis])
-
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
 if $have_devmapper
 then

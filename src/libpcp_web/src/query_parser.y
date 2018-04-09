@@ -2,7 +2,7 @@
 /*
  * query_parser.y - yacc/bison grammar for the PCP time series language
  *
- * Copyright (c) 2017 Red Hat.  All Rights Reserved.
+ * Copyright (c) 2017-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -26,7 +26,7 @@ typedef struct PARSER {
     char	*yy_lexicon;
     int		yy_lexpeek;
     int		yy_error;
-    const char	*yy_errstr;
+    sds		yy_errstr;
     char	*yy_tokbuf;
     int 	yy_tokbuflen;
     meta_t	yy_meta;
@@ -36,7 +36,7 @@ typedef struct PARSER {
 } PARSER;
 
 typedef union {
-    char	*s;
+    sds		s;
     node_t	*n;
     meta_t	m;
 } YYSTYPE;
@@ -212,24 +212,24 @@ exprval	: string
 
 string	: L_STRING
 		{ lp->yy_np = newnode(N_STRING);
-		  lp->yy_np->value = $1;
+		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
 	| L_NAME
 		{ lp->yy_np = newnode(N_NAME);
-		  lp->yy_np->value = $1;
+		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
 	;
 
 number	: L_INTEGER
 		{ lp->yy_np = newnode(N_INTEGER);
-		  lp->yy_np->value = $1;
+		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
 	| L_DOUBLE
 		{ lp->yy_np = newnode(N_DOUBLE);
-		  lp->yy_np->value = $1;
+		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
 	;
@@ -298,55 +298,55 @@ expr	: /* relational expressions */
 //func	: L_AVG L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_AVG);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_COUNT L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_COUNT);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_DELTA L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_DELTA);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_MAX L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_MAX);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_MIN L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_MIN);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_SUM L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_SUM);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_RATE L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_RATE);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_INSTANT L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_INSTANT);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_DEFINED L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_DEFINED);
 //		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = $3;
+//		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
 //		}
 //	| L_RESCALE L_LPAREN expr L_COMMA L_STRING L_RPAREN
@@ -538,9 +538,9 @@ newmetric(char *name)
     node_t	*node = newnode(N_EQ);	// TODO: simple N_REQ regex support (kernel.all.* for example)
 
     node->left = newnode(N_NAME);
-    node->left->value = strdup("metric.name");
+    node->left->value = sdsnew("metric.name");
     node->right = newnode(N_STRING);
-    node->right->value = name;
+    node->right->value = sdsnew(name);
     return node;
 }
 
@@ -564,10 +564,10 @@ newinterval(PARSER *lp, const char *string)
 
     if ((sts = pmParseInterval(string, &tp->delta, &error)) < 0) {
 	fprintf(stderr, "pmParseInterval delta: %s\n", error);
-	lp->yy_errstr = error;
+	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
     } else {
-	tp->deltas = strdup(string);
+	tp->deltas = sdsnew(string);
     }
 }
 
@@ -581,7 +581,7 @@ parsetime(PARSER *lp, struct timeval *result, const char *string)
 
     if ((sts = __pmParseTime(string, &start, &end, result, &error)) < 0) {
 	fprintf(stderr, "__pmParseTime: %s\n", error);
-	lp->yy_errstr = error;
+	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
     }
 }
@@ -593,7 +593,7 @@ newstarttime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->start, string);
     if (!lp->yy_error)
-	tp->starts = strdup(string);
+	tp->starts = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "START: %.64g\n", pmtimevalToReal(result));
@@ -609,7 +609,7 @@ newendtime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->end, string);
     if (!lp->yy_error)
-	tp->ends = strdup(string);
+	tp->ends = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "END: %.64g\n", pmtimevalToReal(result));
@@ -627,7 +627,7 @@ newrange(PARSER *lp, const char *string)
 
     if ((sts = pmParseInterval(string, &tp->start, &error)) < 0) {
 	fprintf(stderr, "pmParseInterval range: %s\n", error);
-	lp->yy_errstr = error;
+	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
     } else {
 	struct timeval offset;
@@ -635,7 +635,7 @@ newrange(PARSER *lp, const char *string)
 	tsub(&offset, &tp->start);
 	tp->start = offset;
 	tp->end.tv_sec = INT_MAX;
-	tp->ranges = strdup(string);
+	tp->ranges = sdsnew(string);
     }
 }
 
@@ -646,7 +646,7 @@ newaligntime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->align, string);
     if (!lp->yy_error)
-	tp->aligns = strdup(string);
+	tp->aligns = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "ALIGN: %.64g\n", pmtimevalToReal(result));
@@ -666,11 +666,11 @@ newtimezone(PARSER *lp, const char *string)
     if ((sts = pmNewZone(string)) < 0) {
 	error = pmErrStr_r(sts, e, sizeof(e));
 	fprintf(stderr, "pmNewZone: %s\n", error);
-	lp->yy_errstr = strdup(error);
+	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
     } else {
 	tp->zone = sts;
-	tp->zones = strdup(string);
+	tp->zones = sdsnew(string);
     }
 }
 
@@ -682,11 +682,11 @@ newsamples(PARSER *lp, const char *string)
 
     if ((sts = atoi(string)) < 0) {
 	fprintf(stderr, "Invalid sample count requested: %s\n", string);
-	lp->yy_errstr = strdup("Invalid sample count requested");
+	lp->yy_errstr = sdsnew("Invalid sample count requested");
 	lp->yy_error = -EINVAL;
     } else {
 	tp->count = sts;
-	tp->counts = strdup(string);
+	tp->counts = sdsnew(string);
     }
 }
 
@@ -698,11 +698,11 @@ newoffset(PARSER *lp, const char *string)
 
     if ((sts = atoi(string)) < 0) {
 	fprintf(stderr, "Invalid sample offset requested: %s\n", string);
-	lp->yy_errstr = strdup("Invalid sample offset requested");
+	lp->yy_errstr = sdsnew("Invalid sample offset requested");
 	lp->yy_error = -EINVAL;
     } else {
 	tp->offset = sts;
-	tp->offsets = strdup(string);
+	tp->offsets = sdsnew(string);
     }
 }
 
@@ -717,7 +717,7 @@ newoffset(PARSER *lp, const char *string)
 //	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
 //	else
 //	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
-//	lp->yy_errstr = strdup(errmsg);
+//	lp->yy_errstr = sdsnew(errmsg);
 //    }
 //}
 
@@ -727,7 +727,7 @@ series_error(PARSER *lp, const char *s)
     lp->yy_series.expr = NULL;
     lp->yy_error = -EINVAL;
     if (s)
-	lp->yy_errstr = s;
+	lp->yy_errstr = sdsnew(s);
     return 0;
 }
 
@@ -929,8 +929,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 			ret = L_ERROR;
 			break;
 		    }
-		    if ((lvalp->s = strdup(lp->yy_tokbuf)) == NULL) {
-			lp->yy_errstr = "strdup() for INTEGER failed";
+		    if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
+			lp->yy_errstr = "dup() for INTEGER failed";
 			ret = L_ERROR;
 			break;
 		    }
@@ -942,8 +942,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		if (!isalpha((int)c)) {
 		    unget(lp, c);
 		    p[-1] = '\0';
-		    if ((lvalp->s = strdup(lp->yy_tokbuf)) == NULL) {
-			lp->yy_errstr = "strdup() for RANGE failed";
+		    if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
+			lp->yy_errstr = "dup() for RANGE failed";
 			ret = L_ERROR;
 			break;
 		    }
@@ -955,8 +955,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		if (!isdigit((int)c)) {
 		    unget(lp, c);
 		    p[-1] = '\0';
-		    if ((lvalp->s = strdup(lp->yy_tokbuf)) == NULL) {
-			lp->yy_errstr = "strdup() for DOUBLE failed";
+		    if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
+			lp->yy_errstr = "dup() for DOUBLE failed";
 			ret = L_ERROR;
 			break;
 		    }
@@ -1035,8 +1035,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    ret = L_ALIGN;
 		    break;
 		}
-		if ((lvalp->s = strdup(lp->yy_tokbuf)) == NULL) {
-		    lp->yy_errstr = "strdup() for NAME failed";
+		if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
+		    lp->yy_errstr = sdsnew("dup() for NAME failed");
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1048,8 +1048,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    continue;
 		/* [-1] and [1] to strip quotes */
 		p[-1] = '\0';
-		if ((lvalp->s = strdup(&lp->yy_tokbuf[1])) == NULL) {
-		    lp->yy_errstr = "strdup() for STRING failed";
+		if ((lvalp->s = sdsnew(&lp->yy_tokbuf[1])) == NULL) {
+		    lp->yy_errstr = sdsnew("dup() for STRING failed");
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1114,7 +1114,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		else {
 		    unget(lp, c);
 		    p[-1] = '\0';
-		    lp->yy_errstr = "Illegal character";
+		    lp->yy_errstr = sdsnew("Illegal character");
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1128,7 +1128,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		else {
 		    unget(lp, c);
 		    p[-1] = '\0';
-		    lp->yy_errstr = "Illegal character";
+		    lp->yy_errstr = sdsnew("Illegal character");
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1142,7 +1142,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		else {
 		    unget(lp, c);
 		    p[-1] = '\0';
-		    lp->yy_errstr = "Illegal character";
+		    lp->yy_errstr = sdsnew("Illegal character");
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1201,8 +1201,7 @@ series_dumpexpr(node_t *np, int level)
 }
 
 void
-pmSeriesQuery(pmSeriesSettings *settings,
-	const char *query, pmseries_flags flags, void *arg)
+pmSeriesQuery(pmSeriesSettings *settings, sds query, pmflags flags, void *arg)
 {
     int		sts;
     PARSER	yp = { .yy_settings = settings };
@@ -1220,8 +1219,7 @@ pmSeriesQuery(pmSeriesSettings *settings,
 }
 
 void
-pmSeriesLoad(pmSeriesSettings *settings,
-	const char *source, pmseries_flags flags, void *arg)
+pmSeriesLoad(pmSeriesSettings *settings, sds source, pmflags flags, void *arg)
 {
     int		sts;
     PARSER	yp = { .yy_settings = settings };

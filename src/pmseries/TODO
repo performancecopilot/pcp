@@ -1,57 +1,44 @@
-- Audit all the code TODOs
-  - many operators in the language are not yet implemented - fix
+- Audit the code TODOs
+  - many operators in the language are not yet implemented
   - "tail -f" mode of operation for archives
-  - discovery of new archive hosts below /var/log/pmlogger
-  - interpolated mode of operation for archives (live queries?)
+  - on-demand loading of older historical data
+  - discovery of new archive sources below /var/log/pcp/pmlogger
   - live mode of operation for pmcd (live queries?)
   - string escaping rules need to be defined and implemented
-  - non-numeric metric types and event records
+  - support for event record decoding
   - QA, regression testing of everything
+  - optimised archive loading process - using batching updates
+    based on metadata reading alone (not pmFetchArchive)
+  - handling of nesting in JSONB labels (see notes in code) -
+    both the load and query code need tweaks to support this.
 
-- v2 schema:
-  - switch to using native streams (schema.svg)
-  - convert pcp:desc:* to more compact format (pmid and indom)
-  - optimise the archive loading process - switch to batching updates,
-    rework the string identifier assignment for updating in parallel.
-  - handling of nesting in JSONB labels (see notes in code); both the
-    load and query code need tweaks to support this.
-  - store an optional label on "load"/"loadmeta" allowing us to later
-    find the original source context (host/archive) (implements Kenj's
-    idea of a metadata-only mode of operation)
-  - implement pub/sub on instance, metric, label and source names
+- set a TTL on all of the pcp:values:series keys
 
-- configuration mechanism for multiple Redis servers (cluster protocol)
-- scale-up: sharding of redis requests (consistent hashing, create
-  connections opportunistically)
+- implement pub/sub on instance, metric, label and source names
+
+- configuration mechanism for multiple Redis servers
+- support dynamic reconfiguration using cluster protocol
+- scale-up: sharding of redis requests (cluster node hashing, and
+  creating connections opportunistically)
 - scale-down: private redis server (unix socket) if none available
 
 - series functions (Nth-percentile, average, stddev, max-N, min-N,
-  rates - operating on zset (single key), so lua scripts can help
-  with implementing these in-server.
-- label-based group-by concept from the other time series languages
-- set a TTL on all of the values keys
-- live queries - updating an in-memory timeseries from existing series,
-  providing down-sampling, rate conversions, grouping - basis for alerting
-- series naming (Mark's idea - assignment operator, and allowing human
-  readable names in place of SHA1 identifiers, similar to Docker)
+  rates - operating on streams, so LUA scripts could help out with
+  distributing this work to the nodes (run in-server).
 
-- pmproxy interface (sits directly above libpcp_web API extensions)
-- pmwebd interface (sits directly above libpcp_web API extensions)
+- pmproxy interface (sits directly above the libpcp_web API)
+- pmwebd interface (sits directly above the libpcp_web API)
 
 - enforcing/injecting use of security labels in queries
 - enforcing/injecting use of (multi-)tenant labels in queries
 
-- series graphing (grafana plugin)
+- time series graphing and alerting (Grafana plugin)
   http://docs.grafana.org/plugins/developing/development/
   http://docs.grafana.org/plugins/developing/datasources/
-- series alerting (also grafana? and/or prometheus alertmanager?)
 
 - documentation (man pages, books, etc)
 
-Other ideas and areas for further investigation:
-- possibly add pmid and indom reverse indices? (see missing code notes)
-- use Redis PUB/SUB to push time series values directly to clients (XREAD)
 - pmdaredis(1) implemented in C using libpcp_web and batched queries
-- Henry was looking for a central help text search service (i.e. for *all*
-  metric & indom help text, not just active PMDAs on some host) - see also
-  full text search module (redisearch.io) for 4.x Redis series.
+- redis-ml (machine learning) interaction with streams (time series)
+- redisearch for a help text search service for all metric and indom
+  help text.

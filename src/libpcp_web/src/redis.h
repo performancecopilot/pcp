@@ -1,27 +1,326 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2009-2011, Salvatore Sanfilippo <antirez at gmail dot com>
+ * Copyright (c) 2009-2014, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
+ * All rights reserved.
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   * Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the name of Redis nor the names of its contributors may be used
+ *     to endorse or promote products derived from this software without
+ *     specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef REDIS_SERIES_H
-#define REDIS_SERIES_H
+#ifndef SERIES_REDIS_H
+#define SERIES_REDIS_H
 
-#include "load.h"
-#include <hiredis/hiredis.h>
+#include "sds.h"
+#include <stdarg.h>
+#include <stdint.h>
+#include <sys/time.h>
 
-extern redisContext *redis_init(void);
-extern redisContext *redis_connect(char *, struct timeval *);
-extern void redis_stop(redisContext *);
+#define REDIS_ERR -1
+#define REDIS_OK   0
 
-extern void redis_series_metadata(redisContext *, metric_t *, value_t *);
-extern void redis_series_addvalue(redisContext *, metric_t *, value_t *);
+/*
+ * When an error occurs, the err flag in a context is set to hold the type
+ * of error that occurred.  REDIS_ERR_IO means there was an I/O error and
+ * you should use the "errno" variable to find out what is wrong.
+ * For other values, the "errstr" field will hold a description.
+ */
+#define REDIS_ERR_IO		1 /* Error in read or write */
+#define REDIS_ERR_EOF		3 /* End of file */
+#define REDIS_ERR_PROTOCOL	4 /* Protocol error */
+#define REDIS_ERR_OOM		5 /* Out of memory */
+#define REDIS_ERR_OTHER		2 /* Everything else... */
 
-#endif	/* REDIS_SERIES_H */
+/*
+ * Redis protocol reply types
+ */
+#define REDIS_REPLY_STRING	1
+#define REDIS_REPLY_ARRAY	2
+#define REDIS_REPLY_INTEGER	3
+#define REDIS_REPLY_NIL		4
+#define REDIS_REPLY_STATUS	5
+#define REDIS_REPLY_ERROR	6
+
+#define REDIS_READER_MAX_BUF (1024*16)  /* Default max unused reader buffer. */
+
+typedef struct redisReadTask {
+    int			type;
+    int			elements;  /* number of elements in multibulk container */
+    int			idx;       /* index in parent (array) object */
+    void		*obj;      /* holds user-generated value for a read task */
+    struct redisReadTask *parent;  /* parent task */
+    void		*privdata; /* user-settable arbitrary field */
+} redisReadTask;
+
+typedef struct redisReplyObjectFunctions {
+    void *(*createString)(const redisReadTask*, char*, size_t);
+    void *(*createArray)(const redisReadTask*, int);
+    void *(*createInteger)(const redisReadTask*, long long);
+    void *(*createNil)(const redisReadTask*);
+    void (*freeObject)(void*);
+} redisReplyObjectFunctions;
+
+typedef struct redisReader {
+    int			err;       /* Error flags, 0 when there is no error */
+    char		errstr[128]; /* TODO: string representation of error */
+
+    char		*buf;      /* Read buffer */
+    size_t		pos;       /* Buffer cursor */
+    size_t		len;       /* Buffer length */
+    size_t		maxbuf;    /* Max length of unused buffer */
+
+    redisReadTask	rstack[9];
+    int			ridx;      /* Index of current read task */
+    void		*reply;    /* Temporary reply pointer */
+
+    redisReplyObjectFunctions *fn;
+    void		*privdata;
+} redisReader;
+
+/* Public API for the protocol parser. */
+redisReader *redisReaderCreateWithFunctions(redisReplyObjectFunctions *fn);
+void redisReaderFree(redisReader *r);
+int redisReaderFeed(redisReader *r, const char *buf, size_t len);
+int redisReaderGetReply(redisReader *r, void **reply);
+
+#define redisReaderSetPrivdata(_r, _p) (int)(((redisReader*)(_r))->privdata = (_p))
+#define redisReaderGetObject(_r) (((redisReader*)(_r))->reply)
+#define redisReaderGetError(_r) (((redisReader*)(_r))->errstr)
+
+/* Connection type can be blocking or non-blocking and is set in the
+ * least significant bit of the flags field in redisContext. */
+#define REDIS_BLOCK		0x1
+
+/* Connection may be disconnected before being free'd. The second bit
+ * in the flags field is set when the context is connected. */
+#define REDIS_CONNECTED		0x2
+
+/* The async API might try to disconnect cleanly and flush the output
+ * buffer and read all subsequent replies before disconnecting.
+ * This flag means no new commands can come in and the connection
+ * should be terminated once all replies have been read. */
+#define REDIS_DISCONNECTING	0x4
+
+/* Flag specific to the async API which means that the context should be clean
+ * up as soon as possible. */
+#define REDIS_FREEING		0x8
+
+/* Flag that is set when an async callback is executed. */
+#define REDIS_IN_CALLBACK	0x10
+
+/* Flag that is set when the async context has one or more subscriptions. */
+#define REDIS_SUBSCRIBED	0x20
+
+/* Flag that is set when monitor mode is active */
+#define REDIS_MONITORING	0x40
+
+/* Flag that is set when we should set SO_REUSEADDR before calling bind() */
+#define REDIS_REUSEADDR		0x80
+
+#define REDIS_KEEPALIVE_INTERVAL 15 /* seconds */
+
+/* number of times we retry to connect in the case of EADDRNOTAVAIL and
+ * SO_REUSEADDR is being used. */
+#define REDIS_CONNECT_RETRIES  10
+
+/* strerror_r has two completely different prototypes and behaviors
+ * depending on system issues, so we need to operate on the error buffer
+ * differently depending on which strerror_r we're using. */
+#ifndef _GNU_SOURCE
+/* "regular" POSIX strerror_r that does the right thing. */
+#define __redis_strerror_r(errno, buf, len)                                    \
+    do {                                                                       \
+        strerror_r((errno), (buf), (len));                                     \
+    } while (0)
+#else
+/* "bad" GNU strerror_r we need to clean up after. */
+#define __redis_strerror_r(errno, buf, len)                                    \
+    do {                                                                       \
+        char *err_str = strerror_r((errno), (buf), (len));                     \
+        /* If return value _isn't_ the start of the buffer we passed in,       \
+         * then GNU strerror_r returned an internal static buffer and we       \
+         * need to copy the result into our private buffer. */                 \
+        if (err_str != (buf)) {                                                \
+            strncpy((buf), err_str, ((len) - 1));                              \
+            (buf)[(len)-1] = '\0';                                             \
+        }                                                                      \
+    } while (0)
+#endif
+
+/* This is the reply object returned by redisCommand() */
+typedef struct redisReply {
+    int			type;       /* one of the REDIS_REPLY_* macros */
+    long long		integer;    /* value for type REDIS_REPLY_INTEGER */
+    size_t		len;        /* length of string */
+    char		*str;       /* used for both REDIS_REPLY_{ERROR,STRING} */
+    size_t		elements;   /* elements count for REDIS_REPLY_ARRAY */
+    struct redisReply	**element;  /* elements vector for REDIS_REPLY_ARRAY */
+} redisReply;
+
+extern redisReader *redisReaderCreate(void);
+
+extern void freeReplyObject(void *);
+
+enum redisConnectionType {
+    REDIS_CONN_TCP,
+    REDIS_CONN_UNIX
+};
+
+/* Context for a connection to Redis */
+typedef struct redisContext {
+    int			err;
+    char		errstr[128]; /* TODO: string representation of error */
+    int			fd;
+    int			flags;
+    char		*obuf;       /* Write buffer */
+    redisReader		*reader;     /* Protocol reader */
+
+    enum redisConnectionType connection_type;
+    struct timeval	*timeout;
+
+    /* TODO: union */
+    struct {
+        char		*host;
+        char		*source_addr;
+        int		port;
+    } tcp;
+    struct {
+        char		*path;
+    } unix_sock;
+} redisContext;
+
+/* figure out and reduce this this set of functions - async */
+extern redisContext *redisConnect(const char *, int);
+extern redisContext *redisConnectWithTimeout(const char *, int, const struct timeval);
+extern redisContext *redisConnectNonBlock(const char *, int);
+extern redisContext *redisConnectBindNonBlock(const char *, int,
+                                       const char *);
+extern redisContext *redisConnectBindNonBlockWithReuse(const char *, int, const char *);
+extern redisContext *redisConnectUnix(const char *);
+extern redisContext *redisConnectUnixWithTimeout(const char *, const struct timeval);
+extern redisContext *redisConnectUnixNonBlock(const char *);
+
+/*
+ * Reconnect the given context using the saved information.
+ *
+ * This re-uses the exact same connect options as in the initial connection.
+ * host, ip (or path), timeout and bind address are reused,
+ * flags are used unmodified from the existing context.
+ *
+ * Returns REDIS_OK on successful connect or REDIS_ERR otherwise.
+ */
+extern int redisReconnect(redisContext *);
+
+extern int redisSetTimeout(redisContext *, const struct timeval);
+extern int redisEnableKeepAlive(redisContext *);
+extern void redisFree(redisContext *);
+extern int redisBufferRead(redisContext *);
+extern int redisBufferWrite(redisContext *, int *);
+
+/*
+ * In a blocking context, this function first checks if there are unconsumed
+ * replies to return and returns one if so. Otherwise, it flushes the output
+ * buffer to the socket and reads until it has a reply. In a non-blocking
+ * context, it will return unconsumed replies until there are no more.
+ */
+extern int redisGetReply(redisContext *, void **);
+extern int redisGetReplyFromReader(redisContext *, void **);
+
+/* Write a formatted command to the output buffer. */
+extern int redisAppendFormattedCommand(redisContext *, const char *, size_t);
+
+struct redisAsyncContext;
+
+typedef void (redisCallBackFunc)(struct redisAsyncContext *, void *, void *);
+typedef struct redisCallBack {
+    struct redisCallBack	*next; /* simple singly linked list */
+    redisCallBackFunc		*func;
+    void			*privdata;
+} redisCallBack;
+
+/* List of callbacks for Redis replies */
+typedef struct redisCallBackList {
+    redisCallBack		*head;
+    redisCallBack		*tail;
+} redisCallBackList;
+
+/* Connection callback prototypes */
+typedef void (redisDisconnectCallBack)(const struct redisAsyncContext*, int);
+typedef void (redisConnectCallBack)(const struct redisAsyncContext*, int);
+
+/* Context for an async connection to Redis */
+typedef struct redisAsyncContext {
+    /* Hold the regular context, so it can be realloc'ed. */
+    redisContext		c;
+
+    int				err;
+    char			*errstr;
+
+    void			*data;
+
+    struct {
+        void			*data;
+        /* Hooks that are called when the library expects to start
+         * reading/writing. These functions should be idempotent. */
+        void (*addRead)(void *);
+        void (*delRead)(void *);
+        void (*addWrite)(void *);
+        void (*delWrite)(void *);
+        void (*cleanup)(void *);
+    } ev;
+
+    /* Called when either the connection is terminated due to an error or per
+     * user request. The status is set accordingly (REDIS_OK, REDIS_ERR). */
+    redisDisconnectCallBack	*onDisconnect;
+
+    /* Called when the first write event was received. */
+    redisConnectCallBack 	*onConnect;
+
+    /* Regular Redis command callbacks */
+    redisCallBackList		replies;
+
+    /* Invalid or unsupported command callbacks */
+    redisCallBackList		invalid;
+} redisAsyncContext;
+
+extern redisAsyncContext *redisAsyncConnect(const char *, int);
+extern redisAsyncContext *redisAsyncConnectBind(const char *, int, const char *);
+extern redisAsyncContext *redisAsyncConnectBindWithReuse(const char *, int, const char *);
+extern redisAsyncContext *redisAsyncConnectUnix(const char *);
+extern int redisAsyncSetConnectCallBack(redisAsyncContext *, redisConnectCallBack *);
+extern int redisAsyncSetDisconnectCallBack(redisAsyncContext *, redisDisconnectCallBack *);
+extern void redisAsyncDisconnect(redisAsyncContext *);
+extern void redisAsyncFree(redisAsyncContext *);
+
+/* Handle read/write events */
+extern void redisAsyncHandleRead(redisAsyncContext *);
+extern void redisAsyncHandleWrite(redisAsyncContext *);
+
+/*
+ * Command function for an async context.
+ * Write the command to the output buffer and register the provided callback.
+ */
+extern int redisAsyncFormattedCommand(redisAsyncContext *, redisCallBackFunc *, void *, const char *, size_t);
+
+#endif /* SERIES_REDIS_H */
