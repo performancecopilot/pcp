@@ -49,9 +49,9 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 static pmLabelSet *
 __pmDupLabelSets(pmLabelSet *source, int nsets)
 {
-    pmLabelSet		*sets, *target;
-    size_t		size;
-    int			i;
+    pmLabelSet	*sets, *target;
+    size_t	size;
+    int		i;
 
     assert(nsets > 0);
     if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
@@ -60,8 +60,12 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
     for (i = 0; i < nsets; i++, source++) {
 	target = &sets[i];
 	memcpy(target, source, sizeof(pmLabelSet));
-	if (target->nlabels <= 0 || target->json == NULL)
+	/* guard against cases like {} and empty strings */
+	if (target->nlabels <= 0 || target->json == NULL) {
+	    target->jsonlen = 0;
+	    target->json = NULL;
 	    continue;
+	}
 	if ((target->json = strdup(source->json)) == NULL)
 	    break;
 	size = source->nlabels * sizeof(pmLabel);
@@ -79,12 +83,12 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
 int
 __pmAddLabels(pmLabelSet **lspp, const char *extras, int flags)
 {
-    pmLabelSet		*lsp = *lspp;
-    pmLabel		labels[PM_MAXLABELS], *lp = NULL;
-    char		*json = NULL;
-    char		buffer[PM_MAXLABELJSONLEN];
-    char		result[PM_MAXLABELJSONLEN];
-    int			bytes, size, sts, i;
+    pmLabelSet	*lsp = *lspp;
+    pmLabel	labels[PM_MAXLABELS], *lp = NULL;
+    char	*json = NULL;
+    char	buffer[PM_MAXLABELJSONLEN];
+    char	result[PM_MAXLABELJSONLEN];
+    int		bytes, size, sts, i;
 
     if (lsp)
 	json = lsp->json;
