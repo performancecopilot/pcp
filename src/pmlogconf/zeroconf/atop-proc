@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-ident   per-process metrics used by the atop command for zeroconf subpackage
+ident   per-process metrics used by the atop command
 probe   proc.psinfo.rss values ? include : exclude
 
 	proc.psinfo.cmd
@@ -11,8 +11,8 @@ probe   proc.psinfo.rss values ? include : exclude
 	proc.psinfo.stime
 	proc.psinfo.priority
 	proc.psinfo.nice
-	proc.psinfo.guest_time
 	proc.psinfo.start_time
+	proc.psinfo.guest_time
 	proc.psinfo.vsize
 	proc.psinfo.rss
 	proc.psinfo.processor
@@ -35,6 +35,8 @@ probe   proc.psinfo.rss values ? include : exclude
 	proc.memory.vmexe
 	proc.memory.vmlib
 	proc.memory.vmswap
+	proc.memory.share
+	proc.memory.vmsize
 	proc.io.read_bytes
 	proc.io.write_bytes
 	proc.io.cancelled_write_bytes
@@ -42,3 +44,4 @@ probe   proc.psinfo.rss values ? include : exclude
 	proc.id.euid_nm
 	proc.id.suid_nm
 	proc.id.fsuid_nm
+	proc.id.container

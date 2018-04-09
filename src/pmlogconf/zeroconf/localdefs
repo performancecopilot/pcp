@@ -1,8 +1,9 @@
 FILES = \
-      	atop-proc \
+	atop-proc \
 	nfsclient \
-	xfs-perdev \
+	numastat \
+	pidstat \
 	pidstat-summary \
 	tapestat \
-	numastat
+	xfs-perdev \
 # END

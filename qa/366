@@ -108,10 +108,11 @@ memory/proc-linux
 disk/perpartition
 zeroconf/atop-proc
 zeroconf/nfsclient
-zeroconf/xfs-perdev
+zeroconf/numastat
+zeroconf/pidstat
 zeroconf/pidstat-summary
 zeroconf/tapestat
-zeroconf/numastat
+zeroconf/xfs-perdev
 End-of-File
 
 # turn $tmp.cull-list into an awk program to cull groups like
