@@ -13,7 +13,9 @@ win32:LIBS	+= -lwsock32 -liphlpapi
 QT		+= network
 QMAKE_INFO_PLIST = pmgadgets.info
 QMAKE_EXTRA_COMPILERS += flex
-QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
+QMAKE_CFLAGS	+= $$(PCP_CFLAGS) $$(CFLAGS)
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS) $$(CXXFLAGS)
+QMAKE_LFLAGS	+= $$(LDFLAGS)
 
 flex.commands = flex ${QMAKE_FILE_IN}
 flex.input = FLEXSOURCES
