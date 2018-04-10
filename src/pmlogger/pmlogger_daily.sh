@@ -67,7 +67,7 @@ CULLAFTER=14
 # 
 COMPRESS=""
 COMPRESS_CMDLINE=""
-COMPRESS_DEFAULT=xz
+COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
 COMPRESSAFTER_CMDLINE=""
 eval `pmconfig -L -s transparent_decompress`
 if $transparent_decompress
