@@ -92,6 +92,10 @@ _stop_auto_restart pmcd
 # real QA test starts here
 pmdabcc_install
 echo
+# Wait for the PMDA to compile the bcc modules and become ready, 30s max
+for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
+[ $i -lt 30 ] || exit
+
 
 # Generate system activity for the BCC sysfork module so
 # that the metric value below will be over the threshold

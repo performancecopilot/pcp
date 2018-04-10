@@ -596,8 +596,16 @@ The value for this parameter should be
 Additionally, the \f2protocol\fP can include the \f3notready\fP keyword
 to indicate that the agent must be marked as not being ready to process
 requests from \f3pmcd\f1. The agent will explicitly notify the \f3pmcd\fP
-when it is ready to process the requests by sending \f3PM_ERR_PMDAREADY\fP 
+when it is ready to process the requests by sending a \f3PM_ERR_PMDAREADY\fP 
 PDU.
+For further details of this protocol, including a description of the
+IPC parameters that can be specified in a PMDA
+.B Install
+script with the
+.B ipc_prot
+parameter,
+see the relevant section in
+.BR PMDA (3). 
 .PD
 .TP 14
 .I command

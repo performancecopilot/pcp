@@ -50,6 +50,8 @@ class BCCPMDA(PMDA):
     def __init__(self, name, domain):
         """ Constructor """
         PMDA.__init__(self, name, domain)
+        # See Install
+        self.log("Initializing, currently in 'notready' state.")
 
         self.modules = OrderedDict()
         self.clusters = OrderedDict()
@@ -65,6 +67,9 @@ class BCCPMDA(PMDA):
 
         self.set_refresh(self.bcc_refresh)
         self.set_fetch_callback(self.bcc_fetch_callback)
+
+        self.pmda_ready()
+        self.log("Ready to process requests.")
 
         @atexit.register
         def cleanup(): # pylint: disable=unused-variable

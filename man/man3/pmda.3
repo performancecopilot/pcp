@@ -707,6 +707,50 @@ and
 .br
 Default: 3
 .TP
+.I ipc_prot
+For a daemon PMDA, this can be set to either
+.B binary
+or
+.BR text .
+The default is
+.B binary
+and
+.B text
+is rarely used.
+In addition, an optional IPC parameter
+.B notready
+can be used to signify that the PMDA will start up in the
+.B notready
+state, e.g. \fBipc_prot="binary notready"\fP.
+Note that the quotes are required.
+The IPC parameters for a PMDA appear in
+.B pmcd.conf
+in the
+.B "IPC Params"
+column.
+For further details, see
+.BR pmcd (1)
+but basically
+.B pmcd
+will not issue any requests to a PMDA that has started in the
+.B notready
+state until the PMDA sends a
+.B PM_ERR_PMDAREADY
+PDU.
+This allows PMDAs with long startup times to initialize correctly
+without timing out.
+For details, see
+.BR pmdaSendError (3)
+and
+.BR pmcd (1).
+When a PMDA is in the
+.B notready
+state, any client requests sent to
+.B pmcd
+for the PMDA domain will return with the
+.BR PM_ERR_PMDANOTREADY
+error.
+.TP
 .I socket_inet_def
 For a daemon PMDA using a
 .BR socket (2)
