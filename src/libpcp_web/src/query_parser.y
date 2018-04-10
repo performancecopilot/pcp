@@ -40,7 +40,10 @@ typedef union {
     node_t	*n;
     meta_t	m;
 } YYSTYPE;
+
 #define YYSTYPE_IS_DECLARED 1
+static int yylex(YYSTYPE *, PARSER *);
+static int yyerror(PARSER *, const char *);
 
 static int series_lex(YYSTYPE *, PARSER *);
 static int series_error(PARSER *, const char *);
@@ -78,8 +81,6 @@ static const char initial_str[]  = "Unexpected initial";
 /***********************************************************************
  * yacc token and operator declarations
  ***********************************************************************/
-
-%define api.prefix {series_}
 
 %expect 0
 %start      query
@@ -731,6 +732,12 @@ series_error(PARSER *lp, const char *s)
     return 0;
 }
 
+static int
+yyerror(PARSER *lp, const char *s)
+{
+    return series_error(lp, s);
+}
+
 static void
 unget(PARSER *lp, int c)
 {
@@ -1157,6 +1164,12 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
     return ret;
 }
 
+static int
+yylex(YYSTYPE *lvalp, PARSER *lp)
+{
+    return series_lex(lvalp, lp);
+}
+
 static void
 series_dumpexpr(node_t *np, int level)
 {
@@ -1208,7 +1221,7 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmflags flags, void *arg)
     series_t	*sp = &yp.yy_series;
 
     yp.yy_input = (char *)query;
-    if (series_parse(&yp)) {
+    if (yyparse(&yp)) {
 	sts = yp.yy_error;
     } else {
 	if (pmDebugOptions.series)
@@ -1226,7 +1239,7 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmflags flags, void *arg)
     series_t	*sp = &yp.yy_series;
 
     yp.yy_input = (char *)source;
-    if (series_parse(&yp)) {
+    if (yyparse(&yp)) {
 	sts = yp.yy_error;
     } else {
 	if (pmDebugOptions.series)
