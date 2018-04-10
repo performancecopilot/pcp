@@ -2606,6 +2606,16 @@ fi
 %{pmda_remove "$1" "bcc"}
 %endif
 
+%if !%{disable_bcc}
+%post pmda-bcc
+# pcp-4.0.2 and later: pmdabcc starts "notready" - this is for upgrades
+. /etc/pcp.env
+if grep -q ^bcc "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    touch $PCP_PMDAS_DIR/bcc/.NeedInstall
+fi
+%endif
+
 %if !%{disable_python2} || !%{disable_python3}
 %preun pmda-gluster
 %{pmda_remove "$1" "gluster"}
