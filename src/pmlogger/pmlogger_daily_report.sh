@@ -160,7 +160,7 @@ $verbose && echo REPORTFILE=$REPORTFILE
 
 # If the input archive doesn't exist, we exit.
 #
-if [ ! -f "$ARCHIVEPATH.index" -a ! -f "$ARCHIVEPATH.index.xz"]; then
+if [ ! -f "$ARCHIVEPATH.index" -a ! -f "$ARCHIVEPATH.index.xz" ]; then
     # report this to the log
     echo "$prog: FATAL error: Failed to find input archive \"$ARCHIVEPATH\"."
     exit 1
