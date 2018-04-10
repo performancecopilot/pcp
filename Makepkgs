@@ -71,7 +71,7 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		$command --help >$tmp.help 2>&1
+		LC_ALL=C $command --help >$tmp.help 2>&1
 		if egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp.help >/dev/null
 		then
 		    echo $exec

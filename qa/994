@@ -74,7 +74,7 @@ do
 	    # stat line of interest ...
 	    # Access: (1777/drwxrwxrwt)  Uid: (  0/  root)   Gid: (  0/  root)
 	    #
-	    eval `stat $target | sed -n -e '/^Access:.*Uid:.*Gid:/{
+	    eval `LC_ALL=C stat $target | sed -n -e '/^Access:.*Uid:.*Gid:/{
 s/Access: *(/_mode=/
 s/\/.*) *Uid: *( *[0-9][0-9]*\/ */ _owner=/
 s/) *Gid: *( *[0-9][0-9]*\/ */ _group=/
