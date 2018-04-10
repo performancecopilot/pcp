@@ -126,6 +126,13 @@ then
     touch "$PCP_PMDAS_DIR/prometheus/.NeedInstall"
 fi
 
+# set the notready flag for pmdabcc (only if already ./Install'd)
+#
+if grep -q ^bcc $PCP_PMCDCONF_PATH 2>/dev/null
+then
+    touch "$PCP_PMDAS_DIR/bcc/.NeedInstall"
+fi
+
 if which invoke-rc.d >/dev/null 2>&1
 then
     invoke-rc.d pmcd start
