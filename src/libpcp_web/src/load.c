@@ -156,6 +156,57 @@ labelsetdup(pmLabelSet *lp)
     return dup;
 }
 
+static int
+new_instance(SOURCE	*sp,
+	struct metric	*metric,	/* updated by this function */
+	int		inst,
+	int		index)
+{
+    instlist_t		*instlist;
+    size_t		size;
+    sds			msg;
+    unsigned int	i;
+
+    if (metric->u.inst == NULL) {
+	assert(index == 0);
+	size = sizeof(instlist_t) + sizeof(value_t);
+	if ((instlist = calloc(1, size)) == NULL) {
+	    loadfmt(msg, "out of memory (%s, %lld bytes)",
+			"new instlist", (long long)size);
+	    loadmsg(sp, PMLOG_ERROR, msg);
+	    return -ENOMEM;
+	}
+	instlist->listcount = instlist->listsize = 1;
+	instlist->value[0].inst = inst;
+	metric->u.inst = instlist;
+	return 0;
+    }
+
+    instlist = metric->u.inst;
+    assert(instlist->listcount <= instlist->listsize);
+
+    if (index >= instlist->listsize) {
+	size = instlist->listsize * 2;
+	assert(index < size);
+	size = sizeof(instlist_t) + (size * sizeof(value_t));
+	if ((instlist = (instlist_t *)realloc(instlist, size)) == NULL) {
+	    loadfmt(msg, "out of memory (%s, %lld bytes)",
+			"grew instlist", (long long)size);
+	    loadmsg(sp, PMLOG_ERROR, msg);
+	    return -ENOMEM;
+	}
+	instlist->listsize *= 2;
+	for (i = instlist->listcount; i < instlist->listsize; i++) {
+	    memset(&instlist->value[i], 0, sizeof(value_t));
+	}
+    }
+
+    i = instlist->listcount++;
+    instlist->value[i].inst = inst;
+    metric->u.inst = instlist;
+    return 0;
+}
+
 /*
  * Iterate over each value associated with this metric, and complete
  * the metadata (instance name, labels) associated with each.
@@ -172,6 +223,10 @@ update_instance_metadata(SOURCE *sp, metric_t *metric,
     char		*name;
     sds			msg, inst;
     int			i, j;
+
+    if (metric->u.inst == NULL)
+	for (i = 0; i < ninst; i++)
+	    new_instance(sp, metric, instlist[i], i);
 
     for (i = 0; i < metric->u.inst->listcount; i++) {
 	value = &metric->u.inst->value[i];
@@ -271,57 +326,6 @@ cache_metric_metadata(SOURCE *sp, metric_t *mp)
     if (labelset) pmFreeLabelSets(labelset, nsets);
     if (namelist) free(namelist);
     if (instlist) free(instlist);
-}
-
-static int
-new_instance(SOURCE	*sp,
-	struct metric	*metric,	/* updated by this function */
-	pmValue		*vp,
-	int		index)
-{
-    instlist_t		*instlist;
-    size_t		size;
-    sds			msg;
-    unsigned int	i;
-
-    if (metric->u.inst == NULL) {
-	assert(index == 0);
-	size = sizeof(instlist_t) + sizeof(value_t);
-	if ((instlist = calloc(1, size)) == NULL) {
-	    loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"new instlist", (long long)size);
-	    loadmsg(sp, PMLOG_ERROR, msg);
-	    return -ENOMEM;
-	}
-	instlist->listcount = instlist->listsize = 1;
-	instlist->value[0].inst = vp->inst;
-	metric->u.inst = instlist;
-	return 0;
-    }
-
-    instlist = metric->u.inst;
-    assert(instlist->listcount <= instlist->listsize);
-
-    if (index >= instlist->listsize) {
-	size = instlist->listsize * 2;
-	assert(index < size);
-	size = sizeof(instlist_t) + (size * sizeof(value_t));
-	if ((instlist = (instlist_t *)realloc(instlist, size)) == NULL) {
-	    loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"grew instlist", (long long)size);
-	    loadmsg(sp, PMLOG_ERROR, msg);
-	    return -ENOMEM;
-	}
-	instlist->listsize *= 2;
-	for (i = instlist->listcount; i < instlist->listsize; i++) {
-	    memset(&instlist->value[i], 0, sizeof(value_t));
-	}
-    }
-
-    i = instlist->listcount++;
-    instlist->value[i].inst = vp->inst;
-    metric->u.inst = instlist;
-    return 0;
 }
 
 static domain_t *
@@ -569,12 +573,12 @@ new_instances(SOURCE *sp, metric_t *metric, pmValueSet *vsp, pmflags flags)
 	vp = &vsp->vlist[j];
 
 	if (metric->u.inst == NULL) {
-	    new_instance(sp, metric, vp, j);
+	    new_instance(sp, metric, vp->inst, j);
 	    count++;
 	    k = 0;
 	}
 	else if (j >= metric->u.inst->listcount) {
-	    new_instance(sp, metric, vp, j);
+	    new_instance(sp, metric, vp->inst, j);
 	    count++;
 	    k = j;
 	}
@@ -584,7 +588,7 @@ new_instances(SOURCE *sp, metric_t *metric, pmValueSet *vsp, pmflags flags)
 		    break;	/* k is now the correct offset */
 	    }
 	    if (k == metric->u.inst->listcount) {    /* no matching instance */
-		new_instance(sp, metric, vp, k);
+		new_instance(sp, metric, vp->inst, k);
 		count++;
 	    }
 	} else {

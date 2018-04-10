@@ -154,7 +154,11 @@ value_precision(char *buf, int maxlen, int usedlen)
 sds
 json_escaped_str(const char *string)
 {
-    return sdscatrepr(sdsempty(), string, strlen(string));
+    sds		s = sdsempty();
+
+    if (string == NULL || string[0] == '\0')
+	return s;
+    return sdscatrepr(s, string, strlen(string));
 }
 
 static int
