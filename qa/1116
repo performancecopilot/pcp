@@ -21,7 +21,7 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
-write_size=`expr 3 \* 1024 \* 1024` # number of bytes to write into testfile
+write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
 
 _install_filter()
@@ -34,8 +34,14 @@ _install_filter()
 
 _value_filter()
 {
-    grep "value ${write_size}" | \
-    sed -e 's/\[[0-9]\+ or ".\+"\]/[X or "DEV::PID"]/g'
+    cat > $tmp.value
+    _bytes=`awk '/inst.*value/ {print $NF; exit}' $tmp.value`
+    _within_tolerance "Expecting ${write_size} +- 10%" $_bytes ${write_size} 10% -v
+
+    echo === input to _value_filter >>$here/$seq.full
+    cat $tmp.value | tee -a $here/$seq.full | \
+    awk '/inst.*value/ {print; exit}' | \
+    sed -e 's/\[[0-9]\+ or ".\+"\] value [0-9]\+/[X or "DEV::PID"] value VALUE/g'
     #end
 }
 
@@ -95,6 +101,10 @@ _stop_auto_restart pmcd
 # real QA test starts here
 pmdabcc_install
 echo
+
+# Wait for the PMDA to compile the bcc modules and become ready, 30s max
+for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
+[ $i -lt 30 ] || exit
 
 # Generate system activity for the BCC biotop module
 # block device required here, no tmpfs (e.g. /tmp)
