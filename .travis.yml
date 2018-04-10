@@ -17,3 +17,9 @@ before_script:
 script:
   - docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g sanity'
   - docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc'
+
+after_failure:
+  - docker exec pcp-qa bash -c 'tail -vn +1 /var/lib/pcp/testsuite/*.out.bad'
+
+after_script:
+  - docker exec pcp-qa bash -c 'tail -vn +1 $(find /var/log/pcp -name "*.log")'
