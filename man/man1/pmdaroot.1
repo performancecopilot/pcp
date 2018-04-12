@@ -38,7 +38,15 @@ and the associated namespace interfaces.
 Like all other PMDAs, it also exports performance metrics from the domain
 it controls.
 Currently, this is limited to information about the containers on the
-local system, and currently only Docker containers can be detected.
+local system; currently Docker and LXC containers can be detected.
+.PP
+If a non-default Docker parent-cgroup name is being used, this value can
+be indicated to
+.B pmdaroot
+through addition of a
+.B $PCP_SYSTEMD_CGROUP
+variable in
+.IR /etc/pcp.conf .
 .TP 5
 .B \-d
 It is absolutely crucial that the performance metrics

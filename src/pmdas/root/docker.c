@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,61 +18,32 @@
 #include "root.h"
 #include "docker.h"
 
-/*
- * Heuristic to determine if systemd cgroup names will be used,
- * or not.  Uglee, but appears to be no better way (previously,
- * we tested for /sys/fs/cgroup/systemd existance but turns out
- * the partial systemd installations of some distributions also
- * satisfy that test).
- */
-static int
-test_systemd_init(void)
-{
-    FILE *fp = fopen("/proc/1/cmdline", "r");
-    char line[64];
-    int	count;
-
-    if (!fp)
-	return 0;
-    count = fscanf(fp, "%63s", line);
-    fclose(fp);
-    if (count == 1 && strstr(line, "systemd") != NULL)
-	return 1;
-    return 0;
-}
+static const char *systemd_cgroup;
 
 /*
  * Container implementation for the Docker engine
- *
- * Currently uses direct access to the /var/lib/docker/container state
- * to discover local containers.  We may want to switch over to using
- * the Docker daemon (Unix socket) JSON API at some point though if we
- * can get everything needed there.  That'd also mean the daemon must
- * be running to get at the data, which also may be a problem (we can
- * fallback to using the code below in that case though?).  Anyway, it
- * is early days still...
+ * Uses /var/lib/docker/container files to discover local containers.
  */
 
 void
 docker_setup(container_engine_t *dp)
 {
-    static const char *docker_default = "/var/lib/docker";
-    const char *systemd_cgroup = getenv("PCP_SYSTEMD_CGROUP");
-    const char *docker = getenv("PCP_DOCKER_DIR");
+    static const char	*docker_default = "/var/lib/docker";
+    const char		*docker = getenv("PCP_DOCKER_DIR");
+
+    /* determine the default container naming heuristic */
+    if (systemd_cgroup == NULL)
+	systemd_cgroup = getenv("PCP_SYSTEMD_CGROUP");
 
     /* determine the location of docker container config.json files */
-    if (!docker)
+    if (docker == NULL)
 	docker = docker_default;
     pmsprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
     dp->path[sizeof(dp->path)-1] = '\0';
 
-    /* heuristic to determine which cgroup naming convention in use */
-    if (systemd_cgroup || test_systemd_init())
-	dp->state |= CONTAINER_STATE_SYSTEMD;
-
     if (pmDebugOptions.attr)
-	pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s suffix\n", dp->path,
-			(dp->state & CONTAINER_STATE_SYSTEMD)? "systemd" : "default");
+	pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s style names\n",
+			dp->path, systemd_cgroup ? "systemd" : "default");
 }
 
 int
@@ -96,14 +67,90 @@ docker_indom_changed(container_engine_t *dp)
     return 1;
 }
 
+static char *
+docker_cgroup_find(char *name, int namelen, char *path, int pathlen)
+{
+    DIR			*finddir;
+    int			bytes, childlen, found = 0;
+    char		*base, *child;
+    struct dirent	*drp;
+
+    /* find candidates in immediate children of path */
+    if ((finddir = opendir(path)) == NULL)
+	return NULL;
+
+    while ((drp = readdir(finddir)) != NULL) {
+	/* handle any special cases that we can cull right away */
+	if (*(base = &drp->d_name[0]) == '.' ||
+	    strcmp(base, "user.slice") == 0)
+	    continue;
+	child = base;
+	bytes = strlen(base);
+	if (pathlen + bytes + 2 >= MAXPATHLEN)
+	    continue;
+	/* accept either a direct name match or docker- prefixed */
+	if (strncmp(child, "docker-", sizeof("docker-")-1) == 0)
+	    child += sizeof("docker-")-1;
+	childlen = pathlen;
+	path[childlen++] = '/';
+	strncpy(path + childlen, base, bytes + 1);
+	if (strncmp(child, name, namelen) == 0) {
+	    found = 1;
+	    break;
+	}
+	/* didn't match - descend into this (possible) directory */
+	child = docker_cgroup_find(name, namelen, path, childlen + bytes);
+	if (child != NULL) {
+	    path = child;
+	    found = 1;
+	    break;
+	}
+    }
+    closedir(finddir);
+
+    return found ? path : NULL;
+}
+
+static void
+docker_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
+{
+    char		path[MAXPATHLEN], *p;
+    int			pathlen;
+
+    /* Using "unified" (cgroup2) or "memory" (cgroup1) as starting
+     * points, recursively descend looking for a named container.
+     */
+    pathlen = pmsprintf(path, sizeof(path), "%s/%s", cgroups, "unified");
+    if ((p = docker_cgroup_find(name, namelen, path, pathlen)) != NULL) {
+	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
+	return;
+    }
+    pathlen = pmsprintf(path, sizeof(path), "%s/%s", cgroups, "memory");
+    if ((p = docker_cgroup_find(name, namelen, path, pathlen)) != NULL) {
+	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
+	return;
+    }
+    /* Else fallback to using a default naming conventions. */
+    if (systemd_cgroup)
+	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s/docker-%s.scope",
+			systemd_cgroup, name);
+    else
+	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "/docker/%s", name);
+}
+
 void
 docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 {
+    static const char	*cgroup_default = "/sys/fs/cgroup";
+    static char		*cgroup;
     DIR			*rundir;
     char		*path;
     struct dirent	*drp;
     container_t		*cp;
     int			sts;
+
+    if (cgroup == NULL && (cgroup = getenv("PCP_CGROUP_DIR")) == NULL)
+	cgroup = (char *)cgroup_default;
 
     if ((rundir = opendir(dp->path)) == NULL) {
 	if (pmDebugOptions.attr)
@@ -126,13 +173,9 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		continue;
 	    cp->engine = dp;
-	    pmsprintf(cp->cgroup, sizeof(cp->cgroup),
-			(dp->state & CONTAINER_STATE_SYSTEMD) ?
-			"/system.slice/docker-%s.scope" : "/docker/%s",
-			path);
+	    docker_cgroup_search(path, strlen(path), cgroup, cp);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
-	
     }
     closedir(rundir);
 }

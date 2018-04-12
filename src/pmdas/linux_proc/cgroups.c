@@ -283,32 +283,39 @@ cgroup_mounts_subsys(const char *system, char *buffer, int length)
 /*
  * From a cgroup name attempt to extract a container ID
  *    /system.slice/docker-0ea0c4[...]3bc0.scope (e.g. RHEL/Fedora)
- *    /docker/0ea0c4[...]3bc0  (e.g. Debian/Ubuntu/SUSE))
+ *    /docker/0ea0c4[...]3bc0  (e.g. Debian/Ubuntu/SUSE)
  * However, we need to be wary of strings like "docker-containerd".
+ * Also, docker may be started with the --parent-cgroup= argument,
+ * further complicating our life - /system.slice is just a default.
  */
 char *
 cgroup_container_search(const char *cgroup, char *cid, int cidlen)
 {
-    const char *p = cgroup;
+    const char *endp = strchr(cgroup, '\n');
+    const char *p;
     char *end;
     int len;
 
-    if (strncmp(p, "/system.slice/docker-", 21) == 0) {
-	p += 21;
+    endp = cgroup + strlen(cgroup) + 1;
+    while (*(endp-1) == '\n')
+	endp--;
+    for (p = endp; p != cgroup; p--)
+	if (*p == '/') break;
+    if (p == cgroup)
+	return NULL;
+
+    if (strncmp(p, "/docker-", sizeof("/docker-")-1) == 0) {
+	p += sizeof("/docker-")-1;
 	if ((end = strchr(p, '.')) != NULL &&
 	    ((len = end - p) < cidlen) && len == DOCKERCIDLEN) {
 	    strncpy(cid, p, len);
 	    cid[len] = '\0';
 	    return cid;
 	}
-    } else if (strncmp(p, "/docker/", 8) == 0) {
-	p += 8;
-	if ((end = strchr(p, '\n')) != NULL &&
-	    ((len = end - p) < cidlen) && len == DOCKERCIDLEN) {
-	    strncpy(cid, p, len);
-	    cid[len] = '\0';
-	    return cid;
-	}
+    } else if ((len = (endp - p) - 2) == DOCKERCIDLEN) {
+	strncpy(cid, p + 1, len);
+	cid[len] = '\0';
+	return cid;
     }
     return NULL;
 }

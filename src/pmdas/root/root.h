@@ -69,10 +69,6 @@ typedef struct container_engine {
     container_match_t	name_matching;
 } container_engine_t;
 
-enum {
-    CONTAINER_STATE_SYSTEMD	= (1<<0),
-};
-
 typedef struct container {
     int			pid;
     int			flags : 8;	/* CONTAINER_FLAG bitwise */
