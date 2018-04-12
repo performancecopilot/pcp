@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014, 2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -134,3 +134,64 @@ Total number of FindNext requests to the server
 
 @ cifs.ops.find_close FindClose requests
 Total number of FindClose requests to the server
+
+@ cifs.version CIFS version number
+The cifs fs version number
+
+@ cifs.fs.read_fails Read failures
+Total number of read operations that failed per filesystem mounted.
+
+@ cifs.fs.write_fails Write failures
+Total number of write operations that failed per filesystem mounted.
+
+@ cifs.fs.flushes_fails Cache flush failures
+Number of file system cache flush failures
+
+@ cifs.fs.locks_fails Number of lock failures
+Total number of open lock failures for each mounted CIFS file system.
+
+@ cifs.ops.close_fails Close operation failures
+Total number of file close operation failures per mounted file system.
+
+@ cifs.fs.negotiates Count of protocol negotiations
+@ cifs.fs.negotiates_fails Count of protocol negotiations
+
+@ cifs.fs.sessionsetups Count of session setups
+@ cifs.fs.sessionsetups_fails Count of session setup failures
+
+@ cifs.fs.logoffs Number of logoffs
+@ cifs.fs.logoffs_fails Number of logoff failures
+
+@ cifs.fs.treecons Number of tree connections
+@ cifs.fs.treecons_fails Number of tree connection failures
+
+@ cifs.fs.treediscons Number of tree disconnects
+@ cifs.fs.treediscons_fails Number of tree disconnection failures
+
+@ cifs.fs.creates Number of created files
+@ cifs.fs.creates_fails Number of files failed to create
+
+@ cifs.fs.IOCTLs Number of IOCTLs
+@ cifs.fs.IOCTLs_fails Number of failed IOCTLs
+
+@ cifs.fs.cancels Number of cancelled ops
+@ cifs.fs.cancels_fails Number of cancelled ops failures
+
+@ cifs.fs.echos Count of echo commands
+@ cifs.fs.echos_fails Count of echo command failures
+
+@ cifs.fs.querydirs Count of directory queries
+@ cifs.fs.querydirs_fails Count of directory query failures
+
+@ cifs.fs.changenotifies Count of change notifications
+@ cifs.fs.changenotifies_fails Count of change notification failures
+
+@ cifs.fs.queryinfos Count of information queries
+@ cifs.fs.queryinfos_fails Count of information query failures
+
+@ cifs.fs.setinfos Count of set infos
+@ cifs.fs.setinfos_fails Count of set info failures
+
+@ cifs.fs.oplock_breaks_fails Number of oplock break failures.
+Total number of operation lock break failures for each file system.
+

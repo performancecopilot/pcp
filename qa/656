@@ -46,17 +46,21 @@ _make_helptext cifs
 
 cd $here
 
-echo
-echo "=== Unpacking fake root === " | tee -a $here/$seq.full
-$sudo rm -fr $root
-mkdir $root || _fail "root in use when processing $tgz"
-cd $root
-tar xzf $here/cifs/cifs-root*
-cd $here
+for tgz in $here/cifs/cifs-root-*.tgz
+do
+    base=`basename $tgz`
+    echo
+    echo "=== Unpacking fake root ($base) === " | tee -a $here/$seq.full
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $base"
+    cd $root
+    tar xzf $tgz
+    cd $here
 
-echo
-echo "=== Valgrind check cifs metrics for all filesystems ===" | tee -a $here/$seq.full
-_run_valgrind pminfo -L -K clear -K add,121,$pmda -dfmtT -n $pmns cifs
+    echo
+    echo "=== Valgrind check cifs metrics for all filesystems ===" | tee -a $here/$seq.full
+    _run_valgrind pminfo -L -K clear -K add,121,$pmda -dfmtT -n $pmns cifs
+done
 
 status=0
 exit

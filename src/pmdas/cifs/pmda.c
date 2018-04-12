@@ -1,13 +1,13 @@
 /*
  * Common Internet File System (CIFS) PMDA
  *
- * Copyright (c) 2014 Red Hat.
- * 
+ * Copyright (c) 2014, 2018 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -25,9 +25,11 @@ static int _isDSO = 1; /* for local contexts */
 
 static char *cifs_procfsdir = "/proc/fs/cifs";
 static char *cifs_statspath = "";
+unsigned int global_version_major;
+unsigned int global_version_minor;
 
-pmdaIndom indomtable[] = { 
-    { .it_indom = CIFS_FS_INDOM }, 
+pmdaIndom indomtable[] = {
+    { .it_indom = CIFS_FS_INDOM },
 };
 
 #define INDOM(x) (indomtable[x].it_indom)
@@ -36,7 +38,7 @@ pmdaIndom indomtable[] = {
  * all metrics supported in this PMDA - one table entry for each
  *
  */
-pmdaMetric metrictable[] = { 
+pmdaMetric metrictable[] = {
     /* GLOBAL STATS */
     { .m_desc =  {
         PMDA_PMID(CLUSTER_GLOBAL_STATS, GLOBAL_SESSION),
@@ -82,6 +84,10 @@ pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_GLOBAL_STATS, GLOBAL_VFS_OPS_MAX),
         PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLOBAL_STATS, GLOBAL_VERSION),
+        PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* PER CIFS SHARE STATS */
     { .m_desc = {
         PMDA_PMID(CLUSTER_FS_STATS, FS_CONNECTED),
@@ -175,6 +181,135 @@ pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_FS_STATS, FS_FIND_CLOSE),
         PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* V2 Stats */
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_READ_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_WRITE_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_FLUSHES_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_LOCKS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_NEGOTIATES),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_NEGOTIATES_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_SESSIONSETUPS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_SESSIONSETUPS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_LOGOFFS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_LOGOFFS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_TREECONS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_TREECONS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_TREEDISCONS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_TREEDISCONS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CREATES),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CREATES_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CLOSE_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_IOCTLS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_IOCTLS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CANCELS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CANCELS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_ECHOS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_ECHOS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_QUERYDIRS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_QUERYDIRS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CHANGENOTIFIES),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_CHANGENOTIFIES_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_QUERYINFOS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_QUERYINFOS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_SETINFOS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_SETINFOS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_FS_STATS, FS_OPLOCK_BREAKS_FAILS),
+        PM_TYPE_U64, CIFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 int
@@ -226,7 +361,7 @@ cifs_instance_refresh(void)
                 return PM_ERR_AGAIN;
             }
             strcpy(fs->name, fsname);
-        }   
+        }
 	else if (sts < 0)
 	    continue;
 
@@ -347,11 +482,13 @@ cifs_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 /*
  * Initialise the agent (both daemon and DSO).
  */
-void 
+void
 __PMDA_INIT_CALL
 cifs_init(pmdaInterface *dp)
 {
     char *envpath;
+    char buffer[PATH_MAX];
+    FILE *fp;
 
     if ((envpath = getenv("CIFS_STATSPATH")) != NULL)
 	cifs_statspath = envpath;
@@ -369,6 +506,23 @@ cifs_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
+
+    memset(buffer, 0, sizeof(buffer));
+    pmsprintf(buffer, sizeof(buffer), "%s%s/DebugData", cifs_statspath, cifs_procfsdir);
+    buffer[sizeof(buffer)-1] = '\0';
+    if ((fp = fopen(buffer, "r")) != NULL ) {
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+	    /* global cifs stats */
+	    if (strncmp(buffer, "CIFS Version", 12) == 0)
+		sscanf(buffer, "CIFS Version %u.%u",
+                       &global_version_major, &global_version_minor);
+	}
+	fclose(fp);
+    }
+    else {
+	global_version_major = 1;
+        global_version_minor = 0;
+    }
 
     dp->version.four.instance = cifs_instance;
     dp->version.four.fetch = cifs_fetch;

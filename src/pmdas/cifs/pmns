@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,46 +13,83 @@
  */
 
 cifs {
-    session		CIFS:0:0
-    shares		CIFS:0:1
-    buffer		CIFS:0:2
-    pool_size		CIFS:0:3
-    small_buffer	CIFS:0:4
-    small_pool_size	CIFS:0:5
-    mid_operations	CIFS:0:6
-    total_operations	CIFS:0:7
-    total_reconnects	CIFS:0:8
-    vfs_operations	CIFS:0:9
-    vfs_operations_max	CIFS:0:10
+    session		 CIFS:0:0
+    shares		 CIFS:0:1
+    buffer		 CIFS:0:2
+    pool_size		 CIFS:0:3
+    small_buffer	 CIFS:0:4
+    small_pool_size	 CIFS:0:5
+    mid_operations	 CIFS:0:6
+    total_operations	 CIFS:0:7
+    total_reconnects	 CIFS:0:8
+    vfs_operations	 CIFS:0:9
+    vfs_operations_max	 CIFS:0:10
     fs
     ops
+    version		 CIFS:0:11
 }
 
 cifs.fs {
-    connected		CIFS:1:0
-    smbs		CIFS:1:1
-    oplock_breaks	CIFS:1:2
-    read		CIFS:1:3
-    read_bytes		CIFS:1:4
-    write		CIFS:1:5
-    write_bytes		CIFS:1:6
-    flushes		CIFS:1:7
-    locks		CIFS:1:8
-    hard_links		CIFS:1:9
-    sym_links		CIFS:1:10
+    connected		 CIFS:1:0
+    smbs		 CIFS:1:1
+    oplock_breaks	 CIFS:1:2
+    read		 CIFS:1:3
+    read_bytes		 CIFS:1:4
+    write		 CIFS:1:5
+    write_bytes		 CIFS:1:6
+    flushes		 CIFS:1:7
+    locks		 CIFS:1:8
+    hard_links		 CIFS:1:9
+    sym_links		 CIFS:1:10
+
+    /* V2 metrics for existing stats */
+    read_fails		 CIFS:1:23
+    write_fails		 CIFS:1:24
+    flushes_fails	 CIFS:1:25
+    locks_fails		 CIFS:1:26
+
+    /* V2 stats */
+    negotiates		 CIFS:1:28
+    negotiates_fails	 CIFS:1:29
+    sessionsetups	 CIFS:1:30
+    sessionsetups_fails	 CIFS:1:31
+    logoffs		 CIFS:1:32
+    logoffs_fails	 CIFS:1:33
+    treecons		 CIFS:1:34
+    treecons_fails	 CIFS:1:35
+    treediscons		 CIFS:1:36
+    treediscons_fails	 CIFS:1:37
+    creates		 CIFS:1:38
+    creates_fails	 CIFS:1:39
+    IOCTLs		 CIFS:1:40
+    IOCTLs_fails	 CIFS:1:41
+    cancels		 CIFS:1:42
+    cancels_fails	 CIFS:1:43
+    echos		 CIFS:1:44
+    echos_fails		 CIFS:1:45
+    querydirs		 CIFS:1:46
+    querydirs_fails	 CIFS:1:47
+    changenotifies	 CIFS:1:48
+    changenotifies_fails CIFS:1:49
+    queryinfos		 CIFS:1:50
+    queryinfos_fails	 CIFS:1:51
+    setinfos		 CIFS:1:52
+    setinfos_fails	 CIFS:1:53
+    oplock_breaks_fails	 CIFS:1:54
 }
 
 cifs.ops {
-    open		CIFS:1:11
-    close		CIFS:1:12
-    delete		CIFS:1:13
-    posix_open		CIFS:1:14
-    posix_mkdir		CIFS:1:15
-    mkdir		CIFS:1:16
-    rmdir		CIFS:1:17
-    rename		CIFS:1:18
-    t2_rename		CIFS:1:19
-    find_first		CIFS:1:20
-    find_next		CIFS:1:21
-    find_close		CIFS:1:22
+    open		 CIFS:1:11
+    close		 CIFS:1:12
+    close_fails		 CIFS:1:27
+    delete		 CIFS:1:13
+    posix_open		 CIFS:1:14
+    posix_mkdir		 CIFS:1:15
+    mkdir		 CIFS:1:16
+    rmdir		 CIFS:1:17
+    rename		 CIFS:1:18
+    t2_rename		 CIFS:1:19
+    find_first		 CIFS:1:20
+    find_next		 CIFS:1:21
+    find_close		 CIFS:1:22
 }
