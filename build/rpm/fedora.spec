@@ -1573,9 +1573,6 @@ Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
 BuildRequires: libvirt-python3 python3-lxml
 %else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-libvirt %{__python2}-lxml
-BuildRequires: %{__python2}-libvirt %{__python2}-lxml
 %if 0%{?rhel} == 0 || 0%{?fedora} >= 27
 Requires: %{__python2}-pcp
 Requires: %{__python2}-libvirt %{__python2}-lxml
