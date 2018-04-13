@@ -328,57 +328,6 @@ cache_metric_metadata(SOURCE *sp, metric_t *mp)
     if (instlist) free(instlist);
 }
 
-static int
-new_instance(SOURCE	*sp,
-	struct metric	*metric,	/* updated by this function */
-	pmValue		*vp,
-	int		index)
-{
-    instlist_t		*instlist;
-    size_t		size;
-    sds			msg;
-    unsigned int	i;
-
-    if (metric->u.inst == NULL) {
-	assert(index == 0);
-	size = sizeof(instlist_t) + sizeof(value_t);
-	if ((instlist = calloc(1, size)) == NULL) {
-	    loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"new instlist", (long long)size);
-	    loadmsg(sp, PMLOG_ERROR, msg);
-	    return -ENOMEM;
-	}
-	instlist->listcount = instlist->listsize = 1;
-	instlist->value[0].inst = vp->inst;
-	metric->u.inst = instlist;
-	return 0;
-    }
-
-    instlist = metric->u.inst;
-    assert(instlist->listcount <= instlist->listsize);
-
-    if (index >= instlist->listsize) {
-	size = instlist->listsize * 2;
-	assert(index < size);
-	size = sizeof(instlist_t) + (size * sizeof(value_t));
-	if ((instlist = (instlist_t *)realloc(instlist, size)) == NULL) {
-	    loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"grew instlist", (long long)size);
-	    loadmsg(sp, PMLOG_ERROR, msg);
-	    return -ENOMEM;
-	}
-	instlist->listsize *= 2;
-	for (i = instlist->listcount; i < instlist->listsize; i++) {
-	    memset(&instlist->value[i], 0, sizeof(value_t));
-	}
-    }
-
-    i = instlist->listcount++;
-    instlist->value[i].inst = vp->inst;
-    metric->u.inst = instlist;
-    return 0;
-}
-
 static domain_t *
 new_domain(SOURCE *sp, int domain, context_t *context)
 {
