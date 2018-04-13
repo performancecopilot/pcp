@@ -42,9 +42,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bcc metrics have appeared ... 1 metrics and X values
 
 === report metric values ===
-Expecting 20971520 +- 10% is in range
-    inst [X or "DEV::PID"] value VALUE
-=== verify metric values ===
+found value 20971520 +- 10%
 
 === remove bcc agent ===
 Culling the Performance Metrics Name Space ...

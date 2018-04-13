@@ -26,23 +26,28 @@ out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
 
 _install_filter()
 {
+    # ignore warnings because PMDA might not be ready yet
     sed \
-	-e "s/.*pmdabcc.* Info/Info/g" \
-  -e "s/1 metrics and [0-9]\+ values/1 metrics and X values/g" \
+    -e "s/.*pmdabcc.* Info/Info/g" \
+    -e "s/[0-9]\+ warnings, //" \
+    -e "s/1 metrics and [0-9]\+ values/1 metrics and X values/g" \
     #end
 }
 
 _value_filter()
 {
     cat > $tmp.value
-    _bytes=`awk '/inst.*value/ {print $NF; exit}' $tmp.value`
-    _within_tolerance "Expecting ${write_size} +- 10%" $_bytes ${write_size} 10% -v
-
     echo === input to _value_filter >>$here/$seq.full
-    cat $tmp.value | tee -a $here/$seq.full | \
-    awk '/inst.*value/ {print; exit}' | \
-    sed -e 's/\[[0-9]\+ or ".\+"\] value [0-9]\+/[X or "DEV::PID"] value VALUE/g'
-    #end
+    cat $tmp.value >> $here/$seq.full
+
+    _values=`awk '/inst.*value/ {print $NF}' $tmp.value`
+    for value in $_values
+    do
+        if _within_tolerance "Expecting ${write_size} +- 10%" $value ${write_size} 10%; then
+            echo "found value ${write_size} +- 10%"
+            break
+        fi
+    done
 }
 
 pmdabcc_remove()
@@ -112,10 +117,6 @@ dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.proc.io.perdev 2>&1 | _value_filter \
-| tee -a $here/$seq.full
-
-echo "=== verify metric values ==="
-pminfo -v bcc 2>&1 \
 | tee -a $here/$seq.full
 
 pmdabcc_remove
