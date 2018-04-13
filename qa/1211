@@ -1,0 +1,108 @@
+#!/bin/sh
+# PCP QA Test No. 1211
+# Exercise basic pmseries loading and querying.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmseries >/dev/null 2>&1 || \
+	_notrun "pmseries command line utility not installed"
+which redis-cli >/dev/null 2>&1 || \
+	_notrun "Redis command line utility not installed"
+redis-cli ping >/dev/null 2>$here/$seq.err || _notrun `cat $here/$seq.err`
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+series=unknown
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+	-e "s,$hostname,QAHOST,g" \
+    #end
+}
+
+# real QA test starts here
+echo "Clearing local cache ..."
+redis-cli flushall
+echo
+
+echo "Verify basic load from proc archive"
+pmseries --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+echo
+
+echo "List all metric names ..."
+pmseries -m | LC_COLLATE=POSIX sort
+echo
+
+echo "List all label names ..."
+pmseries -l | LC_COLLATE=POSIX sort
+echo
+
+echo "List all context names ..."
+pmseries -c | _filter_source | LC_COLLATE=POSIX sort
+echo
+
+echo "List all instance names ..."
+pmseries -i | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform simple name-based query ..."
+pmseries kernel.all.pswitch | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform simple label-based query ..."
+pmseries 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform simple instance-based query ..."
+pmseries 'kernel.all.load{instance.name:"1 minute"}'
+echo
+
+exit  # TODO: pmseries frontend is WIP from here
+# TODO: verify pminfo and pmseries source and series match
+
+echo "Perform simple source-based query ..."
+pmseries 'kernel.all.pswitch{source.name:"bozo-laptop"}'
+echo
+
+echo "Descriptor lookup for a given SeriesID ..."
+pmseries --desc $series
+echo
+
+echo "SourceID lookup for a given SeriesID ..."
+pmseries --source $series
+echo
+
+echo "All lookups for a given SeriesID ..."
+pmseries --all $series
+echo
+
+echo "Values fetch for a single-valued query ..."
+pmseries 'kernel.all.pswitch[count: 30]'
+echo
+
+echo "Values fetch for a multi-valued query ..."
+pmseries 'kernel.all.load[count: 30]'
+echo
+
+# success, all done
+status=0
+exit

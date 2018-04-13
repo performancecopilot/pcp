@@ -328,6 +328,57 @@ cache_metric_metadata(SOURCE *sp, metric_t *mp)
     if (instlist) free(instlist);
 }
 
+static int
+new_instance(SOURCE	*sp,
+	struct metric	*metric,	/* updated by this function */
+	pmValue		*vp,
+	int		index)
+{
+    instlist_t		*instlist;
+    size_t		size;
+    sds			msg;
+    unsigned int	i;
+
+    if (metric->u.inst == NULL) {
+	assert(index == 0);
+	size = sizeof(instlist_t) + sizeof(value_t);
+	if ((instlist = calloc(1, size)) == NULL) {
+	    loadfmt(msg, "out of memory (%s, %lld bytes)",
+			"new instlist", (long long)size);
+	    loadmsg(sp, PMLOG_ERROR, msg);
+	    return -ENOMEM;
+	}
+	instlist->listcount = instlist->listsize = 1;
+	instlist->value[0].inst = vp->inst;
+	metric->u.inst = instlist;
+	return 0;
+    }
+
+    instlist = metric->u.inst;
+    assert(instlist->listcount <= instlist->listsize);
+
+    if (index >= instlist->listsize) {
+	size = instlist->listsize * 2;
+	assert(index < size);
+	size = sizeof(instlist_t) + (size * sizeof(value_t));
+	if ((instlist = (instlist_t *)realloc(instlist, size)) == NULL) {
+	    loadfmt(msg, "out of memory (%s, %lld bytes)",
+			"grew instlist", (long long)size);
+	    loadmsg(sp, PMLOG_ERROR, msg);
+	    return -ENOMEM;
+	}
+	instlist->listsize *= 2;
+	for (i = instlist->listcount; i < instlist->listsize; i++) {
+	    memset(&instlist->value[i], 0, sizeof(value_t));
+	}
+    }
+
+    i = instlist->listcount++;
+    instlist->value[i].inst = vp->inst;
+    metric->u.inst = instlist;
+    return 0;
+}
+
 static domain_t *
 new_domain(SOURCE *sp, int domain, context_t *context)
 {
@@ -693,10 +744,9 @@ series_cache_load(SOURCE *sp, timing_t *tp, pmflags flags)
 	return sts;
     }
 
-    /* TODO: if metadata only for archive, no need to fetch! */
-    /* TODO: support a tail-mode of operation as well - pmDiscoverArchives(3) */
-    /* TODO: support a live series loading mode of operation as well */
-    /* TODO: support the other context types */
+    /* TODO: in metadata only loading mode, there's no need to use pmFetch */
+    /* TODO: support a tail-mode of operation - need pmDiscoverArchives(3) */
+    /* TODO: support a live series loading mode of operation */
     if (sp->context.type != PM_CONTEXT_ARCHIVE)
 	return -ENOTSUP;
 
@@ -718,8 +768,8 @@ series_cache_load(SOURCE *sp, timing_t *tp, pmflags flags)
 	}
     }
 
-    loadfmt(msg, "processed %d archive records from %s",
-		count, sp->context.name);
+    loadfmt(msg, "processed %d archive records from %s", count,
+		sp->context.name);
     loadmsg(sp, PMLOG_INFO, msg);
 
     if (sts == PM_ERR_EOL)
@@ -736,7 +786,7 @@ series_cache_load(SOURCE *sp, timing_t *tp, pmflags flags)
 static void
 set_context_source(SOURCE *sp, const char *source)
 {
-    sp->context.name = source;
+    sp->context.name = sdsnew(source);
 }
 
 static void
@@ -860,6 +910,13 @@ destroy_context(SOURCE *sp)
 
     pmDestroyContext(cp->context);
     cp->context = -1;
+
+    if (cp->name)
+	sdsfree(cp->name);
+    cp->name = NULL;
+    if (cp->origin)
+	sdsfree(cp->origin);
+    cp->origin = NULL;
 }
 
 static int
@@ -912,6 +969,28 @@ fail:
     return -ESRCH;
 }
 
+static void
+set_source_origin(context_t *cp)
+{
+    char		host[MAXHOSTNAMELEN];
+    char		path[MAXPATHLEN];
+    size_t		bytes;
+
+    if (cp->type == PM_CONTEXT_ARCHIVE) {
+	if (realpath(cp->name, path) != NULL)
+	    bytes = strlen(path);
+	else
+	    bytes = pmsprintf(path, sizeof(path), "%s", cp->name);
+	cp->name = sdscpylen(cp->name, path, bytes);
+    }
+
+    if ((gethostname(host, sizeof(host))) == 0)
+	bytes = strlen(host);
+    else
+	bytes = pmsprintf(host, sizeof(host), "localhost");
+    cp->origin = sdsnewlen(host, bytes);
+}
+
 int
 series_source(pmSeriesSettings *settings,
 	node_t *root, timing_t *timing, pmflags flags, void *arg)
@@ -923,11 +1002,14 @@ series_source(pmSeriesSettings *settings,
     source.redis = redis_init();
 
     load_prepare_source(&source, root, 0);
-    if (!source.context.type) {
+    if (source.context.type) {
+	set_source_origin(&source.context);
+    } else {
 	loadfmt(msg, "found no context to load");
 	loadmsg(&source, PMLOG_ERROR, msg);
 	return -ESRCH;
     }
+
     if ((sts = new_context(&source)) < 0)
 	return sts;
     server_cache_source(&source);

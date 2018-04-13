@@ -667,6 +667,8 @@ main(int argc, char *argv[])
 {
     sds			query;
     int			c, sts;
+    const char		*split = ",";
+    const char		*space = " ";
     series_flags	flags = 0;
     series_command	command = series_query;
 
@@ -704,6 +706,7 @@ main(int argc, char *argv[])
 
 	case 'L':	/* command line contains source load string */
 	    command = series_load;
+	    split = space;
 	    break;
 
 	case 'm':	/* command line contains series identifiers */
@@ -716,6 +719,7 @@ main(int argc, char *argv[])
 
 	case 'q':	/* command line contains query string */
 	    command = series_query;
+	    split = space;
 	    break;
 
 	case 'S':	/* report source identifiers, ala pminfo -S */
@@ -732,8 +736,10 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (opts.optind == argc)
+    if (opts.optind == argc && command == series_query) {
+	pmprintf("%s: error - no --query string provided\n", pmGetProgname());
 	opts.errors++;
+    }
 
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
 	sts = !(opts.flags & PM_OPTFLAG_EXIT);
@@ -744,9 +750,13 @@ main(int argc, char *argv[])
     if (pmLogLevelIsTTY())
 	flags |= PMSERIES_COLOUR;
 
-    query = sdsjoin(&argv[opts.optind], argc - opts.optind, " ");
-    sts = command(&settings, query, flags);
-    sdsfree(query);
+    if (opts.optind == argc)
+	query = sdsempty();
+    else
+	query = sdsjoin(&argv[opts.optind], argc - opts.optind, (char *)split);
 
+    sts = command(&settings, query, flags);
+
+    sdsfree(query);
     return sts;
 }

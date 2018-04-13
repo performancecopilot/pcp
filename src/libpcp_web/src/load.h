@@ -18,7 +18,8 @@
 #include "series.h"
 
 typedef struct context {
-    const char		*name;		/* source archive or hostspec */
+    sds			name;		/* source archive or hostspec */
+    sds			origin;		/* host where series loaded in */
     unsigned char	hash[20];	/* context labels metadata SHA1 */
     int			type	: 7;
     int			cached	: 1;
