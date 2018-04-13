@@ -1,0 +1,252 @@
+#!/usr/bin/ev pmpython
+
+#
+#Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+# 
+#Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+# 
+#1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+#3. All advertising materials mentioning features or use of this software must display the following acknowledgement:  This product includes software developed by the AT&T.
+#4. Neither the name of AT&T nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ 
+#THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+from ctypes import c_uint, c_ulong, POINTER, cast, Structure
+import cpmapi as c_api
+
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+
+import json
+import multiprocessing
+import time
+import sys 
+import os 
+from ctypes import c_uint, c_ulong, POINTER, cast, Structure
+from ConfigParser import SafeConfigParser
+from collections import OrderedDict
+import subprocess
+import timeit
+
+
+UNITS_NONE = pmUnits(0, 0, 0, 0, 0, 0)
+UNITS_COUNT = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
+
+class EXCHANGE(Structure):
+    """
+    Define the structure for the exchange metrics
+    """
+    _fields_ = [
+        ("tx_packets", c_ulong),
+        ("tx_bytes", c_ulong),
+        ("tx_errors", c_ulong),
+        ("rx_packets", c_ulong),
+        ("rx_bytes", c_ulong),
+        ("rx_errors", c_ulong),
+    ]
+
+
+def get_contrail_metrics():
+    
+    command_str = subprocess.check_output(["vif", "--list"])
+
+    no_metric_name = True
+    metric_dict = {}
+    metric_name = None
+
+    for line in command_str.splitlines():
+        line = line.lstrip()
+        if no_metric_name and line.startswith('vif0'):
+            no_metric_name = False
+            line_list = line.split()
+            if line.startswith('vif0/0'):
+                metric_name = 'vif0/0'
+            else:
+                metric_name = line_list[0] +"::"+ line_list[2]#+ "::"+ line_list[2]
+            metric_dict[metric_name] = {}
+        if not no_metric_name:
+
+            if line.startswith('RX packets:'):
+                metric_dict[metric_name]['rx'] = {}
+                for item in line.split():
+                    if item.startswith('packets:'):
+                        metric_dict[metric_name]['rx']['packets'] = item.replace('packets:','')
+                    if item.startswith('bytes:'):
+                        metric_dict[metric_name]['rx']['bytes'] = item.replace('bytes:','')
+                    if item.startswith('errors:'):
+                        metric_dict[metric_name]['rx']['errors'] = item.replace('errors:','')
+
+
+
+            if line.startswith('TX packets:'):
+                metric_dict[metric_name]['tx'] = {}
+                for item in line.split():
+                    if item.startswith('packets:'):
+                        metric_dict[metric_name]['tx']['packets'] = item.replace('packets:','')
+                    if item.startswith('bytes:'):
+                        metric_dict[metric_name]['tx']['bytes'] = item.replace('bytes:','')
+                    if item.startswith('errors:'):
+                        metric_dict[metric_name]['tx']['errors'] = item.replace('errors:','')
+
+                no_metric_name = True
+
+    return metric_dict
+
+class CONTRAILPMDA(PMDA):
+    """
+    PMDA class for configurable contrail channel metrics
+    """
+    exchanges = OrderedDict()
+
+    MESSAGES = 0
+    PROCESS = 1
+
+    def __init__(self, name, domain):
+        
+        PMDA.__init__(self, name, domain)
+        self.log('Inited')
+
+        self.connect_pmcd()
+        self.log('Connected')
+        # Define the instance domains pointing to the dicts
+        self.exchange_indom = self.indom(0)
+        self.add_indom(pmdaIndom(self.exchange_indom, self.exchanges))
+        
+        self.add_metric(name + '.all.tx.packets',
+                        pmdaMetric(self.pmid(CONTRAILPMDA.MESSAGES, 0),
+                                   c_api.PM_TYPE_U64, self.exchange_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "tx packets")
+
+        self.add_metric(name + '.all.tx.bytes',
+                        pmdaMetric(self.pmid(CONTRAILPMDA.MESSAGES, 1),
+                                   c_api.PM_TYPE_U64, self.exchange_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "tx bytes")
+
+        self.add_metric(name + '.all.tx.errors',
+                        pmdaMetric(self.pmid(CONTRAILPMDA.MESSAGES, 2),
+                                   c_api.PM_TYPE_U64, self.exchange_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "tx errors")
+
+        self.add_metric(name + '.all.rx.packets',
+                        pmdaMetric(self.pmid(CONTRAILPMDA.MESSAGES, 3),
+                                   c_api.PM_TYPE_U64, self.exchange_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "rx packets")
+
+        self.add_metric(name + '.all.rx.bytes',
+                        pmdaMetric(self.pmid(CONTRAILPMDA.MESSAGES, 4),
+                                   c_api.PM_TYPE_U64, self.exchange_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "rx bytes")
+
+        self.add_metric(name + '.all.rx.errors',
+                        pmdaMetric(self.pmid(CONTRAILPMDA.MESSAGES, 5),
+                                   c_api.PM_TYPE_U64, self.exchange_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "rx errors")
+        self.metrics = {}
+        self.payload_dict = OrderedDict()
+        self.get_metrics()
+        
+        self.set_fetch(self.contrail_fetch)
+        self.set_instance(self.contrail_instance)
+        self.set_fetch_callback(self.contrail_fetch_callback)
+
+        self.refresh()
+
+
+    def on_demand_update_metrics(self,key,rx_tx):
+        rx_tx.rx_packets = int(self.metrics[key]['rx']['packets'])
+        rx_tx.rx_bytes = int(self.metrics[key]['rx']['bytes'])
+        rx_tx.rx_errors = int(self.metrics[key]['rx']['errors'])
+
+        rx_tx.tx_packets = int(self.metrics[key]['tx']['packets'])
+        rx_tx.tx_bytes = int(self.metrics[key]['tx']['bytes'])
+        rx_tx.tx_errors = int(self.metrics[key]['tx']['errors'])
+
+
+
+    def get_metrics(self):
+        self.metrics = {}
+        self.payload_dict = {}
+        self.metrics = get_contrail_metrics()
+        for key, value in self.metrics.items():
+            RX_TX = EXCHANGE()
+
+            RX_TX.rx_packets = 0
+            RX_TX.rx_bytes = 0
+            RX_TX.rx_errors = 0
+
+            RX_TX.tx_packets = 0
+            RX_TX.tx_bytes = 0
+            RX_TX.tx_errors = 0
+
+            rx_tx = RX_TX
+            self.payload_dict[key] = {}
+            self.payload_dict[key]['rx_tx'] = rx_tx
+
+            self.on_demand_update_metrics(key,rx_tx)
+
+    def refresh(self):
+        """ Update current values for all exchange metrics """
+        self.log('Contrail refresh')
+        self.exchanges.clear()
+
+        start = timeit.default_timer()
+
+        self.get_metrics()
+
+        # On Demand Metric update
+        for key, val in self.payload_dict.items():
+            #on_demand_update_metrics(key, val['rx_tx'])
+            self.exchanges[key] = val['rx_tx']
+        self.replace_indom(self.exchange_indom, self.exchanges)
+        stop = timeit.default_timer()
+        refresh_time = str(stop - start)
+        self.log("Python Version: "+sys.version)
+        self.log("refresh time: "+refresh_time)
+    def contrail_instance(self, serial):
+        """ Called once per "instance" PDU """
+        self.log('Contrail instance')
+        self.refresh()
+
+    def contrail_fetch(self):
+        """ Called once per "fetch" PDU, before callbacks """
+        self.log('Contrail fetch')
+        self.refresh()
+
+    def contrail_fetch_callback(self, cluster, item, inst):
+        """
+        fetch helper - look at request and send to other helpers
+        based on cluster number
+        """
+        self.log('Contrail fetch_callback')
+        voidp = self.inst_lookup(self.exchange_indom, inst)
+
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        if cluster == self.PROCESS:
+            if item == 0:
+                return [a[0], 1]
+            else:
+                return [c_api.PM_ERR_PMID, 0]
+
+        self.log('Contrail fetch_callback getting exchange')
+        cache = cast(voidp, POINTER(EXCHANGE))
+        item_lookup = [exchange_attr[0] for exchange_attr in EXCHANGE._fields_]
+        exchange = cache.contents
+
+        if 0 <= item <= (len(EXCHANGE._fields_) - 1):
+            return [getattr(exchange, item_lookup[item]), 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+
+if __name__ == "__main__":
+
+    CONTRAILPMDA("contrail", 147).run()
