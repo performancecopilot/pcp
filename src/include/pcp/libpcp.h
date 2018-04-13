@@ -569,6 +569,8 @@ PCP_CALL extern void __pmClearerr(__pmFILE *);
 PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
 
+PCP_CALL extern int __pmCompressedFileIndex(char *, size_t);
+
 /* Control for connection to a PMCD */
 typedef struct {
     int			pc_fd;		/* socket for comm with pmcd */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -304,6 +304,42 @@ fopen_compress(const char *fname, int compress_ix)
 }
 
 /*
+ * Find a compressed version of the given file, if it exists and
+ * write its name into the given buffer.
+ *
+ * Return the compressed suffix index, if found, -1 otherwise.
+ */
+int
+__pmCompressedFileIndex(char *fname, size_t flen)
+{
+    const char	*suffix;
+    int		i;
+    int		sts;
+    char	tmpname[MAXPATHLEN];
+
+    for (i = 0; i < ncompress; i++) {
+	suffix = compress_ctl[i].suff;
+	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, suffix);
+	sts = access(tmpname, R_OK);
+	if (sts == 0 || (errno != ENOENT && errno != ENOTDIR)) {
+	    /*
+	     * The compressed file exists. That's all we want to know here.
+	     * Even if there was some error accessing it, return the
+	     * current index. The error will be dignosed if/when an
+	     * attempt is made to open the file.
+	     *
+	     * Update fname with the compressed file name
+	     */
+	    strncpy(fname, tmpname, flen);
+	    return i;
+	}
+    }
+
+    /* Successful index could be zero, so we need to return -1. */
+    return -1;
+}
+
+/*
  * Lookup whether the suffix matches one of the compression styles,
  * and if so return the matching index into the compress_ctl table.
  */
@@ -312,7 +348,6 @@ index_compress(char *fname, size_t flen)
 {
     const char	*suffix;
     int		i;
-    char	tmpname[MAXPATHLEN];
 
     /*
      * We want to match when either:
@@ -333,19 +368,10 @@ index_compress(char *fname, size_t flen)
      * version of it.
      */
     errno = 0;
-    if (access(fname, F_OK) != 0 && errno == ENOENT) {
-	for (i = 0; i < ncompress; i++) {
-	    suffix = compress_ctl[i].suff;
-	    pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, suffix);
-	    if (access(tmpname, R_OK) == 0) {
-		/* Update fname with the compressed file name */
-		strncpy(fname, tmpname, flen);
-		return i;
-	    }
-	}
-    }
+    if (access(fname, F_OK) != 0 && errno == ENOENT)
+	return __pmCompressedFileIndex(fname, flen);
     
-    /* end up here if it does not look like a compressed file */
+    /* End up here if it does not look like a compressed file */
     return -1;
 }
 
@@ -410,12 +436,13 @@ __pmFopen(const char *path, const char *mode)
  	/* Fall through and use the default handler. */
     }
 
-    /*
-     * The file is either not compressed, or we can not decompress it directly.
-     * Default to the stdio handler if one has not yet been chosen.
-     */
-    if (handler == NULL)
+    if (handler == NULL) {
+	/*
+	 * The file is either not compressed, or we can not decompress it
+	 * directly. Default to the stdio handler.
+	 */
 	handler = &__pm_stdio;
+    }
 
     /* Now allocate and open the __pmFile. */
     if ((f = (__pmFILE *)malloc(sizeof(__pmFILE))) == NULL)
