@@ -1,20 +1,19 @@
 - Audit the code TODOs
+  - QA, regression testing of everything
+  - documentation (man pages, books, etc)
   - many operators in the language are not yet implemented
   - "tail -f" mode of operation for archives
   - on-demand loading of older historical data
   - discovery of new archive sources below /var/log/pcp/pmlogger
   - live mode of operation for pmcd (live queries?)
-  - string escaping rules need to be defined and implemented
   - support for event record decoding
-  - QA, regression testing of everything
   - optimised archive loading process - using batching updates
     based on metadata reading alone (not pmFetchArchive)
   - handling of nesting in JSONB labels (see notes in code) -
     both the load and query code need tweaks to support this.
 
 - set a TTL on all of the pcp:values:series keys
-
-- implement pub/sub on instance, metric, label and source names
+- configuration mechanism for this TTL value
 
 - configuration mechanism for multiple Redis servers
 - support dynamic reconfiguration using cluster protocol
@@ -35,8 +34,6 @@
 - time series graphing and alerting (Grafana plugin)
   http://docs.grafana.org/plugins/developing/development/
   http://docs.grafana.org/plugins/developing/datasources/
-
-- documentation (man pages, books, etc)
 
 - pmdaredis(1) implemented in C using libpcp_web and batched queries
 - redis-ml (machine learning) interaction with streams (time series)
