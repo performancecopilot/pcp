@@ -669,11 +669,11 @@ class Source(object):
             if self.is_scripted:
                 # Execute file, expecting prometheus metric data on stdout.
                 # stderr goes to the PMDA log.  Failures are caught below.
-                document = subprocess.check_output(self.path, shell=False).decode()
+                self.document = subprocess.check_output(self.path, shell=False).decode()
             else:
                 # fetch the URL
                 if self.url.startswith('file://'):
-                    document = open(self.url[7:],'r').read()
+                    self.document = open(self.url[7:],'r').read()
                 else:
                     r = self.requests.get(self.url,headers=self.headers,timeout=timeout)
                     r.raise_for_status() # non-200?  ERROR
@@ -1145,7 +1145,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-c', '--config',
         type=str,
-        default=os.path.join(pmdadir, 'urls.d'), # OSIO practice
+        default=os.path.join(pmdadir, 'config.d'),
         help='configuration directory')
     parser.add_argument(
         '-n', '--nosort',
