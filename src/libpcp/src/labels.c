@@ -876,7 +876,7 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	int	tout = ctxp->c_pmcd->pc_tout_sec;
 	int	fd = ctxp->c_pmcd->pc_fd;
 
-	if (!(__pmFeaturesIPC(fd) & PDU_FLAG_LABEL))
+	if (!(__pmFeaturesIPC(fd) & PDU_FLAG_LABELS))
 	    sts = PM_ERR_NOLABELS;	/* lack pmcd support */
 	else if ((sts = __pmSendLabelReq(fd, handle, ident, type)) < 0)
 	    sts = __pmMapErrno(sts);

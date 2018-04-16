@@ -687,7 +687,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 	    cp->pduInfo.version = PDU_VERSION;
 	    cp->pduInfo.licensed = 1;
-	    cp->pduInfo.features = PDU_FLAG_LABEL;
+	    cp->pduInfo.features = PDU_FLAG_LABELS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_SECURE))
 		cp->pduInfo.features |= (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))

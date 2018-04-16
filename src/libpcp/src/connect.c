@@ -131,7 +131,7 @@ check_feature_flags(int ctxflags, int features, int local_conn)
 	    /* PMCD requires a client cert, but we are not even setup for secure connections */
 	    return PM_ERR_NEEDCLIENTCERT;
 	}
-     }
+    }
 
     if (ctxflags) {
 	/*

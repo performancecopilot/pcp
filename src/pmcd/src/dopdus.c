@@ -1298,7 +1298,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 			{ PDU_FLAG_SECURE_ACK,	"SECURE_ACK" },
 			{ PDU_FLAG_NO_NSS_INIT,	"NO_NSS_INIT" },
 			{ PDU_FLAG_CONTAINER,	"CONTAINER" },
-			{ PDU_FLAG_LABEL,	"LABEL" },
+			{ PDU_FLAG_BAD_LABEL,	"BAD_LABEL" },
+			{ PDU_FLAG_LABELS,	"LABELS" },
 		    };
 		    int	i;
 		    int	first = 1;
