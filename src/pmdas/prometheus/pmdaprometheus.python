@@ -650,7 +650,7 @@ class Source(object):
         self.pmda.stats_fetch_calls[self.cluster] += 1
         self.pmda.stats_fetch_calls[0] += 1
 
-        self.refresh_time = time.time()
+        self.refresh_time = fetch_time = time.time()
         try:
             if self.is_scripted:
                 # check file still exists and is executable
@@ -681,8 +681,7 @@ class Source(object):
                     self.document = r.text
 
             # update fetch time counter stats, in ms
-            self.parse_time = time.time()
-            incr = int(1000 * (self.parse_time - self.refresh_time))
+            incr = int(1000 * (time.time() - fetch_time))
             self.pmda.stats_fetch_time[self.cluster] += incr
             self.pmda.stats_fetch_time[0] += incr # total for all sources
 
@@ -699,10 +698,11 @@ class Source(object):
             return
         
         # parse and handle the prometheus formatted metric data
+        parse_time = time.time()
         s = self.parse_lines(self.document)
 
         # update parse time counter stats, in ms
-        incr = int(1000 * (time.time() - self.parse_time))
+        incr = int(1000 * (time.time() - parse_time))
         self.pmda.stats_parse_time[self.cluster] += incr
         self.pmda.stats_parse_time[0] += incr # total
 
