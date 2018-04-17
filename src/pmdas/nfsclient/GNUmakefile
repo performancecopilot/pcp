@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2018 Red Hat.
 # Copyright (c) 2011 SGI.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -16,31 +17,33 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM		= nfsclient
-
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+PYSCRIPT	= pmda$(IAM).python
+LDIRT		= domain.h root pmns $(IAM).log
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: check_domain
+DOMAIN		= NFSCLIENT
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+
+default_pcp default: build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-install: default
+build-me: check_domain
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 644 migrate.conf $(REWRITEDIR)/nfsclient_migrate.conf
 	@$(INSTALL_MAN)
-	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/nfsclient_migrate.conf
 else
-install:
+build-me:
+install_pcp install:
+	@$(INSTALL_MAN)
 endif
 
-default_pcp : default
-
-install_pcp : install
-
-check_domain : ../../pmns/stdpmid
-	$(DOMAIN_PERLRULE)
+check_domain: ../../pmns/stdpmid
+	$(DOMAIN_PYTHONRULE)
