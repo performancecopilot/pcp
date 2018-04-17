@@ -2142,6 +2142,7 @@ BuildRequires: setools
 BuildRequires: setools-console
 %endif
 Requires: policycoreutils
+Requires: libsemanage
 
 %description selinux
 This package contains SELinux support for PCP.  The package contains
