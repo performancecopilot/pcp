@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Red Hat.
+ * Copyright (c) 2016-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -273,7 +273,7 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
 		lp->namelen = sets[i].labels[j].namelen;	/* byte copy */
 		lp->flags = sets[i].labels[j].flags;		/* byte copy */
 		lp->value = htons(sets[i].labels[j].value);
-		lp->valuelen = sets[i].labels[j].valuelen;	/* byte copy */
+		lp->valuelen = htons(sets[i].labels[j].valuelen);
 	    }
 	    labels_offset += sets[i].nlabels * sizeof(pmLabel);
 	}
@@ -416,8 +416,8 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 		lp->name = ntohs(lsp->labels[j].name);
 		lp->namelen = lsp->labels[j].namelen;		/* byte copy */
 		lp->flags = lsp->labels[j].flags;		/* byte copy */
-		lp->value = htons(lsp->labels[j].value);
-		lp->valuelen = lsp->labels[j].valuelen;		/* byte copy */
+		lp->value = ntohs(lsp->labels[j].value);
+		lp->valuelen = ntohs(lsp->labels[j].valuelen);
 
 		if (pdu_length < lp->name + lp->namelen)
 		    goto corrupt;

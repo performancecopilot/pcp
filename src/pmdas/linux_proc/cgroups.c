@@ -296,7 +296,8 @@ cgroup_container_search(const char *cgroup, char *cid, int cidlen)
     char *end;
     int len;
 
-    endp = cgroup + strlen(cgroup) + 1;
+    if (endp == NULL)
+	endp = cgroup + strlen(cgroup) + 1;
     while (*(endp-1) == '\n')
 	endp--;
     for (p = endp; p != cgroup; p--)

@@ -388,11 +388,20 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
-Note that
+.PP
 .B pmlogconf
-specifically overrides its own
+overrides any
 .B $PCP_DERIVED_CONFIG
 environment variable to an empty string, for performance reasons.
+.PP
+.B pmlogconf
+honours the
+.B $PMCD_WAIT_TIMEOUT
+environment variable when probing and creating new
+.B pmlogger
+configuration files.
+It uses a default timeout value of 10 seconds for this, in the
+absence of an environment setting.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmlogger (1),

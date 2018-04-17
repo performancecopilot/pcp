@@ -280,7 +280,8 @@ typedef struct {
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 #define PDU_FLAG_CONTAINER	(1U<<6)
 #define PDU_FLAG_CERT_REQD	(1U<<7)
-#define PDU_FLAG_LABEL		(1U<<8)
+#define PDU_FLAG_BAD_LABEL	(1U<<8)	/* bad, encoding issues */
+#define PDU_FLAG_LABELS		(1U<<9)
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR

@@ -473,6 +473,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: liberation-sans-fonts
 
 %description webapi
 Provides a daemon (pmwebd) that binds a large subset of the Performance
@@ -2139,7 +2140,6 @@ BuildRequires: setools
 BuildRequires: setools-console
 %endif
 Requires: policycoreutils
-Requires: libsemanage
 
 %description selinux
 This package contains SELinux support for PCP.  The package contains
