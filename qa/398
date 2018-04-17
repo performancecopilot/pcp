@@ -13,12 +13,25 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+signal=$PCP_BINADM_DIR/pmsignal
+
+_terminate()
+{
+    if [ -n "$pid" ]
+    then
+	$signal -s TERM $pid
+	pid=""
+	wait
+    fi
+}
 
 _cleanup()
 {
+    _terminate
     _restore_config $PCP_PMCDCONF_PATH
+    _restore_config $PCP_PMCDOPTIONS_PATH
     _service pcp restart | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -28,8 +41,8 @@ _cleanup()
 _check()
 {
     # try to provoke a core
-    pminfo -v irix >/dev/null 2>&1
-    sleep 5
+    pminfo -v hinv >/dev/null 2>&1
+    pmsleep 2.5
 
     $sudo touch $PCP_PMCDLOG_PATH
     grep -i "dumping to core" $PCP_PMCDLOG_PATH
@@ -47,8 +60,12 @@ _check()
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-
 # real QA test starts here
+_save_config $PCP_PMCDOPTIONS_PATH
+echo PMCD_WAIT_TIMEOUT=10 > $tmp.options
+echo PMCD_CONNECT_TIMEOUT=10 >> $tmp.options
+echo PMCD_REQUEST_TIMEOUT=10 >> $tmp.options
+$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 # terminate any pmcds and get rid of core file to get to a sane starting place
 _service pcp stop >/dev/null 2>&1
@@ -67,10 +84,9 @@ cat $PCP_PMCDCONF_PATH
 # systemd does not get a chance to have a look in and syphon off our
 # (expected) error messages.
 #
-( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
-| _filter_pcp_start \
-| fgrep -v "Waiting for PMCD to terminate" \
-| fgrep -v "pmcd_wait failed:"
+( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) \
+	> $tmp.out 2>&1 &
+pid=$!
 
 echo "Waiting for PMCD ..."
 pmcd_wait -t 5sec
@@ -83,6 +99,9 @@ fi
 
 echo "Checking for core file ..."
 _check
+
+_terminate
+cat $tmp.out >> $seq.full
 
 # success, all done
 status=0

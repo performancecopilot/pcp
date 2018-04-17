@@ -490,7 +490,9 @@ then
     #
     PMCD="$HOST"
     [ -z "$PMCD" ] && PMCD=local:
-    if $PCP_BINADM_DIR/pmcd_wait -h "$PMCD" -v 2>$tmp/err
+    WAIT="-t 10"
+    [ -z "$PMCD_WAIT_TIMEOUT" ] || WAIT="-t $PMCD_WAIT_TIMEOUT"
+    if $PCP_BINADM_DIR/pmcd_wait -h "$PMCD" $WAIT -v 2>$tmp/err
     then
 	:
     else
