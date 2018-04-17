@@ -64,6 +64,8 @@ require {
 	type glusterd_conf_t;
 	type glusterd_t;
 	type glusterd_var_lib_t;
+        type init_exec_t;
+        type kernel_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -82,6 +84,7 @@ require {
 	class filesystem mount;
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
+        class unix_dgram_socket { sendto };
 }
 
 #============= init_t ==============
@@ -260,6 +263,8 @@ allow pcp_pmlogger_t dey_sapi_port_t:tcp_socket name_connect;
 #type=AVC msg=audit(1504516526.487:431): avc:  denied  { search } for  pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
 allow pcp_pmlogger_t user_home_dir_t:dir search;
 
+#RHBZ1547066
+allow pcp_pmlogger_t kernel_t:unix_dgram_socket sendto;
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read @PCP_HOSTNAME_EXEC_MAP@ };
 
@@ -304,6 +309,9 @@ allow pcp_pmie_t kmsg_device_t:chr_file open;
 
 #RHBZ1533080
 allow pcp_pmie_t pcp_pmcd_t:process signal;
+
+#RHBZ1547066
+allow pcp_pmie_t init_exec_t:file getattr;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };
