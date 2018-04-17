@@ -2,7 +2,7 @@
  * Zabbix loadable PCP module
  *
  * Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
- * Copyright (C) 2016 Red Hat.
+ * Copyright (C) 2016,2018 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -246,9 +246,15 @@ static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtom
     }
 
     /* Preparations and sanity checks.  */
-    if (sts < 0) return SYSINFO_RET_FAIL;
+    if (sts < 0) {
+        *errmsg = "Failed metric name lookup.";
+	return SYSINFO_RET_FAIL;
+    }
     sts = pmLookupDesc(pmid[0], desc);
-    if (sts < 0) return SYSINFO_RET_FAIL;
+    if (sts < 0) {
+        *errmsg = "Failed metric descriptor lookup.";
+	return SYSINFO_RET_FAIL;
+    }
     if (inst != NULL && desc[0].indom == PM_INDOM_NULL) {
         *errmsg = "Extraneous instance specification.";
         return SYSINFO_RET_FAIL;
@@ -268,7 +274,10 @@ static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtom
 
     /* Fetch the metric values.  */
     sts = pmFetch(1, pmid, &rp);
-    if (sts < 0) return SYSINFO_RET_FAIL;
+    if (sts < 0) {
+	*errmsg = "Failed to sample metric values.";
+	return SYSINFO_RET_FAIL;
+    }
     if (rp->vset[0]->numval < 1) {
         pmFreeResult(rp);
         *errmsg = "No value available.";
@@ -280,6 +289,7 @@ static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtom
         if (rp->vset[0]->vlist[i].inst == iid)
             break;
     if (i == rp->vset[0]->numval) {
+	*errmsg = "Failed to locate metric instance.";
         pmFreeResult(rp);
         return SYSINFO_RET_FAIL;
     }
@@ -288,7 +298,10 @@ static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtom
     sts = pmExtractValue(rp->vset[0]->valfmt, &rp->vset[0]->vlist[i],
                          desc[0].type, atom, desc[0].type);
     pmFreeResult(rp);
-    if (sts < 0) return SYSINFO_RET_FAIL;
+    if (sts < 0) {
+	*errmsg = "Failed to extract metric value.";
+	return SYSINFO_RET_FAIL;
+    }
     *type = desc[0].type;
 
     /* Success.  */
