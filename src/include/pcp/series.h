@@ -15,8 +15,8 @@
 #define PCP_SERIES_H
 
 #include <stdio.h>
+#include "sds.h" /* define typedef sds */
 
-typedef char *sds;	/* simple dynamic strings */
 typedef sds pmSeriesID;	/* external 40-byte form of series identifier */
 typedef sds pmSourceID;	/* external 40-byte form of source identifier */
 
