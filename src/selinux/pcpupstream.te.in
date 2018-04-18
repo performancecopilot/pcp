@@ -196,7 +196,8 @@ allow pcp_pmcd_t haproxy_t:unix_stream_socket connectto;
 allow pcp_pmcd_t sysctl_fs_t:file write;
 
 #RHBZ1515928
-allow pcp_pmcd_t nfsd_fs_t:dir search;
+#RHBZ1449671
+allow pcp_pmcd_t nfsd_fs_t:dir { getattr open search };
 allow pcp_pmcd_t nfsd_fs_t:file { getattr open read };
 
 #RHBZ1517656
