@@ -566,13 +566,9 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 	;
     } else {
 	// Find out if the last known volue has been written to of if a new volume has been started.
-	bool newVolume = false;
 	if (e->archive_lastvol_mtime != 0 && // cached mtim exists
-	    e->archive_lastvol_mtime == st.st_mtime) { // matching cached mtim
-	    if (__pmAccess(nextvol_name, R_OK) == 0)
-		newVolume = true;
-	}
-	if (newVolume) {
+	    e->archive_lastvol_mtime == st.st_mtime && // matching cached mtim
+	    __pmAccess(nextvol_name, R_OK) == 0) {
 	    // open a context if not already open from the new-archive or metrics case above
 	    if (ctx < 0) {
 		ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
@@ -592,26 +588,18 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 					     << endl;
 	    }
 
-#if 0 // XXXX not necessary? We already know the next volume file exists and can be accessed.
-	    if (access (nextvol_name, R_OK) == 0) {
-		// assume we only flopped over by one (otherwise this will
-		// trigger again at next refresh)
-		e->archive_lastvol_idx ++;
-		rc = stat (nextvol_name, &st);
-		if (rc < 0) {
-		    // whoops, we can access but not stat the new volume??
-		    // XXX: we hope it is not corrupted, so that the later st.st_mtime reflects,
-		    // at worst, the lastvol_name mtime.
-		    connstamp (cerr, connection) << "cannot stat new volume " << nextvol_name << ": "
-						 << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
-						 << endl;
-		}
-	    }
-#else
 	    // assume we only flopped over by one (otherwise this will
 	    // trigger again at next refresh)
 	    e->archive_lastvol_idx ++;
-#endif
+	    rc = __pmStat (nextvol_name, &st);
+	    if (rc < 0) {
+		// whoops, we can access but not stat the new volume??
+		// XXX: we hope it is not corrupted, so that the later st.st_mtime reflects,
+		// at worst, the lastvol_name mtime.
+		connstamp (cerr, connection) << "cannot stat new volume " << nextvol_name << ": "
+					     << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
+					     << endl;
+	    }
 
 	    // update the cached mtim, whether it's the previous or next volume's stat
 	    e->archive_lastvol_mtime = st.st_mtime;
