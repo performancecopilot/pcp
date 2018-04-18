@@ -492,14 +492,9 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     // example the set of metrics & their indoms don't change after
     // logger startup.
     //
-    // Opening the file as a __pmFILE and using the abstracted I/O API will automatically
-    // detect and handle compressed files.
-    __pmFILE *f;
+    // Using the __pmFILE I/O API will automatically detect and handle compressed files.
     struct stat st;
-    f = __pmFopen(filename.c_str(), "r");
-    if (f == NULL || (rc = __pmFstat(f, &st)) < 0) {
-	if (f != NULL)
-	    __pmFclose(f);
+    if (__pmStat(filename.c_str(), &st) < 0) {
         // the .meta file has disappeared - retire this archivecache_entry!
         // the map is easy
         archivecache_by_filename.erase(filename);
@@ -518,11 +513,8 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
         return;
     } else if (st.st_mtime == e->metadata_mtime) {
         // metrics cache still good
-	assert(f != NULL);
-	__pmFclose(f);
+	;
     } else { // need to (re)load the metrics
-	assert(f != NULL);
-	__pmFclose(f);
         e->metadata_mtime = st.st_mtime;
 
         // open a context if not already open from the new-archive case above
@@ -569,24 +561,16 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     pmsprintf(lastvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx);
     char nextvol_name[MAXPATHLEN];
     pmsprintf(nextvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx+1);
-    f = __pmFopen(lastvol_name, "r");
-    if (f == NULL || (rc = __pmFstat(f, &st)) < 0) {
+    if (__pmStat(lastvol_name, &st) < 0) {
         // assume the archive has disappeared - say nothing
-	if (f != NULL)
-	    __pmFclose(f);
+	;
     } else {
-	assert (f != NULL);
-	__pmFclose(f);
-
 	// Find out if the last known volue has been written to of if a new volume has been started.
 	bool newVolume = false;
 	if (e->archive_lastvol_mtime != 0 && // cached mtim exists
 	    e->archive_lastvol_mtime == st.st_mtime) { // matching cached mtim
-	    f = __pmFopen(nextvol_name, "r");
-	    if (f != NULL) {
-		__pmFclose(f);
+	    if (__pmAccess(nextvol_name, R_OK) == 0)
 		newVolume = true;
-	    }
 	}
 	if (newVolume) {
 	    // open a context if not already open from the new-archive or metrics case above
@@ -608,7 +592,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 					     << endl;
 	    }
 
-#if 0 // XXXX not necessary? We already know the next volume file exists and can be opened.
+#if 0 // XXXX not necessary? We already know the next volume file exists and can be accessed.
 	    if (access (nextvol_name, R_OK) == 0) {
 		// assume we only flopped over by one (otherwise this will
 		// trigger again at next refresh)
