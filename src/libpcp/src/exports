@@ -653,3 +653,8 @@ PCP_3.23 {
     getdomainname;
     getmachineid;
 } PCP_3.22;
+PCP_3.24 {
+  global:
+    __pmAccess;
+    __pmStat;
+} PCP_3.23;
