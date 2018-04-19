@@ -21,7 +21,9 @@
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
 
-enum { INSTMAP, NAMESMAP, LABELSMAP };	/* name:mapid caches */
+enum { INSTMAP, NAMESMAP, LABELSMAP, CONTEXTMAP }; /* name:mapid caches */
+
+typedef void (*redis_callback)(redisContext *, redisReply *, void *);
 
 typedef struct redis_script {
     const char		*text;
@@ -98,6 +100,32 @@ redis_load_scripts(redisContext *redis)
 	if (pmDebugOptions.series)
 	    fprintf(stderr, "Registered script[%d] as %s\n", i, script->hash);
     }
+}
+
+static int
+redis_submitcb(redisContext *redis, const char *command, sds key, sds cmd,
+		redis_callback callback, void *arg)
+{
+    int		sts = redisAppendFormattedCommand(redis, cmd, sdslen(cmd));
+    redisReply	*reply;
+
+    if (UNLIKELY(pmDebugOptions.series)) {
+	fprintf(stderr, "redis_submit[%d]: %s %s\n", sts, command, key);
+	if (pmDebugOptions.desperate)
+	    fputs(cmd, stderr);
+    }
+    if (sts != REDIS_OK) {
+	fprintf(stderr, "failed to append %s %s\n", command, key);
+	return sts;
+    }
+    sdsfree(cmd);
+    sdsfree(key);
+
+    /* TODO: switch to async commands and callback handling */
+    redisGetReply(redis, (void **)&reply);
+    callback(redis, reply, arg);
+    freeReplyObject(reply);
+    return 0;
 }
 
 static void
@@ -576,7 +604,6 @@ series_stream_append(sds cmd, sds name, sds value)
     unsigned int	nlen = sdslen(name);
     unsigned int	vlen = sdslen(value);
 
-//fprintf(stderr, "series_stream_append enter: cmd=%s name=%s value=%s\n", cmd, name, value);
     cmd = sdscatfmt(cmd, "$%u\r\n%S\r\n$%u\r\n%S\r\n", nlen, name, vlen, value);
     sdsfree(value);
     return cmd;
@@ -589,7 +616,6 @@ series_stream_value(sds cmd, sds name, int type, pmAtomValue *avp)
     const char		*string;
     sds			value;
 
-//fprintf(stderr, "series_stream_value enter: cmd=%s\n", cmd);
     if (!avp)
 	return series_stream_append(cmd, name, sdsnewlen("0", 1));
 
@@ -700,21 +726,30 @@ redis_series_mark(redisContext *redis, context_t *context, sds timestamp)
 }
 
 static void
-redis_check_schema(redisContext *redis)
+redis_update_version_callback(redisContext *redis, redisReply *reply, void *arg)
 {
-    redisReply		*reply;
-    unsigned int	version;
-    const char		ver[] = TO_STRING(SCHEMA_VERSION);
+    checkStatusOK(reply, "%s setup", "pcp:version:schema");
+}
+
+static void
+redis_update_version(redisContext *redis, void *arg)
+{
     sds			cmd, key;
+    const char		ver[] = TO_STRING(SCHEMA_VERSION);
 
     key = sdsnew("pcp:version:schema");
-    cmd = redis_command(2);
-    cmd = redis_param_str(cmd, GETS, GETS_LEN);
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SETS, SETS_LEN);
     cmd = redis_param_sds(cmd, key);
-    redis_submit(redis, GETS, key, cmd);
+    cmd = redis_param_str(cmd, ver, sizeof(ver)-1);
+    redis_submitcb(redis, SETS, key, cmd, redis_update_version_callback, arg);
+}
 
-    /* TODO: check-version-string function (callback) */
-    redisGetReply(redis, (void**)&reply);
+static void
+redis_verify_schema_callback(redisContext *redis, redisReply *reply, void *arg)
+{
+    unsigned int	version;
+
     if (reply->type == REDIS_REPLY_STRING) {
 	version = (unsigned int)atoi(reply->str);
 	if (!version || version != SCHEMA_VERSION) {
@@ -727,21 +762,21 @@ redis_check_schema(redisContext *redis)
 		pmGetProgname(), reply->type);
 	exit(1);
     } else {
-	freeReplyObject(reply);
-
-	/* TODO: setup-version-string function (callback) */
-	key = sdsnew("pcp:version:schema");
-	cmd = redis_command(3);
-	cmd = redis_param_str(cmd, SETS, SETS_LEN);
-	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_str(cmd, ver, sizeof(ver)-1);
-	redis_submit(redis, SETS, key, cmd);
-
-	/* TODO: check-version-setup function (callback) */
-	redisGetReply(redis, (void **)&reply);
-	checkStatusOK(reply, "%s setup", "pcp:version:schema");
-	freeReplyObject(reply);
+	/* set the version when none found (first time through) */
+	redis_update_version(redis, arg);
     }
+}
+
+static void
+redis_verify_schema(redisContext *redis, void *arg)
+{
+    sds			cmd, key;
+
+    key = sdsnew("pcp:version:schema");
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, GETS, GETS_LEN);
+    cmd = redis_param_sds(cmd, key);
+    redis_submitcb(redis, GETS, key, cmd, redis_verify_schema_callback, arg);
 }
 
 redisContext *
@@ -754,12 +789,13 @@ redis_init(void)
 	pmdaCacheOp(INSTMAP, PMDA_CACHE_STRINGS);
 	pmdaCacheOp(NAMESMAP, PMDA_CACHE_STRINGS);
 	pmdaCacheOp(LABELSMAP, PMDA_CACHE_STRINGS);
+	pmdaCacheOp(CONTEXTMAP, PMDA_CACHE_STRINGS);
 	setup = 1;
     }
 
     if ((context = redis_connect(NULL, NULL)) == NULL)
 	exit(1);	/* TODO: improve error handling */
-    redis_check_schema(context);
+    redis_verify_schema(context, NULL);
     redis_load_scripts(context);
 
     return context;

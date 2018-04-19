@@ -17,7 +17,11 @@ which pmseries >/dev/null 2>&1 || \
 	_notrun "pmseries command line utility not installed"
 which redis-cli >/dev/null 2>&1 || \
 	_notrun "Redis command line utility not installed"
-redis-cli ping >/dev/null 2>$here/$seq.err || _notrun `cat $here/$seq.err`
+redis-cli ping >/dev/null 2>$here/$seq.err
+sts=$?
+msg=`cat $here/$seq.err`
+rm -f $here/$seq.err
+[ $sts -eq 0 ] || _notrun $msg
 
 _cleanup()
 {
@@ -69,11 +73,37 @@ pmseries kernel.all.pswitch | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple label-based query ..."
-pmseries 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
+#pmseries 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
+pmseries 'kernel.all.load{hostname=="bozo-laptop"}' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple instance-based query ..."
 pmseries 'kernel.all.load{instance.name:"1 minute"}'
+echo
+
+echo "Perform globbing name-based query (1) ..."
+pmseries 'kernel.all.pswit*' | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform globbing name-based query (2) ..."
+pmseries 'kernel*pswitch' | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform globbing name-based query (3) ..."
+pmseries 'kernel.all.l*' | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform globbing instance-based query (1) ..."
+pmseries 'kernel.all.load{instance.name:"1*"}'
+echo
+
+echo "Perform globbing instance-based query (2) ... no result"
+pmseries 'kernel.all.load{instance.name:"1\*"}'
+echo "(expect no result)"
+echo
+
+echo "Perform globbing instance-based query (3) ..."
+pmseries 'kernel.all.load{instance.name:"*1*"}'
 echo
 
 exit  # TODO: pmseries frontend is WIP from here
