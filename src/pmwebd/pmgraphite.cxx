@@ -494,7 +494,8 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     //
     // Using the __pmFILE I/O API will automatically detect and handle compressed files.
     struct stat st;
-    if (__pmStat(filename.c_str(), &st) < 0) {
+    rc = __pmStat(filename.c_str(), &st);
+    if (rc < 0) {
         // the .meta file has disappeared - retire this archivecache_entry!
         // the map is easy
         archivecache_by_filename.erase(filename);
@@ -512,8 +513,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
                                      << endl;
         return;
     } else if (st.st_mtime == e->metadata_mtime) {
-        // metrics cache still good
-	;
+	; // metrics cache still good
     } else { // need to (re)load the metrics
         e->metadata_mtime = st.st_mtime;
 
@@ -561,33 +561,36 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     pmsprintf(lastvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx);
     char nextvol_name[MAXPATHLEN];
     pmsprintf(nextvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx+1);
-    if (__pmStat(lastvol_name, &st) < 0) {
-        // assume the archive has disappeared - say nothing
-	;
+    rc = __pmStat(lastvol_name, &st);
+    if (rc < 0) {
+        // assume the volume is compressed -- or the archive has disappeared
+        // say nothing
+    } else if (e->archive_lastvol_mtime != 0 && // cached mtime exists
+	       e->archive_lastvol_mtime == st.st_mtime && // matching cached mtime
+	       __pmAccess(nextvol_name, R_OK) != 0) { // no next volume
+	// nothing to do
     } else {
-	// Find out if the last known volue has been written to of if a new volume has been started.
-	if (e->archive_lastvol_mtime != 0 && // cached mtim exists
-	    e->archive_lastvol_mtime == st.st_mtime && // matching cached mtim
-	    __pmAccess(nextvol_name, R_OK) == 0) {
-	    // open a context if not already open from the new-archive or metrics case above
+	// open a context if not already open from the new-archive or metrics case above
+	if (ctx < 0) {
+	    ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
 	    if (ctx < 0) {
-		ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
-		if (ctx < 0) {
-		    connstamp (cerr, connection) << "cannot open " << filename << ": "
-						 << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
-						 << endl;
-		    return;
-		}
-	    }
-
-	    rc = pmGetArchiveEnd(&e->archive_end);
-	    if (rc < 0) {
-		e->archive_end.tv_sec = now; // not INT_MAX that pmGetArchiveEnd returns in case of problems
-		connstamp (cerr, connection) << "cannot get archive end " << filename << ": "
-					     << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
+		connstamp (cerr, connection) << "cannot open " << filename << ": "
+					     << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
 					     << endl;
+		return;
 	    }
+	}
 
+	rc = pmGetArchiveEnd(&e->archive_end);
+	if (rc < 0) {
+	    e->archive_end.tv_sec = now; // not INT_MAX that pmGetArchiveEnd returns in case of problems
+	    connstamp (cerr, connection) << "cannot get archive end " << filename << ": "
+					 << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
+					 << endl;
+	}
+
+	// see if we have flopped over to the next volume
+	if (__pmAccess (nextvol_name, R_OK) == 0) {
 	    // assume we only flopped over by one (otherwise this will
 	    // trigger again at next refresh)
 	    e->archive_lastvol_idx ++;
@@ -600,13 +603,13 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 					     << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
 					     << endl;
 	    }
-
-	    // update the cached mtim, whether it's the previous or next volume's stat
-	    e->archive_lastvol_mtime = st.st_mtime;
-	    e->last_refresh_time = now;
 	}
-    }
 
+	// update the cached mtim, whether it's the previous or next volume's stat
+	e->archive_lastvol_mtime = st.st_mtime;
+	e->last_refresh_time = now;
+    }
+    
     if (ctx >= 0)
         pmDestroyContext (ctx);
 
