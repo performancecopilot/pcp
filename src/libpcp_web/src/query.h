@@ -42,6 +42,7 @@ typedef enum nodetype {
     N_LT,
     N_LEQ,
     N_EQ,
+    N_GLOB,
     N_GEQ,
     N_GT,
     N_NEQ,
@@ -81,16 +82,27 @@ typedef struct meta {
     pmUnits		units;
 } meta_t;
 
+typedef struct series_set {
+    unsigned char	*series;
+    int			nseries;
+} series_set_t;
+
 typedef struct node {
     int			type;
     enum nodetype	subtype;
+    sds			key;
     sds 		value;
     struct node		*left;
     struct node		*right;
     struct meta		meta;
-    sds			key;
-    int			nseries;
-    unsigned char	*series;
+
+    /* result set of series at this node */
+    struct series_set	result;
+
+    /* partial match data for glob/regex */
+    int			nmatches;
+    sds			*matches;
+    unsigned long long	cursor;
 } node_t;
 
 typedef struct timing {

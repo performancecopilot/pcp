@@ -56,6 +56,9 @@ typedef __pmHashNode	*reverseMapNode;
 #define solvervalue(SP, sid, n, value)	\
 	((SP)->settings->on_value((sid), (n), (value), (SP)->arg))
 
+static int series_union(series_set_t *, series_set_t *);
+static int series_intersect(series_set_t *, series_set_t *);
+
 static const char *
 redis_reply(int reply)
 {
@@ -225,19 +228,21 @@ series_values_reply(SOLVER *sp, unsigned char *series,
 }
 
 /*
- * Save the series hash identifiers contained in a Redis response.
+ * Save the series hash identifiers contained in a Redis response
+ * for all series that are not already in this nodes set (union).
  * Used at the leaves of the query tree, then merged result sets
  * are propagated upward.
  */
 static int
 node_series_reply(SOLVER *sp, node_t *np, int nelements, redisReply **elements)
 {
+    series_set_t	set;
     unsigned char	*series;
     redisReply		*reply;
     sds			msg;
     int			i, sts = 0;
 
-    if ((np->nseries = nelements) <= 0)
+    if (nelements <= 0)
 	return nelements;
 
     if ((series = (unsigned char *)calloc(nelements, SHA1SZ)) == NULL) {
@@ -246,43 +251,29 @@ node_series_reply(SOLVER *sp, node_t *np, int nelements, redisReply **elements)
 	solvermsg(sp, PMLOG_REQUEST, msg);
 	return -ENOMEM;
     }
-    np->series = series;
+    set.series = series;
+    set.nseries = nelements;
 
     for (i = 0; i < nelements; i++) {
 	reply = elements[i];
 	if (reply->type == REDIS_REPLY_STRING) {
 	    memcpy(series, reply->str, SHA1SZ);
 	    if (pmDebugOptions.series)
-	        printf("    %s\n", pmwebapi_hash_str(series));
+		printf("    %s\n", pmwebapi_hash_str(series));
 	    series += SHA1SZ;
 	} else {
 	    solverfmt(msg, "expected string in %s set \"%s\" (type=%s)",
 		    node_subtype(np->left), np->left->key,
 		    redis_reply(reply->type));
 	    solvermsg(sp, PMLOG_REQUEST, msg);
-	    free(np->series);
-	    np->series = NULL;
-	    np->nseries = 0;
+	    free(series);
 	    sts = -EPROTO;
 	}
     }
     if (sts < 0)
 	return sts;
-    return nelements;
-}
 
-static void
-free_child_series(node_t *left, node_t *right)
-{
-    if (left->series) {
-	free(left->series);
-	left->series = NULL;
-    }
-    if (right->series) {
-	free(right->series);
-	right->series = NULL;
-    }
-    right->nseries = left->nseries = 0;
+    return series_union(&np->result, &set);
 }
 
 static int
@@ -304,24 +295,21 @@ series_compare(const void *a, const void *b)
  * set is smaller, and the larger set is freed on completion.
  */
 static int
-node_series_intersect(node_t *np, node_t *left, node_t *right)
+series_intersect(series_set_t *a, series_set_t *b)
 {
-    unsigned char	*small, *large, *cp, *saved;
-    int			i, nsmall, nlarge, total;
+    unsigned char	*small, *large, *saved, *cp;
+    int			nsmall, nlarge, total, i;
+
+    if (a->nseries >= b->nseries) {
+	large = a->series;	nlarge = a->nseries;
+	small = b->series;	nsmall = b->nseries;
+    } else {
+	small = a->series;	nsmall = a->nseries;
+	large = b->series;	nlarge = b->nseries;
+    }
 
     if (pmDebugOptions.series)
-	printf("Intersect left(%d) and right(%d) series\n",
-		left->nseries, right->nseries);
-
-    if (left->nseries >= right->nseries) {
-	small = right->series;	nsmall = right->nseries;
-	large = left->series;	nlarge = left->nseries;
-	right->series = NULL;	/* do-not-free marker for small set */
-    } else {
-	small = left->series;	nsmall = left->nseries;
-	large = right->series;	nlarge = right->nseries;
-	left->series = NULL;	/* do-not-free marker for small set */
-    }
+	printf("Intersect large(%d) and small(%d) series\n", nlarge, nsmall);
 
     qsort(large, nlarge, SHA1SZ, series_compare);
 
@@ -339,17 +327,31 @@ node_series_intersect(node_t *np, node_t *left, node_t *right)
 	    return -ENOMEM;
     }
 
-    np->nseries = total;
-    np->series = small;
-
     if (pmDebugOptions.series) {
 	printf("Intersect result set contains %d series:\n", total);
 	for (i = 0, cp = small; i < total; cp++, i++)
 	    printf("    %s\n", pmwebapi_hash_str(cp));
     }
 
-    free_child_series(left, right);
-    return total;
+    a->nseries = total;
+    a->series = small;
+    b->series = NULL;
+    b->nseries = 0;
+    free(large);
+    return 0;
+}
+
+static int
+node_series_intersect(node_t *np, node_t *left, node_t *right)
+{
+    int			sts;
+
+    if ((sts = series_intersect(&left->result, &right->result)) >= 0)
+	np->result = left->result;
+
+    /* finished with child leaves now, results percolated up */
+    right->result.nseries = left->result.nseries = 0;
+    return sts;
 }
 
 /*
@@ -360,28 +362,27 @@ node_series_intersect(node_t *np, node_t *left, node_t *right)
  *
  * Iterates over the smaller set doing a binary search of
  * each series identifier, and tracks which ones in the small
- * need to be added to the large set.  Then, at end, add more
- * space to the larger set if needed and append.
+ * need to be added to the large set.
+ * At the end, add more space to the larger set if needed and
+ * append to it.  As a courtesy, since all callers need this,
+ * we free the smaller set as well.
  */
 static int
-node_series_union(node_t *np, node_t *left, node_t *right)
+series_union(series_set_t *a, series_set_t *b)
 {
-    unsigned char	*small, *large, *cp, *saved;
-    int			i, nsmall, nlarge, total, need;
+    unsigned char	*cp, *saved, *large, *small;
+    int			nlarge, nsmall, total, need, i;
+
+    if (a->nseries >= b->nseries) {
+	large = a->series;	nlarge = a->nseries;
+	small = b->series;	nsmall = b->nseries;
+    } else {
+	small = a->series;	nsmall = a->nseries;
+	large = b->series;	nlarge = b->nseries;
+    }
 
     if (pmDebugOptions.series)
-	printf("Union of left(%d) and right(%d) series\n",
-		left->nseries, right->nseries);
-
-    if (left->nseries >= right->nseries) {
-	small = right->series;	nsmall = right->nseries;
-	large = left->series;	nlarge = left->nseries;
-	left->series = NULL;	/* do-not-free marker for large set */
-    } else {
-	small = left->series;	nsmall = left->nseries;
-	large = right->series;	nlarge = right->nseries;
-	right->series = NULL;	/* do-not-free marker for large set */
-    }
+	printf("Union of large(%d) and small(%d) series\n", nlarge, nsmall);
 
     qsort(large, nlarge, SHA1SZ, series_compare);
 
@@ -404,28 +405,125 @@ node_series_union(node_t *np, node_t *left, node_t *right)
 	total = nlarge;
     }
 
-    np->nseries = total;
-    np->series = large;
-
     if (pmDebugOptions.series) {
 	printf("Union result set contains %d series:\n", total);
 	for (i = 0, cp = large; i < total; cp += SHA1SZ, i++)
 	    printf("    %s\n", pmwebapi_hash_str(cp));
     }
 
-    free_child_series(left, right);
-    return total;
+    a->nseries = total;
+    a->series = large;
+    b->series = NULL;
+    b->nseries = 0;
+    free(small);
+    return 0;
+}
+
+static int
+node_series_union(node_t *np, node_t *left, node_t *right)
+{
+    int			sts;
+
+    if ((sts = series_union(&left->result, &right->result)) >= 0)
+	np->result = left->result;
+
+    /* finished with child leaves now, results percolated up */
+    right->result.nseries = left->result.nseries = 0;
+    return sts;
 }
 
 /*
- * Map human names to internal redis identifiers.
+ * Add a node subtree representing glob (N_GLOB) pattern matches.
+ * Each of these matches are then further evaluated (as if N_EQ).
+ * Response format is described at https://redis.io/commands/scan
+ */
+static int
+node_glob_reply(SOLVER *sp, node_t *np, const char *name, int nelements,
+		redisReply **elements)
+{
+    redisReply		*reply, *r;
+    sds			msg, key, *matches;
+    int			i;
+
+    if (nelements != 2) {
+	solverfmt(msg, "expected cursor and results from %s (got %d elements)",
+			HSCAN, nelements);
+	solvermsg(sp, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+
+    /* Update the cursor, in case subsequent calls are needed */
+    reply = elements[0];
+    if (!reply || reply->type != REDIS_REPLY_STRING) {
+	solverfmt(msg, "expected integer cursor result from %s (got %s)",
+			HSCAN, reply ? redis_reply(reply->type) : "null");
+	solvermsg(sp, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+    np->cursor = strtoull(reply->str, NULL, 10);
+
+    reply = elements[1];
+    if (!reply || reply->type != REDIS_REPLY_ARRAY || reply->elements < 0) {
+	solverfmt(msg, "expected array of results from %s (got %s)",
+			HSCAN, reply ? redis_reply(reply->type) : "null");
+	solvermsg(sp, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+
+    if ((nelements = reply->elements) == 0) {
+	if (np->result.series)
+	    free(np->result.series);
+	np->result.nseries = 0;
+	return 0;
+    }
+
+    /* result array sanity checking */
+    if (nelements % 2) {
+	solverfmt(msg, "expected even number of results from %s (not %d)",
+		    HSCAN, nelements);
+	solvermsg(sp, PMLOG_REQUEST, msg);
+	return -EPROTO;
+    }
+    for (i = 0; i < nelements; i += 2) {
+	r = reply->element[i];
+	if (r->type != REDIS_REPLY_STRING) {
+	    solverfmt(msg, "expected only string results from %s (type=%s)",
+		    HSCAN, redis_reply(r->type));
+	    solvermsg(sp, PMLOG_REQUEST, msg);
+	    return -EPROTO;
+	}
+    }
+
+    /* response is matching key:value pairs from the scanned hash */
+    nelements /= 2;
+    if ((matches = (sds *)calloc(nelements, sizeof(sds))) == NULL) {
+	solverfmt(msg, "out of memory (%s, %lld bytes)",
+			"glob reply", (long long)nelements * sizeof(sds));
+	solvermsg(sp, PMLOG_REQUEST, msg);
+	return -ENOMEM;
+    }
+    for (i = 0; i < nelements; i++) {
+	r = reply->element[i*2+1];
+	key = sdsnew("pcp:series:");
+	key = sdscatfmt(key, "%s:%s", name, r->str);
+	if (pmDebugOptions.series)
+	    printf("adding glob result key: %s\n", key);
+	matches[i] = key;
+    }
+    np->nmatches = nelements;
+    np->matches = matches;
+    return nelements;
+}
+
+/*
+ * Map human names to internal Redis identifiers.
  */
 static int
 series_prepare_maps(SOLVER *sp, node_t *np, int level)
 {
     redisContext	*redis = sp->redis;
     const char		*name;
-    sds			cmd;
+    sds			cmd, cur, key, val;
     int			sts;
 
     if (np == NULL)
@@ -435,13 +533,8 @@ series_prepare_maps(SOLVER *sp, node_t *np, int level)
 	return sts;
 
     switch (np->type) {
-    case N_STRING:
-	// may need string quoting with regex escapes? (for MATCH)
-	// - or should we rewrite this earlier perhaps?  (see also KEYS docs)
-	break;
-
     case N_NAME:
-	// setup any label name map identifiers needed by direct children
+	/* setup any label name map identifiers needed by direct children */
 	if ((name = series_instance_name(np->value)) != NULL) {
 	    np->subtype = N_INSTANCE;
 	    np->key = sdsnew("pcp:map:inst.name");
@@ -463,8 +556,23 @@ series_prepare_maps(SOLVER *sp, node_t *np, int level)
 	}
 	break;
 
-    case N_LT:  case N_LEQ: case N_EQ:  case N_GEQ: case N_GT:  case N_NEQ:
-    case N_AND: case N_OR:  case N_RNE: case N_REQ: case N_NEG:
+    case N_GLOB:	/* indirect hash lookup with key globbing */
+	cur = sdscatfmt(sdsempty(), "%U", np->cursor);
+	val = np->right->value;
+	key = sdsdup(np->left->key);
+	cmd = redis_command(7);
+	cmd = redis_param_str(cmd, HSCAN, HSCAN_LEN);
+	cmd = redis_param_sds(cmd, key);
+	cmd = redis_param_sds(cmd, cur);	/* cursor */
+	cmd = redis_param_str(cmd, "MATCH", sizeof("MATCH")-1);
+	cmd = redis_param_sds(cmd, val);	/* pattern */
+	cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
+	cmd = redis_param_str(cmd, "256", sizeof("256")-1);
+	redis_submit(redis, HSCAN, key, cmd);
+	sdsfree(cur);
+	sp->count++;
+	break;
+
     default:
 	break;
     }
@@ -480,7 +588,10 @@ series_prepare_maps(SOLVER *sp, node_t *np, int level)
 static int
 series_resolve_maps(SOLVER *sp, node_t *np, int level)
 {
+    redisContext	*redis = sp->redis;
     redisReply		*reply;
+    node_t		*left;
+    const char		*name;
     sds			msg;
     int			sts = 0;
 
@@ -515,8 +626,28 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
 	}
 	break;
 
-    case N_LT:  case N_LEQ: case N_EQ:  case N_GEQ: case N_GT:  case N_NEQ:
-    case N_AND: case N_OR:  case N_RNE: case N_REQ: case N_NEG:
+    case N_GLOB:	/* indirect hash lookup with key globbing */
+	left = np->left;
+	name = left->key + sizeof("pcp:map:") - 1;
+
+	if (redisGetReply(redis, (void **)&reply) != REDIS_OK) {
+	    solverfmt(msg, "map table %s key %s not found",
+		    left->key, np->right->value);
+	    solvermsg(sp, PMLOG_RESPONSE, msg);
+	    sts = -EPROTO;
+	} else if (reply->type != REDIS_REPLY_ARRAY) {
+	    solverfmt(msg, "expected array for %s key \"%s\" (type=%s)",
+		    node_subtype(left), left->key, redis_reply(reply->type));
+	    solvermsg(sp, PMLOG_RESPONSE, msg);
+	    sts = -EPROTO;
+	} else {
+	    sp->replies[sp->index++] = reply;
+	    if (pmDebugOptions.series)
+		printf("%s %s\n", node_subtype(np->left), np->key);
+	    sts = node_glob_reply(sp, np, name, reply->elements, reply->element);
+	}
+	break;
+
     default:
 	break;
     }
@@ -543,7 +674,7 @@ series_prepare_eval(SOLVER *sp, node_t *np, int level)
 	return sts;
 
     switch (np->type) {
-    case N_EQ:	/* direct hash lookup */
+    case N_EQ:		/* direct hash lookup */
 	val = np->right->value;
 	key = sdsdup(np->left->key);
 	cmd = redis_command(3);
@@ -585,7 +716,7 @@ series_resolve_eval(SOLVER *sp, node_t *np, int level)
 	return sts;
 
     switch (np->type) {
-    case N_EQ:	/* direct hash lookup */
+    case N_EQ:		/* direct hash lookup */
 	left = np->left;
 	name = left->key + sizeof("pcp:map:") - 1;
 
@@ -621,15 +752,54 @@ series_resolve_eval(SOLVER *sp, node_t *np, int level)
     return series_resolve_eval(sp, np->right, level+1);
 }
 
+static void
+series_prepare_smembers(SOLVER *sp, sds key)
+{
+    redisContext	*redis = sp->redis;
+    sds			cmd;
+
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
+    cmd = redis_param_sds(cmd, key);
+    redis_submit(redis, SMEMBERS, key, cmd);
+    sp->count++;
+}
+
+static int
+series_resolve_smembers(SOLVER *sp, node_t *np)
+{
+    redisContext	*redis = sp->redis;
+    redisReply		*reply;
+    sds			msg;
+    int			sts;
+
+    if (redisGetReply(redis, (void **)&reply) != REDIS_OK) {
+	solverfmt(msg, "map table %s key %s not found",
+			np->left->key, np->right->value);
+	solvermsg(sp, PMLOG_CORRUPTED, msg);
+	sts = -EPROTO;
+    } else if (reply->type != REDIS_REPLY_ARRAY) {
+	solverfmt(msg, "expected array for %s set \"%s\" (type=%s)",
+			node_subtype(np->left), np->right->value,
+			redis_reply(reply->type));
+	solvermsg(sp, PMLOG_CORRUPTED, msg);
+	sts = -EPROTO;
+    } else {
+	sp->replies[sp->index++] = reply;
+	if (pmDebugOptions.series)
+	    printf("%s %s\n", node_subtype(np->left), np->key);
+	sts = node_series_reply(sp, np, reply->elements, reply->element);
+    }
+    return sts;
+}
+
 /*
  * Prepare evaluation of internal nodes.
  */
 static int
 series_prepare_expr(SOLVER *sp, node_t *np, int level)
 {
-    redisContext	*redis = sp->redis;
-    sds			cmd, key;
-    int			sts;
+    int			sts, i;
 
     if (np == NULL)
 	return 0;
@@ -640,19 +810,24 @@ series_prepare_expr(SOLVER *sp, node_t *np, int level)
 	return sts;
 
     switch (np->type) {
-    case N_EQ:	/* direct hash lookup */
-	key = sdsdup(np->key);
-	cmd = redis_command(2);
-	cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
-	cmd = redis_param_sds(cmd, key);
-	redis_submit(redis, SMEMBERS, key, cmd);
-	sp->count++;
+    case N_EQ:		/* direct hash lookup */
+	series_prepare_smembers(sp, sdsdup(np->key));
 	break;
 
-    case N_LT:  case N_LEQ: case N_GEQ: case N_GT:  case N_NEQ:
-    case N_RNE: case N_REQ: case N_NEG:
-    case N_AND: case N_OR:
+    case N_GLOB:	/* globbing or regular expression lookups */
+    case N_REQ:
+    case N_RNE:
+	for (i = 0; i < np->nmatches; i++)
+	    series_prepare_smembers(sp, np->matches[i]);
+	if (np->matches) {
+	    free(np->matches);
+	    np->matches = NULL;
+	}
+	break;
+
+    case N_LT: case N_LEQ: case N_GEQ: case N_GT: case N_NEQ: case N_NEG:
 	/* TODO */
+	break;
 
     default:
 	break;
@@ -663,10 +838,7 @@ series_prepare_expr(SOLVER *sp, node_t *np, int level)
 static int
 series_resolve_expr(SOLVER *sp, node_t *np, int level)
 {
-    redisContext	*redis = sp->redis;
-    redisReply		*reply;
-    sds			msg;
-    int			sts;
+    int			sts, rc, i;
 
     if (np == NULL)
 	return 0;
@@ -679,38 +851,25 @@ series_resolve_expr(SOLVER *sp, node_t *np, int level)
 
     switch (np->type) {
     case N_EQ:
-	if (redisGetReply(redis, (void **)&reply) != REDIS_OK) {
-	    solverfmt(msg, "map table %s key %s not found",
-			np->left->key, np->right->value);
-	    solvermsg(sp, PMLOG_CORRUPTED, msg);
-	    sts = -EPROTO;
-	} else if (reply->type != REDIS_REPLY_ARRAY) {
-	    solverfmt(msg, "expected array for %s set \"%s\" (type=%s)",
-			node_subtype(np->left), np->right->value,
-			redis_reply(reply->type));
-	    solvermsg(sp, PMLOG_CORRUPTED, msg);
-	    sts = -EPROTO;
-	} else {
-	    sp->replies[sp->index++] = reply;
-	    if (pmDebugOptions.series)
-		printf("%s %s\n", node_subtype(np->left), np->key);
-	    sts = node_series_reply(sp, np, reply->elements, reply->element);
-	}
+	sts = series_resolve_smembers(sp, np);
 	break;
 
-    case N_LT:  case N_LEQ: case N_GEQ: case N_GT:  case N_NEQ:
-    case N_RNE: case N_REQ: case N_NEG:
-	/* TODO */
+    case N_GLOB:
+    case N_REQ:
+    case N_RNE:
+	for (i = 0; i < np->nmatches; i++) {
+	    if ((rc = series_resolve_smembers(sp, np)) < 0)
+		sts = rc;
+	}
+	np->nmatches = 0;	/* processed this batch */
 	break;
 
     case N_AND:
-	node_series_intersect(np, np->left, np->right);
-	/* TODO: error handling */
+	sts = node_series_intersect(np, np->left, np->right);
 	break;
 
     case N_OR:
-	node_series_union(np, np->left, np->right);
-	/* TODO: error handling */
+	sts = node_series_union(np, np->left, np->right);
 	break;
 
     default:
@@ -722,8 +881,9 @@ series_resolve_expr(SOLVER *sp, node_t *np, int level)
 #define DEFAULT_VALUE_COUNT 10
 
 static int
-series_prepare_time(SOLVER *sp, timing_t *tp, int nseries, unsigned char *series)
+series_prepare_time(SOLVER *sp, timing_t *tp, series_set_t *result)
 {
+    unsigned char	*series = result->series;
     redisContext	*redis = sp->redis;
     sds			count, start, end, key, cmd;
     int			i, sts = 0;
@@ -749,8 +909,9 @@ series_prepare_time(SOLVER *sp, timing_t *tp, int nseries, unsigned char *series
      * Query cache for the time series range (groups of instance:value
      * pairs, with an associated timestamp).
      */
-    for (i = 0; i < nseries; i++, series += SHA1SZ) {
-	key = sdscatfmt(sdsempty(), "pcp:values:series:%s", pmwebapi_hash_str(series));
+    for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
+	key = sdsempty();
+	key = sdscatfmt(key, "pcp:values:series:%s", pmwebapi_hash_str(series));
 
 	/* XREAD key t1 t2 [COUNT count] */
 	cmd = redis_command(6);
@@ -783,8 +944,9 @@ series_result(int nseries)
 #endif
 
 static int
-series_resolve_time(SOLVER *sp, int nseries, unsigned char *series, void *arg)
+series_resolve_time(SOLVER *sp, series_set_t *result, void *arg)
 {
+    unsigned char	*series = result->series;
     redisReply		*reply;
     sds			msg;
     int			i, rc, sts = 0;
@@ -792,10 +954,10 @@ series_resolve_time(SOLVER *sp, int nseries, unsigned char *series, void *arg)
 /*--printf("{\n  \"result\": \"%s\",\n", series_result(nseries));
     printf("  \"series\": {\n");--*TODO*/
 
-    for (i = 0; i < nseries; i++, series += SHA1SZ) {
+    for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
 	if (redisGetReply(sp->redis, (void **)&reply) != REDIS_OK) {
 	    solverfmt(msg, "failed series %s XRANGE command",
-			    pmwebapi_hash_str(series));
+				pmwebapi_hash_str(series));
 	    solvermsg(sp, PMLOG_RESPONSE, msg);
 	    sts = -EPROTO;
 	} else if (reply->type != REDIS_REPLY_ARRAY) {
@@ -843,17 +1005,18 @@ free_solver_replies(SOLVER *sp)
 }
 
 static int
-series_report_set(SOLVER *sp, int nseries, unsigned char *series)
+series_report_set(SOLVER *sp, series_set_t *set)
 {
+    unsigned char	*series = set->series;
     sds			sid;
     int			i;
 
 /*--printf("{\n  \"result\": \"%s\",\n", series_result(nseries));
     printf("  \"series\": [\n");--*TODO*/
 
-    if (nseries)
+    if (set->nseries)
 	sid = sdsnewlen("", 40+1);
-    for (i = 0; i < nseries; series += SHA1SZ, i++) {
+    for (i = 0; i < set->nseries; series += SHA1SZ, i++) {
 	sid = sdscpy(sid, pmwebapi_hash_str(series));
 	solvermatch(sp, sid);
 
@@ -910,16 +1073,16 @@ series_solve(settings_t *settings,
 
     /* Report the matching series ids, unless time window given */
     if ((flags & PMFLAG_METADATA) || !series_time_window(timing)) {
-	series_report_set(sp, root->nseries, root->series);
+	series_report_set(sp, &root->result);
 	return 0;
     }
 
     /* Extract values within the given time window */
     if (pmDebugOptions.series)
 	fprintf(stderr, "series_time\n");
-    series_prepare_time(sp, timing, root->nseries, root->series);
+    series_prepare_time(sp, timing, &root->result);
     new_solver_replies(sp);
-    series_resolve_time(sp, root->nseries, root->series, arg);
+    series_resolve_time(sp, &root->result, arg);
     free_solver_replies(sp);
 
     return 0;
@@ -1519,7 +1682,7 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
 	reverseMap *map, void *arg)
 {
     redisReply		*reply;
-    pmSeriesID		sid;
+    pmSeriesID		sid = sdsempty();
     sds			key, cmd, msg;
     int			i, rc, sts = 0;
 
@@ -1528,8 +1691,11 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
      * the hash for each.
      */
     for (i = 0; i < nelements; i++) {
-	if (extract_sha1(settings, sid, elements[i], &sid, "series", arg) < 0)
+	sts = extract_sha1(settings, series, elements[i], &sid, "series", arg);
+	if (sts < 0) {
+	    sdsfree(sid);
 	    return -EPROTO;
+	}
 
 	key = sdscatfmt(sdsempty(), "pcp:inst:series:%S", sid);
 	cmd = redis_command(5);
@@ -1540,6 +1706,7 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
 	cmd = redis_param_str(cmd, "series", sizeof("series")-1);
 	redis_submit(redis, HMGET, key, cmd);
     }
+    sdsfree(sid);
 
     /* TODO: async response handling */
 

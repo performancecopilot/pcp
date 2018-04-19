@@ -111,6 +111,7 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_LT
 %token      L_LEQ
 %token      L_EQ
+%token      L_GLOB
 %token      L_GEQ
 %token      L_GT
 %token      L_NEQ
@@ -154,7 +155,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  vector
 
 %left  L_AND L_OR
-%left  L_LT L_LEQ L_EQ L_COLON L_ASSIGN L_GEQ L_GT L_NEQ L_REQ L_RNE
+%left  L_LT L_LEQ L_EQ L_GLOB L_COLON L_ASSIGN L_GEQ L_GT L_NEQ L_REQ L_RNE
 %left  L_PLUS L_MINUS
 %left  L_STAR L_SLASH
 
@@ -271,8 +272,6 @@ expr	: /* relational expressions */
 		{ $$ = lp->yy_np = newtree(N_LEQ, $1, $3); }
 	| string L_EQ exprval
 		{ $$ = lp->yy_np = newtree(N_EQ, $1, $3); }
-	| string L_COLON exprval	/* L_EQ synonym */
-		{ $$ = lp->yy_np = newtree(N_EQ, $1, $3); }
 	| string L_GEQ number
 		{ $$ = lp->yy_np = newtree(N_GEQ, $1, $3); }
 	| string L_GT number
@@ -280,11 +279,15 @@ expr	: /* relational expressions */
 	| string L_NEQ exprval
 		{ $$ = lp->yy_np = newtree(N_NEQ, $1, $3); }
 
-	/* regular expressions */
+	/* regular expressions and globbing */
 	| string L_REQ string
 		{ $$ = lp->yy_np = newtree(N_REQ, $1, $3); }
 	| string L_RNE string
 		{ $$ = lp->yy_np = newtree(N_RNE, $1, $3); }
+	| string L_COLON exprval	/* L_GLOB synonym */
+		{ $$ = lp->yy_np = newtree(N_GLOB, $1, $3); }
+	| string L_GLOB exprval
+		{ $$ = lp->yy_np = newtree(N_GLOB, $1, $3); }
 
 	/* boolean expressions */
 	| expr L_AND expr
@@ -457,6 +460,7 @@ static struct {
     { L_LT,		N_LT,		"LT",		"<" },
     { L_LEQ,		N_LEQ,		"LEQ",		"<=" },
     { L_EQ,		N_EQ,		"EQ",		"==" },
+    { L_GLOB,		N_GLOB,		"GLOB",		"~~" },
     { L_GEQ,		N_GEQ,		"GEQ",		">=" },
     { L_GT,		N_GT,		"GT",		">" },
     { L_NEQ,		N_NEQ,		"NEQ",		"!=" },
@@ -536,7 +540,15 @@ newtree(int type, node_t *left, node_t *right)
 static node_t *
 newmetric(char *name)
 {
-    node_t	*node = newnode(N_EQ);	// TODO: simple N_REQ regex support (kernel.all.* for example)
+    node_t	*node;
+    char	*re;
+
+    /* enable globbing if string contains a non-escaped '*' */
+    if ((re = strchr(name, '*')) != NULL &&
+	(re == name || (re[-1] != '%' && re[-1] != '\\')))
+	node = newnode(N_GLOB);
+    else
+	node = newnode(N_EQ);
 
     node->left = newnode(N_NAME);
     node->left->value = sdsnew("metric.name");
@@ -878,6 +890,10 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 			ltype = L_EQ;
 			break;
 
+		    case '~':
+			ltype = L_GLOB;
+			break;
+
 		    case '>':
 			ltype = L_GT;
 			break;
@@ -972,7 +988,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		}
 	    }
 	    else if (ltype == L_NAME) {
-		if (isalpha((int)c) || isdigit((int)c) || c == '_' || c == '.')
+		if (isalpha((int)c) || isdigit((int)c) ||
+		    c == '_' || c == '.' || c == '*' || c == '%' || c == '\\')
 		    continue;
 		if (c == '(') {
 		    /* check for functions ... */
@@ -1089,6 +1106,20 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    break;
 		}
 	    }
+	    else if (ltype == L_GLOB) {
+		if (c == '~') {
+		    *p = '\0';
+		    ret = L_GLOB;
+		    break;
+		}
+		else {
+		    unget(lp, c);
+		    p[-1] = '\0';
+		    lp->yy_errstr = sdsnew("Illegal character");
+		    ret = L_ERROR;
+		    break;
+		}
+	    }
 	    else if (ltype == L_EQ) {
 		if (c == '=') {
 		    *p = '\0';
@@ -1186,7 +1217,7 @@ series_dumpexpr(node_t *np, int level)
 	fprintf(stderr, "%*s\"%s\"", level*4, "", np->value);
 	break;
     case N_LT:  case N_LEQ: case N_EQ:  case N_GEQ: case N_GT:  case N_NEQ:
-    case N_AND: case N_OR:  case N_RNE: case N_REQ: case N_NEG:
+    case N_AND: case N_OR:  case N_RNE: case N_REQ: case N_NEG: case N_GLOB:
     case N_PLUS: case N_MINUS: case N_STAR: case N_SLASH:
 	fprintf(stderr, "%*s%s", level*4, "", n_type_c(np->type));
 	break;

@@ -24,6 +24,7 @@ typedef enum series_flags {
     PMSERIES_SERIESID	= (1<<4),	/* report with pminfo(1) -s info */
     PMSERIES_SOURCEID	= (1<<5),	/* report with pminfo(1) -S info */
     PMSERIES_NEED_EOL	= (1<<6),	/* need to eol-terminate output */
+    PMSERIES_NEED_COMMA	= (1<<7),	/* need comma line separation */
 } series_flags;
 
 typedef struct series_insts {
@@ -48,6 +49,7 @@ series_data_init(series_data *dp, series_flags flags)
 {
     memset(dp, 0, sizeof(series_data));
     dp->series = sdsnewlen("", 40);
+    dp->source = sdsnewlen("", 40);
     dp->flags = flags;
 }
 
@@ -122,6 +124,7 @@ static int
 series_next(series_data *dp, sds sid)
 {
     if (strncmp(dp->series, sid, sdslen(sid)) != 0) {
+	dp->flags &= ~PMSERIES_NEED_COMMA;
 	if (dp->flags & PMSERIES_NEED_EOL) {
 	    dp->flags &= ~PMSERIES_NEED_EOL;
 	    putc('\n', stdout);
@@ -279,12 +282,14 @@ on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
     units = desc[PMDESC_UNITS];
 
     if (series_next(dp, series)) {
-	dp->source = sdsnewlen(source, sdslen(source));
 	dp->type = sdsnewlen(type, sdslen(type));
 	printf("\n%s", series);
     } else {
 	printf("   ");
     }
+    dp->source = dp->source ?
+		sdscpylen(dp->source, source, sdslen(source)) :
+		sdsnewlen(source, sdslen(source));
 
     if (sscanf(pmid, "%u.%u.%u", &domain, &cluster, &item) == 3)
 	pmid_value = pmID_build(domain, cluster, item);
@@ -312,6 +317,7 @@ on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
     printf("  Units: %s\n", *units == '\0' ? "none" : units);
     if (dp->flags & PMSERIES_SOURCEID)
 	printf("    Source: %s\n", source);
+    dp->flags &= ~PMSERIES_NEED_EOL;
 
     return 0;
 }
@@ -346,14 +352,15 @@ on_series_instname(pmSeriesID series, sds name, void *arg)
 
     if (series == NULL)	{	/* dumping all instance names */
 	printf("%s\n", name);
-    } else if (series_next(dp, series)) {
-	printf("\n%s\n", series);
-	printf("    Instances: %s", name);
-	dp->flags |= PMSERIES_NEED_EOL;
-    } else {
-	printf(", %s", name);
-	dp->flags |= PMSERIES_NEED_EOL;
+	return 0;
     }
+    if (series_next(dp, series))
+	printf("\n%s", series);
+    if (dp->flags & PMSERIES_NEED_COMMA)
+	printf(", %s", name);
+    else
+	printf("    Instances: %s", name);
+    dp->flags |= (PMSERIES_NEED_EOL | PMSERIES_NEED_COMMA);
     return 0;
 }
 
@@ -408,16 +415,17 @@ on_series_label(pmSeriesID series, sds label, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
-    if (series == NULL)	{	/* dumping all label names */
+    if (series == NULL) {	/* dumping all label names */
 	printf("%s\n", label);
-    } else if (series_next(dp, series)) {
-	printf("\n%s\n", series);
-	printf("    Labels: %s", label);
-	dp->flags |= PMSERIES_NEED_EOL;
-    } else {
-	printf(", %s", label);
-	dp->flags |= PMSERIES_NEED_EOL;
+	return 0;
     }
+    if (series_next(dp, series))
+	printf("\n%s", series);
+    if (dp->flags & PMSERIES_NEED_COMMA)
+	printf(", %s", label);
+    else
+	printf("    Labels: %s", label);
+    dp->flags |= (PMSERIES_NEED_COMMA | PMSERIES_NEED_EOL);
     return 0;
 }
 
@@ -472,16 +480,17 @@ on_series_metric(pmSeriesID series, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
-    if (series == NULL)	{	/* dumping all metric names */
+    if (series == NULL) {	/* dumping all metric names */
 	printf("%s\n", name);
-    } else if (series_next(dp, series)) {
-	printf("\n%s\n", series);
-	printf("    Metric: %s", name);
-	dp->flags |= PMSERIES_NEED_EOL;
-    } else {
-	printf(", %s", name);
-	dp->flags |= PMSERIES_NEED_EOL;
+	return 0;
     }
+    else if (series_next(dp, series))
+	printf("\n%s", series);
+    if (dp->flags & PMSERIES_NEED_COMMA)
+	printf(", %s", name);
+    else
+	printf("    Metric: %s", name);
+    dp->flags |= (PMSERIES_NEED_COMMA | PMSERIES_NEED_EOL);
     return 0;
 }
 
@@ -598,12 +607,19 @@ series_meta_all(pmSeriesSettings *settings, sds query, series_flags flags)
 	series_data	data = {.series = series[i], .flags = flags};
 
 	pmSeriesDescs(settings, 1, &series[i], (void *)&data);
-	pmSeriesInstances(settings, 1, &series[i], (void *)&data);
-	pmSeriesLabels(settings, 1, &data.source, (void *)&data);
-	pmSeriesSources(settings, 1, &series[i], (void *)&data);
+	data.flags &= ~PMSERIES_NEED_COMMA;
+	pmSeriesSources(settings, 1, &data.source, (void *)&data);
+	data.flags &= ~PMSERIES_NEED_COMMA;
 	pmSeriesMetrics(settings, 1, &series[i], (void *)&data);
+	data.flags &= ~PMSERIES_NEED_COMMA;
+	pmSeriesInstances(settings, 1, &series[i], (void *)&data);
+	data.flags &= ~PMSERIES_NEED_COMMA;
+	pmSeriesLabels(settings, 1, &series[i], (void *)&data);
+	data.flags &= ~PMSERIES_NEED_COMMA;
 	if (data.status)
 	    sts = data.status;
+	data.flags &= ~PMSERIES_NEED_EOL;
+	putc('\n', stdout);
     }
     series_free(nseries, series);
     return sts ? 1 : 0;
