@@ -1,2 +1,4 @@
 usr/lib/zabbix/agent/zbxpcp.so
+usr/lib/zabbix/modules/zbxpcp.so
 usr/share/man/man3/zbxpcp.3.gz
+etc/zabbix/zabbix_agent.d/zbxpcp.conf
