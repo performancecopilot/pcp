@@ -488,18 +488,35 @@ class Source(object):
         last_try_age = now - self.refresh_time
         return len(self.metrics_by_name) == 0 and last_try_age > empty_source_pmns_poll
 
-    def check_metric_filter(self, fullname):
+    def check_filter(self, name, entrytype):
+        '''
+        return True if name of type entrytype ("METRIC" or "LABEL")
+        is included (and not execluded) by filters for this source.
+        First match prevails. No match => True
+        '''
         for f in self.filterlist:
-            fs = f.split() # INCLUDE|EXCLUDE METRIC regex
-            if fs[1] == "METRIC":
+            fs = f.split() # INCLUDE|EXCLUDE METRIC|LABEL regex
+            if fs[1] == entrytype:
                 pat = ' '.join(fs[2:]) # regex may have spaces
                 rx = self.pmda.lookup_regex(pat)
-                self.pmda.debug("check_metric_filter(%s) fs=%s regex='%s'" % (fullname,fs,pat)) if self.pmda.dbg else None
-                if rx.match(fullname):
-                    self.pmda.debug(".... rx.match(%s,%s) -> True" % (pat,fullname)) if self.pmda.dbg else None
+                self.pmda.debug("check_filter(%s) fs=%s regex='%s'" % (name,fs,pat)) if self.pmda.dbg else None
+                if rx.match(name):
+                    self.pmda.debug(".... rx.match(%s,%s) -> True" % (pat,name)) if self.pmda.dbg else None
                     return fs[0] == "INCLUDE"
         # no regex match => include
         return True
+
+    def filter_labelset(self, labelset):
+        ''' return labelset trimmed by filters '''
+        included_labels = {}
+        if labelset is None:
+            return None # singular; nothing to include or exclude
+        for lname, lval in labelset.items():
+            if self.check_filter(lname, "LABEL"):
+                included_labels[lname] = lval
+        if included_labels == {}:
+            return None # no labels => singular indom
+        return included_labels
 
     def parse_metric_line(self, line, pcpline, helpline, typeline):
         '''
@@ -508,23 +525,25 @@ class Source(object):
         try:
             sp = SampleLineParser(line)
             self.pmda.debug("parsed '%s' -> %s %s %s" % (line, sp.name, sp.labels, sp.value)) if self.pmda.dbg else None
+            included_labels = self.filter_labelset(sp.labels)
+            self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             if sp.name in self.metrics_by_name:
                 m = self.metrics_by_name[sp.name]
                 assert self.metrics_by_num[m.metricnum] == m
-                m.store_inst(sp.labels, sp.value)
+                m.store_inst(included_labels, sp.value)
             else:
                 # check metric is not excluded by filters
                 fullname = "prometheus.%s.%s" % (self.name, sp.name)
                 self.pmda.debug("Checking metric '%s'" % (fullname)) if self.pmda.dbg else None
-                if not self.check_metric_filter(fullname):
+                if not self.check_filter(fullname, "METRIC"):
                     self.pmda.log("Metric %s excluded by config filters" % fullname)
+                    return
                 else:
                     metricnum = self.pmids_table.intern_lookup_value(sp.name)
-                    m = Metric(self,sp.name,metricnum,sp.labels,
-                           pcpline,helpline,typeline)
+                    m = Metric(self,sp.name,metricnum,included_labels, pcpline,helpline,typeline)
                     self.metrics_by_name[sp.name] = m
                     self.metrics_by_num[metricnum] = m  # not pmid!
-                    m.store_inst(sp.labels, sp.value)
+                    m.store_inst(included_labels, sp.value)
                     self.pmda.set_notify_change()
         except Exception as e:
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
@@ -605,6 +624,9 @@ class Source(object):
 
         # filters are used to include/exclude metric names
         FILTER: {INCLUDE|EXCLUDE} METRIC regex ...
+
+        # filters are also used to include/exclude labels
+        FILTER: {INCLUDE|EXCLUDE} LABEL regex ...
         '''
 
         conf = open(filepath, 'r').read().strip().split('\n')
@@ -629,6 +651,7 @@ class Source(object):
 
         self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url,self.headers)) if self.pmda.dbg else None
         self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url,self.filterlist)) if self.pmda.dbg else None
+        self.pmda.log("DEBUG url: %s FILTERS: %s" % (self.url,self.filterlist))
 
         return
 
