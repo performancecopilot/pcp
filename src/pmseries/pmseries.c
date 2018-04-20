@@ -53,6 +53,47 @@ series_data_init(series_data *dp, series_flags flags)
     dp->flags = flags;
 }
 
+static void
+series_add_inst(series_data *dp, pmSeriesID series, sds instid, sds instname)
+{
+    series_insts	*ip;
+    size_t		bytes = sizeof(series_insts) * dp->ninsts;
+
+    if ((ip = realloc(dp->insts, bytes)) != NULL) {
+	ip->series = sdsdup(series);
+	ip->instid = sdsdup(instid);
+	ip->name = sdsdup(instname);
+	dp->insts = ip;
+    }
+}
+
+static void
+series_del_insts(series_data *dp)
+{
+    series_insts	*ip;
+    int			i;
+
+    for (i = 0; i < dp->ninsts; i++) {
+	ip = &dp->insts[i];
+	sdsfree(ip->series);
+	sdsfree(ip->instid);
+	sdsfree(ip->name);
+    }
+    if (dp->insts)
+	free(dp->insts);
+    dp->ninsts = 0;
+}
+
+static void
+series_data_free(series_data *dp)
+{
+    sdsfree(dp->series);
+    sdsfree(dp->source);
+    if (dp->type)
+	sdsfree(dp->type);
+    series_del_insts(dp);
+}
+
 static int
 series_split(sds string, pmSeriesID **series)
 {
@@ -88,36 +129,6 @@ series_get_inst(series_data *dp, sds series)
 	    return ip;
     }
     return NULL;
-}
-
-static void
-series_add_inst(series_data *dp, pmSeriesID series, sds instid, sds instname)
-{
-    series_insts	*ip;
-    size_t		bytes = sizeof(series_insts) * dp->ninsts;
-
-    if ((ip = realloc(dp->insts, bytes)) != NULL) {
-	ip->series = sdsdup(series);
-	ip->instid = sdsdup(instid);
-	ip->name = sdsdup(instname);
-	dp->insts = ip;
-    }
-}
-
-static void
-series_del_insts(series_data *dp)
-{
-    series_insts	*ip;
-    int			i;
-
-    for (i = 0; i < dp->ninsts; i++) {
-	ip = &dp->insts[i];
-	sdsfree(ip->series);
-	sdsfree(ip->instid);
-	sdsfree(ip->name);
-    }
-    free(dp->insts);
-    dp->ninsts = 0;
 }
 
 static int
@@ -597,6 +608,7 @@ series_meta_all(pmSeriesSettings *settings, sds query, series_flags flags)
     int			nseries, sts, i;
     char		msg[PM_MAXERRMSGLEN];
     pmSeriesID		*series = NULL;
+    series_data		data;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: cannot find series identifiers in '%s': %s\n",
@@ -604,8 +616,7 @@ series_meta_all(pmSeriesSettings *settings, sds query, series_flags flags)
 	return 1;
     }
     for (i = sts = 0; i < nseries; i++) {
-	series_data	data = {.series = series[i], .flags = flags};
-
+	series_data_init(&data, flags);
 	pmSeriesDescs(settings, 1, &series[i], (void *)&data);
 	data.flags &= ~PMSERIES_NEED_COMMA;
 	pmSeriesSources(settings, 1, &data.source, (void *)&data);
@@ -616,10 +627,10 @@ series_meta_all(pmSeriesSettings *settings, sds query, series_flags flags)
 	data.flags &= ~PMSERIES_NEED_COMMA;
 	pmSeriesLabels(settings, 1, &series[i], (void *)&data);
 	data.flags &= ~PMSERIES_NEED_COMMA;
+	data.flags &= ~PMSERIES_NEED_EOL;
 	if (data.status)
 	    sts = data.status;
-	data.flags &= ~PMSERIES_NEED_EOL;
-	putc('\n', stdout);
+	series_data_free(&data);
     }
     series_free(nseries, series);
     return sts ? 1 : 0;
