@@ -24,7 +24,7 @@ import threading
 import subprocess
 from ctypes import c_int
 from socket import gethostname
-from stat import ST_MODE, S_IXUSR
+from stat import ST_MODE, S_IXUSR, ST_CTIME
 import requests
 import sys
 if sys.version[0] == '2':
@@ -454,6 +454,7 @@ class Source(object):
         self.cluster = cluster # unique/persistent id# for nickname
         self.path = path # pathname to .url or executable file
         self.url = None
+        self.parse_url_time = 0 # timestamp of config file when it was last parsed
         self.is_scripted = is_scripted
         self.pmda = pmda # the shared pmda
         self.requests = None
@@ -654,14 +655,16 @@ class Source(object):
 
         self.refresh_time = fetch_time = time.time()
         try:
+            s = os.stat(self.path)
             if self.is_scripted:
                 # check file still exists and is executable
-                if not os.stat(self.path)[ST_MODE] & S_IXUSR:
+                if not s[ST_MODE] & S_IXUSR:
                     self.pmda.err("cannot execute '%s': %s" % self.path)
                     return
-            else:
+            elif self.parse_url_time < s[ST_CTIME]:
                 # (re)parse the URL from given file
                 self.parse_url_config(self.path)
+                self.parse_url_time = s[ST_CTIME]
         except Exception as e:
             self.pmda.err("cannot read %s: %s" % (self.path, e))
             return
