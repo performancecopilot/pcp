@@ -269,12 +269,10 @@ redis_series_source(redisContext *redis, context_t *context)
 {
     redisReply		*reply;
     const char		*hash = pmwebapi_hash_str(context->hash);
-    const char		*type = context_str(context);
-    long long		map, origin;
-    sds			cmd, key, val, id;
+    long long		map;
+    sds			cmd, key, val;
 
     if ((map = context->mapid) <= 0) {
-	origin = redis_strmap(redis, "context.name", context->origin);
 	map = redis_strmap(redis, "context.name", context->name);
 	context->mapid = map;
     }
@@ -291,25 +289,18 @@ redis_series_source(redisContext *redis, context_t *context)
     checkInteger(reply, "%s: %s", SADD, "mapping context to source name");
     freeReplyObject(reply);
 
-    id = sdscatfmt(sdsempty(), "%I", origin);
     val = sdscatfmt(sdsempty(), "%I", context->mapid);
-    key = sdscatfmt(sdsempty(), "pcp:context:source:%s", hash);
-    cmd = redis_command(8);
-    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
+    key = sdscatfmt(sdsempty(), "pcp:context.name:source:%s", hash);
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, "name", sizeof("name")-1);
     cmd = redis_param_sds(cmd, val);
-    cmd = redis_param_str(cmd, "origin", sizeof("origin")-1);
-    cmd = redis_param_sds(cmd, id);
-    cmd = redis_param_str(cmd, "type", sizeof("type")-1);
-    cmd = redis_param_str(cmd, type, strlen(type));
     sdsfree(val);
-    sdsfree(id);
-    redis_submit(redis, HMSET, key, cmd);
+    redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
     redisGetReply(redis, (void **)&reply);
-    checkStatusOK(reply, "%s: %s", HMSET, "setting context source");
+    checkStatusOK(reply, "%s: %s", SADD, "mapping source name to context");
     freeReplyObject(reply);
 }
 
