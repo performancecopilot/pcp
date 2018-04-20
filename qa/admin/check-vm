@@ -1033,11 +1033,15 @@ pkg?	SoPath.h			[N/A (build optional)]
 slackpkg?	SoPath.h		[N/A (build optional)]
 pacman?	/usr/include/Inventor/SoPath.h	[coin (build optional)]
 dpkg?	/usr/lib*/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev (build optional)]
+dpkg?	/usr/lib*/libSoQt5.so|/usr/lib/*/libSoQt5.so	[libsoqt5-dev or libsoqt-dev (build optional)]
 rpm?	/usr/lib*/libSoQt.so		[SoQt-devel (build optional)]
 urpmi?	/usr/lib*/libSoQt.so		[lib64soqt-devel (build optional)]
 emerge?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+emerge?	/usr/lib/libSoQt5.so|/usr/lib/*/libSoQt5.so	[? (build optional)]
 pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[Coin (build optional)]
+pkgin?	/usr/lib/libSoQt5.so|/usr/lib/*/libSoQt5.so	[Coin (build optional)]
 pkg_add?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+pkg_add?	/usr/lib/libSoQt5.so|/usr/lib/*/libSoQt5.so	[? (build optional)]
 pkg?	libSoQt.so			[N/A (build optional)]
 slackpkg?	libSoQt.so		[N/A (build optional)]
 pacman?	/usr/lib/libSoQt.so		[soqt (build optional)]
@@ -1224,7 +1228,7 @@ do
     esac
     if which $pkgtype >/dev/null 2>&1 && $want
     then
-	sed -e "s/^${pkgtype}?[ 	]*//" <$tmp.main >$tmp.tmp
+	sed -e "s/^${pkgtype}?[ 	][ 	]*//" <$tmp.main >$tmp.tmp
 	mv $tmp.tmp $tmp.main
 	touch $tmp.ok
     else
