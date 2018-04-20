@@ -493,7 +493,7 @@ class Source(object):
             fs = f.split() # INCLUDE|EXCLUDE METRIC regex
             if fs[1] == "METRIC":
                 pat = ' '.join(fs[2:]) # regex may have spaces
-                rx = re.compile(r"%s" % pat) # XXX: initialization time
+                rx = self.pmda.lookup_regex(pat)
                 self.pmda.debug("check_metric_filter(%s) fs=%s regex='%s'" % (fullname,fs,pat)) if self.pmda.dbg else None
                 if rx.match(fullname):
                     self.pmda.debug(".... rx.match(%s,%s) -> True" % (pat,fullname)) if self.pmda.dbg else None
@@ -734,7 +734,6 @@ class Source(object):
             self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item,inst,e))
             return [c_api.PM_ERR_AGAIN, 0]
 
-
 class PrometheusPMDA(PMDA):
     def __init__(self, pmda_name, domain, config, timeout, user, debugflag):
         '''
@@ -772,6 +771,9 @@ class PrometheusPMDA(PMDA):
         reserved_cluster = self.cluster_table.intern_lookup_value("control")
         assert reserved_cluster == 0
         self.source_by_cluster = {}
+
+        # compiled regex cache
+        self.regex_cache = {}
 
         # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
         # pmcd to delegate all pmns requests to us.  Do it early, before
@@ -830,6 +832,12 @@ class PrometheusPMDA(PMDA):
         # dynamic PMNS changed count - bumped every time a new metric is created
         self.pmns_changed = 0
 
+    def lookup_regex(self, pat):
+        ''' cache of compiled regex '''
+        if pat not in self.regex_cache.keys():
+            self.regex_cache[pat] = re.compile(r"%s" % pat)
+            self.debug("lookup_regex: added '%s'" % pat) if self.dbg else None
+        return self.regex_cache[pat]
 
     def assert_source_invariants(self, name=None, cluster=None):
         ''' Assert some invariants about the known sources '''
@@ -882,7 +890,7 @@ class PrometheusPMDA(PMDA):
             return
 
         self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist), traverse_time))
-        nickname_regexp = re.compile(r"^[A-Za-z][A-Za-z0-9_.]*$")
+        nickname_regexp = self.lookup_regex(r"^[A-Za-z][A-Za-z0-9_.]*$")
 
         # XXX: nuke sources related to removed files
         save_cluster_table = False
