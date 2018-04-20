@@ -839,6 +839,7 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
 	break;
 
     case N_EQ:
+    case N_GLOB:
 	if (np->right->type != N_STRING)
 	    break;
 	if (np->left->type == N_NAME || np->left->type == N_STRING) {

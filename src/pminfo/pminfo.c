@@ -91,90 +91,85 @@ static pmID	pmid_flags;
 static pmID	pmid_missed;
 
 /*
- * pminfo has a few options which do not follow the defacto standards
+ * InDom cache (icache) state - multiple accessors, so no longer using
+ * local variables like most other caching in pminfo.  Caches recently
+ * requested instance names and labels for a given pmInDom, since they
+ * are closely related - labels/series reporting needs instance names.
  */
-static int
-myoverrides(int opt, pmOptions *opts)
-{
-    if (opt == 's' || opt == 'S' || opt == 't' || opt == 'T')
-	return 1;	/* we've claimed these, inform pmGetOptions */
-    return 0;
-}
+static pmInDom		icache_nameindom = PM_INDOM_NULL;
+static int		icache_numinst = -1;
+static int		*icache_instlist;
+static char		**icache_namelist;
+static pmInDom		icache_labelindom = PM_INDOM_NULL;
+static pmLabelSet	*icache_labelset;
+static int		icache_nlabelset = -1;
 
-/*
- * produce set of fallback context labels when no others are available
- * (older versions of pmcd or older archives, typically)
- */
-static int
-defaultlabels(pmLabelSet **sets)
+static void
+icache_update_name(pmInDom indom)
 {
-    pmLabelSet		*lp = NULL;
-    char		buf[PM_MAXLABELJSONLEN];
-    char		host[MAXHOSTNAMELEN];
-    int			sts;
-
-    if ((pmGetContextHostName_r(contextid, host, sizeof(host))) == NULL)
-	return PM_ERR_GENERIC;
-    pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", host);
-    if ((sts = __pmAddLabels(&lp, buf, PM_LABEL_CONTEXT)) > 0) {
-	*sets = lp;
-	return 0;
+    if (indom == icache_nameindom)
+	return;
+    if (icache_numinst > 0) {
+	free(icache_instlist);
+	free(icache_namelist);
     }
-    return sts;
+    icache_numinst = pmGetInDom(indom, &icache_instlist, &icache_namelist);
+    icache_nameindom = indom;
 }
 
-/*
- * Cache the most recently requested instance names for a given pmInDom
- */
+static int
+lookup_instance_numinst(pmInDom indom)
+{
+    icache_update_name(indom);
+    return icache_numinst;
+}
+
 static char *
 lookup_instance_name(pmInDom indom, int inst)
 {
-    static pmInDom	last = PM_INDOM_NULL;
-    static int		numinst = -1;
-    static int		*instlist;
-    static char		**namelist;
     int			i;
 
-    if (indom != last) {
-	if (numinst > 0) {
-	    free(instlist);
-	    free(namelist);
-	}
-	numinst = pmGetInDom(indom, &instlist, &namelist);
-	last = indom;
-    }
-
-    for (i = 0; i < numinst; i++) {
-	if (instlist[i] == inst)
-	    return namelist[i];
-    }
+    icache_update_name(indom);
+    for (i = 0; i < icache_numinst; i++)
+	if (icache_instlist[i] == inst)
+	    return icache_namelist[i];
     return NULL;
 }
 
-/*
- * Cache the most recently requested instance labels for a given pmInDom
- */
-static pmLabelSet *
-lookup_instance_labels(pmInDom indom, int index, int *count)
+static int
+lookup_instance_inum(pmInDom indom, int index)
 {
-    static pmInDom	last = PM_INDOM_NULL;
-    static int		numinsts = -1;
-    static pmLabelSet	*ilabels;
+    icache_update_name(indom);
+    if (index >= 0 && index < icache_numinst)
+	return icache_instlist[index];
+    return PM_IN_NULL;
+}
 
-    if (indom != last) {
-	if (numinsts > 0)
-	    pmFreeLabelSets(ilabels, numinsts);
-	numinsts = pmGetInstancesLabels(indom, &ilabels);
-	last = indom;
-    }
+static void
+icache_update_label(pmInDom indom)
+{
+    icache_update_name(indom);
+    if (indom == icache_labelindom)
+	return;
+    if (icache_nlabelset > 0)
+	pmFreeLabelSets(icache_labelset, icache_nlabelset);
+    icache_nlabelset = pmGetInstancesLabels(indom, &icache_labelset);
+    icache_labelindom = indom;
+}
 
-    if (count != NULL) {
-	*count = numinsts;
-	return NULL;
-    }
+static int
+lookup_instance_nlabelset(pmInDom indom)
+{
+    icache_update_label(indom);
+    return icache_nlabelset;
+}
 
-    if (index >= 0 && index < numinsts)
-	return &ilabels[index];
+static pmLabelSet *
+lookup_instance_labels(pmInDom indom, int index)
+{
+    icache_update_label(indom);
+    if (index >= 0 && index < icache_nlabelset)
+	return &icache_labelset[index];
     return NULL;
 }
 
@@ -253,6 +248,28 @@ lookup_domain_labels(int domain)
 	last = domain;
     }
     return labels;
+}
+
+/*
+ * Produce a set of fallback context labels when no others are available
+ * (this is from older versions of pmcd or older archives, typically).
+ */
+static int
+defaultlabels(pmLabelSet **sets)
+{
+    pmLabelSet		*lp = NULL;
+    char		buf[PM_MAXLABELJSONLEN];
+    char		host[MAXHOSTNAMELEN];
+    int			sts;
+
+    if ((pmGetContextHostName_r(contextid, host, sizeof(host))) == NULL)
+	return PM_ERR_GENERIC;
+    pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", host);
+    if ((sts = __pmAddLabels(&lp, buf, PM_LABEL_CONTEXT)) > 0) {
+	*sets = lp;
+	return 0;
+    }
+    return sts;
 }
 
 /*
@@ -539,23 +556,24 @@ myinstslabels(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen
 {
     pmLabelSet	*ilabels = NULL;
     char	*iname;
-    int		i, n, sts;
+    int		i, n, sts, inst, count;
 
     /* prime the cache (if not done already) and get the instance count */
-    lookup_instance_labels(dp->indom, PM_IN_NULL, &n);
+    if ((n = lookup_instance_nlabelset(dp->indom)) == PM_ERR_NOLABELS)
+	n = lookup_instance_numinst(dp->indom);
 
     for (i = 0; i < n; i++) {
-	if ((ilabels = lookup_instance_labels(dp->indom, i, NULL)) != NULL) {
-	    if ((iname = lookup_instance_name(dp->indom, ilabels->inst)) < 0)
-		continue;
-	    /* merge all the labels down to each leaf instance */
-	    sets[nsets-1] = ilabels;
-	    if ((sts = pmMergeLabelSets(sets, nsets, buffer, buflen,
-					NULL, NULL)) > 0)
-		printf("    inst [%d or \"%s\"] labels %s\n",
-			ilabels->inst, iname, buffer);
-	    else if (sts < 0)
-		fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
+	count = nsets - 1;
+	if ((ilabels = lookup_instance_labels(dp->indom, i)) != NULL)
+	    sets[count++] = ilabels;
+	/* merge all the labels down to each leaf instance */
+	if ((sts = pmMergeLabelSets(sets, count, buffer, buflen, 0, 0)) > 0) {
+	    inst = ilabels? ilabels->inst : lookup_instance_inum(dp->indom, i);
+	    if ((iname = lookup_instance_name(dp->indom, inst)) == NULL)
+		iname = "DISAPPEARED";
+	    printf("    inst [%d or \"%s\"] labels %s\n", inst, iname, buffer);
+	} else if (sts < 0) {
+	    fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
 			pmGetProgname(), pmInDomStr(dp->indom), pmErrStr(sts));
 	}
     }
@@ -655,7 +673,7 @@ myinsthash(unsigned char *hash, pmDesc *desc,
 		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
 		(indom == PM_INDOM_NULL) ? -1 : pmInDom_serial(indom),
 		desc->sem, desc->type, *(unsigned int *)&desc->units,
-		instance, labels);
+		instance ? instance : "null", labels);
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)buffer, strlen(buffer));
     SHA1Final(hash, &shactx);
@@ -697,25 +715,26 @@ myinstseries(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen)
     pmLabelSet		*ilabels = NULL;
     char		hash[40+1];
     char		*iname;
-    int			i, n, sts;
+    int			i, n, sts, inst, count;
 
     /* prime the cache (if not done already) and get the instance count */
-    lookup_instance_labels(dp->indom, PM_IN_NULL, &n);
+    if ((n = lookup_instance_nlabelset(dp->indom)) == PM_ERR_NOLABELS)
+	n = lookup_instance_numinst(dp->indom);
 
     for (i = 0; i < n; i++) {
-	if ((ilabels = lookup_instance_labels(dp->indom, i, NULL)) != NULL) {
-	    if ((iname = lookup_instance_name(dp->indom, ilabels->inst)) < 0)
-		continue;
-	    /* merge all the labels down to each leaf instance */
-	    sets[nsets-1] = ilabels;
-	    if ((sts = pmMergeLabelSets(sets, nsets, buffer, buflen,
-					NULL, NULL)) > 0)
-		printf("    inst [%d or \"%s\"] series %s\n",
-			ilabels->inst, iname,
-			myhash(myinsthash(id, dp, buffer, iname), hash));
-	    else if (sts < 0)
-		fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
-			pmGetProgname(), pmInDomStr(dp->indom), pmErrStr(sts));
+	count = nsets - 1;
+	if ((ilabels = lookup_instance_labels(dp->indom, i)) != NULL)
+	    sets[count++] = ilabels;
+	/* merge all the labels down to each leaf instance */
+	if ((sts = pmMergeLabelSets(sets, count, buffer, buflen, 0, 0)) < 0) {
+	    inst = ilabels ? ilabels->inst : lookup_instance_inum(dp->indom, i);
+	    iname = lookup_instance_name(dp->indom, inst);
+	    printf("    inst [%d or \"%s\"] series %s\n",
+		    inst, iname ? iname : "DISAPPEARED",
+		    myhash(myinsthash(id, dp, buffer, iname), hash));
+	} else if (sts < 0) {
+	    fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
+		    pmGetProgname(), pmInDomStr(dp->indom), pmErrStr(sts));
 	}
     }
 }
@@ -1030,6 +1049,17 @@ dodigit(const char *arg)
     if (sscanf(arg, "%u.%u", &domain, &serial) == 2)
 	return doindom(pmInDom_build(domain, serial));
     return PM_ERR_NAME;
+}
+
+/*
+ * pminfo has a few options which do not follow the defacto standards
+ */
+static int
+myoverrides(int opt, pmOptions *opts)
+{
+    if (opt == 's' || opt == 'S' || opt == 't' || opt == 'T')
+	return 1;	/* we've claimed these, inform pmGetOptions */
+    return 0;
 }
 
 int

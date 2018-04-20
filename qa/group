@@ -1494,6 +1494,7 @@ pmlogsize
 1287 pmda.install pmda.prometheus local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1299 libpcp pminfo local
+1306:reserved pmda.prometheus labels local
 1321 pmlogger pmda.prometheus local
 1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract

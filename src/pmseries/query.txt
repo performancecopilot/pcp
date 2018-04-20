@@ -7,6 +7,7 @@ OPERATORS:
 (equality synonyms)	:, ==, !=
 (value comparison)	>, >=, <=, <
 (regex comparison)	=~, !~
+(glob expansion)	~~
 (boolean logic)		',', &&, ||
 
 NAMES:

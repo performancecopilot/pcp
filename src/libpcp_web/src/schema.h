@@ -32,6 +32,8 @@
 #define HMGET_LEN	(sizeof("HMGET")-1)
 #define HMSET		"HMSET"
 #define HMSET_LEN	(sizeof("HMSET")-1)
+#define HSCAN		"HSCAN"
+#define HSCAN_LEN	(sizeof("HSCAN")-1)
 #define PUBLISH		"PUBLISH"
 #define PUBLISH_LEN	(sizeof("PUBLISH")-1)
 #define SADD		"SADD"

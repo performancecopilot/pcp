@@ -1,0 +1,1359 @@
+#!/usr/bin/env pmpython
+
+#
+# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2011 SGI.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+from ctypes import c_char_p, c_long, c_uint, c_ulonglong
+from ctypes import cast, create_string_buffer, sizeof, POINTER, Structure
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+import cpmapi as c_api
+import os
+import re
+import sys
+if sys.version >= '3':
+    long = int  # python2 to python3 portability (no long() in python3)
+
+NOVAL = c_api.PM_ERR_APPVERSION
+UNITS_NONE = pmUnits(0, 0, 0, 0, 0, 0)
+UNITS_SECS = pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)
+UNITS_COUNT = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
+UNITS_MSECS = pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)
+UNITS_BYTES = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+
+if sizeof(c_long) == 4:
+    CTYPES_ULONG = c_uint
+    PMDA_ULONG = c_api.PM_TYPE_32
+elif sizeof(c_long) == 8:
+    CTYPES_ULONG = c_ulonglong
+    PMDA_ULONG = c_api.PM_TYPE_U64
+else:
+    # cannot figure out how represent kernel long
+    sys.exit(1)
+
+COMMON_OPS = [	# ops available in v3, v4 and v4.1
+'null', 'getattr', 'setattr', 'lookup', 'access', 'readlink', 'read', 'write',
+'create', 'symlink', 'remove', 'rename', 'link', 'readdir', 'fsinfo',
+'pathconf', 'commit']
+
+V3ONLY_OPS = [	# ops only in v3
+'fsstat', 'mkdir', 'mknod', 'readdirplus', 'rmdir']
+
+V4_OPS = [	# ops ADDED in v4,
+# note: some v3 ops are invalid - fsstat, mkdir, mknod, readdirplus, rmdir 
+'close', 'create_session', 'delegreturn', 'destroy_session', 'exchange_id',
+'fs_locations', 'getacl', 'getdeviceinfo', 'get_lease_time', 'layoutcommit',
+'layoutget', 'layoutreturn', 'lock', 'lockt', 'locku', 'lookup_root', 'open',
+'open_confirm', 'open_downgrade', 'open_noattr', 'reclaim_complete',
+'release_lockowner', 'renew', 'secinfo', 'sequence', 'server_caps',
+'setacl', 'setclientid', 'setclientid_confirm', 'statfs']
+
+V41_OPS = [	# ops ADDED in v4.1
+# note: same v3 ops removed as in v4, all v4 ops should exist
+'bind_conn_to_session', 'destroy_clientid', 'free_stateid', 'getdevicelist',
+'secinfo_no_name', 'test_stateid']
+
+V42_OPS = [	# ops ADDED in v4.2
+'seek', 'allocate', 'deallocate', 'fsid_present', 'layoutstats', 'clone',
+'copy']
+
+
+class NFSOPTIONS(Structure):
+    """
+    Define the structure for all of the NFS mount options
+    Needs to differentiate between options that are not available based
+    on NFS version, versus options that are not set and therefore default
+    values apply - prepopulate based on this constraint.
+    """
+    _fields_ = [
+        ('readmode', c_char_p),
+        ('sync', c_uint),
+        ('atime', c_uint),
+        ('diratime', c_uint),
+        ('vers', c_char_p),
+        ('rsize', c_uint),
+        ('wsize', c_uint),
+        ('bsize', c_uint),
+        ('namlen', c_uint),
+        ('acregmin', c_uint),
+        ('acregmax', c_uint),
+        ('acdirmin', c_uint),
+        ('acdirmax', c_uint),
+        ('recovery', c_char_p),
+        ('posix', c_uint),
+        ('cto', c_uint),
+        ('ac', c_uint),
+        ('lock', c_uint),
+        ('acl', c_uint),
+        ('rdirplus', c_uint),
+        ('sharecache', c_uint),
+        ('resvport', c_uint),
+        ('proto', c_char_p),
+        ('port', c_uint),
+        ('timeo', c_uint),
+        ('retrans', c_uint),
+        ('sec', c_char_p),
+        # NFS 3 only options but can be NULL also
+        ('mountaddr', c_char_p),
+        ('mountvers', c_uint),
+        ('mountport', c_uint),
+        ('mountproto', c_char_p),
+        # NFS 4 only
+        ('clientaddr', c_char_p),
+        # All versions
+        ('fsc', c_uint),
+        ('migration', c_uint),
+        ('lookupcache', c_char_p),
+        ('local_lock', c_char_p),
+        ('string', c_char_p),
+    ]
+
+    def __init__(self):
+        """ Set any non-zero default values for the per-mount fields """
+        Structure.__init__(self)
+        self.atime = 1
+        self.diratime = 1
+        self.vers = b'3'
+        self.recovery = b'hard'
+        self.cto = 1
+        self.ac = 1
+        self.lock = 1
+        self.acl = 1
+        self.rdirplus = 1
+        self.sharecache = 1
+        self.resvport = 1
+        self.proto = b'tcp'
+        self.timeo = 600
+        self.retrans = 3
+        self.sec = b'sys'
+        self.mountaddr = b'unspecified'
+        self.mountproto = b''
+        self.clientaddr = b''
+        self.lookupcache = b''
+        self.local_lock = b'none'
+
+class NFSEVENTS(Structure):
+    """ Defines the structure for all of the NFS events """
+    _fields_ = [
+        ('inoderevalidate', c_uint),
+        ('dentryrevalidate', c_uint),
+        ('datainvalidate', c_uint),
+        ('attrinvalidate', c_uint),
+        ('vfsopen', c_uint),
+        ('vfslookup', c_uint),
+        ('vfsaccess', c_uint),
+        ('vfsupdatepage', c_uint),
+        ('vfsreadpage', c_uint),
+        ('vfsreadpages', c_uint),
+        ('vfswritepage', c_uint),
+        ('vfswritepages', c_uint),
+        ('vfsgetdents', c_uint),
+        ('vfssetattr', c_uint),
+        ('vfsflush', c_uint),
+        ('vfsfsync', c_uint),
+        ('vfslock', c_uint),
+        ('vfsrelease', c_uint),
+        ('congestionwait', c_uint),
+        ('setattrtrunc', c_uint),
+        ('extendwrite', c_uint),
+        ('sillyrename', c_uint),
+        ('shortread', c_uint),
+        ('shortwrite', c_uint),
+        ('delay', c_uint),
+        ('pnfsread', c_uint),
+        ('pnfswrite', c_uint),
+    ]
+
+class NFSBYTESREAD(Structure):
+    _fields_ = [
+        ('normal', c_ulonglong),
+        ('direct', c_ulonglong),
+        ('server', c_ulonglong),
+    ]
+
+class NFSBYTESWRITE(Structure):
+    _fields_ = [
+        ('normal', c_ulonglong),
+        ('direct', c_ulonglong),
+        ('server', c_ulonglong),
+    ]
+
+class NFSBYTES(Structure):
+    _fields_ = [
+        ('read', NFSBYTESREAD),
+        ('write', NFSBYTESWRITE),
+    ]
+
+class NFSPAGES(Structure):
+    _fields_ = [
+        ('read', c_ulonglong),
+        ('write', c_ulonglong),
+    ]
+
+class NFSEXPORT(Structure):
+    _fields_ = [
+        ('srcport', c_char_p),
+        ('bind_count', c_uint),
+        ('connect_count', c_uint),
+        ('connect_time', c_uint),
+        ('idle_time', c_uint),
+        ('sends', c_uint),
+        ('recvs', c_uint),
+        ('bad_xids', c_uint),
+        ('req_u', c_ulonglong),
+        ('backlog_u', c_ulonglong),
+        ('read_chunks', CTYPES_ULONG),
+        ('write_chunks', CTYPES_ULONG),
+        ('reply_chunks', CTYPES_ULONG),
+        ('total_rdma_req', c_ulonglong),
+        ('total_rdma_rep', c_ulonglong),
+        ('pullup', c_ulonglong),
+        ('fixup', c_ulonglong),
+        ('hardway', CTYPES_ULONG),
+        ('failed_marshal', CTYPES_ULONG),
+        ('bad_reply', CTYPES_ULONG),
+    ]
+    def __init__(self):
+        """ Set any non-zero default values for the per-mount fields """
+        Structure.__init__(self)
+        self.srcport = b''
+
+class NFSOPSTATS(Structure):
+    _fields_ = [
+        ('ops', CTYPES_ULONG),
+        ('ntrans', CTYPES_ULONG),
+        ('timeouts', CTYPES_ULONG),
+        ('bytes_sent', c_ulonglong),
+        ('bytes_recv', c_ulonglong),
+        ('queue', c_ulonglong),
+        ('rtt', c_ulonglong),
+        ('execute', c_ulonglong),
+    ]
+    def __init__(self):
+        Structure.__init__(self)
+        self.ops = NOVAL
+        self.ntrans = NOVAL
+        self.timeouts = NOVAL
+        self.bytes_sent = NOVAL
+        self.bytes_recv = NOVAL
+        self.queue = NOVAL
+        self.rtt = NOVAL
+        self.execute = NOVAL
+
+class NFSOPS(Structure):
+    _fields_ = [(op, NFSOPSTATS) for op in COMMON_OPS + V3ONLY_OPS + V4_OPS + V41_OPS + V42_OPS]
+
+class NFSCLIENT(Structure):
+    """ Defines the structure associated with an individual NFS mount """
+    _fields_ = [
+        ('export', c_char_p),
+        ('mountpoint', c_char_p),
+        ('options', NFSOPTIONS),
+        ('age', c_uint),
+        ('capabilities', c_char_p),
+        ('security', c_char_p),
+        ('nfsv4', c_char_p),
+        ('events', NFSEVENTS),
+        ('bytes', NFSBYTES),
+        ('pages', NFSPAGES),
+        ('xprt', NFSEXPORT),
+        ('ops', NFSOPS),
+    ]
+    def __init__(self):
+        """ Set any non-zero default values for the per-mount fields """
+        Structure.__init__(self)
+        self.capabilities = b''
+        self.security = b''
+        self.nfsv4 = b''
+
+
+class NFSCLIENTPMDA(PMDA):
+    """
+    PMDA class for nfsclient performance metrics
+    """
+
+    # The instance domain is 0 for all nfsclient stats
+    NFSCLIENT_INDOM = 0
+
+    # mountstats or other file to use
+    MOUNTSTATS_PATH = '/proc/self/mountstats'
+
+    # prefix for all metric names
+    NAME = ''
+
+    # The stats dict is keyed on the 'mount' string (the mountpoint string),
+    # e.g.  '/home'.  The value is a dict containing dictionaries of all of
+    # the stats data keyed on metric name
+    nfs = {}
+
+    @staticmethod
+    def chars(string):
+        return string.encode('utf-8')
+
+    @staticmethod
+    def longs(string):
+        return long(string)
+
+    def nfsclient_refresh(self):
+        """
+        Parse /proc/self/mountstats and store stats, one pass through the file.
+        """
+        name = self.NAME
+        client = {}
+        instance = ''
+
+        # mountstats output has a section for each mounted filesystems on the
+        # system.  Each section starts with a line like:  'device X mounted on
+        # Y with fstype Z'.  Some filesystems (like NFS) print additional info
+        # that we want to capture as metrics.
+
+        with open(self.MOUNTSTATS_PATH, 'r') as STATS:
+            while True:
+                line = STATS.readline()
+                if line == '':
+                    break
+                # self.log(line)
+
+                # does this line represent a mount?
+                m = re.match('device (\S*) mounted on (\S*) with fstype', line)
+                if m:
+                    instance = m.group(2)
+                    export = m.group(1)
+
+                    # is it an NFS mount?
+                    if re.search('nfs(4)? statvers=', line):
+                        client = NFSCLIENT()
+                        client.export = self.chars(export)
+                        client.mountpoint = self.chars(instance)
+                        self.nfs[instance] = client
+                        value = getattr(client, 'export')
+                    else:
+                        instance = ''
+
+                if instance == '':
+                    continue
+
+                # opts
+                m = re.match('\topts:\t(.*)$', line)
+                if m:
+                    options = m.group(1)
+                    client.options.string = self.chars(options)
+
+                    for mountopt in options.split(','):
+                        mountopt = mountopt.rstrip()
+
+                        if mountopt == 'sync':
+                            client.options.sync = 1
+                            continue
+                        if mountopt == 'noatime':
+                            client.options.atime = 0
+                            continue
+                        if mountopt == 'nodirtime':
+                            client.options.diratime = 0
+                            continue
+                        if mountopt == 'posix':
+                            client.options.posix = 1
+                            continue
+                        if mountopt == 'nocto':
+                            client.options.cto = 0
+                            continue
+                        if mountopt == 'noac':
+                            client.options.ac = 0
+                            continue
+                        if mountopt == 'nolock':
+                            client.options.lock = 0
+                            continue
+                        if mountopt == 'noacl':
+                            client.options.acl = 0
+                            continue
+                        if mountopt == 'nordirplus':
+                            client.options.rdirplus = 0
+                            continue
+                        if mountopt == 'nosharecache':
+                            client.options.sharecache = 0
+                            continue
+                        if mountopt == 'noresvport':
+                            client.options.resvport = 0
+                            continue
+                        if mountopt == 'fsc':
+                            client.options.fsc = 1
+                            continue
+                        if mountopt == 'migration':
+                            client.options.migration = 1
+                            continue
+
+                        m = re.match('(ro|rw)$', mountopt)
+                        if m:
+                            client.options.readmode = self.chars(m.group(1))
+                            continue
+                        m = re.match('vers=([2-4](\.[0-9])?)$', mountopt)
+                        if m:
+                            client.options.vers = self.chars(m.group(1))
+                            continue
+                        m = re.match('rsize=(\d+)$', mountopt)
+                        if m:
+                            client.options.rsize = self.longs(m.group(1))
+                            continue
+                        m = re.match('wsize=(\d+)$', mountopt)
+                        if m:
+                            client.options.wsize = self.longs(m.group(1))
+                            continue
+                        m = re.match('bsize=(\d+)$', mountopt)
+                        if m:
+                            client.options.bsize = self.longs(m.group(1))
+                            continue
+                        m = re.match('namlen=(\d+)$', mountopt)
+                        if m:
+                            client.options.namlen = self.longs(m.group(1))
+                            continue
+                        m = re.match('acregmin=(\d+)$', mountopt)
+                        if m:
+                            client.options.acregmin = self.longs(m.group(1))
+                            continue
+                        m = re.match('acregmax=(\d+)$', mountopt)
+                        if m:
+                            client.options.acregmax = self.longs(m.group(1))
+                            continue
+                        m = re.match('acdirmin=(\d+)$', mountopt)
+                        if m:
+                            client.options.acdirmin = self.longs(m.group(1))
+                            continue
+                        m = re.match('acdirmax=(\d+)$', mountopt)
+                        if m:
+                            client.options.acdirmax = self.longs(m.group(1))
+                            continue
+                        m = re.match('(soft|hard)$', mountopt)
+                        if m:
+                            client.options.recovery = self.chars(m.group(1))
+                            continue
+                        m = re.match('proto=(tcp|udp|rdma)$', mountopt)
+                        if m:
+                            client.options.proto = self.chars(m.group(1))
+                            continue
+                        m = re.match('port=(\d+)$', mountopt)
+                        if m:
+                            client.options.port = self.longs(m.group(1))
+                            continue
+                        m = re.match('timeo=(\d+)$', mountopt)
+                        if m:
+                            client.options.timeo = self.longs(m.group(1))
+                            continue
+                        m = re.match('retrans=(\d+)$', mountopt)
+                        if m:
+                            client.options.retrans = self.longs(m.group(1))
+                            continue
+                        m = re.match('sec=(null|sys|krb5|krb5i|krb5p|lkey|lkeyi|lkeyp|spkm|spkmi|spkmp|unknown)$', mountopt)
+                        if m:
+                            client.options.sec = self.chars(m.group(1))
+                            continue
+                        m = re.match('mountaddr=(.*)$', mountopt)   # NFS3 only
+                        if m:
+                            client.options.mountaddr = self.chars(m.group(1))
+                            continue
+                        m = re.match('mountvers=(\d+)$', mountopt)  # NFS3 only
+                        if m:
+                            client.options.mountvers = self.longs(m.group(1))
+                            continue
+                        m = re.match('mountport=(\d+)$', mountopt)  # NFS3 only
+                        if m:
+                            client.options.mountport = self.longs(m.group(1))
+                            continue
+                        m = re.match('mountproto=(udp|tcp|auto|udp6|tcp6)$', mountopt)   # NFS3 only
+                        if m:
+                            client.options.mountproto = self.chars(m.group(1))
+                            continue
+                        m = re.match('clientaddr=(.*)$', mountopt)   # NFS3 only
+                        if m:
+                            client.options.clientaddr = self.chars(m.group(1))
+                            continue
+                        m = re.match('lookupcache=(none|pos)$', mountopt)   # NFS3 only
+                        if m:
+                            client.options.lookupcache = self.chars(m.group(1))
+                            continue
+                        m = re.match('local_lock=(none|all|flock|posix)$', mountopt)   # NFS3 only
+                        if m:
+                            client.options.local_lock = self.chars(m.group(1))
+                            continue
+
+                m = re.match('\tage:\t(\d+)$', line)
+                if m:
+                    client.age = self.longs(m.group(1))
+                    continue
+                m = re.match('\tcaps:\t(.*)$', line)
+                if m:
+                    client.capabilities = self.chars(m.group(1))
+                    continue
+                m = re.match('\tnfsv4:\t(.*)$', line)
+                if m:
+                    client.nfsv4 = self.chars(m.group(1))
+                    continue
+                m = re.match('\tsec:\t(.*)$', line)
+                if m:
+                    client.security = self.chars(m.group(1))
+                    continue
+
+                # events
+                m = re.match('\tevents:\t(.*)$', line)
+                if m:
+                    events = m.group(1).split(' ')
+                    client.events.inoderevalidate = self.longs(events[0])
+                    client.events.dentryrevalidate = self.longs(events[1])
+                    client.events.datainvalidate = self.longs(events[2])
+                    client.events.attrinvalidate = self.longs(events[3])
+                    client.events.vfsopen = self.longs(events[4])
+                    client.events.vfslookup = self.longs(events[5])
+                    client.events.vfsaccess = self.longs(events[6])
+                    client.events.vfsupdatepage = self.longs(events[7])
+                    client.events.vfsreadpage = self.longs(events[8])
+                    client.events.vfsreadpages = self.longs(events[9])
+                    client.events.vfswritepage = self.longs(events[10])
+                    client.events.vfswritepages = self.longs(events[11])
+                    client.events.vfsgetdents = self.longs(events[12])
+                    client.events.vfssetattr = self.longs(events[13])
+                    client.events.vfsflush = self.longs(events[14])
+                    client.events.vfsfsync = self.longs(events[15])
+                    client.events.vfslock = self.longs(events[16])
+                    client.events.vfsrelease = self.longs(events[17])
+                    client.events.congestionwait = self.longs(events[18])
+                    client.events.setattrtrunc = self.longs(events[19])
+                    client.events.extendwrite = self.longs(events[20])
+                    client.events.sillyrename = self.longs(events[21])
+                    client.events.shortread = self.longs(events[22])
+                    client.events.shortwrite = self.longs(events[23])
+                    client.events.delay = self.longs(events[24])
+                    client.events.pnfsread = self.longs(events[25])
+                    client.events.pnfswrite = self.longs(events[26])
+                    continue
+
+                # bytes
+                m = re.match('\tbytes:\t(.*)$', line)
+                if m:
+                    values = m.group(1).split(' ')
+                    client.bytes.read.normal = self.longs(values[0])
+                    client.bytes.write.normal = self.longs(values[1])
+                    client.bytes.read.direct = self.longs(values[2])
+                    client.bytes.write.direct = self.longs(values[3])
+                    client.bytes.read.server = self.longs(values[4])
+                    client.bytes.write.server = self.longs(values[5])
+                    client.pages.read = self.longs(values[6])
+                    client.pages.write = self.longs(values[7])
+
+                # xprt
+                m = re.match('\txprt:\t(.*)$', line)
+                if m:
+                    values = m.group(1).split(' ')
+                    xprt_prot = values[0]
+
+                    if xprt_prot == 'tcp':
+                        client.xprt.srcport = self.chars(values[1])
+                        client.xprt.bind_count = self.longs(values[2])
+                        client.xprt.connect_count = self.longs(values[3])
+                        client.xprt.connect_time = self.longs(values[4])
+                        client.xprt.idle_time = self.longs(values[5])
+                        client.xprt.sends = self.longs(values[6])
+                        client.xprt.recvs = self.longs(values[7])
+                        client.xprt.bad_xids = self.longs(values[8])
+                        client.xprt.req_u = self.longs(values[9])
+                        client.xprt.backlog_u = self.longs(values[10])
+                    elif xprt_prot == 'udp':
+                        client.xprt.srcport = values[1]
+                        client.xprt.bind_count = self.longs(values[2])
+                        client.xprt.sends = self.longs(values[3])
+                        client.xprt.recvs = self.longs(values[4])
+                        client.xprt.bad_xids = self.longs(values[5])
+                        client.xprt.req_u =  self.longs(values[6])
+                        client.xprt.backlog_u = self.longs(values[7])
+                    elif xprt_prot == 'rdma':
+                        client.xprt.srcport = values[1]
+                        client.xprt.bind_count = self.longs(values[2])
+                        client.xprt.connect_count = self.longs(values[3])
+                        client.xprt.connect_time = self.longs(values[4])
+                        client.xprt.idle_time = self.longs(values[5])
+                        client.xprt.sends = self.longs(values[6])
+                        client.xprt.recvs = self.longs(values[7])
+                        client.xprt.bad_xids = self.longs(values[8])
+                        client.xprt.req_u = self.longs(values[9])
+                        client.xprt.backlog_u = self.longs(values[10])
+                        client.xprt.read_chunks = self.longs(values[11])
+                        client.xprt.write_chunks = self.longs(values[12])
+                        client.xprt.reply_chunks = self.longs(values[13])
+                        client.xprt.total_rdma_req = self.longs(values[14])
+                        client.xprt.total_rdma_rep = self.longs(values[15])
+                        client.xprt.pullup = self.longs(values[16])
+                        client.xprt.fixup = self.longs(values[17])
+                        client.xprt.hardway = self.longs(values[18])
+                        client.xprt.failed_marshal = self.longs(values[19])
+                        client.xprt.bad_reply = self.longs(values[20])
+                    else:
+                        continue
+
+                # per-operation statistics
+                m = re.match('\tper-op statistics$', line)
+                if m:
+                    # We do these a bit differently since they are not
+                    # all on the same line.  Loop until we don't match
+                    # anymore.  Note v4 ops can have underscore.
+                    while True:
+                        line = STATS.readline()
+                        if line == '':
+                            break
+                        m = re.match('\s*([A-Z_]*): (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*)$', line)
+                        if not m:
+                            break
+                        opname = m.group(1).lower()
+                        try:
+                            op = getattr(client.ops, opname)
+                            op.ops = self.longs(m.group(2))
+                            op.ntrans = self.longs(m.group(3))
+                            op.timeouts = self.longs(m.group(4))
+                            op.bytes_sent = self.longs(m.group(5))
+                            op.bytes_recv = self.longs(m.group(6))
+                            op.queue = self.longs(m.group(7))
+                            op.rtt = self.longs(m.group(8))
+                            op.execute = self.longs(m.group(9))
+                            setattr(client.ops, opname, op)
+                        except:
+                            # self.log("Unrecognised op: %s" % (line))
+                            pass   # not yet implemented
+
+    def nfsclient_instance(self, serial):
+        """ Called once per "instance" PDU """
+        self.nfsclient_refresh()
+
+    def nfsclient_fetch(self):
+        """ Called once per "fetch" PDU, before callbacks """
+        self.nfs.clear()
+        self.nfsclient_refresh()
+        self.replace_indom(self.NFSCLIENT_INDOM, self.nfs)
+
+    def nfsclient_fetch_callback(self, cluster, item, inst):
+        """ Called for each instance of each fetched metric """
+        voidp = self.inst_lookup(self.NFSCLIENT_INDOM, inst)
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+        cache = cast(voidp, POINTER(NFSCLIENT))
+        metric = self.pmid_name_lookup(cluster, item)
+        if metric is None:
+            return [c_api.PM_ERR_PMID, 0]
+        names = metric.split(".")
+        names = names[1:]   # cull self.NAME
+        value = cache.contents
+        try:
+            for name in names:
+                value = getattr(value, name)
+            if type(value) == type(b''):
+                return [str(value.decode()), 1]
+            return [value, 1]
+        except KeyError:
+            pass
+        return [NOVAL, 0]
+
+
+    def __init__(self, name, domain):
+        """ NFS client PMDA constructor """
+        PMDA.__init__(self, name, domain)
+        self.connect_pmcd()
+        self.NAME = name
+
+        # Check env variable for mountstats file to use
+        self.MOUNTSTATS_PATH = os.getenv('NFSCLIENT_MOUNTSTATS_PATH',
+                '/proc/self/mountstats')
+
+        # general - indom 0
+        self.NFSCLIENT_INDOM = self.indom(0)
+        self.add_indom(pmdaIndom(self.NFSCLIENT_INDOM, self.nfs),
+                          'NFS client mount points', '')
+
+        # general - cluster 0
+        self.add_metric(name + '.export',
+                pmdaMetric(self.pmid(0,1), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'Export',
+                '')
+        self.add_metric(name + '.mountpoint',
+                pmdaMetric(self.pmid(0,2), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'Mount Point',
+                '')
+
+# opts - cluster 1
+#
+# Options in order:
+# NULL is not present
+# from super.c in nfs_show_mount_options
+#
+# ro | rw
+# sync | NULL
+# noatime | NULL
+# nodiratime | NULL
+# vers=([2-4](\.[0-9])?)
+# rsize=%u
+# wsize=%u
+# bsize=%u | NULL
+# namlen=%u
+# acregmin=%u | NULL
+# acregmax=%u | NULL
+# acdirmin=%u | NULL
+# acdirmax=%u | NULL
+# soft | hard
+# posix | NULL
+# nocto | NULL
+# noac | NULL
+# nolock | NULL
+# noacl | NULL
+# nordirplus | NULL
+# nosharecache | NULL
+# noresvport | NULL
+# proto=(tcp|udp|rdma)
+# port=%u | NULL
+# timeo=%lu
+# retrans=%u
+# sec=(null|sys|krb5|krb5i|krb5p|lkey|lkeyi|lkeyp|spkm|spkmi|spkmp|unknown)   # null and unknown are those exact literal strings
+
+# NFS 3 only
+# Below block may not exist at all if NFS_MOUNT_LEGACY_INTERFACE
+# mountaddr="ip4addr|ip6addr|unspecified"
+# mountvers=%u | NULL
+# mountport=%u | NULL
+# mountproto=(udp|tcp|auto|udp6|tcp6|NULL)    # NULL if showdefaults is false
+
+# NFS 4 Only
+# clientaddr=(ip4address|ip6address)
+
+# fsc | NULL
+# migration | NULL
+# lookupcache=(none|pos) | NULL
+# local_lock=(none|all|flock|posix)
+
+        self.add_metric(name + '.options.string',
+                pmdaMetric(self.pmid(1,1), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'Full Options String',
+                '')
+        self.add_metric(name + '.options.readmode',
+                pmdaMetric(self.pmid(1,2), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'rw or ro mount mode',
+                '')
+        self.add_metric(name + '.options.sync',
+                pmdaMetric(self.pmid(1,3), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean sync mount option used',
+                '')
+        self.add_metric(name + '.options.atime',
+                pmdaMetric(self.pmid(1,4), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean atime mount option used',
+                '')
+        self.add_metric(name + '.options.diratime',
+                pmdaMetric(self.pmid(1,5), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean diratime mount option used',
+                '')
+        self.add_metric(name + '.options.vers',
+                pmdaMetric(self.pmid(1,6), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'nfs version',
+                '')
+        self.add_metric(name + '.options.rsize',
+                pmdaMetric(self.pmid(1,7), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'rsize mount parameter',
+                '')
+        self.add_metric(name + '.options.wsize',
+                pmdaMetric(self.pmid(1,8), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'wsize mount parameter',
+                '')
+        self.add_metric(name + '.options.bsize',
+                pmdaMetric(self.pmid(1,9), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'bsize mount parameter',
+                '')
+        self.add_metric(name + '.options.namlen',
+                pmdaMetric(self.pmid(1,10), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'namlen mount parameter',
+                '')
+        self.add_metric(name + '.options.acregmin',
+                pmdaMetric(self.pmid(1,11), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'acregmin mount parameter',
+                '')
+        self.add_metric(name + '.options.acregmax',
+                pmdaMetric(self.pmid(1,12), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'acregmax mount parameter',
+                '')
+        self.add_metric(name + '.options.acdirmin',
+                pmdaMetric(self.pmid(1,13), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'acdirmin mount parameter',
+                '')
+        self.add_metric(name + '.options.acdirmax',
+                pmdaMetric(self.pmid(1,14), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'acdirmax mount parameter',
+                '')
+        self.add_metric(name + '.options.recovery',
+                pmdaMetric(self.pmid(1,15), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'hard or soft recovery behavior',
+                '')
+        self.add_metric(name + '.options.posix',
+                pmdaMetric(self.pmid(1,16), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean posix mount option used',
+                '')
+        self.add_metric(name + '.options.cto',
+                pmdaMetric(self.pmid(1,17), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean cto mount option used',
+                '')
+        self.add_metric(name + '.options.ac',
+                pmdaMetric(self.pmid(1,18), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean ac mount option used',
+                '')
+        self.add_metric(name + '.options.lock',
+                pmdaMetric(self.pmid(1,19), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean lock mount option used',
+                '')
+        self.add_metric(name + '.options.acl',
+                pmdaMetric(self.pmid(1,20), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean acl mount option used',
+                '')
+        self.add_metric(name + '.options.rdirplus',
+                pmdaMetric(self.pmid(1,21), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean rdirplus mount option used',
+                '')
+        self.add_metric(name + '.options.sharecache',
+                pmdaMetric(self.pmid(1,22), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean sharecache mount option used',
+                '')
+        self.add_metric(name + '.options.resvport',
+                pmdaMetric(self.pmid(1,23), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'boolean resvport mount option used',
+                '')
+        self.add_metric(name + '.options.proto',
+                pmdaMetric(self.pmid(1,24), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'nfs protocol: udp|tcp|rdma',
+                '')
+        self.add_metric(name + '.options.port',
+                pmdaMetric(self.pmid(1,25), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'port mount parameter',
+                '')
+        self.add_metric(name + '.options.timeo',
+                pmdaMetric(self.pmid(1,26), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'timeo mount parameter',
+                '')
+        self.add_metric(name + '.options.retrans',
+                pmdaMetric(self.pmid(1,27), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'retrans mount parameter',
+                '')
+        self.add_metric(name + '.options.sec',
+                pmdaMetric(self.pmid(1,28), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'sec mount parameter',
+                '')
+# NFS3 only
+        self.add_metric(name + '.options.mountaddr',
+                pmdaMetric(self.pmid(1,29), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'mountaddr mount parameter',
+                '')
+        self.add_metric(name + '.options.mountvers',
+                pmdaMetric(self.pmid(1,30), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'mountvers mount parameter',
+                '')
+        self.add_metric(name + '.options.mountport',
+                pmdaMetric(self.pmid(1,31), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'mountport mount parameter',
+                '')
+        self.add_metric(name + '.options.mountproto',
+                pmdaMetric(self.pmid(1,32), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'mountproto mount parameter',
+                '')
+# NFS4 only
+        self.add_metric(name + '.options.clientaddr',
+                pmdaMetric(self.pmid(1,33), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'clientaddr mount parameter',
+                '')
+# All
+        self.add_metric(name + '.options.fsc',
+                pmdaMetric(self.pmid(1,34), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'fsc mount parameter',
+                '')
+        self.add_metric(name + '.options.migration',
+                pmdaMetric(self.pmid(1,35), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'migration mount parameter',
+                '')
+        self.add_metric(name + '.options.lookupcache',
+                pmdaMetric(self.pmid(1,36), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'lookupcache mount parameter',
+                '')
+        self.add_metric(name + '.options.local_lock',
+                pmdaMetric(self.pmid(1,37), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'local_lock mount parameter',
+                '')
+
+# age - cluster 2
+        self.add_metric(name + '.age',
+                pmdaMetric(self.pmid(2,1), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_SECS),
+                'Age in Seconds',
+                '')
+# caps - cluster 3 - Any use in parsing this ?
+        self.add_metric(name + '.capabilities',
+                pmdaMetric(self.pmid(3,1), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'Capabilities',
+                '')
+        self.add_metric(name + '.nfsv4',
+                pmdaMetric(self.pmid(3,2), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'NFSv4 supported attributes',
+                '')
+
+# sec - cluster 4 - Any use in parsing this ?
+        self.add_metric(name + '.security',
+                pmdaMetric(self.pmid(4,1), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'Security Flavor',
+                '')
+
+# events - cluster 5
+        self.add_metric(name + '.events.inoderevalidate',
+                pmdaMetric(self.pmid(5,1), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_INODEREVALIDATE',
+'Incremented in __nfs_revalidate_inode whenever an inode is revalidated')
+
+        self.add_metric(name + '.events.dentryrevalidate',
+                pmdaMetric(self.pmid(5,2), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_DENTRYREVALIDATE',
+'Incremented in nfs_lookup_revalidate whenever a dentry is revalidated')
+
+        self.add_metric(name + '.events.datainvalidate',
+                pmdaMetric(self.pmid(5,3), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_DATAINVALIDATE',
+"Incremented in nfs_invalidate_mapping_nolock when data cache for an inode\n" +
+'is invalidated')
+
+        self.add_metric(name + '.events.attrinvalidate',
+                pmdaMetric(self.pmid(5,4), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_ATTRINVALIDATE',
+"Incremented in nfs_zap_caches_locked and nfs_update_inode when an the\n" +
+'attribute cache for an inode has been invalidated')
+
+        self.add_metric(name + '.events.vfsopen',
+                pmdaMetric(self.pmid(5,5), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_VFSOPEN',
+"Incremented in nfs_file_open and nfs_opendir whenever a file or directory\n" +
+"is opened\n")
+
+        self.add_metric(name + '.events.vfslookup',
+                pmdaMetric(self.pmid(5,6), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_VFSLOOKUP',
+'incremented in nfs_lookup on every lookup')
+
+        self.add_metric(name + '.events.vfsaccess',
+                pmdaMetric(self.pmid(5,7), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsupdatepage',
+                pmdaMetric(self.pmid(5,8), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsreadpage',
+                pmdaMetric(self.pmid(5,9), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsreadpages',
+                pmdaMetric(self.pmid(5,10), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfswritepage',
+                pmdaMetric(self.pmid(5,11), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfswritepages',
+                pmdaMetric(self.pmid(5,12), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsgetdents',
+                pmdaMetric(self.pmid(5,13), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfssetattr',
+                pmdaMetric(self.pmid(5,14), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsflush',
+                pmdaMetric(self.pmid(5,15), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsfsync',
+                pmdaMetric(self.pmid(5,16), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfslock',
+                pmdaMetric(self.pmid(5,17), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.vfsrelease',
+                pmdaMetric(self.pmid(5,18), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.congestionwait',
+                pmdaMetric(self.pmid(5,19), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.setattrtrunc',
+                pmdaMetric(self.pmid(5,20), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.extendwrite',
+                pmdaMetric(self.pmid(5,21), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.sillyrename',
+                pmdaMetric(self.pmid(5,22), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.shortread',
+                pmdaMetric(self.pmid(5,23), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.shortwrite',
+                pmdaMetric(self.pmid(5,24), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.delay',
+                pmdaMetric(self.pmid(5,25), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.pnfsread',
+                pmdaMetric(self.pmid(5,26), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM,
+                c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.events.pnfswrite',
+                pmdaMetric(self.pmid(5,27), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM,
+                c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+# bytes - cluster 6
+        self.add_metric(name + '.bytes.read.normal',
+                pmdaMetric(self.pmid(6,1), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                'NFSIOS_NORMALREADBYTES',
+"The number of bytes read by applications via the read system call\n" +
+'interface')
+
+        self.add_metric(name + '.bytes.write.normal',
+                pmdaMetric(self.pmid(6,2), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                'NFSIOS_NORMALWRITTENBYTES',
+"The number of bytes written by applications via the write system call\n" +
+'interface')
+
+        self.add_metric(name + '.bytes.read.direct',
+                pmdaMetric(self.pmid(6,3), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                'NFSIOS_DIRECTREADBYTES',
+"The number of bytes read by applications from files opened with the\n" +
+'O_DIRECT flag')
+
+        self.add_metric(name + '.bytes.write.direct',
+                pmdaMetric(self.pmid(6,4), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                'NFSIOS_DIRECTWRITTENBYTES',
+"The number of bytes written by applications to files opened with the\n" +
+'O_DIRECT flag')
+
+        self.add_metric(name + '.bytes.read.server',
+                pmdaMetric(self.pmid(6,5), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                'NFSIOS_SERVERREADBYTES',
+"The number of bytes read from the nfs server by the nfs client via nfs\n" +
+'read requests')
+
+        self.add_metric(name + '.bytes.write.server',
+                pmdaMetric(self.pmid(6,6), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                'NFSIOS_SERVERWRITTENBYTES',
+"The number of bytes written to the nfs server by the nfs client via nfs\n" +
+'write requests')
+
+        self.add_metric(name + '.pages.read',
+                pmdaMetric(self.pmid(6,7), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_READPAGES',
+'The number of pages read via nfs_readpage or nfs_readpages')
+
+        self.add_metric(name + '.pages.write',
+                pmdaMetric(self.pmid(6,8), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'NFSIOS_WRITEPAGES',
+'The number of pages written via nfs_writepage or nfs_writepages')
+
+# xprt - cluster 7
+#
+# We have three possible transports:  udp, tcp, rdma.
+# Fill in 0 for ones that dont apply.  Types for RDMA from net/sunrpc/xprtrdma/transport.c : xprt_rdma_print_stats
+#
+        self.add_metric(name + '.xprt.srcport',
+                pmdaMetric(self.pmid(7,1), c_api.PM_TYPE_STRING,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_NONE),
+                'tcp source port',
+                'Source port on the client')
+
+        self.add_metric(name + '.xprt.bind_count',
+                pmdaMetric(self.pmid(7,2), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'count of rpcbind get_port calls',
+"Incremented in rpcb_getport_async: \"obtain the port for a given RPC\n" +
+'service on a given host\"')
+
+        self.add_metric(name + '.xprt.connect_count',
+                pmdaMetric(self.pmid(7,3), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'count of tcp connects',
+"Incremented in xs_tcp_finish_connecting and xprt_connect_status.\n" +
+"This is a count of the number of tcp (re)connects (one of which is\n" +
+'active at a time) for this mount.')
+
+        self.add_metric(name + '.xprt.connect_time',
+                pmdaMetric(self.pmid(7,4), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'jiffies waiting for connect',
+"Summed in xprt_connect_status, it is stored and printed in jiffies.\n" +
+"This is the sum of all connection attempts: how long was spent waiting\n" +
+'to connect.')
+
+        self.add_metric(name + '.xprt.idle_time',
+                pmdaMetric(self.pmid(7,5), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_INSTANT, UNITS_SECS),
+                'transport idle time',
+"How long has it been since the transport has been used.\n" +
+'Stored and calculated in jiffies and reported in seconds.')
+
+        self.add_metric(name + '.xprt.sends',
+                pmdaMetric(self.pmid(7,6), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'count of tcp transmits',
+'Incremented in xprt_transmit upon transmit completion of each rpc.')
+
+        self.add_metric(name + '.xprt.recvs',
+                pmdaMetric(self.pmid(7,7), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'count of tcp receives',
+'Incremented in xprt_complete_rqst when reply processing is complete.')
+
+        self.add_metric(name + '.xprt.bad_xids',
+                pmdaMetric(self.pmid(7,8), c_api.PM_TYPE_U32,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'count of bad transaction identifiers',
+"When processing an rpc reply it is necessary to look up the original\n" +
+"rpc_rqst using xprt_lookup_rqst.  If the rpc_rqst that prompted the\n" +
+'reply cannot be found on the transport then bad_xids is incremented.')
+
+        self.add_metric(name + '.xprt.req_u',
+                pmdaMetric(self.pmid(7,9), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'average requests on the wire',
+"The comment in struct stat says: \"average requests on the wire\",\n" +
+"but the actual calculation in xprt_transmit is:\n" +
+"  xprt->stat.req_u += xprt->stat.sends - xprt->stat.recvs;\n" +
+'The kernel-exported value for this metric may be broken.')
+
+        self.add_metric(name + '.xprt.backlog_u',
+                pmdaMetric(self.pmid(7,10), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'backlog queue utilization',
+"This is the calculation in xprt_transmit:\n" +
+"  xprt->stat.bklog_u += xprt->backlog.qlen;\n" +
+"qlen is incremented in __rpc_add_wait_queue and decremented in\n" +
+'__rpc_remove_wait_queue.')
+
+        self.add_metric(name + '.xprt.read_chunks',
+                pmdaMetric(self.pmid(7,11), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.write_chunks',
+                pmdaMetric(self.pmid(7,12), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.reply_chunks',
+                pmdaMetric(self.pmid(7,13), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.total_rdma_req',
+                pmdaMetric(self.pmid(7,14), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.total_rdma_rep',
+                pmdaMetric(self.pmid(7,15), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.pullup',
+                pmdaMetric(self.pmid(7,16), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.fixup',
+                pmdaMetric(self.pmid(7,17), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.hardway',
+                pmdaMetric(self.pmid(7,18), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.failed_marshal',
+                pmdaMetric(self.pmid(7,19), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+        self.add_metric(name + '.xprt.bad_reply',
+                pmdaMetric(self.pmid(7,20), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                '', '')
+
+# ops - cluster 8
+#
+# Different versions have different operations.  We just list them all and
+# fill in only what is appropriate for this version.  Non-matching ones will
+# return no-value from fetch.
+
+        opitem = 1
+        for opname in COMMON_OPS + V3ONLY_OPS + V4_OPS + V41_OPS + V42_OPS:
+            self.add_metric(name + '.ops.' + opname + '.ops',
+                    pmdaMetric(self.pmid(8, opitem), PMDA_ULONG,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                    'count of operations',
+'RPC count for this op, only bumped in rpc_count_iostats')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.ntrans',
+                    pmdaMetric(self.pmid(8, opitem), PMDA_ULONG,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                    'count of transmissions',
+'There can be more than one transmission per rpc')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.timeouts',
+                    pmdaMetric(self.pmid(8, opitem), PMDA_ULONG,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                    'count of major timeouts', '')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.bytes_sent',
+                    pmdaMetric(self.pmid(8, opitem), c_api.PM_TYPE_U64,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                    'count of bytes out',
+"How many bytes are sent for this procedure type.  This indicates how much\n" +
+"load this procedure puts on the network.  It includes the RPC and ULP\n" +
+'headers, and the request payload')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.bytes_recv',
+                    pmdaMetric(self.pmid(8, opitem), c_api.PM_TYPE_U64,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_BYTES),
+                    'count of bytes in',
+"How many bytes are received for this procedure type.  This indicates how\n" +
+"much load this procedure is putting on the network.  It includes RPC and\n" +
+'ULP headers, and the request payload')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.queue',
+                    pmdaMetric(self.pmid(8, opitem), c_api.PM_TYPE_U64,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_MSECS),
+                    'milliseconds queued for transmit',
+"The length of time an RPC request waits in queue before transmission in\n" +
+'milliseconds.')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.rtt',
+                    pmdaMetric(self.pmid(8, opitem), c_api.PM_TYPE_U64,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_MSECS),
+                    'milliseconds for rpc round trip time',
+'The network + server latency of the request in milliseconds.')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.execute',
+                    pmdaMetric(self.pmid(8, opitem), c_api.PM_TYPE_U64,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_MSECS),
+                    'milliseconds for rpc execution',
+'The total time the request spent from init to release in milliseconds.')
+            opitem += 1
+
+        self.nfsclient_refresh()
+        self.set_fetch(self.nfsclient_fetch)
+        self.set_instance(self.nfsclient_instance)
+        self.set_fetch_callback(self.nfsclient_fetch_callback)
+
+if __name__ == "__main__":
+    NFSCLIENTPMDA("nfsclient", 62).run()

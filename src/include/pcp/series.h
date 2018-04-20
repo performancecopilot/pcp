@@ -15,8 +15,8 @@
 #define PCP_SERIES_H
 
 #include <stdio.h>
+#include "sds.h" /* define typedef sds */
 
-typedef char *sds;	/* simple dynamic strings */
 typedef sds pmSeriesID;	/* external 40-byte form of series identifier */
 typedef sds pmSourceID;	/* external 40-byte form of source identifier */
 
@@ -68,13 +68,6 @@ typedef enum pmlabelfields {
     PMLABEL_MAXFIELD
 } pmlabelfields;
 
-typedef enum pmsourcefields {
-    PMSOURCE_SERIES,		/* source identifier from the context */
-    PMSOURCE_NAME,		/* archive path or host specification */
-    PMSOURCE_TYPE,		/* archive or host source context type */
-    PMSOURCE_MAXFIELD
-} pmsourcefields;
-
 typedef int (*pmSeriesMatchCallBack)(pmSeriesID, void *);
 typedef int (*pmSeriesStringCallBack)(pmSeriesID, sds, void *);
 typedef int (*pmSeriesStructCallBack)(pmSeriesID, int, sds *, void *);
@@ -86,9 +79,8 @@ typedef struct pmSeriesSettings {
     pmSeriesStructCallBack	on_desc;	/* one metric descriptor */
     pmSeriesStructCallBack	on_inst;	/* an instances details */
     pmSeriesStringCallBack	on_instname;	/* one instance name */
+    pmSeriesStringCallBack	on_context;	/* one context name */
     pmSeriesStringCallBack	on_metric;	/* one metric name */
-    pmSeriesStructCallBack	on_source;	/* a sources details */
-    pmSeriesStringCallBack	on_context;	/* one metric source */
     pmSeriesStructCallBack	on_value;	/* a time series value */
     pmSeriesStringCallBack	on_label;	/* one label name */
     pmSeriesStructCallBack	on_labelset;	/* one set of labels */

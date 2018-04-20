@@ -1,35 +1,40 @@
 #! /bin/sh
 # PCP QA Test No. 798
-# Exercise dbpmda use with the Perl implementation of nfsclient
+# Exercise dbpmda use with the Python nfsclient PMDA
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2018 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
-[ -d $PCP_PMDAS_DIR/nfsclient ] || _notrun "nfsclient PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/nfsclient ] || _notrun "nfsclient PMDA is not installed"
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
 status=1
-perl -e "use PCP::PMDA" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
-
 rm -f $seq.out
-if [ `perl -e 'use PCP::PMDA; printf "%d\n", pmda_ulong == PM_TYPE_U32'` = 1 ]
+wordsize=`$python -c 'import ctypes; print(ctypes.sizeof(ctypes.c_long))'`
+if [ $wordsize -eq 4 ]
 then
     ln $seq.out.32 $seq.out
-else
+elif [ $wordsize -eq 8 ]
+then
     ln $seq.out.64 $seq.out
+else
+    echo "Could not detect machine word size using python"
+    exit
 fi
+python_path=`which $python`
 
 _cleanup()
 {
     cd $here
+    [ -f $PCP_VAR_DIR/config/pmda/$domain.0.$seq ] && \
+	_restore_config $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo rm -f $PCP_PMDAS_DIR/nfsclient/nfsclient.log
     rm -f $tmp.*
 }
@@ -43,7 +48,9 @@ _filter()
     | $here/src/sortinst -v \
     | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
-	-e "s;$script;pmdanfsclient.pl;" \
+	-e "s;$script;pmdanfsclient.python;" \
+	-e "s;$python_path;\$PYTHON;" \
+	-e "s;$python;\$PYTHON;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
     # end
@@ -97,15 +104,18 @@ NR > 1	{ printf "[X+%d] inst: X+%d name: %s\n", NR-1, NR-1, $6 }'
 
 # real QA test starts here
 domain=62
-script=pmdanfsclient.pl
+[ -f $PCP_VAR_DIR/config/pmda/$domain.0 ] && \
+    _save_config $PCP_VAR_DIR/config/pmda/$domain.0
+$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
+script=pmdanfsclient.python
 cd "$PCP_PMDAS_DIR/nfsclient"
 
 # create a root namespace file for dbpmda to use
-PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
+PCP_PYTHON_PMNS=root $python $script > $tmp.root
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
-open pipe /usr/bin/env perl $script
+open pipe $python_path $script
 getdesc on
 desc nfsclient.export
 desc nfsclient.mountpoint
@@ -123,7 +133,7 @@ End-of-File
 
 # create a set of commands for dbpmda and nfsv4.2
 cat >$tmp.42cmds <<EOF
-open pipe /usr/bin/env perl $script
+open pipe $python_path $script
 getdesc on
 desc nfsclient.nfsv4
 desc nfsclient.ops.seek.ops
@@ -183,7 +193,9 @@ do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
-    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 | _filter | _filter_indom
+    $sudo TERM=ansi \
+	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 \
+	| _filter | _filter_indom
     pmsleep 0.5
     _filter_pmda_log < nfsclient.log
 done
@@ -194,7 +206,9 @@ do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
-    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 | _filter | _filter_indom
+    $sudo TERM=ansi \
+	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 \
+	| _filter | _filter_indom
     pmsleep 0.5
     _filter_pmda_log < nfsclient.log
 done
