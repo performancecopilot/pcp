@@ -28,9 +28,9 @@ from stat import ST_MODE, S_IXUSR, ST_CTIME
 import requests
 import sys
 if sys.version[0] == '2':
-        import Queue as queue
+    import Queue as queue
 else:
-        import queue as queue
+    import queue as queue
 import cpmapi as c_api
 import cpmda
 from pcp.pmapi import pmUnits
@@ -525,7 +525,7 @@ class Source(object):
                     self.metrics_by_name[sp.name] = m
                     self.metrics_by_num[metricnum] = m  # not pmid!
                     m.store_inst(sp.labels, sp.value)
-                    self.set_notify_change()
+                    self.pmda.set_notify_change()
         except Exception as e:
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
 
