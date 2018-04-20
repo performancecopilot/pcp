@@ -524,10 +524,8 @@ class Source(object):
                            pcpline,helpline,typeline)
                     self.metrics_by_name[sp.name] = m
                     self.metrics_by_num[metricnum] = m  # not pmid!
-
-                    # flag there has been a PMNS change
-                    self.pmda.pmns_changed += 1
                     m.store_inst(sp.labels, sp.value)
+                    self.set_notify_change()
         except Exception as e:
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
 
@@ -829,9 +827,6 @@ class PrometheusPMDA(PMDA):
         self.set_label(self.prom_label)
         self.set_label_callback(self.prom_label_callback)
 
-        # dynamic PMNS changed count - bumped every time a new metric is created
-        self.pmns_changed = 0
-
     def lookup_regex(self, pat):
         ''' cache of compiled regex '''
         if pat not in self.regex_cache.keys():
@@ -940,14 +935,7 @@ class PrometheusPMDA(PMDA):
                     self.err("Error allocating new cluster/source %s (%s)" % (name, e))
         if save_cluster_table:
             self.cluster_table.save()
-
-        if self.pmns_changed > 0:
-            # Flag PMNS change so clients (especially pmlogger) will be notified
-            # synchronously (next fetch) that there has been a change to the PCP namespace.
-            self.debug("pmns_changed=%d => set_notify_change flag for PMNS changes" % self.pmns_changed) if self.dbg else None
             self.set_notify_change()
-            self.pmns_changed = 0 # reset count to 0
-
 
     def refresh_metrics_for_pmns(self):
         '''Refresh our list of Sources.  Then have each "old" Source do a
