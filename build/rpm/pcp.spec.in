@@ -1588,8 +1588,15 @@ Requires: libvirt-python %{__python2}-lxml
 Requires: libvirt-python3 python3-lxml
 %endif
 %else
-Requires: %{__python2}-libvirt %{__python2}-lxml
 Requires: %{__python2}-pcp
+Requires: %{__python2}-lxml
+# it appears the rpm name changed from libvirt-python to python-libvirt in
+# Fedora 27
+%if 0%{?fedora} >= 27
+Requires: %{__python2}-libvirt
+%else
+Requires: libvirt-python
+%endif
 %endif
 
 %description pmda-libvirt
