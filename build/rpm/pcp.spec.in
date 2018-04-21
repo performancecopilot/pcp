@@ -844,7 +844,14 @@ BuildRequires: setools-console
 BuildRequires: setools
 %endif
 Requires: policycoreutils
+%if "%{_vendor}" == "suse"
+# no libsemanage for SuSE other than libsemanage1 for OpenSuSE 12
+%if 0%{?suse_version} >= 1200
+Requires: libsemanage1
+%endif
+%else
 Requires: libsemanage
+%endif
 
 %description selinux
 This package contains SELinux support for PCP.  The package contains
