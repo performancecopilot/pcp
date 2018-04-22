@@ -1264,7 +1264,7 @@ in
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow'
 	;;
     vm20)
 	na='sysv-rc-conf'
