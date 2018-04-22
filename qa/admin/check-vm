@@ -1276,7 +1276,7 @@ in
 	na='python3-prometheus-client python3-xlsxwriter perl-Slurm-Hostlist'
 	;;
     vm27)
-	na='python3-libvirt python3-prometheus-client'
+	na='python3-bpfcc'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-xlsxwriter python-xlsxwriterxlsxwriter dtrace boost'
