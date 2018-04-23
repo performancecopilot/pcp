@@ -458,8 +458,8 @@ pacman?	/usr/lib/python3.*/site-packages/setuptools	[python-setuptools]
 # -- python libvirt and lxml
 dpkg?	/usr/lib/python2.*/*-packages/libvirt.py	[python-libvirt]
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt]
-rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python]
-rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3]
+rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python or python-libvirt]
+rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt]
 dpkg?	/usr/lib/python2.*/*-packages/lxml	[python-lxml]
 dpkg?	/usr/lib/python3/*-packages/lxml	[python3-lxml]
 rpm?	/usr/lib*/python2.*/*-packages/lxml	[python-lxml]
@@ -1033,11 +1033,15 @@ pkg?	SoPath.h			[N/A (build optional)]
 slackpkg?	SoPath.h		[N/A (build optional)]
 pacman?	/usr/include/Inventor/SoPath.h	[coin (build optional)]
 dpkg?	/usr/lib*/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev (build optional)]
+dpkg?	/usr/lib*/libSoQt5.so|/usr/lib/*/libSoQt5.so	[libsoqt5-dev or libsoqt-dev (build optional)]
 rpm?	/usr/lib*/libSoQt.so		[SoQt-devel (build optional)]
 urpmi?	/usr/lib*/libSoQt.so		[lib64soqt-devel (build optional)]
 emerge?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+emerge?	/usr/lib/libSoQt5.so|/usr/lib/*/libSoQt5.so	[? (build optional)]
 pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[Coin (build optional)]
+pkgin?	/usr/lib/libSoQt5.so|/usr/lib/*/libSoQt5.so	[Coin (build optional)]
 pkg_add?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+pkg_add?	/usr/lib/libSoQt5.so|/usr/lib/*/libSoQt5.so	[? (build optional)]
 pkg?	libSoQt.so			[N/A (build optional)]
 slackpkg?	libSoQt.so		[N/A (build optional)]
 pacman?	/usr/lib/libSoQt.so		[soqt (build optional)]
@@ -1224,7 +1228,7 @@ do
     esac
     if which $pkgtype >/dev/null 2>&1 && $want
     then
-	sed -e "s/^${pkgtype}?[ 	]*//" <$tmp.main >$tmp.tmp
+	sed -e "s/^${pkgtype}?[ 	][ 	]*//" <$tmp.main >$tmp.tmp
 	mv $tmp.tmp $tmp.main
 	touch $tmp.ok
     else
@@ -1260,7 +1264,7 @@ in
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow'
 	;;
     vm20)
 	na='sysv-rc-conf'
@@ -1272,7 +1276,7 @@ in
 	na='python3-prometheus-client python3-xlsxwriter perl-Slurm-Hostlist'
 	;;
     vm27)
-	na='python3-libvirt python3-prometheus-client'
+	na='python3-bpfcc'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-xlsxwriter python-xlsxwriterxlsxwriter dtrace boost'

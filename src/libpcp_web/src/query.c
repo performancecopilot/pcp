@@ -1462,7 +1462,7 @@ extract_sha1(pmSeriesSettings *settings, pmSeriesID series,
     }
     if (element->len != 20) {
 	queryfmt(msg, "expected sha1 for %s of series %s, got %ld bytes",
-			message, series, element->len);
+			message, series, (long)element->len);
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	return -EINVAL;
     }

@@ -34,7 +34,6 @@ extern int merge_labelsets(struct metric *, struct value *,
 		int (*filter)(const pmLabel *, const char *, void *),
 		void *type);
 
-extern const char *context_str(struct context *);
 extern const char *indom_str(struct metric *);
 extern const char *pmid_str(struct metric *);
 extern const char *semantics_str(struct metric *);

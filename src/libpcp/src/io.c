@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "config.h"
 #include "pmapi.h"
 #include "libpcp.h"
@@ -304,6 +305,42 @@ fopen_compress(const char *fname, int compress_ix)
 }
 
 /*
+ * Find a compressed version of the given file, if it exists and
+ * write its name into the given buffer.
+ *
+ * Return the compressed suffix index, if found, -1 otherwise.
+ */
+int
+__pmCompressedFileIndex(char *fname, size_t flen)
+{
+    const char	*suffix;
+    int		i;
+    int		sts;
+    char	tmpname[MAXPATHLEN];
+
+    for (i = 0; i < ncompress; i++) {
+	suffix = compress_ctl[i].suff;
+	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, suffix);
+	sts = access(tmpname, R_OK);
+	if (sts == 0 || (errno != ENOENT && errno != ENOTDIR)) {
+	    /*
+	     * The compressed file exists. That's all we want to know here.
+	     * Even if there was some error accessing it, return the
+	     * current index. The error will be dignosed if/when an
+	     * attempt is made to open the file.
+	     *
+	     * Update fname with the compressed file name
+	     */
+	    strncpy(fname, tmpname, flen);
+	    return i;
+	}
+    }
+
+    /* Successful index could be zero, so we need to return -1. */
+    return -1;
+}
+
+/*
  * Lookup whether the suffix matches one of the compression styles,
  * and if so return the matching index into the compress_ctl table.
  */
@@ -312,7 +349,6 @@ index_compress(char *fname, size_t flen)
 {
     const char	*suffix;
     int		i;
-    char	tmpname[MAXPATHLEN];
 
     /*
      * We want to match when either:
@@ -333,20 +369,48 @@ index_compress(char *fname, size_t flen)
      * version of it.
      */
     errno = 0;
-    if (access(fname, F_OK) != 0 && errno == ENOENT) {
-	for (i = 0; i < ncompress; i++) {
-	    suffix = compress_ctl[i].suff;
-	    pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, suffix);
-	    if (access(tmpname, R_OK) == 0) {
-		/* Update fname with the compressed file name */
-		strncpy(fname, tmpname, flen);
-		return i;
-	    }
+    if (access(fname, F_OK) != 0 && errno == ENOENT)
+	return __pmCompressedFileIndex(fname, flen);
+    
+    /* End up here if it does not look like a compressed file */
+    return -1;
+}
+
+int
+__pmAccess(const char *path, int amode)
+{
+    int		compress_ix;
+    char	tmpname[MAXPATHLEN];
+
+    /*
+     * Check to see if the file is compressed first.
+     * index_compress may alter the name in order to add a compression suffix,
+     * so pass a copy of path.
+     */
+    strncpy(tmpname, path, sizeof(tmpname));
+    compress_ix = index_compress(tmpname, sizeof(tmpname));
+    if (pmDebugOptions.log) {
+	if (compress_ix == -1)
+	    fprintf(stderr, "__pmAccess(\"%s\", \"%d\"): no decompress\n", path, amode);
+	else {
+	    char *use;
+	    if (compress_ctl[compress_ix].appl == USE_BZIP2) use = "bzip2";
+	    else if (compress_ctl[compress_ix].appl == USE_GZIP) use = "gzip";
+	    else if (compress_ctl[compress_ix].appl == USE_XZ) use = "xz";
+	    else use = "???";
+	    fprintf(stderr, "__pmAccess(\"%s\", \"%d\"): decompress: %s", path, amode, use);
+	    if (compress_ctl[compress_ix].handler != NULL)
+		fprintf(stderr, " (on-the-fly)");
+	    fputc('\n', stderr);
 	}
     }
-    
-    /* end up here if it does not look like a compressed file */
-    return -1;
+    if (compress_ix >= 0) {
+	/* The file is compressed. Use the compressed file name. */
+	path = tmpname;
+    }
+
+    /* For all I/O implementations, we currently just need to call access(3). */
+    return access(path, amode);
 }
 
 /*
@@ -410,12 +474,13 @@ __pmFopen(const char *path, const char *mode)
  	/* Fall through and use the default handler. */
     }
 
-    /*
-     * The file is either not compressed, or we can not decompress it directly.
-     * Default to the stdio handler if one has not yet been chosen.
-     */
-    if (handler == NULL)
+    if (handler == NULL) {
+	/*
+	 * The file is either not compressed, or we can not decompress it
+	 * directly. Default to the stdio handler.
+	 */
 	handler = &__pm_stdio;
+    }
 
     /* Now allocate and open the __pmFile. */
     if ((f = (__pmFILE *)malloc(sizeof(__pmFILE))) == NULL)
@@ -537,6 +602,66 @@ off_t
 __pmLseek(__pmFILE *f, off_t offset, int whence)
 {
     return f->fops->__pmlseek(f, offset, whence);
+}
+
+int
+__pmStat(const char *path, struct stat *buf)
+{
+    int		rc;
+    int		compress_ix;
+    char	tmpname[MAXPATHLEN];
+
+    /*
+     * Check to see if the file is compressed first.
+     * index_compress may alter the name in order to add a compression suffix,
+     * so pass a copy of path.
+     */
+    strncpy(tmpname, path, sizeof(tmpname));
+    compress_ix = index_compress(tmpname, sizeof(tmpname));
+    if (pmDebugOptions.log) {
+	if (compress_ix == -1)
+	    fprintf(stderr, "__pmStat(\"%s\"): no decompress\n", path);
+	else {
+	    char *use;
+	    if (compress_ctl[compress_ix].appl == USE_BZIP2) use = "bzip2";
+	    else if (compress_ctl[compress_ix].appl == USE_GZIP) use = "gzip";
+	    else if (compress_ctl[compress_ix].appl == USE_XZ) use = "xz";
+	    else use = "???";
+	    fprintf(stderr, "__pmStat(\"%s\"): decompress: %s", path, use);
+	    if (compress_ctl[compress_ix].handler != NULL)
+		fprintf(stderr, " (on-the-fly)");
+	    fputc('\n', stderr);
+	}
+    }
+    if (compress_ix >= 0) {
+	/* The file is compressed. Use the compressed file name. */
+	path = tmpname;
+    }
+
+    /* For all I/O implementations, we currently just need to call stat(3). */
+    rc = stat(path, buf);
+
+    /*
+     * For compressed files, the st_size field will be incorrect. The caller
+     * needs to use __pmFstat() in order to get the uncompresed size. Some
+     * applications do not need st_size, so they can call this function
+     * to get the other fields more efficiently.
+     *
+     * Set st_size to a special value to indicate that it is not valid.
+     */
+    if (compress_ix >= 0) {
+	/*
+	 * st_size within struct stat is the size of the compressed file.
+	 * The caller really wants the uncompressed size. Indicate this using
+	 * PM_ST_SIZE_INVALID.
+	 *
+	 * In order to get the uncompressed size, the file must be opened using
+	 * __pmFopen() and then __pmFstat() must be used.
+	 */
+	buf->st_size = PM_ST_SIZE_INVALID;
+    }
+
+    return rc;
 }
 
 int

@@ -151,16 +151,6 @@ value_precision(char *buf, int maxlen, int usedlen)
 }
 #endif
 
-const char *
-context_str(context_t *context)
-{
-    if (context->type == PM_CONTEXT_ARCHIVE)
-	return "archive";
-    if (context->type == PM_CONTEXT_HOST)
-	return "host";
-    return "none";
-}
-
 sds
 json_escaped_str(const char *string)
 {
