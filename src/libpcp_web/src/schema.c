@@ -300,7 +300,7 @@ redis_series_source(redisContext *redis, context_t *context)
 
     /* TODO: async callback function */
     redisGetReply(redis, (void **)&reply);
-    checkStatusOK(reply, "%s: %s", SADD, "mapping source name to context");
+    checkInteger(reply, "%s: %s", SADD, "mapping source name to context");
     freeReplyObject(reply);
 }
 
@@ -308,8 +308,7 @@ void
 redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
 {
     redisReply		*reply;
-    const char		*ihash = pmwebapi_hash_str(value->hash);
-    const char		*hash = pmwebapi_hash_str(metric->hash);
+    const char		*hash;
     long long		map;
     sds			cmd, key, val, id;
 
@@ -334,6 +333,7 @@ redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
     checkInteger(reply, "%s: %s", SADD, "mapping series to inst name");
     freeReplyObject(reply);
 
+    hash = pmwebapi_hash_str(metric->hash);
     key = sdscatfmt(sdsempty(), "pcp:instances:series:%s", hash);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
@@ -346,9 +346,10 @@ redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
     checkInteger(reply, "%s: %s", SADD, "mapping instance to series");
     freeReplyObject(reply);
 
+    hash = pmwebapi_hash_str(value->hash);
     id = sdscatfmt(sdsempty(), "%I", value->mapid);
     val = sdscatfmt(sdsempty(), "%i", value->inst);
-    key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", ihash);
+    key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", hash);
     cmd = redis_command(8);
     cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
     cmd = redis_param_sds(cmd, key);

@@ -219,7 +219,6 @@ hostname
 
 List all context names ...
 PATH/archives/proc
-QAHOST
 
 List all instance names ...
 029922 /usr/lib/pcp/bin/pmcd -T 3
@@ -242,30 +241,50 @@ sda6
 sr0
 
 Perform simple name-based query ...
-4caedbc68271a4f8bec1224fabb8eaf8931e319
+4caedbc68271a4f8bec1224fabb8eaf8931e3199
 
 Perform simple label-based query ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 
 Perform simple instance-based query ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 
 Perform globbing name-based query (1) ...
-4caedbc68271a4f8bec1224fabb8eaf8931e319
+4caedbc68271a4f8bec1224fabb8eaf8931e3199
 
 Perform globbing name-based query (2) ...
-4caedbc68271a4f8bec1224fabb8eaf8931e319
+4caedbc68271a4f8bec1224fabb8eaf8931e3199
 
 Perform globbing name-based query (3) ...
-1fac9a52e3fed046b39e3859b31bc69b0855c2b
-3d372f871a4dd73028a7a4f0b05cb927c462b7b
+1fac9a52e3fed046b39e3859b31bc69b0855c2b2
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 
 Perform globbing instance-based query (1) ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 
 Perform globbing instance-based query (2) ... no result
 (expect no result)
 
 Perform globbing instance-based query (3) ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+
+Descriptor lookup for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8 PMID: 60.2.0
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+
+SourceID lookup for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8 PMID: 60.2.0
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    Source: a56cc44ff424ee7f4267592939737c24dfe3a7d4
+
+Instances lookup for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+    inst [1 or "1 minute"] series 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
+    inst [5 or "5 minute"] series d64252e163ab964cca996db54fe8a6d1beeb0bb9
+    inst [15 or "15 minute"] series e46449a843afaa0f79eadc9aeec15c501e19603b
 

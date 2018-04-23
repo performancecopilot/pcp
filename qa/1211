@@ -106,13 +106,8 @@ echo "Perform globbing instance-based query (3) ..."
 pmseries 'kernel.all.load{instance.name:"*1*"}'
 echo
 
-exit  # TODO: pmseries frontend is WIP from here
-# TODO: verify pminfo and pmseries source and series match
-
-echo "Perform simple source-based query ..."
-pmseries 'kernel.all.pswitch{source.name:"bozo-laptop"}'
-echo
-
+# kernel.all.load from proc archive (host:bozo-laptop)
+series=3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 echo "Descriptor lookup for a given SeriesID ..."
 pmseries --desc $series
 echo
@@ -121,8 +116,23 @@ echo "SourceID lookup for a given SeriesID ..."
 pmseries --source $series
 echo
 
+echo "Instances lookup for a given SeriesID ..."
+pmseries --instances $series
+echo
+
+exit  # TODO: pmseries frontend is WIP from here
+# TODO: verify pminfo and pmseries source and series match
+
+echo "Perform simple source-based query ..."
+pmseries 'kernel.all.pswitch{source.name:"bozo-laptop"}'
+echo
+
 echo "All lookups for a given SeriesID ..."
 pmseries --all $series
+echo
+
+echo "Labels lookup for a given SeriesID ..."
+pmseries --labels $series
 echo
 
 echo "Values fetch for a single-valued query ..."
@@ -132,6 +142,25 @@ echo
 echo "Values fetch for a multi-valued query ..."
 pmseries 'kernel.all.load[count: 30]'
 echo
+
+echo "Error handling - descriptor for bad series identifier"
+pmseries -d no.such.identifier
+echo
+
+echo "Error handling - metric name for bad series identifier"
+pmseries -m no.such.identifier
+echo
+
+echo "Error handling - instance names for bad series identifier"
+pmseries -i no.such.identifier
+echo
+
+echo "Error handling - label names for bad series identifier"
+pmseries -l no.such.identifier
+echo
+
+echo "Error handling - query with no matching instance name"
+pmseries 'kernel.all.load{instance.name == "5 mi*"}'
 
 # success, all done
 status=0

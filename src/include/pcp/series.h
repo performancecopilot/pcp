@@ -49,9 +49,9 @@ typedef enum pmdescfields {
 } pmdescfields;
 
 typedef enum pminstfields {
-    PMINST_SERIES,		/* metric series identifier for values */
-    PMINST_NAME,		/* full external (string) instance name */
     PMINST_INSTID,		/* first seen numeric instance identifier */
+    PMINST_NAME,		/* full external (string) instance name */
+    PMINST_SERIES,		/* metric series identifier for values */
     PMINST_MAXFIELD
 } pminstfields;
 
@@ -76,14 +76,14 @@ typedef void (*pmSeriesDoneCallBack)(int, void *);
 
 typedef struct pmSeriesSettings {
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
-    pmSeriesStructCallBack	on_desc;	/* one metric descriptor */
-    pmSeriesStructCallBack	on_inst;	/* an instances details */
-    pmSeriesStringCallBack	on_instname;	/* one instance name */
+    pmSeriesStructCallBack	on_desc;	/* metric descriptor */
+    pmSeriesStructCallBack	on_inst;	/* instance details */
+    pmSeriesStructCallBack	on_labelset;	/* set of labels */
+    pmSeriesStringCallBack	on_instance;	/* one instance name */
     pmSeriesStringCallBack	on_context;	/* one context name */
     pmSeriesStringCallBack	on_metric;	/* one metric name */
-    pmSeriesStructCallBack	on_value;	/* a time series value */
     pmSeriesStringCallBack	on_label;	/* one label name */
-    pmSeriesStructCallBack	on_labelset;	/* one set of labels */
+    pmSeriesStructCallBack	on_value;	/* timestamped value */
     pmSeriesInfoCallBack	on_info;	/* diagnostics */
     pmSeriesDoneCallBack	on_done;	/* request completed */
 } pmSeriesSettings;
