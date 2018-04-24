@@ -41,10 +41,9 @@ typedef __pmHashNode	*reverseMapNode;
 	((set)->on_info(level, msg, arg), sdsfree(msg))
 #define querydesc(set, sid,n,desc, arg)	(set)->on_desc(sid, n,desc, arg)
 #define queryinst(set, sid,n,inst, arg)	(set)->on_inst(sid, n,inst, arg)
-#define queryinstname(set, sid,in, arg)	(set)->on_instname(sid, in, arg)
+#define queryinstance(set, sid,in, arg)	(set)->on_instance(sid, in, arg)
 #define querymetric(set, sid,name, arg)	(set)->on_metric(sid, name, arg)
 #define querylabel(set, sid,label, arg)	(set)->on_label(sid, label, arg)
-#define querysource(set, sid,src, arg)	(set)->on_source(sid, src, arg)
 #define querydone(set, sts, arg)	(set)->on_done(sts, arg)
 
 #define solverfmt(msg, fmt, ...)		\
@@ -811,7 +810,8 @@ series_prepare_expr(SOLVER *sp, node_t *np, int level)
 
     switch (np->type) {
     case N_EQ:		/* direct hash lookup */
-	series_prepare_smembers(sp, sdsdup(np->key));
+	if (np->key)
+	    series_prepare_smembers(sp, sdsdup(np->key));
 	break;
 
     case N_GLOB:	/* globbing or regular expression lookups */
@@ -851,7 +851,8 @@ series_resolve_expr(SOLVER *sp, node_t *np, int level)
 
     switch (np->type) {
     case N_EQ:
-	sts = series_resolve_smembers(sp, np);
+	if (np->key)
+	    sts = series_resolve_smembers(sp, np);
 	break;
 
     case N_GLOB:
@@ -1420,8 +1421,8 @@ extract_string(pmSeriesSettings *settings, pmSeriesID series,
 	*string = sdscpylen(*string, element->str, element->len);
 	return 0;
     }
-    queryfmt(msg, "expected string result for %s of series %s",
-			message, series);
+    queryfmt(msg, "expected string result for %s of series %s (got %s)",
+			message, series, redis_reply(element->type));
     queryinfo(settings, PMLOG_RESPONSE, msg, arg);
     return -EINVAL;
 }
@@ -1481,6 +1482,13 @@ series_desc_reply(pmSeriesSettings *settings, pmSeriesID series,
 	queryfmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	return -EPROTO;
+    }
+
+    /* sanity check - were we given an invalid series identifier? */
+    if (elements[0]->type == REDIS_REPLY_NIL) {
+	queryfmt(msg, "no descriptor for series identifier %s", series);
+	queryinfo(settings, PMLOG_ERROR, msg, arg);
+	return -EINVAL;
     }
 
 /*--printf("    \"%s\" : {\n", series);--TODO*/
@@ -1641,8 +1649,9 @@ series_inst_name_execute(pmSeriesSettings *settings,
 }
 
 static int
-series_inst_reply(pmSeriesSettings *settings, pmSeriesID series, reverseMap *map,
-	int nelements, redisReply **elements, sds *inst, void *arg)
+series_inst_reply(pmSeriesSettings *settings, pmSeriesID series,
+		reverseMap *map, pmSeriesID instsid, sds *inst,
+		int nelements, redisReply **elements, void *arg)
 {
     sds			msg;
 
@@ -1671,8 +1680,17 @@ series_inst_reply(pmSeriesSettings *settings, pmSeriesID series, reverseMap *map
 	return -EPROTO;
 /*--printf("      \"%s\": \"%s\",\n",
 		"series", &inst[PMINST_SERIES]);--*TODO*/
-
 /*--fputs("    }", stdout);--*TODO*/
+
+    /* verify that this instance series matches the given series */
+    if (sdscmp(series, inst[PMINST_SERIES]) != 0) {
+	queryfmt(msg, "mismatched series for instance %s of series %s (got %s)",
+			instsid, series, inst[PMINST_SERIES]);
+	queryinfo(settings, PMLOG_CORRUPTED, msg, arg);
+	return -EINVAL;
+    }
+    /* return instance series identifiers, not the metric series */
+    inst[PMINST_SERIES] = sdscpy(inst[PMINST_SERIES], instsid);
     return 0;
 }
 
@@ -1687,8 +1705,8 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
     int			i, rc, sts = 0;
 
     /*
-     * iterate over the instance series identifiers, looking up
-     * the hash for each.
+     * Iterate over the instance series identifiers, looking up
+     * the instance hash contents for each.
      */
     for (i = 0; i < nelements; i++) {
 	sts = extract_sha1(settings, series, elements[i], &sid, "series", arg);
@@ -1710,7 +1728,9 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
 
     /* TODO: async response handling */
 
+    sid = sdsempty();
     for (i = 0; i < nelements; i++) {
+	extract_sha1(settings, series, elements[i], &sid, "series", arg);
 	if (redisGetReply(redis, (void **)&reply) != REDIS_OK) {
 	    queryfmt(msg, "failed %s %s:%s",
 			HMGET, "pcp:inst:series", series);
@@ -1721,8 +1741,8 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
 			HMGET, series, redis_reply(reply->type));
 	    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	    sts = -EPROTO;
-	} else if ((rc = series_inst_reply(settings, series, map,
-				reply->elements, reply->element, inst, arg)) < 0) {
+	} else if ((rc = series_inst_reply(settings, series, map, sid, inst,
+				reply->elements, reply->element, arg)) < 0) {
 	    sts = rc;
 	} else if ((rc = settings->on_inst(series,
 				PMINST_MAXFIELD, inst, arg)) < 0) {
@@ -1730,6 +1750,7 @@ series_instances_reply(pmSeriesSettings *settings, redisContext *redis,
 	}
 	freeReplyObject(reply);
     }
+    sdsfree(sid);
     return sts;
 }
 
@@ -1746,7 +1767,7 @@ pmSeriesInstances(pmSeriesSettings *settings,
     if (nseries <= 0) {
 	sts = (nseries < 0) ? -EINVAL :
 		series_map_keys(settings, redis,
-				settings->on_instname, arg, "inst.name");
+				settings->on_instance, arg, "inst.name");
 	goto done;
     }
 
@@ -1855,7 +1876,7 @@ pmSeriesSources(pmSeriesSettings *settings,
     if (nsources <= 0) {
 	sts = (nsources < 0) ? -EINVAL :
 		series_map_keys(settings, redis,
-				settings->on_instname, arg, "context.name");
+				settings->on_context, arg, "context.name");
 	goto done;
     }
     if ((sts = series_source_name_prepare(settings, redis, arg)) < 0)

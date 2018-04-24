@@ -72,13 +72,15 @@ static void
 series_add_inst(series_data *dp, pmSeriesID series, sds instid, sds instname)
 {
     series_insts	*ip;
-    size_t		bytes = sizeof(series_insts) * dp->ninsts;
+    size_t		bytes = sizeof(series_insts) * (dp->ninsts + 1);
 
     if ((ip = realloc(dp->insts, bytes)) != NULL) {
+	dp->insts = ip;
+	ip = dp->insts + dp->ninsts;
 	ip->series = sdsdup(series);
 	ip->instid = sdsdup(instid);
 	ip->name = sdsdup(instname);
-	dp->insts = ip;
+	dp->ninsts++;
     }
 }
 
@@ -337,7 +339,7 @@ on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
 }
 
 static int
-on_series_instname(pmSeriesID series, sds name, void *arg)
+on_series_instance(pmSeriesID series, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
@@ -356,9 +358,8 @@ on_series_instname(pmSeriesID series, sds name, void *arg)
 }
 
 static int
-on_series_instance(pmSeriesID sid, int nfields, sds *inst, void *arg)
+on_series_inst(pmSeriesID sid, int nfields, sds *inst, void *arg)
 {
-    series_insts	*ip;
     series_data		*dp = (series_data *)arg;
     sds			instid, instname, series;
 
@@ -370,12 +371,38 @@ on_series_instance(pmSeriesID sid, int nfields, sds *inst, void *arg)
 
     if (series_next(dp, sid) && !(dp->flags & PMSERIES_SERIESID))
 	printf("\n%s\n", sid);
-
-    if ((ip = series_get_inst(dp, series)) == NULL)
-	series_add_inst(dp, instid, instname, series);
-    if (!(dp->flags & PMSERIES_SERIESID))
-	printf("    inst [%s or \"%s\"] series %s", instid, instname, series);
+    if (series_get_inst(dp, series) == NULL)
+	series_add_inst(dp, series, instid, instname);
     return 0;
+}
+
+static int
+series_instance_compare(const void *a, const void *b)
+{
+    series_insts	*ap = (series_insts *)a;
+    series_insts	*bp = (series_insts *)b;
+
+    if (sdscmp(ap->instid, bp->instid) != 0)
+	return (int)(atoll(ap->instid) - atoll(bp->instid));
+    return strcmp(ap->name, bp->name);
+}
+
+static int
+series_instance_names(void *arg)
+{
+    series_data		*dp = (series_data *)arg;
+    series_insts	*ip;
+    int			i;
+
+    if (dp->flags & PMSERIES_SERIESID)
+	return 0;
+    qsort(dp->insts, dp->ninsts, sizeof(series_insts), series_instance_compare);
+    for (i = 0; i < dp->ninsts; i++) {
+	ip = &dp->insts[i];
+	printf("    inst [%s or \"%s\"] series %s\n",
+		ip->instid, ip->name, ip->series);
+    }
+    return dp->ninsts;
 }
 
 static int
@@ -398,7 +425,7 @@ on_series_label(pmSeriesID series, sds label, void *arg)
 }
 
 static int
-on_series_labelset(pmSeriesID series, int nfields, sds *label, void *arg)
+on_series_labels(pmSeriesID series, int nfields, sds *label, void *arg)
 {
     series_insts	*ip;
     series_data		*dp = (series_data *)arg;
@@ -524,6 +551,7 @@ series_data_report(pmSeriesSettings *settings,
     }
     if (flags & PMSERIES_OPT_INSTS) {
 	pmSeriesInstances(settings, nseries, &series, (void *)&data);
+	series_instance_names(&data);
 	series_data_endtopic(&data);
     }
     if (flags & PMSERIES_OPT_LABELS) {
@@ -567,13 +595,13 @@ pmseries_overrides(int opt, pmOptions *opts)
 static pmSeriesSettings settings = {
     .on_match		= on_series_match,
     .on_desc		= on_series_desc,
-    .on_inst		= on_series_instance,
-    .on_instname	= on_series_instname,
-    .on_metric		= on_series_metric,
+    .on_inst		= on_series_inst,
+    .on_labelset	= on_series_labels,
+    .on_instance	= on_series_instance,
     .on_context		= on_series_context,
+    .on_metric		= on_series_metric,
     .on_value		= on_series_value,
     .on_label		= on_series_label,
-    .on_labelset	= on_series_labelset,
     .on_info		= on_series_info,
     .on_done		= on_series_done,
 };
