@@ -1,0 +1,57 @@
+QA output created by 1306
+Waiting for pmcd to terminate ...
+
+=== prometheus agent installation ===
+
+=== URL configuration file contains
+file://QA_DIR/prometheus/samples/labelfiltering.txt
+
+# Filter to remove the "uninteresting" label
+FILTER: EXCLUDE LABEL uninteresting
+
+# Filter to remove all labels in metric2, thus it becomes singular
+FILTER: EXCLUDE LABEL removeme
+
+# Filter to exclude label "def" hence metric3 has duplicate instances
+FILTER: EXCLUDE LABEL def
+
+#
+# *** NOTE: optional labels are not implemented yet
+# Filter to flag some_optional_label as optional in metric4
+# (an optional label is not present in instance name, but still included as a label for the metric)
+# FILTER: OPTIONAL LABEL some_optional_label
+
+# implicit final rule includes all labels not matching anything above
+# (this implicit rule is listed here just for testing purposes)
+FILTER: INCLUDE .*
+
+
+=== pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
+
+prometheus.labelfiltering.metric1
+    inst [0 or "0 foo:abc"] value 1
+    inst [0 or "0 foo:abc"] labels {"agent":"prometheus","foo":"abc","instname":"foo:abc","source":"labelfiltering"}
+
+prometheus.labelfiltering.metric2
+    value 8
+    labels {"agent":"prometheus","source":"labelfiltering"}
+
+prometheus.labelfiltering.metric3
+    inst [0 or "0 abc:0"] value 458
+    inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","instname":"abc:0","source":"labelfiltering"}
+
+prometheus.labelfiltering.metric4
+    inst [0 or "0 someoptionallabel:not in instance name xyz:0"] value 456
+    inst [0 or "0 someoptionallabel:not in instance name xyz:0"] labels {"agent":"prometheus","instname":"someoptionallabel:not in instance name xyz:0","someoptionallabel":"not in instance name","source":"labelfiltering","xyz":"0"}
+
+prometheus.labelfiltering.singular_metric
+    value 9
+    labels {"agent":"prometheus","source":"labelfiltering"}
+== Note: check 1306.full for details
+
+=== remove prometheus agent ===
+Culling the Performance Metrics Name Space ...
+prometheus ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check prometheus metrics have gone away ... OK

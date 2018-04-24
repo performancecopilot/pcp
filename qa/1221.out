@@ -2380,6 +2380,22 @@ prometheus.jenkins_prometheus_plugin.vm_uptime_milliseconds
 prometheus.jenkins_prometheus_plugin.vm_waiting_count
     labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"jenkins_prometheus_plugin","url":FILEURL,"userid":NUM}
 
+prometheus.labelfiltering.metric1
+    inst [0 or "0 foo:abc uninteresting:123"] labels {"agent":"prometheus","domainname":DOMAINNAME,"foo":"abc","groupid":NUM,"hostname":HOSTNAME,"instname":"foo:abc uninteresting:123","machineid":MACHINEID,"source":"labelfiltering","uninteresting":"123","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric2
+    inst [0 or "0 removeme:something"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"removeme:something","machineid":MACHINEID,"removeme":"something","source":"labelfiltering","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric3
+    inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","def":"1","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","machineid":MACHINEID,"source":"labelfiltering","url":FILEURL,"userid":NUM}
+    inst [1 or "1 abc:0 def:1"] labels {"abc":"0","agent":"prometheus","def":"1","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0 def:1","machineid":MACHINEID,"source":"labelfiltering","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric4
+    inst [0 or "0 someoptionallabel:not in instance name xyz:0"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"someoptionallabel:not in instance name xyz:0","machineid":MACHINEID,"someoptionallabel":"not in instance name","source":"labelfiltering","url":FILEURL,"userid":NUM,"xyz":"0"}
+
+prometheus.labelfiltering.singular_metric
+    labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"labelfiltering","url":FILEURL,"userid":NUM}
+
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async
     inst [0 or "/"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"/","instname":"/","machineid":MACHINEID,"source":"pmwebd_3_12_2","url":FILEURL,"userid":NUM}
 
@@ -7397,6 +7413,22 @@ prometheus.jenkins_prometheus_plugin.vm_uptime_milliseconds
 
 prometheus.jenkins_prometheus_plugin.vm_waiting_count
     labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"jenkins_prometheus_plugin","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric1
+    inst [0 or "0 foo:abc uninteresting:123"] labels {"agent":"prometheus","domainname":DOMAINNAME,"foo":"abc","groupid":NUM,"hostname":HOSTNAME,"instname":"foo:abc uninteresting:123","machineid":MACHINEID,"source":"labelfiltering","uninteresting":"123","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric2
+    inst [0 or "0 removeme:something"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"removeme:something","machineid":MACHINEID,"removeme":"something","source":"labelfiltering","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric3
+    inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","def":"1","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0","machineid":MACHINEID,"source":"labelfiltering","url":FILEURL,"userid":NUM}
+    inst [1 or "1 abc:0 def:1"] labels {"abc":"0","agent":"prometheus","def":"1","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"abc:0 def:1","machineid":MACHINEID,"source":"labelfiltering","url":FILEURL,"userid":NUM}
+
+prometheus.labelfiltering.metric4
+    inst [0 or "0 someoptionallabel:not in instance name xyz:0"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"someoptionallabel:not in instance name xyz:0","machineid":MACHINEID,"someoptionallabel":"not in instance name","source":"labelfiltering","url":FILEURL,"userid":NUM,"xyz":"0"}
+
+prometheus.labelfiltering.singular_metric
+    labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"labelfiltering","url":FILEURL,"userid":NUM}
 
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async
     inst [0 or "/"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"/","instname":"/","machineid":MACHINEID,"source":"pmwebd_3_12_2","url":FILEURL,"userid":NUM}
