@@ -16,6 +16,9 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "internal.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 const char *
 __pmLabelTypeString(int type)
