@@ -14,6 +14,9 @@
 #include "schema.h"
 #include "slots.h"
 #include "crc16.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #define MAXSLOTS	(1<<14)	/* see CLUSTER_SLOTS in Redis sources */
 #define SLOTMASK	(MAXSLOTS-1)

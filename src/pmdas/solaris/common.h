@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include "pmapi.h"
+#include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
 #include "clusters.h"
