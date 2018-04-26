@@ -399,7 +399,7 @@ class CpuProcessStateReporter:
                         continue
             current_process_pid = process.pid()
             key = (current_process_sname,current_process_pid) #tuple key to map to 1-d dictionary of {(pid,state):total_time}
-            if process_state_info.has_key(key):
+            if key in process_state_info:
                 process_state_info[key]=process_state_info[key] + self.delta_time
             else:
                 process_state_info[key]=self.delta_time
@@ -444,15 +444,15 @@ class CpuProcessStateReporter:
                 Z = 0
                 T = 0
                 D = 0
-                if process_state_info.has_key(key1):
+                if key1 in process_state_info:
                     R = process_state_info[key1]
-                if process_state_info.has_key(key2):
+                if key2 in process_state_info:
                     S = process_state_info[key2]
-                if process_state_info.has_key(key3):
+                if key3 in process_state_info:
                     Z = process_state_info[key3]
-                if process_state_info.has_key(key4):
+                if key4 in process_state_info:
                     T = process_state_info[key4]
-                if process_state_info.has_key(key5):
+                if key5 in process_state_info:
                     D = process_state_info[key5]
                 self.printer ("%s\t%s\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s" % (timestamp,process.pid(),R,S,Z,T,D,process.process_name()))
                 
