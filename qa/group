@@ -1515,4 +1515,5 @@ pmlogsize
 1385 pmda.prometheus local
 1388 pmwebd local
 1395 pmda.prometheus local
+1396 pcp python pidstat local
 4751 libpcp threads valgrind local

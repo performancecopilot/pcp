@@ -1375,7 +1375,7 @@ Timestamp	PID	State	Utime	Stime	Total Time	Function			Command
 
 Timestamp	PID	State	Utime	Stime	Total Time	Function			Command
 19:09:51	22600	D	59	9	20.00		SYSC_semtimedop			postgres
- 
+
 pcp-pidstat output: report details about all postgres processes
 Linux  3.10.0-693.el7.x86_64  (unused)  04/10/18  x86_64    (8 CPU)
 
