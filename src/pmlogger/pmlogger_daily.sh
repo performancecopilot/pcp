@@ -69,7 +69,7 @@ COMPRESS=""
 COMPRESS_CMDLINE=""
 if which xz >/dev/null 2>&1
 then
-    if xz -0 --block-size=10MiB </dev/null>/dev/null 2>&1
+    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
     then
 	# want minimal overheads, -0 is the same as --fast
 	COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
