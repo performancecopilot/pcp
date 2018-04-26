@@ -742,7 +742,7 @@ slackpkg?	LWP::UserAgent	[from cpan]
 pacman?	LWP::UserAgent		[from cpan]
 # -- Net::SNMP
 dpkg?	Net::SNMP		[libnet-snmp-perl]
-rpm?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
+rpm?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)' or from cpan]
 urpmi?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
 emerge?	Net::SNMP		[from cpan]
 pkgin?	Net::SNMP		[p5-Net-SNMP]
@@ -1268,6 +1268,9 @@ in
 	;;
     vm09)
 	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg Coin dtrace boost json_reformat'
+	;;
+    vm14)
+	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-xlsxwriter perl-Slurm-Hostlist socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel'
 	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
