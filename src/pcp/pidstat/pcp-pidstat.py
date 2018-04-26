@@ -31,7 +31,19 @@ PIDSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.unam
                     'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
                     'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt',
                     'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
-                    'proc.memory.vmstack','proc.psinfo.sname','proc.psinfo.start_time','proc.psinfo.wchan_s'] #,'proc.psinfo.blocked']
+                    'proc.memory.vmstack'] 
+
+PIDSTAT_METRICS_B = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
+                    'kernel.uname.machine','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
+                    'proc.psinfo.stime','proc.psinfo.guest_time','proc.psinfo.processor',
+                    'proc.id.uid','proc.psinfo.cmd','kernel.all.cpu.user','kernel.all.cpu.vuser',
+                    'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
+                    'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt',
+                    'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
+                    'proc.memory.vmstack','proc.psinfo.sname','proc.psinfo.start_time','proc.psinfo.wchan_s'] 
+
+#We define a new metric array so that some missing metrics aren't flagged in existing archives using PIDSTAT_METRICS
+
 
 SCHED_POLICY = ['NORMAL','FIFO','RR','BATCH','','IDLE','DEADLINE']
 
@@ -812,11 +824,17 @@ if __name__ == "__main__":
         manager = pmcc.MetricGroupManager.builder(opts,sys.argv)
         if not opts.checkOptions():
             raise pmapi.pmUsageErr
-        missing = manager.checkMissingMetrics(PIDSTAT_METRICS)
+        if opts.show_process_state == True:
+            missing = manager.checkMissingMetrics(PIDSTAT_METRICS_B)
+        else:
+            missing = manager.checkMissingMetrics(PIDSTAT_METRICS)
         if missing != None:
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % (missing))
             sys.exit(1)
-        manager['pidstat'] = PIDSTAT_METRICS
+        if opts.show_process_state == True:
+            manager['pidstat'] = PIDSTAT_METRICS_B
+        else:
+            manager['pidstat'] = PIDSTAT_METRICS
         manager.printer = PidstatReport()
         sts = manager.run()
         sys.exit(sts)
