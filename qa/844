@@ -28,11 +28,20 @@ _filter_icmp_metrics()
     # end filter
 }
 
+# cull warnings from nping(1) about uninitialized interfaces
+#
+_filter_nping()
+{
+    sed \
+	-e '/Failed to find device .* which was referenced in .proc.net.route/d' \
+    # end
+}
+
 # real QA test starts here
 $sudo nping --icmp --icmp-type 142 --quiet --count 1 localhost >$tmp.out 2>$tmp.err
 status=$?
 echo "nping status=$status"
-cat $tmp.out $tmp.err
+cat $tmp.out $tmp.err | _filter_nping
 
 # verify we get good data (2x fetch for segv)
 pminfo -v network.icmp 2>&1 | _filter_icmp_metrics
