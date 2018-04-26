@@ -126,7 +126,7 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     if (zps->vdev_stats_fresh) {
 	switch (pmID_item(md->md_desc.pmid)) {
 	case 0: /* zpool.state */
-	    atom->cp = zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
+	    atom->cp = (char *)zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
 	    break;
 	case 1: /* zpool.state_int */
 	    atom->ul = (zps->vds.vs_aux << 8) | zps->vds.vs_state;

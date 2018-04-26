@@ -17,6 +17,9 @@
 #include "./lex.h"
 #include "./gram.h"
 #include <pcp/deprecated.h>
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 /*
  * This works because ...

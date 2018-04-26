@@ -8,6 +8,9 @@
 
 #include <pcp/pmapi.h>
 #include "libpcp.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 static int	nmetric;		/* for metric ... args */
 static char	**name = NULL;

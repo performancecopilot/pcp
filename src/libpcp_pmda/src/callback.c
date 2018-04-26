@@ -17,6 +17,9 @@
 #include "libpcp.h"
 #include "pmda.h"
 #include "libdefs.h"
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 /*
  * Count the number of instances in an instance domain
