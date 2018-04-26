@@ -174,16 +174,38 @@ lines would normally be used, e.g. to include some metrics but exclude all other
 .B "FILTER: EXCLUDE METRIC .*"
 as the last of several filters that include the desired metrics.
 Conversely, to exclude some metrics but include all others, use
-.BI "FILTER: EXCLUDE METRIC" regex\fR.
+.B "FILTER: EXCLUDE METRIC"
+.IR regex .
 In this case it's not necessary (though doesn't hurt) to specify the final
 .B "FILTER: INCLUDE METRIC .*"
 because, as stated above, any metric that does not match
 any filter regex will be included by default.
 .PP
-Additional keywords may be added in future versions of
-.B pmdaprometheus
-e.g. for label manipulation and so forth.
-Unrecognized keywords are reported in the PMDA log file but otherwise ignored.
+Label filtering uses similar
+.B FILTER:
+syntax and semantics.
+.BI "FILTER: EXCLUDE LABEL" " regex"
+will delete all labels matching
+.I regex
+from all metrics defined in the configuration file.
+The same rules as for metrics apply for labels too - an implicit rule:
+.BI "FILTER: INCLUDE LABEL .*"
+applies to all labels that do not match any earlier filter rule.
+.P
+Caution is needed with label filtering because by default, all
+labels are used to construct the PCP instance name.
+By excluding some labels, the instance names will change.
+Excluding all labels for a particular metric changes that metric to be singular,
+i.e. have no instance domain.
+In addition, by excluding some labels, different instances of the same metric may become duplicates.
+When such duplicates occur, the last duplicate instance returned by the end-point URL prevails
+over any earlier instances.
+For these reasons, it is recommended that label filtering rules be configured when the configuration file
+is first defined, and not changed thereafter.
+If a label filtering change is required, the configuration file should be renamed, which effectively
+defines a new metric, with the new (or changed) instance naming.
+.P
+Unrecognized keywords in configuration files are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
 Executable scripts present in the 
 .I $PCP_PMDAS_DIR/prometheus/config.d

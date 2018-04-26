@@ -25,7 +25,8 @@ trivial_children(char const * name, int traverse, char *** offspring, int ** sta
           metric = "trivial.foo";
           break;
      default:
-          assert(0);
+	  fprintf(stderr, "botch: traverse=%d\n", traverse);
+          exit(1);
      }
 
      /* offspring */

@@ -793,7 +793,8 @@ __pmLogLoadLabel(__pmArchCtl *acp, const char *name)
     dir = dirname(tbuf);		/* THREADSAFE */
 
     /*
-     * find file name component
+     * Find file name component
+     * basename(3) may modify the buffer passed to it. Use a copy.
      */
     strncpy(filename, name, MAXPATHLEN);
     filename[MAXPATHLEN-1] = '\0';
@@ -805,9 +806,21 @@ __pmLogLoadLabel(__pmArchCtl *acp, const char *name)
     }
     PM_UNLOCK(__pmLock_extcall);
 
-    if (access(name, R_OK) == 0) {
-	/* Strip the name down to its base, if it is a known archive
-	   component file name. */
+    /*
+     * See if the file exists, as named
+     * __pmCompressedFileExists() may modify the buffer passed to it.
+     * Use a copy.
+     */
+    strncpy(filename, name, MAXPATHLEN);
+    filename[MAXPATHLEN-1] = '\0';
+    if (access(name, R_OK) == 0 ||
+	__pmCompressedFileIndex(filename, sizeof(filename)) >= 0) {
+	/*
+	 * The file exists as named, so it can't be the base name of the archive.
+	 * Assume that it is the name of an actual file associated with the
+	 * archive (i.e. .meta, .index or an actual volume) and try to
+	 * strip the file name down to its base name.
+	 */
 	__pmLogBaseName(base);
     }
 

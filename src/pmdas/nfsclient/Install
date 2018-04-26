@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# Copyright (c) 2011 SGI.
-# All rights reserved.
+# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2011 SGI.  All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,11 +18,8 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=nfsclient
-pmda_interface=2
-dso_opt=false
+python_opt=true
 daemon_opt=false
-perl_opt=true
-socket_opt=false
 
 pmdaSetup
 pmdaInstall

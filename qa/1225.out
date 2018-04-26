@@ -9,10 +9,10 @@ QA output created by 1225
 [{"text":"ncpu","id":"kilcunda.hinv.ncpu","leaf":1,"expandable":0,"allowChildren":0 }]
 
 
-=== Compare pmval, pmrep and pmwebd/graphite time series for same metric, same archive and time range ===
+=== Compare pmval, pmrep and pmwebd/graphite values for same metric, same archive and time range ===
 
 
-=== pmval time series dump ===
+=== pmval values dump ===
 Note: timezone set to "TZ=UTC"
 
 metric:    disk.dev.read_bytes
@@ -41,7 +41,7 @@ interval:  60.00 sec
 07:16:00.000    0.466667 
 
 
-=== pmrep time series dump ===
+=== pmrep values dump ===
 1448953440 0.050000
 1448953500 0.066667
 1448953560 4.883333
@@ -57,7 +57,7 @@ interval:  60.00 sec
 1448954160 0.466667
 
 
-=== pmwebd/graphite time series dump ===
+=== pmwebd/graphite values dump ===
 [
     {
         "target": "kilcunda.disk.dev.read_bytes.sda",
@@ -123,7 +123,7 @@ interval:  60.00 sec
 ]
 
 
-=== pmwebd/graphite time series dump for ._ metric ===
+=== pmwebd/graphite values dump for ._ metric ===
 [
     {
         "target": "kilcunda._",

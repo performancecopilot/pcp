@@ -1,6 +1,6 @@
 QA output created by 656
 
-=== Unpacking fake root === 
+=== Unpacking fake root (cifs-root-3.17.3.tgz) === 
 
 === Valgrind check cifs metrics for all filesystems ===
 === std out ===
@@ -186,6 +186,208 @@ Total number of symbolic links created for each mounted file system.
     inst [1 or "\\192.168.122.153\cifs-two"] value 0
     inst [2 or "\\192.168.122.153\cifs-one"] value 0
 
+cifs.fs.read_fails PMID: 121.1.23 [Read failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read operations that failed per filesystem mounted.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.write_fails PMID: 121.1.24 [Write failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write operations that failed per filesystem mounted.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.flushes_fails PMID: 121.1.25 [Cache flush failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of file system cache flush failures
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.locks_fails PMID: 121.1.26 [Number of lock failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of open lock failures for each mounted CIFS file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.negotiates PMID: 121.1.28 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.negotiates_fails PMID: 121.1.29 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.sessionsetups PMID: 121.1.30 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.sessionsetups_fails PMID: 121.1.31 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.logoffs PMID: 121.1.32 [Number of logoffs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of logoffs
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.logoffs_fails PMID: 121.1.33 [Number of logoff failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of logoff failures
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.treecons PMID: 121.1.34 [Number of tree connections]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree connections
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.treecons_fails PMID: 121.1.35 [Number of tree connection failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree connection failures
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.treediscons PMID: 121.1.36 [Number of tree disconnects]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree disconnects
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.treediscons_fails PMID: 121.1.37 [Number of tree disconnection failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree disconnection failures
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.creates PMID: 121.1.38 [Number of created files]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of created files
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.creates_fails PMID: 121.1.39 [Number of files failed to create]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of files failed to create
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.IOCTLs PMID: 121.1.40 [Number of IOCTLs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of IOCTLs
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.IOCTLs_fails PMID: 121.1.41 [Number of failed IOCTLs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of failed IOCTLs
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.cancels PMID: 121.1.42 [Number of canceled Ops]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of canceled Ops
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.cancels_fails PMID: 121.1.43 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.echos PMID: 121.1.44 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.echos_fails PMID: 121.1.45 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.querydirs PMID: 121.1.46 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.querydirs_fails PMID: 121.1.47 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.changenotifies PMID: 121.1.48 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.changenotifies_fails PMID: 121.1.49 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.queryinfos PMID: 121.1.50 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.queryinfos_fails PMID: 121.1.51 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.setinfos PMID: 121.1.52 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.setinfos_fails PMID: 121.1.53 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.oplock_breaks_fails PMID: 121.1.54 [Number of oplock break failures.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of operation lock break failures for each file system.
+Error: Metric not supported by this version of monitored application
+
 cifs.ops.open PMID: 121.1.11 [Open operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
@@ -203,6 +405,13 @@ Total number of file close operations per mounted file system.
     inst [0 or "\\192.168.122.153\cifs-three"] value 0
     inst [1 or "\\192.168.122.153\cifs-two"] value 0
     inst [2 or "\\192.168.122.153\cifs-one"] value 3
+
+cifs.ops.close_fails PMID: 121.1.27 [Close operation failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file close operation failures per mounted file system.
+Error: Metric not supported by this version of monitored application
 
 cifs.ops.delete PMID: 121.1.13 [Delete operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
@@ -293,6 +502,485 @@ Total number of FindClose requests to the server
     inst [0 or "\\192.168.122.153\cifs-three"] value 0
     inst [1 or "\\192.168.122.153\cifs-two"] value 0
     inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.version PMID: 121.0.11 [CIFS version number]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The cifs fs version number
+    value "1.0"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,121,/var/lib/pcp/pmdas/cifs/pmda_cifs.so,cifs_init -dfmtT -n /var/lib/pcp/pmdas/cifs/root cifs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== Unpacking fake root (cifs-root-4.15.12.tgz) === 
+
+=== Valgrind check cifs metrics for all filesystems ===
+=== std out ===
+
+cifs.session PMID: 121.0.0 [Number of sessions]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Count of the number of active CIFS sessions.
+    value 1
+
+cifs.shares PMID: 121.0.1 [Number of shares]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of unqiue shares which are currently mounted on the system.
+    value 1
+
+cifs.buffer PMID: 121.0.2 [SMB request/response buffer]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of transactions currently in the SMB request/response buffer.
+    value 1
+
+cifs.pool_size PMID: 121.0.3 [SMB request/response pool size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total pool size for the SMB request/response buffer.
+    value 5
+
+cifs.small_buffer PMID: 121.0.4 [SMB small request/response buffer]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of transactions currently in the SMB small request/response buffer.
+    value 1
+
+cifs.small_pool_size PMID: 121.0.5 [SMB small request/response bool size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total pool size for the SMB small request/response buffer.
+    value 30
+
+cifs.mid_operations PMID: 121.0.6 [Pending network operations (MIDs)]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Total number of pending network operations (MIDs).
+    value 0
+
+cifs.total_operations PMID: 121.0.7 [CIFS operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of CIFS operations
+    value 2
+
+cifs.total_reconnects PMID: 121.0.8 [CIFS share re-connects]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of CIFS share reconnects.
+    value 2
+
+cifs.vfs_operations PMID: 121.0.9 [VFS operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of Virtual File System operations.
+    value 10
+
+cifs.vfs_operations_max PMID: 121.0.10 [Max VFS operations.]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The max number of con-current Virtial File System operations allowed at
+one time.
+    value 2
+
+cifs.fs.connected PMID: 121.1.0 [File system connection status.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+The connection status for each file system mounted, 0 corresponds to a file
+system which is currently disconnected. 1 corresponds to a file system which
+is connected.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.smbs PMID: 121.1.1 [CIFS server operations.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of CIFS server operations for each mounted CIFS filesystem.
+    inst [0 or "\\fubar.com\mysmbuser"] value 0
+
+cifs.fs.oplock_breaks PMID: 121.1.2 [Number of oplock breaks.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of operation lock breaks for each file system.
+    inst [0 or "\\fubar.com\mysmbuser"] value 54
+
+cifs.fs.read PMID: 121.1.3 [Read operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read operations per filesystem mounted.
+    inst [0 or "\\fubar.com\mysmbuser"] value 24
+
+cifs.fs.read_bytes PMID: 121.1.4 [Read bytes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read bytes (throughput) for each mounted CIFS file system
+in KB.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.write PMID: 121.1.5 [Write operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write operations per filesystem mounted.
+    inst [0 or "\\fubar.com\mysmbuser"] value 27
+
+cifs.fs.write_bytes PMID: 121.1.6 [Write bytes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write bytes (throughput) for each mounted CIFS file system
+in KB.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.flushes PMID: 121.1.7 [Cache flushes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of file system cache flushes.
+    inst [0 or "\\fubar.com\mysmbuser"] value 21
+
+cifs.fs.locks PMID: 121.1.8 [Number of lock]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of open locks for each mounted CIFS file system.
+    inst [0 or "\\fubar.com\mysmbuser"] value 30
+
+cifs.fs.hard_links PMID: 121.1.9 [Hard links created]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of hard links created for each file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.sym_links PMID: 121.1.10 [Symbolic links created]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of symbolic links created for each mounted file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.read_fails PMID: 121.1.23 [Read failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read operations that failed per filesystem mounted.
+    inst [0 or "\\fubar.com\mysmbuser"] value 26
+
+cifs.fs.write_fails PMID: 121.1.24 [Write failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write operations that failed per filesystem mounted.
+    inst [0 or "\\fubar.com\mysmbuser"] value 29
+
+cifs.fs.flushes_fails PMID: 121.1.25 [Cache flush failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of file system cache flush failures
+    inst [0 or "\\fubar.com\mysmbuser"] value 23
+
+cifs.fs.locks_fails PMID: 121.1.26 [Number of lock failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of open lock failures for each mounted CIFS file system.
+    inst [0 or "\\fubar.com\mysmbuser"] value 32
+
+cifs.fs.negotiates PMID: 121.1.28 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 1
+
+cifs.fs.negotiates_fails PMID: 121.1.29 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 2
+
+cifs.fs.sessionsetups PMID: 121.1.30 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 4
+
+cifs.fs.sessionsetups_fails PMID: 121.1.31 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 5
+
+cifs.fs.logoffs PMID: 121.1.32 [Number of logoffs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of logoffs
+    inst [0 or "\\fubar.com\mysmbuser"] value 7
+
+cifs.fs.logoffs_fails PMID: 121.1.33 [Number of logoff failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of logoff failures
+    inst [0 or "\\fubar.com\mysmbuser"] value 8
+
+cifs.fs.treecons PMID: 121.1.34 [Number of tree connections]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree connections
+    inst [0 or "\\fubar.com\mysmbuser"] value 10
+
+cifs.fs.treecons_fails PMID: 121.1.35 [Number of tree connection failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree connection failures
+    inst [0 or "\\fubar.com\mysmbuser"] value 11
+
+cifs.fs.treediscons PMID: 121.1.36 [Number of tree disconnects]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree disconnects
+    inst [0 or "\\fubar.com\mysmbuser"] value 13
+
+cifs.fs.treediscons_fails PMID: 121.1.37 [Number of tree disconnection failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree disconnection failures
+    inst [0 or "\\fubar.com\mysmbuser"] value 14
+
+cifs.fs.creates PMID: 121.1.38 [Number of created files]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of created files
+    inst [0 or "\\fubar.com\mysmbuser"] value 16
+
+cifs.fs.creates_fails PMID: 121.1.39 [Number of files failed to create]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of files failed to create
+    inst [0 or "\\fubar.com\mysmbuser"] value 17
+
+cifs.fs.IOCTLs PMID: 121.1.40 [Number of IOCTLs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of IOCTLs
+    inst [0 or "\\fubar.com\mysmbuser"] value 33
+
+cifs.fs.IOCTLs_fails PMID: 121.1.41 [Number of failed IOCTLs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of failed IOCTLs
+    inst [0 or "\\fubar.com\mysmbuser"] value 35
+
+cifs.fs.cancels PMID: 121.1.42 [Number of canceled Ops]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of canceled Ops
+    inst [0 or "\\fubar.com\mysmbuser"] value 36
+
+cifs.fs.cancels_fails PMID: 121.1.43 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 38
+
+cifs.fs.echos PMID: 121.1.44 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 39
+
+cifs.fs.echos_fails PMID: 121.1.45 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 41
+
+cifs.fs.querydirs PMID: 121.1.46 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 42
+
+cifs.fs.querydirs_fails PMID: 121.1.47 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 44
+
+cifs.fs.changenotifies PMID: 121.1.48 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 45
+
+cifs.fs.changenotifies_fails PMID: 121.1.49 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 47
+
+cifs.fs.queryinfos PMID: 121.1.50 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 48
+
+cifs.fs.queryinfos_fails PMID: 121.1.51 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 50
+
+cifs.fs.setinfos PMID: 121.1.52 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 51
+
+cifs.fs.setinfos_fails PMID: 121.1.53 []
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help: <empty entry>
+    inst [0 or "\\fubar.com\mysmbuser"] value 53
+
+cifs.fs.oplock_breaks_fails PMID: 121.1.54 [Number of oplock break failures.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of operation lock break failures for each file system.
+    inst [0 or "\\fubar.com\mysmbuser"] value 56
+
+cifs.ops.open PMID: 121.1.11 [Open operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file open operations per mounted file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.close PMID: 121.1.12 [Close operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file close operations per mounted file system.
+    inst [0 or "\\fubar.com\mysmbuser"] value 19
+
+cifs.ops.close_fails PMID: 121.1.27 [Close operation failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file close operation failures per mounted file system.
+    inst [0 or "\\fubar.com\mysmbuser"] value 20
+
+cifs.ops.delete PMID: 121.1.13 [Delete operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file delete operations per mounted file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.posix_open PMID: 121.1.14 [Posix open operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of posix file open operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.posix_mkdir PMID: 121.1.15 [Posix mkdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of posix directory creation operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.mkdir PMID: 121.1.16 [mkdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of directory creation operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.rmdir PMID: 121.1.17 [rmdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of directory removal operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.rename PMID: 121.1.18 [rename operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of rename operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.t2_rename PMID: 121.1.19 [t2 rename operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of t2 rename operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.find_first PMID: 121.1.20 [FindFirst requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindFirst requests to the server
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.find_next PMID: 121.1.21 [FindNext requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindNext requests to the server
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.find_close PMID: 121.1.22 [FindClose requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindClose requests to the server
+Error: Metric not supported by this version of monitored application
+
+cifs.version PMID: 121.0.11 [CIFS version number]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The cifs fs version number
+    value "2.10"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

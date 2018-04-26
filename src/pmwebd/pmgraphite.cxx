@@ -370,7 +370,8 @@ ac_archivepart (const string& filename, int ctx)
         if (has_prefix(archivepart,archivesdir))
             archivepart = archivepart.substr(archivesdir.size() + 1);
 
-        // Remove the .meta part
+        // Remove the .meta part. It's ok to manipulate the file name directly, since any
+	// compressed-file suffix has already been stripped.
         if (!graphite_encode) {
             string metastring = ".meta";
             string::size_type metaidx = archivepart.rfind(metastring);
@@ -400,7 +401,9 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     int ctx = -1;
     time_t now = time(NULL);
 
-    // find our cache entry, if any
+    // find our cache entry, if any.
+    // It's ok to manipulate the filename directly because it has already been stripped of any
+    // compressed-file suffix.
     ac_by_fn_t::iterator it = archivecache_by_filename.find(filename);
     if (it != archivecache_by_filename.end())
         e = it->second;
@@ -488,9 +491,10 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     // can easily be much older than an active archive volume, if for
     // example the set of metrics & their indoms don't change after
     // logger startup.
-
+    //
+    // Using the __pmFILE I/O API will automatically detect and handle compressed files.
     struct stat st;
-    rc = stat(filename.c_str(), &st);
+    rc = __pmStat(filename.c_str(), &st);
     if (rc < 0) {
         // the .meta file has disappeared - retire this archivecache_entry!
         // the map is easy
@@ -509,7 +513,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
                                      << endl;
         return;
     } else if (st.st_mtime == e->metadata_mtime) {
-        ; // metrics cache still good
+	; // metrics cache still good
     } else { // need to (re)load the metrics
         e->metadata_mtime = st.st_mtime;
 
@@ -548,70 +552,64 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     // pmGetArchiveEnd though unless it's still alive (modified more
     // recently than last time we checked).
     //
-    // A complication is that archive file volumes can be compressed.
-    // If they don't exist at all (but the archive does), we infer
-    // that the file must be compressed, and therefore dead, and
-    // therefore the initial scan's archive-end query must still be
-    // current & accurate.
-    //
+    // It's ok to manipulate the filename directly here since any compressed file suffix has
+    // already been stripped. However, in order to automatically handle compressed files,
+    // we need to use the __pmFILE API.
 
     string archive_basename = e->filename.substr(0, e->filename.size() - 5);
     char lastvol_name[MAXPATHLEN];
-    snprintf(lastvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx);
+    pmsprintf(lastvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx);
     char nextvol_name[MAXPATHLEN];
-    snprintf(nextvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx+1);
-    // NB: see why fstat()ing compressed archives wouldn't work?  Because we don't
-    // know their actual file names.
-    // NB: C++11 to_string() would help.
-    rc = stat(lastvol_name, &st);
+    pmsprintf(nextvol_name, MAXPATHLEN, "%s.%d", archive_basename.c_str(), e->archive_lastvol_idx+1);
+    rc = __pmStat(lastvol_name, &st);
     if (rc < 0) {
         // assume the volume is compressed -- or the archive has disappeared
         // say nothing
-    } else if (e->archive_lastvol_mtime != 0 && // cached mtim exists
-               e->archive_lastvol_mtime == st.st_mtime && // matching cached mtim
-               access (nextvol_name, R_OK) != 0) { // no next volume
-        // nothing to do
+    } else if (e->archive_lastvol_mtime != 0 && // cached mtime exists
+	       e->archive_lastvol_mtime == st.st_mtime && // matching cached mtime
+	       __pmAccess(nextvol_name, R_OK) != 0) { // no next volume
+	// nothing to do
     } else {
-        // open a context if not already open from the new-archive or metrics case above
-        if (ctx < 0) {
-            ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
-            if (ctx < 0) {
-                connstamp (cerr, connection) << "cannot open " << filename << ": "
-                                             << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
-                                             << endl;
-                return;
-            }
-        }
+	// open a context if not already open from the new-archive or metrics case above
+	if (ctx < 0) {
+	    ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
+	    if (ctx < 0) {
+		connstamp (cerr, connection) << "cannot open " << filename << ": "
+					     << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
+					     << endl;
+		return;
+	    }
+	}
 
-        rc = pmGetArchiveEnd(&e->archive_end);
-        if (rc < 0) {
-            e->archive_end.tv_sec = now; // not INT_MAX that pmGetArchiveEnd returns in case of problems
-            connstamp (cerr, connection) << "cannot get archive end " << filename << ": "
-                                         << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
-                                         << endl;
-        }
+	rc = pmGetArchiveEnd(&e->archive_end);
+	if (rc < 0) {
+	    e->archive_end.tv_sec = now; // not INT_MAX that pmGetArchiveEnd returns in case of problems
+	    connstamp (cerr, connection) << "cannot get archive end " << filename << ": "
+					 << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
+					 << endl;
+	}
 
-        // see if we have flopped over to the next volume
-        if (access (nextvol_name, R_OK) == 0) {
-            // assume we only flopped over by one (otherwise this will
-            // trigger again at next refresh)
-            e->archive_lastvol_idx ++;
-            rc = stat (nextvol_name, &st);
-            if (rc < 0) {
-                // whoops, we can access but not stat the new volume??
-                // XXX: we hope it is not corrupted, so that the later st.st_mtime reflects,
-                // at worst, the lastvol_name mtime.
-                connstamp (cerr, connection) << "cannot stat new volume " << nextvol_name << ": "
-                                             << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
-                                             << endl;
-            }
-        }
+	// see if we have flopped over to the next volume
+	if (__pmAccess (nextvol_name, R_OK) == 0) {
+	    // assume we only flopped over by one (otherwise this will
+	    // trigger again at next refresh)
+	    e->archive_lastvol_idx ++;
+	    rc = __pmStat (nextvol_name, &st);
+	    if (rc < 0) {
+		// whoops, we can access but not stat the new volume??
+		// XXX: we hope it is not corrupted, so that the later st.st_mtime reflects,
+		// at worst, the lastvol_name mtime.
+		connstamp (cerr, connection) << "cannot stat new volume " << nextvol_name << ": "
+					     << pmErrStr_r (rc, pmmsg, sizeof (pmmsg))
+					     << endl;
+	    }
+	}
 
-        // update the cached mtim, whether it's the previous or next volume's stat
-        e->archive_lastvol_mtime = st.st_mtime;
-        e->last_refresh_time = now;
+	// update the cached mtim, whether it's the previous or next volume's stat
+	e->archive_lastvol_mtime = st.st_mtime;
+	e->last_refresh_time = now;
     }
-
+    
     if (ctx >= 0)
         pmDestroyContext (ctx);
 
@@ -699,12 +697,20 @@ ac_refresh_all(struct MHD_Connection* connection /* may be null */)
             switch(ent->fts_info) {
             case FTS_F:
             case FTS_NSOK: /* FTS_NOSTAT in effect */
-                if (has_suffix (ent->fts_path, ".meta")) {
-                    num_archives ++;
-                    string archivename = string(ent->fts_path);
-                    refreshed_archivenames.insert(archivename);
-                    ac_refresh (connection, archivename);
-                }
+		// Use __pmLogBaseName() so as to automatically discover archives with compressed
+		// .meta files. __pmLogBaseName() alters the contents of the buffer which is passed
+		// to it. The suffix can still be found after the base name.
+		char tmpname[MAXPATHLEN];
+		pmsprintf(tmpname, sizeof(tmpname), "%s", ent->fts_path);
+		if (__pmLogBaseName(tmpname) != NULL) {
+		    const char *suffix = tmpname + strlen(tmpname) + 1;
+		    if (strcmp(suffix, "meta") == 0) {
+			num_archives ++;
+			string archivename = string(tmpname) + string(".meta");
+			refreshed_archivenames.insert(archivename);
+			ac_refresh (connection, archivename);
+		    }
+		}
                 break;
             case FTS_D:
                 num_directories ++;

@@ -280,7 +280,8 @@ typedef struct {
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 #define PDU_FLAG_CONTAINER	(1U<<6)
 #define PDU_FLAG_CERT_REQD	(1U<<7)
-#define PDU_FLAG_LABEL		(1U<<8)
+#define PDU_FLAG_BAD_LABEL	(1U<<8)	/* bad, encoding issues */
+#define PDU_FLAG_LABELS		(1U<<9)
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
@@ -541,6 +542,7 @@ typedef struct __pm_fops {
     int         (*__pmfsync)(__pmFILE *);
     int		(*__pmfileno)(__pmFILE *);
     off_t       (*__pmlseek)(__pmFILE *, off_t, int);
+    int         (*__pmstat)(const char *, struct stat *);
     int         (*__pmfstat)(__pmFILE *, struct stat *);
     int		(*__pmfeof)(__pmFILE *);
     int		(*__pmferror)(__pmFILE *);
@@ -550,6 +552,7 @@ typedef struct __pm_fops {
 } __pm_fops;
 
 /* Provide a stdio-like API for __pmFILE */
+PCP_CALL extern int __pmAccess(const char *, int);
 PCP_CALL extern __pmFILE *__pmFopen(const char *, const char *);
 PCP_CALL extern __pmFILE *__pmFdopen(int, const char *);
 PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
@@ -561,6 +564,7 @@ PCP_CALL extern size_t __pmFwrite(void *, size_t, size_t, __pmFILE *);
 PCP_CALL extern int __pmFflush(__pmFILE *);
 PCP_CALL extern int __pmFsync(__pmFILE *);
 PCP_CALL extern off_t __pmLseek(__pmFILE *, off_t, int);
+PCP_CALL extern int __pmStat(const char *, struct stat *);
 PCP_CALL extern int __pmFstat(__pmFILE *, struct stat *);
 PCP_CALL extern int __pmFileno(__pmFILE *);
 PCP_CALL extern int __pmFeof(__pmFILE *);
@@ -568,6 +572,16 @@ PCP_CALL extern int __pmFerror(__pmFILE *);
 PCP_CALL extern void __pmClearerr(__pmFILE *);
 PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
+
+PCP_CALL extern int __pmCompressedFileIndex(char *, size_t);
+
+/*
+ * st_size within struct stat is set by __pmStat() to this value to indicate
+ * that the size could not be obtained. This happens when the file is compressed.
+ * In order to get the uncompressed size, the file must be opened using
+ * __pmFopen() and then __pmFstat() must be used.
+ */
+#define PM_ST_SIZE_INVALID (-1) /* st_size is of type off_t, which is signed */
 
 /* Control for connection to a PMCD */
 typedef struct {

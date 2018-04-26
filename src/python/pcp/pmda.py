@@ -387,6 +387,17 @@ class MetricDispatch(object):
         entry = self._indoms[indom]
         return entry.inst_name_lookup(instance)
 
+    def pmid_name_lookup(self, cluster, item):
+        """
+        Lookup the name associated with a performance metric identifier.
+        """
+        try:
+            name = self._metric_names[self.pmid(cluster, item)]
+        except KeyError:
+            name = None
+        return name
+
+
 class PMDA(MetricDispatch):
     """ Defines a PCP performance metrics domain agent
         Used to add new metrics into the PCP toolkit.
@@ -546,16 +557,3 @@ class PMDA(MetricDispatch):
     @staticmethod
     def err(message):
         return cpmda.pmda_err(message)
-
-# Other methods perl API provides:
-#    add_timer()
-#    add_pipe()
-#    add_tail()
-#    add_sock()
-#    put_sock()
-#    set_inet_socket
-#    set_ipv6_socket
-#    set_unix_socket
-#    pmda_pmid_name(cluster,item)
-#    pmda_pmid_text(cluster,item)
-#

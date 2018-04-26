@@ -644,7 +644,7 @@ qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
-	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $<
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
 endif
 
 arch_maxfd.o:	localconfig.h

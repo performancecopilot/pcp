@@ -151,16 +151,6 @@ value_precision(char *buf, int maxlen, int usedlen)
 }
 #endif
 
-const char *
-context_str(context_t *context)
-{
-    if (context->type == PM_CONTEXT_ARCHIVE)
-	return "archive";
-    if (context->type == PM_CONTEXT_HOST)
-	return "host";
-    return "none";
-}
-
 sds
 json_escaped_str(const char *string)
 {
@@ -328,14 +318,14 @@ pmLogLevelPrint(FILE *stream, pmloglevel level, sds message, int istty)
 }
 
 static char *
-hash_identity(const unsigned char *hash, char *buffer)
+hash_identity(const unsigned char *hash, char *buffer, int buflen)
 {
     int		nbytes, off;
 
     /* Input 20-byte SHA1 hash, output 40-byte representation */
     for (nbytes = off = 0; nbytes < 20; nbytes++)
-	off += pmsprintf(buffer + off, 40 - off, "%02x", hash[nbytes]);
-    buffer[40] = '\0';
+	off += pmsprintf(buffer + off, buflen - off, "%02x", hash[nbytes]);
+    buffer[buflen-1] = '\0';
     return buffer;
 }
 
@@ -344,7 +334,7 @@ pmwebapi_hash_str(const unsigned char *p)
 {
     static char	namebuf[40+1];
 
-    return hash_identity(p, namebuf);
+    return hash_identity(p, namebuf, sizeof(namebuf));
 }
 
 sds
@@ -352,7 +342,7 @@ pmwebapi_hash_sds(const unsigned char *p)
 {
     char	namebuf[40+1];
 
-    hash_identity(p, namebuf);
+    hash_identity(p, namebuf, sizeof(namebuf));
     return sdsnewlen(namebuf, sizeof(namebuf));
 }
 

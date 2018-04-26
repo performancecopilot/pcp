@@ -1079,7 +1079,7 @@ int
 redisAppendFormattedCommand(redisContext *c, const char *cmd, size_t len)
 {
     if (pmDebugOptions.desperate)
-	fprintf(stderr, "C[%lu]: %s\n", len, cmd);
+	fprintf(stderr, "C[%lu]: %s\n", (long)len, cmd);
     if (__redisAppendCommand(c, cmd, len) != REDIS_OK)
 	return REDIS_ERR;
     return REDIS_OK;

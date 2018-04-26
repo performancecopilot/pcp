@@ -1,7 +1,7 @@
 QA output created by 798
 === Test case: mountstats.qa
-dbpmda> open pipe /usr/bin/env perl pmdanfsclient.pl
-Start env PMDA: /usr/bin/env perl pmdanfsclient.pl
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -81,8 +81,8 @@ dbpmda>
 Log for pmdanfsclient on HOST ...
 Log finished ...
 === Test case: mountstats42.qa
-dbpmda> open pipe /usr/bin/env perl pmdanfsclient.pl
-Start env PMDA: /usr/bin/env perl pmdanfsclient.pl
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -141,8 +141,8 @@ dbpmda>
 Log for pmdanfsclient on HOST ...
 Log finished ...
 === Test case: nonfsmounts.qa
-dbpmda> open pipe /usr/bin/env perl pmdanfsclient.pl
-Start env PMDA: /usr/bin/env perl pmdanfsclient.pl
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -194,8 +194,8 @@ dbpmda>
 Log for pmdanfsclient on HOST ...
 Log finished ...
 === Test case: mountstats42.qa
-dbpmda> open pipe /usr/bin/env perl pmdanfsclient.pl
-Start env PMDA: /usr/bin/env perl pmdanfsclient.pl
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
 dbpmda> getdesc on
 dbpmda> desc nfsclient.nfsv4
 PMID: 62.3.2

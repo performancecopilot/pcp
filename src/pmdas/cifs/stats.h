@@ -2,12 +2,12 @@
  * CIFS Proc based stats
  *
  * Copyright (c) 2014 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -29,10 +29,11 @@ enum {
     GLOBAL_TOTAL_RECONNECTS,
     GLOBAL_VFS_OPS,
     GLOBAL_VFS_OPS_MAX,
+    GLOBAL_VERSION,
     NUM_GLOBAL_STATS
 };
 
-enum {   
+enum {
     FS_CONNECTED = 0,
     FS_SMBS,
     FS_OPLOCK_BREAKS,
@@ -56,6 +57,38 @@ enum {
     FS_FIND_FIRST,
     FS_FIND_NEXT,
     FS_FIND_CLOSE,
+    FS_READ_FAILS,
+    FS_WRITE_FAILS,
+    FS_FLUSHES_FAILS,
+    FS_LOCKS_FAILS,
+    FS_CLOSE_FAILS,
+    FS_NEGOTIATES,
+    FS_NEGOTIATES_FAILS,
+    FS_SESSIONSETUPS,
+    FS_SESSIONSETUPS_FAILS,
+    FS_LOGOFFS,
+    FS_LOGOFFS_FAILS,
+    FS_TREECONS,
+    FS_TREECONS_FAILS,
+    FS_TREEDISCONS,
+    FS_TREEDISCONS_FAILS,
+    FS_CREATES,
+    FS_CREATES_FAILS,
+    FS_IOCTLS,
+    FS_IOCTLS_FAILS,
+    FS_CANCELS,
+    FS_CANCELS_FAILS,
+    FS_ECHOS,
+    FS_ECHOS_FAILS,
+    FS_QUERYDIRS,
+    FS_QUERYDIRS_FAILS,
+    FS_CHANGENOTIFIES,
+    FS_CHANGENOTIFIES_FAILS,
+    FS_QUERYINFOS,
+    FS_QUERYINFOS_FAILS,
+    FS_SETINFOS,
+    FS_SETINFOS_FAILS,
+    FS_OPLOCK_BREAKS_FAILS,
     NUM_FS_STATS
 };
 

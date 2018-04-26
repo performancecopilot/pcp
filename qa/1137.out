@@ -11,3 +11,5 @@ checking kernel.all.cpu.intr against derived utilization kernel.cpu.util.intr
 PASS
 checking kernel.all.cpu.steal against derived utilization kernel.cpu.util.steal
 PASS
+checking kernel.all.cpu.wait against derived utilization kernel.cpu.util.wait
+PASS
