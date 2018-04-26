@@ -67,7 +67,19 @@ CULLAFTER=14
 # 
 COMPRESS=""
 COMPRESS_CMDLINE=""
-COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
+if which xz >/dev/null 2>&1
+then
+    if xz -0 --block-size=10MiB </dev/null>/dev/null 2>&1
+    then
+	# want minimal overheads, -0 is the same as --fast
+	COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
+    else
+	COMPRESS_DEFAULT=xz
+    fi
+else
+    # overridden by $PCP_COMPRESS or if not set, no compression
+    COMPRESS_DEFAULT=""
+fi
 COMPRESSAFTER_CMDLINE=""
 eval `pmconfig -L -s transparent_decompress`
 if $transparent_decompress
