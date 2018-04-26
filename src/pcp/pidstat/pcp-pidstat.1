@@ -58,14 +58,14 @@ machine.
 .BR \-B \fR
 Report process states. The argument to -B is one of the following:
 
-detail
+\fBdetail\fP
        Show total time processes have spent in each of the 5 different states
 
-all
+\fBall\fP
        Show total time processes spent in their current state 
 
-[R,S,T,D,Z]
-       A comma separated list of states which can be any or all of [R,S,T,Z,D]. For example, -B R,S will report processes currently in R and S states and not report processes currently in D,T,Z states.
+[\fBR\fP,\fBS\fP,\fBT\fP,\fBD\fP,\fBZ\fP]
+       A comma separated list of states which can be any or all of [\fBR\fP,\fBS\fP,\fBT\fP,\fBZ\fP,\fBD\fP]. For example, \fB-B R,S\fP will report processes currently in either \fBR\fP or \fBS\fP states and not report processes currently in any other states.
 
 .TP
 .BR \-f \fR
