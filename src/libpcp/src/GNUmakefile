@@ -83,7 +83,7 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(EXT_FILES) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done $(GENERATED_HFILES)
+	getdate.h derive_parser.y check.done $(GENERATED_HFILES) exports
 
 base default : $(EXT_FILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done
@@ -146,8 +146,11 @@ install_pcp : install
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
 
-pmdbg.h : ../../include/pcp/pmapi.h mk_pmdbg
-	./mk_pmdbg
+pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
+	./mk.pmdbg
+
+exports:	exports.master mk.exports
+	./mk.exports
 
 labels.o:	sort_r.h
 
