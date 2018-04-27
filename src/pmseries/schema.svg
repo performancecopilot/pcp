@@ -26,15 +26,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.57807385"
-     inkscape:cx="445.30884"
-     inkscape:cy="411.72855"
+     inkscape:cx="589.11523"
+     inkscape:cy="401.3857"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1716"
-     inkscape:window-height="1036"
-     inkscape:window-x="196"
-     inkscape:window-y="7"
+     inkscape:window-height="1037"
+     inkscape:window-x="201"
+     inkscape:window-y="11"
      inkscape:window-maximized="0"
      showguides="true"
      inkscape:document-rotation="0"
@@ -921,13 +921,13 @@
        y="1083.8679"
        ry="25.858311" />
     <rect
-       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:4.78864098;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:4.72368717;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-1-90-3"
-       width="218.21136"
-       height="25.354214"
-       x="1135.2996"
-       y="1070.2913"
-       ry="12.677107" />
+       width="211.78926"
+       height="25.419167"
+       x="1135.2671"
+       y="1070.2588"
+       ry="12.709583" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -972,7 +972,7 @@
          sodipodi:role="line"
          id="tspan4171-6-91-0"
          x="1303.1489"
-         y="1134.2542">nas3.acme.com</tspan><tspan
+         y="1134.2542">&quot;nas3.acme.com&quot;</tspan><tspan
          id="tspan5462-9-9"
          sodipodi:role="line"
          x="1307.9243"
@@ -982,7 +982,11 @@
          sodipodi:role="line"
          x="1303.1489"
          y="1171.7542"
-         style="font-weight:bold;font-size:15px;line-height:1.25;text-align:end;text-anchor:end">www.acme.com</tspan><tspan
+         style="font-weight:bold;font-size:15px;line-height:1.25;text-align:end;text-anchor:end"><tspan
+   style="font-weight:normal"
+   id="tspan881">&quot;</tspan>www.acme.com<tspan
+   style="font-weight:normal"
+   id="tspan879">&quot;</tspan></tspan><tspan
          sodipodi:role="line"
          x="1307.9243"
          y="1190.5042"
@@ -992,7 +996,7 @@
          x="1303.1489"
          y="1209.2542"
          id="tspan4173-8-5-0"
-         style="font-size:15px;line-height:1.25;text-align:end;text-anchor:end">app1.acme.com</tspan><tspan
+         style="font-size:15px;line-height:1.25;text-align:end;text-anchor:end">&quot;app1.acme.com&quot;</tspan><tspan
          sodipodi:role="line"
          x="1307.9243"
          y="1228.0042"
@@ -1002,7 +1006,7 @@
          x="1303.1489"
          y="1246.7542"
          id="tspan4179-9-4-2"
-         style="font-size:15px;line-height:1.25;text-align:end;text-anchor:end">app2.acme.com</tspan><tspan
+         style="font-size:15px;line-height:1.25;text-align:end;text-anchor:end">&quot;app2.acme.com&quot;</tspan><tspan
          id="tspan5466-9-6"
          sodipodi:role="line"
          x="1307.9243"
@@ -1137,7 +1141,7 @@
          x="1210.3881"
          y="612.86218"
          id="tspan4707-9-8-1"
-         style="font-size:15px;line-height:1.25">3204576b3b89</tspan><tspan
+         style="font-size:15px;line-height:1.25;font-weight:bold">3204576b3b89</tspan><tspan
          sodipodi:role="line"
          x="1210.3881"
          y="631.61218"
@@ -2172,13 +2176,13 @@
        y="841.28888"
        ry="26.18457" />
     <rect
-       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:5.84513044;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:5.48358917;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-1-0-0"
-       width="339.25461"
-       height="24.297726"
-       x="1126.141"
-       y="828.80151"
-       ry="12.148863" />
+       width="294.20673"
+       height="24.659267"
+       x="1125.9602"
+       y="828.62073"
+       ry="12.329634" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:0%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -2189,74 +2193,58 @@
          id="tspan4148-7-0-8"
          x="1137.5756"
          y="845.09363"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:label.name:series:886177ba007f</tspan></text>
+         style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:labels:series:886177ba007f</tspan></text>
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:2.30438447;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:2.71943712;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-3-9-44-8"
-       width="46.03315"
-       height="27.838091"
-       x="1476.1566"
-       y="826.88892"
+       width="65.079277"
+       height="27.423038"
+       x="1445.653"
+       y="827.09644"
        ry="0" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:12px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="1493.6401"
+       x="1470.9688"
        y="840.96234"
        id="text4165-3-4-0"
        transform="scale(0.99242157,1.0076363)"><tspan
          sodipodi:role="line"
          id="tspan4167-6-7-4"
-         x="1493.6401"
+         x="1470.9688"
          y="840.96234"
-         style="font-style:italic;font-weight:bold;font-size:14.89678097px;line-height:1.25;stroke-width:1px">set</tspan></text>
+         style="font-style:italic;font-weight:bold;font-size:14.89678097px;line-height:1.25;stroke-width:1px">hash</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:12px;line-height:0%;font-family:sans-serif;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="1313.0872"
+       x="1395.5872"
        y="877.23633"
        id="text4169-62-63-0"><tspan
          id="tspan5462-7-1"
          sodipodi:role="line"
-         x="1313.0872"
+         x="1395.5872"
          y="877.23633"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px"> </tspan><tspan
          id="tspan5464-5-9"
          sodipodi:role="line"
-         x="1313.0872"
+         x="1395.5872"
          y="895.98633"
-         style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px">64</tspan><tspan
+         style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px;font-weight:bold">135</tspan><tspan
          sodipodi:role="line"
-         x="1313.0872"
+         x="1395.5872"
          y="914.73633"
          id="tspan4175-1-9-6"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px"> </tspan><tspan
          sodipodi:role="line"
-         x="1313.0872"
+         x="1395.5872"
          y="933.48633"
          id="tspan4173-8-6-2"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px">512</tspan><tspan
          id="tspan5468-8-9"
          sodipodi:role="line"
-         x="1313.0872"
+         x="1395.5872"
          y="942.08203"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px" /></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:12px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="1413.1887"
-       y="904.15771"
-       id="text4169-0-3"><tspan
-         sodipodi:role="line"
-         x="1413.1887"
-         y="904.15771"
-         id="tspan4711-7-1"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">.  .  .</tspan><tspan
-         sodipodi:role="line"
-         x="1413.1887"
-         y="922.90771"
-         id="tspan4713-6-4"
-         style="font-size:15px;line-height:1.25;stroke-width:1px"> </tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:12px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -2416,19 +2404,19 @@
          x="1111.7977"
          y="993.94019"
          id="tspan4364-0-0-0-2"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">The set of all label name identifiers associated with the</tspan><tspan
+         style="font-size:15px;line-height:1.25;stroke-width:1px">The set of all label name and value identifiers associated</tspan><tspan
          sodipodi:role="line"
          x="1111.7977"
          y="1012.6902"
          id="tspan4573-4-6-3-4"
-         style="font-size:15px;line-height:1.25;stroke-width:1px"><tspan
+         style="font-size:15px;line-height:1.25;stroke-width:1px">with the <tspan
    style="font-style:italic"
-   id="tspan3519">886177ba007f</tspan> time series identifier .  The label ID 17</tspan><tspan
+   id="tspan3519">886177ba007f</tspan> time series identifier .  The label</tspan><tspan
          sodipodi:role="line"
          x="1111.7977"
          y="1031.4402"
          id="tspan5454-4-9-0-6"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">can be found via the pcp:map:label.name hash.</tspan></text>
+         style="font-size:15px;line-height:1.25;stroke-width:1px">name ID 1 can be found via the pcp:map:label.name hash.</tspan></text>
     <rect
        style="fill:#ffffff;fill-opacity:0;stroke:#000000;stroke-width:4.03125;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3336-0-2"
@@ -2551,28 +2539,28 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:12px;line-height:0%;font-family:sans-serif;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="1220.9453"
-       y="893.80627"
+       x="1235.9453"
+       y="895.68127"
        id="text4169-62-63-0-3"><tspan
          style="font-weight:bold;font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px"
          sodipodi:role="line"
          id="tspan4171-6-1-9-6"
-         x="1220.9453"
-         y="893.80627">1</tspan><tspan
+         x="1235.9453"
+         y="895.68127">1</tspan><tspan
          id="tspan5462-7-1-1"
          sodipodi:role="line"
-         x="1220.9453"
-         y="912.55627"
+         x="1235.9453"
+         y="914.43127"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px"> </tspan><tspan
          sodipodi:role="line"
-         x="1220.9453"
-         y="931.30627"
+         x="1235.9453"
+         y="933.18127"
          id="tspan4173-8-6-2-3"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px">3</tspan><tspan
          id="tspan5468-8-9-2"
          sodipodi:role="line"
-         x="1220.9453"
-         y="939.90198"
+         x="1235.9453"
+         y="941.77698"
          style="font-size:15px;line-height:1.25;text-align:start;text-anchor:start;stroke-width:1px" /></text>
     <flowRoot
        xml:space="preserve"
@@ -3542,5 +3530,11 @@
          y="1292.109"
          id="tspan5442-7"
          style="font-size:15px;line-height:1.25;stroke-width:1px">one element (e.g. when multiple archives are used to load).</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.18042529;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.3608507, 7.08255212;stroke-dashoffset:1.93340611;stroke-opacity:1"
+       d="m 1321.5771,884.18998 v 59.7338 0"
+       id="path4230-9-83-4-9-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
   </g>
 </svg>

@@ -251,6 +251,7 @@ extern int redisGetReplyFromReader(redisContext *, void **);
 extern int redisAppendFormattedCommand(redisContext *, const char *, size_t);
 
 struct redisAsyncContext;
+struct dict;
 
 typedef void (redisCallBackFunc)(struct redisAsyncContext *, void *, void *);
 typedef struct redisCallBack {
@@ -297,11 +298,15 @@ typedef struct redisAsyncContext {
     /* Called when the first write event was received. */
     redisConnectCallBack 	*onConnect;
 
-    /* Regular Redis command callbacks */
+    /* Regular command callbacks */
     redisCallBackList		replies;
 
-    /* Invalid or unsupported command callbacks */
-    redisCallBackList		invalid;
+    /* Subscription callbacks */
+    struct {
+	redisCallBackList	invalid;
+	struct dict		*channels;
+	struct dict		*patterns;
+    } sub;
 } redisAsyncContext;
 
 extern redisAsyncContext *redisAsyncConnect(const char *, int);

@@ -15,10 +15,84 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "private.h"
+#include "sdsalloc.h"
+#include "zmalloc.h"
 #include "util.h"
 #include "sha1.h"
 
-/* time manipulation */
+/* dynamic memory manipulation */
+static void
+default_oom(size_t size)
+{
+    fprintf(stderr, "Out of memory allocating %llu bytes\n",
+		(unsigned long long)size);
+    fflush(stderr);
+    abort();
+}
+static void (*oom_handler)(size_t) = default_oom;
+
+void *
+s_malloc(size_t size)
+{
+    void	*p;
+
+    p = malloc(size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void *
+s_realloc(void *ptr, size_t size)
+{
+    void	*p;
+
+    if (ptr == NULL)
+	return s_malloc(size);
+    p = realloc(ptr, size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void
+s_free(void *ptr)
+{
+    if (LIKELY(ptr != NULL))
+	free(ptr);
+}
+
+void *
+zmalloc(size_t size)
+{
+    void	*p;
+
+    p = malloc(size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void *
+zcalloc(size_t size)
+{
+    void	*p;
+
+    p = calloc(1, size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void
+zfree(void *ptr)
+{
+    if (LIKELY(ptr != NULL))
+	free(ptr);
+}
+
+/* time structure manipulation */
 int
 tsub(struct timeval *a, struct timeval *b)
 {

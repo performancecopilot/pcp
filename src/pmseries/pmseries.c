@@ -25,6 +25,10 @@ typedef enum series_flags {
     PMSERIES_SOURCEID	= (1<<5),	/* report with pminfo(1) -S info */
     PMSERIES_NEED_EOL	= (1<<6),	/* need to eol-terminate output */
     PMSERIES_NEED_COMMA	= (1<<7),	/* need comma line separation */
+    PMSERIES_INSTLABELS	= (1<<8),	/* labels by instance identifier */
+    PMSERIES_ONLY_NAMES	= (1<<9),	/* report on label names only */
+    PMSERIES_NEED_DESCS	= (1<<10),	/* output requires descs lookup */
+    PMSERIES_NEED_INSTS	= (1<<11),	/* output requires insts lookup */
 
     PMSERIES_OPT_ALL	= (1<<16),	/* -a, --all option */
     PMSERIES_OPT_SOURCE = (1<<17),	/* -c, --context option */
@@ -39,11 +43,18 @@ typedef enum series_flags {
 #define PMSERIES_META_OPTS	(PMSERIES_OPT_DESC | PMSERIES_OPT_INSTS | \
 				 PMSERIES_OPT_LABELS | PMSERIES_OPT_METRIC)
 
-typedef struct series_insts {
-    pmSeriesID		series;		/* instance series identifier */
+typedef struct series_label {
+    sds			name;
+    sds			value;
+} series_label;
+
+typedef struct series_inst {
     sds			instid;		/* internal instance identifier */
     sds			name;		/* external instance identifier */
-} series_insts;
+    sds			series;		/* instance series back-pointer */
+    unsigned int	nlabels;	/* number of instance labels */
+    series_label	*labels;	/* series (instance) labels */
+} series_inst;
 
 typedef struct series_data {
     int			status;		/* command exit status */
@@ -51,9 +62,14 @@ typedef struct series_data {
 
     pmSeriesID		series;		/* current time series */
     pmSourceID		source;		/* current time series source */
-    sds			type;		/* current time series data type */
+    sds			type;		/* current time series (value) type */
+
+    unsigned int	nlabels;	/* number of metric labels */
+    series_label	*labels;	/* series (metric) labels */
+
     unsigned int        ninsts;		/* instances for the current series */
-    series_insts	*insts;		/* instances for the current series */
+    series_inst		*insts;		/* instances for the current series */
+    pmSeriesID		*iseries;	/* series identifiers for instances */
 } series_data;
 
 #define series_data_endtopic(dp) 	((dp)->flags &= ~PMSERIES_NEED_COMMA)
@@ -71,23 +87,39 @@ series_data_init(series_data *dp, series_flags flags)
 static void
 series_add_inst(series_data *dp, pmSeriesID series, sds instid, sds instname)
 {
-    series_insts	*ip;
-    size_t		bytes = sizeof(series_insts) * (dp->ninsts + 1);
+    series_inst		*ip;
+    pmSeriesID		*isp;
+    size_t		bytes;
 
-    if ((ip = realloc(dp->insts, bytes)) != NULL) {
-	dp->insts = ip;
-	ip = dp->insts + dp->ninsts;
-	ip->series = sdsdup(series);
-	ip->instid = sdsdup(instid);
-	ip->name = sdsdup(instname);
-	dp->ninsts++;
+    bytes = sizeof(sds) * (dp->ninsts + 1);
+    if ((isp = realloc(dp->iseries, bytes)) != NULL) {
+	bytes = sizeof(series_inst) * (dp->ninsts + 1);
+	if ((ip = realloc(dp->insts, bytes)) != NULL) {
+	    dp->insts = ip;
+	    ip += dp->ninsts;
+	    memset(ip, 0, sizeof(series_inst));
+	    ip->instid = sdsdup(instid);
+	    ip->name = sdsdup(instname);
+	    ip->series = sdsdup(series);
+	    dp->iseries = isp;
+	    isp += dp->ninsts;
+	    *isp = ip->series;
+	    dp->ninsts++;
+	} else {
+	    fprintf(stderr, "%s: failed to allocate %lld bytes\n",
+		    pmGetProgname(), (long long)bytes);
+	    free(isp);
+	}
+    } else {
+	fprintf(stderr, "%s: failed to allocate %lld bytes\n",
+		pmGetProgname(), (long long)bytes);
     }
 }
 
 static void
 series_del_insts(series_data *dp)
 {
-    series_insts	*ip;
+    series_inst		*ip;
     int			i;
 
     for (i = 0; i < dp->ninsts; i++) {
@@ -134,10 +166,10 @@ series_free(int nseries, pmSeriesID *series)
     }
 }
 
-static series_insts *
+static series_inst *
 series_get_inst(series_data *dp, sds series)
 {
-    series_insts	*ip;
+    series_inst		*ip;
     int			i;
 
     for (i = 0; i < dp->ninsts; i++) {
@@ -232,7 +264,7 @@ on_series_match(pmSeriesID sid, void *arg)
 static int
 on_series_value(pmSeriesID sid, int nfields, sds *value, void *arg)
 {
-    series_insts	*ip;
+    series_inst		*ip;
     series_data		*dp = (series_data *)arg;
     sds			timestamp, series, data;
     int			need_free = 1;
@@ -316,21 +348,29 @@ on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
     else if (strcmp(indom, "none") == 0)
 	indom = "PM_INDOM_NULL";
 
-    printf(" PMID: %s", pmid);
+    if (dp->flags & (PMSERIES_FULLPMID|PMSERIES_OPT_DESC))
+	printf(" PMID: %s", pmid);
     if (dp->flags & PMSERIES_FULLPMID)
 	printf(" = %u = 0x%x", pmid_value, pmid_value);
-    printf("\n");
-    printf("    Data Type: %s", series_type_phrase(type));
-    if (strcmp(type, unknown) == 0)
-	printf(" (%s)", type);
-    printf("  InDom: %s", indom);
+    if (dp->flags & (PMSERIES_FULLPMID|PMSERIES_OPT_DESC))
+	printf("\n");
+    if (dp->flags & PMSERIES_OPT_DESC) {
+	printf("    Data Type: %s", series_type_phrase(type));
+	if (strcmp(type, unknown) == 0)
+	    printf(" (%s)", type);
+    }
+    if (dp->flags & (PMSERIES_FULLINDOM|PMSERIES_OPT_DESC))
+	printf("  InDom: %s", indom);
     if (dp->flags & PMSERIES_FULLINDOM)
 	printf(" = %u =", indom_value);
-    printf(" 0x%x\n", indom_value);
-    printf("    Semantics: %s", semantics);
-    if (strcmp(semantics, unknown) == 0)
-	printf(" (%s)", semantics);
-    printf("  Units: %s\n", *units == '\0' ? "none" : units);
+    if (dp->flags & (PMSERIES_FULLINDOM|PMSERIES_OPT_DESC))
+	printf(" 0x%x\n", indom_value);
+    if (dp->flags & PMSERIES_OPT_DESC) {
+	printf("    Semantics: %s", semantics);
+	if (strcmp(semantics, unknown) == 0)
+	    printf(" (%s)", semantics);
+	printf("  Units: %s\n", *units == '\0' ? "none" : units);
+    }
     if (dp->flags & PMSERIES_SOURCEID)
 	printf("    Source: %s\n", source);
     dp->flags &= ~PMSERIES_NEED_EOL;
@@ -343,6 +383,8 @@ on_series_instance(pmSeriesID series, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
+    if (!(dp->flags & PMSERIES_OPT_INSTS))
+	return 0;
     if (series == NULL)	{	/* report all instance names */
 	printf("%s\n", name);
 	return 0;
@@ -369,7 +411,7 @@ on_series_inst(pmSeriesID sid, int nfields, sds *inst, void *arg)
     instname = inst[PMINST_NAME];
     series = inst[PMINST_SERIES];
 
-    if (series_next(dp, sid) && !(dp->flags & PMSERIES_SERIESID))
+    if (series_next(dp, sid) && (dp->flags & PMSERIES_OPT_INSTS))
 	printf("\n%s\n", sid);
     if (series_get_inst(dp, series) == NULL)
 	series_add_inst(dp, series, instid, instname);
@@ -379,30 +421,111 @@ on_series_inst(pmSeriesID sid, int nfields, sds *inst, void *arg)
 static int
 series_instance_compare(const void *a, const void *b)
 {
-    series_insts	*ap = (series_insts *)a;
-    series_insts	*bp = (series_insts *)b;
+    series_inst		*ap = (series_inst *)a;
+    series_inst		*bp = (series_inst *)b;
 
     if (sdscmp(ap->instid, bp->instid) != 0)
 	return (int)(atoll(ap->instid) - atoll(bp->instid));
     return strcmp(ap->name, bp->name);
 }
 
-static int
+static void
 series_instance_names(void *arg)
 {
     series_data		*dp = (series_data *)arg;
-    series_insts	*ip;
+    series_inst		*ip;
+    pmSeriesID		*isp = dp->iseries;
     int			i;
 
-    if (dp->flags & PMSERIES_SERIESID)
-	return 0;
-    qsort(dp->insts, dp->ninsts, sizeof(series_insts), series_instance_compare);
+    qsort(dp->insts, dp->ninsts, sizeof(series_inst), series_instance_compare);
     for (i = 0; i < dp->ninsts; i++) {
 	ip = &dp->insts[i];
-	printf("    inst [%s or \"%s\"] series %s\n",
-		ip->instid, ip->name, ip->series);
+	if (dp->flags & PMSERIES_OPT_INSTS)
+	    printf("    inst [%s or \"%s\"] series %s\n",
+		    ip->instid, ip->name, ip->series);
+	isp[i] = ip->series;
     }
-    return dp->ninsts;
+}
+
+static int
+series_labels_compare(const void *a, const void *b)
+{
+    series_label	*ap = (series_label *)a;
+    series_label	*bp = (series_label *)b;
+
+    return sdscmp(ap->name, bp->name);
+}
+
+static sds
+series_labels_sort(sds s, unsigned int nlabels, series_label *labels)
+{
+    series_label	*lp;
+    unsigned int	i;
+
+    qsort(labels, nlabels, sizeof(series_label), series_labels_compare);
+
+    s = sdscpylen(s, "{", 1);
+    for (i = 0; i < nlabels; i++) {
+	lp = &labels[i];
+	s = sdscatfmt(s, "\"%S\":%S", lp->name, lp->value);
+    }
+    return sdscatfmt(s, "}");
+}
+
+static void
+series_metric_labels(void *arg)
+{
+    series_data		*dp = (series_data *)arg;
+    sds			labels;
+
+    if (!(dp->flags & PMSERIES_ONLY_NAMES)) {
+	labels = series_labels_sort(sdsempty(), dp->nlabels, dp->labels);
+	if (sdslen(labels) > 2)
+	    printf("    labels %s\n", labels);
+	sdsfree(labels);
+    }
+}
+
+static void
+series_instance_labels(void *arg)
+{
+    series_data		*dp = (series_data *)arg;
+    series_inst		*ip = NULL;
+    sds			labels;
+    unsigned int	i;
+
+    if (!(dp->flags & PMSERIES_ONLY_NAMES)) {
+	labels = sdsempty();
+	for (i = 0; i < dp->ninsts; i++) {
+	    ip = &dp->insts[i];
+	    labels = series_labels_sort(labels, ip->nlabels, ip->labels);
+	    printf("    inst [%s or \"%s\"] labels %s\n",
+		    ip->instid, ip->name, labels);
+	}
+	sdsfree(labels);
+    }
+}
+
+static void
+series_add_labels(sds name, sds value,
+		unsigned int *nlabelsp, series_label **labelsp)
+{
+    unsigned int	nlabels = *nlabelsp;
+    series_label	*lp = *labelsp;
+    size_t		bytes;
+
+    bytes = sizeof(series_label) * (nlabels + 1);
+    if ((lp = realloc(lp, bytes)) != NULL) {
+	lp += nlabels;
+	lp->name = sdsdup(name);
+	lp->value = sdsdup(value);
+
+	*labelsp = lp;
+	*nlabelsp = nlabels + 1;
+    } else {
+	fprintf(stderr, "%s: failed to allocate %lld bytes\n",
+		pmGetProgname(), (long long)bytes);
+    }
 }
 
 static int
@@ -414,6 +537,8 @@ on_series_label(pmSeriesID series, sds label, void *arg)
 	printf("%s\n", label);
 	return 0;
     }
+    if (!(dp->flags & PMSERIES_ONLY_NAMES))
+	return 0;
     if (series_next(dp, series))
 	printf("\n%s", series);
     if (dp->flags & PMSERIES_NEED_COMMA)
@@ -425,25 +550,31 @@ on_series_label(pmSeriesID series, sds label, void *arg)
 }
 
 static int
-on_series_labels(pmSeriesID series, int nfields, sds *label, void *arg)
+on_series_labelmap(pmSeriesID series, int nfields, sds *set, void *arg)
 {
-    series_insts	*ip;
+    series_inst		*ip = NULL;
     series_data		*dp = (series_data *)arg;
     sds			name, value;
+    int			i;
 
-    if (nfields < PMLABEL_MAXFIELD)
+    if (nfields % PMLABEL_MAXFIELD)
 	return -EINVAL;
-    name = label[PMLABEL_NAME];
-    value = label[PMLABEL_VALUE];
 
-    if (series_next(dp, series) && !(dp->flags & PMSERIES_SERIESID))
+    if (dp->flags & PMSERIES_INSTLABELS) {
+	if ((ip = series_get_inst(dp, series)) == NULL)
+	    return 0;
+    } else if (series_next(dp, series) && !(dp->flags & PMSERIES_SERIESID)) {
 	printf("\n%s\n", series);
+    }
 
-    if ((ip = series_get_inst(dp, series)) == NULL)
-	printf("    inst [%s or \"%s\"] label {\"%s\":%s}\n",
-		    ip->instid, ip->name, name, value);
-    else
-	printf("    label {\"%s\":%s}\n", name, value);
+    for (i = 0; i < nfields; i += PMLABEL_MAXFIELD) {
+	name = set[i];
+	value = set[i+1];
+	if (dp->flags & PMSERIES_INSTLABELS)
+	    series_add_labels(name, value, &ip->nlabels, &ip->labels);
+	else
+	    series_add_labels(name, value, &dp->nlabels, &dp->labels);
+    }
     return 0;
 }
 
@@ -536,8 +667,10 @@ series_data_report(pmSeriesSettings *settings,
     int			sts;
 
     series_data_init(&data, flags);
+    if (nseries && series_next(&data, series))
+	printf("\n%s\n", series);
 
-    if (flags & PMSERIES_OPT_DESC) {
+    if (flags & (PMSERIES_OPT_DESC|PMSERIES_NEED_DESCS)) {
 	pmSeriesDescs(settings, nseries, &series, (void *)&data);
 	series_data_endtopic(&data);
     }
@@ -549,13 +682,21 @@ series_data_report(pmSeriesSettings *settings,
 	pmSeriesMetrics(settings, nseries, &series, (void *)&data);
 	series_data_endtopic(&data);
     }
-    if (flags & PMSERIES_OPT_INSTS) {
+    if (flags & PMSERIES_OPT_LABELS) {
+	pmSeriesLabels(settings, nseries, &series, (void *)&data);
+	series_metric_labels(&data);
+	series_data_endtopic(&data);
+    }
+    if (flags & (PMSERIES_OPT_INSTS|PMSERIES_NEED_INSTS)) {
 	pmSeriesInstances(settings, nseries, &series, (void *)&data);
 	series_instance_names(&data);
 	series_data_endtopic(&data);
     }
-    if (flags & PMSERIES_OPT_LABELS) {
-	pmSeriesLabels(settings, nseries, &series, (void *)&data);
+    /* report per-instance label information */
+    if ((flags & PMSERIES_OPT_LABELS) && nseries != 0) {
+	data.flags |= PMSERIES_INSTLABELS;
+	pmSeriesLabels(settings, data.ninsts, data.iseries, (void *)&data);
+	series_instance_labels(&data);
 	series_data_endtopic(&data);
     }
     series_data_endline(&data);
@@ -589,14 +730,14 @@ series_report(pmSeriesSettings *settings, sds query, series_flags flags)
 static int
 pmseries_overrides(int opt, pmOptions *opts)
 {
-    return (opt == 'a' || opt == 'L' || opt == 's' || opt == 'S');
+    return (opt == 'a' || opt == 'L' || opt == 's' || opt == 'S' || opt == 'n');
 }
 
 static pmSeriesSettings settings = {
     .on_match		= on_series_match,
     .on_desc		= on_series_desc,
     .on_inst		= on_series_inst,
-    .on_labelset	= on_series_labels,
+    .on_labelmap	= on_series_labelmap,
     .on_instance	= on_series_instance,
     .on_context		= on_series_context,
     .on_metric		= on_series_metric,
@@ -621,6 +762,7 @@ static pmLongOptions longopts[] = {
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
     { "fullindom", 0, 'I', 0, "print InDom in verbose format" },
+    { "names", 0, 'n', 0, "print label names only, not values" },
     { "source", 0, 'S', 0, "print the source for each time series" },
     { "series", 0, 's', 0, "print the series for each instance" },
     PMOPT_VERSION,
@@ -630,7 +772,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "acdD:FiIlLmMqsSV?",
+    .short_options = "acdD:FiIlLmMnqsSV?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | series ... | source ...]",
     .override = pmseries_overrides,
@@ -689,6 +831,10 @@ main(int argc, char *argv[])
 	    flags |= PMSERIES_FULLPMID;
 	    break;
 
+	case 'n':	/* report label names only, not values */
+	    flags |= PMSERIES_ONLY_NAMES;
+	    break;
+
 	case 'q':	/* command line contains query string */
 	    flags |= PMSERIES_OPT_QUERY;
 	    split = space;
@@ -729,11 +875,17 @@ main(int argc, char *argv[])
 	opts.errors++;
     }
 
-    if (flags & PMSERIES_SOURCEID)
-	flags |= PMSERIES_OPT_DESC;
+    if (flags & (PMSERIES_FULLPMID | PMSERIES_FULLINDOM))
+	flags |= PMSERIES_NEED_DESCS;
+    if (flags & (PMSERIES_SOURCEID | PMSERIES_SERIESID))
+	flags |= PMSERIES_NEED_DESCS;
+
+    if (flags & PMSERIES_OPT_LABELS)
+	flags |= PMSERIES_NEED_INSTS;
 
     if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_LOAD|PMSERIES_OPT_SOURCE)))
-	flags |= PMSERIES_OPT_QUERY;	/* default is to query */
+	if (!(flags & (PMSERIES_NEED_DESCS|PMSERIES_NEED_INSTS)))
+	    flags |= PMSERIES_OPT_QUERY;	/* default is to query */
 
     if (opts.optind == argc && (flags & PMSERIES_OPT_QUERY)) {
 	pmprintf("%s: error - no --query string provided\n", pmGetProgname());

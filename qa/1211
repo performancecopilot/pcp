@@ -82,7 +82,7 @@ pmseries 'kernel.all.load{instance.name:"1 minute"}'
 echo
 
 echo "Perform globbing name-based query (1) ..."
-pmseries 'kernel.all.pswit*' | LC_COLLATE=POSIX sort
+pmseries 'kernel.all.ps*' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing name-based query (2) ..."
@@ -90,7 +90,7 @@ pmseries 'kernel*pswitch' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing name-based query (3) ..."
-pmseries 'kernel.all.l*' | LC_COLLATE=POSIX sort
+pmseries 'kernel.all.l*d' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing instance-based query (1) ..."
@@ -112,12 +112,28 @@ echo "Descriptor lookup for a given SeriesID ..."
 pmseries --desc $series
 echo
 
+echo "Full InDom only for a given SeriesID ..."
+pmseries --fullindom $series
+echo
+
+echo "Full PMID only for a given SeriesID ..."
+pmseries --fullpmid $series
+echo
+
+echo "All three lookups for a given SeriesID ..."
+pmseries -dIM $series
+echo
+
 echo "SourceID lookup for a given SeriesID ..."
 pmseries --source $series
 echo
 
 echo "Instances lookup for a given SeriesID ..."
 pmseries --instances $series
+echo
+
+echo "Labels lookup for a given SeriesID ..."
+pmseries --labels $series
 echo
 
 exit  # TODO: pmseries frontend is WIP from here

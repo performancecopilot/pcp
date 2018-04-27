@@ -88,7 +88,7 @@ typedef struct series_set {
 } series_set_t;
 
 typedef struct node {
-    int			type;
+    enum nodetype	type;
     enum nodetype	subtype;
     sds			key;
     sds 		value;
