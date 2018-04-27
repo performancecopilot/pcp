@@ -287,7 +287,7 @@ on_series_value(pmSeriesID sid, int nfields, sds *value, void *arg)
     else
 	need_free = 0;
 
-    if (sdslen(series) == 0)
+    if (sdscmp(series, sid) == 0)
 	printf("    [%s] %s\n", timestamp, data);
     else if ((ip = series_get_inst(dp, series)) == NULL)
 	printf("    [%s] %s %s\n", timestamp, data, series);

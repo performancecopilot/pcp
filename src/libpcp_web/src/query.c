@@ -44,7 +44,8 @@ typedef __pmHashNode	*reverseMapNode;
 #define querylabelmap(set, sid,n,l,arg)	(set)->on_labelmap(sid, n,l, arg)
 #define queryinstance(set, sid,in, arg)	(set)->on_instance(sid, in, arg)
 #define querymetric(set, sid,name, arg)	(set)->on_metric(sid, name, arg)
-#define querylabel(set, sid,name, arg)	(set)->on_label(sid, name, arg)
+#define querylabel(set, sid, name, arg)	(set)->on_label(sid, name, arg)
+#define queryvalue(set, sid,n,val, arg)	(set)->on_value(sid, n,val, arg)
 #define querydone(set, sts, arg)	(set)->on_done(sts, arg)
 
 #define solverfmt(msg, fmt, ...)		\
@@ -154,77 +155,163 @@ node_subtype(node_t *np)
     return NULL;
 }
 
+static int
+extract_string(pmSeriesSettings *settings, pmSeriesID series,
+	redisReply *element, sds *string, const char *message, void *arg)
+{
+    sds			msg;
+
+    if (element->type == REDIS_REPLY_STRING) {
+	*string = sdscpylen(*string, element->str, element->len);
+	return 0;
+    }
+    queryfmt(msg, "expected string result for %s of series %s (got %s)",
+			message, series, redis_reply(element->type));
+    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
+    return -EINVAL;
+}
+
+static int
+extract_mapping(pmSeriesSettings *settings, pmSeriesID series, reverseMap *map,
+	redisReply *element, sds *string, const char *message, void *arg)
+{
+    reverseMapNode	node;
+    sds			msg;
+
+    if (element->type == REDIS_REPLY_STRING) {
+	if ((node = __pmHashSearch(atoi(element->str), map)) != NULL) {
+	    *string = node->data;
+	    return 0;
+	}
+	queryfmt(msg, "bad mapping for %s of series %s", message, series);
+	queryinfo(settings, PMLOG_CORRUPTED, msg, arg);
+	return -EINVAL;
+    }
+    queryfmt(msg, "expected string for %s of series %s", message, series);
+    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
+    return -EPROTO;
+}
+
+static int
+extract_sha1(pmSeriesSettings *settings, pmSeriesID series,
+	redisReply *element, sds *sha, const char *message, void *arg)
+{
+    sds			msg;
+    char		*hash;
+
+    if (element->type != REDIS_REPLY_STRING) {
+	queryfmt(msg, "expected string result for %s of series %s",
+			message, series);
+	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
+	return -EINVAL;
+    }
+    if (element->len != 20) {
+	queryfmt(msg, "expected sha1 for %s of series %s, got %ld bytes",
+			message, series, (long)element->len);
+	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
+	return -EINVAL;
+    }
+    hash = pmwebapi_hash_str((unsigned char *)element->str);
+    *sha = sdscpylen(*sha, hash, 40);
+    return 0;
+}
+
+static int
+extract_time(pmSeriesSettings *settings, pmSeriesID series,
+	redisReply *element, sds *stamp, void *arg)
+{
+    sds			msg, val;
+    char		*point;
+
+    if (element->type == REDIS_REPLY_STATUS) {
+	val = sdscpylen(*stamp, element->str, element->len);
+	if ((point = strchr(val, '-')) != NULL)
+	    *point = '.';
+	*stamp = val;
+	return 0;
+    }
+    queryfmt(msg, "expected string timestamp in series %s", series);
+    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
+    return -EPROTO;
+}
+
 /*
  * Report a timeseries result - timestamps and (instance) values
  */
 static int
-series_values_reply(SOLVER *sp, unsigned char *series,
-	int nelements, redisReply **elements)
+series_instance_reply(pmSeriesSettings *settings, sds series, sds *value,
+	int nelements, redisReply **elements, void *arg)
 {
-#if 0
-    redisReply		*nameReply, *valueReply;
-    const char		*hash;
-    sds			msg, id, value, seriesid, timestamp;
+    sds			inst;
     int			i, sts = 0;
 
-    if (nelements <= 0)
-	return nelements;
-    hash = pmwebapi_hash_str(series);
+    for (i = 0; i < nelements; i += 2) {
+	inst = value[PMVALUE_SERIES];
+	if (extract_string(settings, series, elements[0],
+				&inst, "series", arg) < 0) {
+	    sts = -EPROTO;
+	    continue;
+	}
+	if (sdslen(inst) == 0)		/* no InDom, use series */
+	    inst = sdscpylen(inst, series, 40);
+	else if (sdslen(inst) != 40) {
+	    /* TODO: errors and mark records - new callback(s)? */
+	    continue;
+	}
+	value[PMVALUE_SERIES] = inst;
 
-    /* expecting timestamp:valueset pairs, then name:value pairs */
+	if (extract_string(settings, series, elements[1],
+				&value[PMVALUE_DATA], "value", arg) < 0)
+	    sts = -EPROTO;
+	else
+	    queryvalue(settings, series, PMVALUE_MAXFIELD, value, arg);
+    }
+    return sts;
+}
+
+static int
+series_values_reply(SOLVER *sp, sds series,
+		int nelements, redisReply **elements, void *arg)
+{
+    pmSeriesSettings	*settings = sp->settings;
+    redisReply		*reply;
+    sds			msg, value[PMVALUE_MAXFIELD];
+    int			i, rc, sts = 0;
+
+    /* expecting timestamp:valueset pairs, then instance:value pairs */
     if (nelements % 2) {
-	solverfmt(msg, "expected time:value pairs from %s series XRANGE", hash);
+	solverfmt(msg, "expected time:valueset pairs in %s XRANGE", series);
 	solvermsg(sp, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
-/*--printf("    \"%.*s\" : {\n", pmwebapi_hash_str(series);--*TODO*/
+    value[PMVALUE_TIMESTAMP] = sdsnewlen("", 32);
+    value[PMVALUE_SERIES] = sdsnewlen("", 40);
+    value[PMVALUE_DATA] = sdsempty();
 
-    id = sdsempty();
-    value = sdsempty();
-
-    seriesid = sdsnew(hash);
-    timestamp = sdsempty();
     /* TODO: must extract the timestamp field and construct a timespec */
-
     for (i = 0; i < nelements; i += 2) {
-	nameReply = elements[i];
-	valueReply = elements[i+1];
-	if (nameReply->type == REDIS_REPLY_STRING) {
-	    if (valueReply->type == REDIS_REPLY_STRING) {
-/*--		printf("      \"%.*s\": \"%s\"",
-				15, scores, valueReply->str);--*TODO*/
-		/* TODO: must map internal id to external inst identifier */
-		/* TODO: handle odd cases for instids (indom_null, marks) */
-		id = sdscat(id, nameReply->str);
-		value = sdscat(value, valueReply->str);
-		solvervalue(sp, seriesid, timestamp, id, value);
-	    } else {
-		solverfmt(msg, "expected string value for series %s (type=%s)",
-			seriesid, redis_reply(valueReply->type));
-		solvermsg(sp, PMLOG_RESPONSE, msg);
-		sts = -EPROTO;
-	    }
-	} else {
-	    solverfmt(msg, "expected string name ID for series %s (type=%s)",
-			seriesid, redis_reply(nameReply->type));
+	if ((rc = extract_time(settings, series, elements[i],
+				&value[PMVALUE_TIMESTAMP], arg)) < 0) {
+	    sts = rc;
+	    continue;
+	}
+	reply = elements[i+1];
+	if (reply->type != REDIS_REPLY_ARRAY) {
+	    solverfmt(msg, "expected value array for series %s %s (type=%s)",
+			series, XRANGE, redis_reply(reply->type));
 	    solvermsg(sp, PMLOG_RESPONSE, msg);
 	    sts = -EPROTO;
 	}
-/*--	if (i + 2 < nelements)
-	    fputc(',', stdout);
-	fputc('\n', stdout);--*TODO*/
+	if ((rc = series_instance_reply(settings, series, value,
+				reply->elements, reply->element, arg)) < 0) {
+	    sts = rc;
+	    continue;
+	}
     }
-/*--fputs("    }", stdout);--*TODO*/
-
-    sdsfree(timestamp);
-    sdsfree(seriesid);
-    sdsfree(value);
-    sdsfree(id);
-
+    for (i = 0; i < PMVALUE_MAXFIELD; i++)
+	sdsfree(value[i]);
     return sts;
-#endif
-    return -1;
 }
 
 /*
@@ -937,8 +1024,8 @@ series_prepare_time(SOLVER *sp, timing_t *tp, series_set_t *result)
 	cmd = redis_command(6);
 	cmd = redis_param_str(cmd, XRANGE, XRANGE_LEN);
 	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_sds(cmd, end);
 	cmd = redis_param_sds(cmd, start);
+	cmd = redis_param_sds(cmd, end);
 	cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
 	cmd = redis_param_sds(cmd, count);
 	redis_submit(redis, XRANGE, key, cmd);
@@ -956,9 +1043,13 @@ series_resolve_time(SOLVER *sp, series_set_t *result, void *arg)
 {
     unsigned char	*series = result->series;
     redisReply		*reply;
-    sds			msg;
+    sds			msg, sha;
     int			i, rc, sts = 0;
 
+    if (result->nseries == 0)
+	return sts;
+
+    sha = sdsnewlen("", 40);
     for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
 	if (redisGetReply(sp->redis, (void **)&reply) != REDIS_OK) {
 	    solverfmt(msg, "failed series %s XRANGE command",
@@ -970,12 +1061,15 @@ series_resolve_time(SOLVER *sp, series_set_t *result, void *arg)
 			pmwebapi_hash_str(series), redis_reply(reply->type));
 	    solvermsg(sp, PMLOG_RESPONSE, msg);
 	    sts = -EPROTO;
-	} else if ((rc = series_values_reply(sp, series,
-				reply->elements, reply->element)) < 0) {
-	    sts = rc;
+	} else {
+	    sha = sdscpylen(sha, pmwebapi_hash_str(series), 40);
+	    if ((rc = series_values_reply(sp, sha,
+				reply->elements, reply->element, arg)) < 0)
+		sts = rc;
 	}
 	freeReplyObject(reply);
     }
+    sdsfree(sha);
 
     return sts;
 }
@@ -1014,7 +1108,7 @@ series_report_set(SOLVER *sp, series_set_t *set)
     if (set->nseries)
 	sid = sdsnewlen("", 40+1);
     for (i = 0; i < set->nseries; series += SHA1SZ, i++) {
-	sid = sdscpy(sid, pmwebapi_hash_str(series));
+	sid = sdscpylen(sid, pmwebapi_hash_str(series), 40);
 	solvermatch(sp, sid);
     }
     return 0;
@@ -1478,67 +1572,6 @@ pmSeriesMetrics(pmSeriesSettings *settings,
 
 done:
     querydone(settings, sts, arg);
-}
-
-static int
-extract_string(pmSeriesSettings *settings, pmSeriesID series,
-	redisReply *element, sds *string, const char *message, void *arg)
-{
-    sds			msg;
-
-    if (element->type == REDIS_REPLY_STRING) {
-	*string = sdscpylen(*string, element->str, element->len);
-	return 0;
-    }
-    queryfmt(msg, "expected string result for %s of series %s (got %s)",
-			message, series, redis_reply(element->type));
-    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
-    return -EINVAL;
-}
-
-static int
-extract_mapping(pmSeriesSettings *settings, pmSeriesID series, reverseMap *map,
-	redisReply *element, sds *string, const char *message, void *arg)
-{
-    reverseMapNode	node;
-    sds			msg;
-
-    if (element->type == REDIS_REPLY_STRING) {
-	if ((node = __pmHashSearch(atoi(element->str), map)) != NULL) {
-	    *string = node->data;
-	    return 0;
-	}
-	queryfmt(msg, "bad mapping for %s of series %s", message, series);
-	queryinfo(settings, PMLOG_CORRUPTED, msg, arg);
-	return -EINVAL;
-    }
-    queryfmt(msg, "expected string for %s of series %s", message, series);
-    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
-    return -EPROTO;
-}
-
-static int
-extract_sha1(pmSeriesSettings *settings, pmSeriesID series,
-	redisReply *element, sds *sha, const char *message, void *arg)
-{
-    sds			msg;
-    char		*hash;
-
-    if (element->type != REDIS_REPLY_STRING) {
-	queryfmt(msg, "expected string result for %s of series %s",
-			message, series);
-	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
-	return -EINVAL;
-    }
-    if (element->len != 20) {
-	queryfmt(msg, "expected sha1 for %s of series %s, got %ld bytes",
-			message, series, (long)element->len);
-	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
-	return -EINVAL;
-    }
-    hash = pmwebapi_hash_str((unsigned char *)element->str);
-    *sha = sdscpylen(*sha, hash, 40);
-    return 0;
 }
 
 static int
