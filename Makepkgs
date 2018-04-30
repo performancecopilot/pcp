@@ -288,7 +288,7 @@ in
 	ARCH=`uname -m`
 	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
 	;;
-    sunos|SunOS)
+    sunos|SunOS|solaris)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
 	export YACC=bison
