@@ -4148,7 +4148,28 @@ fi
     else
 	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
     fi
-            else
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for 64 bit Solaris host" >&5
+$as_echo_n "checking for 64 bit Solaris host... " >&6; }
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+		;;
+	    *)
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+		;;
+	esac
+    fi
+else
     cc=$CC
 fi
 
@@ -14194,12 +14215,7 @@ pcp_selinux_dir=$pcp_var_dir/selinux
 
 pcp_lib_dir=`eval echo $libdir`
 pcp_lib_dir=`eval echo $pcp_lib_dir`
-if test $target_os = solaris
-then
-    pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,32,`
-else
-    pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
-fi
+pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
 
 
 

@@ -385,9 +385,24 @@ then
     else
 	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
     fi
-    dnl used to test for 64-bit build here, but on Solaris only 32-bit Python
-    dnl is know to work, so this forces 32-bit onto all the libraries and
-    dnl the PCP apps
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	AC_MSG_CHECKING([for 64 bit Solaris host])
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_MSG_RESULT(no)
+		;;
+	esac
+    fi
 else
     cc=$CC
 fi
@@ -3100,12 +3115,7 @@ AC_SUBST(pcp_selinux_dir)
 dnl runtime shared libraries
 pcp_lib_dir=`eval echo $libdir`
 pcp_lib_dir=`eval echo $pcp_lib_dir`
-if test $target_os = solaris
-then
-    pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,32,`
-else
-    pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
-fi
+pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
 AC_SUBST(pcp_lib_dir)
 AC_SUBST(pcp_lib32_dir)
 
