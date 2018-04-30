@@ -843,8 +843,9 @@ do
 	[ X"$what" = Xall ] && check_what=''
 	case "$domain"
 	in
-	    vm06|vm10|vm09|vm33)
-		# Only -g sanity at this stage for NetBSD or OpenBSD
+	    vm06|vm10|vm09|vm13|vm33)
+		# Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
+		# or OpenIndiana
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		;;
