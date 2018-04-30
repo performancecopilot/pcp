@@ -100,13 +100,19 @@ series_instance_name(sds key)
 }
 
 const char *
-series_source_name(sds key)
+series_context_name(sds key)
 {
     size_t	length = sdslen(key);
 
+    if (length >= sizeof("context.") &&
+	strncmp(key, "context.", sizeof("context.") - 1) == 0)
+	return key + sizeof("context.") - 1;
     if (length >= sizeof("source.") &&
 	strncmp(key, "source.", sizeof("source.") - 1) == 0)
 	return key + sizeof("source.") - 1;
+    if (length >= sizeof("c.") &&
+	strncmp(key, "c.", sizeof("c.") - 1) == 0)
+	return key + sizeof("c.") - 1;
     if (length >= sizeof("s.") &&
 	strncmp(key, "s.", sizeof("s.") - 1) == 0)
 	return key + sizeof("s.") - 1;
@@ -146,9 +152,9 @@ node_subtype(node_t *np)
 {
     switch (np->subtype) {
 	case N_QUERY: return "query";
-	case N_SOURCE: return "source";
 	case N_LABEL: return "label";
 	case N_METRIC: return "metric";
+	case N_CONTEXT: return "context";
 	case N_INSTANCE: return "instance";
 	default: break;
     }
@@ -242,25 +248,29 @@ static int
 series_instance_reply(pmSeriesSettings *settings, sds series, sds *value,
 	int nelements, redisReply **elements, void *arg)
 {
+    char		*hash;
     sds			inst;
     int			i, sts = 0;
 
     for (i = 0; i < nelements; i += 2) {
 	inst = value[PMVALUE_SERIES];
-	if (extract_string(settings, series, elements[0],
+	if (extract_string(settings, series, elements[i],
 				&inst, "series", arg) < 0) {
 	    sts = -EPROTO;
 	    continue;
 	}
-	if (sdslen(inst) == 0)		/* no InDom, use series */
+	if (sdslen(inst) == 0) {	/* no InDom, use series */
 	    inst = sdscpylen(inst, series, 40);
-	else if (sdslen(inst) != 40) {
+	} else if (sdslen(inst) == 20) {
+	    hash = pmwebapi_hash_str((const unsigned char *)inst);
+	    inst = sdscpylen(inst, hash, 40);
+	} else {
 	    /* TODO: errors and mark records - new callback(s)? */
 	    continue;
 	}
 	value[PMVALUE_SERIES] = inst;
 
-	if (extract_string(settings, series, elements[1],
+	if (extract_string(settings, series, elements[i+1],
 				&value[PMVALUE_DATA], "value", arg) < 0)
 	    sts = -EPROTO;
 	else
@@ -270,12 +280,12 @@ series_instance_reply(pmSeriesSettings *settings, sds series, sds *value,
 }
 
 static int
-series_values_reply(SOLVER *sp, sds series,
+series_result_reply(SOLVER *sp, sds series, sds *value,
 		int nelements, redisReply **elements, void *arg)
 {
     pmSeriesSettings	*settings = sp->settings;
     redisReply		*reply;
-    sds			msg, value[PMVALUE_MAXFIELD];
+    sds			msg;
     int			i, rc, sts = 0;
 
     /* expecting timestamp:valueset pairs, then instance:value pairs */
@@ -285,11 +295,6 @@ series_values_reply(SOLVER *sp, sds series,
 	return -EPROTO;
     }
 
-    value[PMVALUE_TIMESTAMP] = sdsnewlen("", 32);
-    value[PMVALUE_SERIES] = sdsnewlen("", 40);
-    value[PMVALUE_DATA] = sdsempty();
-
-    /* TODO: must extract the timestamp field and construct a timespec */
     for (i = 0; i < nelements; i += 2) {
 	if ((rc = extract_time(settings, series, elements[i],
 				&value[PMVALUE_TIMESTAMP], arg)) < 0) {
@@ -309,8 +314,31 @@ series_values_reply(SOLVER *sp, sds series,
 	    continue;
 	}
     }
+    return sts;
+}
+
+static int
+series_values_reply(SOLVER *sp, sds series,
+		int nelements, redisReply **elements, void *arg)
+{
+    redisReply		*reply;
+    sds			value[PMVALUE_MAXFIELD];
+    int			i, rc, sts = 0;
+
+    value[PMVALUE_TIMESTAMP] = sdsnewlen("", 32);
+    value[PMVALUE_SERIES] = sdsnewlen("", 40);
+    value[PMVALUE_DATA] = sdsempty();
+
+    for (i = 0; i < nelements; i++) {
+	reply = elements[i];
+	if ((rc = series_result_reply(sp, series, value,
+				reply->elements, reply->element, arg)) < 0)
+	    sts = rc;
+    }
+
     for (i = 0; i < PMVALUE_MAXFIELD; i++)
 	sdsfree(value[i]);
+
     return sts;
 }
 
@@ -628,12 +656,22 @@ series_prepare_maps(SOLVER *sp, node_t *np, int level)
 	} else if ((name = series_metric_name(np->value)) != NULL) {
 	    np->subtype = N_METRIC;
 	    np->key = sdsnew("pcp:map:metric.name");
+	} else if ((name = series_context_name(np->value)) != NULL) {
+	    key = sdsnew("pcp:map:context.name");
+	    np->key = sdsdup(key);
+	    np->subtype = N_CONTEXT;
+	    cmd = redis_command(3);
+	    cmd = redis_param_str(cmd, HGET, HGET_LEN);
+	    cmd = redis_param_sds(cmd, key);
+	    cmd = redis_param_str(cmd, name, strlen(name));
+	    redis_submit(redis, HGET, key, cmd);
+	    sp->count++;
 	} else {
+	    if ((name = series_label_name(np->value)) == NULL)
+		name = np->value;
 	    key = sdsnew("pcp:map:label.name");
 	    np->key = sdsdup(key);
 	    np->subtype = N_LABEL;
-	    if ((name = series_label_name(np->value)) == NULL)
-		name = np->value;
 	    cmd = redis_command(3);
 	    cmd = redis_param_str(cmd, HGET, HGET_LEN);
 	    cmd = redis_param_sds(cmd, key);
@@ -690,9 +728,10 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
     switch (np->type) {
     case N_NAME:
 	/* TODO: need to handle JSONB label name nesting. */
+	/* TODO: need lookup via source:context.name set. */
 
-	/* setup any label name map identifiers needed */
-	if (np->subtype == N_LABEL) {
+	/* setup any label and context name map identifiers needed */
+	if (np->subtype == N_LABEL || np->subtype == N_CONTEXT) {
 	    if (redisGetReply(sp->redis, (void **)&reply) != REDIS_OK) {
 		solverfmt(msg, "no %s named \"%s\" found (error=%d)",
 			node_subtype(np), np->value, sp->redis->err);
@@ -706,14 +745,23 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
 	    } else {
 		sdsfree(np->key);
 		sp->replies[sp->index++] = reply;
-		np->key = sdsnew("pcp:map:");
-		np->key = sdscatprintf(np->key, "%s.%s.value",
-				node_subtype(np), reply->str);
+		if (np->subtype == N_LABEL) {
+		    np->key = sdsnew("pcp:map:");
+		    np->key = sdscatprintf(np->key, "%s.%s.value",
+					node_subtype(np), reply->str);
+		}
+		if (np->subtype == N_CONTEXT) {
+		    np->key = sdsnew("pcp:source:");
+		    np->key = sdscatprintf(np->key, "%s.name:%s",
+					node_subtype(np), reply->str);
+		}
 	    }
 	}
 	break;
 
     case N_GLOB:	/* indirect hash lookup with key globbing */
+	/* TODO: need to handle multiple sets of results. */
+
 	left = np->left;
 	name = left->key + sizeof("pcp:map:") - 1;
 
@@ -838,7 +886,10 @@ series_resolve_eval(SOLVER *sp, node_t *np, int level)
 	} else {
 	    sp->replies[sp->index++] = reply;
 	    sdsfree(np->key);
-	    np->key = sdsnew("pcp:series:");
+	    if (np->subtype == N_CONTEXT)
+		np->key = sdsnew("pcp:source:");
+	    else
+		np->key = sdsnew("pcp:series:");
 	    np->key = sdscatfmt(np->key, "%s:%s", name, reply->str);
 	}
 	break;
@@ -1880,7 +1931,7 @@ done:
 
 
 static int
-series_source_name_prepare(pmSeriesSettings *settings,
+series_context_name_prepare(pmSeriesSettings *settings,
 	redisContext *redis, void *arg)
 {
     sds			cmd, key;
@@ -1894,7 +1945,7 @@ series_source_name_prepare(pmSeriesSettings *settings,
 }
 
 static int
-series_source_name_execute(pmSeriesSettings *settings, 
+series_context_name_execute(pmSeriesSettings *settings, 
 	redisContext *redis, redisReply **rp, reverseMap *mp, void *arg)
 {
     redisReply		*reply;
@@ -1934,9 +1985,9 @@ pmSeriesSources(pmSeriesSettings *settings,
 				settings->on_context, arg, "context.name");
 	goto done;
     }
-    if ((sts = series_source_name_prepare(settings, redis, arg)) < 0)
+    if ((sts = series_context_name_prepare(settings, redis, arg)) < 0)
 	goto done;
-    if ((sts = series_source_name_execute(settings, redis, &rp, &map, arg)) < 0)
+    if ((sts = series_context_name_execute(settings, redis, &rp, &map, arg)) < 0)
 	goto done;
 
     /* prepare command series */

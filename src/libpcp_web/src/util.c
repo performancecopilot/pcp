@@ -236,16 +236,13 @@ json_escaped_str(const char *string)
 }
 
 static int
-default_labelset(int ctx, pmLabelSet **sets)
+default_labelset(context_t *c, pmLabelSet **sets)
 {
     pmLabelSet	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
-    char	host[MAXHOSTNAMELEN];
     int		sts;
 
-    if ((pmGetContextHostName_r(ctx, host, sizeof(host))) == NULL)
-	return PM_ERR_GENERIC;
-    pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", host);
+    pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", c->host);
     if ((sts = __pmAddLabels(&lp, buf, PM_LABEL_CONTEXT)) > 0) {
 	*sets = lp;
 	return 0;
@@ -290,12 +287,16 @@ labels(const pmLabel *label, const char *json, void *arg)
 }
 
 int
-pmwebapi_source_labels(int ctx, pmLabelSet **set, char *buffer, int length)
+pmwebapi_source_meta(context_t *c, char *buffer, int length)
 {
+    pmLabelSet	**set = &c->labels;
+    char	host[MAXHOSTNAMELEN];
     int		sts;
 
-    pmUseContext(ctx);
-    if ((sts = pmGetContextLabels(set)) <= 0 && default_labelset(ctx, set) < 0)
+    if ((pmGetContextHostName_r(c->context, host, sizeof(host))) == NULL)
+	return PM_ERR_GENERIC;
+    c->host = sdsnew(host);
+    if ((sts = pmGetContextLabels(set)) <= 0 && default_labelset(c, set) < 0)
 	return sts;
     return pmMergeLabelSets(set, 1, buffer, length, labels, NULL);
 }

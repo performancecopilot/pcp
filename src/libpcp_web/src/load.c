@@ -811,7 +811,6 @@ load_prepare_timing(SOURCE *sp, timing_t *tp, pmflags flags)
 static void
 load_prepare_source(SOURCE *sp, node_t *np, int level)
 {
-    nodetype_t	subtype;
     const char	*name;
 
     if (np == NULL)
@@ -826,10 +825,10 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
     case N_NAME:
 	if ((name = series_instance_name(np->value)) != NULL)
 	    np->subtype = N_INSTANCE;
+	else if ((name = series_context_name(np->value)) != NULL)
+	    np->subtype = N_CONTEXT;
 	else if ((name = series_metric_name(np->value)) != NULL)
 	    np->subtype = N_METRIC;
-	else if ((name = series_source_name(np->value)) != NULL)
-	    np->subtype = N_SOURCE;
 	else {
 	    if ((name = series_label_name(np->value)) == NULL)
 		name = np->value;
@@ -843,8 +842,7 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
 	if (np->right->type != N_STRING)
 	    break;
 	if (np->left->type == N_NAME || np->left->type == N_STRING) {
-	    subtype = np->left->subtype;
-	    if (subtype == N_SOURCE)
+	    if (np->left->subtype == N_CONTEXT)
 		 set_context_source(sp, np->right->value);
 	}
 	if (np->left->type == N_METRIC)
@@ -898,8 +896,7 @@ new_context(SOURCE *sp)
     cp->context = sts;
 
     /* extract unique identification information */
-    if ((sts = pmwebapi_source_labels(sts, &cp->labels,
-					labels, sizeof(labels))) < 0) {
+    if ((sts = pmwebapi_source_meta(cp, labels, sizeof(labels))) < 0) {
 	loadfmt(msg, "failed to get context labels: %s",
 		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	goto fail;

@@ -68,9 +68,9 @@ typedef enum nodetype {
 
 /* node_t name-related sub-types */
     N_QUERY = 200,
-    N_SOURCE,
     N_LABEL,
     N_METRIC,
+    N_CONTEXT,
     N_INSTANCE,
 
     MAX_NODETYPE
@@ -138,7 +138,7 @@ extern int series_solve(settings_t *, node_t *, timing_t *, pmflags, void *);
 extern int series_source(settings_t *, node_t *, timing_t *, pmflags, void *);
 
 extern const char *series_instance_name(sds);
-extern const char *series_source_name(sds);
+extern const char *series_context_name(sds);
 extern const char *series_metric_name(sds);
 extern const char *series_label_name(sds);
 

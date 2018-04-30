@@ -268,15 +268,19 @@ redis_series_source(redisContext *redis, context_t *context)
 {
     redisReply		*reply;
     const char		*hash = pmwebapi_hash_str(context->hash);
-    long long		map;
+    long long		mapid, hostid;
     sds			cmd, key, val;
 
-    if ((map = context->mapid) <= 0) {
-	map = redis_strmap(redis, "context.name", context->name);
-	context->mapid = map;
+    if ((mapid = context->mapid) <= 0) {
+	mapid = redis_strmap(redis, "context.name", context->name);
+	context->mapid = mapid;
+    }
+    if ((hostid = context->hostid) <= 0) {
+	hostid = redis_strmap(redis, "context.name", context->host);
+	context->hostid = hostid;
     }
 
-    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", map);
+    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", mapid);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -288,7 +292,7 @@ redis_series_source(redisContext *redis, context_t *context)
     checkInteger(reply, "%s: %s", SADD, "mapping context to source name");
     freeReplyObject(reply);
 
-    val = sdscatfmt(sdsempty(), "%I", context->mapid);
+    val = sdscatfmt(sdsempty(), "%I", mapid);
     key = sdscatfmt(sdsempty(), "pcp:context.name:source:%s", hash);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
@@ -300,6 +304,32 @@ redis_series_source(redisContext *redis, context_t *context)
     /* TODO: async callback function */
     redisGetReply(redis, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping source name to context");
+    freeReplyObject(reply);
+
+    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", hostid);
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SADD, SADD_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sha(cmd, context->hash);
+    redis_submit(redis, SADD, key, cmd);
+
+    /* TODO: async callback function */
+    redisGetReply(redis, (void **)&reply);
+    checkInteger(reply, "%s: %s", SADD, "mapping context to host name");
+    freeReplyObject(reply);
+
+    val = sdscatfmt(sdsempty(), "%I", hostid);
+    key = sdscatfmt(sdsempty(), "pcp:context.name:source:%s", hash);
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SADD, SADD_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, val);
+    sdsfree(val);
+    redis_submit(redis, SADD, key, cmd);
+
+    /* TODO: async callback function */
+    redisGetReply(redis, (void **)&reply);
+    checkInteger(reply, "%s: %s", SADD, "mapping host name to context");
     freeReplyObject(reply);
 }
 
