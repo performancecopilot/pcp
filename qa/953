@@ -96,7 +96,7 @@ archives="
 ./archives/tzchange-12-a.meta
 ./archives/tzchange-12-b.meta
 ./archives/pcp-vmstat.meta
-./archives/pmatop-log.meta
+./archives/pcp-atop-log.meta
 ./archives/pmiostat_mark.meta
 ./archives/proc.meta
 ./archives/procpid-encode2.meta
