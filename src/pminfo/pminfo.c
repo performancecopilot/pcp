@@ -559,7 +559,7 @@ myinstslabels(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen
     int		i, n, sts, inst, count;
 
     /* prime the cache (if not done already) and get the instance count */
-    if ((n = lookup_instance_nlabelset(dp->indom)) == PM_ERR_NOLABELS)
+    if ((n = lookup_instance_nlabelset(dp->indom)) <= 0)
 	n = lookup_instance_numinst(dp->indom);
 
     for (i = 0; i < n; i++) {
@@ -718,7 +718,7 @@ myinstseries(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen)
     int			i, n, sts, inst, count;
 
     /* prime the cache (if not done already) and get the instance count */
-    if ((n = lookup_instance_nlabelset(dp->indom)) == PM_ERR_NOLABELS)
+    if ((n = lookup_instance_nlabelset(dp->indom)) <= 0)
 	n = lookup_instance_numinst(dp->indom);
 
     for (i = 0; i < n; i++) {

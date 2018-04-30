@@ -270,16 +270,32 @@ Perform globbing instance-based query (3) ...
 
 Descriptor lookup for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8 PMID: 60.2.0
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+    PMID: 60.2.0
     Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+
+Full InDom only for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+     InDom: 60.2 = 251658242 = 0xf000002
+
+Full PMID only for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+    PMID: 60.2.0 = 251660288 = 0xf000800
+
+All three lookups for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+    PMID: 60.2.0 = 251660288 = 0xf000800
+    Data Type: float  InDom: 60.2 = 251658242 = 0xf000002
     Semantics: instant  Units: none
 
 SourceID lookup for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8 PMID: 60.2.0
-    Data Type: float  InDom: 60.2 0xf000002
-    Semantics: instant  Units: none
-    Source: a56cc44ff424ee7f4267592939737c24dfe3a7d4
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+       Source: a56cc44ff424ee7f4267592939737c24dfe3a7d4
 
 Instances lookup for a given SeriesID ...
 
@@ -287,4 +303,11 @@ Instances lookup for a given SeriesID ...
     inst [1 or "1 minute"] series 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
     inst [5 or "5 minute"] series d64252e163ab964cca996db54fe8a6d1beeb0bb9
     inst [15 or "15 minute"] series e46449a843afaa0f79eadc9aeec15c501e19603b
+
+Labels lookup for a given SeriesID ...
+
+3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+    inst [1 or "1 minute"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "5 minute"] labels {"hostname":"bozo-laptop"}
+    inst [15 or "15 minute"] labels {"hostname":"bozo-laptop"}
 

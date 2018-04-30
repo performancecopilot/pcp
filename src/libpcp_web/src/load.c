@@ -850,6 +850,9 @@ load_prepare_source(SOURCE *sp, node_t *np, int level)
 	if (np->left->type == N_METRIC)
 	    add_source_metric(sp, np->right->value);
 	break;
+
+    default:
+	break;
     }
 }
 

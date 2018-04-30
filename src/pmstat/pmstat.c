@@ -103,8 +103,9 @@ getNewContext(int type, char *host, int quiet)
 
     sts = pmCreateFetchGroup(&s->pmfg, type, host);
     if (sts < 0) {
-	fprintf(stderr, "%s: Cannot create fetchgroup: %s\n",
-		pmGetProgname(), pmErrStr(sts));
+	if (!quiet)
+	    fprintf(stderr, "%s: Cannot create fetchgroup: %s\n",
+		    pmGetProgname(), pmErrStr(sts));
 	goto fail;
     }
 

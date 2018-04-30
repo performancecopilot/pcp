@@ -738,9 +738,8 @@ static int
 series_error(PARSER *lp, const char *s)
 {
     lp->yy_series.expr = NULL;
+    lp->yy_errstr = sdsnew(s ? s : "Cannot parse query string");
     lp->yy_error = -EINVAL;
-    if (s)
-	lp->yy_errstr = sdsnew(s);
     return 0;
 }
 
@@ -1238,6 +1237,8 @@ series_dumpexpr(node_t *np, int level)
 	    fprintf(stderr, " [%s]", strbuf);
 	break;
 	}
+    default:
+	break;
     }
     fputc('\n', stderr);
 
