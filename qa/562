@@ -71,7 +71,7 @@ _pmcd_labels()
 _dso_labels()
 {
     echo "** Labels on $1 $2 via local context"
-    pminfo --labels -L $2
+    $sudo pminfo --labels -L $2
     echo
 }
 
@@ -81,7 +81,7 @@ _dbpipe_labels()
     one=$1
     two=$2
     [ $one = metric ] && one="item"
-    cat <<End-of-File | dbpmda -ei 2>&1
+    cat <<End-of-File | $sudo dbpmda -ei 2>&1
 open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29 -l $tmp.log
 label $one $two
 End-of-File
@@ -94,7 +94,7 @@ _dbdso_labels()
     one=$1
     two=$2
     [ $one = metric ] && one="item"
-    cat <<End-of-File | dbpmda -ei 2>&1
+    cat <<End-of-File | $sudo dbpmda -ei 2>&1
 open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
 label $one $two
 End-of-File

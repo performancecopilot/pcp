@@ -160,6 +160,17 @@ endif
 $(VERSION_SCRIPT): ../../libpcp/src/$(VERSION_SCRIPT) mk.exports
 	./mk.exports
 
+../../libpcp/src/$(VERSION_SCRIPT):
+	( cd ../../libpcp/src; ./mk.exports )
+
+pmdbg.h:	../../libpcp/src/pmdbg.h
+../../libpcp/src/pmdbg.h:
+	( cd ../../libpcp/src; ./mk.pmdbg )
+
+derive_parser.y:	../../libpcp/src/derive_parser.y
+../../libpcp/src/derive_parser.y:
+	( cd ../../libpcp/src; $(MAKE) derive_parser.y )
+
 $(LN_FILES):
 	rm -f $@
 	$(LN_S) $(TOPDIR)/src/libpcp/src/$@ .
