@@ -685,6 +685,12 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
     int sts, fdFlags = __pmGetFileStatusFlags(fd);
     __pmSockAddr myAddr;
 
+    if (pmDebugOptions.context && pmDebugOptions.desperate) {
+	char	*sockname = __pmSockAddrToString(addr);
+	fprintf(stderr, "__pmConnectTo(%d, %s, %d)\n", fd, sockname, port);
+	free(sockname);
+    }
+
     myAddr = *addr;
     if (port >= 0)
 	__pmSockAddrSetPort(&myAddr, port);
@@ -889,7 +895,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
     __pmSockAddr	*myAddr;
     __pmHostEnt		*servInfo;
-    const __pmAddrInfo	*ai;
     int			fd;
     int			sts;
     int			fdFlags[FD_SETSIZE];
@@ -929,6 +934,8 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
 	 myAddr != NULL;
 	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+#if !defined(IS_SOLARIS)
+	const __pmAddrInfo	*ai;
 	/*
 	 * We should be ignoring any entry without SOCK_STREAM (= 1),
 	 * since we're connecting with TCP only. The other entries
@@ -939,6 +946,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	    __pmSockAddrFree(myAddr);
 	    continue;
 	}
+#endif
 	/* Create a socket */
 	if (__pmSockAddrIsInet(myAddr))
 	    fd = __pmCreateSocket();
@@ -951,6 +959,11 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	    fd = -EINVAL;
 	}
 	if (fd < 0) {
+	    if (pmDebugOptions.context && pmDebugOptions.desperate) {
+		char *sockname = __pmSockAddrToString(myAddr);
+		fprintf(stderr, "__pmAuxConnectPMCDPortfd: %s filed to create socket, errno=%d\n", sockname, errno);
+		free(sockname);
+	    }
 	    __pmSockAddrFree(myAddr);
 	    continue; /* Try the next address */
 	}
