@@ -140,7 +140,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	}
     }
     if (pmDebugOptions.appl0) {
-	pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%d infd=%d outfd=%d\n",
+	pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%" FMT_PID " infd=%d outfd=%d\n",
 			label, childPid, *infd, *outfd);
     }
     return childPid;

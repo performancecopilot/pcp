@@ -279,7 +279,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
     groot->active = 1;
 
     if (pmDebugOptions.appl0)
-        pmNotifyErr(LOG_DEBUG, "event_init: %s started: pid=%d fd=%d qid=%d",
+        pmNotifyErr(LOG_DEBUG, "event_init: %s started: pid=%" FMT_PID " fd=%d qid=%d",
 		cmd->identifier, groot->pid, groot->fd, groot->queueid);
 
     return 0;
