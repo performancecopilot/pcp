@@ -651,7 +651,6 @@ class Source(object):
 
         self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url,self.headers)) if self.pmda.dbg else None
         self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url,self.filterlist)) if self.pmda.dbg else None
-        self.pmda.log("DEBUG url: %s FILTERS: %s" % (self.url,self.filterlist))
 
         return
 
