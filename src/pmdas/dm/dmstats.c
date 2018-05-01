@@ -270,8 +270,10 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 }
 
 static struct dm_stats*
-_dm_stats_get_region(const char *name, struct dm_stats *dms)
+_dm_stats_get_region(const char *name)
 {
+	struct dm_stats *dms;
+
 	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
 		goto nostats;
 
@@ -299,7 +301,7 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
     	int sts = 0;
 
 	if (instance == DM_STATS_INDOM) {
-		if (!(pw->dms = _dm_stats_get_region(pw->dev, pw->dms)))
+		if (!(pw->dms = _dm_stats_get_region(pw->dev)))
 			goto nostats;
 
 		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
@@ -322,10 +324,8 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
         	    	if (!strcmp(pw2->dev, pw->dev))
 			  	  _pm_dm_refresh_stats_histogram_update(pw, pw2);
         	}
-	}
-
-	if (instance == DM_HISTOGRAM_INDOM) {
-		if (!(pw->dms = _dm_stats_get_region(pw->dev, pw->dms)))
+	} else if (instance == DM_HISTOGRAM_INDOM) {
+		if (!(pw->dms = _dm_stats_get_region(pw->dev)))
 			goto nostats;
 
 		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, pw->region_id))
@@ -350,7 +350,8 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
 			   	break;
 		    	}
         	}
-	}
+	} else
+		return 0;
 
 	dm_stats_destroy(pw->dms);
 	return 0;
@@ -361,8 +362,10 @@ nostats:
 }
 
 static struct dm_names*
-_dm_device_search(struct dm_names *names, struct dm_task **dmt)
+_dm_device_search(struct dm_task **dmt)
 {
+	struct dm_names *names;
+
 	if (!(*dmt = dm_task_create(DM_DEVICE_LIST)))
 		goto nodevice;
 
@@ -408,16 +411,16 @@ int
 pm_dm_stats_instance_refresh(void)
 {
 	struct pm_wrap *pw;
-	struct dm_stats *dms = NULL;
-	struct dm_task *dmt = NULL;
-	struct dm_names *names = NULL;
+	struct dm_stats *dms;
+	struct dm_task *dmt;
+	struct dm_names *names;
 	unsigned next = 0;
 	int sts;
 	pmInDom indom = dm_indom(DM_STATS_INDOM);
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if (!(names = _dm_device_search(names, &dmt)))
+	if (!(names = _dm_device_search(&dmt)))
 		return -oserror();
 
 	do {
@@ -436,7 +439,6 @@ pm_dm_stats_instance_refresh(void)
 			if (pw == NULL)
 				return PM_ERR_AGAIN;
 		}
-		pw->dms = dms;
 		strcpy(pw->dev, names->name);
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)pw);
 		next = names->next;
@@ -474,9 +476,9 @@ pm_dm_histogram_instance_refresh(void)
 {
 	struct pm_wrap *pw;
 	struct dm_histogram *dmh;
-	struct dm_stats *dms = NULL;
-	struct dm_names *names = NULL;
-	struct dm_task *dmt = NULL;
+	struct dm_stats *dms;
+	struct dm_names *names;
+	struct dm_task *dmt;
 	unsigned next = 0;
 	int sts;
 	pmInDom indom = dm_indom(DM_HISTOGRAM_INDOM);
@@ -488,7 +490,7 @@ pm_dm_histogram_instance_refresh(void)
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if (!(names = _dm_device_search(names, &dmt)))
+	if (!(names = _dm_device_search(&dmt)))
 		return -oserror();
 
 	do {
