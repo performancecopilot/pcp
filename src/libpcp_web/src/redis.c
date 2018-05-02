@@ -33,6 +33,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "redis.h"
+#include "dict.h"
 #include "net.h"
 #include "sds.h"
 
@@ -1085,6 +1086,60 @@ redisAppendFormattedCommand(redisContext *c, const char *cmd, size_t len)
     return REDIS_OK;
 }
 
+/* Functions managing dictionary of callbacks for pub/sub. */
+static uint64_t
+callbackHash(const void *key)
+{
+    const unsigned char	*hashkey = (const unsigned char *)key;
+
+    return dictGenHashFunction(hashkey, sdslen((const sds)key));
+}
+
+static void *
+callbackValDup(void *privdata, const void *src)
+{
+    redisCallBack	*dup = malloc(sizeof(*dup));
+
+    (void)privdata;
+    memcpy(dup, src, sizeof(*dup));
+    return dup;
+}
+
+static int
+callbackKeyCompare(void *privdata, const void *key1, const void *key2)
+{
+    int			l1, l2;
+
+    (void)privdata;
+    l1 = sdslen((const sds)key1);
+    l2 = sdslen((const sds)key2);
+    if (l1 != l2)
+	return 0;
+    return memcmp(key1, key2, l1) == 0;
+}
+
+static void
+callbackKeyDestructor(void *privdata, void *key)
+{
+    (void)privdata;
+    sdsfree((sds)key);
+}
+
+static void
+callbackValDestructor(void *privdata, void *val)
+{
+    (void)privdata;
+    free(val);
+}
+
+static dictType callbackDict = {
+    .hashFunction	= callbackHash,
+    .valDup		= callbackValDup,
+    .keyCompare		= callbackKeyCompare,
+    .keyDestructor	= callbackKeyDestructor,
+    .valDestructor	= callbackValDestructor,
+};
+
 static redisAsyncContext *
 redisAsyncInitialize(redisContext *c)
 {
@@ -1102,27 +1157,16 @@ redisAsyncInitialize(redisContext *c)
      */
     c->flags &= ~REDIS_CONNECTED;
 
-    /* TODO: memset((char *)ac + sizeof(c), 0, sizeof(*ac) - sizeof(c));
- 	-- and nuke all this ... */
-
     ac->err = 0;
     ac->errstr = NULL;
     ac->data = NULL;
-
-    ac->ev.data = NULL;
-    ac->ev.addRead = NULL;
-    ac->ev.delRead = NULL;
-    ac->ev.addWrite = NULL;
-    ac->ev.delWrite = NULL;
-    ac->ev.cleanup = NULL;
-
     ac->onConnect = NULL;
     ac->onDisconnect = NULL;
-
-    ac->replies.head = NULL;
-    ac->replies.tail = NULL;
-    ac->invalid.head = NULL;
-    ac->invalid.tail = NULL;
+    memset(&ac->ev, 0, sizeof(ac->ev));
+    memset(&ac->replies, 0, sizeof(ac->replies));
+    memset(&ac->sub, 0, sizeof(ac->sub));
+    ac->sub.channels = dictCreate(&callbackDict, NULL);
+    ac->sub.patterns = dictCreate(&callbackDict, NULL);
     return ac;
 }
 
@@ -1134,6 +1178,7 @@ static void
 __redisAsyncCopyError(redisAsyncContext *ac)
 {
     redisContext	*c;
+
     if (!ac)
         return;
     c = &(ac->c);
@@ -1286,14 +1331,29 @@ __redisAsyncFree(redisAsyncContext *ac)
 {
     redisContext	*c = &(ac->c);
     redisCallBack	cb;
+    dictIterator	*it;
+    dictEntry		*de;
 
     /* Execute pending callbacks with NULL reply. */
     while (__redisShiftCallBack(&ac->replies, &cb) == REDIS_OK)
         __redisRunCallBack(ac, &cb, NULL);
 
     /* Execute callbacks for invalid commands */
-    while (__redisShiftCallBack(&ac->invalid, &cb) == REDIS_OK)
+    while (__redisShiftCallBack(&ac->sub.invalid, &cb) == REDIS_OK)
         __redisRunCallBack(ac, &cb, NULL);
+
+    /* Run subscription callbacks callbacks with NULL reply */
+    it = dictGetIterator(ac->sub.channels);
+    while ((de = dictNext(it)) != NULL)
+        __redisRunCallBack(ac, dictGetVal(de), NULL);
+    dictReleaseIterator(it);
+    dictRelease(ac->sub.channels);
+
+    it = dictGetIterator(ac->sub.patterns);
+    while ((de = dictNext(it)) != NULL)
+        __redisRunCallBack(ac, dictGetVal(de), NULL);
+    dictReleaseIterator(it);
+    dictRelease(ac->sub.patterns);
 
     /* Signal event lib to clean up */
     REDIS_EV_CLEANUP(ac);
@@ -1373,12 +1433,56 @@ redisAsyncDisconnect(redisAsyncContext *ac)
         __redisAsyncDisconnect(ac);
 }
 
-/* handle unsupported commands, including pub/sub */
 static int
 __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallBack *dstcb)
 {
-    /* Shift callback for invalid commands. */
-    __redisShiftCallBack(&ac->invalid,dstcb);
+    redisContext	*c = &(ac->c);
+    dict		*callbacks;
+    dictEntry		*de;
+    int			pvariant;
+    char		*stype;
+    sds			sname;
+
+    /*
+     * Custom reply functions are not supported for pub/sub.
+     * This will fail very hard when they are used...
+     */
+    if (reply->type == REDIS_REPLY_ARRAY) {
+        assert(reply->elements >= 2);
+        assert(reply->element[0]->type == REDIS_REPLY_STRING);
+        stype = reply->element[0]->str;
+        pvariant = (tolower(stype[0]) == 'p') ? 1 : 0;
+
+        if (pvariant)
+            callbacks = ac->sub.patterns;
+        else
+            callbacks = ac->sub.channels;
+
+        /* Locate the right callback */
+        assert(reply->element[1]->type == REDIS_REPLY_STRING);
+        sname = sdsnewlen(reply->element[1]->str, reply->element[1]->len);
+        de = dictFind(callbacks, sname);
+        if (de != NULL) {
+            memcpy(dstcb, dictGetVal(de), sizeof(*dstcb));
+
+            /* If this is an unsubscribe message, remove it. */
+            if (strcasecmp(stype+pvariant, "unsubscribe") == 0) {
+                dictDelete(callbacks, sname);
+
+                /*
+		 * If this was the last unsubscribe message, revert to
+                 * non-subscribe mode.
+		 */
+                assert(reply->element[2]->type == REDIS_REPLY_INTEGER);
+                if (reply->element[2]->integer == 0)
+                    c->flags &= ~REDIS_SUBSCRIBED;
+            }
+        }
+        sdsfree(sname);
+    } else {
+        /* Shift callback for invalid commands. */
+        __redisShiftCallBack(&ac->sub.invalid, dstcb);
+    }
     return REDIS_OK;
 }
 
@@ -1590,9 +1694,11 @@ __redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *func,
     redisContext	*c = &(ac->c);
     redisCallBack	cb;
     int			pvariant, hasnext;
-    const char		*cstr;
-    size_t		clen;
+    const char		*cstr, *astr;
+    size_t		clen, alen;
     const char		*p;
+    sds			sname;
+    int			sts;
 
     /* Don't accept new commands when the connection is about to be closed. */
     if (c->flags & (REDIS_DISCONNECTING | REDIS_FREEING))
@@ -1612,8 +1718,18 @@ __redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *func,
 
     if (hasnext && strncasecmp(cstr, "subscribe\r\n", 11) == 0) {
         c->flags |= REDIS_SUBSCRIBED;
-        __redisPushCallBack(&ac->invalid, &cb);
-    } else if (strncasecmp(cstr,"unsubscribe\r\n",13) == 0) {
+
+	/* Add every channel/pattern to the list of subscription callbacks. */
+	while ((p = nextArgument(p, &astr, &alen)) != NULL) {
+            sname = sdsnewlen(astr,alen);
+            if (pvariant)
+                sts = dictReplace(ac->sub.patterns, sname, &cb);
+            else
+                sts = dictReplace(ac->sub.channels, sname, &cb);
+            if (sts == 0)
+                sdsfree(sname);
+        }
+    } else if (strncasecmp(cstr, "unsubscribe\r\n", 13) == 0) {
         /*
 	 * It is only useful to call (P)UNSUBSCRIBE when the context is
          * subscribed to one or more channels or patterns.
@@ -1636,7 +1752,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *func,
 	     * This will likely result in an error reply, but it needs to be
              * received and passed to the callback.
 	     */
-            __redisPushCallBack(&ac->invalid, &cb);
+            __redisPushCallBack(&ac->sub.invalid, &cb);
         else
             __redisPushCallBack(&ac->replies, &cb);
     }

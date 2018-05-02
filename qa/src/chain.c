@@ -121,7 +121,7 @@ main(int argc, char **argv)
 
     if (master) {
 	    if (debug)
-		fprintf(stderr, "initial write, master pid %d\n", getpid());
+		fprintf(stderr, "initial write, master pid %ld\n", (long)getpid());
 	    if (write(1, pbuf, sizeof(pbuf)) != sizeof(pbuf)) {
 		perror("master write failed");
 		exit(1);
@@ -139,12 +139,12 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 	    if (debug)
-		fprintf(stderr, "read seq %d pid %d\n", iter, getpid());
+		fprintf(stderr, "read seq %d pid %ld\n", iter, (long)getpid());
 	    if (iter >= numiter)
 		break;
 	    iter += links;
 	    if (debug)
-		fprintf(stderr, "write seq %d pid %d\n", iter, getpid());
+		fprintf(stderr, "write seq %d pid %ld\n", iter, (long)getpid());
 	    if (write(1, pbuf, sizeof(pbuf)) != sizeof(pbuf)) {
 		    perror("write failed");
 		    exit(1);

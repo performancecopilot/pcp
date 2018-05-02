@@ -19,11 +19,13 @@
 
 typedef struct context {
     sds			name;		/* source archive or hostspec */
+    sds			host;		/* hostname from archive/host */
     sds			origin;		/* host where series loaded in */
     unsigned char	hash[20];	/* context labels metadata SHA1 */
     int			type	: 7;
     int			cached	: 1;
     int			context;	/* PMAPI context */
+    long long		hostid;		/* hostname source identifier */
     long long		mapid;		/* internal source identifier */
     pmInDom		mapinst;	/* instance name identifier map */
     pmInDom		mapnames;	/* label name identifier map */

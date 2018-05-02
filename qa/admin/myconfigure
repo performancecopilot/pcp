@@ -113,7 +113,7 @@ in
 	    configopts="$configopts --libexecdir=/usr/lib"
 	fi
 	;;
-    sunos)
+    sunos|SunOS|solaris)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
 	;;

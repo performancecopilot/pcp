@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Make exports from exports.master
+#
+# Do conditionals first, then strip comments
+#
+
+if [ ! -f ../../include/pcp.conf ]
+then
+    echo "mk.exports: need to make ../../include/pcp.conf first"
+    exit 1
+fi
+
+. ../../include/pcp.conf
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+rm -f $tmp.err
+$PCP_AWK_PROG <exports.master '
+$1 == "#if"	{ if (inif) {
+		    print "mk.exports: Error: exports.maser[" NR "] nested #if" >"'$tmp.err'"
+		    inif = 0
+		    exit
+		  }
+		  inif = NR
+		  if ($2 == "'$PCP_PLATFORM'")
+		    skip = 0
+		  else
+		    skip = 1
+		  next
+		}
+$1 == "#endif"	{ if (!inif) {
+		    print "mk.exports: Error: exports.maser[" NR "] missing #if" >"'$tmp.err'"
+		    inif = 0
+		    exit
+		  }
+		  inif = 0
+		  skip = 0
+		  next
+		}
+skip == 1	{ next }
+		{ print }
+END		{ if (inif) {
+		    print "mk.exports: Error: exports.maser[" inif "] missing #endif" >"'$tmp.err'"
+		    exit
+		  }
+		}' \
+| sed -e '/^#/d' >exports
+
+if [ -f $tmp.err ]
+then
+    cat $tmp.err
+    rm -f exports
+    sts=1
+    exit
+fi
+
+exit

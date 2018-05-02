@@ -608,8 +608,8 @@ init_ports(void)
 			pmGetProgname(), linkfile, osstrerror());
 	    }
 	    else if (pmDebugOptions.context) {
-		fprintf(stderr, "%s: info: removed old-style hardlink to stale control file '%s' (mode: %0o)\n",
-			pmGetProgname(), linkfile, sbuf.st_mode);
+		fprintf(stderr, "%s: info: removed old-style hardlink to stale control file '%s' (mode: %0lo)\n",
+			pmGetProgname(), linkfile, (long)sbuf.st_mode);
 	    }
 	}
 #endif

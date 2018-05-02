@@ -78,7 +78,7 @@ typedef struct pmSeriesSettings {
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
     pmSeriesStructCallBack	on_desc;	/* metric descriptor */
     pmSeriesStructCallBack	on_inst;	/* instance details */
-    pmSeriesStructCallBack	on_labelset;	/* set of labels */
+    pmSeriesStructCallBack	on_labelmap;	/* label name value pair */
     pmSeriesStringCallBack	on_instance;	/* one instance name */
     pmSeriesStringCallBack	on_context;	/* one context name */
     pmSeriesStringCallBack	on_metric;	/* one metric name */
