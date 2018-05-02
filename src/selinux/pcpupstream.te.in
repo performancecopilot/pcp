@@ -72,7 +72,7 @@ require {
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
-	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner sys_resource };
+	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner sys_resource fowner };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
@@ -253,7 +253,7 @@ allow pcp_pmlogger_t devlog_t:lnk_file read;
 
 # type=AVC msg=audit(1484681301.380:174695): avc:  denied  { sys_ptrace } for  pid=21962 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
 # src/pmlogger/pmnewlog.sh
-allow pcp_pmlogger_t self:capability sys_ptrace;
+allow pcp_pmlogger_t self:capability { sys_ptrace fowner };
 
 ## type=AVC msg=audit(04/19/2017 16:57:40.120:11020) : avc:  denied  { signal } for  pid=28414 comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
 
