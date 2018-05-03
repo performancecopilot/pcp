@@ -148,6 +148,7 @@ Options:
   -M		          do not rewrite, merge or rename archives
   -N,--showme             perform a dry run, showing what would be done
   -o                      merge yesterdays logs only (old form, default is all) 
+  -p                      poll and exit if processing already done for today
   -r,--norewrite          do not process archives with pmlogrewrite(1)
   -s=SIZE,--rotate=SIZE   rotate NOTICES file after reaching SIZE bytes
   -t=WANT                 implies -VV, keep verbose output trace for WANT days
@@ -173,6 +174,7 @@ VERY_VERBOSE=false
 MYARGS=""
 COMPRESSONLY=false
 OFLAG=false
+PFLAG=false
 TRACE=0
 RFLAG=false
 MFLAG=false
@@ -220,6 +222,8 @@ do
 		MYARGS="$MYARGS -N"
 		;;
 	-o)	OFLAG=true
+		;;
+	-p)     PFLAG=true
 		;;
 	-r)	RFLAG=true
 		;;
@@ -296,16 +300,65 @@ done
 
 [ $# -ne 0 ] && _usage
 
-# after argument checking, everything must be logged to ensure no mail is
-# accidentally sent from cron.  Close stdout and stderr, then open stdout
-# as our logfile and redirect stderr there too.
+if $PFLAG
+then
+    if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
+    then
+	last_stamp=`sed -e '/^#/d' <$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp`
+	if [ -n "$stamp" ]
+	then
+	    # Polling happens every 30 mins, so if pmlogger_daily was last
+	    # run more than 23.5 hours ago, we need to do it again, otherwise
+	    # exit quietly
+	    #
+	    now_stamp=`pmdate %s`
+	    check=`expr $now_stamp - \( 23 \* 3600 \) - 1800`
+	    if [ "$last_stamp" -gt "$check" ]
+	    then
+		$SHOWME && echo "-p stamp $last_stamp now $now_stamp check $check do nothing"
+		exit
+	    fi
+	    $SHOWME && echo "-p stamp $last_stamp now $now_stamp check $check do work"
+	fi
+    else
+	# special start up logic when pmlogger_daily.stamp does not exist
+	# ... punt on archive files being below $PCP_LOG_DIR/pmlogger
+	#
+	find $PCP_LOG_DIR/pmlogger -name "`pmdate -1d %Y%m%d`.index" >$tmp/tmp
+	if [ -s $tmp/tmp ]
+	then
+	    $SHOWME && echo "-p start up already run heuristic match, do nothing"
+	    exit
+	fi
+	$SHOWME && echo "-p start up do work"
+    fi
+fi
+
+# write date-and-timestamp to be checked by -p polling
+#
+if $SHOWME
+then
+    echo "+ date-and-timestamp `pmdate '%Y-%m-%d %H:%M:%S %s'`"
+else
+    pmdate '# %Y-%m-%d %H:%M:%S
+%s' >$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp
+fi
+
+# Salt away previous log, if any ...
 #
 if [ -f "$PROGLOG" ]
 then
     rm -f "$PROGLOG.prev"
     mv "$PROGLOG" "$PROGLOG.prev"
 fi
-exec 1>"$PROGLOG" 2>&1
+
+# After argument checking, everything must be logged to ensure no mail is
+# accidentally sent from cron.  Close stdout and stderr, then open stdout
+# as our logfile and redirect stderr there too.
+#
+# Exception is for -N where we want to see the output
+#
+$SHOWME || exec 1>"$PROGLOG" 2>&1
 
 if [ ! -f "$CONTROL" ]
 then
@@ -1127,7 +1180,11 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	    COMPRESS="$PCP_COMPRESS"
 	    [ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_CMDLINE"
 	    [ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_DEFAULT"
-	    if which $COMPRESS >/dev/null 2>&1
+	    # $COMPRESS may have args, e.g. -0 --block-size=10MiB so
+	    # extract executable command name
+	    #
+	    COMPRESS_PROG=`echo "$COMPRESS" | sed -e 's/[ 	].*//'`
+	    if [ -n "$COMPRESS_PROG" ] && which "$COMPRESS_PROG" >/dev/null 2>&1
 	    then
 		current_vol=''
 		if [ -n "$pid" ]
@@ -1248,7 +1305,7 @@ p
 		    _warning "current volume of current pmlogger not known, compression skipped"
 		fi
 	    else
-		_error "$COMPRESS: compression program not found"
+		_error "$COMPRESS_PROG: compression program not found"
 	    fi
 	fi
 
