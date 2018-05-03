@@ -50,7 +50,7 @@ extern void instance_hash(struct metric *, struct value *, sds, pmDesc *);
 /*
  * More widely applicable web API helper routines
  */
-extern int pmwebapi_source_labels(int, pmLabelSet **, char *, int);
+extern int pmwebapi_source_meta(struct context *, char *, int);
 extern int pmwebapi_source_hash(unsigned char *, const char *, int);
 extern sds pmwebapi_hash_sds(const unsigned char *);
 extern char *pmwebapi_hash_str(const unsigned char *);

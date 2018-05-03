@@ -458,6 +458,7 @@ tz.o
 units.o
     abuf			# pmAtomStr deprecated by pmAtomStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
+    ?errmsg			# const
     count_keywords              # const
     exponent_keywords           # const
     space_keywords              # const

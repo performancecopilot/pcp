@@ -1,3 +1,13 @@
+# This is the master version of the exports file.
+# It is in the syntax of the GNU ld VERSION command with
+# the following additions:
+# 1. comment lines prefixed by #
+# 2. conditional lines of the form
+#    #if <name>
+#    ...
+#    #endif
+#    where <name> is one of the values for $PCP_PLATFORM from pcp.conf
+#
 PCP_3.0 {
   global:
     pmAddProfile;
@@ -638,6 +648,7 @@ PCP_3.22 {
 
 PCP_3.23 {
   global:
+#if mingw
     fsync;
     symlink;
     readlink;
@@ -650,6 +661,7 @@ PCP_3.23 {
     srand48;
     random;
     srandom;
+#endif
     getdomainname;
     getmachineid;
 } PCP_3.22;

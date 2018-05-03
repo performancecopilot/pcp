@@ -1636,7 +1636,7 @@ CreateRootAgentPOSIX(AgentInfo *aPtr)
 {
     int		sts, inFd, outFd = -1;
     char	*args;
-    pid_t	pid;
+    int		pid;
     static int	enabled;
 
     if (!enabled) {
@@ -1672,7 +1672,7 @@ CreateRootAgentPOSIX(AgentInfo *aPtr)
     pmcd_openfds_sethi(outFd);
     aPtr->outFd = outFd;
     aPtr->inFd = inFd;
-    return pid;
+    return (pid_t)pid;
 }
 
 static pid_t

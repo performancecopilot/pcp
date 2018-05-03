@@ -55,9 +55,11 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
     char script[1024];
     int version = 0;
     int date = 0;
+    int pid_int;
 
     p += extract_int(p, "version:", sizeof("version:")-1, &version);
-    p += extract_int(p, "ppid:", sizeof("ppid:")-1, &verify->parent);
+    p += extract_int(p, "ppid:", sizeof("ppid:")-1, &pid_int);
+    verify->parent = (pid_t)pid_int;
     p += extract_int(p, "date:", sizeof("date:")-1, &date);
     extract_cmd(p, end - p, "+", sizeof("+")-1, script, sizeof(script));
 
@@ -84,10 +86,10 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
 
     size = 16 + strlen(script);		/* pid and script name */
     verify->instance = malloc(size);
-    pmsprintf(verify->instance, size, "%u %s", verify->pid, script);
+    pmsprintf(verify->instance, size, "%" FMT_PID " %s", verify->pid, script);
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "process header v%d: inst='%s' ppid=%d",
+	pmNotifyErr(LOG_DEBUG, "process header v%d: inst='%s' ppid=%" FMT_PID "",
 			verify->version, verify->instance, verify->parent);
 }
 
@@ -347,7 +349,7 @@ process_drained(bash_process_t *process)
     pmAtomValue value = { 0 };
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "process_queue_drained check on queue %d (pid %d)",
+	pmNotifyErr(LOG_DEBUG, "process_queue_drained check on queue %d (pid %" FMT_PID ")",
 		      process->queueid, process->pid);
     if (pmdaEventQueueMemory(process->queueid, &value) < 0)
 	return 1;	/* error, consider it drained and cleanup */
@@ -373,7 +375,7 @@ process_done(bash_process_t *process, const char *bashname)
 	    pmdaEventQueueAppend(process->queueid, NULL, 0, &timestamp);
 
 	    if (pmDebugOptions.appl0)
-		pmNotifyErr(LOG_DEBUG, "process_done: marked queueid %d (pid %d) done",
+		pmNotifyErr(LOG_DEBUG, "process_done: marked queueid %d (pid %" FMT_PID ") done",
 					process->queueid, process->pid);
 	}
     }

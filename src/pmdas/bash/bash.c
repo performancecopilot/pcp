@@ -281,7 +281,7 @@ bash_store_metric(pmValueSet *vsp, int context)
 	    return sts;
 	if (pmDebugOptions.appl0)
             pmNotifyErr(LOG_DEBUG,
-			"Access granted client=%d bash=%d queueid=%d",
+			"Access granted client=%d bash=%" FMT_PID " queueid=%d",
                         context, bp->pid, bp->queueid);
     }
     return 0;

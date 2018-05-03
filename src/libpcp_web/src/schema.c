@@ -14,14 +14,13 @@
 #include <assert.h>
 #include "schema.h"
 #include "util.h"
+#include "dict.h"
 #include <pcp/pmda.h>
 
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
-
-enum { INSTMAP, NAMESMAP, LABELSMAP, CONTEXTMAP }; /* name:mapid caches */
 
 typedef void (*redis_callback)(redisContext *, redisReply *, void *);
 
@@ -30,7 +29,7 @@ typedef struct redis_script {
     sds			hash;
 } redisScript;
 
-static int duplicates;	/* TODO: add to individual contexts */
+static int duplicates;	/* TODO: add counter to individual contexts */
 
 static redisScript scripts[] = {
 /* Script HASH_MAP_ID pcp:map:<name> , <string> -> ID
@@ -269,15 +268,19 @@ redis_series_source(redisContext *redis, context_t *context)
 {
     redisReply		*reply;
     const char		*hash = pmwebapi_hash_str(context->hash);
-    long long		map;
+    long long		mapid, hostid;
     sds			cmd, key, val;
 
-    if ((map = context->mapid) <= 0) {
-	map = redis_strmap(redis, "context.name", context->name);
-	context->mapid = map;
+    if ((mapid = context->mapid) <= 0) {
+	mapid = redis_strmap(redis, "context.name", context->name);
+	context->mapid = mapid;
+    }
+    if ((hostid = context->hostid) <= 0) {
+	hostid = redis_strmap(redis, "context.name", context->host);
+	context->hostid = hostid;
     }
 
-    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", map);
+    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", mapid);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -289,7 +292,7 @@ redis_series_source(redisContext *redis, context_t *context)
     checkInteger(reply, "%s: %s", SADD, "mapping context to source name");
     freeReplyObject(reply);
 
-    val = sdscatfmt(sdsempty(), "%I", context->mapid);
+    val = sdscatfmt(sdsempty(), "%I", mapid);
     key = sdscatfmt(sdsempty(), "pcp:context.name:source:%s", hash);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
@@ -301,6 +304,32 @@ redis_series_source(redisContext *redis, context_t *context)
     /* TODO: async callback function */
     redisGetReply(redis, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping source name to context");
+    freeReplyObject(reply);
+
+    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", hostid);
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SADD, SADD_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sha(cmd, context->hash);
+    redis_submit(redis, SADD, key, cmd);
+
+    /* TODO: async callback function */
+    redisGetReply(redis, (void **)&reply);
+    checkInteger(reply, "%s: %s", SADD, "mapping context to host name");
+    freeReplyObject(reply);
+
+    val = sdscatfmt(sdsempty(), "%I", hostid);
+    key = sdscatfmt(sdsempty(), "pcp:context.name:source:%s", hash);
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SADD, SADD_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, val);
+    sdsfree(val);
+    redis_submit(redis, SADD, key, cmd);
+
+    /* TODO: async callback function */
+    redisGetReply(redis, (void **)&reply);
+    checkInteger(reply, "%s: %s", SADD, "mapping host name to context");
     freeReplyObject(reply);
 }
 
@@ -382,9 +411,9 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     redisReply		*reply;
     const char		*offset;
     size_t		length;
-    const char		*hash = pmwebapi_hash_str(my->metric->hash);
+    const char		*hash;
     long long		value_mapid, name_mapid;
-    sds			cmd, key, val;
+    sds			cmd, key, val, name;
 
     offset = json + label->name;
     val = sdsnewlen(offset, label->namelen);
@@ -394,15 +423,12 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     offset = json + label->value;
     length = label->valuelen;
 
-    if (*offset == '\"') {	/* remove string quotes */
-	offset++;
-	length -= 2;	/* remove quotes from both ends */
-    }
-    /* TODO: if (*offset == '{') ... decode map recursively */
-    /* TODO: if (*offset == '[') ... split up an array also */
-
-    /* TODO: need link between instance labels and instance names? */
-    /* or instance name maps?  for finding matching inst in series */
+    /*
+     * TODO: decode complex values ('{...}' and '[...]'),
+     * using a dot-separated name for these maps, and names
+     * with explicit array index suffix for array entries.
+     * This is safe as JSONB names cannot present that way.
+     */
 
     val = sdsnewlen(offset, length);
     key = sdscatfmt(sdsempty(), "label.%I.value", name_mapid);
@@ -410,18 +436,26 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     sdsfree(key);
     sdsfree(val);
 
-    val = sdscatfmt(sdsempty(), "%I", name_mapid);
-    key = sdscatfmt(sdsempty(), "pcp:label.name:series:%s", hash);
-    cmd = redis_command(3);
-    cmd = redis_param_str(cmd, SADD, SADD_LEN);
+    if (my->value != NULL)
+	hash = pmwebapi_hash_str(my->value->hash);
+    else
+	hash = pmwebapi_hash_str(my->metric->hash);
+
+    name = sdscatfmt(sdsempty(), "%I", name_mapid);
+    val = sdscatfmt(sdsempty(), "%I", value_mapid);
+    key = sdscatfmt(sdsempty(), "pcp:labels:series:%s", hash);
+    cmd = redis_command(4);
+    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
     cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, name);
     cmd = redis_param_sds(cmd, val);
+    sdsfree(name);
     sdsfree(val);
-    redis_submit(redis, SADD, key, cmd);
+    redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
     redisGetReply(redis, (void **)&reply);
-    checkInteger(reply, "%s %s", SADD, key, hash);
+    checkStatusOK(reply, "%s: %s", HMSET, "setting series labels");
     freeReplyObject(reply);
 
     key = sdscatfmt(sdsempty(), "pcp:series:label.%I.value:%I",
@@ -434,27 +468,8 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
 
     /* TODO: async callback function */
     redisGetReply(redis, (void **)&reply);
-    checkInteger(reply, "%s %s", "SADD", key);
+    checkInteger(reply, "%s %s", "SADD", "pcp:series:label.X.value:Y");
     freeReplyObject(reply);
-
-    if (my->value != NULL) {
-	value_mapid = my->value->mapid;
-
-	val = sdscatfmt(sdsempty(), "%I", value_mapid);
-	key = sdscatfmt(sdsempty(), "pcp:label.name:inst.name.%I:series:%s",
-			value_mapid, hash);
-	cmd = redis_command(3);
-	cmd = redis_param_str(cmd, SADD, SADD_LEN);
-	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_sds(cmd, val);
-	sdsfree(val);
-	redis_submit(redis, SADD, key, cmd);
-
-	/* TODO: async callback function */
-	redisGetReply(my->redis, (void **)&reply);
-	checkInteger(reply, "%s %s", SADD, "mapping inst labels to series");
-	freeReplyObject(reply);
-    }
 
     return 0;
 }
@@ -771,6 +786,12 @@ redis_verify_schema(redisContext *redis, void *arg)
     redis_submitcb(redis, GETS, key, cmd, redis_verify_schema_callback, arg);
 }
 
+static struct dict *instmap;
+static struct dict *namesmap;
+static struct dict *labelsmap;
+static struct dict *contextmap;
+static dictType	mapCallBackDict;
+
 redisContext *
 redis_init(void)
 {
@@ -778,10 +799,10 @@ redis_init(void)
     static int		setup;
 
     if (!setup) { /* global string map caches */
-	pmdaCacheOp(INSTMAP, PMDA_CACHE_STRINGS);
-	pmdaCacheOp(NAMESMAP, PMDA_CACHE_STRINGS);
-	pmdaCacheOp(LABELSMAP, PMDA_CACHE_STRINGS);
-	pmdaCacheOp(CONTEXTMAP, PMDA_CACHE_STRINGS);
+	instmap = dictCreate(&mapCallBackDict, NULL);
+	namesmap = dictCreate(&mapCallBackDict, NULL);
+	labelsmap = dictCreate(&mapCallBackDict, NULL);
+	contextmap = dictCreate(&mapCallBackDict, NULL);
 	setup = 1;
     }
 

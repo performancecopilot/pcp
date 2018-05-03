@@ -28,7 +28,7 @@ typedef struct pipe_command {
 /* per-client-context structures */
 typedef struct pipe_groot {
 	int		fd;	/* command output pipe fd */
-	int		pid;	/* process ID of command */
+	pid_t		pid;	/* process ID of command */
 	int		inst;	/* internal instance ID */
 	int		count;	/* count of piped lines */
 	int		active;	/* is command running? */

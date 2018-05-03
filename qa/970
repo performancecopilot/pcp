@@ -21,13 +21,15 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # -nan is not possible on some platforms, they report nan ... so need
-# to map this
+# to map this.
+# Also NaN sometimes instead of nan.
 #
 _filter()
 {
     tmpx=`echo $tmp`
     sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
 	-e "s|$tmpx|TMP|g" \
+	-e 's/NaN/nan/g' \
 	-e 's/-nan/ nan/g' \
     # end
 }

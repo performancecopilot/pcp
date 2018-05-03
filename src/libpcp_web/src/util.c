@@ -15,10 +15,84 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "private.h"
+#include "sdsalloc.h"
+#include "zmalloc.h"
 #include "util.h"
 #include "sha1.h"
 
-/* time manipulation */
+/* dynamic memory manipulation */
+static void
+default_oom(size_t size)
+{
+    fprintf(stderr, "Out of memory allocating %llu bytes\n",
+		(unsigned long long)size);
+    fflush(stderr);
+    abort();
+}
+static void (*oom_handler)(size_t) = default_oom;
+
+void *
+s_malloc(size_t size)
+{
+    void	*p;
+
+    p = malloc(size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void *
+s_realloc(void *ptr, size_t size)
+{
+    void	*p;
+
+    if (ptr == NULL)
+	return s_malloc(size);
+    p = realloc(ptr, size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void
+s_free(void *ptr)
+{
+    if (LIKELY(ptr != NULL))
+	free(ptr);
+}
+
+void *
+zmalloc(size_t size)
+{
+    void	*p;
+
+    p = malloc(size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void *
+zcalloc(size_t size)
+{
+    void	*p;
+
+    p = calloc(1, size);
+    if (UNLIKELY(p == NULL))
+	oom_handler(size);
+    return p;
+}
+
+void
+zfree(void *ptr)
+{
+    if (LIKELY(ptr != NULL))
+	free(ptr);
+}
+
+/* time structure manipulation */
 int
 tsub(struct timeval *a, struct timeval *b)
 {
@@ -162,16 +236,13 @@ json_escaped_str(const char *string)
 }
 
 static int
-default_labelset(int ctx, pmLabelSet **sets)
+default_labelset(context_t *c, pmLabelSet **sets)
 {
     pmLabelSet	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
-    char	host[MAXHOSTNAMELEN];
     int		sts;
 
-    if ((pmGetContextHostName_r(ctx, host, sizeof(host))) == NULL)
-	return PM_ERR_GENERIC;
-    pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", host);
+    pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", c->host);
     if ((sts = __pmAddLabels(&lp, buf, PM_LABEL_CONTEXT)) > 0) {
 	*sets = lp;
 	return 0;
@@ -216,12 +287,16 @@ labels(const pmLabel *label, const char *json, void *arg)
 }
 
 int
-pmwebapi_source_labels(int ctx, pmLabelSet **set, char *buffer, int length)
+pmwebapi_source_meta(context_t *c, char *buffer, int length)
 {
+    pmLabelSet	**set = &c->labels;
+    char	host[MAXHOSTNAMELEN];
     int		sts;
 
-    pmUseContext(ctx);
-    if ((sts = pmGetContextLabels(set)) <= 0 && default_labelset(ctx, set) < 0)
+    if ((pmGetContextHostName_r(c->context, host, sizeof(host))) == NULL)
+	return PM_ERR_GENERIC;
+    c->host = sdsnew(host);
+    if ((sts = pmGetContextLabels(set)) <= 0 && default_labelset(c, set) < 0)
 	return sts;
     return pmMergeLabelSets(set, 1, buffer, length, labels, NULL);
 }
