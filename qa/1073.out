@@ -1,6 +1,12 @@
 QA output created by 1073
 == Checking VFS metric values - procsys-root-001.tgz
 
+vfs.aio.count
+    value 0
+
+vfs.aio.max
+    value 1048576
+
 vfs.dentry.count
     value 110820
 

@@ -4356,6 +4356,12 @@ static pmdaMetric metrictab[] = {
     { &proc_sys_fs.fs_dentry_free,
       { PMDA_PMID(CLUSTER_VFS,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_sys_fs.fs_aio_count,
+      { PMDA_PMID(CLUSTER_VFS,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_sys_fs.fs_aio_max,
+      { PMDA_PMID(CLUSTER_VFS,8), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * /proc/sys/kernel cluster (random number state, pid_max, etc)
