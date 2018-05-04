@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1397
+# Test pmdasmart (S.M.A.R.T Data collection) metrics
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "SMART PMDA is Linux-specific (smart)"
+[ -d $PCP_PMDAS_DIR/smart ] || _notrun "smart PMDA directory is not installed"
+which smartctl >/dev/null 2>&1 || _notrun "smartctl (smartmontools) is not installed"
+
+_cleanup()
+{
+    cd $here
+    _restore_pmda_install smart
+    $sudo rm -fr $tmp.root
+    $sudo rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    $here/src/sortinst | \
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
+# real QA test starts here
+root=$tmp.root
+export SMART_SETUP_LSBLK=$root/lsblk
+export SMART_SETUP=$root/smartctl
+pmda=$PCP_PMDAS_DIR/smart/pmdasmart,smart_init
+
+echo
+echo "=== Installing S.M.A.R.T PMDA ===" | tee -a $here/$seq.full
+_prepare_pmda_install smart
+cd $PCP_PMDAS_DIR/smart
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >> $here/$seq.full
+
+for tgz in $here/smart/smart-*.tgz
+do
+    [ $tgz = "smart/smart-*" ] && continue
+
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    sudo tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking metric descriptors and values - $base"
+    pminfo -dfmtT smart 2>&1 \
+    | _filter
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# cleanup ..
+#
+cd $PCP_PMDAS_DIR/smart
+$sudo ./Remove </dev/null >/dev/null 2>&1
+
+# success, all done
+status=0
+exit
