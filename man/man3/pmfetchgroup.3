@@ -22,6 +22,7 @@
 \f3pmExtendFetchGroup_timestamp\f1,
 \f3pmFetchGroup\f1,
 \f3pmGetFetchGroupContext\f1,
+\f3pmClearFetchGroup\f1,
 \f3pmDestroyFetchGroup\f1 \- simplified performance metrics value fetch and conversion
 .SH "C SYNOPSIS"
 .ft 3
@@ -50,6 +51,9 @@ int pmGetFetchGroupContext(pmFG \fIpmfg\fP);
 .br
 .ti -8n
 int pmFetchGroup(pmFG \fIpmfg\fP);
+.br
+.ti -8n
+int pmClearFetchGroup(pmFG \fIpmfg\fP);
 .br
 .ti -8n
 int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
@@ -464,7 +468,20 @@ pmValueSet.numval==0), then the last seen valid value (if any) is
 retained.
 This is intended to ease the processing of sets of archives with a
 mixture of once- and repeatedly-sampled metrics.
+.SS Clearing a fetchgroup
+.ft 3
+.nf
+int pmClearFetchGroup(pmFG \fIpmfg\fP);
+.fi
+.ft 1
 .PP
+When the current fetch state of a fetchgroup is no longer needed,
+it may be explicitly reset with this function.
+It releases any dynamically stored state but keeps the private PMAPI
+context intact for subsequent use (i.e. no change to the context is
+made at all and the context remains at the current fetch offset).
+It frees any pointers such as indom instance names or strings that
+may have been stored in output variables.
 .SS Destroying a fetchgroup
 .ft 3
 .nf
