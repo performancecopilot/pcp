@@ -1250,6 +1250,13 @@ _filter_helgrind()
 
 _run_valgrind()
 {
+    if [ x"$1" = "x--sudo" ]
+    then
+	_valgrind_prefix=$sudo
+	shift
+    else
+	_valgrind_prefix=''
+    fi
     __version=`valgrind --version | sed -e 's/valgrind-//'`
     if [ -f $here/valgrind-suppress-$__version ]
     then
@@ -1259,7 +1266,7 @@ _run_valgrind()
 	__extra=''
 	echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
     fi
-    valgrind \
+    $_valgrind_prefix valgrind \
 	--leak-check=full --read-var-info=yes --gen-suppressions=all \
 	--suppressions=$here/valgrind-suppress $__extra \
 	--log-file=$tmp._valgrind \
