@@ -341,7 +341,7 @@ pmLogLevelStr(pmloglevel level)
 	return "Bad request";
     case PMLOG_RESPONSE:
 	return "Bad response";
-    case PMLOG_CORRUPTED:
+    case PMLOG_CORRUPT:
 	return "Corrupt TSDB";
     default:
 	break;
@@ -378,7 +378,7 @@ pmLogLevelPrint(FILE *stream, pmloglevel level, sds message, int istty)
     case PMLOG_RESPONSE:
 	colour = ANSI_BG_WHITE ANSI_FG_RED;
 	break;
-    case PMLOG_CORRUPTED:
+    case PMLOG_CORRUPT:
 	colour = ANSI_BG_RED ANSI_FG_BLACK;
 	break;
     default:

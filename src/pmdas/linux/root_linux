@@ -1364,6 +1364,7 @@ vfs {
     files
     inodes
     dentry
+    aio
 }
 
 vfs.files {
@@ -1380,6 +1381,11 @@ vfs.inodes {
 vfs.dentry {
     count		60:27:5
     free		60:27:6
+}
+
+vfs.aio {
+    count		60:27:7
+    max			60:27:8
 }
 
 sysfs {

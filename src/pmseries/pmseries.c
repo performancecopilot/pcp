@@ -60,8 +60,8 @@ typedef struct series_data {
     int			status;		/* command exit status */
     series_flags	flags;		/* flags affecting reporting */
 
-    pmSeriesID		series;		/* current time series */
-    pmSourceID		source;		/* current time series source */
+    pmSID		series;		/* current time series */
+    pmSID		source;		/* current time series source */
     sds			type;		/* current time series (value) type */
 
     unsigned int	nlabels;	/* number of metric labels */
@@ -69,7 +69,7 @@ typedef struct series_data {
 
     unsigned int        ninsts;		/* instances for the current series */
     series_inst		*insts;		/* instances for the current series */
-    pmSeriesID		*iseries;	/* series identifiers for instances */
+    pmSID		*iseries;	/* series identifiers for instances */
 } series_data;
 
 #define series_data_endtopic(dp) 	((dp)->flags &= ~PMSERIES_NEED_COMMA)
@@ -85,10 +85,10 @@ series_data_init(series_data *dp, series_flags flags)
 }
 
 static void
-series_add_inst(series_data *dp, pmSeriesID series, sds instid, sds instname)
+series_add_inst(series_data *dp, pmSID series, sds instid, sds instname)
 {
     series_inst		*ip;
-    pmSeriesID		*isp;
+    pmSID		*isp;
     size_t		bytes;
 
     bytes = sizeof(sds) * (dp->ninsts + 1);
@@ -144,7 +144,7 @@ series_data_free(series_data *dp)
 }
 
 static int
-series_split(sds string, pmSeriesID **series)
+series_split(sds string, pmSID **series)
 {
     size_t		length = strlen(string);
     int			nseries = 0;
@@ -157,7 +157,7 @@ series_split(sds string, pmSeriesID **series)
 }
 
 static void
-series_free(int nseries, pmSeriesID *series)
+series_free(int nseries, pmSID *series)
 {
     if (nseries) {
 	while (--nseries)
@@ -252,7 +252,7 @@ series_load(pmSeriesSettings *settings, sds query, series_flags flags)
 }
 
 static int
-on_series_match(pmSeriesID sid, void *arg)
+on_series_match(pmSID sid, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
@@ -262,18 +262,16 @@ on_series_match(pmSeriesID sid, void *arg)
 }
 
 static int
-on_series_value(pmSeriesID sid, int nfields, sds *value, void *arg)
+on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
 {
     series_inst		*ip;
     series_data		*dp = (series_data *)arg;
     sds			timestamp, series, data;
     int			need_free = 1;
 
-    if (nfields < PMVALUE_MAXFIELD)
-	return -EINVAL;
-    timestamp = value[PMVALUE_TIMESTAMP];
-    series = value[PMVALUE_SERIES];
-    data = value[PMVALUE_DATA];
+    timestamp = value->timestamp;
+    series = value->series;
+    data = value->data;
 
     if (series_next(dp, sid))
 	printf("\n%s\n", sid);
@@ -311,7 +309,7 @@ series_query(pmSeriesSettings *settings, sds query, series_flags flags)
 }
 
 static int
-on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
+on_series_desc(pmSID series, pmSeriesDesc *desc, void *arg)
 {
     series_data		*dp = (series_data *)arg;
     static const char	*unknown = "???";
@@ -320,14 +318,12 @@ on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
     pmID		pmid_value = PM_ID_NULL;
     sds			indom, pmid, semantics, source, type, units;
 
-    if (nfields < PMDESC_MAXFIELD)
-	return -EINVAL;
-    indom = desc[PMDESC_INDOM];
-    pmid = desc[PMDESC_PMID];
-    semantics = desc[PMDESC_SEMANTICS];
-    source = desc[PMDESC_SOURCE];
-    type = desc[PMDESC_TYPE];
-    units = desc[PMDESC_UNITS];
+    indom = desc->indom;
+    pmid = desc->pmid;
+    semantics = desc->semantics;
+    source = desc->source;
+    type = desc->type;
+    units = desc->units;
 
     if (series_next(dp, series)) {
 	dp->type = sdsnewlen(type, sdslen(type));
@@ -379,7 +375,7 @@ on_series_desc(pmSeriesID series, int nfields, sds *desc, void *arg)
 }
 
 static int
-on_series_instance(pmSeriesID series, sds name, void *arg)
+on_series_instance(pmSID series, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
@@ -400,16 +396,14 @@ on_series_instance(pmSeriesID series, sds name, void *arg)
 }
 
 static int
-on_series_inst(pmSeriesID sid, int nfields, sds *inst, void *arg)
+on_series_inst(pmSID sid, pmSeriesInst *inst, void *arg)
 {
     series_data		*dp = (series_data *)arg;
     sds			instid, instname, series;
 
-    if (nfields < PMINST_MAXFIELD)
-	return -EINVAL;
-    instid = inst[PMINST_INSTID];
-    instname = inst[PMINST_NAME];
-    series = inst[PMINST_SERIES];
+    instid = inst->instid;
+    instname = inst->name;
+    series = inst->series;
 
     if (series_next(dp, sid) && (dp->flags & PMSERIES_OPT_INSTS))
 	printf("\n%s\n", sid);
@@ -434,7 +428,7 @@ series_instance_names(void *arg)
 {
     series_data		*dp = (series_data *)arg;
     series_inst		*ip;
-    pmSeriesID		*isp = dp->iseries;
+    pmSID		*isp = dp->iseries;
     int			i;
 
     qsort(dp->insts, dp->ninsts, sizeof(series_inst), series_instance_compare);
@@ -529,7 +523,7 @@ series_add_labels(sds name, sds value,
 }
 
 static int
-on_series_label(pmSeriesID series, sds label, void *arg)
+on_series_label(pmSID series, sds label, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
@@ -550,15 +544,11 @@ on_series_label(pmSeriesID series, sds label, void *arg)
 }
 
 static int
-on_series_labelmap(pmSeriesID series, int nfields, sds *set, void *arg)
+on_series_labelmap(pmSID series, pmSeriesLabel *label, void *arg)
 {
     series_inst		*ip = NULL;
     series_data		*dp = (series_data *)arg;
     sds			name, value;
-    int			i;
-
-    if (nfields % PMLABEL_MAXFIELD)
-	return -EINVAL;
 
     if (dp->flags & PMSERIES_INSTLABELS) {
 	if ((ip = series_get_inst(dp, series)) == NULL)
@@ -567,19 +557,17 @@ on_series_labelmap(pmSeriesID series, int nfields, sds *set, void *arg)
 	printf("\n%s\n", series);
     }
 
-    for (i = 0; i < nfields; i += PMLABEL_MAXFIELD) {
-	name = set[i];
-	value = set[i+1];
-	if (dp->flags & PMSERIES_INSTLABELS)
-	    series_add_labels(name, value, &ip->nlabels, &ip->labels);
-	else
-	    series_add_labels(name, value, &dp->nlabels, &dp->labels);
-    }
+    name = label->name;
+    value = label->value;
+    if (dp->flags & PMSERIES_INSTLABELS)
+	series_add_labels(name, value, &ip->nlabels, &ip->labels);
+    else
+	series_add_labels(name, value, &dp->nlabels, &dp->labels);
     return 0;
 }
 
 static int
-on_series_metric(pmSeriesID series, sds name, void *arg)
+on_series_metric(pmSID series, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
@@ -598,7 +586,7 @@ on_series_metric(pmSeriesID series, sds name, void *arg)
 }
 
 static int
-on_series_context(pmSourceID source, sds name, void *arg)
+on_series_context(pmSID source, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
 
@@ -624,7 +612,7 @@ series_source(pmSeriesSettings *settings, sds query, series_flags flags)
 {
     int			nsources, sts;
     char		msg[PM_MAXERRMSGLEN];
-    pmSourceID		*sources = NULL;
+    pmSID		*sources = NULL;
     series_data		data;
 
     if ((nsources = sts = series_split(query, &sources)) < 0) {
@@ -661,7 +649,7 @@ on_series_done(int sts, void *arg)
 
 static int
 series_data_report(pmSeriesSettings *settings,
-		int nseries, pmSeriesID series, series_flags flags)
+		int nseries, pmSID series, series_flags flags)
 {
     series_data		data;
     int			sts;
@@ -711,7 +699,7 @@ series_report(pmSeriesSettings *settings, sds query, series_flags flags)
 {
     int			nseries, sts, rc, i;
     char		msg[PM_MAXERRMSGLEN];
-    pmSeriesID		*series = NULL;
+    pmSID		*series = NULL;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: no series identifiers in string '%s': %s\n",
