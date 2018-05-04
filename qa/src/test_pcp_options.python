@@ -18,10 +18,10 @@ from pcp import pmapi
 import cpmapi as c_api
 
 def optionsCB(opt, optarg, index):
-    if index == LO:
-        arg = "'longonly'"
-    else:
-        arg = "'" + opt + "'"
+    if opt == 'longonly':
+        if index != LO:
+            print("optionsCB: got bad option index %d" % index)
+    arg = "'" + opt + "'"
     if optarg != None:
         arg = arg + " (" + optarg + ")"
     arg = arg + " [index=" + str(index) + "]"
