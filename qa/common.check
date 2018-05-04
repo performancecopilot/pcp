@@ -445,7 +445,12 @@ _make_helptext()
     if [ -f $PCP_PMDAS_DIR/$__pmda/help.dir ]
     then
 	# ./Install already run, or QA stumbled past to run newhelp
-	return 0
+	if [ -f $PCP_PMDAS_DIR/$__pmda/help -a $PCP_PMDAS_DIR/$__pmda/help -nt $PCP_PMDAS_DIR/$__pmda/help.dir ]
+	then
+	    :
+	else
+	    return 0
+	fi
     fi
 
     cd $PCP_PMDAS_DIR/$__pmda
