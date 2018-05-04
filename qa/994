@@ -50,9 +50,11 @@ esac
 sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
     -e 's@$(PCP_USER)@'$PCP_USER@g \
     -e 's@$(PCP_GROUP)@'$PCP_GROUP@g \
+    -e 's@$(PCP_SA_DIR)@'$PCP_SA_DIR@g \
     -e 's@$(PCP_PMLOGGERCONTROL_PATH)@'$PCP_PMLOGGERCONTROL_PATH@g \
     -e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
     -e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
+    -e 's@$(PCP_TMPFILE_DIR)@'$PCP_TMPFILE_DIR@g \
     -e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
     -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
     -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \

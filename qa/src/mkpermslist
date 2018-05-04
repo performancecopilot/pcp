@@ -101,18 +101,39 @@ p
 	src/pmdas/bash/GNUmakefile)
 	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
-	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmdabash
+	    # $(INSTALL) ... -m 775 -d $(PCP_TMP_DIR)/$(IAM)
 	    #
-	    sed -e '/PCP_TMP_DIR)\/pmdabash$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed <$tmp.raw >$tmp.tmp \
+		-e '/PCP_TMP_DIR)\//{
+s/\$(IAM)/bash/
+s/$/|optional/
+}'
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
-	src/pmdas/mmv/GNUmakefile)
+	src/pmdas/json/GNUmakefile)
 	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
-	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/mmv
+	    # $(INSTALL) ... -m 775 -d $(PCP_TMP_DIR)/$(IAM)
 	    #
-	    sed -e '/PCP_TMP_DIR)\/mmv$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed <$tmp.raw >$tmp.tmp \
+		-e '/PCP_TMP_DIR)\//{
+s/\$(IAM)/json/
+s/$/|optional/
+}'
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmdas/mmv/src/GNUmakefile)
+	    # this INSTALL line is optional because there is conditional
+	    # gmake control around it
+	    # $(INSTALL) ... -m 775 -d $(PCP_TMP_DIR)/$(IAM)
+	    #
+	    sed <$tmp.raw >$tmp.tmp \
+		-e '/PCP_TMP_DIR)\//{
+s/\$(IAM)/mmv/
+s/$/|optional/
+}'
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
