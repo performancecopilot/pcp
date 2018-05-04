@@ -141,6 +141,7 @@ _pm_dm_refresh_stats_counter(struct pm_wrap *pw)
 
 }
 
+
 #define PER_COUNTER(pw, STATS_COUNTER) \
 	dm_stats_get_counter((pw)->dms, (STATS_COUNTER), \
 		(pw)->region_id, (pw)->area_id)
@@ -236,9 +237,9 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	uint64_t region_id, area_id;
 	int i;
 
-	dms = pw2->dms;
-	region_id = pw2->region_id;
-	area_id = pw2->area_id;
+	dms = pw->dms;
+	region_id = pw->region_id;
+	area_id = pw->area_id;
 
 	if (bin == 0) {
 		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id))) {
@@ -268,6 +269,30 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	return 0;
 }
 
+static struct dm_stats*
+_dm_stats_get_region(const char *name)
+{
+	struct dm_stats *dms;
+
+	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+		goto nostats;
+
+	if (!dm_stats_bind_name(dms, name))
+		goto nostats;
+
+	if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
+		goto nostats;
+
+	if (!dm_stats_get_nr_regions(dms))
+		goto nostats;
+
+	return dms;
+
+nostats:
+	dm_stats_destroy(dms);
+	return NULL;
+}
+
 int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
 {
     	pmInDom indom;
@@ -276,6 +301,9 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
     	int sts = 0;
 
 	if (instance == DM_STATS_INDOM) {
+		if (!(pw->dms = _dm_stats_get_region(pw->dev)))
+			goto nostats;
+
 		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
 			goto nostats;
 
@@ -296,9 +324,10 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
         	    	if (!strcmp(pw2->dev, pw->dev))
 			  	  _pm_dm_refresh_stats_histogram_update(pw, pw2);
         	}
-	}
+	} else if (instance == DM_HISTOGRAM_INDOM) {
+		if (!(pw->dms = _dm_stats_get_region(pw->dev)))
+			goto nostats;
 
-	if (instance == DM_HISTOGRAM_INDOM) {
 		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, pw->region_id))
 			goto nostats;
 
@@ -321,8 +350,10 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
 			   	break;
 		    	}
         	}
-	}
+	} else
+		return 0;
 
+	dm_stats_destroy(pw->dms);
 	return 0;
 
 nostats:
@@ -331,8 +362,10 @@ nostats:
 }
 
 static struct dm_names*
-_dm_device_search(struct dm_names *names, struct dm_task **dmt)
+_dm_device_search(struct dm_task **dmt)
 {
+	struct dm_names *names;
+
 	if (!(*dmt = dm_task_create(DM_DEVICE_LIST)))
 		goto nodevice;
 
@@ -378,16 +411,16 @@ int
 pm_dm_stats_instance_refresh(void)
 {
 	struct pm_wrap *pw;
-	struct dm_stats *dms = NULL;
-	struct dm_task *dmt = NULL;
-	struct dm_names *names = NULL;
+	struct dm_stats *dms;
+	struct dm_task *dmt;
+	struct dm_names *names;
 	unsigned next = 0;
 	int sts;
 	pmInDom indom = dm_indom(DM_STATS_INDOM);
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if (!(names = _dm_device_search(names, &dmt)))
+	if (!(names = _dm_device_search(&dmt)))
 		return -oserror();
 
 	do {
@@ -406,12 +439,12 @@ pm_dm_stats_instance_refresh(void)
 			if (pw == NULL)
 				return PM_ERR_AGAIN;
 		}
-		pw->dms = dms;
-		pw->dev = names->name;
+		strcpy(pw->dev, names->name);
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)pw);
 		next = names->next;
 	} while(next);
 
+	dm_stats_destroy(dms);
 	dm_task_destroy(dmt);
 
 	return 0;
@@ -443,9 +476,9 @@ pm_dm_histogram_instance_refresh(void)
 {
 	struct pm_wrap *pw;
 	struct dm_histogram *dmh;
-	struct dm_stats *dms = NULL;
-	struct dm_names *names = NULL;
-	struct dm_task *dmt = NULL;
+	struct dm_stats *dms;
+	struct dm_names *names;
+	struct dm_task *dmt;
 	unsigned next = 0;
 	int sts;
 	pmInDom indom = dm_indom(DM_HISTOGRAM_INDOM);
@@ -457,7 +490,7 @@ pm_dm_histogram_instance_refresh(void)
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if (!(names = _dm_device_search(names, &dmt)))
+	if (!(names = _dm_device_search(&dmt)))
 		return -oserror();
 
 	do {
@@ -492,16 +525,16 @@ pm_dm_histogram_instance_refresh(void)
 						return PM_ERR_AGAIN;
 
 				}
-				pw->dms = dms;
 				pw->region_id = region_id;
 				pw->area_id = area_id;
-				pw->dev = names->name;
+				strcpy(pw->dev, names->name);
 				pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pw);
 			}
 		}
 		next = names->next;
 	} while(next);
 
+	dm_stats_destroy(dms);
 	dm_task_destroy(dmt);
 
 	return 0;
