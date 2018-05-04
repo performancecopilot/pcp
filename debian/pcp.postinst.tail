@@ -51,6 +51,8 @@ chown pcp:pcp /var/lib/pcp/tmp/pmlogger
 chmod 775 /var/lib/pcp/tmp/pmlogger
 chown pcp:pcp /var/log/pcp/pmlogger
 chmod 775 /var/log/pcp/pmlogger
+chown pcp:pcp /var/log/pcp/sa
+chmod 775 /var/log/pcp/sa
 
 # must match src/pmproxy/GNUmakefile
 chown pcp:pcp /var/log/pcp/pmproxy

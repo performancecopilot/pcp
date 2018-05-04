@@ -38,6 +38,7 @@ fi
 
 chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmlogger 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/sa 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null

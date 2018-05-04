@@ -3167,6 +3167,7 @@ rm -f $PCP_LOG_DIR/configs.sh
 
 chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
+chown -R pcp:pcp "$PCP_SA_DIR" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"

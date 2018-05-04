@@ -255,6 +255,7 @@ done
 for dir in $PCP_LOG_DIR \
 	   $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie $PCP_LOG_DIR/pmwebd \
 	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger $PCP_LOG_DIR/pmmgr \
+	   $PCP_SA_DIR \
 	   $PCP_RUN_DIR \
 	   $PCP_VAR_DIR/tmp $PCP_VAR_DIR/tmp/pmie $PCP_VAR_DIR/tmp/pmlogger \
 	   $PCP_VAR_DIR/config/pmda \
