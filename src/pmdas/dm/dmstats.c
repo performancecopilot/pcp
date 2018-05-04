@@ -289,7 +289,8 @@ _dm_stats_get_region(const char *name)
 	return dms;
 
 nostats:
-	dm_stats_destroy(dms);
+	if (dms)
+		dm_stats_destroy(dms);
 	return NULL;
 }
 
@@ -353,11 +354,13 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)
 	} else
 		return 0;
 
-	dm_stats_destroy(pw->dms);
+	if (pw->dms)
+		dm_stats_destroy(pw->dms);
 	return 0;
 
 nostats:
-	dm_stats_destroy(pw->dms);
+	if (pw->dms)
+		dm_stats_destroy(pw->dms);
 	return -oserror();
 }
 
@@ -403,7 +406,8 @@ _dm_stats_search_region(struct dm_names *names, struct dm_stats *dms)
 	return dms;
 
 nostats:
-	dm_stats_destroy(dms);
+	if (dms)
+		dm_stats_destroy(dms);
 	return NULL;
 }
 
@@ -444,7 +448,8 @@ pm_dm_stats_instance_refresh(void)
 		next = names->next;
 	} while(next);
 
-	dm_stats_destroy(dms);
+	if (dms)
+		dm_stats_destroy(dms);
 	dm_task_destroy(dmt);
 
 	return 0;
@@ -534,7 +539,8 @@ pm_dm_histogram_instance_refresh(void)
 		next = names->next;
 	} while(next);
 
-	dm_stats_destroy(dms);
+	if (dms)
+		dm_stats_destroy(dms);
 	dm_task_destroy(dmt);
 
 	return 0;
