@@ -1277,16 +1277,15 @@ void
 __PMDA_INIT_CALL
 smart_init(pmdaInterface *dp)
 {
-
-	/* Check for environment variables allowing test injection */
-	smart_instance_setup();
-	smart_stats_setup();
-
     int		nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
     int		nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
 
+    /* Check for environment variables allowing test injection */
+    smart_instance_setup();
+    smart_stats_setup();
+
     if (dp->status != 0)
-		return;
+	return;
 
     dp->version.four.instance = smart_instance;
     dp->version.four.fetch = smart_fetch;

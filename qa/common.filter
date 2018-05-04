@@ -282,6 +282,7 @@ _filter_optional_pmdas()
 	-e '/pmdasmart/d' \
 	-e '/pmdasnia/d' \
 	-e '/pmdasnmp/d' \
+	-e '/pmdasmart/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdasummary/d' \
 	-e '/pmdasystemd/d' \
@@ -785,6 +786,7 @@ _filter_torture_api()
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    sighups /d' \
+	-e '/^    smart /d' \
 	-e '/^    softtemp /d' \
 	-e '/^    stream /d' \
 	-e '/^    sysfs /d' \

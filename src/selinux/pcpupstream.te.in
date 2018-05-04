@@ -369,5 +369,5 @@ allow pcp_pmmgr_t zabbix_port_t:tcp_socket name_connect;
 #type=AVC msg=audit(1525420698.417:330): avc:  denied  { map } for  pid=8678 comm="smartctl" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
 #type=AVC msg=audit(1525420698.433:331): avc:  denied  { sys_rawio } for  pid=8678 comm="smartctl" capability=17  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 
-allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr map open read };
+#allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr map open read };
 allow pcp_pmcd_t self:capability sys_rawio;
