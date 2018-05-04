@@ -279,6 +279,7 @@ _filter_optional_pmdas()
 	-e '/pmdashping/d' \
 	-e '/pmda_simple/d' \
 	-e '/pmdasimple/d' \
+	-e '/pmdasmart/d' \
 	-e '/pmdasnia/d' \
 	-e '/pmdasnmp/d' \
 	-e '/pmdassping/d' \
@@ -378,6 +379,7 @@ _filter_top_pmns()
 	-e '/^    sendmail /d' \
 	-e '/^    shping /d' \
 	-e '/^    simple /d' \
+	-e '/^    smart /d' \
 	-e '/^    snmp /d' \
 	-e '/^    ssping /d' \
 	-e '/^    espping /d' \

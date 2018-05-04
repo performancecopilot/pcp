@@ -1872,6 +1872,21 @@ arbitrary shell commands.
 # end pcp-pmda-shping
 
 #
+# pcp-pmda-smart
+#
+%package pmda-smart
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for S.M.A.R.T values
+URL: http://www.pcp.io
+Requires: pcp-libs = %{verison}-%{release}
+%description pmda-smart
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics of disk S.M.A.R.T values making use of data from the
+smartmontools package.
+#end pcp-pmda-smart
+
+#
 # pcp-pmda-summary
 #
 %package pmda-summary
@@ -1945,7 +1960,7 @@ Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-p
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
@@ -2285,6 +2300,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^roomtemp' |\
   grep -E -v '^sendmail' |\
   grep -E -v '^shping' |\
+  grep -E -v '^smart' |\
   grep -E -v '^summary' |\
   grep -E -v '^trace' |\
   grep -E -v '^weblog' |\
@@ -2672,6 +2688,9 @@ fi
 
 %preun pmda-shping
 %{pmda_remove "$1" "shping"}
+
+%preun pmda-smart
+%{pmda_remove "$1" "smart"}
 
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}
@@ -3279,6 +3298,9 @@ cd
 
 %files pmda-shping
 %{_pmdasdir}/shping
+
+%files pmda-smart
+%{_pmdasdir}/smart
 
 %files pmda-summary
 %{_pmdasdir}/summary

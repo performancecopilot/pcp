@@ -1,0 +1,457 @@
+/*
+ * Copyright (c) 2018 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+/* PMNS Tree values for smart attributes tries to follow SMART attribute ID's
+ */
+
+smart {
+	info
+	health			SMART:0:0
+	attributes
+}
+
+smart.info {
+	model_family		SMART:0:1
+	device_model		SMART:0:2
+	serial_number		SMART:0:3
+	capacity_bytes		SMART:0:4
+	sector_size		SMART:0:5
+	rotation_rate		SMART:0:6
+}
+
+smart.attributes {
+	raw_read_error_rate
+	throughput_performance
+	spin_up_time
+	start_stop_count
+	reallocated_sector_count
+	seek_error_count
+	seek_time_performance
+	power_on_hours
+	spin_retry_count
+	calibration_retry_count
+	power_cycle_count
+	read_soft_error_rate
+	current_helium_level
+	erase_fail_count_chip
+	wear_leveling_count
+	used_reserved_block_count_total
+	unused_reserved_block_count_total
+	program_fail_count_total
+	erase_fail_count_total
+	runtime_bad_block
+	end_to_end_error
+	reported_uncorrect
+	command_timeout
+	high_fly_writes
+	airflow_temp_celsius
+	g_sense_error_rate
+	power_off_retract_count
+	load_cycle_count
+	temperature_celsius
+	hardware_ecc_recovered
+	reallocated_event_count
+	current_pending_sector
+	offline_uncorrectable
+	udma_crc_error_count
+	multi_zone_error_rate
+	soft_read_error_rate
+	disk_shift
+	loaded_hours
+	load_retry_count
+	load_friction
+	load_cycle
+	load_in_time
+	head_flying_hours
+	total_lbas_written
+	total_lbas_read
+	read_error_retry_rate
+	free_fall_sensor
+}
+
+smart.attributes.raw_read_error_rate {
+	id			SMART:1:0
+	value			SMART:1:1
+	worst			SMART:1:2
+	thresh			SMART:1:3
+	raw			SMART:1:4
+}
+
+smart.attributes.throughput_performance {
+	id			SMART:2:0
+	value			SMART:2:1
+	worst			SMART:2:2
+	thresh			SMART:2:3
+	raw			SMART:2:4
+}
+
+smart.attributes.spin_up_time {
+	id			SMART:3:0
+	value			SMART:3:1
+	worst			SMART:3:2
+	thresh			SMART:3:3
+	raw			SMART:3:4
+}
+
+smart.attributes.start_stop_count {
+	id			SMART:4:0
+	value			SMART:4:1
+	worst			SMART:4:2
+	thresh			SMART:4:3
+	raw			SMART:4:4
+}
+
+smart.attributes.reallocated_sector_count {
+	id			SMART:5:0
+	value			SMART:5:1
+	worst			SMART:5:2
+	thresh			SMART:5:3
+	raw			SMART:5:4
+}
+
+smart.attributes.seek_error_count {
+	id			SMART:7:0
+	value			SMART:7:1
+	worst			SMART:7:2
+	thresh			SMART:7:3
+	raw			SMART:7:4
+}
+
+smart.attributes.seek_time_performance {
+	id			SMART:8:0
+	value			SMART:8:1
+	worst			SMART:8:2
+	thresh			SMART:8:3
+	raw			SMART:8:4
+}
+
+smart.attributes.power_on_hours {
+	id			SMART:9:0
+	value			SMART:9:1
+	worst			SMART:9:2
+	thresh			SMART:9:3
+	raw			SMART:9:4
+}
+
+smart.attributes.spin_retry_count {
+	id			SMART:10:0
+	value			SMART:10:1
+	worst			SMART:10:2
+	thresh			SMART:10:3
+	raw			SMART:10:4
+}
+
+smart.attributes.calibration_retry_count {
+	id			SMART:11:0
+	value			SMART:11:1
+	worst			SMART:11:2
+	thresh			SMART:11:3
+	raw			SMART:11:4
+}
+
+smart.attributes.power_cycle_count {
+	id			SMART:12:0
+	value			SMART:12:1
+	worst			SMART:12:2
+	thresh			SMART:12:3
+	raw			SMART:12:4
+}
+
+smart.attributes.read_soft_error_rate {
+	id			SMART:13:0
+	value			SMART:13:1
+	worst			SMART:13:2
+	thresh			SMART:13:3
+	raw			SMART:13:4
+}
+
+smart.attributes.current_helium_level {
+	id			SMART:22:0
+	value			SMART:22:1
+	worst			SMART:22:2
+	thresh			SMART:22:3
+	raw			SMART:22:4
+}
+
+smart.attributes.erase_fail_count_chip {
+	id			SMART:176:0
+	value			SMART:176:1
+	worst			SMART:176:2
+	thresh			SMART:176:3
+	raw			SMART:176:4
+}
+
+smart.attributes.wear_leveling_count {
+	id			SMART:177:0
+	value			SMART:177:1
+	worst			SMART:177:2
+	thresh			SMART:177:3
+	raw			SMART:177:4
+}
+
+smart.attributes.used_reserved_block_count_total {
+	id			SMART:179:0
+	value			SMART:179:1
+	worst			SMART:179:2
+	thresh			SMART:179:3
+	raw			SMART:179:4
+}
+
+smart.attributes.unused_reserved_block_count_total {
+	id			SMART:180:0
+	value			SMART:180:1
+	worst			SMART:180:2
+	thresh			SMART:180:3
+	raw			SMART:180:4
+}
+
+smart.attributes.program_fail_count_total {
+	id			SMART:181:0
+	value			SMART:181:1
+	worst			SMART:181:2
+	thresh			SMART:181:3
+	raw			SMART:181:4
+}
+
+smart.attributes.erase_fail_count_total {
+	id			SMART:182:0
+	value			SMART:182:1
+	worst			SMART:182:2
+	thresh			SMART:182:3
+	raw			SMART:182:4
+}
+
+smart.attributes.runtime_bad_block {
+	id			SMART:183:0
+	value			SMART:183:1
+	worst			SMART:183:2
+	thresh			SMART:183:3
+	raw			SMART:183:4
+}
+
+smart.attributes.end_to_end_error {
+	id			SMART:184:0
+	value			SMART:184:1
+	worst			SMART:184:2
+	thresh			SMART:184:3
+	raw			SMART:184:4
+}
+
+smart.attributes.reported_uncorrect {
+	id			SMART:187:0
+	value			SMART:187:1
+	worst			SMART:187:2
+	thresh			SMART:187:3
+	raw			SMART:187:4
+}
+
+smart.attributes.command_timeout {
+	id			SMART:188:0
+	value			SMART:188:1
+	worst			SMART:188:2
+	thresh			SMART:188:3
+	raw			SMART:188:4
+}
+
+smart.attributes.high_fly_writes {
+	id			SMART:189:0
+	value			SMART:189:1
+	worst			SMART:189:2
+	thresh			SMART:189:3
+	raw			SMART:189:4
+}
+
+smart.attributes.airflow_temp_celsius {
+	id			SMART:190:0
+	value			SMART:190:1
+	worst			SMART:190:2
+	thresh			SMART:190:3
+	raw			SMART:190:4
+}
+
+smart.attributes.g_sense_error_rate {
+	id			SMART:191:0
+	value			SMART:191:1
+	worst			SMART:191:2
+	thresh			SMART:191:3
+	raw			SMART:191:4
+}
+
+smart.attributes.power_off_retract_count {
+	id			SMART:192:0
+	value			SMART:192:1
+	worst			SMART:192:2
+	thresh			SMART:192:3
+	raw			SMART:192:4
+}
+
+smart.attributes.load_cycle_count {
+	id			SMART:193:0
+	value			SMART:193:1
+	worst			SMART:193:2
+	thresh			SMART:193:3
+	raw			SMART:193:4
+}
+
+smart.attributes.temperature_celsius {
+	id			SMART:194:0
+	value			SMART:194:1
+	worst			SMART:194:2
+	thresh			SMART:194:3
+	raw			SMART:194:4
+}
+
+smart.attributes.hardware_ecc_recovered {
+	id			SMART:195:0
+	value			SMART:195:1
+	worst			SMART:195:2
+	thresh			SMART:195:3
+	raw			SMART:195:4
+}
+
+smart.attributes.reallocated_event_count {
+	id			SMART:196:0
+	value			SMART:196:1
+	worst			SMART:196:2
+	thresh			SMART:196:3
+	raw			SMART:196:4
+}
+
+smart.attributes.current_pending_sector {
+	id			SMART:197:0
+	value			SMART:197:1
+	worst			SMART:197:2
+	thresh			SMART:197:3
+	raw			SMART:197:4
+}
+
+smart.attributes.offline_uncorrectable {
+	id			SMART:198:0
+	value			SMART:198:1
+	worst			SMART:198:2
+	thresh			SMART:198:3
+	raw			SMART:198:4
+}
+
+smart.attributes.udma_crc_error_count {
+	id			SMART:199:0
+	value			SMART:199:1
+	worst			SMART:199:2
+	thresh			SMART:199:3
+	raw			SMART:199:4
+}
+
+smart.attributes.multi_zone_error_rate {
+	id			SMART:200:0
+	value			SMART:200:1
+	worst			SMART:200:2
+	thresh			SMART:200:3
+	raw			SMART:200:4
+}
+
+smart.attributes.soft_read_error_rate {
+	id			SMART:201:0
+	value			SMART:201:1
+	worst			SMART:201:2
+	thresh			SMART:201:3
+	raw			SMART:201:4
+}
+
+smart.attributes.disk_shift {
+	id			SMART:220:0
+	value			SMART:220:1
+	worst			SMART:220:2
+	thresh			SMART:220:3
+	raw			SMART:220:4
+}
+
+smart.attributes.loaded_hours {
+	id			SMART:222:0
+	value			SMART:222:1
+	worst			SMART:222:2
+	thresh			SMART:222:3
+	raw			SMART:222:4
+}
+
+smart.attributes.load_retry_count {
+	id			SMART:223:0
+	value			SMART:223:1
+	worst			SMART:223:2
+	thresh			SMART:223:3
+	raw			SMART:223:4
+}
+
+smart.attributes.load_friction {
+	id			SMART:224:0
+	value			SMART:224:1
+	worst			SMART:224:2
+	thresh			SMART:224:3
+	raw			SMART:224:4
+}
+
+smart.attributes.load_cycle {
+	id			SMART:225:0
+	value			SMART:225:1
+	worst			SMART:225:2
+	thresh			SMART:225:3
+	raw			SMART:225:4
+}
+
+smart.attributes.load_in_time {
+	id			SMART:226:0
+	value			SMART:226:1
+	worst			SMART:226:2
+	thresh			SMART:226:3
+	raw			SMART:226:4
+}
+
+smart.attributes.head_flying_hours {
+	id			SMART:240:0
+	value			SMART:240:1
+	worst			SMART:240:2
+	thresh			SMART:240:3
+	raw			SMART:240:4
+}
+
+smart.attributes.total_lbas_written {
+	id			SMART:241:0
+	value			SMART:241:1
+	worst			SMART:241:2
+	thresh			SMART:241:3
+	raw			SMART:241:4
+}
+
+smart.attributes.total_lbas_read {
+	id			SMART:242:0
+	value			SMART:242:1	
+	worst			SMART:242:2
+	thresh			SMART:242:3
+	raw			SMART:242:4
+}
+
+smart.attributes.read_error_retry_rate {
+	id			SMART:250:0
+	value			SMART:250:1
+	worst			SMART:250:2
+	thresh			SMART:250:3
+	raw			SMART:250:4
+}
+
+smart.attributes.free_fall_sensor {
+	id			SMART:254:0
+	value			SMART:254:1
+	worst			SMART:254:2
+	thresh			SMART:254:3
+	raw			SMART:254:4
+}
