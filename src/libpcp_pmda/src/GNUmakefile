@@ -65,7 +65,7 @@ include $(BUILDRULES)
 install: default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-	$(INSTALL) -m 444 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
+	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \

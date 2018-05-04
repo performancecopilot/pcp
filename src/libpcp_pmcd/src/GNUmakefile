@@ -79,7 +79,7 @@ endif
 ifeq "$(ENABLE_PROBES)" "true"
 ifeq "$(TARGET_OS)" "linux"
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/../systemtap/tapset
-	$(INSTALL) -m 444 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
+	$(INSTALL) -m 644 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
 endif
 endif
 
