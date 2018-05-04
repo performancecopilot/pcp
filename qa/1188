@@ -61,7 +61,7 @@ do
     base=`basename $tgz`
 
     echo "== Valgrind checking metric descriptors and values - $base"
-    _run_valgrind pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 \
+    _run_valgrind --sudo pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 \
     | _filter
     echo && echo "== done" && echo
     cd $here
