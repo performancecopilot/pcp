@@ -204,7 +204,13 @@ do
 		    exit
 		fi
 		;;
-	-K)	COMPRESSONLY=true
+	-K)	if $PFLAG
+		then
+		    echo "Error: -p and -K are mutually exclusive"
+		    status=1
+		    exit
+		fi
+		COMPRESSONLY=true
 		PROGLOG=$PCP_LOG_DIR/pmlogger/$prog-K.log
 		;;
 	-l)	PROGLOG="$2"
@@ -223,7 +229,13 @@ do
 		;;
 	-o)	OFLAG=true
 		;;
-	-p)     PFLAG=true
+	-p)     if $COMPRESSONLY
+		then
+		    echo "Error: -K and -p are mutually exclusive"
+		    status=1
+		    exit
+		fi
+		PFLAG=true
 		;;
 	-r)	RFLAG=true
 		;;
@@ -302,25 +314,29 @@ done
 
 if $PFLAG
 then
+    rm -f $tmp/ok
     if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
     then
 	last_stamp=`sed -e '/^#/d' <$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp`
-	if [ -n "$stamp" ]
+	if [ -n "$last_stamp" ]
 	then
-	    # Polling happens every 30 mins, so if pmlogger_daily was last
+	    # Polling happens every 60 mins, so if pmlogger_daily was last
 	    # run more than 23.5 hours ago, we need to do it again, otherwise
 	    # exit quietly
 	    #
 	    now_stamp=`pmdate %s`
 	    check=`expr $now_stamp - \( 23 \* 3600 \) - 1800`
-	    if [ "$last_stamp" -gt "$check" ]
+	    if [ "$last_stamp" -ge "$check" ]
 	    then
 		$SHOWME && echo "-p stamp $last_stamp now $now_stamp check $check do nothing"
 		exit
 	    fi
 	    $SHOWME && echo "-p stamp $last_stamp now $now_stamp check $check do work"
+	    touch $tmp/ok
 	fi
-    else
+    fi
+    if [ ! -f $tmp/ok ]
+    then
 	# special start up logic when pmlogger_daily.stamp does not exist
 	# ... punt on archive files being below $PCP_LOG_DIR/pmlogger
 	#
@@ -339,26 +355,41 @@ fi
 if $SHOWME
 then
     echo "+ date-and-timestamp `pmdate '%Y-%m-%d %H:%M:%S %s'`"
+elif $COMPRESSONLY
+then
+    # no date-and-timestamp update with -K
+    :
 else
+    # doing the whole shootin' match ...
+    #
+    if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
+    then
+	rm -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
+	mv $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
+    fi
     pmdate '# %Y-%m-%d %H:%M:%S
 %s' >$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp
 fi
 
-# Salt away previous log, if any ...
-#
-if [ -f "$PROGLOG" ]
+if $SHOWME
 then
-    rm -f "$PROGLOG.prev"
-    mv "$PROGLOG" "$PROGLOG.prev"
+    :
+else
+    # Salt away previous log, if any ...
+    #
+    if [ -f "$PROGLOG" ]
+    then
+	rm -f "$PROGLOG.prev"
+	mv "$PROGLOG" "$PROGLOG.prev"
+    fi
+    # After argument checking, everything must be logged to ensure no mail is
+    # accidentally sent from cron.  Close stdout and stderr, then open stdout
+    # as our logfile and redirect stderr there too.
+    #
+    # Exception is for -N where we want to see the output
+    #
+    exec 1>"$PROGLOG" 2>&1
 fi
-
-# After argument checking, everything must be logged to ensure no mail is
-# accidentally sent from cron.  Close stdout and stderr, then open stdout
-# as our logfile and redirect stderr there too.
-#
-# Exception is for -N where we want to see the output
-#
-$SHOWME || exec 1>"$PROGLOG" 2>&1
 
 if [ ! -f "$CONTROL" ]
 then

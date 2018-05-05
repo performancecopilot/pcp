@@ -4,5 +4,8 @@
 #
 # daily processing of archive logs (with compression enabled)
 10     0  *  *  *  @user@  @path@/pmlogger_daily
+# hourly polling to check and do daily processing if not done already in
+# the last 24 hours
+30     *  *  *  *  @user@  @path@/pmlogger_daily -p
 # every 30 minutes, check pmlogger instances are running
 25,55  *  *  *  *  @user@  @path@/pmlogger_check -C
