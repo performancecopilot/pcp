@@ -93,7 +93,7 @@ Conflicts: pcp-pro < 2.2
 Conflicts: librapi
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep fileutils findutils
+Requires: bash gawk sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
