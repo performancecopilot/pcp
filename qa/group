@@ -211,6 +211,7 @@ pmda.sendmail
 pmda.shping
 pmda.simple
 pmda.slurm
+pmda.smart
 pmda.summary
 pmda.systemd
 pmda.trivial
@@ -1468,7 +1469,7 @@ pmlogsize
 1193 pmlogrewrite labels help pmdumplog local
 1196 pmcd local
 1199 libpcp pmcd local
-1202 pmdadm local pmrep
+1202 pmda.dm local pmrep
 1203 derive pmval libpcp local
 1211:reserved pmseries local
 1217 pmrep python local
@@ -1486,6 +1487,7 @@ pmlogsize
 1243 pmfind libpcp local
 1245 libpcp local
 1247 pmlogrewrite labels text pmdumplog local
+1255:reserved logutil pmda.prometheus local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
 1267 pmlogrewrite labels help pmdumplog local
@@ -1517,4 +1519,5 @@ pmlogsize
 1388 pmwebd local
 1395 pmda.prometheus local
 1396 pcp python pidstat local
+1397 pmda.smart local valgrind
 4751 libpcp threads valgrind local

@@ -1210,6 +1210,24 @@ out:
 	*item->u.event.output_sts = sts;
 }
 
+static int
+pmfg_clear_profile(pmFG pmfg)
+{
+    int sts;
+
+    sts = pmUseContext(pmfg->ctx);
+    if (sts != 0)
+	return sts;
+
+    /*
+     * Wipe clean all instances; we'll add them back incrementally as
+     * the fetchgroup is extended.  This cannot fail for the manner in
+     * which we call it - see pmDelProfile(3) man page discussion.
+     */
+    return pmDelProfile(PM_INDOM_NULL, 0, NULL);
+}
+
+
 /* ------------------------------------------------------------------------ */
 /* Public functions exported from libpcp and in pmapi.h */
 
@@ -1244,16 +1262,9 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
 	pmfg->wrap = 1;
     PM_UNLOCK(__pmLock_extcall);
 
-    /*
-     * Wipe clean all instances; we'll add them back incrementally as
-     * the fetchgroup is extended.  This cannot fail for the manner in
-     * which we call it - see pmDelProfile(3) man page discussion.
-     */
-    pmDelProfile(PM_INDOM_NULL, 0, NULL);
+    pmfg_clear_profile(pmfg);
 
-    /* Other fields may be left 0-initialized. */
     *ptr = pmfg;
-
     return 0;
 }
 
@@ -1496,7 +1507,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts < 0)
 		goto out;
-	    sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);
+	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
@@ -1606,10 +1617,8 @@ pmFetchGroup(pmFG pmfg)
     if (sts != 0)
 	return sts;
 
-    sts = pmFetch((int) pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
+    sts = pmFetch(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
     if (sts < 0 || newResult == NULL) {
-	/* XXX: automatically pmReconnectContext on PM_ERR_IPC */
-
 	/*
 	 * Populate an empty fetch result, which will send out the
 	 * appropriate PM_ERR_VALUE etc. indications to the fetchgroup
@@ -1661,10 +1670,10 @@ pmFetchGroup(pmFG pmfg)
 }
 
 /*
- * Destroy the fetchgroup; release all items and related dynamic data.
+ * Clear the fetchgroup of all items, keeping the PMAPI context alive.
  */
 int
-pmDestroyFetchGroup(pmFG pmfg)
+pmClearFetchGroup(pmFG pmfg)
 {
     pmFGI item;
 
@@ -1687,7 +1696,7 @@ pmDestroyFetchGroup(pmFG pmfg)
 	    case pmfg_event:
 		pmfg_reinit_event(item);
 		break;
-	case pmfg_timestamp:
+	    case pmfg_timestamp:
 		/* no dynamically allocated content. */
 		break;
 	    default:
@@ -1696,12 +1705,30 @@ pmDestroyFetchGroup(pmFG pmfg)
 	free(item);
 	item = next_item;
     }
+    pmfg->items = NULL;
 
     if (pmfg->prevResult)
 	pmFreeResult(pmfg->prevResult);
+    pmfg->prevResult = NULL;
+    if (pmfg->unique_pmids)
+	free(pmfg->unique_pmids);
+    pmfg->unique_pmids = NULL;
+    pmfg->num_unique_pmids = 0;
 
-    pmDestroyContext(pmfg->ctx);
-    free(pmfg->unique_pmids);
+    return pmfg_clear_profile(pmfg);
+}
+
+/*
+ * Destroy the fetchgroup; release all items and related dynamic data.
+ */
+int
+pmDestroyFetchGroup(pmFG pmfg)
+{
+    int ctx = pmfg->ctx;
+
+    pmfg->ctx = -EINVAL;
+    pmDestroyContext(ctx);
+    pmClearFetchGroup(pmfg);
     free(pmfg);
     return 0;
 }

@@ -279,8 +279,10 @@ _filter_optional_pmdas()
 	-e '/pmdashping/d' \
 	-e '/pmda_simple/d' \
 	-e '/pmdasimple/d' \
+	-e '/pmdasmart/d' \
 	-e '/pmdasnia/d' \
 	-e '/pmdasnmp/d' \
+	-e '/pmdasmart/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdasummary/d' \
 	-e '/pmdasystemd/d' \
@@ -378,6 +380,7 @@ _filter_top_pmns()
 	-e '/^    sendmail /d' \
 	-e '/^    shping /d' \
 	-e '/^    simple /d' \
+	-e '/^    smart /d' \
 	-e '/^    snmp /d' \
 	-e '/^    ssping /d' \
 	-e '/^    espping /d' \
@@ -783,6 +786,7 @@ _filter_torture_api()
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    sighups /d' \
+	-e '/^    smart /d' \
 	-e '/^    softtemp /d' \
 	-e '/^    stream /d' \
 	-e '/^    sysfs /d' \

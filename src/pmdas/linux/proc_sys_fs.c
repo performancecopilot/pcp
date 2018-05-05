@@ -25,12 +25,16 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
     FILE *filesp = NULL;
     FILE *inodep = NULL;
     FILE *dentryp = NULL;
+    FILE *aiomaxp = NULL;
+    FILE *aiop = NULL;
 
     memset(proc_sys_fs, 0, sizeof(proc_sys_fs_t));
 
     if ((filesp  = linux_statsfile("/proc/sys/fs/file-nr", buf, sizeof(buf))) == NULL ||
 	(inodep  = linux_statsfile("/proc/sys/fs/inode-state", buf, sizeof(buf))) == NULL ||
-	(dentryp = linux_statsfile("/proc/sys/fs/dentry-state", buf, sizeof(buf))) == NULL) {
+	(dentryp = linux_statsfile("/proc/sys/fs/dentry-state", buf, sizeof(buf))) == NULL ||
+	(aiomaxp = linux_statsfile("/proc/sys/fs/aio-max-nr", buf, sizeof(buf))) == NULL ||
+	(aiop = linux_statsfile("/proc/sys/fs/aio-nr", buf, sizeof(buf))) == NULL) {
 	proc_sys_fs->errcode = -oserror();
 	if (err_reported == 0)
 	    fprintf(stderr, "Warning: vfs metrics are not available : %s\n",
@@ -51,6 +55,11 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
 			&proc_sys_fs->fs_dentry_count,
 			&proc_sys_fs->fs_dentry_free) != 2)
 	    proc_sys_fs->errcode = PM_ERR_VALUE;
+	if (fscanf(aiomaxp, "%d", &proc_sys_fs->fs_aio_max) != 1)
+	    proc_sys_fs->errcode = PM_ERR_VALUE;
+	if (fscanf(aiop, "%d", &proc_sys_fs->fs_aio_count) != 1)
+	    proc_sys_fs->errcode = PM_ERR_VALUE;
+
 	if (pmDebugOptions.libpmda) {
 	    if (proc_sys_fs->errcode == 0)
 		fprintf(stderr, "refresh_proc_sys_fs: found vfs metrics\n");
@@ -64,11 +73,13 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
 	fclose(inodep);
     if (dentryp)
 	fclose(dentryp);
+    if (aiomaxp)
+	fclose(aiomaxp);
+    if (aiop)
+	fclose(aiop);
 
     if (!err_reported)
 	err_reported = 1;
 
-    if (proc_sys_fs->errcode == 0)
-	return 0;
-    return -1;
+    return (proc_sys_fs->errcode == 0) ? 0 : -1;
 }

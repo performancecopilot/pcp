@@ -1754,8 +1754,10 @@ See also the kernel.uname.* metrics
 @ vfs.files.max hard maximum on number of file structures
 @ vfs.inodes.count number of in-use inode structures
 @ vfs.inodes.free number of available inode structures
-@ vfs.dentry.count number of in-use dentry structures
-@ vfs.dentry.free number of available dentry structures
+@ vfs.dentry.count number of in-use directory entry structures
+@ vfs.dentry.free number of available directory entry structures
+@ vfs.aio.count number of in-use asynchronous IO structures
+@ vfs.aio.max hard maximum on number of asynchronous IO structures
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
 

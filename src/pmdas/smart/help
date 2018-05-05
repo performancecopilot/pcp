@@ -1,0 +1,331 @@
+#
+# Copyright (c) 2018 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# SMART PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@smart.info.model_family Model Family
+Listed model family name of the disk drive
+
+@smart.info.device_model Device Model
+The given device model of the disk drive
+
+@smart.info.serial_number Serial Number
+The given serial number of the disk drive
+
+@smart.info.capacity_bytes Capacity in Bytes
+The given capacity in bytes of the disk drive
+
+@smart.info.sector_size Sector Size
+The given sector size of the disk drive
+
+@smart.info.rotation_rate Rotational Rate of Drive
+The given roataional rate of the disk drive, for non-rotational drive this
+will state Solid State Drive.
+
+@smart.health SMART self-test result
+Whether the given drive has PASSED or FAILED SMART the self-test
+
+@smart.attributes.raw_read_error_rate.id The given ID for SMART metric
+@smart.attributes.raw_read_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.attributes.raw_read_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.raw_read_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.raw_read_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.attributes.throughput_performance.id The given ID for SMART metric
+@smart.attributes.throughput_performance.value Normalised current recorded value for the given SMART metric
+@smart.attributes.throughput_performance.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.throughput_performance.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.throughput_performance.raw Raw metric value for the given SMART metric
+
+@smart.attributes.spin_up_time.id The given ID for SMART metric
+@smart.attributes.spin_up_time.value Normalised current recorded value for the given SMART metric
+@smart.attributes.spin_up_time.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.spin_up_time.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.spin_up_time.raw Raw metric value for the given SMART metric
+
+@smart.attributes.start_stop_count.id The given ID for SMART metric
+@smart.attributes.start_stop_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.start_stop_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.start_stop_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.start_stop_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.reallocated_sector_count.id The given ID for SMART metric
+@smart.attributes.reallocated_sector_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.reallocated_sector_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.reallocated_sector_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.reallocated_sector_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.seek_error_count.id The given ID for SMART metric
+@smart.attributes.seek_error_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.seek_error_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.seek_error_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.seek_error_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.seek_time_performance.id The given ID for SMART metric
+@smart.attributes.seek_time_performance.value Normalised current recorded value for the given SMART metric
+@smart.attributes.seek_time_performance.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.seek_time_performance.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.seek_time_performance.raw Raw metric value for the given SMART metric
+
+@smart.attributes.power_on_hours.id The given ID for SMART metric
+@smart.attributes.power_on_hours.value Normalised current recorded value for the given SMART metric
+@smart.attributes.power_on_hours.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.power_on_hours.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.power_on_hours.raw Raw metric value for the given SMART metric
+
+@smart.attributes.spin_retry_count.id The given ID for SMART metric
+@smart.attributes.spin_retry_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.spin_retry_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.spin_retry_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.spin_retry_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.calibration_retry_count.id The given ID for SMART metric
+@smart.attributes.calibration_retry_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.calibration_retry_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.calibration_retry_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.calibration_retry_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.power_cycle_count.id The given ID for SMART metric
+@smart.attributes.power_cycle_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.power_cycle_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.power_cycle_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.power_cycle_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.read_soft_error_rate.id The given ID for SMART metric
+@smart.attributes.read_soft_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.attributes.read_soft_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.read_soft_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.read_soft_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.attributes.current_helium_level.id The given ID for SMART metric
+@smart.attributes.current_helium_level.value Normalised current recorded value for the given SMART metric
+@smart.attributes.current_helium_level.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.current_helium_level.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.current_helium_level.raw Raw metric value for the given SMART metric
+
+@smart.attributes.erase_fail_count_chip.id The given ID for SMART metric
+@smart.attributes.erase_fail_count_chip.value Normalised current recorded value for the given SMART metric
+@smart.attributes.erase_fail_count_chip.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.erase_fail_count_chip.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.erase_fail_count_chip.raw Raw metric value for the given SMART metric
+
+@smart.attributes.wear_leveling_count.id The given ID for SMART metric
+@smart.attributes.wear_leveling_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.wear_leveling_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.wear_leveling_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.wear_leveling_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.used_reserved_block_count_total.id The given ID for SMART metric
+@smart.attributes.used_reserved_block_count_total.value Normalised current recorded value for the given SMART metric
+@smart.attributes.used_reserved_block_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.used_reserved_block_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.used_reserved_block_count_total.raw Raw metric value for the given SMART metric
+
+@smart.attributes.unused_reserved_block_count_total.id The given ID for SMART metric
+@smart.attributes.unused_reserved_block_count_total.value Normalised current recorded value for the given SMART metric
+@smart.attributes.unused_reserved_block_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.unused_reserved_block_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.unused_reserved_block_count_total.raw Raw metric value for the given SMART metric
+
+@smart.attributes.program_fail_count_total.id The given ID for SMART metric
+@smart.attributes.program_fail_count_total.value Normalised current recorded value for the given SMART metric
+@smart.attributes.program_fail_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.program_fail_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.program_fail_count_total.raw Raw metric value for the given SMART metric
+
+@smart.attributes.erase_fail_count_total.id The given ID for SMART metric
+@smart.attributes.erase_fail_count_total.value Normalised current recorded value for the given SMART metric
+@smart.attributes.erase_fail_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.erase_fail_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.erase_fail_count_total.raw Raw metric value for the given SMART metric
+
+@smart.attributes.runtime_bad_block.id The given ID for SMART metric
+@smart.attributes.runtime_bad_block.value Normalised current recorded value for the given SMART metric
+@smart.attributes.runtime_bad_block.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.runtime_bad_block.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.runtime_bad_block.raw Raw metric value for the given SMART metric
+
+@smart.attributes.end_to_end_error.id The given ID for SMART metric
+@smart.attributes.end_to_end_error.value Normalised current recorded value for the given SMART metric
+@smart.attributes.end_to_end_error.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.end_to_end_error.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.end_to_end_error.raw Raw metric value for the given SMART metric
+
+@smart.attributes.reported_uncorrect.id The given ID for SMART metric
+@smart.attributes.reported_uncorrect.value Normalised current recorded value for the given SMART metric
+@smart.attributes.reported_uncorrect.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.reported_uncorrect.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.reported_uncorrect.raw Raw metric value for the given SMART metric
+
+@smart.attributes.command_timeout.id The given ID for SMART metric
+@smart.attributes.command_timeout.value Normalised current recorded value for the given SMART metric
+@smart.attributes.command_timeout.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.command_timeout.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.command_timeout.raw Raw metric value for the given SMART metric
+
+@smart.attributes.high_fly_writes.id The given ID for SMART metric
+@smart.attributes.high_fly_writes.value Normalised current recorded value for the given SMART metric
+@smart.attributes.high_fly_writes.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.high_fly_writes.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.high_fly_writes.raw Raw metric value for the given SMART metric
+
+@smart.attributes.airflow_temp_celsius.id The given ID for SMART metric
+@smart.attributes.airflow_temp_celsius.value Normalised current recorded value for the given SMART metric
+@smart.attributes.airflow_temp_celsius.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.airflow_temp_celsius.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.airflow_temp_celsius.raw Raw metric value for the given SMART metric
+
+@smart.attributes.g_sense_error_rate.id The given ID for SMART metric
+@smart.attributes.g_sense_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.attributes.g_sense_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.g_sense_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.g_sense_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.attributes.power_off_retract_count.id The given ID for SMART metric
+@smart.attributes.power_off_retract_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.power_off_retract_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.power_off_retract_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.power_off_retract_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.load_cycle_count.id The given ID for SMART metric
+@smart.attributes.load_cycle_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.load_cycle_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.load_cycle_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.load_cycle_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.temperature_celsius.id The given ID for SMART metric
+@smart.attributes.temperature_celsius.value Normalised current recorded value for the given SMART metric
+@smart.attributes.temperature_celsius.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.temperature_celsius.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.temperature_celsius.raw Raw metric value for the given SMART metric
+
+@smart.attributes.hardware_ecc_recovered.id The given ID for SMART metric
+@smart.attributes.hardware_ecc_recovered.value Normalised current recorded value for the given SMART metric
+@smart.attributes.hardware_ecc_recovered.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.hardware_ecc_recovered.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.hardware_ecc_recovered.raw Raw metric value for the given SMART metric
+
+@smart.attributes.reallocated_event_count.id The given ID for SMART metric
+@smart.attributes.reallocated_event_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.reallocated_event_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.reallocated_event_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.reallocated_event_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.current_pending_sector.id The given ID for SMART metric
+@smart.attributes.current_pending_sector.value Normalised current recorded value for the given SMART metric
+@smart.attributes.current_pending_sector.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.current_pending_sector.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.current_pending_sector.raw Raw metric value for the given SMART metric
+
+@smart.attributes.offline_uncorrectable.id The given ID for SMART metric
+@smart.attributes.offline_uncorrectable.value Normalised current recorded value for the given SMART metric
+@smart.attributes.offline_uncorrectable.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.offline_uncorrectable.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.offline_uncorrectable.raw Raw metric value for the given SMART metric
+
+@smart.attributes.udma_crc_error_count.id The given ID for SMART metric
+@smart.attributes.udma_crc_error_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.udma_crc_error_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.udma_crc_error_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.udma_crc_error_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.multi_zone_error_rate.id The given ID for SMART metric
+@smart.attributes.multi_zone_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.attributes.multi_zone_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.multi_zone_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.multi_zone_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.attributes.soft_read_error_rate.id The given ID for SMART metric
+@smart.attributes.soft_read_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.attributes.soft_read_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.soft_read_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.soft_read_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.attributes.disk_shift.id The given ID for SMART metric
+@smart.attributes.disk_shift.value Normalised current recorded value for the given SMART metric
+@smart.attributes.disk_shift.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.disk_shift.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.disk_shift.raw Raw metric value for the given SMART metric
+
+@smart.attributes.loaded_hours.id The given ID for SMART metric
+@smart.attributes.loaded_hours.value Normalised current recorded value for the given SMART metric
+@smart.attributes.loaded_hours.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.loaded_hours.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.loaded_hours.raw Raw metric value for the given SMART metric
+
+@smart.attributes.load_retry_count.id The given ID for SMART metric
+@smart.attributes.load_retry_count.value Normalised current recorded value for the given SMART metric
+@smart.attributes.load_retry_count.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.load_retry_count.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.load_retry_count.raw Raw metric value for the given SMART metric
+
+@smart.attributes.load_friction.id The given ID for SMART metric
+@smart.attributes.load_friction.value Normalised current recorded value for the given SMART metric
+@smart.attributes.load_friction.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.load_friction.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.load_friction.raw Raw metric value for the given SMART metric
+
+@smart.attributes.load_cycle.id The given ID for SMART metric
+@smart.attributes.load_cycle.value Normalised current recorded value for the given SMART metric
+@smart.attributes.load_cycle.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.load_cycle.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.load_cycle.raw Raw metric value for the given SMART metric
+
+@smart.attributes.load_in_time.id The given ID for SMART metric
+@smart.attributes.load_in_time.value Normalised current recorded value for the given SMART metric
+@smart.attributes.load_in_time.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.load_in_time.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.load_in_time.raw Raw metric value for the given SMART metric
+
+@smart.attributes.head_flying_hours.id The given ID for SMART metric
+@smart.attributes.head_flying_hours.value Normalised current recorded value for the given SMART metric
+@smart.attributes.head_flying_hours.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.head_flying_hours.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.head_flying_hours.raw Raw metric value for the given SMART metric
+
+@smart.attributes.total_lbas_written.id The given ID for SMART metric
+@smart.attributes.total_lbas_written.value Normalised current recorded value for the given SMART metric
+@smart.attributes.total_lbas_written.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.total_lbas_written.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.total_lbas_written.raw Raw metric value for the given SMART metric
+
+@smart.attributes.total_lbas_read.id The given ID for SMART metric
+@smart.attributes.total_lbas_read.value Normalised current recorded value for the given SMART metric
+@smart.attributes.total_lbas_read.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.total_lbas_read.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.total_lbas_read.raw Raw metric value for the given SMART metric
+
+@smart.attributes.read_error_retry_rate.id The given ID for SMART metric
+@smart.attributes.read_error_retry_rate.value Normalised current recorded value for the given SMART metric
+@smart.attributes.read_error_retry_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.read_error_retry_rate.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.read_error_retry_rate.raw Raw metric value for the given SMART metric
+
+@smart.attributes.free_fall_sensor.id The given ID for SMART metric
+@smart.attributes.free_fall_sensor.value Normalised current recorded value for the given SMART metric
+@smart.attributes.free_fall_sensor.worst Normalised worst recorded value for the given SMART metric
+@smart.attributes.free_fall_sensor.thresh Normalised threshold value for the given SMART metric
+@smart.attributes.free_fall_sensor.raw Raw metric value for the given SMART metric

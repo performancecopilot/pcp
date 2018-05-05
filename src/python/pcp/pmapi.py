@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
-# Copyright (C) 2012-2017 Red Hat
+# Copyright (C) 2012-2018 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -2470,6 +2470,8 @@ LIBPCP.pmCreateFetchGroup.restype = c_int
 LIBPCP.pmCreateFetchGroup.argtypes = [POINTER(c_void_p), c_int, c_char_p]
 LIBPCP.pmGetFetchGroupContext.restype = c_int
 LIBPCP.pmGetFetchGroupContext.argtypes = [c_void_p]
+LIBPCP.pmClearFetchGroup.restype = c_int
+LIBPCP.pmClearFetchGroup.argtypes = [c_void_p]
 LIBPCP.pmDestroyFetchGroup.restype = c_int
 LIBPCP.pmDestroyFetchGroup.argtypes = [c_void_p]
 LIBPCP.pmExtendFetchGroup_item.restype = c_int
@@ -2666,7 +2668,6 @@ class fetchgroup(object):
 
     def __init__(self, typed=c_api.PM_CONTEXT_HOST, target="local:"):
         """Create a fetchgroup from a pmContext."""
-
         self.pmfg = c_void_p()
         self.items = []
         if typed == c_api.PM_CONTEXT_LOCAL and target == None:
@@ -2679,7 +2680,6 @@ class fetchgroup(object):
 
     def __del__(self):
         """Destroy the fetchgroup.  Drop references to fetchgroup_* items."""
-
         if LIBPCP != None and self.pmfg.value != None:
             sts = LIBPCP.pmDestroyFetchGroup(self.pmfg)
             if sts < 0:
@@ -2692,7 +2692,6 @@ class fetchgroup(object):
         WARNING: mutation of this context by other PMAPI functions
         may disrupt fetchgroup functionality.
         """
-
         return self.ctx
 
     def extend_item(self, metric=None, mtype=None, scale=None, instance=None):
@@ -2700,101 +2699,102 @@ class fetchgroup(object):
         necessary.  Convert scale/rate if appropriate/requested.
         Requires a specified instance if metric has an instance
         domain.
-
         """
-
         if metric is None:
             raise pmErr(-errno.EINVAL)
-        if mtype is None: # a special service to dynamically-typed python; not accepted at the C level
+
+        if mtype is None:
+            # a special service to dynamically-typed python
             pmids = self.ctx.pmLookupName(metric)
             descs = self.ctx.pmLookupDescs(pmids)
             mtype = descs[0].type
         v = fetchgroup.fetchgroup_item(mtype)
         sts = LIBPCP.pmExtendFetchGroup_item(self.pmfg,
-                                             c_char_p(metric.encode('utf-8') if metric else None),
-                                             c_char_p(instance.encode('utf-8') if instance else None),
-                                             c_char_p(scale.encode('utf-8') if scale else None),
-                                             pointer(v.value), c_int(mtype),
-                                             pointer(v.sts))
+                      c_char_p(metric.encode('utf-8') if metric else None),
+                      c_char_p(instance.encode('utf-8') if instance else None),
+                      c_char_p(scale.encode('utf-8') if scale else None),
+                      pointer(v.value), c_int(mtype),
+                      pointer(v.sts))
         if sts < 0:
             raise pmErr(sts)
-        self.items.append(v) # remember to keep registered pmAtomValue/etc. alive
+        self.items.append(v) # keep registered pmAtomValue/etc. alive
         return v
-
 
     def extend_indom(self, metric=None, mtype=None, scale=None, maxnum=100):
         """Extend the fetchgroup with up to @maxnum instances of a metric.
         (Metrics without instances are also accepted.)  Infer type if
         necessary.  Convert scale/rate if appropriate/requested.
-
         """
-
         if metric is None or maxnum < 0:
             raise pmErr(-errno.EINVAL)
-        if mtype is None: # a special service to dynamically-typed python; not accepted at the C level
+        if mtype is None:
+            # a special service to dynamically-typed python
             pmids = self.ctx.pmLookupName(metric)
             descs = self.ctx.pmLookupDescs(pmids)
             mtype = descs[0].type
         vv = fetchgroup.fetchgroup_indom(mtype, maxnum)
         sts = LIBPCP.pmExtendFetchGroup_indom(self.pmfg,
-                                              c_char_p(metric.encode('utf-8') if metric else None),
-                                              c_char_p(scale.encode('utf-8') if scale else None),
-                                              cast(pointer(vv.icodes), POINTER(c_int)),
-                                              cast(pointer(vv.inames), POINTER(c_char_p)),
-                                              cast(pointer(vv.values), POINTER(pmAtomValue)),
-                                              c_int(mtype),
-                                              cast(pointer(vv.stss), POINTER(c_int)),
-                                              c_uint(maxnum), pointer(vv.num), pointer(vv.sts))
+                      c_char_p(metric.encode('utf-8') if metric else None),
+                      c_char_p(scale.encode('utf-8') if scale else None),
+                      cast(pointer(vv.icodes), POINTER(c_int)),
+                      cast(pointer(vv.inames), POINTER(c_char_p)),
+                      cast(pointer(vv.values), POINTER(pmAtomValue)),
+                      c_int(mtype),
+                      cast(pointer(vv.stss), POINTER(c_int)),
+                      c_uint(maxnum), pointer(vv.num), pointer(vv.sts))
         if sts < 0:
             raise pmErr(sts)
-        self.items.append(vv) # remember to keep registered pmAtomValue/etc. alive
+        self.items.append(vv) # keep registered pmAtomValue/etc. alive
         return vv
-
 
     def extend_timestamp(self):
         """Extend the fetchgroup with a timestamp query. """
-
         v = fetchgroup.fetchgroup_timestamp(self.ctx)
         sts = LIBPCP.pmExtendFetchGroup_timestamp(self.pmfg,
                                                   pointer(v.value))
         if sts < 0:
             raise pmErr(sts)
-        self.items.append(v) # remember to keep registered timeval alive
+        self.items.append(v) # keep registered timeval alive
         return v
 
-
     def extend_event(self, metric=None, field=None, ftype=None, scale=None, instance=None, maxnum=100):
-        """Extend the fetchgroup with up to @maxnum instances of the given field of
-        the given event metric's records.  Infer type if necessary.  Convert scale
-        if appropriate/requested.
+        """Extend the fetchgroup with up to @maxnum instances of the given
+        field of the given event metric's records.  Infer type if necessary.
+        Convert scale if appropriate/requested.
         """
-
         if metric is None or maxnum < 0:
             raise pmErr(-errno.EINVAL)
-        if ftype is None: # a special service to dynamically-typed python; not accepted at the C level
+        if ftype is None:
+            # a special service to dynamically-typed python
             pmids = self.ctx.pmLookupName(field)
             descs = self.ctx.pmLookupDescs(pmids)
             ftype = descs[0].type
         vv = fetchgroup.fetchgroup_event(ftype, maxnum, self.ctx)
         sts = LIBPCP.pmExtendFetchGroup_event(self.pmfg,
-                                              c_char_p(metric.encode('utf-8') if metric else None),
-                                              c_char_p(instance.encode('utf-8') if instance else None),
-                                              c_char_p(field.encode('utf-8') if field else None),
-                                              c_char_p(scale.encode('utf-8') if scale else None),
-                                              cast(pointer(vv.times), POINTER(timespec)),
-                                              cast(pointer(vv.values), POINTER(pmAtomValue)),
-                                              c_int(ftype),
-                                              cast(pointer(vv.stss), POINTER(c_int)),
-                                              c_uint(maxnum), pointer(vv.num), pointer(vv.sts))
+                      c_char_p(metric.encode('utf-8') if metric else None),
+                      c_char_p(instance.encode('utf-8') if instance else None),
+                      c_char_p(field.encode('utf-8') if field else None),
+                      c_char_p(scale.encode('utf-8') if scale else None),
+                      cast(pointer(vv.times), POINTER(timespec)),
+                      cast(pointer(vv.values), POINTER(pmAtomValue)),
+                      c_int(ftype),
+                      cast(pointer(vv.stss), POINTER(c_int)),
+                      c_uint(maxnum), pointer(vv.num), pointer(vv.sts))
         if sts < 0:
             raise pmErr(sts)
-        self.items.append(vv) # remember to keep registered pmAtomValue/etc. alive
+        self.items.append(vv) # keep registered pmAtomValue/etc. alive
         return vv
-
 
     def fetch(self):
         """Fetch all the metrics in this fetchgroup and update all values."""
-
         sts = LIBPCP.pmFetchGroup(self.pmfg)
         if sts < 0:
             raise pmErr(sts)
+
+    def clear(self):
+        """Clear all the metrics in this fetchgroup ready to start again."""
+        del self.items[:]
+        sts = LIBPCP.pmClearFetchGroup(self.pmfg)
+        if sts < 0:
+            raise pmErr(sts)
+        self.items = []

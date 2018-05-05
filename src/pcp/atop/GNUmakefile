@@ -18,7 +18,6 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pcp-atop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 DISTLINKS = pcp-atopsar
-COMPATLNK = pmatop
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSES) $(LIB_FOR_MATH)
 LCFLAGS = $(NCURSES_CFLAGS)
@@ -63,7 +62,6 @@ build-me: $(CMDTARGET) $(DISTLINKS)
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
-	$(INSTALL) -S $(DISTARGET) $(PCP_BIN_DIR)/$(COMPATLNK)
 	@for link in $(DISTLINKS); do \
 	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
 	done

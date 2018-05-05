@@ -141,7 +141,7 @@ class PCP2XLSX(object):
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
         opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
-        self.daemonize = opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
+        opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
         opts.pmSetLongOptionHelp()         # -?/--help
@@ -182,10 +182,9 @@ class PCP2XLSX(object):
 
     def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
-        if index == self.daemonize and opt == '':
+        if opt == 'daemonize':
             self.daemonize = 1
-            return
-        if opt == 'K':
+        elif opt == 'K':
             if not self.speclocal or not self.speclocal.startswith(";"):
                 self.speclocal = ";" + optarg
             else:
