@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015 Red Hat Inc.
+# Copyright (C) 2015,2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -43,32 +43,43 @@ def test_pmfg_live(self, typed, target):
 
     for i in range(0, 4):
         pmfg.fetch()
-        print ("time: %s" % tt())
-        print ("cpus: %d" % v1())
+        print("time: %s" % tt())
+        print("cpus: %d" % v1())
         self.assertTrue(v1() >= 0)
-        print ("load average: %f" % v2())
+        print("load average: %f" % v2())
         self.assertTrue(v2() >= 0)
 
         self.assertRaises(pmapi.pmErr, vv1) # PM_ERR_TOOBIG
 
         if i > 0: # rate conversion eats first value
             for icode, iname, value in vv2():
-                print ("cpu idle %s: %d %%" % (iname, value()))
+                print("cpu idle %s: %d %%" % (iname, value()))
                 self.assertTrue(value() >= 0 and value() <= 125) # >100% sometimes seen at short intervals
 
         for icode, iname, value in vv3():
-            print ("bin %d %s: %d" % (icode, iname, value()))
+            print("bin %d %s: %d" % (icode, iname, value()))
             self.assertTrue(value() == icode)
 
         for ts, num in vv4():
-            print ("sample.event.param_double @%s : %s" % (ts, num()))
+            print("sample.event.param_double @%s : %s" % (ts, num()))
             self.assertTrue(num() == 8 or num() == -9)
 
         time.sleep(0.5)
 
+    print("clearing fetchgroup")
+    pmfg.clear()
+    print("cleared fetchgroup")
+
+    print("adding back timestamp")
+    tt = pmfg.extend_timestamp()
+    print("adding back metric")
+    vvv1 = pmfg.extend_item("hinv.ncpu")
+    pmfg.fetch()
+    print("time: %s" % tt())
+    print("cpus: %d" % vvv1())
+
     # garbage collector will take care of it
     #del pmfg
-
 
 
 def test_pmfg_pmns(self, typed, target):
@@ -86,7 +97,7 @@ def test_pmfg_pmns(self, typed, target):
         for name, vv in metrics:
             print("metric %s" % name)
             for icode, iname, ival in vv():
-                print ("icode %d iname %s ival %s" % (icode, iname, ival()))
+                print("icode %d iname %s ival %s" % (icode, iname, ival()))
                 # a few random assertions
                 if name == 'sample.long.ten':
                     self.assertTrue(ival() == '10') # string conversion
@@ -108,9 +119,9 @@ def test_pmfg_interleaved(self):
     for i in range(5):
         for (archive,fg,ts,m1,m2) in zip(archives,pmfgs,timestamps,metrics1,metrics2):
             fg.fetch()
-            print ('archive %s timestamp %s logger.archive=%s' % (archive, ts(), m2()))
+            print('archive %s timestamp %s logger.archive=%s' % (archive, ts(), m2()))
             if i > 0:
-                print ('physmem=%d' % m1()) # not available until second+ fetch
+                print('physmem=%d' % m1()) # not available until second+ fetch
             for (fg2,ts2) in zip(pmfgs,timestamps):
                 if fg == fg2:
                     self.assertTrue(ts() == ts2()) # same archive - same timestamp!

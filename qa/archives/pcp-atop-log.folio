@@ -3,7 +3,7 @@ Version: 1
 # use pmafm(1) to process this PCP Archive Folio
 #
 Created: on dieyong at Fri May 23 15:51:10 2014
-Creator: pmcollectl
+Creator: pcp-collectl
 #               Host                    Basename
 #
-Archive:	dieyong			pmatop-log
+Archive:	dieyong			pcp-atop-log

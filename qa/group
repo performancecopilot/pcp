@@ -211,6 +211,7 @@ pmda.sendmail
 pmda.shping
 pmda.simple
 pmda.slurm
+pmda.smart
 pmda.summary
 pmda.systemd
 pmda.trivial
@@ -1518,4 +1519,5 @@ pmlogsize
 1388 pmwebd local
 1395 pmda.prometheus local
 1396 pcp python pidstat local
+1397 pmda.smart local valgrind
 4751 libpcp threads valgrind local

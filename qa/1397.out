@@ -1,0 +1,1702 @@
+QA output created by 1397
+
+=== Installing S.M.A.R.T PMDA ===
+== Checking metric descriptors and values - smart-root-001.tgz
+
+smart.health PMID: 150.0.0 [SMART self-test result]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Whether the given drive has PASSED or FAILED SMART the self-test
+    inst [0 or "sda"] value "PASSED"
+
+smart.info.model_family PMID: 150.0.1 [Model Family]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Listed model family name of the disk drive
+No value(s) available!
+
+smart.info.device_model PMID: 150.0.2 [Device Model]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+The given device model of the disk drive
+    inst [0 or "sda"] value "SAMSUNG MZ7LN512HMJP-000L7"
+
+smart.info.serial_number PMID: 150.0.3 [Serial Number]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+The given serial number of the disk drive
+    inst [0 or "sda"] value "S2X9NX0HB37062"
+
+smart.info.capacity_bytes PMID: 150.0.4 [Capacity in Bytes]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given capacity in bytes of the disk drive
+    inst [0 or "sda"] value 512110190592592
+
+smart.info.sector_size PMID: 150.0.5 [Sector Size]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+The given sector size of the disk drive
+    inst [0 or "sda"] value "512 bytes logical/physical"
+
+smart.info.rotation_rate PMID: 150.0.6 [Rotational Rate of Drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+The given roataional rate of the disk drive, for non-rotational drive this
+will state Solid State Drive.
+    inst [0 or "sda"] value "Solid State Device"
+
+smart.attributes.raw_read_error_rate.id PMID: 150.1.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.raw_read_error_rate.value PMID: 150.1.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.raw_read_error_rate.worst PMID: 150.1.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.raw_read_error_rate.thresh PMID: 150.1.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.raw_read_error_rate.raw PMID: 150.1.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.throughput_performance.id PMID: 150.2.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.throughput_performance.value PMID: 150.2.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.throughput_performance.worst PMID: 150.2.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.throughput_performance.thresh PMID: 150.2.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.throughput_performance.raw PMID: 150.2.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_up_time.id PMID: 150.3.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.spin_up_time.value PMID: 150.3.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_up_time.worst PMID: 150.3.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_up_time.thresh PMID: 150.3.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_up_time.raw PMID: 150.3.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.start_stop_count.id PMID: 150.4.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.start_stop_count.value PMID: 150.4.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.start_stop_count.worst PMID: 150.4.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.start_stop_count.thresh PMID: 150.4.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.start_stop_count.raw PMID: 150.4.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.reallocated_sector_count.id PMID: 150.5.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 5
+
+smart.attributes.reallocated_sector_count.value PMID: 150.5.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.reallocated_sector_count.worst PMID: 150.5.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.reallocated_sector_count.thresh PMID: 150.5.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 10
+
+smart.attributes.reallocated_sector_count.raw PMID: 150.5.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.seek_error_count.id PMID: 150.7.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.seek_error_count.value PMID: 150.7.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_error_count.worst PMID: 150.7.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_error_count.thresh PMID: 150.7.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_error_count.raw PMID: 150.7.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_time_performance.id PMID: 150.8.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.seek_time_performance.value PMID: 150.8.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_time_performance.worst PMID: 150.8.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_time_performance.thresh PMID: 150.8.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.seek_time_performance.raw PMID: 150.8.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.power_on_hours.id PMID: 150.9.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 9
+
+smart.attributes.power_on_hours.value PMID: 150.9.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.power_on_hours.worst PMID: 150.9.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.power_on_hours.thresh PMID: 150.9.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.power_on_hours.raw PMID: 150.9.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 2840
+
+smart.attributes.spin_retry_count.id PMID: 150.10.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.spin_retry_count.value PMID: 150.10.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_retry_count.worst PMID: 150.10.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_retry_count.thresh PMID: 150.10.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.spin_retry_count.raw PMID: 150.10.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.calibration_retry_count.id PMID: 150.11.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.calibration_retry_count.value PMID: 150.11.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.calibration_retry_count.worst PMID: 150.11.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.calibration_retry_count.thresh PMID: 150.11.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.calibration_retry_count.raw PMID: 150.11.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.power_cycle_count.id PMID: 150.12.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 12
+
+smart.attributes.power_cycle_count.value PMID: 150.12.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.power_cycle_count.worst PMID: 150.12.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.power_cycle_count.thresh PMID: 150.12.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.power_cycle_count.raw PMID: 150.12.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 374
+
+smart.attributes.read_soft_error_rate.id PMID: 150.13.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.read_soft_error_rate.value PMID: 150.13.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.read_soft_error_rate.worst PMID: 150.13.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.read_soft_error_rate.thresh PMID: 150.13.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.read_soft_error_rate.raw PMID: 150.13.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_helium_level.id PMID: 150.22.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.current_helium_level.value PMID: 150.22.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_helium_level.worst PMID: 150.22.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_helium_level.thresh PMID: 150.22.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_helium_level.raw PMID: 150.22.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_chip.id PMID: 150.176.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_chip.value PMID: 150.176.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_chip.worst PMID: 150.176.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_chip.thresh PMID: 150.176.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_chip.raw PMID: 150.176.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.wear_leveling_count.id PMID: 150.177.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.wear_leveling_count.value PMID: 150.177.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.wear_leveling_count.worst PMID: 150.177.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.wear_leveling_count.thresh PMID: 150.177.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.wear_leveling_count.raw PMID: 150.177.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.used_reserved_block_count_total.id PMID: 150.179.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.used_reserved_block_count_total.value PMID: 150.179.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.used_reserved_block_count_total.worst PMID: 150.179.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.used_reserved_block_count_total.thresh PMID: 150.179.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.used_reserved_block_count_total.raw PMID: 150.179.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.unused_reserved_block_count_total.id PMID: 150.180.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 180
+
+smart.attributes.unused_reserved_block_count_total.value PMID: 150.180.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.unused_reserved_block_count_total.worst PMID: 150.180.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.unused_reserved_block_count_total.thresh PMID: 150.180.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 10
+
+smart.attributes.unused_reserved_block_count_total.raw PMID: 150.180.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 1596
+
+smart.attributes.program_fail_count_total.id PMID: 150.181.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.program_fail_count_total.value PMID: 150.181.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.program_fail_count_total.worst PMID: 150.181.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.program_fail_count_total.thresh PMID: 150.181.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.program_fail_count_total.raw PMID: 150.181.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_total.id PMID: 150.182.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_total.value PMID: 150.182.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_total.worst PMID: 150.182.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_total.thresh PMID: 150.182.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.erase_fail_count_total.raw PMID: 150.182.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.runtime_bad_block.id PMID: 150.183.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.runtime_bad_block.value PMID: 150.183.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.runtime_bad_block.worst PMID: 150.183.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.runtime_bad_block.thresh PMID: 150.183.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.runtime_bad_block.raw PMID: 150.183.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.end_to_end_error.id PMID: 150.184.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 184
+
+smart.attributes.end_to_end_error.value PMID: 150.184.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.end_to_end_error.worst PMID: 150.184.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.end_to_end_error.thresh PMID: 150.184.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 97
+
+smart.attributes.end_to_end_error.raw PMID: 150.184.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.reported_uncorrect.id PMID: 150.187.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 187
+
+smart.attributes.reported_uncorrect.value PMID: 150.187.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.reported_uncorrect.worst PMID: 150.187.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.reported_uncorrect.thresh PMID: 150.187.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.reported_uncorrect.raw PMID: 150.187.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.command_timeout.id PMID: 150.188.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.command_timeout.value PMID: 150.188.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.command_timeout.worst PMID: 150.188.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.command_timeout.thresh PMID: 150.188.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.command_timeout.raw PMID: 150.188.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.high_fly_writes.id PMID: 150.189.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.high_fly_writes.value PMID: 150.189.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.high_fly_writes.worst PMID: 150.189.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.high_fly_writes.thresh PMID: 150.189.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.high_fly_writes.raw PMID: 150.189.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.airflow_temp_celsius.id PMID: 150.190.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.airflow_temp_celsius.value PMID: 150.190.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.airflow_temp_celsius.worst PMID: 150.190.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.airflow_temp_celsius.thresh PMID: 150.190.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.airflow_temp_celsius.raw PMID: 150.190.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.g_sense_error_rate.id PMID: 150.191.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.g_sense_error_rate.value PMID: 150.191.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.g_sense_error_rate.worst PMID: 150.191.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.g_sense_error_rate.thresh PMID: 150.191.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.g_sense_error_rate.raw PMID: 150.191.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.power_off_retract_count.id PMID: 150.192.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.power_off_retract_count.value PMID: 150.192.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.power_off_retract_count.worst PMID: 150.192.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.power_off_retract_count.thresh PMID: 150.192.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.power_off_retract_count.raw PMID: 150.192.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle_count.id PMID: 150.193.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle_count.value PMID: 150.193.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle_count.worst PMID: 150.193.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle_count.thresh PMID: 150.193.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle_count.raw PMID: 150.193.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.temperature_celsius.id PMID: 150.194.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 194
+
+smart.attributes.temperature_celsius.value PMID: 150.194.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 76
+
+smart.attributes.temperature_celsius.worst PMID: 150.194.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 60
+
+smart.attributes.temperature_celsius.thresh PMID: 150.194.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.temperature_celsius.raw PMID: 150.194.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 24
+
+smart.attributes.hardware_ecc_recovered.id PMID: 150.195.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.hardware_ecc_recovered.value PMID: 150.195.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.hardware_ecc_recovered.worst PMID: 150.195.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.hardware_ecc_recovered.thresh PMID: 150.195.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.hardware_ecc_recovered.raw PMID: 150.195.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.reallocated_event_count.id PMID: 150.196.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.reallocated_event_count.value PMID: 150.196.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.reallocated_event_count.worst PMID: 150.196.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.reallocated_event_count.thresh PMID: 150.196.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.reallocated_event_count.raw PMID: 150.196.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_pending_sector.id PMID: 150.197.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.current_pending_sector.value PMID: 150.197.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_pending_sector.worst PMID: 150.197.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_pending_sector.thresh PMID: 150.197.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.current_pending_sector.raw PMID: 150.197.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.offline_uncorrectable.id PMID: 150.198.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.offline_uncorrectable.value PMID: 150.198.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.offline_uncorrectable.worst PMID: 150.198.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.offline_uncorrectable.thresh PMID: 150.198.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.offline_uncorrectable.raw PMID: 150.198.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.udma_crc_error_count.id PMID: 150.199.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 199
+
+smart.attributes.udma_crc_error_count.value PMID: 150.199.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.udma_crc_error_count.worst PMID: 150.199.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 100
+
+smart.attributes.udma_crc_error_count.thresh PMID: 150.199.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.udma_crc_error_count.raw PMID: 150.199.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.multi_zone_error_rate.id PMID: 150.200.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.multi_zone_error_rate.value PMID: 150.200.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.multi_zone_error_rate.worst PMID: 150.200.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.multi_zone_error_rate.thresh PMID: 150.200.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.multi_zone_error_rate.raw PMID: 150.200.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.soft_read_error_rate.id PMID: 150.201.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.soft_read_error_rate.value PMID: 150.201.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.soft_read_error_rate.worst PMID: 150.201.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.soft_read_error_rate.thresh PMID: 150.201.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.soft_read_error_rate.raw PMID: 150.201.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.disk_shift.id PMID: 150.220.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.disk_shift.value PMID: 150.220.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.disk_shift.worst PMID: 150.220.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.disk_shift.thresh PMID: 150.220.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.disk_shift.raw PMID: 150.220.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.loaded_hours.id PMID: 150.222.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.loaded_hours.value PMID: 150.222.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.loaded_hours.worst PMID: 150.222.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.loaded_hours.thresh PMID: 150.222.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.loaded_hours.raw PMID: 150.222.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_retry_count.id PMID: 150.223.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.load_retry_count.value PMID: 150.223.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_retry_count.worst PMID: 150.223.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_retry_count.thresh PMID: 150.223.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_retry_count.raw PMID: 150.223.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_friction.id PMID: 150.224.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.load_friction.value PMID: 150.224.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_friction.worst PMID: 150.224.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_friction.thresh PMID: 150.224.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_friction.raw PMID: 150.224.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle.id PMID: 150.225.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle.value PMID: 150.225.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle.worst PMID: 150.225.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle.thresh PMID: 150.225.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_cycle.raw PMID: 150.225.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_in_time.id PMID: 150.226.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.load_in_time.value PMID: 150.226.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_in_time.worst PMID: 150.226.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_in_time.thresh PMID: 150.226.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.load_in_time.raw PMID: 150.226.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.head_flying_hours.id PMID: 150.240.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.head_flying_hours.value PMID: 150.240.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.head_flying_hours.worst PMID: 150.240.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.head_flying_hours.thresh PMID: 150.240.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.head_flying_hours.raw PMID: 150.240.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.total_lbas_written.id PMID: 150.241.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 241
+
+smart.attributes.total_lbas_written.value PMID: 150.241.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.total_lbas_written.worst PMID: 150.241.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.total_lbas_written.thresh PMID: 150.241.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.total_lbas_written.raw PMID: 150.241.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 680
+
+smart.attributes.total_lbas_read.id PMID: 150.242.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+    inst [0 or "sda"] value 242
+
+smart.attributes.total_lbas_read.value PMID: 150.242.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.total_lbas_read.worst PMID: 150.242.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+    inst [0 or "sda"] value 99
+
+smart.attributes.total_lbas_read.thresh PMID: 150.242.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+    inst [0 or "sda"] value 0
+
+smart.attributes.total_lbas_read.raw PMID: 150.242.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+    inst [0 or "sda"] value 537
+
+smart.attributes.read_error_retry_rate.id PMID: 150.250.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.read_error_retry_rate.value PMID: 150.250.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.read_error_retry_rate.worst PMID: 150.250.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.read_error_retry_rate.thresh PMID: 150.250.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.read_error_retry_rate.raw PMID: 150.250.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+smart.attributes.free_fall_sensor.id PMID: 150.254.0 [The given ID for SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The given ID for SMART metric
+No value(s) available!
+
+smart.attributes.free_fall_sensor.value PMID: 150.254.1 [Normalised current recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised current recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.free_fall_sensor.worst PMID: 150.254.2 [Normalised worst recorded value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised worst recorded value for the given SMART metric
+No value(s) available!
+
+smart.attributes.free_fall_sensor.thresh PMID: 150.254.3 [Normalised threshold value for the given SMART metric]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+Normalised threshold value for the given SMART metric
+No value(s) available!
+
+smart.attributes.free_fall_sensor.raw PMID: 150.254.4 [Raw metric value for the given SMART metric]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: count
+Help:
+Raw metric value for the given SMART metric
+No value(s) available!
+
+== done
+

@@ -74,7 +74,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 ./archives/tzchange-12-a.meta -12357
 ./archives/tzchange-12-b.meta -12357
 ./archives/pcp-vmstat.meta NUMBER
-./archives/pmatop-log.meta NUMBER
+./archives/pcp-atop-log.meta NUMBER
 ./archives/pmiostat_mark.meta NUMBER
 ./archives/proc.meta NUMBER
 ./archives/procpid-encode2.meta -12357
@@ -152,7 +152,7 @@ local: NUMBER
 ./archives/tzchange-12-a.meta -12357
 ./archives/tzchange-12-b.meta -12357
 ./archives/pcp-vmstat.meta NUMBER
-./archives/pmatop-log.meta NUMBER
+./archives/pcp-atop-log.meta NUMBER
 ./archives/pmiostat_mark.meta NUMBER
 ./archives/proc.meta NUMBER
 ./archives/procpid-encode2.meta -12357

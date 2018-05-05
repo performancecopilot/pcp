@@ -75,7 +75,7 @@ struct pm_wrap {
 	struct pm_dm_histogram *pdmh;
 	uint64_t region_id;
 	uint64_t area_id;
-	char *dev;
+	char dev[128];
 };
 
 #ifdef HAVE_DEVMAPPER

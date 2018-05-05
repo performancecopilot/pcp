@@ -72,7 +72,7 @@ require {
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
-	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner sys_resource fowner };
+	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner sys_resource fowner sys_rawio };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
@@ -358,3 +358,16 @@ allow pcp_pmproxy_t proc_net_t:file read;
 allow pcp_pmmgr_t unconfined_t:unix_stream_socket connectto;
 allow pcp_pmmgr_t ldconfig_exec_t:file { execute execute_no_trans open read getattr };
 allow pcp_pmmgr_t zabbix_port_t:tcp_socket name_connect;
+
+#============= pmda-smart ==============
+
+#type=AVC msg=audit(1525420698.415:327): avc:  denied  { read } for  pid=8678 comm="sh" name="smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+#type=AVC msg=audit(1525420698.415:328): avc:  denied  { open } for  pid=8678 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+#type=AVC msg=audit(1525420698.415:329): avc:  denied  { execute_no_trans } for  pid=8678 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+#type=AVC msg=audit(1525420698.415:326): avc:  denied  { execute } for  pid=8678 comm="sh" name="smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+#type=AVC msg=audit(1525375355.243:3382): avc:  denied  { getattr } for  pid=4770 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+#type=AVC msg=audit(1525420698.417:330): avc:  denied  { map } for  pid=8678 comm="smartctl" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+#type=AVC msg=audit(1525420698.433:331): avc:  denied  { sys_rawio } for  pid=8678 comm="smartctl" capability=17  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+
+#allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr map open read };
+allow pcp_pmcd_t self:capability sys_rawio;

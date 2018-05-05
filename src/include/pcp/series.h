@@ -15,10 +15,9 @@
 #define PCP_SERIES_H
 
 #include <stdio.h>
-#include "sds.h" /* define typedef sds */
+#include "sds.h"	/* typedef sds (char *) */
 
-typedef sds pmSeriesID;	/* external 40-byte form of series identifier */
-typedef sds pmSourceID;	/* external 40-byte form of source identifier */
+typedef sds pmSID;	/* external 40-byte series or source identifier */
 
 typedef enum pmloglevel {
     PMLOG_INFO = 1,	/* general information */
@@ -26,7 +25,7 @@ typedef enum pmloglevel {
     PMLOG_ERROR,	/* generic error */
     PMLOG_REQUEST,	/* error processing a request */
     PMLOG_RESPONSE,	/* error processing a response */
-    PMLOG_CORRUPTED,	/* corrupt time series database */
+    PMLOG_CORRUPT,	/* corrupt time series database */
 } pmloglevel;
 
 extern int pmLogLevelIsTTY(void);
@@ -38,61 +37,60 @@ typedef enum pmflags {
     PMFLAG_ACTIVE    = (1<<1),	/* continual updates from metric source */
 } pmflags;
 
-typedef enum pmdescfields {
-    PMDESC_INDOM,		/* dotted-pair instance domain identifier */
-    PMDESC_PMID,		/* dotted-triple metric identifier */
-    PMDESC_SEMANTICS,		/* pmSemStr(3) metric semantics */
-    PMDESC_SOURCE,		/* source identifier, from whence we came */
-    PMDESC_TYPE,		/* pmTypeStr(3) metric type */
-    PMDESC_UNITS,		/* pmUnitsStr(3) metric units */
-    PMDESC_MAXFIELD
-} pmdescfields;
+typedef struct pmSeriesDesc {
+    sds		indom;		/* dotted-pair instance domain identifier */
+    sds		pmid;		/* dotted-triple metric identifier */
+    sds		semantics;	/* pmSemStr(3) metric semantics */
+    sds		source;		/* source identifier, from whence we came */
+    sds		type;		/* pmTypeStr(3) metric type */
+    sds		units;		/* pmUnitsStr(3) metric units */
+} pmSeriesDesc;
 
-typedef enum pminstfields {
-    PMINST_INSTID,		/* first seen numeric instance identifier */
-    PMINST_NAME,		/* full external (string) instance name */
-    PMINST_SERIES,		/* metric series identifier for values */
-    PMINST_MAXFIELD
-} pminstfields;
+typedef struct pmSeriesInst {
+    sds		instid;		/* first seen numeric instance identifier */
+    sds		name;		/* full external (string) instance name */
+    sds		series;		/* metric series identifier for values */
+} pmSeriesInst;
 
-typedef enum pmvaluefields {
-    PMVALUE_TIMESTAMP,		/* sample time this value was taken */
-    PMVALUE_SERIES,		/* series identifier for this value */
-    PMVALUE_DATA,		/* actual value, as binary safe sds */
-    PMVALUE_MAXFIELD
-} pmvaluefields;
+typedef struct pmSeriesValue {
+    sds		timestamp;	/* sample time this value was taken */
+    sds		series;		/* series identifier for this value */
+    sds		data;		/* actual value, as binary safe sds */
+} pmSeriesValue;
 
-typedef enum pmlabelfields {
-    PMLABEL_NAME,		/* name (string) of this label */
-    PMLABEL_VALUE,		/* value of this label */
-    PMLABEL_MAXFIELD
-} pmlabelfields;
+typedef struct pmSeriesLabel {
+    sds		name;		/* name (string) of this label */
+    sds		value;		/* value of this label */
+} pmSeriesLabel;
 
-typedef int (*pmSeriesMatchCallBack)(pmSeriesID, void *);
-typedef int (*pmSeriesStringCallBack)(pmSeriesID, sds, void *);
-typedef int (*pmSeriesStructCallBack)(pmSeriesID, int, sds *, void *);
+typedef int (*pmSeriesMatchCallBack)(pmSID, void *);
+typedef int (*pmSeriesStringCallBack)(pmSID, sds, void *);
+typedef int (*pmSeriesDescCallBack)(pmSID, pmSeriesDesc *, void *);
+typedef int (*pmSeriesInstCallBack)(pmSID, pmSeriesInst *, void *);
+typedef int (*pmSeriesValueCallBack)(pmSID, pmSeriesValue *, void *);
+typedef int (*pmSeriesLabelCallBack)(pmSID, pmSeriesLabel *, void *);
 typedef void (*pmSeriesInfoCallBack)(pmloglevel, sds, void *);
 typedef void (*pmSeriesDoneCallBack)(int, void *);
 
 typedef struct pmSeriesSettings {
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
-    pmSeriesStructCallBack	on_desc;	/* metric descriptor */
-    pmSeriesStructCallBack	on_inst;	/* instance details */
-    pmSeriesStructCallBack	on_labelmap;	/* label name value pair */
+    pmSeriesDescCallBack	on_desc;	/* metric descriptor */
+    pmSeriesInstCallBack	on_inst;	/* instance details */
+    pmSeriesLabelCallBack	on_labelmap;	/* label name value pair */
     pmSeriesStringCallBack	on_instance;	/* one instance name */
     pmSeriesStringCallBack	on_context;	/* one context name */
     pmSeriesStringCallBack	on_metric;	/* one metric name */
     pmSeriesStringCallBack	on_label;	/* one label name */
-    pmSeriesStructCallBack	on_value;	/* timestamped value */
+    pmSeriesValueCallBack	on_value;	/* timestamped value */
     pmSeriesInfoCallBack	on_info;	/* diagnostics */
     pmSeriesDoneCallBack	on_done;	/* request completed */
 } pmSeriesSettings;
 
-extern void pmSeriesDescs(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesLabels(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesInstances(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesMetrics(pmSeriesSettings *, int, pmSeriesID *, void *);
-extern void pmSeriesSources(pmSeriesSettings *, int, pmSeriesID *, void *);
+extern void pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
+extern void pmSeriesLabels(pmSeriesSettings *, int, pmSID *, void *);
+extern void pmSeriesInstances(pmSeriesSettings *, int, pmSID *, void *);
+extern void pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
+extern void pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
 extern void pmSeriesQuery(pmSeriesSettings *, sds, pmflags, void *);
 extern void pmSeriesLoad(pmSeriesSettings *, sds, pmflags, void *);
 

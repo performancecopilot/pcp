@@ -287,7 +287,7 @@ addLongOptionObject(pmLongOptions *option)
 static PyObject *
 setLongOption(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    char *short_opt = NULL;
+    char *short_opt = NULL, *message = NULL;
     pmLongOptions option = { 0 };
     char *keyword_list[] = {"long_opt", "has_arg", "short_opt",
 			    "argname", "message", NULL};
@@ -295,10 +295,12 @@ setLongOption(PyObject *self, PyObject *args, PyObject *keywords)
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"sisss:pmSetLongOption", keyword_list,
 			&option.long_opt, &option.has_arg, &short_opt,
-			&option.argname, &option.message))
+			&option.argname, &message))
 	return NULL;
     if (short_opt && (int)short_opt[0] != 0)
 	option.short_opt = (int)short_opt[0];
+    if (message && (int)message[0] != 0)
+	option.message = message;
     return addLongOptionObject(&option);
 }
 
@@ -447,6 +449,7 @@ resetAllOptions(PyObject *self, PyObject *args)
 {
     pmFreeOptions(&options);
     memset(&options, 0, sizeof(options));
+    longOptionsCount = 0;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -734,9 +737,14 @@ static void
 options_callback(int opt, pmOptions *opts)
 {
     PyObject *arglist, *result;
-    char argstring[2] = { (char)opt, '\0' };
+    const char *arg, argstring[2] = { (char)opt, '\0' };
 
-    arglist = Py_BuildValue("(ssi)", argstring, options.optarg, options.index);
+    if (opt == 0 && options.index < longOptionsCount)
+	arg = options.long_options[options.index].long_opt;
+    else
+	arg = argstring;
+
+    arglist = Py_BuildValue("(ssi)", arg, options.optarg, options.index);
     if (!arglist) {
 	PyErr_Print();
     } else {
@@ -812,9 +820,11 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     PyObject *pyargv = NULL;
     char *keyword_list[] = {"argv", NULL};
 
-    // Note that PyArg_ParseTupleAndKeywords() returns a "borrowed"
-    // reference, so there is no need to decrement a reference to
-    // pyargv.
+    /*
+     * Note that PyArg_ParseTupleAndKeywords() returns a borrowed
+     * reference, so there is no need to decrement a reference to
+     * pyargv.
+     */
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"O:pmGetOptionsFromList", keyword_list, &pyargv))
 	return NULL;
@@ -844,7 +854,7 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 #endif
 
 	/* All parameters may be referred back to later, e.g. via
-	 * pmGetProgname() or getOperands (and others), so we need to
+	 * pmGetProgname() or getOperands (and others), so we must
 	 * allocate the memory to hold these strings permanently.
          */
 	if ((string = strdup(string)) == NULL) {

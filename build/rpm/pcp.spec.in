@@ -93,7 +93,7 @@ Conflicts: pcp-pro < 2.2
 Conflicts: librapi
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep fileutils findutils
+Requires: bash gawk sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -1893,6 +1893,21 @@ arbitrary shell commands.
 # end pcp-pmda-shping
 
 #
+# pcp-pmda-smart
+#
+%package pmda-smart
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for S.M.A.R.T values
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%description pmda-smart
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics of disk S.M.A.R.T values making use of data from the
+smartmontools package.
+#end pcp-pmda-smart
+
+#
 # pcp-pmda-summary
 #
 %package pmda-summary
@@ -1965,7 +1980,7 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker
+Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-haproxy
 %endif
@@ -2334,6 +2349,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rpm' > pmda_rpm_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/sendmail' > pmda_sendmail_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/shping' > pmda_shping_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/smart' > pmda_smart_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
@@ -2353,7 +2369,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
       pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files \
-      zeroconf_files
+      pmda_smart_files zeroconf_files
 
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
@@ -2522,6 +2538,7 @@ BEGIN {
     while( getline < "pmda_rpm_files") pmda_rpm[$0]=1;
     while( getline < "pmda_sendmail_files") pmda_sendmail[$0]=1;
     while( getline < "pmda_shping_files") pmda_shping[$0]=1;
+    while( getline < "pmda_smart_files") pmda_smart[$0]=1;
     while( getline < "pmda_summary_files") pmda_summary[$0]=1;
     while( getline < "pmda_systemd_files") pmda_systemd[$0]=1;
     while( getline < "pmda_trace_files") pmda_trace[$0]=1;
@@ -2656,6 +2673,7 @@ BEGIN {
     else if (pmda_rpm[$NF]) f="pmda_rpm_files.rpm";
     else if (pmda_sendmail[$NF]) f="pmda_sendmail_files.rpm";
     else if (pmda_shping[$NF]) f="pmda_shping_files.rpm";
+    else if (pmda_smart[$NF]) f="pmda_smart_files.rpm";
     else if (pmda_summary[$NF]) f="pmda_summary_files.rpm";
     else if (pmda_systemd[$NF]) f="pmda_systemd_files.rpm";
     else if (pmda_trace[$NF]) f="pmda_trace_files.rpm";
@@ -3116,6 +3134,9 @@ fi
 %preun pmda-shping
 %{pmda_remove "$1" "shping"}
 
+%preun pmda-smart
+%{pmda_remove "$1" "smart"}
+
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}
 
@@ -3450,6 +3471,8 @@ cd
 %files pmda-sendmail -f pmda_sendmail_files.rpm
 
 %files pmda-shping -f pmda_shping_files.rpm
+
+%files pmda-smart -f pmda_smart_files.rpm
 
 %files pmda-summary -f pmda_summary_files.rpm
 

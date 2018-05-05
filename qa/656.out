@@ -214,28 +214,32 @@ Help:
 Total number of open lock failures for each mounted CIFS file system.
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.negotiates PMID: 121.1.28 []
+cifs.fs.negotiates PMID: 121.1.28 [Count of protocol negotiations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of protocol negotiations
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.negotiates_fails PMID: 121.1.29 []
+cifs.fs.negotiates_fails PMID: 121.1.29 [Count of protocol negotiations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of protocol negotiations
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.sessionsetups PMID: 121.1.30 []
+cifs.fs.sessionsetups PMID: 121.1.30 [Count of session setups]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of session setups
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.sessionsetups_fails PMID: 121.1.31 []
+cifs.fs.sessionsetups_fails PMID: 121.1.31 [Count of session setup failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of session setup failures
 Error: Metric not supported by this version of monitored application
 
 cifs.fs.logoffs PMID: 121.1.32 [Number of logoffs]
@@ -308,77 +312,88 @@ Help:
 Number of failed IOCTLs
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.cancels PMID: 121.1.42 [Number of canceled Ops]
+cifs.fs.cancels PMID: 121.1.42 [Number of cancelled ops]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
-Number of canceled Ops
+Number of cancelled ops
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.cancels_fails PMID: 121.1.43 []
+cifs.fs.cancels_fails PMID: 121.1.43 [Number of cancelled ops failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Number of cancelled ops failures
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.echos PMID: 121.1.44 []
+cifs.fs.echos PMID: 121.1.44 [Count of echo commands]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of echo commands
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.echos_fails PMID: 121.1.45 []
+cifs.fs.echos_fails PMID: 121.1.45 [Count of echo command failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of echo command failures
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.querydirs PMID: 121.1.46 []
+cifs.fs.querydirs PMID: 121.1.46 [Count of directory queries]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of directory queries
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.querydirs_fails PMID: 121.1.47 []
+cifs.fs.querydirs_fails PMID: 121.1.47 [Count of directory query failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of directory query failures
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.changenotifies PMID: 121.1.48 []
+cifs.fs.changenotifies PMID: 121.1.48 [Count of change notifications]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of change notifications
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.changenotifies_fails PMID: 121.1.49 []
+cifs.fs.changenotifies_fails PMID: 121.1.49 [Count of change notification failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of change notification failures
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.queryinfos PMID: 121.1.50 []
+cifs.fs.queryinfos PMID: 121.1.50 [Count of information queries]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of information queries
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.queryinfos_fails PMID: 121.1.51 []
+cifs.fs.queryinfos_fails PMID: 121.1.51 [Count of information query failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of information query failures
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.setinfos PMID: 121.1.52 []
+cifs.fs.setinfos PMID: 121.1.52 [Count of set infos]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of set infos
 Error: Metric not supported by this version of monitored application
 
-cifs.fs.setinfos_fails PMID: 121.1.53 []
+cifs.fs.setinfos_fails PMID: 121.1.53 [Count of set info failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of set info failures
 Error: Metric not supported by this version of monitored application
 
 cifs.fs.oplock_breaks_fails PMID: 121.1.54 [Number of oplock break failures.]
@@ -710,28 +725,32 @@ Help:
 Total number of open lock failures for each mounted CIFS file system.
     inst [0 or "\\fubar.com\mysmbuser"] value 32
 
-cifs.fs.negotiates PMID: 121.1.28 []
+cifs.fs.negotiates PMID: 121.1.28 [Count of protocol negotiations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of protocol negotiations
     inst [0 or "\\fubar.com\mysmbuser"] value 1
 
-cifs.fs.negotiates_fails PMID: 121.1.29 []
+cifs.fs.negotiates_fails PMID: 121.1.29 [Count of protocol negotiations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of protocol negotiations
     inst [0 or "\\fubar.com\mysmbuser"] value 2
 
-cifs.fs.sessionsetups PMID: 121.1.30 []
+cifs.fs.sessionsetups PMID: 121.1.30 [Count of session setups]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of session setups
     inst [0 or "\\fubar.com\mysmbuser"] value 4
 
-cifs.fs.sessionsetups_fails PMID: 121.1.31 []
+cifs.fs.sessionsetups_fails PMID: 121.1.31 [Count of session setup failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of session setup failures
     inst [0 or "\\fubar.com\mysmbuser"] value 5
 
 cifs.fs.logoffs PMID: 121.1.32 [Number of logoffs]
@@ -804,77 +823,88 @@ Help:
 Number of failed IOCTLs
     inst [0 or "\\fubar.com\mysmbuser"] value 35
 
-cifs.fs.cancels PMID: 121.1.42 [Number of canceled Ops]
+cifs.fs.cancels PMID: 121.1.42 [Number of cancelled ops]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
-Number of canceled Ops
+Number of cancelled ops
     inst [0 or "\\fubar.com\mysmbuser"] value 36
 
-cifs.fs.cancels_fails PMID: 121.1.43 []
+cifs.fs.cancels_fails PMID: 121.1.43 [Number of cancelled ops failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Number of cancelled ops failures
     inst [0 or "\\fubar.com\mysmbuser"] value 38
 
-cifs.fs.echos PMID: 121.1.44 []
+cifs.fs.echos PMID: 121.1.44 [Count of echo commands]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of echo commands
     inst [0 or "\\fubar.com\mysmbuser"] value 39
 
-cifs.fs.echos_fails PMID: 121.1.45 []
+cifs.fs.echos_fails PMID: 121.1.45 [Count of echo command failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of echo command failures
     inst [0 or "\\fubar.com\mysmbuser"] value 41
 
-cifs.fs.querydirs PMID: 121.1.46 []
+cifs.fs.querydirs PMID: 121.1.46 [Count of directory queries]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of directory queries
     inst [0 or "\\fubar.com\mysmbuser"] value 42
 
-cifs.fs.querydirs_fails PMID: 121.1.47 []
+cifs.fs.querydirs_fails PMID: 121.1.47 [Count of directory query failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of directory query failures
     inst [0 or "\\fubar.com\mysmbuser"] value 44
 
-cifs.fs.changenotifies PMID: 121.1.48 []
+cifs.fs.changenotifies PMID: 121.1.48 [Count of change notifications]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of change notifications
     inst [0 or "\\fubar.com\mysmbuser"] value 45
 
-cifs.fs.changenotifies_fails PMID: 121.1.49 []
+cifs.fs.changenotifies_fails PMID: 121.1.49 [Count of change notification failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of change notification failures
     inst [0 or "\\fubar.com\mysmbuser"] value 47
 
-cifs.fs.queryinfos PMID: 121.1.50 []
+cifs.fs.queryinfos PMID: 121.1.50 [Count of information queries]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of information queries
     inst [0 or "\\fubar.com\mysmbuser"] value 48
 
-cifs.fs.queryinfos_fails PMID: 121.1.51 []
+cifs.fs.queryinfos_fails PMID: 121.1.51 [Count of information query failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of information query failures
     inst [0 or "\\fubar.com\mysmbuser"] value 50
 
-cifs.fs.setinfos PMID: 121.1.52 []
+cifs.fs.setinfos PMID: 121.1.52 [Count of set infos]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of set infos
     inst [0 or "\\fubar.com\mysmbuser"] value 51
 
-cifs.fs.setinfos_fails PMID: 121.1.53 []
+cifs.fs.setinfos_fails PMID: 121.1.53 [Count of set info failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+Count of set info failures
     inst [0 or "\\fubar.com\mysmbuser"] value 53
 
 cifs.fs.oplock_breaks_fails PMID: 121.1.54 [Number of oplock break failures.]

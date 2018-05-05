@@ -249,7 +249,7 @@ class PCP2InfluxDB(object):
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
-        self.daemonize = opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
+        opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
         opts.pmSetLongOptionHelp()         # -?/--help
@@ -299,10 +299,9 @@ class PCP2InfluxDB(object):
 
     def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
-        if index == self.daemonize and opt == '':
+        if opt == 'daemonize':
             self.daemonize = 1
-            return
-        if opt == 'K':
+        elif opt == 'K':
             if not self.speclocal or not self.speclocal.startswith(";"):
                 self.speclocal = ";" + optarg
             else:

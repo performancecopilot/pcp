@@ -19,7 +19,7 @@ $python -c 'from pcp import pmcc' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmcc module is not installed'
 
 # real QA test starts here
-$python $here/src/test_pmcc.py -a archives/pmatop-log.0 >$seq.full 2>&1
+$python $here/src/test_pmcc.py -a archives/pcp-atop-log.0 >$seq.full 2>&1
 _check_unittest archive $seq.full
 status=$?
 exit

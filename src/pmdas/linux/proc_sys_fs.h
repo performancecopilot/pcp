@@ -23,6 +23,8 @@ typedef struct {
     int	fs_inodes_free;
     int	fs_dentry_count;
     int	fs_dentry_free;
+    int	fs_aio_count;
+    int	fs_aio_max;
 } proc_sys_fs_t;
 
 extern int refresh_proc_sys_fs(proc_sys_fs_t *);
