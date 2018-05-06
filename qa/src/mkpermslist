@@ -94,7 +94,14 @@ p
 	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
 	    #	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
-	    sed -e '/PCP_TMP_DIR)\/pmlogger$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    # and this INSTALL line is optional because in rpm-land it
+	    # is packaged in pcp-zeroconf which may, or may not, be
+	    # installed
+	    # $(INSTALL) -m 775 -d $(PCP_SA_DIR)
+	    sed <$tmp.raw >$tmp.tmp \
+		-e '/PCP_TMP_DIR)\/pmlogger$/s/$/|optional/' \
+		-e '/PCP_SA_DIR)$/s/$/|optional/' \
+	    # end
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 

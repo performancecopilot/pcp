@@ -159,6 +159,7 @@ parsehostattrs
 parsehostspec
 parseinterval
 parsemetricspec
+permslist.old
 pcp_lite_crash
 pdubufbounds
 pducheck
