@@ -35,13 +35,13 @@ _filter()
     $here/src/sortinst | \
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-    #end
+    end
 }
 
 # real QA test starts here
 root=$tmp.root
-export SMART_SETUP_LSBLK=$root/lsblk
-export SMART_SETUP=$root/smartctl
+export SMART_SETUP_LSBLK="cat $root/smart/lsblk"
+export SMART_SETUP="cat $root/smart/smartctl"
 pmda=$PCP_PMDAS_DIR/smart/pmdasmart,smart_init
 
 echo
