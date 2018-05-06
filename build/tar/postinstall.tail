@@ -258,6 +258,7 @@ for dir in $PCP_LOG_DIR \
 	   $PCP_SA_DIR \
 	   $PCP_RUN_DIR \
 	   $PCP_VAR_DIR/tmp $PCP_VAR_DIR/tmp/pmie $PCP_VAR_DIR/tmp/pmlogger \
+	   $PCP_VAR_DIR/tmp/mmv \
 	   $PCP_VAR_DIR/config/pmda \
 	   $PCP_VAR_DIR/config/pmie $PCP_VAR_DIR/config/pmlogger \
 	   $PCP_NSSDB_DIR
@@ -274,7 +275,7 @@ do
     chown pcp:pcp $file
 done
 
-# pcpqa:pcpqa and mode 755 dir and all below there
+# pcpqa:pcpqa and mode 775 dir and all below there
 #
 _do_dir "pcpqa:pcpqa" 775 $PCP_VAR_DIR/testsuite
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
