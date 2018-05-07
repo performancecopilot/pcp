@@ -365,7 +365,7 @@ else
     if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
     then
 	rm -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
-	mv $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
+	mv -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
     fi
     pmdate '# %Y-%m-%d %H:%M:%S
 %s' >$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp
@@ -380,7 +380,7 @@ else
     if [ -f "$PROGLOG" ]
     then
 	rm -f "$PROGLOG.prev"
-	mv "$PROGLOG" "$PROGLOG.prev"
+	mv -f "$PROGLOG" "$PROGLOG.prev"
     fi
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
@@ -511,7 +511,7 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
 	    echo "PCP NOTICES summary for `hostname`"
 	    cat $tmp/pcp
 	fi
-        [ -w `dirname "$NOTICES"` ] && mv $tmp/pcp "$MAILFILE"
+        [ -w `dirname "$NOTICES"` ] && mv -f $tmp/pcp "$MAILFILE"
     fi
 fi
 
