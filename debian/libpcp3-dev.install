@@ -37,6 +37,7 @@ usr/share/man/man3/pmatomstr.3.gz
 usr/share/man/man3/pmAtomStr.3.gz
 usr/share/man/man3/pmAtomStr_r.3.gz
 usr/share/man/man3/pmClearDebug.3.gz
+usr/share/man/man3/pmClearFetchGroup.3.gz
 usr/share/man/man3/__pmconnectlogger.3.gz
 usr/share/man/man3/__pmConnectLogger.3.gz
 usr/share/man/man3/__pmcontrollog.3.gz

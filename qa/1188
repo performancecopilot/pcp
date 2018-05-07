@@ -16,6 +16,8 @@ echo "QA output created by $seq"
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
 [ -d $PCP_PMDAS_DIR/dm ] || _notrun "dm PMDA directory is not installed"
+[ -d /dev/mapper ] || _notrun "no device-mapper support in kernel"
+[ `ls -1 /dev/mapper | wc -l` -gt 1 ] || _notrun "no device-mapper devices"
 which dmsetup >/dev/null 2>&1 || _notrun "dmsetup is not installed"
 
 _cleanup()

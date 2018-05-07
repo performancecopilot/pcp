@@ -69,7 +69,6 @@ smart_device_info_fetch(int item, struct device_info *device_info, pmAtomValue *
 int
 smart_data_fetch(int item, int cluster, struct smart_data *smart_data, pmAtomValue *atom)
 {
-
 	// Check for empty ID field, if so we have no data for that
     // S.M.A.R.T ID and return.
 	if (smart_data->id[cluster] == 0)

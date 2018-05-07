@@ -76,15 +76,15 @@ $(IAM).te: $(IAM).te.in
 
 install: default
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
-	$(INSTALL) -m 664 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
-	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
+	$(INSTALL) -m 644 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
+	$(INSTALL) -m 644 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
 ifneq "$(PCP_DOCKER_VAR_LIB)" ""
-	$(INSTALL) -m 664 $(IAM)-docker.pp $(PCP_SELINUX_DIR)/$(IAM)-docker.pp
-	$(INSTALL) -m 664 $(IAM)-docker.te $(PCP_SELINUX_DIR)/$(IAM)-docker.te
+	$(INSTALL) -m 644 $(IAM)-docker.pp $(PCP_SELINUX_DIR)/$(IAM)-docker.pp
+	$(INSTALL) -m 644 $(IAM)-docker.te $(PCP_SELINUX_DIR)/$(IAM)-docker.te
 endif
 ifneq "$(PCP_CONTAINER_RUNTIME_T)" ""
-	$(INSTALL) -m 664 $(IAM)-container.pp $(PCP_SELINUX_DIR)/$(IAM)-container.pp
-	$(INSTALL) -m 664 $(IAM)-container.te $(PCP_SELINUX_DIR)/$(IAM)-container.te
+	$(INSTALL) -m 644 $(IAM)-container.pp $(PCP_SELINUX_DIR)/$(IAM)-container.pp
+	$(INSTALL) -m 644 $(IAM)-container.te $(PCP_SELINUX_DIR)/$(IAM)-container.te
 endif
 
 else

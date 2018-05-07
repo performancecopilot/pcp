@@ -50,9 +50,11 @@ esac
 sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
     -e 's@$(PCP_USER)@'$PCP_USER@g \
     -e 's@$(PCP_GROUP)@'$PCP_GROUP@g \
+    -e 's@$(PCP_SA_DIR)@'$PCP_SA_DIR@g \
     -e 's@$(PCP_PMLOGGERCONTROL_PATH)@'$PCP_PMLOGGERCONTROL_PATH@g \
     -e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
     -e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
+    -e 's@$(PCP_TMPFILE_DIR)@'$PCP_TMPFILE_DIR@g \
     -e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
     -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
     -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
@@ -84,10 +86,13 @@ p
 }'`
 	elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 	then
-	    # stat line of interest ...
-	    # _mode=-rw-r--r-- _user=kenj _group=kenj
-	    eval `stat -f '_mode=%Sp _owner=%Su _group=%Sg' $target`
-	    _mode=`echo $_mode | sed -e 's/.//' -e 's/---/0/g' -e 's/r--/4/g' -e 's/r-x/5/g' -e 's/rw-/6/g' -e 's/rwx/7/g'`
+	    # stat line of interest ... (mode is in bottom 4 octal digits,
+	    # stripped of leading zeroes)
+	    # _mode=100644 _user=kenj _group=kenj
+	    # _mode=41777 _user=root _group=wheel
+	    #
+	    eval `stat -f '_mode=%Op _owner=%Su _group=%Sg' $target`
+	    _mode=`echo $_mode | sed -e 's/.*\(....\)$/\1/' -e 's/^0*\(.\)/\1/'`
 	else
 	    echo "Arrgh, need stat(1) handling for $PCP_PLATFORM"
 	    status=1

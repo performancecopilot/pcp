@@ -596,8 +596,8 @@ slackpkg?	ExtUtils::MakeMaker	[perl]
 pacman?	ExtUtils::MakeMaker	[perl]
 # -- YAML::XS::LibYAML
 dpkg?	YAML::XS::LibYAML	[libyaml-libyaml-perl]
-rpm?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)' or from cpan]
-urpmi?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)' or from cpan]
+rpm?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)']
+urpmi?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)']
 # -- XML::LibXML
 dpkg?	XML::LibXML		[libxml-libxml-perl (QA optional)]
 rpm?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan (QA optional)]
@@ -742,7 +742,7 @@ slackpkg?	LWP::UserAgent	[from cpan]
 pacman?	LWP::UserAgent		[from cpan]
 # -- Net::SNMP
 dpkg?	Net::SNMP		[libnet-snmp-perl]
-rpm?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)' or from cpan]
+rpm?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
 urpmi?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
 emerge?	Net::SNMP		[from cpan]
 pkgin?	Net::SNMP		[p5-Net-SNMP]
@@ -1270,7 +1270,7 @@ in
 	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg Coin dtrace boost json_reformat'
 	;;
     vm14)
-	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-xlsxwriter perl-Slurm-Hostlist socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel'
+	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-xlsxwriter perl-Slurm-Hostlist socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML'
 	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
@@ -1289,6 +1289,9 @@ in
 	;;
     vm27)
 	na='python3-bpfcc'
+	;;
+    vm29)
+	na='python-prometheus-client python-xlsxwriter perl-Slurm-Hostlist zabbix-agent qtchooser'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-xlsxwriter python-xlsxwriterxlsxwriter dtrace boost'

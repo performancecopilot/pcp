@@ -25,7 +25,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-KMNorV\f1]
+[\f3\-KMNoprV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -316,6 +316,41 @@ scheduled invocation of
 then this will compress all volumes except the ones being currently
 written by
 .BR pmlogger (1).
+.PP
+If the
+.B \-p
+option is specified for
+.B pmlogger_daily
+then the status of the daily processing is polled and if the
+daily
+.BR pmlogger (1)
+rotation, culling, rewriting, compressing, etc.
+has not been done in the last 24 hours then it is done now.
+The intent is to have
+.B pmlogger_daily
+called regularly with the
+.B \-p
+option (at 30 mins past the hour, every hour in the default
+.BR cron (8)
+set up) to ensure daily processing happens as soon as possible if
+it was missed at the regularly scheduled time (which is 00:10
+by default), e.g. if the system was down or suspended at that
+time.
+.PP
+With the
+.B \-p
+option,
+.B pmlogger_daily
+simply exits if the previous day's processing has already been
+done.
+.PP
+The
+.B \-K
+and
+.B \-p
+options to
+.B pmlogger_daily
+are mutually exclusive.
 .PP
 The script
 .B $PCP_BINADM_DIR/pmlogger_daily
@@ -676,6 +711,18 @@ the host
 PCP ``notices'' file used by
 .BR pmie (1)
 and friends
+.TP
+.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
+if the previous execution of
+.B pmlogger_check
+produced any output it is saved here.
+The normal case is no output in which case the file does not exist.
+.TP
+.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
+if the previous execution of
+.B pmlogger_daily
+produced any output it is saved here.
+The normal case is no output in which case the file does not exist.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

@@ -1587,7 +1587,7 @@ _get_port()
     __port=$2
     while [ $__port -le "$3" ]
     do
-	if fuser $__port/$__proto >/dev/null 2>&1
+	if $sudo fuser $__port/$__proto >/dev/null 2>&1
 	then
 	    :
 	else
