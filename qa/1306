@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1191
+# PCP QA Test No. 1306
 # Test pmdaprometheus label filtering, including optional labels
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
