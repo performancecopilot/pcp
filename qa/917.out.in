@@ -106,4 +106,7 @@ decl 1:
   allow [pcp_pmmgr_t] [unconfined_t] : [unix_stream_socket] { connectto };
   allow [pcp_pmmgr_t] [ldconfig_exec_t] : [file] { execute execute_no_trans getattr open read };
   allow [pcp_pmmgr_t] [zabbix_port_t] : [tcp_socket] { name_connect };
+  allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { map };
+  allow [pcp_pmcd_t] self : [capability] { sys_rawio };
 

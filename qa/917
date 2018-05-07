@@ -117,6 +117,8 @@ _filter_outfile()
            !/ldconfig_exec_t/ ;
         else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_tmp_t/ && /map/)
            !/pcp_tmp_t/ ;
+        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /fsadm_exec_t/ && /map/)
+           !/fsadm_exec_t/ ;
 	else if (numad_context == "" && /numda_t/)
 	   !/numad_t/ ;
 	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
