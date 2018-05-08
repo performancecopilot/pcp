@@ -67,6 +67,11 @@ do
     then
 	[ -z "$optional" ] && \
 	    echo "Error: $target: not found, should have been installed from $makefile"
+    elif [ "$target" = "/tmp" -o "$target" = "/var/tmp" ]
+    then
+	# when $PCP_TMPFILE_DIR is one of these, don't muck with it!
+	#
+	:
     else
 	_mode=""
 	_owner=""
