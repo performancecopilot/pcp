@@ -69,8 +69,10 @@ smart_device_info_fetch(int item, struct device_info *device_info, pmAtomValue *
 int
 smart_data_fetch(int item, int cluster, struct smart_data *smart_data, pmAtomValue *atom)
 {
-	// Check for empty ID field, if so we have no data for that
-    // S.M.A.R.T ID and return.
+	/*
+	 * Check for empty ID field, if so we have no data for that
+	 * S.M.A.R.T ID and return.
+	 */
 	if (smart_data->id[cluster] == 0)
 		return 0;
 
@@ -109,7 +111,7 @@ smart_refresh_device_info(const char *name, struct device_info *device_info)
 	char buffer[4096], capacity[64], *r, *w;
 	FILE *pf;
 
-	pmsprintf(buffer, sizeof(buffer), "%s -i -H /dev/%s", smart_setup_stats, name);
+	pmsprintf(buffer, sizeof(buffer), "%s -Hi /dev/%s", smart_setup_stats, name);
 	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
@@ -128,7 +130,7 @@ smart_refresh_device_info(const char *name, struct device_info *device_info)
 		if (strncmp(buffer, "User Capacity:", 14) == 0) {
 			sscanf(buffer, "%*s%*s %s", capacity);
 
-			// convert comma separated capacity string to uint64
+			/* convert comma separated capacity string to uint64 */
 			for (w = r = capacity; *r; r++) if (*r != ',') *w++ = *r;
 			device_info->capacity_bytes = strtoll(capacity, NULL, 10);
 		}
@@ -164,16 +166,18 @@ smart_refresh_data(const char *name, struct smart_data *smart_data)
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 
-		// Check if we are looking at smart data by checking the character 
-        // in the ID# field is actually a digit (the field is right aligned)
-        // so we are looking at rightmost digit.
-		//
-        // We also handle the trailing blank line for attribute output at the
-        // end of the table by ignoring blank lines of input
-        if((buffer[2] >= '0' && buffer[2] <= '9') && (buffer[0] != '\n')) {
+		/* Check if we are looking at smart data by checking the character 
+		 * in the ID# field is actually a digit (the field is right aligned)
+		 * so we are looking at rightmost digit.
+		 *
+		 * We also handle the trailing blank line for attribute output at the
+		 * end of the table by ignoring blank lines of input
+		 */
+		if((buffer[2] >= '0' && buffer[2] <= '9') && (buffer[0] != '\n')) {
 
-        	// smartmontools attribute table layout:
-        	// ID# ATTRIBUTE_NAME FLAG VALUE WORST THRESH TYPE UPDATED WHEN_FAILED RAW_VALUE
+			/* smartmontools attribute table layout:
+			ID# ATTRIBUTE_NAME FLAG VALUE WORST THRESH TYPE UPDATED WHEN_FAILED RAW_VALUE
+			*/
 			sscanf(buffer, "%"SCNu8" %*s %*x %"SCNu8" %"SCNu8" %"SCNu8" %*s %*s %*s %"SCNu32"", 
 				&id, 
 				&value, 
@@ -182,8 +186,10 @@ smart_refresh_data(const char *name, struct smart_data *smart_data)
 				&raw
 			);
 
-			// Apply smart data values, id directly links with smart value id,
-            // not efficent but allows easy expansion with new smart values
+			/*
+			 * Apply smart data values, id directly links with smart value id,
+			 * not efficent but allows easy expansion with new smart values
+			 */
 			smart_data->id[id] = id;
 			smart_data->value[id] = value;
 			smart_data->worst[id] = worst;
@@ -198,8 +204,8 @@ smart_refresh_data(const char *name, struct smart_data *smart_data)
 void
 smart_stats_setup(void)
 {
-    static char smart_command[] = "smartctl";
-    char *env_command;
+	static char smart_command[] = "smartctl";
+	char *env_command;
 
 	/* allow override at startup for QA testing */
 	if ((env_command = getenv("SMART_SETUP")) != NULL)

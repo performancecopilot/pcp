@@ -15,17 +15,22 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= pmda.c smart_stats.c
-HFILES		= pmdasmart.h smart_stats.h
-CMDTARGET	= pmdasmart
-
-LLDLIBS		= $(PCP_PMDALIB)
-
 IAM		= smart
 DOMAIN		= SMART
+CFILES		= pmda.c smart_stats.c
+HFILES		= pmdasmart.h smart_stats.h
+CMDTARGET	= pmda$(IAM)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT	= $(IAM)_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT		= domain.h $(IAM).log
+LLDLIBS		= $(PCP_PMDALIB)
+LCFLAGS		= $(INVISIBILITY)
+
+LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
+
+SCRIPTS		= Install Remove
+VERSION_SCRIPT	= exports
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -36,12 +41,12 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(CMDTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -53,6 +58,9 @@ default_pcp : default
 install_pcp : install
 
 $(OBJECTS): domain.h
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
