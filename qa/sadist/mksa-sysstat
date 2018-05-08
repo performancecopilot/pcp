@@ -11,6 +11,14 @@ else
     exit 1
 fi
 
+if which xz >/dev/null 2>&1
+then
+    :
+else
+    echo "Error: xz not installed"
+    exit 1
+fi
+
 version=`sar -V 2>&1 | sed -n -e '/sysstat version /s/.* //p'`
 if [ -z "$version" ]
 then
@@ -38,6 +46,10 @@ fi
 # collect data every 5 secs for 3 mins
 echo -n "Creating sa-sysstat-$version ..."
 $sadc -S XALL 5 36 sa-sysstat-$version
+echo
+
+echo -n "Creating sa-sysstat-$version.xz ..."
+xz -9 sa-sysstat-$version
 echo
 
 exit 0
