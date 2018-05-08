@@ -191,6 +191,7 @@ static int
 _pm_isdisk(char *dname)
 {
     return (!_pm_isloop(dname) && !_pm_isramdisk(dname) &&
+	    !_pm_iscdrom(dname) &&
 	    !_pm_ispartition(dname) && !_pm_isxvmvol(dname) &&
 	    !_pm_isdm(dname) && !_pm_ismd(dname));
 }
