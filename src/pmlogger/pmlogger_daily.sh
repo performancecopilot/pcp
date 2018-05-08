@@ -315,7 +315,7 @@ done
 if $PFLAG
 then
     rm -f $tmp/ok
-    if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
+    if [ -w $PCP_LOG_DIR/pmlogger -a -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
     then
 	last_stamp=`sed -e '/^#/d' <$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp`
 	if [ -n "$last_stamp" ]
@@ -359,7 +359,8 @@ elif $COMPRESSONLY
 then
     # no date-and-timestamp update with -K
     :
-else
+elif [ -w $PCP_LOG_DIR/pmlogger ]
+then
     # doing the whole shootin' match ...
     #
     if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
