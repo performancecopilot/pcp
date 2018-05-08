@@ -21,6 +21,7 @@
 
 #include "pmdasmart.h"
 
+static int _isDSO = 1; /* for local contexts */
 static char *smart_setup_lsblk;
 
 pmdaIndom indomtable[] = {
@@ -1142,11 +1143,11 @@ smart_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
 	int i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
-    for (i = 0; i < numpmid; i++) {
+	for (i = 0; i < numpmid; i++) {
 		unsigned int	cluster = pmID_cluster(pmidlist[i]);
 		if (cluster < NUM_CLUSTERS)
 		    need_refresh[cluster]++;
-    }
+	}
 
 	if ((sts = smart_fetch_refresh(pmda, need_refresh)) < 0)
 		return sts;
@@ -1160,7 +1161,7 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	unsigned int 		item = pmID_item(mdesc->m_desc.pmid);
 	unsigned int		cluster = pmID_cluster(mdesc->m_desc.pmid);
 	struct block_dev 	*dev;
-	int 				sts;
+	int 			sts;
 
 	switch (cluster) {
 		case CLUSTER_DEVICE_INFO:
@@ -1231,8 +1232,8 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void
 smart_instance_setup(void)
 {
-    static char lsblk_command[] = "lsblk -d -n -e 1,2,11 -o name";
-    char *env_command;
+	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11 -o name";
+	char *env_command;
 
 	/* allow override at startup for QA testing */
 	if ((env_command = getenv("SMART_SETUP_LSBLK")) != NULL)
@@ -1244,85 +1245,93 @@ smart_instance_setup(void)
 static int
 smart_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
-    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
-	if (sts != -ENOENT)
-	    return sts;
-    }
-    return pmdaText(ident, type, buf, pmda);
+	if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+		int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
+		if (sts != -ENOENT)
+			return sts;
+	}
+	return pmdaText(ident, type, buf, pmda);
 }
 
 static int
 smart_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
-    return pmdaTreePMID(tree, name, pmid);
+	__pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
+	return pmdaTreePMID(tree, name, pmid);
 }
 
 static int
 smart_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmnsTree *tree = pmdaDynamicLookupPMID(pmda, pmid);
-    return pmdaTreeName(tree, pmid, nameset);
+	__pmnsTree *tree = pmdaDynamicLookupPMID(pmda, pmid);
+	return pmdaTreeName(tree, pmid, nameset);
 }
 
 static int
 smart_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
-    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
-    return pmdaTreeChildren(tree, name, flag, kids, sts);
+	__pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
+	return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
 void
 __PMDA_INIT_CALL
 smart_init(pmdaInterface *dp)
 {
-    int		nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
-    int		nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
+	int nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
+	int nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
 
-    /* Check for environment variables allowing test injection */
-    smart_instance_setup();
-    smart_stats_setup();
+	if (_isDSO) {
+		char helppath[MAXPATHLEN];
+		int sep = pmPathSeparator();
+		pmsprintf(helppath, sizeof(helppath), "%s%c" "smart" "%c" "help",
+			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+		pmdaDSO(dp, PMDA_INTERFACE_4, "SMART DSO", helppath);
+	}
 
-    if (dp->status != 0)
-	return;
+	if (dp->status != 0)
+		return;
 
-    dp->version.four.instance = smart_instance;
-    dp->version.four.fetch = smart_fetch;
-    dp->version.four.text = smart_text;
-    dp->version.four.pmid = smart_pmid;
-    dp->version.four.name = smart_name;
-    dp->version.four.children = smart_children;
-    pmdaSetFetchCallBack(dp, smart_fetchCallBack);
+	/* Check for environment variables allowing test injection */
+	smart_instance_setup();
+	smart_stats_setup();
 
-    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
+	dp->version.four.instance = smart_instance;
+	dp->version.four.fetch = smart_fetch;
+	dp->version.four.text = smart_text;
+	dp->version.four.pmid = smart_pmid;
+	dp->version.four.name = smart_name;
+	dp->version.four.children = smart_children;
+	pmdaSetFetchCallBack(dp, smart_fetchCallBack);
+
+	pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
+	pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
 }
 
 static pmLongOptions longopts[] = {
-    PMDA_OPTIONS_HEADER("Options"),
-    PMOPT_DEBUG,
-    PMDAOPT_DOMAIN,
-    PMDAOPT_LOGFILE,
-    PMOPT_HELP,
-    PMDA_OPTIONS_END
+	PMDA_OPTIONS_HEADER("Options"),
+	PMOPT_DEBUG,
+	PMDAOPT_DOMAIN,
+	PMDAOPT_LOGFILE,
+	PMOPT_HELP,
+	PMDA_OPTIONS_END
 };
 
 static pmdaOptions opts = {
-    .short_options = "D:d:l:U:?",
-    .long_options = longopts,
+	.short_options = "D:d:l:U:?",
+	.long_options = longopts,
 };
 
 int 
 main(int argc, char **argv)
 {
 	int sep = pmPathSeparator();
-	pmdaInterface dispatch;
 	char helppath[MAXPATHLEN];
+	pmdaInterface dispatch;
 
+	_isDSO = 0;
 	pmSetProgname(argv[0]);
-
-	snprintf(helppath, sizeof(helppath), "%s%c" "smart" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "smart" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), SMART, "smart.log", helppath);
 

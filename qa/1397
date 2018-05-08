@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "SMART PMDA is Linux-specific (smart)"
 [ -d $PCP_PMDAS_DIR/smart ] || _notrun "smart PMDA directory is not installed"
-which smartctl >/dev/null 2>&1 || _notrun "smartctl (smartmontools) is not installed"
 
 _cleanup()
 {
@@ -35,21 +34,23 @@ _filter()
     $here/src/sortinst | \
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-    end
+    #end
 }
 
 # real QA test starts here
-root=$tmp.root
-export SMART_SETUP_LSBLK="cat $root/smart/lsblk"
-export SMART_SETUP="cat $root/smart/smartctl"
-pmda=$PCP_PMDAS_DIR/smart/pmdasmart,smart_init
-
 echo
 echo "=== Installing S.M.A.R.T PMDA ===" | tee -a $here/$seq.full
 _prepare_pmda_install smart
 cd $PCP_PMDAS_DIR/smart
 $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $here/$seq.full
+
+root=$tmp.root
+export SMART_SETUP_LSBLK="$here/smart/lsblk.sh"
+export SMART_SETUP="$here/smart/smartctl.sh"
+pmda=$PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init
+metrics=`pminfo -L -K clear -K add,150,$pmda smart | LC_COLLATE=POSIX sort`
+memcheck="smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst"
 
 for tgz in $here/smart/smart-*.tgz
 do
@@ -60,14 +61,21 @@ do
     cd $root
     sudo tar xzf $tgz
     base=`basename $tgz`
+    count=`echo $base | sed -e 's,.*-root-,,g' -e 's,.tgz$,,g'`
+    cd $count/smart
 
     echo "== Checking metric descriptors and values - $base"
-    pminfo -dfmtT smart 2>&1 \
+    pminfo -L -K clear -K add,150,$pmda -dfmtT $metrics 2>&1 \
     | _filter
+
+    echo "== Checking with valgrind - $base"
+    _run_valgrind pminfo -L -K clear -K add,150,$pmda -f $memcheck 2>&1 \
+    | _filter
+
     echo && echo "== done" && echo
     cd $here
 done
-
+ 
 # cleanup ..
 #
 cd $PCP_PMDAS_DIR/smart
