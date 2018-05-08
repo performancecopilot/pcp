@@ -33,7 +33,7 @@ EOF
 mkdir -p $tmp.distdir $tmp.relaydir
 
 # some archives for today...
-TODAY=`pmdate %Y%m%d.0`
+TODAY=`pmdate %Y%m%d`
 cp $tmp.ctl $tmp.distdir/$TODAY.0
 cp $tmp.ctl $tmp.distdir/$TODAY.meta
 cp $tmp.ctl $tmp.distdir/$TODAY.index
@@ -42,7 +42,7 @@ cp $tmp.ctl $tmp.relaydir/$TODAY.meta
 cp $tmp.ctl $tmp.relaydir/$TODAY.index
 
 # some archives for a five days ago...
-FIVEDAYS=`pmdate -5d %Y%m%d.0`
+FIVEDAYS=`pmdate -5d %Y%m%d`
 cp $tmp.ctl $tmp.distdir/$FIVEDAYS.0
 cp $tmp.ctl $tmp.distdir/$FIVEDAYS.meta
 cp $tmp.ctl $tmp.distdir/$FIVEDAYS.index
@@ -56,7 +56,7 @@ STAMP=`pmdate -5d %Y%m%d`0010
 touch -t "$STAMP" $tmp.*/$FIVEDAYS.* $tmp.relaydir/mumble*
 
 # some archives for five months ago...
-FIVEMONTHS=`pmdate -5m %Y%m%d.0`
+FIVEMONTHS=`pmdate -5m %Y%m%d`
 cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.0
 cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.meta
 cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.index
@@ -67,9 +67,9 @@ STAMP=`pmdate -5m %Y%m%d`0010
 touch -t "$STAMP" $tmp.*/$FIVEMONTHS.*
 
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl -l $tmp.log
-$sudo cat $tmp.log | \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | 2>&1 \
 sed \
+	-e '/date-and-timestamp/d' \
 	-e '/NOTICES/d' \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
