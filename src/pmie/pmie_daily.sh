@@ -216,7 +216,7 @@ done
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
 # as our logfile and redirect stderr there too.
 #
-[ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+[ -f "$PROGLOG" ] && mv -f "$PROGLOG" "$PROGLOG.prev"
 exec 1>"$PROGLOG"
 exec 2>&1
 
@@ -505,7 +505,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    # creating a new logfile with the old name in the process.
 	    #
 	    $SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
-	    if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
+	    if mv -f $logfile ${logfile}.${SUMMARY_LOGNAME}
 	    then
 		$VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
 		eval $KILL -s HUP $pid
