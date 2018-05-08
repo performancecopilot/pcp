@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,14 +18,9 @@
 #include <strings.h>
 #endif
 
-#define MAXSLOTS	(1<<14)	/* see CLUSTER_SLOTS in Redis sources */
-#define SLOTMASK	(MAXSLOTS-1)
-
-typedef struct redisSlots {
-    redisContext	*contexts[MAXSLOTS];
-    const char		*hostspec;
-    struct timeval	timeout;
-} redisSlots;
+/* TODO: externalise Redis configuration */
+static char default_server[] = "localhost:6379";
+static struct timeval default_timeout = { 1, 500000 }; /* 1.5 secs */
 
 redisSlots *
 redisSlotsInit(const char *hostspec, struct timeval *timeout)
@@ -34,8 +29,13 @@ redisSlotsInit(const char *hostspec, struct timeval *timeout)
 
     if ((pool = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
+
     pool->hostspec = hostspec;
-    pool->timeout = *timeout;
+    if (timeout == NULL)
+	timeout = &default_timeout;
+    else
+	pool->timeout = *timeout;
+    pool->contexts[0] = redis_connect((char *)hostspec, timeout);
     return pool;
 }
 
@@ -83,9 +83,6 @@ keySlot(const char *key, unsigned int keylen)
     return crc16(key + start + 1, end - start - 1) & SLOTMASK;
 }
 
-/* TODO: externalise Redis configuration */
-static char default_server[] = "localhost:6379";
-static struct timeval default_timeout = { 1, 500000 }; /* 1.5 secs */
 
 redisContext *
 redisGet(redisSlots *pool, const char *key, unsigned int keylen)

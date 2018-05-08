@@ -22,8 +22,6 @@
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
 
-typedef void (*redis_callback)(redisContext *, redisReply *, void *);
-
 typedef struct redis_script {
     const char		*text;
     sds			hash;
@@ -101,15 +99,17 @@ redis_load_scripts(redisContext *redis)
     }
 }
 
-static int
-redis_submitcb(redisContext *redis, const char *command, sds key, sds cmd,
+int
+redis_submitcb(redisSlots *redis, const char *command, sds key, sds cmd,
 		redis_callback callback, void *arg)
 {
-    int		sts = redisAppendFormattedCommand(redis, cmd, sdslen(cmd));
+    __uint32_t	slot = keySlot(key, sdslen(key));
+    int		sts = redisAppendFormattedCommand(redis->contexts[0], cmd, sdslen(cmd));
     redisReply	*reply;
 
     if (UNLIKELY(pmDebugOptions.series)) {
-	fprintf(stderr, "redis_submit[%d]: %s %s\n", sts, command, key);
+	fprintf(stderr, "redis_submitcb[slot=%u,sts=%u]: %s %s\n",
+			slot, sts, command, key);
 	if (pmDebugOptions.desperate)
 	    fputs(cmd, stderr);
     }
@@ -121,10 +121,31 @@ redis_submitcb(redisContext *redis, const char *command, sds key, sds cmd,
     sdsfree(key);
 
     /* TODO: switch to async commands and callback handling */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     callback(redis, reply, arg);
     freeReplyObject(reply);
     return 0;
+}
+
+int
+redis_submit(redisSlots *redis, const char *command, sds key, sds cmd)
+{
+    __uint32_t	slot = keySlot(key, sdslen(key));
+    int		sts = redisAppendFormattedCommand(redis->contexts[0], cmd, sdslen(cmd));
+
+    if (UNLIKELY(pmDebugOptions.series)) {
+	fprintf(stderr, "redis_submit[slot=%u,sts=%u]: %s %s\n",
+			slot, sts, command, key);
+	if (pmDebugOptions.desperate)
+	    fputs(cmd, stderr);
+    }
+    if (sts != REDIS_OK) {
+	fprintf(stderr, "failed to append %s %s\n", command, key);
+	exit(1);	/* TODO: propogate errors up to callers */
+    }
+    sdsfree(cmd);
+    sdsfree(key);
+    return sts;
 }
 
 static void
@@ -222,7 +243,7 @@ checkInteger(redisReply *reply, const char *format, ...)
 }
 
 static long long
-redis_strmap(redisContext *redis, char *name, const char *value)
+redis_strmap(redisSlots *redis, char *name, const char *value)
 {
     redisReply		*reply;
     long long		map, add = 0;
@@ -238,7 +259,7 @@ redis_strmap(redisContext *redis, char *name, const char *value)
     redis_submit(redis, EVALSHA, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     map = checkMapScript(reply, &add, "%s: %s (%s)" EVALSHA,
 			"string mapping script", name);
     freeReplyObject(reply);
@@ -255,7 +276,7 @@ redis_strmap(redisContext *redis, char *name, const char *value)
 	redis_submit(redis, PUBLISH, key, cmd);
 
 	/* TODO: async callback function */
-	redisGetReply(redis, (void **)&reply);
+	redisGetReply(redis->contexts[0], (void **)&reply);
 	checkInteger(reply, "%s: %s", PUBLISH, "new %s mapping", name);
 	freeReplyObject(reply);
     }
@@ -264,7 +285,7 @@ redis_strmap(redisContext *redis, char *name, const char *value)
 }
 
 void
-redis_series_source(redisContext *redis, context_t *context)
+redis_series_source(redisSlots *redis, context_t *context)
 {
     redisReply		*reply;
     const char		*hash = pmwebapi_hash_str(context->hash);
@@ -288,7 +309,7 @@ redis_series_source(redisContext *redis, context_t *context)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping context to source name");
     freeReplyObject(reply);
 
@@ -302,7 +323,7 @@ redis_series_source(redisContext *redis, context_t *context)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping source name to context");
     freeReplyObject(reply);
 
@@ -314,7 +335,7 @@ redis_series_source(redisContext *redis, context_t *context)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping context to host name");
     freeReplyObject(reply);
 
@@ -328,13 +349,13 @@ redis_series_source(redisContext *redis, context_t *context)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping host name to context");
     freeReplyObject(reply);
 }
 
 void
-redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
+redis_series_inst(redisSlots *redis, metric_t *metric, value_t *value)
 {
     redisReply		*reply;
     const char		*hash;
@@ -358,7 +379,7 @@ redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping series to inst name");
     freeReplyObject(reply);
 
@@ -371,7 +392,7 @@ redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping instance to series");
     freeReplyObject(reply);
 
@@ -393,13 +414,13 @@ redis_series_inst(redisContext *redis, metric_t *metric, value_t *value)
     redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkStatusOK(reply, "%s: %s", HMSET, "setting metric inst");
     freeReplyObject(reply);
 }
 
 typedef struct {
-    redisContext	*redis;
+    redisSlots	*redis;
     metric_t		*metric;
     value_t		*value;
 } annotate_t;
@@ -407,7 +428,7 @@ typedef struct {
 static int
 annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
 {
-    redisContext	*redis = my->redis;
+    redisSlots          *redis = my->redis;
     redisReply		*reply;
     const char		*offset;
     size_t		length;
@@ -454,7 +475,7 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkStatusOK(reply, "%s: %s", HMSET, "setting series labels");
     freeReplyObject(reply);
 
@@ -467,7 +488,7 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s %s", "SADD", "pcp:series:label.X.value:Y");
     freeReplyObject(reply);
 
@@ -487,7 +508,7 @@ filter(const pmLabel *label, const char *json, void *arg)
 }
 
 void
-redis_series_label(redisContext *redis, metric_t *metric, value_t *value)
+redis_series_label(redisSlots *redis, metric_t *metric, value_t *value)
 {
     annotate_t	annotate;
     char	buf[PM_MAXLABELJSONLEN];
@@ -507,7 +528,7 @@ redis_series_label(redisContext *redis, metric_t *metric, value_t *value)
 }
 
 void
-redis_series_metric(redisContext *redis, context_t *context, metric_t *metric)
+redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
 {
     redisReply	*reply;
     value_t	*value;
@@ -535,7 +556,7 @@ redis_series_metric(redisContext *redis, context_t *context, metric_t *metric)
 	redis_submit(redis, SADD, key, cmd);
 
 	/* TODO: async callback function */
-	redisGetReply(redis, (void **)&reply);
+	redisGetReply(redis->contexts[0], (void **)&reply);
 	checkInteger(reply, "%s %s", SADD, "map metric name to series");
 	freeReplyObject(reply);
 
@@ -547,7 +568,7 @@ redis_series_metric(redisContext *redis, context_t *context, metric_t *metric)
 	redis_submit(redis, SADD, key, cmd);
 
 	/* TODO: async callback function */
-	redisGetReply(redis, (void **)&reply);
+	redisGetReply(redis->contexts[0], (void **)&reply);
 	checkInteger(reply, "%s: %s", SADD, "map series to metric name");
 	freeReplyObject(reply);
     }
@@ -577,7 +598,7 @@ redis_series_metric(redisContext *redis, context_t *context, metric_t *metric)
     redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkStatusOK(reply, "%s: %s", HMSET, "setting metric desc");
     freeReplyObject(reply);
 
@@ -600,7 +621,7 @@ redis_series_metric(redisContext *redis, context_t *context, metric_t *metric)
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis, (void **)&reply);
+    redisGetReply(redis->contexts[0], (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping series to context");
     freeReplyObject(reply);
 }
@@ -674,7 +695,7 @@ series_stream_value(sds cmd, sds name, int type, pmAtomValue *avp)
 }
 
 void
-redis_series_stream(redisContext *redis, sds stamp, metric_t *metric)
+redis_series_stream(redisSlots *redis, sds stamp, metric_t *metric)
 {
     unsigned int	count;
     redisReply		*reply;
@@ -718,7 +739,7 @@ redis_series_stream(redisContext *redis, sds stamp, metric_t *metric)
     redis_submit(redis, XADD, key, cmd);
 
     /* TODO: check return codes, use async callbacks */
-    redisGetReply(redis, (void**)&reply);
+    redisGetReply(redis->contexts[0], (void**)&reply);
     if (checkStreamDup(reply, stamp, hash))
 	duplicates++;
     else
@@ -727,19 +748,19 @@ redis_series_stream(redisContext *redis, sds stamp, metric_t *metric)
 }
 
 void
-redis_series_mark(redisContext *redis, context_t *context, sds timestamp)
+redis_series_mark(redisSlots *redis, context_t *context, sds timestamp)
 {
     /* TODO: inject mark records into time series */
 }
 
 static void
-redis_update_version_callback(redisContext *redis, redisReply *reply, void *arg)
+redis_update_version_callback(redisSlots *redis, redisReply *reply, void *arg)
 {
     checkStatusOK(reply, "%s setup", "pcp:version:schema");
 }
 
 static void
-redis_update_version(redisContext *redis, void *arg)
+redis_update_version(redisSlots *redis, void *arg)
 {
     sds			cmd, key;
     const char		ver[] = TO_STRING(SCHEMA_VERSION);
@@ -753,7 +774,7 @@ redis_update_version(redisContext *redis, void *arg)
 }
 
 static void
-redis_verify_schema_callback(redisContext *redis, redisReply *reply, void *arg)
+redis_verify_schema_callback(redisSlots *redis, redisReply *reply, void *arg)
 {
     unsigned int	version;
 
@@ -775,7 +796,7 @@ redis_verify_schema_callback(redisContext *redis, redisReply *reply, void *arg)
 }
 
 static void
-redis_verify_schema(redisContext *redis, void *arg)
+redis_verify_schema(redisSlots *redis, void *arg)
 {
     sds			cmd, key;
 
@@ -792,10 +813,10 @@ static struct dict *labelsmap;
 static struct dict *contextmap;
 static dictType	mapCallBackDict;
 
-redisContext *
-redis_init(void)
+redisSlots *
+redis_init(sds server)
 {
-    redisContext	*context;   /* TODO: redisSlots */
+    redisSlots          *slots;
     static int		setup;
 
     if (!setup) { /* global string map caches */
@@ -806,12 +827,13 @@ redis_init(void)
 	setup = 1;
     }
 
-    if ((context = redis_connect(NULL, NULL)) == NULL)
-	exit(1);	/* TODO: improve error handling */
-    redis_verify_schema(context, NULL);
-    redis_load_scripts(context);
+    if ((slots = redisSlotsInit(server, NULL)) == NULL)
+        exit(1);
 
-    return context;
+    redis_verify_schema(slots, NULL);
+    redis_load_scripts(slots->contexts[0]);
+
+    return slots;
 }
 
 void

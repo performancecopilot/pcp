@@ -23,11 +23,12 @@
 #include "schema.h"
 #include "load.h"
 #include "util.h"
+#include "slots.h"
 
 #include "libpcp.h"
 
 typedef struct {
-    redisContext	*redis;
+    redisSlots	*redis;
 
     settings_t		*settings;
     void		*arg;
@@ -803,7 +804,7 @@ load_prepare_timing(SOURCE *sp, timing_t *tp, pmflags flags)
 	start->tv_sec = finish->tv_sec - (12 * 60 * 60);
 
     /* TODO - handle timezones and so on correctly */
-    
+
     return 0;
 }
 
@@ -948,7 +949,8 @@ series_source(pmSeriesSettings *settings,
     sds		msg;
     int		sts;
 
-    source.redis = redis_init();
+    source.redis = redis_init(settings->hostspec);
+    //    source.redis = redisSlotsInit(settings->hostspec, NULL);
 
     load_prepare_source(&source, root, 0);
     if (source.context.type) {

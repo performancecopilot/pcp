@@ -84,6 +84,7 @@ typedef struct pmSeriesSettings {
     pmSeriesValueCallBack	on_value;	/* timestamped value */
     pmSeriesInfoCallBack	on_info;	/* diagnostics */
     pmSeriesDoneCallBack	on_done;	/* request completed */
+    sds                         hostspec;       /* hostspec of redis instance */
 } pmSeriesSettings;
 
 extern void pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);

@@ -719,7 +719,17 @@ series_report(pmSeriesSettings *settings, sds query, series_flags flags)
 static int
 pmseries_overrides(int opt, pmOptions *opts)
 {
-    return (opt == 'a' || opt == 'L' || opt == 's' || opt == 'S' || opt == 'n');
+    switch (opt) {
+    case 'a':
+    case 'h':
+    case 'L':
+    case 's':
+    case 'S':
+    case 'n':
+    case 'p':
+	return 1;
+    }
+    return 0;
 }
 
 static pmSeriesSettings settings = {
@@ -734,6 +744,7 @@ static pmSeriesSettings settings = {
     .on_label		= on_series_label,
     .on_info		= on_series_info,
     .on_done		= on_series_done,
+    .hostspec           = "localhost:6379",
 };
 
 static pmLongOptions longopts[] = {
@@ -746,6 +757,8 @@ static pmLongOptions longopts[] = {
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "metrics", 0, 'm', 0, "metric names for time series" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
+    { "port", 1, 'p', "N", "Connect to Redis instance on this TCP/IP port" },
+    { "host", 1, 'h', "HOST", "Connect to Redis instance using host specification" },
     PMAPI_OPTIONS_HEADER("Reporting Options"),
     PMOPT_DEBUG,
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
@@ -761,7 +774,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "acdD:FiIlLmMnqsSV?",
+    .short_options = "acdD:Fh:iIlLmMnqp:sSV?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | series ... | source ...]",
     .override = pmseries_overrides,
@@ -772,8 +785,10 @@ main(int argc, char *argv[])
 {
     sds			query;
     int			c, sts;
+    char		*hostname = "localhost";
     const char		*split = ",";
     const char		*space = " ";
+    unsigned int	port = 6379;
     series_flags	flags = 0;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
@@ -793,6 +808,10 @@ main(int argc, char *argv[])
 
 	case 'F':	/* perform metadata-only --load, or --query */
 	    flags |= PMSERIES_FAST;
+	    break;
+
+        case 'h':
+	    hostname = opts.optarg;
 	    break;
 
 	case 'i':	/* command line contains series identifiers */
@@ -822,6 +841,10 @@ main(int argc, char *argv[])
 
 	case 'n':	/* report label names only, not values */
 	    flags |= PMSERIES_ONLY_NAMES;
+	    break;
+
+        case 'p':	/* Redis port to connect to */
+	    port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -889,6 +912,8 @@ main(int argc, char *argv[])
 
     if (pmLogLevelIsTTY())
 	flags |= PMSERIES_COLOUR;
+
+    settings.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
 
     if (opts.optind == argc)
 	query = sdsempty();

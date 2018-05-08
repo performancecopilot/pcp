@@ -17,35 +17,36 @@
 #include "load.h"
 #include "redis.h"
 #include "private.h"
+#include "slots.h"
 
 #define EVALSHA		"EVALSHA"
-#define EVALSHA_LEN	(sizeof("EVALSHA")-1)
+#define EVALSHA_LEN	(sizeof(EVALSHA)-1)
 #define GETS		"GET"
-#define GETS_LEN	(sizeof("GET")-1)
+#define GETS_LEN	(sizeof(GETS)-1)
 #define HGET		"HGET"
-#define HGET_LEN	(sizeof("HGET")-1)
+#define HGET_LEN	(sizeof(HGET)-1)
 #define HGETALL		"HGETALL"
-#define HGETALL_LEN	(sizeof("HGETALL")-1)
+#define HGETALL_LEN	(sizeof(HGETALL)-1)
 #define HKEYS		"HKEYS"
-#define HKEYS_LEN	(sizeof("HKEYS")-1)
+#define HKEYS_LEN	(sizeof(HKEYS)-1)
 #define HMGET		"HMGET"
-#define HMGET_LEN	(sizeof("HMGET")-1)
+#define HMGET_LEN	(sizeof(HMGET)-1)
 #define HMSET		"HMSET"
-#define HMSET_LEN	(sizeof("HMSET")-1)
+#define HMSET_LEN	(sizeof(HMSET)-1)
 #define HSCAN		"HSCAN"
-#define HSCAN_LEN	(sizeof("HSCAN")-1)
+#define HSCAN_LEN	(sizeof(HSCAN)-1)
 #define PUBLISH		"PUBLISH"
-#define PUBLISH_LEN	(sizeof("PUBLISH")-1)
+#define PUBLISH_LEN	(sizeof(PUBLISH)-1)
 #define SADD		"SADD"
-#define SADD_LEN	(sizeof("SADD")-1)
+#define SADD_LEN	(sizeof(SADD)-1)
 #define SETS		"SET"
-#define SETS_LEN	(sizeof("SET")-1)
+#define SETS_LEN	(sizeof(SETS)-1)
 #define SMEMBERS	"SMEMBERS"
-#define SMEMBERS_LEN	(sizeof("SMEMBERS")-1)
+#define SMEMBERS_LEN	(sizeof(SMEMBERS)-1)
 #define XADD		"XADD"
-#define XADD_LEN	(sizeof("XADD")-1)
+#define XADD_LEN	(sizeof(XADD)-1)
 #define XRANGE		"XRANGE"
-#define XRANGE_LEN	(sizeof("XRANGE")-1)
+#define XRANGE_LEN	(sizeof(XRANGE)-1)
 
 
 /* create a Redis protocol command (e.g. XADD, SMEMBER) */
@@ -86,32 +87,18 @@ redis_param_raw(sds cmd, sds param)
     return sdscatfmt(cmd, "%S\r\n", param);
 }
 
-static inline int
-redis_submit(redisContext *redis, const char *command, sds key, sds cmd)
-{
-    int sts = redisAppendFormattedCommand(redis, cmd, sdslen(cmd));
+typedef void (*redis_callback)(redisSlots *, redisReply *, void *);
+extern int redis_submitcb(redisSlots *, const char *, sds, sds,
+			redis_callback, void *);
+extern int redis_submit(redisSlots *, const char *, sds, sds);
 
-    if (UNLIKELY(pmDebugOptions.series)) {
-	fprintf(stderr, "redis_submit[%d]: %s %s\n", sts, command, key);
-	if (pmDebugOptions.desperate)
-	    fputs(cmd, stderr);
-    }
-    if (sts != REDIS_OK) {
-	fprintf(stderr, "failed to append %s %s\n", command, key);
-	exit(1);	/* TODO: propogate errors up to callers */
-    }
-    sdsfree(cmd);
-    sdsfree(key);
-    return sts;
-}
-
-extern redisContext *redis_init(void);
+extern redisSlots *redis_init(sds);
 extern redisContext *redis_connect(char *, struct timeval *);
 extern void redis_stop(redisContext *);
 
-extern void redis_series_source(redisContext *, context_t *);
-extern void redis_series_metric(redisContext *, context_t *, metric_t *);
-extern void redis_series_mark(redisContext *, context_t *, sds);
-extern void redis_series_stream(redisContext *, sds, metric_t *);
+extern void redis_series_source(redisSlots *, context_t *);
+extern void redis_series_metric(redisSlots *, context_t *, metric_t *);
+extern void redis_series_mark(redisSlots *, context_t *, sds);
+extern void redis_series_stream(redisSlots *, sds, metric_t *);
 
 #endif	/* SERIES_SCHEMA_H */
