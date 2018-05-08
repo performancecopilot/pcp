@@ -32,7 +32,8 @@ _filter_me()
         -e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
         -e "s/local:/MY_HOSTNAME/" \
         -e "s/localhost\.localdomain/MY_HOSTNAME/" \
-        -e "s/localhost/MY_HOSTNAME/"
+        -e "s/localhost/MY_HOSTNAME/" \
+        -e "s/localdomain/MY_HOSTNAME/"
 }
 
 _filter_log()

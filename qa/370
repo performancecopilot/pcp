@@ -58,70 +58,75 @@ in
 		#
 		minor=`echo $distro | sed -e 's/.*release 6.//g' -e 's/ .*//g'`
 		if [ $minor -ge 5 ]; then
-		    ln $seq.out.8 $seq.out || exit 1
+		    unxz < $seq.out.8.xz > $seq.out || exit 1
 		    file_version=9.0.4_rh6.5
 		else
-		    ln $seq.out.4 $seq.out || exit 1
+		    unxz < $seq.out.4.xz > $seq.out || exit 1
 		    file_version=9.0.4
 		fi
 		;;
 	    *)
-		ln $seq.out.4 $seq.out || exit 1
+		unxz < $seq.out.4.xz > $seq.out || exit 1
 		file_version=9.0.4
 		;;
 	esac
 	;;
     9.0.6.1)
-	ln $seq.out.5 $seq.out || exit 1
+	unxz < $seq.out.5.xz > $seq.out || exit 1
 	;;
     9.0.6*)
-	ln $seq.out.1 $seq.out || exit 1
+	unxz < $seq.out.1.xz > $seq.out || exit 1
 	file_version=9.0.6
 	;;
     9.1.7*)
-	ln $seq.out.2 $seq.out || exit 1
+	unxz < $seq.out.2.xz > $seq.out || exit 1
 	file_version=9.1.7
 	;;
     10.0.1*)
-	ln $seq.out.3 $seq.out || exit 1
+	unxz < $seq.out.3.xz > $seq.out || exit 1
 	file_version=10.0.1
 	;;
     10.0.5*)
-	ln $seq.out.6 $seq.out || exit 1
+	unxz < $seq.out.6.xz > $seq.out || exit 1
 	file_version=10.0.5
 	;;
     10.1.5)
-	ln $seq.out.12 $seq.out || exit 1
+	unxz < $seq.out.12.xz > $seq.out || exit 1
 	;;
     10.1.6)
-	ln $seq.out.11 $seq.out || exit 1
+	unxz < $seq.out.11.xz > $seq.out || exit 1
 	;;
     10.2.0|10.2.1)
-	ln $seq.out.7 $seq.out || exit 1
+	unxz < $seq.out.7.xz > $seq.out || exit 1
 	file_version=10.2.0
 	;;
     11.0.0|11.0.1)
-	ln $seq.out.9 $seq.out || exit 1
+	unxz < $seq.out.9.xz > $seq.out || exit 1
 	file_version=11.0.1
 	;;
     11.1.5)
-	ln $seq.out.10 $seq.out || exit 1
+	unxz < $seq.out.10.xz > $seq.out || exit 1
 	;;
     11.2.0)
-	ln $seq.out.13 $seq.out || exit 1
+	unxz < $seq.out.13.xz > $seq.out || exit 1
+	;;
+    11.5.7)
+	unxz < $seq.out.14.xz > $seq.out || exit 1
 	;;
     *)
 	_notrun "no qualified output for sysstat version $version"
 	;;
 esac
-[ -f sadist/sa-sysstat-$file_version ] || \
-    _notrun "no data file (sa-sysstat-$file_version) for sysstat version $version"
+[ -f sadist/sa-sysstat-$file_version.xz ] || \
+    _notrun "no data file (sa-sysstat-$file_version.xz) for sysstat version $version"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+$sudo rm -f sadist/sa-sysstat-$file_version
+unxz < sadist/sa-sysstat-$file_version.xz > sadist/sa-sysstat-$file_version
 
 # For this test, don't load any global derived metric configs by default. 
 # So the PCP_DERIVED_CONFIG environment variable is initially set to an
@@ -240,6 +245,7 @@ NR == 1		{ next }
 		{ for (i = 5; i <= NF; i++) { $i = $i /2 }
 		  print
 		}'
+rm -f sadist/sa-sysstat-$file_version
 
 echo
 echo "check disk iops ..."

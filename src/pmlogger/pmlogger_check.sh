@@ -159,7 +159,7 @@ fi
 #
 PROGLOGDIR=`dirname "$PROGLOG"`
 [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
-[ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+[ -f "$PROGLOG" ] && mv -f "$PROGLOG" "$PROGLOG.prev"
 exec 1>"$PROGLOG"
 exec 2>&1
 
@@ -259,7 +259,7 @@ _configure_pmlogger()
 		elif [ -w "$configfile" ]
 		then
 		    $VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
-		    eval $MV "$tmpconfig" "$configfile"
+		    eval $MV -f "$tmpconfig" "$configfile"
 		else
 		    _warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
 		    ls -l "$configfile"

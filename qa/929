@@ -33,6 +33,7 @@ _filter()
     # and do the usual config/pid filtering
     #
     sed \
+	-e '/date-and-timestamp/d' \
 	-e '/NOTICES/d' \
 	-e "s,$tmp,TMP,g" \
 	-e "s,/privateTMP,TMP,g" \
@@ -72,13 +73,13 @@ do
 done
 
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -V -N -c $tmp.control -l $tmp.log
-$sudo cat $tmp.log | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -V -N -c $tmp.control \
+2>&1 | _filter
 
 echo
 echo "--- -M case ---"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -M -VN -c $tmp.control -l $tmp.log
-$sudo cat $tmp.log | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -M -VN -c $tmp.control \
+2>&1 | _filter
 
 # success, all done
 status=0

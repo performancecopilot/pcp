@@ -54,10 +54,11 @@ rm -f $seq.full
 
 for sadist in \
 	859117-rhel5.bin 859117-rhel5.xml f16-sa20.bin \
-	fche-csb6-rhel6.bin fche-csb6-rhel6.xml \
+	csb6-rhel6.bin csb6-rhel6.xml \
 	rhel5-sa20.bin smash-rhel5.xml smash-rhel6.xml
 do
     safile="sadist/$sadist"
+    unxz < $safile.xz > $safile
     echo "==> Checking $safile" | tee -a $seq.full
     pcplog=$tmp.pcplog
     sar2pcp $safile $pcplog > $tmp.out 2>&1
@@ -89,7 +90,7 @@ do
 	    cat $tmp.out
 	fi
     fi
-    rm -f $tmp.pcplog.*
+    rm -f $tmp.pcplog.* $safile
 done
 
 # success, all done

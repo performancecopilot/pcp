@@ -107,6 +107,8 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'hugfree' => 1,
 	'hugused' => 1,
 	'hugused-percent' => 1,
+	'inV' => 1,
+	'in' => 1,
 	'inactive' => 1,
 	'interrupts' => 1,
 	'int-global' => 1,
@@ -116,6 +118,7 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'memory' => 1,
 	'memused-percent' => 1,
 	'network' => 1,
+	'percent-in' => 1,
 	'power-management' => 1,
 	'pgtbl' => 1,
 	'pty-nr' => 1,
@@ -140,6 +143,7 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'usb' => 1,
 	'usb-devices' => 1,
 	'vmused' => 1,
+	'voltage-input' => 1,
 );
 
 # Register metrics with a singular value.
@@ -444,6 +448,11 @@ while (defined(my $token = $parser->get_token())) {
 	    $snarf_name = 'mem.util.free';
 	    $snarf_text = 1;
 	}
+	elsif ($token->tag eq 'avail') {
+	    # <avail>10410960</avail>
+	    $snarf_name = 'mem.util.available';
+	    $snarf_text = 1;
+	}
 	elsif ($token->tag eq 'memused') {
 	    # <memused>947232</memused>
 	    $snarf_name = 'mem.util.used';
@@ -612,7 +621,8 @@ while (defined(my $token = $parser->get_token())) {
 	       $token->tag eq 'net-icmp' || $token->tag eq 'net-eicmp' ||
 	       $token->tag eq 'net-icmp6' || $token->tag eq 'net-eicmp6' ||
 	       $token->tag eq 'net-tcp' || $token->tag eq 'net-etcp' ||
-	       $token->tag eq 'net-udp' || $token->tag eq 'net-udp6') {
+	       $token->tag eq 'net-udp' || $token->tag eq 'net-udp6' ||
+	       $token->tag eq 'softnet') {
 	    # skip all the network protocol stats for now
 	    next;
 	}
@@ -653,6 +663,12 @@ while (defined(my $token = $parser->get_token())) {
 	}
 	if ($putsts != 0) {
 	    my $tag = $token->tag;
+	    # Workaround a sysstat bug where the same filesystem lines are
+	    # repeated several times.
+	    if (defined($tag) && $tag eq 'filesystem') {
+		$putsts = 0;
+		next;
+	    }
 	    die "pmiPutValue: Failed @ $stamp on $tag: " . pmiErrStr($putsts) . "\n";
 	}
 	next;
