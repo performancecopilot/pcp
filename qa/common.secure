@@ -186,7 +186,7 @@ End-Of-File
     _wait_for_pmlogger
     grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
     echo "Checking pmcd.log for unexpected messages" | tee -a $here/$seq.full
-    egrep 'Error:|Info:' $tmp.pmcd.log
+    egrep 'Error:|Info:' $tmp.pmcd.log | sed -e '/PMNS file "DEFAULT" is unchanged/d'
     cat $tmp.pmcd.log >> $here/$seq.full
     echo "--- end of pmcd.log ---" >> $here/$seq.full
 }
