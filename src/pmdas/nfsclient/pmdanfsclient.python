@@ -652,7 +652,11 @@ class NFSCLIENTPMDA(PMDA):
         value = cache.contents
         try:
             for name in names:
+                if value is None:
+                    raise KeyError(name)
                 value = getattr(value, name)
+            if value is None:
+                raise KeyError(name)
             if type(value) == type(b''):
                 return [str(value.decode()), 1]
             return [value, 1]

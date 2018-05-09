@@ -87,7 +87,7 @@ _filter_indom()
     # dbpmda>
     #
     rm -f $tmp.1 $tmp.2 $tmp.3
-    sed -e 's/inst \[[0-4]/inst [N/' \
+    sed -e 's/inst \[1[0-4]/inst [N/' -e 's/inst \[[0-9]/inst [N/' \
     | $PCP_AWK_PROG '
 BEGIN						{ part = 1 }
 part == 2 && $1 == "dbpmda>"			{ part = 3 }
@@ -128,6 +128,28 @@ fetch nfsclient.options.string
 fetch nfsclient.options.proto
 fetch nfsclient.options.vers
 fetch nfsclient.options.vers
+instance $domain.0
+End-of-File
+
+# create a set of commands for dbpmda
+cat >$tmp.v3cmds <<End-of-File
+open pipe $python_path $script
+getdesc on
+desc nfsclient.export
+desc nfsclient.options.mountaddr
+fetch nfsclient.export
+fetch nfsclient.options.mountaddr
+fetch nfsclient.options.mountvers
+fetch nfsclient.options.mountport
+fetch nfsclient.options.mountproto
+fetch nfsclient.ops.readdirplus.ops
+fetch nfsclient.ops.readdirplus.ntrans
+fetch nfsclient.ops.readdirplus.timeouts
+fetch nfsclient.ops.readdirplus.bytes_sent
+fetch nfsclient.ops.readdirplus.bytes_recv
+fetch nfsclient.ops.readdirplus.queue
+fetch nfsclient.ops.readdirplus.rtt
+fetch nfsclient.ops.readdirplus.execute
 instance $domain.0
 End-of-File
 
@@ -195,6 +217,19 @@ do
     $sudo rm -f nfsclient.log
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 \
+	| _filter | _filter_indom
+    pmsleep 0.5
+    _filter_pmda_log < nfsclient.log
+done
+
+# iterate over pre-canned nfsv3 mountstat files
+for file in $test/*3.qa
+do
+    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    echo === Test case: `basename $file`
+    $sudo rm -f nfsclient.log
+    $sudo TERM=ansi \
+	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.v3cmds 2>&1 \
 	| _filter | _filter_indom
     pmsleep 0.5
     _filter_pmda_log < nfsclient.log
