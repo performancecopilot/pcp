@@ -29,7 +29,7 @@ rm -f $seq.full
 _filter()
 {
     sed \
-	-e '/date-and-timestamp/d' \
+	-e '/^+ date-and-timestamp /s/stamp .*/stamp .../' \
 	-e '/^+ cd /s/cd .*/cd .../' \
 	-e '/^+ mv /s/mv .*/mv .../' \
 	-e '/^+ pmlogger /s/pmlogger .*/pmlogger .../' \
