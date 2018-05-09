@@ -28,6 +28,10 @@ XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h \
 	 sha1.c sha1.h sds.c siphash.c dict.c dict.h
 
 LLDLIBS = $(PCPLIB) $(PCP_PMDALIB) $(LIB_FOR_MATH)
+ifeq "$(TARGET_OS)" "mingw"
+LLDLIBS += -lws2_32
+endif
+
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
