@@ -87,9 +87,11 @@ class pmConfig(object):
     def set_config_file(self, default_config):
         """ Set default config file """
         config = None
+        usrdir = os.path.expanduser('~')
+        sysdir = pmapi.pmContext.pmGetConfig("PCP_SYSCONF_DIR")
         for conf in default_config:
-            conf = conf.replace("$HOME", os.getenv("HOME"))
-            conf = conf.replace("$PCP_SYSCONF_DIR", pmapi.pmContext.pmGetConfig("PCP_SYSCONF_DIR"))
+            conf = conf.replace("$HOME", usrdir)
+            conf = conf.replace("$PCP_SYSCONF_DIR", sysdir)
             if os.path.isfile(conf) and os.access(conf, os.R_OK):
                 config = conf
                 break
@@ -191,6 +193,7 @@ class pmConfig(object):
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
+        return pmapi.c_api.pmGetOperands()
 
     def parse_instances(self, instances):
         """ Parse user-supplied instances string """
@@ -210,7 +213,7 @@ class pmConfig(object):
         if spec.count(",") < 2:
             return spec + ",,", insts
         # User may supply quoted or unquoted instance specification
-        # Conf file preservers outer quotes, command line does not
+        # Conf file preserves outer quotes, command line does not
         # We need to detect which is the case here. What a mess.
         quoted = 0
         s = spec.split(",")[2]
@@ -251,7 +254,7 @@ class pmConfig(object):
             if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
                 metrics[key] = [value]
-                for index in range(0, 8):
+                for index in range(0, len(self.metricspec)):
                     if len(metrics[key]) <= index:
                         if index == 2:
                             metrics[key].append([])
@@ -667,7 +670,7 @@ class pmConfig(object):
 
             # Set metric type - default to double for precision
             mtype = pmapi.c_api.PM_TYPE_DOUBLE
-            # But use native type when else was not requested
+            # But use native type if nothing else was requested
             if str(unitstr) == str(self.descs[i].contents.units):
                 mtype = self.descs[i].contents.type
             # However always use double for non-raw counters

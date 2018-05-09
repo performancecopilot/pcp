@@ -80,6 +80,129 @@ pmInDom: 62.0
 dbpmda> 
 Log for pmdanfsclient on HOST ...
 Log finished ...
+=== Test case: mountstats3.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> getdesc on
+dbpmda> desc nfsclient.export
+PMID: 62.0.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.mountpoint
+PMID: 62.0.2
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.string
+PMID: 62.1.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.proto
+PMID: 62.1.24
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.vers
+PMID: 62.1.6
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "nasbox:/share/MD0_DATA/Public"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/Web"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/assets"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/books"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/downloads"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/movies"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/music"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/photos"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/scan"
+    inst [N or ???] value "nasbox:/share/external/sdt1"
+dbpmda> fetch nfsclient.mountpoint
+PMID(s): 62.0.2
+pmResult ... numpmid: 1
+  62.0.2 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "/nasbox/Public"
+    inst [N or ???] value "/nasbox/Web"
+    inst [N or ???] value "/nasbox/assets"
+    inst [N or ???] value "/nasbox/books"
+    inst [N or ???] value "/nasbox/downloads"
+    inst [N or ???] value "/nasbox/movies"
+    inst [N or ???] value "/nasbox/music"
+    inst [N or ???] value "/nasbox/newmovies"
+    inst [N or ???] value "/nasbox/photos"
+    inst [N or ???] value "/nasbox/scan"
+dbpmda> fetch nfsclient.options.string
+PMID(s): 62.1.1
+pmResult ... numpmid: 1
+  62.1.1 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,nolock,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.100,mountvers=3,mountport=30000,mountproto=udp,local_lock=all"
+dbpmda> fetch nfsclient.options.proto
+PMID(s): 62.1.24
+pmResult ... numpmid: 1
+  62.1.24 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+dbpmda> instance 62.0
+pmInDom: 62.0
+[  X] inst: X name: "/nasbox/Public"
+[X+1] inst: X+1 name: "/nasbox/Web"
+[X+2] inst: X+2 name: "/nasbox/assets"
+[X+3] inst: X+3 name: "/nasbox/books"
+[X+4] inst: X+4 name: "/nasbox/downloads"
+[X+5] inst: X+5 name: "/nasbox/movies"
+[X+6] inst: X+6 name: "/nasbox/music"
+[X+7] inst: X+7 name: "/nasbox/newmovies"
+[X+8] inst: X+8 name: "/nasbox/photos"
+[X+9] inst: X+9 name: "/nasbox/scan"
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
 === Test case: mountstats42.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
@@ -190,6 +313,215 @@ pmResult ... numpmid: 1
   62.1.6 (<noname>): No values returned!
 dbpmda> instance 62.0
 pmInDom: 62.0
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
+=== Test case: mountstats3.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> getdesc on
+dbpmda> desc nfsclient.export
+PMID: 62.0.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.mountaddr
+PMID: 62.1.29
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "nasbox:/share/MD0_DATA/Public"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/Web"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/assets"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/books"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/downloads"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/movies"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/music"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/photos"
+    inst [N or ???] value "nasbox:/share/MD0_DATA/scan"
+    inst [N or ???] value "nasbox:/share/external/sdt1"
+dbpmda> fetch nfsclient.options.mountaddr
+PMID(s): 62.1.29
+pmResult ... numpmid: 1
+  62.1.29 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+    inst [N or ???] value "192.168.1.100"
+dbpmda> fetch nfsclient.options.mountvers
+PMID(s): 62.1.30
+pmResult ... numpmid: 1
+  62.1.30 (<noname>): numval: 10 valfmt: 0 vlist[]:
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+    inst [N or ???] value 3
+dbpmda> fetch nfsclient.options.mountport
+PMID(s): 62.1.31
+pmResult ... numpmid: 1
+  62.1.31 (<noname>): numval: 10 valfmt: 0 vlist[]:
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+    inst [N or ???] value 30000
+dbpmda> fetch nfsclient.options.mountproto
+PMID(s): 62.1.32
+pmResult ... numpmid: 1
+  62.1.32 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+    inst [N or ???] value "udp"
+dbpmda> fetch nfsclient.ops.readdirplus.ops
+PMID(s): 62.8.161
+pmResult ... numpmid: 1
+  62.8.161 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+dbpmda> fetch nfsclient.ops.readdirplus.ntrans
+PMID(s): 62.8.162
+pmResult ... numpmid: 1
+  62.8.162 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+    inst [N or ???] value 3432
+dbpmda> fetch nfsclient.ops.readdirplus.timeouts
+PMID(s): 62.8.163
+pmResult ... numpmid: 1
+  62.8.163 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readdirplus.bytes_sent
+PMID(s): 62.8.164
+pmResult ... numpmid: 1
+  62.8.164 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+    inst [N or ???] value 507824
+dbpmda> fetch nfsclient.ops.readdirplus.bytes_recv
+PMID(s): 62.8.165
+pmResult ... numpmid: 1
+  62.8.165 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+    inst [N or ???] value 10469364
+dbpmda> fetch nfsclient.ops.readdirplus.queue
+PMID(s): 62.8.166
+pmResult ... numpmid: 1
+  62.8.166 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+    inst [N or ???] value 26
+dbpmda> fetch nfsclient.ops.readdirplus.rtt
+PMID(s): 62.8.167
+pmResult ... numpmid: 1
+  62.8.167 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+    inst [N or ???] value 22016
+dbpmda> fetch nfsclient.ops.readdirplus.execute
+PMID(s): 62.8.168
+pmResult ... numpmid: 1
+  62.8.168 (<noname>): numval: 10 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+    inst [N or ???] value 28273
+dbpmda> instance 62.0
+pmInDom: 62.0
+[  X] inst: X name: "/nasbox/Public"
+[X+1] inst: X+1 name: "/nasbox/Web"
+[X+2] inst: X+2 name: "/nasbox/assets"
+[X+3] inst: X+3 name: "/nasbox/books"
+[X+4] inst: X+4 name: "/nasbox/downloads"
+[X+5] inst: X+5 name: "/nasbox/movies"
+[X+6] inst: X+6 name: "/nasbox/music"
+[X+7] inst: X+7 name: "/nasbox/newmovies"
+[X+8] inst: X+8 name: "/nasbox/photos"
+[X+9] inst: X+9 name: "/nasbox/scan"
 dbpmda> 
 Log for pmdanfsclient on HOST ...
 Log finished ...

@@ -18,6 +18,9 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= pmseries.c
 CMDTARGET = pmseries$(EXECSUFFIX)
 LLDLIBS	= $(PCP_WEBLIB)
+ifeq "$(TARGET_OS)" "mingw"
+LLDLIBS += -lws2_32
+endif
 
 default:	$(CMDTARGET)
 

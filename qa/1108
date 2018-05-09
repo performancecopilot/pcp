@@ -3,6 +3,7 @@
 # pv:821339 sed gives "Too many commands" in daily cron script
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat. All Rights Reserved.
 #
 # check-group-exclude: pmlogger
 
@@ -28,6 +29,7 @@ rm -f $seq.full
 _filter()
 {
     sed \
+	-e '/date-and-timestamp/d' \
 	-e '/^+ cd /s/cd .*/cd .../' \
 	-e '/^+ mv /s/mv .*/mv .../' \
 	-e '/^+ pmlogger /s/pmlogger .*/pmlogger .../' \
@@ -100,7 +102,6 @@ echo "done, now=$now" >>$seq.full
 # real QA test starts here
 test -f $PCP_LOG_DIR/NOTICES && \
 	$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.orig
-$sudo $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control -l $tmp.log
-$sudo cat $tmp.log \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control 2>&1 \
 | tee -a $seq.full \
 | _filter

@@ -1,5 +1,4 @@
-/* Extracted from anet.c to work properly with Hiredis error reporting.
- *
+/*
  * Copyright (c) 2009-2011, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2010-2014, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  * Copyright (c) 2015, Matt Stancliff <matt at genges dot com>,
@@ -32,23 +31,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <sys/un.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include "pmapi.h"
+#include "libpcp.h"
 #include <fcntl.h>
-#include <string.h>
-#include <netdb.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <stdio.h>
+#if defined(HAVE_SYS_UN_H)
+#include <sys/un.h>
+#endif
+#if defined(HAVE_POLL_H)
 #include <poll.h>
-#include <limits.h>
-#include <stdlib.h>
+#endif
 
 #include "net.h"
 #include "sds.h"
@@ -99,13 +90,22 @@ static int redisCreateSocket(redisContext *c, int type) {
 }
 
 static int redisSetBlocking(redisContext *c, int blocking) {
+#ifdef IS_MINGW
+    u_long non_blocking = blocking ? 0 : 1;
+
+    if (ioctlsocket(socket, FIONBIO, &non_blocking) != NO_ERROR) {
+        __redisSetErrorFromErrno(c,REDIS_ERR_IO,"ioctlsocket(FIONBIO)");
+        redisContextCloseFd(c);
+        return REDIS_ERR;
+    }
+#else
     int flags;
 
     /* Set the socket nonblocking.
      * Note that fcntl(2) for F_GETFL and F_SETFL can't be
      * interrupted by a signal. */
     if ((flags = fcntl(c->fd, F_GETFL)) == -1) {
-        __redisSetErrorFromErrno(c,REDIS_ERR_IO,"fcntl(F_GETFL)");
+        __redisSetErrorFromErrno(c, REDIS_ERR_IO,"fcntl(F_GETFL)");
         redisContextCloseFd(c);
         return REDIS_ERR;
     }
@@ -120,6 +120,7 @@ static int redisSetBlocking(redisContext *c, int blocking) {
         redisContextCloseFd(c);
         return REDIS_ERR;
     }
+#endif
     return REDIS_OK;
 }
 
@@ -200,6 +201,7 @@ static int redisContextTimeoutMsec(redisContext *c, long *result)
 }
 
 static int redisContextWaitReady(redisContext *c, long msec) {
+#if defined(HAVE_POLL_H)
     struct pollfd   wfd[1];
 
     wfd[0].fd     = c->fd;
@@ -227,6 +229,7 @@ static int redisContextWaitReady(redisContext *c, long msec) {
 
     __redisSetErrorFromErrno(c,REDIS_ERR_IO,NULL);
     redisContextCloseFd(c);
+#endif
     return REDIS_ERR;
 }
 
@@ -426,6 +429,7 @@ int redisContextConnectBindTcp(redisContext *c, const char *addr, int port,
 }
 
 int redisContextConnectUnix(redisContext *c, const char *path, const struct timeval *timeout) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     int blocking = (c->flags & REDIS_BLOCK);
     struct sockaddr_un sa;
     long timeout_msec = -1;
@@ -472,4 +476,7 @@ int redisContextConnectUnix(redisContext *c, const char *path, const struct time
 
     c->flags |= REDIS_CONNECTED;
     return REDIS_OK;
+#else
+    return REDIS_ERR;
+#endif
 }

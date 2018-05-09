@@ -47,6 +47,7 @@ _filter_pmcd_log <$PCP_PMCDLOG_PATH \
     -e 's/len=-1: Connection reset by peer.*/END-OF-FILE/' \
     -e 's/Connection reset by peer/Broken pipe/' \
     -e 's/have .*, want .*, got 0/END-OF-FILE/' \
+    -e '/PMNS file "DEFAULT" is unchanged/d' \
     #end
 
 # success, all done

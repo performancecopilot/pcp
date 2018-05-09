@@ -32,6 +32,7 @@ _filter_err()
 	-e '/Log for pmcd/,/INADDR_ANY/c\
 ... boring stuff deleted' \
 	-e '/ok FD 44321 ipv6 INADDR_ANY/d' \
+	-e '/PMNS file "DEFAULT" is unchanged/d' \
 	-e '/OpenRequestSocket.*unix.*bind: Address already in use/{
 N
 d

@@ -313,6 +313,9 @@
 /* pma_query_via API */
 #undef HAVE_PMA_QUERY_VIA
 
+/* Define to 1 if you have the <poll.h> header file. */
+#undef HAVE_POLL_H
+
 /* port_performance_query_via API */
 #undef HAVE_PORT_PERFORMANCE_QUERY_VIA
 
