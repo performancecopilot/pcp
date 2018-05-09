@@ -171,6 +171,7 @@ __pmParseLabelSet(const char *json, int jlen, int flags, pmLabelSet **set)
     if (nlabels > 0) {
 	if ((bp = strndup(buf, bsz + 1)) == NULL) {
 	    free(result);
+	    if (lp) free(lp);
 	    return -ENOMEM;
 	}
     } else {
@@ -386,7 +387,6 @@ __pmParseLabels(const char *s, int slen,
 	    }
 	    stash_chars("{", 1, &json, &jlen);
 	    /* Keys are odd-numbered tokens within the object */
-	    ntokens = token->size;
 	    state = NAME;
 	    break;
 
@@ -942,7 +942,7 @@ static int
 dolabels(int ident, int type, pmLabelSet **labels)
 {
     pmLabelSet	*sets = NULL;
-    int		sts, nsets;
+    int		sts, nsets = 0;
 
     if ((sts = getlabels(ident, type, &sets, &nsets)) < 0)
 	return sts;

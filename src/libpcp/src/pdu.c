@@ -436,9 +436,7 @@ PM_FAULT_RETURN(PM_FAULT_TIMEOUT);
 
     if (len < (int)sizeof(__pmPDUHdr)) {
 	if (len == -1) {
-	    if (__pmSocketClosed()) {
-		len = 0;
-	    } else {
+	    if (! __pmSocketClosed()) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }

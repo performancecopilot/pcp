@@ -1070,7 +1070,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
     }
 
-    i = 0;
     if (ctxp->c_archctl->ac_serial == 0) {
 	/* need gross positioning from temporal index */
 	__pmLogSetTime(ctxp);
@@ -1344,7 +1343,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	__pmFseek(ctxp->c_archctl->ac_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 	done = 0;
 
-	sts = 0;
 	while (done < forw) {
 	    if ((sts = cache_read(ctxp, PM_MODE_FORW, &logrp)) < 0) {
 		/* ran into end of log */
@@ -1393,7 +1391,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    ub_prev = icp;
 	    }
 	}
-	//	fprintf(stderr, "sts==%10d, t_req==%.2f, forw==%d, done==%d, remaining==%d\n", sts, t_req, forw, done, forw - done);
+
 	/* end of search, trim t_last as required */
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 	    if (icp->t_next < t_req &&

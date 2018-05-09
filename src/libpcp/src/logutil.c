@@ -2013,9 +2013,7 @@ more:
 	 * if pmFetchArchive(), return it
 	 * otherwise keep searching
 	 */
-	if (numpmid == 0)
-	    newres = *result;
-	else {
+	if (numpmid != 0) {
 	    pmFreeResult(*result);
 	    goto more;
 	}
@@ -2256,7 +2254,6 @@ __pmLogSetTime(__pmContext *ctxp)
     save_origin = ctxp->c_origin;
     save_mode = ctxp->c_mode;
     __pmLogChangeArchive(ctxp, i);
-    lcp = acp->ac_log;
     ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
 
@@ -2490,7 +2487,6 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
-	lcp = ctxp->c_archctl->ac_log;
 	if ((sts = __pmLogChangeVol(acp, save_vol)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;

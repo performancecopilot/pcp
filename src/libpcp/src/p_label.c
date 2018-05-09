@@ -378,7 +378,6 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	jsonlen = ntohl(lsp->jsonlen);
 	jsonoff = ntohl(lsp->json);
 
-	json = (char *)label_pdu + jsonoff;
 	labellen = sizeof(labelset_t);
 	if (nlabels > 0)
 	    labellen += nlabels * sizeof(pmLabel);

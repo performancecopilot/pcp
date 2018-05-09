@@ -253,12 +253,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	idp->next = NULL;
 
 	if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL) {
-	    if ((l_hashtype = (__pmHashCtl *) calloc(1, sizeof(__pmHashCtl))) == NULL)
+	    if ((l_hashtype = (__pmHashCtl *) calloc(1, sizeof(__pmHashCtl))) == NULL) {
+		free(idp);
 		return -oserror();
+	    }
 
 	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashlabels);
-	    if (sts < 0)
+	    if (sts < 0) {
+		free(idp);
 		return sts;
+	    }
 	} else {
 	    l_hashtype = (__pmHashCtl *)hp->data;
 	}
@@ -270,13 +274,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	return sts;
     }
 
-    if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL)
+    if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL) {
+	free(idp);
 	return PM_ERR_NOLABELS;
+    }
 
     l_hashtype = (__pmHashCtl *)hp->data;
 
-    if ((hp = __pmHashSearch(ident, l_hashtype)) == NULL)
+    if ((hp = __pmHashSearch(ident, l_hashtype)) == NULL) {
+	free(idp);
 	return PM_ERR_NOLABELS;
+    }
 
     sts = 0;
     idp_prev = NULL;
@@ -729,7 +737,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		     */
 		    if (sts != PM_ERR_PMID)
 			goto end;
-		    sts = 0;
 		} 
 	    }/*for*/
 	}

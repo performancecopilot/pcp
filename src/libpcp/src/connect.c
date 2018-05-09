@@ -238,7 +238,7 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
     __pmPDU	*pb;
     int		ok;
     int		version;
-    int		challenge;
+    int		challenge = 0;
     int		sts;
     int		pinpdu;
 

@@ -156,7 +156,7 @@ int
 __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
 {
     int		sts;
-    __pmPDU	*pdubuf;
+    __pmPDU	*pdubuf = NULL;
     result_t	*pp;
 
     if (ctxp != NULL)
