@@ -2,6 +2,8 @@ QA output created by 802
 === std out ===
 dbpmda> open pipe VALGRIND pmdas/github-56/pmdatrivial
 Start valgrind PMDA: VALGRIND pmdas/github-56/pmdatrivial
+dbpmda> # need to give valgrind a chance to get the PMDA started ...
+dbpmda> wait 5
 dbpmda> children trivial
 Metric: trivial
        leaf foo

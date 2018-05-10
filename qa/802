@@ -38,6 +38,8 @@ fi
 #
 dbpmda -f -q 10 -ie 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
 open pipe $VALGRIND --leak-check=full --read-var-info=yes --gen-suppressions=all --suppressions=valgrind-suppress $__extra --log-file=$tmp._valgrind pmdas/github-56/pmdatrivial
+# need to give valgrind a chance to get the PMDA started ...
+wait 5
 children trivial
 exit
 End-of-File
