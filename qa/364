@@ -82,6 +82,7 @@ _filter_linux()
     else
 	sed \
 	    -e '/^network.softnet.* Metric not supported/d' \
+	    -e '/^nfsclient.options.* Metric not supported/d' \
 	    -e '/^proc.namespaces.* Metric not supported/d' \
 	    -e '/^proc.psinfo.cgroups.* No data available/d' \
 	    -e '/^cgroup..*.container.* No data available/d' \
