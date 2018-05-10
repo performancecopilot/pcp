@@ -985,6 +985,7 @@ pmlogsize
 627 pmlogcheck decompress-xz local
 628 pmda local pmda.simple
 629 pmlogmv pmlogcheck local
+630 other local
 633 pmlogger local
 634 libirixpmda local pmval timezone
 635 pmda.linux libirixpmda remote
