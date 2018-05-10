@@ -18,8 +18,11 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
-    _pmdaprometheus_restore_config >>$here/$seq.full
     cd $here
+    _pmdaprometheus_restore_config >>$here/$seq.full
+    $sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+    _restore_config $PCP_ETC_DIR/pcp/labels
+    _sighup_pmcd
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -38,11 +41,13 @@ _filter()
     -e 's/,[,]*/,/g' -e 's/,}/}/'
 }
 
-HERE=`pwd`
+# real QA test starts here
 _pmdaprometheus_save_config
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 
 # add the URL for this test
-file=$HERE/prometheus/samples/labelfiltering.txt
+file=$here/prometheus/samples/labelfiltering.txt
 urlbase=`basename $file .txt | tr .- _`
 echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/config.d/$urlbase.url
 
@@ -79,7 +84,7 @@ then
 fi
 
 echo; echo === URL configuration file contains
-sed -e "s|$HERE|QA_DIR|g" < $PCP_PMDAS_DIR/prometheus/config.d/$urlbase.url
+sed -e "s|$here|QA_DIR|g" < $PCP_PMDAS_DIR/prometheus/config.d/$urlbase.url
 
 echo; echo === pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
 names=`pminfo prometheus | fgrep -v prometheus.control | LC_COLLATE=POSIX sort` 2>$tmp.err
