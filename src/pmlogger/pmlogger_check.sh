@@ -159,9 +159,21 @@ fi
 #
 PROGLOGDIR=`dirname "$PROGLOG"`
 [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
-[ -f "$PROGLOG" ] && mv -f "$PROGLOG" "$PROGLOG.prev"
-exec 1>"$PROGLOG"
-exec 2>&1
+if $SHOWME
+then
+    :
+else
+    # Salt away previous log, if any ...
+    #
+    _save_prev_file "$PROGLOG"
+    # After argument checking, everything must be logged to ensure no mail is
+    # accidentally sent from cron.  Close stdout and stderr, then open stdout
+    # as our logfile and redirect stderr there too.
+    #
+    # Exception is for -N where we want to see the output
+    #
+    exec 1>"$PROGLOG" 2>&1
+fi
 
 QUIETLY=false
 if [ $CHECK_RUNLEVEL = true ]
@@ -259,7 +271,7 @@ _configure_pmlogger()
 		elif [ -w "$configfile" ]
 		then
 		    $VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
-		    eval $MV -f "$tmpconfig" "$configfile"
+		    eval $MV "$tmpconfig" "$configfile"
 		else
 		    _warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
 		    ls -l "$configfile"

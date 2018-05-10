@@ -55,8 +55,8 @@ another.host    n   n   logs/another.host  -c ./config'
 echo Using control file: > $here/$seq.full
 cat control >> $here/$seq.full
 echo pmlogger_check out: >> $here/$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -N -c control -l $tmp.log
-cat $tmp.log | tee -a $here/$seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -N -c control >$tmp.log  2>$tmp.err
+cat $tmp.err $tmp.log | tee -a $here/$seq.full | _filter
 
 echo pmlogger_check end: >> $here/$seq.full
 find . >> $here/$seq.full
