@@ -56,7 +56,7 @@ cp $tmp.ctl $tmp.relaydir/pmie.log.$FIVEMONTHS
 # Similarly the + rm -f TMP/pmie/<pid> lines come from defunct pmie
 # processes that don't have anything to do with this QA test
 #
-pmie_daily -V -N -x 3 -X compress -c $tmp.ctl -l $tmp.log
+pmie_daily -V -N -x 3 -X compress -c $tmp.ctl >$tmp.log
 cat $tmp.log | \
 sed \
 	-e '/Error: no pmie instance running/d' \
