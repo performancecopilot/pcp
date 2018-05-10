@@ -93,7 +93,7 @@ then
     check=`echo "$PCP_COMPRESSAFTER" | sed -e 's/[0-9]//g'`
     if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
     then
-	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be numeric, \"forever\" or \"never\""
+	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be numeric, \"forever\" or \"never\"" >&2
 	status=1
 	exit
     fi
@@ -199,14 +199,14 @@ do
 		check=`echo "$CULLAFTER" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
 		then
-		    echo "Error: -k value ($CULLAFTER) must be numeric, \"forever\" or \"never\""
+		    echo "Error: -k value ($CULLAFTER) must be numeric, \"forever\" or \"never\"" >&2
 		    status=1
 		    exit
 		fi
 		;;
 	-K)	if $PFLAG
 		then
-		    echo "Error: -p and -K are mutually exclusive"
+		    echo "Error: -p and -K are mutually exclusive" >&2
 		    status=1
 		    exit
 		fi
@@ -231,7 +231,7 @@ do
 		;;
 	-p)     if $COMPRESSONLY
 		then
-		    echo "Error: -K and -p are mutually exclusive"
+		    echo "Error: -K and -p are mutually exclusive" >&2
 		    status=1
 		    exit
 		fi
@@ -244,7 +244,7 @@ do
 		check=`echo "$ROLLNOTICES" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" ]
 		then
-		    echo "Error: -s value ($ROLLNOTICES) must be numeric"
+		    echo "Error: -s value ($ROLLNOTICES) must be numeric" >&2
 		    status=1
 		    exit
 		fi
@@ -271,14 +271,14 @@ do
 		shift
 		if [ -n "$PCP_COMPRESSAFTER" -a "$PCP_COMPRESSAFTER" != "$COMPRESSAFTER_CMDLINE" ]
 		then
-		    echo "Warning: -x value ($COMPRESSAFTER_CMDLINE) ignored because \$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) set in environment"
+		    echo "Warning: -x value ($COMPRESSAFTER_CMDLINE) ignored because \$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) set in environment" >&2
 		    COMPRESSAFTER_CMDLINE=""
 		    continue
 		fi
 		check=`echo "$COMPRESSAFTER_CMDLINE" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
 		then
-		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be numeric, \"forever\" or \"never\""
+		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be numeric, \"forever\" or \"never\"" >&2
 		    status=1
 		    exit
 		fi
@@ -287,7 +287,7 @@ do
 		shift
 		if [ -n "$PCP_COMPRESS" -a "$PCP_COMPRESS" != "$COMPRESS_CMDLINE" ]
 		then
-		    echo "Warning: -X value ($COMPRESS_CMDLINE) ignored because \$PCP_COMPRESS ($PCP_COMPRESS) set in environment"
+		    echo "Warning: -X value ($COMPRESS_CMDLINE) ignored because \$PCP_COMPRESS ($PCP_COMPRESS) set in environment" >&2
 		    COMPRESS_CMDLINE=""
 		    continue
 		fi
@@ -296,7 +296,7 @@ do
 		shift
 		if [ -n "$PCP_COMPRESSREGEX" -a "$PCP_COMPRESSREGEX" != "$COMPRESSREGEX_CMDLINE" ]
 		then
-		    echo "Warning: -Y value ($COMPRESSREGEX_CMDLINE) ignored because \$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) set in environment"
+		    echo "Warning: -Y value ($COMPRESSREGEX_CMDLINE) ignored because \$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) set in environment" >&2
 		    COMPRESSREGEX_CMDLINE=""
 		    continue
 		fi
@@ -315,7 +315,7 @@ done
 if $PFLAG
 then
     rm -f $tmp/ok
-    if [ -w $PCP_LOG_DIR/pmlogger -a -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
+    if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
     then
 	last_stamp=`sed -e '/^#/d' <$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp`
 	if [ -n "$last_stamp" ]
@@ -359,17 +359,25 @@ elif $COMPRESSONLY
 then
     # no date-and-timestamp update with -K
     :
-elif [ -w $PCP_LOG_DIR/pmlogger ]
-then
+else
     # doing the whole shootin' match ...
     #
-    if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp ]
+    if _save_prev_file $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp
     then
-	rm -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
-	mv -f $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp.prev
+	:
+    else
+	echo "Warning: cannot save previous date-and-timestamp" >&2
     fi
+    # only update date-and-timestamp if we can write the file
+    #
     pmdate '# %Y-%m-%d %H:%M:%S
-%s' >$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp
+%s' >$tmp/stamp
+    if cp $tmp/stamp $PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp
+    then
+	:
+    else
+	echo "Warning: cannot install new date-and-timestamp" >&2
+    fi
 fi
 
 if $SHOWME
@@ -378,11 +386,7 @@ then
 else
     # Salt away previous log, if any ...
     #
-    if [ -f "$PROGLOG" ]
-    then
-	rm -f "$PROGLOG.prev"
-	mv -f "$PROGLOG" "$PROGLOG.prev"
-    fi
+    _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
     # as our logfile and redirect stderr there too.
@@ -394,7 +398,7 @@ fi
 
 if [ ! -f "$CONTROL" ]
 then
-    echo "$prog: Error: cannot find control file ($CONTROL)"
+    echo "$prog: Error: cannot find control file ($CONTROL)" >&2
     status=1
     exit
 fi
