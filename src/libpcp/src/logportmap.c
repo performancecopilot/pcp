@@ -100,7 +100,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     struct dirent	**files = NULL;	/* array of port file dirents */
     char		*p;
     int			len;
-    char		namebuf[MAXPATHLEN];
+    char		*namebuf;
     int			(*scanfn)(const_dirent *dep);
     FILE		*pfile;
     char		buf[MAXPATHLEN];
@@ -182,6 +182,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     /* namebuf is the complete pathname, p points to the trailing filename
      * within namebuf.
      */
+    if ((namebuf = malloc(len)) == NULL) {
+	free(files);
+	return -oserror();
+    }
     strcpy(namebuf, dir);
     p = namebuf + lendir;
     *p++ = pmPathSeparator();
@@ -282,7 +286,8 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	}
 	free(files[i]);
     }
-    
+
+    free(namebuf);
     if (i == nf) {			/* all went well */
 	n = nlogports;
 	*result = logport;

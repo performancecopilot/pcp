@@ -33,6 +33,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     __uint64_t	ull;
     float	f;
     double	d;
+    size_t	size;
 
     mp = &current->metric[hp->midx];
 
@@ -59,9 +60,10 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     }
     if (i == rp->numpmid) {
 	rp->numpmid++;
-	rp = current->result = (pmResult *)realloc(current->result, sizeof(pmResult) + (rp->numpmid - 1)*sizeof(pmValueSet *));
+	size = sizeof(pmResult) + (rp->numpmid - 1)*sizeof(pmValueSet *);
+	rp = current->result = (pmResult *)realloc(current->result, size);
 	if (current->result == NULL) {
-	    pmNoMem("_pmi_stuff_value: result realloc:", sizeof(pmResult) + (rp->numpmid - 1)*sizeof(pmValueSet *), PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: result realloc:", size, PM_FATAL_ERR);
 	}
 	rp->vset[rp->numpmid-1] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (rp->vset[rp->numpmid-1] == NULL) {
@@ -79,9 +81,10 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 		return PMI_ERR_DUPVALUE;
 	}
 	rp->vset[i]->numval++;
-	vsp = rp->vset[i] = (pmValueSet *)realloc(rp->vset[i], sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue));
+	size = sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue);
+	vsp = rp->vset[i] = (pmValueSet *)realloc(rp->vset[i], size);
 	if (rp->vset[i] == NULL) {
-	    pmNoMem("_pmi_stuff_value: vset realloc:", sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue), PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: vset realloc:", size, PM_FATAL_ERR);
 	}
     }
     vp = &vsp->vlist[vsp->numval-1];

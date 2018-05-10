@@ -18,7 +18,11 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $culldir && _restore_config "$PCP_TMP_DIR/bash"
+    if $culldir
+    then
+	_restore_config "$PCP_TMP_DIR/bash"
+	culldir=False
+    fi
     $sudo rm -rf $tmp $tmp.*
     rm -f $tmp.*
 }
@@ -45,7 +49,7 @@ pmdabash_install()
 	$sudo rm -rf $PCP_TMP_DIR/bash
     fi
     culldir=true
-    $sudo mkdir -p -m 1777 "$PCP_TMP_DIR/bash"
+    $sudo mkdir -p -m 775 "$PCP_TMP_DIR/bash"
     $sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/bash"
 
     cd "$PCP_PMDAS_DIR/bash"

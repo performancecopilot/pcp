@@ -141,7 +141,6 @@ pmParseMetricSpec(
 
     while (isspace((int)*scan))
 	scan++;
-    mark = scan;
 
     /* delimit metric name */
     m_start = scan;

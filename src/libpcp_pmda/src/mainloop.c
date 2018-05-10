@@ -117,12 +117,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (__pmDecodeError(pb, &op_sts) >= 0) {
 	    if (op_sts == PM_ERR_NOTCONN) {
 		if (HAVE_V_FIVE(dispatch->comm.pmda_interface)) {
-		    if (pmDebugOptions.context) {
+		    if (pmDebugOptions.context)
 			pmNotifyErr(LOG_DEBUG, "Received PDU_ERROR (end context %d)\n", dispatch->version.four.ext->e_context);
-		    }
-		    if (pmda->e_endCallBack != NULL) {
+		    if (pmda->e_endCallBack != NULL)
 			(*(pmda->e_endCallBack))(dispatch->version.four.ext->e_context);
-		    }
 		}
 	    }
 	    else {
@@ -134,22 +132,17 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_PROFILE:
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_DEBUG, "Received PDU_PROFILE\n");
+
 	/*
 	 * can ignore ctxnum, since pmcd has already used this to send
 	 * the correct profile, if required
-	 */
-
-	if (pmDebugOptions.libpmda) {
-	    pmNotifyErr(LOG_DEBUG, "Received PDU_PROFILE\n");
-	}
-
-	/*
-	 * free last profile received (if any)
+	 * Free last profile received (if any)
 	 * Note error responses are not sent for PDU_PROFILE
 	 */
 	if (__pmDecodeProfile(pb, &ctxnum, &new_profile) < 0) 
 	   break;
-
 	sts = dispatch->version.any.profile(new_profile, pmda);
 	if (sts < 0) {
 	    __pmFreeProfile(new_profile);
@@ -160,23 +153,21 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_FETCH:
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_DEBUG, "Received PDU_FETCH\n");
+
 	/*
 	 * can ignore ctxnum, since pmcd has already used this to send
 	 * the correct profile, if required
 	 */
-
-	if (pmDebugOptions.libpmda) {
-	    pmNotifyErr(LOG_DEBUG, "Received PDU_FETCH\n");
-	}
-
 	sts = __pmDecodeFetch(pb, &ctxnum, &when, &npmids, &pmidlist);
 	if (sts >= 0) {
 	    sts = dispatch->version.any.fetch(npmids, pmidlist, &result, pmda);
 	    __pmUnpinPDUBuf(pmidlist);
 	}
-	if (sts < 0)
+	if (sts < 0) {
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else {
+	} else {
 	    __pmSendResult(pmda->e_outfd, FROM_ANON, result);
 	    if (pmda->e_resultCallBack)
 		pmda->e_resultCallBack(result);
@@ -184,10 +175,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_PMNS_NAMES:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_NAMES\n");
-	}
 
 	if ((sts = __pmDecodeNameList(pb, &npmids, &namelist, NULL)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
@@ -213,10 +202,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_PMNS_CHILD:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_CHILD\n");
-	}
 
 	if ((sts = __pmDecodeChildReq(pb, &name, &subtype)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
@@ -243,10 +230,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_PMNS_TRAVERSE:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_TRAVERSE\n");
-	}
 
 	if ((sts = __pmDecodeTraversePMNSReq(pb, &name)) >= 0) {
 	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
@@ -270,22 +255,17 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_PMNS_IDS:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_IDS\n");
-	}
 
 	sts = __pmDecodeIDList(pb, 1, &pmid, &op_sts);
 	if (sts >= 0)
 	    sts = op_sts;
 	if (sts >= 0) {
-	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
 		sts = dispatch->version.four.name(pmid, &namelist, pmda);
-	    }
-	    else {
-		/* Not INTERFACE_4 */
+	    else /* Not INTERFACE_4 */
 		sts = PM_ERR_PMID;
-	    }
 	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
@@ -295,10 +275,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_DESC_REQ:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_DESC_REQ\n");
-	}
 
 	if ((sts = __pmDecodeDescReq(pb, &pmid)) >= 0)
 	    sts = dispatch->version.any.desc(pmid, &desc, pmda);
@@ -309,10 +287,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_LABEL_REQ:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_LABEL_REQ\n");
-	}
 
 	if ((sts = __pmDecodeLabelReq(pb, &ident, &type)) >= 0 &&
 	    HAVE_V_SEVEN(dispatch->comm.pmda_interface)) {
@@ -330,10 +306,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_INSTANCE_REQ:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_INSTANCE_REQ\n");
-	}
 
 	if ((sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, &iname)) >= 0)
 	    sts = dispatch->version.any.instance(indom, inst, iname, &inres, pmda);
@@ -348,25 +322,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_TEXT_REQ:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_TEXT_REQ\n");
-	}
 
 	if ((sts = __pmDecodeTextReq(pb, &ident, &type)) >= 0)
 	    sts = dispatch->version.any.text(ident, type, &buffer, pmda);
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else {
+	else
 	    __pmSendText(pmda->e_outfd, FROM_ANON, ident, buffer);
-	}
 	break;
 
     case PDU_RESULT:
-
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_RESULT\n");
-	}
 
 	if ((sts = __pmDecodeResult(pb, &result)) >= 0)
 	    sts = dispatch->version.any.store(result, pmda);
@@ -375,22 +344,23 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	break;
 
     case PDU_CONTROL_REQ:
-	if (pmDebugOptions.libpmda) {
+	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_CONTROL_REQ\n");
-	}
 	break;
 
     case PDU_ATTR:
 	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_ATTR\n");
+
 	if (__pmDecodeAttr(pb, &subtype, &buffer, &length) < 0) 
 	    break;
-	if (HAVE_V_SIX(dispatch->comm.pmda_interface)) {
-	    ctxnum = dispatch->version.six.ext->e_context;
-	    sts = dispatch->version.six.attribute(ctxnum, subtype, buffer, length, pmda);
-	} else {
-	    sts = PM_ERR_GENERIC;
-	}
+	if (!HAVE_V_SIX(dispatch->comm.pmda_interface))
+	    break;
+	ctxnum = dispatch->version.six.ext->e_context;
+	if ((sts = dispatch->version.six.attribute(ctxnum, subtype, buffer, length, pmda)) < 0)
+	    /* Note error responses are not sent for PDU_ATTR */
+	    pmNotifyErr(LOG_ERR, "%s: Failed to set attribute: %s\n",
+			pmda->e_name, pmErrStr(sts));
 	break;
 
     default: {

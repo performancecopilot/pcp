@@ -1124,7 +1124,6 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
     pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
     __pmFD_ZERO(&wfds);
     __pmFD_SET(fd, &wfds);
-    sts = 0;
     if ((rc = __pmSelectWrite(fd+1, &wfds, pstv)) == 1) {
 	sts = __pmConnectCheckError(fd);
     }

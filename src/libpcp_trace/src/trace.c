@@ -559,7 +559,7 @@ _pmtraceupdatewait(void)
 #endif
 		    break;
 		}
-		if ((backoff = (int *)realloc(backoff, n_backoff * 
+		if ((backoff = (int *)realloc(backoff, (n_backoff + 1) * 
 						sizeof(backoff[0]))) == NULL)
 		    break;
 		backoff[n_backoff++] = val;

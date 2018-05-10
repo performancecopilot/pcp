@@ -610,7 +610,6 @@ pmSpecLocalPMDA(const char *spec)
     char	*ap;
 
     if ((arg = sbuf = strdup(spec)) == NULL) {
-	sts = -oserror();
 	pmNoMem("pmSpecLocalPMDA dup spec", strlen(spec)+1, PM_RECOV_ERR);
 	return "strdup failed";
     }
