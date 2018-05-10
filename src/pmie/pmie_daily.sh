@@ -19,6 +19,7 @@
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
+. $PCP_SHARE_DIR/lib/utilproc.sh
 
 # added to handle problem when /var/log/pcp is a symlink, as first
 # reported by Micah_Altman@harvard.edu in Nov 2001
@@ -212,13 +213,21 @@ done
 
 [ $# -ne 0 ] && _usage
 
-# after argument checking, everything must be logged to ensure no mail is
-# accidentally sent from cron.  Close stdout and stderr, then open stdout
-# as our logfile and redirect stderr there too.
-#
-[ -f "$PROGLOG" ] && mv -f "$PROGLOG" "$PROGLOG.prev"
-exec 1>"$PROGLOG"
-exec 2>&1
+if $SHOWME
+then
+    :
+else
+    # Salt away previous log, if any ...
+    #
+    _save_prev_file "$PROGLOG"
+    # After argument checking, everything must be logged to ensure no mail is
+    # accidentally sent from cron.  Close stdout and stderr, then open stdout
+    # as our logfile and redirect stderr there too.
+    #
+    # Exception is for -N where we want to see the output
+    #
+    exec 1>"$PROGLOG" 2>&1
+fi
 
 if [ ! -f "$CONTROL" ]
 then
@@ -401,7 +410,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	cd "$dir"
+	if cd "$dir" >/dev/null 2>&1
+	then
+	    :
+	else
+	    _error "cannot chdir to directory ($dir) for pmie log file"
+	    continue
+	fi
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
 
@@ -505,7 +520,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    # creating a new logfile with the old name in the process.
 	    #
 	    $SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
-	    if mv -f $logfile ${logfile}.${SUMMARY_LOGNAME}
+	    if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
 	    then
 		$VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
 		eval $KILL -s HUP $pid
