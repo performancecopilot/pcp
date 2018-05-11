@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.0.2
+Version: 4.1.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3357,6 +3357,9 @@ cd
 %endif
 
 %changelog
+* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
 - Propogate build flags throughout PCP (BZ 1538187)
 - Further additions to selinux policy (BZ 1565158)
