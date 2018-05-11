@@ -40,6 +40,7 @@ do
 	    -e '/^pcp$/d' \
 	    -e '/-pcp$/d' \
 	    -e '/-PCP-/d' \
+	    -e '/perl(PCP::/d' \
 	    -e '/lib.*\.so[.(]/d' \
 	# end
     else
