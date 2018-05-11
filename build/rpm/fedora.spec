@@ -3358,8 +3358,10 @@ cd
 
 %changelog
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
-- Update to Vector v1.2.2 in pcp-webapp-vector sub-package.
-- Work-in-progress, see http://pcp.io/roadmap
+- Propogate build flags throughout PCP (BZ 1538187)
+- Further additions to selinux policy (BZ 1565158)
+- Update to Vector v1.2.2 in pcp-webapp-vector.
+- Update to latest PCP sources.
 
 * Thu Mar 29 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
 - Fix selinux policy to allow pmdagluster to work (BZ 1558708)
