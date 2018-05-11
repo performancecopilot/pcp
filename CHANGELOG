@@ -1,5 +1,94 @@
 pcp-4.0.2 (11 May 2018)
-    - Work in progress, see http://pcp.io/roadmap
+    - log rotation, management scripts, compression and utilities
+	- pmie_{check,daily}: rework .prev and -N handling
+	- pmlogger_{check,daily}: rework .prev and -N handling
+	- pmlogger_daily: add -p to poll if cronjob was missed
+	- pmlogger_daily: set default xz options for 10MB blocks
+    - client tools and utilities:
+	- pcp-pidstat: add new process state tracking feature
+	- pmlogconf: update zeroconf config for pidstat metrics
+	- pmrep, pcp2xxx: use new improved long-option-only method
+	- pmrep: fix metricsets :mpstat and :mpstat-P-ALL metric definitions
+	- pcp2zabbix: fix issues from low-level-discovery feature
+	- pcp-atop: remove the long-deprecated pmatop symlink
+	- pmstat: fix bogus warning in local context fallback mode
+	- pminfo: cleanup instance name and instance label caching
+	- sar2pcp: updates for recent versions of sysstat
+	- zbxpcp: ensure errmsg accompanies SYSINFO_RET_FAIL returns
+	- shell completion: update pcp2zabbix lld arg handling
+	- add low-level-discovery support to pcp2zabbix
+    - pcp-zeroconf: zero configuration package for support environments
+	- pmlogconf: update zeroconf config for pidstat metrics
+    - PMDA additions, enhancements and bug fixes
+	- pmdaprometheus: add support for label filtering in URL configs
+	- pmdaprometheus: set PMNS_CHANGED flag more aggressively
+	- pmdaprometheus: perf improvement - add a compiled regex cache
+	- pmdaprometheus: perf improvement - avoid re-parsing config URLs
+	- pmdaprometheus: perf - avoid formatting debug messages if !dbg
+	- pmdaprometheus: fix fetch and parse time counters
+	- pmdaprometheus: scalability improvements, multi-threaded http get
+	- pmdadm: avoid segfaults if there are no dmstats regions
+	- pmdadm: Fix memory leak in dmstats.c
+	- pmdalinux: remove cdrom from disk indom
+	- pmdalinux: support vfs.aio metrics from /proc/sys/fs files
+	- pmdaproc: fix issue with container identification
+	- pcp-pmda-libvirt: fix rpm packaging
+	- pmdacifs update to support stats V2
+	- pmdaroot, pmdaproc: rework Docker container name heuristics
+	- pmdabcc: start in the "notready" state to avoid startup timeouts
+	- pmdanfsclient: convert from perl to python, add newer 4.2 ops
+	- pmdasmart: new PMDA to extract metrics from smartmontools package
+    - pmwebd and pmmgr
+	- pmwebd: Restore logic for rolling over to a new volume.
+	- pmwebd: Handle compressed .meta and archive volume files.
+    - selinux
+	- selinux: add fsetid cap to pcp_pmlogger_t
+	- pmda.smart/selinux: fix fsadm_exec_t rules
+	- selinux: pmlogger should be allowed the fowner cap for itself
+	- selinux: rhbz1565158 ipc.sem metrics
+	- selinux: RHBZ1565158 allow semaphore reads for mozilla_plugin_t
+	- selinux: rhbz1547066 Add several AVCs caught in testing
+	- Build: add pcp-selinux req - libsemanage
+	- selinux: rhbz1558708 add further policy for pmdagluster
+    - libpcp and libpcp_pmda
+	- libpcp: provide a fetchgroup reset interface
+	- libpcp: add OpenIndiana fix to allow pmcd connection TCP
+	- libpcp_fault: track exports changes over in libpcp
+	- libpcp: change ld VERSION file manipulation
+	- libpcp: Implement new archive I/O API functions.
+	- libpcp, pmcd: resolve an endian issue in labels protocol
+	- libpcp: decompression: Correctly detect fully specified archives
+	- libpcp: detect and handle corrupted labelset metadata in archives
+	- libpcp: harden labels dup routine when handed bad/missing data
+	- libpcp: make pmSemStr and pmTypeStr thread-safe
+    - Misc build, infrastructure and packaging updates
+	- coverity: fix memleaks, useless variable settings, off-by-ones
+	- coverity: fix error handling on PMDA attribute interface
+	- build: couple more linker tweaks for Windows builds
+	- build: addition for chown/chmod post install actions
+	- build: require coreutils (fileutils is gone)
+	- packaging: ensure $PCP_SA_DIR ends up with correct mode and ownership
+	- build: update check-statics for libpcp macosx builds
+	- assorted: fix compilation warnings from OpenIndiana
+	- configure: yet another attempt to get fmt_int64 correct
+	- debian/rules: pass -v down from dh_shlibdeps to dpkg-shlibdeps
+	- debian/pcp-export-zabbix-agent.install: add missing files
+	- build: add conditionals for Requires: libsemanage
+	- build: pid_t ... it may not be the same type as int
+	- build: add an explicit sans font dependency for pmwebd
+	- build: resolve compilation warnings with recent gcc versions
+	- travis: print all logs to stdout at the end of the build
+	- build, qa: force default locale when grepping English words
+	- build: Pass CFLAGS, CXXFLAGS, LDFLAGS down to qmake builds.
+	- fedora.spec: libvirt needs python2-lxml on rhel
+	- fedora.spec: python2-libvirt is for fedora >= 27
+	- packaging: correctly package zbxpcp.conf file
+	- build: improve Zabbix server integration out-of-the-box
+    - Documentation
+	- docs: add pcp-pidstat(1)
+	- docs: add pmClearFetchGroup(3)
+	- docs: document ipc_prot and notready in various man pages
+	- books: delete support for xmlto and dblatex in book toolchain
 
 pcp-4.0.1 (29 March 2018)
     - log rotation, management scripts, compression and utilities
