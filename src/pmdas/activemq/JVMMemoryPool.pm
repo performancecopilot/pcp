@@ -13,7 +13,7 @@
 # 
 use strict;
 
-package JVMMemoryPool;
+package PCP::JVMMemoryPool;
 
 sub new {
     my $class = shift;

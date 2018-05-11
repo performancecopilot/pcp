@@ -18,14 +18,15 @@ use File::Basename;
 use lib dirname (__FILE__);
 
 use PCP::PMDA;
+use PCP::RESTClient;
+use PCP::ActiveMQ;
+use PCP::JVMMemory;
+use PCP::JVMMemoryPool;
+use PCP::JVMGarbageCollection;
+use PCP::TimeSource;
+use PCP::Cache;
+
 use LWP::UserAgent;
-use RESTClient;
-use ActiveMQ;
-use JVMMemory;
-use JVMMemoryPool;
-use JVMGarbageCollection;
-use TimeSource;
-use Cache;
 
 my $rest_hostname = 'localhost';
 my $rest_port = 8161;

@@ -13,8 +13,8 @@
 # 
 use strict;
 
-package ActiveMQ;
-use Queue;
+package PCP::ActiveMQ;
+use PCP::Queue;
 
 sub new {
     my $class = shift;
