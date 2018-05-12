@@ -4,6 +4,70 @@
 # and packages
 #
 
+# same function is in allow-pmlc-access ... need to track changes
+#
+_getnetworkaddr()
+{
+    if `which hostname >/dev/null 2>&1`
+    then
+	host=`hostname`
+	if `which host >/dev/null 2>&1`
+	then
+	    host_out=`host $host`
+	    if echo "$host_out" | grep ' has address ' >/dev/null
+	    then
+		addr=`echo "$host_out" | sed -e 's/.*address //'`
+		if `which ifconfig >/dev/null 2>&1`
+		then
+		    # ifconfig line of interest looks like:
+		    # inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+		    #
+		    mask=`ifconfig | grep " $addr " | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
+		    case "$mask"
+		    in
+			255.255.255.0|0xffffff00|ffffff00)	# /24 network
+			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			    ;;
+			# pmcd's [access] is not smart enough to handle other
+			# than /24 networks, so map the other likely options
+			# to the broader /24 network
+			#
+			255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
+			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			    ;;
+			*)
+			    echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
+			    ;;
+		    esac
+		elif `which ip >/dev/null 2>&1`
+		then
+		    # ip line of interest looks like:
+		    # 4: br0    inet 192.168.1.100/24 ...
+		    #
+		    mask=`ip -f inet -o address | grep " $addr/" | sed -e 's/.*inet //' -e 's/[0-9.][0-9.]*\/\([^ ][^ ]*\) .*/\1/'`
+		    if [ "$mask" != 24 ]
+		    then
+			# pmcd's [access] is not smart enough to handle other
+			# than /24 networks, so map the other likely options
+			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
+		    fi
+		    # /24 netmask
+		    mask=255.255.255.0
+		    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+		else
+		    echo >&2 "Neither ifconfig(1) nor ip(1)? Not sure how to get primary ip addr and netmask"
+		fi
+	    else
+		echo >&2 "Unexpected host(1) output: $host_out ... cannot get ip addr and netmask"
+	    fi
+	else
+	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
+	fi
+    else
+	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
+    fi
+}
+
 _usage()
 {
     echo "Usage: $0 [options]"
@@ -52,52 +116,6 @@ if [ -f /etc/pcp.conf ]
 then
     . /etc/pcp.conf
 fi
-
-# same function is in allow-pmlc-access ... need to track changes
-#
-_getnetworkaddr()
-{
-    if `which hostname >/dev/null 2>&1`
-    then
-	host=`hostname`
-	if `which host >/dev/null 2>&1`
-	then
-	    host_out=`host $host`
-	    if echo "$host_out" | grep ' has address ' >/dev/null
-	    then
-		addr=`echo "$host_out" | sed -e 's/.*address //'`
-		if `which ifconfig >/dev/null 2>&1`
-		then
-		    mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
-		    case "$mask"
-		    in
-			255.255.255.0|0xffffff00|ffffff00)	# /24 network
-			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-			    ;;
-			# pmcd's [access] is not smart enough to handle other
-			# than /24 networks, so map the other likely options
-			# to the broader /24 network
-			#
-			255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
-			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-			    ;;
-			*)
-			    echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
-			    ;;
-		    esac
-		else
-		    echo >&2 "No ifconfig(1)? Not sure how to get primary ip addr and netmask"
-		fi
-	    else
-		echo >&2 "Unexpected host(1) output: $host_out ... cannot get ip addr and netmask"
-	    fi
-	else
-	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
-	fi
-    else
-	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
-    fi
-}
 
 # version1 is on line 1
 # version2 is on line 2
@@ -798,6 +816,46 @@ pkg_add?	avahi-browse	[avahi-tools or avahi-utils (QA optional)]
 pkg?	avahi-browse		[network/avahi (QA optional)]
 slackpkg?	avahi-browse	[N/A (QA optional)]
 pacman?	avahi-browse		[avahi (QA optional)]
+# -- ifconfig
+dpkg?		ifconfig	[net-tools]
+rpm?		ifconfig	[net-tools]
+urpmi?		ifconfig	[net-tools]
+emerge?		ifconfig	[?]
+pkgin?		ifconfig	[?]
+pkg_add?	ifconfig	[?]
+pkg?		ifconfig	[?]
+slackpkg?	ifconfig	[?]
+pacman?		ifconfig	[?]
+# -- netstat
+dpkg?		netstat		[net-tools]
+rpm?		netstat		[net-tools]
+urpmi?		netstat		[net-tools]
+emerge?		netstat		[?]
+pkgin?		netstat		[?]
+pkg_add?	netstat		[?]
+pkg?		netstat		[?]
+slackpkg?	netstat		[?]
+pacman?		netstat		[?]
+# -- kubectl
+dpkg?		kubectl		[?]
+rpm?		kubectl		[kubernetes-client]
+urpmi?		kubectl		[kubernetes-client]
+emerge?		kubectl		[?]
+pkgin?		kubectl		[?]
+pkg_add?	kubectl		[?]
+pkg?		kubectl		[?]
+slackpkg?	kubectl		[?]
+pacman?		kubectl		[?]
+# -- kubelet
+dpkg?		kubelet		[?]
+rpm?		kubelet		[kubernetes-node]
+urpmi?		kubelet		[kubernetes-node]
+emerge?		kubelet		[?]
+pkgin?		kubelet		[?]
+pkg_add?	kubelet		[?]
+pkg?		kubelet		[?]
+slackpkg?	kubelet		[?]
+pacman?		kubelet		[?]
 # -- crontab
 dpkg?		crontab		[cron]
 rpm?		crontab		[cronie]
@@ -1287,9 +1345,15 @@ in
     vm22)
 	na='python3-prometheus-client python3-xlsxwriter perl-Slurm-Hostlist'
 	;;
+    vm24)
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow perl-Slurm-Hostlist docker-io'
+	;;
     vm27)
 	na='python3-bpfcc'
 	;;
+    vm29)
+	na='python-prometheus-client python-elasticsearch python-xlsxwriter perl-YAML-LibYAML perl-Slurm-Hostlist perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
+    	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-xlsxwriter python-xlsxwriterxlsxwriter dtrace boost'
 	;;
@@ -1687,7 +1751,35 @@ p
 	return
     fi
 
-    ifconfig \
+    rm -f $tmp.tmp
+    if `which ifconfig >/dev/null 2>&1`
+    then
+	# ifconfig lines of interest look like
+	# br0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        #	inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+        # ...
+	# lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+	#	inet 127.0.0.1  netmask 255.0.0.0
+	#
+	ifconfig >$tmp.tmp
+    elif `which ip >/dev/null 2>&1`
+    then
+	ip -f inet address >$tmp.tmp
+	# ip lines of interest look like
+	# 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc ...
+	#     inet 127.0.0.1/8 scope host lo
+	#     ...
+	# 4: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc ...
+	#     inet 192.168.1.100/24 brd 192.168.1.255 scope global br0
+	#     ...
+    else
+	echo >&2 "Neither ifconfig(1) nor ip(1)? Not sure how to get primary ip addr"
+	return
+    fi
+    sed <$tmp.tmp \
+	-e 's/^[0-9][0-9]*: //' \
+	-e 's/: / /g' \
+	-e '/ inet /s/\/.*/ /' \
     | awk '
 /^[^ 	]/	{ iface = $1; next }
 /inet addr:'$ipaddr' / || /inet '$ipaddr' / {
