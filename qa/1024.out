@@ -51,74 +51,57 @@ disk.all.write_rawactive
 
 disk.dev.avactive
     inst [N or "sda"] value 15011617
-    inst [N or "sr0"] value 0
 
 disk.dev.aveq
     inst [N or "sda"] value 532716500
-    inst [N or "sr0"] value 0
 
 disk.dev.blkread
     inst [N or "sda"] value 95048962
-    inst [N or "sr0"] value 0
 
 disk.dev.blktotal
     inst [N or "sda"] value 274048394
-    inst [N or "sr0"] value 0
 
 disk.dev.blkwrite
     inst [N or "sda"] value 178999432
-    inst [N or "sr0"] value 0
 
 disk.dev.capacity
 No value(s) available!
 
 disk.dev.read
     inst [N or "sda"] value 1132105
-    inst [N or "sr0"] value 0
 
 disk.dev.read_bytes
     inst [N or "sda"] value 47524481
-    inst [N or "sr0"] value 0
 
 disk.dev.read_merge
     inst [N or "sda"] value 127625
-    inst [N or "sr0"] value 0
 
 disk.dev.read_rawactive
     inst [N or "sda"] value 12125298
-    inst [N or "sr0"] value 0
 
 disk.dev.scheduler
     inst [N or "sda"] value "unknown"
-    inst [N or "sr0"] value "unknown"
 
 disk.dev.total
     inst [N or "sda"] value 2673436
-    inst [N or "sr0"] value 0
 
 disk.dev.total_bytes
     inst [N or "sda"] value 137024197
-    inst [N or "sr0"] value 0
 
 disk.dev.total_rawactive
     inst [N or "sda"] value 532651954
-    inst [N or "sr0"] value 0
 
 disk.dev.write
     inst [N or "sda"] value 1541331
-    inst [N or "sr0"] value 0
 
 disk.dev.write_bytes
     inst [N or "sda"] value 89499716
-    inst [N or "sr0"] value 0
 
 disk.dev.write_merge
     inst [N or "sda"] value 2624311
-    inst [N or "sr0"] value 0
 
 disk.dev.write_rawactive
     inst [N or "sda"] value 520526656
-    inst [N or "sr0"] value 0
 
 disk.dm.avactive
     inst [N or "docker-8:7-1974438-pool"] value 9601
@@ -481,27 +464,22 @@ disk.all.write_rawactive
 disk.dev.avactive
     inst [N or "cciss/c12d11"] value 641
     inst [N or "sda"] value 15011617
-    inst [N or "sr0"] value 0
 
 disk.dev.aveq
     inst [N or "cciss/c12d11"] value 1691
     inst [N or "sda"] value 532716500
-    inst [N or "sr0"] value 0
 
 disk.dev.blkread
     inst [N or "cciss/c12d11"] value 512544
     inst [N or "sda"] value 95048962
-    inst [N or "sr0"] value 0
 
 disk.dev.blktotal
     inst [N or "cciss/c12d11"] value 512800
     inst [N or "sda"] value 274048394
-    inst [N or "sr0"] value 0
 
 disk.dev.blkwrite
     inst [N or "cciss/c12d11"] value 256
     inst [N or "sda"] value 178999432
-    inst [N or "sr0"] value 0
 
 disk.dev.capacity
 No value(s) available!
@@ -509,62 +487,50 @@ No value(s) available!
 disk.dev.read
     inst [N or "cciss/c12d11"] value 545
     inst [N or "sda"] value 1132105
-    inst [N or "sr0"] value 0
 
 disk.dev.read_bytes
     inst [N or "cciss/c12d11"] value 256272
     inst [N or "sda"] value 47524481
-    inst [N or "sr0"] value 0
 
 disk.dev.read_merge
     inst [N or "cciss/c12d11"] value 20
     inst [N or "sda"] value 127625
-    inst [N or "sr0"] value 0
 
 disk.dev.read_rawactive
     inst [N or "cciss/c12d11"] value 99
     inst [N or "sda"] value 12125298
-    inst [N or "sr0"] value 0
 
 disk.dev.scheduler
     inst [N or "cciss/c12d11"] value "unknown"
     inst [N or "sda"] value "unknown"
-    inst [N or "sr0"] value "unknown"
 
 disk.dev.total
     inst [N or "cciss/c12d11"] value 34931
     inst [N or "sda"] value 2673436
-    inst [N or "sr0"] value 0
 
 disk.dev.total_bytes
     inst [N or "cciss/c12d11"] value 256400
     inst [N or "sda"] value 137024197
-    inst [N or "sr0"] value 0
 
 disk.dev.total_rawactive
     inst [N or "cciss/c12d11"] value 974
     inst [N or "sda"] value 532651954
-    inst [N or "sr0"] value 0
 
 disk.dev.write
     inst [N or "cciss/c12d11"] value 34386
     inst [N or "sda"] value 1541331
-    inst [N or "sr0"] value 0
 
 disk.dev.write_bytes
     inst [N or "cciss/c12d11"] value 128
     inst [N or "sda"] value 89499716
-    inst [N or "sr0"] value 0
 
 disk.dev.write_merge
     inst [N or "cciss/c12d11"] value 22
     inst [N or "sda"] value 2624311
-    inst [N or "sr0"] value 0
 
 disk.dev.write_rawactive
     inst [N or "cciss/c12d11"] value 875
     inst [N or "sda"] value 520526656
-    inst [N or "sr0"] value 0
 
 disk.dm.avactive
     inst [N or "docker-8:7-1974438-pool"] value 9601
@@ -810,8 +776,6 @@ disk.dev.avactive
     inst [N or "sdv"] value 5
     inst [N or "sdw"] value 6
     inst [N or "sdx"] value 12
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.aveq
     inst [N or "cciss/c0d0"] value 529
@@ -843,8 +807,6 @@ disk.dev.aveq
     inst [N or "sdv"] value 5
     inst [N or "sdw"] value 6
     inst [N or "sdx"] value 12
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.blkread
     inst [N or "cciss/c0d0"] value 4744
@@ -876,8 +838,6 @@ disk.dev.blkread
     inst [N or "sdv"] value 632
     inst [N or "sdw"] value 800
     inst [N or "sdx"] value 896
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.blktotal
     inst [N or "cciss/c0d0"] value 4744
@@ -909,8 +869,6 @@ disk.dev.blktotal
     inst [N or "sdv"] value 632
     inst [N or "sdw"] value 800
     inst [N or "sdx"] value 896
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.blkwrite
     inst [N or "cciss/c0d0"] value 0
@@ -942,8 +900,6 @@ disk.dev.blkwrite
     inst [N or "sdv"] value 0
     inst [N or "sdw"] value 0
     inst [N or "sdx"] value 0
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.capacity
 No value(s) available!
@@ -978,8 +934,6 @@ disk.dev.read
     inst [N or "sdv"] value 48
     inst [N or "sdw"] value 54
     inst [N or "sdx"] value 60
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.read_bytes
     inst [N or "cciss/c0d0"] value 2372
@@ -1011,8 +965,6 @@ disk.dev.read_bytes
     inst [N or "sdv"] value 316
     inst [N or "sdw"] value 400
     inst [N or "sdx"] value 448
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.read_merge
     inst [N or "cciss/c0d0"] value 416
@@ -1044,8 +996,6 @@ disk.dev.read_merge
     inst [N or "sdv"] value 31
     inst [N or "sdw"] value 46
     inst [N or "sdx"] value 52
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.read_rawactive
     inst [N or "cciss/c0d0"] value 529
@@ -1077,8 +1027,6 @@ disk.dev.read_rawactive
     inst [N or "sdv"] value 5
     inst [N or "sdw"] value 6
     inst [N or "sdx"] value 12
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.scheduler
     inst [N or "cciss/c0d0"] value "unknown"
@@ -1110,8 +1058,6 @@ disk.dev.scheduler
     inst [N or "sdv"] value "unknown"
     inst [N or "sdw"] value "unknown"
     inst [N or "sdx"] value "unknown"
-    inst [N or "sr0"] value "unknown"
-    inst [N or "sr1"] value "unknown"
 
 disk.dev.total
     inst [N or "cciss/c0d0"] value 177
@@ -1143,8 +1089,6 @@ disk.dev.total
     inst [N or "sdv"] value 48
     inst [N or "sdw"] value 54
     inst [N or "sdx"] value 60
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.total_bytes
     inst [N or "cciss/c0d0"] value 2372
@@ -1176,8 +1120,6 @@ disk.dev.total_bytes
     inst [N or "sdv"] value 316
     inst [N or "sdw"] value 400
     inst [N or "sdx"] value 448
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.total_rawactive
     inst [N or "cciss/c0d0"] value 529
@@ -1209,8 +1151,6 @@ disk.dev.total_rawactive
     inst [N or "sdv"] value 5
     inst [N or "sdw"] value 6
     inst [N or "sdx"] value 12
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.write
     inst [N or "cciss/c0d0"] value 0
@@ -1242,8 +1182,6 @@ disk.dev.write
     inst [N or "sdv"] value 0
     inst [N or "sdw"] value 0
     inst [N or "sdx"] value 0
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.write_bytes
     inst [N or "cciss/c0d0"] value 0
@@ -1275,8 +1213,6 @@ disk.dev.write_bytes
     inst [N or "sdv"] value 0
     inst [N or "sdw"] value 0
     inst [N or "sdx"] value 0
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.write_merge
     inst [N or "cciss/c0d0"] value 0
@@ -1308,8 +1244,6 @@ disk.dev.write_merge
     inst [N or "sdv"] value 0
     inst [N or "sdw"] value 0
     inst [N or "sdx"] value 0
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dev.write_rawactive
     inst [N or "cciss/c0d0"] value 0
@@ -1341,8 +1275,6 @@ disk.dev.write_rawactive
     inst [N or "sdv"] value 0
     inst [N or "sdw"] value 0
     inst [N or "sdx"] value 0
-    inst [N or "sr0"] value 0
-    inst [N or "sr1"] value 0
 
 disk.dm.avactive
 No value(s) available!
@@ -2296,35 +2228,30 @@ disk.all.write_rawactive
 disk.dev.avactive
     inst [N or "rbd0"] value 262397
     inst [N or "rbd1"] value 1567
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 1357984
     inst [N or "vdb"] value 195748
 
 disk.dev.aveq
     inst [N or "rbd0"] value 1547033
     inst [N or "rbd1"] value 1594
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 1559358
     inst [N or "vdb"] value 561199
 
 disk.dev.blkread
     inst [N or "rbd0"] value 4293386
     inst [N or "rbd1"] value 10992
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 567541
     inst [N or "vdb"] value 7468684
 
 disk.dev.blktotal
     inst [N or "rbd0"] value 4293644
     inst [N or "rbd1"] value 10992
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 3687278
     inst [N or "vdb"] value 7533279
 
 disk.dev.blkwrite
     inst [N or "rbd0"] value 258
     inst [N or "rbd1"] value 0
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 3119737
     inst [N or "vdb"] value 64595
 
@@ -2334,84 +2261,72 @@ No value(s) available!
 disk.dev.read
     inst [N or "rbd0"] value 536206
     inst [N or "rbd1"] value 1123
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 8872
     inst [N or "vdb"] value 164416
 
 disk.dev.read_bytes
     inst [N or "rbd0"] value 2146693
     inst [N or "rbd1"] value 5496
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 283770
     inst [N or "vdb"] value 3734342
 
 disk.dev.read_merge
     inst [N or "rbd0"] value 0
     inst [N or "rbd1"] value 0
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 10
     inst [N or "vdb"] value 3
 
 disk.dev.read_rawactive
     inst [N or "rbd0"] value 1545870
     inst [N or "rbd1"] value 1599
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 54653
     inst [N or "vdb"] value 427635
 
 disk.dev.scheduler
     inst [N or "rbd0"] value "unknown"
     inst [N or "rbd1"] value "unknown"
-    inst [N or "sr0"] value "unknown"
     inst [N or "vda"] value "unknown"
     inst [N or "vdb"] value "unknown"
 
 disk.dev.total
     inst [N or "rbd0"] value 536213
     inst [N or "rbd1"] value 1123
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 83257
     inst [N or "vdb"] value 166067
 
 disk.dev.total_bytes
     inst [N or "rbd0"] value 2146822
     inst [N or "rbd1"] value 5496
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 1843639
     inst [N or "vdb"] value 3766639
 
 disk.dev.total_rawactive
     inst [N or "rbd0"] value 1546498
     inst [N or "rbd1"] value 1599
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 1559420
     inst [N or "vdb"] value 561263
 
 disk.dev.write
     inst [N or "rbd0"] value 7
     inst [N or "rbd1"] value 0
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 74385
     inst [N or "vdb"] value 1651
 
 disk.dev.write_bytes
     inst [N or "rbd0"] value 129
     inst [N or "rbd1"] value 0
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 1559868
     inst [N or "vdb"] value 32297
 
 disk.dev.write_merge
     inst [N or "rbd0"] value 0
     inst [N or "rbd1"] value 0
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 24772
     inst [N or "vdb"] value 211
 
 disk.dev.write_rawactive
     inst [N or "rbd0"] value 628
     inst [N or "rbd1"] value 0
-    inst [N or "sr0"] value 0
     inst [N or "vda"] value 1504767
     inst [N or "vdb"] value 133628
 
