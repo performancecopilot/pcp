@@ -111,18 +111,40 @@ hdr==1	{ print $rx, $rx_err, $rx_drp, $rx_ovr, $tx, $tx_err, $tx_drp, $tx_ovr }'
 # real QA test starts here
 echo >$seq.full
 
-# Get the list of network interfaces from ifconfig
-# Need uniq because may have one interface appearing moer than once
+# Get the list of network interfaces from ifconfig or ip.
+# Need uniq because may have one interface appearing more than once
 # (e.g. br1 and br1:avahi which become 2 br1 lines otherwise).
 #
-ifconfig -a \
-    | sed -n -e '/^[^ 	]/{
+if which ifconfig >/dev/null 2>&1
+then
+    # ifconfig lines of interest are like
+    # eno1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+    #
+    ifconfig -a \
+	| sed -n -e '/^[^ 	]/{
 s/[: 	].*//
 p
 }' \
     | LC_COLLATE=POSIX sort \
     | uniq \
     > $tmp.net.indom
+elif which ip >/dev/null 2>&1
+then
+    # ip lines of interest are like
+    # 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc ...
+    #
+    ip address \
+	| sed -n -e '/^[^ 	]/{
+s/^[0-9][0-9]*: //
+s/[: 	].*//
+p
+}' \
+    | LC_COLLATE=POSIX sort \
+    | uniq \
+    > $tmp.net.indom
+else
+    _notrun "Neither ifconfig(1) nor ip(1), how do I get a list of network interfaces?"
+fi
 
 pminfo -f network.interface.total.drops \
     | $PCP_AWK_PROG '
