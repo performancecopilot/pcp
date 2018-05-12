@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sysstat PUBLIC "DTD v2.13 sysstat //EN"
+"http://pagesperso-orange.fr/sebastien.godard/sysstat.dtd">
+<sysstat>
+	<sysdata-version>2.13</sysdata-version>
+	<host nodename="very.elastic.org">
+		<sysname>Linux</sysname>
+		<release>3.6.8-2.fc17.x86_64</release>
+		<machine>x86_64</machine>
+		<number-of-cpus>1</number-of-cpus>
+		<file-date>2012-12-31</file-date>
+		<statistics>
+			<timestamp date="2012-12-31" time="05-10-01" utc="1" interval="600">
+				<process-and-context-switch per="second" proc="0.06" cswch="1272.70"/>
+			</timestamp>
+		</statistics>
+		<restarts>
+		</restarts>
+	</host>
+</sysstat>
