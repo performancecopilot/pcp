@@ -24,6 +24,10 @@ fi
 grep '#define HAVE_64BIT_LONG' $defs >/dev/null 2>&1 && \
     _fail "HAVE_64BIT_LONG is defined in $defs"
 
+# PM_SIZEOF macros should be in config{sz,64}.h, *not* here:
+grep '#define PM_SIZEOF' $defs >/dev/null 2>&1 && \
+    _fail "PM_SIZEOF macro(s) defined in $defs"
+
 grep '#define HAVE_BITFIELDS_LTOR' $defs >/dev/null 2>&1 || \
     _notrun "HAVE_BITFIELDS_LTOR is false"
 

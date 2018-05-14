@@ -718,12 +718,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* sizeof suseconds_t */
-#undef PM_SIZEOF_SUSECONDS_T
-
-/* sizeof time_t */
-#undef PM_SIZEOF_TIME_T
-
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
