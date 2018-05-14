@@ -13,7 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
+pid=''		# pid of the pmlogger we start a bit later
+_cleanup()
+{
+    [ -n "$pid" ] && $sudo kill -KILL $pid
+    $sudo rm -f $tmp.*
+}
+
+trap "_cleanup; exit 0" 0 1 2 3 15
 
 _filter()
 {
@@ -112,6 +119,7 @@ log mandatory on 200 msec sample.bin ["bin-200"]
 End-of-File
 
 _wait_pmlogger_end $pid
+pid=''
 _filter_pmlogger_log <$tmp.log
 cat $tmp.log >>$seq.full
 
