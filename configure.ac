@@ -1058,11 +1058,19 @@ AC_MSG_CHECKING([if the activemq PMDA should be included])
 pmda_activemq=false
 if test "$have_perl" = true
 then
-    dnl rpm build for activemq PMDA needs Perl LWP::UserAgent
-    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
-    then
-	pmda_activemq=true
-    fi
+    dnl rpm build for activemq PMDA needs Perl modules LWP::UserAgent
+    dnl and JSON
+    pmda_activemq=true
+    for module in 'LWP::UserAgent' JSON
+    do
+	if $pcp_perl_prog -e "use $module" >/dev/null 2>&1
+	then
+	    :
+	else
+	    pmda_activemq=false
+	    break
+	fi
+    done
 fi
 AC_SUBST(PMDA_ACTIVEMQ, $pmda_activemq)
 if $pmda_activemq; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

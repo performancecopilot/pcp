@@ -7,7 +7,7 @@ use lib dirname (__FILE__);
 use Test::More;
 use Test::Magpie qw(mock when);
 
-use Cache;
+use PCP::Cache;
 
 BEGIN {
     plan(tests => 3)

@@ -19,7 +19,7 @@ use lib dirname (__FILE__);
 
 use Test::More;
 use Test::Magpie qw(mock when verify);
-use ActiveMQ;
+use PCP::ActiveMQ;
 
 BEGIN {
     plan(tests => 9)

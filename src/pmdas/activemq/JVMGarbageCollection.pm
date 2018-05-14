@@ -13,7 +13,7 @@
 # 
 use strict;
 
-package JVMGarbageCollection;
+package PCP::JVMGarbageCollection;
 
 sub new {
     my $class = shift;

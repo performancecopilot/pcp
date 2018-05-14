@@ -19,7 +19,7 @@ use lib dirname (__FILE__);
 
 use Test::More;
 use Test::Magpie qw(mock when);
-use JVMMemoryPool;
+use PCP::JVMMemoryPool;
 
 BEGIN {
     plan(tests => 5)
