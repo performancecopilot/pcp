@@ -1,6 +1,8 @@
 QA output created by 716
 dbpmda> open pipe /usr/bin/env perl pmdasimple.pl
 Start env PMDA: /usr/bin/env perl pmdasimple.pl
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc simple.numfetch
 PMID: 253.0.0

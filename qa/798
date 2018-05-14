@@ -116,6 +116,8 @@ PCP_PYTHON_PMNS=root $python $script > $tmp.root
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
 open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc nfsclient.export
 desc nfsclient.mountpoint
@@ -134,6 +136,8 @@ End-of-File
 # create a set of commands for dbpmda
 cat >$tmp.v3cmds <<End-of-File
 open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc nfsclient.export
 desc nfsclient.options.mountaddr
@@ -156,6 +160,8 @@ End-of-File
 # create a set of commands for dbpmda and nfsv4.2
 cat >$tmp.42cmds <<EOF
 open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc nfsclient.nfsv4
 desc nfsclient.ops.seek.ops
