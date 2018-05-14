@@ -31,7 +31,7 @@ skip_pcp2elasticsearch=false
 $python -c "from elasticsearch import Elasticsearch" >/dev/null 2>&1
 [ $? -eq 0 ] || skip_pcp2elasticsearch=true
 skip_pcp2xlsx=false
-$python -c "import xlsxwriter" >/dev/null 2>&1
+$python -c "import openpyxl" >/dev/null 2>&1
 [ $? -eq 0 ] || skip_pcp2xlsx=true
 skip_pmrep=false
 $python -c "from collections import OrderedDict" >/dev/null 2>&1

@@ -86,7 +86,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_activemq@|$(PMDA_ACTIVEMQ)|g' \
 	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
-	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_XLSXWRITER)|g' \
+	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_OPENPYXL)|g' \
 	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_ELASTICSEARCH)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \

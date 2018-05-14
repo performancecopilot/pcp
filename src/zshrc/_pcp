@@ -1,6 +1,6 @@
 #compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
 #
-# PCP <http://pcp.io> completions for zsh <http://zsh.sf.net>.
+# PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
 # Started by Marko Myllynen <myllynen@redhat.com> 2016.
 #

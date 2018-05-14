@@ -1,3 +1,6 @@
+pcp-4.1.0 (15 June 2018)
+    - Work-in-progress, see http://pcp.io/roadmap
+
 pcp-4.0.2 (11 May 2018)
     - log rotation, management scripts, compression and utilities
 	- pmie_{check,daily}: rework .prev and -N handling

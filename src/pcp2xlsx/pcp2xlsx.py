@@ -29,7 +29,7 @@ import sys
 
 # Our imports
 import os
-import xlsxwriter
+import openpyxl
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
@@ -42,7 +42,9 @@ if sys.version_info[0] >= 3:
 DEFAULT_CONFIG = ["./pcp2xlsx.conf", "$HOME/.pcp2xlsx.conf", "$HOME/.pcp/pcp2xlsx.conf", "$PCP_SYSCONF_DIR/pcp2xlsx.conf"]
 
 # Defaults
+COLUMNA = 65
 CONFVER = 1
+PADDING = 5
 TIMEFMT = "yyyy-mm-dd hh:mm:ss"
 
 class PCP2XLSX(object):
@@ -101,11 +103,12 @@ class PCP2XLSX(object):
         # Internal
         self.runtime = -1
 
-        self.sheet = None
-        self.row = -1
+        self.wb = None
         self.ws = None
-        self.int_fmt = None
-        self.float_fmt = None
+        self.row = 0
+        self.int_style = None
+        self.float_style = None
+        self.time_style = None
 
         # Performance metrics store
         # key - metric name
@@ -164,7 +167,7 @@ class PCP2XLSX(object):
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
         opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
-        opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "xlsxwriter timestamp format")
+        opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "xlsx timestamp format")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("count-scale-force", 1, "Q", "SCALE", "forced count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
@@ -261,6 +264,8 @@ class PCP2XLSX(object):
             sys.stderr.write("Output file must be defined.\n")
             sys.exit(1)
 
+        self.time_style = openpyxl.styles.NamedStyle(name="datetime", number_format=self.timefmt)
+
         self.pmconfig.validate_metrics(curr_insts=True)
         self.pmconfig.finalize_options()
 
@@ -348,43 +353,73 @@ class PCP2XLSX(object):
         """ Write results in XLSX format """
         if timestamp is None:
             # Complete and close
-            self.sheet.close()
-            self.sheet = None
+            self.wb.save(self.outfile)
+            self.wb.close()
+            self.wb = None
             return
 
         # Current row
         self.row += 1
 
-        # Create the sheet and write the sheet headers
-        if not self.sheet:
-            col = 0
-            self.sheet = xlsxwriter.Workbook(self.outfile, {'constant_memory': True, 'in_memory': False, 'default_date_format': self.timefmt})
-            self.ws = self.sheet.add_worksheet("PCP Metrics")
-            fmt = self.sheet.add_format({'bold': True})
-            fmt.set_align('left')
-            self.ws.set_column(col, col, 20)
-            self.ws.write_string(self.row, col, "Host", fmt)
+        # Alignments
+        left = openpyxl.styles.Alignment(horizontal="left")
+        right = openpyxl.styles.Alignment(horizontal="right")
+
+        def cell_str(col, row):
+            """ Helper to return cell string """
+            return chr(col) + str(row)
+
+        def write_cell(col, row, value=None, bold=False, align=right):
+            """ Write value to cell """
+            if value is None:
+                self.ws.cell(col, self.row)
+                return
+            if bold:
+                self.ws[cell_str(col, row)].font = openpyxl.styles.Font(bold=True)
+            self.ws[cell_str(col, self.row)].alignment = align
+            self.ws[cell_str(col, self.row)] = value
+
+        # Create workbook, worksheet, and write headers
+        if not self.wb:
+            self.wb = openpyxl.Workbook()
+            self.ws = self.wb.active
+            self.ws.title = "PCP Metrics"
+            l = len(self.timefmt) if len(self.timefmt) > len("Timezone") else len("Timezone")
+            self.ws.column_dimensions[chr(COLUMNA)].width = l + PADDING
+
+            col = COLUMNA
+            write_cell(col, self.row, "Host", True, left)
             col += 1
-            host = self.context.pmGetContextHostName()
-            self.ws.write_string(self.row, col, host, fmt)
+            write_cell(col, self.row, self.context.pmGetContextHostName(), True, left)
+            l = len(self.context.pmGetContextHostName())
+            self.ws.column_dimensions[chr(col)].width = l + PADDING
             self.row += 1
-            col = 0
-            self.ws.write_string(self.row, col, "Source", fmt)
+
+            col = COLUMNA
+            write_cell(col, self.row, "Source", True, left)
             col += 1
-            self.ws.write_string(self.row, col, self.source, fmt)
+            write_cell(col, self.row, self.source, True, left)
+            l = len(self.source) if len(self.source) > l else l
+            self.ws.column_dimensions[chr(col)].width = l + PADDING
             self.row += 1
-            col = 0
-            self.ws.write_string(self.row, col, "Timezone", fmt)
+
+            col = COLUMNA
+            write_cell(col, self.row, "Timezone", True, left)
             col += 1
             timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
-            self.ws.write_string(self.row, col, timez, fmt)
+            write_cell(col, self.row, timez, True, left)
+            l = len(timez) if len(timez) > l else l
+            self.ws.column_dimensions[chr(col)].width = l + PADDING
             self.row += 1
-            col = 0
-            self.ws.write_blank(self.row, col, None, fmt)
+
+            # Add empty line for readability
+            col = COLUMNA
+            write_cell(col, self.row)
             self.row += 1
-            fmt = self.sheet.add_format({'bold': True})
-            fmt.set_align('right')
-            self.ws.write_string(self.row, col, "Time", fmt)
+
+            col = COLUMNA
+            write_cell(col, self.row, "Time", True)
+
             # Metrics/instances, static
             for i, metric in enumerate(self.metrics):
                 for j in range(len(self.pmconfig.insts[i][0])):
@@ -395,35 +430,37 @@ class PCP2XLSX(object):
                     # Mark metrics with instance domain but without instances
                     if self.pmconfig.descs[i].contents.indom != PM_IN_NULL and self.pmconfig.insts[i][1][0] is None:
                         key += "[]"
-                    self.ws.write_string(self.row, col, key, fmt)
+                    write_cell(col, self.row, key, True)
                     l = len(key) if self.metrics[metric][4] < len(key) else self.metrics[metric][4]
-                    self.ws.set_column(col, col, l + 5)
+                    if self.ws.column_dimensions[chr(col)].width is None or \
+                       self.ws.column_dimensions[chr(col)].width < l + PADDING:
+                        self.ws.column_dimensions[chr(col)].width = l + PADDING
             self.row += 1
+
             # Units, static
-            col = 0
+            col = COLUMNA
             for i, metric in enumerate(self.metrics):
                 unit = self.metrics[metric][2][0]
                 ins = 1 if self.pmconfig.insts[i][0][0] == PM_IN_NULL else len(self.pmconfig.insts[i][0])
                 for _ in range(ins):
                     col += 1
-                    self.ws.write_string(self.row, col, unit, fmt)
+                    write_cell(col, self.row, unit, True)
             self.row += 1
-            # Add empty line for readability
-            col = 0
-            fmt = self.sheet.add_format()
-            fmt.set_top(2)
-            self.ws.write_blank(self.row, col, None, fmt)
+
+            # Add empty line with border for readability
+            col = COLUMNA
+            border = openpyxl.styles.borders.Border(top=openpyxl.styles.borders.Side(style="medium"))
+            self.ws[cell_str(col, self.row)].border = border
             for i in range(len(self.metrics)):
                 for _ in range(len(self.pmconfig.insts[i][0])):
                     col += 1
-                    self.ws.write_blank(self.row, col, None, fmt)
+                    self.ws[cell_str(col, self.row)].border = border
             self.row += 1
-            # Set number formats
-            self.int_fmt = self.sheet.add_format()
-            self.int_fmt.set_num_format("0")
-            self.float_fmt = self.sheet.add_format()
-            float_fmt = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
-            self.float_fmt.set_num_format(float_fmt)
+
+            # Set number styles
+            self.int_style = openpyxl.styles.NamedStyle(name="integer", number_format="0")
+            precision = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
+            self.float_style = openpyxl.styles.NamedStyle(name="floating", number_format=precision)
 
         results = self.pmconfig.get_sorted_results()
 
@@ -433,30 +470,34 @@ class PCP2XLSX(object):
                 res[metric + "+" + str(inst)] = value
 
         # Add corresponding values for each column in the static header
-        col = 0
-        self.ws.write_datetime(self.row, col, self.pmfg_ts())
+        col = COLUMNA
+        self.ws[cell_str(col, self.row)].style = self.time_style
+        self.ws[cell_str(col, self.row)] = self.pmfg_ts()
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.pmconfig.insts[i][0])):
                 col += 1
                 try:
                     value = res[metric + "+" + str(self.pmconfig.insts[i][0][j])]
                     if value is None:
-                        self.ws.write_blank(self.row, col, None)
+                        write_cell(col, self.row)
                     elif isinstance(value, str):
-                        self.ws.write_string(self.row, col, value)
+                        write_cell(col, self.row, value)
                     elif isinstance(value, float):
                         value = round(value, self.metrics[metric][6])
-                        self.ws.write_number(self.row, col, value, self.float_fmt)
+                        self.ws[cell_str(col, self.row)].style = self.float_style
+                        write_cell(col, self.row, value)
                     else:
-                        self.ws.write_number(self.row, col, value, self.int_fmt)
+                        self.ws[cell_str(col, self.row)].style = self.int_style
+                        write_cell(col, self.row, value)
                 except Exception:
-                    self.ws.write_blank(self.row, col, None)
+                    write_cell(col, self.row)
 
     def finalize(self):
         """ Finalize and clean up """
-        if self.sheet:
-            self.sheet.close()
-            self.sheet = None
+        if self.wb:
+            self.wb.save(self.outfile)
+            self.wb.close()
+            self.wb = None
         return
 
 if __name__ == '__main__':

@@ -118,11 +118,11 @@
            </property>
            <property name="text">
             <string>&lt;b&gt;&lt;i&gt;Performance Co-Pilot (PCP)&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
-Copyright (c) 2010-2017 Red Hat&lt;br&gt;
+Copyright (c) 2010-2018 Red Hat&lt;br&gt;
 Copyright (c) 2006-2012 Aconex&lt;br&gt;
 Copyright (c) 1995-2007 SGI&lt;br&gt;
 ... and many, many others!&lt;br&gt;
-&lt;i&gt;http://pcp.io&lt;/i&gt;</string>
+&lt;i&gt;https://pcp.io&lt;/i&gt;</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

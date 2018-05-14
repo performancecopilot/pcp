@@ -15,7 +15,7 @@
 
 """System status collector using the libpcp Wrapper module
 
-Additional Information: http://pcp.io
+Additional Information: https://pcp.io
 """
 
 # ignore line too long, missing docstring, method could be a function,
