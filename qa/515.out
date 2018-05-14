@@ -2,25 +2,25 @@ QA output created by 515
 === stderr ===
 pmie: note - evaluator exiting
 === stdout ===
- 2 DATE: falling some_inst match_inst:
- 2 DATE: falling some_inst:
- 1 DATE: rising some_inst match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 1 DATE: rising some_inst match_inst: control[10]=4 control[11]=4
- 1 DATE: rising some_inst: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 1 DATE: rising some_inst: control[8]=4 control[9]=4 control[10]=4 control[11]=4
- 1 DATE: some_inst falling match_inst: control[10]=0 control[11]=0
- 1 DATE: some_inst falling match_inst: control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
- 1 DATE: some_inst falling: control[0]=0 control[1]=0 control[2]=0 control[3]=0 control[4]=0 control[5]=0 control[6]=0 control[7]=0 control[8]=0 control[9]=0 control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
- 1 DATE: some_inst falling: control[8]=0 control[9]=0 control[10]=0 control[11]=0
- 1 DATE: some_inst match_inst falling: control[10]=0 control[11]=0
- 1 DATE: some_inst match_inst falling: control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
- 1 DATE: some_inst match_inst rising: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 1 DATE: some_inst match_inst rising: control[10]=4 control[11]=4
- 4-7 DATE: some_inst match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 4-7 DATE: some_inst match_inst: control[10]=4 control[11]=4
- 1 DATE: some_inst rising match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 1 DATE: some_inst rising match_inst: control[10]=4 control[11]=4
- 1 DATE: some_inst rising: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 1 DATE: some_inst rising: control[8]=4 control[9]=4 control[10]=4 control[11]=4
- 4-7 DATE: some_inst: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
- 4-7 DATE: some_inst: control[8]=4 control[9]=4 control[10]=4 control[11]=4
+DATE: falling some_inst match_inst:
+DATE: falling some_inst:
+DATE: rising some_inst match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: rising some_inst match_inst: control[10]=4 control[11]=4
+DATE: rising some_inst: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: rising some_inst: control[8]=4 control[9]=4 control[10]=4 control[11]=4
+DATE: some_inst falling match_inst: control[10]=0 control[11]=0
+DATE: some_inst falling match_inst: control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
+DATE: some_inst falling: control[0]=0 control[1]=0 control[2]=0 control[3]=0 control[4]=0 control[5]=0 control[6]=0 control[7]=0 control[8]=0 control[9]=0 control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
+DATE: some_inst falling: control[8]=0 control[9]=0 control[10]=0 control[11]=0
+DATE: some_inst match_inst falling: control[10]=0 control[11]=0
+DATE: some_inst match_inst falling: control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
+DATE: some_inst match_inst rising: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: some_inst match_inst rising: control[10]=4 control[11]=4
+DATE: some_inst match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: some_inst match_inst: control[10]=4 control[11]=4
+DATE: some_inst rising match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: some_inst rising match_inst: control[10]=4 control[11]=4
+DATE: some_inst rising: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: some_inst rising: control[8]=4 control[9]=4 control[10]=4 control[11]=4
+DATE: some_inst: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+DATE: some_inst: control[8]=4 control[9]=4 control[10]=4 control[11]=4
