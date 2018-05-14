@@ -18,9 +18,27 @@ which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
 numval=`pmprobe -v mem.util.used | cut -d ' ' -f 2`
 [ "$numval" -eq 1 ] || _notrun "no values for mem.util.used (numval=$numval)"
 
+done_clean=false
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	cd $here
+	_service pcp start >/dev/null
+	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_wait_for_pmlogger
+	_restore_auto_restart pmlogger
+	done_clean=true
+    fi
+    rm -rf $tmp.*
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # filter ...
 # Fri Aug 22 20:04:55	7950508.000
@@ -57,6 +75,8 @@ echo
 echo "=== expect No route to host, no valid metrics -h [instance case] ==="
 pmdumptext -s 1 -h no.such.host.pcp.io 'proc.psinfo.utime[12345]'
 
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _service pcp stop >/dev/null
 echo
 echo "=== pmcd not running, default case ==="
@@ -67,9 +87,6 @@ pmdumptext -s 1 'localhost:proc.psinfo.utime[12345]'
 echo
 echo "=== pmcd not running, -h localhost case ==="
 pmdumptext -s 1 -h localhost 'proc.psinfo.utime[12345]'
-_service pcp start >/dev/null
-_wait_for_pmcd
-_wait_for_pmlogger
 
 # success, all done
 status=0

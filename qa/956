@@ -28,7 +28,9 @@ _cleanup()
     _restore_config $PCP_PMCDOPTIONS_PATH
     _service pcp start | _filter_pcp_start
     _wait_for_pmcd
+    _restore_auto_restart pmcd
     _wait_for_pmlogger
+    _restore_auto_restart pmlogger
 
     if pmprobe -I pmcd.agent.status | grep '"dynamic"' >/dev/null
     then
@@ -60,6 +62,8 @@ cat <<End-of-File >$tmp.newoptions
 End-of-File
 $sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _service pcp stop | _filter_pcp_stop
 
 # need to start pmcd indirectly in a shell script because sudo

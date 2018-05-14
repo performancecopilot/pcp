@@ -33,7 +33,9 @@ _cleanup()
 	_restore_primary_logger
 	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmlogger
+	_restore_auto_restart pmlogger
 	done_clean=true
     fi
     rm -f $tmp.*
@@ -50,6 +52,8 @@ PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _service pcp stop >/dev/null 2>&1
 
 cat <<End-of-File >$tmp.tmp
