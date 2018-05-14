@@ -101,8 +101,8 @@ echo 'connect primary
 log mandatory on 500 msec { pmcd.numagents sample.milliseconds }' \
 | pmlc
 
-# run for 20 seconds
-pmval -s 40 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
+# run for 25 seconds
+pmval -s 50 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 
 sleep 3
 

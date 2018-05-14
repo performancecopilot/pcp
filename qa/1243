@@ -30,7 +30,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s,$tmp.discover,DISCOVER_DIR,g" \
 	-e "s,\[::1\],IP_ADDRESS,g" \
 	-e "s,$localip,IP_ADDRESS,g" \
