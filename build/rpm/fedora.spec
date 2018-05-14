@@ -555,7 +555,7 @@ Group: Applications/Internet
 BuildArch: noarch
 %endif
 Summary: Blinking lights web application for Performance Co-Pilot (PCP)
-URL: http://pcp.io
+URL: https://pcp.io
 
 %description webapp-blinkenlights
 Demo web application showing traffic lights that change colour based
@@ -3360,7 +3360,7 @@ cd
 
 %changelog
 * Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
-- Work-in-progress, see http://pcp.io/roadmap
+- Work-in-progress, see https://pcp.io/roadmap
 
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
 - Propogate build flags throughout PCP (BZ 1538187)
