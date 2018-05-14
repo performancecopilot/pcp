@@ -2,7 +2,7 @@
 # PCP QA Test No. 1132
 # Exercise pcp2xlsx.
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017-2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -14,8 +14,8 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
-$python -c "import xlsxwriter" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python xlsxwriter module not installed"
+$python -c "import openpyxl" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python openpyxl module not installed"
 
 which unzip >/dev/null 2>&1 || _notrun "unzip not installed"
 which pcp2xlsx >/dev/null 2>&1 || _notrun "pcp2xlsx not installed"

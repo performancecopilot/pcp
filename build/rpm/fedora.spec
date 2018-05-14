@@ -161,10 +161,8 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_elasticsearch 1
 %endif
 
-# python's xlsxwriter module hasn't been included yet, but hopefully
-# it will be eventually, leaving this as a variable for now.
-%if 0%{?fedora} || 0%{?rhel}
-%global disable_xlsx 1
+%if 0%{?fedora} >= 24
+%global disable_xlsx 0
 %else
 %global disable_xlsx 1
 %endif
@@ -821,8 +819,10 @@ URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
+Requires: python3-openpyxl
 %else
 Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-openpyxl
 %endif
 
 %description export-pcp2xlsx
