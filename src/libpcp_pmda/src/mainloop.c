@@ -79,6 +79,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     }
 
     pinpdu = sts = __pmGetPDU(pmda->e_infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+	char	strbuf[20];
+	fprintf(stderr, "__pmdaMainPDU: got PDU type %s from pmcd\n", __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+    }
     if (sts == 0)
 	return PM_ERR_EOF;
     if (sts < 0) {
