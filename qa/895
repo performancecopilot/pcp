@@ -20,7 +20,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
-log mandatory on 50 msec {
+log mandatory on 100 msec {
     cgroup
     containers
     disk
@@ -28,14 +28,9 @@ log mandatory on 50 msec {
     filesys
     hinv
     ipc
-    jbd2
     kernel
     mem
     mmv
-    network
-    nfs
-    nfs3
-    nfs4
     pmcd
     pmda
     quota
@@ -57,9 +52,6 @@ in
 	sed <$tmp.config >$tmp.tmp \
 	    -e '/ cgroup$/d' \
 	    -e '/ ipc$/d' \
-	    -e '/ jbd2$/d' \
-	    -e '/ nfs$/d' \
-	    -e '/ nfs4$/d' \
 	    -e '/ quota$/d' \
 	    -e '/ swap$/d' \
 	    -e '/ swapdev$/d' \
@@ -106,18 +98,29 @@ wait
 
 _filter <$tmp.log
 
-# without timeouts, expect 6sec * 1000 * 5 fetch groups / 50msec = 600 records
+# pmlogger ends up using 3 fetch groups (check the $seq.full for different
+# numbers of metrics in case of a test failure), so ..
+# without timeouts, expect 6000msec * 3 fetch groups / 100msec = 180 records
 #
-max_nrec=600
-min_nrec=200
+max_nrec=200
+min_nrec=120
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
-echo "nrec=$nrec" >>$here/$seq.full
+echo "nrec=$nrec log records" >>$here/$seq.full
+echo "log record frequency by fetch group size ..." >>$here/$seq.full
+pmdumplog $tmp \
+| grep '^[0-9]' \
+| grep -v '<mark>' \
+| sed -e 's/^[^ ][^ ]* //' \
+| sort \
+| uniq -c \
+| sed -e 's/\([0-9]\) \([0-9]\)/\1 x \2/' >>$here/$seq.full
 
 if [ "$nrec" -ge $min_nrec -a "$nrec" -le $max_nrec ]
 then
     echo "OK, between $min_nrec and $max_nrec archive records"
 else
     echo "oops, $nrec archive records not between the expected range of $min_nrec and $max_nrec"
+    pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' >>$here/$seq.full
 fi
 
 # success, all done
