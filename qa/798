@@ -49,10 +49,13 @@ _filter()
     | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$script;pmdanfsclient.python;" \
-	-e "s;$python_path;\$PYTHON;" \
-	-e "s;$python;\$PYTHON;" \
+	-e "s; $python_path; \$PYTHON;" \
+	-e "s; $python; \$PYTHON;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e 's/ 32-bit int / 32-BIT /' \
+	-e 's/ 32-bit unsigned int / 32-BIT /' \
+	-e '/62\.8\.16[123]/s/valfmt: [01]/valfmt: 0-or-1/' \
     # end
 }
 

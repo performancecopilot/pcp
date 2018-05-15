@@ -8,8 +8,8 @@ Archive basename: TMP
 
 Group ... {
 	...
-} logged every 0.050 sec: ...
+} logged every 0.100 sec: ...
 pmlogger: Caught signal 2, exiting
 
 Log finished DATE
-OK, between 200 and 600 archive records
+OK, between 120 and 200 archive records

@@ -35,8 +35,8 @@ _cleanup()
     done
     # restart pmcd and primary pmlogger
     _service pcp restart >>$seq.full 2>&1
-    _restore_auto_restart pmcd
     _wait_for_pmcd
+    _restore_auto_restart pmcd
     _wait_for_pmlogger
     $sudo rm -rf $tmp $tmp.*
 }

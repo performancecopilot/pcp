@@ -1223,6 +1223,16 @@ pkg_add?	json_reformat		[? (QA optional)]
 pkg?		json_reformat		[libyajl2 (QA optional)]
 slackpkg?	json_reformat		[? (QA optional)]
 pacman?		json_reformat		[? (QA optional)]
+# -- smartctl
+dpkg?		smartctl		[smartmontools (QA optional)]
+rpm?		smartctl		[smartmontools (QA optional)]
+urpmi?		smartctl		[smartmontools (QA optional)]
+emerge?		smartctl		[? (QA optional)]
+pkgin?		smartctl		[? (QA optional)]
+pkg_add?	smartctl		[? (QA optional)]
+pkg?		smartctl		[? (QA optional)]
+slackpkg?	smartctl		[? (QA optional)]
+pacman?		smartctl		[? (QA optional)]
 #
 # misc
 #
@@ -1358,7 +1368,7 @@ in
 	na='python3-bpfcc'
 	;;
     vm29)
-	na='python-prometheus-client python-elasticsearch python-xlsxwriter perl-YAML-LibYAML perl-Slurm-Hostlist perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
+	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Slurm-Hostlist perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
     	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'

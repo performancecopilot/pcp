@@ -7,10 +7,10 @@
 option="$1"
 device=`echo "$2" | sed -e 's,/dev/,,g'`
 
-if [ "$option" == "-Hi" ]
+if [ "$option" = "-Hi" ]
 then
     cat $device.info
-elif [ "$option" == "-A" ]
+elif [ "$option" = "-A" ]
 then
     cat $device.data
 else
