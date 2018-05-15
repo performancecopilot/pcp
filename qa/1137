@@ -50,6 +50,14 @@ do
     | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
 BEGIN			{ tol_pct = 5 }
+# sometimes the colums are in the reversed order (?), so check
+# if the kernel.cpu.util.* one comes first ... if so we need to swap
+# columns
+NR == 1			{ swap = 0
+			  if ($1 ~ /^k\.c\.u\./) swap = 1
+			  next
+			}
+swap == 1		{ tmp = $1; $1 = $2; $2 = tmp }
 $1 !~ /^[0-9][0-9.]*$/	{ next }
 $2 !~ /^[0-9][0-9.]*$/	{ next }
 			{ x = $1 - ($2 * 10 * '$N')
