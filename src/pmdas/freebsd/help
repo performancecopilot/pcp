@@ -29,6 +29,8 @@ Microseconds per "hz" tick.
 @ hinv.ndisk number of disks in the system
 @ hinv.physmem total system memory
 @ hinv.pagesize kernel page size
+@ hinv.machine name of the hardware type the system is running on
+Alias for kernel.uname.machine on FreeBSD.
 @ hinv.cpu.vendor system's CPU vendor
 @ hinv.cpu.model system's CPU model
 @ hinv.cpu.arch system's machine dependent CPU architecture type
@@ -93,3 +95,41 @@ Free plus inactive plus cached.
 @ network.interface.total.packets Packets received or transmitted on each network interface
 @ network.interface.total.mcasts Multicast packets received or transmitted on each network interface
 @ network.interface.total.errors Input or output errors on each network interface
+
+@ kernel.uname.release release level of the running kernel
+Release level of the running kernel as reported via the release[]
+value returned from uname(2) or uname -r.
+
+See also pmda.uname.
+
+@ kernel.uname.version version level (build number) and build date of the running kernel
+Version level of the running kernel as reported by the version[]
+value returned from uname(2) or uname -v.  Usually a FreeBSD release
+number.
+
+See also pmda.uname.
+@ kernel.uname.sysname name of the implementation of the operating system
+Name of the implementation of the running operating system as reported
+by the sysname[] value returned from uname(2) or uname -s.  Usually
+"FreeBSD".
+
+See also pmda.uname.
+@ kernel.uname.machine name of the hardware type the system is running on
+Name of the hardware type the system is running on as reported by
+the machine[] value returned from uname(2) or uname -m, e.g. "i686".
+
+See also pmda.uname.
+@ kernel.uname.nodename host name of this node on the network
+Name of this node on the network as reported by the nodename[]
+value returned from uname(2) or uname -n.  Usually a synonym for
+the host name.
+
+See also pmda.uname.
+@ kernel.uname.distro FreeBSD distribution name
+An alias for kernel.uname.version.
+@ pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+
+See also the kernel.uname.* metrics
+@ pmda.version build version of FreeBSD PMDA
