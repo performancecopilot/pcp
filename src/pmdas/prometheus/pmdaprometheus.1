@@ -217,6 +217,12 @@ The
 stream from a script will be sent to the PMDA log file, which by default can be found in
 .BR $(PCP_LOG_DIR)/pmcd/prometheus.log .
 .PP
+Note that scripted sources do not support label or metric filtering (as described above for URL sources) - they can
+simply do their own filtering in the script itself with
+.BR sed (1),
+.BR awk (1),
+or whatever tool is desired.
+.PP
 A simple example of a scripted config entry follows:
 .in 1i
 .ft CW

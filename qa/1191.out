@@ -3,6 +3,46 @@ Waiting for pmcd to terminate ...
 
 === prometheus agent installation ===
 
+prometheus.awk_scripted.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5120 0x24001400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.awk_scripted.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5121 0x24001401
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.awk_scripted.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5122 0x24001402
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.awk_scripted.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5123 0x24001403
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.awk_scripted.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.5124 0x24001404
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
 prometheus.bad_summary_nometa.sample_counter0001 [Sample counter metric.]
     Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
@@ -682,6 +722,45 @@ prometheus.collectd_sample.process_virtual_memory_bytes [Virtual memory size in 
 Help:
 Virtual memory size in bytes.
     value 17334272
+
+prometheus.curl.script.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.8192 0x24002000
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123"] value 123
+
+prometheus.curl_filtered.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.9216 0x24002400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123"] value 123
+
+prometheus.curl_hostname_label.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.10240 0x24002800
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0 hostname:remotehost"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123 hostname:remotehost"] value 123
+
+prometheus.curl_scripted.metric1 [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.11264 0x24002c00
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 anotherlabel:sometext def:123"] value 123
+
+prometheus.curl_scripted.metric2 [Simple gauge metric singular instance domain]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric singular instance domain
+    value 456
 
 prometheus.good_summary_nometa.sample_counter0010 [Sample counter metric.]
     Data Type: double  InDom: 144.12289 0x24003001
@@ -4520,6 +4599,86 @@ Help:
 local metric
     value 9
 
+prometheus.multiple.namespace.levels.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.16384 0x24004000
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.multiple.namespace.levels.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.16385 0x24004001
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.multiple.namespace.levels.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.16386 0x24004002
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.multiple.namespace.levels.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.16387 0x24004003
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.multiple.namespace.levels.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.16388 0x24004004
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+prometheus.multiple.namespace.more.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.17408 0x24004400
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.multiple.namespace.more.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.17409 0x24004401
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.multiple.namespace.more.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.17410 0x24004402
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.multiple.namespace.more.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.17411 0x24004403
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.multiple.namespace.more.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.17412 0x24004404
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
 prometheus.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async [Per-cgroup throttle async bytes transferred]
     Data Type: double  InDom: 144.18476 0x2400482c
     Semantics: counter  Units: byte
@@ -5114,6 +5273,14 @@ prometheus.python_sample_client_server.summary_requests_sum [Sample summary of r
 Help:
 Sample summary of requests
     value 4.7
+
+prometheus.python_scripted.python_scripted_metric [Simple gauge metric with two instances]
+    Data Type: double  InDom: 144.22528 0x24005800
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with two instances
+    inst [0 or "0 abc:0"] value 456
+    inst [1 or "1 def:123"] value 123
 
 prometheus.reordered_labels.http_request_duration_microseconds [The HTTP request latencies in microseconds.]
     Data Type: double  InDom: 144.23552 0x24005c00
@@ -8488,6 +8655,86 @@ Help:
 The total number of ZooKeeper failures.
     value 0
 
+prometheus.sh_script_no_suffix.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.27648 0x24006c00
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.sh_script_no_suffix.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.27649 0x24006c01
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.sh_script_no_suffix.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.27650 0x24006c02
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.sh_script_no_suffix.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.27651 0x24006c03
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.sh_script_no_suffix.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.27652 0x24006c04
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+prometheus.sh_scripted.some_metric000 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.28672 0x24007000
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+prometheus.sh_scripted.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.28673 0x24007001
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+prometheus.sh_scripted.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.28674 0x24007002
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+prometheus.sh_scripted.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.28675 0x24007003
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+prometheus.sh_scripted.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.28676 0x24007004
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
 prometheus.simple_metric.metric1 [Simple gauge metric with three instances]
     Data Type: double  InDom: 144.29696 0x24007400
     Semantics: instant  Units: none
@@ -8503,6 +8750,13 @@ prometheus.simple_metric.metric2 [Simple gauge metric with one instance]
 Help:
 Simple gauge metric with one instance
     inst [0 or "0 efg:0"] value 121
+
+prometheus.stderr_check.stderr_check [Simple gauge metric with one instance]
+    Data Type: double  InDom: 144.30720 0x24007800
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with one instance
+    inst [0 or "0 abc:0"] value 456
 
 prometheus.thermostat.tms_jvm_cpu_4099dd5b_8226_4c13_a697_5e669380060b_cpuLoad [CPU load for 4099dd5b_8226_4c13_a697_5e669380060b]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
