@@ -15,7 +15,6 @@
 
 # pylint: disable=invalid-name, line-too-long
 
-from ctypes import c_int
 from bcc import BPF
 
 from modules.pcpbcc import PCPBCCBase
@@ -75,20 +74,7 @@ class PCPBCCModule(PCPBCCBase):
             return
 
         dist = self.bpf.get_table("dist")
-
-        for k, v in dist.items():
-            if k.value == 0:
-                continue
-            low = (1 << k.value) >> 1
-            high = (1 << k.value) - 1
-            if low == high:
-                low -= 1
-            key = str(low) + "-" + str(high)
-            if key not in self.cache:
-                self.cache[key] = 0
-            self.cache[key] += v.value
-            self.insts[key] = c_int(1)
-
+        self.insts = self.read_histogram(dist, self.cache)
         dist.clear()
 
         return self.insts
