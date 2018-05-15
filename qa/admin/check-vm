@@ -1223,6 +1223,16 @@ pkg_add?	json_reformat		[? (QA optional)]
 pkg?		json_reformat		[libyajl2 (QA optional)]
 slackpkg?	json_reformat		[? (QA optional)]
 pacman?		json_reformat		[? (QA optional)]
+# -- smartctl
+dpkg?		smartctl		[smartmontools (QA optional)]
+rpm?		smartctl		[smartmontools (QA optional)]
+urpmi?		smartctl		[smartmontools (QA optional)]
+emerge?		smartctl		[? (QA optional)]
+pkgin?		smartctl		[? (QA optional)]
+pkg_add?	smartctl		[? (QA optional)]
+pkg?		smartctl		[? (QA optional)]
+slackpkg?	smartctl		[? (QA optional)]
+pacman?		smartctl		[? (QA optional)]
 #
 # misc
 #
