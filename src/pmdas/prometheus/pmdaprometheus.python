@@ -19,6 +19,7 @@ import os
 import re
 import time
 import pickle
+import traceback
 import argparse
 import threading
 import subprocess
@@ -494,6 +495,8 @@ class Source(object):
         is included (and not execluded) by filters for this source.
         First match prevails. No match => True
         '''
+        if self.filterlist is None:
+            return True
         for f in self.filterlist:
             fs = f.split() # INCLUDE|EXCLUDE METRIC|LABEL regex
             if fs[1] == entrytype:
@@ -547,6 +550,7 @@ class Source(object):
                     self.pmda.set_notify_change()
         except Exception as e:
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
+            traceback.print_exc() # traceback can be handy here
 
 
     def parse_lines(self, text):
