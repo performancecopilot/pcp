@@ -1474,6 +1474,7 @@ pmlogsize
 1203 derive pmval libpcp local
 1211:reserved pmseries local
 1217 pmrep python local
+1219 pcp local
 1220 pmda.proc local
 1221 labels pmda.prometheus local
 1222 pmda.linux pmda.proc local

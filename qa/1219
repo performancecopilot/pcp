@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 1219
+# Exercise the pcp(1) script with explicit command paths.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pcp /bin/true
+if [ $? -ne 0 ]
+then
+    echo "Basic sanity test failed (/bin/true)"
+    status=1
+fi
+
+pcp /bin/false
+if [ $? -eq 0 ]
+then
+    echo "Basic sanity test failed (/bin/false)"
+    status=1
+fi
+
+[ $status -eq 0 ] && echo Silence is golden
+exit
