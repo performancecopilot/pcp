@@ -26,11 +26,11 @@
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/utsname.h>
-#include <utmp.h>
 #include <pwd.h>
 #include <grp.h>
 
 #include "ipc.h"
+#include "login.h"
 #include "filesys.h"
 #include "getinfo.h"
 #include "swapdev.h"
@@ -86,6 +86,7 @@ static sysfs_kernel_t		sysfs_kernel;
 static shm_info_t              _shm_info;
 static sem_info_t              _sem_info;
 static msg_info_t              _msg_info;
+static login_info_t		login_info;
 static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
 static ksm_info_t               ksm_info;
@@ -4327,7 +4328,15 @@ static pmdaMetric metrictab[] = {
 
 /* kernel.all.nusers */
   { NULL,
-    { PMDA_PMID(CLUSTER_NUSERS, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_UTMP, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* kernel.all.nroots */
+  { NULL,
+    { PMDA_PMID(CLUSTER_UTMP, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* kernel.all.nsessions */
+  { NULL,
+    { PMDA_PMID(CLUSTER_UTMP, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /*
@@ -5681,6 +5690,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_UPTIME])
         refresh_proc_uptime(&proc_uptime);
+
+    if (need_refresh[CLUSTER_UTMP])
+        refresh_login_info(&login_info);
 
     if (need_refresh[CLUSTER_VFS])
     	refresh_proc_sys_fs(&proc_sys_fs);
@@ -7404,20 +7416,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-    /*
-     * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    case CLUSTER_NUSERS:
-	{
-	    /* count the number of users */
-	    struct utmp *ut;
-	    atom->ul = 0;
-	    setutent();
-	    while ((ut = getutent())) {
-		    if ((ut->ut_type == USER_PROCESS) && (ut->ut_name[0] != '\0'))
-			    atom->ul++;
-	    }
-	    endutent();
+    case CLUSTER_UTMP:
+	switch (item) {
+	case 0:	/* kernel.all.nusers */
+	    atom->ul = login_info.nusers;
+	    break;
+	case 1:	/* kernel.all.nroots */
+	    atom->ul = login_info.nroots;
+	    break;
+	case 2:	/* kernel.all.nsessions */
+	    atom->ul = login_info.nsessions;
+	    break;
+	default:
+	    return PM_ERR_PMID;
 	}
 	break;
 

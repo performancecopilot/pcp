@@ -97,6 +97,8 @@ kernel.all {
     uptime		60:26:0
     idletime		60:26:1
     nusers		60:25:0
+    nroots		60:25:1
+    nsessions		60:25:2
     lastpid		60:2:1
     runnable		60:2:2
     nprocs		60:2:3

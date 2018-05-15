@@ -47,7 +47,7 @@ enum {
 	CLUSTER_MSG_LIMITS,	/* 22 msgctl(IPC_INFO) system call */
 	CLUSTER_SHM_LIMITS,	/* 23 shmctl(IPC_INFO) system call */
 	PROC_PID_STATUS,	/* 24 /proc/<pid>/status -> proc PMDA */
-	CLUSTER_NUSERS,		/* 25 number of users */
+	CLUSTER_UTMP,		/* 25 login records metrics */
 	CLUSTER_UPTIME,		/* 26 /proc/uptime */
 	CLUSTER_VFS,		/* 27 /proc/sys/fs */
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */

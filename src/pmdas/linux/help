@@ -1103,7 +1103,9 @@ each NUMA node.
 @ swap.used swap used metric from /proc/meminfo
 @ swap.free swap free metric from /proc/meminfo
 @ kernel.all.load 1, 5 and 15 minute load average
-@ kernel.all.nusers number of user sessions on system
+@ kernel.all.nusers number of user sessions on the system (including root)
+@ kernel.all.nroots number of root user sessions on the system (only root)
+@ kernel.all.nsessions number of utmp sessions (login records)
 @ kernel.all.cpu.user total user CPU time from /proc/stat for all CPUs, including guest CPU time
 @ kernel.all.cpu.vuser total user CPU time from /proc/stat for all CPUs, excluding guest CPU time
 @ kernel.all.cpu.intr total interrupt CPU time from /proc/stat for all CPUs
