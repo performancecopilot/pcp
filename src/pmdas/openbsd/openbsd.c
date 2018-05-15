@@ -607,8 +607,8 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else if (cluster == CL_SPECIAL) {
 	/* special cases */
-	double	loadavg[3];
-	char 	uname_string[sizeof(kernel_uname)];
+	double		loadavg[3];
+	static char 	uname_string[sizeof(kernel_uname)];
 
 	switch (item) {
 	    case 0:	/* hinv.ndisk */
