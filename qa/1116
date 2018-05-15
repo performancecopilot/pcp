@@ -8,30 +8,16 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.python
+. ./common.bcc
 
-$python -c "from pcp import pmda" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
-$python -c "import bcc" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python bcc module not installed"
-
-[ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
+_pmdabcc_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
+
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
-
-_install_filter()
-{
-    # ignore warnings because PMDA might not be ready yet
-    sed \
-    -e "s/.*pmdabcc.* Info/Info/g" \
-    -e "s/1 metrics and [0-9]\+ values/1 metrics and X values/g" \
-    #end
-}
 
 _value_filter()
 {
@@ -49,21 +35,11 @@ _value_filter()
     done
 }
 
-pmdabcc_remove()
-{
-    echo
-    echo "=== remove bcc agent ==="
-    $sudo ./Remove >$tmp.out 2>&1
-    _filter_pmda_remove <$tmp.out
-}
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
-pmdabcc_install()
-{
-    # start from known starting points
-    cd $PCP_PMDAS_DIR/bcc
-    $sudo ./Remove >/dev/null 2>&1
-
-    cat <<EOF >$tmp.config
+cat <<EOF | _pmdabcc_install
 [pmda]
 modules = biotop
 prefix = bcc.
@@ -71,54 +47,18 @@ prefix = bcc.
 module = biotop
 cluster = 2
 EOF
-    echo "pmdabcc config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
 
-    [ -f $PCP_PMDAS_DIR/bcc/bcc.conf ] && \
-    $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf $tmp.backup
-    $sudo cp $tmp.config $PCP_PMDAS_DIR/bcc/bcc.conf
-
-    echo
-    echo "=== bcc agent installation ==="
-    $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out | _filter_pmda_install | _install_filter
-}
-
-pmdabcc_cleanup()
-{
-    [ "X$spid" != X ] && (( $signal $spid )&) >/dev/null 2>&1
-    if [ -f $tmp.backup ]; then
-        $sudo cp $tmp.backup $PCP_PMDAS_DIR/bcc/bcc.conf
-        $sudo rm $tmp.backup
-    else
-        $sudo rm -f $PCP_PMDAS_DIR/bcc/bcc.conf
-    fi
-    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
-    _cleanup_pmda bcc
-}
-
-_prepare_pmda bcc
-trap "pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-
-_stop_auto_restart pmcd
-
-# real QA test starts here
-pmdabcc_install
-echo
-
-# Wait for the PMDA to compile the bcc modules and become ready, 30s max
-for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
-[ $i -lt 30 ] || exit
+_pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC biotop module
 # block device required here, no tmpfs (e.g. /tmp)
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.io.perdev 2>&1 | _value_filter \
-| tee -a $here/$seq.full
+pminfo -dfmtT bcc.proc.io.perdev 2>&1 | tee -a $here/$seq.full \
+| _value_filter
 
-pmdabcc_remove
+_pmdabcc_remove
 
 status=0
 exit
