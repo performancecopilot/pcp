@@ -1,0 +1,24 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+#
+
+[net]
+label = net/total
+width = 5
+printtype = d
+bytesin = recv
+#bytesin.formula = sum(network.physical.in.bytes)
+bytesin.formula = sum(network.interface.in.bytes)
+bytesout = send
+#bytesout.formula = sum(network.physical.out.bytes)
+bytesout.formula = sum(network.interface.out.bytes)
+
+[net-packets]
+width = 5
+printtype = d
+packetsin = #recv
+#packetsin.formula = sum(network.physical.in.packets)
+packetsin.formula = sum(network.interface.in.packets)
+packetsout = #send
+#packetsout.formula = sum(network.physical.out.packets)
+packetsout.formula = sum(network.interface.out.packets)

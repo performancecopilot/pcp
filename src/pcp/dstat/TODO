@@ -1,0 +1,191 @@
+Key:
+[x]  =  implemented
+[*]  =  implemented, with caveat(s)
+[-]  =  not implemented, no plan to
+[ ]  =  not implemented, but needed
+[?]  =  desirable, not clear if needed
+
+
+General Functionality:
+[x] initial implementation welding pmrep/pmconfig onto original dstat
+[x] implement local context fallback
+[x] make use of PCP metric units for scaling
+[ ] implement interval argument
+[ ] implement #samples argument
+[ ] implement --all-plugins option
+[x] new socket6 plugin for IPv6 socket metrics
+[ ] handle dynamic instances correctly (esp. headings)
+[ ] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
+[ ] need to handle dstat 'total' columns better?  (see instances too)
+[ ] figure out why --disk and --io not usable together (same labels?)
+[ ] improved handling of first counter sample (see ticks() code)
+[ ] improved handling of invalid configuration files
+[ ] fix terminal title writing to use metric values (see code)
+[ ] fix version output writing to use metric values (see code)
+[?] csv output option (for dstat backward compatibility)
+[ ] revisit config file format and pmconfig integration
+    - now using formula (derived metrics) everywhere - bad? good?
+    - setting metric names vs labels in the config is non-intuitive
+[x] implement sub-second time(stamp) and epoch reporting support
+[ ] implement historical reporting support via PCP archives
+[ ] create pmlogconf(1) configuration file(s)
+[ ] write pcp-dstat(1) man page(s)
+[ ] write QA tests
+
+
+Internal Plugins:
+[x] aio		(needs new vfs.aio.* kernel metrics)
+[x] cpu
+[x] cpu-adv
+[*] cpu-use	(needs instance fixes for per-CPU reporting)
+[-] cpu24
+[*] disk	(needs instance fixes for per-dev reporting)
+[-] disk24
+[-] disk24-old
+[x] epoch
+[x] fs
+[-] int		(current interrupts plugin isn't functional)
+[-] int24
+[*] io		(needs instance fixes for per-dev reporting)
+[x] ipc
+[*] load	(needs instance fixes for per-avg reporting)
+[x] lock	(needs new vfs.locks.* kernel metrics)
+[x] mem
+[x] mem-adv
+[x] net		(needs new network.physical.* kernel metrics)
+[x] page
+[-] page24
+[x] proc
+[ ] raw		(needs new network.raw.* kernel metrics)
+[x] socket
+[x] swap
+[-] swap-old
+[x] sys
+[*] tcp		(needs new network.tcpconn6.* metrics)
+[x] time
+[ ] udp		(needs new network.udpconn[6].* metrics)
+[ ] unix	(needs new network.unixconn.* metics)
+[x] vm
+[x] vm-adv
+[?] zones	(compound indom, tough for derived metrics)
+
+
+External Plugins:
+[ ] battery	 	(needs new ACPI PMDA)
+[ ] battery-remain	(needs new ACPI PMDA)
+[-] condor-queue
+[ ] cpufreq		(needs new ACPI PMDA)
+[ ] dbus		(needs new DBUS PMDA)
+[ ] disk-avgqu
+[ ] disk-avgrq
+[ ] disk-svctm
+[ ] disk-tps
+[ ] disk-util
+[ ] disk-wait
+[-] dstat
+[-] dstat-cpu
+[-] dstat-ctxt
+[-] dstat-mem
+[ ] fan			(needs new ACPI PMDA)
+[ ] freespace
+[-] fuse
+[ ] gpfs
+[ ] gpfs-ops
+[-] helloworld
+[ ] ib
+[ ] innodb-buffer
+[ ] innodb-io
+[ ] innodb-ops
+[ ] jvm_full
+[ ] jvm_vm
+[ ] lustre
+[ ] md-status		(needs more MD driver metrics)
+[ ] memcache-hits
+[?] mongodb_conn	(needs new MongoDB PMDA)
+[?] mongodb_mem		(needs new MongoDB PMDA)
+[?] mongodb_opcount	(needs new MongoDB PMDA)
+[?] mongodb_queue	(needs new MongoDB PMDA)
+[?] mongodb_stats	(needs new MongoDB PMDA)
+[ ] mysql-io
+[ ] mysql-keys
+[ ] mysql5-cmds
+[ ] mysql5-conn
+[ ] mysql5-innodb
+[ ] mysql5-innodb-basic
+[ ] mysql5-innodb-extra
+[ ] mysql5-io
+[ ] mysql5-keys
+[x] net-packets
+[ ] nfs3
+[ ] nfs3-ops
+[ ] nfsd3
+[ ] nfsd3-ops
+[ ] nfsd4-ops
+[ ] nfsstat4
+[?] ntp
+[ ] postfix
+[ ] power		(needs new ACPI PMDA)
+[x] proc-count
+[ ] qmail
+[ ] redis
+[ ] rpc
+[ ] rpcd
+[ ] sendmail
+[-] snmp-cpu
+[-] snmp-load
+[-] snmp-mem
+[-] snmp-net
+[-] snmp-net-err
+[-] snmp-sys
+[ ] snooze		(implement as builtin like time/epoch)
+[?] squid		(needs new Squid PMDA)
+[-] test
+[ ] thermal		(needs new ACPI PMDA)
+[ ] top-bio		(use pmrep / pmconfig ranking?)
+[ ] top-bio-adv				"
+[ ] top-childwait			"
+[ ] top-cpu				"
+[ ] top-cpu-adv				"
+[ ] top-cputime				"
+[ ] top-cputime-avg			"
+[ ] top-int				"
+[ ] top-io				"
+[ ] top-io-adv				"
+[ ] top-latency				"
+[ ] top-latency-avg			"
+[ ] top-mem				"
+[ ] top-oom				"
+[ ] utmp		(needs more kernel.all.* utmp metrics)
+[?] vm-cpu
+[?] vm-mem
+[?] vm-mem-adv
+[?] vmk-hba
+[?] vmk-int
+[?] vmk-nic
+[?] vz-cpu
+[?] vz-io
+[?] vz-ubc
+[?] wifi
+[?] zfs-arc
+[?] zfs-l2arc
+[?] zfs-zil
+
+Missing metrics:
+[x] async I/O metrics in Linux kernel PMDA
+[ ] kernel.all.sessions,kernel.all.nroots utmp metrics
+[ ] /proc/locks metrics in Linux kernel PMDA
+[ ] drop lo/bond*/face from net metrics - new network.physical.* metrics?
+[ ] network.tcpconn6 metrics ala network.tcpconn
+[ ] network.udpconn and network.udpconn6 kernel metrics
+[ ] disk.md.recovery.* metrics (percent complete, speed)
+
+Missing PMDAs:
+[ ] acpi
+[ ] dbus
+[?] gpfs
+[?] mongodb
+[?] ntp
+[?] squid
+[?] vmware
+[?] zfs (linux)
+
