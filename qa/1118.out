@@ -1,0 +1,55 @@
+QA output created by 1118
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['runqlat']
+Info: Configuring modules:
+Info: runqlat
+Info: Modules configured.
+Info: Initializing modules:
+Info: runqlat
+Info: runqlat: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: runqlat
+Info: Metrics registered.
+Info: Registering helpers:
+Info: runqlat
+Info: Helpers registered.
+Info: Ready to process requests.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['runqlat']
+Info: Configuring modules:
+Info: runqlat
+Info: Modules configured.
+Info: Initializing modules:
+Info: runqlat
+Info: runqlat: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: runqlat
+Info: Metrics registered.
+Info: Registering helpers:
+Info: runqlat
+Info: Helpers registered.
+Info: Ready to process requests.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... 1 metrics and X values
+
+=== report metric values ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
