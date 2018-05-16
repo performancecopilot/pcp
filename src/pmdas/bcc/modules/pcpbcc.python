@@ -96,4 +96,8 @@ class PCPBCCBase(object):
             if high > maxHigh and cache[key] > 0:
                 maxHigh = high
 
+        # always show at least the first bucket (if there is a bucket)
+        if maxHigh == -1 and buckets:
+            maxHigh = buckets[0][1]
+
         return {str(low) + "-" + str(high) : c_int(1) for low, high in buckets if high <= maxHigh}
