@@ -595,12 +595,18 @@ network {
     tcp
     udp
     udplite
+    udpconn
+    rawconn
     tcpconn
     softnet
+    unix
     ip6
     icmp6
     udp6
+    udpconn6
     udplite6
+    rawconn6
+    tcpconn6
 }
 
 network.interface {
@@ -1039,6 +1045,67 @@ network.udplite6 {
     incsumerrors	60:58:81
 }
 
+network.tcpconn {
+    established		60:19:1
+    syn_sent		60:19:2
+    syn_recv		60:19:3
+    fin_wait1		60:19:4
+    fin_wait2		60:19:5
+    time_wait		60:19:6
+    close		60:19:7
+    close_wait		60:19:8
+    last_ack		60:19:9
+    listen		60:19:10
+    closing		60:19:11
+}
+
+network.tcpconn6 {
+    established		60:76:1
+    syn_sent		60:76:2
+    syn_recv		60:76:3
+    fin_wait1		60:76:4
+    fin_wait2		60:76:5
+    time_wait		60:76:6
+    close		60:76:7
+    close_wait		60:76:8
+    last_ack		60:76:9
+    listen		60:76:10
+    closing		60:76:11
+}
+
+network.rawconn {
+    count		60:77:1
+}
+
+network.rawconn6 {
+    count		60:78:1
+}
+
+network.udpconn {
+    established		60:79:1
+    listen		60:79:2
+}
+
+network.udpconn6 {
+    established		60:80:1
+    listen		60:80:2
+}
+
+network.unix {
+    datagram
+    stream
+}
+
+network.unix.datagram {
+    count		60:81:1
+}
+
+network.unix.stream {
+    established		60:81:2
+    listen		60:81:3
+    count		60:81:4
+}
+
 filesys {
     capacity		60:5:1
     used		60:5:2
@@ -1170,20 +1237,6 @@ nfs4.client {
 nfs4.server {
     calls		60:7:66
     reqs		60:7:67
-}
-
-network.tcpconn {
-    established		60:19:1
-    syn_sent		60:19:2
-    syn_recv		60:19:3
-    fin_wait1		60:19:4
-    fin_wait2		60:19:5
-    time_wait		60:19:6
-    close		60:19:7
-    close_wait		60:19:8
-    last_ack		60:19:9
-    listen		60:19:10
-    closing		60:19:11
 }
 
 mem.slabinfo {

@@ -1,0 +1,14 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+#
+
+[unix]
+width = 4
+datagram = dgm
+datagram.formula = network.unix.datagram.count
+stream = str
+stream.formula = network.unix.stream.count
+stream_listen = lis
+stream_listen.formula = network.unix.stream.listen
+stream_active = act
+stream_active.formula = network.unix.stream.established

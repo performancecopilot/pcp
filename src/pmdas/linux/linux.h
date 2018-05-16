@@ -69,7 +69,7 @@ enum {
 	PROC_CPUSCHED_PROCS,	/* 44 scheduler group processes -> proc PMDA */
 	PROC_MEMORY_GROUPS,	/* 45 memory control groups -> proc PMDA */
 	PROC_MEMORY_PROCS,	/* 46 memory group processes -> proc PMDA */
-	PROC_NET_CLS_GROUPS,	/* 47 network classification control groups -> proc PMDA */
+	PROC_NET_CLS_GROUPS,	/* 47 network class fication control groups -> proc PMDA */
 	PROC_NET_CLS_PROCS,	/* 48 network classification group processes -> proc PMDA */
 	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
 	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
@@ -98,6 +98,12 @@ enum {
 	CLUSTER_NET_SOCKSTAT6,	/* 73 /proc/net/sockstat6 */
 	CLUSTER_TTY,            /* 74 proc/tty/device/serial metrics */
 	CLUSTER_LOCKS,		/* 75 /proc/locks */
+	CLUSTER_NET_TCP6,	/* 76 /proc/net/tcp6 */
+	CLUSTER_NET_RAW,	/* 77 /proc/net/raw */
+	CLUSTER_NET_RAW6,	/* 78 /proc/net/raw6 */
+	CLUSTER_NET_UDP,	/* 79 /proc/net/udp */
+	CLUSTER_NET_UDP6,	/* 80 /proc/net/udp6 */
+	CLUSTER_NET_UNIX,	/* 81 /proc/net/unix */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

@@ -26,13 +26,20 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
 # real QA test starts here
 root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda="60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
 metrics=`pminfo vfs.locks | LC_COLLATE=POSIX sort`
 
-for tgz in $here/linux/locks-*.tgz
+for tgz in $here/linux/locks-root-*.tgz
 do
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
@@ -41,7 +48,8 @@ do
     base=`basename $tgz`
 
     echo "== Valgrind checking metric descriptors and values - $base"
-    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $metrics
+    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $metrics 2>&1 \
+    | _filter
     echo && echo "== done" && echo
     cd $here
 done

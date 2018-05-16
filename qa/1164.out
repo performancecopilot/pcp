@@ -1,0 +1,268 @@
+QA output created by 1164
+== Valgrind checking rawconn metric descriptors and values - procnet-4.15.14-root-001.tgz
+=== std out ===
+
+network.rawconn.count PMID: 60.77.1 [Number of raw socket connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of raw socket connections
+    value 0
+
+network.rawconn6.count PMID: 60.78.1 [Number of raw6 socket connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of raw6 socket connections
+    value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT network.rawconn.count network.rawconn6.count
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking tcpconn metric descriptors and values - procnet-4.15.14-root-001.tgz
+=== std out ===
+
+network.tcpconn.close PMID: 60.19.7 [Number of CLOSE connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of CLOSE connections
+    value 0
+
+network.tcpconn.close_wait PMID: 60.19.8 [Number of CLOSE_WAIT connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of CLOSE_WAIT connections
+    value 0
+
+network.tcpconn.closing PMID: 60.19.11 [Number of CLOSING connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of CLOSING connections
+    value 0
+
+network.tcpconn.established PMID: 60.19.1 [Number of established connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of established connections
+    value 14
+
+network.tcpconn.fin_wait1 PMID: 60.19.4 [Number of FIN_WAIT1 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of FIN_WAIT1 connections
+    value 0
+
+network.tcpconn.fin_wait2 PMID: 60.19.5 [Number of FIN_WAIT2 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of FIN_WAIT2 connections
+    value 0
+
+network.tcpconn.last_ack PMID: 60.19.9 [Number of LAST_ACK connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of LAST_ACK connections
+    value 0
+
+network.tcpconn.listen PMID: 60.19.10 [Number of LISTEN connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of LISTEN connections
+    value 9
+
+network.tcpconn.syn_recv PMID: 60.19.3 [Number of SYN_RECV connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of SYN_RECV connections
+    value 0
+
+network.tcpconn.syn_sent PMID: 60.19.2 [Number of SYN_SENT connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of SYN_SENT connections
+    value 0
+
+network.tcpconn.time_wait PMID: 60.19.6 [Number of TIME_WAIT connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of TIME_WAIT connections
+    value 2
+
+network.tcpconn6.close PMID: 60.76.7 [Number of CLOSE tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of CLOSE tcp6 connections
+    value 0
+
+network.tcpconn6.close_wait PMID: 60.76.8 [Number of CLOSE_WAIT tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of CLOSE_WAIT tcp6 connections
+    value 0
+
+network.tcpconn6.closing PMID: 60.76.11 [Number of CLOSING tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of CLOSING tcp6 connections
+    value 0
+
+network.tcpconn6.established PMID: 60.76.1 [Number of established tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of established tcp6 connections
+    value 14
+
+network.tcpconn6.fin_wait1 PMID: 60.76.4 [Number of FIN_WAIT1 tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of FIN_WAIT1 tcp6 connections
+    value 0
+
+network.tcpconn6.fin_wait2 PMID: 60.76.5 [Number of FIN_WAIT2 tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of FIN_WAIT2 tcp6 connections
+    value 0
+
+network.tcpconn6.last_ack PMID: 60.76.9 [Number of LAST_ACK tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of LAST_ACK tcp6 connections
+    value 0
+
+network.tcpconn6.listen PMID: 60.76.10 [Number of LISTEN tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of LISTEN tcp6 connections
+    value 9
+
+network.tcpconn6.syn_recv PMID: 60.76.3 [Number of SYN_RECV tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of SYN_RECV tcp6 connections
+    value 0
+
+network.tcpconn6.syn_sent PMID: 60.76.2 [Number of SYN_SENT tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of SYN_SENT tcp6 connections
+    value 0
+
+network.tcpconn6.time_wait PMID: 60.76.6 [Number of TIME_WAIT tcp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of TIME_WAIT tcp6 connections
+    value 2
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT network.tcpconn.close network.tcpconn.close_wait network.tcpconn.closing network.tcpconn.established network.tcpconn.fin_wait1 network.tcpconn.fin_wait2 network.tcpconn.last_ack network.tcpconn.listen network.tcpconn.syn_recv network.tcpconn.syn_sent network.tcpconn.time_wait network.tcpconn6.close network.tcpconn6.close_wait network.tcpconn6.closing network.tcpconn6.established network.tcpconn6.fin_wait1 network.tcpconn6.fin_wait2 network.tcpconn6.last_ack network.tcpconn6.listen network.tcpconn6.syn_recv network.tcpconn6.syn_sent network.tcpconn6.time_wait
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking udpconn metric descriptors and values - procnet-4.15.14-root-001.tgz
+=== std out ===
+
+network.udpconn.established PMID: 60.79.1 [Number of established udp connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of established udp connections
+    value 1
+
+network.udpconn.listen PMID: 60.79.2 [Number of udp connections in listen state]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of udp connections in listen state
+    value 11
+
+network.udpconn6.established PMID: 60.80.1 [Number of established udp6 connections]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of established udp6 connections
+    value 1
+
+network.udpconn6.listen PMID: 60.80.2 [Number of udp6 connections in listen state]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of udp6 connections in listen state
+    value 11
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT network.udpconn.established network.udpconn.listen network.udpconn6.established network.udpconn6.listen
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking unix metric descriptors and values - procnet-4.15.14-root-001.tgz
+=== std out ===
+
+network.unix.datagram.count PMID: 60.81.1 [Number of datagram unix domain sockets]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of datagram unix domain sockets
+    value 1
+
+network.unix.stream.count PMID: 60.81.4 [Number of unix domain socket streams]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of unix domain socket streams
+    value 131
+
+network.unix.stream.established PMID: 60.81.2 [Number of established unix domain socket streams]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of established unix domain socket streams
+    value 0
+
+network.unix.stream.listen PMID: 60.81.3 [Number of unix domain socket streams in listen state]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of unix domain socket streams in listen state
+    value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT network.unix.datagram.count network.unix.stream.count network.unix.stream.established network.unix.stream.listen
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

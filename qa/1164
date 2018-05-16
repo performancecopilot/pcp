@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1164
+# Exercise Linux kernel network connection metrics.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "Tests Linux kernel network metrics"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda="60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
+rawmetrics=`pminfo network.rawconn network.rawconn6 | LC_COLLATE=POSIX sort`
+tcpmetrics=`pminfo network.tcpconn network.tcpconn6 | LC_COLLATE=POSIX sort`
+udpmetrics=`pminfo network.udpconn network.udpconn6 | LC_COLLATE=POSIX sort`
+unixmetrics=`pminfo network.unix | LC_COLLATE=POSIX sort`
+
+for tgz in $here/linux/procnet-*-root-*.tgz
+do
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    sudo tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Valgrind checking rawconn metric descriptors and values - $base"
+    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $rawmetrics 2>&1 \
+    | _filter
+
+    echo "== Valgrind checking tcpconn metric descriptors and values - $base"
+    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $tcpmetrics 2>&1 \
+    | _filter
+
+    echo "== Valgrind checking udpconn metric descriptors and values - $base"
+    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $udpmetrics 2>&1 \
+    | _filter
+
+    echo "== Valgrind checking unix metric descriptors and values - $base"
+    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $unixmetrics 2>&1 \
+    | _filter
+
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit

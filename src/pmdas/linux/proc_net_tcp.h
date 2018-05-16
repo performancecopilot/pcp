@@ -1,5 +1,7 @@
 /*
+ * Copyright (c) 2018 Red Hat.
  * Copyright (c) 1999,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Originally contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- */
-
-/*
- * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  */
 
 enum {
@@ -31,9 +29,12 @@ enum {
 	_PM_TCP_LAST
 };
 
-typedef struct {
-    int stat[_PM_TCP_LAST];
-} proc_net_tcp_t;
+typedef struct tcpconn_stats {
+    unsigned int	stat[_PM_TCP_LAST];
+} tcpconn_stats_t;
+
+typedef struct tcpconn_stats proc_net_tcp_t;
+typedef struct tcpconn_stats proc_net_tcp6_t;
 
 extern int refresh_proc_net_tcp(proc_net_tcp_t *);
-
+extern int refresh_proc_net_tcp6(proc_net_tcp6_t *);

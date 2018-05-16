@@ -1345,6 +1345,28 @@ to maintain capacity for other less active flows.
 @ network.udplite6.rcvbuferrors count of udplite6 receive buffer errors
 @ network.udplite6.sndbuferrors count of udplite6 send buffer errors
 @ network.udplite6.incsumerrors count of udplite6 in checksum errors
+@ network.tcpconn6.established Number of established tcp6 connections
+@ network.tcpconn6.syn_sent Number of SYN_SENT tcp6 connections
+@ network.tcpconn6.syn_recv Number of SYN_RECV tcp6 connections
+@ network.tcpconn6.fin_wait1 Number of FIN_WAIT1 tcp6 connections
+@ network.tcpconn6.fin_wait2 Number of FIN_WAIT2 tcp6 connections
+@ network.tcpconn6.time_wait Number of TIME_WAIT tcp6 connections
+@ network.tcpconn6.close Number of CLOSE tcp6 connections
+@ network.tcpconn6.close_wait Number of CLOSE_WAIT tcp6 connections
+@ network.tcpconn6.last_ack Number of LAST_ACK tcp6 connections
+@ network.tcpconn6.listen Number of LISTEN tcp6 connections
+@ network.tcpconn6.closing Number of CLOSING tcp6 connections
+
+@ network.rawconn.count Number of raw socket connections
+@ network.rawconn6.count Number of raw6 socket connections
+@ network.udpconn.established Number of established udp connections
+@ network.udpconn.listen Number of udp connections in listen state
+@ network.udpconn6.established Number of established udp6 connections
+@ network.udpconn6.listen Number of udp6 connections in listen state
+@ network.unix.datagram.count Number of datagram unix domain sockets
+@ network.unix.stream.established Number of established unix domain socket streams
+@ network.unix.stream.listen Number of unix domain socket streams in listen state
+@ network.unix.stream.count Number of unix domain socket streams
 
 @ hinv.physmem total system memory metric from /proc/meminfo
 @ hinv.pagesize Memory page size
