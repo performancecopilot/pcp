@@ -651,16 +651,7 @@ pkg_add?	File::Slurp	[? (QA optional)]
 pkg?	File::Slurp		[from cpan (QA optional)]
 slackpkg?	File::Slurp	[? (QA optional)]
 pacman?	File::Slurp		[from cpan (QA optional)]
-# -- Slurm::Hostlist
-dpkg?	Slurm::Hostlist		[libslurm-perl]
-rpm?	Slurm::Hostlist		[perl-Slurm-Hostlist or 'perl(Slurm::Hostlist)']
-urpmi?	Slurm::Hostlist		[perl-Slurm-Hostlist or 'perl(Slurm::Hostlist)']
-emerge?	Slurm::Hostlist		[?]
-pkgin?	Slurm::Hostlist		[N/A]
-pkg_add?	Slurm::Hostlist	[?]
-pkg?	Slurm::Hostlist		[N/A from cpan]
-slackpkg?	Slurm::Hostlist	[?]
-pacman?	Slurm::Hostlist		[N/A from cpan]
+# -- Slurm::Hostlist ... skip this one, it comes in the pcp-testsuite package
 # -- List::MoreUtils
 dpkg?	List::MoreUtils		[liblist-moreutils-perl (QA optional)]
 rpm?	List::MoreUtils		[perl-List-MoreUtils or 'perl(List::MoreUtils)' (QA optional)]
@@ -843,7 +834,7 @@ pkg?		netstat		[?]
 slackpkg?	netstat		[?]
 pacman?		netstat		[?]
 # -- kubectl
-dpkg?		kubectl		[?]
+dpkg?		kubectl		[N/A]
 rpm?		kubectl		[kubernetes-client]
 urpmi?		kubectl		[kubernetes-client]
 emerge?		kubectl		[?]
@@ -853,7 +844,7 @@ pkg?		kubectl		[?]
 slackpkg?	kubectl		[?]
 pacman?		kubectl		[?]
 # -- kubelet
-dpkg?		kubelet		[?]
+dpkg?		kubelet		[N/A]
 rpm?		kubelet		[kubernetes-node]
 urpmi?		kubelet		[kubernetes-node]
 emerge?		kubelet		[?]
@@ -1017,8 +1008,8 @@ slackpkg?	mkfs.gfs2	[N/A (gfs2 QA optional)]
 pacman?	mkfs.gfs2		[gfs2? (gfs2 QA optional)]
 # -- docker
 dpkg?		docker		[docker.io (QA optional)]
-rpm?		docker		[docker-io (QA optional)]
-urpmi?		docker		[docker-io (QA optional)]
+rpm?		docker		[docker-common (QA optional)]
+urpmi?		docker		[docker-common (QA optional)]
 emerge?		docker		[? (QA optional)]
 pkgin?		docker		[? (QA optional)]
 pkg_add?	docker		[? (QA optional)]
@@ -1343,14 +1334,20 @@ in
     vm09)
 	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg Coin dtrace boost json_reformat'
 	;;
+    vm11)
+	na='python3-bpfcc docker.io libsoqt5-dev'
+	;;
+    vm12)
+	na='python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
+	;;
     vm14)
-	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl perl-Slurm-Hostlist socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML'
+	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML'
 	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch perl-Slurm-Hostlist zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow'
 	;;
     vm20)
 	na='sysv-rc-conf'
@@ -1359,16 +1356,16 @@ in
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
 	;;
     vm22)
-	na='python3-prometheus-client python3-openpyxl perl-Slurm-Hostlist'
+	na='python3-prometheus-client python3-openpyxl'
 	;;
     vm24)
-	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow perl-Slurm-Hostlist docker-io'
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io'
 	;;
     vm27)
 	na='python3-bpfcc'
 	;;
     vm29)
-	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Slurm-Hostlist perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
+	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
     	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
@@ -1554,6 +1551,7 @@ do
 	then
 	    echo "$apps" \
 	    | sed -n \
+		-e '/\[N\/A\]/d' \
 		-e '/N\/A on host/d' \
 		-e 's/QA optional//' \
 		-e 's/from cpan//' \

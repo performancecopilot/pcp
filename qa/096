@@ -27,7 +27,24 @@ else
     fi
 fi
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+done_clean=false
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	_service pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_wait_for_pmlogger
+	_restore_auto_restart pmlogger
+	done_clean=true
+    fi
+    rm -f $tmp.*
+}
+
+trap "_cleanup; exit" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -43,6 +60,8 @@ fi
 $sudo rm -f $seq.full
 $sudo rm -f /tmp/pcp.ttymap
 # make sure proc agent reloads it
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _service pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger

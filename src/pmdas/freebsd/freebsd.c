@@ -304,6 +304,29 @@ static pmdaMetric metrictab[] = {
     { NULL,	/* network.interface.total.errors */
       { PMDA_PMID(CL_NETIF,16), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+    { NULL,	/* kernel.uname.release */
+      { PMDA_PMID(CL_SPECIAL,14), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.version */
+      { PMDA_PMID(CL_SPECIAL,15), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.sysname */
+      { PMDA_PMID(CL_SPECIAL,16), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.machine */
+      { PMDA_PMID(CL_SPECIAL,17), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.nodename */
+      { PMDA_PMID(CL_SPECIAL,18), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* pmda.uname */
+      { PMDA_PMID(CL_SPECIAL,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* pmda.version */
+      { PMDA_PMID(CL_SPECIAL,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 };
 static int metrictablen = sizeof(metrictab) / sizeof(metrictab[0]);
 
@@ -365,6 +388,7 @@ static int	isDSO = 1;	/* =0 I am a daemon */
 static int	cpuhz;		/* frequency for CPU time metrics */
 static int	ncpu;		/* number of cpus in kern.cp_times data */
 static int	pagesize;	/* vm page size */
+static struct utsname		kernel_uname;
 
 /*
  * Fetch values from sysctl()
@@ -550,6 +574,8 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else if (cluster == CL_SPECIAL) {
 	/* special cases */
+	static char 	uname_string[sizeof(kernel_uname)+5];
+
 	switch (item) {
 	    case 0:	/* hinv.ndisk */
 		refresh_disk_metrics();
@@ -649,6 +675,47 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			}
 		    }
 		}
+		break;
+
+	    case 14:	/* kernel.uname.release */
+		atom->cp = kernel_uname.release;
+		sts = 1;
+		break;
+
+	    case 15:	/* kernel.uname.version */
+		atom->cp = kernel_uname.version;
+		sts = 1;
+		break;
+
+	    case 16:	/* kernel.uname.sysname */
+		atom->cp = kernel_uname.sysname;
+		sts = 1;
+		break;
+
+	    case 17:	/* kernel.uname.machine */
+		atom->cp = kernel_uname.machine;
+		sts = 1;
+		break;
+
+	    case 18:	/* kernel.uname.nodename */
+		atom->cp = kernel_uname.nodename;
+		sts = 1;
+		break;
+
+	    case 20: /* pmda.uname */
+		pmsprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
+		    kernel_uname.sysname, 
+		    kernel_uname.nodename,
+		    kernel_uname.release,
+		    kernel_uname.version,
+		    kernel_uname.machine);
+		atom->cp = uname_string;
+		sts = 1;
+		break;
+
+	    case 21: /* pmda.version */
+		atom->cp = pmGetConfig("PCP_VERSION");
+		sts = 1;
 		break;
 
 	}
@@ -868,6 +935,8 @@ freebsd_init(pmdaInterface *dp)
     }
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: VM pagesize = %d\n", pagesize);
+
+    uname(&kernel_uname);
 
     /*
      * Build some instance domains ...

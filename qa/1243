@@ -15,6 +15,17 @@ _check_valgrind
 _get_libpcp_config
 $service_discovery || _notrun "No support for service discovery"
 
+if sed -e 's/$/ /' /etc/hosts | grep '::1[ 	].*localhost ' >/dev/null
+then
+    :
+else
+    # need something like this in /etc/hosts
+    # ::1 localhost.localdomain localhost localhost6.localdomain6 localhost6
+    #
+    echo "Warning: no IPv6 localhost (not localhost6) entry in /etc/hosts, so only"
+    echo "IPv4 localhost will be discovered below"
+fi
+
 _cleanup()
 {
     cd $here

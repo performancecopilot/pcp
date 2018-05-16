@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1368
+# PCP QA Test No. 1369
 # Exercise archive support for labels and help text.
 #
 # Copyright (c) 2017 Red Hat.
@@ -22,9 +22,11 @@ _cleanup()
 	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	_sighup_pmcd
+	_wait_for_pmcd
+	_service pmlogger start | _filter_pcp_start
+	_wait_for_pmlogger
+	_restore_auto_restart pmlogger
     fi
-    _wait_for_pmcd
-    _wait_for_pmlogger
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -63,6 +65,9 @@ fi
 need_restore=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmlogger
+_service pmlogger stop | _filter_pcp_stop
 
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
