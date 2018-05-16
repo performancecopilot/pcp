@@ -28,6 +28,33 @@ vfs.inodes.count
 vfs.inodes.free
     value 479
 
+vfs.locks.flock.count
+    value 0
+
+vfs.locks.flock.read
+    value 0
+
+vfs.locks.flock.write
+    value 0
+
+vfs.locks.lease.count
+    value 0
+
+vfs.locks.lease.read
+    value 0
+
+vfs.locks.lease.write
+    value 0
+
+vfs.locks.posix.count
+    value 0
+
+vfs.locks.posix.read
+    value 0
+
+vfs.locks.posix.write
+    value 0
+
 == done
 
 == Checking /proc/sys/kernel metric values - procsys-root-001.tgz
