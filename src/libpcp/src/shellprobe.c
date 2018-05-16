@@ -359,7 +359,7 @@ addTarget(char *target, connectionOptions *options)
 	bytes = options->maxTargets * sizeof(struct targetInfo);
 	if ((tp = realloc(options->targets, bytes)) == NULL) {
 	    if (pmDebugOptions.discovery)
-		pmNotifyErr(LOG_ERR, "%s: failed targets realloc: %lld bytes",
+		pmNotifyErr(LOG_ERR, "%s: failed targets realloc: %I64i bytes",
 				PROBE, (long long)bytes);
 	    return;
 	}

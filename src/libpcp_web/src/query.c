@@ -360,7 +360,7 @@ node_series_reply(SOLVER *sp, node_t *np, int nelements, redisReply **elements)
 	return nelements;
 
     if ((series = (unsigned char *)calloc(nelements, SHA1SZ)) == NULL) {
-	solverfmt(msg, "out of memory (%s, %lld bytes)",
+	solverfmt(msg, "out of memory (%s, %I64i bytes)",
 			"series reply", (long long)nelements * SHA1SZ);
 	solvermsg(sp, PMLOG_REQUEST, msg);
 	return -ENOMEM;
@@ -611,7 +611,7 @@ node_glob_reply(SOLVER *sp, node_t *np, const char *name, int nelements,
     /* response is matching key:value pairs from the scanned hash */
     nelements /= 2;
     if ((matches = (sds *)calloc(nelements, sizeof(sds))) == NULL) {
-	solverfmt(msg, "out of memory (%s, %lld bytes)",
+	solverfmt(msg, "out of memory (%s, %I64i bytes)",
 			"glob reply", (long long)nelements * sizeof(sds));
 	solvermsg(sp, PMLOG_REQUEST, msg);
 	return -ENOMEM;
@@ -1130,7 +1130,7 @@ new_solver_replies(SOLVER *sp)
     sds			msg;
 
     if ((sp->replies = calloc(sp->count, sizeof(redisReply *))) == NULL) {
-	solverfmt(msg, "out of memory (%s, %lld bytes)", "solver replies",
+	solverfmt(msg, "out of memory (%s, %I64i bytes)", "solver replies",
 			(long long)sp->count * sizeof(redisReply *));
 	solvermsg(sp, PMLOG_REQUEST, msg);
     }
@@ -1362,12 +1362,12 @@ series_label_value_execute(pmSeriesSettings *settings,
     int			sts;
 
     if (redisGetReply(redis, (void **)&reply) != REDIS_OK) {
-	queryfmt(msg, "failed %s %s.%lld.value",
+	queryfmt(msg, "failed %s %s.%I64i.value",
 			HGETALL, "pcp:map:label", mapid);
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	sts = -EAGAIN;
     } else if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array from %s %s.%lld.value (type=%s)",
+	queryfmt(msg, "expected array from %s %s.%I64i.value (type=%s)",
 		HGETALL, "pcp:map:label", mapid, redis_reply(reply->type));
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	sts = -EPROTO;
