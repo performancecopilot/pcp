@@ -8,6 +8,7 @@
 #
 _getnetworkaddr()
 {
+    __verbose=false
     if `which hostname >/dev/null 2>&1`
     then
 	host=`hostname`
@@ -17,12 +18,16 @@ _getnetworkaddr()
 	    if echo "$host_out" | grep ' has address ' >/dev/null
 	    then
 		addr=`echo "$host_out" | sed -e 's/.*address //'`
+		$__verbose && echo "_getnetworkaddr: host -> addr=$addr" >&2
 		if `which ifconfig >/dev/null 2>&1`
 		then
 		    # ifconfig line of interest looks like:
-		    # inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+		    # inet 192.168.1.100  netmask 255.255.255.0  ...
+		    # or
+		    # inet addr:192.168.1.224  Bcast:192.168.1.255  Mask:255.255.255.0
 		    #
-		    mask=`ifconfig | grep " $addr " | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
+		    mask=`ifconfig | grep "[ :]$addr " | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
+		    $__verbose && echo "_getnetworkaddr: ifconfig -> mask=$mask" >&2
 		    case "$mask"
 		    in
 			255.255.255.0|0xffffff00|ffffff00)	# /24 network
@@ -45,6 +50,7 @@ _getnetworkaddr()
 		    # 4: br0    inet 192.168.1.100/24 ...
 		    #
 		    mask=`ip -f inet -o address | grep " $addr/" | sed -e 's/.*inet //' -e 's/[0-9.][0-9.]*\/\([^ ][^ ]*\) .*/\1/'`
+		    $__verbose && echo "_getnetworkaddr: ip -> mask=$mask" >&2
 		    if [ "$mask" != 24 ]
 		    then
 			# pmcd's [access] is not smart enough to handle other
@@ -1217,6 +1223,16 @@ pkg_add?	json_reformat		[? (QA optional)]
 pkg?		json_reformat		[libyajl2 (QA optional)]
 slackpkg?	json_reformat		[? (QA optional)]
 pacman?		json_reformat		[? (QA optional)]
+# -- smartctl
+dpkg?		smartctl		[smartmontools (QA optional)]
+rpm?		smartctl		[smartmontools (QA optional)]
+urpmi?		smartctl		[smartmontools (QA optional)]
+emerge?		smartctl		[? (QA optional)]
+pkgin?		smartctl		[? (QA optional)]
+pkg_add?	smartctl		[? (QA optional)]
+pkg?		smartctl		[? (QA optional)]
+slackpkg?	smartctl		[? (QA optional)]
+pacman?		smartctl		[? (QA optional)]
 #
 # misc
 #
@@ -1352,7 +1368,7 @@ in
 	na='python3-bpfcc'
 	;;
     vm29)
-	na='python-prometheus-client python-elasticsearch python-xlsxwriter perl-YAML-LibYAML perl-Slurm-Hostlist perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
+	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Slurm-Hostlist perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
     	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'

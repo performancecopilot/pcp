@@ -19,9 +19,13 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 $sudo rm -f /var/tmp/*.pmcheck
 _change_config pmlogger on
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_restore_auto_restart pmcd
 _wait_for_pmlogger
+_restore_auto_restart pmlogger
 
 # and wait some more for other pmloggers and stuff pmlogger_check will
 # do before _start_pmcheck() in $PCP_RC_DIR/pcp actually gets to do

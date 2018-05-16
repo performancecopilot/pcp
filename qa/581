@@ -59,7 +59,9 @@ _cleanup()
 	_restore_loggers
 	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmlogger
+	_restore_auto_restart pmlogger
 	needlcean=false
     fi
     $sudo rm -f $tmp.*
@@ -88,6 +90,8 @@ End-of-File
 
 $sudo rm -f $control
 $sudo cp $tmp.indom $control
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _disable_loggers
 _service pmlogger stop | _filter_pcp_stop
 _service pmcd restart | _filter_pcp_start

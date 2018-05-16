@@ -2,6 +2,8 @@ QA output created by 967
 === Daemon PMDA papi auto_enable disabled test ===
 dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
 Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> attr 'username' 'root'
 Attribute: username=root
@@ -57,6 +59,8 @@ dbpmda>
 === Daemon PMDA papi auto_enable test ===
 dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
 Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root
@@ -95,6 +99,8 @@ dbpmda>
 === Daemon PMDA papi auto_enable with papi.control.enable test ===
 dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
 Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root
@@ -150,6 +156,8 @@ dbpmda>
 === Daemon PMDA papi auto_enable with multiplexing disabled test ===
 dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
 Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root

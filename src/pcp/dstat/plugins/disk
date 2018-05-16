@@ -1,0 +1,12 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+#
+
+[disk]
+label = dsk/total
+printtype = b
+precision = 0
+read = read
+read.formula = disk.all.read_bytes
+write = writ
+write.formula = disk.all.write_bytes

@@ -209,6 +209,9 @@ then
 elif [ -x "$PCP_BINADM_DIR/pcp-$command" ]
 then
     command="$PCP_BINADM_DIR/pcp-$command"
+elif [ -x "$command" ]
+then
+    command=`realpath "$command"`
 else
     _usage "Cannot find a pcp-$command command to execute"
 fi

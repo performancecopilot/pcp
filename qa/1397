@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "SMART PMDA is Linux-specific (smart)"
 [ -d $PCP_PMDAS_DIR/smart ] || _notrun "smart PMDA directory is not installed"
+which smartctl >/dev/null 2>&1 || _notrun "smart PMDA Install needs smartctl(1)"
 
 _cleanup()
 {

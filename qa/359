@@ -86,6 +86,11 @@ _filter_libvirt()
     fi
 }
 
+# if one of the PMDAs is broken or mis-installed the test will likely
+# fail ... this might give a clue to help diagnosis
+#
+pcp >>$here/$seq.full 2>&1
+
 # real QA test starts here
 
 echo "First attempt ... expect nothing"

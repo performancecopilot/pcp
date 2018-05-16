@@ -1,0 +1,12 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+#
+
+[io]
+label = io/total
+precision = 2
+width = 5
+readops = read
+readops.formula = disk.all.read
+writeops = writ
+writeops.formula = disk.all.write

@@ -58,6 +58,8 @@ _check_papi
 echo "=== Daemon PMDA papi auto_enable disabled test ==="
 $sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 attr 'username' 'root'
 attr 11 '0'
@@ -78,6 +80,8 @@ cat $tmp.log >>$here/$seq.full
 echo "=== Daemon PMDA papi auto_enable test ==="
 $sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 attr "username" "root"
 attr 11 "0"
@@ -97,6 +101,8 @@ cat $tmp.log >>$here/$seq.full
 echo "=== Daemon PMDA papi auto_enable with papi.control.enable test ==="
 $sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 attr "username" "root"
 attr 11 "0"
@@ -118,6 +124,8 @@ cat $tmp.log >>$here/$seq.full
 echo "=== Daemon PMDA papi auto_enable with multiplexing disabled test ==="
 $sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 attr "username" "root"
 attr 11 "0"

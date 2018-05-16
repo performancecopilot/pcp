@@ -19,6 +19,10 @@ HH:MM:SS        1
                                                
 == basic duplicate name handling
   s.seconds
+== basic PMNS/non-leaf metric handling
+  k.a.c.w.total
+== basic metric ordering
+  k.a.c.w.total  m.u.free
 == basic archive mode reporting
           s.seconds  s.milliseconds
                 s/s            ms/s

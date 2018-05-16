@@ -115,7 +115,11 @@ then
 elif [ -f /etc/release ]
 then
     #    OpenSolaris 2010.05 snv_134b X86
+    #
     #    OpenIndiana Development oi_148 X86
+    #
+    #    OpenIndiana Hipster 2017.10 (powered by illumos)
+    #    ... and more lines ...
     #
     try=`sed </etc/release -n -e '/Open[A-Z]/{
 s/.*Open/Open/
@@ -124,6 +128,7 @@ s/ /~/
 s/ .*//
 s/~/ /g
 p
+q
 }'`
     if [ -n "$try" ]
     then

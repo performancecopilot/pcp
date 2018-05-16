@@ -55,7 +55,7 @@ pmstore pmcd.control.register 0 >>$seq.full
 # within each sleep period
 #
 #pmie -v -e -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
-pmie -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
+pmie -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.3sec -T 12sec &
 
 sleep 2
 pmstore pmcd.control.register 1 >>$seq.full
@@ -72,10 +72,13 @@ cat $tmp.err >>$seq.full
 _filter_err <$tmp.err
 echo "=== stdout ===" | tee -a $seq.full
 cat $tmp.out >>$seq.full
+# we used to count each uniq output line, but this is just too timing
+# dependent, so "pass" has been relaxed to seeing at least one of each
+# expected output line type
+#
 _filter <$tmp.out \
 | LC_COLLATE=POSIX sort \
-| uniq -c \
-| sed -e 's/  [4567] DATE/4-7 DATE/' -e 's/  */ /g'
+| uniq
 
 # success, all done
 status=0

@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -513,18 +513,18 @@ class pmConfig(object):
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
                             sys.exit(1)
 
-        # Prepare for non-leaf metrics
+        # Prepare for non-leaf metrics while preserving metric order
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
 
-        branch = set()
         def metric_base_check(metric):
             """ Helper to support non-leaf metricspecs """
             from copy import deepcopy
             if metric != self._tmp:
-                if metric not in metrics:
-                    metrics[metric] = deepcopy(metrics[self._tmp])
-                    branch.add(self._tmp)
+                if metric not in self.util.metrics:
+                    self.util.metrics[metric] = deepcopy(metrics[self._tmp])
+            else:
+                self.util.metrics[metric] = deepcopy(metrics[metric])
 
         # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
         for metric in list(metrics):
@@ -532,9 +532,10 @@ class pmConfig(object):
             try:
                 self.util.context.pmTraversePMNS(metric, metric_base_check)
             except pmapi.pmErr as error:
-                pass
-        for b in branch:
-            del metrics[b]
+                from copy import deepcopy
+                self.util.metrics[metric] = deepcopy(metrics[metric])
+        metrics = self.util.metrics
+        self.util.metrics = OrderedDict()
 
         for metric in metrics:
             try:

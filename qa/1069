@@ -53,6 +53,12 @@ pmrep -p -T 1sec -t 1 -C sample.long.one sample.colour | _live_filter
 echo "== basic duplicate name handling"
 pmrep -C -U sample.seconds
 
+echo "== basic PMNS/non-leaf metric handling"
+pmrep -C -U kernel.all.cpu.wait kernel.all.cpu.wait.total
+
+echo "== basic metric ordering"
+pmrep -C -U kernel.all.cpu.wait mem.util.free
+
 echo "== basic archive mode reporting"
 pmrep -z -p -s 5 -t 2 -P 2 --archive $here/archives/sample-secs \
 	sample.seconds sample.milliseconds

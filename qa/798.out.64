@@ -2,6 +2,8 @@ QA output created by 798
 === Test case: mountstats.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -83,6 +85,8 @@ Log finished ...
 === Test case: mountstats3.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -206,6 +210,8 @@ Log finished ...
 === Test case: mountstats42.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -266,6 +272,8 @@ Log finished ...
 === Test case: nonfsmounts.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -319,6 +327,8 @@ Log finished ...
 === Test case: mountstats3.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -401,7 +411,7 @@ pmResult ... numpmid: 1
 dbpmda> fetch nfsclient.ops.readdirplus.ops
 PMID(s): 62.8.161
 pmResult ... numpmid: 1
-  62.8.161 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.161 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 3432
     inst [N or ???] value 3432
@@ -415,7 +425,7 @@ pmResult ... numpmid: 1
 dbpmda> fetch nfsclient.ops.readdirplus.ntrans
 PMID(s): 62.8.162
 pmResult ... numpmid: 1
-  62.8.162 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.162 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 3432
     inst [N or ???] value 3432
@@ -429,7 +439,7 @@ pmResult ... numpmid: 1
 dbpmda> fetch nfsclient.ops.readdirplus.timeouts
 PMID(s): 62.8.163
 pmResult ... numpmid: 1
-  62.8.163 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.163 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 0
     inst [N or ???] value 0
@@ -528,6 +538,8 @@ Log finished ...
 === Test case: mountstats42.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.nfsv4
 PMID: 62.3.2

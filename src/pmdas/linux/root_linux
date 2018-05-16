@@ -97,6 +97,8 @@ kernel.all {
     uptime		60:26:0
     idletime		60:26:1
     nusers		60:25:0
+    nroots		60:25:1
+    nsessions		60:25:2
     lastpid		60:2:1
     runnable		60:2:2
     nprocs		60:2:3
@@ -1365,6 +1367,7 @@ vfs {
     inodes
     dentry
     aio
+    locks
 }
 
 vfs.files {
@@ -1386,6 +1389,30 @@ vfs.dentry {
 vfs.aio {
     count		60:27:7
     max			60:27:8
+}
+
+vfs.locks {
+    posix
+    flock
+    lease
+}
+
+vfs.locks.posix {
+    read		60:75:0
+    write		60:75:1
+    count		60:75:2
+}
+
+vfs.locks.flock {
+    read		60:75:3
+    write		60:75:4
+    count		60:75:5
+}
+
+vfs.locks.lease {
+    read		60:75:6
+    write		60:75:7
+    count		60:75:8
 }
 
 sysfs {

@@ -49,10 +49,13 @@ _filter()
     | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$script;pmdanfsclient.python;" \
-	-e "s;$python_path;\$PYTHON;" \
-	-e "s;$python;\$PYTHON;" \
+	-e "s; $python_path; \$PYTHON;" \
+	-e "s; $python; \$PYTHON;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e 's/ 32-bit int / 32-BIT /' \
+	-e 's/ 32-bit unsigned int / 32-BIT /' \
+	-e '/62\.8\.16[123]/s/valfmt: [01]/valfmt: 0-or-1/' \
     # end
 }
 
@@ -116,6 +119,8 @@ PCP_PYTHON_PMNS=root $python $script > $tmp.root
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
 open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc nfsclient.export
 desc nfsclient.mountpoint
@@ -134,6 +139,8 @@ End-of-File
 # create a set of commands for dbpmda
 cat >$tmp.v3cmds <<End-of-File
 open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc nfsclient.export
 desc nfsclient.options.mountaddr
@@ -156,6 +163,8 @@ End-of-File
 # create a set of commands for dbpmda and nfsv4.2
 cat >$tmp.42cmds <<EOF
 open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc nfsclient.nfsv4
 desc nfsclient.ops.seek.ops

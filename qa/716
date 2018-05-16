@@ -40,6 +40,8 @@ $sudo ./Install </dev/null >/dev/null 2>&1
 # real QA test starts here
 $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n root -ie" <<End-of-File 2>&1 | _filter
 open pipe /usr/bin/env perl $script
+# on some platforms this may take a while ...
+wait 2
 getdesc on
 desc simple.numfetch
 fetch simple.numfetch

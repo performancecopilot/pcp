@@ -72,10 +72,12 @@ echo "--- diffing outputs - no output expected"
 # and force %.3f output for floats to avoid precision differences
 # 
 for file in ref/xl/worksheets/sheet1.xml run/xl/worksheets/sheet1.xml \
-	    ref/xl/styles.xml run/xl/styles.xml
+	    ref/xl/styles.xml run/xl/styles.xml \
+	    ref/xl/sharedStrings.xml run/xl/sharedStrings.xml
 do
     sed <$file  \
 	-e '/^<styleSheet/d' \
+	-e '/^<sst/d' \
 	-e 's/></>\
 </g' \
     | $PCP_AWK_PROG -F '>' '

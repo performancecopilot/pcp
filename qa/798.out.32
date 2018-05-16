@@ -2,6 +2,8 @@ QA output created by 798
 === Test case: mountstats.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -83,6 +85,8 @@ Log finished ...
 === Test case: mountstats3.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -206,6 +210,8 @@ Log finished ...
 === Test case: mountstats42.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -266,6 +272,8 @@ Log finished ...
 === Test case: nonfsmounts.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -319,6 +327,8 @@ Log finished ...
 === Test case: mountstats3.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.export
 PMID: 62.0.1
@@ -401,7 +411,7 @@ pmResult ... numpmid: 1
 dbpmda> fetch nfsclient.ops.readdirplus.ops
 PMID(s): 62.8.161
 pmResult ... numpmid: 1
-  62.8.161 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.161 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 3432
     inst [N or ???] value 3432
@@ -415,7 +425,7 @@ pmResult ... numpmid: 1
 dbpmda> fetch nfsclient.ops.readdirplus.ntrans
 PMID(s): 62.8.162
 pmResult ... numpmid: 1
-  62.8.162 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.162 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 3432
     inst [N or ???] value 3432
@@ -429,7 +439,7 @@ pmResult ... numpmid: 1
 dbpmda> fetch nfsclient.ops.readdirplus.timeouts
 PMID(s): 62.8.163
 pmResult ... numpmid: 1
-  62.8.163 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.163 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 0
     inst [N or ???] value 0
@@ -528,6 +538,8 @@ Log finished ...
 === Test case: mountstats42.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
 dbpmda> getdesc on
 dbpmda> desc nfsclient.nfsv4
 PMID: 62.3.2
@@ -535,15 +547,15 @@ PMID: 62.3.2
     Semantics: instant  Units: none
 dbpmda> desc nfsclient.ops.seek.ops
 PMID: 62.8.465
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.seek.ntrans
 PMID: 62.8.466
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.seek.timeouts
 PMID: 62.8.467
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.seek.bytes_sent
 PMID: 62.8.468
@@ -567,15 +579,15 @@ PMID: 62.8.472
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.allocate.ops
 PMID: 62.8.473
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.allocate.ntrans
 PMID: 62.8.474
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.allocate.timeouts
 PMID: 62.8.475
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.allocate.bytes_sent
 PMID: 62.8.476
@@ -599,15 +611,15 @@ PMID: 62.8.480
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.deallocate.ops
 PMID: 62.8.481
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.deallocate.ntrans
 PMID: 62.8.482
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.deallocate.timeouts
 PMID: 62.8.483
-    Data Type: 32-bit unsigned int  InDom: 62.0 0xf800000
+    Data Type: 32-BIT  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.deallocate.bytes_sent
 PMID: 62.8.484

@@ -1474,6 +1474,7 @@ pmlogsize
 1203 derive pmval libpcp local
 1211:reserved pmseries local
 1217 pmrep python local
+1219 pcp local
 1220 pmda.proc local
 1221 labels pmda.prometheus local
 1222 pmda.linux pmda.proc local
@@ -1491,6 +1492,7 @@ pmlogsize
 1255:reserved logutil pmda.prometheus local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
+1265 pmda.linux local
 1267 pmlogrewrite labels help pmdumplog local
 1269 libpcp local
 1274 pmlogextract pmdumplog labels help local sanity
@@ -1512,6 +1514,7 @@ pmlogsize
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
+1360:reserved pcp python dstat local
 1362 pmda.postgresql local
 1367 labels pmda.simple local
 1368 labels help pmlogger pmdumplog local sanity
