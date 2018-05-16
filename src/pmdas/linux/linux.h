@@ -97,6 +97,7 @@ enum {
 	CLUSTER_SYS_KERNEL,	/* 72 /proc/sys/kernel metrics */
 	CLUSTER_NET_SOCKSTAT6,	/* 73 /proc/net/sockstat6 */
 	CLUSTER_TTY,            /* 74 proc/tty/device/serial metrics */
+	CLUSTER_LOCKS,		/* 75 /proc/locks */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

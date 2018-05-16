@@ -1492,6 +1492,7 @@ pmlogsize
 1255:reserved logutil pmda.prometheus local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract
+1265 pmda.linux local
 1267 pmlogrewrite labels help pmdumplog local
 1269 libpcp local
 1274 pmlogextract pmdumplog labels help local sanity

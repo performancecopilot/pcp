@@ -1760,6 +1760,15 @@ See also the kernel.uname.* metrics
 @ vfs.dentry.free number of available directory entry structures
 @ vfs.aio.count number of in-use asynchronous IO structures
 @ vfs.aio.max hard maximum on number of asynchronous IO structures
+@ vfs.locks.posix.read number of POSIX locks held for reading
+@ vfs.locks.posix.write number of POSIX locks held for writing
+@ vfs.locks.posix.count number of POSIX lock structures
+@ vfs.locks.flock.read number of advisory file locks held for reading
+@ vfs.locks.flock.write number of advisory file locks held for writing
+@ vfs.locks.flock.count number of advisory file lock structures
+@ vfs.locks.lease.read number of file leases held for reading
+@ vfs.locks.lease.write number of file leases held for writing
+@ vfs.locks.lease.count number of file lease structures
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
 

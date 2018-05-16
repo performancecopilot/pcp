@@ -173,7 +173,7 @@ External Plugins:
 Missing metrics:
 [x] async I/O metrics in Linux kernel PMDA
 [x] kernel.all.sessions,kernel.all.nroots utmp metrics
-[ ] /proc/locks metrics in Linux kernel PMDA
+[x] /proc/locks metrics in Linux kernel PMDA
 [ ] drop lo/bond*/face from net metrics - new network.physical.* metrics?
 [ ] network.tcpconn6 metrics ala network.tcpconn
 [ ] network.udpconn and network.udpconn6 kernel metrics

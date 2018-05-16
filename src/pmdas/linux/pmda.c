@@ -40,8 +40,9 @@
 #include "sysfs_kernel.h"
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
-#include "proc_meminfo.h"
+#include "proc_locks.h"
 #include "proc_loadavg.h"
+#include "proc_meminfo.h"
 #include "proc_net_dev.h"
 #include "proc_net_rpc.h"
 #include "proc_net_sockstat.h"
@@ -91,7 +92,8 @@ static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
 static ksm_info_t               ksm_info;
 static proc_fs_nfsd_t 		proc_fs_nfsd;
-static int                      proc_tty_permission = 0;
+static proc_locks_t 		proc_locks;
+static int                      proc_tty_permission;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -4373,6 +4375,39 @@ static pmdaMetric metrictab[] = {
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
+ * /proc/locks vfs cluster
+ */
+
+/* vfs.locks */
+    { &proc_locks.posix.read,
+      { PMDA_PMID(CLUSTER_LOCKS,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.posix.write,
+      { PMDA_PMID(CLUSTER_LOCKS,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.posix.count,
+      { PMDA_PMID(CLUSTER_LOCKS,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.flock.read,
+      { PMDA_PMID(CLUSTER_LOCKS,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.flock.write,
+      { PMDA_PMID(CLUSTER_LOCKS,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.flock.count,
+      { PMDA_PMID(CLUSTER_LOCKS,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.lease.read,
+      { PMDA_PMID(CLUSTER_LOCKS,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.lease.write,
+      { PMDA_PMID(CLUSTER_LOCKS,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { &proc_locks.lease.count,
+      { PMDA_PMID(CLUSTER_LOCKS,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
  * /proc/sys/kernel cluster (random number state, pid_max, etc)
  */
 
@@ -5696,6 +5731,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_VFS])
     	refresh_proc_sys_fs(&proc_sys_fs);
+
+    if (need_refresh[CLUSTER_LOCKS])
+    	refresh_proc_locks(&proc_locks);
 
     if (need_refresh[CLUSTER_SYS_KERNEL])
     	refresh_proc_sys_kernel(&proc_sys_kernel);

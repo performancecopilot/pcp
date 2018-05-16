@@ -1367,6 +1367,7 @@ vfs {
     inodes
     dentry
     aio
+    locks
 }
 
 vfs.files {
@@ -1388,6 +1389,30 @@ vfs.dentry {
 vfs.aio {
     count		60:27:7
     max			60:27:8
+}
+
+vfs.locks {
+    posix
+    flock
+    lease
+}
+
+vfs.locks.posix {
+    read		60:75:0
+    write		60:75:1
+    count		60:75:2
+}
+
+vfs.locks.flock {
+    read		60:75:3
+    write		60:75:4
+    count		60:75:5
+}
+
+vfs.locks.lease {
+    read		60:75:6
+    write		60:75:7
+    count		60:75:8
 }
 
 sysfs {
