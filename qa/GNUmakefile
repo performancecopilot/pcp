@@ -58,7 +58,7 @@ COMMON = common.check common.config common.filter \
 	 common.secure common.gfs2 common.rpm \
 	 common.qt common.avahi common.docker \
 	 common.discovery common.compress common.webapi \
-	 common.python common.prometheus
+	 common.python common.prometheus common.bcc
 
 OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)

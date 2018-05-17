@@ -13,6 +13,8 @@
 #
 """ PCP BCC PMDA module base class """
 
+from ctypes import c_int
+
 # pylint: disable=too-many-instance-attributes
 class PCPBCCBase(object):
     """ PCP BCC Base Class """
@@ -71,3 +73,31 @@ class PCPBCCBase(object):
             self.bpf.cleanup()
         self.bpf = None
         self.log("BPF/kprobes detached.")
+
+    @classmethod
+    def read_histogram(cls, table, cache):
+        buckets = []
+        maxHigh = -1
+
+        for k, v in table.items():
+            if k.value == 0:
+                continue
+
+            low = (1 << k.value) >> 1
+            high = (1 << k.value) - 1
+            if low == high:
+                low -= 1
+            key = str(low) + "-" + str(high)
+            if key not in cache:
+                cache[key] = 0
+            cache[key] += v.value
+
+            buckets.append((low, high))
+            if high > maxHigh and cache[key] > 0:
+                maxHigh = high
+
+        # always show at least the first bucket (if there is a bucket)
+        if maxHigh == -1 and buckets:
+            maxHigh = buckets[0][1]
+
+        return {str(low) + "-" + str(high) : c_int(1) for low, high in buckets if high <= maxHigh}

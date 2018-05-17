@@ -36,6 +36,7 @@ CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_slabinfo.c proc_uptime.c proc_vmstat.c \
 		  proc_locks.c sysfs_kernel.c numa_meminfo.c \
 		  proc_net_netstat.c proc_net_softnet.c \
+		  proc_net_raw.c proc_net_udp.c proc_net_unix.c \
 		  proc_net_snmp6.c proc_buddyinfo.c proc_zoneinfo.c \
 		  sysfs_tapestats.c proc_net_sockstat6.c \
 		  proc_fs_nfsd.c proc_tty.c
@@ -50,6 +51,7 @@ HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_slabinfo.h proc_uptime.h proc_vmstat.h \
 		  proc_locks.h sysfs_kernel.h numa_meminfo.h \
 		  proc_net_netstat.h proc_net_softnet.h \
+		  proc_net_raw.h proc_net_udp.h proc_net_unix.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
 		  sysfs_tapestats.h proc_net_sockstat6.h \
 		  proc_fs_nfsd.h proc_tty.h
@@ -124,12 +126,15 @@ pmda.o proc_loadavg.o:	proc_loadavg.h
 pmda.o proc_locks.o:	proc_locks.h
 pmda.o proc_meminfo.o:	proc_meminfo.h
 pmda.o proc_net_dev.o:	proc_net_dev.h
+pmda.o proc_net_raw.o:	proc_net_raw.h
+pmda.o proc_net_tcp.o:	proc_net_tcp.h
+pmda.o proc_net_udp.o:	proc_net_udp.h
+pmda.o proc_net_unix.o:	proc_net_unix.h
 pmda.o proc_net_netstat.o:	proc_net_netstat.h
 pmda.o proc_net_rpc.o:	proc_net_rpc.h
 pmda.o proc_net_snmp.o:	proc_net_snmp.h
 pmda.o proc_net_sockstat.o:	proc_net_sockstat.h
 pmda.o proc_net_sockstat6.o:	proc_net_sockstat6.h
-pmda.o proc_net_tcp.o:	proc_net_tcp.h
 pmda.o proc_partitions.o:	proc_partitions.h
 pmda.o proc_scsi.o:	proc_scsi.h
 pmda.o proc_slabinfo.o:	proc_slabinfo.h

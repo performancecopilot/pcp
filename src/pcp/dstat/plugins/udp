@@ -1,0 +1,10 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+#
+
+[udp]
+width = 4
+listen = lis
+listen.formula = network.udpconn.listen + network.udpconn6.listen
+active = act
+active.formula = network.udpconn.established + network.udpconn6.established

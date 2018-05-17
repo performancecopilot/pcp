@@ -52,19 +52,19 @@ Internal Plugins:
 [x] lock	(needs new vfs.locks.* kernel metrics)
 [x] mem
 [x] mem-adv
-[x] net		(needs new network.physical.* kernel metrics)
+[*] net		(needs new network.physical.* kernel metrics)
 [x] page
 [-] page24
 [x] proc
-[ ] raw		(needs new network.raw.* kernel metrics)
+[x] raw		(needs new network.raw.* kernel metrics)
 [x] socket
 [x] swap
 [-] swap-old
 [x] sys
-[*] tcp		(needs new network.tcpconn6.* metrics)
+[x] tcp		(needs new network.tcpconn6.* metrics)
 [x] time
-[ ] udp		(needs new network.udpconn[6].* metrics)
-[ ] unix	(needs new network.unixconn.* metics)
+[x] udp		(needs new network.udpconn[6].* metrics)
+[x] unix	(needs new network.unixconn.* metics)
 [x] vm
 [x] vm-adv
 [?] zones	(compound indom, tough for derived metrics)
@@ -96,8 +96,8 @@ External Plugins:
 [ ] innodb-buffer
 [ ] innodb-io
 [ ] innodb-ops
-[ ] jvm_full
-[ ] jvm_vm
+[?] jvm_full
+[?] jvm_vm
 [ ] lustre
 [ ] md-status		(needs more MD driver metrics)
 [ ] memcache-hits
@@ -175,13 +175,13 @@ Missing metrics:
 [x] kernel.all.sessions,kernel.all.nroots utmp metrics
 [x] /proc/locks metrics in Linux kernel PMDA
 [ ] drop lo/bond*/face from net metrics - new network.physical.* metrics?
-[ ] network.tcpconn6 metrics ala network.tcpconn
-[ ] network.udpconn and network.udpconn6 kernel metrics
-[ ] disk.md.recovery.* metrics (percent complete, speed)
+[x] network.tcpconn6 metrics ala network.tcpconn
+[x] network.udpconn and network.udpconn6 kernel metrics
+[?] disk.md.recovery.* metrics (percent complete, speed)
 
 Missing PMDAs:
 [ ] acpi
-[ ] dbus
+[?] dbus
 [?] gpfs
 [?] mongodb
 [?] ntp

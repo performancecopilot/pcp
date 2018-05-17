@@ -47,7 +47,10 @@
 #include "proc_net_rpc.h"
 #include "proc_net_sockstat.h"
 #include "proc_net_sockstat6.h"
+#include "proc_net_raw.h"
 #include "proc_net_tcp.h"
+#include "proc_net_udp.h"
+#include "proc_net_unix.h"
 #include "proc_partitions.h"
 #include "proc_net_netstat.h"
 #include "proc_net_snmp6.h"
@@ -72,8 +75,15 @@ static proc_meminfo_t		proc_meminfo;
 static proc_loadavg_t		proc_loadavg;
 static proc_net_rpc_t		proc_net_rpc;
 static proc_net_tcp_t		proc_net_tcp;
+static proc_net_tcp6_t		proc_net_tcp6;
+static proc_net_udp_t		proc_net_udp;
+static proc_net_udp6_t		proc_net_udp6;
+static proc_net_raw_t		proc_net_raw;
+static proc_net_raw6_t		proc_net_raw6;
 static proc_net_sockstat_t	proc_net_sockstat;
 static proc_net_sockstat6_t	proc_net_sockstat6;
+static proc_net_unix_t		proc_net_unix;
+static proc_net_udp6_t		proc_net_udp6;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
 static proc_slabinfo_t		proc_slabinfo;
@@ -2478,6 +2488,56 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* network.rawconn.count */
+  { &proc_net_raw.count,
+    { PMDA_PMID(CLUSTER_NET_RAW, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.rawconn6.count */
+  { &proc_net_raw6.count,
+    { PMDA_PMID(CLUSTER_NET_RAW6, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udpconn.established */
+  { &proc_net_udp.established,
+    { PMDA_PMID(CLUSTER_NET_UDP, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udpconn.listen */
+  { &proc_net_udp.listen,
+    { PMDA_PMID(CLUSTER_NET_UDP, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udpconn6.established */
+  { &proc_net_udp6.established,
+    { PMDA_PMID(CLUSTER_NET_UDP6, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udpconn6.listen */
+  { &proc_net_udp6.listen,
+    { PMDA_PMID(CLUSTER_NET_UDP6, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.unix.datagram.count */
+  { &proc_net_unix.datagram_count,
+    { PMDA_PMID(CLUSTER_NET_UNIX, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.unix.stream.established */
+  { &proc_net_unix.stream_established,
+    { PMDA_PMID(CLUSTER_NET_UNIX, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.unix.stream.listen */
+  { &proc_net_unix.stream_listen,
+    { PMDA_PMID(CLUSTER_NET_UNIX, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.unix.stream.count */
+  { &proc_net_unix.stream_count,
+    { PMDA_PMID(CLUSTER_NET_UNIX, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.tcpconn.established */
   { &proc_net_tcp.stat[_PM_TCP_ESTABLISHED],
     { PMDA_PMID(CLUSTER_NET_TCP, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -2531,6 +2591,61 @@ static pmdaMetric metrictab[] = {
 /* network.tcpconn.closing */
   { &proc_net_tcp.stat[_PM_TCP_CLOSING],
     { PMDA_PMID(CLUSTER_NET_TCP, 11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.established */
+  { &proc_net_tcp6.stat[_PM_TCP_ESTABLISHED],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.syn_sent */
+  { &proc_net_tcp6.stat[_PM_TCP_SYN_SENT],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.syn_recv */
+  { &proc_net_tcp6.stat[_PM_TCP_SYN_RECV],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.fin_wait1 */
+  { &proc_net_tcp6.stat[_PM_TCP_FIN_WAIT1],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.fin_wait2 */
+  { &proc_net_tcp6.stat[_PM_TCP_FIN_WAIT2],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.time_wait */
+  { &proc_net_tcp6.stat[_PM_TCP_TIME_WAIT],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.close */
+  { &proc_net_tcp6.stat[_PM_TCP_CLOSE],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.close_wait */
+  { &proc_net_tcp6.stat[_PM_TCP_CLOSE_WAIT],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.last_ack */
+  { &proc_net_tcp6.stat[_PM_TCP_LAST_ACK],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.listen */
+  { &proc_net_tcp6.stat[_PM_TCP_LISTEN],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcpconn6.closing */
+  { &proc_net_tcp6.stat[_PM_TCP_CLOSING],
+    { PMDA_PMID(CLUSTER_NET_TCP6, 11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.activeopens */
@@ -5609,8 +5724,26 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_NET_SNMP6])
 	refresh_proc_net_snmp6(_pm_proc_net_snmp6);
 
+    if (need_refresh[CLUSTER_NET_RAW])
+	refresh_proc_net_raw(&proc_net_raw);
+
+    if (need_refresh[CLUSTER_NET_RAW6])
+	refresh_proc_net_raw(&proc_net_raw6);
+
     if (need_refresh[CLUSTER_NET_TCP])
 	refresh_proc_net_tcp(&proc_net_tcp);
+
+    if (need_refresh[CLUSTER_NET_TCP6])
+	refresh_proc_net_tcp(&proc_net_tcp6);
+
+    if (need_refresh[CLUSTER_NET_UDP])
+	refresh_proc_net_udp(&proc_net_udp);
+
+    if (need_refresh[CLUSTER_NET_UDP6])
+	refresh_proc_net_udp(&proc_net_udp6);
+
+    if (need_refresh[CLUSTER_NET_UNIX])
+	refresh_proc_net_unix(&proc_net_unix);
 
     if (need_refresh[CLUSTER_NET_NETSTAT])
 	refresh_proc_net_netstat(&_pm_proc_net_netstat);

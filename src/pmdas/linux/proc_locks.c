@@ -30,7 +30,7 @@ refresh_proc_locks(proc_locks_t *proc_locks)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if ((sts = sscanf(buf, "%*d: %15s %*s %15s %*d", type, access)) != 5)
+	if ((sts = sscanf(buf, "%*d: %15s %*s %15s %*d", type, access)) != 2)
 	    continue;
 	if (strncmp(type, "POSIX", sizeof("POSIX")-1) == 0 ||
 	    strncmp(type, "ACCESS", sizeof("ACCESS")-1) == 0 ||

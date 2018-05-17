@@ -1435,6 +1435,8 @@ pmlogsize
 1114 archive pmval multi-archive local pmlogextract
 1115 pmda.bcc local
 1116 pmda.bcc local
+1117 pmda.bcc local
+1118 pmda.bcc local
 1119 pmlogsummary archive multi-archive decompress-xz local pmlogextract
 1120 pmda.prometheus local
 1121 pmda.linux local
@@ -1456,6 +1458,7 @@ pmlogsize
 1140 pidstat local
 1141 selinux local
 1159 pmlogger local pmdumplog
+1164 pmda.linux local
 1166 libpcp local
 1167 pmdumplog labels archive local
 1169 pmrep python local

@@ -1,13 +1,11 @@
 /*
  * Copyright (c) 2014,2018 Red Hat.
- * Copyright (c) 1999,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -15,10 +13,10 @@
  */
 #include <ctype.h>
 #include "linux.h"
-#include "proc_net_tcp.h"
+#include "proc_net_udp.h"
 
 static int
-refresh_tcpconn_stats(tcpconn_stats_t *conn, const char *path)
+refresh_udpconn_stats(udpconn_stats_t *conn, const char *path)
 {
     char		buf[BUFSIZ]; 
     char		*q, *p = buf;
@@ -35,8 +33,12 @@ refresh_tcpconn_stats(tcpconn_stats_t *conn, const char *path)
     for (buf[0]='\0';;) {
 	q = strchrnul(p, '\n');
 	if (*q == '\n') {
-	    if (1 == sscanf(p, " %*s %*s %*s %x", &n) && n < _PM_TCP_LAST)
-		conn->stat[n]++;
+	    if (sscanf(p, " %*s %*s %*s %x", &n) == 1) {
+		if (n == 0x07)
+		    conn->listen++;
+		if (n == 0x01)
+		    conn->established++;
+	    }
 	    p = q + 1;
 	    continue;
 	}
@@ -57,13 +59,13 @@ refresh_tcpconn_stats(tcpconn_stats_t *conn, const char *path)
 }
 
 int
-refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
+refresh_proc_net_udp(proc_net_udp_t *proc_net_udp)
 {
-    return refresh_tcpconn_stats(proc_net_tcp, "/proc/net/tcp");
+    return refresh_udpconn_stats(proc_net_udp, "/proc/net/udp");
 }
 
 int
-refresh_proc_net_tcp6(proc_net_tcp6_t *proc_net_tcp6)
+refresh_proc_net_udp6(proc_net_udp6_t *proc_net_udp6)
 {
-    return refresh_tcpconn_stats(proc_net_tcp6, "/proc/net/tcp6");
+    return refresh_udpconn_stats(proc_net_udp6, "/proc/net/udp6");
 }

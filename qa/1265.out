@@ -67,7 +67,7 @@ number of POSIX locks held for writing
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init -dfmtT vfs.locks.flock.count vfs.locks.flock.read vfs.locks.flock.write vfs.locks.lease.count vfs.locks.lease.read vfs.locks.lease.write vfs.locks.posix.count vfs.locks.posix.read vfs.locks.posix.write
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT vfs.locks.flock.count vfs.locks.flock.read vfs.locks.flock.write vfs.locks.lease.count vfs.locks.lease.read vfs.locks.lease.write vfs.locks.posix.count vfs.locks.posix.read vfs.locks.posix.write
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -143,7 +143,7 @@ number of POSIX locks held for writing
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init -dfmtT vfs.locks.flock.count vfs.locks.flock.read vfs.locks.flock.write vfs.locks.lease.count vfs.locks.lease.read vfs.locks.lease.write vfs.locks.posix.count vfs.locks.posix.read vfs.locks.posix.write
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT vfs.locks.flock.count vfs.locks.flock.read vfs.locks.flock.write vfs.locks.lease.count vfs.locks.lease.read vfs.locks.lease.write vfs.locks.posix.count vfs.locks.posix.read vfs.locks.posix.write
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
