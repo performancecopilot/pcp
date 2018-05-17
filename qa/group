@@ -1505,6 +1505,7 @@ pmlogsize
 1299 libpcp pminfo local
 1304 pmstat context local_context local
 1306 pmda.prometheus labels local
+1318:reserved pmprobe pmlogconf local
 1321 pmlogger pmda.prometheus local
 1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract
