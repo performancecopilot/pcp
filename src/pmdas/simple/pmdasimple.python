@@ -210,9 +210,9 @@ class SimplePMDA(PMDA):
         elif type == c_api.PM_LABEL_INDOM:
             indom = ident
             if indom == self.color_indom:
-                ret = '"indom_name":"color"'
+                ret = '"indom_name":"color","model":"RGB"'
             elif indom == self.now_indom:
-                ret = '"indom_name":"now","unitsystem":"SI"'
+                ret = '"indom_name":"time","unitsystem":"SI"'
         else: # no labels added for types PM_LABEL_CLUSTER, PM_LABEL_ITEM
             ret = '' # default is an empty labelset string
 
