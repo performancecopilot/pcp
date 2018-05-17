@@ -233,14 +233,14 @@ network.unix.datagram.count PMID: 60.81.1 [Number of datagram unix domain socket
     Semantics: instant  Units: count
 Help:
 Number of datagram unix domain sockets
-    value 1
+    value 0
 
 network.unix.stream.count PMID: 60.81.4 [Number of unix domain socket streams]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Number of unix domain socket streams
-    value 131
+    value 178
 
 network.unix.stream.established PMID: 60.81.2 [Number of established unix domain socket streams]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

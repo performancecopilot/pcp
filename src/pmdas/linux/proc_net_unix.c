@@ -29,13 +29,6 @@ refresh_proc_net_unix(proc_net_unix_t *up)
     if ((fp = linux_statsfile("/proc/net/unix", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
-    /* skip header */
-    if (fgets(buf, sizeof(buf), fp) == NULL) {
-	/* oops, no header! */
-	fclose(fp);
-	return -oserror();
-    }
-
     for (buf[0]='\0';;) {
 	q = strchrnul(p, '\n');
 	if (*q == '\n') {
