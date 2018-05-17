@@ -551,8 +551,8 @@ pacman?	/usr/lib/python2.*/site-packages/openpyxl	[python2-openpyxl? (build opti
 pacman?	/usr/lib/python3.*/site-packages/openpyxl	[python-openpyxl? (build optional)]
 # -- python bcc
 dpkg?	/usr/lib/python3/*-packages/bcc/__init__.py	[python3-bpfcc (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/bcc.py	[python3-bcc (build optional)]
-urpmi?	/usr/lib*/python*/*-packages/bcc.py	[python-bcc (build optional)]
+rpm?	/usr/lib*/python3.*/*-packages/bcc.py	[python3-bcc or python3-bpfcc (build optional)]
+urpmi?	/usr/lib*/python*/*-packages/bcc.py	[python-bcc or python-bpfcc (build optional)]
 emerge?	/usr/lib/python*/*-packages/bcc.py	[dev-python/bcc (build optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/bcc.py	[py36-bcc (build optional)]
 pkg_add?	/usr/local/lib/python*/*-packages/bcc.py	[py-bcc (build optional)]
@@ -1328,6 +1328,12 @@ in
     bozo-vm)
 	na='python3-prometheus-client python3-bcc docker.io'
 	;;
+    vm01)
+	na='python3-bpfcc libsoqt5-dev'
+	;;
+    vm04)
+	na='python-prometheus-client python-openpyxl zabbix-agent qtchooser qtchooser'
+	;;
     vm07)
 	na='docker.io'
 	;;
@@ -1347,7 +1353,7 @@ in
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc'
 	;;
     vm20)
 	na='sysv-rc-conf'
@@ -1370,6 +1376,9 @@ in
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;
+    vm36)
+	na='python3-bpfcc libsoqt5-dev'
+    	;;
 esac
 if [ -n "$na" ]
 then
