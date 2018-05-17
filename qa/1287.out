@@ -4,7 +4,7 @@ Waiting for pmcd to terminate ...
 === prometheus agent installation ===
 
 === check "notready" appeared in pmcd.conf
-prometheus	144	pipe	binary notready		python3 /var/lib/pcp/pmdas/prometheus/pmdaprometheus.python 
+prometheus	144	pipe	binary notready	 PYTHON_PROG /var/lib/pcp/pmdas/prometheus/pmdaprometheus.python 
 
 === pminfo listing.
 
