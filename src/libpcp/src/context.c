@@ -571,12 +571,12 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    acp->ac_curvol = -1;
 	    sts = __pmLogChangeVol(acp, acp->ac_log->l_minvol);
 	    if  (sts < 0) {
-		acp->ac_log = NULL;
 		if (pmDebugOptions.log) {
 		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__pmFindOrOpenArchive(..., %s, ...): __pmLogChangeVol(..., %d) failed: %s\n",
 		    	name, acp->ac_log->l_minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		}
+		acp->ac_log = NULL;
 		return sts;
 	    }
 	    return 0;

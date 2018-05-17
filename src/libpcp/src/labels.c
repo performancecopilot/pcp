@@ -1057,6 +1057,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
 	    /* make space on the end for additional instance sets */
 	    sets = realloc(sets, (count + n) * sizeof(pmLabelSet));
 	    if (sets == NULL) {
+		free(lsp);
 		sts = -ENOMEM;
 		goto fail;
 	    }

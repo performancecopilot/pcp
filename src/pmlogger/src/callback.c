@@ -402,6 +402,7 @@ manageText(pmDesc *desc)
     const unsigned int	ntypes = sizeof(text_types) / sizeof(text_types[0]);
     const unsigned int	nidents = sizeof(ident_types) / sizeof(ident_types[0]);
 
+    sts = 0;
     for (i = 0; i < ntypes; i++) {
 	for (j = 0; j < nidents; j++) {
 	    types = text_types[i] | ident_types[j];

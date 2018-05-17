@@ -116,7 +116,7 @@ redis_connect(char *server, struct timeval *timeout)
     redisContext *redis;
 
     if (server == NULL)
-	server = strdup(default_server);
+	server = default_server;
     if (timeout == NULL)
 	timeout = &default_timeout;
 

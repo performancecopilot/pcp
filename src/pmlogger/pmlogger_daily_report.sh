@@ -138,12 +138,12 @@ exec 1>"$PROGLOG" 2>&1
 # take a long time to run as a result.
 #
 [ -z "$ARCHIVEPATH" ] && ARCHIVEPATH=$PCP_LOG_DIR/pmlogger/$HOSTNAME/`pmdate -1d %Y%m%d`
-$verbose && echo ARCHIVEPATH=$ARCHIVEPATH
+$VERBOSE && echo ARCHIVEPATH=$ARCHIVEPATH
 
 # Default output directory
 #
 [ -z "$REPORTDIR" ] && REPORTDIR="$PCP_SA_DIR"
-$verbose && echo REPORTDIR=$REPORTDIR
+$VERBOSE && echo REPORTDIR=$REPORTDIR
 
 # Create output directory - if this fails due to permissions we exit later
 #
@@ -152,7 +152,7 @@ $verbose && echo REPORTDIR=$REPORTDIR
 # Default output file is the day of month for yesterday in REPORTDIR
 #
 [ -z "$REPORTFILE" ] && REPORTFILE=$REPORTDIR/sar`pmdate -1d %d`
-$verbose && echo REPORTFILE=$REPORTFILE
+$VERBOSE && echo REPORTFILE=$REPORTFILE
 
 # Default reporting interval is 10m (same as sysstat uses)
 #
@@ -176,7 +176,7 @@ then
     finish=`pmdate @%m/%d/%y`
     REPORT_OPTIONS="$REPORT_OPTIONS -S$start -T$finish"
 fi
-$verbose && echo REPORT_OPTIONS=$REPORT_OPTIONS
+$VERBOSE && echo REPORT_OPTIONS=$REPORT_OPTIONS
 
 # Truncate or create the output file. Exit if this fails.
 #
@@ -195,11 +195,11 @@ _report()
     _conf=$1
     _comment="$2"
 
-    $verbose && echo Generating report for $_conf $_comment
+    $VERBOSE && echo Generating report for $_conf $_comment
     echo >>$REPORTFILE; echo >>$REPORTFILE
     pmdumplog -z -l $ARCHIVEPATH | awk '/commencing/ {print "# ",$2,$3,$4,$5,$6}' >>$REPORTFILE
     echo $_comment >>$REPORTFILE
-    $verbose && echo pmrep $REPORT_OPTIONS $_conf
+    $VERBOSE && echo pmrep $REPORT_OPTIONS $_conf
     pmrep $REPORT_OPTIONS $_conf >$tmp/out
     if [ -s $tmp/out ]; then
     	cat $tmp/out >>$REPORTFILE

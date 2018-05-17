@@ -139,13 +139,12 @@ labelsetdup(pmLabelSet *lp)
     if ((dup = calloc(1, sizeof(pmLabelSet))) == NULL)
 	return NULL;
     *dup = *lp;
+    if (lp->nlabels <= 0)
+	return dup;
     if ((json = strdup(lp->json)) == NULL) {
 	free(dup);
 	return NULL;
     }
-    if (lp->nlabels <= 0)
-	return dup;
-
     if ((dup->labels = calloc(lp->nlabels, sizeof(pmLabel))) == NULL) {
 	free(dup);
 	free(json);

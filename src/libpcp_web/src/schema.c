@@ -195,7 +195,7 @@ checkMapScript(redisReply *reply, long long *add, sds s, const char *format, ...
     va_start(arg, format);
     vfprintf(stderr, format, arg);
     va_end(arg);
-    if (reply->type == REDIS_REPLY_ERROR)
+    if (reply && reply->type == REDIS_REPLY_ERROR)
 	fprintf(stderr, "\nRedis: %s\n", reply->str);
     else
 	fputc('\n', stderr);

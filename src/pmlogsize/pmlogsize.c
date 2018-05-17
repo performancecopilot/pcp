@@ -133,9 +133,15 @@ do_work(char *fname)
 	fprintf(stderr, "%s: label trailer read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(int));
 	exit(1);
     }
-    stat(fname, &sbuf);
+    if ((sts = stat(fname, &sbuf)) != 0) {
+	fprintf(stderr, "%s: cannot stat file: %s\n", fname, osstrerror());
+	exit(1);
+    }
     extsize = sbuf.st_size;
-    __pmFstat(f, &sbuf);
+    if ((sts = __pmFstat(f, &sbuf)) != 0) {
+	fprintf(stderr, "%s: cannot __pmFstat file: %s\n", fname, osstrerror());
+	exit(1);
+    }
     intsize = sbuf.st_size;
     printf("%s:", fname);
     if (intsize != extsize) {

@@ -324,8 +324,8 @@ series_values_reply(SOLVER *sp, sds series,
     redisReply		*reply;
     int			i, rc, sts = 0;
 
-    value.timestamp = sdsnewlen("", 32);
-    value.series = sdsnewlen("", 40);
+    value.timestamp = sdsnewlen(NULL, 32);
+    value.series = sdsnewlen(NULL, 40);
     value.data = sdsempty();
 
     for (i = 0; i < nelements; i++) {
@@ -380,12 +380,13 @@ node_series_reply(SOLVER *sp, node_t *np, int nelements, redisReply **elements)
 		    node_subtype(np->left), np->left->key,
 		    redis_reply(reply->type));
 	    solvermsg(sp, PMLOG_REQUEST, msg);
-	    free(series);
 	    sts = -EPROTO;
 	}
     }
-    if (sts < 0)
+    if (sts < 0) {
+	free(set.series);
 	return sts;
+    }
 
     return series_union(&np->result, &set);
 }
@@ -577,7 +578,7 @@ node_glob_reply(SOLVER *sp, node_t *np, const char *name, int nelements,
     np->cursor = strtoull(reply->str, NULL, 10);
 
     reply = elements[1];
-    if (!reply || reply->type != REDIS_REPLY_ARRAY || reply->elements < 0) {
+    if (!reply || reply->type != REDIS_REPLY_ARRAY) {
 	solverfmt(msg, "expected array of results from %s (got %s)",
 			HSCAN, reply ? redis_reply(reply->type) : "null");
 	solvermsg(sp, PMLOG_RESPONSE, msg);
@@ -700,8 +701,6 @@ series_prepare_maps(SOLVER *sp, node_t *np, int level)
     default:
 	break;
     }
-    if (sts < 0)
-	return sts;
 
     return series_prepare_maps(sp, np->right, level+1);
 }
@@ -841,8 +840,6 @@ series_prepare_eval(SOLVER *sp, node_t *np, int level)
     default:
 	break;
     }
-    if (sts < 0)
-	return sts;
 
     return series_prepare_eval(sp, np->right, level+1);
 }
@@ -1099,7 +1096,7 @@ series_resolve_time(SOLVER *sp, series_set_t *result, void *arg)
     if (result->nseries == 0)
 	return sts;
 
-    sha = sdsnewlen("", 40);
+    sha = sdsnewlen(NULL, 40);
     for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
 	if (redisGetReply(sp->redis, (void **)&reply) != REDIS_OK) {
 	    solverfmt(msg, "failed series %s XRANGE command",
@@ -1156,7 +1153,7 @@ series_report_set(SOLVER *sp, series_set_t *set)
     int			i;
 
     if (set->nseries)
-	sid = sdsnewlen("", 40+1);
+	sid = sdsnewlen(NULL, 40+1);
     for (i = 0; i < set->nseries; series += SHA1SZ, i++) {
 	sid = sdscpylen(sid, pmwebapi_hash_str(series), 40);
 	solvermatch(sp, sid);
@@ -1332,6 +1329,7 @@ series_map_keys(pmSeriesSettings *settings, redisContext *redis,
 	    queryfmt(msg, "bad response for string map %s (%s)",
 			HKEYS, redis_reply(rp->type));
 	    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
+	    sdsfree(val);
 	    return -EINVAL;
 	}
 	freeReplyObject(rp);
@@ -1592,8 +1590,6 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, pmSID *series, void *ar
 	cmd = redis_param_sds(cmd, key);
 	redis_submit(redis, SMEMBERS, key, cmd);
     }
-    if (sts < 0)
-	goto done;
 
     /* TODO: async response handling */
 
@@ -1696,12 +1692,12 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
 
     /* TODO: async response handling */
 
-    desc.indom = sdsnewlen("", 16);
-    desc.pmid = sdsnewlen("", 16);
-    desc.semantics = sdsnewlen("", 16);
-    desc.source = sdsnewlen("", 40);
-    desc.type = sdsnewlen("", 16);
-    desc.units = sdsnewlen("", 16);
+    desc.indom = sdsnewlen(NULL, 16);
+    desc.pmid = sdsnewlen(NULL, 16);
+    desc.semantics = sdsnewlen(NULL, 16);
+    desc.source = sdsnewlen(NULL, 40);
+    desc.type = sdsnewlen(NULL, 16);
+    desc.units = sdsnewlen(NULL, 16);
 
     /* unpack - iterate over series and extract descriptor for each */
     for (n = 0; n < nseries; n++) {
@@ -1890,9 +1886,9 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     if ((sts = series_inst_name_execute(settings, redis, &rp, &map, arg)) < 0)
 	goto done;
 
-    inst.instid = sdsnewlen("", 16);
-    inst.name = sdsnewlen("", 16);
-    inst.series = sdsnewlen("", 40);
+    inst.instid = sdsnewlen(NULL, 16);
+    inst.name = sdsnewlen(NULL, 16);
+    inst.series = sdsnewlen(NULL, 40);
 
     for (i = 0; i < nseries; i++) {
 	/* prepare command series */

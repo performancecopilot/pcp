@@ -579,6 +579,7 @@ newinterval(PARSER *lp, const char *string)
 	fprintf(stderr, "pmParseInterval delta: %s\n", error);
 	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
+	free(error);
     } else {
 	tp->deltas = sdsnew(string);
     }
@@ -596,6 +597,7 @@ parsetime(PARSER *lp, struct timeval *result, const char *string)
 	fprintf(stderr, "__pmParseTime: %s\n", error);
 	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
+	free(error);
     }
 }
 
@@ -642,6 +644,7 @@ newrange(PARSER *lp, const char *string)
 	fprintf(stderr, "pmParseInterval range: %s\n", error);
 	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
+	free(error);
     } else {
 	struct timeval offset;
 	gettimeofday(&offset, NULL);
