@@ -146,11 +146,12 @@ series_data_free(series_data *dp)
 static int
 series_split(sds string, pmSID **series)
 {
-    size_t		length = strlen(string);
+    size_t		length;
     int			nseries = 0;
 
     if (!string || !sdslen(string))
 	return 0;
+    length = strlen(string);
     if ((*series = sdssplitlen(string, length, ",", 1, &nseries)) == NULL)
 	return -ENOMEM;
     return nseries;

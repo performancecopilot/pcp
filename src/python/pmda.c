@@ -1184,7 +1184,7 @@ pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
                         "ii:pmda_pmid", keyword_list,
                         &item, &cluster))
         return NULL;
-    result = pmID_build(dispatch.domain, item, cluster);
+    result = pmID_build(dispatch.domain, cluster, item);
     return Py_BuildValue("i", result);
 }
 

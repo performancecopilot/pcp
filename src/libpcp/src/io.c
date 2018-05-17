@@ -387,7 +387,7 @@ __pmAccess(const char *path, int amode)
      * index_compress may alter the name in order to add a compression suffix,
      * so pass a copy of path.
      */
-    strncpy(tmpname, path, sizeof(tmpname));
+    pmsprintf(tmpname, sizeof(tmpname), "%s", path);
     compress_ix = index_compress(tmpname, sizeof(tmpname));
     if (pmDebugOptions.log) {
 	if (compress_ix == -1)
@@ -436,7 +436,7 @@ __pmFopen(const char *path, const char *mode)
      * index_compress may alter the name in order to add a compression suffix,
      * so pass a copy of path.
      */
-    strncpy(tmpname, path, sizeof(tmpname));
+    pmsprintf(tmpname, sizeof(tmpname), "%s", path);
     compress_ix = index_compress(tmpname, sizeof(tmpname));
     if (pmDebugOptions.log) {
 	if (compress_ix == -1)
@@ -616,7 +616,7 @@ __pmStat(const char *path, struct stat *buf)
      * index_compress may alter the name in order to add a compression suffix,
      * so pass a copy of path.
      */
-    strncpy(tmpname, path, sizeof(tmpname));
+    pmsprintf(tmpname, sizeof(tmpname), "%s", path);
     compress_ix = index_compress(tmpname, sizeof(tmpname));
     if (pmDebugOptions.log) {
 	if (compress_ix == -1)

@@ -744,7 +744,7 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         }
         names[0] = name;
 	num = pmLookupName (1, names, &found_pmid);
-	if (rc == PM_ERR_IPC) {
+	if (num == PM_ERR_IPC) {
 	    pmDestroyContext (c->context);
 	    c->context = -1;
 	}

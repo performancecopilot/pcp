@@ -40,7 +40,7 @@ extract_zone_protection(const char *bp, int node, const char *zonetype,
 	prot->node = node;
 	prot->value = value;
 	prot->lowmem = lowmem;
-	strncpy(prot->zone, zonetype, ZONE_NAMELEN);
+	pmsprintf(prot->zone, ZONE_NAMELEN, "%s", zonetype);
 	pmdaCacheStore(protected, PMDA_CACHE_ADD, prot_name, (void *)prot);
 	if (*endp != ',')
 	    break;
@@ -85,7 +85,7 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 	    changed = 1;
 	}
 	info->node = node;
-	strncpy(info->zone, zonetype, ZONE_NAMELEN);
+	pmsprintf(info->zone, ZONE_NAMELEN, "%s", zonetype);
 	/* inner loop to extract all values for this node */
 	while (values < ZONE_VALUES + 1 && fgets(buf, sizeof(buf), fp) != NULL) {
 	 

@@ -890,12 +890,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		    if (pmDebugOptions.logmeta)
 			fprintf(stderr, "__pmLogLoadMeta: corrupted json in labelset. jsonlen=%d\n", jsonlen);
 		    sts = PM_ERR_LOGREC;
+		    free(labelsets);
 		    free(tbuf);
 		    goto end;
 		}
 
 		if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
 		    sts = -oserror();
+		    free(labelsets);
 		    free(tbuf);
 		    goto end;
 		}
@@ -915,12 +917,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 			if (pmDebugOptions.logmeta)
 			    fprintf(stderr, "__pmLogLoadMeta: corrupted labelset. nlabels=%d\n", nlabels);
 			sts = PM_ERR_LOGREC;
+			free(labelsets);
 			free(tbuf);
 			goto end;
 		    }
 
 		    if ((labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
 			sts = -oserror();
+			free(labelsets);
 			free(tbuf);
 			goto end;
 		    }

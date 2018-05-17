@@ -350,7 +350,7 @@ do_data(__pmFILE *f, char *fname)
 	printf(" (+ %d <mark> records)", nmark);
     printf("]\n");
 
-    if (dflag) {
+    if (dflag && nmetric != 0) {
 	sum_bytes = 0;
 	qsort(metric_tab, nmetric, sizeof(metric_tab[0]), metric_compar);
 	for (metricp = metric_tab; metricp < &metric_tab[nmetric]; metricp++) {

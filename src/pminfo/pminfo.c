@@ -726,7 +726,7 @@ myinstseries(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen)
 	if ((ilabels = lookup_instance_labels(dp->indom, i)) != NULL)
 	    sets[count++] = ilabels;
 	/* merge all the labels down to each leaf instance */
-	if ((sts = pmMergeLabelSets(sets, count, buffer, buflen, 0, 0)) < 0) {
+	if ((sts = pmMergeLabelSets(sets, count, buffer, buflen, 0, 0)) > 0) {
 	    inst = ilabels ? ilabels->inst : lookup_instance_inum(dp->indom, i);
 	    iname = lookup_instance_name(dp->indom, inst);
 	    printf("    inst [%d or \"%s\"] series %s\n",
