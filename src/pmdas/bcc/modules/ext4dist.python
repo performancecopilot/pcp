@@ -1,0 +1,136 @@
+#
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA ext4dist module """
+
+# pylint: disable=invalid-name, line-too-long
+
+import os.path
+from bcc import BPF
+
+from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+
+#
+# BPF program
+#
+bpf_src = "modules/ext4dist.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'ext4dist'
+BASENS = 'ext4.latency.'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC runqlat module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.cache = {}
+        self.item_identifiers = ['open', 'read', 'write', 'fsync']
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        for item in self.item_identifiers:
+            self.items.append(
+                # Name - reserved - type - semantics - units - help
+                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ext4 {} latency distribution'.format(item)),
+            )
+        return True, self.items
+
+    @classmethod
+    def read_ext4_file_operations_addr(cls):
+        """ read address of ext4_file_operations symbol """
+        with open('/proc/kallsyms') as syms:
+            for line in syms:
+                (addr, _size, name) = line.rstrip().split(" ", 2)
+                name = name.split("\t")[0]
+                if name == "ext4_file_operations":
+                    return "0x" + addr
+        return ''
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            with open(os.path.dirname(__file__) + '/../' + bpf_src, 'r') as f:
+                bpf_text = f.read()
+
+            ops_addr = self.read_ext4_file_operations_addr()
+            if ops_addr == '':
+                self.err("ERROR: no ext4_file_operations in /proc/kallsyms. Exiting.")
+                self.err("HINT: the kernel should be built with CONFIG_KALLSYMS_ALL.")
+                self.bpf = None
+                return
+
+            bpf_text = bpf_text.replace('EXT4_FILE_OPERATIONS', ops_addr)
+            self.bpf = BPF(text=bpf_text)
+            self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
+            self.bpf.attach_kprobe(event="ext4_file_write_iter", fn_name="trace_entry")
+            self.bpf.attach_kprobe(event="ext4_file_open", fn_name="trace_entry")
+            self.bpf.attach_kprobe(event="ext4_sync_file", fn_name="trace_entry")
+            self.bpf.attach_kretprobe(event="generic_file_read_iter", fn_name="trace_read_return")
+            self.bpf.attach_kretprobe(event="ext4_file_write_iter", fn_name="trace_write_return")
+            self.bpf.attach_kretprobe(event="ext4_file_open", fn_name="trace_open_return")
+            self.bpf.attach_kretprobe(event="ext4_sync_file", fn_name="trace_fsync_return")
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    def label_cluster(self):
+        """ Cluster labels """
+        return '{"statistic":"histogram"}'
+
+    def label_instance(self, inst):
+        """ Label callback for an individual instance """
+        key = self.pmdaIndom.inst_name_lookup(inst)
+        bounds = key.split('-')
+        return '{"lower_bound":%s,"upper_bound":%s}' % (bounds[0], bounds[1])
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        dist = self.bpf.get_table("dist")
+        self.insts = self.read_log2_histograms(dist, self.cache)
+        dist.clear()
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            item_identifier = self.item_identifiers[item]
+            if item_identifier in self.cache and key in self.cache[item_identifier]:
+                return [self.cache[item_identifier][key], 1]
+            elif self.insts:
+                # BCC module is ready (we have histogram buckets), but doesn't contain
+                # the specified histogram bucket
+                return [0, 1]
+
+            # BCC module isn't ready yet
+            return [PM_ERR_AGAIN, 0]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]
