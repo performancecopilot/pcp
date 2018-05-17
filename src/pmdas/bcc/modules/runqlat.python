@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,12 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-""" PCP BCC PMDA biolatency module """
-
-# Configuration options
-# Name - type - default
-#
-# queued - boolean - False : include OS queued time in I/O time
+""" PCP BCC PMDA runqlat module """
 
 # pylint: disable=invalid-name, line-too-long
 
@@ -30,36 +25,25 @@ from cpmapi import PM_ERR_AGAIN
 #
 # BPF program
 #
-bpf_src = "modules/biolatency.bpf"
+bpf_src = "modules/runqlat.bpf"
 
 #
 # PCP BCC PMDA constants
 #
-MODULE = 'biolatency'
-METRIC = 'disk.all.latency'
+MODULE = 'runqlat'
+METRIC = 'kernel.all.runnable'
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 
 #
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC biolatency module """
+    """ PCP BCC runqlat module """
     def __init__(self, config, log, err):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
         self.cache = {}
-        self.queued = False
-
-        for opt in self.config.options(MODULE):
-            if opt == 'queued':
-                self.queued = self.config.getboolean(MODULE, opt)
-
-        if self.queued:
-            self.log("Including OS queued time in I/O time.")
-        else:
-            self.log("Excluding OS queued time from I/O time.")
-
         self.log("Initialized.")
 
     def metrics(self):
@@ -67,7 +51,7 @@ class PCPBCCModule(PCPBCCBase):
         name = METRIC
         self.items.append(
             # Name - reserved - type - semantics - units - help
-            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'block io latency distribution'),
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'run queue (scheduler) latency distribution'),
         )
         return True, self.items
 
@@ -75,12 +59,9 @@ class PCPBCCModule(PCPBCCBase):
         """ Compile BPF """
         try:
             self.bpf = BPF(src_file=bpf_src)
-            if self.queued:
-                self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
-                self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
-            else:
-                self.bpf.attach_kprobe(event="blk_account_io_start", fn_name="trace_req_start")
-            self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
+            self.bpf.attach_kprobe(event="ttwu_do_wakeup", fn_name="trace_ttwu_do_wakeup")
+            self.bpf.attach_kprobe(event="wake_up_new_task", fn_name="trace_wake_up_new_task")
+            self.bpf.attach_kprobe(event="finish_task_switch", fn_name="trace_run")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
