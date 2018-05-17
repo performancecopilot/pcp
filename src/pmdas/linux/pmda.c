@@ -5728,19 +5728,19 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	refresh_proc_net_raw(&proc_net_raw);
 
     if (need_refresh[CLUSTER_NET_RAW6])
-	refresh_proc_net_raw(&proc_net_raw6);
+	refresh_proc_net_raw6(&proc_net_raw6);
 
     if (need_refresh[CLUSTER_NET_TCP])
 	refresh_proc_net_tcp(&proc_net_tcp);
 
     if (need_refresh[CLUSTER_NET_TCP6])
-	refresh_proc_net_tcp(&proc_net_tcp6);
+	refresh_proc_net_tcp6(&proc_net_tcp6);
 
     if (need_refresh[CLUSTER_NET_UDP])
 	refresh_proc_net_udp(&proc_net_udp);
 
     if (need_refresh[CLUSTER_NET_UDP6])
-	refresh_proc_net_udp(&proc_net_udp6);
+	refresh_proc_net_udp6(&proc_net_udp6);
 
     if (need_refresh[CLUSTER_NET_UNIX])
 	refresh_proc_net_unix(&proc_net_unix);

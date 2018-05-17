@@ -14,7 +14,7 @@ network.rawconn6.count PMID: 60.78.1 [Number of raw6 socket connections]
     Semantics: instant  Units: count
 Help:
 Number of raw6 socket connections
-    value 0
+    value 2
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -129,7 +129,7 @@ network.tcpconn6.established PMID: 60.76.1 [Number of established tcp6 connectio
     Semantics: instant  Units: count
 Help:
 Number of established tcp6 connections
-    value 14
+    value 0
 
 network.tcpconn6.fin_wait1 PMID: 60.76.4 [Number of FIN_WAIT1 tcp6 connections]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -178,7 +178,7 @@ network.tcpconn6.time_wait PMID: 60.76.6 [Number of TIME_WAIT tcp6 connections]
     Semantics: instant  Units: count
 Help:
 Number of TIME_WAIT tcp6 connections
-    value 2
+    value 0
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -209,14 +209,14 @@ network.udpconn6.established PMID: 60.80.1 [Number of established udp6 connectio
     Semantics: instant  Units: count
 Help:
 Number of established udp6 connections
-    value 1
+    value 0
 
 network.udpconn6.listen PMID: 60.80.2 [Number of udp6 connections in listen state]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Number of udp6 connections in listen state
-    value 11
+    value 6
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
