@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 1118
+# Exercise the BCC PMDA runqlat module - install, remove and values.
+#
+# Copyright (c) 2018 Andreas Gerstmayr.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_value_filter()
+{
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+cat <<EOF | _pmdabcc_install
+[pmda]
+modules = runqlat
+prefix = bcc.
+[runqlat]
+module = runqlat
+cluster = 2
+EOF
+
+_pmdabcc_wait_for_metric
+
+# Generate system activity for the BCC runqlat module
+dd if=/dev/urandom bs=`expr 20 \* 1024 \* 1024` count=1 2>/dev/null | bzip2 -9 >> /dev/null
+
+echo "=== report metric values ==="
+pminfo -dfmtT bcc.kernel.all.runnable 2>&1 | tee -a $here/$seq.full \
+| _value_filter
+
+_pmdabcc_remove
+
+status=0
+exit

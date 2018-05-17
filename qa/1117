@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 1116
-# Exercise the BCC PMDA biotop module - install, remove and values.
+# PCP QA Test No. 1117
+# Exercise the BCC PMDA biolatency module - install, remove and values.
 #
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
@@ -21,18 +21,7 @@ out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
 
 _value_filter()
 {
-    cat > $tmp.value
-    echo === input to _value_filter >>$here/$seq.full
-    cat $tmp.value >> $here/$seq.full
-
-    _values=`awk '/inst.*value/ {print $NF}' $tmp.value`
-    for value in $_values
-    do
-        if _within_tolerance "Expecting ${write_size} +- 10%" $value ${write_size} 10%; then
-            echo "found value ${write_size} +- 10%"
-            break
-        fi
-    done
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
 }
 
 _prepare_pmda bcc
@@ -41,21 +30,21 @@ _stop_auto_restart pmcd
 
 cat <<EOF | _pmdabcc_install
 [pmda]
-modules = biotop
+modules = biolatency
 prefix = bcc.
-[biotop]
-module = biotop
+[biolatency]
+module = biolatency
 cluster = 2
 EOF
 
 _pmdabcc_wait_for_metric
 
-# Generate system activity for the BCC biotop module
+# Generate system activity for the BCC biolatency module
 # block device required here, no tmpfs (e.g. /tmp)
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.io.perdev 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.disk.all.latency 2>&1 | tee -a $here/$seq.full \
 | _value_filter
 
 _pmdabcc_remove
