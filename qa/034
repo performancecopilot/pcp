@@ -32,8 +32,8 @@ $sudo rm -f $seq.full
 
 for arch in tmparch/bar tmparch/mv-bar tmparch/noti-bar
 do
-    echo
-    echo "=== $arch ==="
+    echo | tee -a $here/$seq.full
+    echo "=== $arch ===" | tee -a $here/$seq.full
     pmdumplog $arch \
     | sed \
 	-e '/^[0-9]/{
@@ -58,6 +58,7 @@ s/\n/ /
 	      l[$2] = $1
 	    }
     END	{ for (i in n) {
+		#debug# print i,t[i],n[i]
 		printf "%d msec requested: ",i
 		if (n[i] != 0)
 		    ave = 1000*t[i]/n[i]
@@ -70,11 +71,11 @@ s/\n/ /
 		else if (i == 900 && 4 <= n[i] && n[i] <= 6)
 		    printf "no. of samples within range, "
 		else
-		    printf "no. of samples (%d) unexpected, ",n[i]
+		    printf "no. of samples (%d) unexpected, ",n[i]," not in range 4 ... 6"
 		if (0.9 * i <= ave && ave <= 1.1 * i)
 		    printf "avg within 10%% of requested delay\n"
 		else
-		    printf "avg (%.2f msec) outside 10%% of requested delay\n",1000*t[i]/n[i]
+		    printf "avg (%.2f msec) outside 10%% of requested delay range %.2f ... %.2f msec\n",1000*t[i]/n[i],0.9*i,1.1*i
 	      }
 	    }' \
     | LC_COLLATE=POSIX sort
