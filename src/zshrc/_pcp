@@ -600,6 +600,7 @@ _pcp () {
       "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
       "(-L --local-PMDA -a --archice -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-b --batch $exargs)"{-b+,--batch}'[set fetch batch size]:size:' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
       "(-f --force $exargs)"{-f,--force}'[report all instances]' \
