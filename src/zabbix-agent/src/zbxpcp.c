@@ -60,6 +60,8 @@
 
 static float zbx_version = ZBX_VERSION2;
 
+#define MAXBATCH 256
+
 /*
  * PCP connection
  */
@@ -123,6 +125,7 @@ int zbx_module_api_version()
 static int metric_count;
 static ZBX_METRIC *metrics;
 static void zbx_module_pcp_add_metric(const char *);
+static void zbx_module_pcp_add_params(const char *);
 
 ZBX_METRIC *zbx_module_item_list()
 {
@@ -133,6 +136,9 @@ ZBX_METRIC *zbx_module_item_list()
     /* Add PCP metrics to the Zabbix metric set.  */
     sts = pmTraversePMNS(ZBX_PCP_METRIC_BASE, zbx_module_pcp_add_metric);
     if (sts < 0 || !metric_count) { free(metrics); return empty; }
+
+    /* Update metrics with parameters (instances).  */
+    zbx_module_pcp_add_params(ZBX_PCP_METRIC_PREFIX);
 
     /* Finalize the Zabbix set.  */
     mptr = metrics;
@@ -163,21 +169,8 @@ static int zbx_module3_pcp_fetch_metric(AGENT_REQUEST *, AGENT_RESULT_V3 *);
 
 static void zbx_module_pcp_add_metric(const char *name)
 {
-    int sts;
-    pmID pmid[1];
-    pmDesc desc[1];
     char *metric;
-    unsigned flags = 0;
-    char *param = NULL;
-    int *instlist;
-    char **namelist;
     ZBX_METRIC *mptr = metrics;
-
-    /* PCP preparations.  */
-    sts = pmLookupName(1, (char **)&name, pmid);
-    if (sts < 0) return;
-    sts = pmLookupDesc(pmid[0], desc);
-    if (sts < 0) return;
 
     /* Construct the Zabbix metric name.  */
     metric = (char *)malloc(strlen(ZBX_PCP_METRIC_PREFIX) + strlen(name) + 1);
@@ -185,29 +178,78 @@ static void zbx_module_pcp_add_metric(const char *name)
     strcpy(metric, ZBX_PCP_METRIC_PREFIX);
     strcat(metric, name);
 
-    /* Pick a PCP metric instance for use with zabbix_agentd -p.  */
-    if (desc[0].indom != PM_INDOM_NULL) {
-        sts = pmGetInDom(desc[0].indom, &instlist, &namelist);
-        if (sts < 0) { free(metric); return; }
-        if (sts) {
-            flags = CF_HAVEPARAMS;
-            param = strdup(namelist[0]);
-            free(instlist);
-            free(namelist);
-        }
-    }
-
     /* Ready for Zabbix.  */
     metrics = (ZBX_METRIC *)realloc(mptr, (metric_count + 1) * sizeof(ZBX_METRIC));
-    if (metrics == NULL) { metrics = mptr; free(metric); free(param); return; }
+    if (metrics == NULL) { metrics = mptr; free(metric); return; }
     metrics[metric_count].key = metric;
-    metrics[metric_count].flags = flags;
+    metrics[metric_count].flags = 0;
     if (zbx_version >= ZBX_VERSION3)
 	metrics[metric_count].function = zbx_module3_pcp_fetch_metric;
     else
 	metrics[metric_count].function = zbx_module2_pcp_fetch_metric;
-    metrics[metric_count].test_param = param;
+    metrics[metric_count].test_param = NULL;
     metric_count++;
+}
+
+static void zbx_module_pcp_add_params(const char *prefix)
+{
+    const int prefixlen = strlen(prefix);
+    pmInDom lastindom = PM_INDOM_NULL;
+    char *lastinst = NULL;
+    char *names[MAXBATCH];
+    pmID pmid[MAXBATCH];
+    int batchsize;
+    int sts, i = 0;
+
+    /* Pick PCP metric instances for use with zabbix_agentd -p.  */
+    while (i < metric_count) {
+	char **namelist;
+	int n, *instlist;
+	pmDesc desc;
+
+	if ((batchsize = (metric_count - i)) > MAXBATCH)
+	    batchsize = MAXBATCH;
+
+	for (n = 0; n < batchsize; n++)
+	    names[n] = metrics[i+n].key + prefixlen;
+	sts = pmLookupName(batchsize, (char **)&names, pmid);
+	if (sts < 0) {
+	    i -= batchsize;
+	    continue;
+	}
+
+	for (n = 0; n < batchsize; n++, i++) {
+	    if (pmid[n] == PM_ID_NULL)
+		continue;
+
+	    sts = pmLookupDesc(pmid[n], &desc);
+	    if (sts < 0) continue;
+
+	    if (desc.indom == PM_INDOM_NULL)
+		continue;
+
+	    /* attempt to reuse the last cached indom/inst */
+	    if (desc.indom == lastindom) {
+		metrics[i].flags = CF_HAVEPARAMS;
+		metrics[i].test_param = strdup(lastinst);
+		continue;
+	    }
+
+	    sts = pmGetInDom(desc.indom, &instlist, &namelist);
+	    if (sts <= 0) continue;
+
+	    /* update the local cache */
+	    if ((lastinst = strdup(namelist[0])) != NULL) {
+		lastindom = desc.indom;
+	        metrics[i].flags = CF_HAVEPARAMS;
+	        metrics[i].test_param = lastinst;
+	    } else {
+		lastindom = PM_INDOM_NULL;
+	    }
+            free(instlist);
+            free(namelist);
+	}
+    }
 }
 
 static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtomValue *atom, char **errmsg)
@@ -222,7 +264,7 @@ static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtom
     int i;
 
     /* Parameter is the instance.  */
-    switch(request->nparam) {
+    switch (request->nparam) {
         case 0:
             inst = NULL;
             break;
@@ -317,7 +359,7 @@ static int zbx_module3_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT_V3 
 
     /* note: SET_*_RESULT macros evaluate to different code for v2/v3 */
     sts = zbx_module_pcp_fetch_metric(request, &type, &atom, &errmsg);
-    if (sts < 0) {
+    if (sts != SYSINFO_RET_OK) {
         if (errmsg)
             SET_MSG_RESULT(result, strdup(errmsg));
         return sts;
@@ -362,7 +404,7 @@ static int zbx_module2_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT_V2 
 
     /* note: SET_*_RESULT macros evaluate to different code for v2/v3 */
     sts = zbx_module_pcp_fetch_metric(request, &type, &atom, &errmsg);
-    if (sts < 0) {
+    if (sts != SYSINFO_RET_OK) {
         if (errmsg)
             SET_MSG_RESULT(result, strdup(errmsg));
         return sts;

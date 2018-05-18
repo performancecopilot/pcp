@@ -20,6 +20,24 @@ test -f /etc/zabbix/zabbix_agentd.conf || \
 test -f /etc/zabbix/zabbix_agent.d/zbxpcp.conf || \
 	_notrun "Zabbix agent PCP module is not installed"
 
+case "$PCP_PLATFORM"
+in
+    darwin)
+       export ZBXPCP=zbxpcp.dylib
+       ;;
+    mingw)
+       export ZBXPCP=zbxpcp.dll
+       ;;
+    *)
+       export ZBXPCP=zbxpcp.so
+       ;;
+esac
+
+cat <<EOF > $tmp.conf
+LoadModulePath=$PCP_LIB_DIR/zabbix/modules
+LoadModule=$ZBXPCP
+EOF
+
 status=1	# failure is the default!
 need_control=false
 need_derived=false
@@ -61,26 +79,28 @@ _filter_values()
 }
 
 # real QA test starts here
+zabbix_agentd="zabbix_agentd -c $tmp.conf"
+
 echo "== request specific values"
 
 # verify values for single metrics/instances
-zabbix_agentd -t pcp.sample.long.one
-zabbix_agentd -t 'pcp.sample.long.bin[bin-100]'
-zabbix_agentd -t pcp.sample.ulonglong.million
-zabbix_agentd -t pcp.sample.float.hundred
-zabbix_agentd -t pcp.sample.double.ten
+$zabbix_agentd -t pcp.sample.long.one
+$zabbix_agentd -t 'pcp.sample.long.bin[bin-100]'
+$zabbix_agentd -t pcp.sample.ulonglong.million
+$zabbix_agentd -t pcp.sample.float.hundred
+$zabbix_agentd -t pcp.sample.double.ten
 
 # string metrics
-zabbix_agentd -t pcp.sample.string.null
-zabbix_agentd -t pcp.sample.string.hullo
+$zabbix_agentd -t pcp.sample.string.null
+$zabbix_agentd -t pcp.sample.string.hullo
 
 # aggregate/event metrics
-zabbix_agentd -t pcp.sample.aggregate.hullo
-zabbix_agentd -t 'pcp.sample.event.records[fungus]'
+$zabbix_agentd -t pcp.sample.aggregate.hullo
+$zabbix_agentd -t 'pcp.sample.event.records[fungus]'
 
 # other error cases
-zabbix_agentd -t pcp.sample.bad.nosupport
-zabbix_agentd -t pcp.sample.bad.novalues
+$zabbix_agentd -t pcp.sample.bad.nosupport
+$zabbix_agentd -t pcp.sample.bad.novalues
 
 # verify enumeration of all metrics
 echo "== enumerated names and filtered values"
@@ -88,15 +108,15 @@ $sudo rm -f $control	# control the dynamic indom
 echo '1 one' >$tmp.indom
 echo '2 two' >>$tmp.indom
 $sudo cp $tmp.indom $control
-zabbix_agentd -p | fgrep pcp.sample. | _filter_values
+$zabbix_agentd -p | fgrep pcp.sample. | _filter_values
 
 # derived metrics
 echo "== check derived metric configuration"
 echo mem.util.allcache = mem.util.cached + mem.util.slab | tee $tmp.derived
 echo sample.derived.hundredten = sample.float.hundred + sample.double.ten | tee -a $tmp.derived
 $sudo cp $tmp.derived $derived
-zabbix_agentd -t pcp.mem.util.allcache | _filter_values
-zabbix_agentd -t pcp.sample.derived.hundredten | _filter_values
+$zabbix_agentd -t pcp.mem.util.allcache | _filter_values
+$zabbix_agentd -t pcp.sample.derived.hundredten | _filter_values
 
 $sudo rm -f $control $derived
 
