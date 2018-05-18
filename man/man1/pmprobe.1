@@ -21,6 +21,7 @@
 \f3pmprobe\f1
 [\f3\-fFIiLVvz\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\-b\f1 \f2batchsize\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
@@ -86,6 +87,32 @@ and
 .B \-h
 options are mutually exclusive.
 .PP
+The \fB\-b\fR/\fB\-\-batch\fR option may be used to define the maximum size of
+the group of metrics to be fetched in a single request for the
+\fB\-v/\fB\-\-values\fR option.
+This batching is also applied to the
+.BR pmLookupName (3)
+request that
+.B pmprobe
+calls with the list of leaf metric names, to avoid exceeding the maximum PDU length
+supported by
+.BR pmcd (1)
+for client requests.
+This can be important for
+.BR pmlogconf (1),
+which uses
+.B pmprobe
+to enumerate the set of metrics to be logged by
+.BR pmlogger (1).
+The default value for
+.I batchsize
+is 128.
+This option is useful to avoid limitations on PDU request sizes
+and also to stagger fetches, which may otherwise timeout if
+.BR pmcd (1)
+or a PMDA is slow to respond, particularly if a large
+number of metrics are probed.
+.PP
 The
 .B \-L
 option causes
@@ -93,7 +120,8 @@ option causes
 to use a local context to collect metrics from PMDAs on the local host
 without PMCD.  Only some metrics are available in this mode.
 The
-.BR \-a , \-h
+.BR \-a ,
+.B \-h
 and
 .B \-L
 options are mutually exclusive.

@@ -41,6 +41,8 @@ static pmLongOptions longopts[] = {
     PMOPT_HOSTZONE,
     { "version", 0, 'd', 0, "display version number and exit" },
     PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Protocol options"),
+    { "batch",    1, 'b', "N", "fetch at most N metrics at a time [128]" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "force", 0, 'f', 0, "report all pmGetIndom or pmGetInDomArchive instances" },
     { "faster", 0, 'F', 0, "assume given metric names are PMNS leaf nodes" },
@@ -61,7 +63,7 @@ overrides(int opt, pmOptions *opts)
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:D:efh:IiK:Ln:FO:VvZ:z?",
+    .short_options = "a:b:D:efh:IiK:Ln:FO:VvZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [metricname ...]",
     .override = overrides,
@@ -122,13 +124,29 @@ main(int argc, char **argv)
     int		Iflag = 0;		/* -I for instance names */
     int		vflag = 0;		/* -v for values */
     int		Vflag = 0;		/* -V for verbose */
+    int		batchsize = 128;	/* -b batchsize for pmFetch in live mode only */
     char	*source;
     pmResult	*result;
     pmValueSet	*vsp;
     pmDesc	desc;
+    int		batch;
+    int		batchidx;
+    int		batchbytes;
+    char	*endnum;
+    int		ceiling = PDU_CHUNK * 64;
+    int		newnumpmid;
+    int		b;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	case 'b':           /* batchsize */
+	    batchsize = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		pmprintf("%s: -b requires numeric argument\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    break;
 
 	case 'f':	/* pmGetIndom or pmGetInDomArchive for instances with -i or -I */
 	    fflag++;
@@ -229,55 +247,71 @@ main(int argc, char **argv)
 	}
     }
 
-    /* Lookup names.
+    /* Lookup names, in batches if necessary to avoid the 64k PDU size ceiling.
      * Cull out names that were unsuccessfully looked up.
      * However, it is unlikely to fail because names come from a traverse PMNS.
      */
-    if (numpmid > 0 && (sts = pmLookupName(numpmid, namelist, pmidlist)) < 0) {
-	for (i = j = 0; i < numpmid; i++) {
-	    if (pmidlist[i] == PM_ID_NULL) {
-		printf("%s %d %s\n", namelist[i], sts, pmErrStr(sts));
-		free(namelist[i]);
+    for (newnumpmid = batchidx = 0; batchidx < numpmid;) {
+	/* figure out batch size (normally all numpmid for small requests) */ 
+	for (b=0, batchbytes=0; b + batchidx < numpmid; b++) {
+	    int len = strlen(namelist[batchidx + b]) + 32; /* approx PDU len, per name */
+	    if ( b > batchsize || len + batchbytes >= ceiling) {
+		/* do not exceed requested batch size, nor the PDU ceiling */
+		b--; /* back off one */
+	    	break;
 	    }
-	    else {
-		/* assert(j <= i); */
-		pmidlist[j] = pmidlist[i];
-		namelist[j] = namelist[i];
-		j++;
-	    }	
+	    batchbytes += len;
 	}
-	numpmid = j;
+	if (pmDebugOptions.appl0) {
+	    pmprintf("%s: name lookup, batchidx=%d batchbytes=%d b=%d\n",
+		pmGetProgname(), batchidx, batchbytes, b);
+	}
+	if (b > 0 && (sts = pmLookupName(b, namelist + batchidx, pmidlist + batchidx)) < 0) {
+	    for (i = j = 0; i < b; i++) {
+		if (pmidlist[batchidx + i] == PM_ID_NULL) {
+		    printf("%s %d %s\n", namelist[batchidx + i], sts, pmErrStr(sts));
+		    free(namelist[batchidx + i]);
+		}
+		else {
+		    /* assert(j <= i); */
+		    pmidlist[batchidx + j] = pmidlist[batchidx + i];
+		    namelist[batchidx + j] = namelist[batchidx + i];
+		    j++;
+		}
+	    }
+	    newnumpmid += j;
+	}
+	else
+	    newnumpmid += b;
+	batchidx += b;
     }
+    numpmid = newnumpmid;
 
     fetch_sts = fetched = 0;
-    for (i = 0; i < numpmid; i++) {
-	printf("%s ", namelist[i]);
-
-	if (iflag || Iflag || vflag) {
-	    if ((sts = pmLookupDesc(pmidlist[i], &desc)) < 0) {
-		printf("%d %s (pmLookupDesc)\n", sts, pmErrStr(sts));
-		continue;
-	    }
-	}
-
+    for (i = 0; i < numpmid; i += batch) {
+	batch = 1;
 	if (fflag && (iflag || Iflag)) {
 	    /*
 	     * must be -i or -I with -f ... don't even fetch a result
 	     * with pmFetch, just go straight to the instance domain with
 	     * pmGetInDom or pmGetInDomArchive
 	     */
+	    if ((sts = pmLookupDesc(pmidlist[i], &desc)) < 0) {
+		printf("%s %d %s (pmLookupDesc)\n", namelist[i], sts, pmErrStr(sts));
+		continue;
+	    }
 	    if (desc.indom == PM_INDOM_NULL) {
-		printf("1 PM_IN_NULL");
+		printf("%s 1 PM_IN_NULL", namelist[i]);
 		if ( iflag && Iflag )
 		    printf(" PM_IN_NULL");
 	    }
 	    else {
 		if ((numinst = lookup(desc.indom)) < 0) {
-		    printf("%d %s (pmGetInDom)", numinst, pmErrStr(numinst));
+		    printf("%s %d %s (pmGetInDom)", namelist[i], numinst, pmErrStr(numinst));
 		}
 		else {
 		    int		j;
-		    printf("%d", numinst);
+		    printf("%s %d", namelist[i], numinst);
 		    for (j = 0; j < numinst; j++) {
 			if (iflag)
 			    printf(" ?%d", instlist[j]);
@@ -293,28 +327,45 @@ main(int argc, char **argv)
 	if (opts.context == PM_CONTEXT_ARCHIVE) {
 	    /*
 	     * merics from archives are fetched one at a time, otherwise
-	     * get them all at once
+	     * get them in batches of at most batchsize.
 	     */
 	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
 		printf("%d %s (pmSetMode)\n", sts, pmErrStr(sts));
 		continue;
 	    }
-	    fetch_sts = pmFetch(1, &pmidlist[i], &result);
+	    fetch_sts = pmFetch(1, &pmidlist[fetched], &result);
+	    batch = 1;
 	}
 	else {
-	    if (!fetched)
-		fetch_sts = pmFetch(numpmid, pmidlist, &result);
-	    fetched = 1;
+	    int remaining = numpmid - fetched;
+
+	    batch = (remaining > batchsize) ? batchsize : remaining;
+	    fetch_sts = pmFetch(batch, &pmidlist[fetched], &result);
+	    if (pmDebugOptions.appl0) {
+		pmprintf("%s: batch fetch, numpmid=%d i=%d fetched=%d remaining=%d batch=%d\n",
+		    pmGetProgname(), numpmid, i, fetched, remaining, batch);
+	    }
+	}
+	if (fetch_sts < 0) {
+	    printf("%s %d %s (pmFetch)\n", namelist[fetched], fetch_sts, pmErrStr(fetch_sts));
+	    fetched += batch;
+	    continue;
 	}
 
-	if (fetch_sts < 0) {
-	    printf("%d %s (pmFetch)", fetch_sts, pmErrStr(fetch_sts));
-	}
-	else {
-	    if (opts.context == PM_CONTEXT_ARCHIVE)
-	    	vsp = result->vset[0];
-	    else
-	    	vsp = result->vset[i];
+	/*
+	 * loop and report for each value set in the batched result
+	 */
+	for (b=0; b < batch; b++) {
+	    printf("%s ", namelist[fetched + b]);
+	    vsp = result->vset[b];
+
+	    if (iflag || Iflag || vflag) {
+		/* get the desc for this metric valueset */
+		if ((sts = pmLookupDesc(pmidlist[fetched + b], &desc)) < 0) {
+		    printf("%d %s (pmLookupDesc)\n", sts, pmErrStr(sts));
+		    continue;
+		}
+	    }
 
 	    if (vsp->numval < 0) {
 		printf("%d %s", vsp->numval, pmErrStr(vsp->numval));
@@ -369,8 +420,10 @@ main(int argc, char **argv)
 		    }
 		}
 	    }
+	    putchar('\n');
 	}
-	putchar('\n');
+
+	fetched += batch;
     }
 
     if (Vflag) {
