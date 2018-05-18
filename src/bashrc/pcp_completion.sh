@@ -69,8 +69,8 @@ _pcp_complete()
         arg_regex="-[BnpSTZ]"
     ;;
     pmprobe)
-        all_args="adfFhIiKLnOVvZz"
-        arg_regex="-[ahKnOZ]"
+        all_args="abdfFhIiKLnOVvZz"
+        arg_regex="-[abhKnOZ]"
     ;;
     pmrep)
         all_args="012389AaBbCcdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz"
