@@ -391,14 +391,14 @@ __pmParseLabels(const char *s, int slen,
 	    break;
 
 	case NAME:
+	    namelen = token->end - token->start;
 	    if (token->type != JSMN_STRING) {
 		if (pmDebugOptions.labels)
-		    pmNotifyErr(LOG_ERR, "Label name must be JSON string");
+		    pmNotifyErr(LOG_ERR, "Label name must be JSON string not type %d %.*s", token->type, (int)namelen, s + token->start);
 		sts = -EINVAL;
 		goto done;
 	    }
 
-	    namelen = token->end - token->start;
 	    if (namelen >= MAXLABELNAMELEN) {	/* will the name fit too? */
 		if (pmDebugOptions.labels)
 		    pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
@@ -700,6 +700,8 @@ labelfile(const char *path, const char *file, char *buf, int buflen)
     bytes = fread(buf, 1, buflen-1, fp);
     fclose(fp);
     buf[bytes] = '\0';
+    if (pmDebugOptions.labels)
+	fprintf(stderr, "labelfile: loaded from %s:\n%s", file, buf);
     return bytes;
 }
 
@@ -789,7 +791,7 @@ local_host_labels(char *buffer, int buflen)
 	pmsprintf(host, sizeof(host), "localhost");
     else
 	host[sizeof(host)-1] = '\0';
-    if (getdomainname(domain, sizeof(domain)) < 0 || !strcmp(domain, "(none)"))
+    if (getdomainname(domain, sizeof(domain)) < 0 || domain[0] == '\0' || strcmp(domain, "(none)") == 0)
 	pmsprintf(domain, sizeof(domain), "localdomain");
     else
 	domain[sizeof(domain)-1] = '\0';
