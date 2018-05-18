@@ -1064,17 +1064,17 @@ class DstatTool(object):
             sys.stderr.write("%s: failed to read configuration file(s)" % path)
 
     def show_config_plugins(self, config, cols):
+        plugins = sorted(config.sections())
         cols2 = cols - 8
-        for i, mod in enumerate(sorted(config.sections())):
-            cols2 = cols2 - len(mod)
-            if i != 0:
-                sys.stdout.write(', ')
-                cols2 -= 2
-            sys.stdout.write(mod)
+        for mod in plugins:
+            cols2 = cols2 - len(mod) - 2
             if cols2 <= 0:
                 sys.stdout.write('\n\t')
                 cols2 = cols - len(mod) - 10
-        print()
+            if mod != plugins[-1]:
+                sys.stdout.write("%s, " % mod)
+        if mod != None:
+            sys.stdout.write("%s\n" % mod)
 
     def show_version(self):
         self.connect()
