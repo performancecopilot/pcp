@@ -298,6 +298,7 @@ getdate.tab.o
     yytable                	# const
     yytranslate            	# const
 getopt.o
+    ?paths                	# const, may be optimized away
     ?fallback                	# const, may be optimized away
 hash.o
 help.o
