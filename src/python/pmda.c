@@ -1178,11 +1178,11 @@ pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int result;
     int cluster, item;
-    char *keyword_list[] = {"item", "cluster", NULL};
+    char *keyword_list[] = {"cluster", "item", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "ii:pmda_pmid", keyword_list,
-                        &item, &cluster))
+                        &cluster, &item))
         return NULL;
     result = pmID_build(dispatch.domain, cluster, item);
     return Py_BuildValue("i", result);
