@@ -33,11 +33,6 @@ in
        ;;
 esac
 
-cat <<EOF > $tmp.conf
-LoadModulePath=$PCP_LIB_DIR/zabbix/modules
-LoadModule=$ZBXPCP
-EOF
-
 status=1	# failure is the default!
 need_control=false
 need_derived=false
@@ -78,9 +73,13 @@ _filter_values()
     #end
 }
 
+cat <<EOF > $tmp.conf
+LoadModulePath=$PCP_LIB_DIR/zabbix/modules
+LoadModule=$ZBXPCP
+EOF
+
 # real QA test starts here
 zabbix_agentd="zabbix_agentd -c $tmp.conf"
-
 echo "== request specific values"
 
 # verify values for single metrics/instances
