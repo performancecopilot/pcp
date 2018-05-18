@@ -1371,7 +1371,7 @@ in
 	na='python3-bpfcc'
 	;;
     vm29)
-	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel'
+	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel python-openpyxl'
     	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
