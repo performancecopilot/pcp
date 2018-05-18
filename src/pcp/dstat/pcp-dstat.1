@@ -1,0 +1,583 @@
+'\"macro stdmacro
+.\" Copyright (c) 2018 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-DSTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-dstat\f1 \- versatile tool for generating system resource statistics
+.SH SYNOPSIS
+\f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f2dstat\ options\f1] [\f2delay\f1 [\f2count\f1]]
+.SH DESCRIPTION
+.B pcp-dstat
+is a general performance analysis tool allowing you to view multiple
+system resources instantly, for example you can compare disk usage in
+combination with interrupts from a disk controller, or compare the
+network bandwidth numbers directly with the disk throughput (in the
+same interval).
+.PP
+It also cleverly gives you the most detailed information in columns
+and clearly indicates in what magnitude and unit the output is being
+displayed.
+Less confusion, fewer mistakes, more efficient.
+.PP
+The
+.I delay
+is the delay in seconds between each update, and the
+.I count
+is the number of updates to display before exiting.
+The default
+.I delay
+is 1 second and
+.I count
+is unspecified (run until interrupted or end of archive is reached).
+.PP
+This latest generation of Dstat,
+.BR pcp-dstat ,
+allows for analysis of historical performance data (in the PCP archive
+format created by
+.BR pmlogger (1)),
+as well as distributed systems analysis of live performance data from
+remote hosts running the
+.BR pmcd (1)
+process.
+.PP
+Additionally, this version introduces configuration files similar to
+.BR pmrep.conf (5)
+from the
+.BR pmrep (1)
+utility.
+The original Dstat notion of ``plugins'' is replaced by use of named
+metrics in a Performance Metric Name Space (\c
+.BR PMNS (5)) suppliced by Performance Metric Domain Agents (PMDAs).
+Metrics and other formatting information is now specified as plugin
+configuration files.
+This new style of plugin is either built-in (time-related reporting
+only), or sourced from the system-wide location (\c
+.IR $PCP_ETC_DIR/dstat )
+and/or sourced from an individual users set of personal plugins (\c
+.IR $HOME/pcp/dstat ).
+.PP
+The list of all available plugins can be seen using the \fB\-\-list\fR
+dstat command line option.
+.SH OPTIONS
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other
+.I pcp options
+become indirectly available.
+.PP
+The available \f2dstat options\f1 are:
+.TP
+\fB\-\-list\fR
+list all available plugin names
+.TP 5
+\fB\-\-plugin\-name
+enable any plugin by name
+.TP
+\fB\-a\fR, \fB\-\-all\fR
+equals \fB\-cdngy\fR (default plugin set)
+.TP
+\fB\-c\fR, \fB\-\-cpu\fR
+enable cpu stats (system, user, idle, wait), for more CPU related stats also see
+\fB\-\-cpu\-adv\fR
+and
+\fB\-\-cpu\-use\fR.
+.TP
+\fB\-C\fR \fI0,3,total\fR
+include cpu0, cpu3 and total (when using \fB\-c\fR/\fB\-\-cpu\fR); use
+\fIall\fR
+to show all CPUs
+.TP
+\fB\-d\fR, \fB\-\-disk\fR
+enable disk stats (read, write), for more disk related stats look into the other
+\fB\-\-disk\fR
+plugins.
+.TP
+\fB\-D\fR \fItotal,hda\fR
+include \fItotal\fR and \fIhda\fR (when using \fB\-d\fR/\fB\-\-disk\fR)
+.TP
+\fB\-g\fR, \fB\-\-page\fR
+enable page stats (page in, page out)
+.TP
+\fB\-i\fR, \fB\-\-int\fR
+enable interrupt stats
+.TP
+\fB\-I\fR \fI5,10\fR
+include interrupt 5 and 10 (when using \fB\-i\fR/\fB\-\-int\fR)
+.TP
+\fB\-l\fR, \fB\-\-load\fR
+enable load average stats (1 min, 5 mins, 15mins)
+.TP
+\fB\-m\fR, \fB\-\-mem\fR
+enable memory stats (used, buffers, cache, free); for more memory related stats also try
+\fB\-\-mem\-adv\fR
+and
+\fB\-\-swap\fR
+.TP
+\fB\-n\fR, \fB\-\-net\fR
+enable network stats (receive, send)
+.TP
+\fB\-N\fR \fIeth1,total\fR
+include \fIeth1\fR and \fItotal\fR (when using \fB\-n\fR/\fB\-\-net\fR)
+.TP
+\fB\-\-net\-packets\fR
+show the number of packets received and transmitted
+.TP
+\fB\-p\fR, \fB\-\-proc\fR
+enable process stats (runnable, uninterruptible, new)
+.TP
+\-\-proc\-count
+show total number of processes
+.TP
+\fB\-r\fR, \fB\-\-io\fR
+enable I/O request stats (read, write requests)
+.TP
+\fB\-s\fR, \fB\-\-swap\fR
+enable swap stats (used, free)
+.TP
+\fB\-S\fR \fIswap1,total\fR
+include swap1 and total (when using \fB\-s\fR/\fB\-\-swap\fR)
+.PP
+\fB\-\-snooze\fR
+show time spent between updates in seconds
+.TP
+\fB\-t\fR, \fB\-\-time\fR
+enable time/date output (try \fB\-\-time-adv\fR for millisecond precision)
+.TP
+\fB\-T\fR, \fB\-\-epoch\fR
+enable time counter (seconds since epoch, or millisecond precision from
+the \fB\-\-epoch-adv\fR plugin)
+.TP
+\fB\-y\fR, \fB\-\-sys\fR
+enable system stats (interrupts, context switches)
+.TP
+\fB\-\-aio\fR
+enable aio stats (asynchronous I/O)
+.TP
+\fB\-\-cpu\-adv\fR
+enable advanced cpu stats
+.TP
+\fB\-\-cpu\-use\fR
+enable only cpu usage stats
+.TP
+\fB\-\-disk\-avgqu\fR
+average queue length of the requests that were issued to the device
+.TP
+\fB\-\-disk\-avgrq\fR
+average size (in sectors) of the requests that were issued to the device
+.TP
+\fB\-\-disk\-svctm\fR
+average service time (in milliseconds) for I/O requests that were issued to the device
+.TP
+\fB\-\-disk\-tps\fR
+number of transfers per second that were issued to the device
+.TP
+\fB\-\-disk\-util\fR
+percentage of CPU time during which I/O requests were issued to the device (bandwidth utilization for the device)
+.TP
+\fB\-\-disk\-wait\fR
+average time (in milliseconds) for I/O requests issued to the device to be served
+.TP
+\fB\-\-fs\fR, \fB\-\-filesystem\fR
+enable filesystem stats (open files, inodes)
+.TP
+\fB\-\-freespace\fR
+per filesystem used and available space
+.TP
+\fB\-\-ipc\fR
+enable ipc stats (message queue, semaphores, shared memory)
+.TP
+\fB\-\-lock\fR
+enable file lock stats (posix, flock, read, write)
+.TP
+\fB\-\-mem\-adv\fR
+enable advanced memory stats
+.TP
+\fB\-\-raw\fR
+enable raw stats (raw sockets)
+.TP
+\fB\-\-socket\fR
+enable socket stats (total, tcp, udp, raw, ip\-fragments)
+.TP
+\fB\-\-tcp\fR
+enable tcp stats (listen, established, syn, time_wait, close)
+.TP
+\fB\-\-udp\fR
+enable udp stats (listen, active)
+.TP
+\fB\-\-unix\fR
+enable unix stats (datagram, stream, listen, active)
+.TP
+\fB\-\-utmp\fR
+shows login information from
+.BR utmp (5)
+.TP
+\fB\-\-vm\fR
+enable virtual memory stats (hard pagefaults, soft pagefaults, allocated, free)
+.TP
+\fB\-\-vm\-adv\fR
+enable advance virtual memory stats (steal, scanK, scanD, pgoru, astll)
+.TP
+\fB\-\-nfs3\fR
+show NFS v3 client operations
+.TP
+\fB\-\-nfs3\-ops\fR
+show extended NFS v3 client operations
+.TP
+\fB\-\-nfsd3\fR
+show NFS v3 server operations
+.TP
+\fB\-\-nfsd3\-ops\fR
+show extended NFS v3 server operations
+.TP
+\fB\-\-nfsd4\-ops\fR
+show extended NFS v4 server operations
+.TP
+\fB\-\-nfsstat4\fR
+show NFS v4 stats
+.TP
+\fB\-\-rpc\fR
+show remote proceduce call (RPC) client calls stats
+.TP
+\fB\-\-rpcd\fR
+show remote proceduce call (RPC) server calls stats
+.TP
+\fB\-\-top\-bio\fR
+show most expensive block I/O process
+.TP
+\fB\-\-top\-bio\-adv\fR
+show most expensive block I/O process (incl\&. pid and other stats)
+.TP
+\fB\-\-top\-childwait\fR
+show process waiting for child the most
+.TP
+\fB\-\-top\-cpu\fR
+show most expensive CPU process
+.TP
+\fB\-\-top\-cpu\-adv\fR
+show most expensive CPU process (incl\&. pid and other stats)
+.TP
+\fB\-\-top\-cputime\fR
+show process using the most CPU time (in milliseconds)
+.TP
+\fB\-\-top\-cputime\-avg\fR
+show process with the highest average timeslice (in milliseconds)
+.TP
+\fB\-\-top\-int
+show most frequent interrupt\fR
+.TP
+\fB\-\-top\-io
+show most expensive I/O process\fR
+.TP
+\fB\-\-top\-io\-adv\fR
+show most expensive I/O process (incl\&. pid and other stats)
+.TP
+\fB\-\-top\-latency\fR
+show process with highest total latency (in milliseconds)
+.TP
+\fB\-\-top\-latency\-avg\fR
+show process with the highest average latency (in milliseconds)
+.TP
+\fB\-\-top\-mem\fR
+show process using the most memory
+.TP
+\fB\-\-top\-oom\fR
+show process that will be killed by the out-of-memory (OOM) killer the first
+.TP
+\fB\-f\fR, \fB\-\-full\fR
+expand \fB\-C\fR, \fB\-D\fR, \fB\-I\fR, \fB\-N\fR and \fB\-S\fR discovery lists
+.TP
+\fB\-v\fR, \fB\-\-vmstat\fR
+equals \fB\-pmgdsc \-D total\fR
+.TP
+\fB\-\-bits\fR
+force bits for values expressed in bytes
+.TP
+\fB\-\-float\fR
+force float values on screen (mutually exclusive with
+\fB\-\-integer\fR)
+.TP
+\fB\-\-integer\fR
+force integer values on screen (mutually exclusive with
+\fB\-\-float\fR)
+.TP
+\fB\-\-bw\fR, \fB\-\-blackonwhite\fR
+change colors for white background terminal
+.TP
+\fB\-\-nocolor\fR
+disable colors
+.TP
+\fB\-\-noheaders\fR
+disable repetitive headers
+.TP
+\fB\-\-noupdate\fR
+disable intermediate updates when \fIdelay\fR greater than 1.
+.TP
+\fB\-\-output file\fR
+write CSV output to file
+.PP
+.SH OPTIONAL METRICS PLUGINS
+Some
+.B pcp-dstat
+configuration files require the installation of optional
+Performance Metric Domain Agents, above and beyond the
+default installed set.
+.TP 5
+\fB\-\-innodb\-buffer\fR
+show innodb buffer stats (needs the MySQL PMDA)
+.TP
+\fB\-\-innodb\-io\fR
+show innodb I/O stats (needs the MySQL PMDA)
+.TP
+\fB\-\-innodb\-ops\fR
+show innodb operations counters (needs the MySQL PMDA)
+.TP
+\fB\-\-lustre\fR
+show lustre I/O throughput (needs the Lustre PMDA)
+.TP
+\fB\-\-memcache\-hits\fR
+show the number of hits and misses from memcache
+.TP
+\fB\-\-mysql5\-cmds\fR
+show the MySQL5 command stats (needs the MySQL PMDA)
+.TP
+\fB\-\-mysql5\-conn\fR
+show the MySQL5 connection stats (needs the MySQL PMDA)
+.TP
+\fB\-\-mysql5\-innodb\fR
+show the MySQL5 innodb stats (needs the MySQL PMDA)
+.TP
+\fB\-\-mysql5\-io\fR
+show the MySQL5 I/O stats (needs the MySQL PMDA)
+.TP
+\fB\-\-mysql5\-keys\fR
+show the MySQL5 keys stats (needs the MySQL PMDA)
+.TP
+\fB\-\-mysql\-io\fR
+show the MySQL I/O stats (needs the MySQL PMDA)
+.TP
+\fB\-\-mysql\-keys\fR
+show the MySQL keys stats (needs the MySQL PMDA)
+.TP
+\fB\-\-postfix\fR
+show postfix queue sizes (needs the Postfix PMDA)
+.TP
+\fB\-\-redis\fR
+show Redis stats (needs the Redis PMDA)
+.TP
+\fB\-\-sendmail\fR
+show sendmail queue size (needs the Sendmail PMDA)
+.SH HISTORICAL METRICS PLUGINS
+Anyone can create additional, custom
+.B pcp-dstat
+plugin configuration files, for any metrics \- the list of
+available metrics can be produced by either the
+.BR pminfo (1)
+or
+.BR pmprobe (1)
+command.
+.PP
+The following do not yet have metrics backing them, but have
+been included from the original Dstat utility.
+Please contact
+.I <pcp@groups.io>
+if you need or implement any of these, and we'll work with
+you to get them included.
+.TP 5
+\fB\-\-battery\fR
+battery in percentage (needs an ACPI PMDA)
+.TP
+\fB\-\-battery\-remain\fR
+battery remaining in hours, minutes (needs an ACPI PMDA)
+.TP
+\fB\-\-cpufreq\fR
+CPU frequency in percentage (needs an ACPI PMDA)
+.TP
+\fB\-\-dbus\fR
+number of dbus connections (needs a python\-dbus PMDA)
+.TP
+\fB\-\-fan\fR
+fan speed (needs an ACPI PMDA)
+.TP
+\fB\-\-gpfs\fR
+GPFS read/write I/O (needs mmpmon and a GPFS PMDA)
+.TP
+\fB\-\-gpfs\-ops\fR
+GPFS filesystem operations (needs mmpmon and a GPFS PMDA)
+.TP
+\fB\-\-md\-status\fR
+show software raid (MD driver) progress and speed (needs new \fIdisk.md\fR metrics)
+.TP
+\fB\-\-power\fR
+show power usage (needs an ACPI PMDA)
+.TP
+\fB\-\-qmail\fR
+show qmail queue sizes (needs qmail)
+.TP
+\fB\-\-squid\fR
+show squid usage statistics (needs a Squid PMDA)
+.TP
+\fB\-\-thermal\fR
+system temperature sensors (needs an ACPI PMDA)
+.TP
+\fB\-\-vm\-cpu\fR
+show VMware CPU stats from hypervisor (needs a VMware PMDA)
+.TP
+\fB\-\-vm\-mem\fR
+show VMware memory stats from hypervisor (needs a VMware PMDA)
+.TP
+\fB\-\-vm\-mem\-adv\fR
+show advanced VMware memory stats from hypervisor (needs a VMware PMDA)
+.TP
+\fB\-\-vmk\-hba\fR
+show VMware ESX kernel vmhba stats (needs a VMware PMDA)
+.TP
+\fB\-\-vmk\-int\fR
+show VMware ESX kernel interrupt stats (needs a VMware PMDA)
+.TP
+\fB\-\-vmk\-nic\fR
+show VMware ESX kernel port stats (needs a VMware PMDA)
+.TP
+\fB\-\-vz\-cpu\fR
+show CPU usage per OpenVZ guest (needs an OpenVZ PMDA)
+.TP
+\fB\-\-vz\-io\fR
+show I/O usage per OpenVZ guest (needs an OpenVZ PMDA)
+.TP
+\fB\-\-vz\-ubc\fR
+show OpenVZ user beancounters (needs an OpenVZ PMDA)
+.TP
+\fB\-\-wifi\fR
+wireless link quality and signal to noise ratio (needs Linux PMDA metrics)
+.TP
+\fB\-\-zfs\-arc\fR
+show ZFS arc stats (needs a Linux ZFS PMDA)
+.TP
+\fB\-\-zfs\-l2arc\fR
+show ZFS l2arc stats (needs a Linux ZFS PMDA)
+.TP
+\fB\-\-zfs\-zil\fR
+show ZFS zil stats (needs a Linux ZFS PMDA)
+.SH INTERMEDIATE UPDATES
+When invoking
+.B pcp-dstat
+with a \fIdelay\fR greater than 1 second and without the \fB\-\-noupdate\fR
+option, it will show intermediate updates, ie\&. the first time a 1 second
+average, the second update a 2 second average, etc\&. until the \fIdelay\fB
+has been reached.
+.PP
+So in case you specified a delay of 10, \fBthe 9 intermediate updates are NOT snapshots\fR, they are averages over the time that passed since the last final update\&. The end result is that you get a 10 second average on a new line, just like with vmstat\&.
+.SH EXAMPLES
+Using
+.B pcp-dstat
+to relate disk\-throughput with network\-usage (eth0), total CPU\-usage and system counters:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pcp-dstat \-dnyc \-N eth0 \-C total \-f 5
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Using the time plugin together with cpu, net, disk, system, load, proc and top_cpu plugins:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pcp-dstat \-tcndylp \-\-top\-cpu
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+this is identical to
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pcp-dstat \-\-time \-\-cpu \-\-net \-\-disk \-\-sys \-\-load \-\-proc \-\-top\-cpu
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Using pcp-dstat to relate advanced cpu stats with interrupts per device:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pcp-dstat \-t \-\-cpu\-adv \-yif
+.fi
+.if n \{\
+.RE
+.\}
+.SH FILES
+.TP
+.I ~/\&.pcp/dstat/
+private per-user configuration files
+.TP
+.I \f(CW$PCP_ETC_DIR\fP/pcp/dstat/
+system-wide configuration files
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH "ENVIRONMENT VARIABLES"
+Internal plugins behaviour can be changed through environment variables.
+.TP
+.I DSTAT_TIMEFMT
+.BR strftime (3)
+format string for reporting time (see \fB\-\-time\fP)
+.SH AUTHORS
+.PP
+The Dstat utility was initially written by Dag Wieers \m[blue]\fBdag@wieers\&.com\fR\m[]
+.PP
+Homepage at \m[blue]\fBhttp://dag\&.wieers\&.com/home\-made/dstat/\fR\m[]
+.PP
+This manpage was initially written by Andrew Pollock \m[blue]\fBapollock@debian\&.org\fR\m[] for the Debian GNU/Linux system\&.
+.PP
+The
+.B pcp-dstat
+utility is written and maintained by the PCP developers \m[blue]\fBpcp@groups\&.io\fR\m[]
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmrep (1),
+.BR pminfo (1),
+.BR pmprobe (1),
+.BR pmlogger (1),
+.BR pmGetOptions (3),
+.BR strftime (3),
+.BR PMNS (5),
+.BR pmrep.conf (5)
+and
+.BR pcp.conf (5)
