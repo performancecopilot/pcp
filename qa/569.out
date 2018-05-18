@@ -986,6 +986,9 @@ General options:
   -d, --version         display version number and exit
   -?, --help            show this usage message and exit
 
+Protocol options:
+  -b N, --batch=N       fetch at most N metrics at a time [128]
+
 Reporting options:
   -f, --force           report all pmGetIndom or pmGetInDomArchive instances
   -F, --faster          assume given metric names are PMNS leaf nodes
@@ -1015,6 +1018,9 @@ General options:
   -z, --hostzone        set reporting timezone to local time of metrics source
   -d, --version         display version number and exit
   -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch at most N metrics at a time [128]
 
 Reporting options:
   -f, --force           report all pmGetIndom or pmGetInDomArchive instances

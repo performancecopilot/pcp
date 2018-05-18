@@ -1,0 +1,645 @@
+QA output created by 1318
+
+== test pmLookupName batching
+
+== test batching with various pmprobe arguments
+=== batch=1 k=1 args=""
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 12
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   4   1   0   0   0   0
+Total: 11
+=== batch=10 k=1 args=""
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 5
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 4
+=== batch=100 k=1 args=""
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 5
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 4
+=== batch=1000 k=1 args=""
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 5
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 4
+=== batch=1 k=10 args=""
+PDUs send   0   0   1  50   0   0   0   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 111
+PDUs recv   1  50   0   0   0   0   0   0   0   0   0   0   0  49  10   0   0   0   0
+Total: 110
+=== batch=10 k=10 args=""
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 22
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   5  10   0   0   0   0
+Total: 21
+=== batch=100 k=10 args=""
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 14
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 13
+=== batch=1000 k=10 args=""
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 14
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 13
+=== batch=1 k=100 args=""
+PDUs send   0   0   1 500   0   0   0   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1101
+PDUs recv   1 500   0   0   0   0   0   0   0   0   0   0   0 499 100   0   0   0   0
+Total: 1100
+=== batch=10 k=100 args=""
+PDUs send   0   0   1  50   0   0   0   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 202
+PDUs recv   1  50   0   0   0   0   0   0   0   0   0   0   0  50 100   0   0   0   0
+Total: 201
+=== batch=100 k=100 args=""
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 112
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   5 100   0   0   0   0
+Total: 111
+=== batch=1000 k=100 args=""
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 104
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1 100   0   0   0   0
+Total: 103
+=== batch=1 k=1000 args=""
+PDUs send   0   0   1 5000   0   0   0   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 11001
+PDUs recv   1 5000   0   0   0   0   0   0   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 11000
+=== batch=10 k=1000 args=""
+PDUs send   0   0   1 500   0   0   0   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 2002
+PDUs recv   1 500   0   0   0   0   0   0   0   0   0   0   0 500 1000   0   0   0   0
+Total: 2001
+=== batch=100 k=1000 args=""
+PDUs send   0   0   1  50   0   0   0   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 1102
+PDUs recv   1  50   0   0   0   0   0   0   0   0   0   0   0  50 1000   0   0   0   0
+Total: 1101
+=== batch=1000 k=1000 args=""
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 1012
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   5 1000   0   0   0   0
+Total: 1011
+=== batch=1 k=1 args="-v"
+PDUs send   0   0   1   5   5   0   0   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 17
+PDUs recv   1   5   0   0   0   5   0   0   0   0   0   0   0   4   1   0   0   0   0
+Total: 16
+=== batch=10 k=1 args="-v"
+PDUs send   0   0   1   1   5   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   1   0   0   0   5   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 9
+=== batch=100 k=1 args="-v"
+PDUs send   0   0   1   1   5   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   1   0   0   0   5   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 9
+=== batch=1000 k=1 args="-v"
+PDUs send   0   0   1   1   5   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   1   0   0   0   5   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 9
+=== batch=1 k=10 args="-v"
+PDUs send   0   0   1  50  50   0   0   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 161
+PDUs recv   1  50   0   0   0  50   0   0   0   0   0   0   0  49  10   0   0   0   0
+Total: 160
+=== batch=10 k=10 args="-v"
+PDUs send   0   0   1   5  50   0   0   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 72
+PDUs recv   1   5   0   0   0  50   0   0   0   0   0   0   0   5  10   0   0   0   0
+Total: 71
+=== batch=100 k=10 args="-v"
+PDUs send   0   0   1   1  50   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 64
+PDUs recv   1   1   0   0   0  50   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 63
+=== batch=1000 k=10 args="-v"
+PDUs send   0   0   1   1  50   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 64
+PDUs recv   1   1   0   0   0  50   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 63
+=== batch=1 k=100 args="-v"
+PDUs send   0   0   1 500 500   0   0   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1601
+PDUs recv   1 500   0   0   0 500   0   0   0   0   0   0   0 499 100   0   0   0   0
+Total: 1600
+=== batch=10 k=100 args="-v"
+PDUs send   0   0   1  50 500   0   0   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 702
+PDUs recv   1  50   0   0   0 500   0   0   0   0   0   0   0  50 100   0   0   0   0
+Total: 701
+=== batch=100 k=100 args="-v"
+PDUs send   0   0   1   5 500   0   0   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 612
+PDUs recv   1   5   0   0   0 500   0   0   0   0   0   0   0   5 100   0   0   0   0
+Total: 611
+=== batch=1000 k=100 args="-v"
+PDUs send   0   0   1   1 500   0   0   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 604
+PDUs recv   1   1   0   0   0 500   0   0   0   0   0   0   0   1 100   0   0   0   0
+Total: 603
+=== batch=1 k=1000 args="-v"
+PDUs send   0   0   1 5000 5000   0   0   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 16001
+PDUs recv   1 5000   0   0   0 5000   0   0   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 16000
+=== batch=10 k=1000 args="-v"
+PDUs send   0   0   1 500 5000   0   0   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 7002
+PDUs recv   1 500   0   0   0 5000   0   0   0   0   0   0   0 500 1000   0   0   0   0
+Total: 7001
+=== batch=100 k=1000 args="-v"
+PDUs send   0   0   1  50 5000   0   0   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 6102
+PDUs recv   1  50   0   0   0 5000   0   0   0   0   0   0   0  50 1000   0   0   0   0
+Total: 6101
+=== batch=1000 k=1000 args="-v"
+PDUs send   0   0   1   5 5000   0   0   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 6012
+PDUs recv   1   5   0   0   0 5000   0   0   0   0   0   0   0   5 1000   0   0   0   0
+Total: 6011
+=== batch=1 k=1 args="-i"
+PDUs send   0   0   1   5   5   0   2   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 19
+PDUs recv   1   5   0   0   0   5   0   2   0   0   0   0   0   4   1   0   0   0   0
+Total: 18
+=== batch=10 k=1 args="-i"
+PDUs send   0   0   1   1   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 12
+PDUs recv   1   1   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 11
+=== batch=100 k=1 args="-i"
+PDUs send   0   0   1   1   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 12
+PDUs recv   1   1   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 11
+=== batch=1000 k=1 args="-i"
+PDUs send   0   0   1   1   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 12
+PDUs recv   1   1   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 11
+=== batch=1 k=10 args="-i"
+PDUs send   0   0   1  50  50   0  20   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 181
+PDUs recv   1  50   0   0   0  50   0  20   0   0   0   0   0  49  10   0   0   0   0
+Total: 180
+=== batch=10 k=10 args="-i"
+PDUs send   0   0   1   5  50   0  20   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 92
+PDUs recv   1   5   0   0   0  50   0  20   0   0   0   0   0   5  10   0   0   0   0
+Total: 91
+=== batch=100 k=10 args="-i"
+PDUs send   0   0   1   1  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 84
+PDUs recv   1   1   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 83
+=== batch=1000 k=10 args="-i"
+PDUs send   0   0   1   1  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 84
+PDUs recv   1   1   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 83
+=== batch=1 k=100 args="-i"
+PDUs send   0   0   1 500 500   0 200   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1801
+PDUs recv   1 500   0   0   0 500   0 200   0   0   0   0   0 499 100   0   0   0   0
+Total: 1800
+=== batch=10 k=100 args="-i"
+PDUs send   0   0   1  50 500   0 200   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 902
+PDUs recv   1  50   0   0   0 500   0 200   0   0   0   0   0  50 100   0   0   0   0
+Total: 901
+=== batch=100 k=100 args="-i"
+PDUs send   0   0   1   5 500   0 200   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 812
+PDUs recv   1   5   0   0   0 500   0 200   0   0   0   0   0   5 100   0   0   0   0
+Total: 811
+=== batch=1000 k=100 args="-i"
+PDUs send   0   0   1   1 500   0 200   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 804
+PDUs recv   1   1   0   0   0 500   0 200   0   0   0   0   0   1 100   0   0   0   0
+Total: 803
+=== batch=1 k=1000 args="-i"
+PDUs send   0   0   1 5000 5000   0 2000   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 18001
+PDUs recv   1 5000   0   0   0 5000   0 2000   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 18000
+=== batch=10 k=1000 args="-i"
+PDUs send   0   0   1 500 5000   0 2000   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 9002
+PDUs recv   1 500   0   0   0 5000   0 2000   0   0   0   0   0 500 1000   0   0   0   0
+Total: 9001
+=== batch=100 k=1000 args="-i"
+PDUs send   0   0   1  50 5000   0 2000   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 8102
+PDUs recv   1  50   0   0   0 5000   0 2000   0   0   0   0   0  50 1000   0   0   0   0
+Total: 8101
+=== batch=1000 k=1000 args="-i"
+PDUs send   0   0   1   5 5000   0 2000   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 8012
+PDUs recv   1   5   0   0   0 5000   0 2000   0   0   0   0   0   5 1000   0   0   0   0
+Total: 8011
+=== batch=1 k=1 args="-I"
+PDUs send   0   0   1   5   5   0   2   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 19
+PDUs recv   1   5   0   0   0   5   0   2   0   0   0   0   0   4   1   0   0   0   0
+Total: 18
+=== batch=10 k=1 args="-I"
+PDUs send   0   0   1   1   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 12
+PDUs recv   1   1   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 11
+=== batch=100 k=1 args="-I"
+PDUs send   0   0   1   1   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 12
+PDUs recv   1   1   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 11
+=== batch=1000 k=1 args="-I"
+PDUs send   0   0   1   1   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 12
+PDUs recv   1   1   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 11
+=== batch=1 k=10 args="-I"
+PDUs send   0   0   1  50  50   0  20   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 181
+PDUs recv   1  50   0   0   0  50   0  20   0   0   0   0   0  49  10   0   0   0   0
+Total: 180
+=== batch=10 k=10 args="-I"
+PDUs send   0   0   1   5  50   0  20   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 92
+PDUs recv   1   5   0   0   0  50   0  20   0   0   0   0   0   5  10   0   0   0   0
+Total: 91
+=== batch=100 k=10 args="-I"
+PDUs send   0   0   1   1  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 84
+PDUs recv   1   1   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 83
+=== batch=1000 k=10 args="-I"
+PDUs send   0   0   1   1  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 84
+PDUs recv   1   1   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 83
+=== batch=1 k=100 args="-I"
+PDUs send   0   0   1 500 500   0 200   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1801
+PDUs recv   1 500   0   0   0 500   0 200   0   0   0   0   0 499 100   0   0   0   0
+Total: 1800
+=== batch=10 k=100 args="-I"
+PDUs send   0   0   1  50 500   0 200   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 902
+PDUs recv   1  50   0   0   0 500   0 200   0   0   0   0   0  50 100   0   0   0   0
+Total: 901
+=== batch=100 k=100 args="-I"
+PDUs send   0   0   1   5 500   0 200   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 812
+PDUs recv   1   5   0   0   0 500   0 200   0   0   0   0   0   5 100   0   0   0   0
+Total: 811
+=== batch=1000 k=100 args="-I"
+PDUs send   0   0   1   1 500   0 200   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 804
+PDUs recv   1   1   0   0   0 500   0 200   0   0   0   0   0   1 100   0   0   0   0
+Total: 803
+=== batch=1 k=1000 args="-I"
+PDUs send   0   0   1 5000 5000   0 2000   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 18001
+PDUs recv   1 5000   0   0   0 5000   0 2000   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 18000
+=== batch=10 k=1000 args="-I"
+PDUs send   0   0   1 500 5000   0 2000   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 9002
+PDUs recv   1 500   0   0   0 5000   0 2000   0   0   0   0   0 500 1000   0   0   0   0
+Total: 9001
+=== batch=100 k=1000 args="-I"
+PDUs send   0   0   1  50 5000   0 2000   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 8102
+PDUs recv   1  50   0   0   0 5000   0 2000   0   0   0   0   0  50 1000   0   0   0   0
+Total: 8101
+=== batch=1000 k=1000 args="-I"
+PDUs send   0   0   1   5 5000   0 2000   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 8012
+PDUs recv   1   5   0   0   0 5000   0 2000   0   0   0   0   0   5 1000   0   0   0   0
+Total: 8011
+=== batch=1 k=1 args="-f"
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 12
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   4   1   0   0   0   0
+Total: 11
+=== batch=10 k=1 args="-f"
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 5
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 4
+=== batch=100 k=1 args="-f"
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 5
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 4
+=== batch=1000 k=1 args="-f"
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 5
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 4
+=== batch=1 k=10 args="-f"
+PDUs send   0   0   1  50   0   0   0   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 111
+PDUs recv   1  50   0   0   0   0   0   0   0   0   0   0   0  49  10   0   0   0   0
+Total: 110
+=== batch=10 k=10 args="-f"
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 22
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   5  10   0   0   0   0
+Total: 21
+=== batch=100 k=10 args="-f"
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 14
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 13
+=== batch=1000 k=10 args="-f"
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 14
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 13
+=== batch=1 k=100 args="-f"
+PDUs send   0   0   1 500   0   0   0   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1101
+PDUs recv   1 500   0   0   0   0   0   0   0   0   0   0   0 499 100   0   0   0   0
+Total: 1100
+=== batch=10 k=100 args="-f"
+PDUs send   0   0   1  50   0   0   0   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 202
+PDUs recv   1  50   0   0   0   0   0   0   0   0   0   0   0  50 100   0   0   0   0
+Total: 201
+=== batch=100 k=100 args="-f"
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 112
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   5 100   0   0   0   0
+Total: 111
+=== batch=1000 k=100 args="-f"
+PDUs send   0   0   1   1   0   0   0   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 104
+PDUs recv   1   1   0   0   0   0   0   0   0   0   0   0   0   1 100   0   0   0   0
+Total: 103
+=== batch=1 k=1000 args="-f"
+PDUs send   0   0   1 5000   0   0   0   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 11001
+PDUs recv   1 5000   0   0   0   0   0   0   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 11000
+=== batch=10 k=1000 args="-f"
+PDUs send   0   0   1 500   0   0   0   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 2002
+PDUs recv   1 500   0   0   0   0   0   0   0   0   0   0   0 500 1000   0   0   0   0
+Total: 2001
+=== batch=100 k=1000 args="-f"
+PDUs send   0   0   1  50   0   0   0   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 1102
+PDUs recv   1  50   0   0   0   0   0   0   0   0   0   0   0  50 1000   0   0   0   0
+Total: 1101
+=== batch=1000 k=1000 args="-f"
+PDUs send   0   0   1   5   0   0   0   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 1012
+PDUs recv   1   5   0   0   0   0   0   0   0   0   0   0   0   5 1000   0   0   0   0
+Total: 1011
+=== batch=1 k=1 args="-fv"
+PDUs send   0   0   1   5   5   0   0   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 17
+PDUs recv   1   5   0   0   0   5   0   0   0   0   0   0   0   4   1   0   0   0   0
+Total: 16
+=== batch=10 k=1 args="-fv"
+PDUs send   0   0   1   1   5   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   1   0   0   0   5   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 9
+=== batch=100 k=1 args="-fv"
+PDUs send   0   0   1   1   5   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   1   0   0   0   5   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 9
+=== batch=1000 k=1 args="-fv"
+PDUs send   0   0   1   1   5   0   0   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   1   0   0   0   5   0   0   0   0   0   0   0   1   1   0   0   0   0
+Total: 9
+=== batch=1 k=10 args="-fv"
+PDUs send   0   0   1  50  50   0   0   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 161
+PDUs recv   1  50   0   0   0  50   0   0   0   0   0   0   0  49  10   0   0   0   0
+Total: 160
+=== batch=10 k=10 args="-fv"
+PDUs send   0   0   1   5  50   0   0   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 72
+PDUs recv   1   5   0   0   0  50   0   0   0   0   0   0   0   5  10   0   0   0   0
+Total: 71
+=== batch=100 k=10 args="-fv"
+PDUs send   0   0   1   1  50   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 64
+PDUs recv   1   1   0   0   0  50   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 63
+=== batch=1000 k=10 args="-fv"
+PDUs send   0   0   1   1  50   0   0   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 64
+PDUs recv   1   1   0   0   0  50   0   0   0   0   0   0   0   1  10   0   0   0   0
+Total: 63
+=== batch=1 k=100 args="-fv"
+PDUs send   0   0   1 500 500   0   0   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1601
+PDUs recv   1 500   0   0   0 500   0   0   0   0   0   0   0 499 100   0   0   0   0
+Total: 1600
+=== batch=10 k=100 args="-fv"
+PDUs send   0   0   1  50 500   0   0   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 702
+PDUs recv   1  50   0   0   0 500   0   0   0   0   0   0   0  50 100   0   0   0   0
+Total: 701
+=== batch=100 k=100 args="-fv"
+PDUs send   0   0   1   5 500   0   0   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 612
+PDUs recv   1   5   0   0   0 500   0   0   0   0   0   0   0   5 100   0   0   0   0
+Total: 611
+=== batch=1000 k=100 args="-fv"
+PDUs send   0   0   1   1 500   0   0   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 604
+PDUs recv   1   1   0   0   0 500   0   0   0   0   0   0   0   1 100   0   0   0   0
+Total: 603
+=== batch=1 k=1000 args="-fv"
+PDUs send   0   0   1 5000 5000   0   0   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 16001
+PDUs recv   1 5000   0   0   0 5000   0   0   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 16000
+=== batch=10 k=1000 args="-fv"
+PDUs send   0   0   1 500 5000   0   0   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 7002
+PDUs recv   1 500   0   0   0 5000   0   0   0   0   0   0   0 500 1000   0   0   0   0
+Total: 7001
+=== batch=100 k=1000 args="-fv"
+PDUs send   0   0   1  50 5000   0   0   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 6102
+PDUs recv   1  50   0   0   0 5000   0   0   0   0   0   0   0  50 1000   0   0   0   0
+Total: 6101
+=== batch=1000 k=1000 args="-fv"
+PDUs send   0   0   1   5 5000   0   0   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 6012
+PDUs recv   1   5   0   0   0 5000   0   0   0   0   0   0   0   5 1000   0   0   0   0
+Total: 6011
+=== batch=1 k=1 args="-fi"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 13
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   4   1   0   0   0   0
+Total: 13
+=== batch=10 k=1 args="-fi"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 10
+=== batch=100 k=1 args="-fi"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 10
+=== batch=1000 k=1 args="-fi"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 10
+=== batch=1 k=10 args="-fi"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 130
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0  49  10   0   0   0   0
+Total: 130
+=== batch=10 k=10 args="-fi"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 86
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0   5  10   0   0   0   0
+Total: 86
+=== batch=100 k=10 args="-fi"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 82
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 82
+=== batch=1000 k=10 args="-fi"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 82
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 82
+=== batch=1 k=100 args="-fi"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1300
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0 499 100   0   0   0   0
+Total: 1300
+=== batch=10 k=100 args="-fi"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 851
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0  50 100   0   0   0   0
+Total: 851
+=== batch=100 k=100 args="-fi"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 806
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0   5 100   0   0   0   0
+Total: 806
+=== batch=1000 k=100 args="-fi"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 802
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0   1 100   0   0   0   0
+Total: 802
+=== batch=1 k=1000 args="-fi"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 13000
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 13000
+=== batch=10 k=1000 args="-fi"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 8501
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0 500 1000   0   0   0   0
+Total: 8501
+=== batch=100 k=1000 args="-fi"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 8051
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0  50 1000   0   0   0   0
+Total: 8051
+=== batch=1000 k=1000 args="-fi"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 8006
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0   5 1000   0   0   0   0
+Total: 8006
+=== batch=1 k=1 args="-fI"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   4   0   1   0   0
+Total: 13
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   4   1   0   0   0   0
+Total: 13
+=== batch=10 k=1 args="-fI"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 10
+=== batch=100 k=1 args="-fI"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 10
+=== batch=1000 k=1 args="-fI"
+PDUs send   0   0   0   0   5   0   2   0   0   0   0   0   1   0   1   0   1   0   0
+Total: 10
+PDUs recv   1   0   0   0   0   5   0   2   0   0   0   0   0   1   1   0   0   0   0
+Total: 10
+=== batch=1 k=10 args="-fI"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0  49   0  10   0   0
+Total: 130
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0  49  10   0   0   0   0
+Total: 130
+=== batch=10 k=10 args="-fI"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0   5   0  10   0   0
+Total: 86
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0   5  10   0   0   0   0
+Total: 86
+=== batch=100 k=10 args="-fI"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 82
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 82
+=== batch=1000 k=10 args="-fI"
+PDUs send   0   0   0   0  50   0  20   0   0   0   0   0   1   0   1   0  10   0   0
+Total: 82
+PDUs recv   1   0   0   0   0  50   0  20   0   0   0   0   0   1  10   0   0   0   0
+Total: 82
+=== batch=1 k=100 args="-fI"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0 499   0 100   0   0
+Total: 1300
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0 499 100   0   0   0   0
+Total: 1300
+=== batch=10 k=100 args="-fI"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0  50   0 100   0   0
+Total: 851
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0  50 100   0   0   0   0
+Total: 851
+=== batch=100 k=100 args="-fI"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0   5   0 100   0   0
+Total: 806
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0   5 100   0   0   0   0
+Total: 806
+=== batch=1000 k=100 args="-fI"
+PDUs send   0   0   0   0 500   0 200   0   0   0   0   0   1   0   1   0 100   0   0
+Total: 802
+PDUs recv   1   0   0   0   0 500   0 200   0   0   0   0   0   1 100   0   0   0   0
+Total: 802
+=== batch=1 k=1000 args="-fI"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0 4999   0 1000   0   0
+Total: 13000
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0 4999 1000   0   0   0   0
+Total: 13000
+=== batch=10 k=1000 args="-fI"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0 500   0 1000   0   0
+Total: 8501
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0 500 1000   0   0   0   0
+Total: 8501
+=== batch=100 k=1000 args="-fI"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0  50   0 1000   0   0
+Total: 8051
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0  50 1000   0   0   0   0
+Total: 8051
+=== batch=1000 k=1000 args="-fI"
+PDUs send   0   0   0   0 5000   0 2000   0   0   0   0   0   1   0   5   0 1000   0   0
+Total: 8006
+PDUs recv   1   0   0   0   0 5000   0 2000   0   0   0   0   0   5 1000   0   0   0   0
+Total: 8006
