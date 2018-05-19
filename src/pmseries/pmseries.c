@@ -106,13 +106,13 @@ series_add_inst(series_data *dp, pmSID series, sds instid, sds instname)
 	    *isp = ip->series;
 	    dp->ninsts++;
 	} else {
-	    fprintf(stderr, "%s: failed to allocate %I64i bytes\n",
-		    pmGetProgname(), (long long)bytes);
+	    fprintf(stderr, "%s: failed to allocate %"FMT_INT64" bytes\n",
+		    pmGetProgname(), (__int64_t)bytes);
 	    free(isp);
 	}
     } else {
-	fprintf(stderr, "%s: failed to allocate %I64i bytes\n",
-		pmGetProgname(), (long long)bytes);
+	fprintf(stderr, "%s: failed to allocate %"FMT_INT64" bytes\n",
+		pmGetProgname(), (__int64_t)bytes);
     }
 }
 
@@ -517,8 +517,8 @@ series_add_labels(sds name, sds value,
 	*labelsp = lp;
 	*nlabelsp = nlabels + 1;
     } else {
-	fprintf(stderr, "%s: failed to allocate %I64i bytes\n",
-		pmGetProgname(), (long long)bytes);
+	fprintf(stderr, "%s: failed to allocate %"FMT_INT64" bytes\n",
+		pmGetProgname(), (__int64_t)bytes);
     }
 }
 

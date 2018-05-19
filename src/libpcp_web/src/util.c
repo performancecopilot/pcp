@@ -25,8 +25,8 @@
 static void
 default_oom(size_t size)
 {
-    fprintf(stderr, "Out of memory allocating %I64i bytes\n",
-		(unsigned long long)size);
+    fprintf(stderr, "Out of memory allocating %"FMT_UINT64" bytes\n",
+		(__uint64_t)size);
     fflush(stderr);
     abort();
 }
@@ -145,8 +145,8 @@ timeval_str(struct timeval *stamp)
     nanopart = stamp->tv_usec * 1000;
     nanopart -= crossover;
 
-    pmsprintf(tsbuf, sizeof(tsbuf), "%I64i-%I64i",
-		(unsigned long long)millipart, (unsigned long long)nanopart);
+    pmsprintf(tsbuf, sizeof(tsbuf), "%"FMT_UINT64"-%"FMT_UINT64,
+		(__uint64_t)millipart, (__uint64_t)nanopart);
     return tsbuf;
 }
 
