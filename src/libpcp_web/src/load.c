@@ -111,8 +111,8 @@ cache_prepare(const char *name, void *arg)
 		name, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	loadmsg(sp, PMLOG_WARNING, msg);
     } else if ((hname = strdup(name)) == NULL) {
-	loadfmt(msg, "out of memory (%s, %lld bytes)",
-		"cache metric name", (long long)strlen(name)+1);
+	loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+		"cache metric name", (__int64_t)strlen(name)+1);
 	loadmsg(sp, PMLOG_ERROR, msg);
     } else {
 	if (sp->verbose || pmDebugOptions.series)
@@ -170,8 +170,8 @@ new_instance(SOURCE	*sp,
 	assert(index == 0);
 	size = sizeof(instlist_t) + sizeof(value_t);
 	if ((instlist = calloc(1, size)) == NULL) {
-	    loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"new instlist", (long long)size);
+	    loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"new instlist", (__int64_t)size);
 	    loadmsg(sp, PMLOG_ERROR, msg);
 	    return -ENOMEM;
 	}
@@ -189,8 +189,8 @@ new_instance(SOURCE	*sp,
 	assert(index < size);
 	size = sizeof(instlist_t) + (size * sizeof(value_t));
 	if ((instlist = (instlist_t *)realloc(instlist, size)) == NULL) {
-	    loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"grew instlist", (long long)size);
+	    loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"grew instlist", (__int64_t)size);
 	    loadmsg(sp, PMLOG_ERROR, msg);
 	    return -ENOMEM;
 	}
@@ -239,8 +239,8 @@ update_instance_metadata(SOURCE *sp, metric_t *metric,
 	    name = namelist[j];
 	    length = strlen(name) + 1;
 	    if ((name = strndup(name, length)) == NULL) {
-	        loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"update_instance_metadata name", (long long)length);
+	        loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"update_instance_metadata name", (__int64_t)length);
 		loadmsg(sp, PMLOG_ERROR, msg);
 		continue;
 	    }
@@ -258,8 +258,8 @@ update_instance_metadata(SOURCE *sp, metric_t *metric,
 	    if (length == 0)
 		continue;
 	    if ((labels = labelsetdup(labels)) == NULL) {
-		loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"update_instance_metadata labels", (long long)length);
+		loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"update_instance_metadata labels", (__int64_t)length);
 		loadmsg(sp, PMLOG_ERROR, msg);
 		continue;
 	    }
@@ -336,8 +336,8 @@ new_domain(SOURCE *sp, int domain, context_t *context)
     int			sts;
 
     if ((domainp = calloc(1, sizeof(domain_t))) == NULL) {
-	loadfmt(msg, "out of memory (%s, %lld bytes)",
-		"new domain", (long long)sizeof(domain_t));
+	loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+		"new domain", (__int64_t)sizeof(domain_t));
 	loadmsg(sp, PMLOG_ERROR, msg);
 	return NULL;
     }
@@ -366,8 +366,8 @@ new_cluster(SOURCE *sp, int cluster, domain_t *domain)
     int			sts;
 
     if ((clusterp = calloc(1, sizeof(cluster_t))) == NULL) {
-	loadfmt(msg, "out of memory (%s, %lld bytes)",
-		"new cluster", (long long)sizeof(cluster_t));
+	loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+		"new cluster", (__int64_t)sizeof(cluster_t));
 	loadmsg(sp, PMLOG_ERROR, msg);
 	return NULL;
     }
@@ -399,8 +399,8 @@ new_indom(SOURCE *sp, pmInDom indom, domain_t *domain)
     int			sts;
 
     if ((indomp = calloc(1, sizeof(indom_t))) == NULL) {
-	loadfmt(msg, "out of memory (%s, %lld bytes)",
-		"new indom", (long long)sizeof(indom_t));
+	loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+		"new indom", (__int64_t)sizeof(indom_t));
 	loadmsg(sp, PMLOG_ERROR, msg);
 	return NULL;
     }
@@ -439,8 +439,8 @@ new_metric(SOURCE	*sp,
     int			cluster, domain, sts;
 
     if ((metric = (metric_t *)calloc(1, sizeof(metric_t))) == NULL) {
-	loadfmt(msg, "out of memory (%s, %lld bytes)",
-			"new metric", (long long)sizeof(metric_t));
+	loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"new metric", (__int64_t)sizeof(metric_t));
 	loadmsg(sp, PMLOG_ERROR, msg);
 	return NULL;
     }
@@ -453,9 +453,9 @@ new_metric(SOURCE	*sp,
 	loadfmt(msg, "failed to lookup metric %s names: %s",
 		pmIDStr(pmid), pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	loadmsg(sp, PMLOG_WARNING, msg);
-    } else if ((mapids = calloc(sts, sizeof(long long))) == NULL) {
-	loadfmt(msg, "out of memory (%s, %lld bytes)",
-		"mapids", (long long)sts * sizeof(long long));
+    } else if ((mapids = calloc(sts, sizeof(__int64_t))) == NULL) {
+	loadfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+		"mapids", (__int64_t)sts * sizeof(__int64_t));
 	loadmsg(sp, PMLOG_ERROR, msg);
 	sts = -ENOMEM;
     }
