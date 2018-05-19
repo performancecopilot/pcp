@@ -41,15 +41,16 @@ static pmLongOptions longopts[] = {
     { "", 0, 'i', 0, "rewrite in place, input-archive will be over-written" },
     { "quick", 0, 'q', 0, "quick mode, no output if no change" },
     { "scale", 0, 's', 0, "do scale conversion" },
+    { "status", 0, 'S', 0, "exit status indicates if rewriting required" },
     { "verbose", 0, 'v', 0, "increased diagnostic verbosity" },
     { "warnings", 0, 'w', 0, "emit warnings [default is silence]" },
     PMAPI_OPTIONS_TEXT(""),
-    PMAPI_OPTIONS_TEXT("output-archive is required unless -i is specified"),
+    PMAPI_OPTIONS_TEXT("output-archive is required unless -i or -S is specified"),
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "c:CdD:iqsvw?",
+    .short_options = "c:CdD:iqsSvw?",
     .long_options = longopts,
     .short_usage = "[options] input-archive [output-archive]",
 };
@@ -77,6 +78,7 @@ int	dflag;				/* -d desperate */
 int	iflag;				/* -i in-place */
 int	qflag;				/* -q quick or quiet */
 int	sflag;				/* -s scale values */
+int	Sflag;				/* -S check if anything to do */
 int	vflag;				/* -v verbosity */
 int	wflag;				/* -w emit warnings */
 
@@ -316,12 +318,22 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 'C':	/* parse configs and quit */
+	    if (Sflag) {
+		fprintf(stderr, "%s: Error: -C and -S are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
 	    Cflag = 1;
 	    vflag = 1;
 	    wflag = 1;
 	    break;
 
 	case 'd':	/* desperate */
+	    if (Sflag) {
+		fprintf(stderr, "%s: Error: -d and -S are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
 	    dflag = 1;
 	    break;
 
@@ -335,15 +347,49 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 'i':	/* in-place, over-write input archive */
+	    if (Sflag) {
+		fprintf(stderr, "%s: Error: -i and -S are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
 	    iflag = 1;
 	    break;
 
 	case 'q':	/* quick or quiet */
+	    if (Sflag) {
+		fprintf(stderr, "%s: Error: -q and -S are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
 	    qflag = 1;
 	    break;
 
 	case 's':	/* do scale conversions */
 	    sflag = 1;
+	    break;
+
+	case 'S':	/* check and exit status is 1 if rewriting needed */
+	    if (Cflag) {
+		fprintf(stderr, "%s: Error: -S and -C are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
+	    if (dflag) {
+		fprintf(stderr, "%s: Error: -S and -d are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
+	    if (qflag) {
+		fprintf(stderr, "%s: Error: -S and -q are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
+	    if (iflag) {
+		fprintf(stderr, "%s: Error: -S and -i are mutually exclusive\n", pmGetProgname());
+		abandon();
+		/*NOTREACHED*/
+	    }
+	    Sflag = 1;
 	    break;
 
 	case 'v':	/* verbosity */
@@ -362,8 +408,8 @@ parseargs(int argc, char *argv[])
     }
 
     if (opts.errors == 0) {
-	if ((iflag == 0 && opts.optind != argc-2) ||
-	    (iflag == 1 && opts.optind != argc-1))
+	if (((iflag == 1 || Sflag == 1) && opts.optind != argc-1) ||
+	    ((iflag == 0 && Sflag == 0) && opts.optind != argc-2))
 	    opts.errors++;
     }
 
@@ -1276,7 +1322,7 @@ main(int argc, char **argv)
     }
 
     /* input archive */
-    if (iflag == 0)
+    if (iflag == 0 && Sflag == 0)
 	inarch.name = argv[argc-2];
     else
 	inarch.name = argv[argc-1];
@@ -1418,7 +1464,7 @@ main(int argc, char **argv)
 	unlink(outarch.name);
 	unlink(bak_base);
     }
-    else
+    else if (Sflag == 0)
 	outarch.name = argv[argc-1];
 
     /*
@@ -1444,6 +1490,9 @@ main(int argc, char **argv)
 
     if (qflag && anychange() == 0)
 	exit(0);
+
+    if (Sflag)
+	exit(anychange());
 
     /* create output log - must be done before writing label */
     outarch.archctl.ac_log = &outarch.logctl;
@@ -1739,25 +1788,27 @@ void
 abandon(void)
 {
     char    path[MAXNAMELEN+1];
-    if (dflag == 0) {
-	if (Cflag == 0 && iflag == 0)
-	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
+    if (outarch.name != NULL) {
+	if (dflag == 0) {
+	    if (Cflag == 0 && iflag == 0)
+		fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
 
-	_pmLogRemove(outarch.name);
-	if (iflag)
-	    _pmLogRename(bak_base, inarch.name);
-	while (outarch.archctl.ac_curvol >= 0) {
-	    pmsprintf(path, sizeof(path), "%s.%d", outarch.name, outarch.archctl.ac_curvol);
+	    _pmLogRemove(outarch.name);
+	    if (iflag)
+		_pmLogRename(bak_base, inarch.name);
+	    while (outarch.archctl.ac_curvol >= 0) {
+		pmsprintf(path, sizeof(path), "%s.%d", outarch.name, outarch.archctl.ac_curvol);
+		unlink(path);
+		outarch.archctl.ac_curvol--;
+	    }
+	    pmsprintf(path, sizeof(path), "%s.meta", outarch.name);
 	    unlink(path);
-	    outarch.archctl.ac_curvol--;
+	    pmsprintf(path, sizeof(path), "%s.index", outarch.name);
+	    unlink(path);
 	}
-	pmsprintf(path, sizeof(path), "%s.meta", outarch.name);
-	unlink(path);
-	pmsprintf(path, sizeof(path), "%s.index", outarch.name);
-	unlink(path);
+	else
+	    fprintf(stderr, "Archive \"%s\" creation truncated.\n", outarch.name);
     }
-    else
-	fprintf(stderr, "Archive \"%s\" creation truncated.\n", outarch.name);
 
     exit(1);
 }

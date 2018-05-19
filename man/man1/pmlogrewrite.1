@@ -19,7 +19,7 @@
 \f3pmlogrewrite\f1 \- rewrite Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
-[\f3\-Cdiqsvw \f1]
+[\f3\-CdiqsSvw \f1]
 [\f3\-c\f1 \f2config\f1]
 \f2inlog\f1 [\f2outlog\f1]
 .SH DESCRIPTION
@@ -162,6 +162,24 @@ will exit (with status 0, so success) immediately after parsing
 the configuration file(s) and
 .I outlog
 is not created.
+.TP 7
+.B \-S
+No rewriting is done and
+.I outlog
+is not specified.
+The exit status is 0 if no rewriting of
+.I inlog
+is required,
+else 1 if some rewriting is required.
+The
+.B \-S
+option is mutually exclusive with the
+.BR \-C ,
+.BR \-d ,
+.B \-i
+and
+.B \-q
+options.
 .TP 7
 .B \-s
 When the ``units'' of a metric are changed, if the dimension in terms
