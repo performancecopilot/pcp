@@ -61,7 +61,8 @@ static int proc_hotproc_cluster_list[][2] = {
 	{ CLUSTER_PID_STATUS,	    CLUSTER_HOTPROC_PID_STATUS },
 	{ CLUSTER_PID_SCHEDSTAT,    CLUSTER_HOTPROC_PID_SCHEDSTAT },
 	{ CLUSTER_PID_IO,	    CLUSTER_HOTPROC_PID_IO },
-	{ CLUSTER_PID_FD,	    CLUSTER_HOTPROC_PID_FD }
+	{ CLUSTER_PID_FD,	    CLUSTER_HOTPROC_PID_FD },
+	{ CLUSTER_PID_OOM_SCORE,    CLUSTER_HOTPROC_PID_OOM_SCORE },
 };
 
 
@@ -134,13 +135,14 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "sigignore_s",    .cluster = CLUSTER_PID_STATUS,	.item=18 },
 	{ .name = "sigcatch_s",	    .cluster = CLUSTER_PID_STATUS,	.item=19 },
 	{ .name = "threads",	    .cluster = CLUSTER_PID_STATUS,	.item=28 },
-	{ .name = "cgroups",	    .cluster = CLUSTER_PID_CGROUP,	.item=0 },
-	{ .name = "labels",	    .cluster = CLUSTER_PID_LABEL,	.item=0 },
+	{ .name = "cgroups",	    .cluster = CLUSTER_PID_CGROUP,	.item = PROC_PID_CGROUP },
+	{ .name = "labels",	    .cluster = CLUSTER_PID_LABEL,	.item = PROC_PID_LABEL },
 	{ .name = "vctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=29 },
 	{ .name = "nvctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=30 },
 	{ .name = "cpusallowed",    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_CPUSALLOWED },
 	{ .name = "ngid",	    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NGID },
         { .name = "tgid",	    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_TGID },
+	{ .name = "oom_score",	    .cluster = CLUSTER_PID_OOM_SCORE,	.item = PROC_PID_OOM_SCORE },
 };
 
 static dynproc_metric_t id_metrics[] = {

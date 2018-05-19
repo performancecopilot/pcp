@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2018 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,7 +12,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #ifndef _CLUSTERS_H
 #define _CLUSTERS_H
 
@@ -51,8 +50,10 @@
 #define CLUSTER_HOTPROC_GLOBAL		60 /* overall hotproc stats and controls*/
 #define CLUSTER_HOTPROC_PRED      	61 /* derived hotproc metrics */
 
+#define CLUSTER_PID_OOM_SCORE	62 /* /proc/<pid>/oom_score */
+#define CLUSTER_HOTPROC_PID_OOM_SCORE   63 /* /proc/<pid>/oom_score */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define NUM_CLUSTERS 62		/* one more than highest cluster number used */
+#define MAX_CLUSTER 64		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

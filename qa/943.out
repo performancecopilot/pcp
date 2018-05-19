@@ -77,6 +77,7 @@ proc.psinfo.ngid -12387 No permission to perform requested operation
 proc.psinfo.nice -12387 No permission to perform requested operation
 proc.psinfo.nswap -12387 No permission to perform requested operation
 proc.psinfo.nvctxsw -12387 No permission to perform requested operation
+proc.psinfo.oom_score -12387 No permission to perform requested operation
 proc.psinfo.pgrp -12387 No permission to perform requested operation
 proc.psinfo.pid -12387 No permission to perform requested operation
 proc.psinfo.policy -12387 No permission to perform requested operation
@@ -177,6 +178,7 @@ proc.psinfo.ngid COUNT
 proc.psinfo.nice COUNT
 proc.psinfo.nswap COUNT
 proc.psinfo.nvctxsw COUNT
+proc.psinfo.oom_score COUNT
 proc.psinfo.pgrp COUNT
 proc.psinfo.pid COUNT
 proc.psinfo.policy COUNT

@@ -76,6 +76,7 @@ help_text_t  help_text[] = {
 { .name = "psinfo.cguest_time",            .shorthelp = "Guest time of the process’s children",        .longhelp = "" },
 { .name = "psinfo.environ",           .shorthelp = "process environment (from /proc/<pid>/environ ascii space replaces null).",        .longhelp = "" },
 { .name = "psinfo.labels",            .shorthelp = "list of processes security labels (from /proc/<pid>/attr/current)",        .longhelp = "" },
+{ .name = "psinfo.oom_score",         .shorthelp = "out-of-memory process selection score (from /proc/<pid>/oom_score)",        .longhelp = "" },
 { .name = "psinfo.blocked",            .shorthelp = "the value in the blocked field of struct task_struct for the process",        .longhelp = "" },
 { .name = "cgroup.subsys.hierarchy",            .shorthelp = "subsystem hierarchy from /proc/cgroups",        .longhelp = "" },
 { .name = "id.sgid",            .shorthelp = "saved group ID from /proc/<pid>/status",        .longhelp = "" },

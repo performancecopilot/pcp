@@ -80,6 +80,7 @@ proc.psinfo.ngid
 proc.psinfo.nice
 proc.psinfo.nswap
 proc.psinfo.nvctxsw
+proc.psinfo.oom_score
 proc.psinfo.pgrp
 proc.psinfo.pid
 proc.psinfo.policy

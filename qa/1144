@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 1144
+# Exercise Linux kernel proc.psinfo.oom_score metric
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pid=$$
+
+test $PCP_PLATFORM = linux || _notrun "Test requires Linux procfs features"
+test -f /proc/$$/oom_score || _notrun "Lacks kernel support for OOM scores"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f $seq.full
+
+sysoom=`cat /proc/$pid/oom_score | tr '\0' '\n'`
+echo "PCP oom_score for process $pid is: $pcpoom" >> $seq.full
+
+pminfo -f proc.psinfo.oom_score > $tmp.oom_score
+pcpoom=`grep "^    inst \[$pid or " $tmp.oom_score \
+	| $PCP_AWK_PROG '{ print $NF }'`
+echo "Extracted from list:" >> $seq.full
+cat $tmp.oom_score >> $seq.full
+
+echo "SYS oom_score for process $pid is: $sysoom" >> $seq.full
+if [ "$pcplabel" = "$syslabel" ]
+then
+    echo "OOM score for current process checks out"
+    status=0
+else
+    echo "Mismatch on OOM score:"
+    echo "PCP OOM score: $pcpoom"
+    echo "SYS OOM score: $sysoom"
+    status=1
+fi
+
+exit
