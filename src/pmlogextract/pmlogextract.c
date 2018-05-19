@@ -2381,7 +2381,7 @@ do_not_need_mark(inarch_t *iap)
     }
     if (j != -1) {
 	if (pmDebugOptions.appl2) {
-	    fprintf(stderr, "EOF this pid=%" FMT_INT64 " seqnum=%d next[%d] pid=%" FMT_INT64 " seqnum=%d\n", iap->pmcd_pid, iap->pmcd_seqnum, j, inarch[j].pmcd_pid, inarch[j].pmcd_seqnum);
+	    fprintf(stderr, "EOF this pid=%" FMT_INT64 " seqnum=%d next[%d] pid=%" FMT_INT64 " seqnum=%d\n", (__int64_t)iap->pmcd_pid, iap->pmcd_seqnum, j, (__int64_t)inarch[j].pmcd_pid, inarch[j].pmcd_seqnum);
 	}
 	if (iap->pmcd_pid == inarch[j].pmcd_pid &&
 	    iap->pmcd_seqnum == inarch[j].pmcd_seqnum)
