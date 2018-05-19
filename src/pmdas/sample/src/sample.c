@@ -1158,9 +1158,9 @@ init_tables(int dom)
     magic.pmid = pmID_build(dom, pmID_cluster(magic.pmid), pmID_item(magic.pmid));
 
     /* local hacks */
-    allocsz = roundup(sizeof("13"), 8);
+    allocsz = roundup(strlen("13")+1, 8);
     _string = (char *)calloc(1, allocsz);
-    strncpy(_string, "13", sizeof("13"));
+    strncpy(_string, "13", strlen("13")+1);
     allocsz = roundup(PM_VAL_HDR_SIZE, 8);
     _aggr33 = (pmValueBlock *)malloc(allocsz);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
