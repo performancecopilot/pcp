@@ -11,11 +11,10 @@ Options:
   -i                    rewrite in place, input-archive will be over-written
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
-  -S, --status          exit status indicates if rewriting required
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-output-archive is required unless -i or -S is specified
+output-archive is required unless -i is specified
 
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
@@ -27,11 +26,10 @@ Options:
   -i                    rewrite in place, input-archive will be over-written
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
-  -S, --status          exit status indicates if rewriting required
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-output-archive is required unless -i or -S is specified
+output-archive is required unless -i is specified
 
 pmlogrewrite: stat(no.such.file) failed: No such file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
@@ -44,11 +42,10 @@ Options:
   -i                    rewrite in place, input-archive will be over-written
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
-  -S, --status          exit status indicates if rewriting required
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-output-archive is required unless -i or -S is specified
+output-archive is required unless -i is specified
 
 pmlogrewrite: Error: -c config /dev/tty is not a file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
@@ -61,11 +58,10 @@ Options:
   -i                    rewrite in place, input-archive will be over-written
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
-  -S, --status          exit status indicates if rewriting required
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-output-archive is required unless -i or -S is specified
+output-archive is required unless -i is specified
 
 pmlogrewrite: Cannot open config file "TMP.forbidden": Permission denied
 
@@ -80,11 +76,10 @@ Options:
   -i                    rewrite in place, input-archive will be over-written
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
-  -S, --status          exit status indicates if rewriting required
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-output-archive is required unless -i or -S is specified
+output-archive is required unless -i is specified
 
 pmlogrewrite: stat(TMP.forbiddendir/blah) failed: Permission denied
 Usage: pmlogrewrite [options] input-archive [output-archive]
@@ -97,11 +92,10 @@ Options:
   -i                    rewrite in place, input-archive will be over-written
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
-  -S, --status          exit status indicates if rewriting required
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-output-archive is required unless -i or -S is specified
+output-archive is required unless -i is specified
 
 pmlogrewrite: Cannot open config file "TMP.configdir/forbidden": Permission denied
 
