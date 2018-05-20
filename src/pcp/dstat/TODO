@@ -7,12 +7,12 @@ Key:
 
 
 General Functionality:
-[x] initial implementation welding pmrep/pmconfig onto original dstat
-[x] implement local context fallback
+[x] initial code welding pmrep/pmconfig onto original dstat
+[x] local context fallback when no local pmcd available
 [x] make use of PCP metric units for scaling
 [ ] implement interval argument
 [ ] implement #samples argument
-[ ] implement --all-plugins option
+[-] implement --all-plugins option
 [x] new socket6 plugin for IPv6 socket metrics
 [ ] handle dynamic instances correctly (esp. headings)
 [ ] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
@@ -29,7 +29,8 @@ General Functionality:
 [x] implement sub-second time(stamp) and epoch reporting support
 [ ] implement historical reporting support via PCP archives
 [ ] create pmlogconf(1) configuration file(s)
-[ ] write pcp-dstat(1) man page(s)
+[ ] write pcp-dstat.conf(5) man page
+[x] write pcp-dstat(1) man page
 [ ] write QA tests
 
 
@@ -44,7 +45,7 @@ Internal Plugins:
 [-] disk24-old
 [x] epoch
 [x] fs
-[-] int		(current interrupts plugin isn't functional)
+[?] int		(current interrupts plugin isn't functional)
 [-] int24
 [*] io		(needs instance fixes for per-dev reporting)
 [x] ipc
@@ -87,7 +88,7 @@ External Plugins:
 [-] dstat-ctxt
 [-] dstat-mem
 [ ] fan			(needs new ACPI PMDA)
-[ ] freespace
+[x] freespace
 [-] fuse
 [ ] gpfs
 [ ] gpfs-ops
@@ -127,17 +128,17 @@ External Plugins:
 [ ] power		(needs new ACPI PMDA)
 [x] proc-count
 [ ] qmail
-[ ] redis
+[x] redis
 [ ] rpc
 [ ] rpcd
-[ ] sendmail
+[ ] sendmail		(needs qlen glob in sendmail PMDA)
 [-] snmp-cpu
 [-] snmp-load
 [-] snmp-mem
 [-] snmp-net
 [-] snmp-net-err
 [-] snmp-sys
-[ ] snooze		(implement as builtin like time/epoch)
+[-] snooze
 [?] squid		(needs new Squid PMDA)
 [-] test
 [ ] thermal		(needs new ACPI PMDA)
@@ -155,7 +156,7 @@ External Plugins:
 [ ] top-latency-avg			"
 [ ] top-mem				"
 [ ] top-oom				"
-[ ] utmp		(needs more kernel.all.* utmp metrics)
+[x] utmp		(needs more kernel.all.* utmp metrics)
 [?] vm-cpu
 [?] vm-mem
 [?] vm-mem-adv
@@ -174,18 +175,19 @@ Missing metrics:
 [x] async I/O metrics in Linux kernel PMDA
 [x] kernel.all.sessions,kernel.all.nroots utmp metrics
 [x] /proc/locks metrics in Linux kernel PMDA
-[ ] drop lo/bond*/face from net metrics - new network.physical.* metrics?
+[x] per-process out-of-memory metric
+[ ] drop lo/bond*/face - new network.physical.* metrics?
 [x] network.tcpconn6 metrics ala network.tcpconn
 [x] network.udpconn and network.udpconn6 kernel metrics
-[?] disk.md.recovery.* metrics (percent complete, speed)
+[ ] disk.md.recovery.* metrics (percent complete, speed)
 
 Missing PMDAs:
 [ ] acpi
+[ ] mongodb
 [?] dbus
 [?] gpfs
-[?] mongodb
 [?] ntp
 [?] squid
 [?] vmware
-[?] zfs (linux)
+[?] zfs (Linux version)
 

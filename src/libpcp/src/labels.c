@@ -229,10 +229,13 @@ stash_chars(const char *s, int slen, char **buffer, int *buflen)
 
     if (slen >= bytes)
 	return -E2BIG;
-    bytes = pmsprintf(bp, bytes, "%.*s", slen, s);
-    *buffer = bp + bytes;
-    *buflen -= bytes;
-    return bytes;
+    if (slen) {
+	bytes = pmsprintf(bp, bytes, "%.*s", slen, s);
+	*buffer = bp + bytes;
+	*buflen -= bytes;
+	return bytes;
+    }
+    return 0;
 }
 
 static int

@@ -26,7 +26,7 @@ LIBCONFIG = zbxpcp.conf
 LLDLIBS = $(PCPLIB)
 LDIRT = $(LIBCONFIG)
 
-CONFIG_DIR = $(PCP_SYSCONF_DIR)/../zabbix/zabbix_agent.d
+CONFIG_DIR = $(PCP_SYSCONF_DIR)/../zabbix/zabbix_agentd.d
 ZABBIX_DIR = $(PCP_LIB_DIR)/zabbix
 MODULE_DIR = $(ZABBIX_DIR)/modules
 AGENT_DIR = $(ZABBIX_DIR)/agent

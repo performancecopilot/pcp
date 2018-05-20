@@ -17,7 +17,7 @@ which zabbix_agentd >/dev/null 2>&1 || \
 	_notrun "No zabbix_agentd binary found"
 test -f /etc/zabbix/zabbix_agentd.conf || \
 	_notrun "No configuration for the Zabbix agent daemon"
-test -f /etc/zabbix/zabbix_agent.d/zbxpcp.conf || \
+test -f /etc/zabbix/zabbix_agentd.d/zbxpcp.conf || \
 	_notrun "Zabbix agent PCP module is not installed"
 
 case "$PCP_PLATFORM"

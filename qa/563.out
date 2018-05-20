@@ -24,6 +24,12 @@ pmcd.labels
     value "{"one":"two"}"
     labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","one":"two","userid":UID}
 
+== Empty string global label value
+
+pmcd.labels
+    value "{"one":""}"
+    labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","one":"","userid":UID}
+
 == Array global label
 
 pmcd.labels

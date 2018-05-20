@@ -83,6 +83,13 @@ _sighup_pmcd
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/simple.json
 
+echo && echo == Empty string global label value
+echo '{"one":""}' > $tmp.noval
+$sudo cp $tmp.noval $PCP_ETC_DIR/pcp/labels/noval.json
+_sighup_pmcd
+pminfo -fl pmcd.labels | _filter_labels
+$sudo rm $PCP_ETC_DIR/pcp/labels/noval.json
+
 echo && echo == Array global label
 echo '{"a1":[1,2,3,4], "a2":[]}' > $tmp.array
 $sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array.json
