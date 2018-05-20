@@ -11,7 +11,7 @@ X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp} ?{python} libpcp-web1
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp} ?{python} ?{python3-bpfcc} libpcp-web1
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
 Architecture: any

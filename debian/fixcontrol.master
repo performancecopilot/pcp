@@ -75,6 +75,13 @@ else
     echo "s/?{libpfm4-dev}//" >>$tmp.sed
 fi
 
+if $PMDA_BCC
+then
+    echo "s/?{python3-bpfcc}/python3-bpfcc,/" >>$tmp.sed
+else
+    echo "s/?{python3-bpfcc}//" >>$tmp.sed
+fi
+
 if $ENABLE_PYTHON3
 then
     echo "s/?{python-pcp}/python3-pcp,/" >>$tmp.sed
