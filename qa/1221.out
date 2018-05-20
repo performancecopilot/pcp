@@ -2645,17 +2645,17 @@ prometheus.problematic_strings.test
     inst [10 or "10 instance:{"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"{","instname":"instance:{","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
 
 prometheus.problematic_strings.test2
-    inst [0 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [1 or " "] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":" ","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [2 or "'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"'","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [3 or """] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [4 or ""'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [5 or "\"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [6 or ","] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":",","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [7 or "="] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"=","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [8 or ":"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":":","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [9 or "}"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"}","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [10 or "{"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"{","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [0 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [1 or " "] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":" ","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [2 or "'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"'","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [3 or """] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [4 or ""'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [5 or "\"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [6 or ","] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":",","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [7 or "="] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"=","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [8 or ":"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":":","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [9 or "}"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"}","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [10 or "{"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"{","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
 
 prometheus.problematic_strings.test3
     labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
@@ -2773,7 +2773,7 @@ prometheus.sample_pmda_3_12_2.sample.bigid
 
 prometheus.sample_pmda_3_12_2.sample.bogus_bin
     inst [0 or "bin-100"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-100","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
-    inst [1 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
+    inst [1 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
     inst [2 or "bin-300"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-300","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
     inst [3 or "bin-500"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-500","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
     inst [4 or "bin-700"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-700","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
@@ -7805,17 +7805,17 @@ prometheus.problematic_strings.test
     inst [10 or "10 instance:{"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"{","instname":"instance:{","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
 
 prometheus.problematic_strings.test2
-    inst [0 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [1 or " "] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":" ","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [2 or "'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"'","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [3 or """] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [4 or ""'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [5 or "\"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [6 or ","] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":",","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [7 or "="] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"=","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [8 or ":"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":":","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [9 or "}"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"}","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
-    inst [10 or "{"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"{","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [0 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [1 or " "] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":" ","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [2 or "'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"'","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [3 or """] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [4 or ""'"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [5 or "\"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [6 or ","] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":",","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [7 or "="] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"=","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [8 or ":"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":":","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [9 or "}"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"}","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
+    inst [10 or "{"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"","instname":"{","machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
 
 prometheus.problematic_strings.test3
     labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"problematic_strings","url":FILEURL,"userid":NUM}
@@ -7933,7 +7933,7 @@ prometheus.sample_pmda_3_12_2.sample.bigid
 
 prometheus.sample_pmda_3_12_2.sample.bogus_bin
     inst [0 or "bin-100"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-100","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
-    inst [1 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
+    inst [1 or ""] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
     inst [2 or "bin-300"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-300","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
     inst [3 or "bin-500"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-500","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
     inst [4 or "bin-700"] labels {"agent":"prometheus","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instance":"bin-100","instname":"bin-700","machineid":MACHINEID,"source":"sample_pmda_3_12_2","url":FILEURL,"userid":NUM}
