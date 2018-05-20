@@ -3251,7 +3251,7 @@ cd
 
 %files export-zabbix-agent
 %{_libdir}/zabbix
-%{_sysconfdir}/zabbix/zabbix_agent.d/zbxpcp.conf
+%{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
 
 %if !%{disable_json}
 %files pmda-json
