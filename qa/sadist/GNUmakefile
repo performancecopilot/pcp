@@ -15,6 +15,9 @@ IOSTAT = iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	 iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
 	 iostat-t-x-bud
 
+# override ${MANDIRT} from buildefs, we want to keep e.g. *.[1-9].xz
+MANDIRT =
+
 default default_pcp setup: 
 
 install install_pcp:

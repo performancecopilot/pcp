@@ -38,6 +38,9 @@ default_pcp default: new remake check qa_outfiles localconfig $(OTHERS) $(SUBDIR
 setup: $(SUBDIRS) localconfig qa_hosts
 	$(SUBDIRS_MAKERULE)
 
+# override ${MANDIRT} from buildefs, we want to keep e.g. *.[1-9].xz
+MANDIRT =
+
 LDIRT += 051.work 134.full.* \
 	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
