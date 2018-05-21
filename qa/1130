@@ -73,7 +73,7 @@ egrep -q '"@host-id": "QAHOST"' $tmp.socat.err
 _full_stash
 
 echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq.full
-socat -vv -t 0.1 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2elasticsearch -a $here/archives/rep -I "" >$tmp.p2e.out 2>$tmp.p2e.err
