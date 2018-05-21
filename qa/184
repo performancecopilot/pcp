@@ -55,6 +55,7 @@ $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSE
 _filter_newlog()
 {
     sed \
+	-e "s;$PCP_BINADM_DIR/pmlogger;pmlogger;g" \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e '/pmlogger -L/s/.*/-- ps line removed --/' \
 	-e '/ \/usr\/pcp\/bin\/pmlogger /s/.*/-- ps line removed --/' \

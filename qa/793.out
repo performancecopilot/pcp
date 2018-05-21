@@ -32,7 +32,7 @@ pmlogger_daily
 
 Looking for pmlogger (process PID) [dots] found
 pcp ...
-Terminating pmlogger (process PID) [dots] SIGUSR1 LOCALHOST SIGTERM LOCALHOST done
+Terminating pmlogger (process PID) [dots] SIGUSR1 ... SIGTERM ... done
 Launching new pmlogger in directory "TMP/A" as [dots]
 pmlogger -m PMLOGGER.DAILY -l pmlogger.log -h LOCALHOST -c TMP.config DATE.TIME
 Waiting for new pmlogger to start [dots] done
@@ -51,7 +51,7 @@ PMLOGGER.DAILY: Warning: no archives found to merge
 
 Looking for pmlogger (process PID) [dots] found
 pcp ...
-Terminating pmlogger (process PID) [dots] SIGUSR1 LOCALHOST SIGTERM LOCALHOST done
+Terminating pmlogger (process PID) [dots] SIGUSR1 ... SIGTERM ... done
 Launching new pmlogger in directory "TMP/B" as [dots]
 pmlogger -m PMLOGGER.DAILY -l pmlogger.log -h LOCALHOST -c TMP.config DATE.TIME
 Waiting for new pmlogger to start [dots] done
@@ -70,7 +70,7 @@ PMLOGGER.DAILY: Warning: no archives found to merge
 
 Looking for pmlogger (process PID) [dots] found
 pcp ...
-Terminating pmlogger (process PID) [dots] SIGUSR1 LOCALHOST SIGTERM LOCALHOST done
+Terminating pmlogger (process PID) [dots] SIGUSR1 ... SIGTERM ... done
 Launching new pmlogger in directory "TMP/C" as [dots]
 pmlogger -m PMLOGGER.DAILY -l pmlogger.log -h LOCALHOST -c TMP.config DATE.TIME
 Waiting for new pmlogger to start [dots] done

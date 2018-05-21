@@ -29,6 +29,7 @@ rm -f $seq.full
 _filter()
 {
     sed \
+	-e "s;$PCP_BINADM_DIR/pmlogger;pmlogger;g" \
 	-e '/^+ date-and-timestamp /s/stamp .*/stamp .../' \
 	-e '/^+ cd /s/cd .*/cd .../' \
 	-e '/^+ mv /s/mv .*/mv .../' \

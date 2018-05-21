@@ -25,6 +25,7 @@ wai=`whoami`
 _filter_pmnewlog()
 {
     sed \
+	-e "s;$PCP_BINADM_DIR/pmlogger;pmlogger;g" \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e "s/^ *$wai/   pcpqa/" \
 	-e '/^ *pcp*.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
