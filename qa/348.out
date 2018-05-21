@@ -10,7 +10,6 @@ Check kvm metrics have appeared ... X metrics and Y values
 === validate values ===
 
 === check values ===
-kvm.efer_reload is in range
 kvm.exits is in range
 kvm.fpu_reload is in range
 kvm.halt_exits is in range

@@ -131,6 +131,7 @@ do
     case "$metric"
     in
 	kvm.max_mmu_page_hash_collisions)	;;
+	kvm.efer_reload)			;;
 	kvm.req_event)				;;
 	kvm.halt_successful_poll)		;;
 	kvm.halt_poll_invalid)			;;
