@@ -485,7 +485,7 @@ HTTP (PMWEBAPI) protocol.
 # pcp-webjs and pcp-webapp packages
 #
 %package webjs
-License: ASL2.0 and MIT and CC-BY and GPLv3
+License: ASL 2.0 and MIT and CC-BY and GPLv3
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.11.9
 %if !%{disable_noarch}
@@ -501,7 +501,7 @@ Javascript web application content for the Performance Co-Pilot (PCP)
 web service.
 
 %package webapp-vector
-License: ASL2.0
+License: ASL 2.0
 Group: Applications/Internet
 %if !%{disable_noarch}
 BuildArch: noarch
@@ -513,7 +513,7 @@ URL: https://github.com/Netflix/vector
 Vector web application for the Performance Co-Pilot (PCP).
 
 %package webapp-grafana
-License: ASL2.0
+License: ASL 2.0
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.10.4
 %if !%{disable_noarch}
@@ -533,7 +533,7 @@ Grafana can render time series dashboards at the browser via flot.js
 server via png (less interactive, faster).
 
 %package webapp-graphite
-License: ASL2.0 and GPLv3
+License: ASL 2.0 and GPLv3
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.10.4
 %if !%{disable_noarch}
@@ -549,7 +549,7 @@ as the data repository, and Graphites web interface renders it. The
 Carbon and Whisper subsystems of Graphite are not included nor used.
 
 %package webapp-blinkenlights
-License: ASL2.0
+License: ASL 2.0
 Group: Applications/Internet
 %if !%{disable_noarch}
 BuildArch: noarch
@@ -1460,7 +1460,7 @@ collecting metrics about the Device Mapper Cache and Thin Client.
 # pcp-pmda-bcc
 #
 %package pmda-bcc
-License: ASL2.0 and GPLv2+
+License: ASL 2.0 and GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics from eBPF/BCC modules
 URL: https://pcp.io
