@@ -19,6 +19,7 @@ IAM	= json
 PYSCRIPT = pmda$(IAM).python
 LCFILES = acme_json.c
 LTARGET = acme_json$(EXECSUFFIX)
+SCRIPTS = Install Remove generate_ceph_metadata
 
 DOMAIN	= JSON
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
@@ -42,7 +43,7 @@ build-me:	check_domain config.json
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/$(IAM)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) generate_ceph_metadata $(PMDADIR)
+	$(INSTALL) -m 755 $(SCRIPTS) $(PYSCRIPT) $(PMDADIR)
 	$(INSTALL) -m 644 config.json README $(PMDADIR)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
