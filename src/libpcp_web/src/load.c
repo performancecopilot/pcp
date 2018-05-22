@@ -950,7 +950,6 @@ series_source(pmSeriesSettings *settings,
     int		sts;
 
     source.redis = redis_init(settings->hostspec);
-    //    source.redis = redisSlotsInit(settings->hostspec, NULL);
 
     load_prepare_source(&source, root, 0);
     if (source.context.type) {

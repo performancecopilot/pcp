@@ -744,7 +744,6 @@ static pmSeriesSettings settings = {
     .on_label		= on_series_label,
     .on_info		= on_series_info,
     .on_done		= on_series_done,
-    .hostspec           = "localhost:6379",
 };
 
 static pmLongOptions longopts[] = {
