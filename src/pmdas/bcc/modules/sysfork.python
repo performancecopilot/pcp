@@ -71,7 +71,7 @@ class PCPBCCModule(PCPBCCBase):
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
-            return
+            return None
 
         self.value = self.bpf["stats"][c_int(1)].value
 
