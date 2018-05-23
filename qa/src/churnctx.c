@@ -310,7 +310,7 @@ Options:\n\
 
     if (logfile != NULL) {
 	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
-	if (sts < 0) {
+	if (sts != 1) {
 	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
 	}
     }

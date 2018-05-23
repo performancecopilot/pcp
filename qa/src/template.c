@@ -79,7 +79,7 @@ main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	    }
 	    pmOpenLog(pmGetProgname(), opts.optarg, stderr, &sts);
-	    if (sts < 0) {
+	    if (sts != 1) {
 		fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), opts.optarg);
 		exit(EXIT_FAILURE);
 	    }
