@@ -80,7 +80,7 @@ class PCPBCCBase(object):
         if self.bpf is not None:
             self.bpf.cleanup()
         self.bpf = None
-        self.log("BPF/kprobes detached.")
+        self.log("BPF detached.")
 
     @classmethod
     def read_histogram(cls, table, cache):
