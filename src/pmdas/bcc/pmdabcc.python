@@ -222,18 +222,6 @@ class BCCPMDA(PMDA):
                 self.modules[module][COMPILE]()
             self.log("Modules compiled.")
 
-    def bcc_label(self, ident, label_type):
-        """ Cluster labels """
-        if label_type == PM_LABEL_CLUSTER:
-            module = self.clusters[ident]
-            return self.modules[module][LABEL_CLUSTER]()
-        return '{}'
-
-    def bcc_label_callback(self, indom, inst):
-        """ Label callback for an individual instance inst of a given instance domain indom """
-        module = self.indoms[indom]
-        return self.modules[module][LABEL_INSTANCE](inst)
-
     def bcc_refresh(self, cluster):
         """ Refresh """
         module = self.clusters[cluster]
@@ -254,6 +242,18 @@ class BCCPMDA(PMDA):
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
             return [PM_ERR_VALUE, 0]
+
+    def bcc_label(self, ident, label_type):
+        """ Cluster labels """
+        if label_type == PM_LABEL_CLUSTER:
+            module = self.clusters[ident]
+            return self.modules[module][LABEL_CLUSTER]()
+        return '{}'
+
+    def bcc_label_callback(self, indom, inst):
+        """ Label callback for individual inst """
+        module = self.indoms[indom]
+        return self.modules[module][LABEL_INSTANCE](inst)
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()
