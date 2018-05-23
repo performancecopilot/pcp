@@ -17,10 +17,10 @@
 
 from bcc import BPF
 
-from modules.pcpbcc import PCPBCCBase
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -81,7 +81,7 @@ class PCPBCCModule(PCPBCCBase):
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
-            return
+            return None
 
         dist = self.bpf.get_table("dist")
         self.insts = self.read_histogram(dist, self.cache)
