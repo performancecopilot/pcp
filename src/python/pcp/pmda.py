@@ -423,12 +423,15 @@ class PMDA(MetricDispatch):
     ##
     # overloads
 
-    def __init__(self, name, domain):
+    def __init__(self, name, domain, logfile=None, helpfile=None):
         self._name = name
         self._domain = domain
-        logfile = name + '.log'
+        if not logfile:
+            # note: logfile == "-" is special, see pmOpenLog(3).
+            logfile = name + '.log'
         pmdaname = 'pmda' + name
-        helpfile = '%s/%s/help' % (PCP.pmGetConfig('PCP_PMDAS_DIR'), name)
+        if not helpfile:
+            helpfile = '%s/%s/help' % (PCP.pmGetConfig('PCP_PMDAS_DIR'), name)
         MetricDispatch.__init__(self, domain, pmdaname, logfile, helpfile)
 
 
