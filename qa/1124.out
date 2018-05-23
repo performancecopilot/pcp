@@ -1,0 +1,59 @@
+QA output created by 1124
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['tracepoint_hits']
+Info: Configuring modules:
+Info: tracepoint_hits
+Info: Modules configured.
+Info: Initializing modules:
+Info: tracepoint_hits
+Info: tracepoint_hits: Configured tracepoints: ['random:urandom_read']
+Info: tracepoint_hits: Found 1 tracepoints: ['random:urandom_read'].
+Info: tracepoint_hits: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: tracepoint_hits
+Info: Metrics registered.
+Info: Registering helpers:
+Info: tracepoint_hits
+Info: Helpers registered.
+Info: Ready to process requests.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['tracepoint_hits']
+Info: Configuring modules:
+Info: tracepoint_hits
+Info: Modules configured.
+Info: Initializing modules:
+Info: tracepoint_hits
+Info: tracepoint_hits: Configured tracepoints: ['random:urandom_read']
+Info: tracepoint_hits: Found 1 tracepoints: ['random:urandom_read'].
+Info: tracepoint_hits: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: tracepoint_hits
+Info: Metrics registered.
+Info: Registering helpers:
+Info: tracepoint_hits
+Info: Helpers registered.
+Info: Ready to process requests.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... 1 metrics and X values
+
+=== report metric values ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ...
+Starting pmlogger ...
