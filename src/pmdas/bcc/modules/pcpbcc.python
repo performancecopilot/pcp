@@ -67,6 +67,14 @@ class PCPBCCBase(object):
         """ Return BPF data as PCP metric value """
         raise NotImplementedError
 
+    def label_cluster(self):
+        """ Cluster labels """
+        return '{}'
+
+    def label_instance(self, inst):
+        """ Label callback for an individual instance inst of a given instance domain indom """
+        return '{}'
+
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:

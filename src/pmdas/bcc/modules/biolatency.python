@@ -87,6 +87,16 @@ class PCPBCCModule(PCPBCCBase):
             self.err("Module NOT active!")
             self.bpf = None
 
+    def label_cluster(self):
+        """ Cluster labels """
+        return '{"statistic":"histogram"}'
+
+    def label_instance(self, inst):
+        """ Label callback for an individual instance inst of a given instance domain indom """
+        key = self.pmdaIndom.inst_name_lookup(inst)
+        bounds = key.split('-')
+        return '{"lower_bound":%s,"upper_bound":%s}' % (bounds[0], bounds[1])
+
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
