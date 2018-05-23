@@ -759,7 +759,7 @@ class Source(object):
             return [c_api.PM_ERR_AGAIN, 0]
 
 class PrometheusPMDA(PMDA):
-    def __init__(self, pmda_name, domain, config, timeout, user, debugflag):
+    def __init__(self, pmda_name, domain, config, timeout, user, debugflag, logfile):
         '''
         Initialize the PMDA. This can take a while for large configurations.
         The prometheus entry in pmcd.conf specifies to start up in "notready"
@@ -769,7 +769,7 @@ class PrometheusPMDA(PMDA):
         '''
 
         # must first set user and connect to the invoking pmcd
-        PMDA.__init__(self, pmda_name, domain)
+        PMDA.__init__(self, pmda_name, domain, logfile)
         if user is not None:
             self.set_user(user)
             self.log('Note: running as user "%s"' % user)
@@ -802,7 +802,7 @@ class PrometheusPMDA(PMDA):
         # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
         # pmcd to delegate all pmns requests to us.  Do it early, before
         # other metrics may populate beneath the prometheus.* prefix.
-        dynamic_pmid = (0 << 31) | (511 << 22) | (144 << 10) | 0
+        dynamic_pmid = (0 << 31) | (511 << 22) | (args.domain << 10) | 0
         dynamic_root = pmdaMetric(dynamic_pmid, 0, 0, 0, pmUnits())
         self.add_metric('prometheus', dynamic_root, 'dynamic root for prometheus metrics')
 
@@ -1175,6 +1175,16 @@ if __name__ == '__main__':
         default=os.path.join(pmdadir, 'config.d'),
         help='configuration directory')
     parser.add_argument(
+        '-d', '--domain',
+        type=int,
+        default=144,
+        help='PMDA domain number (default 144)')
+    parser.add_argument(
+        '-l', '--log',
+        type=str,
+        default='prometheus.log',
+        help='log filename')
+    parser.add_argument(
         '-n', '--nosort',
         default=False,
         help='do not sort the config file list (default is to sort)',
@@ -1197,7 +1207,8 @@ if __name__ == '__main__':
     # This PMDA starts up in the "notready" state, see the Install script where
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
-    pmda = PrometheusPMDA('prometheus', 144, args.config, args.timeout, args.user, args.debug)
+    # Default domain number is PMDA(144), see -d option.
+    pmda = PrometheusPMDA('prometheus', args.domain, args.config, args.timeout, args.user, args.debug, args.log)
 
     # Scan initial config
     pmda.log("Initializing ... currently in notready state.")

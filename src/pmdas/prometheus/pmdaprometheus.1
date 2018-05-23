@@ -23,6 +23,8 @@
 [\f3\-D\f1]
 [\f3\-n\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-u\f1 \f2user\f1]
 .SH DESCRIPTION
@@ -30,7 +32,7 @@
 creates PCP metrics from Prometheus endpoints, which provide HTTP based
 access to application metrics.
 The default \f2config\fP directory is
-.IR $PCP_PMDAS_DIR/prometheus/config.d/ ,
+.BR $PCP_PMDAS_DIR/prometheus/config.d/ ,
 see ``CONFIGURATION SOURCES'' below.
 The default URL fetch \f2timeout\fP is \fB2\fP seconds.
 The default \f2user\fP, if not specified with the \f3\-u\fP option,
@@ -45,8 +47,9 @@ If the
 .B \-D
 option is given, additional diagnostic messages will be written to the PMDA log file,
 which is
-.I $PCP_LOG_DIR/pmcd/prometheus.log
-by default.
+.B $PCP_LOG_DIR/pmcd/prometheus.log
+by default (see also
+.BR \-l below).
 In addition, the metric
 .B prometheus.control.debug
 controls the same debug flag and can be set with the following command:
@@ -65,11 +68,49 @@ or
 (to disable verbose log messages).
 This is particularly useful for examining the http headers passed to each fetch request,
 filter settings and other processing details that are logged when the debugging flag is enabled.
+.PP
+The
+.B \-d
+option may be used to override the default performance metrics
+.I domain
+number, which defaults to
+.BR 144.
+It is strongly recommended not to change this.
+The
+.I domain
+number should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for
+.B pmdaprometheus
+PMDA on all hosts.
+.PP
+The
+.B \-l
+option may be used to specify
+.I logfile
+as the destination for PMDA messages
+instead of the default,
+.BR $PCP_LOG_DIR/pmcd/prometheus.log .
+As a special case,
+.I logfile
+may be \fB"\-"\fP
+to send messages to the
+.B stderr
+stream instead, e.g.
+.BR \-l- .
+This would normally be the
+.B stderr
+stream for the parent process,
+.BR pmcd (1),
+which may itself have redirected
+.BR stderr .
+This redirection is normally most useful in a containerized environment, or when using
+.BR dbpmda (1).
 .SH "CONFIGURATION SOURCES"
 As it runs,
 .B pmdaprometheus
 periodically recursively scans the
-.I $PCP_PMDAS_DIR/prometheus/config.d
+.B $PCP_PMDAS_DIR/prometheus/config.d
 directory (or the directory specified with the
 .B \-c
 option), looking for source URL files (\c
