@@ -437,18 +437,18 @@ pm_dm_stats_instance_refresh(void)
 	sts = pmdaCacheLookupName(indom, names->name, NULL, (void **)&pw);
 	if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {
 	    pw = (struct pm_wrap *)malloc(sizeof(*pw));
-	    pw->dmsc = calloc(1, sizeof(*pw->dmsc));
-	    pw->pdmh = calloc(1, sizeof(*pw->pdmh));
 	    if (pw == NULL)
 		return PM_ERR_AGAIN;
+	    memset(pw, 0, sizeof(*pw)); /* RH BZ 1569854 */
+	    pw->dmsc = calloc(1, sizeof(*pw->dmsc));
+	    pw->pdmh = calloc(1, sizeof(*pw->pdmh));
 	}
 	strcpy(pw->dev, names->name);
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)pw);
 	next = names->next;
+	dm_stats_destroy(dms); /* free dms allocated by _dm_stats_search_region */
     } while(next);
 
-    if (dms)
-	dm_stats_destroy(dms);
     dm_task_destroy(dmt);
 
     return 0;
@@ -523,11 +523,11 @@ pm_dm_histogram_instance_refresh(void)
 		sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pw);
 		if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {
 		    pw = (struct pm_wrap *)malloc(sizeof(*pw));
-		    pw->dmsc = calloc(1, sizeof(*pw->dmsc));
-		    pw->pdmh = calloc(1, sizeof(*pw->pdmh));
-
 		    if (pw == NULL)
 			return PM_ERR_AGAIN;
+		    memset(pw, 0, sizeof(*pw)); /* RH BZ 1569854 */
+		    pw->dmsc = calloc(1, sizeof(*pw->dmsc));
+		    pw->pdmh = calloc(1, sizeof(*pw->pdmh));
 		}
 		pw->region_id = region_id;
 		pw->area_id = area_id;
@@ -536,10 +536,9 @@ pm_dm_histogram_instance_refresh(void)
 	    }
 	}
 	next = names->next;
+	dm_stats_destroy(dms); /* free dms allocated by _dm_stats_search_region */
     } while(next);
 
-    if (dms)
-	dm_stats_destroy(dms);
     dm_task_destroy(dmt);
 
     return 0;
