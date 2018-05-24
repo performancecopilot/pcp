@@ -14,7 +14,7 @@
 # for more details.
 # 
 # This script emulates bsd install and also recognises
-# two environment variables, with the following semanitcs :-
+# two environment variables, with the following semantics :-
 #
 # $DIST_MANIFEST - if set, the name of the file to append manifest
 #                  information in the following format:
