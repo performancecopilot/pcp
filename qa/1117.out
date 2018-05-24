@@ -45,6 +45,8 @@ Check bcc metrics have appeared ... 1 metrics and X values
 
 === report metric values ===
 OK
+=== check metric labels ===
+OK
 
 === remove bcc agent ===
 Culling the Performance Metrics Name Space ...

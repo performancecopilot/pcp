@@ -67,37 +67,99 @@ class PCPBCCBase(object):
         """ Return BPF data as PCP metric value """
         raise NotImplementedError
 
+    def label_cluster(self): # pylint: disable=no-self-use
+        """ Cluster labels """
+        return '{}'
+
+    def label_instance(self, inst): # pylint: disable=no-self-use,unused-argument
+        """ Label callback for instance """
+        return '{}'
+
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:
             self.bpf.cleanup()
         self.bpf = None
-        self.log("BPF/kprobes detached.")
+        self.log("BPF detached.")
+
+    #
+    # Helpers for modules
+    #
 
     @classmethod
     def read_histogram(cls, table, cache):
+        """ Read BPF histogram data """
         buckets = []
-        maxHigh = -1
+        max_high = -1
 
-        for k, v in table.items():
-            if k.value == 0:
+        for key, val in table.items():
+            if key.value == 0:
                 continue
 
-            low = (1 << k.value) >> 1
-            high = (1 << k.value) - 1
+            low = (1 << key.value) >> 1
+            high = (1 << key.value) - 1
             if low == high:
                 low -= 1
             key = str(low) + "-" + str(high)
             if key not in cache:
                 cache[key] = 0
-            cache[key] += v.value
+            cache[key] += val.value
 
             buckets.append((low, high))
-            if high > maxHigh and cache[key] > 0:
-                maxHigh = high
+            if high > max_high and cache[key] > 0:
+                max_high = high
 
-        # always show at least the first bucket (if there is a bucket)
-        if maxHigh == -1 and buckets:
-            maxHigh = buckets[0][1]
+        # Always show at least the first bucket, if one
+        if max_high == -1 and buckets:
+            max_high = buckets[0][1]
 
-        return {str(low) + "-" + str(high) : c_int(1) for low, high in buckets if high <= maxHigh}
+        return {str(low) + "-" + str(high) : c_int(1) for low, high in buckets if high <= max_high}
+
+    @classmethod
+    def read_probe_conf(cls, conf):
+        """ Read tracepoint/uprobe/usdt probes from a file """
+        if ":" in conf:
+            return conf.split(",")
+        if not conf.startswith("/"):
+            from os import path
+            conf = path.dirname(__file__) + "/../" + conf
+        return [l.strip() for l in open(conf).readlines() if l.strip() != "" and '#' not in l]
+
+    @classmethod
+    def get_proc_info(cls, process):
+        """ Get process info for given PIDs or process name """
+
+        def get_pids(procname):
+            """ Get PIDs for a process """
+            from os import listdir
+            import re
+            pids = []
+            comp = re.compile(r'\A' + procname + r'\Z')
+            for dirname in listdir("/proc"):
+                try:
+                    with open("/proc/%s/cmdline" % dirname, "rb") as file:
+                        cmdline = file.read().decode().split("\x00")
+                        if procname == cmdline[0] or re.match(comp, " ".join(cmdline[:-1])):
+                            pids.append(int(dirname))
+                except Exception: # pylint: disable=broad-except
+                    continue
+            return pids
+
+        def get_proc_details(pids):
+            """ Get process info for PIDs """
+            procinfo = []
+            for pid in pids:
+                try:
+                    with open("/proc/%s/cmdline" % str(pid), "rb") as file:
+                        cmdline = file.read().decode().split("\x00")
+                        procinfo.append([pid, cmdline[0], " ".join(cmdline[1:-1])])
+                except Exception: # pylint: disable=broad-except
+                    continue
+            return procinfo
+
+        try:
+            pids = [int(i) for i in process.split(",")]
+        except ValueError:
+            pids = get_pids(process)
+
+        return get_proc_details(pids)

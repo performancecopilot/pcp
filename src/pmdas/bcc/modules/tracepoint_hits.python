@@ -1,0 +1,172 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA tracepoint hits module """
+
+# Configuration options
+# Name - type - default
+#
+# compile_test - boolean - False : disable failing tracepoints on-the-fly
+# tracepoints  - string  - unset : file or comma-separated list of tracepoints
+
+# pylint: disable=invalid-name
+
+from ctypes import c_int
+from bcc import BPF
+
+from modules.pcpbcc import PCPBCCBase
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+
+#
+# BPF program
+#
+bpf_src = "modules/tracepoint_hits.bpf"
+# Individual tracepoint probe
+tp_probe = """
+static char *HASH_KEY = "TRACEPOINT_NAME";
+TRACEPOINT_PROBE(TRACEPOINT_CATEGORY, TRACEPOINT_EVENT) {
+    struct tp_t key = {};
+    __builtin_memcpy(&key.tp, HASH_KEY, sizeof(key.tp));
+    u64 zero = 0, *val;
+    val = stats.lookup_or_init(&key, &zero);
+    (*val)++;
+    return 0;
+}
+"""
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'tracepoint_hits'
+METRIC = 'tracepoint.hits'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC tracepoint count module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.cache = {}
+        self.compile_test = False
+        self.tracepoints = []
+
+        for opt in self.config.options(MODULE):
+            if opt == 'compile_test':
+                self.compile_test = self.config.getboolean(MODULE, opt)
+            if opt == 'tracepoints':
+                val = self.config.get(MODULE, opt)
+                if ":" not in val:
+                    if val.startswith("/"):
+                        conf_file = val
+                    else:
+                        from os import path
+                        conf_file = path.dirname(__file__) + '/../' + val
+                    with open(conf_file, "r") as f:
+                        self.tracepoints = f.readlines()
+                        self.tracepoints = [l.strip() for l in self.tracepoints]
+                else:
+                    self.tracepoints = val.split(",")
+
+        self.log("Configured tracepoints: " + str(self.tracepoints))
+
+        bpf_tps = BPF.get_tracepoints(".*")
+        found = []
+        for item in self.tracepoints:
+            tps = BPF.get_tracepoints(item + "$")
+            if not tps:
+                self.log("Warning: ignoring unknown tracepoint '%s'." % item)
+            for tp in tps:
+                if tp not in found:
+                    found.append(tp)
+                    self.insts[tp] = c_int(1)
+        self.tracepoints = found
+
+        self.log("Found %s tracepoints: %s." % (str(len(self.tracepoints)), str(self.tracepoints)))
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items.append(
+            # Name - reserved - type - semantics - units - help
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'tracepoint hit count'),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if not self.tracepoints:
+                raise RuntimeError("No tracepoints enabled.")
+            from os import path
+            bpf_file = open(path.dirname(__file__) + '/../' + bpf_src, "r")
+            bpf_text = bpf_file.read()
+            bpf_file.close()
+            tps = []
+            tested_probes = ""
+            for tp in self.tracepoints:
+                hash_key = tp.replace(":", "__")
+                tp_category, tp_event = tp.split(":")
+                probe = tp_probe.replace("HASH_KEY", hash_key)
+                probe = probe.replace("TRACEPOINT_NAME", tp)
+                probe = probe.replace("TRACEPOINT_CATEGORY", tp_category)
+                probe = probe.replace("TRACEPOINT_EVENT", tp_event)
+                if self.compile_test:
+                    self.log("Compilation test for tracepoint probe: '%s'." % tp)
+                    test_probe = bpf_text + probe
+                    test_probe = test_probe.replace("TRACEPOINT_COUNT", "1")
+                    try:
+                        test_bpf = BPF(text=test_probe)
+                        test_bpf.cleanup()
+                        tps.append(tp)
+                        tested_probes += probe
+                    except Exception: # pylint: disable=broad-except
+                        self.err("Failed to compile tracepoint probe '%s', disabling." % tp)
+                else:
+                    tps.append(tp)
+                    bpf_text += probe
+            bpf_text += tested_probes
+            bpf_text = bpf_text.replace("TRACEPOINT_COUNT", str(len(tps)))
+            self.log("Compiling %s tracepoints: %s" % (str(len(tps)), str((tps))))
+            self.bpf = BPF(text=bpf_text)
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return
+
+        stats = self.bpf["stats"]
+        for k, v in stats.items():
+            self.cache[k.tp.decode("ASCII")] = v.value
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [self.cache[key], 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]

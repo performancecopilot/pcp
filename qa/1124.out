@@ -1,38 +1,42 @@
-QA output created by 1118
+QA output created by 1124
 
 === bcc agent installation ===
 Info: Initializing, currently in 'notready' state.
 Info: Enabled modules:
-Info: ['runqlat']
+Info: ['tracepoint_hits']
 Info: Configuring modules:
-Info: runqlat
+Info: tracepoint_hits
 Info: Modules configured.
 Info: Initializing modules:
-Info: runqlat
-Info: runqlat: Initialized.
+Info: tracepoint_hits
+Info: tracepoint_hits: Configured tracepoints: ['random:urandom_read']
+Info: tracepoint_hits: Found 1 tracepoints: ['random:urandom_read'].
+Info: tracepoint_hits: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
-Info: runqlat
+Info: tracepoint_hits
 Info: Metrics registered.
 Info: Registering helpers:
-Info: runqlat
+Info: tracepoint_hits
 Info: Helpers registered.
 Info: Ready to process requests.
 Info: Initializing, currently in 'notready' state.
 Info: Enabled modules:
-Info: ['runqlat']
+Info: ['tracepoint_hits']
 Info: Configuring modules:
-Info: runqlat
+Info: tracepoint_hits
 Info: Modules configured.
 Info: Initializing modules:
-Info: runqlat
-Info: runqlat: Initialized.
+Info: tracepoint_hits
+Info: tracepoint_hits: Configured tracepoints: ['random:urandom_read']
+Info: tracepoint_hits: Found 1 tracepoints: ['random:urandom_read'].
+Info: tracepoint_hits: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
-Info: runqlat
+Info: tracepoint_hits
 Info: Metrics registered.
 Info: Registering helpers:
-Info: runqlat
+Info: tracepoint_hits
 Info: Helpers registered.
 Info: Ready to process requests.
 Updating the Performance Metrics Name Space (PMNS) ...
@@ -42,8 +46,6 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bcc metrics have appeared ... 1 metrics and X values
 
 === report metric values ===
-OK
-=== check metric labels ===
 OK
 
 === remove bcc agent ===
