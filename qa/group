@@ -1445,6 +1445,7 @@ pmlogsize
 1123 pmchart local
 1124 pmda.bcc local
 1125 archive multi-archive collectl decompress-xz local pmlogextract
+1126 pmda.bcc local
 1128 pmie local
 1129 derive local
 1130 pcp2elasticsearch python pcp2xxx local

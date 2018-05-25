@@ -12,21 +12,18 @@
 # for more details.
 #
 
-TOPDIR = ../../../..
+TOPDIR = ../../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM       = bcc
-MODULEDIR = $(PCP_PMDAS_DIR)/$(IAM)/modules
+MODULEDIR = $(PCP_PMDAS_DIR)/$(IAM)/modules/fs
 PYSCRIPTS = $(shell echo *.python)
 EBPFPROGS = $(shell echo *.bpf)
-SUBDIRS  = fs
 
 include $(BUILDRULES)
 
-default_pcp default:	$(SCRIPTS) $(BCC_EBPF) $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default_pcp default:	$(SCRIPTS) $(BCC_EBPF)
 
-install_pcp install:	default $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+install_pcp install:	default
 	$(INSTALL) -m 755 -d $(MODULEDIR)
 	$(INSTALL) -m 644 $(EBPFPROGS) $(PYSCRIPTS) $(MODULEDIR)

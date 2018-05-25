@@ -13,7 +13,8 @@
 #
 """ PCP BCC PMDA module base class """
 
-from ctypes import c_int
+import ctypes as ct
+from bcc.table import log2_index_max
 
 # pylint: disable=too-many-instance-attributes
 class PCPBCCBase(object):
@@ -87,33 +88,78 @@ class PCPBCCBase(object):
     #
 
     @classmethod
-    def read_histogram(cls, table, cache):
-        """ Read BPF histogram data """
-        buckets = []
-        max_high = -1
+    def read_log2_histogram_section(cls, hist_data, cache):
+        """
+        adapted from https://github.com/iovisor/bcc/blob/master/src/python/bcc/table.py
 
-        for key, val in table.items():
-            if key.value == 0:
-                continue
+        cache is filled until the top end (zero value buckets)
+        always populate the cache with the first element, even if the value is
+        zero (to have at least a single instance instead of no values at all)
+        """
+        idx_max = -1
+        val_max = 0
 
-            low = (1 << key.value) >> 1
-            high = (1 << key.value) - 1
+        for i, v in enumerate(hist_data):
+            if v > 0:
+                idx_max = i
+            if v > val_max:
+                val_max = v
+
+        for i in range(1, max(idx_max, 1) + 1):
+            low = (1 << i) >> 1
+            high = (1 << i) - 1
             if low == high:
                 low -= 1
+
             key = str(low) + "-" + str(high)
             if key not in cache:
                 cache[key] = 0
-            cache[key] += val.value
+            cache[key] += hist_data[i]
 
-            buckets.append((low, high))
-            if high > max_high and cache[key] > 0:
-                max_high = high
+    # pylint: disable=protected-access
+    @classmethod
+    def read_log2_histograms(cls, table, cache):
+        """
+        read multiple log2 histograms
+        adapted from https://github.com/iovisor/bcc/blob/master/src/python/bcc/table.py
+        """
 
-        # Always show at least the first bucket, if one
-        if max_high == -1 and buckets:
-            max_high = buckets[0][1]
+        if not isinstance(table.Key(), ct.Structure):
+            raise Exception('this histogram does not contain multiple sections')
 
-        return {str(low) + "-" + str(high) : c_int(1) for low, high in buckets if high <= max_high}
+        hist_sections = {}
+        hist_key_field1 = table.Key._fields_[0][0]
+        hist_key_field2 = table.Key._fields_[1][0]
+
+        # note: table contains sections with changed values only
+        for k, v in table.items():
+            section = getattr(k, hist_key_field1).decode('utf-8')
+            if section not in hist_sections:
+                hist_sections[section] = [0] * log2_index_max
+            slot = getattr(k, hist_key_field2)
+            hist_sections[section][slot] = v.value
+
+        for section, hist_data in hist_sections.items():
+            if section not in cache:
+                cache[section] = {}
+            cls.read_log2_histogram_section(hist_data, cache[section])
+
+        all_insts = set()
+        for section_cache in cache.values():
+            all_insts.update(section_cache.keys())
+        return {key: ct.c_int(1) for key in all_insts}
+
+    @classmethod
+    def read_log2_histogram(cls, table, cache):
+        """ read a single log2 histogram """
+        if isinstance(table.Key(), ct.Structure):
+            raise Exception('this histogram contains multiple sections')
+
+        hist_data = [0] * log2_index_max
+        for k, v in table.items():
+            hist_data[k.value] = v.value
+        cls.read_log2_histogram_section(hist_data, cache)
+        return {key: ct.c_int(1) for key in cache.keys()}
 
     @classmethod
     def read_probe_conf(cls, conf):
