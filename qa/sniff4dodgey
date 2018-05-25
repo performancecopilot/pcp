@@ -1,0 +1,262 @@
+#!/bin/sh
+#
+# Check QA test scripts for likelihood of cross-platform issues.
+#
+# Originally motivated by Python, but extended to cover any feature
+# that has a history of not working across the platforms of the QA
+# Farm.
+#
+
+tmp=/var/tmp/$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo 'Usage: [options] check4python [file ...]'
+    echo
+    echo 'Options:'
+    echo ' -l   level), N means check for all levels >= N'
+    echo '      0   includes common.python'
+    echo '      1   looks dodgey but is in fact well-behaved, e.g. pmrep'
+    echo '      5   uses python or $PCP_PYTHON_PROG or ... directly'
+    echo '      8   [default] known to be dodgey'
+    echo ' -v   verbose, report reason(s)'
+    echo ' -w   warning if matching tag in group not set'
+    exit
+}
+
+level=8
+verbose=false
+warn=false
+while getopts "l:vw?" c
+do
+    case $c
+    in
+	l)
+	    case "$OPTARG"
+	    in
+		[0-9])
+		    level=$OPTARG
+		    ;;
+		*)
+		    echo "Error: -l option ($OPTARG) must be numeric"
+		    exit
+		    ;;
+	    esac
+	    ;;
+
+	v)
+	    verbose=true
+	    ;;
+
+	w)
+	    warn=true
+	    ;;
+
+	?)
+	    _usage
+	    # NOTREACHED
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+[ $# -eq 0 ] && set -- [0-9][0-9][0-9] [0-9][0-9][0-9][0-9]
+
+sed <group >$tmp.group \
+    -e '/^[ 	]*#/'d \
+    -e 's/:[^ ]*//' \
+    -e 's/ /  /' \
+    -e 's/$/ /' \
+# end
+
+for seq
+do
+    rm -f $tmp.warn $tmp.report
+
+    if [ ! -f "$seq" ]
+    then
+	echo "Error: cannot open QA test script \"$seq\""
+	exit
+    fi
+
+    sed <"$seq" >$tmp.in \
+	-e '/^[ 	]*#/d' \
+	-e 's/^/ /' \
+	-e 's/$/ /' \
+    # end
+
+    if [ $level -le 0 ]
+    then
+	# Level 0 - includes common.python
+	#
+	if grep '^ \.[ ./]*common.python' $tmp.in >/dev/null
+	then
+	    if [ -f $tmp.report ]
+	    then
+		$verbose && echo -n ","
+	    else
+		echo -n "$seq"
+		touch $tmp.report
+	    fi
+	    $verbose && echo -n " includes common.python"
+	    if $warn
+	    then
+		if grep "^$seq .* python " $tmp.group >/dev/null
+		then
+		    :
+		else
+		    echo "python" >>$tmp.warn
+		fi
+	    fi
+	fi
+    fi
+
+    if [ $level -le 1 ]
+    then
+	# Level 1 - uses things that are well-behaved, e.g. pmrep
+	#
+	cat <<End-of-File | sed -e '/^#/d' | while IFS=: read pat use tags reason
+# control file, 3 fields per feature separated by colons
+# pat - egrep pattern to find this feature being used in QA test scripts
+# use - verbage for -v output
+# tags - tags to search for in group file for -w
+pmrep|pmlogger_daily_report:pmrep:pmrep python
+_prepare_pmda bcc:bcc PMDA:pmda.bcc python
+pmdajson.python:json PMDA:pmda.json python
+_pmdaprometheus_install:prometheus PMDA:pmda.prometheus python
+PCP_PMDAS_DIR/unbound:unbound PMDA:pmda.unbound python
+pmdalio.python:lio PMDA:pmda.lio python
+pmdasimple.python:simple PMDA (python version):pmda.simple python
+pmdagluster.python:gluster PMDA:pmda.gluster python
+pmdanfsclient.python:nfsclient PMDA:pmda.nfsclient python
+PCP_PMDAS_DIR/haproxy:haproxy PMDA:pmda.haproxy python
+pmdazswap.python:zswap PMDA:pmda.zswap python
+pmdalibvirt:libvirt PMDA:pmda.libvirt python
+pmdamic.python:mic PMDA:pmda.mic python
+([^/]pcp[_ -]collectl)|(pcp .* collectl)|[^/]pmcollectl:pcp-collectl:pcp python
+([^/]pcp[_ -]iostat)|(pcp .* iostat)|[^/]pmiostat:pcp-iostat:pcp python
+([^/]pcp[_ -]uptime)|(pcp .* uptime):pcp-uptime:pcp python
+([^/]pcp[_ -]numastat)|(pcp .* numastat):pcp-numastat:pcp python
+([^/]pcp[_ -]free)|(pcp .* free):pcp-free:pcp python
+([^/]pcp[_ -]mpstat)|(pcp .* mpstat):pcp-mpstat:pcp python
+([^/]pcp[_ -]dstat)|(pcp .* dstat):pcp-dstat:pcp python
+([^/]pcp[_ -]tapestat)|(pcp .* tapestat):pcp-tapestat:pcp python
+([^/]pcp[_ -]ipcs)|(pcp .* ipcs):pcp-ipcs:pcp python
+([^/]pcp[_ -]dmcache)|(pcp .* dmcache):pcp-dmcache:pcp python
+([^/]pcp[_ -]verify)|(pcp .* verify):pcp-verify:pcp python
+pcp2influxdb:pcp2influxdb:pcp2influxdb pcp2xxx python
+pcp2graphite:pcp2graphite:pcp2graphite pcp2xxx python
+pcp2json:pcp2json:pcp2json pcp2xxx python
+pcp2xml:pcp2xml:pcp2xml pcp2xxx python
+pcp2zabbix:pcp2zabbix:pcp2zabbix pcp2xxx python
+pmclient_fg:pmclient_fg:pmclient python
+End-of-File
+	do
+	    if egrep "[^a-zA-Z0-9_]$pat[^a-zA-Z0-9]" $tmp.in >/dev/null
+	    then
+		if [ -f $tmp.report ]
+		then
+		    $verbose && echo -n ","
+		else
+		    echo -n "$seq"
+		    touch $tmp.report
+		fi
+		$verbose && echo -n " uses $use"
+		if $warn
+		then
+		    for tag in $tags
+		    do
+			if grep "^$seq .* $tag " $tmp.group >/dev/null
+			then
+			    :
+			else
+			    echo "$tag" >>$tmp.warn
+			fi
+		    done
+		fi
+	    fi
+	done
+    fi
+
+    if [ $level -le 5 ]
+    then
+	# Level 5 - uses python or python[0-9]... or or $python or
+	# $PCP_PYTHON_PROG or sets PCP_PYTHON_PROG= as the first word in
+	# the command line
+	#
+	if egrep '^[ 	]*(python|python[0-9][0-9].*|$python|$PCP_PYTHON_PROG|PCP_PYTHON_PROG=[^ 	]*) ' $tmp.in >/dev/null
+	then
+	    if [ -f $tmp.report ]
+	    then
+		$verbose && echo -n ","
+	    else
+		echo -n "$seq"
+		touch $tmp.report
+	    fi
+	    $verbose && echo -n " uses python"
+	    if $warn
+	    then
+		if grep "^$seq .* python " $tmp.group >/dev/null
+		then
+		    :
+		else
+		    echo "python" >>$tmp.warn
+		fi
+	    fi
+	fi
+    fi
+
+    if [ $level -le 8 ]
+    then
+	# Level 8 - uses known problematic things
+	#
+	cat <<End-of-File | sed -e '/^#/d' | while IFS=: read pat use tags reason
+# control file, at least 3 fields per feature separated by colons
+# pat - egrep pattern to find this feature being used in QA test scripts
+# use - verbage for -v output
+# tags - tags to search for in group file for -w
+# reason - (optional and for annotation only) in the form test@host ...
+pcp2xlsx:pcp2xlsx:pcp2xlsx pcp2xxx python:1132@{vm01,vm11,vm12,vm36}
+pcp2elasticsearch:pcp2elasticsearch:pcp2elasticsearch pcp2xxx python:1130@{bozo,bozo-vm,vm27}
+([^/]pcp[_ -]pidstat)|(pcp .* pidstat):pcp-pidstat:pidstat pcp python:1396@vm34
+End-of-File
+	do
+	    if egrep "[^a-zA-Z0-9_]$pat[^a-zA-Z0-9]" $tmp.in >/dev/null
+	    then
+		if [ -f $tmp.report ]
+		then
+		    $verbose && echo -n ","
+		else
+		    echo -n "$seq"
+		    touch $tmp.report
+		fi
+		$verbose && echo -n " uses $use"
+		if $warn
+		then
+		    for tag in $tags
+		    do
+			if grep "^$seq .* $tag " $tmp.group >/dev/null
+			then
+			    :
+			else
+			    echo "$tag" >>$tmp.warn
+			fi
+		    done
+		fi
+	    fi
+	done
+    fi
+
+    [ -f $tmp.report ] && echo
+
+    if $warn && [ -s $tmp.warn ]
+    then
+	echo "$seq Warning: tags missing from group: `sort $tmp.warn | uniq | tr '\012' ' '`"
+    fi
+
+done
+
+sts=0
+exit
