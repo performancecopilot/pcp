@@ -8,6 +8,8 @@ language: c
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y linux-headers-$(uname -r)
+  - sudo pip install pylint
+  - pylint --rcfile=.pylintrc $(find src/pmdas/bcc -name '*.python')
   - docker build -f build/containers/travis-ci/Dockerfile -t pcp-qa .
 
 before_script:

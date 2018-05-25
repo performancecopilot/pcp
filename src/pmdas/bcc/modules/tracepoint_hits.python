@@ -24,8 +24,8 @@
 from ctypes import c_int
 from bcc import BPF
 
-from modules.pcpbcc import PCPBCCBase
 from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
 
@@ -85,7 +85,6 @@ class PCPBCCModule(PCPBCCBase):
 
         self.log("Configured tracepoints: " + str(self.tracepoints))
 
-        bpf_tps = BPF.get_tracepoints(".*")
         found = []
         for item in self.tracepoints:
             tps = BPF.get_tracepoints(item + "$")
@@ -155,7 +154,7 @@ class PCPBCCModule(PCPBCCBase):
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
-            return
+            return None
 
         stats = self.bpf["stats"]
         for k, v in stats.items():
