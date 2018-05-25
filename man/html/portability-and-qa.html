@@ -7,6 +7,7 @@
 	<link href="images/pcp.ico" rel="icon" type="image/ico">
 	<title>PCP Portability and QA</title>
 </head>
+
 <style>
 
 table, th, td {
@@ -20,7 +21,14 @@ td {
     text-align: right;
 }
 
+code {
+    color: #000060;
+    font-size: 10pt;
+    margin-left: 20px;
+}
+
 </style>
+
 <body lang="en-AU" text="#000060" dir="LTR">
 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="page-break-before: always">
     <tr> <td width="64" height="64"><a href="http://pcp.io/"><img src="images/pcpicon.png" alt="pcpicon" align="TOP" width="64" height="64" border="0"></a></td>
@@ -29,18 +37,13 @@ td {
     </tr>
 </table>
 
-<h1 align="CENTER" style="margin-top: 0.48cm; margin-bottom: 0.32cm"><font size="7">
+<h1 align="CENTER" style="margin-top: 0.48cm; margin-bottom: 0.32cm"><font size="6">
 Portability Guidelines for PCP QA
 </font></h1>
-<p align="center"><font size="5">Ken McDonell &ltkenj@kenj.id.au&gt</font></p>
-<p align="center"><font size="4"><em>May 2018</em></font></p>
+<p align="center"><font size="4">Ken McDonell &ltkenj@kenj.id.au&gt</font></p>
+<p align="center"><font size="3"><i>May 2018</i></font></p>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#e2e2e2">
-    <tr><td width="100%" bgcolor="#081c59"><p align="LEFT"><font size="5" color="#ffffff"><strong>
-Background
-</strong></font></p></td>
-</tr>
-</table>
+<h2>Background</h2>
 
 <p>In this document the generic term &quot;component&quot; will be used to describe a piece of
 functionality in Performance Co-Pilot (PCP) that could be any of the following:</p>
@@ -59,7 +62,7 @@ Over more than two decades, the delivery of components to address the feature re
 has been build on engineering processes and approaches with a technical focus on:</p>
 <ul>
 <li>
-<strong>Portability</strong>:
+<b>Portability</b>:
 
 <p>From the outset we were concerned with making PCP work successfully across a wide variety of environments.</p>
 <p>The earliest PCP architectural deliberations began at Pyramid Technology in 1993,
@@ -76,7 +79,7 @@ PCP components will be &quot;robust&quot; (see below for a definition of &quot;r
 supported platforms and environments.</p>
 
 </li>
-<li><strong>Testability</strong>:
+<li><b>Testability</b>:
 
 <p>The PCP project has never had a dedicated QA team, so by necessity the QA model that was adopted (and at times enforced)
 was one where if an engineer added a feature or fixed a bug, there was an expectation that there would be
@@ -102,12 +105,7 @@ In addition the entire suite of scripts is run regularly across the 30+ machines
 </li>
 </ul>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#e2e2e2">
-    <tr><td width="100%" bgcolor="#081c59"><p align="LEFT"><font size="5" color="#ffffff"><strong>
-Robustness
-</strong></font></p></td>
-</tr>
-</table>
+<h2>Robustness</h2>
 
 <p>Robustness simply means that every PCP application and service either works correctly or
 detects that the environment will not support correct execution and is either omitted from the build
@@ -134,17 +132,13 @@ See the tests for the Python <b>OrderedDict</b> module and the <i>pmrep</i> appl
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/035">qa/035</a>.</li>
 </ul>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#e2e2e2">
-    <tr><td width="100%" bgcolor="#081c59"><p align="LEFT"><font size="5" color="#ffffff"><strong>
-Source Code and Compile Time Portability
-</strong></font></p></td>
-</tr>
-</table>
+<h2>Source Code and Compile Time Portability</h2>
 
 <p>Mostly what's been done here is common and good engineering practice.
 For example using configure, conditionals in the GNUmakefiles and assorted <i>sed</i>/<i>awk</i> rewriting
 scripts to ensure the code will compile cleanly on all platforms.
-Compiler warnings are enabled and builds are expected to complete without warnings.</p>
+Compiler warnings are enabled and builds are expected to complete without warnings.
+And in the source code we demand thorough error checking and error handling on all system and library calls.</p>
 
 <p>We've extended the normal concept of macros to include a set of globally defined names
 that are are used for path and directory names, search paths, application names and application options and
@@ -161,12 +155,7 @@ used to construct pathnames from directory components.</p>
 
 <p>At a higher level we don't even try to build code if it is not intended for the target platform.</p>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#e2e2e2">
-    <tr><td width="100%" bgcolor="#081c59"><p align="LEFT"><font size="5" color="#ffffff"><strong>
-Packaging Portability
-</strong></font></p></td>
-</tr>
-</table>
+<h2>Packaging Portability</h2>
 
 <p>At packaging time we use conditionals to include only those components that are expected to work
 for the target platform.</p>
@@ -185,14 +174,44 @@ script during the build.</p>
 <a href="https://github.com/performancecopilot/pcp/blob/master/build/rpm/pcp.spec.in">build/rpm/pcp.spec.in</a>
 and using %if within the spec file to selectively include packages and adjust the <b>BuildRequires</b> and <b>Requires</b> clauses.</p>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#e2e2e2">
-    <tr><td width="100%" bgcolor="#081c59"><p align="LEFT"><font size="5" color="#ffffff"><strong>
-QA Portability
-</strong></font></p></td>
-</tr>
-</table>
+<h2>QA Portability</h2>
 
-<p>TODO</p>
+<p>All this section is still TODO, but will cover at least</p>
+<p>QA applications source code should follow all of the same guidelines as those that apply for
+the applications and libraries that ship with the main part of PCP.
+The only possible exception is that error handling can be a little more relaxed for the QA programs as they are
+only run in a more controlled environment.
+<h3>Use /etc/pcp.conf</h3>
+<ul>
+<li>$PCP_*</li>
+</ul>
+<h3>Use the Predefined Variables</h3>
+<ul>
+<li>$seq</li>
+<li>$tmp</li>
+<li>$sudo</li>
+</ul>
+<h3>Avoid exotic commands and non-standard command arguments</h3>
+<p>Our tests scripts are run with <b>sh</b> not <b>bash</b> and on some platforms these are really different!
+Things like: [ "$foo" == "bar" ] or any use of [[ ... ]] are going to blow up when presented to a real Bourne shell.</p>
+<p>Another recurring one is the <i>-i</i> argument for <b>sed</b>; this is not standard and not supported everywhere
+so just do not use it. The alternative:<br>
+<code>$ sed ... <file >$tmp.tmp; mv $tmp.tmp file</code><br>
+works everywhere for most of the cases in QA, except possibly if permissions are in play, when you may need:<br>
+<code>$ sed ... <file >$tmp.tmp; $sudo cp $tmp.tmp file; rm $tmp.tmp</code></p>
+<h3>Filtering</h3>
+<h3>Not Run</h3>
+<h3>PMNS Order</h3>
+<h3>Instance Order</h3>
+<h3>Sort Order</h3>
+<h3>Filesystem Directory Order</h3>
+<h3>Alternate .out files</h3>
+<ul>
+<li>PMNS Differences (especially for the kernel PMDA)</li>
+<li>Hashing Differences</li>
+<li>Word Size</li>
+<li>Endianness</li>
+</ul>
 
 <p>
 
