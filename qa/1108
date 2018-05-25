@@ -24,7 +24,7 @@ _cleanup()
 
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-rm -f $seq.full
+$sudo rm -f $tmp.* $seq.full
 
 _filter()
 {
@@ -42,6 +42,7 @@ s/-s USR1 //
 s/ [0-9][0-9]*/ ... PID/
 }' \
 	-e '/^+ rm /d' \
+	-e '/^+ xz /d' \
 	-e '/^+ pmlogger_merge /d' \
 	-e '/^[12][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-9][0-9]\.[0-9][0-9]/d' \
 	-e '/Warning: no write access/d' \
@@ -65,10 +66,12 @@ echo "Files to be removed before we start ..." >>$seq.full
 ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.* >>$seq.full 2>&1
 $sudo rm -f $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.*
 
-# create a temporary control file with well-known contents
+# create a temporary control file with well-known contents, ensure
+# we exercise a fix for rebuilding zero-length configuration files
 $sudo rm -f $tmp.control
 echo '$version=1.1' >> $tmp.control
-echo 'LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c config.default' >> $tmp.control
+echo "LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c $tmp.conf" >> $tmp.control
+touch $tmp.conf
 
 # make sure pmlogger_daily gets a timestamp that is at least
 # a minute after the previous primary logger was started to avoid
