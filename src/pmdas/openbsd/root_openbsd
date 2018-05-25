@@ -39,6 +39,7 @@ hinv {
     ninterface	OPENBSD:3:17
     physmem	OPENBSD:0:1
     pagesize	OPENBSD:1:3
+    machine	OPENBSD:1:17	/* alias for kernel.uname.machine on OpenBSD */
     cpu
 }
 
