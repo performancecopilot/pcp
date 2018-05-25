@@ -37,8 +37,8 @@ cat <<EOF | _pmdabcc_install
 modules = ext4dist
 prefix = bcc.
 [ext4dist]
-module = ext4dist
-cluster = 2
+module = fs.ext4dist
+cluster = 5
 EOF
 
 _pmdabcc_wait_for_metric

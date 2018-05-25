@@ -26,7 +26,7 @@ from cpmapi import PM_ERR_AGAIN
 #
 # BPF program
 #
-bpf_src = "modules/ext4dist.bpf"
+bpf_src = "modules/fs/ext4dist.bpf"
 
 #
 # PCP BCC PMDA constants
@@ -46,6 +46,7 @@ class PCPBCCModule(PCPBCCBase):
 
         self.cache = {}
         self.item_identifiers = ['open', 'read', 'write', 'fsync']
+
         self.log("Initialized.")
 
     def metrics(self):
@@ -71,17 +72,18 @@ class PCPBCCModule(PCPBCCBase):
     def compile(self):
         """ Compile BPF """
         try:
-            with open(os.path.dirname(__file__) + '/../' + bpf_src, 'r') as f:
+            with open(os.path.dirname(__file__) + '/../../' + bpf_src, 'r') as f:
                 bpf_text = f.read()
 
             ops_addr = self.read_ext4_file_operations_addr()
             if ops_addr == '':
-                self.err("ERROR: no ext4_file_operations in /proc/kallsyms. Exiting.")
-                self.err("HINT: the kernel should be built with CONFIG_KALLSYMS_ALL.")
+                self.err("no ext4_file_operations in /proc/kallsyms (the kernel should be built with CONFIG_KALLSYMS_ALL). Exiting.")
                 self.bpf = None
                 return
 
             bpf_text = bpf_text.replace('EXT4_FILE_OPERATIONS', ops_addr)
+            bpf_text = bpf_text.replace('FILTER_PID', '0')
+
             self.bpf = BPF(text=bpf_text)
             self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
             self.bpf.attach_kprobe(event="ext4_file_write_iter", fn_name="trace_entry")
