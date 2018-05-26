@@ -25,7 +25,7 @@ _pmdabcc_install_filter()
     sed \
     -e "s/.*pmdabcc.* Info/Info/g" \
     -e "s/[0-9]\+ warnings, //" \
-    -e "s/1 metrics and [0-9]\+ values/1 metrics and X values/g" \
+    -e "s/[0-9]\+ metrics and [0-9]\+ values/X metrics and X values/g" \
     #end
 }
 

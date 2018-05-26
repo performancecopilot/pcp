@@ -84,7 +84,7 @@ class PCPBCCModule(PCPBCCBase):
             return None
 
         dist = self.bpf.get_table("dist")
-        self.insts = self.read_histogram(dist, self.cache)
+        self.insts = self.read_log2_histogram(dist, self.cache)
         dist.clear()
 
         return self.insts

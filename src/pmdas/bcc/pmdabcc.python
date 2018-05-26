@@ -20,9 +20,9 @@ except ImportError:
     import ConfigParser as configparser
 import importlib
 import atexit
-import glob
 import sys
 import os
+import fnmatch
 
 from collections import OrderedDict
 
@@ -157,11 +157,12 @@ class BCCPMDA(PMDA):
         # For packaging, allow both .python and .py suffixed files
         moduledir = PCP.pmGetConfig('PCP_PMDAS_DIR')
         moduledir += '/' + self.read_name() + '/' + 'modules'
-        modulepys = glob.glob(moduledir + '/*.python')
-        for pythonf in modulepys:
-            pyf = pythonf[:-4]
-            if not os.path.exists(pyf):
-                os.symlink(pythonf, pyf)
+        for root, _dirnames, filenames in os.walk(moduledir):
+            for filename in fnmatch.filter(filenames, '*.python'):
+                pythonf = os.path.join(root, filename)
+                pyf = pythonf[:-4]
+                if not os.path.exists(pyf):
+                    os.symlink(pythonf, pyf)
 
         for module in self.modules:
             self.log(module)
