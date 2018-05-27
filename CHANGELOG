@@ -1,3 +1,6 @@
+pcp-4.0.3 (27 May 2018)
+    - build fix release for Mac OS X brew packaging.
+
 pcp-4.0.2 (11 May 2018)
     - log rotation, management scripts, compression and utilities
 	- pmie_{check,daily}: rework .prev and -N handling
