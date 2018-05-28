@@ -1,18 +1,30 @@
 We welcome your contributions to the Performance Co-Pilot project!
 
+# Contact
+
 Our preferred method of exchanging code, documentation, tests and new
 ideas is via git.  To participate, create a cloned git tree using a
-public git hosting service (e.g. github) and send mail to the list
-with a description of the code and its location.
+public git hosting service (e.g. github) and send mail to the list -
+<pcp@groups.io> - with a description of the code and its location.
 
 Patches are fine too - send 'em through to the list at any time - even
 just ideas, pseudo-code, etc - we've found it is often a good idea to
 seek early feedback, particularly when modelling the metrics you'll be
 exporting from any new PMDAs you might be writing.
 
+## Vulnerabilities
 
-Philosophy
-==========
+If you have discovered a vulnerability in the PCP code, please do not
+hesitate to contact the PCP maintainers immediately.
+
+You can choose to do this either privately or publicly - however, if
+you report to the maintainers privately at first we will endeavour to
+respond within 24 hours with an initial assessment of the problem and
+a timeframe for resolution and next release with the fix(es).
+
+The maintainers can be contacted privately via <pcp-masters@groups.io>
+
+# Philosophy
 
 PCP development has a long tradition of focussing on automated testing.
 
@@ -36,11 +48,10 @@ release immediately following the first arrival of code.  Also ensure
 attribution of other contributors code is handled correctly using the
 git-commit --author option.
 
-Above all, have fun!
+*Above all, have fun!*
 
 
-Conventions
-===========
+# Coding Conventions
 
 Add permanent diagnostics to any code of middling-to-high complexity.
 The convention is to test the options in the pmDebugOptions struct
@@ -56,8 +67,7 @@ your chance of absorbing the "style" and "conventions" and producing
 code that others will be able to easily read, understand and refine.
 
 
-Practicalities
-==============
+# QA (Quality Assurance) Practicalities
 
 Refer to the qa/README file for details on using the testsuite locally.
 When writing new tests, bear in mind that other people will be running
