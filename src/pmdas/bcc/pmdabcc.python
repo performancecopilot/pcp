@@ -19,10 +19,10 @@ try:
 except ImportError:
     import ConfigParser as configparser
 import importlib
+import fnmatch
 import atexit
 import sys
 import os
-import fnmatch
 
 from collections import OrderedDict
 
@@ -252,7 +252,7 @@ class BCCPMDA(PMDA):
         return '{}'
 
     def bcc_label_callback(self, indom, inst):
-        """ Label callback for individual inst """
+        """ Instance labels """
         module = self.indoms[indom]
         return self.modules[module][LABEL_INSTANCE](inst)
 
