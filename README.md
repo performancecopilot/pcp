@@ -1,6 +1,7 @@
 ![PCP](images/pcpicon.png)
 
 [![Build Status](https://travis-ci.org/performancecopilot/pcp.svg?branch=master)](https://travis-ci.org/performancecopilot/pcp)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1872/badge)](https://bestpractices.coreinfrastructure.org/projects/1872)
 
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and management. It presents a unifying
