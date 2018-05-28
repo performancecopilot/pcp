@@ -75,7 +75,7 @@ _usage()
 	echo >> $tmp/usage
 	( $PCP_ECHO_PROG $PCP_ECHO_N "Available Commands:     ""$PCP_ECHO_C" \
 		&& sort -u < $tmp/cmds ) | _fmt >> $tmp/usage
-	pmgetopt --progname=$progname --usage --config=$tmp/usage
+	$PCP_BINADM_DIR/pmgetopt --progname=$progname --usage --config=$tmp/usage
     fi
     sts=1
     exit
@@ -95,7 +95,7 @@ NR > 1	{ printf "           %s\n", $0; next }
 }
 
 opts=""
-ARGS=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
+ARGS=`$PCP_BINADM_DIR/pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
 
 eval set -- "$ARGS"

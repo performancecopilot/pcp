@@ -19,6 +19,28 @@ _usage()
     exit 1
 }
 
+_warn_about_BAD()
+{
+    if [ ! -f $HOME/src/pcp/qa/group ]
+    then
+	echo "Arrgh, no $HOME/src/pcp/qa/group ... do you know what you're doing?"
+	sts=1
+	exit
+    else
+	grep '^[0-9][^ ]* .*BAD' $HOME/src/pcp/qa/group \
+	| sed >$tmp.bad \
+	    -e '/^[0-9][0-9]*:/d' \
+	# end
+	if [ -s $tmp.bad ]
+	then
+	    echo
+	    echo "Warning: the following tests have not been run at all because they do not"
+	    echo "         satisfy the cross-platform robustness criteria."
+	    echo "         (refer to man/html/portability-and-qa.html)"
+	    sed -e 's/^/    /' <$tmp.bad
+	fi
+    fi
+}
 
 # must have tried to run at least this number to qualify
 # 40 = > -g sanity circa PCP 2.7.8 [minus a few not runs]
@@ -302,6 +324,8 @@ then
 	{ nrun += $2; nfail += $4 }
 END	{ printf "Summary: %d run, %d failed (%.2f%%)\n", nrun, nfail, 100*nfail/nrun }'
 fi
+
+_warn_about_BAD
 
 if [ -f $tmp.map ]
 then

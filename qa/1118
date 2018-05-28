@@ -21,6 +21,11 @@ _value_filter()
     awk '/value [1-9]\d*/ {print "OK"; exit}'
 }
 
+_label_filter()
+{
+    grep '"0-1"' | grep '"statistic":"histogram"' | grep '"lower_bound":0' | grep 'upper_bound":1' > /dev/null && echo 'OK'
+}
+
 _prepare_pmda bcc
 trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
@@ -42,6 +47,10 @@ dd if=/dev/urandom bs=`expr 20 \* 1024 \* 1024` count=1 2>/dev/null | bzip2 -9 >
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.kernel.all.runnable 2>&1 | tee -a $here/$seq.full \
 | _value_filter
+
+echo "=== check metric labels ==="
+pminfo -l bcc.kernel.all.runnable 2>&1 | tee -a $here/$seq.full \
+| _label_filter
 
 _pmdabcc_remove
 

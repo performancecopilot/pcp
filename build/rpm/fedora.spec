@@ -2929,7 +2929,7 @@ cd
 %dir %{_confdir}/discover
 %config(noreplace) %{_confdir}/discover/pcp-kube-pods.conf
 
-%ghost %{_localstatedir}/run/pcp
+%ghost %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
 %{_localstatedir}/lib/pcp/config/pmie

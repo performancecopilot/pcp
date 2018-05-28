@@ -1,0 +1,40 @@
+QA output created by 1255
+
+== check log output to "-" (stderr)
+This message on oldstream before pmOpenLog() called
+Starting with oldstream (stderr) fd=2, nextfd=3
+Log for chkopenlog on HOST started DATE
+
+pmOpenLog -> sts=1, log - newstream (stderr) fd=2, nextfd=3
+[a helpful little message]
+
+Log finished DATE
+
+== check pmlogger -l-
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: End of run time, exiting
+
+Log finished DATE
+
+== check pmie -l-
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+[DATE] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+
+== check simple pmda logging to stderr instead of simple.log
+dbpmda> open pipe $PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l-
+Start pmdasimple PMDA: $PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l-
+Log for pmdasimple on HOST started DATE
+
+dbpmda> close
+dbpmda> 
+
+Log finished DATE

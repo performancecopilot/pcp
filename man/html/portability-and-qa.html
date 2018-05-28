@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<title>PCP Portability and QA</title>
+</head>
+
+<style>
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    border-spacing: 2px;
+    padding: 4px;
+}
+
+td {
+    text-align: right;
+}
+
+code {
+    color: #000060;
+    font-size: 10pt;
+    margin-left: 20px;
+}
+
+</style>
+
+<body lang="en-AU" text="#000060" dir="LTR">
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="page-break-before: always">
+    <tr> <td width="64" height="64"><a href="http://pcp.io/"><img src="images/pcpicon.png" alt="pcpicon" align="TOP" width="64" height="64" border="0"></a></td>
+	<td width="1"><p>&nbsp;&nbsp;&nbsp;&nbsp;</p></td>
+	<td width="500"><p align="LEFT"><a href="index.html"><font color="#cc0000">Home</font></a></p></td>
+    </tr>
+</table>
+
+<h1 align="CENTER" style="margin-top: 0.48cm; margin-bottom: 0.32cm"><font size="6">
+Portability Guidelines for PCP QA
+</font></h1>
+<p align="center"><font size="4">Ken McDonell &ltkenj@kenj.id.au&gt</font></p>
+<p align="center"><font size="3"><i>May 2018</i></font></p>
+
+<h2>Background</h2>
+
+<p>In this document the generic term &quot;component&quot; will be used to describe a piece of
+functionality in Performance Co-Pilot (PCP) that could be any of the following:</p>
+<ul>
+<li>a library</li>
+<li>a method or module or class in a library</li>
+<li>an application</li>
+<li>a PMDA</li>
+<li>a service or API</li>
+<li>an object in the file system</li>
+</ul>
+
+<p>Obviously the functional goals and feature focus of PCP has been to build tools that help understand hard performance problems
+that are seen in some the the world's most complex systems.
+Over more than two decades, the delivery of components to address the feature requirements
+has been build on engineering processes and approaches with a technical focus on:</p>
+<ul>
+<li>
+<b>Portability</b>:
+
+<p>From the outset we were concerned with making PCP work successfully across a wide variety of environments.</p>
+<p>The earliest PCP architectural deliberations began at Pyramid Technology in 1993,
+but by this time I had already been working on portable software for more than 15 years.
+Then the PCP incubator moved to SGI, and in the very early days of Linux, Mark Goodwin undertook an
+&quot;IRIX to Linux&quot; port as a skunkworks project within SGI Engineering.
+A little later, SGI's Clustered File System (CXFS) had PCP components for IRIX, Windows, HP-UX, AIX, MacOS and Linux,
+across a variety of CPU architectures, C compilers and operating systems.</p>
+<p>Although many of these have passed away, PCP survives and is now actively supported on all Linux
+variants (most importantly the Fedora/RPM, OpenSuSE/RPM and Debian/dpkg platforms and their respective derivatives),
+the BSD family, OpenIndiana (<i>nee</i> Sun Solaris), Mac OS X and Windows.</p>
+<p>So there is a very rich history of engineering for portability in the PCP DNA, and an expectation that new
+PCP components will be &quot;robust&quot; (see below for a definition of &quot;robust&quot;) across all of the
+supported platforms and environments.</p>
+
+</li>
+<li><b>Testability</b>:
+
+<p>The PCP project has never had a dedicated QA team, so by necessity the QA model that was adopted (and at times enforced)
+was one where if an engineer added a feature or fixed a bug, there was an expectation that there would be
+additional QA coverage for the associated changes.
+Although this approach suffers from tunnel-vision and common assumptions between development and testing,
+it does have the advantage that testing and QA is a communal responsibility.
+</p>
+<p>This effort grew into the very large QA infrastructure that lives below the <i>qa</i> directory in the source
+tree and is shipped in the <b>pcp-testsuite</b> package.  This represents a significant engineering
+effort in its own right as the table below shows:</p>
+<table>
+    <tr><th>&nbsp;</th><th>below the src dir</th><th>below the qa dir</th></tr>
+    <tr><td>C or C++</td><td>320,000</td><td>37,000</td></tr>
+    <tr><td>shell</td><td>23,000</td><td>85,000</td></tr>
+    <tr><td>perl</td><td>18,000</td><td>700</td></tr>
+    <tr><td>python</td><td>17,000</td><td>200</td></tr>
+<caption>Lines of Code</caption>
+</table>
+
+<p>The QA testsuite comprises close to 1,100 test scripts.
+The scripts are used by individual developers to test code changes and check for regressions.
+In addition the entire suite of scripts is run regularly across the 30+ machines in the Melbourne QA Farm.</p>
+</li>
+</ul>
+
+<h2>Robustness</h2>
+
+<p>Robustness simply means that every PCP application and service either works correctly or
+detects that the environment will not support correct execution and is either omitted from the build
+or omitted from the packaging
+or reports a warning and exits in an orderly fashion.</p>
+
+<p>Some examples may help illustrate this philosophy.</p>
+<ul>
+<li>The platform PMDAs (linux, windows, freebsd, openbsd, netbsd, opensolaris, aix, ...) are only compiled and
+packaged if the build is being run for the corresponding target platform.</li>
+<li>Optional headers are checked for using the <i>AC_CHECK_HEADERS</i>() macro in 
+<a href="https://github.com/performancecopilot/pcp/blob/master/configure.ac">configure.ac</a> and <i>cpp</i> conditionals
+and macros are used to guard the inclusion of these headers, e.g. &lt;strings.h&gt; in 
+<a href="https://github.com/performancecopilot/pcp/blob/master/src/dbpmda/src/util.c">src/dbpmda/src/util.c</a>.</li>
+<li>In the Apple operating systems there used to be a rpc.server.nqnfs.leases metric but this has been deprecated
+and is no longer available.
+The corresponding darwin PMDA uses PMAPI protocols to return the type of this metric as <b>PM_TYPE_NOSUPPORT</b> which
+all PCP clients are able to handle appropriately (either ignore the metric or report an explanatory warning).
+See <a href="https://github.com/performancecopilot/pcp/blob/master/src/pmdas/darwin/pmda.c">src/pmdas/darwin/pmda.c</a></li>
+<li>Every PCP QA test script completes with a status of pass, fail or notrun.
+The latter is used to indicate that the test either cannot be run because some required component is missing or
+the test is not appropriate for the current platform.
+See the tests for the Python <b>OrderedDict</b> module and the <i>pmrep</i> application in 
+<a href="https://github.com/performancecopilot/pcp/blob/master/qa/035">qa/035</a>.</li>
+</ul>
+
+<h2>Source Code and Compile Time Portability</h2>
+
+<p>Mostly what's been done here is common and good engineering practice.
+For example using configure, conditionals in the GNUmakefiles and assorted <i>sed</i>/<i>awk</i> rewriting
+scripts to ensure the code will compile cleanly on all platforms.
+Compiler warnings are enabled and builds are expected to complete without warnings.
+And in the source code we demand thorough error checking and error handling on all system and library calls.</p>
+
+<p>We've extended the normal concept of macros to include a set of globally defined names
+that are are used for path and directory names, search paths, application names and application options and
+arguments.
+These are defined in
+<a href="https://github.com/performancecopilot/pcp/blob/master/src/include/pcp.conf.in">src/include/pcp.conf.in</a>,
+bound to values at build time by configure and installed in /etc/pcp.conf.
+These can then be used either from shell scripts or applications in C, C++, Perl, Python
+have run-time access to these via <i>pmGetConfig</i>() or <i>pmGetOptionalConfig</i>(), see for example
+<a href="https://github.com/performancecopilot/pcp/blob/master/src/pmie/src/pmie.c">src/pmie/src/pmie.c</a>.</p>
+
+<p>Even file pathname separators (/ for the sane world, \ elsewhere) have been abstracted out and <i>pmPathSeparator</i>() is
+used to construct pathnames from directory components.</p>
+
+<p>At a higher level we don't even try to build code if it is not intended for the target platform.</p>
+
+<h2>Packaging Portability</h2>
+
+<p>At packaging time we use conditionals to include only those components that are expected to work
+for the target platform.</p>
+
+<p>This extends to wrapping some of the prerequites in conditionals if the prequisite piece may not be
+present or may have a different name.</p>
+
+<p>For Debian packaging this means debian/control is build from
+<a href="https://github.com/performancecopilot/pcp/blob/master/debian/control.master">debian/control.master</a>
+and the ?{foo} elements of the
+<b>Depends</b> and <b>Build-Depends</b> clauses are conditionally expanded by the
+<a href="https://github.com/performancecopilot/pcp/blob/master/debian/fixcontrol.master">debian/fixcontrol.master</a>
+script during the build.</p>
+
+<p>For RPM packaging this means using configure to perform macro substitution to create build/rpm/pcp.spec from
+<a href="https://github.com/performancecopilot/pcp/blob/master/build/rpm/pcp.spec.in">build/rpm/pcp.spec.in</a>
+and using %if within the spec file to selectively include packages and adjust the <b>BuildRequires</b> and <b>Requires</b> clauses.</p>
+
+<h2>QA Portability</h2>
+
+<p>All this section is still TODO, but will cover at least</p>
+<p>QA applications source code should follow all of the same guidelines as those that apply for
+the applications and libraries that ship with the main part of PCP.
+The only possible exception is that error handling can be a little more relaxed for the QA programs as they are
+only run in a more controlled environment.
+<h3>Use /etc/pcp.conf</h3>
+<ul>
+<li>$PCP_*</li>
+</ul>
+<h3>Use the Predefined Variables</h3>
+<ul>
+<li>$seq</li>
+<li>$tmp</li>
+<li>$sudo</li>
+</ul>
+<h3>Avoid exotic commands and non-standard command arguments</h3>
+<p>Our tests scripts are run with <b>sh</b> not <b>bash</b> and on some platforms these are really different!
+Things like: [ "$foo" == "bar" ] or any use of [[ ... ]] are going to blow up when presented to a real Bourne shell.</p>
+<p>Another recurring one is the <i>-i</i> argument for <b>sed</b>; this is not standard and not supported everywhere
+so just do not use it. The alternative:<br>
+<code>$ sed ... <file >$tmp.tmp; mv $tmp.tmp file</code><br>
+works everywhere for most of the cases in QA, except possibly if permissions are in play, when you may need:<br>
+<code>$ sed ... <file >$tmp.tmp; $sudo cp $tmp.tmp file; rm $tmp.tmp</code></p>
+<h3>Filtering</h3>
+<h3>Not Run</h3>
+<h3>PMNS Order</h3>
+<h3>Instance Order</h3>
+<h3>Sort Order</h3>
+<h3>Filesystem Directory Order</h3>
+<h3>Alternate .out files</h3>
+<ul>
+<li>PMNS Differences (especially for the kernel PMDA)</li>
+<li>Hashing Differences</li>
+<li>Word Size</li>
+<li>Endianness</li>
+</ul>
+
+<p>
+
+</p>
+
+</body>

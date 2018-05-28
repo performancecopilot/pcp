@@ -18,6 +18,14 @@ h2 {
     font-weight: medium;
 }
 
+h3 {
+    color: #000060;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 14pt;
+    font-style: bold;
+    font-weight: medium;
+}
+
 p, td {
     color: #000060;
     font-family: Verdana,Arial,sans-serif;

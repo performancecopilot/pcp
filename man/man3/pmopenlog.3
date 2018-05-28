@@ -35,24 +35,62 @@ cc ... \-lpcp
 .B pmOpenLog
 reassigns the standard I/O stream
 .I oldstream
+(normally
+.BR stderr )
 to be associated with the file
 .IR logname .
-If it already exists,
+If
 .I logname
-will be removed and recreated if possible (to ensure correct ownership
+is not \fB"-"\fP
+and already exists,
+it will be removed and recreated if possible (to ensure correct ownership
 and permissions from the caller to
 .BR pmOpenLog ).
 .PP
-On return, the function value is the new standard I/O stream.  In the
-event of an error, this will be
+As a special case, if
+.I logname
+is "\fB-\fR"
+then no removal or reopening is performed and
+the function simply sets
+.I status
+to
+.B 1
+and returns
+.IR oldstream .
+This is useful when the caller wants diagnostics on
+.I oldstream
+stream (normally
+.BR stderr )
+rather than a file, e.g.
+.B "pmlogger -l-"
+or
+.BR "pmcd -f -l-" .
+Logging to
+.B stderr
+is also useful for PMDAs in a containerized environment where
+it is beneficial for all PMDA logs to be written to
+.BR pmcd 's
+.B stderr
+stream (and thus to a single destination), whether that is a file such as
+.B pmcd.log
+or the original 
+stream inherited from the shell.
+.PP
+On return, the function value is the standard I/O stream, possibly replacing
+.IR oldstream .
+In the
+event of an error, the return value will be
 .I oldstream
 unchanged and
 .I status
-will be 0.
+will be
+.BR 0 .
 .PP
 For success,
 .I status
-is 1, a standard preamble is written to
+is
+.BR 1 ,
+and a standard preamble is written to
 .I logname
 .ti +0.5i
 .ft B

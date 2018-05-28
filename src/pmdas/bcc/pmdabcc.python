@@ -20,16 +20,15 @@ except ImportError:
     import ConfigParser as configparser
 import importlib
 import atexit
-import glob
 import sys
 import os
+import fnmatch
 
 from collections import OrderedDict
 
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
-from cpmapi import PM_INDOM_NULL
-from cpmapi import PM_ERR_VALUE
+from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_LABEL_CLUSTER
 
 # Module references
 CONFIG = 1
@@ -44,6 +43,8 @@ BPFDATA = 9
 CLEANUP = 10
 INDOM = 11
 INSTS = 12
+LABEL_CLUSTER = 13
+LABEL_INSTANCE = 14
 
 class BCCPMDA(PMDA):
     """ PCP BCC PMDA """
@@ -55,6 +56,7 @@ class BCCPMDA(PMDA):
 
         self.modules = OrderedDict()
         self.clusters = OrderedDict()
+        self.indoms = {}
         self.prefix = "bcc."
 
         self.read_config_file()
@@ -67,6 +69,8 @@ class BCCPMDA(PMDA):
 
         self.set_refresh(self.bcc_refresh)
         self.set_fetch_callback(self.bcc_fetch_callback)
+        self.set_label(self.bcc_label)
+        self.set_label_callback(self.bcc_label_callback)
 
         self.pmda_ready()
         self.log("Ready to process requests.")
@@ -153,11 +157,12 @@ class BCCPMDA(PMDA):
         # For packaging, allow both .python and .py suffixed files
         moduledir = PCP.pmGetConfig('PCP_PMDAS_DIR')
         moduledir += '/' + self.read_name() + '/' + 'modules'
-        modulepys = glob.glob(moduledir + '/*.python')
-        for pythonf in modulepys:
-            pyf = pythonf[:-4]
-            if not os.path.exists(pyf):
-                os.symlink(pythonf, pyf)
+        for root, _dirnames, filenames in os.walk(moduledir):
+            for filename in fnmatch.filter(filenames, '*.python'):
+                pythonf = os.path.join(root, filename)
+                pyf = pythonf[:-4]
+                if not os.path.exists(pyf):
+                    os.symlink(pythonf, pyf)
 
         for module in self.modules:
             self.log(module)
@@ -174,6 +179,8 @@ class BCCPMDA(PMDA):
             self.modules[module][REFRESH] = obj.refresh
             self.modules[module][BPFDATA] = obj.bpfdata
             self.modules[module][CLEANUP] = obj.cleanup
+            self.modules[module][LABEL_CLUSTER] = obj.label_cluster
+            self.modules[module][LABEL_INSTANCE] = obj.label_instance
         self.log("Modules initialized.")
 
     def register_metrics(self):
@@ -195,6 +202,7 @@ class BCCPMDA(PMDA):
                                            metrics[item][3], metrics[item][4]),
                                 metrics[item][5], metrics[item][5])
             self.clusters[cluster] = module
+            self.indoms[self.modules[module][INDOM]] = module
         self.log("Metrics registered.")
 
     def register_helpers(self):
@@ -235,6 +243,18 @@ class BCCPMDA(PMDA):
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
             return [PM_ERR_VALUE, 0]
+
+    def bcc_label(self, ident, label_type):
+        """ Cluster labels """
+        if label_type == PM_LABEL_CLUSTER:
+            module = self.clusters[ident]
+            return self.modules[module][LABEL_CLUSTER]()
+        return '{}'
+
+    def bcc_label_callback(self, indom, inst):
+        """ Label callback for individual inst """
+        module = self.indoms[indom]
+        return self.modules[module][LABEL_INSTANCE](inst)
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()

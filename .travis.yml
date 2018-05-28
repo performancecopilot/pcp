@@ -19,7 +19,7 @@ script:
   - docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc'
 
 after_failure:
-  - docker exec pcp-qa bash -c 'tail -vn +1 /var/lib/pcp/testsuite/*.out.bad'
+  - docker exec pcp-qa bash -c 'tail -vn +1 $(for bad in /var/lib/pcp/testsuite/*.out.bad; do echo $bad ${bad/out.bad/full}; done)'
 
 after_script:
   - docker exec pcp-qa bash -c 'tail -vn +1 $(find /var/log/pcp -name "*.log")'

@@ -453,8 +453,13 @@ _script_qa()
     cat <<End-of-File
 rm -f *.out.bad
 ./changeversion >/dev/null 2>&1
-echo "Info: QA $check_what starting"
-./check -l $check_what >>\$HOME/daily.log 2>&1
+
+# Policy for QA Farm: exclude all tests tagged BAD
+#
+qa_restrict="$check_what -x BAD"
+
+echo "Info: QA \$qa_restrict starting"
+./check -l \$qa_restrict >>\$HOME/daily.log 2>&1
 sts=\$?
 # look for badness in daily.log and report here (so it goes into any
 # cron-based email)
@@ -476,9 +481,9 @@ END	{ print txt }' \
 want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
-    echo "Info: QA $check_what done" | tee -a \$HOME/daily.log
+    echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.log
 else
-    echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
+    echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.log
 fi
 date >>\$HOME/daily.log
 End-of-File

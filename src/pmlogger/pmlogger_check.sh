@@ -252,6 +252,9 @@ _configure_pmlogger()
     configfile="$1"
     hostname="$2"
 
+    # clear any zero-length configuration file, that is never helpful.
+    [ -f "$configfile" -a ! -s "$configfile" ] && unlink "$configfile"
+
     if [ -f "$configfile" ]
     then
 	# look for "magic" string at start of file, and ensure we created it

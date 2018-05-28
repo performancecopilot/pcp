@@ -670,7 +670,7 @@ getargs(int argc, char *argv[])
 
     if (commandlog != NULL) {
 	logfp = pmOpenLog(pmGetProgname(), commandlog, stderr, &sts);
-	if (realpath(commandlog, logfile) == NULL) {
+	if (strcmp(commandlog, "-") != 0 && realpath(commandlog, logfile) == NULL) {
 	    fprintf(stderr, "%s: cannot find realpath for log %s: %s\n",
 		    pmGetProgname(), commandlog, osstrerror());
 	    exit(1);

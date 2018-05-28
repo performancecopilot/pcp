@@ -258,7 +258,10 @@ logonexit(void)
     PM_UNLOCK(util_lock);
 }
 
-/* common code shared by __pmRotateLog and pmOpenLog */
+/*
+ * common code shared by __pmRotateLog and pmOpenLog.
+ * Not called at all if the log is "-".
+ */
 static FILE *
 logreopen(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
@@ -361,7 +364,22 @@ FILE *
 pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
-    oldstream = logreopen(progname, logname, oldstream, status);
+    if (logname && strncmp(logname, "-", 2) == 0) {
+	/*
+	 * Special case to just write to existing stream, usually stderr.
+	 * Just keep oldstream, no need to reopen or dup anything.
+	 */
+    	*status = 1;
+    }
+    else {
+    	/* reopen oldstream as "logname" and set status */
+	oldstream = logreopen(progname, logname, oldstream, status);
+    }
+
+    /*
+     * write the preamble, and append oldstream to the list used by the
+     * exit handler to write the footer for all open logs
+     */
     logheader(progname, oldstream, "started");
 
     PM_LOCK(util_lock);
@@ -387,6 +405,15 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 {
     int		i;
     FILE	*newstream = oldstream;
+
+    if (logname && strncmp(logname, "-", 2) == 0) {
+	/*
+	 * Special case, as for pmOpenLog(), see above.
+	 * No log rotation is done in this case.
+	 */
+	*status = 1;
+    	return oldstream;
+    }
 
     PM_LOCK(util_lock);
     for (i = 0; i < nfilelog; i++) {

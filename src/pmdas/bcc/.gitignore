@@ -1,2 +1,5 @@
 pmdabcc.py
-modules/*.py
+modules/**/*.py
+modules/**/__pycache__/
+domain.h
+pmns
