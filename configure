@@ -759,6 +759,9 @@ DEVMAPPER_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+HAVE_LIBUV
+libuv_LIBS
+libuv_CFLAGS
 lib_for_regex
 grep
 pcp_syslog_prog
@@ -1041,6 +1044,8 @@ CPP
 avahi_CFLAGS
 avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
+libuv_CFLAGS
+libuv_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
 DEVMAPPER_CFLAGS
@@ -1771,6 +1776,9 @@ Some influential environment variables:
   avahi_LIBS  linker flags for avahi, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
+  libuv_CFLAGS
+              C compiler flags for libuv, overriding pkg-config
+  libuv_LIBS  linker flags for libuv, overriding pkg-config
   ncurses_CFLAGS
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
@@ -10295,6 +10303,80 @@ if test $ac_cv_lib_regex_regcomp = yes
 then
     lib_for_regex="-lregex"
 fi
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libuv" >&5
+$as_echo_n "checking for libuv... " >&6; }
+
+if test -n "$libuv_CFLAGS"; then
+    pkg_cv_libuv_CFLAGS="$libuv_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libuv_LIBS"; then
+    pkg_cv_libuv_LIBS="$libuv_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv" 2>&1`
+        else
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libuv_PKG_ERRORS" >&5
+
+	have_libuv=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_libuv=false
+else
+	libuv_CFLAGS=$pkg_cv_libuv_CFLAGS
+	libuv_LIBS=$pkg_cv_libuv_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_libuv=true
+fi
+HAVE_LIBUV=$have_libuv
 
 
 

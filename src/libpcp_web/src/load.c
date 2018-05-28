@@ -28,7 +28,7 @@
 #include "libpcp.h"
 
 typedef struct {
-    redisSlots	*redis;
+    redisSlots		*redis;
 
     settings_t		*settings;
     void		*arg;

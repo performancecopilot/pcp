@@ -20,6 +20,7 @@ topdir=`pwd`
 signed=false
 verbose=false
 srconly=false
+cfgonly=false
 dorpm=unknown
 dodeb=unknown
 webapps=false
@@ -151,6 +152,10 @@ do
 	;;
     --source)
 	srconly=true
+	shift
+	;;
+    --configure)
+	cfgonly=true
 	shift
 	;;
     --target)
@@ -638,6 +643,7 @@ configure_pcp()
 	($configure $configopts 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure Configure
+    $cfgonly && exit 0
 }
 
 default_build()

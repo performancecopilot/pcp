@@ -1,0 +1,59 @@
+QA output created by 1127
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['uprobe_hits']
+Info: Configuring modules:
+Info: uprobe_hits
+Info: Modules configured.
+Info: Initializing modules:
+Info: uprobe_hits
+Info: uprobe_hits: Configured uprobes: ['c:strlen']
+Info: uprobe_hits: Found 1 uprobes: ['c:strlen'].
+Info: uprobe_hits: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: uprobe_hits
+Info: Metrics registered.
+Info: Registering helpers:
+Info: uprobe_hits
+Info: Helpers registered.
+Info: Ready to process requests.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['uprobe_hits']
+Info: Configuring modules:
+Info: uprobe_hits
+Info: Modules configured.
+Info: Initializing modules:
+Info: uprobe_hits
+Info: uprobe_hits: Configured uprobes: ['c:strlen']
+Info: uprobe_hits: Found 1 uprobes: ['c:strlen'].
+Info: uprobe_hits: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: uprobe_hits
+Info: Metrics registered.
+Info: Registering helpers:
+Info: uprobe_hits
+Info: Helpers registered.
+Info: Ready to process requests.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... X metrics and X values
+
+=== report metric values ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
