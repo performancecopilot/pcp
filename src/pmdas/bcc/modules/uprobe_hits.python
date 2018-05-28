@@ -1,0 +1,149 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA uprobe hits module """
+
+# Configuration options
+# Name - type - default
+#
+# uprobes - string - unset : file or comma-separated list of uprobes
+
+# pylint: disable=invalid-name
+
+from ctypes import c_int
+from bcc import BPF
+
+from modules.pcpbcc import PCPBCCBase
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+
+#
+# BPF program
+#
+bpf_src = "modules/uprobe_hits.bpf"
+# Individual uprobe
+uprobe_txt = """
+static char *HASH_KEY = "UPROBE_NAME";
+int do_trace_HASH_KEY(void *ctx) {
+    struct uprobe_t key = {};
+    __builtin_memcpy(&key.uprobe, HASH_KEY, sizeof(key.uprobe));
+    u64 zero = 0, *val;
+    val = stats.lookup_or_init(&key, &zero);
+    (*val)++;
+    return 0;
+}
+"""
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'uprobe_hits'
+METRIC = 'uprobe.hits'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC uprobe hits module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.cache = {}
+        self.uprobes = []
+
+        for opt in self.config.options(MODULE):
+            if opt == 'uprobes':
+                val = self.config.get(MODULE, opt)
+                if ":" not in val:
+                    if val.startswith("/"):
+                        conf_file = val
+                    else:
+                        from os import path
+                        conf_file = path.dirname(__file__) + '/../' + val
+                    with open(conf_file, "r") as f:
+                        self.uprobes = f.readlines()
+                        self.uprobes = [l.strip() for l in self.uprobes]
+                else:
+                    self.uprobes = val.split(",")
+
+        self.log("Configured uprobes: " + str(self.uprobes))
+
+        found = []
+        for uprobe in self.uprobes:
+            if uprobe not in found:
+                found.append(uprobe)
+                self.insts[uprobe.replace(":", "::")] = c_int(1)
+        self.uprobe = found
+
+        self.log("Found %s uprobes: %s." % (str(len(self.uprobes)), str(self.uprobes)))
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items.append(
+            # Name - reserved - type - semantics - units - help
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'uprobe hit count'),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if not self.uprobe:
+                raise RuntimeError("No uprobes enabled.")
+            from os import path
+            bpf_file = open(path.dirname(__file__) + '/../' + bpf_src, "r")
+            bpf_text = bpf_file.read()
+            bpf_file.close()
+            for uprobe in self.uprobes:
+                hash_key = uprobe.replace(":", "__")
+                probe = uprobe_txt.replace("HASH_KEY", hash_key)
+                probe = probe.replace("UPROBE_NAME", uprobe)
+                bpf_text += probe
+            bpf_text = bpf_text.replace("UPROBE_COUNT", str(len(self.uprobe)))
+            self.log("Compiling %s uprobes: %s" % (str(len(self.uprobes)), str((self.uprobes))))
+            self.bpf = BPF(text=bpf_text)
+            for uprobe in self.uprobes:
+                lib, sym = uprobe.split(":")
+                hash_key = uprobe.replace(":", "__")
+                func = "do_trace_HASH_KEY".replace("HASH_KEY", hash_key)
+                self.bpf.attach_uprobe(lib, sym, fn_name=func)
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return
+
+        stats = self.bpf["stats"]
+        for k, v in stats.items():
+            self.cache[k.uprobe.decode("ASCII").replace(":", "::")] = v.value
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [self.cache[key], 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]
