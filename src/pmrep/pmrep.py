@@ -186,7 +186,7 @@ class PMReporter(object):
         opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default)")
         opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
-        opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
+        opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup")
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
         opts.pmSetLongOptionHelp()         # -?/--help
