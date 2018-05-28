@@ -11,8 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-
-uname -r | awk -F. '$1 < 4 || ($1 == 4 && $2 < 7) {exit 1}' || _notrun "this test requires kernel 4.7+ for BPF_PROG_TYPE_TRACEPOINT support"
+_pmdabcc_require_kernel_version 4 7
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
