@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+_pmdabcc_require_kernel_version 4 6
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -38,7 +39,7 @@ EOF
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC uprobe hits module
-for i in 0 1 2 3 4 5 6 7 8 9 ; do ls /var/empty > /dev/null ; done
+for i in 0 1 2 3 4 5 6 7 8 9 ; do ls /var/empty > /dev/null 2>&1 ; done
 
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.uprobe.hits 2>&1 | tee -a $here/$seq.full \

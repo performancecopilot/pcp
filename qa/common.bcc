@@ -18,6 +18,12 @@ _pmdabcc_check()
     [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
 }
 
+_pmdabcc_require_kernel_version()
+{
+    uname -r | awk -F. -v major=$1 -v minor=$2 '$1 < major || ($1 == major && $2 < minor) {exit 1}' || \
+    _notrun "this test requires kernel $1.$2+"
+}
+
 _pmdabcc_install_filter()
 {
     # ignore warnings because PMDA might not be ready yet
