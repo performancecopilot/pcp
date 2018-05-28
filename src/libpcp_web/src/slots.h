@@ -13,21 +13,37 @@
  */
 #ifndef SLOTS_H
 #define SLOTS_H
+
 #include "redis.h"
 
-#define MAXSLOTS	(1<<14)	/* see CLUSTER_SLOTS in Redis sources */
+#define MAXSLOTS	(1 << 14)
 #define SLOTMASK	(MAXSLOTS-1)
 
+typedef struct redisSlotServer {
+    sds			hostspec;	/* hostname:port or unix socket file */
+    redisContext	*redis;
+} redisSlotServer;
+
+typedef struct redisSlotRange {
+    unsigned int	start;
+    unsigned int	end;
+    redisSlotServer	master;
+    unsigned int	counter;
+    unsigned int	nslaves;
+    redisSlotServer	*slaves;
+} redisSlotRange;
+
 typedef struct redisSlots {
-    redisContext	*contexts[MAXSLOTS];
-    const char		*hostspec;
-    struct timeval	timeout;
+    redisContext	*control;	/* initial Redis context connection */
+    sds			hostspec;	/* control socket host specification */
+    struct timeval	timeout;	/* system wide Redis timeout setting */
+    unsigned int	readonly;	/* expect no load requests (writing) */
+    redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
 } redisSlots;
 
-extern struct redisSlots *redisInitSlots(const char *);
+extern redisSlots *redisSlotsInit(sds, struct timeval *);
+extern int redisSlotRangeInsert(struct redisSlots *, struct redisSlotRange *);
+extern redisContext *redisGet(struct redisSlots *, const char *, sds);
 extern void redisFreeSlots(struct redisSlots *);
-extern redisContext *redisGet(struct redisSlots *, const char *, unsigned int);
-extern redisSlots *redisSlotsInit(const char*, struct timeval *);
-extern unsigned int keySlot(const char *, unsigned int);
 
 #endif	/* SLOTS_H */

@@ -14,50 +14,104 @@
 #include "schema.h"
 #include "slots.h"
 #include "crc16.h"
+#include <search.h>
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
 
-/* TODO: externalise Redis configuration */
 static char default_server[] = "localhost:6379";
 static struct timeval default_timeout = { 1, 500000 }; /* 1.5 secs */
 
 redisSlots *
-redisSlotsInit(const char *hostspec, struct timeval *timeout)
+redisSlotsInit(sds hostspec, struct timeval *timeout)
 {
     redisSlots		*pool;
 
     if ((pool = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
 
-    pool->hostspec = hostspec;
+    pool->hostspec = sdsdup(hostspec);
     if (timeout == NULL)
 	timeout = &default_timeout;
     else
 	pool->timeout = *timeout;
-    pool->contexts[0] = redis_connect((char *)hostspec, timeout);
+    pool->control = redis_connect(hostspec, timeout);
     return pool;
+}
+
+static int
+slotsCompare(const void *pa, const void *pb)
+{
+    redisSlotRange	*a = (redisSlotRange *)pa;
+    redisSlotRange	*b = (redisSlotRange *)pb;
+
+    if (a->end < b->start)
+	return -1;
+    if (b->end < a->start)
+	return 1;
+    return 0;
+}
+
+int
+redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
+{
+    if (pmDebugOptions.series) {
+	int		i;
+
+	fprintf(stderr, "Slot range: %u-%u\n", range->start, range->end);
+	fprintf(stderr, "    Master: %s\n", range->master.hostspec);
+	for (i = 0; i < range->nslaves; i++)
+	    fprintf(stderr, "\tSlave%u: %s\n", i, range->slaves[i].hostspec);
+    }
+
+    if (tsearch((const void *)range, (void **)&redis->slots, slotsCompare))
+	return 0;
+    return -ENOMEM;
+}
+
+static void
+redisSlotServerFree(redisSlots *pool, redisSlotServer *server)
+{
+    if (server->redis != pool->control)
+	redisFree(server->redis);
+    if (server->hostspec != pool->hostspec)
+	sdsfree(server->hostspec);
+    memset(server, 0, sizeof(*server));
+}
+
+static void
+redisSlotRangeFree(redisSlots *pool, redisSlotRange *range)
+{
+    int			i;
+
+    redisSlotServerFree(pool, &range->master);
+    for (i = 0; i < range->nslaves; i++)
+	redisSlotServerFree(pool, &range->slaves[i]);
+    free(range->slaves);
+    memset(range, 0, sizeof(*range));
 }
 
 void
 redisFreeSlots(redisSlots *pool)
 {
-    int			i;
+    void		*root = pool->slots;
+    redisSlotRange	*range;
 
-    for (i = 0; i < MAXSLOTS; i++) {
-	if (pool->contexts[i]) {
-	    redisFree(pool->contexts[i]);
-	    pool->contexts[i] = NULL;
-	}
+    while (root != NULL) {
+	range = *(redisSlotRange **)root;
+	tdelete(range, &root, slotsCompare);
+	redisSlotRangeFree(pool, range);
     }
-    free(pool->contexts);
+    redisFree(pool->control);
+    sdsfree(pool->hostspec);
+    free(pool->control);
     memset(pool, 0, sizeof(*pool));
 }
 
 /*
  * Hash slot lookup based on the Redis cluster specification.
  */
-unsigned int
+static unsigned int
 keySlot(const char *key, unsigned int keylen)
 {
     int			start, end;	/* curly brace indices */
@@ -83,34 +137,38 @@ keySlot(const char *key, unsigned int keylen)
     return crc16(key + start + 1, end - start - 1) & SLOTMASK;
 }
 
-
 redisContext *
-redisGet(redisSlots *pool, const char *key, unsigned int keylen)
+redisGet(redisSlots *redis, const char *command, sds key)
 {
-    redisContext	*ctxp;
-    unsigned int	i, slot = keySlot(key, keylen);
-    struct timeval	*timeout = &default_timeout;
-    char		*server = &default_server[0];
+    redisSlotServer	*server;
+    redisSlotRange	*range, s;
+    unsigned int	slot;
+    void		*p;
 
-    if ((ctxp = pool->contexts[slot]) != NULL)
-	return ctxp;
+    if (key == NULL)
+	return redis->control;
 
-    if ((ctxp = redis_connect(server, timeout)) == NULL)
+    slot = keySlot(key, sdslen(key));
+    if (UNLIKELY(pmDebugOptions.series))
+	fprintf(stderr, "redisGet[slot=%u] %s %s\n", slot, command, key);
+    s.start = s.end = slot;
+
+    p = tfind((const void *)&s, (void **)&redis->slots, slotsCompare);
+    if ((range = *(redisSlotRange **)p) == NULL)
 	return NULL;
 
-    /* TODO: spread this context properly throughout the array */
-    /* This requires a list of available Redis servers, first. */
-
-    for (i = 0; i < MAXSLOTS; i++)
-	pool->contexts[i] = ctxp;
-
-    return ctxp;
+    range->counter++;
+    server = (range->nslaves == 0 || redis->readonly == 0) ? &range->master
+	   : &range->slaves[range->counter % range->nslaves];
+    if (server->redis == NULL)
+	server->redis = redis_connect(server->hostspec, &redis->timeout);
+    return server->redis;
 }
 
 redisContext *
 redis_connect(char *server, struct timeval *timeout)
 {
-    redisContext *redis;
+    redisContext	*redis;
 
     if (server == NULL)
 	server = default_server;
@@ -120,22 +178,25 @@ redis_connect(char *server, struct timeval *timeout)
     if (strncmp(server, "unix:", 5) == 0) {
 	redis = redisConnectUnixWithTimeout(server + 5, *timeout);
     } else {
-	unsigned int    port;
-	char	    *endnum, *p;
+	unsigned int	port;
+	char		*endnum, *p;
+	char		hostname[MAXHOSTNAMELEN];
 
-	if ((p = rindex(server, ':')) == NULL) {
+	pmsprintf(hostname, sizeof(hostname), "%s", server);
+	if ((p = rindex(hostname, ':')) == NULL) {
 	    port = 6379;  /* default redis port */
 	} else {
-	    port = (unsigned int) strtoul(p + 1, &endnum, 10);
+	    port = (unsigned int)strtoul(p + 1, &endnum, 10);
 	    if (*endnum != '\0')
 		port = 6379;
 	    else
 		*p = '\0';
 	}
-	//redis = redisConnectWithTimeout(server, port, *timeout);
-	redis = redisConnect(server, port);
+	/* redis = redisConnectWithTimeout(server, port, *timeout); */
+	redis = redisConnect(hostname, port);
     }
 
+    /* TODO: messages need to be passed back via an info callback */
     if (!redis || redis->err) {
 	if (redis) {
 	    fprintf(stderr, "Redis connection error: %s\n", redis->errstr);
@@ -146,7 +207,7 @@ redis_connect(char *server, struct timeval *timeout)
 	return NULL;
     }
 
-//  redisSetTimeout(redis, *timeout);
+    /* redisSetTimeout(redis, *timeout); */
     redisEnableKeepAlive(redis);
     return redis;
 }

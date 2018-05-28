@@ -53,6 +53,28 @@
         if ((ctx)->ev.cleanup) (ctx)->ev.cleanup((ctx)->ev.data); \
     } while(0);
 
+const char *
+redis_reply(int reply)
+{
+    switch (reply) {
+    case REDIS_REPLY_STRING:
+	return "string";
+    case REDIS_REPLY_ARRAY:
+	return "array";
+    case REDIS_REPLY_INTEGER:
+	return "integer";
+    case REDIS_REPLY_NIL:
+	return "nil";
+    case REDIS_REPLY_STATUS:
+	return "status";
+    case REDIS_REPLY_ERROR:
+	return "error";
+    default:
+	break;
+    }
+    return "unknown";
+}
+
 static void
 __redisReaderSetError(redisReader *r, int type, const char *str)
 {
