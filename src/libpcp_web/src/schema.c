@@ -22,6 +22,12 @@
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
 
+static struct dict *instmap;
+static struct dict *namesmap;
+static struct dict *labelsmap;
+static struct dict *contextmap;
+static dictType	mapCallBackDict;
+
 typedef struct redis_script {
     const char		*text;
     sds			hash;
@@ -131,24 +137,31 @@ redis_submit(redisSlots *redis, const char *command, sds key, sds cmd)
 }
 
 static void
-checkStatusOK(redisReply *reply, const char *format, ...)
+checkError(redisReply *reply, const char *format, va_list argp)
 {
-    va_list	arg;
-
-    if (reply->type == REDIS_REPLY_STATUS &&
-	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0)) {
-	return;
-    }
-
+    /* TODO: needs to be passed to info callbacks not stderr */
     fputs("Error: ", stderr);
-    va_start(arg, format);
-    vfprintf(stderr, format, arg);
-    va_end(arg);
+    vfprintf(stderr, format, argp);
     if (reply->type == REDIS_REPLY_ERROR)
 	fprintf(stderr, "\nRedis: %s\n", reply->str);
     else
 	fputc('\n', stderr);
 }
+
+static void
+checkStatusOK(redisReply *reply, const char *format, ...)
+{
+    if (reply->type == REDIS_REPLY_STATUS &&
+	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0)) {
+	return;
+    } else {
+	va_list	argp;
+	va_start(argp, format);
+	checkError(reply, format, argp);
+	va_end(argp);
+    }
+}
+
 
 static int
 checkStreamDup(redisReply *reply, sds stamp, const char *hash)
@@ -166,80 +179,59 @@ checkStreamDup(redisReply *reply, sds stamp, const char *hash)
 static void
 checkStatusString(redisReply *reply, sds s, const char *format, ...)
 {
-    va_list	arg;
-
-    if (reply->type == REDIS_REPLY_STATUS && strcmp(s, reply->str) == 0)
+    if (reply->type == REDIS_REPLY_STATUS && strcmp(s, reply->str) == 0) {
 	return;
-
-    fprintf(stderr, "Error: ");
-    va_start(arg, format);
-    vfprintf(stderr, format, arg);
-    va_end(arg);
-    if (reply->type == REDIS_REPLY_ERROR)
-	fprintf(stderr, "\nRedis: %s\n", reply->str);
-    else
-	fputc('\n', stderr);
+    } else {
+	va_list	argp;
+	va_start(argp, format);
+	checkError(reply, format, argp);
+	va_end(argp);
+    }
 }
 
 static int
 checkArray(redisReply *reply, const char *format, ...)
 {
-    va_list	arg;
-
-    if (reply && reply->type == REDIS_REPLY_ARRAY)
+    if (reply && reply->type == REDIS_REPLY_ARRAY) {
 	return 0;
-
-    fprintf(stderr, "Error: ");
-    va_start(arg, format);
-    vfprintf(stderr, format, arg);
-    va_end(arg);
-    if (reply && reply->type == REDIS_REPLY_ERROR)
-	fprintf(stderr, "\nRedis: %s\n", reply->str);
-    else
-	fputc('\n', stderr);
+    } else if (reply->type != REDIS_REPLY_ERROR) {
+	va_list	argp;
+	va_start(argp, format);
+	checkError(reply, format, argp);
+	va_end(argp);
+    }
     return -1;
 }
 
 static long long
 checkMapScript(redisReply *reply, long long *add, sds s, const char *format, ...)
 {
-    va_list	arg;
-
     /* on success, map script script returns two integer values via array */
     if (reply && reply->type == REDIS_REPLY_ARRAY && reply->elements == 2 &&
 	reply->element[0]->type == REDIS_REPLY_INTEGER &&
 	reply->element[1]->type == REDIS_REPLY_INTEGER) {
 	*add = reply->element[1]->integer;	/* is this newly allocated */
 	return reply->element[0]->integer;	/* the actual string mapid */
+    } else {
+	va_list	argp;
+	va_start(argp, format);
+	checkError(reply, format, argp);
+	va_end(argp);
     }
-
-    fprintf(stderr, "Error: ");
-    va_start(arg, format);
-    vfprintf(stderr, format, arg);
-    va_end(arg);
-    if (reply && reply->type == REDIS_REPLY_ERROR)
-	fprintf(stderr, "\nRedis: %s\n", reply->str);
-    else
-	fputc('\n', stderr);
     return -1;
 }
 
 static long long
 checkInteger(redisReply *reply, const char *format, ...)
 {
-    va_list	arg;
-
-    if (reply && reply->type == REDIS_REPLY_INTEGER)
+    if (reply && reply->type == REDIS_REPLY_INTEGER) {
 	return reply->integer;
-
-    fputs("Error: ", stderr);
-    va_start(arg, format);
-    vfprintf(stderr, format, arg);
-    va_end(arg);
-    if (reply && reply->type == REDIS_REPLY_ERROR)
-	fprintf(stderr, "\nRedis: %s\n", reply->str);
-    else
-	fputc('\n', stderr);
+    } else {
+	va_list	argp;
+	va_start(argp, format);
+	checkError(reply, format, argp);
+	va_end(argp);
+    }
     return -1;
 }
 
@@ -926,12 +918,6 @@ redis_load_slots(redisSlots *redis, void *arg)
     }
     return 0;
 }
-
-static struct dict *instmap;
-static struct dict *namesmap;
-static struct dict *labelsmap;
-static struct dict *contextmap;
-static dictType	mapCallBackDict;
 
 redisSlots *
 redis_init(sds server)
