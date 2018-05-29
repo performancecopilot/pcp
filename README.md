@@ -1,7 +1,9 @@
 ![PCP](images/pcpicon.png)
 
 [![Build Status](https://travis-ci.org/performancecopilot/pcp.svg?branch=master)](https://travis-ci.org/performancecopilot/pcp)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/15853/badge.svg)](https://scan.coverity.com/projects/15853)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1872/badge)](https://bestpractices.coreinfrastructure.org/projects/1872)
+[![Github Release](https://img.shields.io/github/release/performancecopilot/pcp.svg)](https://github.com/performancecopilot/pcp/releases/latest)
 
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and management. It presents a unifying
