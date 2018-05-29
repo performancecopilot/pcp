@@ -80,14 +80,15 @@ output(__pmnsNode *p, int depth, char *path)
     else if (depth != lastdepth)
 	fprintf(outf, "\n%s {\n", path);
     lastdepth = depth;
-    if (p->first != NULL)
+    if (p == NULL)
+	return;
+    else if (p->first != NULL)
 	fprintf(outf, "\t%s\n", p->name);
-    else {
-	if (IS_DYNAMIC_ROOT(p->pmid))
-	    fprintf(outf, "\t%s\t%d:*:*\n", p->name, pmID_cluster(p->pmid));
-	else
-	    fprintf(outf, "\t%s\t%d:%d:%d\n", p->name, pmID_domain(p->pmid), pmID_cluster(p->pmid), pmID_item(p->pmid));
-    }
+    else if (IS_DYNAMIC_ROOT(p->pmid))
+	fprintf(outf, "\t%s\t%d:*:*\n", p->name, pmID_cluster(p->pmid));
+    else
+	fprintf(outf, "\t%s\t%d:%d:%d\n", p->name, pmID_domain(p->pmid),
+			pmID_cluster(p->pmid), pmID_item(p->pmid));
 }
 
 void
