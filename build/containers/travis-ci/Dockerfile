@@ -1,4 +1,4 @@
-FROM fedora:latest
+FROM fedora:27
 
 RUN dnf -y install \
         which sudo hostname findutils bc git \
