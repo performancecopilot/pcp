@@ -1,5 +1,5 @@
 pcp-4.1.0 (15 June 2018)
-    - Work-in-progress, see http://pcp.io/roadmap
+    - Work-in-progress, see https://pcp.io/roadmap
 
 pcp-4.0.2 (11 May 2018)
     - log rotation, management scripts, compression and utilities
@@ -1299,7 +1299,7 @@ pcp-3.10.4 (15 April 2015)
 
 pcp-3.10.3 (2 March 2015)
     - enhancement: ongoing improvements to the native containers support
-	http://pcp.io/docs/lab.containers.html
+	https://pcp.io/docs/lab.containers.html
     - enhancement: pmlogger on-the-fly one-shot recording
     - doc: containers tutorial.
     - build: new scripts directory. Contains useful scripts for project

@@ -10,7 +10,7 @@
 <address>
 <email>pcp@groups.io</email>
 <otheraddr>
-<ulink url="http://pcp.io"/>
+<ulink url="https://pcp.io"/>
 <inlinemediaobject><imageobject><imagedata fileref="images/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
@@ -156,7 +156,7 @@ For example, <command>pminfo(1)</command> refers to the man page in section 1 fo
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term><ulink url="http://pcp.io">http://pcp.io</ulink></term>
+<term><ulink url="https://pcp.io">https://pcp.io</ulink></term>
 <listitem><para>PCP is open source software released under 
 the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>

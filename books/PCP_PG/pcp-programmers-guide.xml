@@ -11,7 +11,7 @@
         <address>
           <email>pcp@groups.io</email>
           <otheraddr>
-            <ulink url="http://pcp.io"/>
+            <ulink url="https://pcp.io"/>
             <inlinemediaobject>
               <imageobject>
                 <imagedata fileref="images/pcp.svg"/>
@@ -153,7 +153,7 @@ For a complete list of manual sections on a platform enter the command:</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <ulink url="http://pcp.io">http://pcp.io</ulink>
+            <ulink url="https://pcp.io">https://pcp.io</ulink>
           </term>
           <listitem>
             <para>PCP is open source software released under

@@ -1080,7 +1080,7 @@ class DstatTool(object):
         self.connect()
         print('pcp-dstat %s' % pmapi.pmContext.pmGetConfig('PCP_VERSION'))
         print('Written by the PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>')
-        print('Homepages at http://pcp.io/ and http://dag.wieers.com/home-made/dstat/')
+        print('Homepages at https://pcp.io/ and http://dag.wieers.com/home-made/dstat/')
         print()
         print('Platform %s/%s' % (os.name, sys.platform)) # kernel.uname.sysname
         print('Kernel %s' % os.uname()[2])  # kernel.uname.release

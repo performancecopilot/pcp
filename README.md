@@ -17,4 +17,4 @@ monitoring of distributed processing.
 
 See the [INSTALL](INSTALL.md) file for build, installation and configuration steps.
 For more information and details on how to contribute to the PCP project
-visit [pcp.io](http://pcp.io/community.html)
+visit [pcp.io](https://pcp.io/community.html)
