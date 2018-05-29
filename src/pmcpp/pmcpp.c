@@ -134,9 +134,10 @@ err(const char *msg, ...)
 	else
 	    fprintf(stderr, "pmcpp: %s:\n", currfile->fname);
     }
-    va_start(arg, msg);
     fprintf(stderr, "pmcpp: Error: ");
+    va_start(arg, msg);
     vfprintf(stderr, msg, arg);
+    va_end(arg);
     fprintf(stderr, "\n");
     exit(1);
 }
