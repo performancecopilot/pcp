@@ -246,12 +246,12 @@ static char *isspace_terminate(char *string)
  */
 static void stomp_parse(void)
 {
-    char config[MAXPATHLEN+1];
+    char config[MAXPATHLEN];
     FILE *f;
     int sep = pmPathSeparator();
 
     if (stompfile)
-	strncat(config, stompfile, sizeof(config)-1);
+	pmsprintf(config, sizeof(config), "%s", stompfile);
     else
 	pmsprintf(config, sizeof(config),
 		"%s%c" "config" "%c" "pmie" "%c" "stomp",
