@@ -1476,6 +1476,7 @@ BAD
 1140 pidstat local python pcp
 1141 selinux local
 1144 pmda.proc local
+1150 pmda.bcc local
 1159 pmlogger local pmdumplog
 1164 pmda.linux local
 1166 libpcp local

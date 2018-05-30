@@ -1,0 +1,170 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA USDT hits module """
+
+# Configuration options
+# Name - type - default
+#
+# process - string  - unset : name/regex or list of pids of processes to monitor
+# usdts   - string - unset : file or comma-separated list of usdts
+
+# pylint: disable=invalid-name
+
+from ctypes import c_int
+from os import path
+from bcc import BPF, USDT
+
+from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+
+#
+# BPF program
+#
+bpf_src = "modules/usdt_hits.bpf"
+# Individual USDT
+usdt_probe = """
+static char *HASH_KEY = "USDT_NAME";
+int do_trace_HASH_KEY(void *ctx) {
+    struct usdt_t key = {};
+    __builtin_memcpy(&key.usdt, HASH_KEY, sizeof(key.usdt));
+    u64 zero = 0, *val;
+    val = stats.lookup_or_init(&key, &zero);
+    (*val)++;
+    return 0;
+}
+"""
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'usdt_hits'
+METRIC = 'usdt.hits'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC USDT hits module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.cache = {}
+        self.pid = None
+        self.usdts = []
+
+        for opt in self.config.options(MODULE):
+            if opt == 'process':
+                procs = self.get_proc_info(self.config.get(MODULE, opt))
+                if len(procs) > 1:
+                    self.log("Several PIDs found, using the first one.")
+                if procs:
+                    self.log("Using PID %s (%s %s)." % (str(procs[0][0]), procs[0][1], procs[0][2]))
+                    self.pid = procs[0][0]
+            if opt == 'usdts':
+                self.usdts = self.read_probe_conf(self.config.get(MODULE, opt))
+
+        if self.pid is None:
+            # https://github.com/iovisor/bcc/issues/1774
+            self.err("No process to attach found/set, will not activate!")
+
+        self.log("Configured USDTs: " + str(self.usdts))
+
+        found = []
+        for usdt in self.usdts:
+            lib, name = usdt.split(":")
+            for probe in USDT(path=lib).enumerate_probes():
+                import re
+                comp = re.compile(r'\A' + name + r'\Z')
+                pn = probe.name if isinstance(probe.name, str) else probe.name.decode("UTF-8")
+                if name == pn or re.match(comp, pn):
+                    found.append(lib + ":" + pn)
+                    self.insts[lib + "::" + pn] = c_int(1)
+        self.usdts = found
+
+        self.log("Found %s USDTs: %s." % (str(len(self.usdts)), str(self.usdts)))
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items.append(
+            # Name - reserved - type - semantics - units - help
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'USDT hit count'),
+        )
+        return True, self.items
+
+    @staticmethod
+    def gen_hash_key(key):
+        """ Format USDT name to hash key """
+        key = key.replace(":", "__").replace("/", "_").replace("-", "_")
+        return key.replace(".", "_").replace(",", "_").replace(";", "_")
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if not self.usdts:
+                raise RuntimeError("No USDTs enabled.")
+            if self.pid is None:
+                # https://github.com/iovisor/bcc/issues/1774
+                raise RuntimeError("No PID found/set.")
+            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                bpf_text = src.read()
+            usdt_contexts = []
+            if self.pid:
+                u = USDT(pid=self.pid)
+            for usdt in self.usdts:
+                lib, name = usdt.split(":")
+                hash_key = self.gen_hash_key(usdt)
+                probe = usdt_probe.replace("HASH_KEY", hash_key)
+                probe = probe.replace("USDT_NAME", usdt)
+                if self.pid:
+                    u.enable_probe(name, "do_trace_HASH_KEY".replace("HASH_KEY", hash_key))
+                else:
+                    u = USDT(path=lib)
+                    u.enable_probe(name, "do_trace_HASH_KEY".replace("HASH_KEY", hash_key))
+                    usdt_contexts.append(u)
+                bpf_text += probe
+            if self.pid:
+                usdt_contexts.append(u)
+            bpf_text = bpf_text.replace("USDT_COUNT", str(len(self.usdts)))
+            self.log("Compiling %s probes: %s" % (str(len(self.usdts)), str((self.usdts))))
+            self.bpf = BPF(text=bpf_text, usdt_contexts=usdt_contexts)
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        for k, v in self.bpf["stats"].items():
+            self.cache[k.usdt.decode("ASCII").replace(":", "::")] = v.value
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [self.cache[key], 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]
