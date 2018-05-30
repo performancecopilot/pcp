@@ -15,6 +15,7 @@
 
 import ctypes as ct
 from bcc.table import log2_index_max
+from os import kill
 
 # pylint: disable=too-many-instance-attributes
 class PCPBCCBase(object):

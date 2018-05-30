@@ -18,7 +18,7 @@
 from threading import Lock, Thread
 import ctypes as ct
 from ctypes import c_int
-from os import kill, path
+from os import path
 from bcc import BPF
 
 from pcp.pmapi import pmUnits

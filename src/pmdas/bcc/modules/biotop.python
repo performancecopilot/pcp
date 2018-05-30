@@ -16,7 +16,6 @@
 # pylint: disable=invalid-name, line-too-long
 
 from ctypes import c_int
-from os import kill
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
