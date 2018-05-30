@@ -18,18 +18,27 @@
 from threading import Lock, Thread
 import ctypes as ct
 from ctypes import c_int
-from os import kill
+from os import kill, path
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
-from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
 #
 bpf_src = "modules/tcplife.bpf"
+# Compat with kernel < 4.16, bcc < 0.6
+TRACEFS = "/sys/kernel/debug/tracing"
+bpf_src_old_tp = "modules/tcplife_old_tp.bpf"
+bpf_src_old_kb = "modules/tcplife_old_kb.bpf"
+if not path.exists(TRACEFS + "/events/sock/inet_sock_set_state"):
+    if path.exists(TRACEFS + "/events/tcp/tcp_set_state"):
+        bpf_src = bpf_src_old_tp
+    else:
+        bpf_src = bpf_src_old_kb
 
 #
 # PCP BCC PMDA constants
@@ -84,16 +93,10 @@ class PCPBCCModule(PCPBCCBase):
         self.thread = Thread(name="bpfpoller", target=self.poller)
         self.thread.setDaemon(True)
 
-        self.log("Initialized.")
+        # Compat with kernel < 4.16
+        self.log("Using BPF source %s." % bpf_src)
 
-    @staticmethod
-    def pid_alive(pid):
-        """ Test liveliness of PID """
-        try:
-            kill(int(pid), 0)
-            return True
-        except Exception: # pylint: disable=broad-except
-            return False
+        self.log("Initialized.")
 
     def poller(self):
         """ BPF poller """
@@ -102,6 +105,7 @@ class PCPBCCModule(PCPBCCBase):
             if 'perf_buffer_poll' in dir(self.bpf):
                 poll = self.bpf.perf_buffer_poll
             else:
+                # Compat: bcc < 0.6.0
                 poll = self.bpf.kprobe_poll
             while self.bpf:
                 poll()
@@ -147,7 +151,21 @@ class PCPBCCModule(PCPBCCBase):
     def compile(self):
         """ Compile BPF """
         try:
-            self.bpf = BPF(src_file=bpf_src)
+            # Compat with bcc < 0.6
+            self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
+            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                bpf_text = src.read()
+            try:
+                test_txt = bpf_text.replace("// NEW: ", "")
+                test_bpf = BPF(text=test_txt)
+                test_bpf.cleanup()
+                bpf_text = test_txt
+            except Exception: # pylint: disable=broad-except
+                bpf_text = bpf_text.replace("// OLD: ", "")
+            self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
+
+            self.bpf = BPF(text=bpf_text)
+            #self.bpf = BPF(src_file=bpf_src)
             self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event, page_cnt=64)
             self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event, page_cnt=64)
             self.thread.start()
