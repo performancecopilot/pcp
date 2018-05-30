@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1151
+# Exercise the BCC PMDA USDT JVM threads module - install, remove and values.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+jvm_path=""
+if [ -f /etc/alternatives/jre/lib/server/libjvm.so ]
+then
+    jvm_path=/etc/alternatives/jre/lib/server/libjvm.so
+fi
+if [ -z "$jvm_path" ]
+then
+    java_major=$(java -version 2>&1 | sed -e 's,openjdk version "1.,,' -e 's,\..*,,')
+    jvm_path=/usr/lib/jvm/java-${java_major}-openjdk-amd64/jre/lib/amd64/server/libjvm.so
+fi
+[ -n "$jvm_path" ] || _notrun "libjvm.so not found"
+
+_log_filter()
+{
+    sed -e 's,Using PID.*,Found a Java process.,g'
+}
+
+_value_filter()
+{
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# Launch a Java test program
+cd java
+java USDTJVMTest &
+javapid=$!
+disown
+cd ..
+
+# real QA test starts here
+cat <<EOF | _pmdabcc_install | _log_filter
+[pmda]
+modules = usdt_jvm_threads
+prefix = bcc.
+[usdt_jvm_threads]
+module = usdt_jvm_threads
+cluster = 110
+jvm_path = $jvm_path
+process = java
+EOF
+_pmdabcc_wait_for_metric
+
+# Wait for values to appear
+pmsleep 1
+
+echo "=== report metric values ==="
+pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $here/$seq.full \
+| _value_filter
+pminfo -dfmtT bcc.usdt.jvm.threads.stop 2>&1 | tee -a $here/$seq.full \
+| _value_filter
+
+kill -9 $javapid > /dev/null 2>&1
+_pmdabcc_remove 2>&1
+
+status=0
+exit
