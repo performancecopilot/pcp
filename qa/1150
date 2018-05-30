@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+_pmdabcc_require_kernel_version 4 7
 
 # If no PCP support for probes, also bail out
 _get_libpcp_config
