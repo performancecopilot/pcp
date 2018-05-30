@@ -20,9 +20,9 @@ from os import kill
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
-from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -51,15 +51,6 @@ class PCPBCCModule(PCPBCCBase):
         self.update_disk_info()
 
         self.log("Initialized.")
-
-    @staticmethod
-    def pid_alive(pid):
-        """ Test liveliness of PID """
-        try:
-            kill(int(pid), 0)
-            return True
-        except Exception: # pylint: disable=broad-except
-            return False
 
     def update_disk_info(self):
         """ Update disk info cache """
@@ -119,7 +110,7 @@ class PCPBCCModule(PCPBCCBase):
                 # check for hot swapped devices
                 self.update_disk_info()
                 if disk not in self.disklookup:
-                    self.log("Traced unknown device (major: {} minor: {})".format(k.major, k.minor))
+                    self.log("Traced unknown device (major: %s minor: %s)" % (k.major, k.minor))
                     continue
 
             key = self.disklookup[disk] + "::" + str(k.pid).zfill(6)

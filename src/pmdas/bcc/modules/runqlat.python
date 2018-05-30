@@ -18,9 +18,9 @@
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
-from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -44,6 +44,7 @@ class PCPBCCModule(PCPBCCBase):
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
         self.cache = {}
+
         self.log("Initialized.")
 
     def metrics(self):
@@ -68,16 +69,6 @@ class PCPBCCModule(PCPBCCBase):
             self.err("Module NOT active!")
             self.bpf = None
 
-    def label_cluster(self):
-        """ Cluster labels """
-        return '{"statistic":"histogram"}'
-
-    def label_instance(self, inst):
-        """ Label callback for an individual instance inst of a given instance domain indom """
-        key = self.pmdaIndom.inst_name_lookup(inst)
-        bounds = key.split('-')
-        return '{"lower_bound":%s,"upper_bound":%s}' % (bounds[0], bounds[1])
-
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
@@ -96,3 +87,13 @@ class PCPBCCModule(PCPBCCBase):
             return [self.cache[key], 1]
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
+
+    def label_cluster(self):
+        """ Cluster labels """
+        return '{"statistic":"histogram"}'
+
+    def label_instance(self, inst):
+        """ Instance labels """
+        key = self.pmdaIndom.inst_name_lookup(inst)
+        bounds = key.split('-')
+        return '{"lower_bound":%s,"upper_bound":%s}' % (bounds[0], bounds[1])
