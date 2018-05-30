@@ -136,7 +136,7 @@ checkError(redisReply *reply, const char *format, va_list argp)
     /* TODO: needs to be passed to info callbacks not stderr */
     fputs("Error: ", stderr);
     vfprintf(stderr, format, argp);
-    if (reply->type == REDIS_REPLY_ERROR)
+    if (reply && reply->type == REDIS_REPLY_ERROR)
 	fprintf(stderr, "\nRedis: %s\n", reply->str);
     else
 	fputc('\n', stderr);
@@ -187,7 +187,7 @@ checkArray(redisReply *reply, const char *format, ...)
 {
     if (reply && reply->type == REDIS_REPLY_ARRAY) {
 	return 0;
-    } else if (reply->type != REDIS_REPLY_ERROR) {
+    } else if (!reply || reply->type != REDIS_REPLY_ERROR) {
 	va_list	argp;
 	va_start(argp, format);
 	checkError(reply, format, argp);

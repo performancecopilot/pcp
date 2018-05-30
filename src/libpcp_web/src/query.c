@@ -1211,7 +1211,7 @@ reverse_map(pmSeriesSettings *settings, int nkeys,
 	if (name->type == REDIS_REPLY_STRING) {
 	    if (key->type == REDIS_REPLY_STRING) {
 		val = sdsnewlen(name->str, name->len);
-		redisRMapInsert(map, key->str, sdsnewlen(name->str, name->len));
+		redisRMapInsert(map, key->str, val);
 		sdsfree(val);
 	    } else {
 		queryfmt(msg, "expected string key for hashmap (type=%s)",
