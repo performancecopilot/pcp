@@ -73,7 +73,7 @@ class PCPBCCBase(object):
         return '{}'
 
     def label_instance(self, inst): # pylint: disable=no-self-use,unused-argument
-        """ Label callback for instance """
+        """ Instance labels """
         return '{}'
 
     def cleanup(self):
@@ -90,16 +90,18 @@ class PCPBCCBase(object):
     @classmethod
     def read_log2_histogram_section(cls, hist_data, cache):
         """
-        adapted from https://github.com/iovisor/bcc/blob/master/src/python/bcc/table.py
+        Read log2 histogram section
 
-        cache is filled until the top end (zero value buckets)
-        always populate the cache with the first element, even if the value is
-        zero (to have at least a single instance instead of no values at all)
+        Adapted from https://github.com/iovisor/bcc/blob/master/src/python/bcc/table.py
+
+        Cache is filled until the top end (zero value buckets).
+        Always populate the cache with the first element, even if the value is
+        zero (to have at least a single instance instead of no values at all).
         """
         idx_max = -1
         val_max = 0
 
-        for i, v in enumerate(hist_data):
+        for i, v in enumerate(hist_data): # pylint: disable=invalid-name
             if v > 0:
                 idx_max = i
             if v > val_max:
@@ -120,20 +122,21 @@ class PCPBCCBase(object):
     @classmethod
     def read_log2_histograms(cls, table, cache):
         """
-        read multiple log2 histograms
-        adapted from https://github.com/iovisor/bcc/blob/master/src/python/bcc/table.py
+        Read multiple log2 histograms
+
+        Adapted from https://github.com/iovisor/bcc/blob/master/src/python/bcc/table.py
         """
 
         if not isinstance(table.Key(), ct.Structure):
-            raise Exception('this histogram does not contain multiple sections')
+            raise Exception("Histogram does not contain multiple sections")
 
         hist_sections = {}
         hist_key_field1 = table.Key._fields_[0][0]
         hist_key_field2 = table.Key._fields_[1][0]
 
-        # note: table contains sections with changed values only
-        for k, v in table.items():
-            section = getattr(k, hist_key_field1).decode('utf-8')
+        # Note: table contains sections with changed values only
+        for k, v in table.items(): # pylint: disable=invalid-name
+            section = getattr(k, hist_key_field1).decode("UTF-8")
             if section not in hist_sections:
                 hist_sections[section] = [0] * log2_index_max
             slot = getattr(k, hist_key_field2)
@@ -151,19 +154,19 @@ class PCPBCCBase(object):
 
     @classmethod
     def read_log2_histogram(cls, table, cache):
-        """ read a single log2 histogram """
+        """ Read single log2 histogram """
         if isinstance(table.Key(), ct.Structure):
-            raise Exception('this histogram contains multiple sections')
+            raise Exception("Histogram contains multiple sections")
 
         hist_data = [0] * log2_index_max
-        for k, v in table.items():
+        for k, v in table.items(): # pylint: disable=invalid-name
             hist_data[k.value] = v.value
         cls.read_log2_histogram_section(hist_data, cache)
         return {key: ct.c_int(1) for key in cache.keys()}
 
-    @classmethod
-    def read_probe_conf(cls, conf):
-        """ Read tracepoint/uprobe/usdt probes from a file """
+    @staticmethod
+    def read_probe_conf(conf):
+        """ Read tracepoint/uprobe/USDT probes from a file """
         if ":" in conf:
             return conf.split(",")
         if not conf.startswith("/"):
@@ -171,8 +174,8 @@ class PCPBCCBase(object):
             conf = path.dirname(__file__) + "/../" + conf
         return [l.strip() for l in open(conf).readlines() if l.strip() != "" and '#' not in l]
 
-    @classmethod
-    def get_proc_info(cls, process):
+    @staticmethod
+    def get_proc_info(process):
         """ Get process info for given PIDs or process name """
 
         def get_pids(procname):
@@ -185,8 +188,9 @@ class PCPBCCBase(object):
                 try:
                     with open("/proc/%s/cmdline" % dirname, "rb") as f:
                         cmdline = f.read().decode().split("\x00")
-                        if procname == cmdline[0] or re.match(comp, " ".join(cmdline[:-1])):
-                            pids.append(int(dirname))
+                    procbin = cmdline[0].split("/")[-1]
+                    if procname == procbin or re.match(comp, " ".join(cmdline[:-1])):
+                        pids.append(int(dirname))
                 except Exception: # pylint: disable=broad-except
                     continue
             return pids
@@ -198,7 +202,7 @@ class PCPBCCBase(object):
                 try:
                     with open("/proc/%s/cmdline" % str(pid), "rb") as f:
                         cmdline = f.read().decode().split("\x00")
-                        procinfo.append([pid, cmdline[0], " ".join(cmdline[1:-1])])
+                    procinfo.append([pid, cmdline[0], " ".join(cmdline[1:-1])])
                 except Exception: # pylint: disable=broad-except
                     continue
             return procinfo
@@ -209,3 +213,23 @@ class PCPBCCBase(object):
             pids = get_pids(process)
 
         return get_proc_details(pids)
+
+    @staticmethod
+    def apply_pid_filter(bpf_text, pids):
+        """ Apply PID filtering for BPF text """
+        pid_filter = "u32 pid = bpf_get_current_pid_tgid() >> 32; if (PID_CHECK) return 0;"
+        if not pids:
+            return bpf_text.replace("FILTER_PID", "")
+        bpf_text = bpf_text.replace("FILTER_PID", pid_filter)
+        for pid in pids:
+            bpf_text = bpf_text.replace("PID_CHECK", "pid != %d && PID_CHECK" % pid)
+        return bpf_text.replace(" && PID_CHECK", "")
+
+    @staticmethod
+    def pid_alive(pid):
+        """ Test liveliness of PID """
+        try:
+            kill(int(pid), 0)
+            return True
+        except Exception: # pylint: disable=broad-except
+            return False
