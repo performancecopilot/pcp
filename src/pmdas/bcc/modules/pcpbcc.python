@@ -14,8 +14,8 @@
 """ PCP BCC PMDA module base class """
 
 import ctypes as ct
-from bcc.table import log2_index_max
 from os import kill
+from bcc.table import log2_index_max
 
 # pylint: disable=too-many-instance-attributes
 class PCPBCCBase(object):
@@ -187,8 +187,8 @@ class PCPBCCBase(object):
             comp = re.compile(r'\A' + procname + r'\Z')
             for dirname in listdir("/proc"):
                 try:
-                    with open("/proc/%s/cmdline" % dirname, "rb") as f:
-                        cmdline = f.read().decode().split("\x00")
+                    with open("/proc/%s/cmdline" % dirname, "rb") as fcmd:
+                        cmdline = fcmd.read().decode().split("\x00")
                     procbin = cmdline[0].split("/")[-1]
                     if procname == procbin or re.match(comp, " ".join(cmdline[:-1])):
                         pids.append(int(dirname))
@@ -201,8 +201,8 @@ class PCPBCCBase(object):
             procinfo = []
             for pid in pids:
                 try:
-                    with open("/proc/%s/cmdline" % str(pid), "rb") as f:
-                        cmdline = f.read().decode().split("\x00")
+                    with open("/proc/%s/cmdline" % str(pid), "rb") as fcmd:
+                        cmdline = fcmd.read().decode().split("\x00")
                     procinfo.append([pid, cmdline[0], " ".join(cmdline[1:-1])])
                 except Exception: # pylint: disable=broad-except
                     continue
