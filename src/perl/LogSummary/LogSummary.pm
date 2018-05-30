@@ -100,7 +100,7 @@ pmlogsummary(1).
 The PCP mailing list pcp@groups.io can be used for questions about
 this module.
 
-Further details can be found at http://www.pcp.io
+Further details can be found at https://pcp.io
 
 =head1 AUTHOR
 
