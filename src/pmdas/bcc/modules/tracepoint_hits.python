@@ -17,7 +17,7 @@
 # Name - type - default
 #
 # compile_test - boolean - False : disable failing tracepoints on-the-fly
-# process      - string  - unset : name/regex or list of pids of processes to monitor
+# process      - string  - unset : list of names/pids or regex of processes to monitor
 # tracepoints  - string  - unset : file or comma-separated list of tracepoints
 
 # pylint: disable=invalid-name
@@ -144,6 +144,9 @@ class PCPBCCModule(PCPBCCBase):
             bpf_text = bpf_text.replace("TRACEPOINT_COUNT", str(len(tps)))
             bpf_text = self.apply_pid_filter(bpf_text, self.pids)
             self.log("Compiling %s tracepoints: %s" % (str(len(tps)), str((tps))))
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
             self.bpf = BPF(text=bpf_text)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
