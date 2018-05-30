@@ -14,19 +14,13 @@
 #include <assert.h>
 #include "schema.h"
 #include "util.h"
-#include "dict.h"
+#include "maps.h"
 #include <pcp/pmda.h>
 
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
-
-static struct dict *instmap;
-static struct dict *namesmap;
-static struct dict *labelsmap;
-static struct dict *contextmap;
-static dictType	mapCallBackDict;
 
 typedef struct redis_script {
     const char		*text;
@@ -162,7 +156,6 @@ checkStatusOK(redisReply *reply, const char *format, ...)
     }
 }
 
-
 static int
 checkStreamDup(redisReply *reply, sds stamp, const char *hash)
 {
@@ -236,31 +229,37 @@ checkInteger(redisReply *reply, const char *format, ...)
 }
 
 static long long
-redis_strmap(redisSlots *redis, char *name, const char *value)
+redis_map(redisSlots *redis, redisMap *mapping, sds mapkey)
 {
+    redisMapEntry	*entry = redisMapLookup(mapping, mapkey);
+    const char		*mapname = redisMapName(mapping);
     redisReply		*reply;
     long long		map, add = 0;
     sds			cmd, msg, key;
 
-    key = sdscatfmt(sdsempty(), "pcp:map:%s", name);
+    if (entry != NULL)
+	return redisMapValue(entry);
+
+    key = sdscatfmt(sdsempty(), "pcp:map:%s", mapname);
     cmd = redis_command(5);
     cmd = redis_param_str(cmd, EVALSHA, EVALSHA_LEN);
     cmd = redis_param_sds(cmd, scripts[HASH_MAP_ID].hash);
     cmd = redis_param_str(cmd, "1", sizeof("1")-1);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, value, strlen(value));
+    cmd = redis_param_sds(cmd, mapkey);
     redis_submit(redis, EVALSHA, key, cmd);
 
     /* TODO: async callback function */
     redisGetReply(redis->control, (void **)&reply);
     map = checkMapScript(reply, &add, "%s: %s (%s)" EVALSHA,
-			"string mapping script", name);
+			"string mapping script", mapname);
+    redisMapInsert(mapping, mapkey, map);
     freeReplyObject(reply);
 
     /* publish any newly created name mapping */
     if (add) {
-	msg = sdscatfmt(sdsempty(), "%I:%s", map, value);
-	key = sdscatfmt(sdsempty(), "pcp:channel:%s", name);
+	msg = sdscatfmt(sdsempty(), "%I:%s", map, mapkey);
+	key = sdscatfmt(sdsempty(), "pcp:channel:%s", mapname);
 	cmd = redis_command(3);
 	cmd = redis_param_str(cmd, PUBLISH, PUBLISH_LEN);
 	cmd = redis_param_sds(cmd, key);
@@ -270,7 +269,7 @@ redis_strmap(redisSlots *redis, char *name, const char *value)
 
 	/* TODO: async callback function */
 	redisGetReply(redis->control, (void **)&reply);
-	checkInteger(reply, "%s: %s", PUBLISH, "new %s mapping", name);
+	checkInteger(reply, "%s: %s", PUBLISH, "new %s mapping", mapname);
 	freeReplyObject(reply);
     }
 
@@ -286,11 +285,11 @@ redis_series_source(redisSlots *redis, context_t *context)
     sds			cmd, key, val;
 
     if ((mapid = context->mapid) <= 0) {
-	mapid = redis_strmap(redis, "context.name", context->name);
+	mapid = redis_map(redis, contextmap, context->name);
 	context->mapid = mapid;
     }
     if ((hostid = context->hostid) <= 0) {
-	hostid = redis_strmap(redis, "context.name", context->host);
+	hostid = redis_map(redis, contextmap, context->host);
 	context->hostid = hostid;
     }
 
@@ -352,19 +351,18 @@ redis_series_inst(redisSlots *redis, metric_t *metric, value_t *value)
 {
     redisReply		*reply;
     const char		*hash;
-    long long		map;
     sds			cmd, key, val, id;
 
     if (!value->name)
 	return;
 
-    /* TODO: need instance name, label name, & label value map hashes */
-    if ((map = value->mapid) <= 0) {
-	map = redis_strmap(redis, "inst.name", value->name);
-	value->mapid = map;
+    if (value->mapid <= 0) {
+	val = sdsnew(value->name);
+	value->mapid = redis_map(redis, instmap, val);
+	sdsfree(val);
     }
 
-    key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%I", map);
+    key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%I", value->mapid);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -421,6 +419,7 @@ typedef struct {
 static int
 annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
 {
+    redisMap		*valuemap;
     redisSlots          *redis = my->redis;
     redisReply		*reply;
     const char		*offset;
@@ -431,7 +430,7 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
 
     offset = json + label->name;
     val = sdsnewlen(offset, label->namelen);
-    name_mapid = redis_strmap(redis, "label.name", val);
+    name_mapid = redis_map(redis, labelsmap, val);
     sdsfree(val);
 
     offset = json + label->value;
@@ -446,7 +445,9 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
 
     val = sdsnewlen(offset, length);
     key = sdscatfmt(sdsempty(), "label.%I.value", name_mapid);
-    value_mapid = redis_strmap(redis, key, val);
+    valuemap = redisMapCreate(key);
+    value_mapid = redis_map(redis, valuemap, val);
+    redisMapRelease(valuemap);
     sdsfree(key);
     sdsfree(val);
 
@@ -535,8 +536,10 @@ redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
 	if ((name = metric->names[i]) == NULL)
 	    continue;
 	if ((map = metric->mapids[i]) <= 0) {
-	    map = redis_strmap(redis, "metric.name", name);
+	    val = sdsnew(name);
+	    map = redis_map(redis, namesmap, val);
 	    metric->mapids[i] = map;
+	    sdsfree(val);
 	}
 
 	key = sdscatfmt(sdsempty(), "pcp:metric.name:series:%s", hash);
@@ -925,12 +928,9 @@ redis_init(sds server)
     redisSlots          *slots;
     static int		setup;
 
-    if (!setup) { /* global string map caches */
-	instmap = dictCreate(&mapCallBackDict, NULL);
-	namesmap = dictCreate(&mapCallBackDict, NULL);
-	labelsmap = dictCreate(&mapCallBackDict, NULL);
-	contextmap = dictCreate(&mapCallBackDict, NULL);
-	clustering = getenv("REDIS_CLUSTER") ? 1 : 0;
+    if (!setup) {	/* create global string map caches */
+	redisMapsInit();
+	clustering = getenv("REDIS_CLUSTER") ? 1 : 0;	/* TODO: remove */
 	setup = 1;
     }
 
