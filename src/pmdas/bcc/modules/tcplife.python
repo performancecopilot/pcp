@@ -13,11 +13,17 @@
 #
 """ PCP BCC PMDA biotop module """
 
+# Configuration options
+# Name - type - default
+#
+# process - string - unset : list of names/pids or regex of processes to monitor
+# dport   - int    - unset : list of remote ports to monitor
+# lport   - int    - unset : list of local ports to monitor
+
 # pylint: disable=invalid-name,too-few-public-methods
 
-from threading import Lock, Thread
 import ctypes as ct
-from ctypes import c_int
+from threading import Lock, Thread
 from os import path
 from bcc import BPF
 
@@ -86,15 +92,35 @@ class PCPBCCModule(PCPBCCBase):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
+        self.pids = []
+        self.dports = []
+        self.lports = []
+
         self.ipv4_stats = {}
         self.ipv6_stats = {}
+
+        for opt in self.config.options(MODULE):
+            if opt == 'dport':
+                self.dports = [int(port) for port in self.config.get(MODULE, opt).split(",")]
+                self.log("Filtering on remote ports: %s." % str(self.dports))
+            if opt == 'lport':
+                self.lports = [int(port) for port in self.config.get(MODULE, opt).split(",")]
+                self.log("Filtering on local ports: %s." % str(self.lports))
+            if opt == 'process':
+                val = self.config.get(MODULE, opt)
+                procs = self.get_proc_info(val)
+                if not procs:
+                    self.log("No matching PIDs found for %s, PID filtering disabled." % val)
+                for proc in procs:
+                    self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
+                    self.pids.append(proc[0])
 
         self.lock = Lock()
         self.thread = Thread(name="bpfpoller", target=self.poller)
         self.thread.setDaemon(True)
 
         # Compat with kernel < 4.16
-        self.log("Using BPF source %s." % bpf_src)
+        self.log("Using BPF source file %s." % bpf_src)
 
         self.log("Initialized.")
 
@@ -164,8 +190,22 @@ class PCPBCCModule(PCPBCCBase):
                 bpf_text = bpf_text.replace("// OLD: ", "")
             self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
+            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False)
+
+            if self.dports:
+                filter = " && ".join(["dport != %d" % port for port in self.dports])
+                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filter
+                bpf_text = bpf_text.replace("//FILTER_DPORT", filter_txt)
+            if self.lports:
+                filter = " && ".join(["lport != %d" % port for port in self.lports])
+                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filter
+                bpf_text = bpf_text.replace("//FILTER_LPORT", filter_txt)
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
             self.bpf = BPF(text=bpf_text)
-            #self.bpf = BPF(src_file=bpf_src)
             self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event, page_cnt=64)
             self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event, page_cnt=64)
             self.thread.start()
@@ -187,12 +227,12 @@ class PCPBCCModule(PCPBCCBase):
             if not self.pid_alive(pid):
                 del self.ipv4_stats[pid]
             else:
-                self.insts[pid] = c_int(1)
+                self.insts[pid] = ct.c_int(1)
         for pid in list(self.ipv6_stats):
             if not self.pid_alive(pid):
                 del self.ipv6_stats[pid]
             else:
-                self.insts[pid] = c_int(1)
+                self.insts[pid] = ct.c_int(1)
         self.lock.release()
 
         return self.insts
