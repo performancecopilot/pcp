@@ -32,7 +32,7 @@ bpf_src = "modules/fs/ext4dist.bpf"
 # PCP BCC PMDA constants
 #
 MODULE = 'ext4dist'
-BASENS = 'ext4.latency.'
+BASENS = 'fs.ext4.latency.'
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 
 #
@@ -61,7 +61,7 @@ class PCPBCCModule(PCPBCCBase):
     @staticmethod
     def read_ext4_file_operations_addr():
         """ Read address of ext4_file_operations symbol """
-        with open('/proc/kallsyms') as syms:
+        with open("/proc/kallsyms") as syms:
             for line in syms:
                 addr, _size, name = line.rstrip().split(" ", 2)
                 name = name.split("\t")[0]
@@ -72,7 +72,7 @@ class PCPBCCModule(PCPBCCBase):
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../../' + bpf_src, 'r') as f:
+            with open(path.dirname(__file__) + '/../../' + bpf_src) as f:
                 bpf_text = f.read()
 
             ops_addr = self.read_ext4_file_operations_addr()
@@ -81,8 +81,12 @@ class PCPBCCModule(PCPBCCBase):
                 self.bpf = None
                 return
 
-            bpf_text = bpf_text.replace('EXT4_FILE_OPERATIONS', ops_addr)
-            bpf_text = bpf_text.replace('FILTER_PID', '0')
+            bpf_text = bpf_text.replace("EXT4_FILE_OPERATIONS", ops_addr)
+            bpf_text = bpf_text.replace("FILTER_PID", "0")
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
 
             self.bpf = BPF(text=bpf_text)
             self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
@@ -118,8 +122,8 @@ class PCPBCCModule(PCPBCCBase):
             if item_identifier in self.cache and key in self.cache[item_identifier]:
                 return [self.cache[item_identifier][key], 1]
             elif self.insts:
-                # BCC module is ready (we have histogram buckets), but doesn't contain
-                # the specified histogram bucket
+                # BCC module is ready (we have histogram buckets),
+                # but doesn't contain the specified histogram bucket
                 return [0, 1]
             # BCC module isn't ready yet
             return [PM_ERR_AGAIN, 0]
