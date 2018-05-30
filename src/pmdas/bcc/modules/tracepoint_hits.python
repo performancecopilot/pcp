@@ -17,11 +17,13 @@
 # Name - type - default
 #
 # compile_test - boolean - False : disable failing tracepoints on-the-fly
+# process      - string  - unset : name/regex or list of pids of processes to monitor
 # tracepoints  - string  - unset : file or comma-separated list of tracepoints
 
 # pylint: disable=invalid-name
 
 from ctypes import c_int
+from os import path
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
@@ -37,6 +39,7 @@ bpf_src = "modules/tracepoint_hits.bpf"
 tp_probe = """
 static char *HASH_KEY = "TRACEPOINT_NAME";
 TRACEPOINT_PROBE(TRACEPOINT_CATEGORY, TRACEPOINT_EVENT) {
+    FILTER_PID
     struct tp_t key = {};
     __builtin_memcpy(&key.tp, HASH_KEY, sizeof(key.tp));
     u64 zero = 0, *val;
@@ -64,24 +67,22 @@ class PCPBCCModule(PCPBCCBase):
 
         self.cache = {}
         self.compile_test = False
+        self.pids = []
         self.tracepoints = []
 
         for opt in self.config.options(MODULE):
             if opt == 'compile_test':
                 self.compile_test = self.config.getboolean(MODULE, opt)
-            if opt == 'tracepoints':
+            if opt == 'process':
                 val = self.config.get(MODULE, opt)
-                if ":" not in val:
-                    if val.startswith("/"):
-                        conf_file = val
-                    else:
-                        from os import path
-                        conf_file = path.dirname(__file__) + '/../' + val
-                    with open(conf_file, "r") as f:
-                        self.tracepoints = f.readlines()
-                        self.tracepoints = [l.strip() for l in self.tracepoints]
-                else:
-                    self.tracepoints = val.split(",")
+                procs = self.get_proc_info(val)
+                if not procs:
+                    self.log("No matching PIDs found for %s, PID filtering disabled." % val)
+                for proc in procs:
+                    self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
+                    self.pids.append(proc[0])
+            if opt == 'tracepoints':
+                self.tracepoints = self.read_probe_conf(self.config.get(MODULE, opt))
 
         self.log("Configured tracepoints: " + str(self.tracepoints))
 
@@ -114,10 +115,8 @@ class PCPBCCModule(PCPBCCBase):
         try:
             if not self.tracepoints:
                 raise RuntimeError("No tracepoints enabled.")
-            from os import path
-            bpf_file = open(path.dirname(__file__) + '/../' + bpf_src, "r")
-            bpf_text = bpf_file.read()
-            bpf_file.close()
+            with open(path.dirname(__file__) + '/../' + bpf_src, "r") as src:
+                bpf_text = src.read()
             tps = []
             tested_probes = ""
             for tp in self.tracepoints:
@@ -129,7 +128,7 @@ class PCPBCCModule(PCPBCCBase):
                 probe = probe.replace("TRACEPOINT_EVENT", tp_event)
                 if self.compile_test:
                     self.log("Compilation test for tracepoint probe: '%s'." % tp)
-                    test_probe = bpf_text + probe
+                    test_probe = bpf_text + probe.replace("FILTER_PID", "")
                     test_probe = test_probe.replace("TRACEPOINT_COUNT", "1")
                     try:
                         test_bpf = BPF(text=test_probe)
@@ -143,6 +142,7 @@ class PCPBCCModule(PCPBCCBase):
                     bpf_text += probe
             bpf_text += tested_probes
             bpf_text = bpf_text.replace("TRACEPOINT_COUNT", str(len(tps)))
+            bpf_text = self.apply_pid_filter(bpf_text, self.pids)
             self.log("Compiling %s tracepoints: %s" % (str(len(tps)), str((tps))))
             self.bpf = BPF(text=bpf_text)
             self.log("Compiled.")
@@ -156,8 +156,7 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        stats = self.bpf["stats"]
-        for k, v in stats.items():
+        for k, v in self.bpf["stats"].items():
             self.cache[k.tp.decode("ASCII")] = v.value
 
         return self.insts
