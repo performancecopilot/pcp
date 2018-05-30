@@ -33,6 +33,7 @@ _prepare_pmda bcc
 trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
+# real QA test starts here
 cat <<EOF | _pmdabcc_install
 [pmda]
 modules = biolatency
@@ -41,7 +42,6 @@ prefix = bcc.
 module = biolatency
 cluster = 0
 EOF
-
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC biolatency module
