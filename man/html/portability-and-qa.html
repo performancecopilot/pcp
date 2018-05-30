@@ -333,6 +333,9 @@ used with
 will not work and any use of<br>
 <code>$ ... [[ ... ]]</code><br>
 is going to blow up when presented to a real Bourne shell.</p>
+<p> Instead, use the = operator, e.g.</br>
+<code><br>$ sh<br>$ x=1<br>$ [ "$x" = 1 ] && echo yippee<br>yippee<br>
+$ [ "$x" == 1 ] && echo boo<br>sh: 3: [: 1: unexpected operator</code>
 
 <p>Another recurring one is the <i>-i</i> argument for <b>sed</b>;
 this is not standard and not supported everywhere so just do not use
