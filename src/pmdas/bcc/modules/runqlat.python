@@ -31,7 +31,7 @@ bpf_src = "modules/runqlat.bpf"
 # PCP BCC PMDA constants
 #
 MODULE = 'runqlat'
-METRIC = 'kernel.all.runnable'
+METRIC = 'runq.latency'
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 
 #
