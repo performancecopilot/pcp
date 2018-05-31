@@ -1522,7 +1522,7 @@ _restore_cron()
 		echo "               Unexpected differences ..."
 		diff -u $rc_backup rc_cron_check
 	    fi
-	    $rc_sudo rm -f rc_cron_check rc_cron_diff
+	    $rc_sudo rm -f rc_cron_check rc_cron_check.clean rc_cron_diff
 	else
 	    echo "_restore_cron: Warning: could not restore crontab to original state"
 	    echo "               crontab(1) failed ..."
