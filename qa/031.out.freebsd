@@ -74,6 +74,7 @@ children of "" ...
     mem                 <s = 1>
     network             <s = 1>
     pmcd                <s = 1>
+    pmda                <s = 1>
     sample              <s = 1>
     sampledso           <s = 1>
     swap                <s = 1>
