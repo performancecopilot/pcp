@@ -15,6 +15,7 @@
 
 import ctypes as ct
 from os import kill
+from collections import OrderedDict
 from bcc.table import log2_index_max
 
 # pylint: disable=too-many-instance-attributes
@@ -148,10 +149,11 @@ class PCPBCCBase(object):
                 cache[section] = {}
             cls.read_log2_histogram_section(hist_data, cache[section])
 
-        all_insts = set()
+        all_cache_keys = set()
         for section_cache in cache.values():
-            all_insts.update(section_cache.keys())
-        return {key: ct.c_int(1) for key in all_insts}
+            all_cache_keys.update(section_cache.keys())
+        sorted_cache_keys = sorted(all_cache_keys, key=lambda k: int(k.split('-')[0]))
+        return OrderedDict([(key, ct.c_int(1)) for key in sorted_cache_keys])
 
     @classmethod
     def read_log2_histogram(cls, table, cache):
@@ -163,7 +165,8 @@ class PCPBCCBase(object):
         for k, v in table.items(): # pylint: disable=invalid-name
             hist_data[k.value] = v.value
         cls.read_log2_histogram_section(hist_data, cache)
-        return {key: ct.c_int(1) for key in cache.keys()}
+        sorted_cache_keys = sorted(cache.keys(), key=lambda k: int(k.split('-')[0]))
+        return OrderedDict([(key, ct.c_int(1)) for key in sorted_cache_keys])
 
     @staticmethod
     def read_probe_conf(conf):
