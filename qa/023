@@ -127,6 +127,7 @@ cleanup()
 	$sudo $signal -a -s TERM pmcd
 
         _restore_config $PCP_PMCDCONF_PATH
+	_restore_config $PCP_SYSCONFIG_DIR/pmcd
 	echo "=== restored $PCP_PMCDCONF_PATH ===" >>$here/$seq.full
 	cat $PCP_PMCDCONF_PATH >>$here/$seq.full
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
@@ -152,6 +153,12 @@ cleanup()
     rm -rf $tmp $tmp.*
 }
 
+_disable_agent_restart()
+{
+    echo PMCD_RESTART_AGENTS=0 > $tmp.defaults
+    $sudo cp $tmp.defaults $PCP_SYSCONFIG_DIR/pmcd
+}
+
 trap "cleanup; exit \$status" 0 1 2 3 15
 
 rm -f $here/$seq.full
@@ -171,6 +178,8 @@ then
     exit 1
 fi
 
+_save_config $PCP_SYSCONFIG_DIR/pmcd
+_disable_agent_restart
 _stop_auto_restart pmcd
 _service pmlogger stop | tee -a $here/$seq.full | _filter_pcp_stop
 _service pmcd stop | tee -a $here/$seq.full | _filter_pcp_stop
