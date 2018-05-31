@@ -9,24 +9,12 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.bcc
-
 _pmdabcc_check
+_java_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
-
-jvm_path=""
-if [ -f /etc/alternatives/jre/lib/server/libjvm.so ]
-then
-    jvm_path=/etc/alternatives/jre/lib/server/libjvm.so
-fi
-if [ -z "$jvm_path" ]
-then
-    java_major=$(java -version 2>&1 | sed -e 's,openjdk version "1.,,' -e 's,\..*,,')
-    jvm_path=/usr/lib/jvm/java-${java_major}-openjdk-amd64/jre/lib/amd64/server/libjvm.so
-fi
-[ -n "$jvm_path" ] || _notrun "libjvm.so not found"
 
 _log_filter()
 {
@@ -71,7 +59,7 @@ pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $here/$seq.full \
 pminfo -dfmtT bcc.usdt.jvm.threads.stop 2>&1 | tee -a $here/$seq.full \
 | _value_filter
 
-kill -9 $javapid > /dev/null 2>&1
+$pmsignal -s KILL $javapid > /dev/null 2>&1
 _pmdabcc_remove 2>&1
 
 status=0
