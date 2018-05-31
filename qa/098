@@ -71,7 +71,7 @@ s/value ".*"/value STRING/
 	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
 	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
 	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/' \
-	-e '/^<mark>$/d' \
+	-e '/<mark>$/d' \
     # end
 }
 
@@ -111,6 +111,13 @@ x=3
 # real QA test starts here
 $sudo rm -f $tmp.0 $tmp.meta $tmp.index $seq.full
 
+# trying to understand why on vm24 there is sometimes a <mark> record
+# in the log ... hence the interest in pmcd's log
+cp $PCP_LOG_DIR/pmcd/pmcd.log $tmp.pmcd.log
+echo "=== Start @ `date` ===" >>$here/$seq.full
+pcp >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+
 # start pmlogger with the expected number of samples plus a few more
 # to detect extra log output
 #
@@ -136,6 +143,9 @@ _filter_pmlc <$tmp.out
 #
 _wait_pmlogger_end $logger_pid
 cat $tmp.err $tmp.log | _filter_logger
+echo >>$here/$seq.full
+echo "=== pmlogger log ===" >>$here/$seq.full
+cat $tmp.log >>$here/$seq.full
 
 echo
 if [ -s $tmp.0 ]
@@ -145,9 +155,20 @@ then
     | _filter_dump \
     | sed -e 's/TIMESTAMP//' -e 's/^  *//' \
     | LC_COLLATE=POSIX sort -u
+    echo >>$here/$seq.full
+    echo "=== pmdumplog ===" >>$here/$seq.full
     pmdumplog $tmp >>$here/$seq.full 2>&1
 else
     echo "Archive log is empty"
 fi
+
+# see note above about vm24 and <mark> record
+#
+echo >>$here/$seq.full
+echo "=== End @ `date` ===" >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+echo "pmcd.log diffs ..." >>$here/$seq.full
+diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+pcp >>$here/$seq.full
 
 exit
