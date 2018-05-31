@@ -1,0 +1,151 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA USDT JVM allocation profile module """
+
+# Configuration options
+# Name - type - default
+#
+# frequency - int    - unset : sample every Nth allocation, power of 2
+# jvm_path  - string -  [1]  : path to libjvm.so
+# process   - string - unset : list of names/pids or regex of processes to monitor
+#
+# 1) Default for jvm_path: /etc/alternatives/jre/lib/server/libjvm.so
+
+# pylint: disable=invalid-name
+
+from platform import architecture
+from ctypes import c_int
+from os import path
+from bcc import BPF, USDT
+
+from pcp.pmapi import pmUnits
+from modules.pcpbcc import PCPBCCBase
+from cpmapi import PM_TYPE_U64, PM_SEM_INSTANT, PM_SPACE_BYTE
+from cpmapi import PM_ERR_AGAIN
+
+#
+# BPF program
+#
+bpf_src = "modules/usdt_jvm_alloc.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'usdt_jvm_alloc'
+METRIC = 'usdt.jvm.alloc'
+units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC USDT JVM allocation profile module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.cache = {}
+        self.freq = 0
+        self.pid = None
+        self.jvm_path = "/etc/alternatives/jre/lib/server/libjvm.so"
+
+        for opt in self.config.options(MODULE):
+            if opt == 'frequency':
+                self.freq = int(self.config.get(MODULE, opt))
+                if self.freq and self.freq & (self.freq - 1):
+                    raise RuntimeError("Frequency is not power of two.")
+            if opt == 'jvm_path':
+                self.jvm_path = self.config.get(MODULE, opt)
+            if opt == 'process':
+                procs = self.get_proc_info(self.config.get(MODULE, opt))
+                if len(procs) > 1:
+                    self.log("Several PIDs found, using the first one.")
+                if procs:
+                    self.log("Using PID %s: %s %s" % (str(procs[0][0]), procs[0][1], procs[0][2]))
+                    self.pid = procs[0][0]
+
+        if self.pid is None:
+            # https://github.com/iovisor/bcc/issues/1774
+            self.err("No process to attach found/set, will not activate!")
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items.append(
+            # Name - reserved - type - semantics - units - help
+            (name, None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'alloc'),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if self.pid is None:
+                # https://github.com/iovisor/bcc/issues/1774
+                raise RuntimeError("No PID found/set.")
+            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                bpf_text = src.read()
+            if self.freq:
+                init_filter = "u64 *count = samples.lookup_or_init(&zero, &zero);"
+                sample_filter = "if (++(*count) & %d) return 0;" % (self.freq - 1)
+                bpf_text = bpf_text.replace("//FILTER_INIT", init_filter)
+                bpf_text = bpf_text.replace("//FILTER_SAMPLE", sample_filter)
+            if architecture()[0] == "64bit":
+                bpf_text = bpf_text.replace("JVM_WORDSIZE N", "JVM_WORDSIZE 8")
+            else:
+                bpf_text = bpf_text.replace("JVM_WORDSIZE N", "JVM_WORDSIZE 4")
+            usdt = USDT(pid=self.pid)
+            usdt.enable_probe("object__alloc", "trace_jvm_object_alloc")
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+            self.bpf = BPF(text=bpf_text, usdt_contexts=[usdt])
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    @staticmethod
+    def parse_name(text):
+        """ Parse class name into valid instance name """
+        try:
+            name = "".join([chr(i) for i in text if 32 < i < 127])
+        except TypeError:
+            name = text
+        if not name:
+            name = "".join([i for i in text if 32 < ord(i) < 127])
+        return name.replace("[", "<").replace(",", "").replace("/", ".")
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        for k, v in self.bpf["classes"].items():
+            key = self.parse_name(k.name)
+            self.cache[key] = v.value
+            self.insts[key] = c_int(1)
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [self.cache[key], 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]

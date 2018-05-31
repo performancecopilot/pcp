@@ -1,0 +1,57 @@
+QA output created by 1152
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['usdt_jvm_alloc']
+Info: Configuring modules:
+Info: usdt_jvm_alloc
+Info: Modules configured.
+Info: Initializing modules:
+Info: usdt_jvm_alloc
+Info: usdt_jvm_alloc: Found a Java process.
+Info: usdt_jvm_alloc: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: usdt_jvm_alloc
+Info: Metrics registered.
+Info: Registering helpers:
+Info: usdt_jvm_alloc
+Info: Helpers registered.
+Info: Ready to process requests.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['usdt_jvm_alloc']
+Info: Configuring modules:
+Info: usdt_jvm_alloc
+Info: Modules configured.
+Info: Initializing modules:
+Info: usdt_jvm_alloc
+Info: usdt_jvm_alloc: Found a Java process.
+Info: usdt_jvm_alloc: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: usdt_jvm_alloc
+Info: Metrics registered.
+Info: Registering helpers:
+Info: usdt_jvm_alloc
+Info: Helpers registered.
+Info: Ready to process requests.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... 1 metrics and X values
+
+=== report metric values ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

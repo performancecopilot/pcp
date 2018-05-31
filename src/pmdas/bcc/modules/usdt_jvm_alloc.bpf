@@ -1,0 +1,29 @@
+// Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+// Licensed under the Apache License, Version 2.0 (the "License")
+
+#include <uapi/linux/ptrace.h>
+
+#define JVM_WORDSIZE N
+
+struct key_t {
+    char name[128];
+};
+
+BPF_HASH(classes, struct key_t, u64, 16384);
+BPF_HASH(samples, u64, u64, 1);
+
+int trace_jvm_object_alloc(struct pt_regs *ctx, long tid, char *name, int nlen, int size) {
+    u64 zero = 0, *val;
+
+    //FILTER_INIT
+    //FILTER_SAMPLE
+
+    struct key_t key = {};
+    bpf_probe_read(&key.name, sizeof(key.name), (void *)PT_REGS_PARM3(ctx));
+    long alloc = size * JVM_WORDSIZE;
+
+    val = classes.lookup_or_init(&key, &zero);
+    (*val) += alloc;
+
+    return 0;
+}
