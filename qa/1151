@@ -60,7 +60,7 @@ pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $here/$seq.full \
 pminfo -dfmtT bcc.usdt.jvm.threads.stop 2>&1 | tee -a $here/$seq.full \
 | _value_filter
 
-$pmsignal -s KILL $javapid > /dev/null 2>&1
+$signal -s KILL $javapid > /dev/null 2>&1
 _pmdabcc_remove 2>&1
 
 status=0

@@ -108,14 +108,20 @@ _java_check()
             ;;
     esac
 
+    eval java_version=`java -version 2>&1 | grep version | awk '{ print $3 }'`
+    java_version=`echo "$java_version" | sed -e 's,_.*,,'`
+    java_major=`echo "$java_version" | sed -e 's,1.,,' -e 's,\..*,,'`
+
     jvm_path=""
-    default_path="/etc/alternatives/jre/lib/server/libjvm.$DSO_SUFFIX"
-    [ -f "$default_path" ] && jvm_path="$default_jvm_path"
-    if [ -z "$jvm_path" ]
-    then
-        java_version=`java -version 2>&1`
-        java_major=`echo "$java_version" | sed -e 's,openjdk version "1.,,' -e 's,\..*,,'`
-        jvm_path="/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/jre/lib/${java_machine}/server/libjvm.$DSO_SUFFIX"
-    fi
-    [ -f "$jvm_path" ] || _notrun "libjvm.$DSO_SUFFIX not found"
+    for path in \
+	/etc/alternatives/jre/lib/server \
+	/etc/alternatives/jre/lib/$java_machine/server \
+	/usr/lib/jvm/java-${java_version}-openjdk/jre/lib/${java_machine}/server \
+	/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/jre/lib/${java_machine}/server
+    do
+        # echo "$path/libjvm.$DSO_SUFFIX"
+        [ -f "$path/libjvm.$DSO_SUFFIX" ] && jvm_path="$path/libjvm.$DSO_SUFFIX"
+    done
+
+    [ -z "$jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
 }
