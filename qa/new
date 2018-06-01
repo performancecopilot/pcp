@@ -13,7 +13,7 @@
 . ./common.rc
 
 min=500
-max=1399
+max=1499
 max_probes=200
 
 _usage()
