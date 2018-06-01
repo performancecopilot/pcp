@@ -20,7 +20,7 @@
 # dport   - int    - unset : list of remote ports to monitor
 # lport   - int    - unset : list of local ports to monitor
 
-# pylint: disable=invalid-name,too-few-public-methods
+# pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
 
 import ctypes as ct
 from threading import Lock, Thread
