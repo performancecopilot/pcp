@@ -193,12 +193,12 @@ class PCPBCCModule(PCPBCCBase):
             bpf_text = self.apply_pid_filter(bpf_text, self.pids, False)
 
             if self.dports:
-                filter = " && ".join(["dport != %d" % port for port in self.dports])
-                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filter
+                filterp = " && ".join(["dport != %d" % port for port in self.dports])
+                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
                 bpf_text = bpf_text.replace("//FILTER_DPORT", filter_txt)
             if self.lports:
-                filter = " && ".join(["lport != %d" % port for port in self.lports])
-                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filter
+                filterp = " && ".join(["lport != %d" % port for port in self.lports])
+                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
                 bpf_text = bpf_text.replace("//FILTER_LPORT", filter_txt)
 
             if self.debug:

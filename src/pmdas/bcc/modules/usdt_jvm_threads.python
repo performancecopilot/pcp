@@ -79,7 +79,7 @@ class PCPBCCModule(PCPBCCBase):
         self.items = (
             # Name - reserved - type - semantics - units - help
             (name + 'start', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'thread starts'),
-            (name + 'stop' , None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'thread stops'),
+            (name + 'stop', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'thread stops'),
         )
         return False, self.items
 
