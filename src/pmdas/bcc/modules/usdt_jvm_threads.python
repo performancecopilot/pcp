@@ -102,7 +102,7 @@ class PCPBCCModule(PCPBCCBase):
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
-            return None
+            return
 
         self.stats[0] = self.bpf["stats"][c_int(0)].value
         self.stats[1] = self.bpf["stats"][c_int(1)].value

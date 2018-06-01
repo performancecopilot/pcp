@@ -115,7 +115,7 @@ class PCPBCCModule(PCPBCCBase):
         try:
             if not self.tracepoints:
                 raise RuntimeError("No tracepoints enabled.")
-            with open(path.dirname(__file__) + '/../' + bpf_src, "r") as src:
+            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
                 bpf_text = src.read()
             tps = []
             tested_probes = ""
