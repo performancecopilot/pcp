@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1422
+# Exercise MMV indom handling bug.
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    $sudo rm -f $here/mmv/KeyboardReader $here/mmv/pytest
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$here,HERE,g" \
+	-e "s,$PCP_BIN_DIR,PCP_BIN_DIR,g" \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    # end
+}
+
+_filter_pminfo()
+{
+    sed -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+mmv_pmda=$PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init
+
+# location of MMV files for pmdammv (appends "/mmv" itself)
+export PCP_TMP_DIR=$here
+
+# prepare test data
+$sudo rm -f $here/mmv/KeyboardReader
+unxz < $here/mmv/KeyboardReader.xz > $here/mmv/KeyboardReader
+_run_valgrind $here/src/indom \
+	-L -Kclear -Kadd,70,$mmv_pmda \
+	-i 107876 mmv.KeyboardReader.java.memorypool.tenured \
+	| _filter
+
+$sudo rm -f $here/mmv/pytest
+unxz < $here/mmv/pytest.xz > $here/mmv/pytest
+_run_valgrind $PCP_BIN_DIR/pminfo \
+	-L -Kclear -Kadd,70,$mmv_pmda \
+	--fetch mmv.pytest.indom mmv.pytest.interval \
+	| $here/src/sortinst -i \
+	| _filter_pminfo \
+	| _filter
+
+# success, all done
+status=0
+exit

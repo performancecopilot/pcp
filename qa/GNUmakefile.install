@@ -1,5 +1,6 @@
 #!gmake
 #
+# Copyright (c) 2015-2018 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this file is renamed GNUmakefile upon installation into $PCP_VAR_DIR/testsuite.
@@ -15,7 +16,7 @@ include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
-	  java postfix perl json slurm tmparch sheet smart
+	  java mmv postfix perl json slurm tmparch sheet smart
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif

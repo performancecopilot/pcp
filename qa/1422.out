@@ -1,0 +1,33 @@
+QA output created by 1422
+=== std out ===
+mmv.KeyboardReader.java.memorypool.tenured:
+pm*InDom: inst=[107876] iname=<max> reverse lookup: inst=[107876]
+pmGetInDom:
+   [107876] <max>
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: HERE/src/indom -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -i 107876 mmv.KeyboardReader.java.memorypool.tenured
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+mmv.pytest.indom
+    inst [0 or "zero"] value NUMBER
+    inst [1 or "hero"] value NUMBER
+
+mmv.pytest.interval
+    inst [0 or "bird"] value NUMBER
+    inst [1 or "tree"] value NUMBER
+    inst [2 or "eggs"] value NUMBER
+    inst [3 or "frog"] value NUMBER
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP_BIN_DIR/pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init --fetch mmv.pytest.indom mmv.pytest.interval
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

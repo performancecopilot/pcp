@@ -1552,4 +1552,5 @@ BAD
 1395 pmda.prometheus local python
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
+1422 pmda.mmv local
 4751 libpcp threads valgrind local pcp python

@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2015-2017 Red Hat.
+# Copyright (c) 2015-2018 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9][0-9]*:reserved/d' -
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
-	  java postfix perl json slurm tmparch sheet smart
+	  java mmv postfix perl json slurm tmparch sheet smart
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif

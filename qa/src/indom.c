@@ -4,7 +4,27 @@
 
 #include <pcp/pmapi.h>
 
-static int	type;
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_ARCHIVE,
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    { "inst", 1, 'i', "INST", "report on internal instance identifier" },
+    PMOPT_LOCALPMDA,
+    PMOPT_SPECLOCAL,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_STDOUT_TZ,
+    .short_options = "a:D:h:i:K:LzZ:?",
+    .long_options = longopts,
+    .short_usage = "[options] metricname ...",
+};
+
 static int	inst;
 
 int
@@ -12,7 +32,7 @@ dometric(char *name)
 {
     pmID	pmid;
     pmDesc	desc;
-    int		sts;
+    int		i, sts;
     char	*iname;
     int		*ilist;
     char	**nlist;
@@ -33,8 +53,9 @@ dometric(char *name)
 	    printf(" {%s}\n", pmErrStr(sts));
 	else
 	    printf(" inst=[%d]\n", sts);
+	free(iname);
     }
-    if (type == PM_CONTEXT_ARCHIVE) {
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
 	iname = "no match";
 	printf("pm*InDomArchive: inst=[%d]", inst);
 	if ((sts = pmNameInDomArchive(desc.indom, inst, &iname)) < 0)
@@ -45,13 +66,13 @@ dometric(char *name)
 		printf(" {%s}\n", pmErrStr(sts));
 	    else
 		printf(" inst=[%d]\n", sts);
+	    free(iname);
 	}
     }
 
     if ((sts = pmGetInDom(desc.indom, &ilist, &nlist)) < 0)
 	printf("pmGetInDom: {%s}\n", pmErrStr(sts));
     else {
-	int		i;
 	printf("pmGetInDom:\n");
 	for (i = 0; i < sts; i++) {
 	    if (ilist[i] == inst) {
@@ -63,11 +84,10 @@ dometric(char *name)
 	free(nlist);
     }
 
-    if (type == PM_CONTEXT_ARCHIVE) {
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmGetInDomArchive(desc.indom, &ilist, &nlist)) < 0)
 	    printf("pmGetInDomArchive: {%s}\n", pmErrStr(sts));
 	else {
-	    int		i;
 	    printf("pmGetInDomArchive:\n");
 	    for (i = 0; i < sts; i++) {
 		if (i == inst) {
@@ -88,219 +108,68 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    int		errflag = 0;
-    int		force = 0;
-    int 	verbose = 0;
-    char	*host = NULL;			/* pander to gcc */
-    char 	*configfile = (char *)0;
-    char 	*logfile = (char *)0;
-    pmLogLabel	label;				/* get hostname for archives */
-    int		zflag = 0;			/* for -z */
-    char 	*tz = (char *)0;		/* for -Z timezone */
-    int		tzh;				/* initial timezone handle */
-    char	local[MAXHOSTNAMELEN];
-    char	*namespace = PM_NS_DEFAULT;
-    int		samples = -1;
-    double	delta = 1.0;
+    int		exitsts = 0;
+    int		contextid;
+    char	*source;
     char	*endnum;
 
     pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "a:c:D:fh:i:l:n:s:t:VzZ:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'a':	/* archive name */
-	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmGetProgname());
-		errflag++;
-	    }
-	    type = PM_CONTEXT_ARCHIVE;
-	    host = optarg;
-	    break;
-
-	case 'c':	/* configfile */
-	    if (configfile != (char *)0) {
-		fprintf(stderr, "%s: at most one -c option allowed\n", pmGetProgname());
-		errflag++;
-	    }
-	    configfile = optarg;
-	    break;	
-
-
-	case 'D':	/* debug options */
-	    sts = pmSetDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmGetProgname(), optarg);
-		errflag++;
-	    }
-	    break;
-
-	case 'f':	/* force */
-	    force++; 
-	    break;	
-
-	case 'h':	/* contact PMCD on this hostname */
-	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmGetProgname());
-		errflag++;
-	    }
-	    host = optarg;
-	    type = PM_CONTEXT_HOST;
-	    break;
-
 	case 'i':	/* instance */
-	    inst = (int)strtol(optarg, &endnum, 10);
+	    inst = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || inst < 0) {
-		fprintf(stderr, "%s: -i requires numeric argument\n", pmGetProgname());
-		errflag++;
+		pmprintf("%s: -i requires numeric argument\n", pmGetProgname());
+		opts.errors++;
 	    }
-	    break;
-
-	case 'l':	/* logfile */
-	    logfile = optarg;
-	    break;
-
-	case 'n':	/* alternative name space file */
-	    namespace = optarg;
-	    break;
-
-	case 's':	/* sample count */
-	    samples = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n", pmGetProgname());
-		errflag++;
-	    }
-	    break;
-
-	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
-		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
-		errflag++;
-	    }
-	    break;
-
-	case 'V':	/* verbose */
-	    verbose++;
-	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != (char *)0) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
 	    break;
 	}
     }
 
-    if (zflag && type == 0) {
-	fprintf(stderr, "%s: -z requires an explicit -a or -h option\n", pmGetProgname());
-	errflag++;
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	exitsts = !(opts.flags & PM_OPTFLAG_EXIT);
+	pmUsageMessage(&opts);
+	exit(exitsts);
     }
 
-    if (errflag) {
-	fprintf(stderr,
-"Usage: %s options ...\n\
-\n\
-Options\n\
-  -a   archive	  metrics source is an archive log\n\
-  -c   configfile file to load configuration from\n\
-  -D   debugspec  standard PCP debugging options\n\
-  -f		  force .. \n\
-  -h   host	  metrics source is PMCD on host\n\
-  -l   logfile	  redirect diagnostics and trace output\n\
-  -n   namespace  use an alternative PMNS\n\
-  -s   samples	  terminate after this many iterations\n\
-  -t   delta	  sample interval in seconds(float) [default 1.0]\n\
-  -V 	          verbose/diagnostic output\n\
-  -z              set reporting timezone to local time for host from -a or -h\n\
-  -Z   timezone   set reporting timezone\n",
-		pmGetProgname());
-	exit(1);
+    if (opts.context == PM_CONTEXT_ARCHIVE)
+	source = opts.archives[0];
+    else if (opts.context == PM_CONTEXT_HOST)
+	source = opts.hosts[0];
+    else if (opts.context == PM_CONTEXT_LOCAL)
+	source = NULL;
+    else {
+	opts.context = PM_CONTEXT_HOST;
+	source = "local:";
     }
-
-    if (logfile != (char *)0) {
-	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
-	if (sts != 1) {
-	    fprintf(stderr, "%s: Could not open logfile \"%s\"\n", pmGetProgname(), logfile);
-	}
-    }
-
-    if (namespace != PM_NS_DEFAULT) {
-	if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
-	    exit(1);
-	}
-    }
-
-    if (type == 0) {
-	type = PM_CONTEXT_HOST;
-	gethostname(local, sizeof(local));
-	host = local;
-    }
-    if ((sts = pmNewContext(type, host)) < 0) {
-	if (type == PM_CONTEXT_HOST)
+    if ((sts = pmNewContext(opts.context, source)) < 0) {
+	if (opts.context == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmGetProgname(), host, pmErrStr(sts));
+		pmGetProgname(), source, pmErrStr(sts));
+	else if (opts.context == PM_CONTEXT_LOCAL)
+	    fprintf(stderr, "%s: Cannot make local standalone connection: %s\n",
+		pmGetProgname(), pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmGetProgname(), host, pmErrStr(sts));
+		pmGetProgname(), source, pmErrStr(sts));
 	exit(1);
     }
+    contextid = sts;
 
-    if (type == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmGetProgname(), pmErrStr(sts));
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
+	if (pmGetContextOptions(contextid, &opts)) {
+	    pmflush();
 	    exit(1);
 	}
     }
-
-    if (zflag) {
-	if ((tzh = pmNewContextZone()) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmGetProgname(), pmErrStr(tzh));
-	    exit(1);
-	}
-	if (type == PM_CONTEXT_ARCHIVE)
-	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
-	else
-	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
-    }
-    else if (tz != (char *)0) {
-	if ((tzh = pmNewZone(tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmGetProgname(), tz, pmErrStr(tzh));
-	    exit(1);
-	}
-	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-    }
-    else
-	tzh = pmNewContextZone();
 
     /* non-flag args are argv[optind] ... argv[argc-1] */
-    while (optind < argc) {
-	printf("%s:\n", argv[optind]);
-	sts = dometric(argv[optind]);
+    while (opts.optind < argc) {
+	printf("%s:\n", argv[opts.optind]);
+	sts = dometric(argv[opts.optind]);
 	if (sts < 0)
 	    printf("Error: %s\n", pmErrStr(sts));
-	optind++;
+	opts.optind++;
     }
 
     exit(0);

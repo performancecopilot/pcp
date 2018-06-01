@@ -362,15 +362,15 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     int i, j, size, newinsts = 0;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: update_indom: %u (%d insts)",
-			id->serial, ip->it_numinst);
+	pmNotifyErr(LOG_DEBUG, "MMV: update_indom on %s: %u (%d insts, count %d)",
+			s->name, id->serial, ip->it_numinst, count);
 
     if (s->version == MMV_VERSION1) {
 	in1 = (mmv_disk_instance_t *)((char *)s->addr + offset);
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++) {
 		if (ip->it_set[j].i_inst == in1[i].internal)
-		    continue;
+		    break;
 	    }
 	    if (j == ip->it_numinst)
 		newinsts++;
@@ -380,7 +380,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++) {
 		if (ip->it_set[j].i_inst == in2[i].internal)
-		    continue;
+		    break;
 	    }
 	    if (j == ip->it_numinst)
 		newinsts++;
@@ -388,6 +388,10 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     }
     if (!newinsts)
 	return 0;
+
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "MMV: update_indom on %s: %u (%d new insts)",
+			s->name, id->serial, newinsts);
 
     /* allocate memory, then append new instances to the known set */
     size = sizeof(pmdaInstid) * (ip->it_numinst + newinsts);
@@ -403,7 +407,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++)
 		if (ip->it_set[j].i_inst == in1[i].internal)
-		    continue;
+		    break;
 	    if (j == ip->it_numinst) {
 		ip->it_set[j].i_inst = in1[i].internal;
 		ip->it_set[j].i_name = in1[i].external;
@@ -414,7 +418,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++)
 		if (ip->it_set[j].i_inst == in2[i].internal)
-		    continue;
+		    break;
 	    if (j == ip->it_numinst) {
 		string = (mmv_disk_string_t *)
 				((char *)s->addr + in2[i].external);
@@ -688,51 +692,49 @@ map_stats(pmdaExt *pmda)
 		    int sts, serial = id[k].serial;
 		    pmInDom pmindom;
 		    pmdaIndom *ip;
+		    __uint64_t ioffset = id[k].offset;
+		    __uint32_t icount = id[k].count;
 
-		    offset = id[k].offset;
-		    count = id[k].count;
-
-		    if (count > MAX_MMV_COUNT) {
+		    if (icount > MAX_MMV_COUNT) {
 			if (pmDebugOptions.appl0) {
 			    pmNotifyErr(LOG_ERR, "MMV: %s - "
 					"indom[%d] count: %d > %d",
-					s->name, k, count, MAX_MMV_COUNT);
+					s->name, k, icount, MAX_MMV_COUNT);
 			}
 			continue;
 		    }
 
 		    if (s->version == MMV_VERSION1) {
-			offset += (count * sizeof(mmv_disk_instance_t));
-			if (s->len < offset) {
+			ioffset += (icount * sizeof(mmv_disk_instance_t));
+			if (s->len < ioffset) {
 			    if (pmDebugOptions.appl0) {
 				pmNotifyErr(LOG_ERR, "MMV: %s - "
 					"indom[%d] offset: %"PRIu64" < %"PRIu64,
-					s->name, k, s->len, offset);
+					s->name, k, s->len, ioffset);
 			    }
 			    continue;
 			}
-			offset -= (count * sizeof(mmv_disk_instance_t));
 		    } else {
-			offset += (count * sizeof(mmv_disk_instance2_t));
-			if (s->len < offset) {
+			ioffset += (icount * sizeof(mmv_disk_instance2_t));
+			if (s->len < ioffset) {
 			    if (pmDebugOptions.appl0) {
 				pmNotifyErr(LOG_ERR, "MMV: %s - "
 					"indom[%d] offset: %"PRIu64" < %"PRIu64,
-					s->name, k, s->len, offset);
+					s->name, k, s->len, ioffset);
 			    }
 			    continue;
 			}
-		        offset -= (count * sizeof(mmv_disk_instance2_t));
 		    }
+		    ioffset = id[k].offset;
 		    sts = verify_indom_serial(pmda, serial, s, &pmindom, &ip);
 		    if (sts == -EINVAL)
 			continue;
 		    else if (sts == -EEXIST)
 			/* see if we have new instances to add here */
-			update_indom(pmda, s, offset, count, &id[k], ip);
+			update_indom(pmda, s, ioffset, icount, &id[k], ip);
 		    else
 			/* first time we've observed this indom */
-			create_indom(pmda, s, offset, count, &id[k], pmindom);
+			create_indom(pmda, s, ioffset, icount, &id[k], pmindom);
 		}
 		break;
 
@@ -758,6 +760,10 @@ map_stats(pmdaExt *pmda)
 
 		s->vcnt = count;
 		s->values = (mmv_disk_value_t *)((char *)s->addr + offset);
+		break;
+
+	    case MMV_TOC_INSTANCES:
+	    case MMV_TOC_STRINGS:
 		break;
 
 	    default:
