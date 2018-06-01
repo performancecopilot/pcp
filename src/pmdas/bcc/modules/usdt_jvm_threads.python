@@ -1,0 +1,115 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA USDT JVM threads module """
+
+# Configuration options
+# Name - type - default
+#
+# jvm_path - string -  [1]  : path to libjvm.so
+# process  - string - unset : list of names/pids or regex of processes to monitor
+#
+# 1) Default for jvm_path: /etc/alternatives/jre/lib/server/libjvm.so
+
+# pylint: disable=invalid-name
+
+from ctypes import c_int
+from bcc import BPF, USDT
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/usdt_jvm_threads.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'usdt_jvm_threads'
+BASENS = 'usdt.jvm.threads.'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC JVM threads module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.stats = [0, 0]
+        self.pid = None
+        self.jvm_path = "/etc/alternatives/jre/lib/server/libjvm.so"
+
+        for opt in self.config.options(MODULE):
+            if opt == 'jvm_path':
+                self.jvm_path = self.config.get(MODULE, opt)
+            if opt == 'process':
+                procs = self.get_proc_info(self.config.get(MODULE, opt))
+                if len(procs) > 1:
+                    self.log("Several PIDs found, using the first one.")
+                if procs:
+                    self.log("Using PID %s: %s %s" % (str(procs[0][0]), procs[0][1], procs[0][2]))
+                    self.pid = procs[0][0]
+
+        if self.pid is None:
+            # https://github.com/iovisor/bcc/issues/1774
+            self.err("No process to attach found/set, will not activate!")
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = BASENS
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (name + 'start', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'thread starts'),
+            (name + 'stop' , None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'thread stops'),
+        )
+        return False, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if self.pid is None:
+                # https://github.com/iovisor/bcc/issues/1774
+                raise RuntimeError("No PID found/set.")
+            usdt = USDT(pid=self.pid)
+            usdt.enable_probe("thread__start", "trace_jvm_thread_start")
+            usdt.enable_probe("thread__stop", "trace_jvm_thread_stop")
+            self.bpf = BPF(src_file=bpf_src, usdt_contexts=[usdt])
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Module NOT active!")
+            self.bpf = None
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        self.stats[0] = self.bpf["stats"][c_int(0)].value
+        self.stats[1] = self.bpf["stats"][c_int(1)].value
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            return [self.stats[item], 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]

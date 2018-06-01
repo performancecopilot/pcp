@@ -16,7 +16,7 @@
 # Configuration options
 # Name - type - default
 #
-# process - string  - unset : name/regex or list of pids of processes to monitor
+# process - string - unset : list of names/pids or regex of processes to monitor
 # usdts   - string - unset : file or comma-separated list of usdts
 
 # pylint: disable=invalid-name
@@ -37,7 +37,7 @@ bpf_src = "modules/usdt_hits.bpf"
 # Individual USDT
 usdt_probe = """
 static char *HASH_KEY = "USDT_NAME";
-int do_trace_HASH_KEY(void *ctx) {
+int trace_HASH_KEY(void *ctx) {
     struct usdt_t key = {};
     __builtin_memcpy(&key.usdt, HASH_KEY, sizeof(key.usdt));
     u64 zero = 0, *val;
@@ -134,16 +134,21 @@ class PCPBCCModule(PCPBCCBase):
                 probe = usdt_probe.replace("HASH_KEY", hash_key)
                 probe = probe.replace("USDT_NAME", usdt)
                 if self.pid:
-                    u.enable_probe(name, "do_trace_HASH_KEY".replace("HASH_KEY", hash_key))
+                    u.enable_probe(name, "trace_HASH_KEY".replace("HASH_KEY", hash_key))
                 else:
                     u = USDT(path=lib)
-                    u.enable_probe(name, "do_trace_HASH_KEY".replace("HASH_KEY", hash_key))
+                    u.enable_probe(name, "trace_HASH_KEY".replace("HASH_KEY", hash_key))
                     usdt_contexts.append(u)
+                if self.debug:
+                    self.log("Generated function:\n%s" % probe)
                 bpf_text += probe
             if self.pid:
                 usdt_contexts.append(u)
             bpf_text = bpf_text.replace("USDT_COUNT", str(len(self.usdts)))
             self.log("Compiling %s probes: %s" % (str(len(self.usdts)), str((self.usdts))))
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
             self.bpf = BPF(text=bpf_text, usdt_contexts=usdt_contexts)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except

@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 1152
+# Exercise the BCC PMDA USDT JVM allocations module - install, remove and values.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+_pmdabcc_check
+_pmdabcc_require_kernel_version 4 7
+_java_check
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_log_filter()
+{
+    sed -e 's,Using PID.*,Found a Java process.,g'
+}
+
+_value_filter()
+{
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# Launch a Java test program
+cd $here/java
+java -XX:+DTraceAllocProbes USDTJVMTest &
+javapid=$!
+disown
+cd $here
+
+# real QA test starts here
+cat <<EOF | _pmdabcc_install | _log_filter
+[pmda]
+modules = usdt_jvm_alloc
+prefix = bcc.
+[usdt_jvm_alloc]
+module = usdt_jvm_alloc
+cluster = 120
+jvm_path = $jvm_path
+process = java
+EOF
+_pmdabcc_wait_for_metric
+
+# Wait for values to appear
+pmsleep 1
+
+echo "=== report metric values ==="
+pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
+| grep TestUnit | _value_filter
+
+$signal -s KILL $javapid > /dev/null 2>&1
+_pmdabcc_remove 2>&1
+
+status=0
+exit

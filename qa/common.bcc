@@ -15,6 +15,13 @@ _pmdabcc_check()
     $python -c "import bcc" >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "python bcc module not installed"
 
+    # python BCC module doesn't have a __version__ attribute,
+    # therefore check for the DEBUG_BPF_REGISTER_STATE attribute
+    # (added in version 0.5.0)
+    # TODO: update once __version__ attribute is available
+    $python -c "from bcc import DEBUG_BPF_REGISTER_STATE" >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "python bcc module 0.5.0+ is required"
+
     [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
 }
 
@@ -86,4 +93,29 @@ _pmdabcc_cleanup()
     fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda bcc
+}
+
+_java_check()
+{
+    machine=`uname -m`
+    case "$machine"
+    in
+        x86_64)
+            java_machine=amd64
+            ;;
+        *)
+            java_machine="$machine"
+            ;;
+    esac
+
+    jvm_path=""
+    default_path="/etc/alternatives/jre/lib/server/libjvm.$DSO_SUFFIX"
+    [ -f "$default_path" ] && jvm_path="$default_jvm_path"
+    if [ -z "$jvm_path" ]
+    then
+        java_version=`java -version 2>&1`
+        java_major=`echo "$java_version" | sed -e 's,openjdk version "1.,,' -e 's,\..*,,'`
+        jvm_path="/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/jre/lib/${java_machine}/server/libjvm.$DSO_SUFFIX"
+    fi
+    [ -f "$jvm_path" ] || _notrun "libjvm.$DSO_SUFFIX not found"
 }

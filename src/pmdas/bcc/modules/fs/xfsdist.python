@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-""" PCP BCC PMDA ext4dist module """
+""" PCP BCC PMDA xfsdist module """
 
 # pylint: disable=invalid-name, line-too-long
 
@@ -26,13 +26,13 @@ from cpmapi import PM_ERR_AGAIN
 #
 # BPF program
 #
-bpf_src = "modules/fs/ext4dist.bpf"
+bpf_src = "modules/fs/xfsdist.bpf"
 
 #
 # PCP BCC PMDA constants
 #
-MODULE = 'ext4dist'
-BASENS = 'fs.ext4.latency.'
+MODULE = 'xfsdist'
+BASENS = 'fs.xfs.latency.'
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 
 #
@@ -54,20 +54,9 @@ class PCPBCCModule(PCPBCCBase):
         for item in self.item_identifiers:
             self.items.append(
                 # Name - reserved - type - semantics - units - help
-                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ext4 %s latency distribution' % item),
+                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'xfs %s latency distribution' % item),
             )
         return True, self.items
-
-    @staticmethod
-    def read_ext4_file_operations_addr():
-        """ Read address of ext4_file_operations symbol """
-        with open("/proc/kallsyms") as syms:
-            for line in syms:
-                addr, _size, name = line.rstrip().split(" ", 2)
-                name = name.split("\t")[0]
-                if name == "ext4_file_operations":
-                    return "0x" + addr
-        return None
 
     def compile(self):
         """ Compile BPF """
@@ -75,13 +64,6 @@ class PCPBCCModule(PCPBCCBase):
             with open(path.dirname(__file__) + '/../../' + bpf_src) as f:
                 bpf_text = f.read()
 
-            ops_addr = self.read_ext4_file_operations_addr()
-            if not ops_addr:
-                self.err("No ext4_file_operations in /proc/kallsyms (kernel not built with CONFIG_KALLSYMS_ALL). Exiting.")
-                self.bpf = None
-                return
-
-            bpf_text = bpf_text.replace("EXT4_FILE_OPERATIONS", ops_addr)
             bpf_text = bpf_text.replace("FILTER_PID", "0")
 
             if self.debug:
@@ -89,14 +71,14 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("\n" + bpf_text)
 
             self.bpf = BPF(text=bpf_text)
-            self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
-            self.bpf.attach_kprobe(event="ext4_file_write_iter", fn_name="trace_entry")
-            self.bpf.attach_kprobe(event="ext4_file_open", fn_name="trace_entry")
-            self.bpf.attach_kprobe(event="ext4_sync_file", fn_name="trace_entry")
-            self.bpf.attach_kretprobe(event="generic_file_read_iter", fn_name="trace_read_return")
-            self.bpf.attach_kretprobe(event="ext4_file_write_iter", fn_name="trace_write_return")
-            self.bpf.attach_kretprobe(event="ext4_file_open", fn_name="trace_open_return")
-            self.bpf.attach_kretprobe(event="ext4_sync_file", fn_name="trace_fsync_return")
+            self.bpf.attach_kprobe(event="xfs_file_read_iter", fn_name="trace_entry")
+            self.bpf.attach_kprobe(event="xfs_file_write_iter", fn_name="trace_entry")
+            self.bpf.attach_kprobe(event="xfs_file_open", fn_name="trace_entry")
+            self.bpf.attach_kprobe(event="xfs_file_fsync", fn_name="trace_entry")
+            self.bpf.attach_kretprobe(event="xfs_file_read_iter", fn_name="trace_read_return")
+            self.bpf.attach_kretprobe(event="xfs_file_write_iter", fn_name="trace_write_return")
+            self.bpf.attach_kretprobe(event="xfs_file_open", fn_name="trace_open_return")
+            self.bpf.attach_kretprobe(event="xfs_file_fsync", fn_name="trace_fsync_return")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))

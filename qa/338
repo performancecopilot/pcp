@@ -4,9 +4,6 @@
 #
 # NEW VERSION for YYYYDDMM style naming convention (see also 530)
 #
-# NOTE - THIS TEST WILL FAIL IF RUN IN THE FIRST 5 MINUTES AFTER
-# MIDNIGHT - c'est la vie, I'm afraid.
-#
 # Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -23,12 +20,16 @@ echo "QA output created by $seq"
 # Don't run if this happened in the last 2 days.
 #
 now_hr=`pmdate '%H'`
+now_min=`pmdate '%M'`
 now_hr_2=`pmdate -2d '%H'`
-if [ "$now_hr" != "$now_hr_2" ]
-then
-    _notrun "timezone change? now = ${now_hr}H:??M, 2 days ago = ${now_hr_2}H:??M"
-    # NOTREACHED
-fi
+[ $now_hr != $now_hr_2 ] && \
+_notrun "timezone change? now = ${now_hr}H:??M, 2 days ago = ${now_hr_2}H:??M"
+
+# This test is also unstable when run close to the new day boundary.
+# Don't run if within 10 minutes of midnight.
+#
+[ "$now_hr" = "00" -a $now_min -lt 10 ] && \
+_notrun "current time - $now_hr:$now_min - is too close to midnight"
 
 _filter()
 {

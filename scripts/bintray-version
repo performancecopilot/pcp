@@ -70,10 +70,12 @@ table["trusty"] = "Performance Co-Pilot builds for Ubuntu 14.04 (trusty tahr)"
 table["vivid"] = "Performance Co-Pilot builds for Ubuntu 15.04 (vivid vervet)"
 table["xenial"] = "Performance Co-Pilot builds for Ubuntu 16.04 (xenial xerus)"
 table["zesty"] = "Performance Co-Pilot builds for Ubuntu 17.04 (zesty zapus)"
+table["bionic"] = "Performance Co-Pilot builds for Ubuntu 18.04 (bionic beaver)"
 table["macosx"] = "Performance Co-Pilot builds for Mac OS X"
 table["opensuse13"] = "Performance Co-Pilot builds for OpenSUSE 13"
 table["opensuse14"] = "Performance Co-Pilot builds for OpenSUSE 14"
 table["opensuse15"] = "Performance Co-Pilot builds for OpenSUSE 15"
+table["opensuseleap"] = "Performance Co-Pilot builds for OpenSUSE Leap"
 table["solaris11"] = "Performance Co-Pilot builds for Solaris 11"
 	} END {
 	    print(table["'$distro'"])
@@ -81,11 +83,11 @@ table["solaris11"] = "Performance Co-Pilot builds for Solaris 11"
 }
 
 debian="jessie wheezy stretch"
-ubuntu="trusty vivid xenial zesty"
+ubuntu="trusty vivid xenial zesty bionic"
 macosx="macosx"
-redhat="el5 el6 el7 f23 f24 f25 f26 f27"
+redhat="el5 el6 el7 f23 f24 f25 f26 f27 f28"
 solaris="solaris11"
-suse="opensuse13"
+suse="opensuse13 opensuse14 opensuse15 opensuseleap"
 
 distributions="source $redhat $debian $ubuntu $macosx $solaris"
 [ $# -ge 1 ] && distributions="$@"

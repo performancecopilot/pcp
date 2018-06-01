@@ -53,11 +53,11 @@ class PCPBCCModule(PCPBCCBase):
 
     def update_disk_info(self):
         """ Update disk info cache """
-        # cache disk major,minor -> diskname
+        # Cache disk major,minor -> diskname
         self.disklookup = {}
         if self.debug:
             self.log("Updating disk cache...")
-        with open('/proc/diskstats') as stats:
+        with open("/proc/diskstats") as stats:
             for line in stats:
                 a = line.split()
                 self.disklookup[a[0] + "," + a[1]] = a[2]
@@ -102,11 +102,11 @@ class PCPBCCModule(PCPBCCBase):
         for k, v in counts.items():
             disk = str(k.major) + "," + str(k.minor)
 
-            # unnamed devices (e.g. non-device mounts)
+            # Unnamed devices (e.g. non-device mounts)
             if k.major == 0:
                 continue
             elif disk not in self.disklookup:
-                # check for hot swapped devices
+                # Check for hot swapped devices
                 self.update_disk_info()
                 if disk not in self.disklookup:
                     self.log("Traced unknown device (major: %s minor: %s)" % (k.major, k.minor))

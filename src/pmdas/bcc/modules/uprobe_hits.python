@@ -16,7 +16,7 @@
 # Configuration options
 # Name - type - default
 #
-# process - string - unset : name/regex or list of pids of processes to monitor
+# process - string - unset : list of names/pids or regex of processes to monitor
 # uprobes - string - unset : file or comma-separated list of uprobes
 
 # pylint: disable=invalid-name
@@ -37,7 +37,7 @@ bpf_src = "modules/uprobe_hits.bpf"
 # Individual uprobe
 uprobe_txt = """
 static char *HASH_KEY = "UPROBE_NAME";
-int do_trace_HASH_KEY(void *ctx) {
+int trace_HASH_KEY(void *ctx) {
     FILTER_PID
     struct uprobe_t key = {};
     __builtin_memcpy(&key.uprobe, HASH_KEY, sizeof(key.uprobe));
@@ -113,15 +113,22 @@ class PCPBCCModule(PCPBCCBase):
                 hash_key = uprobe.replace(":", "__")
                 probe = uprobe_txt.replace("HASH_KEY", hash_key)
                 probe = probe.replace("UPROBE_NAME", uprobe)
+                if self.debug:
+                    self.log("Generated function:\n%s" % probe)
                 bpf_text += probe
             bpf_text = bpf_text.replace("UPROBE_COUNT", str(len(self.uprobe)))
             bpf_text = self.apply_pid_filter(bpf_text, self.pids)
             self.log("Compiling %s uprobes: %s" % (str(len(self.uprobes)), str((self.uprobes))))
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
             self.bpf = BPF(text=bpf_text)
             for uprobe in self.uprobes:
                 lib, sym = uprobe.split(":")
                 hash_key = uprobe.replace(":", "__")
-                func = "do_trace_HASH_KEY".replace("HASH_KEY", hash_key)
+                func = "trace_HASH_KEY".replace("HASH_KEY", hash_key)
+                if self.debug:
+                    self.log("Attaching uprobe (%s:%s): %s" % (lib, sym, func))
                 self.bpf.attach_uprobe(lib, sym, fn_name=func)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
