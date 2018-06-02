@@ -18,6 +18,16 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 # real QA test starts here
 $sudo rm -f $tmp.*
+
+# trying to understand why on vm24 there is sometimes a
+# pmlogger: Validating metrics after PMCD state changed at DATE
+# in the log ... hence the interest in pmcd's log
+#
+cp $PCP_LOG_DIR/pmcd/pmcd.log $tmp.pmcd.log
+echo "=== Start @ `date` ===" >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+pcp >>$here/$seq.full
+
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
 
 pmsleep 1.1
@@ -76,3 +86,12 @@ pmdumplog -t $tmp \
 | $PCP_AWK_PROG '
 $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       " $2 "       OFFSET       OFFSET"; next }
 				{ print }'
+
+# see note above about vm24 and pmcd state change
+#
+echo >>$here/$seq.full
+echo "=== End @ `date` ===" >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+echo "pmcd.log diffs ..." >>$here/$seq.full
+diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+pcp >>$here/$seq.full
