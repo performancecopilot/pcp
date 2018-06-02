@@ -72,7 +72,7 @@ s/value ".*"/value STRING/
 	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
 	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
 	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/' \
-	-e '/^<mark>$/d' \
+	-e '/<mark>$/d' \
     # end
 }
 
