@@ -32,7 +32,7 @@
 #ifndef SERIES_REDIS_H
 #define SERIES_REDIS_H
 
-#include "sds.h"
+//#include "sds.h"
 #include <stdarg.h>
 #include <stdint.h>
 #include <sys/time.h>
@@ -306,6 +306,9 @@ extern void redisAsyncHandleWrite(redisAsyncContext *);
  * Command function for an async context.
  * Write the command to the output buffer and register the provided callback.
  */
+extern int redisvAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *fn, void *privdata, const char *format, va_list ap);
+extern int redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *fn, void *privdata, const char *format, ...);
+extern int redisAsyncCommandArgv(redisAsyncContext *ac, redisCallBackFunc *fn, void *privdata, int argc, const char **argv, const size_t *argvlen);
 extern int redisAsyncFormattedCommand(redisAsyncContext *, redisCallBackFunc *, void *, const char *, size_t);
 
 #endif /* SERIES_REDIS_H */
