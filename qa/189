@@ -28,6 +28,14 @@ _numchildren()
           }'
 }
 
+# trying to understand why on vm24 pmie sometimes takes soooo long to
+# start ...
+#
+cp $PCP_LOG_DIR/pmcd/pmcd.log $tmp.pmcd.log
+echo "=== Start @ `date` ===" >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+pcp >>$here/$seq.full
+
 # real QA test starts here
 tolerance=10 # allow only one round of 100msec children to accumulate
 
@@ -95,5 +103,14 @@ $PCP_AWK_PROG < $tmp.psawk '
 		}
 	     }
 '
+
+# see note above about vm24 and slow start for pmie
+#
+echo >>$here/$seq.full
+echo "=== End @ `date` ===" >>$here/$seq.full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+echo "pmcd.log diffs ..." >>$here/$seq.full
+diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+pcp >>$here/$seq.full
 
 exit 0
