@@ -16,6 +16,8 @@ big1.*
 661.png
 check.out
 check.log
+check.callback
+check.callback.pmdalist
 pmlogger.log
 webapi-pmcd-*
 webapi-webd-*
