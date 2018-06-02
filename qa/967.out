@@ -88,7 +88,7 @@ dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
   126.1.3 (papi.control.status): numval: 1 valfmt: 1 vlist[]:
-   value "Papi is running, has multiplexing enabled, TOT_INS(5) NUMBER"
+   value "Papi is running, has multiplexing enabled, TOT_INS(N) NUMBER"
 dbpmda> wait 7
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
@@ -195,7 +195,7 @@ dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
   126.1.3 (papi.control.status): numval: 1 valfmt: 1 vlist[]:
-   value "Papi is running, TOT_INS(5) NUMBER"
+   value "Papi is running, TOT_INS(N) NUMBER"
 dbpmda> wait 7
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
