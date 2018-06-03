@@ -1884,6 +1884,9 @@ __pmSetClientId(const char *id)
     if (pmvb == NULL) {
 	PM_UNLOCK(ctxp->c_lock);
 	pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
+	if (ipaddr != NULL)
+	    free(ipaddr);
+	
 	return -ENOMEM;
     }
     pmvb->vtype = PM_TYPE_STRING;
