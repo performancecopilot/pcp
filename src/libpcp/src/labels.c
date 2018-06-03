@@ -1088,6 +1088,8 @@ fail:
     pmFreeLabelSets(sets, count);
     if (sets && !count)
 	free(sets);
+    if (lsp)
+	free(lsp);
     return sts;
 }
 
