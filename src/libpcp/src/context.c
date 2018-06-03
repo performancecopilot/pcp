@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1169,7 +1169,7 @@ INIT_CONTEXT:
 	/* bad type */
 	if (pmDebugOptions.context) {
 	    fprintf(stderr, "pmNewContext(%d, %s): illegal type\n",
-		    type, name);
+		    type, name ? name : "(null)");
 	}
 	sts = PM_ERR_NOCONTEXT;
 	goto pmapi_return;
@@ -1183,14 +1183,15 @@ INIT_CONTEXT:
 
     /* return the handle to the new (current) context */
     if (pmDebugOptions.context) {
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type, name, PM_TPD(curr_handle));
+	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type,
+			name ? name : "(null)", PM_TPD(curr_handle));
 	__pmDumpContext(stderr, PM_TPD(curr_handle), PM_INDOM_NULL);
     }
 
     /*
      * Bind defined metrics if any ..., after the new context is in place.
      *
-     * Need to lock context because routines caled from _dmopencontext()
+     * Need to lock context because routines called from _dmopencontext()
      * may assume the context is locked.
      */
     PM_LOCK(new->c_lock);
@@ -1226,7 +1227,7 @@ FAILED_LOCKED:
     PM_TPD(curr_ctxp) = old_curr_ctxp;
     if (pmDebugOptions.context)
 	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curr_handle=%d\n",
-	    type, name, sts, PM_TPD(curr_handle));
+	    type, name ? name : "(null)", sts, PM_TPD(curr_handle));
     PM_UNLOCK(contexts_lock);
 
 pmapi_return:
