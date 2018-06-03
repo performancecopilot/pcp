@@ -344,9 +344,9 @@ pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomVal
     int k;
     __int64_t div, mult;
     __int64_t d, m;
+    char strbuf[80];
 
     if (pmDebugOptions.value) {
-	char strbuf[80];
 	fprintf(stderr, "pmConvScale: %s", pmAtomStr_r(ival, type, strbuf, sizeof(strbuf)));
 	fprintf(stderr, " [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
     }
@@ -557,7 +557,6 @@ pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomVal
     }
 
     if (pmDebugOptions.value) {
-	char strbuf[80];
 	fprintf(stderr, " -> %s", pmAtomStr_r(oval, type, strbuf, sizeof(strbuf)));
 	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
     }
@@ -565,7 +564,6 @@ pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomVal
 
 bad:
     if (pmDebugOptions.value) {
-	char strbuf[60];
 	char errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
@@ -583,6 +581,7 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
     int len;
     const char *vp;
     char buf[80];
+    char strbuf[80];
 
     if (pmDebugOptions.value) {
 	fprintf(stderr, "pmExtractValue: ");
@@ -592,10 +591,8 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
     oval->ll = 0;
     if (valfmt == PM_VAL_INSITU) {
 	av.l = ival->value.lval;
-	if (pmDebugOptions.value) {
-	    char strbuf[80];
+	if (pmDebugOptions.value)
 	    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
-	}
 	switch (itype) {
 
 	    case PM_TYPE_32:
@@ -741,10 +738,8 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.ll, avp, sizeof(av.ll));
-		if (pmDebugOptions.value) {
-		    char strbuf[80];
+		if (pmDebugOptions.value)
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
-		}
 		src = av.ll;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -789,10 +784,8 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.ull, avp, sizeof(av.ull));
-		if (pmDebugOptions.value) {
-		    char strbuf[80];
+		if (pmDebugOptions.value)
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
-		}
 		usrc = av.ull;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -854,10 +847,8 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.d, avp, sizeof(av.d));
-		if (pmDebugOptions.value) {
-		    char strbuf[80];
+		if (pmDebugOptions.value)
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
-		}
 		dsrc = av.d;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -917,10 +908,8 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.f, avp, sizeof(av.f));
-		if (pmDebugOptions.value) {
-		    char strbuf[80];
+		if (pmDebugOptions.value)
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
-		}
 		fsrc = av.f;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -1056,7 +1045,6 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 	sts = PM_ERR_CONV;
 
     if (pmDebugOptions.value) {
-	char strbuf[80];
 	char errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " %s", vp);
 	fprintf(stderr, " [%s]", pmTypeStr_r(itype, strbuf, sizeof(strbuf)));
