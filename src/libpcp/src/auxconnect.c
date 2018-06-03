@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015,2017 Red Hat.
+ * Copyright (c) 2012-2015,2017-2018 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -1319,6 +1319,7 @@ __pmGetAddrInfo(const char *hostName)
 		    found++;
 		    free(str);
 		}
+		__pmSockAddrFree(addr);
 	    }
 	    if (found)
 		fprintf(stderr, "\n");
