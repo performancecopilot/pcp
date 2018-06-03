@@ -1010,11 +1010,11 @@ pmdaOpenLog(pmdaInterface *dispatch)
     if (dispatch->status < 0)
 	return;
 
+    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	setlinebuf(stderr);
+
     pmOpenLog(dispatch->version.any.ext->e_name, 
 		dispatch->version.any.ext->e_logfile, stderr, &c);
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
-	setlinebuf(stderr);
-    }
 }
 
 /*
