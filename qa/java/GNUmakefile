@@ -14,3 +14,7 @@ install install_pcp:
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
+
+# rebuild the committed .class files for USDT testing
+rebuild:
+	javac USDTJVMTest.java
