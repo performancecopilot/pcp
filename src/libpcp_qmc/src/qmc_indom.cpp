@@ -305,8 +305,8 @@ QmcIndom::dump(QTextStream &os) const
 int
 QmcIndom::update()
 {
-    int *instList;
-    char **nameList;
+    int *instList = NULL;
+    char **nameList = NULL;
     int i, j, count;
     int oldLen = my.instances.size();
     uint oldNullCount = my.nullCount;
@@ -448,9 +448,6 @@ QmcIndom::update()
 	    }
 	}
 
-	free(instList);
-	free(nameList);
-
 	if (pmDebugOptions.indom) {
 	    QTextStream cerr(stderr);
 	    if (my.instances.size() == oldLen && my.nullCount == oldNullCount)
@@ -476,6 +473,11 @@ QmcIndom::update()
 		     << pmErrStr(sts) << endl;
 	}
     }
+
+    if (instList)
+	free(instList);
+    if (nameList)
+	free(nameList);
 
     return sts;
 }
