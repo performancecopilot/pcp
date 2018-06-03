@@ -157,7 +157,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
     /* time window setup */
     if (!opts->errors && window) {
 	struct timeval first_boundary, last_boundary;
-	char *msg;
+	char *msg = NULL;
 
 	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
 	    opts->errors++;
@@ -169,8 +169,9 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 			&msg) < 0) {
 	    pmprintf("%s: invalid time window.\n%s\n", pmGetProgname(), msg);
 	    opts->errors++;
-	    free(msg);
 	}
+	if (msg)
+	    free(msg);
     }
 
     if (opts->errors) {
