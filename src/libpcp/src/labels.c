@@ -1000,7 +1000,7 @@ pmGetInstancesLabels(pmInDom indom, pmLabelSet **labels)
 int
 pmLookupLabels(pmID pmid, pmLabelSet **labels)
 {
-    pmLabelSet	*lsp, *sets;
+    pmLabelSet	*lsp = NULL, *sets = NULL;
     pmDesc	desc;
     pmID	ident;
     int		n, sts, count, total;
@@ -1021,6 +1021,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     if (lsp) {
 	sets[count++] = *lsp;
 	free(lsp);
+	lsp = NULL;
     }
 
     ident = pmID_domain(pmid);
@@ -1029,6 +1030,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     if (lsp) {
 	sets[count++] = *lsp;
 	free(lsp);
+	lsp = NULL;
     }
 
     if (desc.indom != PM_INDOM_NULL) {
@@ -1037,6 +1039,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
 	if (lsp) {
 	    sets[count++] = *lsp;
 	    free(lsp);
+	    lsp = NULL;
 	}
     }
 
@@ -1046,6 +1049,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     if (lsp) {
 	sets[count++] = *lsp;
 	free(lsp);
+	lsp = NULL;
     }
 
     if ((sts = pmGetItemLabels(pmid, &lsp)) < 0)
@@ -1053,6 +1057,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     if (lsp) {
 	sets[count++] = *lsp;
 	free(lsp);
+	lsp = NULL;
     }
 
     if (desc.indom != PM_INDOM_NULL) {
@@ -1063,6 +1068,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
 	    sets = realloc(sets, (count + n) * sizeof(pmLabelSet));
 	    if (sets == NULL) {
 		free(lsp);
+		lsp = NULL;
 		sts = -ENOMEM;
 		goto fail;
 	    }
@@ -1071,6 +1077,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
 	    memcpy(&sets[count], lsp, n * sizeof(pmLabelSet));
 	    count += n;
 	    free(lsp);
+	    lsp = NULL;
 	}
     }
 
@@ -1079,6 +1086,8 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
 
 fail:
     pmFreeLabelSets(sets, count);
+    if (sets && !count)
+	free(sets);
     return sts;
 }
 

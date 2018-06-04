@@ -342,9 +342,13 @@ __pmIsLocalhost(const char *hostname)
 		    if (__pmSockAddrCompare(addr1, addr2) == 0) {
 			__pmHostEntFree(servInfo1);
 			__pmHostEntFree(servInfo2);
+			__pmSockAddrFree(addr1);
+			__pmSockAddrFree(addr2);
 			return 1;
 		    }
+		    __pmSockAddrFree(addr2);
 		}
+		__pmSockAddrFree(addr1);
 	    }
 	    __pmHostEntFree(servInfo1);
 	    __pmHostEntFree(servInfo2);
