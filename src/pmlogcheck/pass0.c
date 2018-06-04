@@ -169,18 +169,18 @@ pass0(char *fname)
 	    check = __pmFgetc(f);
 	    if (check == EOF) {
 		if (nrec == 0)
-		    fprintf(stderr, "%s: unexpected EOF in label record body\n", fname);
+		    fprintf(stderr, "%s: unexpected EOF in label record body, wanted %d, got %d bytes\n", fname, len, i);
 		else
-		    fprintf(stderr, "%s[record %d]: unexpected EOF in record body\n", fname, nrec);
+		    fprintf(stderr, "%s[record %d]: unexpected EOF in record body, wanted %d, got %d bytes\n", fname, nrec, len, i);
 		sts = STS_FATAL;
 		goto done;
 	    }
 	}
 	if ((sts = __pmFread(&check, 1, sizeof(check), f)) != sizeof(check)) {
 	    if (nrec == 0)
-		fprintf(stderr, "%s: unexpected EOF in label record trailer\n", fname);
+		fprintf(stderr, "%s: unexpected EOF in label record trailer, wanted %d, got %d bytes\n", fname, (int)sizeof(check), sts);
 	    else
-		fprintf(stderr, "%s[record %d]: unexpected EOF in record trailer\n", fname, nrec);
+		fprintf(stderr, "%s[record %d]: unexpected EOF in record trailer, wanted %d, got %d bytes\n", fname, nrec, (int)sizeof(check), sts);
 	    sts = STS_FATAL;
 	    goto done;
 	}
@@ -211,7 +211,7 @@ pass0(char *fname)
 		nrec++;
 	    }
 	    if (sts != 0) {
-		fprintf(stderr, "%s[record %d]: unexpected EOF in index entry\n", fname, nrec);
+		fprintf(stderr, "%s[record %d]: unexpected EOF in index entry, wanted %d, got %d bytes\n", fname, nrec, (int)sizeof(tirec), sts);
 		index_state = STATE_BAD;
 		sts = STS_FATAL;
 		goto done;
@@ -220,7 +220,7 @@ pass0(char *fname)
 	}
     }
     if (sts != 0) {
-	fprintf(stderr, "%s[record %d]: unexpected EOF in record header\n", fname, nrec);
+	fprintf(stderr, "%s[record %d]: unexpected EOF in record header, wanted %d, got %d bytes\n", fname, nrec, (int)sizeof(len), sts);
 	sts = STS_FATAL;
     }
 empty_check:
