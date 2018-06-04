@@ -4,9 +4,7 @@ get pod --show-all -o jsonpath={.items[*].status.podIP}
 == checking pmfind results and memory access
 === std out ===
 Discovered pmcd servers:
-  pcp://IP_ADDRESS:44321
-  pcp://IP_ADDRESS:44321
-  pcp://IP_ADDRESS:44321
+  >= 2 pcp://IP_ADDRESS:44321 lines
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

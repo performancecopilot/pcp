@@ -102,7 +102,7 @@ badarchives/badlen-10.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-10.meta"
 badarchives/badlen-10.0: start pass0
-badarchives/badlen-10.0: unexpected EOF in label record trailer
+badarchives/badlen-10.0: unexpected EOF in label record trailer, wanted 4, got 3 bytes
 badarchives/badlen-10.index: start pass0
 badarchives/badlen-10.meta: start pass0
 
@@ -110,7 +110,7 @@ badarchives/badlen-11.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-11.meta"
 badarchives/badlen-11.0: start pass0
-badarchives/badlen-11.0[record 1]: unexpected EOF in record header
+badarchives/badlen-11.0[record 1]: unexpected EOF in record header, wanted 4, got 1 bytes
 badarchives/badlen-11.index: start pass0
 badarchives/badlen-11.meta: start pass0
 
@@ -118,7 +118,7 @@ badarchives/badlen-2.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-2.meta"
 badarchives/badlen-2.0: start pass0
-badarchives/badlen-2.0[record 1]: unexpected EOF in record trailer
+badarchives/badlen-2.0[record 1]: unexpected EOF in record trailer, wanted 4, got 0 bytes
 badarchives/badlen-2.index: start pass0
 badarchives/badlen-2.meta: start pass0
 
@@ -126,7 +126,7 @@ badarchives/badlen-3.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-3.meta"
 badarchives/badlen-3.0: start pass0
-badarchives/badlen-3.0[record 1]: unexpected EOF in record body
+badarchives/badlen-3.0[record 1]: unexpected EOF in record body, wanted 124, got 116 bytes
 badarchives/badlen-3.index: start pass0
 badarchives/badlen-3.meta: start pass0
 
@@ -134,7 +134,7 @@ badarchives/badlen-4.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-4.meta"
 badarchives/badlen-4.0: start pass0
-badarchives/badlen-4.0[record 0]: unexpected EOF in record header
+badarchives/badlen-4.0[record 0]: unexpected EOF in record header, wanted 4, got 1 bytes
 badarchives/badlen-4.index: start pass0
 badarchives/badlen-4.meta: start pass0
 
@@ -142,7 +142,7 @@ badarchives/badlen-5.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-5.meta"
 badarchives/badlen-5.0: start pass0
-badarchives/badlen-5.0: unexpected EOF in label record body
+badarchives/badlen-5.0: unexpected EOF in label record body, wanted 124, got 38 bytes
 badarchives/badlen-5.index: start pass0
 badarchives/badlen-5.meta: start pass0
 
@@ -168,14 +168,14 @@ Scanning for components of archive "badarchives/badlen-9.meta"
 badarchives/badlen-9.0: start pass0
 badarchives/badlen-9.index: start pass0
 badarchives/badlen-9.meta: start pass0
-badarchives/badlen-9.meta[record 11]: unexpected EOF in record body
+badarchives/badlen-9.meta[record 11]: unexpected EOF in record body, wanted 46, got 38 bytes
 
 badarchives/badti-1:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badti-1"
 badarchives/badti-1.0: start pass0
 badarchives/badti-1.index: start pass0
-badarchives/badti-1.index[record 2]: unexpected EOF in index entry
+badarchives/badti-1.index[record 2]: unexpected EOF in index entry, wanted 20, got 10 bytes
 badarchives/badti-1.meta: start pass0
 
 badarchives/badlabel-1.meta:
@@ -251,7 +251,7 @@ badarchives/badlog-1.0:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlog-1.0"
 badarchives/badlog-1.0: start pass0
-badarchives/badlog-1.0[record 3]: unexpected EOF in record body
+badarchives/badlog-1.0[record 3]: unexpected EOF in record body, wanted 204, got 200 bytes
 badarchives/badlog-1.index: start pass0
 badarchives/badlog-1.meta: start pass0
 

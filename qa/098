@@ -113,10 +113,11 @@ $sudo rm -f $tmp.0 $tmp.meta $tmp.index $seq.full
 
 # trying to understand why on vm24 there is sometimes a <mark> record
 # in the log ... hence the interest in pmcd's log
+#
 cp $PCP_LOG_DIR/pmcd/pmcd.log $tmp.pmcd.log
 echo "=== Start @ `date` ===" >>$here/$seq.full
-pcp >>$here/$seq.full
 ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+pcp >>$here/$seq.full
 
 # start pmlogger with the expected number of samples plus a few more
 # to detect extra log output

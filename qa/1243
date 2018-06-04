@@ -50,6 +50,29 @@ _filter()
     #end
 }
 
+# expect at least 2 pmcd servers on <realip_addr> and 127.0.0.1
+# but there may be others ...
+# === std out ===
+# Discovered pmcd servers:
+#   pcp://IP_ADDRESS:44321
+#   pcp://IP_ADDRESS:44321
+#   pcp://IP_ADDRESS:44321
+# === std err ===
+#
+_fix_pmcds_found()
+{
+    $PCP_AWK_PROG '
+/^Discovered pmcd servers:/	{ print; n = 0; inblock = 1; next }
+inblock == 1 && /pcp:/		{ n++; next }
+inblock == 1 && $1 == "==="	{ if (n >= 2)
+				    print "  >= 2 pcp://IP_ADDRESS:44321 lines"
+				  else
+				    print "  " n " pcp://IP_ADDRESS:44321 lines"
+				  inblock = 0
+				}
+				{ print }'
+}
+
 # real QA test starts here
 mkdir -p $tmp.discover
 
@@ -92,7 +115,8 @@ cat $tmp.kubectl.args | tee -a $seq.full
 # handy pmfind debugging option: -Ddiscovery
 echo "== checking pmfind results and memory access" | tee -a $seq.full
 _run_valgrind pmfind -m shell,path=$tmp.discover,maxThreads=1 -s pmcd \
-	| _filter
+	| _filter \
+	| _fix_pmcds_found
 
 echo "== checking pmfind results and thread locks" | tee -a $seq.full
 _run_helgrind pmfind -m shell,path=$tmp.discover,maxThreads=4 -s pmcd \

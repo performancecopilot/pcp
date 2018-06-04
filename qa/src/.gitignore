@@ -207,6 +207,7 @@ sum16
 tabort
 template
 t_fetch
+timeshift
 torture_api
 torture_cache
 torture-eol
