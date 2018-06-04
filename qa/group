@@ -1001,6 +1001,7 @@ BAD
 629 pmlogmv pmlogcheck local
 630 other local
 631:retired pmlogrewrite
+632 libpcp local
 633 pmlogger local
 634 libirixpmda local pmval timezone
 635 pmda.linux libirixpmda remote
