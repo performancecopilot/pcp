@@ -306,6 +306,9 @@ extern void redisAsyncHandleWrite(redisAsyncContext *);
  * Command function for an async context.
  * Write the command to the output buffer and register the provided callback.
  */
+extern int redisvAsyncCommand(redisAsyncContext *, redisCallBackFunc *, void *, const char *, va_list );
+extern int redisAsyncCommand(redisAsyncContext *, redisCallBackFunc *, void *, const char *, ...);
+extern int redisAsyncCommandArgv(redisAsyncContext *, redisCallBackFunc *, void *, int, const char **, const size_t *argvlen);
 extern int redisAsyncFormattedCommand(redisAsyncContext *, redisCallBackFunc *, void *, const char *, size_t);
 
 #endif /* SERIES_REDIS_H */
