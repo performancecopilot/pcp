@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_SELINUX)" "true"
-build-me: $(IAM).te
+build-me: $(IAM).te selinux-setup.sh
 
 $(IAM).te: $(IAM).te.in
 	$(SED) <$< >$@ \
@@ -76,6 +76,7 @@ $(IAM).te: $(IAM).te.in
 	make -f /usr/share/selinux/devel/Makefile
 
 install: default
+	$(INSTALL) -m 755 selinux-setup.sh $(PCP_BINADM_DIR)/selinux-setup
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
 	$(INSTALL) -m 644 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
 	$(INSTALL) -m 644 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te

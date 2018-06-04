@@ -326,41 +326,29 @@ Requires: pcp-libs = %{version}-%{release}
 %global pmda_remove() %{expand:
 if [ %1 -eq 0 ]
 then
-    if [ -f "%{_confdir}/pmcd/pmcd.conf" ] && [ -f "%{_pmdasdir}/%2/domain.h" ]
+    if [ -f "%{_confdir}/pmcd/pmcd.conf" -a -f "%{_pmdasdir}/%2/domain.h" ]
     then
 	(cd %{_pmdasdir}/%2/ && ./Remove >/dev/null 2>&1)
     fi
 fi
 }
 
-%global selinux_handle_policy() %{expand:
-if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
+# force upgrade of PMDAs starting in "notready" state
+%global pmda_notready() %{expand:
+if grep -q ^%2 "%{_confdir}/pmcd/pmcd.conf" 2>/dev/null
 then
-    if [ %1 -ge 1 ]
-    then
-	PCP_SELINUX_DIR=%{_selinuxdir}
-	if [ -f "$PCP_SELINUX_DIR/%2" ]
-	then
-	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
-	    then
-		(semodule -X 400 -i %{_selinuxdir}/%2)
-	    else
-		(semodule -i %{_selinuxdir}/%2)
-	    fi #semodule -X flag check
-	fi
-    elif [ %1 -eq 0 ]
-    then
-	if semodule -l | grep %2 >/dev/null 2>&1
-	then
-	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
-	    then
-		(semodule -X 400 -r %2 >/dev/null)
-	    else
-		(semodule -r %2 >/dev/null)
-	    fi #semodule -X flag check
-	fi
-    fi
-fi # check for an active selinux install
+    touch %{_pmdasdir}/%2/.NeedInstall
+fi
+}
+
+%global selinux_handle_policy() %{expand:
+if [ %1 -ge 1 ]
+then
+    %{_libexecdir}/pcp/bin/selinux-setup install %2
+elif [ %1 -eq 0 ]
+then
+    %{_libexecdir}/pcp/bin/selinux-setup remove %2
+fi
 }
 
 %description
@@ -2323,23 +2311,30 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
-#
+
 # Separate the pcp-system-tools package files.
-#
 # pmcollectl and pmiostat are back-compat symlinks to their
 # pcp(1) sub-command variants so are also in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E 'pmiostat|pmcollectl|pmrep' |\
-  sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
+  sed -e 's#^#'%{_bindir}'\/#' >pcp-system-tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify' |\
-  sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp_system_tools.list
+  sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp-system-tools.list
+%endif
+# Separate the pcp-selinux package files.
+%if !%{disable_selinux}
+ls -1 $RPM_BUILD_ROOT/%{_selinuxdir} |\
+  sed -e 's#^#'%{_selinuxdir}'\/#' > pcp-selinux.list
+ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
+  grep -E 'selinux-setup' |\
+  sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >> pcp-selinux.list
 %endif
 
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify' |\
+  grep -E -v 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify|selinux-setup' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
@@ -2350,10 +2345,6 @@ ls -1 $RPM_BUILD_ROOT/%{_mandir}/man5 |\
   sed -e 's#^#'%{_mandir}'\/man5\/#' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
-%if !%{disable_selinux}
-ls -1 $RPM_BUILD_ROOT/%{_selinuxdir} |\
-  sed -e 's#^#'%{_selinuxdir}'\/#' > pcp-selinux.list
-%endif
 %if !%{disable_qt}
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
@@ -2562,14 +2553,6 @@ fi
 %preun pmda-prometheus
 %{pmda_remove "$1" "prometheus"}
 
-%post pmda-prometheus
-# pcp-4.0.1 and later: pmdaprometheus starts "notready" - this is for upgrades
-. /etc/pcp.env
-if grep -q ^prometheus "$PCP_PMCDCONF_PATH" 2>/dev/null
-then
-    touch $PCP_PMDAS_DIR/prometheus/.NeedInstall
-fi
-
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
 
@@ -2620,16 +2603,6 @@ fi
 %if !%{disable_bcc}
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
-%endif
-
-%if !%{disable_bcc}
-%post pmda-bcc
-# pcp-4.0.2 and later: pmdabcc starts "notready" - this is for upgrades
-. /etc/pcp.env
-if grep -q ^bcc "$PCP_PMCDCONF_PATH" 2>/dev/null
-then
-    touch $PCP_PMDAS_DIR/bcc/.NeedInstall
-fi
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
@@ -2799,14 +2772,22 @@ pmieconf -c enable dmthin
 
 %if !%{disable_selinux}
 %post selinux
-%{selinux_handle_policy "$1" "pcpupstream.pp"}
+%{selinux_handle_policy "$1" "pcpupstream"}
 
 %triggerin selinux -- docker-selinux
-%{selinux_handle_policy "$1" "pcpupstream-docker.pp"}
+%{selinux_handle_policy "$1" "pcpupstream-docker"}
 
 %triggerin selinux -- container-selinux
-%{selinux_handle_policy "$1" "pcpupstream-container.pp"}
+%{selinux_handle_policy "$1" "pcpupstream-container"}
 %endif
+
+%if !%{disable_bcc}
+%post pmda-bcc
+%{pmda_notready "$1" "bcc"}
+%endif
+
+%post pmda-prometheus
+%{pmda_notready "$1" "prometheus"}
 
 %post
 PCP_LOG_DIR=%{_logsdir}
@@ -3353,7 +3334,7 @@ cd
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
-%files system-tools -f pcp_system_tools.list
+%files system-tools -f pcp-system-tools.list
 %dir %{_confdir}/pmrep
 %config(noreplace) %{_confdir}/pmrep/pmrep.conf
 %endif

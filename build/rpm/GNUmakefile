@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2017 Red Hat.
+# Copyright (c) 2012-2018 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -111,7 +111,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
-	    -e's|@pcp_selinux_dir@|$(PCP_SELINUX_DIR)|g' \
+	    -e's|@pcp_binadm_dir@|$(PCP_BINADM_DIR)|g' \
 	    -e's|@pcp_pmdas_dir@|$(PCP_PMDAS_DIR)|g' \
 	    -e's|@qt_version@|$(QT_VERSION)|g' \
 	    -e's|@rpm_version@|$(RPM_VERSION)|g' \

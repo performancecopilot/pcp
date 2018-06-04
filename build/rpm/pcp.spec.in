@@ -144,41 +144,32 @@ if [ %1 -eq 0 ]
 then
     PCP_PMDAS_DIR=@pcp_pmdas_dir@
     PCP_ETC_DIR=@pcp_etc_dir@
-    if [ -f "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" ] && [ -f "$PCP_PMDAS_DIR/%2/domain.h" ]
+    if [ -f "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
 	(cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1)
     fi
 fi
 }
 
-%global selinux_handle_policy() %{expand:
-if [ -e /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled
+# force upgrade of PMDAs starting in "notready" state
+%global pmda_notready() %{expand:
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+PCP_ETC_DIR=@pcp_etc_dir@
+if grep -q ^%2 "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" 2>/dev/null
 then
-    if [ %1 -ge 1 ]
-    then
-	PCP_SELINUX_DIR=@pcp_selinux_dir@
-	if [ -f "$PCP_SELINUX_DIR/%2" ]
-	then
-	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
-	    then
-		(semodule -X 400 -i $PCP_SELINUX_DIR/%2)
-	    else
-		(semodule -i $PCP_SELINUX_DIR/%2)
-	    fi #semodule -X flag check
-	fi
-    elif [ %1 -eq 0 ]
-    then
-	if semodule -l | grep %2 >/dev/null 2>&1
-	then
-	    if semodule -h | grep -q -- "-X" >/dev/null 2>&1
-	    then
-		(semodule -X 400 -r %2 >/dev/null)
-	    else
-		(semodule -r %2 >/dev/null)
-	    fi #semodule -X flag check
-	fi
-    fi
-fi # check for an active selinux install
+    touch $PCP_PMDAS_DIR/%2/.NeedInstall
+fi
+}
+
+%global selinux_handle_policy() %{expand:
+PCP_BINADM_DIR=@pcp_binadm_dir@
+if [ %1 -ge 1 ]
+then
+    $PCP_BINADM_DIR/selinux-setup install %2
+elif [ %1 -eq 0 ]
+then
+    $PCP_BINADM_DIR/selinux-setup remove %2
+fi
 }
 
 Requires: pcp-libs = @package_version@
@@ -2330,7 +2321,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/haproxy' > pmda_haproxy_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmcollectl|pmiostat|pmrep' |\
 egrep -e 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify' | \
-egrep -v 'testsuite|pmlogconf|pmieconf' \
+egrep -v 'testsuite|selinux|pmlogconf|pmieconf' \
 	    > system_tools_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/apache' > pmda_apache_files
@@ -2881,16 +2872,15 @@ pmieconf -c enable dmthin
 %endif #zeroconf
 
 %if "@enable_selinux@" == "true"
-%post selinux
-%{selinux_handle_policy "$1" "pcpupstream.pp"}
+%preun selinux
+%{selinux_handle_policy "$1" "pcpupstream"}
 
 %triggerin selinux -- docker-selinux
-%{selinux_handle_policy "$1" "pcpupstream-docker.pp"}
+%{selinux_handle_policy "$1" "pcpupstream-docker"}
 
 %triggerin selinux -- container-selinux
-%{selinux_handle_policy "$1" "pcpupstream-container.pp"}
-
-%endif #enable_selinux
+%{selinux_handle_policy "$1" "pcpupstream-container"}
+%endif
 
 %if "@pmda_rpm@" == "true"
 %preun pmda-rpm
@@ -2936,16 +2926,6 @@ pmieconf -c enable dmthin
 %preun pmda-prometheus
 %{pmda_remove "$1" "prometheus"}
 %endif #preun pmda-prometheus
-
-%if "@pmda_prometheus@" == "true"
-# pcp-4.0.1 and later: pmdaprometheus starts "notready" - this is for upgrades
-%post pmda-prometheus
-. /etc/pcp.env
-if grep -q ^prometheus "$PCP_PMCDCONF_PATH" 2>/dev/null
-then
-    touch $PCP_PMDAS_DIR/prometheus/.NeedInstall
-fi
-%endif #post pmda-prometheus
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
@@ -3067,16 +3047,6 @@ fi
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
 %endif
-
-%if "@pmda_bcc@" == "true"
-# pcp-4.0.2 and later: pmdabcc starts "notready" - this is for upgrades
-%post pmda-bcc
-. /etc/pcp.env
-if grep -q ^bcc "$PCP_PMCDCONF_PATH" 2>/dev/null
-then
-    touch $PCP_PMDAS_DIR/bcc/.NeedInstall
-fi
-%endif #post pmda-bcc
 
 %if "@have_python@" == "true"
 %preun pmda-gluster
@@ -3220,7 +3190,7 @@ cd
 %postun libs -p /sbin/ldconfig
 
 %if "@enable_selinux@" == "true"
-%preun selinux
+%post selinux
 %{selinux_handle_policy "$1" "pcpupstream"}
 
 %triggerun selinux -- docker-selinux
@@ -3228,9 +3198,17 @@ cd
 
 %triggerun selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container"}
+%endif
 
-%endif #selinux check
+%if "@pmda_bcc@" == "true"
+%post pmda-bcc
+%{pmda_notready "$1" "bcc"}
+%endif
 
+%if "@pmda_prometheus@" == "true"
+%post pmda-prometheus
+%{pmda_notready "$1" "prometheus"}
+%endif
 
 %files -f base_files.rpm
 
