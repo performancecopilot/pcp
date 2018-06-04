@@ -33,23 +33,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __PMPROXY_LIBUV_H__
-#define __PMPROXY_LIBUV_H__
+#ifndef __SERIES_LIBUV_H__
+#define __SERIES_LIBUV_H__
 
 #include "stdlib.h"
 #include "redis.h"
 #include "string.h"
 #include "uv.h"
 
+
 typedef struct redisLibuvEvents {
-    redisAsyncContext* context;
-    uv_poll_t          handle;
-    int                events;
+    redisAsyncContext       *context;
+    uv_poll_t               handle;
+    int                     events;
 } redisLibuvEvents;
 
 static void
-redisLibuvPoll(uv_poll_t* handle, int status, int events) {
-    redisLibuvEvents* p = (redisLibuvEvents*)handle->data;
+redisLibuvPoll(uv_poll_t *handle, int status, int events) {
+    redisLibuvEvents *p = (redisLibuvEvents*)handle->data;
 
     if (status != 0) {
         return;
@@ -65,7 +66,7 @@ redisLibuvPoll(uv_poll_t* handle, int status, int events) {
 
 static void
 redisLibuvAddRead(void *privdata) {
-    redisLibuvEvents* p = (redisLibuvEvents*)privdata;
+    redisLibuvEvents *p = (redisLibuvEvents*)privdata;
 
     p->events |= UV_READABLE;
 
@@ -74,7 +75,7 @@ redisLibuvAddRead(void *privdata) {
 
 static void
 redisLibuvDelRead(void *privdata) {
-    redisLibuvEvents* p = (redisLibuvEvents*)privdata;
+    redisLibuvEvents *p = (redisLibuvEvents*)privdata;
 
     p->events &= ~UV_READABLE;
 
@@ -87,7 +88,7 @@ redisLibuvDelRead(void *privdata) {
 
 static void
 redisLibuvAddWrite(void *privdata) {
-    redisLibuvEvents* p = (redisLibuvEvents*)privdata;
+    redisLibuvEvents *p = (redisLibuvEvents*)privdata;
 
     p->events |= UV_WRITABLE;
 
@@ -96,7 +97,7 @@ redisLibuvAddWrite(void *privdata) {
 
 static void
 redisLibuvDelWrite(void *privdata) {
-    redisLibuvEvents* p = (redisLibuvEvents*)privdata;
+    redisLibuvEvents *p = (redisLibuvEvents*)privdata;
 
     p->events &= ~UV_WRITABLE;
 
@@ -108,22 +109,22 @@ redisLibuvDelWrite(void *privdata) {
 }
 
 static void
-on_close(uv_handle_t* handle) {
-    redisLibuvEvents* p = (redisLibuvEvents*)handle->data;
+on_close(uv_handle_t *handle) {
+    redisLibuvEvents *p = (redisLibuvEvents*)handle->data;
 
     free(p);
 }
 
 static void
 redisLibuvCleanup(void *privdata) {
-    redisLibuvEvents* p = (redisLibuvEvents*)privdata;
+    redisLibuvEvents *p = (redisLibuvEvents*)privdata;
 
     p->context = NULL; // indicate that context might no longer exist
     uv_close((uv_handle_t*)&p->handle, on_close);
 }
 
 static int
-redisLibuvAttach(redisAsyncContext* ac, uv_loop_t* loop) {
+redisLibuvAttach(redisAsyncContext *ac, uv_loop_t *loop) {
     redisContext *c = &(ac->c);
 
     if (ac->ev.data != NULL) {
@@ -136,7 +137,7 @@ redisLibuvAttach(redisAsyncContext* ac, uv_loop_t* loop) {
     ac->ev.delWrite = redisLibuvDelWrite;
     ac->ev.cleanup  = redisLibuvCleanup;
 
-    redisLibuvEvents* p = (redisLibuvEvents*)malloc(sizeof(*p));
+    redisLibuvEvents *p = (redisLibuvEvents*)malloc(sizeof(*p));
 
     if (!p) {
         return REDIS_ERR;

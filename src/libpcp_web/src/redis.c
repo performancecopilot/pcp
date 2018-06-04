@@ -1789,41 +1789,46 @@ __redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *func,
 
 int
 redisvAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *fn, void *privdata, const char *format, va_list ap) {
-    char *cmd;
-    int len;
-    int status;
-    len = redisvFormatCommand(&cmd,format,ap);
+    char        *cmd;
+    int         len;
+    int         sts;
+
+    len = redisvFormatCommand(&cmd, format, ap);
 
     /* We don't want to pass -1 or -2 to future functions as a length. */
     if (len < 0)
         return REDIS_ERR;
 
-    status = __redisAsyncCommand(ac,fn,privdata,cmd,len);
+    sts = __redisAsyncCommand(ac, fn, privdata, cmd, len);
     free(cmd);
-    return status;
+    return sts;
 }
 
 int
 redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *fn, void *privdata, const char *format, ...) {
-    va_list ap;
-    int status;
+    va_list        ap;
+    int            sts;
+
     va_start(ap,format);
-    status = redisvAsyncCommand(ac,fn,privdata,format,ap);
+    sts = redisvAsyncCommand(ac, fn, privdata, format, ap);
     va_end(ap);
-    return status;
+    return sts;
 }
 
 int
 redisAsyncCommandArgv(redisAsyncContext *ac, redisCallBackFunc *fn, void *privdata, int argc, const char **argv, const size_t *argvlen) {
-    sds cmd;
-    int len;
-    int status;
-    len = redisFormatSdsCommandArgv(&cmd,argc,argv,argvlen);
+    sds         cmd;
+    int         len;
+    int         sts;
+
+    len = redisFormatSdsCommandArgv(&cmd, argc, argv, argvlen);
+
     if (len < 0)
         return REDIS_ERR;
-    status = __redisAsyncCommand(ac,fn,privdata,cmd,len);
+
+    sts = __redisAsyncCommand(ac, fn, privdata, cmd, len);
     sdsfree(cmd);
-    return status;
+    return sts;
 }
 
 int
