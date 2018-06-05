@@ -907,7 +907,8 @@ endif
 PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
 PCP_TRACELIB = -lpcp_trace $(PCPLIB)
-PCP_WEBLIB = -lpcp_web $(PCP_PMDALIB)
+PCPWEBLIB_EXTRAS = $(LIB_FOR_LIBUV) $(PCP_PMDALIB)
+PCP_WEBLIB = -lpcp_web $(PCPWEBLIB_EXTRAS)
 
 ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))
