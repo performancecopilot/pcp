@@ -53,7 +53,7 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats changeversion \
 	  check-gitignore check-group chk.setup show-me disk-work \
-	  xlate_2_new_pmns common setup.051
+	  xlate_2_new_pmns common setup.051 mk.logfarm
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
