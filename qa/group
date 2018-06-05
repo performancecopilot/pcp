@@ -1027,6 +1027,8 @@ BAD
 655 pmda.gfs2 local pmstore
 656 pmda.cifs local valgrind
 657 pmda.dm local
+658 logutil local
+659 pmlogreduce local
 660 pmwebd local
 661 pmwebd local python
 662 pmwebd pmda.sample local python
