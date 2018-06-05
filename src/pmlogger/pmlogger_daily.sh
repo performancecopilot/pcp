@@ -530,8 +530,8 @@ then
     then
 	if $VERBOSE
 	then
-	    echo "Roll $NOTICES -> $NOTICES.old"
-	    echo "Start new $NOTICES"
+	    echo "Roll $NOTICES -> $NOTICES.old" >&2
+	    echo "Start new $NOTICES" >&2
 	fi
 	if $SHOWME
 	then
@@ -603,7 +603,7 @@ _get_non_primary_logger_pid()
 	then
 	    _host=`sed -n 2p <$log`
 	    _arch=`sed -n 3p <$log`
-	    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
+	    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C" >&2
 	fi
 	# throw away stderr in case $log has been removed by now
 	match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null | \
@@ -611,19 +611,19 @@ _get_non_primary_logger_pid()
 BEGIN				{ m = 0 }
 NR == 3 && $0 == "'$dir'"	{ m = 2; next }
 END				{ print m }'`
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
+	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C" >&2
 	if [ "$match" = 2 ]
 	then
 	    pid=`echo $log | sed -e 's,.*/,,'`
 	    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then
-		$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
+		$VERY_VERBOSE && echo "pmlogger process $pid identified, OK" >&2
 		break
 	    fi
-	    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
+	    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip" >&2
 	    pid=''
 	else
-	    $VERY_VERBOSE && echo "different directory, skip"
+	    $VERY_VERBOSE && echo "different directory, skip" >&2
 	fi
     done
     echo "$pid"
@@ -659,7 +659,7 @@ _parse_control()
 		\#*|'')	# comment or empty
 			;;
 		*)
-			echo "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+			echo "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\"" >&2
 			;;
 	    esac
 	fi
@@ -798,7 +798,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	then
 	    pflag=''
 	    [ $primary = y ] && pflag=' -P'
-	    echo "Check pmlogger$pflag -h $host ... in $dir ..."
+	    echo "Check pmlogger$pflag -h $host ... in $dir ..." >&2
 	fi
 
 	# make sure output directory hierarchy exists and $PCP_USER
@@ -823,14 +823,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	if $VERBOSE
 	then
-	    echo
+	    echo >&2
 	    if $COMPRESSONLY
 	    then
-		echo "=== compressing PCP archives for host $host ==="
+		echo "=== compressing PCP archives for host $host ===" >&2
 	    else
-		echo "=== daily maintenance of PCP archives for host $host ==="
+		echo "=== daily maintenance of PCP archives for host $host ===" >&2
 	    fi
-	    echo
+	    echo >&2
 	fi
 
 	if [ ! -w $dir ]
@@ -892,22 +892,22 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    then
 		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
 		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		$VERY_VERBOSE && echo "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
+		$VERY_VERBOSE && echo "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch" >&2
 		pid=`_get_primary_logger_pid`
 	    fi
 	    if [ -z "$pid" ]
 	    then
 		if $VERY_VERBOSE
 		then
-		    echo "primary pmlogger process PID not found"
-		    ls -l "$PCP_TMP_DIR/pmlogger"
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
+		    echo "primary pmlogger process PID not found" >&2
+		    ls -l "$PCP_TMP_DIR/pmlogger" >&2
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >&2
 		fi
 	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then
-		$VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
+		$VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK" >&2
 	    else
-		$VERY_VERBOSE && echo "primary pmlogger process $pid not running"
+		$VERY_VERBOSE && echo "primary pmlogger process $pid not running" >&2
 		pid=''
 	    fi
 	else
@@ -947,22 +947,22 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    _host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
 		    _arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		    $VERY_VERBOSE && echo "... try new $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
+		    $VERY_VERBOSE && echo "... try new $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch" >&2
 		    pid=`_get_primary_logger_pid`
 		fi
 		if [ -z "$pid" ]
 		then
 		    if $VERY_VERBOSE
 		    then
-			echo "new primary pmlogger process PID not found"
-			ls -l "$PCP_TMP_DIR/pmlogger"
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
+			echo "new primary pmlogger process PID not found" >&2
+			ls -l "$PCP_TMP_DIR/pmlogger" >&2
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >&2
 		    fi
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		then
-		    $VERY_VERBOSE && echo "new primary pmlogger process $pid identified, OK"
+		    $VERY_VERBOSE && echo "new primary pmlogger process $pid identified, OK" >&2
 		else
-		    $VERY_VERBOSE && echo "new primary pmlogger process $pid not running"
+		    $VERY_VERBOSE && echo "new primary pmlogger process $pid not running" >&2
 		    pid=''
 		fi
 	    else
@@ -971,14 +971,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    if $VERY_VERBOSE
 		    then
-			echo "new non-primary pmlogger process PID not found"
-			ls -l "$PCP_TMP_DIR/pmlogger"
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
+			echo "new non-primary pmlogger process PID not found" >&2
+			ls -l "$PCP_TMP_DIR/pmlogger" >&2
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >&2
 		    fi
 		fi
 	    fi
 	fi
-	$VERBOSE && echo
+	$VERBOSE && echo >&2
 
 	if ! $COMPRESSONLY
 	then
@@ -1080,8 +1080,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		then
 		    if $VERBOSE
 		    then
-			echo "$prog: Warning: no archives found to merge"
-			$VERY_VERBOSE && ls -l
+			echo "$prog: Warning: no archives found to merge" >&2
+			$VERY_VERBOSE && ls -l >&2
 		    fi
 		else
 		    cat $tmp/list \
@@ -1094,7 +1094,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			else
 			    if [ -n "$rewrite" ]
 			    then
-				$VERY_VERBOSE && echo "Rewriting input archives using $rewrite"
+				$VERY_VERBOSE && echo "Rewriting input archives using $rewrite" >&2
 				for arch in $inlist
 				do
 				    if pmlogrewrite -iq -c "$rewrite" $arch
@@ -1110,8 +1110,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			    then
 				for arch in $inlist
 				do
-				    echo "Input archive $arch ..."
-				    pmdumplog -L $arch
+				    echo "Input archive $arch ..." >&2
+				    pmdumplog -L $arch >&2
 				done
 			    fi
 			    narch=`echo $inlist | wc -w | sed -e 's/ //g'`
@@ -1126,8 +1126,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				then
 				    if $VERY_VERBOSE
 				    then
-					echo "Renamed output archive $outfile ..."
-					pmdumplog -L $outfile
+					echo "Renamed output archive $outfile ..." >&2
+					pmdumplog -L $outfile >&2
 				    fi
 				else
 				    _error "problems executing pmlogmv for host \"$host\""
@@ -1142,8 +1142,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				then
 				    if $VERY_VERBOSE
 				    then
-					echo "Merged output archive $outfile ..."
-					pmdumplog -L $outfile
+					echo "Merged output archive $outfile ..." >&2
+					pmdumplog -L $outfile >&2
 				    fi
 				else
 				    _error "problems executing pmlogger_merge for host \"$host\""
@@ -1159,7 +1159,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		# this is sufficiently serious that we don't want to remove
 		# the lock file, so problems are not compounded the next time
 		# the script is run
-		$VERY_VERBOSE && echo "Skip culling and compression ..."
+		$VERY_VERBOSE && echo "Skip culling and compression ..." >&2
 		continue
 	    fi
 
@@ -1187,8 +1187,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		then
 		    if $VERBOSE
 		    then
-			echo "Archive files older than $CULLAFTER days being removed ..."
-			fmt <$tmp/list | sed -e 's/^/    /'
+			echo "Archive files older than $CULLAFTER days being removed ..." >&2
+			fmt <$tmp/list | sed -e 's/^/    /' >&2
 		    fi
 		    if $SHOWME
 		    then
@@ -1197,7 +1197,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			cat $tmp/list | xargs rm -f
 		    fi
 		else
-		    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
+		    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull" >&2
 		fi
 	    fi
 	fi
@@ -1208,7 +1208,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	COMPRESSAFTER="$PCP_COMPRESSAFTER"
 	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_CMDLINE"
 	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_DEFAULT"
-	$VERY_VERBOSE && echo "$prog: COMPRESSAFTER=$COMPRESSAFTER"
+	$VERY_VERBOSE && echo "$prog: COMPRESSAFTER=$COMPRESSAFTER" >&2
 	if [ -n "$COMPRESSAFTER" -a X"$COMPRESSAFTER" != Xforever -a X"$COMPRESSAFTER" != Xnever ]
 	then
 	    # may have some compression to do ...
@@ -1296,7 +1296,7 @@ p
 			# pmlogger has moved onto a new volume since
 			# $current_vol was determined)
 			#
-			$VERY_VERBOSE && echo "[$filename:$line] skip current vol $current_base.$current_vol"
+			$VERY_VERBOSE && echo "[$filename:$line] skip current vol $current_base.$current_vol" >&2
 			rm -f $tmp/out
 			touch $tmp/out
 			sed <$tmp/list -e 's/\.\([0-9][0-9]*\)$/ \1/' \
@@ -1318,11 +1318,11 @@ p
 			then
 			    if [ "$COMPRESSAFTER" -eq 0 ]
 			    then
-				echo "Archive files being compressed ..."
+				echo "Archive files being compressed ..." >&2
 			    else
-				echo "Archive files older than $COMPRESSAFTER days being compressed ..."
+				echo "Archive files older than $COMPRESSAFTER days being compressed ..." >&2
 			    fi
-			    fmt <$tmp/list | sed -e 's/^/    /'
+			    fmt <$tmp/list | sed -e 's/^/    /' >&2
 			fi
 			if $SHOWME
 			then
@@ -1331,7 +1331,7 @@ p
 			    cat $tmp/list | xargs $COMPRESS
 			fi
 		    else
-			$VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress"
+			$VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress" >&2
 		    fi
 		elif [ -z "$COMPRESSAFTER" -o X"$COMPRESSAFTER" = Xforever -o X"$COMPRESSAFTER" = Xnever ]
 		then
@@ -1364,8 +1364,8 @@ p
 	    then
 		if $VERBOSE
 		then
-		    echo "Trace files older than $TRACE days being removed ..."
-		    fmt <$tmp/list | sed -e 's/^/    /'
+		    echo "Trace files older than $TRACE days being removed ..." >&2
+		    fmt <$tmp/list | sed -e 's/^/    /' >&2
 		fi
 		if $SHOWME
 		then
@@ -1374,7 +1374,7 @@ p
 		    cat $tmp/list | xargs rm -f
 		fi
 	    else
-		$VERY_VERBOSE && echo "$prog: Warning: no trace files found to cull"
+		$VERY_VERBOSE && echo "$prog: Warning: no trace files found to cull" >&2
 	    fi
 	fi
 
