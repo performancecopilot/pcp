@@ -7,7 +7,7 @@ RUN dnf -y install \
         avahi-devel ncurses-devel readline-devel zlib-devel \
         perl perl-devel perl-generators perl-ExtUtils-MakeMaker \
         python3 python3-devel \
-        bcc-tools
+        bcc-tools e2fsprogs xfsprogs
 
 COPY . /pcp
 RUN cd /pcp && ./Makepkgs

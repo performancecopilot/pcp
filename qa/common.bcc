@@ -69,7 +69,11 @@ _pmdabcc_wait_for_metric()
 {
     # Wait for the PMDA to compile the bcc modules and become ready, 30s max
     for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
-    [ $i -lt 30 ] || exit
+    grep 'Error:' $PCP_LOG_DIR/pmcd/bcc.log
+    if [ $i -gt 30 ]; then
+        echo PMDA was not ready in 30 seconds, test failed
+        exit
+    fi
 }
 
 _pmdabcc_remove()
@@ -84,7 +88,6 @@ _pmdabcc_remove()
 
 _pmdabcc_cleanup()
 {
-    [ "X$spid" != X ] && (( $signal $spid )&) >/dev/null 2>&1
     if [ -f $tmp.backup ]; then
         $sudo cp $tmp.backup $PCP_PMDAS_DIR/bcc/bcc.conf
         $sudo rm $tmp.backup
@@ -124,4 +127,26 @@ _java_check()
     done
 
     [ -z "$jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
+}
+
+_mount_filesystem()
+{
+    fs=$1
+    image=$tmp.loop.$fs.img
+    mountpoint=$tmp.mount.$fs
+
+    truncate -s 30M $image
+    mkfs.$fs $image > /dev/null 2>&1
+    mkdir -p $mountpoint
+    $sudo mount $image $mountpoint
+    $sudo chown $(id -u):$(id -g) $mountpoint
+}
+
+_unmount_filesystem()
+{
+    fs=$1
+    mountpoint=$tmp.mount.$fs
+
+    $sudo umount $mountpoint
+    rm -r $mountpoint
 }
