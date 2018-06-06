@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -36,6 +36,9 @@ static int		do_walk_metric;
 static int		output = OUTPUT_ALL;
 static int		one_inst;
 static char		*one_name;
+
+static textspec_t	*current_textspec;
+static int		do_walk_text;
 
 indomspec_t *
 walk_indom(int mode)
@@ -106,6 +109,94 @@ walk_metric(int mode, int flag, char *which, int dupok)
     return mp;
 }
 
+static const char *
+textClassStr(int class)
+{
+    switch(class)
+	{
+	case PM_TEXT_ONELINE:
+	    return "one line";
+	case PM_TEXT_HELP:
+	    return "help";
+	default:
+	    break;
+	}
+
+    return "unknown";
+}
+ 
+textspec_t *
+walk_text(int mode, int flag, char *which, int dupok)
+{
+    static textspec_t	*tp;
+
+    if (do_walk_text) {
+	if (mode == W_START)
+	    tp = text_root;
+	else
+	    tp = tp->t_next;
+
+	/* Only consider the active specs. */
+	while (tp != NULL && (tp->flags & TEXT_ACTIVE) == 0)
+	    tp = tp->t_next;
+    }
+    else {
+	if (mode == W_START) {
+	    tp = current_textspec;
+	    assert ((tp->flags & TEXT_ACTIVE));
+	}
+	else
+	    tp = NULL;
+    }
+
+    if (tp != NULL) {
+	tp->flags &= ~TEXT_ACTIVE;
+	
+	if (!dupok && (tp->flags & flag)) {
+	    if ((tp->old_type & PM_TEXT_PMID)) {
+		pmsprintf(mess, sizeof(mess), "Duplicate %s clause for %s text for metric %s",
+			  which, textClassStr(tp->old_type), pmIDStr(tp->old_id));
+	    }
+	    else {
+		assert((tp->old_type & PM_TEXT_INDOM));
+		pmsprintf(mess, sizeof(mess), "Duplicate %s clause for %s text for indom %s",
+			  which, textClassStr(tp->old_type), pmInDomStr(tp->old_id));
+	    }
+	    yyerror(mess);
+	}
+	if (flag != TEXT_DELETE) {
+	    if (tp->flags & TEXT_DELETE) {
+		if ((tp->old_type & PM_TEXT_PMID)) {
+		    pmsprintf(mess, sizeof(mess), "Conflicting %s clause for deleted %s text for metric %s",
+			      which, textClassStr(tp->old_type), pmIDStr(tp->old_id));
+		}
+		else {
+		    assert((tp->old_type & PM_TEXT_INDOM));
+		    pmsprintf(mess, sizeof(mess), "Conflicting %s clause for deleted %s text for indom %s",
+			      which, textClassStr(tp->old_type), pmInDomStr(tp->old_id));
+		}
+		yyerror(mess);
+	    }
+	}
+	else {
+	    if (tp->flags & (~TEXT_DELETE)) {
+		if ((tp->old_type & PM_TEXT_PMID)) {
+		    pmsprintf(mess, sizeof(mess), "Conflicting delete and other clauses for %s text for metric %s",
+			      textClassStr(tp->old_type), pmIDStr(tp->old_id));
+		}
+		else {
+		    assert((tp->old_type & PM_TEXT_INDOM));
+		    pmsprintf(mess, sizeof(mess), "Conflicting delete and other clauses for %s text for indom %s",
+			      textClassStr(tp->old_type), pmInDomStr(tp->old_id));
+		}
+		yyerror(mess);
+	    }
+	}
+    }
+
+    return tp;
+}
+
 %}
 
 %union {
@@ -142,6 +233,10 @@ walk_metric(int mode, int flag, char *which, int dupok)
 	TOK_UNITS
 	TOK_OUTPUT
 	TOK_RESCALE
+	TOK_TEXT
+	TOK_ONELINE
+	TOK_HELP
+	TOK_ALL
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -151,7 +246,7 @@ walk_metric(int mode, int flag, char *which, int dupok)
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
 %type<pmid>	pmid_int pmid_or_name
-%type<ival>	signnumber number rescaleopt duplicateopt
+%type<ival>	signnumber number rescaleopt duplicateopt textclass textclasses opttextclasses
 %type<dval>	float
 
 %%
@@ -166,6 +261,7 @@ speclist	: spec
 spec		: globalspec
 		| indomspec
 		| metricspec
+		| textspec
 		;
 
 globalspec	: TOK_GLOBAL TOK_LBRACE globaloptlist TOK_RBRACE
@@ -1049,5 +1145,163 @@ rescaleopt	: TOK_RESCALE { $$ = 1; }
 		    { $$ = 0; }
 		;
 
+textspec	: TOK_TEXT textmetricorindomspec
+		;
+
+textmetricorindomspec	: textmetricspec 
+			| textindomspec
+			;
+
+textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
+		    {
+			__pmContext	*ctxp;
+			__pmHashCtl	*hcp1;
+			__pmHashNode	*node1;
+			int		target_types;
+			int		type;
+			int		class;
+
+			ctxp = __pmHandleToPtr(pmWhichContext());
+			assert(ctxp != NULL);
+    /*
+     * Note: This application is single threaded, and once we have ctxp,
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+			PM_UNLOCK(ctxp->c_lock);
+			hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
+			
+			if ($2 == PM_ID_NULL) {
+			    /* Metric referenced by name is not in the archive */
+			    current_textspec = NULL;
+			    do_walk_text = 0;
+			}
+			else {
+			    int found = 0;
+			    
+			    if (current_star_metric) {
+				/* Set up for metrics specified using globbing. */
+				star_domain = pmID_domain($2);
+				if (current_star_metric == 1)
+				    star_cluster = pmID_cluster($2);
+				else
+				    star_cluster = PM_ID_NULL;
+			    }
+
+			    /* We're looking for text of the specified class(es) for metric(s). */
+			    target_types = PM_TEXT_PMID | $3;
+			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
+				 node1 != NULL;
+				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
+				__pmHashCtl	*hcp2;
+				__pmHashNode	*node2;
+
+				/* Was this object type selected? */
+				type = (int)(node1->key);
+				if ((type & target_types) != type)
+				    continue;
+
+				/*
+				 * Collect the text records associated with the specified
+				 * metric(s).
+				 */
+				hcp2 = (__pmHashCtl *)(node1->data);
+				for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
+				     node2 != NULL;
+				     node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
+				    if (current_star_metric) {
+					/* Match the globbed metric spec and keep looking. */
+					if (pmID_domain((pmID)(node2->key)) == star_domain &&
+					    (star_cluster == PM_ID_NULL ||
+					     star_cluster == pmID_cluster((pmID)(node2->key)))) {
+					    current_textspec = start_text(type, (pmID)(node2->key));
+					    ++found;
+					    if (current_textspec)
+						current_textspec->flags |= TEXT_ACTIVE;
+
+					}
+				    }
+				    else {
+					/* Match the exact metric PMID. */
+					if ((pmID)(node2->key) == $2) {
+					    current_textspec = start_text(type, (pmID)(node2->key));
+					    ++found;
+					    if (current_textspec)
+						current_textspec->flags |= TEXT_ACTIVE;
+					    /*
+					     * Stop looking if we have found all of the specified
+					     * classes.
+					     */
+					    class = type & PM_TEXT_CLASS_MASK;
+					    target_types ^= class;
+					    if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+						break;
+					}
+				    }
+				}
+				if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+				    break;
+			    }
+			    do_walk_text = (found > 1);
+			}
+		    }
+		  TOK_LBRACE opttextmetricoptlist TOK_RBRACE
+		;
+
+opttextclasses	: textclasses 
+		    { $$ = $1; }
+		| /* nothing */
+		    { $$ = PM_TEXT_ONELINE; } /* The default */
+		;
+
+textclasses	: textclass
+		    { $$ = $1; }
+		| textclass textclasses
+		    { $$ = $1 | $2; } /* Accumulate */
+		;
+
+textclass	: TOK_ALL
+		    { $$ = PM_TEXT_ONELINE | PM_TEXT_HELP; }
+		| TOK_HELP
+		    { $$ = PM_TEXT_HELP; }
+		| TOK_ONELINE
+		    { $$ = PM_TEXT_ONELINE; }
+		;
+
+opttextmetricoptlist	: textmetricoptlist
+			| /* nothing */
+			;
+
+textmetricoptlist	: textmetricopt
+			| textmetricopt textmetricoptlist
+			;
+
+textmetricopt	: TOK_DELETE
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_DELETE, "delete", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_DELETE, "delete", 0)) {
+			    tp->flags |= TEXT_DELETE;
+			}
+		    }
+		;
+
+textindomspec	: TOK_INDOM indom_int opttextclasses
+		    {
+		    }
+		  TOK_LBRACE opttextindomoptlist TOK_RBRACE
+		;
+
+opttextindomoptlist	: textindomoptlist
+			| /* nothing */
+			;
+
+textindomoptlist	: textindomopt
+			| textindomopt textindomoptlist
+			;
+
+textindomopt	: TOK_DELETE
+		;
 
 %%
