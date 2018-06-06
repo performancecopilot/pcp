@@ -32,7 +32,14 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 mkdir $tmp
-./mk.logfarm $tmp 2>&1 | _filter
+if mk.logfarm $tmp >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
 
 # create test control file
 #

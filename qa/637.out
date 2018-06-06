@@ -1,10 +1,10 @@
 QA output created by 637
 No rootdir ...
-./mk.logfarm: Error: rootdir (TMP) does not exist
+mk.logfarm: Error: rootdir (TMP) does not exist
 
 Cannot write rootdir ...
-mkdir: cannot create directory ‘TMP/thishost’: Permission denied
-./mk.logfarm: Error: mkdir failed for TMP/thishost
+mkdir: cannot create directory TMP/thishost: Permission denied
+mk.logfarm: Error: mkdir failed for TMP/thishost
 
 OK ...
 TMP/otherhost/20011002.00.10-00.0 TMP/otherhost/20011002.00.10-00.index TMP/otherhost/20011002.00.10-00.meta
