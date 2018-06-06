@@ -1001,14 +1001,16 @@ BAD
 629 pmlogmv pmlogcheck local
 630 other local
 631:retired pmlogrewrite
-632 libpcp local
+632 libpcp pmlogrewrite local
 633 pmlogger local
 634 libirixpmda local pmval timezone
 635 pmda.linux libirixpmda remote
 636 libpcp local
+637 other pmlogmv pmlogrewrite pmdumplog local
 638 pmns local
 639 pmns local
 640 pmpost local
+641 logutil pmdumplog local
 642 pmda.trivial pmns local pmda.simple pmda.sample pmda.sendmail trace
 643 pmda.trivial pmns local
 644 pmns local
@@ -1025,10 +1027,13 @@ BAD
 655 pmda.gfs2 local pmstore
 656 pmda.cifs local valgrind
 657 pmda.dm local
+658 logutil local
+659 pmlogreduce local
 660 pmwebd local
 661 pmwebd local python
 662 pmwebd pmda.sample local python
 663 pmwebd local python
+664 logutil local
 665 pmda.linux local
 666 pmmgr local slow valgrind pmrep python
 667 pcp2graphite python pcp2xxx local

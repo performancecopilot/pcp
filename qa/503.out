@@ -16,7 +16,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 
 !!! global { hostname -> dreaming } !!!
 
@@ -62,7 +62,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -93,7 +93,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -124,7 +124,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -155,7 +155,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -211,7 +211,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -40,7 +40,7 @@
@@ -256,7 +256,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -40,7 +40,7 @@
@@ -301,7 +301,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -40,7 +40,7 @@
@@ -346,7 +346,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.meta
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
-Removing input archive files ... done
+Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
 @@ -40,7 +40,7 @@

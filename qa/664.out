@@ -1,0 +1,86 @@
+QA output created by 664
+
+=== daily maintenance of PCP archives for host thishost ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "thishost"
+... logging for host "thishost" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+
+Input archives to be merged:
+	20011004.01.02
+	20011004.03.04
+	20011004.05.06
+	20011004.05.06-00
+	20011004.07.08
+Output archive files:
+-rw-r--r-- ... 20011004.meta
+-rw-r--r-- ... 20011004.index
+-rw-r--r-- ... 20011004.0
+Removing input archive files ............... done
+link 20011006.00.10.0.xz -> 20011006.0.xz
+link 20011006.00.10.index.xz -> 20011006.index.xz
+link 20011006.00.10.meta.xz -> 20011006.meta.xz
+remove 20011006.00.10.0.xz
+remove 20011006.00.10.index.xz
+remove 20011006.00.10.meta.xz
+pmlogger_daily: [TMP.control:3]
+Warning: current volume of current pmlogger not known, compression skipped
+
+=== daily maintenance of PCP archives for host otherhost ===
+
+pmlogger_daily: [TMP.control:4]
+Error: no pmlogger instance running for host "otherhost"
+... logging for host "otherhost" unchanged
+pmlogger_daily: [TMP.control:4]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+
+Input archives to be merged:
+	20011002.00.10
+	20011002.00.10-00
+	20011002.02.03
+	20011002.03.04
+Output archive files:
+-rw-r--r-- ... 20011002.meta
+-rw-r--r-- ... 20011002.index
+-rw-r--r-- ... 20011002.0
+Removing input archive files ............ done
+link 20011003.00.10.0.xz -> 20011003.0.xz
+link 20011003.00.10.index.xz -> 20011003.index.xz
+link 20011003.00.10.meta.xz -> 20011003.meta.xz
+remove 20011003.00.10.0.xz
+remove 20011003.00.10.index.xz
+remove 20011003.00.10.meta.xz
+link 20011005.00.10.0.xz -> 20011005.0.xz
+link 20011005.00.10.index.xz -> 20011005.index.xz
+link 20011005.00.10.meta.xz -> 20011005.meta.xz
+remove 20011005.00.10.0.xz
+remove 20011005.00.10.index.xz
+remove 20011005.00.10.meta.xz
+pmlogger_daily: [TMP.control:4]
+Warning: current volume of current pmlogger not known, compression skipped
+
+And the smouldering ruins ...
+TMP/otherhost/20011002.0 TMP/otherhost/20011002.index TMP/otherhost/20011002.meta
+    commencing Mon Oct  1 23:10:00.257504 2001
+TMP/otherhost/20011003.0.xz TMP/otherhost/20011003.index.xz TMP/otherhost/20011003.meta.xz
+    commencing Tue Oct  2 23:10:00.257504 2001
+TMP/otherhost/20011004.0.xz TMP/otherhost/20011004.index.xz TMP/otherhost/20011004.meta.xz
+    commencing Wed Oct  3 23:00:00.257504 2001
+TMP/otherhost/20011005.0.xz TMP/otherhost/20011005.index.xz TMP/otherhost/20011005.meta.xz
+    commencing Thu Oct  4 23:10:00.257504 2001
+TMP/otherhost/20011006.0.xz TMP/otherhost/20011006.index.xz TMP/otherhost/20011006.meta.xz
+    commencing Fri Oct  5 23:00:00.257504 2001
+TMP/thishost/20011002.0.xz TMP/thishost/20011002.index.xz TMP/thishost/20011002.meta.xz
+    commencing Tue Oct  2 00:00:00.586568 2001
+TMP/thishost/20011003.0.xz TMP/thishost/20011003.index.xz TMP/thishost/20011003.meta.xz
+    commencing Wed Oct  3 00:00:00.586568 2001
+TMP/thishost/20011004.0 TMP/thishost/20011004.index TMP/thishost/20011004.meta
+    commencing Thu Oct  4 01:02:00.586568 2001
+TMP/thishost/20011005.0.xz TMP/thishost/20011005.index.xz TMP/thishost/20011005.meta.xz
+    commencing Fri Oct  5 00:00:00.586568 2001
+TMP/thishost/20011006.0.xz TMP/thishost/20011006.index.xz TMP/thishost/20011006.meta.xz
+    commencing Sat Oct  6 00:10:00.586568 2001
+TMP/thishost/20011007.0.xz TMP/thishost/20011007.index.xz TMP/thishost/20011007.meta.xz
+    commencing Sun Oct  7 00:00:00.586568 2001
