@@ -69,7 +69,7 @@ Output archive files:
 ... ls details ... 19970709.meta
 ... ls details ... 19970709.index
 ... ls details ... 19970709.0
-Removing input archive files ... done
+Removing input archive files ............ done
 
 === files after ===
 19970709.0

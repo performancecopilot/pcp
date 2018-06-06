@@ -18,7 +18,7 @@ Output archive files:
 -rw-r--r-- ... 20011004.meta
 -rw-r--r-- ... 20011004.index
 -rw-r--r-- ... 20011004.0
-Removing input archive files ... done
+Removing input archive files ............... done
 link 20011006.00.10.0 -> 20011006.0
 link 20011006.00.10.index -> 20011006.index
 link 20011006.00.10.meta -> 20011006.meta
@@ -45,7 +45,7 @@ Output archive files:
 -rw-r--r-- ... 20011002.meta
 -rw-r--r-- ... 20011002.index
 -rw-r--r-- ... 20011002.0
-Removing input archive files ... done
+Removing input archive files ............ done
 link 20011003.00.10.0 -> 20011003.0
 link 20011003.00.10.index -> 20011003.index
 link 20011003.00.10.meta -> 20011003.meta
