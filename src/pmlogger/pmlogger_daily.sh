@@ -1295,20 +1295,41 @@ p
 		    then
 			# don't compress current volume (or later ones, if
 			# pmlogger has moved onto a new volume since
-			# $current_vol was determined)
+			# $current_vol was determined), and don't compress
+			# either the current index or the current metadata
+			# files
 			#
 			$VERY_VERBOSE && echo "[$filename:$line] skip current vol $current_base.$current_vol" >&2
 			rm -f $tmp/out
 			touch $tmp/out
-			sed <$tmp/list -e 's/\.\([0-9][0-9]*\)$/ \1/' \
-			| while read base vol
+			# need to handle both the year 2000 and the old name
+			# formats, the ...DDMM and ...DDMM.HH.MM, and the
+			# ...DDMM.HH.MM-seq# variants to get the base name
+			# separated from the other part of the file name, but
+			# on the upside compressed file names were stripped out
+			# above by the egrep -v "$COMPRESSREGEX"
+			#
+			sed -n <$tmp/list \
+			    -e '/\./s/\.\([^.][^.]*\)$/ \1/p' \
+			| while read base other
 			do
 			    if [ "$base" != "$current_base" ]
 			    then
-				echo "$base.$vol" >>$tmp/out
-			    elif [ "$vol" -lt "$current_vol" ]
-			    then
-				echo "$base.$vol" >>$tmp/out
+				echo "$base.$other" >>$tmp/out
+			    else
+				case "$other"
+				in
+				    .index*|.meta*)
+					# don't do these ones
+					;;
+				    [0-9]*)
+				    	# data volume
+					if [ "$other" -lt "$current_vol" ]
+					then
+					    echo "$base.$other" >>$tmp/out
+					fi
+					;;
+				esac
 			    fi
 			done
 			mv $tmp/out $tmp/list
