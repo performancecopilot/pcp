@@ -2,7 +2,44 @@ QA output created by 626
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 diffs ... expect 20180311 and 20180312 archives to be merged
-31,130c31,36
+3c3
+< TMP/20180225.meta
+---
+> TMP/20180225.meta.compressed
+6c6
+< TMP/20180226.meta
+---
+> TMP/20180226.meta.compressed
+9c9
+< TMP/20180227.meta
+---
+> TMP/20180227.meta.compressed
+12c12
+< TMP/20180301.meta
+---
+> TMP/20180301.meta.compressed
+15c15
+< TMP/20180302.meta
+---
+> TMP/20180302.meta.compressed
+18c18
+< TMP/20180303.meta
+---
+> TMP/20180303.meta.compressed
+21c21
+< TMP/20180304.meta
+---
+> TMP/20180304.meta.compressed
+24c24
+< TMP/20180306.meta
+---
+> TMP/20180306.meta.compressed
+27c27
+< TMP/20180307.meta
+---
+> TMP/20180307.meta.compressed
+30,130c30,36
+< TMP/20180308.meta
 < TMP/20180311.00.10.0.compressed
 < TMP/20180311.00.10.index
 < TMP/20180311.00.10.meta
@@ -104,9 +141,10 @@ diffs ... expect 20180311 and 20180312 archives to be merged
 < TMP/20180312.08.45.index
 < TMP/20180312.08.45.meta
 ---
+> TMP/20180308.meta.compressed
 > TMP/20180311.0.compressed
 > TMP/20180311.index
-> TMP/20180311.meta
+> TMP/20180311.meta.compressed
 > TMP/20180312.0.compressed
 > TMP/20180312.index
-> TMP/20180312.meta
+> TMP/20180312.meta.compressed
