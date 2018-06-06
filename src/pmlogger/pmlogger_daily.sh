@@ -100,7 +100,7 @@ then
 fi
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
-COMPRESSREGEX_DEFAULT="\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #
@@ -991,22 +991,23 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    # of these up) in case the base YYYYMMDD.HH.MM archive is for some
 	    # reason missing here
 	    #
-	    # Assume if .meta file is present then other archive components are
-	    # also present (if not the case it is a serious process botch, and
-	    # pmlogger_merge will fail below)
+	    # Assume if the .meta or .meta.* file is present then other
+	    # archive components are also present (if not the case it
+	    # is a serious process botch, and pmlogger_merge will fail below)
 	    #
 	    # Find all candidate input archives, remove any that contain today's
 	    # date and group the remainder by date.
 	    #
 	    TODAY=`date +%Y%m%d`
 
-	    find *.meta \
-		 \( -name "*.[0-2][0-9].[0-5][0-9].meta" \
-		    -o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta" \
+	    find *.meta* \
+		 \( -name "*.[0-2][0-9].[0-5][0-9].meta*" \
+		    -o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta*" \
 		 \) \
 		 -print 2>/dev/null \
 	    | sed \
 		-e "/^$TODAY\./d" \
+		-e 's/\.meta\..*//' \
 		-e 's/\.meta//' \
 	    | sort -n \
 	    | $PCP_AWK_PROG '
