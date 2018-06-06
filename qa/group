@@ -1033,6 +1033,7 @@ BAD
 661 pmwebd local python
 662 pmwebd pmda.sample local python
 663 pmwebd local python
+664 logutil local
 665 pmda.linux local
 666 pmmgr local slow valgrind pmrep python
 667 pcp2graphite python pcp2xxx local

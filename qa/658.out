@@ -1,0 +1,88 @@
+QA output created by 658
+
+=== daily maintenance of PCP archives for host thishost ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "thishost"
+... logging for host "thishost" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+
+Input archives to be merged:
+	20011004.01.02
+	20011004.03.04
+	20011004.05.06
+	20011004.05.06-00
+	20011004.07.08
+Output archive files:
+-rw-r--r-- ... 20011004.meta
+-rw-r--r-- ... 20011004.index
+-rw-r--r-- ... 20011004.0
+Removing input archive files ............... done
+link 20011006.00.10.0 -> 20011006.0
+link 20011006.00.10.index -> 20011006.index
+link 20011006.00.10.meta -> 20011006.meta
+remove 20011006.00.10.0
+remove 20011006.00.10.index
+remove 20011006.00.10.meta
+Archive files being compressed ...
+    20011002.0 20011002.meta 20011003.0 20011003.meta 20011004.0 20011004.meta
+    20011005.0 20011005.meta 20011006.0 20011006.meta 20011007.0 20011007.meta
+
+=== daily maintenance of PCP archives for host otherhost ===
+
+pmlogger_daily: [TMP.control:4]
+Error: no pmlogger instance running for host "otherhost"
+... logging for host "otherhost" unchanged
+pmlogger_daily: [TMP.control:4]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+
+Input archives to be merged:
+	20011002.00.10
+	20011002.00.10-00
+	20011002.02.03
+	20011002.03.04
+Output archive files:
+-rw-r--r-- ... 20011002.meta
+-rw-r--r-- ... 20011002.index
+-rw-r--r-- ... 20011002.0
+Removing input archive files ............ done
+link 20011003.00.10.0 -> 20011003.0
+link 20011003.00.10.index -> 20011003.index
+link 20011003.00.10.meta -> 20011003.meta
+remove 20011003.00.10.0
+remove 20011003.00.10.index
+remove 20011003.00.10.meta
+link 20011005.00.10.0 -> 20011005.0
+link 20011005.00.10.index -> 20011005.index
+link 20011005.00.10.meta -> 20011005.meta
+remove 20011005.00.10.0
+remove 20011005.00.10.index
+remove 20011005.00.10.meta
+Archive files being compressed ...
+    20011002.0 20011002.meta 20011003.0 20011003.meta 20011004.0 20011004.meta
+    20011005.0 20011005.meta 20011006.0 20011006.meta
+
+And the smouldering ruins ...
+TMP/otherhost/20011002.0.SUFF TMP/otherhost/20011002.index TMP/otherhost/20011002.meta.SUFF
+    commencing Mon Oct  1 23:10:00.257504 2001
+TMP/otherhost/20011003.0.SUFF TMP/otherhost/20011003.index TMP/otherhost/20011003.meta.SUFF
+    commencing Tue Oct  2 23:10:00.257504 2001
+TMP/otherhost/20011004.0.SUFF TMP/otherhost/20011004.index TMP/otherhost/20011004.meta.SUFF
+    commencing Wed Oct  3 23:00:00.257504 2001
+TMP/otherhost/20011005.0.SUFF TMP/otherhost/20011005.index TMP/otherhost/20011005.meta.SUFF
+    commencing Thu Oct  4 23:10:00.257504 2001
+TMP/otherhost/20011006.0.SUFF TMP/otherhost/20011006.index TMP/otherhost/20011006.meta.SUFF
+    commencing Fri Oct  5 23:00:00.257504 2001
+TMP/thishost/20011002.0.SUFF TMP/thishost/20011002.index TMP/thishost/20011002.meta.SUFF
+    commencing Tue Oct  2 00:00:00.586568 2001
+TMP/thishost/20011003.0.SUFF TMP/thishost/20011003.index TMP/thishost/20011003.meta.SUFF
+    commencing Wed Oct  3 00:00:00.586568 2001
+TMP/thishost/20011004.0.SUFF TMP/thishost/20011004.index TMP/thishost/20011004.meta.SUFF
+    commencing Thu Oct  4 01:02:00.586568 2001
+TMP/thishost/20011005.0.SUFF TMP/thishost/20011005.index TMP/thishost/20011005.meta.SUFF
+    commencing Fri Oct  5 00:00:00.586568 2001
+TMP/thishost/20011006.0.SUFF TMP/thishost/20011006.index TMP/thishost/20011006.meta.SUFF
+    commencing Sat Oct  6 00:10:00.586568 2001
+TMP/thishost/20011007.0.SUFF TMP/thishost/20011007.index TMP/thishost/20011007.meta.SUFF
+    commencing Sun Oct  7 00:00:00.586568 2001
