@@ -1490,6 +1490,7 @@ BAD
 1152 pmda.bcc local python
 1153 pmda.bcc local python
 1154 pmda.bcc local python
+1155 pmda.bcc local python
 1159 pmlogger local pmdumplog
 1164 pmda.linux local
 1166 libpcp local
