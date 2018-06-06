@@ -570,6 +570,14 @@ pmdaSetFlags(pmdaInterface *dispatch, int flags)
     pmdaExtSetFlags(dispatch->version.any.ext, flags);
 }
 
+void
+pmdaSetCommFlags(pmdaInterface *dispatch, int flags)
+{
+    if (pmDebugOptions.libpmda)
+	pmNotifyErr(LOG_DEBUG, "pmdaSetCommFlags: flags=%x", flags);
+    dispatch->comm.flags |= flags;
+}
+
 /*
  * Open the help text file, check for direct mapping into the metric table
  * and whether a hash mapping has been requested.

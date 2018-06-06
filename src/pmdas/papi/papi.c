@@ -15,8 +15,8 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "pmda.h"
+#include "libpcp.h"
 #include "domain.h"
 #include <papi.h>
 #include <assert.h>
@@ -68,15 +68,15 @@ static int isDSO = 1; /* == 0 if I am a daemon */
 static int EventSet = PAPI_NULL;
 static long_long *values;
 struct uid_tuple {
-    int uid_flag; /* uid attribute received. */
-    int uid; /* uid received from PCP_ATTR_* */
+    int uid_flag; /* user ID attribute received */
+    int uid; /* user ID via PMDA_ATTR_USERID */
 }; 
 static struct uid_tuple *ctxtab;
 static int ctxtab_size;
 static int number_of_counters; // XXX: collapse into number_of_events
 static char papi_version[15];
 static unsigned int size_of_active_counters; // XXX: eliminate
-static __pmnsTree *papi_tree;
+static pmdaNameSpace *papi_tree;
 
 static int refresh_metrics(int);
 static void auto_enable_expiry_cb(int, void *);
@@ -742,7 +742,7 @@ papi_internal_init(pmdaInterface *dp)
 	return PM_ERR_GENERIC;
     }
 
-    if ((sts = __pmNewPMNS(&papi_tree)) < 0) {
+    if ((sts = pmdaTreeCreate(&papi_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s failed to create dynamic papi pmns: %s\n",
 		      pmGetProgname(), pmErrStr(sts));
 	papi_tree = NULL;
@@ -775,7 +775,7 @@ papi_internal_init(pmdaInterface *dp)
 		pmsprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
 		pmid = pmID_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
-		__pmAddPMNSNode(papi_tree, pmid, entry);
+		pmdaTreeInsert(papi_tree, pmid, entry);
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
 		papi_info[i].metric_enabled = 0;
@@ -836,7 +836,7 @@ papi_internal_init(pmdaInterface *dp)
 		pmsprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
 		pmid = pmID_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
-		__pmAddPMNSNode(papi_tree, pmid, entry);
+		pmdaTreeInsert(papi_tree, pmid, entry);
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
 		papi_info[i].metric_enabled = 0;
@@ -877,7 +877,7 @@ papi_contextAttributeCallBack(int context, int attr,
     enlarge_ctxtab(context);
     assert(ctxtab != NULL && context < ctxtab_size);
 
-    if (attr != PCP_ATTR_USERID)
+    if (attr != PMDA_ATTR_USERID)
 	return 0;
 
     ctxtab[context].uid_flag = 1;
@@ -910,7 +910,7 @@ papi_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->comm.flags |= PDU_FLAG_AUTH;
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE);
 
     if ((sts = papi_internal_init(dp)) < 0) {
 	pmNotifyErr(LOG_ERR, "papi_internal_init: %s\n", pmErrStr(sts));

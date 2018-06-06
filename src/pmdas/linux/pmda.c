@@ -5630,8 +5630,8 @@ static pmdaMetric metrictab[] = {
 };
 
 typedef struct {
-    int uid_flag; /* uid attribute received */
-    int uid;     /* uid receieved from PCP_ATTR_* */
+    int			uid_flag;	/* uid attribute received */
+    int			uid;		/* uid via PMDA_ATTR_USERID */
 } linux_access_t;
 
 typedef struct {
@@ -8107,15 +8107,15 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
     int		id = -1;
 
-    if (attr == PCP_ATTR_USERID || attr == PCP_ATTR_CONTAINER ) {
+    if (attr == PMDA_ATTR_USERID || attr == PMDA_ATTR_CONTAINER ) {
 	if (ctx >= num_ctx)
 	    linux_grow_ctxtab(ctx);
     }
-    if (attr == PCP_ATTR_USERID) {
+    if (attr == PMDA_ATTR_USERID) {
 	ctxtab[ctx].access.uid_flag = 1;
 	ctxtab[ctx].access.uid = id = atoi(value);
     }
-    if (attr == PCP_ATTR_CONTAINER) {
+    if (attr == PMDA_ATTR_CONTAINER) {
 	char	*name = len > 1 ? strndup(value, len) : 0;
 
 	if (ctxtab[ctx].container.name)
@@ -8394,7 +8394,8 @@ linux_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
+
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE|PMDA_FLAG_CONTAINER);
 
     dp->version.seven.instance = linux_instance;
     dp->version.seven.fetch = linux_fetch;

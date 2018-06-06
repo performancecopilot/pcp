@@ -44,8 +44,8 @@ static interrupt_t *softirqs;
 
 static unsigned int refresh_interrupt_count;
 static unsigned int refresh_softirqs_count;
-static __pmnsTree *interrupt_tree;
-static __pmnsTree *softirqs_tree;
+static pmdaNameSpace *interrupt_tree;
+static pmdaNameSpace *softirqs_tree;
 unsigned int irq_err_count;
 
 /*
@@ -135,7 +135,7 @@ update_lines_pmns(int domain, unsigned int item, unsigned int id)
     pmID pmid = pmID_build(domain, CLUSTER_INTERRUPT_LINES, item);
 
     pmsprintf(entry, sizeof(entry), "kernel.percpu.interrupts.line%d", id);
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
 }
 
 static void
@@ -146,10 +146,10 @@ update_other_pmns(int domain, const char *name)
     pmID pmid = pmID_build(domain, CLUSTER_INTERRUPT_OTHER, item);
 
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", name);
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
 }
 
-static __pmnsTree *
+static pmdaNameSpace *
 noop_interrupts_pmns(int domain)
 {
     char entry[128];
@@ -157,10 +157,10 @@ noop_interrupts_pmns(int domain)
 
     pmid = pmID_build(domain, CLUSTER_INTERRUPT_LINES, 0);
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "line");
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
     pmid = pmID_build(domain, CLUSTER_INTERRUPT_OTHER, 0);
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "none");
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
 
     pmdaTreeRebuildHash(interrupt_tree, 2);
     return interrupt_tree;
@@ -174,17 +174,17 @@ update_softirqs_pmns(int domain, const char *name)
     pmID pmid = pmID_build(domain, CLUSTER_SOFTIRQS, item);
 
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", name);
-    __pmAddPMNSNode(softirqs_tree, pmid, entry);
+    pmdaTreeInsert(softirqs_tree, pmid, entry);
 }
 
-static __pmnsTree *
+static pmdaNameSpace *
 noop_softirqs_pmns(int domain)
 {
     char entry[128];
     pmID pmid = pmID_build(domain, CLUSTER_SOFTIRQS, 0);
 
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", "none");
-    __pmAddPMNSNode(softirqs_tree, pmid, entry);
+    pmdaTreeInsert(softirqs_tree, pmid, entry);
     pmdaTreeRebuildHash(softirqs_tree, 1);
     return softirqs_tree;
 }
@@ -482,13 +482,13 @@ refresh_softirqs_values(void)
 }
 
 static int
-refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
+refresh_interrupts(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int i, sts, dom = pmda->e_domain;
 
     if (interrupt_tree) {
 	*tree = interrupt_tree;
-    } else if ((sts = __pmNewPMNS(&interrupt_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&interrupt_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create interrupt names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
@@ -515,13 +515,13 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 }
 
 static int
-refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
+refresh_softirqs(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int i, sts, dom = pmda->e_domain;
 
     if (softirqs_tree) {
 	*tree = softirqs_tree;
-    } else if ((sts = __pmNewPMNS(&softirqs_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&softirqs_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create softirqs names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;

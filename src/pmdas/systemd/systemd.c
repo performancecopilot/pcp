@@ -47,13 +47,13 @@ static int queue_entries = -1;
 static char *username = "adm";
 
 
-/* Track per-context PCP_ATTR_USERID | _GROUPID, so we
+/* Track per-context PMDA_ATTR_USERID|GROUPID, so we
    can filter event records for that context. */
 static int uid_gid_filter_p = 1;
 struct uid_gid_tuple {
     char wildcard_p; /* do not filter for this context. */
     char uid_p; char gid_p; /* uid/gid received flags. */
-    int uid; int gid; }; /* uid/gid received from PCP_ATTR_* */
+    int uid; int gid; }; /* uid/gid received from attributes callback */
 static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
 
@@ -497,11 +497,11 @@ systemd_contextAttributeCallBack(int context,
 
     /* NB: we maintain separate uid_p and gid_p for filtering
        purposes; it's possible that a pcp client might send only
-       PCP_ATTR_USERID, leaving gid=0, possibly leading us to
+       PMDA_ATTR_USERID, leaving gid=0, possibly leading us to
        misinterpret that as GROUPID=0 (root) and sending back _GID=0
        records. */
     switch (attr) {
-    case PCP_ATTR_USERID:
+    case PMDA_ATTR_USERID:
         ctxtab[context].uid_p = 1;
         id = atoi(value);
         ctxtab[context].uid = id;
@@ -509,7 +509,7 @@ systemd_contextAttributeCallBack(int context,
             ctxtab[context].wildcard_p = 1;
         break;
 
-    case PCP_ATTR_GROUPID:
+    case PMDA_ATTR_GROUPID:
         ctxtab[context].gid_p = 1;
         id = atoi(value);
         ctxtab[context].gid = id;
@@ -775,7 +775,7 @@ main(int argc, char **argv)
     /* The systemwide journal may be accessed by the adm user (group);
        root access is not necessary. */
     pmSetProcessIdentity(username);
-    desc.comm.flags |= PDU_FLAG_AUTH;
+    pmdaSetCommFlags(&desc, PMDA_FLAG_AUTHORIZE);
     pmdaConnect(&desc);
     // After this point, systemd_init is allowed to take some extra time.
     systemd_init(&desc); // sets some fds

@@ -150,5 +150,3 @@ pmda.o proc_zoneinfo.o:	proc_zoneinfo.h
 pmda.o ksm.o:	ksm.h
 pmda.o proc_fs_nfsd.o:	proc_fs_nfsd.h
 pmda.o:	$(VERSION_SCRIPT)
-
-$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h

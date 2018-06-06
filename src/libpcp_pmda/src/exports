@@ -171,3 +171,11 @@ PCP_PMDA_3.8 {
   global:
     pmdaSendError;
 } PCP_PMDA_3.7;
+
+PCP_PMDA_3.9 {
+  global:
+    pmdaSetCommFlags;
+    pmdaTreeCreate;
+    pmdaTreeInsert;
+    pmdaTreeRelease;
+} PCP_PMDA_3.8;

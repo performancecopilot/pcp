@@ -3494,7 +3494,7 @@ proc_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE | PMDA_FLAG_CONTAINER);
 
     dp->version.seven.instance = proc_instance;
     dp->version.seven.store = proc_store;

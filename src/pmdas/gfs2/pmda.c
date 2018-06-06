@@ -973,21 +973,21 @@ gfs2_text(int ident, int type, char **buf, pmdaExt *pmda)
 static int
 gfs2_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
+    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     return pmdaTreePMID(tree, name, pmid);
 }
 
 static int
 gfs2_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmnsTree *tree = pmdaDynamicLookupPMID(pmda, pmid);
+    pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
     return pmdaTreeName(tree, pmid, nameset);
 }
 
 static int
 gfs2_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
-    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
+    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 

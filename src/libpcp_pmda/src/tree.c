@@ -311,3 +311,25 @@ pmdaTreeChildren(__pmnsTree *pmns, const char *name, int traverse, char ***offsp
 	sts = __pmdaNodeAbsoluteChildren(node, offspring, status);
     return sts;
 }
+
+/*
+ * Direct wrappers for PMDAs working with namespaces,
+ * so that they do not need to peek inside <libpcp.h>
+ */
+int
+pmdaTreeCreate(__pmnsTree **pmns)
+{
+    return __pmNewPMNS(pmns);
+}
+
+int
+pmdaTreeInsert(__pmnsTree *tree, pmID pmid, const char *name)
+{
+    return __pmAddPMNSNode(tree, pmid, name);
+}
+
+void
+pmdaTreeRelease(__pmnsTree *tree)
+{
+    __pmFreePMNS(tree);
+}

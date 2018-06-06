@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "deprecated.h"
 #include "pmda.h"
 #include "stats.h"
@@ -1930,7 +1929,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		     * pmcd can then inform all PMDAs about the change,
 		     * including pmdapmcd, via the attribute callback.
 		     */
-		    SetClientAttribute(this_client_id, PCP_ATTR_CONTAINER, cp);
+		    SetClientAttribute(this_client_id, PMDA_ATTR_CONTAINER, cp);
 		}
 	    }
 	    else {
@@ -1953,7 +1952,7 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
     if (ctx >= num_ctx)
 	grow_ctxtab(ctx);
-    if (attr == PCP_ATTR_CONTAINER) {
+    if (attr == PMDA_ATTR_CONTAINER) {
 	char	*name = len > 1 ? strndup(value, len) : NULL;
 
 	ctxtab[ctx].id = this_client_id;
@@ -1978,7 +1977,7 @@ pmcd_init(pmdaInterface *dp)
     pmsprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_6, "pmcd", helppath);
-    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE | PMDA_FLAG_CONTAINER);
 
     dp->version.six.profile = pmcd_profile;
     dp->version.six.fetch = pmcd_fetch;

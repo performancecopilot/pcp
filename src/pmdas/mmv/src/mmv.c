@@ -57,7 +57,7 @@ static int mtot;
 static pmdaIndom * indoms;
 static int intot;
 
-static __pmnsTree * pmns;
+static pmdaNameSpace * pmns;
 static int reload;			/* require reload of maps */
 static int notify;			/* notify pmcd of changes */
 static int statsdir_code;		/* last statsdir stat code */
@@ -322,7 +322,7 @@ create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
 			mtot, name, pmIDStr(pmid), s->name);
 
     mtot++;
-    __pmAddPMNSNode(pmns, pmid, name);
+    pmdaTreeInsert(pmns, pmid, name);
 
     return 0;
 }
@@ -490,11 +490,11 @@ map_stats(pmdaExt *pmda)
     int sep = pmPathSeparator();
 
     if (pmns) {
-	__pmFreePMNS(pmns);
+	pmdaTreeRelease(pmns);
 	notify |= PMDA_EXT_NAMES_CHANGE;
     }
 
-    if ((sts = __pmNewPMNS(&pmns)) < 0) {
+    if ((sts = pmdaTreeCreate(&pmns)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	pmns = NULL;
@@ -503,11 +503,11 @@ map_stats(pmdaExt *pmda)
 
     /* hard-coded metrics (not from mmap'd files) */
     pmsprintf(name, sizeof(name), "%s.control.reload", prefix);
-    __pmAddPMNSNode(pmns, pmID_build(pmda->e_domain, 0, 0), name);
+    pmdaTreeInsert(pmns, pmID_build(pmda->e_domain, 0, 0), name);
     pmsprintf(name, sizeof(name), "%s.control.debug", prefix);
-    __pmAddPMNSNode(pmns, pmID_build(pmda->e_domain, 0, 1), name);
+    pmdaTreeInsert(pmns, pmID_build(pmda->e_domain, 0, 1), name);
     pmsprintf(name, sizeof(name), "%s.control.files", prefix);
-    __pmAddPMNSNode(pmns, pmID_build(pmda->e_domain, 0, 2), name);
+    pmdaTreeInsert(pmns, pmID_build(pmda->e_domain, 0, 2), name);
     mtot = 3;
 
     if (indoms != NULL) {

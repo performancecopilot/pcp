@@ -14,6 +14,7 @@
 #include "linux.h"
 #include "pmdaroot.h"
 #include "namespaces.h"
+#include <sched.h>
 
 #if defined(HAVE_SETNS)
 

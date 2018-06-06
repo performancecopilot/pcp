@@ -99,6 +99,7 @@ usr/share/man/man3/pmdaRootShutdown.3.gz
 usr/share/man/man3/pmdasenderror.3.gz
 usr/share/man/man3/pmdaSendError.3.gz
 usr/share/man/man3/pmdaSetCheckCallBack.3.gz
+usr/share/man/man3/pmdaSetCommFlags.3.gz
 usr/share/man/man3/pmdaSetDoneCallBack.3.gz
 usr/share/man/man3/pmdaSetEndContextCallBack.3.gz
 usr/share/man/man3/pmdaSetFetchCallBack.3.gz

@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "pmda.h"
 #include "contexts.h"
 
@@ -107,13 +106,13 @@ proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 	return sts;
 
     switch (attr) {
-    case PCP_ATTR_USERID:
+    case PMDA_ATTR_USERID:
 	proc_ctx_set_userid(ctx, value);
 	break;
-    case PCP_ATTR_GROUPID:
+    case PMDA_ATTR_GROUPID:
 	proc_ctx_set_groupid(ctx, value);
 	break;
-    case PCP_ATTR_CONTAINER:
+    case PMDA_ATTR_CONTAINER:
 	proc_ctx_set_container(ctx, value, length);
 	break;
     default:

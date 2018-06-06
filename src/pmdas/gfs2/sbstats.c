@@ -166,28 +166,28 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 }
 
 static void
-add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
+add_pmns_node(pmdaNameSpace *tree, int domain, int cluster, int lock, int stat)
 {
     char entry[64];
     pmID pmid = pmID_build(domain, cluster, (lock * NUM_LOCKSTATS) + stat);
 
     pmsprintf(entry, sizeof(entry),
 	     "gfs2.sbstats.%s.%s", locktype[lock], stattype[stat]);
-    __pmAddPMNSNode(tree, pmid, entry);
+    pmdaTreeInsert(tree, pmid, entry);
 
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 sbstats added %s (%s)", entry, pmIDStr(pmid));
 }
 
 static int
-refresh_sbstats(pmdaExt *pmda, __pmnsTree **tree)
+refresh_sbstats(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int t, s, sts;
-    static __pmnsTree *sbstats_tree;
+    static pmdaNameSpace *sbstats_tree;
 
     if (sbstats_tree) {
 	*tree = sbstats_tree;
-    } else if ((sts = __pmNewPMNS(&sbstats_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&sbstats_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create sbstats names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;

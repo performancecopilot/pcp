@@ -28,7 +28,7 @@ typedef struct {
     char    *name;
 } dynproc_metric_t;
 
-static __pmnsTree *dynamic_proc_tree;
+static pmdaNameSpace *dynamic_proc_tree;
 
 enum {
     DYNPROC_GROUP_PSINFO = 0,
@@ -311,7 +311,7 @@ build_dynamic_proc_tree(int domain)
 		    cluster = get_hot_cluster(cluster);
 
 		pmid = pmID_build(domain, cluster, item);
-		__pmAddPMNSNode(dynamic_proc_tree, pmid, entry);
+		pmdaTreeInsert(dynamic_proc_tree, pmid, entry);
 
 		num_hash_entries++;
 	    }
@@ -373,18 +373,18 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
  *
  */
 static int
-refresh_dynamic_proc(pmdaExt *pmda, __pmnsTree **tree)
+refresh_dynamic_proc(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int sts, dom = pmda->e_domain;
 
     if (dynamic_proc_tree) {
         *tree = dynamic_proc_tree;
-    } else if ((sts = __pmNewPMNS(&dynamic_proc_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&dynamic_proc_tree)) < 0) {
         pmNotifyErr(LOG_ERR, "%s: failed to create dynamic_proc names: %s\n",
                         pmGetProgname(), pmErrStr(sts));
         *tree = NULL;
     } else {
-	/* Call something that constructs the PMNS by multiple calls to __pmAddPMNSNode */
+	/* Construct the PMNS by multiple calls to pmdaTreeInsert */
 	build_dynamic_proc_tree(dom);
 	*tree = dynamic_proc_tree;
 	/* Only return 1 if we are building the pmns */
