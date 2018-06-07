@@ -5,7 +5,5 @@
 [fs]
 width = 6
 label = filesystem
-f = files
-f.formula = vfs.files.count
-i = inodes
-i.formula = vfs.inodes.count - vfs.inodes.free
+files = vfs.files.count
+inodes = vfs.inodes.count - vfs.inodes.free

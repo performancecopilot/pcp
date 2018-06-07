@@ -54,6 +54,12 @@ do
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
+	folio)		# executable might be pmafm or mkaf
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"_=](pmafm|mkaf)([ '\"_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
 	collectl)	# executable might be collectl2pcp or pmcollectl or
 			# pcp collectl
 	    ( grep -v '^#' $seq \

@@ -5,5 +5,4 @@
 [redis]
 width = 7
 colorstep = 10000
-tps = tps
-tps.formula = redis.instantaneous_ops_per_sec
+tps = redis.instantaneous_ops_per_sec

@@ -27,7 +27,7 @@ from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64
 from cpmapi import PM_TYPE_DOUBLE, PM_TYPE_FLOAT
-from cpmapi import PM_ERR_EOL, PM_DEBUG_APPL1, pmUsageMessage
+from cpmapi import PM_ERR_EOL, PM_IN_NULL, pmUsageMessage
 
 if sys.version >= '3':
     long = int
@@ -231,10 +231,10 @@ class DstatPlugin(object):
         self.formula = None
         self.printtype = None
         self.colorstep = None
-        self.metrics = []  # TODO: unused?
-        self.names = []
+        self.metrics = []   # list of all metrics (states) for plugin
+        self.names = []     # list of all column names for the plugin
 
-    def apply(self, metric, label):
+    def apply(self, metric):
         """ Apply default pmConfig list values where none exist as yet
             The indices are based on the extended pmConfig.metricspec.
             Note: we keep the plugin name for doing reverse DstatPlugin
@@ -252,8 +252,7 @@ class DstatPlugin(object):
             metric[9] = self.printtype
         if metric[10] == None:
             metric[10] = self.colorstep
-        metric[11] = self
-        self.names.append(label)
+        metric[11] = self   # back-pointer to this from metric dict
 
     def statwidth(self):
         "Return complete width for this plugin"
@@ -656,6 +655,7 @@ class DstatTool(object):
         self.precision = 5 # .5f
         self.timefmt = self.TIMEFMT
         self.interpol = 0
+        self.leaf_only = True
 
         # Internal
         self.missed = 0
@@ -720,9 +720,17 @@ class DstatTool(object):
         if not operands:
             operands = []
         if len(operands) > 0:
-            self.delay = float(operands[0])
+            try:
+                self.delay = float(operands[0])
+            except Exception as e:
+                sys.stderr.write("Invalid sample delay '%s'\n" % operands[0])
+                sys.exit(1)
         if len(operands) > 1:
-            self.samples = int(operands[1])
+            try:
+                self.samples = int(operands[1])
+            except Exception as e:
+                sys.stderr.write("Invalid sample count '%s'\n" % operands[1])
+                sys.exit(1)
         if len(operands) > 2:
             sys.stderr.write("Incorrect argument list, try --help\n")
             sys.exit(1)
@@ -780,7 +788,7 @@ class DstatTool(object):
             sys.stderr.write("No configs found in: %s\n" % self.DEFAULT_CONFIGS)
             sys.exit(1)
 
-        config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.SafeConfigParser(interpolation=None)
         config.optionxform = str
         try:
             found = config.read(paths)
@@ -810,12 +818,13 @@ class DstatTool(object):
             if section in self.timeplugins:
                 index = self.timeplugins.index(section)
                 plugin = self.timelist[index]
-                key = value = section
-                #sys.stderr.write("Preparing time plugin '%s'\n" % key)
-                self.pmconfig.parse_metric_info(metrics, key, value)
-                key = section + '.formula'
-                value = 'event.missed'
-                self.pmconfig.parse_metric_info(metrics, key, value)
+                if self.debug:
+                    sys.stderr.write("Preparing time plugin '%s'\n" % key)
+                name = 'dstat.' + section + '.' + plugin.name # metric name
+                value = 'event.missed'  # a valid metric that always exists
+                self.pmconfig.parse_metric_new(metrics, name, name)
+                self.pmconfig.parse_multiline(metrics, name, 'formula', value)
+                self.pmconfig.parse_multiline(metrics, name, 'label', section)
             elif not config.has_section(section):
                 sys.stderr.write("Ignoring unknown plugin '%s'\n" % section)
                 continue
@@ -824,7 +833,8 @@ class DstatTool(object):
                 for key in config.options(section):
                     value = config.get(section, key)
                     if key in self.pmconfig.metricspec:
-                        #print("Default %s %s -> %s" % (section, key, value))
+                        if self.debug:
+                            print("Default %s %s -> %s" % (section, key, value))
                         if key in ['width', 'precision', 'limit']:
                             value = int(value)
                         if key in ['colorstep']:
@@ -833,21 +843,22 @@ class DstatTool(object):
                             value = value[0]
                         setattr(plugin, key, value)
                     else:
-                        #print("Parsing: %s -> %s" % (key, value))
-                        self.pmconfig.parse_metric_info(metrics, key, value)
-                        if not '.' in key:  # use the key as a default label
-                            metrics[key][1] = key
+                        if '.' in key:
+                            mkey, spec = key.split(".")
+                        else:
+                            mkey, spec = key, 'formula'
+                        name = 'dstat.' + section + '.' + mkey  # metric name
+                        if name not in metrics:
+                            self.pmconfig.parse_metric_new(metrics, name, name)
+                        self.pmconfig.parse_multiline(metrics, name, spec, value)
 
-            #print("Plugin [%s]" % section)
             for metric in metrics:
-                #print(metrics[metric])
-                label = metrics[metric][:1][0]
-                plugin.apply(metrics[metric], label)
+                name = metrics[metric][0]
+                plugin.apply(metrics[metric])
                 state = metrics[metric][1:]
-                #print(" state[%s]: %s" % (label, state))
                 plugin.metrics.append(state)
-                self.metrics[label] = state
-                #print(" metric[%s]: %s" % (label, state))
+                self.metrics[name] = state
+                #print("Appended[%s]: %s" % (name, state))
 
             self.totlist.append(plugin)
 
@@ -867,7 +878,7 @@ class DstatTool(object):
         opts.pmSetLongOptionText(' '*5 + '-D total,hda' + ' '*10 + 'include hda and total')
         opts.pmSetLongOption('page', 0, 'g', '', 'enable page stats')
         opts.pmSetLongOption('int', 0, 'i', '', 'enable interrupt stats')
-        opts.pmSetLongOptionText(' '*5 + '-I 5,eth2' + ' '*10 + 'include int5 and interrupt used by eth2')
+        opts.pmSetLongOptionText(' '*5 + '-I 9,CAL' + ' '*14 + 'include int9 and function call interrupts')
         opts.pmSetLongOption('load', 0, 'l', '', 'enable load stats')
         opts.pmSetLongOption('mem', 0, 'm', '', 'enable memory stats')
         opts.pmSetLongOption('net', 0, 'n', '', 'enable network stats')
@@ -875,7 +886,7 @@ class DstatTool(object):
         opts.pmSetLongOption('proc', 0, 'p', '', 'enable process stats')
         opts.pmSetLongOption('io', 0, 'r', '', 'enable io stats (I/O requests completed)')
         opts.pmSetLongOption('swap', 0, 's', '', 'enable swap stats')
-        opts.pmSetLongOptionText(' '*5 + '-S swap1,total' + ' '*9 + 'include swap1 and total')
+        opts.pmSetLongOptionText(' '*5 + '-S swap1,total' + ' '*8 + 'include swap1 and total')
         opts.pmSetLongOption('time', 0, 't', '', 'enable time/date output')
         opts.pmSetLongOption('time-adv', 0, None, '', 'enable time/date output (with milliseconds)')
         opts.pmSetLongOption('epoch', 0, 'T', '', 'enable time counter (seconds since epoch)')
@@ -889,7 +900,7 @@ class DstatTool(object):
         for group in 'ipc', 'lock', 'raw', 'socket', 'tcp', 'udp', 'unix', 'vm':
             opts.pmSetLongOption(group, 0, None, '', 'enable '+ group + 'stats')
         opts.pmSetLongOption('vm-adv', 0, None, '', 'enable advanced vm stats')
-        opts.pmSetLongOption('zones', 0, None, '', 'enable zoneinfo stats')
+#       opts.pmSetLongOption('zones', 0, None, '', 'enable zoneinfo stats')
         opts.pmSetLongOptionText('')
         opts.pmSetLongOption('list', 0, None, '', 'list all available plugins')
         opts.pmSetLongOption('plugin', 0, None, '', 'enable external plugin by name (see --list)')
@@ -913,6 +924,8 @@ class DstatTool(object):
         opts.pmSetLongOption('output', 0, '', 'file', 'write CSV output to file')
         opts.pmSetLongOption('profile', 0, '', '', 'show profiling statistics when exiting dstat')
         opts.pmSetLongOption('version', 0, 'V', '', '')
+        opts.pmSetLongOption('debug', 1, None, '', '')
+        opts.pmSetLongOption('dbg', 0, None, '', '')
         opts.pmSetLongOption('help', 0, 'h', '', '')
         opts.pmSetLongOptionText('')
         opts.pmSetLongOptionText('delay is the delay in seconds between each update (default: 1)')
@@ -930,9 +943,11 @@ class DstatTool(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, arg, index):
         """ Perform setup for an individual command line option """
-        if opt in ['c']:
+        if opt in ['dbg']:
+            self.debug = True
+        elif opt in ['c']:
             self.plugins.append('cpu')
         elif opt in ['C']:
             self.cpulist = arg.split(',')
@@ -985,8 +1000,6 @@ class DstatTool(object):
         elif opt in ['color']:
             self.color = True
             self.update = True
-        elif opt in ['debug']:
-            self.debug = self.debug + 1
         elif opt in ['float']:
             self.float = True
         elif opt in ['integer']:
@@ -1122,15 +1135,25 @@ class DstatTool(object):
             sys.exit(1)
 
         self.pmconfig.validate_common_options()
-        self.pmconfig.validate_metrics(curr_insts=False)
+        self.pmconfig.validate_metrics(curr_insts=True)
+        for i, metric in enumerate(self.metrics):
+            plugin = self.metrics[metric][10]
+            insts = self.pmconfig.insts[i]
+            for j in range(0, len(insts[0])):
+                inum, inst = insts[0][j], insts[1][j]
+                name = self.metrics[metric][0]
+                if inum != PM_IN_NULL:
+                    name = name.replace('%d', str(inum)).replace('%s', inst)
+                    name = name.replace('%i', str(inum)).replace('%I', inst)
+                plugin.names.append(name)
+
         self.pmconfig.finalize_options()
         if not self.samples:
             self.samples = -1 # forever - todo
 
     def execute(self):
         """ Fetch and report """
-        # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.debug:
             sys.stdout.write("Config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -1269,13 +1292,12 @@ class DstatTool(object):
         ### Display header
         if showheader:
             if loop == 0 and self.totlist != vislist:
-                print >>sys.stderr, 'Terminal width too small, trimming output.'
+                sys.stderr.write('Terminal width too small, trimming output.\n')
             showheader = False
             sys.stdout.write(newline)
             newline = self.show_header(vislist)
 
         ### Fetch values
-        #sys.stderr.write("\nperform - fetch step/%d\n" % step)
         try:
             self.pmfg.fetch()
         except pmapi.pmErr as error:

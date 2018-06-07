@@ -21,8 +21,12 @@ _cleanup()
 
 _filter()
 {
+    # note stripping special UTF-8 quotes thanks to coreutils brain damage
+    # from mkdir(1) error message
+    #
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e "s/[‘’]//g"
     # end
 }
 
@@ -33,19 +37,40 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "No rootdir ..."
 rm -rf $tmp
-./mk.logfarm $tmp 2>&1 | _filter
+if mk.logfarm $tmp >$tmp.out 2>&1
+then
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm did not fail!"
+    exit
+else
+    _filter <$tmp.out
+fi
 
 echo
 echo "Cannot write rootdir ..."
 mkdir $tmp
 chmod 555 $tmp
-./mk.logfarm $tmp 2>&1 | _filter
+if mk.logfarm $tmp >$tmp.out 2>&1
+then
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm did not failed!"
+    exit
+else
+    _filter <$tmp.out
+fi
 
 echo
 echo "OK ..."
 rm -rf $tmp
 mkdir $tmp
-./mk.logfarm $tmp 2>&1 | _filter
+if mk.logfarm $tmp >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
 find $tmp -type f | sort >$tmp.list
 for arch in `sed -n -e '/\.meta/s/\.meta.*//p' <$tmp.list`
 do

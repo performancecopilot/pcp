@@ -1,9 +1,0 @@
-#
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
-#
-
-[raw]
-width = 4
-raw = raw
-raw.formula = network.rawconn.count + network.rawconn6.count
-

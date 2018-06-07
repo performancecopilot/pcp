@@ -6,7 +6,7 @@
 label = io/total
 precision = 2
 width = 5
-readops = read
-readops.formula = disk.all.read
-writeops = writ
-writeops.formula = disk.all.write
+reads = disk.all.read
+reads.label = read
+writes = disk.all.write
+writes.label = writ

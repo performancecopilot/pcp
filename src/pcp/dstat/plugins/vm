@@ -6,27 +6,24 @@
 label = virtual memory
 width = 5
 printtype = d
-majpf = majpf
-majpf.formula = mem.vmstat.pgmajfault
-minpf = minpf
-minpf.formula = mem.vmstat.pgfault
-alloc = alloc
-alloc.formula = sum(mem.vmstat.pgalloc_dma) + sum(mem.vmstat.pgalloc_dma32) + sum(mem.vmstat.pgalloc_movable) + sum(mem.vmstat.pgalloc_normal) + sum(mem.vmstat.pgalloc_high)
-vfree = free
-vfree.formula = mem.vmstat.pgfree
+majpf = mem.vmstat.pgmajfault
+minpf = mem.vmstat.pgfault
+alloc = sum(mem.vmstat.pgalloc_dma) + sum(mem.vmstat.pgalloc_dma32) + sum(mem.vmstat.pgalloc_movable) + sum(mem.vmstat.pgalloc_normal) + sum(mem.vmstat.pgalloc_high)
+free = mem.vmstat.pgfree
 
 [vm-adv]
 label = advanced virtual memory
 width = 5
 printtype = d
-steal = steal
-steal.formula = sum(mem.vmstat.pgsteal_direct) + sum(mem.vmstat.pgsteal_direct_dma) + sum(mem.vmstat.pgsteal_direct_dma32) + sum(mem.vmstat.pgsteal_direct_movable) + sum(mem.vmstat.pgsteal_direct_normal)
-scanK = minpf
-scanK.formula = sum(mem.vmstat.pgscan_kswapd) + sum(mem.vmstat.pgscan_kswapd_dma) + sum(mem.vmstat.pgscan_kswapd_dma32) + sum(mem.vmstat.pgscan_kswapd_high) + sum(mem.vmstat.pgscan_kswapd_movable) + sum(mem.vmstat.pgscan_kswapd_normal)
-scanD = alloc
-scanD.formula = sum(mem.vmstat.pgscan_direct) + sum(mem.vmstat.pgscan_direct_dma) + sum(mem.vmstat.pgscan_direct_dma32) + sum(mem.vmstat.pgscan_direct_high) + sum(mem.vmstat.pgscan_direct_movable) + sum(mem.vmstat.pgscan_direct_normal)
-pgoru = pgoru
-pgoru.formula = sum(mem.vmstat.pageoutrun)
-astll = astll
-astll.formula = sum(mem.vmstat.allocstall)
+
+steal = sum(mem.vmstat.pgsteal_direct) + sum(mem.vmstat.pgsteal_direct_dma) + sum(mem.vmstat.pgsteal_direct_dma32) + sum(mem.vmstat.pgsteal_direct_movable) + sum(mem.vmstat.pgsteal_direct_normal)
+
+scanK = sum(mem.vmstat.pgscan_kswapd) + sum(mem.vmstat.pgscan_kswapd_dma) + sum(mem.vmstat.pgscan_kswapd_dma32) + sum(mem.vmstat.pgscan_kswapd_high) + sum(mem.vmstat.pgscan_kswapd_movable) + sum(mem.vmstat.pgscan_kswapd_normal)
+scanK.label = minpf
+
+scanD = sum(mem.vmstat.pgscan_direct) + sum(mem.vmstat.pgscan_direct_dma) + sum(mem.vmstat.pgscan_direct_dma32) + sum(mem.vmstat.pgscan_direct_high) + sum(mem.vmstat.pgscan_direct_movable) + sum(mem.vmstat.pgscan_direct_normal)
+scanD.label = alloc
+
+pgoru = sum(mem.vmstat.pageoutrun)
+astll = sum(mem.vmstat.allocstall)
 
