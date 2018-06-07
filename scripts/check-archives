@@ -110,7 +110,6 @@ do
 	echo
 	echo "Warning: Unexpected lines (!) in $log"
 	ls -l $log 2>&1 | sed -e 's/^/    /'
-    diff -e $log $tmp.tmp
 	diff -e $log $tmp.tmp \
 	| sed -n >$tmp.sed \
 	    -e '/^[0-9][0-9]*d/s/d.*/s\/^\/s\//p' \
