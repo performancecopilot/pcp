@@ -3,7 +3,5 @@
 #
 
 [swap]
-used = used
-used.formula = swap.used
-free = free
-free.formula = swap.free
+used = swap.used
+free = swap.free

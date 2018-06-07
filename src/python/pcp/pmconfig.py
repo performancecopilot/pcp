@@ -235,6 +235,15 @@ class pmConfig(object):
             spec += ",,"
         return spec, insts
 
+    def parse_metric_new(self, metrics, key, value):
+        metrics[key] = [value]
+        for index in range(0, len(self.metricspec)):
+            if len(metrics[key]) <= index:
+                if index == 2:
+                    metrics[key].append([])
+                else:
+                    metrics[key].append(None)
+
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
         # NB. Uses the config key, not the metric, as the dict key
@@ -253,31 +262,28 @@ class pmConfig(object):
             # Verbose / multi-line definition
             if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
-                metrics[key] = [value]
-                for index in range(0, len(self.metricspec)):
-                    if len(metrics[key]) <= index:
-                        if index == 2:
-                            metrics[key].append([])
-                        else:
-                            metrics[key].append(None)
+                self.parse_metric_new(metrics, key, value)
             else:
                 # Additional info
                 key, spec = key.rsplit(".")
                 if key not in metrics:
                     sys.stderr.write("Undeclared metric key %s.\n" % key)
                     sys.exit(1)
-                if value.startswith('"') and value.endswith('"'):
-                    value = value[1:-1]
-                if spec == "formula":
-                    if self.util.derived is None:
-                        self.util.derived = ";" + metrics[key][0] + "=" + value
-                    else:
-                        self.util.derived += ";" + metrics[key][0] + "=" + value
-                else:
-                    if self.metricspec.index(spec) == 1:
-                        metrics[key][self.metricspec.index(spec)+1] = [value]
-                    else:
-                        metrics[key][self.metricspec.index(spec)+1] = value
+                self.parse_multiline(metrics, key, spec, value)
+
+    def parse_multiline(self, metrics, key, spec, value):
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        if spec == "formula":
+            if self.util.derived is None:
+                self.util.derived = ";" + metrics[key][0] + "=" + value
+            else:
+                self.util.derived += ";" + metrics[key][0] + "=" + value
+        else:
+            if self.metricspec.index(spec) == 1:
+                metrics[key][self.metricspec.index(spec)+1] = [value]
+            else:
+                metrics[key][self.metricspec.index(spec)+1] = value
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metricset """
@@ -513,27 +519,29 @@ class pmConfig(object):
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
                             sys.exit(1)
 
-        # Prepare for non-leaf metrics while preserving metric order
-        metrics = self.util.metrics
-        self.util.metrics = OrderedDict()
+        if not hasattr(self.util, 'leaf_only') or not self.util.leaf_only:
+            # Prepare for non-leaf metrics while preserving metric order
+            metrics = self.util.metrics
+            self.util.metrics = OrderedDict()
 
-        def metric_base_check(metric):
-            """ Helper to support non-leaf metricspecs """
-            from copy import deepcopy
-            if metric != self._tmp:
-                if metric not in self.util.metrics:
-                    self.util.metrics[metric] = deepcopy(metrics[self._tmp])
-            else:
-                self.util.metrics[metric] = deepcopy(metrics[metric])
-
-        # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
-        for metric in list(metrics):
-            self._tmp = metric
-            try:
-                self.util.context.pmTraversePMNS(metric, metric_base_check)
-            except pmapi.pmErr as error:
+            def metric_base_check(metric):
+                """ Helper to support non-leaf metricspecs """
                 from copy import deepcopy
-                self.util.metrics[metric] = deepcopy(metrics[metric])
+                if metric != self._tmp:
+                    if metric not in self.util.metrics:
+                        self.util.metrics[metric] = deepcopy(metrics[self._tmp])
+                else:
+                    self.util.metrics[metric] = deepcopy(metrics[metric])
+
+            # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
+            for metric in list(metrics):
+                self._tmp = metric
+                try:
+                    self.util.context.pmTraversePMNS(metric, metric_base_check)
+                except pmapi.pmErr as error:
+                    from copy import deepcopy
+                    self.util.metrics[metric] = deepcopy(metrics[metric])
+
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
 

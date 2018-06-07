@@ -4,7 +4,5 @@
 
 [freespace]
 width = 5
-used = used
-used.formula = sum(filesys.used)
-free = free
-free.formula = sum(filesys.free)
+used = sum(filesys.used)
+free = sum(filesys.free)

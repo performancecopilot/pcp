@@ -6,7 +6,7 @@
 label = dsk/total
 printtype = b
 precision = 0
-read = read
-read.formula = disk.all.read_bytes
-write = writ
-write.formula = disk.all.write_bytes
+reads = disk.all.read_bytes
+reads.label = read
+writes = disk.all.write_bytes
+writes.label = writ

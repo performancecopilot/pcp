@@ -8,6 +8,5 @@
 label = load avg
 width = 4
 colorstep = 0.5
-load = load
-#load.label = %Im
-load.formula = kernel.all.load
+load = kernel.all.load
+load.label = %dm

@@ -5,5 +5,5 @@
 [aio]
 width = 5
 label = async
-aio = #aio
-aio.formula = vfs.aio.count
+aio = vfs.aio.count
+aio.label = #aio
