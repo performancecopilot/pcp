@@ -235,7 +235,8 @@ class pmConfig(object):
             spec += ",,"
         return spec, insts
 
-    def parse_metric_new(self, metrics, key, value):
+    def parse_new_verbose_metric(self, metrics, key, value):
+        """ Parse new verbose metric """
         metrics[key] = [value]
         for index in range(0, len(self.metricspec)):
             if len(metrics[key]) <= index:
@@ -243,6 +244,21 @@ class pmConfig(object):
                     metrics[key].append([])
                 else:
                     metrics[key].append(None)
+
+    def parse_verbose_metric_info(self, metrics, key, spec, value):
+        """ Parse additional verbose metric info """
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        if spec == "formula":
+            if self.util.derived is None:
+                self.util.derived = ";" + metrics[key][0] + "=" + value
+            else:
+                self.util.derived += ";" + metrics[key][0] + "=" + value
+        else:
+            if self.metricspec.index(spec) == 1:
+                metrics[key][self.metricspec.index(spec)+1] = [value]
+            else:
+                metrics[key][self.metricspec.index(spec)+1] = value
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
@@ -262,28 +278,14 @@ class pmConfig(object):
             # Verbose / multi-line definition
             if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
-                self.parse_metric_new(metrics, key, value)
+                self.parse_new_verbose_metric(metrics, key, value)
             else:
                 # Additional info
                 key, spec = key.rsplit(".")
                 if key not in metrics:
                     sys.stderr.write("Undeclared metric key %s.\n" % key)
                     sys.exit(1)
-                self.parse_multiline(metrics, key, spec, value)
-
-    def parse_multiline(self, metrics, key, spec, value):
-        if value.startswith('"') and value.endswith('"'):
-            value = value[1:-1]
-        if spec == "formula":
-            if self.util.derived is None:
-                self.util.derived = ";" + metrics[key][0] + "=" + value
-            else:
-                self.util.derived += ";" + metrics[key][0] + "=" + value
-        else:
-            if self.metricspec.index(spec) == 1:
-                metrics[key][self.metricspec.index(spec)+1] = [value]
-            else:
-                metrics[key][self.metricspec.index(spec)+1] = value
+                self.parse_verbose_metric_info(metrics, key, spec, value)
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metricset """
