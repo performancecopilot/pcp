@@ -143,7 +143,8 @@ walk_text(int mode, int flag, char *which, int dupok)
     else {
 	if (mode == W_START) {
 	    tp = current_textspec;
-	    assert ((tp->flags & TEXT_ACTIVE));
+	    if (tp)
+		assert ((tp->flags & TEXT_ACTIVE));
 	}
 	else
 	    tp = NULL;
@@ -1171,11 +1172,10 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
      *	     within libpcp.
      */
 			PM_UNLOCK(ctxp->c_lock);
-			hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
 			
+			current_textspec = NULL;
 			if ($2 == PM_ID_NULL) {
 			    /* Metric referenced by name is not in the archive */
-			    current_textspec = NULL;
 			    do_walk_text = 0;
 			}
 			else {
@@ -1192,6 +1192,7 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 
 			    /* We're looking for text of the specified class(es) for metric(s). */
 			    target_types = PM_TEXT_PMID | $3;
+			    hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 				 node1 != NULL;
 				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -1217,9 +1218,10 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 					    (star_cluster == PM_ID_NULL ||
 					     star_cluster == pmID_cluster((pmID)(node2->key)))) {
 					    current_textspec = start_text(type, (pmID)(node2->key));
-					    ++found;
-					    if (current_textspec)
+					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
+						++found;
+					    }
 
 					}
 				    }
@@ -1227,9 +1229,10 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 					/* Match the exact metric PMID. */
 					if ((pmID)(node2->key) == $2) {
 					    current_textspec = start_text(type, (pmID)(node2->key));
-					    ++found;
-					    if (current_textspec)
+					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
+						++found;
+					    }
 					    /*
 					     * Stop looking if we have found all of the specified
 					     * classes.
@@ -1272,6 +1275,12 @@ textclass	: TOK_ALL
 
 opttextmetricoptlist	: textmetricoptlist
 			| /* nothing */
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_ACTIVE, "active", 0); tp != NULL; tp = walk_text(W_NEXT, 0, "", 0)) {
+			    tp->flags &= ~TEXT_ACTIVE;
+			}
+		    }
 			;
 
 textmetricoptlist	: textmetricopt
@@ -1289,12 +1298,105 @@ textmetricopt	: TOK_DELETE
 
 textindomspec	: TOK_INDOM indom_int opttextclasses
 		    {
+			__pmContext	*ctxp;
+			__pmHashCtl	*hcp1;
+			__pmHashNode	*node1;
+			int		target_types;
+			int		type;
+			int		class;
+
+			ctxp = __pmHandleToPtr(pmWhichContext());
+			assert(ctxp != NULL);
+    /*
+     * Note: This application is single threaded, and once we have ctxp,
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+			PM_UNLOCK(ctxp->c_lock);
+			
+			current_textspec = NULL;
+			if ($2 == PM_ID_NULL) {
+			    /* Indom is not in the archive */
+			    do_walk_text = 0;
+			}
+			else {
+			    int found = 0;
+			    
+			    if (current_star_indom) {
+				/* Set up for indoms specified using globbing. */
+				star_domain = pmInDom_domain($2);
+			    }
+
+			    /* We're looking for text of the specified class(es) for indom(s). */
+			    target_types = PM_TEXT_INDOM | $3;
+			    hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
+			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
+				 node1 != NULL;
+				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
+				__pmHashCtl	*hcp2;
+				__pmHashNode	*node2;
+
+				/* Was this object type selected? */
+				type = (int)(node1->key);
+				if ((type & target_types) != type)
+				    continue;
+
+				/*
+				 * Collect the text records associated with the specified
+				 * metric(s).
+				 */
+				hcp2 = (__pmHashCtl *)(node1->data);
+				for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
+				     node2 != NULL;
+				     node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
+				    if (current_star_indom) {
+					/* Match the globbed metric spec and keep looking. */
+					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
+					    current_textspec = start_text(type, (pmID)(node2->key));
+					    if (current_textspec) {
+						current_textspec->flags |= TEXT_ACTIVE;
+						++found;
+					    }
+					}
+				    }
+				    else {
+					/* Match the exact indom id. */
+					if ((pmID)(node2->key) == $2) {
+					    current_textspec = start_text(type, (pmID)(node2->key));
+					    if (current_textspec) {
+						current_textspec->flags |= TEXT_ACTIVE;
+						++found;
+					    }
+					    /*
+					     * Stop looking if we have found all of the specified
+					     * classes.
+					     */
+					    class = type & PM_TEXT_CLASS_MASK;
+					    target_types ^= class;
+					    if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+						break;
+					}
+				    }
+				}
+				if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+				    break;
+			    }
+			    do_walk_text = (found > 1);
+			}
 		    }
 		  TOK_LBRACE opttextindomoptlist TOK_RBRACE
 		;
 
 opttextindomoptlist	: textindomoptlist
 			| /* nothing */
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_ACTIVE, "active", 0); tp != NULL; tp = walk_text(W_NEXT, 0, "", 0)) {
+			    tp->flags &= ~TEXT_ACTIVE;
+			}
+		    }
 			;
 
 textindomoptlist	: textindomopt
@@ -1302,6 +1404,12 @@ textindomoptlist	: textindomopt
 			;
 
 textindomopt	: TOK_DELETE
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_DELETE, "delete", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_DELETE, "delete", 0)) {
+			    tp->flags |= TEXT_DELETE;
+			}
+		    }
 		;
 
 %%
