@@ -638,7 +638,7 @@ __pmParseTime(
      * - __pmParseCtime(), or
      * - pmParseInterval(), or
      * - the other pmParseInterval()
-     * returned a value < 0 ... if glibc_get_date() fails we're
+     * returned a value < 0 ... if glib_get_date() fails we're
      * going to return with the previously set *errMsg
      */
 
