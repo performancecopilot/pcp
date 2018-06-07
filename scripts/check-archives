@@ -79,14 +79,50 @@ do
     fi
 done
 
+# remove "expected" lines from logs and report if anything remains
+#
 sed <$tmp.tmp \
     -e '/stamp$/d' \
     -e '/stamp.prev$/d' \
 | while read log
 do
-    echo
-    echo "Warning: $log from the last 24 hours"
-    ( ls -l $log; cat $log ) 2>&1 | sed -e 's/^/    /'
+    rm -f $tmp.ok
+    case $log
+    in
+	pmlogger_check.log*)
+		sed <$log >$tmp.tmp \
+		    -e '/^Restarting primary pmlogger for host .* done$/d' \
+		    -e '/^Latest folio created for .*[0-9]$/d' \
+		# end
+		;;
+	pmlogger_daily_report.log*)
+		sed <$log >$tmp.tmp \
+		    -e '/PM_ERR_NAME Unknown metric name/d' \
+		# end
+		;;
+	*)
+		cat $log >$tmp.tmp
+		;;
+    esac
+    if [ -s $tmp.tmp ]
+    then
+	echo
+	echo "Warning: Unexpected lines (!) in $log"
+	ls -l $log 2>&1 | sed -e 's/^/    /'
+	diff -e $log $tmp.tmp \
+	| sed -n -e '/^[0-9][0-9]*d/s/d.*/s\/^\/!\//p' >$tmp.sed
+	if [ -s $tmp.sed ]
+	then
+	    # some expected lines
+	    :
+	else
+	    # all unexpected lines
+	    echo "s/^/!/" >$tmp.sed
+	fi
+	sed -e 's/^/      /' <$log \
+	| sed -f $tmp.sed \
+	| sed -e '/^!/s/!     /    !/'
+    fi
     _set_sts 1
 done
 
@@ -130,7 +166,7 @@ do
     #
     for base in `cat $tmp.list`
     do
-	# expect index file (warn if missing)
+	# ... an index file (warn if missing)
 	#
 	rm -f $tmp.err
 	if [ "`echo $base.index*`" = "$base.index*" ]
@@ -143,7 +179,7 @@ do
 	    echo "Error: $base.index is missing"
 	fi
 
-	# expect meta file (error if missing)
+	# ... and a metadata file (error if missing)
 	#
 	if [ "`echo $base.meta*`" = "$base.meta*" ]
 	then
@@ -155,7 +191,7 @@ do
 	    echo "Error: $base.meta is missing"
 	fi
 
-	# expect data volume 0 file (error if missing)
+	# ... and data volume 0 file (error if missing)
 	#
 	if [ -f $base.0 -o -f "`echo $base.0.*`" ]
 	then
@@ -207,6 +243,17 @@ do
 	then
 	    ls -l $base* 2>&1 | sed -e 's/^/    /'
 	    _set_sts 2
+	else
+	    # all the bits-n-pieces appear to be in place, what does
+	    # pmlogcheck make of it?
+	    #
+	    pmlogcheck -w $base >$tmp.tmp
+	    if [ -s $tmp.tmp ]
+	    then
+		echo "Error: $base: pmlogcheck failure"
+		sed -e 's/^/    /' <$tmp.tmp
+		_set_sts 2
+	    fi
 	fi
 
     done
