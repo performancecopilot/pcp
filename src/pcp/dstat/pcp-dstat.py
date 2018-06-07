@@ -813,6 +813,7 @@ class DstatTool(object):
             print('You did not select any stats, using -cdngy by default.')
             self.plugins = [ 'cpu', 'disk', 'net', 'page', 'sys' ]
 
+        lib = self.pmconfig
         for section in self.plugins:
             metrics = OrderedDict()
             if section in self.timeplugins:
@@ -822,9 +823,9 @@ class DstatTool(object):
                     sys.stderr.write("Preparing time plugin '%s'\n" % key)
                 name = 'dstat.' + section + '.' + plugin.name # metric name
                 value = 'event.missed'  # a valid metric that always exists
-                self.pmconfig.parse_metric_new(metrics, name, name)
-                self.pmconfig.parse_multiline(metrics, name, 'formula', value)
-                self.pmconfig.parse_multiline(metrics, name, 'label', section)
+                lib.parse_new_verbose_metric(metrics, name, name)
+                lib.parse_verbose_metric_info(metrics, name, 'formula', value)
+                lib.parse_verbose_metric_info(metrics, name, 'label', section)
             elif not config.has_section(section):
                 sys.stderr.write("Ignoring unknown plugin '%s'\n" % section)
                 continue
@@ -832,7 +833,7 @@ class DstatTool(object):
                 plugin = DstatPlugin(section)
                 for key in config.options(section):
                     value = config.get(section, key)
-                    if key in self.pmconfig.metricspec:
+                    if key in lib.metricspec:
                         if self.debug:
                             print("Default %s %s -> %s" % (section, key, value))
                         if key in ['width', 'precision', 'limit']:
@@ -849,8 +850,10 @@ class DstatTool(object):
                             mkey, spec = key, 'formula'
                         name = 'dstat.' + section + '.' + mkey  # metric name
                         if name not in metrics:
-                            self.pmconfig.parse_metric_new(metrics, name, name)
-                        self.pmconfig.parse_multiline(metrics, name, spec, value)
+                            lib.parse_new_verbose_metric(metrics, name, name)
+                            if spec != 'label':
+                                lib.parse_verbose_metric_info(metrics, name, 'label', mkey)
+                        lib.parse_verbose_metric_info(metrics, name, spec, value)
 
             for metric in metrics:
                 name = metrics[metric][0]
