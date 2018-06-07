@@ -111,6 +111,7 @@ dupstr(char *s, int strip_quotes)
 <text>"oneline"		{ return TOK_ONELINE; }
 <text>"help"		{ return TOK_HELP; }
 <text>"all"		{ return TOK_ALL; }
+<text>"text"		{ return TOK_TEXT; }
 
 <type>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(metric); return TOK_TYPE_NAME; }
 <type>"U32"		{ yylval.ival = PM_TYPE_U32; BEGIN(metric); return TOK_TYPE_NAME; }

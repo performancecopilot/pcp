@@ -632,9 +632,9 @@ reportconfig(void)
 		   (tp->new_type & PM_TEXT_PMID) ? pmIDStr(tp->new_id) : pmInDomStr(tp->new_id));
 	}
 	if (tp->flags & TEXT_CHANGE_TEXT) {
-	    printf("Text:\t\t\"%s\"", tp->old_text); 
-	    printf("\t\t\t->\n");
-	    printf("\t\t\t\"%s\"\n", tp->new_text); 
+	    printf("Text:\t\t\"%s\"\n", tp->old_text); 
+	    printf("\t\t->\n");
+	    printf("\t\t\"%s\"\n", tp->new_text); 
 	}
 	if (tp->flags & TEXT_DELETE)
 	    printf("DELETE\n");

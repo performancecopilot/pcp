@@ -1294,6 +1294,35 @@ textmetricopt	: TOK_DELETE
 			    tp->flags |= TEXT_DELETE;
 			}
 		    }
+		| TOK_TEXT TOK_ASSIGN TOK_STRING
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_CHANGE_TEXT, "text", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_CHANGE_TEXT, "text", 0)) {
+			    if (tp->new_text) {
+				if (strcmp(tp->new_text, $3) == 0) {
+				    pmsprintf(mess, sizeof(mess), "Duplicate text change clause");
+				    yyerror(mess);
+				}
+				else {
+				    pmsprintf(mess, sizeof(mess), "Conflicting text change clause");
+				    yyerror(mess);
+				}
+				free($3);
+			    }
+			    else if (strcmp(tp->old_text, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Help text: No change");
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				tp->new_text = $3;
+				tp->flags |= TEXT_CHANGE_TEXT;
+			    }
+			}
+		    }
 		;
 
 textindomspec	: TOK_INDOM indom_int opttextclasses
@@ -1408,6 +1437,35 @@ textindomopt	: TOK_DELETE
 			textspec_t	*tp;
 			for (tp = walk_text(W_START, TEXT_DELETE, "delete", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_DELETE, "delete", 0)) {
 			    tp->flags |= TEXT_DELETE;
+			}
+		    }
+		| TOK_TEXT TOK_ASSIGN TOK_STRING
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_CHANGE_TEXT, "text", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_CHANGE_TEXT, "text", 0)) {
+			    if (tp->new_text) {
+				if (strcmp(tp->new_text, $3) == 0) {
+				    pmsprintf(mess, sizeof(mess), "Duplicate text change clause");
+				    yyerror(mess);
+				}
+				else {
+				    pmsprintf(mess, sizeof(mess), "Conflicting text change clause");
+				    yyerror(mess);
+				}
+				free($3);
+			    }
+			    else if (strcmp(tp->old_text, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Help text: No change");
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				tp->new_text = $3;
+				tp->flags |= TEXT_CHANGE_TEXT;
+			    }
 			}
 		    }
 		;
