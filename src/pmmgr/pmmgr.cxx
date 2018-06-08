@@ -1491,8 +1491,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  string cleanup_cmd = string("/bin/rm -f")
                       + " " + bnq + ".[0-9]*"
-                      + " " + bnq + ".index" +
-                      + " " + bnq + ".meta";
+                      + " " + bnq + ".index*" +
+                      + " " + bnq + ".meta*";
 
                   if (rc == 0) // only delete if the pmlogreduce succeeded!
                     (void) wrap_system(cleanup_cmd);
@@ -1644,8 +1644,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 		  string base_name = sh_quote(mergeable_archives[i]);
 		  string cleanup_cmd = string("/bin/rm -f")
 		    + " " + base_name + ".[0-9]*"
-		    + " " + base_name + ".index" +
-		    + " " + base_name + ".meta";
+		    + " " + base_name + ".index*" +
+		    + " " + base_name + ".meta*";
 
 		  (void) wrap_system(cleanup_cmd.c_str());
 		}
@@ -1744,8 +1744,8 @@ pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
               string bnq = sh_quote(base_name);
               string cleanup_cmd = string("/bin/rm -f")
                 + " " + bnq + ".[0-9]*"
-                + " " + bnq + ".index" +
-                + " " + bnq + ".meta";
+                + " " + bnq + ".index*" +
+                + " " + bnq + ".meta*";
 
               (void) wrap_system(cleanup_cmd);
             }
