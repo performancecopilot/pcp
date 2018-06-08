@@ -1048,11 +1048,9 @@ EOF
 
 _run_purify()
 {
-    args=$* 
-
     _here=`pwd`
     cd $_purify_dir
-    $_purify_dir/$_pure_prog $args > $tmp._purify.out 2>&1
+    $_purify_dir/$_pure_prog "$@" > $tmp._purify.out 2>&1
     cat $tmp._purify.out >>$_here/$seq.full
     if grep -i expired $tmp._purify.out >/dev/null; then
 	cat $tmp._purify.out
@@ -1271,7 +1269,7 @@ _run_valgrind()
 	--leak-check=full --read-var-info=yes --gen-suppressions=all \
 	--suppressions=$here/valgrind-suppress $__extra \
 	--log-file=$tmp._valgrind \
-	    $* 2>$tmp._valgrind.err >$tmp._valgrind.out
+	    "$@" 2>$tmp._valgrind.err >$tmp._valgrind.out
     echo "=== std out ==="
     cat $tmp._valgrind.out
     echo "=== std err ==="
@@ -1352,7 +1350,7 @@ _run_helgrind()
 	--tool=helgrind --gen-suppressions=all \
 	--suppressions=$here/helgrind-suppress $__extra \
 	--log-file=$tmp.valgrind.log \
-	    $* 2>$tmp.valgrind.err >$tmp.valgrind.out
+	    "$@" 2>$tmp.valgrind.err >$tmp.valgrind.out
     echo "=== valgrind report ===" >>$here/$seq.full
     cat $tmp.valgrind.log >>$here/$seq.full
     echo "=== filtered valgrind report ==="
