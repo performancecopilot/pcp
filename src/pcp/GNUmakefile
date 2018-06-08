@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2017 Red Hat.
+# Copyright (c) 2014-2018 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -20,8 +20,10 @@ SUBDIRS = \
 	atop \
 	collectl \
 	dmcache \
+	dstat \
 	free \
 	iostat \
+        ipcs \
 	mpstat \
 	numastat \
 	pidstat \
@@ -31,8 +33,7 @@ SUBDIRS = \
 	tapestat \
 	uptime \
 	verify \
-	vmstat \
-        ipcs
+	vmstat
 
 default :: default_pcp
 

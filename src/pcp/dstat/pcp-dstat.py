@@ -672,6 +672,7 @@ class DstatTool(object):
         self.blackonwhite = False
         self.color = None
         self.debug = False
+        self.verify = False
         self.header = 1
         self.output = True
         self.update = True
@@ -713,6 +714,8 @@ class DstatTool(object):
         ### Complete command line processing and terminal/file setup
         operands = self.pmconfig.read_cmd_line()
         self.prepare_metrics(configs)
+        if self.verify:
+            sys.exit(0)
         self.prepare_output(operands)
 
     def prepare_output(self, operands):
@@ -788,7 +791,7 @@ class DstatTool(object):
             sys.stderr.write("No configs found in: %s\n" % self.DEFAULT_CONFIGS)
             sys.exit(1)
 
-        config = ConfigParser.SafeConfigParser(interpolation=None)
+        config = ConfigParser.RawConfigParser()
         config.optionxform = str
         try:
             found = config.read(paths)
@@ -870,7 +873,7 @@ class DstatTool(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("acC:dD:fghiI:lmnN:o:prsS:tT:vVy?")
+        opts.pmSetShortOptions("acC:dD:fghiI:lmnN:o:pqrsS:tT:vVy?")
         opts.pmSetShortUsage("[-afv] [options...] [delay [count]]")
         opts.pmSetLongOptionText('Versatile tool for generating system resource statistics')
 
@@ -1022,6 +1025,8 @@ class DstatTool(object):
             self.pidfile = arg
         elif opt in ['profile']:
             self.profile = 'dstat_profile.log'
+        elif opt in ['q']:
+            self.verify = True
         elif opt in ['h']:
             self.usage()
         elif opt in ['V', 'version']:
@@ -1070,7 +1075,7 @@ class DstatTool(object):
         if files == []:
             return
         path = self.config_paths(path)
-        config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.RawConfigParser()
         config.optionxform = str
         try:
             config.read(files)
