@@ -748,18 +748,18 @@ dumpTI(__pmContext *ctxp)
 	printf("\t  %5d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
 	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
-	    if (stat(path, &sbuf) == 0)
+	    if (__pmStat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else
 		meta_size = -1;
 	}
 	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
 	    pmsprintf(path, sizeof(path), "%s.%d", lcp->l_name, tip->ti_vol);
-	    if (stat(path, &sbuf) == 0)
+	    if (__pmStat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {
 		log_size = -1;
-		printf("\t\tWarning: file missing or compressed for log volume %d\n", tip->ti_vol);
+		printf("\t\tWarning: file missing for log volume %d\n", tip->ti_vol);
 	    }
 	}
 	/*
@@ -926,7 +926,7 @@ isSingleArchive(const char *name)
 	return 0;
 
     /* No not allow a directory */
-    if (stat(name, &sbuf) != 0)
+    if (__pmStat(name, &sbuf) != 0)
 	return 1; /* Let pmNewContext(1) issue the error */
 
     if (S_ISDIR(sbuf.st_mode))
