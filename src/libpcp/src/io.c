@@ -84,7 +84,7 @@ __pmLogBaseName(char *name)
 		char	*q2;
 		/*
 		 * The name ends with one of the supported compressed file
-		 * suffixes. Strip it becore checking for other known suffixes.
+		 * suffixes. Strip it before checking for other known suffixes.
 		 */
 		*q = '\0';
 		if ((q2 = strrchr(name, '.')) == NULL) {
