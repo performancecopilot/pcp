@@ -2305,7 +2305,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub-packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|zabbix|zbxpcp' |\
+  grep -E -v 'pmiostat|pmcollectl|zabbix|zbxpcp|dstat' |\
   grep -E -v 'pmrep|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
@@ -2316,11 +2316,11 @@ sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 # pcp(1) sub-command variants so are also in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E 'pmiostat|pmcollectl|pmrep' |\
+  egrep -e 'pmiostat|pmcollectl|pmrep|dstat' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp-system-tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  grep -E 'atop|collectl|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' |\
-  grep -E 'numastat|pidstat|shping|tapestat|uptime|verify' |\
+  egrep -e 'atop|collectl|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' \
+        -e 'numastat|pidstat|shping|tapestat|uptime|verify' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp-system-tools.list
 %endif
 # Separate the pcp-selinux package files.
@@ -2334,7 +2334,8 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify|selinux-setup' |\
+  grep -E -v 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat' |\
+  grep -E -v 'shping|tapestat|uptime|verify|selinux-setup' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
@@ -3337,7 +3338,8 @@ cd
 %files system-tools -f pcp-system-tools.list
 %dir %{_confdir}/dstat
 %dir %{_confdir}/pmrep
-%config(noreplace) %{_confdir}/pmrep/pmrep.conf
+%config(noreplace) %{_confdir}/dstat/*
+%config(noreplace) %{_confdir}/pmrep/*
 %endif
 
 %changelog
