@@ -1041,6 +1041,7 @@ BAD
 669 pmmgr local pmlogcheck
 670 libpcp local
 671 folio local
+672 valgrind libpcp pmval local
 677 pmprobe archive multi-archive decompress-xz local pmlogextract
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
