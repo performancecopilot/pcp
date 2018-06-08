@@ -102,7 +102,7 @@ multivol	archives/ok-mv-bar	20011002
 End-of-File
 
 mkdir $tmp
-if mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
 then
     _filter <$tmp.out
 else

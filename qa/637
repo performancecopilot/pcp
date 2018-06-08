@@ -37,7 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "No rootdir ..."
 rm -rf $tmp
-if mk.logfarm $tmp >$tmp.out 2>&1
+if ./mk.logfarm $tmp >$tmp.out 2>&1
 then
     cat $tmp.out
     echo "Arrgh ... mk.logfarm did not fail!"
@@ -50,7 +50,7 @@ echo
 echo "Cannot write rootdir ..."
 mkdir $tmp
 chmod 555 $tmp
-if mk.logfarm $tmp >$tmp.out 2>&1
+if ./mk.logfarm $tmp >$tmp.out 2>&1
 then
     cat $tmp.out
     echo "Arrgh ... mk.logfarm did not failed!"
@@ -63,7 +63,7 @@ echo
 echo "OK ..."
 rm -rf $tmp
 mkdir $tmp
-if mk.logfarm $tmp >$tmp.out 2>&1
+if ./mk.logfarm $tmp >$tmp.out 2>&1
 then
     _filter <$tmp.out
 else
