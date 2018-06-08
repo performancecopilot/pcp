@@ -911,7 +911,7 @@ main(int argc, char *argv[])
     char        *errmsg;
     pmMetricSpec *msp;
     pmResult    *rslt1;		/* current values */
-    pmResult    *rslt2;		/* previous values */
+    pmResult    *rslt2 = NULL;	/* previous values */
 
     setlinebuf(stdout);
     context.iall = 1;
@@ -1296,9 +1296,13 @@ main(int argc, char *argv[])
 	idx2 = idx1;
     }
 
+    if (rslt2 != NULL)
+	pmFreeResult(rslt2);	/* make valgrind happy */
+
     /*
      * All serious error conditions have explicit exit() calls, so
      * if we get this far, all has gone well.
      */
+
     return 0;
 }
