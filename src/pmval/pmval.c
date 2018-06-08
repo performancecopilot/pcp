@@ -909,7 +909,7 @@ main(int argc, char *argv[])
     char        *subopt;
     char        *endnum;
     char        *errmsg;
-    pmMetricSpec *msp;
+    pmMetricSpec *msp = NULL;
     pmResult    *rslt1;		/* current values */
     pmResult    *rslt2 = NULL;	/* previous values */
 
@@ -1296,8 +1296,11 @@ main(int argc, char *argv[])
 	idx2 = idx1;
     }
 
+    /* make valgrind happy */
     if (rslt2 != NULL)
-	pmFreeResult(rslt2);	/* make valgrind happy */
+	pmFreeResult(rslt2);
+    if (msp != NULL)
+	pmFreeMetricSpec(msp);
 
     /*
      * All serious error conditions have explicit exit() calls, so
