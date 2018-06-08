@@ -1323,6 +1323,30 @@ textmetricopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_METRIC TOK_ASSIGN pmid_int
+		    {
+			textspec_t	*tp;
+			pmID		pmid;
+			for (tp = walk_text(W_START, TEXT_CHANGE_ID, "id", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_CHANGE_ID, "id", 0)) {
+			    if (current_star_metric == 1)
+				pmid = pmID_build(pmID_domain($3), pmID_cluster($3), pmID_item(tp->old_id));
+			    else if (current_star_metric == 2)
+				pmid = pmID_build(pmID_domain($3), pmID_cluster(tp->old_id), pmID_item(tp->old_id));
+			    else
+				pmid = $3;
+			    if (pmid == tp->old_id) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Text for metric: %s: metric: No change", pmIDStr(tp->old_id));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				tp->new_id = pmid;
+				tp->flags |= TEXT_CHANGE_ID;
+			    }
+			}
+		    }
 		;
 
 textindomspec	: TOK_INDOM indom_int opttextclasses
