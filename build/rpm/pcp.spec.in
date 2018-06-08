@@ -700,8 +700,10 @@ URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
+Requires: python3-openpyxl
 %else
 Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-openpyxl
 %endif
 
 %description export-pcp2xlsx
