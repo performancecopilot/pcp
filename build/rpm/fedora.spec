@@ -808,9 +808,11 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-openpyxl
+BuildRequires: python3-openpyxl
 %else
 Requires: %{__python2}-pcp = %{version}-%{release}
 Requires: %{__python2}-openpyxl
+BuildRequires: %{__python2}-openpyxl
 %endif
 
 %description export-pcp2xlsx
