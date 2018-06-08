@@ -2070,15 +2070,14 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%endif
-%if !%{disable_python2}
+%else
 Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 
 %description system-tools
 This PCP module contains additional system monitoring tools written
-in python.
+in the Python language.
 %endif #end pcp-system-tools
 
 %if !%{disable_qt}
@@ -2320,7 +2319,8 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E 'pmiostat|pmcollectl|pmrep' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp-system-tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  grep -E 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify' |\
+  grep -E 'atop|collectl|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' |\
+  grep -E 'numastat|pidstat|shping|tapestat|uptime|verify' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp-system-tools.list
 %endif
 # Separate the pcp-selinux package files.
@@ -3335,6 +3335,7 @@ cd
 
 %if !%{disable_python2} || !%{disable_python3}
 %files system-tools -f pcp-system-tools.list
+%dir %{_confdir}/dstat
 %dir %{_confdir}/pmrep
 %config(noreplace) %{_confdir}/pmrep/pmrep.conf
 %endif

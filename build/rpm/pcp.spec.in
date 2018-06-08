@@ -765,14 +765,13 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
-%endif
-%if "@enable_python2@" == "true"
+%else
 Requires: %{__python2}-pcp = @package_version@
 %endif
 
 %description system-tools
 This PCP module contains additional system monitoring tools written
-in python.
+in the Python language.
 %endif #pcp-system-tools
 
 %if "@enable_qt@" == "true"
@@ -2189,6 +2188,12 @@ cat >>conf_files <<PFMEOF
 perfevent/perfevent.conf
 PFMEOF
 %endif
+%if "@have_python@" == "true"
+cat >>conf_files <<SYSEOF
+etc/pcp/dstat
+etc/pcp/pmrep
+SYSEOF
+%endif
 
 #
 # Files for the various subpackages.  We use these subpackages
@@ -2242,7 +2247,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/papi' >pmda_papi_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'perfevent|perfalloc.1' > pmda_perfevent_files
 %endif
 %if "@pmda_systemd@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | grep 'pmdas/systemd' > pmda_systemd_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/systemd' > pmda_systemd_files
 %endif
 
 %if "@pmda_activemq@" == "true"
@@ -2319,10 +2324,11 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/haproxy' > pmda_haproxy_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmcollectl|pmiostat|pmrep' |\
-egrep -e 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify' | \
-egrep -v 'testsuite|selinux|pmlogconf|pmieconf' \
-	    > system_tools_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmcollectl|pmiostat|pmrep|dstat' \
+      -e 'pcp-atop|pcp-collectl|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
+      -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
+      -e 'pcp-shping|pcp-tapestat|pcp-uptime|pcp-verify' |\
+egrep -v 'testsuite|selinux|pmlogconf|pmieconf' > system_tools_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/apache' > pmda_apache_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bash' > pmda_bash_files
