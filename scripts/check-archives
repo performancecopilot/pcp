@@ -93,6 +93,7 @@ do
 		sed <$log >$tmp.tmp \
 		    -e '/^Restarting primary pmlogger for host .* done$/d' \
 		    -e '/^Latest folio created for .*[0-9]$/d' \
+		    -e '/^Duplicate archive basename \.\.\. rename .*\*$/d' \
 		# end
 		;;
 	pmlogger_daily_report.log*)
@@ -110,18 +111,25 @@ do
 	echo "Warning: Unexpected lines (!) in $log"
 	ls -l $log 2>&1 | sed -e 's/^/    /'
 	diff -e $log $tmp.tmp \
-	| sed -n -e '/^[0-9][0-9]*d/s/d.*/s\/^\/!\//p' >$tmp.sed
+	| sed -n >$tmp.sed \
+	    -e '/^[0-9][0-9]*d/s/d.*/s\/^\/s\//p' \
+	    -e '/^[0-9][0-9]*,[0-9][0-9]*d/s/d.*/s\/^\/s\//p' \
+	# end
 	if [ -s $tmp.sed ]
 	then
 	    # some expected lines
 	    :
 	else
 	    # all unexpected lines
-	    echo "s/^/!/" >$tmp.sed
+	    echo "s/^/s/" >$tmp.sed
 	fi
-	sed -e 's/^/      /' <$log \
+	sed -e 's/^/  /' <$log \
 	| sed -f $tmp.sed \
-	| sed -e '/^!/s/!     /    !/'
+	| sed \
+	    -e '/^ /s/ /!/' \
+	    -e '/^s/s/s / /' \
+	    -e 's/^/    /' \
+	# end
     fi
     _set_sts 1
 done

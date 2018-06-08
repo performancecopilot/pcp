@@ -78,6 +78,7 @@ logfile=pmlogger.log
 SHOWME=false
 MV=mv
 CP=cp
+LN=ln
 KILL=pmsignal
 TERSE=false
 VERBOSE=false
@@ -121,6 +122,7 @@ do
 		USE_SYSLOG=false
 		MV="echo + mv"
 		CP="echo + cp"
+		LN="echo + ln"
 		KILL="echo + kill"
 		;;
 	-s)	START_PMLOGGER=false
@@ -873,6 +875,18 @@ END				{ print m }'`
 		    echo "$prog: Error: archive file $LOGNAME.0 missing"
 		    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
 		    LC_TIME=POSIX ls -la $logdir
+		fi
+	    fi
+
+	    # if SaveLogs exists in the same directory that the archive
+	    # is being created, save pmlogger log file there as well
+	    #
+	    dirname=`dirname $LOGNAME`
+	    if [ -d $dirname/SaveLogs ]
+	    then
+		if [ ! -f $dirname/SaveLogs/$LOGNAME.log ]
+		then
+		    $LN $logfile $dirname/SaveLogs/$LOGNAME.log
 		fi
 	    fi
 

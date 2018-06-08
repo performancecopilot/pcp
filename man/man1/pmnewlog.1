@@ -263,21 +263,39 @@ $PCP_BINADM_DIR/pmnewlog \-l $LOGDIR/pmlogger.log $LOGDIR
 .SH FILES
 .PD 0
 .TP 10
-\f2archive\f3.meta
+\f2archive\f3.meta\f1
 metadata (metric descriptions, instance domains, etc.) for the archive log
 .TP
-\f2archive\f3.0
+\f2archive\f3.0\f1
 initial volume of metrics values (subsequent volumes have suffixes
 .BR 1 ,
 .BR 2 ,
 \&...)
 .TP
-\f2archive\f3.index
+\f2archive\f3.index\f1
 temporal index to support rapid random access to the other files in the
 archive log
 .TP
 .B $PCP_BINADM_DIR/pmlogger_daily
 sample script to rotate archives for a number of loggers
+.TP
+\f3SaveLogs\f1
+if this directory exists within the directory that the
+.I archive
+files will be created by a new
+.BR pmlogger (1)
+then the log file (from
+.BR pmlogger 's
+.B \-l
+argument) will be linked into the
+.B SaveLogs
+directory with the name
+.IB archive .log
+so it can be inspected at a later time.
+Because the cron-driven PCP archive management scripts run under
+the uid of the user ``pcp'',
+.B SaveLogs
+typically needs to be owned by the user ``pcp''.
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

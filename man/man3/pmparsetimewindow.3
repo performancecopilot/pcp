@@ -123,6 +123,7 @@ See
 .BR pmUseZone (3)
 and friends for information on how this is done.
 .SH SEE ALSO
+.BR free (3),
 .BR PMAPI (3),
 .BR pmGetArchiveEnd (3),
 .BR pmGetArchiveLabel (3),
@@ -159,8 +160,9 @@ are filled in and
 returns 0.
 In this case,
 .B errMsg
-will point to a warning message in an internal static buffer.
-This buffer should not be freed.
+will point to a warning message in a dynamically allocated buffer.
+The caller is responsible for releasing the buffer by calling
+.BR free (3).
 .P
 If the argument strings could not be parsed,
 .B pmParseTimeWindow
@@ -168,4 +170,6 @@ returns \-1.
 In this case,
 .BR errMsg
 will point to an error message
-in a static internal buffer.
+in a dynamically allocated buffer.
+The caller is responsible for releasing the buffer by calling
+.BR free (3).

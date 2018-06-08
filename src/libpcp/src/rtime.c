@@ -633,13 +633,29 @@ __pmParseTime(
 	}
     }
 
+    /*
+     * if we get here, *errMsg is not NULL, because one of
+     * - __pmParseCtime(), or
+     * - pmParseInterval(), or
+     * - the other pmParseInterval()
+     * returned a value < 0 ... if glib_get_date() fails we're
+     * going to return with the previously set *errMsg
+     */
+
     /* datetime is not recognised, try the glib_get_date method */
     parseChar(&scan, '@');	/* ignore; glib_relative_date determines type */
     if (glib_get_date(scan, &start, &end, rslt) < 0)
 	return -1;
 
-    if (*errMsg)
+    /*
+     * glib_get_date() worked, and we're going to return success
+     * so cleanup *errMsg
+     */
+    if (*errMsg) {
 	free(*errMsg);
+	*errMsg = NULL;
+    }
+
     return 0;
 }
 

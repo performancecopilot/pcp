@@ -723,6 +723,33 @@ if the previous execution of
 .B pmlogger_daily
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
+if this directory exists,
+then the log file from the
+.B \-l
+argument
+of a newly launched
+.BR pmlogger (1)
+for
+.I hostname
+will be linked into this directory with the name
+.IB archive .log
+where
+.I archive
+is the basename of the associated
+.BR pmlogger (1)
+PCP archive files.
+This allows the log file to be inspected at a later time, even if
+several
+.BR pmlogger (1)
+instances for
+.I hostname
+have been launched in the interim.
+Because the cron-driven PCP archive management scripts run under
+the uid of the user ``pcp'',
+.BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
+typically needs to be owned by the user ``pcp''.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

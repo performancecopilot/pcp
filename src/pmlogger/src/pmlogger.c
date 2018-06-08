@@ -86,7 +86,7 @@ run_done(int sts, char *msg)
     	fprintf(stderr, "pmlogger: End of run time, exiting\n");
 
     /*
-     * write the last last temportal index entry with the time stamp
+     * write the last last temporal index entry with the time stamp
      * of the last pmResult and the seek pointer set to the offset
      * _before_ the last log record
      */

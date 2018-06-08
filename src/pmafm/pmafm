@@ -138,6 +138,9 @@ trap "rm -rf $tmp; exit" 0 1 2 3 15
 #
 # if file(1) was reliable, this would be much easier, ... sigh
 #
+# compression suffixes and decompression apps match compress_ctl[]
+# in src/libpcp/src/io.c
+#
 # if you need to change this, make consistent changes in all these
 # places:
 #	_check_file() in src/pmafm/mkaf
@@ -150,7 +153,20 @@ _check_file()
     then
 	echo "No such file: $1" >>$tmp/base
     else
-	dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
+	case "$1"
+	in
+	    *.xz|*.lzma)	xz -dc "$1"
+	    			;;
+	    *.bz2|*.bz)		bzip2 -dc "$1"
+	    			;;
+	    *.gz|*.Z|*.z)	gzip -dc "$1"
+	    			;;
+	    *)			cat "$1"
+	    			;;
+	esac \
+	| dd ibs=1 count=7 2>/dev/null \
+	| od -X \
+	| $PCP_AWK_PROG '
 BEGIN						{ sts = 1 }
 NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
 NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }

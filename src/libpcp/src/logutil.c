@@ -1065,6 +1065,24 @@ __pmLogPutIndex(const __pmArchCtl *acp, const pmTimeval *tp)
 	ti.ti_log = (__pm_off_t)__pmFtell(acp->ac_mfp);
     }
 
+    if (ti.ti_log == 0) {
+	/*
+	 * this has been seen in QA where pmlogger churns quickly ...
+	 * trying to understand why
+	 */
+	struct stat	sbuf;
+	int		lsts;
+
+	fprintf(stderr, "__pmLogPutIndex: Botch: log offset == 0\n");
+	fprintf(stderr, "  __pmFileno=%d __pmFtell -> %ld\n", __pmFileno(acp->ac_mfp), (long)__pmFtell(acp->ac_mfp));
+	if ((lsts = __pmFstat(acp->ac_mfp, &sbuf)) < 0) {
+	    fprintf(stderr, "  __pmFstat failed -> %d\n", lsts);
+	}
+	else {
+	    fprintf(stderr, "  __pmFstat st_size=%ld st_ino=%ld\n", (long)sbuf.st_size, (long)sbuf.st_ino);
+	}
+    }
+
     if (pmDebugOptions.log) {
 	fprintf(stderr, "__pmLogPutIndex: timestamp=%d.06%d vol=%d meta posn=%ld log posn=%ld\n",
 	    (int)ti.ti_stamp.tv_sec, (int)ti.ti_stamp.tv_usec,
