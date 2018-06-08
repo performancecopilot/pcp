@@ -1492,6 +1492,32 @@ textindomopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_INDOM TOK_ASSIGN indom_int
+		    {
+			textspec_t	*tp;
+			for (tp = walk_text(W_START, TEXT_CHANGE_ID, "id", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_CHANGE_ID, "id", 0)) {
+			    pmInDom	indom;
+			    if (tp->new_id != tp->old_id) {
+				pmsprintf(mess, sizeof(mess), "Duplicate text clause for indom %s", pmInDomStr(tp->old_id));
+				yyerror(mess);
+			    }
+			    if (current_star_indom)
+				indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(tp->old_id));
+			    else
+				indom = $3;
+			    if (indom != tp->old_id) {
+				tp->new_id = indom;
+				tp->flags |= TEXT_CHANGE_ID;
+			    }
+			    else {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Text for instance domain %s: indom: No change", pmInDomStr(tp->old_id));
+				    yywarn(mess);
+				}
+			    }
+			}
+		    }
 		;
 
 %%
