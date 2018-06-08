@@ -164,7 +164,6 @@ do_logue(int type)
 	    sts = pmFetch(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
 		last_stamp = res->timestamp = res_pmcd->timestamp;	/* struct assignment */
-		last_log_offset = __pmFtell(archctl.ac_mfp);
 	    }
 	    if (sts >= 0 && res_pmcd->vset[0]->numval == 1 &&
 	        (res_pmcd->vset[0]->valfmt == PM_VAL_SPTR || res_pmcd->vset[0]->valfmt == PM_VAL_DPTR))
@@ -198,6 +197,8 @@ do_logue(int type)
     __pmUnpinPDUBuf(pb);
     if (sts < 0)
 	goto done;
+
+    last_log_offset = __pmFtell(archctl.ac_mfp);
 
     if (type == PROLOGUE) {
 	for (i = 0; i < n_metric; i++) {

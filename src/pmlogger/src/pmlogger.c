@@ -94,6 +94,9 @@ run_done(int sts, char *msg)
 	pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
+	if (last_log_offset < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
+	}
 	__pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &tmp);
     }
