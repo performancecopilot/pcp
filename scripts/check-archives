@@ -91,16 +91,28 @@ do
     in
 	pmlogger_check.log*)
 		sed <$log >$tmp.tmp \
+		    -e '/^pmlogger_check: \[.*[0-9]]$/d' \
 		    -e '/^Restarting primary pmlogger for host .* done$/d' \
 		    -e '/^Latest folio created for .*[0-9]$/d' \
 		    -e '/^Duplicate archive basename \.\.\. rename .*\*$/d' \
+		    -e '/^\.\.\. logging for host ".*" unchanged$/d' \
 		# end
 		;;
+
+	pmlogger_daily-K.log*)
+		sed <$log >$tmp.tmp \
+		    -e '/^pmlogger_daily: \[.*[0-9]]$/d' \
+		    -e '/Error: no pmlogger instance running for host/d' \
+		    -e '/^\.\.\. logging for host ".*" unchanged$/d' \
+		# end
+		;;
+
 	pmlogger_daily_report.log*)
 		sed <$log >$tmp.tmp \
 		    -e '/PM_ERR_NAME Unknown metric name/d' \
 		# end
 		;;
+
 	*)
 		cat $log >$tmp.tmp
 		;;
@@ -216,6 +228,8 @@ do
 		if [ -z "$maxvol" ]
 		then
 		    echo "Botch: could not get maxvol for base=$base"
+		    _set_sts 4
+		    exit
 		else
 		    # already tested for volume 0 above, so just the others
 		    # (if any)
@@ -276,6 +290,12 @@ do
     while [ "$back" -gt 0 ]
     do
 	date=`pmdate -${back}d '%Y%m%d'`
+	if [ -z "$date" ]
+	then
+	    echo "Botch: pmdate -${back}d failed!"
+	    _set_sts 4
+	    exit
+	fi
 	grep "$date" $tmp.list >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then
