@@ -396,6 +396,24 @@ else
     exec 1>"$PROGLOG" 2>&1
 fi
 
+# if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory then save
+# $PROGLOG there as well with a unique name that contains the date and time
+# when we're run
+#
+if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs ]
+then
+    link=$PCP_LOG_DIR/pmlogger/SaveLogs/$prog.`date "+%Y%m%d.%H.%M"`.log
+    if [ ! -f "$link" ]
+    then
+	if $SHOWME
+	then
+	    echo "+ ln $PROGLOG $link"
+	else
+	    ln $PROGLOG $link
+	fi
+    fi
+fi
+
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)" >&2
