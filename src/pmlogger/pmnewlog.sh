@@ -733,7 +733,7 @@ if [ -d SaveLogs ]
 then
     if [ ! -f SaveLogs/$LOGNAME.log ]
     then
-	do_cmd ln $logfile SaveLogs/$archive.log
+	_do_cmd "ln $logfile SaveLogs/$archive.log"
     fi
 fi
 
