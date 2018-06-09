@@ -1271,13 +1271,13 @@ _run_valgrind()
 	--log-file=$tmp._valgrind \
 	    "$@" 2>$tmp._valgrind.err >$tmp._valgrind.out
     echo "=== std out ==="
-    cat $tmp._valgrind.out
+    $sudo cat $tmp._valgrind.out
     echo "=== std err ==="
-    cat $tmp._valgrind.err
+    $sudo cat $tmp._valgrind.err
     echo "=== valgrind report ===" >>$here/$seq.full
-    cat $tmp._valgrind >>$here/$seq.full
+    $sudo cat $tmp._valgrind >>$here/$seq.full
     echo "=== filtered valgrind report ==="
-    _filter_valgrind <$tmp._valgrind
+    $sudo cat $tmp._valgrind | _filter_valgrind
 }
 
 # Alternate invocation, using valgrind-silence as an assertion.
@@ -1318,7 +1318,7 @@ if which valgrind >/dev/null 2>&1; then
 	    __extra="$__extra --show-reachable=no"
 	fi
     fi
-    rm -f $tmp.valgrind.help
+    $sudo rm -f $tmp.valgrind.help
     _valgrind_clean_assert="valgrind -q \
 	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
 	     --suppressions=$here/valgrind-suppress $__extra \
@@ -1352,9 +1352,9 @@ _run_helgrind()
 	--log-file=$tmp.valgrind.log \
 	    "$@" 2>$tmp.valgrind.err >$tmp.valgrind.out
     echo "=== valgrind report ===" >>$here/$seq.full
-    cat $tmp.valgrind.log >>$here/$seq.full
+    $sudo cat $tmp.valgrind.log >>$here/$seq.full
     echo "=== filtered valgrind report ==="
-    _filter_helgrind <$tmp.valgrind.log
+    $sudo cat $tmp.valgrind.log | _filter_helgrind
 }
 
 #
