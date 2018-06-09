@@ -150,6 +150,8 @@ done
 # archives of interest
 #
 find * -maxdepth 0 -type d \
+| sed \
+    -e '/^SaveLogs/d' \
 | while read dir
 do
     if cd $dir
@@ -170,6 +172,7 @@ do
     then
 	echo "Warning: no PCP archives here?"
 	_set_sts 1
+	cd ..
 	continue
     fi
 
@@ -269,7 +272,14 @@ do
 	    # all the bits-n-pieces appear to be in place, what does
 	    # pmlogcheck make of it?
 	    #
-	    pmlogcheck -w $base >$tmp.tmp
+	    if pmlogcheck -w $base >$tmp.tmp
+	    then
+		:
+	    else
+		echo "Botch: pmlogcheck -w $base failed!"
+		_set_sts 4
+		exit
+	    fi
 	    if [ -s $tmp.tmp ]
 	    then
 		echo "Error: $base: pmlogcheck failure"
