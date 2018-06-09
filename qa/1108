@@ -33,6 +33,7 @@ _filter()
 	-e '/^+ date-and-timestamp /s/stamp .*/stamp .../' \
 	-e '/^+ cd /s/cd .*/cd .../' \
 	-e '/^+ mv /s/mv .*/mv .../' \
+	-e '/^+ ln /d' \
 	-e '/^+ pmlogger /s/pmlogger .*/pmlogger .../' \
 	-e '/^+ pmnewlog /s/pmnewlog .*/pmnewlog .../' \
 	-e '/^+ mkaf /s/mkaf .*/mkaf .../' \
