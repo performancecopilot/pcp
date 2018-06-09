@@ -344,7 +344,8 @@ __pmTimezone(void)
 char *
 __pmTimezone_r(char *buf, int buflen)
 {
-    strcpy(buf, __pmTimezone());
+    strncpy(buf, __pmTimezone(), (size_t)buflen);
+    buf[buflen-1] = '\0';
     return buf;
 }
 
