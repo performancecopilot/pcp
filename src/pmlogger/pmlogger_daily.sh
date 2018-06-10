@@ -402,7 +402,8 @@ fi
 #
 if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs ]
 then
-    link=$PCP_LOG_DIR/pmlogger/SaveLogs/$prog.`date "+%Y%m%d.%H.%M"`.log
+    now="`date '+%Y%m%d.%H.%M'`"
+    link=`echo $PROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
     if [ ! -f "$link" ]
     then
 	if $SHOWME
