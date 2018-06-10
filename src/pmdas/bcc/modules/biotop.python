@@ -16,12 +16,14 @@
 # pylint: disable=invalid-name, line-too-long
 
 from ctypes import c_int
+
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -81,9 +83,10 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     def refresh(self):
         """ Refresh BPF data """
