@@ -1,0 +1,23 @@
+QA output created by 1194
+
+## Before ##
+
+nfs.server.threads.pools
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+nfs.server.threads.total
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+## Rewrite ##
+
+## After ##
+
+nfs.server.threads.pools
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+nfs.server.threads.total
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count

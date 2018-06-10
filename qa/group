@@ -1504,6 +1504,7 @@ BAD
 1188 pmda.dm local
 1191 pmda.prometheus local python
 1193 pmlogrewrite labels help pmdumplog local
+1194 pmlogrewrite local
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmda.dm local pmrep python

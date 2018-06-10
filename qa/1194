@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 1194
+# Exercise pmlogrewrite rules for NFS server metric semantics.
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+metrics="nfs.server.threads.pools nfs.server.threads.total"
+archive="$here/archives/20180127.08.40"
+rewrite="$PCP_VAR_DIR/config/pmlogrewrite/linux_proc_fs_nfsd_fixups.conf"
+
+echo; echo "## Before ##"
+pminfo --desc --archive $archive $metrics
+
+echo; echo "## Rewrite ##"
+pmlogrewrite -c $rewrite $archive $tmp.fix
+
+echo; echo "## After ##"
+pminfo --desc --archive $tmp.fix $metrics
+
+# success, all done
+status=0
+exit
