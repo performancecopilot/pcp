@@ -38,7 +38,9 @@ _filter()
 	-e "s,$tmp,TMP,g" \
 	-e "s,/privateTMP,TMP,g" \
 	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
-	-e "s/$PAST/PAST/g"
+	-e "s/$PAST/PAST/g" \
+	-e '/+ ln /d' \
+    # end
 }
 
 status=1	# failure is the default!
