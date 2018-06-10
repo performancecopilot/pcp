@@ -16,14 +16,11 @@
 # for more details.
 # 
 
-# Get standard environment
-. $PCP_DIR/etc/pcp.env
-
 status=0	# success is the default!
 trap "exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
-if [ $# -lt 2 ]
+if [ $# -lt 3 ]
 then
     echo "$prog: invalid arguments" 1>&2
     status=1
@@ -35,18 +32,19 @@ test -x /usr/sbin/selinuxenabled || exit
 test -x /usr/sbin/semodule || exit
 /usr/sbin/selinuxenabled || exit
 
-command="$1"
-policy="$2"
+selinuxdir="$1"
+command="$2"
+policy="$3"
 
 case "$command"
 in
     install)
-	test -f "$PCP_VAR_DIR/selinux/$policy.pp" || exit
+	test -f "$selinuxdir/$policy.pp" || exit
 	if semodule -h | grep -q -- "-X" >/dev/null 2>&1
 	then
-	    semodule -X 400 -i "$PCP_VAR_DIR/selinux/$policy.pp"
+	    semodule -X 400 -i "$selinuxdir/$policy.pp"
 	else
-	    semodule -i "$PCP_VAR_DIR/selinux/$policy.pp"
+	    semodule -i "$selinuxdir/$policy.pp"
 	fi #semodule -X flag check
 	;;
 

@@ -162,13 +162,14 @@ fi
 }
 
 %global selinux_handle_policy() %{expand:
+SELINUX_DIR=@pcp_var_dir@/selinux
 PCP_BINADM_DIR=@pcp_binadm_dir@
 if [ %1 -ge 1 ]
 then
-    $PCP_BINADM_DIR/selinux-setup install %2
+    $PCP_BINADM_DIR/selinux-setup $SELINUX_DIR install %2
 elif [ %1 -eq 0 ]
 then
-    $PCP_BINADM_DIR/selinux-setup remove %2
+    $PCP_BINADM_DIR/selinux-setup $SELINUX_DIR remove %2
 fi
 }
 

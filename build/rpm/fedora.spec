@@ -344,10 +344,10 @@ fi
 %global selinux_handle_policy() %{expand:
 if [ %1 -ge 1 ]
 then
-    %{_libexecdir}/pcp/bin/selinux-setup install %2
+    %{_libexecdir}/pcp/bin/selinux-setup %{_selinuxdir} install %2
 elif [ %1 -eq 0 ]
 then
-    %{_libexecdir}/pcp/bin/selinux-setup remove %2
+    %{_libexecdir}/pcp/bin/selinux-setup %{_selinuxdir} remove %2
 fi
 }
 
