@@ -95,12 +95,12 @@ wait
 
 _filter <$tmp.log
 
-# pmlogger ends up using 3 fetch groups (check the $seq.full for different
+# pmlogger ends up using 2 fetch groups (check the $seq.full for different
 # numbers of metrics in case of a test failure), so ..
-# without timeouts, expect 6000msec * 3 fetch groups / 100msec = 180 records
+# without timeouts, expect 6000msec * 2 fetch groups / 100msec = 120 records
 #
-max_nrec=200
-min_nrec=120
+max_nrec=140
+min_nrec=100
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
 echo "nrec=$nrec log records" >>$here/$seq.full
 echo "log record frequency by fetch group size ..." >>$here/$seq.full
