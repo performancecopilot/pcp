@@ -25,8 +25,6 @@ link 20011006.00.10.meta.xz -> 20011006.meta.xz
 remove 20011006.00.10.0.xz
 remove 20011006.00.10.index.xz
 remove 20011006.00.10.meta.xz
-pmlogger_daily: [TMP.control:3]
-Warning: current volume of current pmlogger not known, compression skipped
 
 === daily maintenance of PCP archives for host otherhost ===
 
@@ -58,8 +56,6 @@ link 20011005.00.10.meta.xz -> 20011005.meta.xz
 remove 20011005.00.10.0.xz
 remove 20011005.00.10.index.xz
 remove 20011005.00.10.meta.xz
-pmlogger_daily: [TMP.control:4]
-Warning: current volume of current pmlogger not known, compression skipped
 
 And the smouldering ruins ...
 TMP/otherhost/20011002.0 TMP/otherhost/20011002.index TMP/otherhost/20011002.meta

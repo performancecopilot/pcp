@@ -79,7 +79,6 @@ then
     exit
 fi
 
-cp $tmp.out /tmp/out
 sed <$tmp.out \
     -e '/MYPID/d' \
     -e '/CLIENTPID/d' \

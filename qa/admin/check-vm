@@ -895,6 +895,8 @@ slackpkg?	/etc/httpd/httpd.conf	[httpd (QA optional)]
 pacman?	/etc/httpd/conf/httpd.conf	[apache (QA optional)]
 # -- realpath(1)
 dpkg?	realpath		[realpath]
+rpm?	realpath		[realpath]
+urpmi?	realpath		[realpath]
 emerge?	realpath		[sys-apps/coreutils]
 pkgin?	realpath		[?]
 pkg_add?	realpath	[N/A]
@@ -1357,7 +1359,7 @@ in
 	na='python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm14)
-	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML'
+	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
 	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
