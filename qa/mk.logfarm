@@ -19,6 +19,28 @@ _usage()
 tmp=/var/tmp/mk.logfarm.$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
+# need to be able to find pmlogrewrite
+#
+if [ ! -f /etc/pcp.conf ]
+then
+    echo "mk.logfarm: Error: cannot find /etc/pcp.conf"
+    exit
+fi
+eval `grep PCP_BINADM_DIR= /etc/pcp.conf`
+if [ -z "$PCP_BINADM_DIR" ]
+then
+    echo "mk.logfarm: Error: cannot find PCP_BINADM_DIR from /etc/pcp.conf"
+    exit
+fi
+export PATH=$PCP_BINADM_DIR:$PATH
+if which pmlogrewrite >/dev/null 2>&1
+then
+    :
+else
+    echo "mk.logfarm: Error: cannot find pmlogrewrite"
+    exit
+fi
+
 sts=1
 config=''
 while getopts 'c:?' p
