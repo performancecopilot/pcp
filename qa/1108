@@ -6,6 +6,7 @@
 # Copyright (c) 2018 Red Hat. All Rights Reserved.
 #
 # check-group-exclude: pmlogger
+# check-group-exclude: pmnewlog
 
 seq=`basename $0`
 echo "QA output created by $seq"

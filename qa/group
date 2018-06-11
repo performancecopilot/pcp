@@ -134,7 +134,9 @@ containers
 pmlogextract
 # log reduction app
 pmlogreduce
-# log move app
+# log rotation script
+pmnewlog
+# log move script
 pmlogmv
 # log summary app
 pmlogsummary
@@ -547,15 +549,15 @@ BAD
 175 pmval local
 176 libpcp pmval local
 177 archive pmval local pmdumplog pmlc
-178 logutil pmval local pmlogextract sanity pmdumplog pmlogger
+178 pmval local pmlogextract sanity pmdumplog pmlogger
 179 pmval pmlc local pmdumplog
 180 archive pmval local
 181 pmval archive pmval local
 182 pmlc pmlogger local
-183 logutil local pmlc
-184 logutil remote sanity pmdumplog
-185 logutil local
-186 logutil local pmlogextract
+183 local pmlc pmnewlog
+184 logutil remote sanity pmdumplog pmnewlog
+185 local pmnewlog
+186 local pmlogextract
 187 pmcd pmlogger #327288 remote
 188 libpcp local
 189 pmie local
@@ -571,8 +573,8 @@ BAD
 199 pmda.trivial pmda.proc local pmda.install
 200 context local
 201 pmda local sanity
-202 logutil pmval local pmlogextract pmdumplog
-203 logutil archive pmval local pmlogextract pmdumplog
+202 pmval local pmlogextract pmdumplog
+203 archive pmval local pmlogextract pmdumplog
 204 pmlogger local pmdumplog
 205 pdu local
 206 archive pmval local
@@ -587,7 +589,7 @@ BAD
 215 other pmsocks pmval remote pmdumplog
 216 pmda.linux local
 217 folio local
-218 archive logutil local pmlogextract pmdumplog
+218 archive local pmlogextract pmdumplog
 219 other local
 220 pmlogger local folio
 221 pmlogger local
@@ -603,7 +605,7 @@ BAD
 231 pmie #421411 local
 232 libpcp local sanity
 233 context_local local
-234 logutil local pmdumplog pmlogsummary pmlogextract sanity
+234 local pmdumplog pmlogsummary pmlogextract sanity
 235 pmns local
 236 pmns local
 237 pmns local
@@ -630,16 +632,16 @@ BAD
 258 trace local pmda.install folio
 259 derive pmval local
 260 derive pmie local pmstore
-261 logutil pmdumplog pmval local pmlogextract
+261 pmdumplog pmval local pmlogextract
 262 context_local pmie pmsocks remote pmstat
 263 derive local sanity
 264 pmns local
 265 libpcp local
-266 logutil #466346 patch2140 patch2141 local pmlogextract pmdumplog timezone
+266 #466346 patch2140 patch2141 local pmlogextract pmdumplog timezone
 267 libpcp local
 268 interop local
 269 wrap pmval pmkstat local pmstore
-270 pmlogextract logutil local pmdumplog
+270 local pmdumplog
 271 archive local pmdumplog
 272 pmcd pmval pmprobe remote pmstore
 273 libpcp local pmval pmstore
@@ -671,8 +673,8 @@ BAD
 299 libpcp local sanity
 300 pmcd local
 301 pmda pmcd pmlogger local
-302 pmlogextract logutil local pmdumplog
-303 logutil local pmlogextract pmdumplog
+302 pmlogextract local pmdumplog
+303 local pmlogextract pmdumplog
 304 pmlogger local
 305 pmgadgets local
 306 other local
@@ -686,7 +688,7 @@ BAD
 314 pmie local pmieutil pmstore
 315 pmie local pmieutil
 316 libpcp local
-317 logutil pmlogsummary local pmlogcheck pmie pmval derive pmrep python
+317 pmlogsummary local pmlogcheck pmie pmval derive pmrep python
 318 pmie local
 319 pmie local
 320 local folio pmlogcheck pmclient
@@ -697,7 +699,7 @@ BAD
 325 libpcp local
 326 pmlogger pmval libpcp pmcd local pmda.install folio pmdumplog pmlc timezone
 327 archive local pmdumplog pmloglabel timezone
-328 logutil local pmlogextract pmdumplog
+328 local pmlogextract pmdumplog
 329:retired archive mem_leak local purify
 330:retired archive mem_leak local purify
 331:retired archive mem_leak local purify
@@ -732,7 +734,7 @@ BAD
 360 pmie remote
 361 pmda.linux local cgroups
 362 pmlogconf local
-363 logutil local
+363 local pmlogsummary
 364 pmlogconf local
 365 pmcd remote pmlc
 366 pmlogconf local
@@ -750,7 +752,7 @@ BAD
 378 pmie local
 379 pmda.cisco local
 380 libpcp pmda pmda.sample local pmval pmprobe
-381 logutil pmlc remote
+381 pmlc remote
 382 dbpmda pmda pmda.sample local
 383 pmda.cisco local flakey
 384 pmda.pmcd local
@@ -793,8 +795,8 @@ BAD
 421 trace local pmda.install
 422 libpcp local pmstore
 423 libpcp local
-424 logutil local pmlogsummary
-425 wrap logutil local pmlogsummary pmdumplog
+424 local pmlogsummary
+425 wrap local pmlogsummary pmdumplog
 426 trace local pmstore
 427 pmcd #564017 local
 428 archive local pmval pmstore
@@ -869,7 +871,7 @@ BAD
 497 pmlogconf local
 498 event pmda local
 499 pmlogrewrite local timezone pmdumplog
-500 logutil local #636417
+500 local #636417 pmnewlog
 501 pmie local
 502 pmlogrewrite local pmdumplog
 503 logutil pmlogrewrite local pmlogextract pmdumplog
@@ -973,7 +975,7 @@ BAD
 601 trace pmda.install local
 602 trace pmda.install local
 603 trace pmda.install remote
-604 logutil archive pmval pmlogextract pmdumplog local
+604 archive pmval pmlogextract pmdumplog local
 605 trace local
 606 python archive pmns pmiostat local pidstat pcp
 607 libpcp local
@@ -1083,7 +1085,7 @@ BAD
 735 pmda.proc local
 736 pmlogrewrite local pmdumplog
 737 python local timezone
-738 logutil local pmlogmv
+738 local pmlogmv
 739 python getopt local timezone
 740 pmda.sample pmstore secure local
 741 python getopt local
@@ -1153,7 +1155,7 @@ BAD
 805 pmda.postfix local
 806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
-808 pmlogger local
+808 pmlogger local logutil
 809 archive multi-archive local collectl pmlogextract pcp python
 810 pmiostat archive multi-archive local pmlogextract pcp python
 811 pmlogger pmcpp local
@@ -1279,7 +1281,7 @@ BAD
 931 archive pmval local
 932 pmlogger local pmdumplog folio
 933 pmda.proc local
-934 logutil pmieutil local
+934 pmieutil local
 935 derive local
 936 pcp python local
 937 derive local
@@ -1439,7 +1441,7 @@ BAD
 1091 pmns libpcp context local
 1092 libpcp local
 1093 pmcpp local
-1094 logutil local
+1094 other local
 1095 derive local
 1096 libpcp threads valgrind local pmmgr local
 1097 pmlogconf local
@@ -1527,7 +1529,7 @@ BAD
 1243 pmfind libpcp local
 1245 libpcp local
 1247 pmlogrewrite labels text pmdumplog local
-1255 logutil libpcp pmda.prometheus local python
+1255 libpcp pmda.prometheus local python
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract pcp python
 1265 pmda.linux local

@@ -80,6 +80,8 @@ sed \
 	-e "s,$PCP_TMP_DIR,TMP,g" \
 	-e "s,/var/tmp,TMP,g" \
 	-e "s,/tmp,TMP,g" \
+	-e '/+ ln /d' \
+# end
 
 # success, all done
 status=0

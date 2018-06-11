@@ -5,6 +5,8 @@
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 #
+# check-group-include: logutil
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"

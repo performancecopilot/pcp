@@ -192,13 +192,12 @@ do_logue(int type)
 	goto done;
 
     __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));	/* force use of log version */
-    /* and start some writing to the archive log files ... */
+    /* and write to the archive data file ... */
+    last_log_offset = __pmFtell(archctl.ac_mfp);
     sts = __pmLogPutResult2(&archctl, pb);
     __pmUnpinPDUBuf(pb);
     if (sts < 0)
 	goto done;
-
-    last_log_offset = __pmFtell(archctl.ac_mfp);
 
     if (type == PROLOGUE) {
 	for (i = 0; i < n_metric; i++) {

@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_check_valgrind
+
 [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific PMDAs used in test case"
 
 _cleanup()
