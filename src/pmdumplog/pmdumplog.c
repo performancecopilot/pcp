@@ -19,6 +19,7 @@
 #include <limits.h>
 #include <float.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 static struct pmTimeval	pmtv;
 static char		timebuf[32];	/* for pmCtime result + .xxx */
@@ -856,7 +857,11 @@ rawdump(FILE *f)
     int		i;
     int		sts;
 
-    old = ftell(f);
+    if ((old = ftell(f)) < 0) {
+	fprintf(stderr, "rawdump: Botch: ftell(%p) -> %ld (%s)\n", f, old, pmErrStr(-errno));
+	return;
+    }
+
     fseek(f, (long)0, SEEK_SET);
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
