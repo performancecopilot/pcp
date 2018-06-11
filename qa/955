@@ -96,6 +96,15 @@ fetch kernel.percpu.softirqs.NET_RX kernel.percpu.interrupts.line0
 EOF
 cat $tmp.log >>$here/$seq.full
 
+# Verify aggregated metric values
+echo "=== Daemon PMDA accumulated interrupts and softirqs ==="
+dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pmdalinux -d 60 -l $tmp.log
+fetch kernel.all.interrupts.total
+fetch kernel.all.softirqs.total
+EOF
+cat $tmp.log >>$here/$seq.full
+
 # success, all done
 status=0
 exit

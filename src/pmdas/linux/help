@@ -35,6 +35,7 @@
 @ 60.1 set of all disks
 @ 60.2 load averages for 1, 5, and 15 minutes
 @ 60.3 set of network interfaces
+@ 60.4 set of interrupt lines
 @ 60.5 mounted block-device-backed filesystem
 @ 60.6 swap devices
 @ 60.7 network filesystem (NFS) v2 operations
@@ -63,6 +64,7 @@ The scsi tape instance domain includes st[0-9]+ devices, but not any of the
 derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
 devices all share the same statistics in the kernel as the st devices.
 @ 60.35 serial devices (aka ttys)
+@ 60.36 set of soft interrupts
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
