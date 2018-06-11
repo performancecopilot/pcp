@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,21 +17,26 @@
 # Configuration options
 # Name - type - default
 #
-# process - string - unset : list of names/pids or regex of processes to monitor
-# dport   - int    - unset : list of remote ports to monitor
-# lport   - int    - unset : list of local ports to monitor
+# process           - string - unset : list of names/pids or regex of processes to monitor
+# dport             - int    - unset : list of remote ports to monitor
+# lport             - int    - unset : list of local ports to monitor
+# session_count     - int    - 20    : number of closed TCP sessions to keep in the cache
+# buffer_page_count - int    - 64    : number of pages for the perf ring buffer (must be a
+#                                      power of two)
 
 # pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
 
 import ctypes as ct
+from collections import deque
 from threading import Lock, Thread
+from socket import inet_ntop, AF_INET, AF_INET6
+from struct import pack
 from os import path
-
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
-from cpmapi import PM_ERR_AGAIN
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_SEM_DISCRETE
+from cpmapi import PM_SPACE_BYTE, PM_TIME_USEC, PM_ERR_AGAIN
 
 from modules.pcpbcc import PCPBCCBase
 
@@ -54,6 +60,8 @@ if not path.exists(TRACEFS + "/events/sock/inet_sock_set_state"):
 MODULE = 'tcplife'
 BASENS = 'proc.io.net.tcp.'
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+units_usecs = pmUnits(0, 1, 0, 0, PM_TIME_USEC, 0)
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
 
 TASK_COMM_LEN = 16      # linux/sched.h
 
@@ -97,9 +105,8 @@ class PCPBCCModule(PCPBCCBase):
         self.pids = []
         self.dports = []
         self.lports = []
-
-        self.ipv4_stats = {}
-        self.ipv6_stats = {}
+        self.session_count = 20
+        self.buffer_page_count = 64
 
         for opt in self.config.options(MODULE):
             if opt == 'dport':
@@ -116,6 +123,13 @@ class PCPBCCModule(PCPBCCBase):
                 for proc in procs:
                     self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
                     self.pids.append(proc[0])
+            if opt == 'session_count':
+                self.session_count = int(self.config.get(MODULE, opt))
+            if opt == 'buffer_page_count':
+                self.buffer_page_count = int(self.config.get(MODULE, opt))
+
+        self.cache = {}
+        self.cache_instances = deque(maxlen=self.session_count)
 
         self.lock = Lock()
         self.thread = Thread(name="bpfpoller", target=self.poller)
@@ -142,39 +156,65 @@ class PCPBCCModule(PCPBCCBase):
             self.err("BPF kprobe poll failed!")
         self.log("Poller thread exiting.")
 
+    def handle_ip_event(self, data, version):
+        """ IP event handler """
+        if version == 4:
+            event = ct.cast(data, ct.POINTER(Data_ipv4)).contents
+            laddr = inet_ntop(AF_INET, pack("I", event.saddr))
+            raddr = inet_ntop(AF_INET, pack("I", event.daddr))
+        else:
+            event = ct.cast(data, ct.POINTER(Data_ipv6)).contents
+            laddr = inet_ntop(AF_INET6, event.saddr)
+            raddr = inet_ntop(AF_INET6, event.daddr)
+
+        instance = "%s::%s" % (str(event.pid).zfill(6), str(event.ts_us))
+        self.lock.acquire()
+        self.cache[instance] = [
+            event.pid,
+            event.task.decode(),
+            laddr,
+            event.ports >> 32,
+            raddr,
+            event.ports & 0xffffffff,
+            event.tx_b,
+            event.rx_b,
+            event.span_us
+        ]
+        if len(self.cache_instances) == self.session_count:
+            del self.cache[self.cache_instances[0]]
+        self.cache_instances.append(instance)
+        self.lock.release()
+
     def handle_ipv4_event(self, _cpu, data, _size):
         """ IPv4 event handler """
-        event = ct.cast(data, ct.POINTER(Data_ipv4)).contents
-        pid = str(event.pid).zfill(6)
-        self.lock.acquire()
-        if pid not in self.ipv4_stats:
-            self.ipv4_stats[pid] = [int(event.tx_b), int(event.rx_b)]
-        else:
-            self.ipv4_stats[pid][0] += int(event.tx_b)
-            self.ipv4_stats[pid][1] += int(event.rx_b)
-        self.lock.release()
+        self.handle_ip_event(data, 4)
 
     def handle_ipv6_event(self, _cpu, data, _size):
         """ IPv6 event handler """
-        event = ct.cast(data, ct.POINTER(Data_ipv6)).contents
-        pid = str(event.pid).zfill(6)
-        self.lock.acquire()
-        if pid not in self.ipv6_stats:
-            self.ipv6_stats[pid] = [int(event.tx_b), int(event.rx_b)]
-        else:
-            self.ipv6_stats[pid][0] += int(event.tx_b)
-            self.ipv6_stats[pid][1] += int(event.rx_b)
-        self.lock.release()
+        self.handle_ip_event(data, 6)
 
     def metrics(self):
         """ Get metric definitions """
         name = BASENS
         self.items = (
             # Name - reserved - type - semantics - units - help
-            (name + 'tx', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'tcp tx per pid'),
-            (name + 'rx', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'tcp rx per pid'),
+            (name + 'pid', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'PID'),
+            (name + 'comm', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'command'),
+            (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'local address'),
+            (name + 'lport', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'local port'),
+            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'destination ' \
+                'address'),
+            (name + 'dport', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'destination port'),
+            (name + 'tx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'tcp tx per pid'),
+            (name + 'rx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'tcp rx per pid'),
+            (name + 'duration', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_usecs, 'duration of ' \
+                'the TCP session (from TCP_ESTABLISHED/TCP_SYN_* until TCP_CLOSE)'),
         )
         return True, self.items
+
+    def perf_buffer_lost_cb(self, lost_cnt):
+        """ Callback for lost perf buffer events """
+        self.err('lost %d events; buffer_page_count should be increased' % lost_cnt)
 
     def compile(self):
         """ Compile BPF """
@@ -208,8 +248,12 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("\n" + bpf_text)
 
             self.bpf = BPF(text=bpf_text)
-            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event, page_cnt=64)
-            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event, page_cnt=64)
+            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
+                                                     page_cnt=self.buffer_page_count,
+                                                     lost_cb=self.perf_buffer_lost_cb)
+            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event,
+                                                     page_cnt=self.buffer_page_count,
+                                                     lost_cb=self.perf_buffer_lost_cb)
             self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
@@ -226,16 +270,8 @@ class PCPBCCModule(PCPBCCBase):
         self.insts = {}
 
         self.lock.acquire()
-        for pid in list(self.ipv4_stats):
-            if not self.pid_alive(pid):
-                del self.ipv4_stats[pid]
-            else:
-                self.insts[pid] = ct.c_int(1)
-        for pid in list(self.ipv6_stats):
-            if not self.pid_alive(pid):
-                del self.ipv6_stats[pid]
-            else:
-                self.insts[pid] = ct.c_int(1)
+        for inst in self.cache:
+            self.insts[inst] = ct.c_int(1)
         self.lock.release()
 
         return self.insts
@@ -245,11 +281,7 @@ class PCPBCCModule(PCPBCCBase):
         try:
             self.lock.acquire()
             key = self.pmdaIndom.inst_name_lookup(inst)
-            value = 0
-            if key in self.ipv4_stats:
-                value += self.ipv4_stats[key][item]
-            if key in self.ipv6_stats:
-                value += self.ipv6_stats[key][item]
+            value = self.cache[key][item]
             self.lock.release()
             return [value, 1]
         except Exception: # pylint: disable=broad-except
