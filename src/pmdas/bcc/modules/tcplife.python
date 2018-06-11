@@ -21,8 +21,7 @@
 # dport             - int    - unset : list of remote ports to monitor
 # lport             - int    - unset : list of local ports to monitor
 # session_count     - int    - 20    : number of closed TCP sessions to keep in the cache
-# buffer_page_count - int    - 64    : number of pages for the perf ring buffer (must be a
-#                                      power of two)
+# buffer_page_count - int    - 64    : number of pages for the perf ring buffer, power of two
 
 # pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
 
@@ -32,6 +31,7 @@ from threading import Lock, Thread
 from socket import inet_ntop, AF_INET, AF_INET6
 from struct import pack
 from os import path
+
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
@@ -127,6 +127,9 @@ class PCPBCCModule(PCPBCCBase):
                 self.session_count = int(self.config.get(MODULE, opt))
             if opt == 'buffer_page_count':
                 self.buffer_page_count = int(self.config.get(MODULE, opt))
+                if not self.buffer_page_count or \
+                   self.buffer_page_count & (self.buffer_page_count - 1):
+                    raise RuntimeError("Buffer page count is not power of two.")
 
         self.cache = {}
         self.cache_instances = deque(maxlen=self.session_count)
@@ -205,8 +208,8 @@ class PCPBCCModule(PCPBCCBase):
             (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'destination ' \
                 'address'),
             (name + 'dport', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'destination port'),
-            (name + 'tx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'tcp tx per pid'),
-            (name + 'rx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'tcp rx per pid'),
+            (name + 'tx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'transmitted data'),
+            (name + 'rx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'received data'),
             (name + 'duration', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_usecs, 'duration of ' \
                 'the TCP session (from TCP_ESTABLISHED/TCP_SYN_* until TCP_CLOSE)'),
         )
@@ -214,7 +217,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def perf_buffer_lost_cb(self, lost_cnt):
         """ Callback for lost perf buffer events """
-        self.err('lost %d events; buffer_page_count should be increased' % lost_cnt)
+        self.err("Lost %d events; buffer_page_count should be increased." % lost_cnt)
 
     def compile(self):
         """ Compile BPF """

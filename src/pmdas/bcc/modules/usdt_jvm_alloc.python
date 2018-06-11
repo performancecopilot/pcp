@@ -16,7 +16,7 @@
 # Configuration options
 # Name - type - default
 #
-# frequency - int    - unset : sample every Nth allocation, power of 2
+# frequency - int    - unset : sample every Nth allocation, power of two
 # jvm_path  - string -  [1]  : path to libjvm.so
 # process   - string - unset : list of names/pids or regex of processes to monitor
 #
