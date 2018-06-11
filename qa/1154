@@ -11,7 +11,8 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-which zfs >/dev/null 2>&1 || _notrun "zfs not installed"
+which zpool >/dev/null 2>&1 || _notrun "zpool tool not installed"
+modinfo zfs >/dev/null 2>&1 || _notrun "zfs kernel module not present"
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 zfs_pool=pcp-qa-tank-$seq
