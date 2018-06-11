@@ -35,7 +35,7 @@ from os import path
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_SEM_DISCRETE
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_SEM_INSTANT
 from cpmapi import PM_SPACE_BYTE, PM_TIME_USEC, PM_ERR_AGAIN
 
 from modules.pcpbcc import PCPBCCBase
@@ -131,8 +131,8 @@ class PCPBCCModule(PCPBCCBase):
                    self.buffer_page_count & (self.buffer_page_count - 1):
                     raise RuntimeError("Buffer page count is not power of two.")
 
-        self.cache = {}
-        self.cache_instances = deque(maxlen=self.session_count)
+        self.cache = deque(maxlen=self.session_count)
+        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.session_count)}
 
         self.lock = Lock()
         self.thread = Thread(name="bpfpoller", target=self.poller)
@@ -170,9 +170,8 @@ class PCPBCCModule(PCPBCCBase):
             laddr = inet_ntop(AF_INET6, event.saddr)
             raddr = inet_ntop(AF_INET6, event.daddr)
 
-        instance = "%s::%s" % (str(event.pid).zfill(6), str(event.ts_us))
         self.lock.acquire()
-        self.cache[instance] = [
+        self.cache.appendleft([
             event.pid,
             event.task.decode(),
             laddr,
@@ -182,10 +181,7 @@ class PCPBCCModule(PCPBCCBase):
             event.tx_b,
             event.rx_b,
             event.span_us
-        ]
-        if len(self.cache_instances) == self.session_count:
-            del self.cache[self.cache_instances[0]]
-        self.cache_instances.append(instance)
+        ])
         self.lock.release()
 
     def handle_ipv4_event(self, _cpu, data, _size):
@@ -201,16 +197,16 @@ class PCPBCCModule(PCPBCCBase):
         name = BASENS
         self.items = (
             # Name - reserved - type - semantics - units - help
-            (name + 'pid', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'PID'),
-            (name + 'comm', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'command'),
-            (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'local address'),
-            (name + 'lport', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'local port'),
-            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none, 'destination ' \
+            (name + 'pid', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'PID'),
+            (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
+            (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'local address'),
+            (name + 'lport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'local port'),
+            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination ' \
                 'address'),
-            (name + 'dport', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_none, 'destination port'),
-            (name + 'tx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'transmitted data'),
-            (name + 'rx', None, PM_TYPE_U64, PM_SEM_DISCRETE, units_bytes, 'received data'),
-            (name + 'duration', None, PM_TYPE_U32, PM_SEM_DISCRETE, units_usecs, 'duration of ' \
+            (name + 'dport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'destination port'),
+            (name + 'tx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'transmitted data'),
+            (name + 'rx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'received data'),
+            (name + 'duration', None, PM_TYPE_U32, PM_SEM_INSTANT, units_usecs, 'duration of ' \
                 'the TCP session (from TCP_ESTABLISHED/TCP_SYN_* until TCP_CLOSE)'),
         )
         return True, self.items
@@ -270,20 +266,13 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        self.insts = {}
-
-        self.lock.acquire()
-        for inst in self.cache:
-            self.insts[inst] = ct.c_int(1)
-        self.lock.release()
-
         return self.insts
 
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """
         try:
             self.lock.acquire()
-            key = self.pmdaIndom.inst_name_lookup(inst)
+            key = int(self.pmdaIndom.inst_name_lookup(inst))
             value = self.cache[key][item]
             self.lock.release()
             return [value, 1]
