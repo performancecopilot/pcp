@@ -22,7 +22,7 @@ extern "C" {
 #if !defined(IS_MINGW)
 # define PMI_CALL
 #else
-# if defined(PMI_INTERNAL)
+# if defined(PMI_STATIC)
 #  define PMI_CALL __declspec(dllexport)
 # else
 #  define PMI_CALL __declspec(dllimport)

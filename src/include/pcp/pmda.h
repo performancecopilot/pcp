@@ -185,7 +185,7 @@ typedef struct pmdaExt {
 # define PMDA_CALL
 #else
 # define __PMDA_INIT_CALL
-# if defined(PMDA_INTERNAL)
+# if defined(PMDA_STATIC)
 #  define PMDA_CALL __declspec(dllexport)
 # else
 #  define PMDA_CALL __declspec(dllimport)
