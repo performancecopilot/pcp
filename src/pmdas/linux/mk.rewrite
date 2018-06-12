@@ -123,4 +123,18 @@ metric network.sockstat.raw.util { DELETE }
 
 End-of-File
 
+cat <<End-of-File >proc_fs_nfsd_fixups.conf
+
+# Copyright 2018 Red Hat.
+#
+# pmlogrewrite configuration for migrating archives containing old
+# NFS server thread metrics with counter semantics to instantaneous
+# semantics.
+#
+
+metric nfs.server.threads.pools { sem -> INSTANT }
+metric nfs.server.threads.total { sem -> INSTANT }
+
+End-of-File
+
 exit 0
