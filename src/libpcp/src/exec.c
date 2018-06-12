@@ -288,8 +288,9 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 		fprintf(stderr, "__pmProcessExec: freopen stdout failed\n");
 	}
 	if (toss & PM_EXEC_TOSS_STDERR) {
-	    freopen("/dev/null", "w", stderr);
-	    /* cannot always safely write to stderr if freopen fails; ignore */
+	    if ((freopen("/dev/null", "w", stderr)) == NULL)
+		/* cannot always safely write to stderr if freopen fails; ignore */
+		;
 	}
 
 	execvp(path, (char * const *)ep->argv);
@@ -569,8 +570,9 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	}
 	ep->argv[0] = name;
 	if (toss & PM_EXEC_TOSS_STDERR) {
-	    freopen("/dev/null", "w", stderr);
-	    /* cannot always safely write to stderr if freopen fails; ignore */
+	    if ((freopen("/dev/null", "w", stderr)) == NULL)
+		/* cannot always safely write to stderr if freopen fails; ignore */
+		;
 	}
 
 	execvp(path, (char * const *)ep->argv);
