@@ -9,6 +9,7 @@ Info: tcplife
 Info: Modules configured.
 Info: Initializing modules:
 Info: tcplife
+Info: tcplife: Filtering on remote ports: [80].
 Info: tcplife: Using BPF source file X
 Info: tcplife: Initialized.
 Info: Modules initialized.
@@ -27,6 +28,7 @@ Info: tcplife
 Info: Modules configured.
 Info: Initializing modules:
 Info: tcplife
+Info: tcplife: Filtering on remote ports: [80].
 Info: tcplife: Using BPF source file X
 Info: tcplife: Initialized.
 Info: Modules initialized.
