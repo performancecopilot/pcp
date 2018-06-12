@@ -1568,25 +1568,6 @@ then
 fi
 AC_SUBST(grep)
 
-dnl checks for /proc pseudo file system
-AC_MSG_CHECKING([for /proc ])
-if test "$cross_compiling" = "yes"; then
-    ans=$have_procfs
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -d /proc
-then
-    have_procfs=true
-else
-    have_procfs=false
-fi
-if $have_procfs
-then
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_PROCFS, [1], [Support for /proc pseudo-filesystem])
-else
-    AC_MSG_RESULT(no)
-fi
-
 dnl Checks for C header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC

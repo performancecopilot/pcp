@@ -9320,29 +9320,6 @@ then
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /proc " >&5
-$as_echo_n "checking for /proc ... " >&6; }
-if test "$cross_compiling" = "yes"; then
-    ans=$have_procfs
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -d /proc
-then
-    have_procfs=true
-else
-    have_procfs=false
-fi
-if $have_procfs
-then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-$as_echo "#define HAVE_PROCFS 1" >>confdefs.h
-
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
 ac_header_dirent=no
 for ac_hdr in dirent.h sys/ndir.h sys/dir.h ndir.h; do
   as_ac_Header=`$as_echo "ac_cv_header_dirent_$ac_hdr" | $as_tr_sh`

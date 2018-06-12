@@ -2501,7 +2501,7 @@ __pmProcessExists(pid_t pid)
     else
 	return 0;
 }
-#elif defined(HAVE_PROCFS) && !defined(IS_MINGW)
+#elif !defined(IS_MINGW)
 #define PROCFS			"/proc"
 #define PROCFS_PATH_SIZE	(sizeof(PROCFS)+PROCFS_ENTRY_SIZE)
 int
