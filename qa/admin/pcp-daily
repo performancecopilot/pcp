@@ -209,6 +209,11 @@ rm -f VERSION.pcp
 git checkout -- VERSION.pcp
 # Look for errors/warnings in the build logs ...
 #
+# In the sed below are "warnings" that are
+# (a) out of out control (e.g. in flex/bison generated code), or
+# (b) apparently benign things we're no going to fix, or
+# (c) stuff we've triaged and made a "no change needed" call
+#
 for log in Logs/*
 do
     echo "--- $log ---" >>$HOME/daily.log
@@ -224,7 +229,9 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/yyunput.* defined but not used/d' \
     -e '/input.* defined but not used/d' \
     -e '/jobserver unavailable: using -j1/d'\
-    -e '/File listed twice: .*python/d' \
+    -e '/^warning: File listed twice: .*python/d' \
+    -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
+    -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
 # end
 if [ -s $tmp.err ]
 then
@@ -538,7 +545,7 @@ sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
-list_2="fuji vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
+list_2="vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
 
 args="$*"
 pcp_branch=master
@@ -695,8 +702,7 @@ in
     bozo)
 	echo "bozo" >>$tmp.domains
 	echo "bozo-vm" >>$tmp.domains
-	echo "bozo-laptop" >>$tmp.domains
-	echo "fuji" >>$tmp.domains
+	# echo "fuji" >>$tmp.domains
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
