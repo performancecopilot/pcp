@@ -49,9 +49,9 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c
 
-ifeq "$(HAVE_LIBUV)" "true"
-CFILES += discover-logtail.c
-endif
+#ifeq "$(HAVE_LIBUV)" "true"
+#CFILES += discover-logtail.c
+#endif
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
