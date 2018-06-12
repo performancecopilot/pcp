@@ -1,0 +1,75 @@
+QA output created by 1155
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['tcplife']
+Info: Configuring modules:
+Info: tcplife
+Info: Modules configured.
+Info: Initializing modules:
+Info: tcplife
+Info: tcplife: Filtering on remote ports: [80].
+Info: tcplife: Using BPF source file X
+Info: tcplife: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: tcplife
+Info: Metrics registered.
+Info: Registering helpers:
+Info: tcplife
+Info: Helpers registered.
+Info: Ready to process requests.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['tcplife']
+Info: Configuring modules:
+Info: tcplife
+Info: Modules configured.
+Info: Initializing modules:
+Info: tcplife
+Info: tcplife: Filtering on remote ports: [80].
+Info: tcplife: Using BPF source file X
+Info: tcplife: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: tcplife
+Info: Metrics registered.
+Info: Registering helpers:
+Info: tcplife
+Info: Helpers registered.
+Info: Ready to process requests.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... X metrics and X values
+
+=== report metric values for pid ===
+OK
+=== report metric values for comm ===
+OK
+=== report metric values for laddr ===
+OK
+=== report metric values for lport ===
+OK
+=== report metric values for daddr ===
+OK
+=== report metric values for dport ===
+OK
+=== report metric values for tx ===
+OK
+=== report metric values for rx ===
+OK
+=== report metric values for duration ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

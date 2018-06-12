@@ -54,6 +54,8 @@ class BCCPMDA(PMDA):
         # See Install
         self.log("Initializing, currently in 'notready' state.")
 
+        self.fail_fatal = True
+
         self.modules = OrderedDict()
         self.clusters = OrderedDict()
         self.indoms = {}
@@ -98,7 +100,9 @@ class BCCPMDA(PMDA):
         config.read(conffile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
-                if opt == 'modules':
+                if opt == 'module_failure_fatal':
+                    self.fail_fatal = config.getboolean('pmda', opt)
+                elif opt == 'modules':
                     if config.get('pmda', opt):
                         for module in config.get('pmda', opt).split(","):
                             self.modules[module] = {}
@@ -220,7 +224,12 @@ class BCCPMDA(PMDA):
             self.log("Compiling modules:")
             for module in self.modules:
                 self.log(module)
-                self.modules[module][COMPILE]()
+                try:
+                    self.modules[module][COMPILE]()
+                except Exception: # pylint: disable=broad-except
+                    if self.fail_fatal:
+                        self.err("Failed to compile module " + module + ", aborting.")
+                        sys.exit(1)
             self.log("Modules compiled.")
 
     def bcc_refresh(self, cluster):

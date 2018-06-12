@@ -46,6 +46,8 @@ for the following PMDA options:
 modules
 .IP \(bu
 prefix
+.IP \(bu
+module_failure_fatal
 .RE
 .PD
 .PP
@@ -54,6 +56,11 @@ the comma-separated list of \fBmodules\fP (mandatory).
 By default, all metrics from the modules will appear under the \fIbcc\fP
 Performance Metrics Name Space (PMNS) tree, \fBprefix\fP (optional) can be
 used to change this generic prefix.
+A boolean value for \fBmodule_failure_fatal\fP (optional) controls whether
+a module failing to compile should cause the whole PMDA to abort (this is
+the default) or to start up with any possibly functional modules.
+Module configuration errors and internal errors (such as failing to
+register the provided PMNS metrics) will always cause the PMDA to fail.
 .PP
 For each listed module a corresponding \fB[module]\fP section must be
 defined containing at least the following options:

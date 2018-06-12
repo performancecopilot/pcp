@@ -16,7 +16,7 @@
 # Configuration options
 # Name - type - default
 #
-# frequency - int    - unset : sample every Nth allocation, power of 2
+# frequency - int    - unset : sample every Nth allocation, power of two
 # jvm_path  - string -  [1]  : path to libjvm.so
 # process   - string - unset : list of names/pids or regex of processes to monitor
 #
@@ -27,12 +27,14 @@
 from platform import architecture
 from ctypes import c_int
 from os import path
+
 from bcc import BPF, USDT
 
 from pcp.pmapi import pmUnits
-from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_INSTANT, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -115,9 +117,10 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf = BPF(text=bpf_text, usdt_contexts=[usdt])
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     @staticmethod
     def parse_name(text):

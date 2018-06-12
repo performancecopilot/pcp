@@ -319,7 +319,7 @@ build_dynamic_proc_tree(int domain)
     }
 
     /* Must now call this in all cases when we update the tree */
-    pmdaTreeRebuildHash( dynamic_proc_tree, num_hash_entries);
+    pmdaTreeRebuildHash(dynamic_proc_tree, num_hash_entries);
 }
 
 /*
@@ -415,7 +415,7 @@ size_metrictable(int *total, int *trees)
     *trees = sizeof(dynproc_members)/sizeof(char*) -1; /* will be 1 (hotproc) */
 
     if (pmDebugOptions.libpmda)
-        fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
+        fprintf(stderr, "size_metrictable: %d total x %d trees\n",
                 *total, *trees);
 }
 

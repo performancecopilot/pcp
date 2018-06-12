@@ -1,0 +1,101 @@
+#!/bin/sh
+# PCP QA Test No. 1155
+# Exercise the BCC PMDA tcplife module - install, remove and values.
+#
+# Copyright (c) 2018 Andreas Gerstmayr.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_install_filter()
+{
+    sed \
+    -e "s/Using BPF source file .\+/Using BPF source file X/g" \
+    #end
+}
+
+_value_filter_any()
+{
+    awk '/value .+/ {print "OK"; exit}'
+}
+
+_value_filter_nonzero()
+{
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_value_filter_exact()
+{
+    awk -v val=$1 '/value .+/ && $NF == val {print "OK"; exit}'
+}
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+cat <<EOF | _pmdabcc_install | _install_filter
+[pmda]
+modules = tcplife
+prefix = bcc.
+[tcplife]
+module = tcplife
+cluster = 3
+dport = 80
+EOF
+
+_pmdabcc_wait_for_metric
+
+# Generate system activity for the BCC tcplife module
+curl -s http://1.1.1.1
+sleep 1 # wait for async poller thread in tcplife; TODO: better solution?
+
+echo "=== report metric values for pid ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.pid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for comm ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.comm 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact '"curl"'
+
+echo "=== report metric values for laddr ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.laddr 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for lport ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.lport 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for daddr ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.daddr 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact '"1.1.1.1"'
+
+echo "=== report metric values for dport ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.dport 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact 80
+
+echo "=== report metric values for tx ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.tx 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for rx ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.rx 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for duration ==="
+pminfo -dfmtT bcc.proc.io.net.tcp.duration 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+_pmdabcc_remove
+
+status=0
+exit

@@ -103,12 +103,18 @@ kernel.all {
     runnable		60:2:2
     nprocs		60:2:3
     interrupts
+    softirqs
     entropy
     pid_max		60:72:2
 }
 
 kernel.all.interrupts {
+    total		60:4:0
     errors		60:4:3
+}
+
+kernel.all.softirqs {
+    total		60:82:0
 }
 
 kernel.all.entropy {

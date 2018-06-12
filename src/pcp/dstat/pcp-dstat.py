@@ -909,7 +909,7 @@ class DstatTool(object):
 #       opts.pmSetLongOption('zones', 0, None, '', 'enable zoneinfo stats')
         opts.pmSetLongOptionText('')
         opts.pmSetLongOption('list', 0, None, '', 'list all available plugins')
-        opts.pmSetLongOption('plugin', 0, None, '', 'enable external plugin by name (see --list)')
+        opts.pmSetLongOption('plugin', 0, None, '', 'enable external plugin by name, see --list')
         opts.pmSetLongOptionText('')
         opts.pmSetLongOption('all', 0, 'a', '', 'equals -cdngy (default)')
         opts.pmSetLongOption('full', 0, 'f', '', 'automatically expand -C, -D, -I, -N and -S lists')
