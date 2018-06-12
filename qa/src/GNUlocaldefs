@@ -49,6 +49,10 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c
 
+ifeq "$(HAVE_LIBUV)" "true"
+CFILES += discover-logtail.c
+endif
+
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
 else
@@ -519,6 +523,15 @@ httpfetch:	httpfetch.c
 json_test:	json_test.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+
+# --- need libpcp_web and libuv
+#
+
+ifeq "$(HAVE_LIBUV)" "true"
+discover-logtail:	discover-logtail.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c -I$(TOPDIR)/src/libpcp_web/src -DHAVE_LIBUV=1 $(LDLIBS) -lpcp_web -luv
+endif # HAVE_LIBUV
 
 # --- need libpcp_fault
 #

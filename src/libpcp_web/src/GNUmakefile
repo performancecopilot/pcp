@@ -36,7 +36,8 @@ LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_LIBUV)" "true"
-CFILES += libuv.c
+CFILES += libuv.c discover.c
+HFILES += discover.h
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 endif
