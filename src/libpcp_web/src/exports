@@ -78,4 +78,5 @@ PCP_WEB_1.5 {
 PCP_WEB_1.6 {
   global:
     pmDiscoverRegister;
+    pmDiscoverUnregister;
 } PCP_WEB_1.5;
