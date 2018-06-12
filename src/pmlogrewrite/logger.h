@@ -120,10 +120,11 @@ typedef struct textspec {
 } textspec_t;
 
 /* values for textspec_t flags[] */
-#define TEXT_CHANGE_ID		1
-#define TEXT_CHANGE_TYPE	2
-#define TEXT_CHANGE_TEXT	4
-#define TEXT_DELETE		8
+#define TEXT_ACTIVE             1
+#define TEXT_CHANGE_ID		2
+#define TEXT_CHANGE_TYPE	4
+#define TEXT_CHANGE_TEXT	8
+#define TEXT_DELETE		16
 
 extern textspec_t	*text_root;
 
