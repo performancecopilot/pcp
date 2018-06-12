@@ -280,7 +280,9 @@ typedef void (*SIG_PF) (int);
 
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */
 #define EHOSTDOWN	WSAEHOSTDOWN
+#ifndef ENODATA
 #define ENODATA		WSANO_DATA
+#endif
 extern const char *wsastrerror(int);
 
 #define HAVE_PIPE1

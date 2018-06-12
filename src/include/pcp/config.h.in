@@ -331,9 +331,6 @@
 /* printf %p produces 0x */
 #undef HAVE_PRINTF_P_PFX
 
-/* Support for /proc pseudo-filesystem */
-#undef HAVE_PROCFS
-
 /* PR_SET_PDEATHSIG constant */
 #undef HAVE_PR_SET_PDEATHSIG
 
