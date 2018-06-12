@@ -24,6 +24,8 @@
 #include <errno.h>
 #include <assert.h>
 
+#define PM_TEXT_TYPE_MASK (PM_TEXT_ONELINE | PM_TEXT_HELP)
+
 static indomspec_t	*current_indomspec;
 static int		current_star_indom;
 static int		do_walk_indom;
@@ -110,9 +112,9 @@ walk_metric(int mode, int flag, char *which, int dupok)
 }
 
 static const char *
-textClassStr(int class)
+textTypeStr(int type)
 {
-    switch(class)
+    switch(type)
 	{
 	case PM_TEXT_ONELINE:
 	    return "one line";
@@ -156,12 +158,12 @@ walk_text(int mode, int flag, char *which, int dupok)
 	if (!dupok && (tp->flags & flag)) {
 	    if ((tp->old_type & PM_TEXT_PMID)) {
 		pmsprintf(mess, sizeof(mess), "Duplicate %s clause for %s text for metric %s",
-			  which, textClassStr(tp->old_type), pmIDStr(tp->old_id));
+			  which, textTypeStr(tp->old_type), pmIDStr(tp->old_id));
 	    }
 	    else {
 		assert((tp->old_type & PM_TEXT_INDOM));
 		pmsprintf(mess, sizeof(mess), "Duplicate %s clause for %s text for indom %s",
-			  which, textClassStr(tp->old_type), pmInDomStr(tp->old_id));
+			  which, textTypeStr(tp->old_type), pmInDomStr(tp->old_id));
 	    }
 	    yyerror(mess);
 	}
@@ -169,12 +171,12 @@ walk_text(int mode, int flag, char *which, int dupok)
 	    if (tp->flags & TEXT_DELETE) {
 		if ((tp->old_type & PM_TEXT_PMID)) {
 		    pmsprintf(mess, sizeof(mess), "Conflicting %s clause for deleted %s text for metric %s",
-			      which, textClassStr(tp->old_type), pmIDStr(tp->old_id));
+			      which, textTypeStr(tp->old_type), pmIDStr(tp->old_id));
 		}
 		else {
 		    assert((tp->old_type & PM_TEXT_INDOM));
 		    pmsprintf(mess, sizeof(mess), "Conflicting %s clause for deleted %s text for indom %s",
-			      which, textClassStr(tp->old_type), pmInDomStr(tp->old_id));
+			      which, textTypeStr(tp->old_type), pmInDomStr(tp->old_id));
 		}
 		yyerror(mess);
 	    }
@@ -183,12 +185,12 @@ walk_text(int mode, int flag, char *which, int dupok)
 	    if (tp->flags & (~TEXT_DELETE)) {
 		if ((tp->old_type & PM_TEXT_PMID)) {
 		    pmsprintf(mess, sizeof(mess), "Conflicting delete and other clauses for %s text for metric %s",
-			      textClassStr(tp->old_type), pmIDStr(tp->old_id));
+			      textTypeStr(tp->old_type), pmIDStr(tp->old_id));
 		}
 		else {
 		    assert((tp->old_type & PM_TEXT_INDOM));
 		    pmsprintf(mess, sizeof(mess), "Conflicting delete and other clauses for %s text for indom %s",
-			      textClassStr(tp->old_type), pmInDomStr(tp->old_id));
+			      textTypeStr(tp->old_type), pmInDomStr(tp->old_id));
 		}
 		yyerror(mess);
 	    }
@@ -247,7 +249,7 @@ walk_text(int mode, int flag, char *which, int dupok)
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
 %type<pmid>	pmid_int pmid_or_name
-%type<ival>	signnumber number rescaleopt duplicateopt textclass textclasses opttextclasses
+%type<ival>	signnumber number rescaleopt duplicateopt texttype texttypes opttexttypes
 %type<dval>	float
 %type<str>	textstring
 
@@ -1154,14 +1156,14 @@ textmetricorindomspec	: textmetricspec
 			| textindomspec
 			;
 
-textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
+textmetricspec	: TOK_METRIC pmid_or_name opttexttypes
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
 			__pmHashNode	*node1;
 			int		target_types;
+			int		this_type;
 			int		type;
-			int		class;
 
 			ctxp = __pmHandleToPtr(pmWhichContext());
 			assert(ctxp != NULL);
@@ -1191,7 +1193,7 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 				    star_cluster = PM_ID_NULL;
 			    }
 
-			    /* We're looking for text of the specified class(es) for metric(s). */
+			    /* We're looking for text of the specified type(s) for metric(s). */
 			    target_types = PM_TEXT_PMID | $3;
 			    hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
@@ -1201,8 +1203,8 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 				__pmHashNode	*node2;
 
 				/* Was this object type selected? */
-				type = (int)(node1->key);
-				if ((type & target_types) != type)
+				this_type = (int)(node1->key);
+				if ((this_type & target_types) != this_type)
 				    continue;
 
 				/*
@@ -1218,7 +1220,7 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 					if (pmID_domain((pmID)(node2->key)) == star_domain &&
 					    (star_cluster == PM_ID_NULL ||
 					     star_cluster == pmID_cluster((pmID)(node2->key)))) {
-					    current_textspec = start_text(type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key));
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
@@ -1229,23 +1231,23 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 				    else {
 					/* Match the exact metric PMID. */
 					if ((pmID)(node2->key) == $2) {
-					    current_textspec = start_text(type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key));
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
 					    }
 					    /*
 					     * Stop looking if we have found all of the specified
-					     * classes.
+					     * types.
 					     */
-					    class = type & PM_TEXT_CLASS_MASK;
-					    target_types ^= class;
-					    if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+					    type = this_type & PM_TEXT_TYPE_MASK;
+					    target_types ^= type;
+					    if ((target_types & PM_TEXT_TYPE_MASK) == 0)
 						break;
 					}
 				    }
 				}
-				if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+				if ((target_types & PM_TEXT_TYPE_MASK) == 0)
 				    break;
 			    }
 			    do_walk_text = (found > 1);
@@ -1254,19 +1256,19 @@ textmetricspec	: TOK_METRIC pmid_or_name opttextclasses
 		  TOK_LBRACE opttextmetricoptlist TOK_RBRACE
 		;
 
-opttextclasses	: textclasses 
+opttexttypes	: texttypes 
 		    { $$ = $1; }
 		| /* nothing */
 		    { $$ = PM_TEXT_ONELINE; } /* The default */
 		;
 
-textclasses	: textclass
+texttypes	: texttype
 		    { $$ = $1; }
-		| textclass textclasses
+		| texttype texttypes
 		    { $$ = $1 | $2; } /* Accumulate */
 		;
 
-textclass	: TOK_ALL
+texttype	: TOK_ALL
 		    { $$ = PM_TEXT_ONELINE | PM_TEXT_HELP; }
 		| TOK_HELP
 		    { $$ = PM_TEXT_HELP; }
@@ -1344,7 +1346,7 @@ textmetricopt	: TOK_DELETE
 			    }
 			    else {
 				const textspec_t *tp1;
-				/* Warn if the target metric already has text of this class. */
+				/* Warn if the target metric already has text of this type. */
 				/*
 				 * Search all of the change specs for others targeting
 				 * the same metric.
@@ -1379,14 +1381,14 @@ textstring	: TOK_STRING
 		    { $$ = $1; }
 		;
 
-textindomspec	: TOK_INDOM indom_int opttextclasses
+textindomspec	: TOK_INDOM indom_int opttexttypes
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
 			__pmHashNode	*node1;
 			int		target_types;
+			int		this_type;
 			int		type;
-			int		class;
 
 			ctxp = __pmHandleToPtr(pmWhichContext());
 			assert(ctxp != NULL);
@@ -1412,7 +1414,7 @@ textindomspec	: TOK_INDOM indom_int opttextclasses
 				star_domain = pmInDom_domain($2);
 			    }
 
-			    /* We're looking for text of the specified class(es) for indom(s). */
+			    /* We're looking for text of the specified type(s) for indom(s). */
 			    target_types = PM_TEXT_INDOM | $3;
 			    hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
@@ -1422,8 +1424,8 @@ textindomspec	: TOK_INDOM indom_int opttextclasses
 				__pmHashNode	*node2;
 
 				/* Was this object type selected? */
-				type = (int)(node1->key);
-				if ((type & target_types) != type)
+				this_type = (int)(node1->key);
+				if ((this_type & target_types) != this_type)
 				    continue;
 
 				/*
@@ -1437,7 +1439,7 @@ textindomspec	: TOK_INDOM indom_int opttextclasses
 				    if (current_star_indom) {
 					/* Match the globbed metric spec and keep looking. */
 					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
-					    current_textspec = start_text(type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key));
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
@@ -1447,23 +1449,23 @@ textindomspec	: TOK_INDOM indom_int opttextclasses
 				    else {
 					/* Match the exact indom id. */
 					if ((pmID)(node2->key) == $2) {
-					    current_textspec = start_text(type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key));
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
 					    }
 					    /*
 					     * Stop looking if we have found all of the specified
-					     * classes.
+					     * types.
 					     */
-					    class = type & PM_TEXT_CLASS_MASK;
-					    target_types ^= class;
-					    if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+					    type = this_type & PM_TEXT_TYPE_MASK;
+					    target_types ^= type;
+					    if ((target_types & PM_TEXT_TYPE_MASK) == 0)
 						break;
 					}
 				    }
 				}
-				if ((target_types & PM_TEXT_CLASS_MASK) == 0)
+				if ((target_types & PM_TEXT_TYPE_MASK) == 0)
 				    break;
 			    }
 			    do_walk_text = (found > 1);
