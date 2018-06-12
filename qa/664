@@ -71,7 +71,7 @@ otherhost       n   n   $tmp/otherhost   -c /no/such/config
 End-of-File
 
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -l $tmp.log -V -k never -c $tmp.control \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -x 0 -l $tmp.log -V -k never -c $tmp.control \
 | _filter
 
 _filter <$tmp.log
