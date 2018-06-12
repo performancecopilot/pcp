@@ -58,6 +58,12 @@ pcp -z -s 3 -S +10s -a archives/pcp-zeroconf free || exit 1
 echo; echo === testing pcp-vmstat on pcp-zeroconf archive
 pcp -z -s 3 -S +10s -a archives/pcp-zeroconf vmstat || exit 1
 
+for conf in collectl-sc collectl-sm collectl-sd collectl-sD collectl-sn
+do
+    echo; echo === testing pmrep with :$conf config on pcp-zeroconf archive
+    PCP_DERIVED_CONFIG=$PCP_VAR_DIR/config/derived pmrep -z -s 3 -S +10s -a archives/pcp-zeroconf :$conf || exit 1
+done
+
 # success, all done
 status=0
 exit
