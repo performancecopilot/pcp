@@ -25,12 +25,13 @@ refresh_rawconn_stats(rawconn_stats_t *conn, const char *path)
     if ((fp = linux_statsfile(path, buf, sizeof(buf))) == NULL)
 	return -oserror();
 
-    /* skip header */
-    fgets(buf, sizeof(buf), fp);
+    /* skip header, then ... */
+    if (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* ... accumlate count of the remaining lines */
+	while (fgets(buf, sizeof(buf), fp) != NULL)
+	    conn->count++;
+    }
 
-    /* accumlate count of the remaining lines */
-    while (fgets(buf, sizeof(buf), fp) != NULL)
-	conn->count++;
     fclose(fp);
     return 0;
 }
