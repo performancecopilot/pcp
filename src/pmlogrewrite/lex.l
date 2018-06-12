@@ -182,6 +182,7 @@ dupstr(char *s, int strip_quotes)
 <count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return TOK_COUNT_NAME; }
 
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
+\"[^\"][^\"]*\"		{ yylval.str = dupstr(yytext, 1); return TOK_NL_STRING; }
 
 [0-9]+			{ yylval.str = dupstr(yytext, 0); return TOK_NUMBER; }
 

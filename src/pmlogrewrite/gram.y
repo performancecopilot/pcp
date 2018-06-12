@@ -239,7 +239,7 @@ walk_text(int mode, int flag, char *which, int dupok)
 	TOK_HELP
 	TOK_ALL
 
-%token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_HNAME TOK_FLOAT
+%token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_NL_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
 %token<ival>	TOK_TYPE_NAME TOK_SEM_NAME TOK_SPACE_NAME TOK_TIME_NAME
 %token<ival>	TOK_COUNT_NAME TOK_OUTPUT_TYPE
@@ -249,6 +249,7 @@ walk_text(int mode, int flag, char *which, int dupok)
 %type<pmid>	pmid_int pmid_or_name
 %type<ival>	signnumber number rescaleopt duplicateopt textclass textclasses opttextclasses
 %type<dval>	float
+%type<str>	textstring
 
 %%
 
@@ -1294,7 +1295,7 @@ textmetricopt	: TOK_DELETE
 			    tp->flags |= TEXT_DELETE;
 			}
 		    }
-		| TOK_TEXT TOK_ASSIGN TOK_STRING
+		| TOK_TEXT TOK_ASSIGN textstring
 		    {
 			textspec_t	*tp;
 			for (tp = walk_text(W_START, TEXT_CHANGE_TEXT, "text", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_CHANGE_TEXT, "text", 0)) {
@@ -1342,11 +1343,40 @@ textmetricopt	: TOK_DELETE
 				}
 			    }
 			    else {
-				tp->new_id = pmid;
-				tp->flags |= TEXT_CHANGE_ID;
+				const textspec_t *tp1;
+				/* Warn if the target metric already has text of this class. */
+				/*
+				 * Search all of the change specs for others targeting
+				 * the same metric.
+				 */
+				for (tp1 = text_root; tp1 != NULL; tp1 = tp1->t_next) {
+				    if (! (tp1->flags & TEXT_CHANGE_ID))
+					continue; /* not an id change spec */
+				    if (tp1->new_type != tp->new_type)
+					continue; /* target is a different type */
+				    if (tp1 == tp)
+					continue; /* same spec */
+				    if (tp1->new_id == pmid) {
+					/* conflict with another change spec. */
+					pmsprintf(mess, sizeof(mess), "Text for metric: %s: metric: Conflicting metric change", pmIDStr(tp->old_id));
+					yyerror(mess);
+					break;
+				    }
+				}
+				if (tp1 == NULL) {
+				    /* No conflict */
+				    tp->new_id = pmid;
+				    tp->flags |= TEXT_CHANGE_ID;
+				}
 			    }
 			}
 		    }
+		;
+
+textstring	: TOK_STRING
+		    { $$ = $1; }
+		| TOK_NL_STRING
+		    { $$ = $1; }
 		;
 
 textindomspec	: TOK_INDOM indom_int opttextclasses
@@ -1463,7 +1493,7 @@ textindomopt	: TOK_DELETE
 			    tp->flags |= TEXT_DELETE;
 			}
 		    }
-		| TOK_TEXT TOK_ASSIGN TOK_STRING
+		| TOK_TEXT TOK_ASSIGN textstring
 		    {
 			textspec_t	*tp;
 			for (tp = walk_text(W_START, TEXT_CHANGE_TEXT, "text", 0); tp != NULL; tp = walk_text(W_NEXT, TEXT_CHANGE_TEXT, "text", 0)) {
