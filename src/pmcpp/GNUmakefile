@@ -21,7 +21,7 @@ CFILES	= pmcpp.c
 LLDLIBS = $(PCPLIB)
 CMDTARGET = pmcpp$(EXECSUFFIX)
 
-ifneq "$(TARGET_OS)" "yes"
+ifneq "$(CROSS_COMPILING)" "yes"
 STATICTARGETS = pmcpp.static
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)

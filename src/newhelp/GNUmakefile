@@ -23,7 +23,7 @@ CFILES = newhelp.c chkhelp.c
 LLDFLAGS = $(WARN_OFF)
 LLDLIBS = $(PCP_PMDALIB)
 
-ifneq "$(TARGET_OS)" "yes"
+ifneq "$(CROSS_COMPILING)" "yes"
 STATICTARGETS = newhelp.static
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
