@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # selinux-setup - install or remove PCP selinux policy files
-# Usage: selinux-setup [install|remove] <policy>
+# Usage: selinux-setup <path> [install|remove] <policy>
 #
 # Copyright (c) 2018 Red Hat.
 # 
@@ -16,14 +16,12 @@
 # for more details.
 # 
 
-status=0	# success is the default!
-trap "exit \$status" 0 1 2 3 15
+trap "exit 0" 0 1 2 3 15
 prog=`basename $0`
 
 if [ $# -lt 3 ]
 then
-    echo "$prog: invalid arguments" 1>&2
-    status=1
+    echo "$prog: invalid arguments -- $@" 1>&2
     exit
 fi
 
