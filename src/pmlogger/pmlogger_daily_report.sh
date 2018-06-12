@@ -172,9 +172,8 @@ REPORT_OPTIONS="-a $ARCHIVEPATH -z -p -f%H:%M:%S -t$INTERVAL"
 if ! $ARCHIVETIMES
 then
     # specific start/finish times - midnight yesterday for 24h
-    start=`pmdate -1d @%m/%d/%y`
-    finish=`pmdate @%m/%d/%y`
-    REPORT_OPTIONS="$REPORT_OPTIONS -S$start -T$finish"
+    start=`pmdate -1d "@%d-%b-%Y"`
+    REPORT_OPTIONS="$REPORT_OPTIONS -S$start -T 24h"
 fi
 $VERBOSE && echo REPORT_OPTIONS=$REPORT_OPTIONS
 
