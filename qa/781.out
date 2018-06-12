@@ -1,4 +1,16 @@
 QA output created by 781
+
+=== compressing PCP archives for host local: ===
+
+
+
+=== compressing PCP archives for host no.such.host.pcp.io ===
+
+
+
+=== compressing PCP archives for host another.host ===
+
+
 # $version=1.1    
 + export version; version=1.1    
 pmlogger_check [control:4]
@@ -19,3 +31,30 @@ Warning: creating directory (logs/another.host) for PCP archive files
 + pmlogconf -c -q -h another.host ./config
 Restarting pmlogger for host "another.host" ...
 + pmlogger -h another.host -c ./config -m pmlogger_check ARCHIVE
++ date-and-timestamp ...
+# $version=1.1    
++ export version; version=1.1    
++ cd LOGDIR/logs/HOSTNAME
+pmlogger_daily: [control:4]
+Error: no pmlogger instance running for host "local:"
+... logging for host "local:" unchanged
+pmlogger_daily: [control:4]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+pmlogger_daily: [control:4]
+Warning: current volume of current pmlogger not known, compression skipped
++ cd LOGDIR/logs/no.such.host.pcp.io
+pmlogger_daily: [control:5]
+Error: no pmlogger instance running for host "no.such.host.pcp.io"
+... logging for host "no.such.host.pcp.io" unchanged
+pmlogger_daily: [control:5]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+pmlogger_daily: [control:5]
+Warning: current volume of current pmlogger not known, compression skipped
++ cd LOGDIR/logs/another.host
+pmlogger_daily: [control:6]
+Error: no pmlogger instance running for host "another.host"
+... logging for host "another.host" unchanged
+pmlogger_daily: [control:6]
+Warning: skipping pmnewlog because we don't know which pmlogger to stop
+pmlogger_daily: [control:6]
+Warning: current volume of current pmlogger not known, compression skipped

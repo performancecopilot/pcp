@@ -36,6 +36,8 @@ _filter()
 	-e "s,$host,HOSTNAME,g" \
 	-e "s,$today\.[0-9][0-9]\.[0-9][0-9],ARCHIVE,g" \
 	-e "s@$PCP_BINADM_DIR\/@@" \
+	-e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
+	-e '/^+ ln /d' \
     # end
 }
 
