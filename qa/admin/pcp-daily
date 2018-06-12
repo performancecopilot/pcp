@@ -223,7 +223,9 @@ sed -e 's/^/ /' <Logs/pcp \
     -e 's/^ //' \
     -e '/yyunput.* defined but not used/d' \
     -e '/input.* defined but not used/d' \
-    -e '/jobserver unavailable: using -j1/d'
+    -e '/jobserver unavailable: using -j1/d'\
+    -e '/File listed twice: .*python/d' \
+# end
 if [ -s $tmp.err ]
 then
     echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
