@@ -69,7 +69,7 @@ extern "C" {
 #include <ws2tcpip.h>
 #endif
 
-#if defined(HAVE_ENDIAN_H) 
+#if defined(HAVE_ENDIAN_H)
 #include <endian.h>
 #elif defined(HAVE_SYS_ENDIAN_H)
 #include <sys/endian.h>
@@ -263,12 +263,19 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on Windows with MinGW compiler */
 #ifdef IS_MINGW
 
+#ifdef PCP_STATIC
+#define PCP_DATA
+#define PCP_CALL
+#else
+
 #ifdef PCP_INTERNAL
 #define PCP_DATA        __declspec(dllexport)
 #define PCP_CALL        __declspec(dllexport)
 #else
 #define PCP_DATA        __declspec(dllimport)
 #define PCP_CALL        __declspec(dllimport)
+#endif
+
 #endif
 
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */

@@ -1,12 +1,12 @@
 #
 # Copyright (c) 2015 Red Hat.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -21,7 +21,7 @@ CFILES	= pmcpp.c
 LLDLIBS = $(PCPLIB)
 CMDTARGET = pmcpp$(EXECSUFFIX)
 
-ifneq "$(TARGET_OS)" "mingw"
+ifneq "$(CROSS_COMPILING)" "yes"
 STATICTARGETS = pmcpp.static
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
