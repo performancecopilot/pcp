@@ -44,13 +44,22 @@ do
     echo "now=$now" >>$seq.full
     delta=`expr $now - $then`
 
-    # 4 (Kbyte) slop is allowed for one-trip non-determinism
+    # A 4 (Kbyte) slop is allowed for one-trip non-determinism for the
+    # sample PMDA.
+    # For the DSO PMDA we're really looking at pmcd's memory footprint
+    # and there can be way more going on there, so be more relaxed and
+    # 100 (Kbyte) slop seems to be needed.
     #
-    if [ "$delta" -gt 4 ]
+    if [ "$pmda" = sample ]
+    then
+	limit=4
+    else
+	limit=100
+    fi
+    if [ "$delta" -gt $limit ]
     then
 	echo "Arrgh ... memory leak"
-	echo "before: $then"
-	echo "after: $now"
+	echo "before: $then after: $now delta: $delta limit: $limit"
 	status=1
     fi
 
