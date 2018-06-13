@@ -19,9 +19,9 @@
 #define MMV_VERSION1	1	/* original on-disk format */
 #define MMV_VERSION2	2	/* + mmv_disk_{metric2,instance2}_t */
 #define MMV_VERSION3	3	/* + labels support */
-#define MMV_VERSION	    3	/* default, upgrading to v2 only if needed */
+#define MMV_VERSION     1	/* default, upgrading to v3 only if needed */
 
-#define MMV_LABELMAX    104 /* This can be 232 to match mmv_disk_string_t */
+#define MMV_LABELMAX    232     /* maximum size of mmv_disk_metric_t to 256 bytes */
 
 typedef enum mmv_toc_type {
     MMV_TOC_INDOMS	= 1,	/* mmv_disk_indom_t */
