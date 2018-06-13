@@ -1,0 +1,111 @@
+#!/bin/sh
+# PCP QA Test No. 1163
+# Test direct rewriting of help text records.
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s|$tmp.config|CONFIG|"
+}
+
+
+# real QA test starts here
+
+# Create a config file
+cat > $tmp.config <<EOF
+# do nothing
+text metric 2.0.20 { }
+text indom 60.1 { }
+
+# delete metric text records
+text metric pmcd.numagents oneline { delete }
+text metric 2.0.3 help { delete }
+text metric 2.0.16 all { delete }
+
+text metric 3.8.* oneline { delete }
+text metric 3.9.* help { delete }
+text metric 3.11.* all { delete }
+
+text metric 11.*.* oneline { delete }
+text metric 60.*.* help { delete }
+text metric 62.*.* all { delete }
+
+# delete indom text records
+text indom 2.1 oneline { delete }
+text indom 2.3 help { delete }
+text indom 2.4 all { delete }
+
+text indom 60.* oneline { delete }
+text indom 62.* help { delete }
+text indom 129.* all { delete }
+
+# replace metric text records
+text metric pmcd.numagents help { text -> "rewritten" }
+text metric 2.0.3 oneline { text -> "rewritten" }
+text metric 2.0.20 all { text -> "rewritten" }
+
+text metric 3.8.* help { text -> "rewritten" }
+text metric 3.9.* oneline { text -> "rewritten" }
+text metric 2.5.* all { text -> "rewritten" }
+
+text metric 11.*.* help { text -> "rewritten" }
+text metric 60.*.* oneline { text -> "rewritten" }
+text metric 70.*.* all { text -> "rewritten" }
+
+# replace indom text records
+text indom 2.1 help { text -> "rewritten" }
+text indom 2.3 oneline { text -> "rewritten" }
+text indom 3.9 all { text -> "rewritten" }
+
+text indom 60.* help { text -> "rewritten" }
+text indom 62.* oneline { text -> "rewritten
+multiple
+lines" }
+
+# change metric association
+text metric 2.3.1 oneline { metric -> 2.0.16 } # previous text deleted
+text metric 2.4.1 help { metric -> 2.0.16 } # previous text deleted
+text metric 2.5.0 all { metric -> 3.11.1 } # previous text deleted
+
+# change indom association
+text indom 2.1 help { indom -> 2.3 } # previous text deleted
+text indom 2.3 oneline { indom -> 2.1 } # previous text deleted
+text indom 3.9 all { indom -> 60.6 } # no previous text
+EOF
+
+# Run pmlogrewrite(1)
+rm -f $tmp.rewritten*
+pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq.full
+
+# Now dump the rewritten archive
+pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+exit
