@@ -45,8 +45,8 @@ then
     exit 1
 fi
 
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit 0" 0 1 2 3 15
 
 rm -f pmdbg.h
 cat <<End-of-File >pmdbg.h
@@ -80,10 +80,10 @@ p
 | while read OPTION ignore_text
 do
     option=`echo "$OPTION" | tr '[A-Z]' '[a-z]'`
-    echo "    { \"$option\", DBG_TRACE_$OPTION, &pmDebugOptions.$option, 0, \"TEXT\" }," >>$tmp.tmp
+    echo "    { \"$option\", DBG_TRACE_$OPTION, &pmDebugOptions.$option, 0, \"TEXT\" }," >>$tmp/tmp
 done
 
-cat $tmp.tmp >>pmdbg.h
+cat $tmp/tmp >>pmdbg.h
 echo "/* new debug options with no DBG_TRACE_xxx equivalent */" >>pmdbg.h
 
 # New ones ... look like this
@@ -99,11 +99,11 @@ p
 }' \
 | while read option text
 do
-    if grep "\"$option\"," $tmp.tmp >/dev/null
+    if grep "\"$option\"," $tmp/tmp >/dev/null
     then
 	# matches the old DBG_TRACE macros
-	sed -e "/\"$option\"/s@\"TEXT\"@\"$text\"@" <pmdbg.h >$tmp.fix
-	mv $tmp.fix pmdbg.h
+	sed -e "/\"$option\"/s@\"TEXT\"@\"$text\"@" <pmdbg.h >$tmp/fix
+	mv $tmp/fix pmdbg.h
     else
 	# new one
 	echo "    { \"$option\", 0, &pmDebugOptions.$option, 0, \"$text\" }," >>pmdbg.h

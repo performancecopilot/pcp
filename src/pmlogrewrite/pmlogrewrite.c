@@ -632,9 +632,9 @@ reportconfig(void)
 		   (tp->new_type & PM_TEXT_PMID) ? pmIDStr(tp->new_id) : pmInDomStr(tp->new_id));
 	}
 	if (tp->flags & TEXT_CHANGE_TEXT) {
-	    printf("Text:\t\t\"%s\"", tp->old_text); 
-	    printf("\t\t\t->\n");
-	    printf("\t\t\t\"%s\"\n", tp->new_text); 
+	    printf("Text:\t\t\"%s\"\n", tp->old_text); 
+	    printf("\t\t->\n");
+	    printf("\t\t\"%s\"\n", tp->new_text); 
 	}
 	if (tp->flags & TEXT_DELETE)
 	    printf("DELETE\n");
@@ -884,12 +884,12 @@ link_entries(void)
 	for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
-	    /* We are only interested in help text for indoms. */
+	    /* We are only interested in labels for indoms. */
 	    type = (int)(node->key);
 	    if (!(type & (PM_LABEL_INDOM | PM_LABEL_INSTANCES)))
 		continue;
 
-	    /* Look for help text for the current indom spec. */
+	    /* Look for labels for the current indom spec. */
 	    hcp2 = (__pmHashCtl *)(node->data);
 	    for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
 		 node2 != NULL;
@@ -903,8 +903,8 @@ link_entries(void)
 		if (change)
 		    lp->ip = ip;
 		if (ip->new_indom != ip->old_indom) {
-		    if (lp->flags & TEXT_CHANGE_ID) {
-			/* indom already changed via text clause */
+		    if (lp->flags & LABEL_CHANGE_ID) {
+			/* indom already changed via label clause */
 			if (lp->new_id != ip->new_indom) {
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
 			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
@@ -912,7 +912,7 @@ link_entries(void)
 			}
 		    }
 		    else {
-			lp->flags |= TEXT_CHANGE_ID;
+			lp->flags |= LABEL_CHANGE_ID;
 			lp->new_id = ip->new_indom;
 		    }
 		}

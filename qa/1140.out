@@ -79,3 +79,39 @@ Note: timezone set to local timezone of host "foobar" from archive
     1.21  16364 707408   6456 17386m    0    0   48 4710 1615 4928   6   8  87   0   0
     1.21  16364 707408   6456 17386m    0    0   47 4731 1605 4881   6   8  87   0   0
     1.03  16364 731956   6456 17357m    0    0    9 1047 1012 4649   6   8  86   0   0
+
+=== testing pmrep with :collectl-sc config on pcp-zeroconf archive
+           cpu   sys  intr/s  cswch/s
+11:34:37   N/A   N/A     N/A      N/A
+11:34:38  6.10  6.15 1656.00  5115.00
+11:34:39  5.65  6.25 1606.00  4881.00
+
+=== testing pmrep with :collectl-sm config on pcp-zeroconf archive
+   Free   Buff   Cach   Inac   Slab    Map
+     GB     GB     GB     GB     GB     GB
+  0.352  0.006  17.04  15.65  0.781  1.300
+  0.675  0.006  16.98  15.59  0.781  1.242
+  0.675  0.006  16.98  15.59  0.781  1.242
+
+=== testing pmrep with :collectl-sd config on pcp-zeroconf archive
+  KBRead   Reads  KBWrit  Writes
+    KB/s  count/    KB/s  count/
+     N/A     N/A     N/A     N/A
+  25.000   3.000  2314.0  119.00
+  24.000   3.000  2366.0  123.00
+
+=== testing pmrep with :collectl-sD config on pcp-zeroconf archive
+               Device     rkB/s   rrqm/s     r/s rareq-sz r_await     wkB/s   wrqm/s     w/s wareq-sz w_await    wait aqu-sz  svctm  %util
+11:34:37          sda       N/A      N/A     N/A      N/A     N/A       N/A      N/A     N/A      N/A     N/A     N/A    N/A    N/A    N/A
+11:34:37          sdb       N/A      N/A     N/A      N/A     N/A       N/A      N/A     N/A      N/A     N/A     N/A    N/A    N/A    N/A
+11:34:38          sda     25.00     0.00    3.00     8.33    0.67   2314.00    21.00  119.00    19.45    4.24    4.90   0.51   0.12   1.50
+11:34:38          sdb      0.00     0.00    0.00     0.00    0.00      0.00     0.00    0.00     0.00    0.00    0.00   0.00   0.00   0.00
+11:34:39          sda     24.00     0.00    3.00     8.00    0.33   2366.00    23.00  123.00    19.24    4.27    4.60   0.53   0.12   1.50
+11:34:39          sdb      0.00     0.00    0.00     0.00    0.00      0.00     0.00    0.00     0.00    0.00    0.00   0.00   0.00   0.00
+
+=== testing pmrep with :collectl-sn config on pcp-zeroconf archive
+    KBIn   PktIn   KBOut  PktOut
+    KB/s  count/    KB/s  count/
+     N/A     N/A     N/A     N/A
+  964.65  721.00  38.170  389.00
+  962.54  721.00  37.856  390.00
