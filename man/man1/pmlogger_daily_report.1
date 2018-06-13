@@ -22,6 +22,7 @@
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-o\f1 \f2directory\f1]
+[\f3\-p\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-A\f1]
 [\f3\-V\f1]
@@ -104,6 +105,29 @@ As such, this tool can be configured by editing the crontab entry,
 .B $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
 and adding whatever command line options are required.
 .PP
+If the
+.B \-p
+option is specified
+then the status of the daily processing is polled and if the
+report has not been done in the last 24 hours then it is done now.
+The intent is to have
+.B pmlogger_daily_report
+called regularly with the
+.B \-p
+option (at 30 mins past the hour, every hour in the default
+.BR cron (8)
+set up) to ensure daily processing happens as soon as possible if
+it was missed at the regularly scheduled time (which is 02:00
+by default), e.g. if the system was down or suspended at that
+time.
+.PP
+With the
+.B \-p
+option,
+.B pmlogger_daily_report
+simply exits if the previous day's processing has already been
+done.
+.PP
 The reports themselves are created by the
 .BR pmrep (1)
 utility using its default configuration file, see
@@ -148,7 +172,7 @@ suffix (overwriting any log file saved earlier) before diagnostics
 are generated to the log file.
 .PP
 The output from the
-.BR cron
+.BR cron (8)
 execution of the script may be extended using the
 .B \-V
 option which enables verbose tracing of activity.
