@@ -220,7 +220,7 @@ class DstatPlugin(object):
     """
     def __init__(self, label):
         #sys.stderr.write("New plugin: %s\n" % label)
-        self.name = label  # name of this plugin (config section)
+        self.name = label   # name of this plugin (config section)
         self.label = label
         self.instances = None
         self.unit = None
@@ -228,11 +228,14 @@ class DstatPlugin(object):
         self.width = 5
         self.precision = None
         self.limit = None
-        self.formula = None
         self.printtype = None
         self.colorstep = None
+        self.grouptype = None   # flag for metric/inst group displays
+        self.cullinsts = None   # regex pattern for dropped instances
         self.metrics = []   # list of all metrics (states) for plugin
         self.names = []     # list of all column names for the plugin
+        self.mgroup = []    # list of names of metrics in this plugin
+        self.igroup = []    # list of names of this plugins instances
 
     def apply(self, metric):
         """ Apply default pmConfig list values where none exist as yet
@@ -240,10 +243,18 @@ class DstatPlugin(object):
             Note: we keep the plugin name for doing reverse DstatPlugin
             lookups from pmConfig metricspecs at fetch (sampling) time.
         """
+        # slot zero is magic - holds metric name (during setup only)
+        if metric[1] == None:
+            metric[1] = self.label
+        if metric[2] == []:
+            metric[2] = self.instances
+        if metric[3] == None:
+            metric[3] = self.unit
         if metric[4] == None:
             metric[4] = self.type
         if metric[5] == None:
             metric[5] = self.width
+        # slot six also magic - fetchgroup state
         if metric[7] == None:
             metric[7] = self.precision
         if metric[8] == None:
@@ -252,45 +263,73 @@ class DstatPlugin(object):
             metric[9] = self.printtype
         if metric[10] == None:
             metric[10] = self.colorstep
-        metric[11] = self   # back-pointer to this from metric dict
+        if metric[11] == None:
+            metric[11] = self.grouptype
+        if metric[12] == None:
+            metric[12] = self.cullinsts
+        metric[13] = self   # back-pointer to this from metric dict
+
+    def prepare_grouptype(self, instlist):
+        """Setup a list of instances from the command line"""
+        if instlist == None:
+            instlist = ['total']
+        if 'total' in instlist:
+            self.grouptype = 2 if (len(instlist) == 1) else 3
+            instlist.remove('total') # remove command line arg
+        else:
+            self.grouptype = 1
+        self.instances = instlist
 
     def statwidth(self):
-        "Return complete width for this plugin"
+        """Return complete width for this plugin"""
         return len(self.names) * self.colwidth() + len(self.names) - 1
 
     def colwidth(self):
-        "Return column width"
+        """Return column width"""
         return self.width
 
+    def instlist(self):
+        if self.grouptype > 2:
+            return self.igroup + ['total']
+        elif self.grouptype > 1:
+            return ['total']
+        return self.igroup
+
     def title(self):
-        ret = THEME['title']
-        #if isinstance(self.name, types.StringType):
-        width = self.statwidth()
-        return ret + self.label[0:width].center(width).replace(' ', '-') + THEME['default']
-        #for i, name in enumerate(self.label):
-        #    width = self.colwidth()
-        #    ret = ret + name[0:width].center(width).replace(' ', '-')
-        #    if i + 1 != len(self.vars):
-        #        if op.color:
-        #            ret = ret + THEME['frame'] + CHAR['dash'] + THEME['title']
-        #        else:
-        #            ret = ret + CHAR['space']
-        #return ret
+        if self.grouptype == None:
+            width = self.statwidth()
+            label = self.label[0:width].center(width).replace(' ', '-')
+            return THEME['title'] + label + THEME['default']
+        ret = ''
+        ilist = self.instlist()
+        for i, name in enumerate(ilist):
+            width = self.statwidth()
+            name = self.label.replace('%I', name)
+            label = name[0:width].center(width).replace(' ', '-')
+            ret = ret + THEME['title'] + label
+            if i + 1 != len(ilist):
+                if op.color:
+                    ret = ret + THEME['frame'] + CHAR['dash'] + THEME['title']
+                else:
+                    ret = ret + CHAR['space']
+        return ret + THEME['default']
 
     def subtitle(self):
         ret = ''
-        #if isinstance(self.name, types.StringType):
-        for i, nick in enumerate(self.names):
-            ret = ret + THEME['subtitle'] + nick[0:self.width].center(self.width) + THEME['default']
-            if i + 1 != len(self.names): ret = ret + CHAR['space']
+        if self.grouptype == None:
+            for i, nick in enumerate(self.names):
+                label = nick[0:self.width].center(self.width)
+                ret = ret + THEME['subtitle'] + label + THEME['default']
+                if i + 1 != len(self.names): ret = ret + CHAR['space']
+            return ret
+        ilist = self.instlist()
+        for i, name in enumerate(ilist):
+            for j, nick in enumerate(self.names):
+                label = nick[0:self.width].center(self.width)
+                ret = ret + THEME['subtitle'] + label + THEME['default']
+                if j + 1 != len(self.names): ret = ret + CHAR['space']
+            if i + 1 != len(ilist): ret = ret + THEME['frame'] + CHAR['colon']
         return ret
-        #else:
-        #    for i, name in enumerate(self.name):
-        #        for j, nick in enumerate(self.nick):
-        #            ret = ret + THEME['subtitle'] + nick[0:self.width].center(self.width) + THEME['default']
-        #            if j + 1 != len(self.nick): ret = ret + CHAR['space']
-        #        if i + 1 != len(self.name): ret = ret + THEME['frame'] + CHAR['colon']
-        #    return ret
 
     def csvtitle(self):
         if isinstance(self.name, types.StringType):
@@ -321,41 +360,6 @@ class DstatPlugin(object):
                     if j + 1 != len(self.nick): ret = ret + CHAR['sep']
                 if i + 1 != len(self.name): ret = ret + CHAR['sep']
         return ret
-
-#    def show(self):
-#        "Display stat results"
-#        line = ''
-#        if hasattr(self, 'output'): # TODO
-#            return cprint(self.output, self.type, self.width, self.scale)
-#        for i, name in enumerate(self.vars):
-#            if i < len(self.types):
-#                type = self.types[i]
-#            else:
-#                type = self.type
-#            if i < len(self.scales):
-#                scale = self.scales[i]
-#            else:
-#                scale = self.scale
-#            if isinstance(self.val[name], types.TupleType) or isinstance(self.val[name], types.ListType):
-#                line = line + cprintlist(self.val[name], type, self.width, scale)
-#                sep = THEME['frame'] + CHAR['colon']
-#                if i + 1 != len(self.vars):
-#                    line = line + sep
-#            else:
-#                ### Make sure we don't show more values than we have nicknames
-#                if i >= len(self.nick): break
-#                line = line + cprint(self.val[name], type, self.width, scale)
-#                sep = CHAR['space']
-#                if i + 1 != len(self.nick):
-#                    line = line + sep
-#        return line
-#
-#    def showend(self, totlist, vislist):
-#        if vislist and self is not vislist[-1]:
-#            return THEME['frame'] + CHAR['pipe']
-#        elif totlist != vislist:
-#            return THEME['frame'] + CHAR['gt']
-#        return ''
 
     def showcsv(self):
         def printcsv(var):
@@ -447,41 +451,97 @@ def tshow(plugin, stamp):
     #sys.stderr.write("tshow result line:\n%s%s\n" % (line, THEME['default']))
     return line
 
-def mshow(plugin, metric, result):
+def mshow(plugin, index, result):
     "Display stat results"
-    #sys.stderr.write("Index: label=%d width=%d printtype=%s colorstep=%d plugin=%d\n" % (0, 4, 7, 8, 9))
     #sys.stderr.write("Result metric: %s\n" % metric)
+    metric = op.metrics[plugin.mgroup[index]]
     label = metric[0]
+    insts = metric[1]
     units = metric[2][1]
     width = metric[4]
     pmtype = metric[5].pmtype
     printtype = metric[8]
     colorstep = metric[9]
-    #sys.stderr.write("[%s/%s] width=%d\n" % (plugin.name, label, width))
 
     line = ''
     count = 0
     sep = CHAR['space']
     for inst, name, value in result:
-        #sys.stderr.write("[%s/%s] value=%s\n" % (plugin.name, label, value))
         if count > 0:
             line = line + sep
         line = line + cprint(value, units, printtype, pmtype, width, colorstep)
         count += 1
-
     #sys.stderr.write("mshow result line:\n%s%s\n" % (line, THEME['default']))
     return line
 
-def cprintlist(values, units, printtype, pmtype, width, colorstep):
-    "Return all columns color printed"
+def gshow(plugin, results):
+    "Display stat group results"
+    metric = op.metrics[plugin.mgroup[0]]
+    units = metric[2][1]
+    width = metric[4]
+    pmtype = metric[5].pmtype
+    printtype = metric[8]
+    colorstep = metric[9]
+    cullinsts = metric[11]
+
+    line = ''
+    count = 0
+    totals = [0] * len(plugin.mgroup)
+    sep = CHAR['space']
+    col = THEME['frame'] + CHAR['colon']
+
+    def instance_match(inst, plugin):
+        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
+            return False
+        if plugin.instances and inst in plugin.instances:
+            return True
+        return False
+
+    for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            result = results[name]
+            value = None
+            for instid, instname, val in result:
+                if instname == inst:
+                    value = val
+            #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" % (name, instid, instname, str(value)))
+            if not instance_match(inst, plugin):
+                continue
+            if plugin.grouptype == 2:   # total only
+                continue
+            if count > 0 and (count % len(plugin.mgroup)) == 0:
+                line = line + col
+            elif count > 0:
+                line = line + CHAR['space']
+            line = line + cprint(value, units, printtype, pmtype, width, colorstep)
+            count += 1
+
+    if plugin.grouptype > 1:   # report 'total' (sum) calculation
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            values = 0
+            result = results[name]
+            for instid, instname, val in result:
+                totals[i] += val
+                values += 1
+        if values and plugin.printtype == 'p':
+            for i in range(0, len(plugin.mgroup)):
+                totals[i] /= values
+        if line != '':
+            line = line + col
+        line = line + cprintlist(totals, units, printtype, pmtype, width, colorstep)
+    #sys.stderr.write("gshow result line:\n%s%s\n" % (line, THEME['default']))
+    return line
+
+def cprintlist(values, units, prtype, pmtype, width, colorstep):
+    """Return all columns color printed"""
     ret = sep = ''
     for value in values:
-        ret = ret + sep + cprint(value, units, printtype, pmtype, width, colorstep)
+        ret = ret + sep + cprint(value, units, prtype, pmtype, width, colorstep)
         sep = CHAR['space']
     return ret
 
 def cprint(value, units, printtype, pmtype, width, colorstep):
-    "Color print one column"
+    """Color print one column"""
 
     if printtype == None:
         if pmtype in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64]:
@@ -493,7 +553,7 @@ def cprint(value, units, printtype, pmtype, width, colorstep):
     base = 1000
     if units.dimTime:
         value *= base * units.scaleTime
-    if units.dimSpace:
+    if units.dimSpace and units.scaleSpace:
         base = 1024
         value *= base * units.scaleSpace
     if units.dimCount and units.scaleCount:
@@ -600,7 +660,6 @@ class DstatTimePlugin(DstatPlugin):
         DstatPlugin.__init__(self, name)
         self.label = label
         self.width = width
-        self.formula = 'events.missed'  # pseudo-metric that always exists
 
 
 class DstatTool(object):
@@ -625,7 +684,7 @@ class DstatTool(object):
         self.pmconfig = pmconfig.pmConfig(self)
 
         ### Add additional dstat metric specifiers
-        dspec = (None, 'printtype', 'colorstep', 'plugin')
+        dspec = (None, 'printtype', 'colorstep', 'grouptype', 'cullinsts', 'plugin')
         mspec = self.pmconfig.metricspec + dspec
         self.pmconfig.metricspec = mspec
 
@@ -699,7 +758,8 @@ class DstatTool(object):
         # key    - plugin/metric name
         # values - 0:text label, 1:instance(s), 2:unit/scale, 3:type,
         #          4:width, 5:pmfg item, 6:precision, 7:limit,
-        #          [ 8:printtype, 9:colorstep, 10:plugin <- Dstat extras ]
+        #          [ 8:printtype, 9:colorstep, 10:grouptype, 11:cullinsts,
+        #           12:plugin <- Dstat extras ]
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -785,6 +845,14 @@ class DstatTool(object):
         self.timeplugins = names
         self.allplugins.append(names)
 
+    def prepare_regex(value):
+        try:
+            value = re.compile(r'\A' + value + r'\Z')
+        except Exception as error:
+            sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
+            sys.exit(1)
+        return value
+
     def prepare_plugins(self):
         paths = self.config_files(self.DEFAULT_CONFIGS)
         if not paths or len(paths) < 1:
@@ -834,17 +902,22 @@ class DstatTool(object):
                 continue
             else:
                 plugin = DstatPlugin(section)
+
                 for key in config.options(section):
                     value = config.get(section, key)
                     if key in lib.metricspec:
                         if self.debug:
                             print("Default %s %s -> %s" % (section, key, value))
-                        if key in ['width', 'precision', 'limit']:
+                        if key in ['width', 'precision', 'limit', 'grouptype']:
                             value = int(value)
-                        if key in ['colorstep']:
+                        elif key in ['colorstep']:
                             value = float(value)
                         elif key in ['printtype']:
-                            value = value[0]
+                            value = value[0]    # first character suffices
+                        elif key in ['instances']:
+                            value = lib.parse_instances(value)
+                        elif key in ['cullinsts']:
+                            value = self.prepare_regex(value)
                         setattr(plugin, key, value)
                     else:
                         if '.' in key:
@@ -858,8 +931,21 @@ class DstatTool(object):
                                 lib.parse_verbose_metric_info(metrics, name, 'label', mkey)
                         lib.parse_verbose_metric_info(metrics, name, spec, value)
 
+                # Instance logic for -C/-D/-I/-N/-S options
+                if section == 'cpu':
+                    plugin.prepare_grouptype(self.cpulist)
+                elif section == 'disk':
+                    plugin.prepare_grouptype(self.disklist)
+                elif section == 'int':
+                    plugin.prepare_grouptype(self.intlist)
+                elif section == 'net':
+                    plugin.prepare_grouptype(self.netlist)
+                elif section == 'swap':
+                    plugin.prepare_grouptype(self.swaplist)
+
             for metric in metrics:
                 name = metrics[metric][0]
+                #print("Plugin[%s]: %s" % (name, metrics[metric]))
                 plugin.apply(metrics[metric])
                 state = metrics[metric][1:]
                 plugin.metrics.append(state)
@@ -956,11 +1042,17 @@ class DstatTool(object):
         elif opt in ['c']:
             self.plugins.append('cpu')
         elif opt in ['C']:
-            self.cpulist = arg.split(',')
+            insts = arg.split(',')
+            self.cpulist = sorted({'cpu' + str(x) for x in insts if x != 'total'})
+            if 'total' in insts:
+                self.cpulist.append('total')
         elif opt in ['d']:
             self.plugins.append('disk')
         elif opt in ['D']:
-            self.disklist = arg.split(',')
+            insts = arg.split(',')
+            self.disklist = sorted({x for x in insts if x != 'total'})
+            if 'total' in insts:
+                self.disklist.append('total')
         elif opt in ['--filesystem']:
             self.plugins.append('fs')
         elif opt in ['g']:
@@ -968,7 +1060,10 @@ class DstatTool(object):
         elif opt in ['i']:
             self.plugins.append('int')
         elif opt in ['I']:
-            self.intlist = arg.split(',')
+            insts = arg.split(',')
+            self.intlist = sorted({'line' + str(x) for x in insts if x != 'total'})
+            if 'total' in insts:
+                self.intlist.append('total')
         elif opt in ['l']:
             self.plugins.append('load')
         elif opt in ['m']:
@@ -976,7 +1071,10 @@ class DstatTool(object):
         elif opt in ['n']:
             self.plugins.append('net')
         elif opt in ['N']:
-            self.netlist = arg.split(',')
+            insts = arg.split(',')
+            self.netlist = sorted({x for x in insts if x != 'total'})
+            if 'total' in insts:
+                self.netlist.append('total')
         elif opt in ['p']:
             self.plugins.append('proc')
         elif opt in ['r']:
@@ -984,7 +1082,7 @@ class DstatTool(object):
         elif opt in ['s']:
             self.plugins.append('swap')
         elif opt in ['S']:
-            self.swaplist = arg.split(',')
+            self.swaplist = list({'/dev/' + str(x) for x in arg.split(',')})
         elif opt in ['t']:
             self.plugins.append('time')
         elif opt in ['T']:
@@ -1053,6 +1151,14 @@ class DstatTool(object):
                 if not os.path.isdir(conf):
                     continue
                 for filename in sorted(os.listdir(conf)):
+                    length = len(filename)
+                    # skip rpm packaging files or '.'-prefixed
+                    if length > 1 and filename[0] == '.':
+                        continue
+                    if length > 7 and filename[(length-7):] == '.rpmnew':
+                        continue
+                    if length > 8 and filename[(length-8):] == '.rpmsave':
+                        continue
                     paths.append(conf + '/' + filename)
             except:
                 pass
@@ -1143,17 +1249,28 @@ class DstatTool(object):
             sys.exit(1)
 
         self.pmconfig.validate_common_options()
-        self.pmconfig.validate_metrics(curr_insts=True)
+        self.pmconfig.validate_metrics()
+
+        for i, plugin in enumerate(self.totlist):
+            for name in self.metrics:
+                metric = self.metrics[name]
+                if plugin != metric[12]:
+                    continue
+                plugin.mgroup.append(name)   # metric names
+
         for i, metric in enumerate(self.metrics):
-            plugin = self.metrics[metric][10]
+            plugin = self.metrics[metric][12]
             insts = self.pmconfig.insts[i]
             for j in range(0, len(insts[0])):
                 inum, inst = insts[0][j], insts[1][j]
+                if inst not in plugin.igroup:
+                    plugin.igroup.append(inst)
                 name = self.metrics[metric][0]
                 if inum != PM_IN_NULL:
                     name = name.replace('%d', str(inum)).replace('%s', inst)
                     name = name.replace('%i', str(inum)).replace('%I', inst)
-                plugin.names.append(name)
+                if name not in plugin.names:
+                    plugin.names.append(name)   # instance names
 
         self.pmconfig.finalize_options()
         if not self.samples:
@@ -1174,7 +1291,7 @@ class DstatTool(object):
         scheduler = sched.scheduler(time.time, time.sleep)
         inittime = time.time()
         try:
-            self.pmfg.fetch()    # prime initially values
+            self.pmfg.fetch()    # prime initial values (TODO: fix, somehow)
         except:
             pass
 
@@ -1265,7 +1382,7 @@ class DstatTool(object):
                 vislist = []
                 for o in self.totlist:
                     newwidth = curwidth + o.statwidth() + 1
-                    if newwidth <= cols or ( vislist == self.totlist[:-1] and newwidth < cols ):
+                    if newwidth <= cols or (vislist == self.totlist[:-1] and newwidth < cols):
                         vislist.append(o)
                         curwidth = newwidth
 
@@ -1317,7 +1434,7 @@ class DstatTool(object):
         i = 0
         line = newline
         oline = ''
-        previous = None
+        metric = None
 
         ### Walk the result dict reporting on visible plugins.
         ### In conjuntion, we walk through the ordered results
@@ -1326,33 +1443,25 @@ class DstatTool(object):
         ### any corresponding entry in the results.
 
         results = self.pmconfig.get_sorted_results()
-        for i, name in enumerate(results):
-            metric = self.metrics[name]
-            plugin = metric[10]
+        for i, plugin in enumerate(self.totlist):
             if i == 0:
                 sep = ''
-            elif plugin == previous:
-                sep = CHAR['space']
             else:
                 sep = THEME['frame'] + CHAR['pipe']
             if plugin in self.timelist:
                 line = line + sep + tshow(plugin, self.pmfg_ts)
+            elif plugin.grouptype == None:
+                for m, name in enumerate(plugin.mgroup):
+                    line = line + sep + mshow(plugin, m, results[name])
+                    sep = CHAR['space']
             else:
-                line = line + sep + mshow(plugin, metric, results[name])
-            previous = plugin
+                line = line + sep + gshow(plugin, results)
             if self.totlist == vislist:
                 continue
-            if plugin in self.totlist and o not in vislist:
+            if plugin in self.totlist and plugin not in vislist:
                 line = line + THEME['frame'] + CHAR['gt']
                 break
-
-
-#           plugin = self.totlist[config]
-            #for inst, name, value in results[metric]:
-                #res[metric + "+" + str(inst)] = value
-                #print("%s[%s] %s" % (name, inst, value))
-            #    print("[%s/%s] %s" % (config, label, value))
-
+            
 #         for o in self.totlist:
 #            if o in vislist:
 #                line = line + o.show() + o.showend(self.totlist, vislist)

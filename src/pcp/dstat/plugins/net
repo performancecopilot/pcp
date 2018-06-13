@@ -3,25 +3,23 @@
 #
 
 [net]
-label = net/total
+label = net/%I
 width = 5
 printtype = b
+#cullinsts = ^(lo|bond\d+|face|.+\.\d+)$
 bits_in.label = recv
-#bits_in = sum(network.physical.in.bytes)
-bits_in = sum(network.interface.in.bytes)
+bits_in = network.interface.in.bytes
 bits_out.label = send
-#bits_out = sum(network.physical.out.bytes)
-bits_out = sum(network.interface.out.bytes)
+bits_out = network.interface.out.bytes
 
 [net-packets]
 width = 5
 printtype = d
 pkts_in.label = #recv
-#pkts_in = sum(network.physical.in.packets)
-pkts_in = sum(network.interface.in.packets)
+#cullinsts = ^(lo|bond\d+|face|.+\.\d+)$
+pkts_in = network.interface.in.packets
 pkts_out.label = #send
-#pkts_out = sum(network.physical.out.packets)
-pkts_out = sum(network.interface.out.packets)
+pkts_out = network.interface.out.packets
 
 [raw]
 width = 4

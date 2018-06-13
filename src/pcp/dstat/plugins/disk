@@ -3,10 +3,10 @@
 #
 
 [disk]
-label = dsk/total
+label = dsk/%I
 printtype = b
 precision = 0
-reads = disk.all.read_bytes
+reads = disk.dev.read_bytes
 reads.label = read
-writes = disk.all.write_bytes
+writes = disk.dev.write_bytes
 writes.label = writ

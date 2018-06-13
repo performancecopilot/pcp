@@ -14,24 +14,21 @@ General Functionality:
 [ ] implement #samples argument
 [-] implement --all-plugins option
 [x] new socket6 plugin for IPv6 socket metrics
-[ ] handle dynamic instances correctly (esp. headings)
-[ ] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
-[ ] need to handle dstat 'total' columns better?  (see instances too)
-[ ] figure out why --disk and --io not usable together (same labels?)
+[x] handle dynamic instances correctly (esp. headings)
+[x] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
+[x] need to handle dstat 'total' columns better?  (see instances too)
+[x] figure out why --disk and --io not usable together (same labels?)
 [ ] improved handling of first counter sample (see ticks() code)
 [ ] improved handling of invalid configuration files
 [ ] fix terminal title writing to use metric values (see code)
 [ ] fix version output writing to use metric values (see code)
-[?] csv output option (for dstat backward compatibility)
-[ ] revisit config file format and pmconfig integration
-    - now using formula (derived metrics) everywhere - bad? good?
-    - setting metric names vs labels in the config is non-intuitive
+[ ] csv output option (for dstat backward compatibility)
 [x] implement sub-second time(stamp) and epoch reporting support
 [ ] implement historical reporting support via PCP archives
 [ ] create pmlogconf(1) configuration file(s)
+[ ] write additional regression tests
 [ ] write pcp-dstat.conf(5) man page
 [x] write pcp-dstat(1) man page
-[ ] write QA tests
 
 
 Internal Plugins:
