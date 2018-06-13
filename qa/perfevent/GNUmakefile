@@ -50,7 +50,6 @@ COV_FLAGS= --coverage
 COV_DIR=$(OUTDIR)/gcov
 COV_OBJS= $(patsubst %.c,$(COV_DIR)/%.o,$(notdir $(SRCS)))
 
-CFLAGS_OPT = -O0 -ggdb
 LCFLAGS = -I$(SRCDIR) -DFILESYSTEM_ROOT='"./fakefs/"'
 LLDFLAGS = -Wl,--wrap,syscall -Wl,--wrap,ioctl -Wl,--wrap,read -Wl,--wrap,close -Wl,--wrap,malloc -Wl,--wrap,sysconf $(PCP_LIBS)
 LLDLIBS = $(PCPLIB) $(PCPLIB_EXTRAS)
