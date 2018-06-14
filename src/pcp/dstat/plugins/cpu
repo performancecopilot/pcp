@@ -1,8 +1,6 @@
 #
 # pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
 #
-# metric [,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
-#
 
 [cpu]
 label = %I usage
@@ -11,11 +9,11 @@ precision = 0
 printtype = p
 colorstep = 34
 grouptype = 2
-usr = 100 * (rate(kernel.percpu.cpu.user) + rate(kernel.percpu.cpu.nice) + rate(kernel.percpu.cpu.irq.soft) + rate(kernel.percpu.cpu.irq.hard)) / hinv.ncpu
-sys = 100 * rate(kernel.percpu.cpu.sys) / hinv.ncpu
-idl = 100 * rate(kernel.percpu.cpu.idle) / hinv.ncpu
-wai = 100 * rate(kernel.percpu.cpu.wait.total) / hinv.ncpu
-stl = 100 * rate(kernel.percpu.cpu.steal) / hinv.ncpu
+usr = 100 * (rate(kernel.percpu.cpu.user) + rate(kernel.percpu.cpu.nice) + rate(kernel.percpu.cpu.irq.soft) + rate(kernel.percpu.cpu.irq.hard))
+sys = 100 * rate(kernel.percpu.cpu.sys)
+idl = 100 * rate(kernel.percpu.cpu.idle)
+wai = 100 * rate(kernel.percpu.cpu.wait.total)
+stl = 100 * rate(kernel.percpu.cpu.steal)
 
 [cpu-adv]
 width = 3

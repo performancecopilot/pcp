@@ -74,12 +74,12 @@ External Plugins:
 [-] condor-queue
 [ ] cpufreq		(needs new ACPI PMDA)
 [ ] dbus		(needs new DBUS PMDA)
-[ ] disk-avgqu
-[ ] disk-avgrq
-[ ] disk-svctm
-[ ] disk-tps
-[ ] disk-util
-[ ] disk-wait
+[x] disk-avgqu
+[x] disk-avgrq
+[x] disk-svctm
+[x] disk-tps
+[x] disk-util
+[x] disk-wait
 [-] dstat
 [-] dstat-cpu
 [-] dstat-ctxt
@@ -98,7 +98,7 @@ External Plugins:
 [?] jvm_vm
 [ ] lustre
 [ ] md-status		(needs more MD driver metrics)
-[ ] memcache-hits
+[x] memcache-hits
 [?] mongodb_conn	(needs new MongoDB PMDA)
 [?] mongodb_mem		(needs new MongoDB PMDA)
 [?] mongodb_opcount	(needs new MongoDB PMDA)
@@ -114,20 +114,20 @@ External Plugins:
 [ ] mysql5-io
 [ ] mysql5-keys
 [x] net-packets
-[ ] nfs3
-[ ] nfs3-ops
-[ ] nfsd3
-[ ] nfsd3-ops
-[ ] nfsd4-ops
-[ ] nfsstat4
+[x] nfs3
+[x] nfs3-ops
+[x] nfsd3
+[x] nfsd3-ops
+[x] nfsd4-ops
+[x] nfsstat4
 [?] ntp
-[ ] postfix
+[x] postfix
 [ ] power		(needs new ACPI PMDA)
 [x] proc-count
 [ ] qmail
 [x] redis
-[ ] rpc
-[ ] rpcd
+[x] rpc
+[x] rpcd
 [ ] sendmail		(needs qlen glob in sendmail PMDA)
 [-] snmp-cpu
 [-] snmp-load
@@ -139,7 +139,7 @@ External Plugins:
 [?] squid		(needs new Squid PMDA)
 [-] test
 [ ] thermal		(needs new ACPI PMDA)
-[ ] top-bio		(use pmrep / pmconfig ranking?)
+[ ] top-bio		(investigate pmconfig.py 'rank'ing)
 [ ] top-bio-adv				"
 [ ] top-childwait			"
 [ ] top-cpu				"
@@ -173,7 +173,7 @@ Missing metrics:
 [x] kernel.all.sessions,kernel.all.nroots utmp metrics
 [x] /proc/locks metrics in Linux kernel PMDA
 [x] per-process out-of-memory metric
-[ ] drop lo/bond*/face - new network.physical.* metrics?
+[x] drop lo/bond*/face - added cullinsts keyword
 [x] network.tcpconn6 metrics ala network.tcpconn
 [x] network.udpconn and network.udpconn6 kernel metrics
 [ ] disk.md.recovery.* metrics (percent complete, speed)

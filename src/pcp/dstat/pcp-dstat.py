@@ -20,7 +20,7 @@ try:
     import configparser as ConfigParser
 except ImportError:
     import ConfigParser
-import termios, struct, atexit, fcntl, sched, errno, time, sys, os
+import termios, struct, atexit, fcntl, sched, errno, time, re, sys, os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
@@ -845,11 +845,11 @@ class DstatTool(object):
         self.timeplugins = names
         self.allplugins.append(names)
 
-    def prepare_regex(value):
+    def prepare_regex(self, value):
         try:
             value = re.compile(r'\A' + value + r'\Z')
         except Exception as error:
-            sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
+            sys.stderr.write("Invalid regex '%s': %s.\n" % (value, error))
             sys.exit(1)
         return value
 
@@ -934,7 +934,7 @@ class DstatTool(object):
                 # Instance logic for -C/-D/-I/-N/-S options
                 if section == 'cpu':
                     plugin.prepare_grouptype(self.cpulist)
-                elif section == 'disk':
+                elif section in ['disk', 'disk-tps']:
                     plugin.prepare_grouptype(self.disklist)
                 elif section == 'int':
                     plugin.prepare_grouptype(self.intlist)

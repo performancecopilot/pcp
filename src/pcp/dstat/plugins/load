@@ -1,8 +1,6 @@
 #
 # pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
 #
-# metric[,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
-#
 
 [load]
 label = load avg
