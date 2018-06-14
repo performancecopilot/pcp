@@ -1,0 +1,6984 @@
+QA output created by 1163
+Start configfile: CONFIG
+PCP Archive Log Rewrite Specifications Summary
+
+Help Text: full pmID (2.4.1)
+ID:		2.4.1 -> 2.0.16
+
+Help Text: One Line pmID (2.3.1)
+ID:		2.3.1 -> 2.0.16
+
+Help Text: One Line pmInDom (62.0)
+Text:		"NFS client mount points"
+		->
+		"rewritten
+multiple
+lines"
+
+Help Text: full pmInDom (60.34)
+Text:		"The scsi tape instance domain includes st[0-9]+ devices, but not any of the
+derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
+devices all share the same statistics in the kernel as the st devices."
+		->
+		"rewritten"
+
+Help Text: One Line pmInDom (3.9)
+ID:		3.9 -> 60.6
+Text:		"all current processes"
+		->
+		"rewritten"
+
+Help Text: One Line pmInDom (2.3)
+ID:		2.3 -> 2.1
+Text:		"PMDA Instance Domain"
+		->
+		"rewritten"
+
+Help Text: full pmInDom (2.1)
+ID:		2.1 -> 2.3
+Text:		"This is the list of currently active pmlogger instances on the same
+machine as this PMCD.  The instance names are the process IDs of the
+pmlogger instances.  The primary pmlogger has an extra instance with the
+instance name "primary" and an instance id of zero (in addition to its
+normal process id instance)."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (70.0.2)
+Text:		"Memory mapped file count"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (70.0.1)
+Text:		"Debug flag"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (70.0.0)
+Text:		"Control maps reloading"
+		->
+		"rewritten"
+
+Help Text: full pmID (70.0.2)
+Text:		"Count of currently mapped and exported statistics files.
+"
+		->
+		"rewritten"
+
+Help Text: full pmID (70.0.1)
+Text:		"See pmdbg(1).  pmstore into this metric to change the debug value.
+"
+		->
+		"rewritten"
+
+Help Text: full pmID (70.0.0)
+Text:		"Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.63)
+Text:		"count of tcp segments sent with RST flag"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.127)
+Text:		"number of huge pages used for shared memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.30)
+Text:		"cumulative total of server RPC requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.62)
+Text:		"count of tcp segments received in error"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.126)
+Text:		"count of page isolations for memory compaction"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.61)
+Text:		"count of tcp segments retransmitted"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.125)
+Text:		"count of refaults of previously evicted pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.60)
+Text:		"count of tcp segments sent"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.124)
+Text:		"count of NUMA node working set page reclaims"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.27)
+Text:		"cumulative total of client RPC TCP network layer connection requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.59)
+Text:		"count of tcp segments received"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.123)
+Text:		"count of page activations to form the working set"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.26)
+Text:		"cumulative total of client RPC TCP network layer requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.58)
+Text:		"current established tcp connections"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.122)
+Text:		"count of times a PMD was split into table of PTEs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.25)
+Text:		"cumulative total of client RPC UDP network layer requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.57)
+Text:		"count of tcp estabresets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.121)
+Text:		"count of failures to split a huge page"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.24)
+Text:		"cumulative total of client RPC network layer requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.56)
+Text:		"count of tcp attemptfails"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.120)
+Text:		"count of huge page splits into base pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.55)
+Text:		"count of tcp passiveopens"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.119)
+Text:		"count of huge page enqueues for splitting"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.22)
+Text:		"cumulative total of client RPC auth refreshes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.54)
+Text:		"count of tcp activeopens"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.118)
+Text:		"count of successful NUMA page migrations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.21)
+Text:		"cumulative total of client RPC retransmissions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.53)
+Text:		"limit on tcp connections"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.117)
+Text:		"count of unsuccessful NUMA page migrations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.20)
+Text:		"cumulative total of client RPC requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.52)
+Text:		"maximum retransmission timeout"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.116)
+Text:		"count of pages lazily freed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.51)
+Text:		"minimum retransmission timeout"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.115)
+Text:		"count of NUMA page table entry updates"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.50)
+Text:		"the restransmission timeout algorithm in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.114)
+Text:		"count of NUMA page migrations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.113)
+Text:		"prioritise for reclaim when writeback ends"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.112)
+Text:		"count of pages scanned during page reclaim"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.111)
+Text:		"count of free Contiguous Memory Allocator pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.110)
+Text:		"count of calls to drop slab cache pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.46)
+Text:		"count of icmp in checksum errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.45)
+Text:		"count of icmp outaddrmaskreps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.109)
+Text:		"count of calls to drop page cache pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.12)
+Text:		"cumulative total of client NFSv2 requests by request type"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.44)
+Text:		"count of icmp outaddrmasks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.108)
+Text:		"count of pages scanned for migration by compaction daemon"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.43)
+Text:		"count of icmp outtimestampreps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.107)
+Text:		"count of pages scanned for freeing by compaction daemon"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.42)
+Text:		"count of icmp outtimestamps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.106)
+Text:		"number of times the memory compaction daemon was woken"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.41)
+Text:		"count of icmp outechoreps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.105)
+Text:		"number of virt guest balloon page migrations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.40)
+Text:		"count of icmp outechos"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.104)
+Text:		"count of virt guest balloon page inflations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.39)
+Text:		"count of icmp outredirects"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.103)
+Text:		"number of virt guest balloon page deflations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.7)
+Text:		"maximum number of message segments (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.38)
+Text:		"count of icmp outsrcquenchs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.102)
+Text:		"count of transparent huge page zeroed page allocation failures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.6)
+Text:		"number of system message headers (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.37)
+Text:		"count of icmp outparmprobs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.101)
+Text:		"count of transparent huge page zeroed page allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.5)
+Text:		"message segment size (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.36)
+Text:		"count of icmp outtimeexcds"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.100)
+Text:		"count of unsuccessful allocations from local NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.4)
+Text:		"maximum number of message queue identifiers (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.4)
+Text:		"cumulative total of client NFSv2 requests by request type"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.35)
+Text:		"count of icmp outdestunreachs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.99)
+Text:		"count of unsuccessful allocations from preferred NUMA zona"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.3)
+Text:		"default maximum size of a message queue (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.34)
+Text:		"count of icmp outerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.98)
+Text:		"count of successful allocations from local NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.2)
+Text:		"maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.33)
+Text:		"count of icmp outmsgs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.67.1)
+Text:		"page fragmentation size from /proc/buddyinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.97)
+Text:		"count of interleaved NUMA allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.1)
+Text:		"number of entries in a message map (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.32)
+Text:		"count of icmp inaddrmaskreps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.67.0)
+Text:		"fragmented page count from /proc/buddyinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.96)
+Text:		"count of successful allocations from preferred NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.22.0)
+Text:		"size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.31)
+Text:		"count of icmp inaddrmasks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.95)
+Text:		"count of foreign NUMA zone allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.30)
+Text:		"count of icmp intimestampreps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.94)
+Text:		"count of pages written out"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.29)
+Text:		"count of icmp intimestamps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.93)
+Text:		"dirty throttling threshold"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.28)
+Text:		"count of icmp inechoreps"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.92)
+Text:		"background writeback threshold"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.27)
+Text:		"count of icmp inechos"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.91)
+Text:		"count of pages dirtied"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.26)
+Text:		"count of icmp inredirects"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.90)
+Text:		"number of anonymous transparent huge pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.25)
+Text:		"count of icmp insrcquenchs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.89)
+Text:		"count of times kswapd skipped waiting on device congestion"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.24)
+Text:		"count of icmp inparmprobs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.88)
+Text:		"count of times high watermark reached quickly"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.23)
+Text:		"count of icmp intimeexcds"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.87)
+Text:		"count of times low watermark reached quickly"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.22)
+Text:		"count of icmp indestunreachs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.86)
+Text:		"number of zone reclaim failures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.21)
+Text:		"count of icmp inerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.85)
+Text:		"count of unevictable pages stranded"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.20)
+Text:		"count of icmp inmsgs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.84)
+Text:		"count of unevictable pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.83)
+Text:		"count of unevictable pages rescued"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.18)
+Text:		"count of ip fragcreates"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.82)
+Text:		"count of unevictable pages munlocked"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.17)
+Text:		"count of ip fragfails"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.81)
+Text:		"count of unevictable pages mlock freed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.16)
+Text:		"count of ip fragoks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.16)
+Text:		"per-multi-device raw count of I/O response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.80)
+Text:		"count of mlocked unevictable pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.15)
+Text:		"count of ip reasmfails"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.15)
+Text:		"per-multi-device raw count of write response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.79)
+Text:		"count of unevictable pages culled"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.14)
+Text:		"count of ip reasmoks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.14)
+Text:		"per-multi-device raw count of read response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.78)
+Text:		"count of unevictable pages cleared"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.13)
+Text:		"per-multi-device device persistent name mapping to md[0-9]*"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.13)
+Text:		"count of ip reasmreqds"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.77)
+Text:		"count of transparent huge page splits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.12)
+Text:		"count of ip reasmtimeout"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.12)
+Text:		"per-multi-device device time averaged count of request queue length"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.76)
+Text:		"transparent huge page collapse failures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.11)
+Text:		"count of ip outnoroutes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.11)
+Text:		"per-multi-device device count of active time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.75)
+Text:		"transparent huge page collapse allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.10)
+Text:		"count of ip outdiscards"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.10)
+Text:		"per-multi-device device count of merged write requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.74)
+Text:		"count of udp6 ignoredmulti"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.74)
+Text:		"transparent huge page fault fallbacks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.9)
+Text:		"count of ip outrequests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.41)
+Text:		"per-node amount of surplus hugepages memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.9)
+Text:		"per-multi-device device count of merged read requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.73)
+Text:		"count of udp6 incsumerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.73)
+Text:		"transparent huge page fault allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.8)
+Text:		"count of ip indelivers"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.72)
+Text:		"movable mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.40)
+Text:		"per-node amount of free hugepages memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.8)
+Text:		"per-multi-device device count of total bytes read and written"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.72)
+Text:		"count of udp6 sndbuferrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.7)
+Text:		"count of ip indiscards"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.71)
+Text:		"dma32 mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.39)
+Text:		"per-node total amount of hugepages memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.7)
+Text:		"per-multi-device device count of bytes written"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.71)
+Text:		"count of udp6 rcvbuferrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.6)
+Text:		"count of ip inunknownprotos"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.70)
+Text:		"movable mem pages scanned by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.38)
+Text:		"maximum memory bandwidth supported on each numa node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.6)
+Text:		"per-multi-device device count of bytes read"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.70)
+Text:		"count of udp6 outdatagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.5)
+Text:		"count of ip forwdatagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.69)
+Text:		"dma32 mem pages scanned by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.37)
+Text:		"count of times a process ran on this node and got memory from another node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.69)
+Text:		"count of udp6 inerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.4)
+Text:		"count of ip inaddrerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.68)
+Text:		"movable mem pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.4)
+Text:		"per-multi-device device block write operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.36)
+Text:		"count of times a process ran on this node and got memory on this node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.68)
+Text:		"count of udp6 noports"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.3)
+Text:		"count of ip inhdrerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.67)
+Text:		"dma32 mem pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.3)
+Text:		"per-multi-device device block read operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.35)
+Text:		"count of times interleaving wanted to allocate on this node and succeeded"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.67)
+Text:		"count of udp6 indatagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.2)
+Text:		"count of ip inreceives"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.34)
+Text:		"count of times a task on another node alloced on that node, but got this node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.2)
+Text:		"per-multi-device device total (read+write) operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.66)
+Text:		"count of icmp6 outmldv2reports"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.66)
+Text:		"movable mem pages inspected in refill_inactive_zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.1)
+Text:		"count of ip defaultttl"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.1)
+Text:		"per-multi-device device write operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.33)
+Text:		"per-node count of times a task wanted alloc on local node but got another node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.65)
+Text:		"count of icmp6 outredirects"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.65)
+Text:		"dma32 mem pages inspected in refill_inactive_zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.0)
+Text:		"count of ip forwarding"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.59.0)
+Text:		"per-multi-device device read operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.32)
+Text:		"per-node count of times a task wanted alloc on local node and succeeded"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.64)
+Text:		"count of icmp6 outneighboradvertisements"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.64)
+Text:		"movable mem page allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.31)
+Text:		"per-node count of surplus hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.63)
+Text:		"count of icmp6 outneighborsolicits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.63)
+Text:		"dma32 mem page allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.30)
+Text:		"per-node count of free hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.62)
+Text:		"count of icmp6 outrouteradvertisements"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.62)
+Text:		"count of successful compactions for high order allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.29)
+Text:		"per-node total count of hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.61)
+Text:		"count of icmp6 outroutersolicits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.61)
+Text:		"count of failures to even start compacting"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.28)
+Text:		"per-node memory used for slab objects that is unreclaimable"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.60)
+Text:		"count of icmp6 outgroupmembreductions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.60)
+Text:		"count of pages successfully moved for compaction"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.27)
+Text:		"per-node memory used for slab objects that can be reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.59)
+Text:		"count of icmp6 outgroupmembresponses"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.59)
+Text:		"count of pages unsuccessfully compacted"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.26)
+Text:		"per-node memory used for slab objects"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.58)
+Text:		"count of icmp6 outgroupmembqueries"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.58)
+Text:		"count of unsuccessful compactions for high order allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.25)
+Text:		"per-node temporary memory used for writeback"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.57)
+Text:		"count of icmp6 outechoreplies"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.57)
+Text:		"count of compact blocks moved"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.24)
+Text:		"per-node memory used for bounce buffers"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.56)
+Text:		"count of icmp6 outechos"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.56)
+Text:		"number of temporary writeback pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.23)
+Text:		"per-node memory holding NFS data that needs writeback"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.55)
+Text:		"count of icmp6 outparmproblems"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.55)
+Text:		"number of unevictable pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.22)
+Text:		"per-node memory used for pagetables"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.54)
+Text:		"count of icmp6 outtimeexcds"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.54)
+Text:		"number of shared memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.21)
+Text:		"per-node memory used as kernel stacks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.53)
+Text:		"count of icmp6 outpkttoobigs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.53)
+Text:		"number of pages under mlock"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.20)
+Text:		"per-node amount of shared memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.52)
+Text:		"count of icmp6 outdestunreachs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.52)
+Text:		"number of pages of kernel stack"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.19)
+Text:		"per-node anonymous memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.51)
+Text:		"count of icmp6 inmldv2reports"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.51)
+Text:		"number of isolated file memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.18)
+Text:		"per-node mapped memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.50)
+Text:		"count of icmp6 inredirects"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.50)
+Text:		"number of isolated anonymous memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.17)
+Text:		"per-node count of memory backed by files"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.49)
+Text:		"count of icmp6 inneighboradvertisements"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.49)
+Text:		"number of inactive file memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.16)
+Text:		"per-node count of memory locked for writeback to stable storage"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.48)
+Text:		"count of icmp6 inneighborsolicits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.48)
+Text:		"number of inactive anonymous memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.15)
+Text:		"per-node dirty memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.47)
+Text:		"count of icmp6 inrouteradvertisements"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.47)
+Text:		"number of free pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.14)
+Text:		"per-node count of Mlocked memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.46)
+Text:		"count of icmp6 inroutersolicits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.46)
+Text:		"number of active file memory memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.13)
+Text:		"per-node Unevictable memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.45)
+Text:		"count of icmp6 ingroupmembreductions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.45)
+Text:		"number of active anonymous memory pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.12)
+Text:		"per-node lowmem free"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.44)
+Text:		"count of icmp6 ingroupmembresponses"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.44)
+Text:		"huge TLB page buddy allocation successes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.11)
+Text:		"per-node lowmem total"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.43)
+Text:		"count of icmp6 ingroupmembqueries"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.43)
+Text:		"huge TLB page buddy allocation failures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.10)
+Text:		"per-node highmem free"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.42)
+Text:		"count of icmp6 inechoreplies"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.42)
+Text:		"pages written by VM scanner from LRU"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.9)
+Text:		"per-node highmem total"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.41)
+Text:		"count of icmp6 inechos"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.9)
+Text:		"adjust on exit maximum value (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.8)
+Text:		"per-node file-backed Inactive list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.40)
+Text:		"count of icmp6 inparmprobs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.40)
+Text:		"number of bounce buffer pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.8)
+Text:		"semaphore maximum value (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.7)
+Text:		"per-node file-backed Active list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.39)
+Text:		"count of icmp6 intimeexcds"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.39)
+Text:		"number of anonymous mapped pagecache pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.7)
+Text:		"size of struct sem_undo (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.6)
+Text:		"per-node anonymous Inactive list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.38)
+Text:		"count of icmp6 inpkttoobigs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.38)
+Text:		"unreclaimable slab pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.6)
+Text:		"maximum number of undo entries per process (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.5)
+Text:		"per-node anonymous Active list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.37)
+Text:		"count of icmp6 indestunreachs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.37)
+Text:		"reclaimable slab pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.5)
+Text:		"maximum number of operations per semop call (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.6.4)
+Text:		"swap resource priority"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.36)
+Text:		"count of icmp6 incsumerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.4)
+Text:		"per-node Inactive list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.36)
+Text:		"pages rotated to tail of the LRU"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.4)
+Text:		"maximum number of semaphores per identifier (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.6.3)
+Text:		"virtual swap size (always zero on Linux)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.35)
+Text:		"direct reclaim calls"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.35)
+Text:		"count of icmp6 outerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.66.3)
+Text:		"number of semaphore (from semctl(..,SEM_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.3)
+Text:		"per-node Active list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.3)
+Text:		"number of undo structures in system (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.6.2)
+Text:		"maximum swap length (same as swapdev.length on Linux)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.34)
+Text:		"count of icmp6 outmsgs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.66.2)
+Text:		"access permissions (from msgctl(..,SEM_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.2)
+Text:		"per-node used memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.34)
+Text:		"kswapd calls to page reclaim"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.2)
+Text:		"maximum number of semaphores in system (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.6.1)
+Text:		"physical swap size"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.33)
+Text:		"count of icmp6 inerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.66.1)
+Text:		"username of owner (from msgctl(..,SEM_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.1)
+Text:		"per-node free memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.33)
+Text:		"pages reclaimed via kswapd inode freeing"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.1)
+Text:		"maximum number of semaphore identifiers (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.6.0)
+Text:		"physical swap free space"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.32)
+Text:		"count of icmp6 inmsgs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.66.0)
+Text:		"key of these semaphore (from msgctl(..,SEM_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.36.0)
+Text:		"per-node total memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.32)
+Text:		"pages reclaimed by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.21.0)
+Text:		"maximum number of entries in a semaphore map (from semctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.31)
+Text:		"count of ip6 Congestion Experimented packets in"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.31)
+Text:		"slab pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.30)
+Text:		"count of ip6 packets received with ECT(0)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.30)
+Text:		"pages reclaimed via inode freeing"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.29)
+Text:		"dma mem pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.29)
+Text:		"count of ip6 packets received with ECT(1)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.28)
+Text:		"normal mem pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.28)
+Text:		"count of ip6 packets received with NOECT"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.27)
+Text:		"high mem pages scanned"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.27)
+Text:		"count of ip6 broadcast octets uot"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.26)
+Text:		"dma mem pages scanned by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.26)
+Text:		"count of ip6 broadcast octets in"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.25)
+Text:		"normal mem pages scanned by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.25)
+Text:		"count of ip6 multicast octets out"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.24)
+Text:		"high mem pages scanned by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.24)
+Text:		"count of ip6 multicast octets in"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.23)
+Text:		"dma mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.23)
+Text:		"count of ip6 octets out"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.22)
+Text:		"normal mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.22)
+Text:		"count of ip6 octets in"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.21)
+Text:		"high mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.21)
+Text:		"count of ip6 multicast packets out"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.20)
+Text:		"count of ip6 multicast packets in"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.20)
+Text:		"dma mem pages inspected in refill_inactive_zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.19)
+Text:		"count of ip6 fragmentation creations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.19)
+Text:		"normal mem pages inspected in refill_inactive_zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.18)
+Text:		"count of ip6 fragmentation failures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.18)
+Text:		"high mem pages inspected in refill_inactive_zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.17)
+Text:		"count of ip6 fragmentation oks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.17)
+Text:		"major page fault operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.16)
+Text:		"count of ip6 reassembly failures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.16)
+Text:		"page major and minor fault operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.15)
+Text:		"count of ip6 reassembly oks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.15)
+Text:		"pages moved from active to inactive"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.14)
+Text:		"count of ip6 reassembly requireds"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.14)
+Text:		"pages moved from inactive to active"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.13)
+Text:		"count of ip6 reasmtimeout"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.13)
+Text:		"page free operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.12)
+Text:		"count of ip6 outnoroutes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.12)
+Text:		"dma mem page allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.11)
+Text:		"count of ip6 outdiscards"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.11)
+Text:		"normal mem page allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.10)
+Text:		"count of ip6 outrequests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.10)
+Text:		"high mem page allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.9)
+Text:		"count of ip6 outforwdatagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.9)
+Text:		"pages swapped out"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.8)
+Text:		"count of ip6 indelivers"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.8)
+Text:		"pages swapped in"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.7)
+Text:		"count of ip6 indiscards"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.7)
+Text:		"page out operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.6)
+Text:		"count of ip6 intruncatedpkts"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.6)
+Text:		"page in operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.73.5)
+Text:		"instantaneous number of used memory for frag6"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.5)
+Text:		"count of ip6 inunknownprotos"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.5)
+Text:		"number of slab pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.73.4)
+Text:		"instantaneous number of frag6 sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.4)
+Text:		"count of ip6 inaddrerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.4)
+Text:		"number of mapped pagecache pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.73.3)
+Text:		"instantaneous number of raw6 sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.3)
+Text:		"count of ip6 innoroutes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.3)
+Text:		"number of page table pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.73.2)
+Text:		"instantaneous number of udplite6 sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.2)
+Text:		"count of ip6 intoobigerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.2)
+Text:		"number of pages in unstable state"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.73.1)
+Text:		"instantaneous number of udp6 sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.1)
+Text:		"count of ip6 inhdrerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.1)
+Text:		"number of pages in writeback state"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.73.0)
+Text:		"instantaneous number of tcp6 sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.58.0)
+Text:		"count of ip6 inreceives"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.0)
+Text:		"number of pages in dirty state"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.5.9)
+Text:		"Size of each block on mounted filesystem (Bytes)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.5.8)
+Text:		"Percentage of filesystem in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.7)
+Text:		"total number of bytes allocated for active objects in each slab"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.5.7)
+Text:		"File system mount point"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.6)
+Text:		"number of objects in each slab"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.5)
+Text:		"number of pages in each slab"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.65.4)
+Text:		"number of messages currently queued (from msgctl(..,MSG_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.4)
+Text:		"total number of slabs comprising each cache"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.65.3)
+Text:		"used size in bytes (from msgctl(..,MSG_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.3)
+Text:		"number of active slabs comprising each cache"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.2)
+Text:		"size of individual objects of each cache"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.65.2)
+Text:		"access permissions (from msgctl(..,MSG_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.65.1)
+Text:		"username of owner (from msgctl(..,MSG_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.1)
+Text:		"total number of objects in each cache"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.5.1)
+Text:		"Total capacity of mounted filesystem (Kbytes)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.65.0)
+Text:		"name of these messages slot (from msgctl(..,MSG_STAT,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.20.0)
+Text:		"number of active objects in each cache"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.5.0)
+Text:		"number of (local) file systems currently mounted"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.11)
+Text:		"softnet_data flow limit counter"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.10)
+Text:		"number of times rps_trigger_softirq has been called"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.9)
+Text:		"number of times that two cpus collided trying to get the device queue lock"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.8)
+Text:		"number of times ksoftirq ran out of netdev_budget or time slice with work remaining"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.7)
+Text:		"number of packets that were dropped because netdev_max_backlog was exceeded"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.7)
+Text:		"Linux distribution name"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.6)
+Text:		"number of packets (not including netpoll) received by the interrupt handler"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.6)
+Text:		"number of available dentry structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.5)
+Text:		"softnet_data flow limit counter"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.5)
+Text:		"number of in-use dentry structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.5)
+Text:		"identity and type of current system"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.4)
+Text:		"number of times rps_trigger_softirq has been called"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.4)
+Text:		"number of available inode structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.4)
+Text:		"host name of this node on the network"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.3)
+Text:		"number of times that two cpus collided trying to get the device queue lock"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.3)
+Text:		"number of in-use inode structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.3)
+Text:		"name of the hardware type the system is running on"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.72.2)
+Text:		"maximum process identifier from /proc/sys/kernel/pid_max"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.2)
+Text:		"number of times ksoftirq ran out of netdev_budget or time slice with work remaining"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.2)
+Text:		"hard maximum on number of file structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.2)
+Text:		"name of the implementation of the operating system"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.72.1)
+Text:		"maximum size of the entropy pool"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.1)
+Text:		"number of packets that were dropped because netdev_max_backlog was exceeded"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.1)
+Text:		"number of available file structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.1)
+Text:		"version level (build number) and build date of the running kernel"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.72.0)
+Text:		"entropy available to random number generators"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.57.0)
+Text:		"number of packets (not including netpoll) received by the interrupt handler"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.27.0)
+Text:		"number of in-use file structures"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.12.0)
+Text:		"release level of the running kernel"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.64.5)
+Text:		"share memory segment status (from shmctl(.., SHM_STAT, ..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.64.4)
+Text:		"no. of current attaches (from shmctl(.., SHM_STAT, ..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.4.4)
+Text:		"interrupt count metric from /proc/interrupts"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.64.3)
+Text:		"size of segment (bytes) (from shmctl(.., SHM_STAT, ..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.4.3)
+Text:		"interrupt error count from /proc/interrupts"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.64.2)
+Text:		"operation perms (from shmctl(.., SHM_STAT, ..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.64.1)
+Text:		"share memory segment owner (rom shmctl(.., SHM_STAT, ..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.64.0)
+Text:		"Key supplied to shmget (from shmctl(.., SHM_STAT, ..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.16)
+Text:		"number of Linux scsi tape devices"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.16)
+Text:		"nstantaneous number of used memory for frag"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.15)
+Text:		"instantaneous number of frag sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.14)
+Text:		"nstantaneous number of used memory for udp"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.13)
+Text:		"instantaneous number of used memory for tcp "
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.12)
+Text:		"instantaneous number of allocated sockets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.11)
+Text:		"instantaneous number of sockets wating close"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.10)
+Text:		"instantaneous number of orphan sockets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.9)
+Text:		"total number of sockets used by the system."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.9)
+Text:		"cummulative amount of time spent waiting for write requests to complete"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.8)
+Text:		"instantaneous number of udplite sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.8)
+Text:		"number of write requests issued to the tape drive"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.7)
+Text:		"number of bytes written to the tape drive"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.6)
+Text:		"instantaneous number of raw sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.6)
+Text:		"count of read or write residual data, per tape device"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.56.5)
+Text:		"number of swap successes (from shmctl(..,SHM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.5)
+Text:		"cummulative amount of time spent waiting for read requests to complete"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.56.4)
+Text:		"number of swap attempts (from shmctl(..,SHM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.4)
+Text:		"number of read requests issued to the tape drive"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.3)
+Text:		"instantaneous number of udp sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.56.3)
+Text:		"number of currently existing segments (from shmctl(..,SHM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.3)
+Text:		"number of bytes read from the tape drive"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.56.2)
+Text:		"number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.2)
+Text:		"number of I/Os issued to the tape drive other than read or write commands"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.56.1)
+Text:		"number of resident shared memory pages (from shmctl(..,SHM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.1)
+Text:		"cummulative amount of time spent waiting for all I/O to complete to tape device"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.26.1)
+Text:		"time the current kernel has been idle since boot"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.11.0)
+Text:		"instantaneous number of tcp sockets currently in use"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.56.0)
+Text:		"total number of shared memory pages (from shmctl(..,SHM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.71.0)
+Text:		"number of I/Os currently outstanding to this tape device"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.26.0)
+Text:		"time the current kernel has been running"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.28)
+Text:		"boolean for whether interface is wireless"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.27)
+Text:		"number of active (up) network interfaces"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.26)
+Text:		"boolean for whether interface has resources allocated"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.25)
+Text:		"boolean for whether interface is currently up or down"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.24)
+Text:		"value one for half or two for full duplex interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.23)
+Text:		"interface speed in bytes per second"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.22)
+Text:		"interface speed in megabytes per second"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.21)
+Text:		"maximum transmission unit on network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.20)
+Text:		"network total (in) mcasts from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.19)
+Text:		"network total (in+out) drops from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.18)
+Text:		"network total (in+out) errors from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.17)
+Text:		"network total (in+out) packets from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.16)
+Text:		"network total (in+out) bytes from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.15)
+Text:		"network send compressed from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.14)
+Text:		"network send carrier from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.13)
+Text:		"network send collisions from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.12)
+Text:		"network send fifos from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.11)
+Text:		"Cache alignment for each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.11)
+Text:		"network send drops from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.10)
+Text:		"network send errors from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.10)
+Text:		"Hardware capability flags for each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.9)
+Text:		"network send packets from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.9)
+Text:		"model name of each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.8)
+Text:		"network send bytes from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.8)
+Text:		"logical CPU to NUMA node mapping for each CPU"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.7)
+Text:		"network recv multicast packets from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.7)
+Text:		"hardware identifier as reported by uname(2)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.6)
+Text:		"network recv compressed from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.6)
+Text:		"logical to physical CPU mapping for each CPU"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.5)
+Text:		"network recv frames errors from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.5)
+Text:		"bogo mips rating for each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.4)
+Text:		"network recv fifo overrun errors from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.4)
+Text:		"primary cache size of each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.33.3)
+Text:		"hardware address (from sysfs)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.3)
+Text:		"network recv read drops from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.3)
+Text:		"stepping of each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.33.2)
+Text:		"string IPv6 interface scope (ifconfig style)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.2)
+Text:		"network recv read errors from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.2)
+Text:		"model number of each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.33.1)
+Text:		"string IPv6 interface address (ifconfig style)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.1)
+Text:		"network recv read packets from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.1)
+Text:		"manufacturer of each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.33.0)
+Text:		"string INET interface address (ifconfig style)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.18.0)
+Text:		"clock rate in Mhz for each CPU as reported by /proc/cpuinfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.3.0)
+Text:		"network recv read bytes from /proc/net/dev per network interface"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.15)
+Text:		"per-disk-partition raw count of I/O response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.14)
+Text:		"per-disk-partition raw count of write response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.13)
+Text:		"per-disk-partition raw count of read response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.12)
+Text:		"per-disk-partition device time averaged count of request queue length"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.11)
+Text:		"per-disk-partition device count of active time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.10)
+Text:		"per-disk-partition count of merged write requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.9)
+Text:		"per-disk-partition count of merged read requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.8)
+Text:		"total number of bytes read and written for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.7)
+Text:		"number of bytes written for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.6)
+Text:		"number of bytes read for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.5)
+Text:		"total (read+write) block operations metric for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.4)
+Text:		"block write operations metric for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.3)
+Text:		"block read operations metric for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.2)
+Text:		"total (read+write) I/O operations metric for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.55.1)
+Text:		"NUMA node online state from /sys/devices/system/node/*/online"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.1)
+Text:		"write operations metric for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.55.0)
+Text:		"CPU online state from /sys/devices/system/cpu/*/online"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.70.0)
+Text:		"protection space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.25.0)
+Text:		"number of user sessions on system"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.10.0)
+Text:		"read operations metric for storage partitions"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.118)
+Text:		"Number of outgoing packets with original data"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.117)
+Text:		"Number of SYN-SYN/ACK retransmits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.116)
+Text:		"Number of times zero window announced"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.115)
+Text:		"Number of times window went from non-zero to zero"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.114)
+Text:		"Number of times window went from zero to non-zero"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.113)
+Text:		"Number of times stack detected skb was underused and its flush was deferred"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.112)
+Text:		"Number of low latency application-fetched packets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.111)
+Text:		"Number of times that the fast clone is not yet freed in tcp_transmit_skb()"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.110)
+Text:		"Number of fast open cookies requested"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.109)
+Text:		"Number of times the fastopen listen queue overflowed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.108)
+Text:		"Number of passive fast open attempts failed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.107)
+Text:		"Number of successful passive fast opens"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.106)
+Text:		"Number of fast open attempts failed due to remote not accepting it or time outs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.105)
+Text:		"Number of successful active fast opens"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.104)
+Text:		"Number of challenge ACKs sent in response to SYN packets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.103)
+Text:		"Number of challenge ACKs sent (RFC 5961 3.2)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.102)
+Text:		"Number of packets in OFO that were merged with other packets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.101)
+Text:		"Number of packets meant to be queued in OFO but dropped due to limits hit"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.100)
+Text:		"Number of packets queued in OFO queue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.99)
+Text:		"Number of times tried to coalesce the receive queue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.2.3)
+Text:		"total number of processes (lightweight)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.98)
+Text:		"Number of failed tcp_retransmit_skb() calls"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.62.2)
+Text:		"number of bytes in all messages in all queues (from msgctl(..,MSG_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.2.2)
+Text:		"total number of processes in the (per-CPU) run queues"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.97)
+Text:		"Number of times a SYN request was dropped due to disabled syncookies"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.62.1)
+Text:		"total number of messages in all queues (from msgctl(..,MSG_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.2.1)
+Text:		"most recently allocated process identifier"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.96)
+Text:		"Number of times a SYNCOOKIE was replied to client"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.62.0)
+Text:		"number of message queues that currently exist (from msgctl(..,MSG_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.2.0)
+Text:		"1, 5 and 15 minute load average"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.95)
+Text:		"Number of occurences of time wait bucket overflow"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.63)
+Text:		"amount of memory in surplus hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.94)
+Text:		"Number of packets dropped in input path because of rp_filter settings"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.62)
+Text:		"amount of memory in reserved hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.93)
+Text:		"Number of dropped ACK frames when socket is in SYN-RECV state"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.61)
+Text:		"amount of memory in free hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.92)
+Text:		"Number of frames dropped when TTL is under the minimum"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.60)
+Text:		"amount of memory in total hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.59)
+Text:		"Huge page size from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.91)
+Text:		"Number of frames dropped because of full backlog queue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.90)
+Text:		"Number of SACKs fallbacks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.58)
+Text:		"available memory from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.89)
+Text:		"Number of SACKs merged"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.57)
+Text:		"amount of memory that is directly mapped in 1GB pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.88)
+Text:		"Number of SACKs shifted"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.56)
+Text:		"amount of memory in anonymous huge pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.87)
+Text:		"Number of times MD5 hash unexpected but found"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.55)
+Text:		"amount of memory in hardware corrupted pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.86)
+Text:		"Number of times MD5 hash expected but not found"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.54)
+Text:		"amount of memory in the per-CPU quicklists"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.85)
+Text:		"Number of FRTO's successfully detected spurious RTOs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.53)
+Text:		"amount of mmap_copy space (non-MMU kernels only)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.84)
+Text:		"Number of ignored duplicate SACKs with undo_marker not set"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.52)
+Text:		"amount of vmalloc chunk memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.83)
+Text:		"Number of ignored old duplicate SACKs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.51)
+Text:		"amount of used vmalloc memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.82)
+Text:		"Number of SACKs discarded"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.50)
+Text:		"amount of kernel memory allocated via vmalloc"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.81)
+Text:		"Numer of times TCP ran low on memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.49)
+Text:		"amount of memory that is directly mapped in 2MB pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.80)
+Text:		"Number of times unable to send RST due to no memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.16)
+Text:		"per-device-mapper raw count of I/O response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.48)
+Text:		"amount of memory that is directly mapped in 4kB pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.79)
+Text:		"Number of connections aborted after user close in linger timeout"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.15)
+Text:		"per-device-mapper raw count of write response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.47)
+Text:		"a count of surplus hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.78)
+Text:		"Number of connections aborted due to timeout"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.14)
+Text:		"per-device-mapper raw count of read response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.46)
+Text:		"a count of reserved hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.13)
+Text:		"per-device-mapper device persistent name mapping to dm-[0-9]*"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.77)
+Text:		"Number of connections aborted due to memory pressure"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.45)
+Text:		"a count of free hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.76)
+Text:		"Number of connections reset due to early user close"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.12)
+Text:		"per-device-mapper device time averaged count of request queue length"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.44)
+Text:		"a count of total hugepages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.75)
+Text:		"Number of connections reset due to unexpected data"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.11)
+Text:		"per-device-mapper device count of active time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.43)
+Text:		"kbytes of memory used for kernel stacks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.74)
+Text:		"Number of DSACKs for out of order packets received"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.10)
+Text:		"per-device-mapper device count of merged write requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.42)
+Text:		"kbytes of shmem"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.73)
+Text:		"Number of DSACKs received"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.9)
+Text:		"per-device-mapper device count of merged read requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.41)
+Text:		"kbytes of memory that is pinned via mlock()"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.72)
+Text:		"Number of DSACKs sent for out of order packets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.8)
+Text:		"per-device-mapper device count of total bytes read and written"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.8)
+Text:		"Time ksmd should sleep between batches"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.40)
+Text:		"kbytes of memory that is unevictable"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.71)
+Text:		"Number of DSACKs sent for old packets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.7)
+Text:		"per-device-mapper device count of bytes written"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.7)
+Text:		"Whether the KSM daemon has run and/or is running"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.39)
+Text:		"file-backed Inactive list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.70)
+Text:		"Number of packets collapsed in receive queue due to low socket buffer"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.6)
+Text:		"per-device-mapper device count of bytes read"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.6)
+Text:		"Number of pages that are candidate to be shared"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.38)
+Text:		"file-backed Active list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.69)
+Text:		"Number of times receiver scheduled too late for direct processing"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.37)
+Text:		"anonymous Inactive list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.5)
+Text:		"The number of nodes in the unstable tree"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.68)
+Text:		"Number of SACK retransmits failed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.36)
+Text:		"anonymous Active list LRU memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.4)
+Text:		"per-device-mapper device block write operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.4)
+Text:		"Number of pages to scan at a time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.67)
+Text:		"Number of reno fast retransmits failed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.35)
+Text:		"Kbytes in unreclaimable slab pages, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.3)
+Text:		"per-device-mapper device block read operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.3)
+Text:		"The number of virtual pages that are sharing a single page"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.66)
+Text:		"Number of TCP loss probe recoveries"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.34)
+Text:		"Kbytes in reclaimable slab pages, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.2)
+Text:		"per-device-mapper device total (read+write) operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.2)
+Text:		"The number of nodes in the stable tree"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.65)
+Text:		"Number of sent TCP loss probes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.33)
+Text:		"Kbytes in NFS unstable memory, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.1)
+Text:		"per-device-mapper device write operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.1)
+Text:		"Kernel allows merging across NUMA nodes"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.64)
+Text:		"Number of other TCP timeouts"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.32)
+Text:		"Kbytes in bounce buffers, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.54.0)
+Text:		"per-device-mapper device read operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.69.0)
+Text:		"Number of times that KSM has scanned for duplicated content"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.63)
+Text:		"Number of retransmits in slow start"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.31)
+Text:		"Kbytes limit for address space commit, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.62)
+Text:		"Number of forward retransmits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.30)
+Text:		"Kbytes in user pages not backed by files, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.61)
+Text:		"Number of fast retransmits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.29)
+Text:		"Kbytes cached and not dirty or writeback, derived from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.60)
+Text:		"Number of timeouts in loss state"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.28)
+Text:		"Kbytes in reverse mapped pages, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.59)
+Text:		"Number of timeouts after SACK recovery"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.27)
+Text:		"Kbytes in kernel page tables, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.58)
+Text:		"Number of timeouts after reno fast retransmit"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.26)
+Text:		"Kbytes committed to address spaces, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.57)
+Text:		"Number of retransmits lost"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.25)
+Text:		"Kbytes in slab memory, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.56)
+Text:		"Number of congestion windows recovered without slow start after partial ack"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.24)
+Text:		"Kbytes in mapped pages, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.55)
+Text:		"Number of congestion windows recovered without slow start using DSACK"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.23)
+Text:		"Kbytes in writeback pages, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.54)
+Text:		"Number of congestion windows partially recovered using Hoe heuristic"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.22)
+Text:		"Kbytes in dirty pages, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.53)
+Text:		"Number of congestion windows fully recovered without slow start"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.21)
+Text:		"Kbytes free swap, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.52)
+Text:		"Number of times detected reordering times using time stamp"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.84)
+Text:		"percpu nice user CPU time metric from /proc/stat, excluding guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.20)
+Text:		"Kbytes swap, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.51)
+Text:		"Number of times detected reordering using reno fast retransmit"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.83)
+Text:		"percpu nice guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.19)
+Text:		"Kbytes free low memory, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.50)
+Text:		"Number of times detected reordering using SACK"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.82)
+Text:		"total nice user CPU time from /proc/stat for all CPUs, excluding guest time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.18)
+Text:		"Kbytes in low memory total, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.49)
+Text:		"Number of times detected reordering using FACK"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.81)
+Text:		"total virtual guest CPU nice time for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.17)
+Text:		"Kbytes free high memory, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.48)
+Text:		"Number of bad SACK blocks received"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.80)
+Text:		"raw count of I/O response time, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.16)
+Text:		"Kbytes in high memory, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.47)
+Text:		"Number of times recovered from packet loss by selective acknowledgements"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.79)
+Text:		"per-disk raw count of I/O response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.15)
+Text:		"Kbytes on the inactive page list (candidates for discarding)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.46)
+Text:		"Number of times recovered from packet loss due to fast retransmit"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.78)
+Text:		"total user CPU time from /proc/stat for all CPUs, excluding guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.14)
+Text:		"Kbytes on the active page list (recently referenced pages)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.45)
+Text:		"Number of predicted acknowledgments"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.13)
+Text:		"Kbytes in swap cache, from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.45)
+Text:		"count of free Contiguous Memory Allocator pages in each zone for each NUMA node."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.44)
+Text:		"Number of acknowledgments not containing data payload received"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.76)
+Text:		"percpu user CPU time metric from /proc/stat, excluding guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.12)
+Text:		"unaccounted memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.44)
+Text:		"number of anonymous transparent huge pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.43)
+Text:		"Number of packets header predicted and directly queued to user"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.75)
+Text:		"raw count of write response time, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.43)
+Text:		"count of NUMA node working set page reclaims in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.11)
+Text:		"Memory page size"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.42)
+Text:		"Number of packet headers predicted"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.74)
+Text:		"raw count of read response time, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.10)
+Text:		"free system memory metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.42)
+Text:		"count of page activations to form the working set in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.41)
+Text:		"Number of packets dropped from prequeue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.73)
+Text:		"per-disk raw count of write response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.41)
+Text:		"count of refaults of previously evicted pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.9)
+Text:		"total system memory metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.8)
+Text:		"swap free metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.40)
+Text:		"Number of bytes directly received in process context from prequeue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.72)
+Text:		"per-disk raw count of read response time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.40)
+Text:		"unsuccessful allocations from local NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.39)
+Text:		"Number of bytes directly in process context from backlog"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.7)
+Text:		"swap used metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.39)
+Text:		"successful allocations from local NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.6)
+Text:		"total swap available metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.38)
+Text:		"Number of packets directly queued to recvmsg prequeue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.38)
+Text:		"count of interleaved NUMA allocations in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.37)
+Text:		"Number of SYNs to LISTEN sockets dropped"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.5)
+Text:		"page cache metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.37)
+Text:		"foreign NUMA zone allocations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.36)
+Text:		"Number of times the listen queue of a socket overflowed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.4)
+Text:		"I/O buffers metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.36)
+Text:		"unsuccessful allocations from preferred NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.35)
+Text:		"Number of times quick ack mode was activated times"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.3)
+Text:		"shared memory metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.35)
+Text:		"successful allocations from preferred NUMA zone"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.34)
+Text:		"Number of delayed acks further delayed because of locked socket"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.2)
+Text:		"free memory metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.34)
+Text:		"count of pages written out in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.33)
+Text:		"Number of delayed acks sent"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.1)
+Text:		"used memory metric from /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.33)
+Text:		"count of pages entering dirty state in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.61.1)
+Text:		"number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.32)
+Text:		"Number of packets rejects in established connections because of timestamp"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.1.0)
+Text:		"total system memory metric reported by /proc/meminfo"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.32)
+Text:		"number of shared memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.61.0)
+Text:		"number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.31)
+Text:		"Number of active connections rejected because of timestamp"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.31)
+Text:		"number of isolated file memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.30)
+Text:		"Number of passive connections rejected because of timestamp"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.30)
+Text:		"number of isolated anonymous memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.29)
+Text:		"Number of TCP sockets finished time wait in slow timer"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.61)
+Text:		"percpu guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.29)
+Text:		"number of temporary writeback pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.28)
+Text:		"Number of time wait sockets recycled by time stamp"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.60)
+Text:		"total virtual guest CPU time for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.28)
+Text:		"prioritise for reclaim when writeback ends in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.27)
+Text:		"Number of TCP sockets finished time wait in fast timer"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.27)
+Text:		"pages written from the LRU by the VM scanner"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.59)
+Text:		"per-disk I/O scheduler"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.26)
+Text:		"Number of arp packets filtered"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.58)
+Text:		"percpu CPU steal time "
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.26)
+Text:		"number of bounce buffer pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.25)
+Text:		"Number of dropped ICMP because socket was locked"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.57)
+Text:		"percpu hard interrupt CPU time "
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.25)
+Text:		"number of pages unstable state in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.24)
+Text:		"Number of dropped out of window ICMPs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.56)
+Text:		"percpu soft interrupt CPU time "
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.24)
+Text:		"number of pages of kernel stack in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.23)
+Text:		"Number of packets dropped from out-of-order queue because of socket buffer overrun"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.55)
+Text:		"total virtualisation CPU steal time for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.23)
+Text:		"number of page table pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.22)
+Text:		"Number of packets pruned from receive queue"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.54)
+Text:		"hard interrupt CPU time from /proc/stat for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.22)
+Text:		"number of unreclaimable slab pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.21)
+Text:		"Number of packets pruned from receive queue because of socket buffer overrun"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.53)
+Text:		"soft interrupt CPU time from /proc/stat for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.21)
+Text:		"number of reclaimable slab pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.20)
+Text:		"Number of resets received for embryonic SYN_RECV sockets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.52)
+Text:		"total count of merged write requests, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.20)
+Text:		"number of pages writeback state in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.19)
+Text:		"Number of failed SYN cookies"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.51)
+Text:		"total count of merged read requests, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.19)
+Text:		"number of pages dirty state in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.18)
+Text:		"Number of received SYN cookies"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.50)
+Text:		"per-disk count of merged write requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.18)
+Text:		"number of file pagecache pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.17)
+Text:		"Number of sent SYN cookies"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.49)
+Text:		"per-disk count of merged read requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.17)
+Text:		"number of mapped pagecache pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.16)
+Text:		"Number of packets received with Congestion Experimented"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.16)
+Text:		"number of anonymous mapped pagecache pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.48)
+Text:		"value of HZ (jiffies/second) for the currently running kernel"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.15)
+Text:		"Number of packets received with ECT(0)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.47)
+Text:		"per-disk time averaged count of request queue length"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.15)
+Text:		"number of pages under mlock in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.14)
+Text:		"Number of packets received with ECT(1)"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.46)
+Text:		"per-disk count of active time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.14)
+Text:		"number of unevictable pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.13)
+Text:		"Number of packets received with NOECT"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.45)
+Text:		"total time averaged count of request queue length, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.13)
+Text:		"number of active file memory memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.76)
+Text:		"cumulative total of threads that timedout from inactivity"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.12)
+Text:		"Number of IP datagrams with checksum errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.44)
+Text:		"total count of active time, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.12)
+Text:		"number of inactive file memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.75)
+Text:		"cumulative total of requests processed immediately"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.11)
+Text:		"Number of sent IP broadcast octets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.43)
+Text:		"total count of bytes read and written for all disk devices"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.11)
+Text:		"number of active anonymous memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.74)
+Text:		"cumulative total of requests that had to wait to be processed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.10)
+Text:		"Number of received IP broadcast octets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.42)
+Text:		"count of bytes written for all disk devices"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.10)
+Text:		"number of inactive anonymous memory pages in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.73)
+Text:		"cumulative total of requests received"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.9)
+Text:		"Number of sent IP multicast octets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.41)
+Text:		"count of bytes read for all disk devices"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.9)
+Text:		"number of pages allocated to other zones due to insufficient memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.72)
+Text:		"number of thread pools"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.8)
+Text:		"Number of received IP multicast octets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.40)
+Text:		"per-disk count of total bytes read and written"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.8)
+Text:		"number of free pages in each zone for each NUMA node."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.71)
+Text:		"number of nfsd threads running"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.7)
+Text:		"Number of sent octets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.39)
+Text:		"per-disk count of bytes written"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.7)
+Text:		"managed space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.6)
+Text:		"Number of received octets"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.38)
+Text:		"per-disk count of bytes read"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.6)
+Text:		"present space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.5)
+Text:		"Number of sent IP bradcast datagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.37)
+Text:		"total (read+write) block operations, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.5)
+Text:		"spanned space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.4)
+Text:		"Number of received IP broadcast datagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.4)
+Text:		"scanned space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.23.4)
+Text:		"maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.67)
+Text:		"cumulative total for each server NFSv4 operation, and for NULL requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.3)
+Text:		"Number of sent IP multicast datagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.35)
+Text:		"total wait CPU time from /proc/stat for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.3)
+Text:		"high space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.23.3)
+Text:		"maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.66)
+Text:		"cumulative total of server NFSv4 operations, plus NULL requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.2)
+Text:		"Number of received IP multicast datagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.34)
+Text:		"total interrupt CPU time from /proc/stat for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.2)
+Text:		"low space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.23.2)
+Text:		"maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.1)
+Text:		"Number of IP datagrams discarded due to frame not carrying enough data"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.1)
+Text:		"min space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.23.1)
+Text:		"minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.65)
+Text:		"cumulative total for each client NFSv4 request type"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.33)
+Text:		"number of disks in the system"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.53.0)
+Text:		"Number of IP datagrams discarded due to no routes in forwarding path"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.32)
+Text:		"number of CPUs in the system"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.68.0)
+Text:		"free space in each zone for each NUMA node"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.23.0)
+Text:		"maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.63)
+Text:		"cumulative total of client NFSv3 requests by request type"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.31)
+Text:		"percpu interrupt CPU time "
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.62)
+Text:		"cumulative total of server NFSv3 requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.30)
+Text:		"percpu wait CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.29)
+Text:		"total (read+write) operations, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.61)
+Text:		"cumulative total of client NFSv3 requests by request type"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.28)
+Text:		"per-disk total (read+write) operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.27)
+Text:		"block write operations, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.26)
+Text:		"block read operations, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.25)
+Text:		"total write operations, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.24)
+Text:		"total read operations, summed for all disks"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.55)
+Text:		"cumulative count of bytes passed into write requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.23)
+Text:		"total idle CPU time from /proc/stat for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.54)
+Text:		"cumulative count of bytes returned from read requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.22)
+Text:		"total sys CPU time from /proc/stat for all CPUs"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.21)
+Text:		"total nice user CPU time from /proc/stat for all CPUs, including guest time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.20)
+Text:		"total user CPU time from /proc/stat for all CPUs, including guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.83)
+Text:		"count of udp in checksum errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.19)
+Text:		"number of NUMA nodes in the system"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.50)
+Text:		"cumulative total of server NFSv2 requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.145)
+Text:		"movable mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.16)
+Text:		"number of currently blocked processes from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.144)
+Text:		"normal mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.47)
+Text:		"cumulative total of server RPC TCP network layer connection requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.15)
+Text:		"number of currently running processes from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.143)
+Text:		"dma32 mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.46)
+Text:		"cumulative total of server RPC TCP network layer requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.14)
+Text:		"fork rate metric from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.142)
+Text:		"dma mem pages reclaimed"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.45)
+Text:		"cumulative total of server RPC UDP network layer requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.13)
+Text:		"context switches metric from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.141)
+Text:		"movable mem pages reclaimed by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.44)
+Text:		"cumulative total of server RPC network layer requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.12)
+Text:		"interrupt count metric from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.140)
+Text:		"normal mem pages reclaimed by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.76)
+Text:		"count of udp send buffer errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.11)
+Text:		"number of swap out operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.139)
+Text:		"dma32 mem pages reclaimed by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.75)
+Text:		"count of udp receive buffer errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.74)
+Text:		"count of udp outdatagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.10)
+Text:		"number of swap in operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.138)
+Text:		"dma mem pages reclaimed by kswapd"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.9)
+Text:		"pages written to swap devices due to demand for physical memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.137)
+Text:		"count of times huge pages were used for file mappings"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.72)
+Text:		"count of udp inerrors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.8)
+Text:		"pages read from swap devices due to demand for physical memory"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.136)
+Text:		"count of times huge pages were allocated and put in page cache"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.71)
+Text:		"count of udp noports"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.7)
+Text:		"per-disk block write operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.135)
+Text:		"number of compressed pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.70)
+Text:		"count of udp indatagrams"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.6)
+Text:		"per-disk block read operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.134)
+Text:		"count of dirty, writeback and unstable pages"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.37)
+Text:		"cumulative total of uncached request-reply-cache requests"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.5)
+Text:		"per-disk write operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.133)
+Text:		"number of unevictable memory pages in zones"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.36)
+Text:		"cumulative total of request-reply-cache misses"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.4)
+Text:		"per-disk read operations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.132)
+Text:		"number of isolated file memory pages in zones"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.35)
+Text:		"cumulative total of request-reply-cache hits"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.3)
+Text:		"percpu idle CPU time metric from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.131)
+Text:		"number of isolated anonymous memory pages in zones"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.34)
+Text:		"cumulative total of server RPC bad client errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.2)
+Text:		"percpu sys CPU time metric from /proc/stat"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.130)
+Text:		"number of inactive file memory pages in zones"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.33)
+Text:		"cumulative total of server RPC bad auth errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.1)
+Text:		"percpu nice user CPU time metric from /proc/stat, including guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.129)
+Text:		"number of inactive anonymous memory pages in zones"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.7.32)
+Text:		"cumulative total of server RPC bad format errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.14.64)
+Text:		"count of tcp segments received with checksum errors"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.0.0)
+Text:		"percpu user CPU time metric from /proc/stat, including guest CPU time"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.60.0)
+Text:		"per-multi-device "mdadm --test --detail <device>" return code"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.28.128)
+Text:		"number of huge page PMD mappings"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (60.15.0)
+Text:		"list of active SCSI devices"
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.54)
+Text:		"This is the number of bytes read via read(2) system calls to files in
+XFS file systems. It can be used in conjunction with the read_calls
+count to calculate the average size of the read operations to files in
+XFS file systems."
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.53)
+Text:		"This is the number of read(2) system calls made to files in XFS file
+systems."
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.52)
+Text:		"This is the number of bytes written via write(2) system calls to files
+in XFS file systems. It can be used in conjunction with the write_calls
+count to calculate the average size of the write operations to files in
+XFS file systems."
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.51)
+Text:		"This is the number of write(2) system calls made to files in
+XFS file systems."
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.35)
+Text:		"This variable keeps track of times when a logged transaction can not
+get any log buffer space. When this occurs, all of the internal log
+buffers are busy flushing their data to the physical on-disk log."
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.34)
+Text:		"This variable counts the number of Kbytes of information being written
+to the physical log partitions of XFS filesystems. Log data traffic
+is proportional to the level of meta-data updating. The rate with which
+log data gets written depends on the size of internal log buffers and
+disk write speed. Therefore, filesystems with very high meta-data
+updating may need to stripe the log partition or put the log partition
+on a separate drive."
+		->
+		"rewritten"
+
+Help Text: full pmID (11.16.33)
+Text:		"This variable counts the number of log buffer writes going to the
+physical log partitions of XFS filesystems. Log data traffic is
+proportional to the level of meta-data updating. Log buffer writes get
+generated when they fill up or external syncs occur."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.9)
+Text:		"count of actual rule evaluations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.8)
+Text:		"expected rate of rule evaluations"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.7)
+Text:		"count of pmie predicates not evaluated"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.6)
+Text:		"count of pmie predicates evaluated to false"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.5)
+Text:		"count of pmie predicates evaluated to true"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.4)
+Text:		"count of rules evaluating to true"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.3)
+Text:		"number of rules being evaluated"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.2)
+Text:		"default hostname for pmie instance"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.1)
+Text:		"filename of pmie instance event log"
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.5.0)
+ID:		2.5.0 -> 3.11.1
+Text:		"configuration file name"
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.9)
+Text:		"A cumulative count of the pmie rules which have been evaluated.
+
+This value is incremented once for each evaluation of each rule."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.8)
+Text:		"This is the expected rate of evaluation of pmie rules.  The value is
+calculated once when pmie starts, and is the number of pmie rules divided
+by the average time interval over which they are to be evaluated."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.7)
+Text:		"The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have not been successfully evaluated.  This could be due to not
+yet having sufficient values to evaluate the rule, or a metric fetch may
+have been unsuccessful in retrieving current values for metrics required
+for evaluation of the rule."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.6)
+Text:		"The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have evaluated to false for each pmie instance."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.5)
+Text:		"The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have evaluated to true for each pmie instance."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.4)
+Text:		"A cumulative count of the evaluated pmie rules which have evaluated to true.
+
+This value is incremented once each time an action is executed.  This value
+will always be less than or equal to pmcd.pmie.eval.true because predicates
+which have evaluated to true may be suppressed in the action part of the
+pmie rule, in which case this counter will not be incremented."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.3)
+Text:		"The total number of rules being evaluated by each pmie process."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.2)
+Text:		"The default host from which pmie is fetching metrics.  This is either the
+hostname given to pmie on the command line or the local host.  Note that this
+does not consider host names specified in the pmie configuration file (these
+are considered non-default and can be more than one per pmie instance).
+All daemon pmie instances started through pmie_check(1) will have their
+default host passed in on their command line."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.1)
+Text:		"The file to which each instance of pmie is writting events.  No two pmie
+instances can share the same log file.  If no logfile was specified when
+pmie was started, this metrics has the value "<none>".  All daemon pmie
+instances started through pmie_check(1) must have an associated log file."
+		->
+		"rewritten"
+
+Help Text: full pmID (2.5.0)
+ID:		2.5.0 -> 3.11.1
+Text:		"The full path in the filesystem to the configuration file containing the
+rules being evaluated by each pmie instance.
+
+If the configuration file was supplied on the standard input, then this
+metric will have the value "<stdin>".  If multiple configuration files were
+given to pmie, then the value of this metric will be the first configuration
+file specified."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (3.9.2)
+Text:		"instantaneous amount of memory shared by this process with other processes "
+		->
+		"rewritten"
+
+Help Text: One Line pmID (3.9.1)
+Text:		"instantaneous resident size of process, excluding page table and task structure."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (3.9.0)
+Text:		"instantaneous virtual size of process, excluding page table and task structure."
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.14)
+Text:		"time (in ms) spent executing system code (calls) since process started"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.13)
+Text:		"time (in ms) spent executing user code since process started"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.11)
+Text:		"count of page faults other than reclaims"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.9)
+Text:		"count of minor page faults (i.e. reclaims)"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.3)
+Text:		"parent process identifier"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.2)
+Text:		"process state identifier (see ps(1)). See also proc.runq metrics."
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.1)
+Text:		"command name"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.0)
+Text:		"process identifier"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.45)
+Text:		"Time spent running a virtual CPU for a guest operating system.
+"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.43)
+Text:		"Scheduling policy"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.42)
+Text:		"Real-time scheduling priority, a number in the range 1 to 99"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.40)
+Text:		"This field needs access to a namelist file for proper 
+address-to-symbol name translation. If no namelist file
+is available, the address is printed instead. The namelist
+file must match the current Linux kernel exactly.
+The search path for the namelist file is as follows:
+	/boot/System.map-`uname -r`
+	/boot/System.map
+	/lib/modules/`uname -r`/System.map
+	/usr/src/linux/System.map
+	/System.map
+"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.38)
+Text:		"last CPU the process was running on"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.23)
+Text:		"resident set size (i.e. physical memory) of the process"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.22)
+Text:		"virtual size of the process in Kbytes"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.21)
+Text:		"start time of the process relative to system boot time (in ms)"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.18)
+Text:		"process nice value (negative nice values are lower priority)"
+		->
+		"rewritten"
+
+Help Text: full pmID (3.8.17)
+Text:		"scheduling priority value"
+		->
+		"rewritten"
+
+Help Text: full pmID (2.0.20)
+Text:		"Minor part of the PCP build version numbering.  For example on Linux
+with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
+pmcd.build returns the string "20070323"."
+		->
+		"rewritten"
+
+Help Text: One Line pmID (2.0.3)
+Text:		"Number of clients currently connected to PMCD"
+		->
+		"rewritten"
+
+Help Text: full pmID (2.0.2)
+Text:		"The number of agents (PMDAs) currently connected to PMCD.  This may differ
+from the number of agents configured in $PCP_PMCDCONF_PATH if agents have
+terminated and/or been timed-out by PMCD."
+		->
+		"rewritten"
+
+Help Text: One Line pmInDom (129.0)
+DELETE
+
+Help Text: One Line pmInDom (60.5)
+DELETE
+
+Help Text: One Line pmInDom (60.33)
+DELETE
+
+Help Text: One Line pmInDom (60.19)
+DELETE
+
+Help Text: One Line pmInDom (60.32)
+DELETE
+
+Help Text: One Line pmInDom (60.17)
+DELETE
+
+Help Text: One Line pmInDom (60.3)
+DELETE
+
+Help Text: One Line pmInDom (60.31)
+DELETE
+
+Help Text: One Line pmInDom (60.2)
+DELETE
+
+Help Text: One Line pmInDom (60.30)
+DELETE
+
+Help Text: One Line pmInDom (60.29)
+DELETE
+
+Help Text: One Line pmInDom (60.15)
+DELETE
+
+Help Text: One Line pmInDom (60.28)
+DELETE
+
+Help Text: One Line pmInDom (60.14)
+DELETE
+
+Help Text: One Line pmInDom (60.0)
+DELETE
+
+Help Text: One Line pmInDom (60.12)
+DELETE
+
+Help Text: One Line pmInDom (60.11)
+DELETE
+
+Help Text: One Line pmInDom (60.25)
+DELETE
+
+Help Text: One Line pmInDom (60.10)
+DELETE
+
+Help Text: One Line pmInDom (60.24)
+DELETE
+
+Help Text: One Line pmInDom (60.8)
+DELETE
+
+Help Text: One Line pmInDom (60.7)
+DELETE
+
+Help Text: One Line pmInDom (60.34)
+DELETE
+
+Help Text: One Line pmInDom (60.6)
+DELETE
+
+Help Text: One Line pmInDom (2.4)
+DELETE
+
+Help Text: full pmInDom (2.4)
+DELETE
+
+Help Text: full pmInDom (2.3)
+DELETE
+
+Help Text: One Line pmInDom (2.1)
+DELETE
+
+Help Text: One Line pmID (62.2.1)
+DELETE
+
+Help Text: One Line pmID (62.0.1)
+DELETE
+
+Help Text: One Line pmID (62.6.8)
+DELETE
+
+Help Text: One Line pmID (62.6.7)
+DELETE
+
+Help Text: One Line pmID (62.6.6)
+DELETE
+
+Help Text: One Line pmID (62.6.5)
+DELETE
+
+Help Text: One Line pmID (62.6.4)
+DELETE
+
+Help Text: One Line pmID (62.6.3)
+DELETE
+
+Help Text: One Line pmID (62.6.2)
+DELETE
+
+Help Text: One Line pmID (62.6.1)
+DELETE
+
+Help Text: full pmID (62.6.8)
+DELETE
+
+Help Text: full pmID (62.6.7)
+DELETE
+
+Help Text: full pmID (62.6.6)
+DELETE
+
+Help Text: full pmID (62.6.5)
+DELETE
+
+Help Text: full pmID (62.6.4)
+DELETE
+
+Help Text: full pmID (62.6.3)
+DELETE
+
+Help Text: full pmID (62.6.2)
+DELETE
+
+Help Text: full pmID (62.6.1)
+DELETE
+
+Help Text: full pmID (60.28.7)
+DELETE
+
+Help Text: full pmID (60.28.6)
+DELETE
+
+Help Text: full pmID (60.28.5)
+DELETE
+
+Help Text: full pmID (60.28.4)
+DELETE
+
+Help Text: full pmID (60.28.3)
+DELETE
+
+Help Text: full pmID (60.28.122)
+DELETE
+
+Help Text: full pmID (60.28.2)
+DELETE
+
+Help Text: full pmID (60.28.1)
+DELETE
+
+Help Text: full pmID (60.54.16)
+DELETE
+
+Help Text: full pmID (60.28.0)
+DELETE
+
+Help Text: full pmID (60.54.15)
+DELETE
+
+Help Text: full pmID (60.54.14)
+DELETE
+
+Help Text: full pmID (60.71.6)
+DELETE
+
+Help Text: full pmID (60.54.11)
+DELETE
+
+Help Text: full pmID (60.71.1)
+DELETE
+
+Help Text: full pmID (60.1.31)
+DELETE
+
+Help Text: full pmID (60.3.23)
+DELETE
+
+Help Text: full pmID (60.3.22)
+DELETE
+
+Help Text: full pmID (60.3.20)
+DELETE
+
+Help Text: full pmID (60.1.26)
+DELETE
+
+Help Text: full pmID (60.1.25)
+DELETE
+
+Help Text: full pmID (60.1.24)
+DELETE
+
+Help Text: full pmID (60.1.23)
+DELETE
+
+Help Text: full pmID (60.3.15)
+DELETE
+
+Help Text: full pmID (60.28.94)
+DELETE
+
+Help Text: full pmID (60.3.14)
+DELETE
+
+Help Text: full pmID (60.1.22)
+DELETE
+
+Help Text: full pmID (60.3.13)
+DELETE
+
+Help Text: full pmID (60.1.21)
+DELETE
+
+Help Text: full pmID (60.3.12)
+DELETE
+
+Help Text: full pmID (60.1.20)
+DELETE
+
+Help Text: full pmID (60.0.83)
+DELETE
+
+Help Text: full pmID (60.28.91)
+DELETE
+
+Help Text: full pmID (60.3.11)
+DELETE
+
+Help Text: full pmID (60.1.19)
+DELETE
+
+Help Text: full pmID (60.28.90)
+DELETE
+
+Help Text: full pmID (60.3.10)
+DELETE
+
+Help Text: full pmID (60.1.18)
+DELETE
+
+Help Text: full pmID (60.0.81)
+DELETE
+
+Help Text: full pmID (60.28.89)
+DELETE
+
+Help Text: full pmID (60.3.9)
+DELETE
+
+Help Text: full pmID (60.1.17)
+DELETE
+
+Help Text: full pmID (60.0.80)
+DELETE
+
+Help Text: full pmID (60.28.88)
+DELETE
+
+Help Text: full pmID (60.3.8)
+DELETE
+
+Help Text: full pmID (60.1.16)
+DELETE
+
+Help Text: full pmID (60.0.79)
+DELETE
+
+Help Text: full pmID (60.28.87)
+DELETE
+
+Help Text: full pmID (60.3.7)
+DELETE
+
+Help Text: full pmID (60.1.15)
+DELETE
+
+Help Text: full pmID (60.3.6)
+DELETE
+
+Help Text: full pmID (60.1.14)
+DELETE
+
+Help Text: full pmID (60.3.5)
+DELETE
+
+Help Text: full pmID (60.1.13)
+DELETE
+
+Help Text: full pmID (60.3.4)
+DELETE
+
+Help Text: full pmID (60.1.12)
+DELETE
+
+Help Text: full pmID (60.0.75)
+DELETE
+
+Help Text: full pmID (60.3.3)
+DELETE
+
+Help Text: full pmID (60.1.11)
+DELETE
+
+Help Text: full pmID (60.0.74)
+DELETE
+
+Help Text: full pmID (60.3.2)
+DELETE
+
+Help Text: full pmID (60.0.73)
+DELETE
+
+Help Text: full pmID (60.3.1)
+DELETE
+
+Help Text: full pmID (60.0.72)
+DELETE
+
+Help Text: full pmID (60.68.40)
+DELETE
+
+Help Text: full pmID (60.59.16)
+DELETE
+
+Help Text: full pmID (60.3.0)
+DELETE
+
+Help Text: full pmID (60.68.39)
+DELETE
+
+Help Text: full pmID (60.59.15)
+DELETE
+
+Help Text: full pmID (60.59.14)
+DELETE
+
+Help Text: full pmID (60.68.37)
+DELETE
+
+Help Text: full pmID (60.1.5)
+DELETE
+
+Help Text: full pmID (60.68.36)
+DELETE
+
+Help Text: full pmID (60.1.4)
+DELETE
+
+Help Text: full pmID (60.68.35)
+DELETE
+
+Help Text: full pmID (60.59.11)
+DELETE
+
+Help Text: full pmID (60.1.3)
+DELETE
+
+Help Text: full pmID (60.1.2)
+DELETE
+
+Help Text: full pmID (60.1.1)
+DELETE
+
+Help Text: full pmID (60.28.72)
+DELETE
+
+Help Text: full pmID (60.1.0)
+DELETE
+
+Help Text: full pmID (60.28.71)
+DELETE
+
+Help Text: full pmID (60.28.70)
+DELETE
+
+Help Text: full pmID (60.36.38)
+DELETE
+
+Help Text: full pmID (60.28.69)
+DELETE
+
+Help Text: full pmID (60.0.61)
+DELETE
+
+Help Text: full pmID (60.28.68)
+DELETE
+
+Help Text: full pmID (60.0.60)
+DELETE
+
+Help Text: full pmID (60.28.67)
+DELETE
+
+Help Text: full pmID (60.57.11)
+DELETE
+
+Help Text: full pmID (60.68.27)
+DELETE
+
+Help Text: full pmID (60.0.59)
+DELETE
+
+Help Text: full pmID (60.0.58)
+DELETE
+
+Help Text: full pmID (60.28.66)
+DELETE
+
+Help Text: full pmID (60.0.57)
+DELETE
+
+Help Text: full pmID (60.28.65)
+DELETE
+
+Help Text: full pmID (60.0.56)
+DELETE
+
+Help Text: full pmID (60.28.64)
+DELETE
+
+Help Text: full pmID (60.10.15)
+DELETE
+
+Help Text: full pmID (60.0.55)
+DELETE
+
+Help Text: full pmID (60.28.63)
+DELETE
+
+Help Text: full pmID (60.12.7)
+DELETE
+
+Help Text: full pmID (60.10.14)
+DELETE
+
+Help Text: full pmID (60.0.54)
+DELETE
+
+Help Text: full pmID (60.0.53)
+DELETE
+
+Help Text: full pmID (60.10.13)
+DELETE
+
+Help Text: full pmID (60.12.5)
+DELETE
+
+Help Text: full pmID (60.0.52)
+DELETE
+
+Help Text: full pmID (60.12.4)
+DELETE
+
+Help Text: full pmID (60.0.51)
+DELETE
+
+Help Text: full pmID (60.10.11)
+DELETE
+
+Help Text: full pmID (60.12.3)
+DELETE
+
+Help Text: full pmID (60.0.50)
+DELETE
+
+Help Text: full pmID (60.12.2)
+DELETE
+
+Help Text: full pmID (60.0.49)
+DELETE
+
+Help Text: full pmID (60.12.1)
+DELETE
+
+Help Text: full pmID (60.10.8)
+DELETE
+
+Help Text: full pmID (60.12.0)
+DELETE
+
+Help Text: full pmID (60.0.47)
+DELETE
+
+Help Text: full pmID (60.10.7)
+DELETE
+
+Help Text: full pmID (60.0.46)
+DELETE
+
+Help Text: full pmID (60.10.6)
+DELETE
+
+Help Text: full pmID (60.0.45)
+DELETE
+
+Help Text: full pmID (60.10.5)
+DELETE
+
+Help Text: full pmID (60.0.44)
+DELETE
+
+Help Text: full pmID (60.10.4)
+DELETE
+
+Help Text: full pmID (60.10.3)
+DELETE
+
+Help Text: full pmID (60.10.2)
+DELETE
+
+Help Text: full pmID (60.68.9)
+DELETE
+
+Help Text: full pmID (60.10.1)
+DELETE
+
+Help Text: full pmID (60.10.0)
+DELETE
+
+Help Text: full pmID (60.0.37)
+DELETE
+
+Help Text: full pmID (60.28.44)
+DELETE
+
+Help Text: full pmID (60.28.43)
+DELETE
+
+Help Text: full pmID (60.0.34)
+DELETE
+
+Help Text: full pmID (60.28.42)
+DELETE
+
+Help Text: full pmID (60.28.40)
+DELETE
+
+Help Text: full pmID (60.0.31)
+DELETE
+
+Help Text: full pmID (60.28.39)
+DELETE
+
+Help Text: full pmID (60.53.118)
+DELETE
+
+Help Text: full pmID (60.0.30)
+DELETE
+
+Help Text: full pmID (60.28.38)
+DELETE
+
+Help Text: full pmID (60.53.117)
+DELETE
+
+Help Text: full pmID (60.0.29)
+DELETE
+
+Help Text: full pmID (60.28.37)
+DELETE
+
+Help Text: full pmID (60.0.28)
+DELETE
+
+Help Text: full pmID (60.28.36)
+DELETE
+
+Help Text: full pmID (60.28.35)
+DELETE
+
+Help Text: full pmID (60.0.27)
+DELETE
+
+Help Text: full pmID (60.6.3)
+DELETE
+
+Help Text: full pmID (60.0.26)
+DELETE
+
+Help Text: full pmID (60.28.34)
+DELETE
+
+Help Text: full pmID (60.0.25)
+DELETE
+
+Help Text: full pmID (60.28.33)
+DELETE
+
+Help Text: full pmID (60.0.24)
+DELETE
+
+Help Text: full pmID (60.28.32)
+DELETE
+
+Help Text: full pmID (60.28.31)
+DELETE
+
+Help Text: full pmID (60.28.30)
+DELETE
+
+Help Text: full pmID (60.28.29)
+DELETE
+
+Help Text: full pmID (60.28.28)
+DELETE
+
+Help Text: full pmID (60.4.4)
+DELETE
+
+Help Text: full pmID (60.28.27)
+DELETE
+
+Help Text: full pmID (60.4.3)
+DELETE
+
+Help Text: full pmID (60.28.26)
+DELETE
+
+Help Text: full pmID (60.28.25)
+DELETE
+
+Help Text: full pmID (60.28.145)
+DELETE
+
+Help Text: full pmID (60.28.24)
+DELETE
+
+Help Text: full pmID (60.28.144)
+DELETE
+
+Help Text: full pmID (60.28.23)
+DELETE
+
+Help Text: full pmID (60.28.143)
+DELETE
+
+Help Text: full pmID (60.28.22)
+DELETE
+
+Help Text: full pmID (60.28.142)
+DELETE
+
+Help Text: full pmID (60.28.21)
+DELETE
+
+Help Text: full pmID (60.53.101)
+DELETE
+
+Help Text: full pmID (60.28.141)
+DELETE
+
+Help Text: full pmID (60.0.12)
+DELETE
+
+Help Text: full pmID (60.28.140)
+DELETE
+
+Help Text: full pmID (60.28.20)
+DELETE
+
+Help Text: full pmID (60.28.139)
+DELETE
+
+Help Text: full pmID (60.28.19)
+DELETE
+
+Help Text: full pmID (60.28.138)
+DELETE
+
+Help Text: full pmID (60.28.18)
+DELETE
+
+Help Text: full pmID (60.28.17)
+DELETE
+
+Help Text: full pmID (60.28.16)
+DELETE
+
+Help Text: full pmID (60.0.7)
+DELETE
+
+Help Text: full pmID (60.28.15)
+DELETE
+
+Help Text: full pmID (60.1.63)
+DELETE
+
+Help Text: full pmID (60.0.6)
+DELETE
+
+Help Text: full pmID (60.28.14)
+DELETE
+
+Help Text: full pmID (60.53.93)
+DELETE
+
+Help Text: full pmID (60.0.5)
+DELETE
+
+Help Text: full pmID (60.28.13)
+DELETE
+
+Help Text: full pmID (60.0.4)
+DELETE
+
+Help Text: full pmID (60.28.12)
+DELETE
+
+Help Text: full pmID (60.28.11)
+DELETE
+
+Help Text: full pmID (60.1.59)
+DELETE
+
+Help Text: full pmID (60.28.10)
+DELETE
+
+Help Text: full pmID (60.1.58)
+DELETE
+
+Help Text: full pmID (60.28.9)
+DELETE
+
+Help Text: full pmID (60.28.8)
+DELETE
+
+Help Text: full pmID (60.15.0)
+DELETE
+
+Help Text: One Line pmID (11.17.8)
+DELETE
+
+Help Text: One Line pmID (11.17.7)
+DELETE
+
+Help Text: One Line pmID (11.17.6)
+DELETE
+
+Help Text: One Line pmID (11.17.5)
+DELETE
+
+Help Text: One Line pmID (11.17.4)
+DELETE
+
+Help Text: One Line pmID (11.17.3)
+DELETE
+
+Help Text: One Line pmID (11.17.2)
+DELETE
+
+Help Text: One Line pmID (11.17.1)
+DELETE
+
+Help Text: One Line pmID (11.17.0)
+DELETE
+
+Help Text: One Line pmID (11.16.63)
+DELETE
+
+Help Text: One Line pmID (11.16.54)
+DELETE
+
+Help Text: One Line pmID (11.16.53)
+DELETE
+
+Help Text: One Line pmID (11.16.52)
+DELETE
+
+Help Text: One Line pmID (11.16.51)
+DELETE
+
+Help Text: One Line pmID (11.16.35)
+DELETE
+
+Help Text: One Line pmID (11.16.34)
+DELETE
+
+Help Text: One Line pmID (11.16.33)
+DELETE
+
+Help Text: One Line pmID (3.11.1)
+DELETE
+
+Help Text: full pmID (3.11.1)
+DELETE
+
+Help Text: full pmID (3.9.2)
+DELETE
+
+Help Text: full pmID (3.9.1)
+DELETE
+
+Help Text: full pmID (3.9.0)
+DELETE
+
+Help Text: One Line pmID (3.8.99)
+DELETE
+
+Help Text: One Line pmID (3.8.45)
+DELETE
+
+Help Text: One Line pmID (3.8.43)
+DELETE
+
+Help Text: One Line pmID (3.8.42)
+DELETE
+
+Help Text: One Line pmID (3.8.40)
+DELETE
+
+Help Text: One Line pmID (3.8.38)
+DELETE
+
+Help Text: One Line pmID (3.8.23)
+DELETE
+
+Help Text: One Line pmID (3.8.22)
+DELETE
+
+Help Text: One Line pmID (3.8.21)
+DELETE
+
+Help Text: One Line pmID (3.8.18)
+DELETE
+
+Help Text: One Line pmID (3.8.17)
+DELETE
+
+Help Text: One Line pmID (3.8.14)
+DELETE
+
+Help Text: One Line pmID (3.8.13)
+DELETE
+
+Help Text: One Line pmID (3.8.11)
+DELETE
+
+Help Text: One Line pmID (3.8.9)
+DELETE
+
+Help Text: One Line pmID (3.8.3)
+DELETE
+
+Help Text: One Line pmID (3.8.2)
+DELETE
+
+Help Text: One Line pmID (3.8.1)
+DELETE
+
+Help Text: One Line pmID (3.8.0)
+DELETE
+
+Help Text: One Line pmID (2.0.16)
+DELETE
+
+Help Text: full pmID (2.0.16)
+DELETE
+
+Help Text: full pmID (2.0.3)
+DELETE
+
+Help Text: One Line pmID (2.0.2)
+DELETE
+
+Help Text: One Line pmInDom (60.1)
+DELETE
+
+Help Text: One Line pmID (2.0.20)
+Text:		"build version for installed PCP package"
+		->
+		"rewritten"
+
+Metric Help Text in the Log ...
+PMID: 2.0.2
+rewritten
+PMID: 2.0.3 [rewritten]
+PMID: 2.0.7 [PMCD version]
+PMID: 2.0.16 [host from which active pmlogger is fetching metrics]
+PMID: 2.0.16
+This metric encodes the current status of each PMDA.  The default value
+is 0 if the PMDA is active.
+
+Other values encode various degrees of PMDA difficulty in three bit fields
+(bit 0 is the low-order bit) as follows:
+
+bits 7..0
+    1   the PMDA is connected, but not yet "ready" to accept requests
+        from the PMDA
+    2   the PMDA has exited of its own accord
+    4   some error prevented the PMDA being started
+    8   PMCD stopped communication with the PMDA due to a protocol or
+        timeout error
+
+bits 15..8
+        the exit() status from the PMDA
+
+bits 23..16
+        the number of the signal that terminated the PMDA
+PMID: 2.0.20 [rewritten]
+PMID: 2.0.20
+rewritten
+PMID: 2.3.1
+The fully qualified domain name of the host from which a pmlogger
+instance is fetching metrics to be archived.
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance id of zero (in addition to its normal process id
+instance).
+PMID: 2.4.1 [PMDA status]
+PMID: 2.5.1 [rewritten]
+PMID: 2.5.1
+rewritten
+PMID: 2.5.2 [rewritten]
+PMID: 2.5.2
+rewritten
+PMID: 2.5.3 [rewritten]
+PMID: 2.5.3
+rewritten
+PMID: 2.5.4 [rewritten]
+PMID: 2.5.4
+rewritten
+PMID: 2.5.5 [rewritten]
+PMID: 2.5.5
+rewritten
+PMID: 2.5.6 [rewritten]
+PMID: 2.5.6
+rewritten
+PMID: 2.5.7 [rewritten]
+PMID: 2.5.7
+rewritten
+PMID: 2.5.8 [rewritten]
+PMID: 2.5.8
+rewritten
+PMID: 2.5.9 [rewritten]
+PMID: 2.5.9
+rewritten
+PMID: 3.8.0
+rewritten
+PMID: 3.8.1
+rewritten
+PMID: 3.8.2
+rewritten
+PMID: 3.8.3
+rewritten
+PMID: 3.8.9
+rewritten
+PMID: 3.8.11
+rewritten
+PMID: 3.8.13
+rewritten
+PMID: 3.8.14
+rewritten
+PMID: 3.8.17
+rewritten
+PMID: 3.8.18
+rewritten
+PMID: 3.8.21
+rewritten
+PMID: 3.8.22
+rewritten
+PMID: 3.8.23
+rewritten
+PMID: 3.8.38
+rewritten
+PMID: 3.8.40
+rewritten
+PMID: 3.8.42
+rewritten
+PMID: 3.8.43
+rewritten
+PMID: 3.8.45
+rewritten
+PMID: 3.9.0 [rewritten]
+PMID: 3.9.1 [rewritten]
+PMID: 3.9.2 [rewritten]
+PMID: 3.11.1 [rewritten]
+PMID: 3.11.1
+rewritten
+PMID: 3.13.0 [number of runnable (on run queue) processes]
+PMID: 3.13.0
+Instantaneous number of runnable (on run queue) processes;
+state 'R' in ps(1).
+PMID: 3.13.1 [number of processes in uninterruptible sleep]
+PMID: 3.13.1
+Instantaneous number of processes in uninterruptible sleep or parked;
+state 'D' in ps(1).
+PMID: 3.24.0 [real user ID from /proc/<pid>/status]
+PMID: 3.24.0
+real user ID from /proc/<pid>/status
+PMID: 3.24.1 [effective user ID from /proc/<pid>/status]
+PMID: 3.24.1
+effective user ID from /proc/<pid>/status
+PMID: 3.24.2 [saved user ID from /proc/<pid>/status]
+PMID: 3.24.2
+saved user ID from /proc/<pid>/status
+PMID: 3.24.3 [filesystem user ID from /proc/<pid>/status]
+PMID: 3.24.3
+filesystem user ID from /proc/<pid>/status
+PMID: 3.24.4 [real group ID from /proc/<pid>/status]
+PMID: 3.24.4
+real group ID from /proc/<pid>/status
+PMID: 3.24.5 [effective group ID from /proc/<pid>/status]
+PMID: 3.24.5
+effective group ID from /proc/<pid>/status
+PMID: 3.24.6 [saved group ID from /proc/<pid>/status]
+PMID: 3.24.6
+saved group ID from /proc/<pid>/status
+PMID: 3.24.7 [filesystem group ID from /proc/<pid>/status]
+PMID: 3.24.7
+filesystem group ID from /proc/<pid>/status
+PMID: 3.24.8 [real user name based on real user ID from /proc/<pid>/status]
+PMID: 3.24.8
+real user name based on real user ID from /proc/<pid>/status
+PMID: 3.24.9 [effective user name based on effective user ID from /proc/<pid>/status]
+PMID: 3.24.9
+effective user name based on effective user ID from /proc/<pid>/status
+PMID: 3.24.10 [saved user name based on saved user ID from /proc/<pid>/status]
+PMID: 3.24.10
+saved user name based on saved user ID from /proc/<pid>/status
+PMID: 3.24.11 [filesystem user name based on filesystem user ID from /proc/<pid>/status]
+PMID: 3.24.11
+filesystem user name based on filesystem user ID from /proc/<pid>/status
+PMID: 3.24.20 [total virtual memory (from /proc/<pid>/status)]
+PMID: 3.24.20
+total virtual memory (from /proc/<pid>/status)
+PMID: 3.24.23 [virtual memory used for data (from /proc/<pid>/status)]
+PMID: 3.24.23
+virtual memory used for data (from /proc/<pid>/status)
+PMID: 3.24.24 [virtual memory used for stack (from /proc/<pid>/status)]
+PMID: 3.24.24
+virtual memory used for stack (from /proc/<pid>/status)
+PMID: 3.24.25 [virtual memory used for non-library executable code (from /proc/<pid>/status)]
+PMID: 3.24.25
+virtual memory used for non-library executable code (from /proc/<pid>/status)
+PMID: 3.24.26 [virtual memory used for libraries (from /proc/<pid>/status)]
+PMID: 3.24.26
+virtual memory used for libraries (from /proc/<pid>/status)
+PMID: 3.24.27 [virtual memory size currently swapped out (from /proc/<pid>/status)]
+PMID: 3.24.27
+virtual memory size currently swapped out (from /proc/<pid>/status)
+PMID: 3.24.28 [number of threads (from /proc/<pid>/status)]
+PMID: 3.24.28
+number of threads (from /proc/<pid>/status)
+PMID: 3.24.41 [thread group identifier]
+PMID: 3.24.41
+thread group identifier
+PMID: 3.24.42 [OpenVZ container identifier]
+PMID: 3.24.42
+OpenVZ container identifier
+PMID: 3.32.4 [physical device read bytes]
+PMID: 3.32.4
+Number of bytes physically read on by devices on behalf of this process.
+
+PMID: 3.32.5 [physical device write bytes]
+PMID: 3.32.5
+Number of bytes physically written to devices on behalf of this process.
+This must be reduced by any truncated I/O (proc.io.cancelled_write_bytes).
+
+PMID: 3.32.6 [physical device write cancelled bytes]
+PMID: 3.32.6
+Number of bytes cancelled via truncate by this process.  Actual physical
+writes for an individual process can be calculated as:
+	proc.io.write_bytes - proc.io.cancelled_write_bytes.
+
+PMID: 11.16.33
+rewritten
+PMID: 11.16.34
+rewritten
+PMID: 11.16.35
+rewritten
+PMID: 11.16.51
+rewritten
+PMID: 11.16.52
+rewritten
+PMID: 11.16.53
+rewritten
+PMID: 11.16.54
+rewritten
+PMID: 60.0.0 [rewritten]
+PMID: 60.0.1 [rewritten]
+PMID: 60.0.2 [rewritten]
+PMID: 60.0.3 [rewritten]
+PMID: 60.0.4 [rewritten]
+PMID: 60.0.5 [rewritten]
+PMID: 60.0.6 [rewritten]
+PMID: 60.0.7 [rewritten]
+PMID: 60.0.8 [rewritten]
+PMID: 60.0.9 [rewritten]
+PMID: 60.0.10 [rewritten]
+PMID: 60.0.11 [rewritten]
+PMID: 60.0.12 [rewritten]
+PMID: 60.0.13 [rewritten]
+PMID: 60.0.14 [rewritten]
+PMID: 60.0.15 [rewritten]
+PMID: 60.0.16 [rewritten]
+PMID: 60.0.19 [rewritten]
+PMID: 60.0.20 [rewritten]
+PMID: 60.0.21 [rewritten]
+PMID: 60.0.22 [rewritten]
+PMID: 60.0.23 [rewritten]
+PMID: 60.0.24 [rewritten]
+PMID: 60.0.25 [rewritten]
+PMID: 60.0.26 [rewritten]
+PMID: 60.0.27 [rewritten]
+PMID: 60.0.28 [rewritten]
+PMID: 60.0.29 [rewritten]
+PMID: 60.0.30 [rewritten]
+PMID: 60.0.31 [rewritten]
+PMID: 60.0.32 [rewritten]
+PMID: 60.0.33 [rewritten]
+PMID: 60.0.34 [rewritten]
+PMID: 60.0.35 [rewritten]
+PMID: 60.0.37 [rewritten]
+PMID: 60.0.38 [rewritten]
+PMID: 60.0.39 [rewritten]
+PMID: 60.0.40 [rewritten]
+PMID: 60.0.41 [rewritten]
+PMID: 60.0.42 [rewritten]
+PMID: 60.0.43 [rewritten]
+PMID: 60.0.44 [rewritten]
+PMID: 60.0.45 [rewritten]
+PMID: 60.0.46 [rewritten]
+PMID: 60.0.47 [rewritten]
+PMID: 60.0.48 [rewritten]
+PMID: 60.0.49 [rewritten]
+PMID: 60.0.50 [rewritten]
+PMID: 60.0.51 [rewritten]
+PMID: 60.0.52 [rewritten]
+PMID: 60.0.53 [rewritten]
+PMID: 60.0.54 [rewritten]
+PMID: 60.0.55 [rewritten]
+PMID: 60.0.56 [rewritten]
+PMID: 60.0.57 [rewritten]
+PMID: 60.0.58 [rewritten]
+PMID: 60.0.59 [rewritten]
+PMID: 60.0.60 [rewritten]
+PMID: 60.0.61 [rewritten]
+PMID: 60.0.72 [rewritten]
+PMID: 60.0.73 [rewritten]
+PMID: 60.0.74 [rewritten]
+PMID: 60.0.75 [rewritten]
+PMID: 60.0.76 [rewritten]
+PMID: 60.0.78 [rewritten]
+PMID: 60.0.79 [rewritten]
+PMID: 60.0.80 [rewritten]
+PMID: 60.0.81 [rewritten]
+PMID: 60.0.82 [rewritten]
+PMID: 60.0.83 [rewritten]
+PMID: 60.0.84 [rewritten]
+PMID: 60.1.0 [rewritten]
+PMID: 60.1.1 [rewritten]
+PMID: 60.1.2 [rewritten]
+PMID: 60.1.3 [rewritten]
+PMID: 60.1.4 [rewritten]
+PMID: 60.1.5 [rewritten]
+PMID: 60.1.6 [rewritten]
+PMID: 60.1.7 [rewritten]
+PMID: 60.1.8 [rewritten]
+PMID: 60.1.9 [rewritten]
+PMID: 60.1.10 [rewritten]
+PMID: 60.1.11 [rewritten]
+PMID: 60.1.12 [rewritten]
+PMID: 60.1.13 [rewritten]
+PMID: 60.1.14 [rewritten]
+PMID: 60.1.15 [rewritten]
+PMID: 60.1.16 [rewritten]
+PMID: 60.1.17 [rewritten]
+PMID: 60.1.18 [rewritten]
+PMID: 60.1.19 [rewritten]
+PMID: 60.1.20 [rewritten]
+PMID: 60.1.21 [rewritten]
+PMID: 60.1.22 [rewritten]
+PMID: 60.1.23 [rewritten]
+PMID: 60.1.24 [rewritten]
+PMID: 60.1.25 [rewritten]
+PMID: 60.1.26 [rewritten]
+PMID: 60.1.27 [rewritten]
+PMID: 60.1.28 [rewritten]
+PMID: 60.1.29 [rewritten]
+PMID: 60.1.30 [rewritten]
+PMID: 60.1.31 [rewritten]
+PMID: 60.1.32 [rewritten]
+PMID: 60.1.33 [rewritten]
+PMID: 60.1.34 [rewritten]
+PMID: 60.1.35 [rewritten]
+PMID: 60.1.36 [rewritten]
+PMID: 60.1.37 [rewritten]
+PMID: 60.1.38 [rewritten]
+PMID: 60.1.39 [rewritten]
+PMID: 60.1.40 [rewritten]
+PMID: 60.1.41 [rewritten]
+PMID: 60.1.42 [rewritten]
+PMID: 60.1.43 [rewritten]
+PMID: 60.1.44 [rewritten]
+PMID: 60.1.45 [rewritten]
+PMID: 60.1.46 [rewritten]
+PMID: 60.1.47 [rewritten]
+PMID: 60.1.48 [rewritten]
+PMID: 60.1.49 [rewritten]
+PMID: 60.1.50 [rewritten]
+PMID: 60.1.51 [rewritten]
+PMID: 60.1.52 [rewritten]
+PMID: 60.1.53 [rewritten]
+PMID: 60.1.54 [rewritten]
+PMID: 60.1.55 [rewritten]
+PMID: 60.1.56 [rewritten]
+PMID: 60.1.57 [rewritten]
+PMID: 60.1.58 [rewritten]
+PMID: 60.1.59 [rewritten]
+PMID: 60.1.60 [rewritten]
+PMID: 60.1.61 [rewritten]
+PMID: 60.1.62 [rewritten]
+PMID: 60.1.63 [rewritten]
+PMID: 60.2.0 [rewritten]
+PMID: 60.2.1 [rewritten]
+PMID: 60.2.2 [rewritten]
+PMID: 60.2.3 [rewritten]
+PMID: 60.3.0 [rewritten]
+PMID: 60.3.1 [rewritten]
+PMID: 60.3.2 [rewritten]
+PMID: 60.3.3 [rewritten]
+PMID: 60.3.4 [rewritten]
+PMID: 60.3.5 [rewritten]
+PMID: 60.3.6 [rewritten]
+PMID: 60.3.7 [rewritten]
+PMID: 60.3.8 [rewritten]
+PMID: 60.3.9 [rewritten]
+PMID: 60.3.10 [rewritten]
+PMID: 60.3.11 [rewritten]
+PMID: 60.3.12 [rewritten]
+PMID: 60.3.13 [rewritten]
+PMID: 60.3.14 [rewritten]
+PMID: 60.3.15 [rewritten]
+PMID: 60.3.16 [rewritten]
+PMID: 60.3.17 [rewritten]
+PMID: 60.3.18 [rewritten]
+PMID: 60.3.19 [rewritten]
+PMID: 60.3.20 [rewritten]
+PMID: 60.3.21 [rewritten]
+PMID: 60.3.22 [rewritten]
+PMID: 60.3.23 [rewritten]
+PMID: 60.3.24 [rewritten]
+PMID: 60.3.25 [rewritten]
+PMID: 60.3.26 [rewritten]
+PMID: 60.3.27 [rewritten]
+PMID: 60.3.28 [rewritten]
+PMID: 60.4.3 [rewritten]
+PMID: 60.4.4 [rewritten]
+PMID: 60.5.0 [rewritten]
+PMID: 60.5.1 [rewritten]
+PMID: 60.5.7 [rewritten]
+PMID: 60.5.8 [rewritten]
+PMID: 60.5.9 [rewritten]
+PMID: 60.6.0 [rewritten]
+PMID: 60.6.1 [rewritten]
+PMID: 60.6.2 [rewritten]
+PMID: 60.6.3 [rewritten]
+PMID: 60.6.4 [rewritten]
+PMID: 60.7.4 [rewritten]
+PMID: 60.7.12 [rewritten]
+PMID: 60.7.20 [rewritten]
+PMID: 60.7.21 [rewritten]
+PMID: 60.7.22 [rewritten]
+PMID: 60.7.24 [rewritten]
+PMID: 60.7.25 [rewritten]
+PMID: 60.7.26 [rewritten]
+PMID: 60.7.27 [rewritten]
+PMID: 60.7.30 [rewritten]
+PMID: 60.7.32 [rewritten]
+PMID: 60.7.33 [rewritten]
+PMID: 60.7.34 [rewritten]
+PMID: 60.7.35 [rewritten]
+PMID: 60.7.36 [rewritten]
+PMID: 60.7.37 [rewritten]
+PMID: 60.7.44 [rewritten]
+PMID: 60.7.45 [rewritten]
+PMID: 60.7.46 [rewritten]
+PMID: 60.7.47 [rewritten]
+PMID: 60.7.50 [rewritten]
+PMID: 60.7.54 [rewritten]
+PMID: 60.7.55 [rewritten]
+PMID: 60.7.61 [rewritten]
+PMID: 60.7.62 [rewritten]
+PMID: 60.7.63 [rewritten]
+PMID: 60.7.65 [rewritten]
+PMID: 60.7.66 [rewritten]
+PMID: 60.7.67 [rewritten]
+PMID: 60.7.71 [rewritten]
+PMID: 60.7.72 [rewritten]
+PMID: 60.7.73 [rewritten]
+PMID: 60.7.74 [rewritten]
+PMID: 60.7.75 [rewritten]
+PMID: 60.7.76 [rewritten]
+PMID: 60.10.0 [rewritten]
+PMID: 60.10.1 [rewritten]
+PMID: 60.10.2 [rewritten]
+PMID: 60.10.3 [rewritten]
+PMID: 60.10.4 [rewritten]
+PMID: 60.10.5 [rewritten]
+PMID: 60.10.6 [rewritten]
+PMID: 60.10.7 [rewritten]
+PMID: 60.10.8 [rewritten]
+PMID: 60.10.9 [rewritten]
+PMID: 60.10.10 [rewritten]
+PMID: 60.10.11 [rewritten]
+PMID: 60.10.12 [rewritten]
+PMID: 60.10.13 [rewritten]
+PMID: 60.10.14 [rewritten]
+PMID: 60.10.15 [rewritten]
+PMID: 60.11.0 [rewritten]
+PMID: 60.11.3 [rewritten]
+PMID: 60.11.6 [rewritten]
+PMID: 60.11.8 [rewritten]
+PMID: 60.11.9 [rewritten]
+PMID: 60.11.10 [rewritten]
+PMID: 60.11.11 [rewritten]
+PMID: 60.11.12 [rewritten]
+PMID: 60.11.13 [rewritten]
+PMID: 60.11.14 [rewritten]
+PMID: 60.11.15 [rewritten]
+PMID: 60.11.16 [rewritten]
+PMID: 60.12.0 [rewritten]
+PMID: 60.12.1 [rewritten]
+PMID: 60.12.2 [rewritten]
+PMID: 60.12.3 [rewritten]
+PMID: 60.12.4 [rewritten]
+PMID: 60.12.5 [rewritten]
+PMID: 60.12.7 [rewritten]
+PMID: 60.14.0 [rewritten]
+PMID: 60.14.1 [rewritten]
+PMID: 60.14.2 [rewritten]
+PMID: 60.14.3 [rewritten]
+PMID: 60.14.4 [rewritten]
+PMID: 60.14.5 [rewritten]
+PMID: 60.14.6 [rewritten]
+PMID: 60.14.7 [rewritten]
+PMID: 60.14.8 [rewritten]
+PMID: 60.14.9 [rewritten]
+PMID: 60.14.10 [rewritten]
+PMID: 60.14.11 [rewritten]
+PMID: 60.14.12 [rewritten]
+PMID: 60.14.13 [rewritten]
+PMID: 60.14.14 [rewritten]
+PMID: 60.14.15 [rewritten]
+PMID: 60.14.16 [rewritten]
+PMID: 60.14.17 [rewritten]
+PMID: 60.14.18 [rewritten]
+PMID: 60.14.20 [rewritten]
+PMID: 60.14.21 [rewritten]
+PMID: 60.14.22 [rewritten]
+PMID: 60.14.23 [rewritten]
+PMID: 60.14.24 [rewritten]
+PMID: 60.14.25 [rewritten]
+PMID: 60.14.26 [rewritten]
+PMID: 60.14.27 [rewritten]
+PMID: 60.14.28 [rewritten]
+PMID: 60.14.29 [rewritten]
+PMID: 60.14.30 [rewritten]
+PMID: 60.14.31 [rewritten]
+PMID: 60.14.32 [rewritten]
+PMID: 60.14.33 [rewritten]
+PMID: 60.14.34 [rewritten]
+PMID: 60.14.35 [rewritten]
+PMID: 60.14.36 [rewritten]
+PMID: 60.14.37 [rewritten]
+PMID: 60.14.38 [rewritten]
+PMID: 60.14.39 [rewritten]
+PMID: 60.14.40 [rewritten]
+PMID: 60.14.41 [rewritten]
+PMID: 60.14.42 [rewritten]
+PMID: 60.14.43 [rewritten]
+PMID: 60.14.44 [rewritten]
+PMID: 60.14.45 [rewritten]
+PMID: 60.14.46 [rewritten]
+PMID: 60.14.50 [rewritten]
+PMID: 60.14.51 [rewritten]
+PMID: 60.14.52 [rewritten]
+PMID: 60.14.53 [rewritten]
+PMID: 60.14.54 [rewritten]
+PMID: 60.14.55 [rewritten]
+PMID: 60.14.56 [rewritten]
+PMID: 60.14.57 [rewritten]
+PMID: 60.14.58 [rewritten]
+PMID: 60.14.59 [rewritten]
+PMID: 60.14.60 [rewritten]
+PMID: 60.14.61 [rewritten]
+PMID: 60.14.62 [rewritten]
+PMID: 60.14.63 [rewritten]
+PMID: 60.14.64 [rewritten]
+PMID: 60.14.70 [rewritten]
+PMID: 60.14.71 [rewritten]
+PMID: 60.14.72 [rewritten]
+PMID: 60.14.74 [rewritten]
+PMID: 60.14.75 [rewritten]
+PMID: 60.14.76 [rewritten]
+PMID: 60.14.83 [rewritten]
+PMID: 60.15.0 [rewritten]
+PMID: 60.18.0 [rewritten]
+PMID: 60.18.1 [rewritten]
+PMID: 60.18.2 [rewritten]
+PMID: 60.18.3 [rewritten]
+PMID: 60.18.4 [rewritten]
+PMID: 60.18.5 [rewritten]
+PMID: 60.18.6 [rewritten]
+PMID: 60.18.7 [rewritten]
+PMID: 60.18.8 [rewritten]
+PMID: 60.18.9 [rewritten]
+PMID: 60.18.10 [rewritten]
+PMID: 60.18.11 [rewritten]
+PMID: 60.20.0 [rewritten]
+PMID: 60.20.1 [rewritten]
+PMID: 60.20.2 [rewritten]
+PMID: 60.20.3 [rewritten]
+PMID: 60.20.4 [rewritten]
+PMID: 60.20.5 [rewritten]
+PMID: 60.20.6 [rewritten]
+PMID: 60.20.7 [rewritten]
+PMID: 60.21.0 [rewritten]
+PMID: 60.21.1 [rewritten]
+PMID: 60.21.2 [rewritten]
+PMID: 60.21.3 [rewritten]
+PMID: 60.21.4 [rewritten]
+PMID: 60.21.5 [rewritten]
+PMID: 60.21.6 [rewritten]
+PMID: 60.21.7 [rewritten]
+PMID: 60.21.8 [rewritten]
+PMID: 60.21.9 [rewritten]
+PMID: 60.22.0 [rewritten]
+PMID: 60.22.1 [rewritten]
+PMID: 60.22.2 [rewritten]
+PMID: 60.22.3 [rewritten]
+PMID: 60.22.4 [rewritten]
+PMID: 60.22.5 [rewritten]
+PMID: 60.22.6 [rewritten]
+PMID: 60.22.7 [rewritten]
+PMID: 60.23.0 [rewritten]
+PMID: 60.23.1 [rewritten]
+PMID: 60.23.2 [rewritten]
+PMID: 60.23.3 [rewritten]
+PMID: 60.23.4 [rewritten]
+PMID: 60.25.0 [rewritten]
+PMID: 60.26.0 [rewritten]
+PMID: 60.26.1 [rewritten]
+PMID: 60.27.0 [rewritten]
+PMID: 60.27.1 [rewritten]
+PMID: 60.27.2 [rewritten]
+PMID: 60.27.3 [rewritten]
+PMID: 60.27.4 [rewritten]
+PMID: 60.27.5 [rewritten]
+PMID: 60.27.6 [rewritten]
+PMID: 60.28.0 [rewritten]
+PMID: 60.28.1 [rewritten]
+PMID: 60.28.2 [rewritten]
+PMID: 60.28.3 [rewritten]
+PMID: 60.28.4 [rewritten]
+PMID: 60.28.5 [rewritten]
+PMID: 60.28.6 [rewritten]
+PMID: 60.28.7 [rewritten]
+PMID: 60.28.8 [rewritten]
+PMID: 60.28.9 [rewritten]
+PMID: 60.28.10 [rewritten]
+PMID: 60.28.11 [rewritten]
+PMID: 60.28.12 [rewritten]
+PMID: 60.28.13 [rewritten]
+PMID: 60.28.14 [rewritten]
+PMID: 60.28.15 [rewritten]
+PMID: 60.28.16 [rewritten]
+PMID: 60.28.17 [rewritten]
+PMID: 60.28.18 [rewritten]
+PMID: 60.28.19 [rewritten]
+PMID: 60.28.20 [rewritten]
+PMID: 60.28.21 [rewritten]
+PMID: 60.28.22 [rewritten]
+PMID: 60.28.23 [rewritten]
+PMID: 60.28.24 [rewritten]
+PMID: 60.28.25 [rewritten]
+PMID: 60.28.26 [rewritten]
+PMID: 60.28.27 [rewritten]
+PMID: 60.28.28 [rewritten]
+PMID: 60.28.29 [rewritten]
+PMID: 60.28.30 [rewritten]
+PMID: 60.28.31 [rewritten]
+PMID: 60.28.32 [rewritten]
+PMID: 60.28.33 [rewritten]
+PMID: 60.28.34 [rewritten]
+PMID: 60.28.35 [rewritten]
+PMID: 60.28.36 [rewritten]
+PMID: 60.28.37 [rewritten]
+PMID: 60.28.38 [rewritten]
+PMID: 60.28.39 [rewritten]
+PMID: 60.28.40 [rewritten]
+PMID: 60.28.42 [rewritten]
+PMID: 60.28.43 [rewritten]
+PMID: 60.28.44 [rewritten]
+PMID: 60.28.45 [rewritten]
+PMID: 60.28.46 [rewritten]
+PMID: 60.28.47 [rewritten]
+PMID: 60.28.48 [rewritten]
+PMID: 60.28.49 [rewritten]
+PMID: 60.28.50 [rewritten]
+PMID: 60.28.51 [rewritten]
+PMID: 60.28.52 [rewritten]
+PMID: 60.28.53 [rewritten]
+PMID: 60.28.54 [rewritten]
+PMID: 60.28.55 [rewritten]
+PMID: 60.28.56 [rewritten]
+PMID: 60.28.57 [rewritten]
+PMID: 60.28.58 [rewritten]
+PMID: 60.28.59 [rewritten]
+PMID: 60.28.60 [rewritten]
+PMID: 60.28.61 [rewritten]
+PMID: 60.28.62 [rewritten]
+PMID: 60.28.63 [rewritten]
+PMID: 60.28.64 [rewritten]
+PMID: 60.28.65 [rewritten]
+PMID: 60.28.66 [rewritten]
+PMID: 60.28.67 [rewritten]
+PMID: 60.28.68 [rewritten]
+PMID: 60.28.69 [rewritten]
+PMID: 60.28.70 [rewritten]
+PMID: 60.28.71 [rewritten]
+PMID: 60.28.72 [rewritten]
+PMID: 60.28.73 [rewritten]
+PMID: 60.28.74 [rewritten]
+PMID: 60.28.75 [rewritten]
+PMID: 60.28.76 [rewritten]
+PMID: 60.28.77 [rewritten]
+PMID: 60.28.78 [rewritten]
+PMID: 60.28.79 [rewritten]
+PMID: 60.28.80 [rewritten]
+PMID: 60.28.81 [rewritten]
+PMID: 60.28.82 [rewritten]
+PMID: 60.28.83 [rewritten]
+PMID: 60.28.84 [rewritten]
+PMID: 60.28.85 [rewritten]
+PMID: 60.28.86 [rewritten]
+PMID: 60.28.87 [rewritten]
+PMID: 60.28.88 [rewritten]
+PMID: 60.28.89 [rewritten]
+PMID: 60.28.90 [rewritten]
+PMID: 60.28.91 [rewritten]
+PMID: 60.28.92 [rewritten]
+PMID: 60.28.93 [rewritten]
+PMID: 60.28.94 [rewritten]
+PMID: 60.28.95 [rewritten]
+PMID: 60.28.96 [rewritten]
+PMID: 60.28.97 [rewritten]
+PMID: 60.28.98 [rewritten]
+PMID: 60.28.99 [rewritten]
+PMID: 60.28.100 [rewritten]
+PMID: 60.28.101 [rewritten]
+PMID: 60.28.102 [rewritten]
+PMID: 60.28.103 [rewritten]
+PMID: 60.28.104 [rewritten]
+PMID: 60.28.105 [rewritten]
+PMID: 60.28.106 [rewritten]
+PMID: 60.28.107 [rewritten]
+PMID: 60.28.108 [rewritten]
+PMID: 60.28.109 [rewritten]
+PMID: 60.28.110 [rewritten]
+PMID: 60.28.111 [rewritten]
+PMID: 60.28.112 [rewritten]
+PMID: 60.28.113 [rewritten]
+PMID: 60.28.114 [rewritten]
+PMID: 60.28.115 [rewritten]
+PMID: 60.28.116 [rewritten]
+PMID: 60.28.117 [rewritten]
+PMID: 60.28.118 [rewritten]
+PMID: 60.28.119 [rewritten]
+PMID: 60.28.120 [rewritten]
+PMID: 60.28.121 [rewritten]
+PMID: 60.28.122 [rewritten]
+PMID: 60.28.123 [rewritten]
+PMID: 60.28.124 [rewritten]
+PMID: 60.28.125 [rewritten]
+PMID: 60.28.126 [rewritten]
+PMID: 60.28.127 [rewritten]
+PMID: 60.28.128 [rewritten]
+PMID: 60.28.129 [rewritten]
+PMID: 60.28.130 [rewritten]
+PMID: 60.28.131 [rewritten]
+PMID: 60.28.132 [rewritten]
+PMID: 60.28.133 [rewritten]
+PMID: 60.28.134 [rewritten]
+PMID: 60.28.135 [rewritten]
+PMID: 60.28.136 [rewritten]
+PMID: 60.28.137 [rewritten]
+PMID: 60.28.138 [rewritten]
+PMID: 60.28.139 [rewritten]
+PMID: 60.28.140 [rewritten]
+PMID: 60.28.141 [rewritten]
+PMID: 60.28.142 [rewritten]
+PMID: 60.28.143 [rewritten]
+PMID: 60.28.144 [rewritten]
+PMID: 60.28.145 [rewritten]
+PMID: 60.33.0 [rewritten]
+PMID: 60.33.1 [rewritten]
+PMID: 60.33.2 [rewritten]
+PMID: 60.33.3 [rewritten]
+PMID: 60.36.0 [rewritten]
+PMID: 60.36.1 [rewritten]
+PMID: 60.36.2 [rewritten]
+PMID: 60.36.3 [rewritten]
+PMID: 60.36.4 [rewritten]
+PMID: 60.36.5 [rewritten]
+PMID: 60.36.6 [rewritten]
+PMID: 60.36.7 [rewritten]
+PMID: 60.36.8 [rewritten]
+PMID: 60.36.9 [rewritten]
+PMID: 60.36.10 [rewritten]
+PMID: 60.36.11 [rewritten]
+PMID: 60.36.12 [rewritten]
+PMID: 60.36.13 [rewritten]
+PMID: 60.36.14 [rewritten]
+PMID: 60.36.15 [rewritten]
+PMID: 60.36.16 [rewritten]
+PMID: 60.36.17 [rewritten]
+PMID: 60.36.18 [rewritten]
+PMID: 60.36.19 [rewritten]
+PMID: 60.36.20 [rewritten]
+PMID: 60.36.21 [rewritten]
+PMID: 60.36.22 [rewritten]
+PMID: 60.36.23 [rewritten]
+PMID: 60.36.24 [rewritten]
+PMID: 60.36.25 [rewritten]
+PMID: 60.36.26 [rewritten]
+PMID: 60.36.27 [rewritten]
+PMID: 60.36.28 [rewritten]
+PMID: 60.36.29 [rewritten]
+PMID: 60.36.30 [rewritten]
+PMID: 60.36.31 [rewritten]
+PMID: 60.36.32 [rewritten]
+PMID: 60.36.33 [rewritten]
+PMID: 60.36.34 [rewritten]
+PMID: 60.36.35 [rewritten]
+PMID: 60.36.36 [rewritten]
+PMID: 60.36.37 [rewritten]
+PMID: 60.36.38 [rewritten]
+PMID: 60.36.39 [rewritten]
+PMID: 60.36.40 [rewritten]
+PMID: 60.36.41 [rewritten]
+PMID: 60.53.0 [rewritten]
+PMID: 60.53.1 [rewritten]
+PMID: 60.53.2 [rewritten]
+PMID: 60.53.3 [rewritten]
+PMID: 60.53.4 [rewritten]
+PMID: 60.53.5 [rewritten]
+PMID: 60.53.6 [rewritten]
+PMID: 60.53.7 [rewritten]
+PMID: 60.53.8 [rewritten]
+PMID: 60.53.9 [rewritten]
+PMID: 60.53.10 [rewritten]
+PMID: 60.53.11 [rewritten]
+PMID: 60.53.12 [rewritten]
+PMID: 60.53.13 [rewritten]
+PMID: 60.53.14 [rewritten]
+PMID: 60.53.15 [rewritten]
+PMID: 60.53.16 [rewritten]
+PMID: 60.53.17 [rewritten]
+PMID: 60.53.18 [rewritten]
+PMID: 60.53.19 [rewritten]
+PMID: 60.53.20 [rewritten]
+PMID: 60.53.21 [rewritten]
+PMID: 60.53.22 [rewritten]
+PMID: 60.53.23 [rewritten]
+PMID: 60.53.24 [rewritten]
+PMID: 60.53.25 [rewritten]
+PMID: 60.53.26 [rewritten]
+PMID: 60.53.27 [rewritten]
+PMID: 60.53.28 [rewritten]
+PMID: 60.53.29 [rewritten]
+PMID: 60.53.30 [rewritten]
+PMID: 60.53.31 [rewritten]
+PMID: 60.53.32 [rewritten]
+PMID: 60.53.33 [rewritten]
+PMID: 60.53.34 [rewritten]
+PMID: 60.53.35 [rewritten]
+PMID: 60.53.36 [rewritten]
+PMID: 60.53.37 [rewritten]
+PMID: 60.53.38 [rewritten]
+PMID: 60.53.39 [rewritten]
+PMID: 60.53.40 [rewritten]
+PMID: 60.53.41 [rewritten]
+PMID: 60.53.42 [rewritten]
+PMID: 60.53.43 [rewritten]
+PMID: 60.53.44 [rewritten]
+PMID: 60.53.45 [rewritten]
+PMID: 60.53.46 [rewritten]
+PMID: 60.53.47 [rewritten]
+PMID: 60.53.48 [rewritten]
+PMID: 60.53.49 [rewritten]
+PMID: 60.53.50 [rewritten]
+PMID: 60.53.51 [rewritten]
+PMID: 60.53.52 [rewritten]
+PMID: 60.53.53 [rewritten]
+PMID: 60.53.54 [rewritten]
+PMID: 60.53.55 [rewritten]
+PMID: 60.53.56 [rewritten]
+PMID: 60.53.57 [rewritten]
+PMID: 60.53.58 [rewritten]
+PMID: 60.53.59 [rewritten]
+PMID: 60.53.60 [rewritten]
+PMID: 60.53.61 [rewritten]
+PMID: 60.53.62 [rewritten]
+PMID: 60.53.63 [rewritten]
+PMID: 60.53.64 [rewritten]
+PMID: 60.53.65 [rewritten]
+PMID: 60.53.66 [rewritten]
+PMID: 60.53.67 [rewritten]
+PMID: 60.53.68 [rewritten]
+PMID: 60.53.69 [rewritten]
+PMID: 60.53.70 [rewritten]
+PMID: 60.53.71 [rewritten]
+PMID: 60.53.72 [rewritten]
+PMID: 60.53.73 [rewritten]
+PMID: 60.53.74 [rewritten]
+PMID: 60.53.75 [rewritten]
+PMID: 60.53.76 [rewritten]
+PMID: 60.53.77 [rewritten]
+PMID: 60.53.78 [rewritten]
+PMID: 60.53.79 [rewritten]
+PMID: 60.53.80 [rewritten]
+PMID: 60.53.81 [rewritten]
+PMID: 60.53.82 [rewritten]
+PMID: 60.53.83 [rewritten]
+PMID: 60.53.84 [rewritten]
+PMID: 60.53.85 [rewritten]
+PMID: 60.53.86 [rewritten]
+PMID: 60.53.87 [rewritten]
+PMID: 60.53.88 [rewritten]
+PMID: 60.53.89 [rewritten]
+PMID: 60.53.90 [rewritten]
+PMID: 60.53.91 [rewritten]
+PMID: 60.53.92 [rewritten]
+PMID: 60.53.93 [rewritten]
+PMID: 60.53.94 [rewritten]
+PMID: 60.53.95 [rewritten]
+PMID: 60.53.96 [rewritten]
+PMID: 60.53.97 [rewritten]
+PMID: 60.53.98 [rewritten]
+PMID: 60.53.99 [rewritten]
+PMID: 60.53.100 [rewritten]
+PMID: 60.53.101 [rewritten]
+PMID: 60.53.102 [rewritten]
+PMID: 60.53.103 [rewritten]
+PMID: 60.53.104 [rewritten]
+PMID: 60.53.105 [rewritten]
+PMID: 60.53.106 [rewritten]
+PMID: 60.53.107 [rewritten]
+PMID: 60.53.108 [rewritten]
+PMID: 60.53.109 [rewritten]
+PMID: 60.53.110 [rewritten]
+PMID: 60.53.111 [rewritten]
+PMID: 60.53.112 [rewritten]
+PMID: 60.53.113 [rewritten]
+PMID: 60.53.114 [rewritten]
+PMID: 60.53.115 [rewritten]
+PMID: 60.53.116 [rewritten]
+PMID: 60.53.117 [rewritten]
+PMID: 60.53.118 [rewritten]
+PMID: 60.54.0 [rewritten]
+PMID: 60.54.1 [rewritten]
+PMID: 60.54.2 [rewritten]
+PMID: 60.54.3 [rewritten]
+PMID: 60.54.4 [rewritten]
+PMID: 60.54.6 [rewritten]
+PMID: 60.54.7 [rewritten]
+PMID: 60.54.8 [rewritten]
+PMID: 60.54.9 [rewritten]
+PMID: 60.54.10 [rewritten]
+PMID: 60.54.11 [rewritten]
+PMID: 60.54.12 [rewritten]
+PMID: 60.54.13 [rewritten]
+PMID: 60.54.14 [rewritten]
+PMID: 60.54.15 [rewritten]
+PMID: 60.54.16 [rewritten]
+PMID: 60.55.0 [rewritten]
+PMID: 60.55.1 [rewritten]
+PMID: 60.56.0 [rewritten]
+PMID: 60.56.1 [rewritten]
+PMID: 60.56.2 [rewritten]
+PMID: 60.56.3 [rewritten]
+PMID: 60.56.4 [rewritten]
+PMID: 60.56.5 [rewritten]
+PMID: 60.57.0 [rewritten]
+PMID: 60.57.1 [rewritten]
+PMID: 60.57.2 [rewritten]
+PMID: 60.57.3 [rewritten]
+PMID: 60.57.4 [rewritten]
+PMID: 60.57.5 [rewritten]
+PMID: 60.57.6 [rewritten]
+PMID: 60.57.7 [rewritten]
+PMID: 60.57.8 [rewritten]
+PMID: 60.57.9 [rewritten]
+PMID: 60.57.10 [rewritten]
+PMID: 60.57.11 [rewritten]
+PMID: 60.58.0 [rewritten]
+PMID: 60.58.1 [rewritten]
+PMID: 60.58.2 [rewritten]
+PMID: 60.58.3 [rewritten]
+PMID: 60.58.4 [rewritten]
+PMID: 60.58.5 [rewritten]
+PMID: 60.58.6 [rewritten]
+PMID: 60.58.7 [rewritten]
+PMID: 60.58.8 [rewritten]
+PMID: 60.58.9 [rewritten]
+PMID: 60.58.10 [rewritten]
+PMID: 60.58.11 [rewritten]
+PMID: 60.58.12 [rewritten]
+PMID: 60.58.13 [rewritten]
+PMID: 60.58.14 [rewritten]
+PMID: 60.58.15 [rewritten]
+PMID: 60.58.16 [rewritten]
+PMID: 60.58.17 [rewritten]
+PMID: 60.58.18 [rewritten]
+PMID: 60.58.19 [rewritten]
+PMID: 60.58.20 [rewritten]
+PMID: 60.58.21 [rewritten]
+PMID: 60.58.22 [rewritten]
+PMID: 60.58.23 [rewritten]
+PMID: 60.58.24 [rewritten]
+PMID: 60.58.25 [rewritten]
+PMID: 60.58.26 [rewritten]
+PMID: 60.58.27 [rewritten]
+PMID: 60.58.28 [rewritten]
+PMID: 60.58.29 [rewritten]
+PMID: 60.58.30 [rewritten]
+PMID: 60.58.31 [rewritten]
+PMID: 60.58.32 [rewritten]
+PMID: 60.58.33 [rewritten]
+PMID: 60.58.34 [rewritten]
+PMID: 60.58.35 [rewritten]
+PMID: 60.58.36 [rewritten]
+PMID: 60.58.37 [rewritten]
+PMID: 60.58.38 [rewritten]
+PMID: 60.58.39 [rewritten]
+PMID: 60.58.40 [rewritten]
+PMID: 60.58.41 [rewritten]
+PMID: 60.58.42 [rewritten]
+PMID: 60.58.43 [rewritten]
+PMID: 60.58.44 [rewritten]
+PMID: 60.58.45 [rewritten]
+PMID: 60.58.46 [rewritten]
+PMID: 60.58.47 [rewritten]
+PMID: 60.58.48 [rewritten]
+PMID: 60.58.49 [rewritten]
+PMID: 60.58.50 [rewritten]
+PMID: 60.58.51 [rewritten]
+PMID: 60.58.52 [rewritten]
+PMID: 60.58.53 [rewritten]
+PMID: 60.58.54 [rewritten]
+PMID: 60.58.55 [rewritten]
+PMID: 60.58.56 [rewritten]
+PMID: 60.58.57 [rewritten]
+PMID: 60.58.58 [rewritten]
+PMID: 60.58.59 [rewritten]
+PMID: 60.58.60 [rewritten]
+PMID: 60.58.61 [rewritten]
+PMID: 60.58.62 [rewritten]
+PMID: 60.58.63 [rewritten]
+PMID: 60.58.64 [rewritten]
+PMID: 60.58.65 [rewritten]
+PMID: 60.58.66 [rewritten]
+PMID: 60.58.67 [rewritten]
+PMID: 60.58.68 [rewritten]
+PMID: 60.58.69 [rewritten]
+PMID: 60.58.70 [rewritten]
+PMID: 60.58.71 [rewritten]
+PMID: 60.58.72 [rewritten]
+PMID: 60.58.73 [rewritten]
+PMID: 60.58.74 [rewritten]
+PMID: 60.59.0 [rewritten]
+PMID: 60.59.1 [rewritten]
+PMID: 60.59.2 [rewritten]
+PMID: 60.59.3 [rewritten]
+PMID: 60.59.4 [rewritten]
+PMID: 60.59.6 [rewritten]
+PMID: 60.59.7 [rewritten]
+PMID: 60.59.8 [rewritten]
+PMID: 60.59.9 [rewritten]
+PMID: 60.59.10 [rewritten]
+PMID: 60.59.11 [rewritten]
+PMID: 60.59.12 [rewritten]
+PMID: 60.59.13 [rewritten]
+PMID: 60.59.14 [rewritten]
+PMID: 60.59.15 [rewritten]
+PMID: 60.59.16 [rewritten]
+PMID: 60.60.0 [rewritten]
+PMID: 60.61.0 [rewritten]
+PMID: 60.61.1 [rewritten]
+PMID: 60.62.0 [rewritten]
+PMID: 60.62.1 [rewritten]
+PMID: 60.62.2 [rewritten]
+PMID: 60.64.0 [rewritten]
+PMID: 60.64.1 [rewritten]
+PMID: 60.64.2 [rewritten]
+PMID: 60.64.3 [rewritten]
+PMID: 60.64.4 [rewritten]
+PMID: 60.64.5 [rewritten]
+PMID: 60.65.0 [rewritten]
+PMID: 60.65.1 [rewritten]
+PMID: 60.65.2 [rewritten]
+PMID: 60.65.3 [rewritten]
+PMID: 60.65.4 [rewritten]
+PMID: 60.66.0 [rewritten]
+PMID: 60.66.1 [rewritten]
+PMID: 60.66.2 [rewritten]
+PMID: 60.66.3 [rewritten]
+PMID: 60.67.0 [rewritten]
+PMID: 60.67.1 [rewritten]
+PMID: 60.68.0 [rewritten]
+PMID: 60.68.1 [rewritten]
+PMID: 60.68.2 [rewritten]
+PMID: 60.68.3 [rewritten]
+PMID: 60.68.4 [rewritten]
+PMID: 60.68.5 [rewritten]
+PMID: 60.68.6 [rewritten]
+PMID: 60.68.7 [rewritten]
+PMID: 60.68.8 [rewritten]
+PMID: 60.68.9 [rewritten]
+PMID: 60.68.10 [rewritten]
+PMID: 60.68.11 [rewritten]
+PMID: 60.68.12 [rewritten]
+PMID: 60.68.13 [rewritten]
+PMID: 60.68.14 [rewritten]
+PMID: 60.68.15 [rewritten]
+PMID: 60.68.16 [rewritten]
+PMID: 60.68.17 [rewritten]
+PMID: 60.68.18 [rewritten]
+PMID: 60.68.19 [rewritten]
+PMID: 60.68.20 [rewritten]
+PMID: 60.68.21 [rewritten]
+PMID: 60.68.22 [rewritten]
+PMID: 60.68.23 [rewritten]
+PMID: 60.68.24 [rewritten]
+PMID: 60.68.25 [rewritten]
+PMID: 60.68.26 [rewritten]
+PMID: 60.68.27 [rewritten]
+PMID: 60.68.28 [rewritten]
+PMID: 60.68.29 [rewritten]
+PMID: 60.68.30 [rewritten]
+PMID: 60.68.31 [rewritten]
+PMID: 60.68.32 [rewritten]
+PMID: 60.68.33 [rewritten]
+PMID: 60.68.34 [rewritten]
+PMID: 60.68.35 [rewritten]
+PMID: 60.68.36 [rewritten]
+PMID: 60.68.37 [rewritten]
+PMID: 60.68.38 [rewritten]
+PMID: 60.68.39 [rewritten]
+PMID: 60.68.40 [rewritten]
+PMID: 60.68.41 [rewritten]
+PMID: 60.68.42 [rewritten]
+PMID: 60.68.43 [rewritten]
+PMID: 60.68.44 [rewritten]
+PMID: 60.68.45 [rewritten]
+PMID: 60.69.0 [rewritten]
+PMID: 60.69.1 [rewritten]
+PMID: 60.69.2 [rewritten]
+PMID: 60.69.3 [rewritten]
+PMID: 60.69.4 [rewritten]
+PMID: 60.69.5 [rewritten]
+PMID: 60.69.6 [rewritten]
+PMID: 60.69.7 [rewritten]
+PMID: 60.69.8 [rewritten]
+PMID: 60.70.0 [rewritten]
+PMID: 60.71.0 [rewritten]
+PMID: 60.71.1 [rewritten]
+PMID: 60.71.2 [rewritten]
+PMID: 60.71.3 [rewritten]
+PMID: 60.71.4 [rewritten]
+PMID: 60.71.5 [rewritten]
+PMID: 60.71.6 [rewritten]
+PMID: 60.71.7 [rewritten]
+PMID: 60.71.8 [rewritten]
+PMID: 60.71.9 [rewritten]
+PMID: 60.71.16 [rewritten]
+PMID: 60.72.0 [rewritten]
+PMID: 60.72.1 [rewritten]
+PMID: 60.72.2 [rewritten]
+PMID: 60.73.0 [rewritten]
+PMID: 60.73.1 [rewritten]
+PMID: 60.73.2 [rewritten]
+PMID: 60.73.3 [rewritten]
+PMID: 60.73.4 [rewritten]
+PMID: 60.73.5 [rewritten]
+PMID: 70.0.0 [rewritten]
+PMID: 70.0.0
+rewritten
+PMID: 70.0.1 [rewritten]
+PMID: 70.0.1
+rewritten
+PMID: 70.0.2 [rewritten]
+PMID: 70.0.2
+rewritten
+PMID: 129.0.2 [Metadata block used]
+PMID: 129.0.2
+The number of metadata blocks used.
+PMID: 129.0.3 [Total metadata blocks]
+PMID: 129.0.3
+The total number of metadata blocks.
+PMID: 129.0.5 [Cache blocks used]
+PMID: 129.0.5
+The number of cache blocks used.
+PMID: 129.0.6 [Total cache blocks]
+PMID: 129.0.6
+The total number of cache blocks.
+PMID: 129.0.7 [Read bio mapping cache]
+PMID: 129.0.7
+Number of times a READ bio has been mapped to the cache.
+PMID: 129.0.8 [Read bio mapping origin]
+PMID: 129.0.8
+Number of times a READ bio has been mapped to the origin.
+PMID: 129.0.9 [Write bio mapping cache]
+PMID: 129.0.9
+Number of times a WRITE bio has been mapped to the cache.
+PMID: 129.0.10 [Write bio mapping origin]
+PMID: 129.0.10
+Number of times a WRITE bio has been mapped to the origin.
+InDom: 2.1 [rewritten]
+InDom: 2.3
+rewritten
+InDom: 60.6 [rewritten]
+InDom: 60.34
+rewritten
+InDom: 62.0 [rewritten
+multiple
+lines]
