@@ -377,6 +377,9 @@ fi
 
 [ -f check.time ] || touch check.time
 
+# Remove automated PMDA install/remove that will interfere with tests
+$sudo rm -f $PCP_PMDAS_DIR/*/.NeedInstall $PCP_PMDAS_DIR/*/.NeedRemove
+
 [ "`_get_config pmcd`" != on ] && _change_config pmcd on
 
 if $showme
