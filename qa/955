@@ -38,14 +38,20 @@ _filter_intr()
     | $PCP_AWK_PROG '
 BEGIN				{ part = 0 }
 part == 1 && $1 == "dbpmda>"	{ part = 2 }
+part == 3 && $1 == "dbpmda>"	{ part = 4 }
 				{ print >"'$tmp'.part." part }
 /kernel.all.interrupts.total): numval:/	{ part = 1 }
+/kernel.all.softirqs.total): numval:/	{ part = 3 }
 '
     cat $tmp.part.0
     sed <$tmp.part.1  \
 	-e "s/inst [[0-9][0-9]*/inst [NN/" \
     | sort
     cat $tmp.part.2
+    sed <$tmp.part.3  \
+	-e "s/inst [[0-9][0-9]*/inst [NN/" \
+    | sort
+    cat $tmp.part.4
 }
 
 _count_leafs()

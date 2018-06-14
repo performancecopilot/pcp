@@ -137,14 +137,14 @@ dbpmda> fetch kernel.all.softirqs.total
 PMID(s): 60.82.0
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
   60.82.0 (kernel.all.softirqs.total): numval: 10 valfmt: 1 vlist[]:
-    inst [0 or ???] value 18
-    inst [1 or ???] value 159955154
-    inst [2 or ???] value 108981
-    inst [3 or ???] value 5317658
-    inst [4 or ???] value 2034372
-    inst [6 or ???] value 386207
-    inst [7 or ???] value 54779294
-    inst [8 or ???] value 0
-    inst [9 or ???] value 24690715
-    inst [10 or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 108981
+    inst [NN or ???] value 159955154
+    inst [NN or ???] value 18
+    inst [NN or ???] value 2034372
+    inst [NN or ???] value 24690715
+    inst [NN or ???] value 386207
+    inst [NN or ???] value 5317658
+    inst [NN or ???] value 54779294
 dbpmda> 
