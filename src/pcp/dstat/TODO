@@ -42,7 +42,7 @@ Internal Plugins:
 [-] disk24-old
 [x] epoch
 [x] fs
-[?] int		(current interrupts plugin isn't functional)
+[x] int
 [-] int24
 [*] io		(needs instance fixes for per-dev reporting)
 [x] ipc
