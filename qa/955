@@ -23,12 +23,29 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
 	-e "s@$tmp@TMP@g" \
     #end
+}
+
+_filter_intr()
+{
+    _filter \
+    | $PCP_AWK_PROG '
+BEGIN				{ part = 0 }
+part == 1 && $1 == "dbpmda>"	{ part = 2 }
+				{ print >"'$tmp'.part." part }
+/kernel.all.interrupts.total): numval:/	{ part = 1 }
+'
+    cat $tmp.part.0
+    sed <$tmp.part.1  \
+	-e "s/inst [[0-9][0-9]*/inst [NN/" \
+    | sort
+    cat $tmp.part.2
 }
 
 _count_leafs()
@@ -98,7 +115,7 @@ cat $tmp.log >>$here/$seq.full
 
 # Verify aggregated metric values
 echo "=== Daemon PMDA accumulated interrupts and softirqs ==="
-dbpmda -ie <<EOF 2>&1 | _filter
+dbpmda -ie <<EOF 2>&1 | _filter_intr
 open pipe $pmdalinux -d 60 -l $tmp.log
 fetch kernel.all.interrupts.total
 fetch kernel.all.softirqs.total
