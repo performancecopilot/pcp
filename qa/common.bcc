@@ -70,8 +70,17 @@ _pmdabcc_wait_for_metric()
     # Wait for the PMDA to compile the bcc modules and become ready, 30s max
     for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
     grep 'Error:' $PCP_LOG_DIR/pmcd/bcc.log
-    if [ $i -gt 30 ]; then
+    if [ $i -ge 30 ]; then
         echo PMDA was not ready in 30 seconds, test failed
+        exit
+    fi
+}
+
+_pmdabcc_wait_for_value()
+{
+    for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value .*' && break; sleep 1; done
+    if [ $i -ge 30 ]; then
+        echo Could not get a single value, test failed
         exit
     fi
 }
@@ -149,4 +158,19 @@ _unmount_filesystem()
 
     $sudo umount $mountpoint
     rm -r $mountpoint
+}
+
+_value_filter_any()
+{
+    awk '/value .+/ {print "OK"; exit}'
+}
+
+_value_filter_nonzero()
+{
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_value_filter_exact()
+{
+    grep "$1" > /dev/null && echo OK
 }
