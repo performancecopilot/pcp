@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-dstat
-MAN_PAGES = $(TARGET).1 #$(TARGET).conf.5
+MAN_PAGES = $(TARGET).1 $(TARGET).conf.5
 
 SUBDIRS = plugins
 
