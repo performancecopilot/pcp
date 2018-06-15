@@ -119,7 +119,7 @@ typedef struct mmv_registry {
     __uint32_t          version;
     char *              file;
     __uint32_t          cluster;
-    mmv_stats_flags_t * flags;
+    mmv_stats_flags_t   flags;
 } mmv_registry_t;
 
 #ifdef HAVE_BITFIELDS_LTOR

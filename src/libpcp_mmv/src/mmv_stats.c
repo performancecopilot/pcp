@@ -727,6 +727,31 @@ mmv_stats2_init(const char *fname,
 			    NULL, 0, NULL, 0, st, nmetrics, in, nindoms);
 }
 
+mmv_registry_t *
+mmv_stats_registry(const char *file,
+                   int cluster,
+                   mmv_stats_flags_t flags)
+{
+    mmv_registry_t * mr;
+
+    mr = (mmv_registry_t *) calloc(1,sizeof(mmv_registry_t));
+    
+    mr->indoms = NULL;
+    mr->nindoms = 0;
+    mr->metrics = NULL;
+    mr->nmetrics = 0;
+    mr->instances = NULL;
+    mr->ninstances = 0;
+    mr->labels = NULL;
+    mr->nlabels = 0;
+    mr->version = 1;
+    mr->file = file;
+    mr->cluster = cluster;
+    mr->flags = flags;
+
+    return mr;
+}
+
 void
 mmv_stats_stop(const char *fname, void *addr)
 {
