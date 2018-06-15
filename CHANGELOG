@@ -1,5 +1,177 @@
 pcp-4.1.0 (15 June 2018)
-    - Work-in-progress, see https://pcp.io/roadmap
+    - Log rotation, management scripts, compression and utilities:
+	- pmlogger_daily_report: use unambiguous time window arguments
+	- pmlogger_check: pass command line options to pmlogger_daily
+	- pmlogger_daily: make SaveLogs name match /var/log/pcp/pmlogger name
+	- pmlogger_daily: compress .meta files
+	- pmlogger_daily: send -V diags to stderr
+	- pmlogger_check & pmnewlog: add optional SaveLogs support
+	- pmlogger_check: clear any zero-length pmlogger configs
+	- pmlogger_merge: fix corner cases, esp for compressed archives
+	- pmnewlog: honour any /etc/sysconfig/pmlogger settings
+	- pmdumplog: changes to handle compressed archives
+	- pmlogrewrite: support reassociation with other metric or indom
+	- pmlogrewrite: support changing and deleting text records.
+	- pmlogrewrite: add -S (check and status) option
+	- pmlogrewrite: Allow newline in updated help text.
+	- pmlogger: fix for trashed temporal index after infant mortality
+	- pmmgr: handle compressed .meta and/or .index files in cleanup stanzas
+	- pmafm: teach mkaf and pmafm about compressed archives
+	- pmlogcheck: extend unexpected EOF diagnostic message
+    - pcp-dstat - (new) reimplementation of dstat(1) using PCP APIs:
+	- zsh completion: dstat help output tweak to aid zsh completion
+	- pcp-dstat: add interrupts and several other new conf files
+	- pcp-dstat: improvements to dynamic instance handling
+	- pcp-dstat: initial QA, python2 compat fixups, enable in build
+	- pcp-dstat: update to use updated pmconfig interface name
+	- pcp-dstat: improved config labels and metrics with instances
+	- pcp-dstat: add fs freespace and redis plugins, update TODO
+	- pcp-dstat: add utmp plugin config, now the kernel metrics exist
+	- pcp-dstat: initial version of dstat using PMAPI services
+    - Client tools and utilities:
+	- pmrep: add config entries for emulated collectl reports
+	- pmrep: ensure output column ordering consistency
+	- pcp.sh: provide alternative if realpath(1) not available
+	- pcp.sh: use full path to pmgetopt in case PATH not set (Mac)
+	- pcp.sh: add a handy developer mode to the pcp(1) frontend
+	- pmval: plug small memleaks
+	- pmnsutil: small code cleanup for static code checkers
+	- pmcpp: ensure va_end is called for static code checkers
+	- pmie: ensure we do not use an uninitialised path variable
+	- pmie: handle -l- correctly for logging to stderr
+	- pmprobe: support batching for name lookups and fetching
+	- pmprobe: add bash and zsh completions for -b
+	- pcp2xlsx: add missing test chunk, use correct out file
+	- pcp2xlsx: switch from using xlsxwriter to openpyxl
+    - libpcp and libpcp_pmda:
+	- libpcp: logutil.c, check for botched temporal index
+	- pmParseTimeWindow(): fix double-free error
+	- libpcp_pmda: clean namespace, attribute and flags interfaces
+	- pmda.py: support for logfile and helptext file in PMDA __init__
+	- libpcp: pmOpenLog() support logging to existing stream
+	- libpcp: fix handling of labels with an empty string value
+	- libpcp: labels.c, handle different domainname() result
+	- libpcp_pmda: mainloop.c, add debug diags in __pmdaMainPDU()
+    - libpcp_web:
+	- libpcp_web: add pmDiscover API for asynchronous PCP data export
+	- libpcp_web: integrate libuv and async event handling
+	- libpcp_web: simplify error handling using a common helper
+	- libpcp_web: properly set redis blocking/non-blocking
+	- libpcp_web: first steps towards Redis cluster support
+	- pmseries: properly implement the redisMap mapping type
+	- pmseries: initial support for cluster node map extraction
+	- pmseries: small cleanups on early cluster code review
+    - selinux:
+	- selinux: update comments, additional script robustness changes
+	- selinux: abstract spec file bits into an installed script
+    - PMDA additions, enhancements and bug fixes:
+	- pmdadm: fix segfault and memleak in dmstats
+	- pmdalinux: add aggregate interrupt and softirq counters
+	- pmdalinux: nfs server metric semantic fix pmlogrewrite rules
+	- pmdalinux: fix af_unix conn stats same as udp/tcp earlier
+	- pmdalinux: udp, raw and unix domain connection metrics
+	- pmdalinux: code simplification, cleanup in /proc/locks code
+	- pmdalinux: add vfs.locks.posix, flock and lease metrics
+	- pmdalinux: add kernel.all.nsessions and nroot users metrics
+	- pmdaprometheus: support the -l logname and -d domain options
+	- pmdaprometheus: fix scripted configs, broken after label filtering
+	- correct semantics for proc_fs_nfsd.th_cnt and proc_fs_nfsd.pool_cnt
+	- pmdammv: resolve an instance domain setup problem
+	- pmdaproc: add the per-process proc.psinfo.oom_score metric
+	- pmdasample: fix emerging gcc warnings
+	- zbxpcp: fix path to auto-enable zbxpcp module for zabbix_agentd
+	- zbxpcp: fixes, perf improvement for zabbix agent module
+	- NetBSD and OpenBSD PMDAs: fix for returning a buffer on the stack
+	- FreeBSD PMDA: add some metrics
+	- activemq PMDA: hide this PMDA's perl modules behind PCP::
+	- configure.ac: activemq PMDA needs JSON Perl module as well
+	- pmdabcc: tcplife: recycle instances - use row number as instance key
+	- pmdabcc: fix tcplife dport, styling
+	- pmdabcc: tcplife: track sessions independently, add more metrics
+	- pmdabcc: configurable failure modes for module errors
+	- pmdabcc: explain process filtering in the pmdabcc(1) man page
+	- pmdabcc: disable ext4dist per default, add xfsdist and zfsdist
+	- pmdabcc: disable "Too many instance attributes" pylint warning
+	- pmdabcc: rename runqlat metric name
+	- pmdabcc: order histogram instances ascending
+	- pmdabcc: move ext4dist metric under bcc.fs name space
+	- pmdabcc: add ext4dist, zfsdist and xfsdist modules
+	- pmdabcc: add USDT JVM threads and allocation profile modules
+	- pmdabcc: print generated/modified BPF program if debug enabled
+	- pmdabcc: implement process/port filtering in tcplife
+	- pmdabcc: match process name on /proc/$PID/comm
+	- pmdabcc: add process filtering in tracepoint/uprobe modules
+	- pmdabcc: fix tcplife with older/newer kernel/bcc
+	- pmdabcc: add USDT/dtrace hit count BPF/Python module
+	- pmdabcc: add pid check/filter helpers, relax process check
+	- pmdabcc: introduce reserved ranges in bcc.conf
+	- pmdabcc: README and man page updates
+	- pmdabcc: add example hit count module configuration files
+	- pmdabcc: add uprobe hit count BPF/Python module
+	- pmdabcc: require kernel 4.6+ for QA
+	- pmdabcc: add config file / process helpers
+	- pmdabcc: add kernel tracepoint hit count BPF/Python module
+	- pmdabcc: clean up bcc.conf comments
+	- pmdabcc: add label support
+	- pmdabcc: always create the first bucket inst for histograms
+	- pmdabcc: don't create instances for empty buckets at top end
+	- pmdabcc: add runqlat tool
+    - Misc build, infrastructure and packaging updates:
+	- build: Add conditional clause around disable_python2
+	- build: resolve ENODATA re-define warning on latest Win32 headers
+	- build: fine-tune libpcp cross-compiler make settings for Windows
+	- build: remove procfs checks entirely in configure now
+	- build: add pmieconf static binary cross-compile check
+	- build: support Windows native build
+	- build: remove pcp.conf dependency from selinux-setup script
+	- build: fix pcp-export-pcp2xlsx dependencies
+	- build: rpm spec file updates related to python, pmrep and dstat
+	- build: add some more platforms into the bintray scripts
+	- build: switch travis-build coverity notifications to pcp list
+	- build: add automated coverity checking to travis builds
+	- build: update travis to use fedora:latest container over f27
+	- build: add new bcc config files to the installed set
+	- build: add configure and builddefs support for libuv
+	- build: add Makepkgs --configure option to stop after configure
+	- build: fix /var/run/pcp ownership in fedora spec file
+	- build: fix license text warnings from specfile check tools
+	- build: add missing shebang lines else latest rpmbuild fails
+	- build: include python3-bpfcc as a dependency for debian
+	- build: update check-statics for Mac OS X clang brew builds
+	- formatting strings: %I64i used instead of  %lld
+	- build: switch from http to https for pcp.io src references
+	- build: fix rpm spec deps, update to https for pcp.io
+	- build: fix yet another multilib header regression
+	- build: fix typo in rpm spec file for smart pmda deps
+	- build: add more platforms to bintray-version script
+	- coverity: possible buffer overrun, use strncpy() instead of strcpy()
+	- coverity: plug a memleak on a socket func error path in libpcp
+	- coverity: plug a memleak on a labelset pointer in libpcp
+	- coverity: plug memleak on socket func diagnostic in libpcp
+	- coverity: fix memleak on error path in libpcp_qmc update
+	- coverity: fix use of freed stream in libpcp_pmda diagnostic
+	- coverity: fix out-of-scope local buffer use in libpcp units.c
+	- coverity: fix memleaks during testing for localhost
+	- coverity: fix unconditional uses of null name in new context
+	- coverity: do not use stderr after freopen on stderr failure
+	- coverity: fix lookup labels api error path memleak
+	- coverity: fix getopt time window parse error path memleak
+    - Documentation and QA infrastructure:
+	- check-archives: rework for expected/different marking of log files
+	- check-archives: fsck for a forest of PCP archives
+	- __pmparsectime.3: clarify syntax for string argument (date formats)
+	- docs: update remaining pcp.io references to https
+	- docs: add release and coverity links to README.md
+	- man/html/portability-and-qa.html: First real version
+	- docs: add the CII best practices badge to README.md
+	- docs: switch HACKING to markdown, add a security section
+	- man/html/portability-and-qa.html: portability issues related to QA
+	- docs: initial version of the pcp-dstat(1) manual page
+	- docs: switch http to https for various pcp.io references
+	- qa/admin/pcp-daily: really enforce the BAD policy this time
+	- qa/admin/pcp-qa-summary: find and report tests tagged BAD
+	- qa/group: add missing python ones, introduce BAD group
+	- qa/sniff4dodgey: (new) script looking for dodgey tests
 
 pcp-4.0.2 (11 May 2018)
     - log rotation, management scripts, compression and utilities
