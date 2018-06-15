@@ -179,7 +179,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     switch (cluster) {
     case CLUSTER_PAPI:
-	assert(item >= 0);
 	if (item <= number_of_events) {
 	    // the 'case' && 'item' value we get is the pmns_position
 	    if (papi_info[item].position >= 0) { // live counter?
@@ -304,7 +303,6 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
         for (i=0; i<numpmid; i++) {
 	    unsigned int item = pmID_item(pmidlist[i]);
             if (pmID_cluster(pmidlist[i]) == CLUSTER_PAPI) {
-		assert(item >= 0);
 		if (item <= number_of_events) {
                     if (papi_info[item].position < 0) { // new counter?
 			need_refresh_p = 1;
@@ -697,7 +695,6 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_TEXT;
 
     if (pmID_cluster(pmid) == CLUSTER_PAPI) {
-	assert(pmID_item(pmid) >= 0);
 	if (pmID_item(pmid) < number_of_events) {
 	    if (type & PM_TEXT_ONELINE)
 		*buffer = papi_info[pmID_item(pmid)].info.short_descr;
