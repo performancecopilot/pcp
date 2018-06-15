@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.0
+Version: 4.1.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -160,7 +160,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 8
 %global disable_elasticsearch 0
 %else
 %global disable_elasticsearch 1
@@ -213,10 +213,12 @@ BuildRequires: systemtap-sdt-devel
 %if !%{disable_boost}
 BuildRequires: boost-devel
 %endif
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: perl-devel perl-generators
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
+BuildRequires: perl-generators
 %endif
-BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: perl-devel perl(strict)
+BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
+BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: initscripts man
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
@@ -3350,6 +3352,9 @@ cd
 %endif
 
 %changelog
+* Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
+- Work-in-progress, see https://pcp.io/roadmap
+
 * Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
 - Rapid compression of PCP log data and metadata (BZ 1293471)
 - Update to latest PCP sources.
