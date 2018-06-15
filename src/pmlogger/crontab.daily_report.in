@@ -4,3 +4,6 @@
 # Daily generation of system activity reports.  Must be an hour or
 # two after the pmlogger_daily script has finished.
 0     2  *  *  *  @user@  @path@/pmlogger_daily_report -o @sapath@
+# Hourly polling to check and do pmlogger_daily_report processing if
+# not done already in the last 24 hours
+30    *  *  *  *  @user@  @path@/pmlogger_daily_report -o @sapath@ -p
