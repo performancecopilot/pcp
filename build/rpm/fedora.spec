@@ -216,7 +216,8 @@ BuildRequires: boost-devel
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: perl-devel perl-generators
 %endif
-BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: perl(strict) perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
+BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: initscripts man
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
