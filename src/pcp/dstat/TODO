@@ -1,8 +1,7 @@
 Key:
 [x]  =  implemented
-[*]  =  implemented, with caveat(s)
 [-]  =  not implemented, no plan to
-[ ]  =  not implemented, but needed
+[ ]  =  not implemented, still needed
 [?]  =  desirable, not clear if needed
 
 
@@ -10,59 +9,58 @@ General Functionality:
 [x] initial code welding pmrep/pmconfig onto original dstat
 [x] local context fallback when no local pmcd available
 [x] make use of PCP metric units for scaling
-[ ] implement interval argument
-[ ] implement #samples argument
-[-] implement --all-plugins option
+[x] implement interval argument
+[x] implement #samples argument
+[?] implement --all-plugins option
 [x] new socket6 plugin for IPv6 socket metrics
 [x] handle dynamic instances correctly (esp. headings)
 [x] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
 [x] need to handle dstat 'total' columns better?  (see instances too)
 [x] figure out why --disk and --io not usable together (same labels?)
 [ ] improved handling of first counter sample (see ticks() code)
-[ ] improved handling of invalid configuration files
 [ ] fix terminal title writing to use metric values (see code)
 [ ] fix version output writing to use metric values (see code)
 [ ] csv output option (for dstat backward compatibility)
 [x] implement sub-second time(stamp) and epoch reporting support
 [ ] implement historical reporting support via PCP archives
 [ ] create pmlogconf(1) configuration file(s)
-[ ] write additional regression tests
-[ ] write pcp-dstat.conf(5) man page
+[ ] write regression tests with archives
+[x] write pcp-dstat.conf(5) man page
 [x] write pcp-dstat(1) man page
 
 
 Internal Plugins:
-[x] aio		(needs new vfs.aio.* kernel metrics)
+[x] aio
 [x] cpu
 [x] cpu-adv
-[*] cpu-use	(needs instance fixes for per-CPU reporting)
+[x] cpu-use
 [-] cpu24
-[*] disk	(needs instance fixes for per-dev reporting)
+[x] disk
 [-] disk24
 [-] disk24-old
 [x] epoch
 [x] fs
-[?] int		(current interrupts plugin isn't functional)
+[x] int
 [-] int24
-[*] io		(needs instance fixes for per-dev reporting)
+[x] io
 [x] ipc
-[*] load	(needs instance fixes for per-avg reporting)
-[x] lock	(needs new vfs.locks.* kernel metrics)
+[x] load
+[x] lock
 [x] mem
 [x] mem-adv
-[*] net		(needs new network.physical.* kernel metrics)
+[x] net
 [x] page
 [-] page24
 [x] proc
-[x] raw		(needs new network.raw.* kernel metrics)
+[x] raw
 [x] socket
 [x] swap
 [-] swap-old
 [x] sys
-[x] tcp		(needs new network.tcpconn6.* metrics)
+[x] tcp
 [x] time
-[x] udp		(needs new network.udpconn[6].* metrics)
-[x] unix	(needs new network.unixconn.* metics)
+[x] udp
+[x] unix
 [x] vm
 [x] vm-adv
 [?] zones	(compound indom, tough for derived metrics)
@@ -97,7 +95,7 @@ External Plugins:
 [?] jvm_full
 [?] jvm_vm
 [ ] lustre
-[ ] md-status		(needs more MD driver metrics)
+[ ] md-status		(needs additional MD driver metrics)
 [x] memcache-hits
 [?] mongodb_conn	(needs new MongoDB PMDA)
 [?] mongodb_mem		(needs new MongoDB PMDA)
@@ -180,10 +178,10 @@ Missing metrics:
 
 Missing PMDAs:
 [ ] acpi
-[ ] mongodb
 [?] dbus
-[?] gpfs
+[ ] gpfs
 [?] ntp
+[ ] mongodb
 [?] squid
 [?] vmware
 [?] zfs (Linux version)
