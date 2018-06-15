@@ -22,10 +22,13 @@ PCP_MMV_1.0 {
     mmv_stats_set_string;
     mmv_stats_set_strlen;
 
+    mmv_stats_registry;
+
   local: *;
 };
 
 PCP_MMV_1.1 {
   global:
     mmv_stats2_init;
+    mmv_stats_registry;
 } PCP_MMV_1.0;

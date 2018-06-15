@@ -115,6 +115,9 @@ Values
 .IP
 5:
 String
+.IP
+6:
+Labels
 .PP
 The only mandatory sections are Metrics and Values.
 Indoms and Instances sections of either version only appear if there are
@@ -123,6 +126,8 @@ String sections only appear if there are metrics with string values,
 when Metrics or Indoms are defined with help text, or in v2 MMV format
 where metric names and instance names are stored in string sections
 (providing significantly more space than v1 MMV format for these names).
+Finally, labels only appear if there are labels, and hence it is used 
+v3 MMV.
 .PP
 The entries in the Indoms sections have the following format:
 .TS
@@ -246,6 +251,27 @@ Each entry in the strings section is a 256 byte character array,
 containing a single NULL-terminated character string.
 So each string has a maximum length of 256 bytes, which includes
 the terminating NULL.
+.PP
+The entries in the Labels (v3) section have the following format:
+.TS
+box,center;
+c | c | c
+n | n | l.
+Offset  Length  Value
+_
+0       4       Flags (PM_LABEL_[INDOM|CLUSTER|ITEM|INSTANCES]|OPTIONAL)
+_
+4       8       Identifier for given type (indom, cluster or item)
+_
+12      4       Internal Instance or PM_IN_NULL
+_
+16      4       Name length
+_
+20      4       Value length
+_
+24      232     Payload(Name and Value Str)
+.TE
+.PP
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmdammv (1),

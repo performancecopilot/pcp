@@ -35,7 +35,10 @@ main(int argc, char **argv)
         fprintf(stderr, "mmv_metric_register: %s - %s\n", file, strerror(errno));
         return 1;
     }
-
+    fprintf(stderr, "File: %s \n", file);
+    fprintf(stderr, "File: %s \n", addr->file);
+    fprintf(stderr, "File: %d \n", addr->cluster);
+    fprintf(stderr, "File: %d \n", addr->flags);
     //value = mmv_lookup_value_desc(addr, "simple.counter", NULL);
     //mmv_inc_value(addr, value, 42);
 
