@@ -75,6 +75,10 @@ yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pmin
 
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
+echo >>$here/$seq.full
+echo "--- pmproxy log after all done ---" >>$here/$seq.full
+cat $tmp.log >>$here/$seq.full
+
 # success, all done
 status=0
 exit
