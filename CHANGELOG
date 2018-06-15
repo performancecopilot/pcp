@@ -1,3 +1,6 @@
+pcp-4.1.1 (3 August 2018)
+    - Work-in-progress, see https://pcp.io/roadmap
+
 pcp-4.1.0 (15 June 2018)
     - Log rotation, management scripts, compression and utilities:
 	- pmlogger_daily_report: use unambiguous time window arguments
