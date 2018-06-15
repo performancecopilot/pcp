@@ -355,7 +355,7 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     *ident = ntohl(label_pdu->ident);
     *type = ntohl(label_pdu->type);
     nsets = ntohl(label_pdu->nsets);
-    if (nsets < 0 || nsets > 0x7fffffff)  /* maximum #instances per indom */
+    if (nsets < 0)
 	return PM_ERR_IPC;
 
     if (!nsets) {
