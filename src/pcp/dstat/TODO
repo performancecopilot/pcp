@@ -25,7 +25,7 @@ General Functionality:
 [ ] implement historical reporting support via PCP archives
 [ ] create pmlogconf(1) configuration file(s)
 [ ] write regression tests with archives
-[x] write pcp-dstat.conf(5) man page
+[x] write pcp-dstat(5) man page
 [x] write pcp-dstat(1) man page
 
 
