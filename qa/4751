@@ -1,6 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 4751
 # multi-threaded context-creation
+#
+# See also QA 953 for the non-helgrind version of the same test.
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,7 +20,7 @@ echo "QA output created by $seq"
 # Similarly on slow VMs we sometimes also see SIGALRM while calling
 # pthread_mutex_lock().  Skip these VMs also.
 #
-case `hostname`
+case `hostname -s`
 in
     vm00|vm01|vm02|vm03|vm05|vm07|vm18|vm28|vm30|vm34)
 	_notrun "multithread10 and helgrind are not happy campers on `hostname`"

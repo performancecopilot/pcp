@@ -3351,7 +3351,8 @@ cd
 
 %changelog
 * Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
-- Work-in-progress, see https://pcp.io/roadmap
+- Rapid compression of PCP log data and metadata (BZ 1293471)
+- Update to latest PCP sources.
 
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
 - Propogate build flags throughout PCP (BZ 1538187)
