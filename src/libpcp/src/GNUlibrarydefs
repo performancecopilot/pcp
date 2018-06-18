@@ -19,7 +19,7 @@ LIBPCP_CFLAGS += $(LZMACFLAGS)
 endif
 
 ifeq "$(TARGET_OS)" "mingw"
-LIBPCP_LDLIBS += -lpsapi -lws2_32
+LIBPCP_LDLIBS += -lpsapi -lws2_32 -liphlpapi
 endif
 
 ifeq "$(TARGET_OS)" "solaris"
