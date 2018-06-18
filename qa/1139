@@ -90,7 +90,11 @@ _msg_filter
 pmrep -z -a $tmp.archive -p -r -u disk
 rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
 
-echo "== overall ranking"
+echo "== test predicate being filtered out"
+pmrep -z -s 14 $log $out -p -r -u -J  2 -i sda       -N kernel.pernode.cpu.sys disk.dev.write | \
+_msg_filter
+
+echo "== test overall ranking"
 pmrep $log -I -s 12 -r -u   -J 2 -l - -2 disk kernel mem
 pmrep $log -I -s  6 -r -t 2 -J 2 -l X -2 disk kernel mem
 pmrep $log -I -s 12 -r -u   -J 2 -l - -3 disk mem kernel

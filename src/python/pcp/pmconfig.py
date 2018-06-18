@@ -62,7 +62,6 @@ class pmConfig(object):
         self._init_ts = None
 
         # Predicate metric references
-        self._pred_index = []
         self._pred_indom = []
 
         # Instance regex cache
@@ -867,17 +866,16 @@ class pmConfig(object):
     def validate_predicate(self):
         """ Validate predicate filter reference metrics """
         for predicate in self.util.predicate.split(","):
-            index = -1
+            if predicate not in self.util.metrics:
+                sys.stderr.write("Predicate metric %s filtered out.\n" % predicate)
+                sys.exit(1)
+
+            index = len(self.util.metrics) # Sentinel
             for i, metric in enumerate(self.util.metrics):
                 if metric == predicate:
                     index = i
-                    self._pred_index.append(i)
                     self._pred_indom.append(self.descs[i].contents.indom)
                     break
-
-            if index < 0:
-                sys.stderr.write("Internal error, predicate metric not found!")
-                sys.exit(2)
 
             if self.insts[index][0][0] == pmapi.c_api.PM_IN_NULL:
                 sys.stderr.write("Predicate metric must have instances.\n")
@@ -922,11 +920,12 @@ class pmConfig(object):
 
         if predicates:
             pred_insts = {}
-            for _pred_index, predicate in enumerate(predicates):
+            for i, predicate in enumerate(predicates):
                 results[predicate] = self.rank(results[predicate])
-                if self._pred_indom[_pred_index] not in pred_insts:
-                    pred_insts[self._pred_indom[_pred_index]] = []
-                pred_insts[self._pred_indom[_pred_index]].extend([i[0] for i in results[predicate]])
+                p = self._pred_indom[i]
+                if p not in pred_insts:
+                    pred_insts[p] = []
+                pred_insts[p].extend(x[0] for x in results[predicate] if x[0] not in pred_insts[p])
             for i, metric in enumerate(results):
                 if metric in predicates:
                     # Predicate instance values may all get filtered,
@@ -943,7 +942,7 @@ class pmConfig(object):
                     results[metric] = self.rank(results[metric])
                     continue
                 inst_index = self.descs[i].contents.indom
-                results[metric] = [i for i in results[metric] if i[0] in pred_insts[inst_index]]
+                results[metric] = [x for x in results[metric] if x[0] in pred_insts[inst_index]]
         else:
             if hasattr(self.util, 'rank') and self.util.rank:
                 for metric in results:
@@ -951,6 +950,6 @@ class pmConfig(object):
 
         if self.do_live_filtering() and self.do_invert_filtering():
             for metric in results:
-                results[metric] = [i for i in results[metric] if self.filter_instance(metric, i[1])]
+                results[metric] = [x for x in results[metric] if self.filter_instance(metric, x[1])]
 
         return results

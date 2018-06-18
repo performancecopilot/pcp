@@ -288,7 +288,9 @@ Recording metrics...
 00:00:11         11        N/A        N/A         11        11       N/A       N/A       111
 00:00:12       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 00:00:13       1000       1000        N/A        N/A      1000      1000       N/A       N/A
-== overall ranking
+== test predicate being filtered out
+Predicate metric kernel.pernode.cpu.sys filtered out.
+== test overall ranking
 disk.dev.write          - sdd  -    count -  18
 disk.dev.write          - sdb  -    count -  12
 disk.dev.read           - sdc  -    count - 111
