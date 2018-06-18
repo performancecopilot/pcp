@@ -1,0 +1,277 @@
+#
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on https://github.com/iovisor/bcc/blob/master/tools/tcpretrans.py
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA tcpretrans module """
+
+# Configuration options
+# Name - type - default
+#
+# include_tlp       - boolean - false : include tail loss probe attempts
+# trace             - boolean - true  : trace each retransmits per flow
+# flow_count        - int     - 20    : number of closed TCP sessions to keep in the cache
+# buffer_page_count - int     - 64    : number of pages for the perf ring buffer, power of two
+
+# pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
+
+import ctypes as ct
+from collections import deque
+from threading import Lock, Thread
+from socket import inet_ntop, AF_INET, AF_INET6
+from struct import pack
+
+from bcc import BPF
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U32, PM_TYPE_STRING, PM_SEM_INSTANT
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/tcpretrans_%s.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'tcpretrans'
+BASENS = 'io.net.tcp.retrans.'
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+class Data_ipv4(ct.Structure):
+    """ IPv4 data struct """
+    _fields_ = [
+        ("pid", ct.c_ulonglong),
+        ("ip", ct.c_ulonglong),
+        ("saddr", ct.c_ulonglong),
+        ("daddr", ct.c_ulonglong),
+        ("lport", ct.c_ulonglong),
+        ("dport", ct.c_ulonglong),
+        ("state", ct.c_ulonglong),
+        ("type", ct.c_ulonglong)
+    ]
+
+class Data_ipv6(ct.Structure):
+    """ IPv6 data struct """
+    _fields_ = [
+        ("pid", ct.c_ulonglong),
+        ("ip", ct.c_ulonglong),
+        ("saddr", (ct.c_ulonglong * 2)),
+        ("daddr", (ct.c_ulonglong * 2)),
+        ("lport", ct.c_ulonglong),
+        ("dport", ct.c_ulonglong),
+        ("state", ct.c_ulonglong),
+        ("type", ct.c_ulonglong)
+    ]
+
+# from bpf_text:
+retransmit_type = {}
+retransmit_type[1] = 'RETRANSMIT'
+retransmit_type[2] = 'TLP'
+
+# from include/net/tcp_states.h:
+tcpstate = {}
+tcpstate[1] = 'ESTABLISHED'
+tcpstate[2] = 'SYN_SENT'
+tcpstate[3] = 'SYN_RECV'
+tcpstate[4] = 'FIN_WAIT1'
+tcpstate[5] = 'FIN_WAIT2'
+tcpstate[6] = 'TIME_WAIT'
+tcpstate[7] = 'CLOSE'
+tcpstate[8] = 'CLOSE_WAIT'
+tcpstate[9] = 'LAST_ACK'
+tcpstate[10] = 'LISTEN'
+tcpstate[11] = 'CLOSING'
+tcpstate[12] = 'NEW_SYN_RECV'
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC tcpretrans module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.include_tlp = False
+        self.trace = True
+        self.flow_count = 20
+        self.buffer_page_count = 64
+
+        for opt in self.config.options(MODULE):
+            if opt == 'include_tlp':
+                self.include_tlp = self.config.getboolean(MODULE, opt)
+            if opt == 'trace':
+                self.trace = self.config.getboolean(MODULE, opt)
+            if opt == 'flow_count':
+                self.flow_count = int(self.config.get(MODULE, opt))
+            if opt == 'buffer_page_count':
+                self.buffer_page_count = int(self.config.get(MODULE, opt))
+                if not self.buffer_page_count or \
+                   self.buffer_page_count & (self.buffer_page_count - 1):
+                    raise RuntimeError("Buffer page count is not power of two.")
+
+        if self.trace:
+            self.cache_trace = deque(maxlen=self.flow_count)
+            self.insts_trace = {str(i) : ct.c_int(1) for i in range(0, self.flow_count)}
+            self.lock = Lock()
+            self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
+            self.thread.setDaemon(True)
+        else:
+            self.cache_count = {}
+            self.insts_count = {}
+
+        self.log("Initialized.")
+
+    def handle_ip_event(self, data, version):
+        """ IP event handler """
+        if version == 4:
+            event = ct.cast(data, ct.POINTER(Data_ipv4)).contents
+            laddr = inet_ntop(AF_INET, pack("I", event.saddr))
+            daddr = inet_ntop(AF_INET, pack("I", event.daddr))
+        else:
+            event = ct.cast(data, ct.POINTER(Data_ipv6)).contents
+            laddr = inet_ntop(AF_INET6, event.saddr)
+            daddr = inet_ntop(AF_INET6, event.daddr)
+
+        self.lock.acquire()
+        self.cache_trace.appendleft([
+            event.pid,
+            event.ip,
+            laddr,
+            event.lport,
+            retransmit_type[event.type],
+            daddr,
+            event.dport,
+            tcpstate[event.state]
+        ])
+        self.lock.release()
+
+    def handle_ipv4_event(self, _cpu, data, _size):
+        """ IPv4 event handler """
+        self.handle_ip_event(data, 4)
+
+    def handle_ipv6_event(self, _cpu, data, _size):
+        """ IPv6 event handler """
+        self.handle_ip_event(data, 6)
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = BASENS
+
+        if self.trace:
+            self.items = (
+                # Name - reserved - type - semantics - units - help
+                (name + 'pid', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'PID'),
+                (name + 'ip', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'IP'),
+                (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'local address'),
+                (name + 'lport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'local port'),
+                (name + 'type', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'retransmit ' \
+                    'type'),
+                (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination ' \
+                    'address'),
+                (name + 'dport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'destination port'),
+                (name + 'state', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'flow state'),
+            )
+        else:
+            self.items = (
+                # Name - reserved - type - semantics - units - help
+                (name + 'count', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'retransmits'),
+            )
+        return True, self.items
+
+    def perf_buffer_lost_cb(self, lost_cnt):
+        """ Callback for lost perf buffer events """
+        self.err("Lost %d events; buffer_page_count should be increased." % lost_cnt)
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if self.trace:
+                bpf_src_full = bpf_src % ('trace',)
+            else:
+                bpf_src_full = bpf_src % ('count',)
+            self.bpf = BPF(src_file=bpf_src_full)
+
+            self.bpf.attach_kprobe(event="tcp_retransmit_skb", fn_name="trace_retransmit")
+            if self.include_tlp:
+                self.bpf.attach_kprobe(event="tcp_send_loss_probe", fn_name="trace_tlp")
+
+            if self.trace:
+                self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
+                                                         page_cnt=self.buffer_page_count,
+                                                         lost_cb=self.perf_buffer_lost_cb)
+                self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event,
+                                                         page_cnt=self.buffer_page_count,
+                                                         lost_cb=self.perf_buffer_lost_cb)
+                self.thread.start()
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
+            self.err(str(error))
+            self.err("Module NOT active!")
+            raise
+
+    def cumulate_count_table(self, bcc_table, ip_version):
+        """ Cumulate counts from BPF tables """
+        counts = self.bpf.get_table(bcc_table)
+
+        for k, v in counts.items():
+            if ip_version == 4:
+                saddr = inet_ntop(AF_INET, pack('I', k.saddr))
+                daddr = inet_ntop(AF_INET, pack('I', k.daddr))
+            else:
+                saddr = inet_ntop(AF_INET6, k.saddr)
+                daddr = inet_ntop(AF_INET6, k.daddr)
+
+            key = '%s:%d::%s:%d' % (saddr, k.lport, daddr, k.dport)
+            value = v.value if key not in self.cache_count else v.value + self.cache_count[key]
+            self.cache_count[key] = value
+            self.insts_count[key] = ct.c_int(1)
+
+        counts.clear()
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        if self.trace:
+            return self.insts_trace
+        else:
+            self.cumulate_count_table("ipv4_count", 4)
+            self.cumulate_count_table("ipv6_count", 6)
+            return self.insts_count
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        if self.trace:
+            try:
+                key = int(self.pmdaIndom.inst_name_lookup(inst))
+                self.lock.acquire()
+                value = self.cache_trace[key][item]
+                self.lock.release()
+                return [value, 1]
+            except Exception: # pylint: disable=broad-except
+                self.lock.release()
+                return [PM_ERR_AGAIN, 0]
+        else:
+            try:
+                key = self.pmdaIndom.inst_name_lookup(inst)
+                return [self.cache_count[key], 1]
+            except Exception: # pylint: disable=broad-except
+                return [PM_ERR_AGAIN, 0]
