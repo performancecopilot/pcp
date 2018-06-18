@@ -24,21 +24,6 @@ _install_filter()
     #end
 }
 
-_value_filter_any()
-{
-    awk '/value .+/ {print "OK"; exit}'
-}
-
-_value_filter_nonzero()
-{
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
-}
-
-_value_filter_exact()
-{
-    awk -v val=$1 '/value .+/ && $NF == val {print "OK"; exit}'
-}
-
 _prepare_pmda bcc
 trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
@@ -57,7 +42,8 @@ _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC tcplife module
 curl -s http://1.1.1.1
-sleep 1 # wait for async poller thread in tcplife; TODO: better solution?
+
+_pmdabcc_wait_for_value bcc.proc.io.net.tcp.pid
 
 echo "=== report metric values for pid ==="
 pminfo -dfmtT bcc.proc.io.net.tcp.pid 2>&1 | tee -a $here/$seq.full \

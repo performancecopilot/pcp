@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 1156
+# Exercise the BCC PMDA execsnoop module - install, remove and values.
+#
+# Copyright (c) 2018 Andreas Gerstmayr.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+cat <<EOF | _pmdabcc_install
+[pmda]
+modules = execsnoop
+prefix = bcc.
+[execsnoop]
+module = execsnoop
+cluster = 8
+command = echo
+args = PCP
+EOF
+
+_pmdabcc_wait_for_metric
+
+# Generate system activity for the BCC execsnoop module
+/bin/echo hello world
+/bin/echo hello PCP
+/bin/echo hello test
+
+_pmdabcc_wait_for_value bcc.proc.exec.comm
+
+echo "=== report metric values for comm ==="
+pminfo -dfmtT bcc.proc.exec.comm 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact '"echo"'
+
+echo "=== report metric values for pid ==="
+pminfo -dfmtT bcc.proc.exec.pid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for ppid ==="
+pminfo -dfmtT bcc.proc.exec.ppid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for ret ==="
+pminfo -dfmtT bcc.proc.exec.ret 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact 0
+
+echo "=== report metric values for args ==="
+pminfo -dfmtT bcc.proc.exec.args 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact '"/bin/echo hello PCP"'
+
+_pmdabcc_remove
+
+status=0
+exit

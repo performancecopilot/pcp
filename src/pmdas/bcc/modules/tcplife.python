@@ -12,7 +12,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-""" PCP BCC PMDA biotop module """
+""" PCP BCC PMDA tcplife module """
 
 # Configuration options
 # Name - type - default
@@ -135,29 +135,13 @@ class PCPBCCModule(PCPBCCBase):
         self.insts = {str(i) : ct.c_int(1) for i in range(0, self.session_count)}
 
         self.lock = Lock()
-        self.thread = Thread(name="bpfpoller", target=self.poller)
+        self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
         self.thread.setDaemon(True)
 
         # Compat with kernel < 4.16
         self.log("Using BPF source file %s." % bpf_src)
 
         self.log("Initialized.")
-
-    def poller(self):
-        """ BPF poller """
-        try:
-            # pylint: disable=no-member
-            if 'perf_buffer_poll' in dir(self.bpf):
-                poll = self.bpf.perf_buffer_poll
-            else:
-                # Compat: bcc < 0.6.0
-                poll = self.bpf.kprobe_poll
-            while self.bpf:
-                poll()
-        except Exception as error: # pylint: disable=broad-except
-            self.err(str(error))
-            self.err("BPF kprobe poll failed!")
-        self.log("Poller thread exiting.")
 
     def handle_ip_event(self, data, version):
         """ IP event handler """
@@ -271,8 +255,8 @@ class PCPBCCModule(PCPBCCBase):
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """
         try:
-            self.lock.acquire()
             key = int(self.pmdaIndom.inst_name_lookup(inst))
+            self.lock.acquire()
             value = self.cache[key][item]
             self.lock.release()
             return [value, 1]
