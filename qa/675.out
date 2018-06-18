@@ -1,2 +1,111 @@
 QA output created by 675
-[skeleton from now, replace me]
+=== Arg parsing and error cases ===
+--- -c someconfig -N -VV no-such-archive ---
+Warning: no-such-archive: not a PCP archive name
+Warning: no PCP archives found
+
+--- -c someconfig -swdv -N -VV 20011002 ---
++ pmlogrewrite -iq -c "someconfig" -s -w -d -v 20011002
+
+--- -N -VV 20011002.index 20011002.meta 20011002.0 ---
+suffix stripping: arg: 20011002.index -> 20011002
+suffix stripping: arg: 20011002.meta -> 20011002
+20011002: duplicate, already in archives list
+suffix stripping: arg: 20011002.0 -> 20011002
+20011002: duplicate, already in archives list
++ pmlogrewrite -iq 20011002
+
+--- .. ---
+suffix stripping: arg: ../onevol/20011003.meta -> ../onevol/20011003
+suffix stripping: arg: ../onevol/20011003.index -> ../onevol/20011003
+suffix stripping: arg: ../onevol/20011003.0 -> ../onevol/20011003
+suffix stripping: arg: ../onevol/20011002.meta -> ../onevol/20011002
+suffix stripping: arg: ../onevol/20011002.index -> ../onevol/20011002
+suffix stripping: arg: ../onevol/20011002.0 -> ../onevol/20011002
+suffix stripping: arg: ../multivol/20011002.meta -> ../multivol/20011002
+suffix stripping: arg: ../multivol/20011002.index -> ../multivol/20011002
+suffix stripping: arg: ../multivol/20011002.3 -> ../multivol/20011002
+suffix stripping: arg: ../multivol/20011002.2 -> ../multivol/20011002
+suffix stripping: arg: ../multivol/20011002.1 -> ../multivol/20011002
+suffix stripping: arg: ../multivol/20011002.0 -> ../multivol/20011002
+suffix stripping: arg: ../badvol/badlen-10.meta -> ../badvol/badlen-10
+suffix stripping: arg: ../badvol/badlen-10.index -> ../badvol/badlen-10
+suffix stripping: arg: ../badvol/badlen-10.0 -> ../badvol/badlen-10
+../onevol/20011003: duplicate, already in archives list
+../onevol/20011003: duplicate, already in archives list
+../onevol/20011002: duplicate, already in archives list
+../onevol/20011002: duplicate, already in archives list
+../multivol/20011002: duplicate, already in archives list
+../multivol/20011002: duplicate, already in archives list
+../multivol/20011002: duplicate, already in archives list
+../multivol/20011002: duplicate, already in archives list
+../multivol/20011002: duplicate, already in archives list
+../badvol/badlen-10: duplicate, already in archives list
+../badvol/badlen-10: duplicate, already in archives list
++ pmlogrewrite -iq ../onevol/20011003
++ pmlogrewrite -iq ../onevol/20011002
++ pmlogrewrite -iq ../multivol/20011002
++ pmlogrewrite -iq ../badvol/badlen-10
+
+--- empty foo ---
+Warning: no PCP archives found
+
+--- populated foo ---
+suffix stripping: arg: foo/6.meta.z -> foo/6
+suffix stripping: arg: foo/6.index.z -> foo/6
+suffix stripping: arg: foo/6.6.z -> foo/6
+suffix stripping: arg: foo/6.0.z -> foo/6
+suffix stripping: arg: foo/5.meta.Z -> foo/5
+suffix stripping: arg: foo/5.index.Z -> foo/5
+suffix stripping: arg: foo/5.5.Z -> foo/5
+suffix stripping: arg: foo/5.0.Z -> foo/5
+suffix stripping: arg: foo/4.meta.gz -> foo/4
+suffix stripping: arg: foo/4.index.gz -> foo/4
+suffix stripping: arg: foo/4.4.gz -> foo/4
+suffix stripping: arg: foo/4.0.gz -> foo/4
+suffix stripping: arg: foo/3.meta.bz -> foo/3
+suffix stripping: arg: foo/3.index.bz -> foo/3
+suffix stripping: arg: foo/3.3.bz -> foo/3
+suffix stripping: arg: foo/3.0.bz -> foo/3
+suffix stripping: arg: foo/2.meta.bz2 -> foo/2
+suffix stripping: arg: foo/2.index.bz2 -> foo/2
+suffix stripping: arg: foo/2.2.bz2 -> foo/2
+suffix stripping: arg: foo/2.0.bz2 -> foo/2
+suffix stripping: arg: foo/1.meta.lzma -> foo/1
+suffix stripping: arg: foo/1.index.lzma -> foo/1
+suffix stripping: arg: foo/1.1.lzma -> foo/1
+suffix stripping: arg: foo/1.0.lzma -> foo/1
+suffix stripping: arg: foo/0.meta.xz -> foo/0
+suffix stripping: arg: foo/0.index.xz -> foo/0
+suffix stripping: arg: foo/0.0.xz -> foo/0
+foo/6: duplicate, already in archives list
+foo/6: duplicate, already in archives list
+foo/6: duplicate, already in archives list
+foo/5: duplicate, already in archives list
+foo/5: duplicate, already in archives list
+foo/5: duplicate, already in archives list
+foo/4: duplicate, already in archives list
+foo/4: duplicate, already in archives list
+foo/4: duplicate, already in archives list
+foo/3: duplicate, already in archives list
+foo/3: duplicate, already in archives list
+foo/3: duplicate, already in archives list
+foo/2: duplicate, already in archives list
+foo/2: duplicate, already in archives list
+foo/2: duplicate, already in archives list
+foo/1: duplicate, already in archives list
+foo/1: duplicate, already in archives list
+foo/1: duplicate, already in archives list
+foo/0: duplicate, already in archives list
+foo/0: duplicate, already in archives list
++ pmlogrewrite -iq foo/6
++ pmlogrewrite -iq foo/5
++ pmlogrewrite -iq foo/4
++ pmlogrewrite -iq foo/3
++ pmlogrewrite -iq foo/2
++ pmlogrewrite -iq foo/1
++ pmlogrewrite -iq foo/0
+
+--- bad archive ---
+badvol/badlen-10.0: unexpected EOF in label record trailer, wanted 4, got 3 bytes
+Warning: badvol/badlen-10: bad archive, rewriting skipped
