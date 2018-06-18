@@ -48,7 +48,7 @@ _warning()
 }
 
 cat > $tmp/usage << EOF
-Usage: [options] [input-basename ... output-name]
+# Usage: [options] [input-basename ... output-name]
 
 Options:
   -f, --force    remove input files after creating output files
