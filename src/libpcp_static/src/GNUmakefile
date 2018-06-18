@@ -96,6 +96,8 @@ $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 getdate.h getdate.tab.c: getdate.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
 
+install : default
+
 # kernel_pmda_dso	= windows
 
 $(LN_FILES):
