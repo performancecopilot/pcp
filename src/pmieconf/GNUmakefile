@@ -30,8 +30,12 @@ LLDLIBS = $(PCPLIB)
 LCFLAGS = -I$(TOPDIR)/src/pmie/src
 
 ifneq "$(CROSS_COMPILING)" "yes"
-STATICTARGETS = pmieconf.static
+STATICTARGETS = pmieconf.static$(EXECSUFFIX)
+ifeq "$(TARGET_OS)" "mingw"
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp_static/src/libpcp_static.a
+else
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+endif
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 endif
 
@@ -57,8 +61,8 @@ makefiles:
 	    cd ..; \
 	done
 
-pmieconf.static: $(OBJECTS)
-	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+pmieconf.static$(EXECSUFFIX): $(OBJECTS)
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 local: $(STATICTARGETS) $(SUBDIRS)
 	@rm -fr rules; mkdir rules
