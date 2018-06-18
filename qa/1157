@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 1157
+# Exercise the BCC PMDA tcpretrans module - install, remove and values.
+#
+# Copyright (c) 2018 Andreas Gerstmayr.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+target_ip=1.1.1.1
+net_dev=$(ip route get ${target_ip} | awk '{print $5; exit}')
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_simulate_network_troubles()
+{
+    echo Simulate packet loss
+    $sudo tc qdisc add dev ${net_dev} root netem loss 50%
+}
+
+_revert_network_troubles()
+{
+    echo Revert intentional packet loss
+    $sudo tc qdisc del dev ${net_dev} root
+}
+
+_value_filter()
+{
+    awk '/inst .*::'${target_ip}':80"] value/ {print "OK"; exit}'
+}
+
+_prepare_pmda bcc
+trap "_revert_network_troubles; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+cat <<EOF | _pmdabcc_install
+[pmda]
+modules = tcpretrans
+prefix = bcc.
+[tcpretrans]
+module = tcpretrans
+cluster = 9
+EOF
+
+_pmdabcc_wait_for_metric
+_simulate_network_troubles
+
+# Generate system activity for the BCC tcpretrans module
+for i in 1 2 3; do curl -s http://${target_ip}; done
+
+echo "=== report metric values for count ==="
+pminfo -dfmtT bcc.io.net.tcp.retrans.count 2>&1 | tee -a $here/$seq.full \
+| _value_filter
+
+_pmdabcc_remove
+
+status=0
+exit

@@ -1496,6 +1496,7 @@ BAD
 1154 pmda.bcc local python
 1155 pmda.bcc local python
 1156 pmda.bcc local python
+1157 pmda.bcc local python
 1159 pmlogger local pmdumplog
 1163 pmlogrewrite local
 1164 pmda.linux local
