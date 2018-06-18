@@ -131,45 +131,71 @@ do
     [ -f $tmp.abort ] && break
     srcbase="`basename $src`"
 
-    if pmlogmv "$rootdir"/"$host"/"$srcbase" "$rootdir"/"$host"/"$dst"
+    # rename if needed ...
+    #
+    if [ "$srcbase" != "$dst" ]
     then
-	:
-    else
-	echo "mk.logfarm: Error: pmlogmv $host/$srcbase -> $host/$dst failed"
-	touch $tmp.abort
-	break
+	if pmlogmv "$rootdir"/"$host"/"$srcbase" "$rootdir"/"$host"/"$dst"
+	then
+	    :
+	else
+	    echo "mk.logfarm: Error: pmlogmv $host/$srcbase -> $host/$dst failed"
+	    touch $tmp.abort
+	    break
+	fi
     fi
 
-    # now align the timestamps of the archive with the date-and-time
-    # of the destination archive name
+    # if the destination archive name is of the YYYYMMDD... format, then
+    # align timestamps, unless this is a bad archive (maybe we're testing
+    # with one of the badarchives ones) ...
     #
-    delta=`src/timeshift -z -a "$rootdir"/"$host"/"$dst" "$dst"`
-    cat <<End-of-File >$tmp.config
+    rm -f $tmp.dostamp
+    case "$dst"
+    in
+	2[0-9][0-9][0-9][01][0-9][0-3][0-9]*)
+		touch $tmp.dostamp
+		;;
+    esac
+    if [ -f $tmp.dostamp ]
+    then
+	if pmlogcheck -w "$rootdir"/"$host"/"$dst">/dev/null 2>&1
+	then
+	    # now align the timestamps of the archive with the date-and-time
+	    # of the destination archive name
+	    #
+	    delta=`src/timeshift -z -a "$rootdir"/"$host"/"$dst" "$dst"`
+	    cat <<End-of-File >$tmp.config
 GLOBAL {
     time -> $delta
 }
 End-of-File
-    if pmlogrewrite -c $tmp.config -i "$rootdir"/"$host"/"$dst"
-    then
-	:
-    else
-	echo "mk.logfarm: Error: pmlogrewrite $host/$dst failed"
-	touch $tmp.abort
-	break
-    fi
+	    if pmlogrewrite -c $tmp.config -i "$rootdir"/"$host"/"$dst"
+	    then
+		:
+	    else
+		echo "mk.logfarm: Error: pmlogrewrite $host/$dst failed"
+		touch $tmp.abort
+		break
+	    fi
+	fi
 
-    # and finally change the access and modification times
-    #
-    stamp=`echo "$dst" | sed \
-			    -e 's/-[0-9][0-9]*$//' \
-			    -e 's/\.//g' \
-			    -e 's/^\(........\)\(..\)\(..\)/\1 \2:\3/' \
-			    -e 's/^\(....\)\(..\)\(..\).*/\1-\2-\3/' \
-	  `
-    for file in "$rootdir"/"$host"/"$dst".*
-    do
-	touch -d "$stamp" "$file"
-    done
+	# and finally change the access and modification times
+	#
+	stamp=`echo "$dst" | sed \
+				-e 's/-[0-9][0-9]*$//' \
+				-e 's/\.//g' \
+				-e 's/^\(........\)\(..\)\(..\)/\1 \2:\3/' \
+				-e 's/^\(....\)\(..\)\(..\).*/\1-\2-\3/' \
+	      `
+	for file in "$rootdir"/"$host"/"$dst".*
+	do
+	    touch -d "$stamp" "$file"
+	done
+    else
+	# skip timestamp for $dst"
+	#
+	:
+    fi
 
 done
 
