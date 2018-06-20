@@ -148,11 +148,11 @@ class PCPBCCModule(PCPBCCBase):
         if version == 4:
             event = ct.cast(data, ct.POINTER(Data_ipv4)).contents
             laddr = inet_ntop(AF_INET, pack("I", event.saddr))
-            raddr = inet_ntop(AF_INET, pack("I", event.daddr))
+            daddr = inet_ntop(AF_INET, pack("I", event.daddr))
         else:
             event = ct.cast(data, ct.POINTER(Data_ipv6)).contents
             laddr = inet_ntop(AF_INET6, event.saddr)
-            raddr = inet_ntop(AF_INET6, event.daddr)
+            daddr = inet_ntop(AF_INET6, event.daddr)
 
         self.lock.acquire()
         self.cache.appendleft([
@@ -160,7 +160,7 @@ class PCPBCCModule(PCPBCCBase):
             event.task.decode(),
             laddr,
             event.ports >> 32,
-            raddr,
+            daddr,
             event.ports & 0xffffffff,
             event.tx_b,
             event.rx_b,
