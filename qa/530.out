@@ -92,7 +92,6 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP/control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	YESTERDAY.00.02
 	YESTERDAY.00.04
@@ -138,7 +137,6 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP/control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 PMLOGGER.DAILY: Warning: no archives found to merge
 Archive files older than 2 days being removed ...
     NOW-3.00.02.0 NOW-3.00.02.index NOW-3.00.02.meta NOW-3.00.04.0
@@ -170,7 +168,6 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP/control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
 [TMP/control:2] ... skip log merging, culling and compressing for host "HOST"
 NOW-2.00.02.0

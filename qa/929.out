@@ -10,7 +10,6 @@ Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 + pmlogmv -V -N PAST.00.10 PAST
 + cd TMP.two
 
@@ -21,7 +20,6 @@ Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 + pmlogger_merge -V -N -f PAST.00.10 PAST.13.13 PAST
 
 --- -M case ---
@@ -36,7 +34,6 @@ Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 + cd TMP.two
 
 === daily maintenance of PCP archives for host two.somewhere ===
@@ -46,4 +43,3 @@ Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-

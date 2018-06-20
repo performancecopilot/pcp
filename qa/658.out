@@ -7,7 +7,6 @@ Error: no pmlogger instance running for host "thishost"
 ... logging for host "thishost" unchanged
 pmlogger_daily: [TMP.control:3]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20011004.01.02
 	20011004.03.04
@@ -36,7 +35,6 @@ Error: no pmlogger instance running for host "otherhost"
 ... logging for host "otherhost" unchanged
 pmlogger_daily: [TMP.control:4]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20011002.00.10
 	20011002.00.10-00

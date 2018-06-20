@@ -3,13 +3,10 @@ QA output created by 781
 === compressing PCP archives for host local: ===
 
 
-
 === compressing PCP archives for host no.such.host.pcp.io ===
 
 
-
 === compressing PCP archives for host another.host ===
-
 
 # $version=1.1    
 + export version; version=1.1    

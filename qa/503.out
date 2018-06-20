@@ -8,7 +8,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -29,7 +28,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -54,7 +52,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -85,7 +82,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -116,7 +112,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -147,7 +142,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -180,7 +174,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -203,7 +196,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -248,7 +240,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -293,7 +284,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -338,7 +328,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10
@@ -383,7 +372,6 @@ Error: no pmlogger instance running for host "HOSTNAME"
 ... logging for host "HOSTNAME" unchanged
 pmlogger_daily: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	20111001.21.10
 	20111001.22.10

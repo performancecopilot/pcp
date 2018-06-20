@@ -73,7 +73,6 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP/control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Input archives to be merged:
 	TODAY-3.1H.MM
 	TODAY-3.1H.MM-00

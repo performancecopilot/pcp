@@ -10,7 +10,6 @@ Error: no pmlogger instance running for host "dist.engr"
 ... logging for host "dist.engr" unchanged
 pmlogger_daily: [TMP/SEQ-PID.ctl:3]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
@@ -25,7 +24,6 @@ Error: no pmlogger instance running for host "relay.engr"
 ... logging for host "relay.engr" unchanged
 pmlogger_daily: [TMP/SEQ-PID.ctl:4]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
