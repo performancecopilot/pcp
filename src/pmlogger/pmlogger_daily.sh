@@ -997,7 +997,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 	    fi
 	fi
-	$VERBOSE && echo >&2
 
 	if ! $COMPRESSONLY
 	then
