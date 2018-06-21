@@ -1046,8 +1046,10 @@ BAD
 672 valgrind libpcp pmval local
 673 pmdumplog local decompress-xz
 674 pcp local
-675 pmlogrewrite local
+675 pmlogrewrite local logutil
+676 logutil pmlogrewrite local
 677 pmprobe archive multi-archive decompress-xz local pmlogextract
+678 logutil pmlogrewrite local
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
 701 pmlogcheck local
