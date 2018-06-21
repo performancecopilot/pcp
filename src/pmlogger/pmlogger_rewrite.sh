@@ -93,7 +93,8 @@ do
 		;;
 
 	-\?)	pmgetopt --usage --progname=$prog --config=$tmp/usage
-		_abandon
+		status=4
+		exit
 		;;
     esac
     shift
@@ -198,32 +199,112 @@ do
     fi
 done
 
-if [ -s $tmp/archives ]
+if [ ! -s $tmp/archives ]
 then
-    for archive in `cat $tmp/archives`
+    $verbose && echo "Warning: no PCP archives found"
+    exit
+fi
+
+# now for every selected archive ... check it is OK, rewrite and if a file
+# is changed, recompress if the original file was compressed
+#
+for archive in `cat $tmp/archives`
+do
+    if $showme
+    then
+	echo "+ pmlogrewrite $rewrite_args $archive"
+	continue
+    fi
+    if pmlogcheck -w "$archive" >$tmp/out 2>&1
+    then
+	# OK
+	:
+    elif [ -s $tmp/out ]
+    then
+	$verbose && cat $tmp/out
+	echo "Warning: $base: bad archive, rewriting skipped"
+	continue
+    else
+	# empty output but non-zero exit status?
+	#
+	echo "Warning: $base: bad archive (pmlogcheck exit status=$sts), rewriting skipped"
+	continue
+    fi
+    # use sum(1) to detect changes at the level of individual files
+    #
+    rm -f $tmp/sum.before
+    for file in $archive.*
     do
-	if $showme
+	echo "$file `sum "$file" | sed -e 's/[ 	][ 	]*/ /g'`" >>$tmp/sum.before
+    done
+
+    eval pmlogrewrite $rewrite_args "$archive"
+
+    rm -f $tmp/sum.after
+    for file in $archive.*
+    do
+	echo "$file `sum "$file" | sed -e 's/[ 	][ 	]*/ /g'`" >>$tmp/sum.after
+    done
+    # now use comm to find the lines that are in $tmp/sum.after and not
+    # in $tmp/sum.before ... these are the files that have been changed
+    # by pmlogrewrite
+    #
+    comm -13 $tmp/sum.before $tmp/sum.after \
+    | while read file stuff
+    do
+	old_file=`grep "^$file" $tmp/sum.before | sed -e 's/[ 	].*//'`
+	if [ "$file" != "$old_file" ]
 	then
-	    echo "+ pmlogrewrite $rewrite_args $archive"
+	    # original file name and current file name do not match ...
+	    # only cause should be compressed input file, uncompressed
+	    # output file
+	    #
+	    case "$old_file"
+	    in
+		*.xz|*.lzma)
+		    if which xz >/dev/null 2>&1
+		    then
+			# same logic as in pmlogger_daily for optimal
+			# compression
+			#
+			if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+			then
+			    # want minimal overheads, -0 is the same as --fast
+			    xz -0 --block-size=10MiB "$file"
+			else
+			    xz "$file"
+			fi
+			$very_verbose && echo "changed and recompressed: $old_file"
+		    else
+			echo "Warning: no xz(1), cannot recompress $file"
+		    fi
+		    ;;
+		*.bz2|*.bz)
+		    if which bzip2 >/dev/null 2>&1
+		    then
+			bzip2 "$file"
+			$very_verbose && echo "changed and recompressed: $old_file"
+		    else
+			echo "Warning: no bzip2(1), cannot recompress $file"
+		    fi
+		    ;;
+		*.gz|*.Z|*.z)
+		    if which gzip >/dev/null 2>&1
+		    then
+			gzip "$file"
+			$very_verbose && echo "changed and recompressed: $old_file"
+		    else
+			echo "Warning: no gzip(1), cannot recompress $file"
+		    fi
+		    ;;
+		*)
+		    echo "Botch: cannot handle rewriting file name change: $old_file -> $file"
+		    ;;
+	    esac
 	else
-	    pmlogcheck -w "$base" >$tmp/out 2>&1
-	    sts=$?
-	    if [ $sts = 0 ]
-	    then
-		pmlogrewrite $rewrite_args $archive
-	    elif [ -s $tmp/out ]
-	    then
-		$verbose && cat $tmp/out
-		echo "Warning: $base: bad archive, rewriting skipped"
-	    else
-		# empty output but non-zero exit status?
-		#
-		echo "Warning: $base: bad archive (pmlogcheck exit status=$sts), rewriting skipped"
-	    fi
+	    $very_verbose && echo "changed: $old_file"
 	fi
     done
-else
-    $verbose && echo "Warning: no PCP archives found"
-fi
+done
 
 exit
