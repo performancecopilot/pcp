@@ -815,7 +815,7 @@ do
 	    # and no -e processing
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    qa_user=pcpqa
-	    qa_dir=/var/lib/pcp/testsuite
+	    qa_dir=/var/lib/pcp/testsuite/qa
 	    if $pflag
 	    then
 		echo "Info: skip -p for vm35"
