@@ -14,6 +14,8 @@
 [\f3\-p\f1 PID1,PID2..]
 [\f3\-R\f1/\f3\-r/\f3\-k\f1]
 [\f3\-V\f1]
+[\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
+[\f3\-z\f1 \f3--hostzone\f1]
 [\f3\-?\f1]
 
 .SH DESCRIPTION
@@ -150,6 +152,36 @@ Command
 .TP
 .BR \-V \fR
 Display version and exit
+
+.TP
+.B \-Z
+By default,
+.B pcp-pidstat
+reports the time of day according to the local timezone on the
+system where
+.B pcp-pidstat
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+
+.TP
+.B \-z
+Change the reporting timezone to the local timezone at the host that is
+the source of the performance metrics, as identified via either the
+.B \-h
+or
+.B \-a
+options.
+When replaying a PCP archive that was captured in a foreign timezone, the
+.B \-z
+option would almost always be used (the default reporting timezone is the local timezone,
+which may not be the same as the timezone of the PCP archive).
 
 .TP
 .BR \-? " , " \fB\-\-help\fR

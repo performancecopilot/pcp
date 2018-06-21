@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 1398
+# Exercise the pcp-pidstat command's -Zz flag.
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+test -x $PCP_BINADM_DIR/pcp-pidstat || _notrun "No pcp-pidstat(1) installed"
+
+pcp_pidstat="$PCP_BINADM_DIR/pcp-pidstat"
+
+archive1="-a $here/archives/pcp-pidstat-timezone"
+
+# real QA test starts here
+echo && echo pcp-pidstat output: set reporting timezone to one for your choice
+$pcp_pidstat -Z IST $archive1 -s 3
+
+echo && echo pcp-pidstat output: set reporting timezone to local time of metrics source
+$pcp_pidstat $archive1 -z -s 3
+
+# success, all done
+status=0
+exit
+
