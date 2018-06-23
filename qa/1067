@@ -28,10 +28,8 @@ rm -f $seq.out
 #	- [error message] after [.|ZBX_NOTSUPPORTED]
 #
 version=`zabbix_agentd -V | sed -n -e '/^[Zz]abbix/{
-s/^[^(]*(//
-s/^[^)]*)//
-s/^ *//
-s/^v//
+s/ v/ /
+s/^[^0-9]* \([0-9]\)/\1/
 s/ .*//
 p
 }'`
