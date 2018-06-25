@@ -181,6 +181,7 @@ class PCPBCCModule(PCPBCCBase):
 
         self.cumulate_count_table("ipv4_count", 4)
         self.cumulate_count_table("ipv6_count", 6)
+
         return self.insts
 
     def bpfdata(self, item, inst):
