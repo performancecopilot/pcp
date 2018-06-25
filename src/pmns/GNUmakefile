@@ -1,16 +1,16 @@
 #
 # Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
@@ -36,18 +36,42 @@ LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild ReplacePmnsSubtree \
 	    $(STDPMID) $(SCRIPTS) $(LOCKERS)
 
 LLDLIBS = $(PCPLIB)
+
+ifeq "$(TARGET_OS)" "mingw"
+TARGETS =
+STATICTARGETS = pmnsmerge.static$(EXECSUFFIX) pmnsdel.static$(EXECSUFFIX)
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp_static/src/libpcp_static.a
+STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
+else
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+endif
+
+LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
+LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_INTERNAL
+LLDLIBS += $(LIBPCP_LDLIBS)
+
 LDIRT	= *.log *.pmns stdpmid .NeedRebuild build.script $(TARGETS)
 
-default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) \
+default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) $(STATICTARGETS) \
 		GNUmakefile.install .NeedRebuild Rebuild ReplacePmnsSubtree stdpmid
 
 include $(BUILDRULES)
 
+ifeq "$(TARGET_OS)" "mingw"
+pmnsmerge.static$(EXECSUFFIX):      pmnsmerge.o pmnsutil.o
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) pmnsmerge.o pmnsutil.o $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+else
 pmnsmerge$(EXECSUFFIX):      pmnsmerge.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsmerge.o pmnsutil.o $(LDLIBS)
+endif
 
+ifeq "$(TARGET_OS)" "mingw"
+pmnsdel.static$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) pmnsdel.o pmnsutil.o $(STATIC_LDLIBS) $(STATIC_LDLIBS)
+else
 pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsdel.o pmnsutil.o $(LDLIBS)
+endif
 
 .NeedRebuild:
 	echo "This file flags the rc scripts to rebuild the PMNS" > .NeedRebuild
@@ -55,7 +79,7 @@ pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 # All PMNS config stuff goes in $PCP_VAR_DIR/pmns
 # For platforms that want it, the .NeedRebuild hook is added there,
 # else a manual touch(1) here is as close as it gets unfortunately.
-#
+
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PMNS_BIN_DIR)
 	$(INSTALL) -m 755 $(LOCKERS) ReplacePmnsSubtree $(PMNS_LIB_DIR)
