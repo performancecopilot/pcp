@@ -22,7 +22,7 @@ _usage()
     fi
     echo >&2 "  -h          harvest QA failures"
     echo >&2 "  -i          install built pcp packages"
-    echo >&2 "  -l          harvest daily.log/daily.log.qa after aborted run"
+    echo >&2 "  -l          harvest daily.log/daily.qa.log after aborted run"
     echo >&2 "  -m          build (Makepkgs) for pcp"
     echo >&2 "  -p          git pull for pcp"
     echo >&2 "  -q          run qa"
@@ -63,7 +63,7 @@ End-of-File
     else
 	cat <<End-of-File
 rm -f \$HOME/$1.log
-touch \$HOME/$1.log
+echo "--- starting $1 on \`date\` ---" >\$HOME/$1.log
 End-of-File
     fi
     if [ "$1" = daily ]
@@ -475,15 +475,15 @@ rm -f *.out.bad
 qa_restrict="$check_what -x BAD"
 
 echo "Info: QA \$qa_restrict starting"
-./check -l \$qa_restrict >>\$HOME/daily.log.qa 2>&1
+./check -l \$qa_restrict >>\$HOME/daily.qa.log 2>&1
 sts=\$?
-# look for badness in daily.log.qa and report here (so it goes into any
+# look for badness in daily.qa.log and report here (so it goes into any
 # cron-based email)
-awk <\$HOME/daily.log.qa '
+awk <\$HOME/daily.qa.log '
 \$1 == "Aborted!"	{ print }
 \$1 == "Check!"		{ print }'
 # get last block from check.log ... then get the summary on
-# stdout (not needed in the daily.log.qa, already there)
+# stdout (not needed in the daily.qa.log already there)
 sed -e '/^    [0-9 ]*\$/d' <check.log \
 | awk '
 NF == 0	{ txt = ""; next }
@@ -497,22 +497,22 @@ END	{ print txt }' \
 want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
-    echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.log.qa
+    echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.qa.log
 else
-    echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.log.qa
+    echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.qa.log
 fi
-date >>\$HOME/daily.log.qa
+date >>\$HOME/daily.qa.log
 End-of-File
 }
 
 _script_qa_rerun()
 {
     cat <<End-of-File
-if ./recheck >>\$HOME/daily.log.qa 2>&1
+if ./recheck >>\$HOME/daily.qa.log 2>&1
 then
-    echo "Info: QA recheck" | tee -a \$HOME/daily.log.qa
+    echo "Info: QA recheck" | tee -a \$HOME/daily.qa.log
 else
-    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.log.qa
+    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.qa.log
 fi
 End-of-File
 }
@@ -537,8 +537,8 @@ do
 	nfull=\`expr \$nfull + 1\`
     fi
 done
-[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.log.qa
-echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.log.qa
+[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.qa.log
+echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.qa.log
 End-of-File
 }
 
@@ -941,7 +941,7 @@ do
 
 	$iflag && _script_install >>$tmp.script
 
-	_script_header qa >$tmp.script.qa
+	_script_header daily.qa >$tmp.script.qa
 
 	cat >>$tmp.script.qa <<End-of-File
 
@@ -981,19 +981,19 @@ End-of-File
 	    rm -f $tmp.ok
 	    for i in 1 2 3
 	    do
-		if scp $tmp.script.qa $qa_user@$host:daily.script.qa >$tmp.out 2>&1
+		if scp $tmp.script.qa $qa_user@$host:daily.qa.script >$tmp.out 2>&1
 		then
 		    touch $tmp.ok
 		    break
 		else
 		    cat $tmp.out
-		    echo "Warning: scp for daily.script.qa failed!"
+		    echo "Warning: scp for daily.qa.script failed!"
 		    sleep 2
 		fi
 	    done
 	    if [ ! -f $tmp.ok ]
 	    then
-		echo "Error: cannot copy daily.script.qa to $host ... giving up"
+		echo "Error: cannot copy daily.qa.script to $host ... giving up"
 		continue
 	    fi
 	fi
@@ -1008,8 +1008,8 @@ End-of-File
 
 	if $qflag || $rflag || $hflag
 	then
-	    ssh -t $qa_user@$host sh -c ./daily.script.qa
-	    scp -q $qa_user@$host:daily.log.qa $tmp.out
+	    ssh -t $qa_user@$host sh -c ./daily.qa.script
+	    scp -q $qa_user@$host:daily.qa.log $tmp.out
 	    echo "=== qa: `date` ===" >>$log
 	    cat $tmp.out >>$log
 	    echo "=== END ===" >>$log
