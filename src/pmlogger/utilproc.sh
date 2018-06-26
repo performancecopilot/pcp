@@ -146,3 +146,37 @@ _save_prev_file()
 	return 1
     fi
 }
+
+# check for magic numbers in a file that indicate it is a PCP archive
+#
+# if file(1) was reliable, this would be much easier, ... sigh
+#
+_is_archive()
+{
+    if [ ! -f "$1" ]
+    then
+	return 1
+    else
+	case "$1"
+	in
+	    *.xz|*.lzma)	xz -dc "$1"
+	    			;;
+	    *.bz2|*.bz)		bzip2 -dc "$1"
+	    			;;
+	    *.gz|*.Z|*.z)	gzip -dc "$1"
+	    			;;
+	    *)			cat "$1"
+	    			;;
+	esac \
+	| dd ibs=1 count=7 2>/dev/null \
+	| od -X \
+	| $PCP_AWK_PROG '
+BEGIN						{ sts = 1 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
+END						{ exit sts }'
+    fi
+    return $?
+}

@@ -23,6 +23,8 @@
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
+# ... and _is_archive()
+. $PCP_SHARE_DIR/lib/utilproc.sh
 
 prog=`basename $0`
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
@@ -130,7 +132,10 @@ for try
 do
     if [ -d "$try" ]
     then
-	find "$try" -type f >>$tmp/args
+	# crude filter here ... more precise filtering later on
+	#
+	find "$try" -type f \
+	| egrep '(\.meta|\.index|\.[0-9][0-9]*)($|(\.xz|\.lzma|\.bz2|\.bz|\.gz|\.Z|\.z)$)' >>$tmp/args
     else
 	echo "$try" >>$tmp/args
     fi
@@ -165,21 +170,21 @@ do
 	    # may already be the base name of an archive ... look for
 	    # a .meta or .meta.* file
 	    #
-	    rm -f /tmp/ok
+	    rm -f $tmp.ok
 	    if [ -f "$base".meta ]
 	    then
-		touch /tmp/ok
+		touch $tmp.ok
 	    else
 		for suff in $compress_suffixes
 		do
 		    if [ -f "$base.meta"$suff ]
 		    then
-			touch /tmp/ok
+			touch $tmp.ok
 			break
 		    fi
 		done
 	    fi
-	    if [ ! -f /tmp/ok ]
+	    if [ ! -f $tmp.ok ]
 	    then
 		base=''
 		$verbose && echo "Warning: $try: not a PCP archive name"
@@ -195,7 +200,11 @@ do
     then
 	$very_verbose && echo "$base: duplicate, already in archives list"
     else
-	echo "$base" >>$tmp/archives
+	check=`echo $base.meta*`
+	if _is_archive "$check"
+	then
+	    echo "$base" >>$tmp/archives
+	fi
     fi
 done
 
@@ -210,9 +219,16 @@ fi
 #
 for archive in `cat $tmp/archives`
 do
-    if $showme
+    pid=`pmdumplog -L $archive | sed -n -e '/^PID for pmlogger: /s///p'`
+    if [ -z "$pid" ]
     then
-	echo "+ pmlogrewrite $rewrite_args $archive"
+	pmdumplog -L $archive
+	echo "Botch: cannot get pmlogger PID from label record for $archive"
+	continue
+    fi
+    if pmprobe -I pmcd.pmlogger.port | grep "\"$pid\"" >/dev/null
+    then
+	$verbose && echo "Warning: skip archive $archive, pmlogger PID $pid is still running"
 	continue
     fi
     if pmlogcheck -w "$archive" >$tmp/out 2>&1
@@ -228,6 +244,11 @@ do
 	# empty output but non-zero exit status?
 	#
 	echo "Warning: $base: bad archive (pmlogcheck exit status=$sts), rewriting skipped"
+	continue
+    fi
+    if $showme
+    then
+	echo "+ pmlogrewrite $rewrite_args $archive"
 	continue
     fi
     # use sum(1) to detect changes at the level of individual files
