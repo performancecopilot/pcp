@@ -9,6 +9,8 @@
 
 tmp=/var/tmp/check-group-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+debug=true
+debug=false
 
 if [ $# -ne 1 ]
 then
@@ -33,13 +35,13 @@ do
     then
 	if egrep "check-group-include:.* $1( |\$)" <$tmp.chk >/dev/null
 	then
-	    #debug# echo "$seq: explicit include"
+	    $debug && echo "$seq: explicit include"
 	    echo $seq >>$tmp.tmp
 	    continue
 	fi
 	if egrep "check-group-exclude:.* $1( |\$)" <$tmp.chk >/dev/null
 	then
-	    #debug# echo "$seq: explicit exclude"
+	    $debug && echo "$seq: explicit exclude"
 	    continue
 	fi
     fi
@@ -52,28 +54,29 @@ do
 	collectl)	# executable might be collectl2pcp or pmcollectl or
 			# pcp collectl
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^([ 	]*collectl2pcp|pmcollectl|(pcp collectl))([ '\"]|$))|([ /'\"_=](collectl2pcp|pmcollectl|(pcp collectl))([ '\"_]|$))" \
+	      | egrep "(^([ 	]*collectl2pcp|pmcollectl|(pcp collectl))([ '\"]|$))|([ /'\"\`_=](collectl2pcp|pmcollectl|(pcp collectl))([ '\"\`_]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
+	    $debug && [ -s $tmp.debug ] && echo $seq: && cat $tmp.debug
 	    report_group="pmcollectl et al"
 	    ;;
 
 	folio)		# executable might be pmafm or mkaf
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"_=](pmafm|mkaf)([ '\"_]|$))" \
+	      | egrep -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"\`_=](pmafm|mkaf)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmafm or mkaf"
 	    ;;
 
 	logutil)	# pmlogger_ scripts
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmlogger_check|pmlogger_daily|pmlogger_daily_report)([ '\"]|$))|([ /'\"_=](pmlogger_check|pmlogger_daily|pmlogger_daily_report)([ '\"_]|$))" \
+	      | egrep -q "(^[ 	]*(pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"]|$))|([ /'\"\`_=](pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmlogger_* scripts"
 	    ;;
 
 	pmclient)	# executable might be pmlient_fg
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmclient|pmclient_fg)([ '\"]|$))|([ /'\"_=](pmclient|pmclient_fg)([ '\"_]|$))" \
+	      | egrep -q "(^[ 	]*(pmclient|pmclient_fg)([ '\"]|$))|([ /'\"\`_=](pmclient|pmclient_fg)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmclient et al"
 	    ;;
@@ -81,15 +84,16 @@ do
 	pmdumplog)	# executable might be hidden in _exercise_compression
 			# wrapper from common.compress
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"_=](pmdumplog|_exercise_compression)([ '\"_]|$))" \
+	      | egrep -q "(^[ 	]*(pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group=pmdumplog
 	    ;;
 
 	*)
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*$1([ '\"]|$))|([ /'\"_=]$1([ '\"_]|$))" \
+	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
+	    $debug && [ -s $tmp.debug ] && echo $seq: && cat $tmp.debug
 	    report_group="$1"
 	    ;;
     esac
