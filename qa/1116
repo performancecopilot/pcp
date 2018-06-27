@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1116
-# Exercise the BCC PMDA biotop module - install, remove and values.
+# Exercise the BCC PMDA bioperpid module - install, remove and values.
 #
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
@@ -42,15 +42,15 @@ _stop_auto_restart pmcd
 # real QA test starts here
 cat <<EOF | _pmdabcc_install
 [pmda]
-modules = biotop
+modules = bioperpid
 prefix = bcc.
-[biotop]
-module = biotop
+[bioperpid]
+module = bioperpid
 cluster = 1
 EOF
 _pmdabcc_wait_for_metric
 
-# Generate system activity for the BCC biotop module
+# Generate system activity for the BCC bioperpid module
 # block device required here, no tmpfs (e.g. /tmp)
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 

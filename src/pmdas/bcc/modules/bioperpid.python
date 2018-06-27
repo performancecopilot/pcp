@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-""" PCP BCC PMDA biotop module """
+""" PCP BCC PMDA bioperpid module """
 
 # pylint: disable=invalid-name, line-too-long
 
@@ -33,7 +33,7 @@ bpf_src = "modules/biotop.bpf"
 #
 # PCP BCC PMDA constants
 #
-MODULE = 'biotop'
+MODULE = 'bioperpid'
 METRIC = 'proc.io.perdev'
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 
@@ -41,7 +41,7 @@ units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC biotop module """
+    """ PCP BCC bioperpid module """
     def __init__(self, config, log, err):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
