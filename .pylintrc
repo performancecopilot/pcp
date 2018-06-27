@@ -132,7 +132,8 @@ disable=print-statement,
         import-error,
         attribute-defined-outside-init,
         unused-argument,
-        no-self-use
+        no-self-use,
+        too-many-instance-attributes
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
