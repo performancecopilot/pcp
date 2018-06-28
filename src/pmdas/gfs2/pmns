@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2014 Red Hat.
+ * Copyright (c) 2013 - 2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
  */
 gfs2 {
     glocks
+    holders
     sbstats		GFS2:*:*
     glstats
     tracepoints
@@ -32,6 +33,47 @@ gfs2.glocks {
     unlocked		GFS2:0:2
     deferred		GFS2:0:3
     exclusive		GFS2:0:4
+    flags
+}
+
+gfs2.glocks.flags {
+    locked		GFS2:0:5
+    demote		GFS2:0:6
+    demote_pending	GFS2:0:7
+    demote_progress	GFS2:0:8
+    dirty		GFS2:0:9
+    log_flush		GFS2:0:10
+    invalidate		GFS2:0:11
+    reply_pending	GFS2:0:12
+    initial		GFS2:0:13
+    frozen		GFS2:0:14
+    queued		GFS2:0:15
+    object_attached	GFS2:0:16
+    blocking_request	GFS2:0:17
+    lru			GFS2:0:18
+}
+
+gfs2.holders {
+    total		GFS2:0:19
+    shared		GFS2:0:20
+    unlocked		GFS2:0:21
+    defered		GFS2:0:22
+    exclusive		GFS2:0:23
+    flags
+}
+
+gfs2.holders.flags {
+    async		GFS2:0:24
+    any			GFS2:0:25
+    no_cache		GFS2:0:26
+    no_expire		GFS2:0:27
+    exact		GFS2:0:28
+    first		GFS2:0:29
+    holder		GFS2:0:30
+    priority		GFS2:0:31
+    try			GFS2:0:32
+    try_1cb		GFS2:0:33
+    wait		GFS2:0:34
 }
 
 gfs2.glstats {

@@ -3,7 +3,7 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check gfs2 metrics have appeared ... 316 metrics and N values
+Check gfs2 metrics have appeared ... 346 metrics and N values
 creating pseudo device 1
 creating a mount point 1
 creating device file 1
@@ -45,6 +45,186 @@ gfs2.glocks.deferred PMID: 115.0.3
     inst [1 or "loopN"] value NUMBER
 
 gfs2.glocks.exclusive PMID: 115.0.4
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.locked PMID: 115.0.5
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.demote PMID: 115.0.6
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.demote_pending PMID: 115.0.7
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.demote_progress PMID: 115.0.8
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.dirty PMID: 115.0.9
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.log_flush PMID: 115.0.10
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.invalidate PMID: 115.0.11
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.reply_pending PMID: 115.0.12
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.initial PMID: 115.0.13
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.frozen PMID: 115.0.14
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.queued PMID: 115.0.15
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.object_attached PMID: 115.0.16
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.blocking_request PMID: 115.0.17
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.flags.lru PMID: 115.0.18
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.total PMID: 115.0.19
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.shared PMID: 115.0.20
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.unlocked PMID: 115.0.21
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.defered PMID: 115.0.22
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.exclusive PMID: 115.0.23
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.async PMID: 115.0.24
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.any PMID: 115.0.25
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.no_cache PMID: 115.0.26
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.no_expire PMID: 115.0.27
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.exact PMID: 115.0.28
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.first PMID: 115.0.29
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.holder PMID: 115.0.30
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.priority PMID: 115.0.31
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.try PMID: 115.0.32
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.try_1cb PMID: 115.0.33
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.holders.flags.wait PMID: 115.0.34
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0 or "loopN"] value NUMBER

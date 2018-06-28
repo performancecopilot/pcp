@@ -48,6 +48,151 @@ Count of incore GFS2 glock data structures in deferred state, based on parsing
 Count of incore GFS2 glock data structures in exclusive state, based on parsing
 /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "EX".
 
+@gfs2.glocks.flags.locked GFS2 global locks with the locked flag
+Count of incore GFS2 glock data structures with the locked flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:)
+value "l".
+
+@gfs2.glocks.flags.demote GFS2 global locks with the demote flag
+Count of incore GFS2 glock data structures with the demote flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:)
+value "D".
+
+@gfs2.glocks.flags.demote_pending GFS2 global locks with the demote pending flag
+Count of incore GFS2 glock data structures with the demote pending flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "d".
+ 
+@gfs2.glocks.flags.demote_progress GFS2 global locks with the demote in progress flag
+Count of incore GFS2 glock data structures with the demote in progress flag
+set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with
+flag field (f:) value "p".
+
+@gfs2.glocks.flags.dirty GFS2 global locks with the dirty flag
+Count of incore GFS2 glock data structures with the dirty flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "y".
+
+@gfs2.glocks.flags.log_flush GFS2 global locks with the log flush flag
+Count of incore GFS2 glock data structures with the log flush flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "f".
+
+@gfs2.glocks.flags.invalidate GFS2 global locks with the invalidate flag
+Count of incore GFS2 glock data structures with the invalidate flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "i".
+
+@gfs2.glocks.flags.reply_pending GFS2 global locks with the reply pending flag
+Count of incore GFS2 glock data structures with the reply pending flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag 
+field (f:) value "r".
+
+@gfs2.glocks.flags.initial GFS2 global locks with the initial flag
+Count of incore GFS2 glock data structures with the initial flag set, based
+on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field 
+(f:) value "I".
+
+@gfs2.glocks.flags.frozen GFS2 global locks with the frozen flag
+Count of incore GFS2 glock data structures with the frozen flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "f".
+
+@gfs2.glocks.flags.queued GFS2 global locks with the queued flag
+Count of incore GFS2 glock data structures with the queued flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "q".
+
+@gfs2.glocks.flags.object_attached GFS2 global locks with the object attached flag
+Count of incore GFS2 glock data structures with the object is attached
+flag set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries
+with flag field (f:) value "o".
+
+@gfs2.glocks.flags.blocking_request GFS2 global locks with the blocking request flag
+Count of incore GFS2 glock data structures with the blocking request flag set, 
+based onparsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag 
+field (f:) value "b".
+
+@gfs2.glocks.flags.lru GFS2 global locks with the lru flag
+Count of incore GFS2 glock data structures with the LRU list flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "L".
+
+@gfs2.holders.total Count of total observed incore GFS2 global locks holders
+Count of total incore GFS2 glock holder structures based on parsing the contents
+of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
+
+@gfs2.holders.shared GFS2 global lock holder in shared state
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "SH".
+
+@gfs2.holders.unlocked GFS2 global lock holder in unlocked state
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "UN".
+
+@gfs2.holders.defered GFS2 global lock holder in deferred state
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "DF".
+
+@gfs2.holders.exclusive GFS2 global lock holder in exclusive state
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "EX".
+
+@gfs2.holders.flags.async GFS2 global holder with the async flag
+Count of incore GFS2 glock holder structures with the async flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "a".
+
+@gfs2.holders.flags.any GFS2 global holder with the any flag
+Count of incore GFS2 glock holder structures with the any flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "A".
+
+@gfs2.holders.flags.no_cache GFS2 global holder with the no cache flag
+Count of incore GFS2 glock holder structures with the no cache flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "c".
+
+@gfs2.holders.flags.no_expire GFS2 global holder with the no expire flag
+Count of incore GFS2 glock holder structures with the no expire flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "e".
+
+@gfs2.holders.flags.exact GFS2 global holder with the exact flag
+Count of incore GFS2 glock holder structures with the exact flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "E".
+
+@gfs2.holders.flags.first GFS2 global holder with the first flag
+Count of incore GFS2 glock holder structures with the first flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "F".
+
+@gfs2.holders.flags.holder GFS2 global holder with the holder flag
+Count of incore GFS2 glock holder structures with the holder flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "H".
+
+@gfs2.holders.flags.priority GFS2 global holder with the priority flag
+Count of incore GFS2 glock holder structures with the priority flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "p".
+
+@gfs2.holders.flags.try GFS2 global holder with the try flag
+Count of incore GFS2 glock holder structures with the try flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "t".
+
+@gfs2.holders.flags.try_1cb GFS2 global holder with the try 1CB flag
+Count of incore GFS2 glock holder structures with the try 1CB flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "T".
+
+@gfs2.holders.flags.wait GFS2 global holder with the wait flag
+Count of incore GFS2 glock holder structures with the wait flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "W".
+
 # help text for gfs2.sbstats.*.* is generated dynamically
 
 @ gfs2.glstats.total The total number of current glocks
