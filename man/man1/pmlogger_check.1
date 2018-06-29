@@ -24,7 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-KMNoprV\f1]
+[\f3\-KMNoprRV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -195,6 +195,37 @@ command line option acts as an over-ride and
 prevents all archive rewriting with
 .BR pmlogrewrite (1)
 independent of the presence of any rewriting rule files or directories.
+.PP
+Sometimes PMDA changes require
+.I all
+archives to be rewritten,
+not just the ones involved
+in any current merging.
+This is required for example after a PCP upgrade where a new version of an
+existing PMDA has revised metadata.
+The
+.B \-R
+command line forces this universal-style of rewriting.
+.PP
+The
+.B \-R
+option to
+.B pmlogger_daily
+is mutually exclusive with both the
+.B \-r
+and
+.B \-M
+options.
+.PP
+As an alternate mechanism, if the file
+.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+exists when
+.B pmlogger_daily
+starts then this is treated the same as specifying
+.B \-R
+on the command line and
+.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+will be removed once all the rewriting has been done.
 .PP
 By default all possible archives will be merged.  The
 .B \-o
@@ -733,6 +764,12 @@ Because the cron-driven PCP archive management scripts run under
 the uid of the user ``pcp'',
 .BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
 typically needs to be owned by the user ``pcp''.
+.TP
+.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+if this file exists, then this is treated as equivalent to using
+.B \-R
+on the command line and the file will be removed once all rewriting
+has been done.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
