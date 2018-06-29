@@ -2475,6 +2475,9 @@ End-of-File
 	if test -x ./conftest
 	then
 	    ans=`./conftest`
+	    if test $target_os = mingw -a "$ans" = "lld"; then
+		ans='I64d'
+	    fi
 	    echo "./conftest -> \"$ans\"" >&5
 	fi
     fi
