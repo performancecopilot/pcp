@@ -88,6 +88,7 @@ jsmn.o: jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
+labels.o:	sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 	$(TOPDIR)/src/include/pcp/platform_defs.h
@@ -102,8 +103,8 @@ install : default
 
 $(LN_FILES):
 	rm -f $@
-	$(LN_S) $(TOPDIR)/src/libpcp/src/$@ .
+	ln $(TOPDIR)/src/libpcp/src/$@ .
 
 $(EXT_FILES):
 	rm -f $@
-	$(LN_S) $(TOPDIR)/src/external/$@ .
+	ln $(TOPDIR)/src/external/$@ .
