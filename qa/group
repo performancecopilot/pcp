@@ -1012,7 +1012,7 @@ BAD
 638 pmns local
 639 pmns local
 640 pmpost local
-641 logutil pmdumplog local
+641 logutil pmdumplog local pmlogrewrite
 642 pmda.trivial pmns local pmda.simple pmda.sample pmda.sendmail trace
 643 pmda.trivial pmns local
 644 pmns local
@@ -1029,20 +1029,20 @@ BAD
 655 pmda.gfs2 local pmstore
 656 pmda.cifs local valgrind
 657 pmda.dm local
-658 logutil local
+658 logutil local pmlogrewrite
 659 pmlogreduce local
 660 pmwebd local
 661 pmwebd local python
 662 pmwebd pmda.sample local python
 663 pmwebd local python
-664 logutil local
+664 logutil local pmlogrewrite
 665 pmda.linux local
-666 pmmgr local slow valgrind pmrep python
+666 pmmgr local slow valgrind pmrep python pmlogrewrite
 667 pcp2graphite python pcp2xxx local
 668 pmmgr local containers pmdumplog
 669 pmmgr local pmlogcheck
 670 libpcp local
-671 folio local
+671 folio local pmlogrewrite
 672 valgrind libpcp pmval local
 673 pmdumplog local decompress-xz
 674 pcp local
@@ -1050,6 +1050,7 @@ BAD
 676 logutil pmlogrewrite local
 677 pmprobe archive multi-archive decompress-xz local pmlogextract
 678 logutil pmlogrewrite local
+679 logutil local pmlogrewrite
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
 701 pmlogcheck local
@@ -1102,7 +1103,7 @@ BAD
 748 pmlogrewrite pmda.mysql local pmdumplog
 749 pmcd local
 750 pmda.rpm local flakey pmval
-751 pmda.rpm local pmdumplog
+751 pmda.rpm local pmdumplog pmlogrewrite
 752 libpcp local pmval timezone
 753 derive pmie local pmval pmstore
 754 pmda.unbound local python
@@ -1335,7 +1336,7 @@ BAD
 981 dbpmda perl pmda.gpfs local
 982 pmda.proc pmda.hotproc local pmstore
 983 pmie local
-984 cgroups local
+984 cgroups local pmlogrewrite
 985 pmimport local pmdumplog perl local
 986 pmimport local pmdumplog perl local
 987 pmda.xfs local
@@ -1488,7 +1489,7 @@ BAD
 1137 derive pmrep local python
 1138 archive pmval multi-archive decompress-xz local pmlogextract
 1139 pmrep python local
-1140 pidstat local python pcp
+1140 pidstat local python pcp pmlogrewrite
 1141 selinux local
 1144 pmda.proc local
 1150 pmda.bcc local python
@@ -1557,7 +1558,7 @@ BAD
 1330 pmda.prometheus local python
 1331 verify local
 1342 pmda.prometheus local python
-1343 pmmgr local
+1343 pmmgr local pmlogrewrite
 1344 pmmgr local
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
@@ -1572,5 +1573,6 @@ BAD
 1395 pmda.prometheus local python
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
+1398 pidstat local
 1422 pmda.mmv local
 4751 libpcp threads valgrind local pcp python

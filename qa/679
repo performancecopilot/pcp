@@ -1,0 +1,200 @@
+#!/bin/sh
+# PCP QA Test No. 679
+# pmlogger_daily -R -> pmlogger_rewrite
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
+	-e '/Warning: skipping pmnewlog because we don/d' \
+	-e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \
+	-e '/^.[rwx-][rwx-][rwx-]/s/.* 2001/<ls output> 2001/'
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# setup the log farm
+#
+cat <<End-of-File >$tmp.config
+# test depends on the reverse of this mapping being in
+# $PCP_VAR_DIR/config/pmlogrewrite/pmcd_migrate.conf,
+# namely sem -> discrete, so revert to previous semantics so
+# pmlogger_rewrite has something to chew on
+#
+metric pmcd.pid {
+    sem -> instant
+}
+End-of-File
+pmlogrewrite -c $tmp.config archives/bad-derived $tmp
+cat <<End-of-File >$tmp.farm
+oldsem0		$tmp	20011002
+oldsem0		$tmp	20011003
+oldsem0		$tmp	20011004
+oldsem0		$tmp	20011005.00.10
+oldsem0		$tmp	20011005.08.00
+oldsem0		$tmp	20011005.16.00
+oldsem1		$tmp	20011003
+oldsem1		$tmp	20011004
+oldsem1		$tmp	20011005.00.10
+oldsem1		$tmp	20011005.12.00
+oldsem1		$tmp	20011006
+oldsem2		$tmp	20011004
+oldsem2		$tmp	20011005.00.10
+oldsem2		$tmp	20011006
+newsem0		archives/bad-derived	20011003
+newsem0		archives/bad-derived	20011004
+newsem0		archives/bad-derived	20011005.00.10
+newsem0		archives/bad-derived	20011005.06.00
+newsem0		archives/bad-derived	20011005.12.00
+newsem0		archives/bad-derived	20011005.12.00-00
+newsem0		archives/bad-derived	20011005.12.00-01
+newsem0		archives/bad-derived	20011005.18.00
+newsem0		archives/bad-derived	20011006
+newsem1		archives/bad-derived	20011005.00.10
+newsem1		archives/bad-derived	20011005.06.00
+newsem1		archives/bad-derived	20011005.18.00
+newsem1		archives/bad-derived	20011006
+newsem1		archives/bad-derived	20011007
+newsem1		archives/bad-derived	20011008
+End-of-File
+
+_setup()
+{
+    cd $here
+    $sudo rm -rf $tmp/*
+    if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+    then
+	_filter <$tmp.out
+    else
+	cat $tmp.out
+	echo "Arrgh ... mk.logfarm failed!"
+	exit
+    fi
+    cd $tmp
+    cat <<End-of-File >oldsem0/pmlogrewrite
+metric network.interface.in.bytes {
+    units -> 1,0,0,Kbyte,0,0
+}
+# need this one 'casue we're not using $PCP_VAR_DIR/config/pmlogrewrite
+metric pmcd.pid {
+    sem -> discrete
+}
+End-of-File
+    mkdir oldsem1/pmlogrewrite
+    cp oldsem0/pmlogrewrite oldsem1/pmlogrewrite/qa$seq.conf
+    cd oldsem2
+    ln -s ../oldsem1/pmlogrewrite pmlogrewrite
+    cd ..
+    mkdir empty
+    find * \
+    | while read f
+    do
+	case "$f"
+	in
+	    */..)	;;
+	    *)		$sudo chown pcp:pcp "$f"
+	    		;;
+	esac
+    done
+}
+
+# create test control file
+#
+cat <<End-of-File >$tmp.control
+\$version=1.1
+#Host           P?  S?  directory       args
+localhost       n   n   $tmp/oldsem0    -c /no/such/config
+localhost       n   n   $tmp/oldsem1    -c /no/such/config
+localhost       n   n   $tmp/oldsem2    -c /no/such/config
+localhost       n   n   $tmp/newsem0    -c /no/such/config
+localhost       n   n   $tmp/newsem1    -c /no/such/config
+localhost       n   n   $tmp/empty      -c /no/such/config
+End-of-File
+
+mkdir $tmp
+cd $tmp
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=
+
+echo "+++ -N, do nothing +++" | tee -a $here/$seq.full
+_setup
+$PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
+_filter <$tmp.err
+_filter <$tmp.log
+$sudo rm -f $tmp.err $tmp.log
+for file in oldsem*/*.meta newsem*/*.meta
+do
+    arch=`echo $file | sed -e 's/\.meta$//'`
+    echo "$arch:"
+    pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
+done
+
+echo | tee -a $here/$seq.full
+echo "+++ -V -R +++" | tee -a $here/$seq.full
+_setup
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
+_filter <$tmp.err
+_filter <$tmp.log
+cat $tmp.err $tmp.log >>$here/$seq.full
+$sudo rm -f $tmp.err $tmp.log
+for file in oldsem*/*.meta newsem*/*.meta
+do
+    arch=`echo $file | sed -e 's/\.meta$//'`
+    echo "$arch:"
+    pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
+done
+
+echo | tee -a $here/$seq.full
+echo "+++ .NeedRewrite +++" | tee -a $here/$seq.full
+_setup
+$sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
+_filter <$tmp.err
+_filter <$tmp.log
+cat $tmp.err $tmp.log >>$here/$seq.full
+$sudo rm -f $tmp.err $tmp.log
+if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
+then
+    echo "Arrg, .NeedRewrite still there ..."
+    ls -l $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    sudo rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+else
+    echo ".NeedRewrite removed as expected"
+fi
+for file in oldsem*/*.meta newsem*/*.meta
+do
+    arch=`echo $file | sed -e 's/\.meta$//'`
+    echo "$arch:"
+    pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
+done
+
+
+# success, all done
+status=0
+exit
