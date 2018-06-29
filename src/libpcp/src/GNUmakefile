@@ -72,9 +72,7 @@ LIBTARGET = libpcp.$(DSOVERSION).$(DSOSUFFIX)
 SYMTARGET = libpcp.$(DSOSUFFIX)
 endif
 ifeq "$(TARGET_OS)" "mingw"
-ifeq "$(CROSS_COMPILING)" "yes"
 STATICLIBTARGET =
-endif
 LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
