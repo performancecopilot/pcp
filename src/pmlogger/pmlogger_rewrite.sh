@@ -201,7 +201,7 @@ do
 	$very_verbose && echo "$base: duplicate, already in archives list"
     else
 	check=`echo $base.meta*`
-	if _is_archive "$check"
+	if $showme || _is_archive "$check"
 	then
 	    echo "$base" >>$tmp/archives
 	fi
@@ -214,12 +214,19 @@ then
     exit
 fi
 
-# now for every selected archive ... check it is OK, rewrite and if a file
-# is changed, recompress if the original file was compressed
+# now for every selected archive ... check it is not active and the archive
+# is OK, then rewrite and if a file is changed, recompress if the original
+# file was compressed
 #
 for archive in `cat $tmp/archives`
 do
-    pid=`pmdumplog -L $archive | sed -n -e '/^PID for pmlogger: /s///p'`
+    if $showme
+    then
+	echo "+ check $archive not active and OK"
+	echo "+ pmlogrewrite $rewrite_args $archive"
+	continue
+    fi
+    pid=`pmdumplog -L $archive | sed -n -e '/^PID for pmlogger: /s///p' 2>/dev/null`
     if [ -z "$pid" ]
     then
 	pmdumplog -L $archive
@@ -244,11 +251,6 @@ do
 	# empty output but non-zero exit status?
 	#
 	echo "Warning: $base: bad archive (pmlogcheck exit status=$sts), rewriting skipped"
-	continue
-    fi
-    if $showme
-    then
-	echo "+ pmlogrewrite $rewrite_args $archive"
 	continue
     fi
     # use sum(1) to detect changes at the level of individual files
