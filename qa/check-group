@@ -89,6 +89,13 @@ do
 	    report_group=pmdumplog
 	    ;;
 
+	pmlogrewrite)	# executable might be hidden in mk.logfarm
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^[ 	]*(pmlogrewrite|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogrewrite|mk.logfarm)([ '\"\`_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    report_group=pmlogrewrite
+	    ;;
+
 	*)
 	    ( grep -v '^#' $seq \
 	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
