@@ -92,6 +92,7 @@ SetupDebug(void)
 	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not valid, ignored\n", val);
     }
     PM_UNLOCK(__pmLock_extcall);
+    setlinebuf(stderr);
 }
 
 #ifdef PM_MULTI_THREAD_DEBUG
