@@ -35,7 +35,7 @@ require {
 	type pcp_pmie_exec_t; # pmdasummary
 	@PCP_SYSTEMCTL_UNIT_FILE_T@
 	@PCP_SYSTEMCTL_EXEC_T@
-	type debugfs_t; # pmdalibvirt
+	type debugfs_t; # pmdalibvirt # pmda.gfs2
 	type unconfined_t; #RHBZ1443632
 	type devlog_t; #RHBZ1449671
 	@PCP_UNRESERVED_PORT@
@@ -68,6 +68,7 @@ require {
         type kernel_t;
         type mozilla_plugin_t;
         type fsadm_exec_t;
+        type tracefs_t; # pmda.gfs2
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -373,3 +374,4 @@ allow pcp_pmmgr_t zabbix_port_t:tcp_socket name_connect;
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read };
 @PCP_FSADM_EXEC_MAP_RULE@
 allow pcp_pmcd_t self:capability sys_rawio;
+
