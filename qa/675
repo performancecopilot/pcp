@@ -82,8 +82,8 @@ echo "--- -N -VV 20011002.index 20011002.meta 20011002.0 ---"
 $PCP_BINADM_DIR/pmlogger_rewrite -N -VV 20011002.index 20011002.meta 20011002.0
 
 echo
-echo "--- .. ---"
-$PCP_BINADM_DIR/pmlogger_rewrite -N -VV .. | sort -r
+echo "--- ../onevol ../multivol ---"
+$PCP_BINADM_DIR/pmlogger_rewrite -N -VV ../onevol ../multivol | sort -r
 
 echo
 echo "--- empty foo ---"
