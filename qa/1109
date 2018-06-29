@@ -43,25 +43,16 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 cat <<End-of-File >$tmp.conf
 log mandatory on 100 msec {
-    cgroup
     containers
     disk
     event
     filesys
     hinv
-    hotproc
     ipc
-    jbd2
     kernel
-    mem
     mmv
-    network
-    nfs
-    nfs3
-    nfs4
     pmcd
     pmda
-    proc
     quota
     rpc
     swap
@@ -69,7 +60,6 @@ log mandatory on 100 msec {
     sysfs
     tmpfs
     vfs
-    xfs
 }
 End-of-File
 
