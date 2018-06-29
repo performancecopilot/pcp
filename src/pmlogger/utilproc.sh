@@ -96,8 +96,8 @@ _save_prev_file()
 	return 0
     elif [ -L "$1" ]
     then
-	echo "_save_prev_filename: \"$1\" exists and is a symlink" >&2
-	ls -ld "$1" >&2
+	echo "_save_prev_filename: \"$1\" exists and is a symlink"
+	ls -ld "$1"
 	return 1
     elif [ -f "$1" ]
     then
@@ -111,14 +111,14 @@ _save_prev_file()
 	    then
 		:
 	    else
-		echo "_save_prev_filename: unable to remove \"$1.prev\"" >&2
-		ls -ld "$1.prev" >&2
+		echo "_save_prev_filename: unable to remove \"$1.prev\""
+		ls -ld "$1.prev"
 		if rm -f "$1"
 		then
 		    :
 		else
-		    echo "_save_prev_filename: unable to remove \"$1\"" >&2
-		    ls -ld "$1" >&2
+		    echo "_save_prev_filename: unable to remove \"$1\""
+		    ls -ld "$1"
 		fi
 		return 1
 	    fi
@@ -128,21 +128,21 @@ _save_prev_file()
 	then
 	    :
 	else
-	    echo "_save_prev_filename: copy \"$1\" to \"$1.prev\" failed" >&2
+	    echo "_save_prev_filename: copy \"$1\" to \"$1.prev\" failed"
 	    __sts=1
 	fi
 	if rm -f "$1"
 	then
 	    :
 	else
-	    echo "_save_prev_filename: unable to remove \"$1\"" >&2
-	    ls -ld "$1" >&2
+	    echo "_save_prev_filename: unable to remove \"$1\""
+	    ls -ld "$1"
 	    __sts=1
 	fi
 	return $__sts
     else
-	echo "_save_prev_filename: \"$1\" exists and is not a file" >&2
-	ls -ld "$1" >&2
+	echo "_save_prev_filename: \"$1\" exists and is not a file"
+	ls -ld "$1"
 	return 1
     fi
 }
