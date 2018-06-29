@@ -71,8 +71,12 @@ PCP_CALL extern void __pmSetInternalState(int);
  *
  * We require pthread.h and working mutex, the rest can be faked
  * by the libpcp itself.
+ *
+ * TODO - pro tem PM_MULTI_THREAD is disabled for the Windows build ...
+ * without this, any PCP app on Windows disappears into a windows.dll
+ * and never returns when the first mutex is created.
  */
-#if defined(HAVE_PTHREAD_H) && defined(HAVE_PTHREAD_MUTEX_T)
+#if defined(HAVE_PTHREAD_H) && defined(HAVE_PTHREAD_MUTEX_T) && !defined(IS_MINGW)
 #define PM_MULTI_THREAD 1
 #include <pthread.h>
 typedef pthread_mutex_t __pmMutex;
