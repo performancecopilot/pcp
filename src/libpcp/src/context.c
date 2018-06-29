@@ -380,7 +380,9 @@ initcontextlock(pthread_mutex_t *lock)
 
     PM_ASSERT_IS_LOCKED(contexts_lock);
 
+#ifdef PM_MULTI_THREAD
     __pmInitMutex(lock);
+#endif
 }
 
 #else
@@ -557,7 +559,9 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	 */
 	if (lcp2 != NULL) {
 	    if (lcp) {
+#ifdef PM_MULTI_THREAD
 		__pmDestroyMutex(&lcp->l_lock);
+#endif
 		free(lcp);
 	    }
 	    ++lcp2->l_refcnt;
@@ -593,13 +597,17 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
+#ifdef PM_MULTI_THREAD
 	__pmInitMutex(&lcp->l_lock);
+#endif
 	lcp->l_multi = multi_arch;
 	acp->ac_log = lcp;
     }
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
+#ifdef PM_MULTI_THREAD
 	__pmDestroyMutex(&lcp->l_lock);
+#endif
 	free(lcp);
 	acp->ac_log = NULL;
     }

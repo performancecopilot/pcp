@@ -24,18 +24,9 @@
 static pthread_mutex_t	lock_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t		__pmLock_extcall = PTHREAD_MUTEX_INITIALIZER;
 #else /* !PM_MULTI_THREAD - symbols exposed at the shlib ABI level */
-static void		*lock_lock;
-void			__pmLock_extcall;
+void *__pmLock_extcall;
 void *__pmLock_libpcp;
 void *__pmLock_extcall;
-void __pmInitLocks(void)
-{
-    static int		done = 0;
-    if (!done) {
-	SetupDebug();
-	done = 1;
-    }
-}
 int __pmMultiThreaded(int scope) { (void)scope; return 0; }
 int __pmLock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
 int __pmIsLocked(void *l) { (void)l; return 0; }
@@ -357,6 +348,7 @@ __pmDestroyMutex(pthread_mutex_t *lock)
     return;
 }
 
+#ifdef PM_MULTI_THREAD
 /*
  * Do one-trip mutex initializations ... PM_INIT_LOCKS() comes here
  */
@@ -439,7 +431,18 @@ __pmInitLocks(void)
     }
 #endif
 }
+#else /* ! PM_MULTI_THREAD */
+void __pmInitLocks(void)
+{
+    static int		done = 0;
+    if (!done) {
+	SetupDebug();
+	done = 1;
+    }
+}
+#endif
 
+#ifdef PM_MULTI_THREAD
 int
 __pmMultiThreaded(int scope)
 {
@@ -457,7 +460,9 @@ __pmMultiThreaded(int scope)
     PM_UNLOCK(lock_lock);
     return sts;
 }
+#endif
 
+#ifdef PM_MULTI_THREAD
 int
 __pmLock(void *lock, const char *file, int line)
 {
@@ -481,7 +486,9 @@ __pmLock(void *lock, const char *file, int line)
 
     return sts;
 }
+#endif
 
+#ifdef PM_MULTI_THREAD
 int
 __pmIsLocked(void *lock)
 {
@@ -502,6 +509,7 @@ __pmIsLocked(void *lock)
     }
     return 0;
 }
+#endif
 
 #ifdef BUILD_WITH_LOCK_ASSERTS
 /*
@@ -534,6 +542,7 @@ __pmCheckIsUnlocked(void *lock, char *file, int line)
 }
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
+#ifdef PM_MULTI_THREAD
 int
 __pmUnlock(void *lock, const char *file, int line)
 {
@@ -557,3 +566,4 @@ __pmUnlock(void *lock, const char *file, int line)
 
     return sts;
 }
+#endif

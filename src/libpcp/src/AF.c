@@ -57,7 +57,9 @@ __pmIsAFLock(void *lock)
 void
 init_AF_lock(void)
 {
+#ifdef PM_MULTI_THREAD
     __pmInitMutex(&AF_lock);
+#endif
 }
 
 /*

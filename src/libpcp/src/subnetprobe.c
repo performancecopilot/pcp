@@ -40,10 +40,8 @@ typedef struct connectionContext {
     int			*numUrls;	/* Size of the results */
     char		***urls;	/* The results */
     const connectionOptions *options;	/* Connection options */
-#if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
-#endif
 } connectionContext;
 
 /*

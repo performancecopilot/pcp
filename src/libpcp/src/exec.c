@@ -69,7 +69,9 @@ __pmIsExecLock(void *lock)
 void
 init_exec_lock(void)
 {
+#ifdef PM_MULTI_THREAD
     __pmInitMutex(&exec_lock);
+#endif
 }
 
 /* Cleanup after error or after __pmExecCtl_t has been used. */
