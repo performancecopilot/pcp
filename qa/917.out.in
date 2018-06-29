@@ -36,7 +36,7 @@ decl 1:
   allow [pcp_pmcd_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
   allow [pcp_pmcd_t] [tracefs_t] : [filesystem] { mount };
   allow [pcp_pmcd_t] [tracefs_t] : [dir] { open read search };
-  allow [pcp_pmcd_t] [tracefs_t] : [file] { append open read };
+  allow [pcp_pmcd_t] [tracefs_t] : [file] { append getattr open read write };
   allow [pcp_pmcd_t] [gconf_home_t] : [dir] { search };
   allow [pcp_pmcd_t] [virt_etc_t] : [dir] { search };
   allow [pcp_pmcd_t] [virt_etc_t] : [file] { open read };

@@ -2,12 +2,12 @@
  * GFS2 glocks sysfs file statistics.
  *
  * Copyright (c) 2013 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -76,11 +76,11 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 			// Capture glock state info
 			if (strncmp(state, "SH", 2) == 0)
 				glocks->values[GLOCKS_SHARED]++;
-            else if (strncmp(state, "UN", 2) == 0)
+                        else if (strncmp(state, "UN", 2) == 0)
 				glocks->values[GLOCKS_UNLOCKED]++;
-            else if (strncmp(state, "DF", 2) == 0)
+                        else if (strncmp(state, "DF", 2) == 0)
 				glocks->values[GLOCKS_DEFERRED]++;
-            else if (strncmp(state, "EX", 2) == 0)
+                        else if (strncmp(state, "EX", 2) == 0)
 				glocks->values[GLOCKS_EXCLUSIVE]++;
 			glocks->values[GLOCKS_TOTAL]++;
 
@@ -124,11 +124,11 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 			// Capture holder state info
 			if (strncmp(state, "SH", 2) == 0)
 				glocks->values[HOLDERS_SHARED]++;
-            else if (strncmp(state, "UN", 2) == 0)
+                        else if (strncmp(state, "UN", 2) == 0)
 				glocks->values[HOLDERS_UNLOCKED]++;
-            else if (strncmp(state, "DF", 2) == 0)
+                        else if (strncmp(state, "DF", 2) == 0)
 				glocks->values[HOLDERS_DEFERRED]++;
-            else if (strncmp(state, "EX", 2) == 0)
+                        else if (strncmp(state, "EX", 2) == 0)
 				glocks->values[HOLDERS_EXCLUSIVE]++;
 			glocks->values[HOLDERS_TOTAL]++;
 

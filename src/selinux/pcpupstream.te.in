@@ -375,10 +375,3 @@ allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read 
 @PCP_FSADM_EXEC_MAP_RULE@
 allow pcp_pmcd_t self:capability sys_rawio;
 
-#============= pmda-gfs2 ==============
-
-allow pcp_pmcd_t debugfs_t:file { getattr open read };
-allow pcp_pmcd_t tracefs_t:dir search;
-allow pcp_pmcd_t tracefs_t:file { getattr write open read };
-allow pcp_pmcd_t tracefs_t:filesystem mount;
-
