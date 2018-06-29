@@ -119,7 +119,13 @@ static int posix_style(void)
 
     PM_LOCK(__pmLock_extcall);
     s = getenv("SHELL");		/* THREADSAFE */
-    sts = (s && strncmp(s, "/bin/", 5) == 0);
+    /*
+     * TODO - this is NQR
+     * with the current git-sdk based mingw build ecosystem, SHELL
+     * from the env here is C:\git-sdk-64\usr\bin\bash.exe and
+     * $EXEPATH=C:\git-sdk-64
+     */
+    sts = (s && (strncmp(s, "/bin/", 5) == 0 || strncmp(s, "/usr/bin/", 9) == 0));
     PM_UNLOCK(__pmLock_extcall);
     return sts;
 }
