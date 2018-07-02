@@ -734,8 +734,10 @@ mmv_stats_registry(const char *file,
 {
     mmv_registry_t * mr;
 
+    // init the region of memory of the struct
     mr = (mmv_registry_t *) calloc(1,sizeof(mmv_registry_t));
-    
+    // Notes: version start is 1 and will increase while adding 
+    // strings big or labels
     mr->indoms = NULL;
     mr->nindoms = 0;
     mr->metrics = NULL;
@@ -750,6 +752,56 @@ mmv_stats_registry(const char *file,
     mr->flags = flags;
 
     return mr;
+}
+
+int 
+mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
+                     mmv_metric_type_t type, mmv_metric_sem_t sem, pmUnits units,
+                     int serial, const char *shorthelp, const char *longhelp)
+{
+	fprintf(stderr, "Before checking: \n");
+    // Check if it is correct
+    if (registry == NULL) {
+        fprintf(stderr, "Bad registry in function call add_metric\n");
+        return -1;
+    }
+    mmv_metric2_t * metric;
+
+	fprintf(stderr, "After checking: \n");
+    
+    if (registry->nmetrics == 0) {
+        // init for the first time the struct metric
+        metric = (mmv_metric2_t *) calloc(1,sizeof(mmv_metric2_t));
+        registry->nmetrics = 1;
+    }
+    else {
+        // there is already a metric so realloc needs to be performed
+        // TODO
+        registry->nmetrics += 1;
+    }
+	fprintf(stderr, "After creating one: \n");
+	metric->name = "hola";
+	fprintf(stderr, "After creating one: \n");
+    // figure it out how to acces n element
+    // metric[n]
+    // for now metric
+    //strncpy(&metric->name, name, sizeof(name));
+	metric->name = name;
+	fprintf(stderr, "After name: \n");
+    metric->item = item;        /* Unique identifier */
+    metric->type = type;
+    metric->semantics = sem;
+    metric->dimension = units;
+    metric->indom = serial; // TODO: what is that???/* Indom serial */
+    fprintf(stderr, "Really¿?: \n");
+	//strncpy(metric->shorttext, shorthelp, sizeof(shorthelp));  /* Short help text string */
+    metric->shorttext = shorthelp;
+	fprintf(stderr, "which one: \n");
+	metric->helptext = longhelp;
+	//strncpy(metric->helptext, longhelp, sizeof(longhelp));
+    //metric->helptext = longhelp;    /* Long help text string */
+	fprintf(stderr, "last: \n");
+    return 1; // TODO what returns?
 }
 
 void

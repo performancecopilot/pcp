@@ -39,6 +39,17 @@ main(int argc, char **argv)
     fprintf(stderr, "File: %s \n", addr->file);
     fprintf(stderr, "File: %d \n", addr->cluster);
     fprintf(stderr, "File: %d \n", addr->flags);
+    fprintf(stderr, "File: %s \n", metrics[0].name);
+    //char * aux = metrics[0].name;
+    //fprintf(stderr, "File: %d \n", sizeof(metrics[0].name));
+    //strncpy(aux, metrics[0].name, sizeof(metrics[0].name));
+    //fprintf(stderr, "File: %s \n", aux);
+    
+
+    // Add metric
+    mmv_stats_add_metric(addr,metrics[0].name,metrics[0].item,metrics[0].type,
+                         metrics[0].semantics,metrics[0].dimension,0,metrics[0].shorttext,
+                         metrics[0].helptext);
     //value = mmv_lookup_value_desc(addr, "simple.counter", NULL);
     //mmv_inc_value(addr, value, 42);
 
