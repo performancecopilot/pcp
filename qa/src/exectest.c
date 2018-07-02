@@ -8,7 +8,6 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 #include <sys/types.h>
-#include <sys/wait.h>
 
 static void
 report_status(int status)
@@ -36,6 +35,7 @@ main(int argc, char **argv)
     int		pipeout = 0;
     FILE	*fin;
     FILE	*fout;
+int l;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
