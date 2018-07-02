@@ -261,6 +261,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	char	*p;
 	char	*path;
 	char	*name;
+	int	namelen;
 
 	/*
 	 * restore SIGINT and SIGQUIT actions and signal mask
@@ -280,6 +281,16 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 		break;
 	    }
 	}
+	/* be careful, argv[0] is malloc'd ... don't just clobber argv[0] */
+	namelen = strlen(name)+1;
+	if ((name = strdup(name)) == NULL) {
+	    pmNoMem("__pmProcessExec: name strdup", namelen, PM_RECOV_ERR);
+	    cleanup(ep);
+	    PM_UNLOCK(exec_lock);
+	    *handle = NULL;
+	    return -ENOMEM;
+	}
+	/* still hold ref to argv[0] via path */
 	ep->argv[0] = name;
 	if (toss & PM_EXEC_TOSS_STDIN) {
 	    if (freopen("/dev/null", "r", stdin) == NULL)
@@ -358,11 +369,6 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
-    char		*p;
-    char		*path;
-    char		*name;
-    int			infd;
-    int			outfd;
     int			status;
     int			sig;
     int			sts = 0;
@@ -380,20 +386,9 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	fputc('\n', stderr);
     }
 
-    name = path = ep->argv[0];
-    p = &path[strlen(ep->argv[0])-1];
-    /* strip leading part path from argv[0] */
-    while (p > ep->argv[0]) {
-	p--;
-	if (*p == '/') {
-	    name = &p[1];
-	    break;
-	}
-    }
-    ep->argv[0] = name;
     ep->argv[ep->argc] = NULL;
 
-    pid = __pmProcessCreate(ep->argv, &infd, &outfd);
+    pid = __pmProcessCreate(ep->argv, NULL, NULL);
 
     /* cleanup */
     cleanup(ep);
@@ -403,9 +398,9 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
     if (pid > (pid_t)0) {
 	/* not in the child process, so can't do too much here */
 	if (toss & PM_EXEC_TOSS_STDIN)
-	    close(infd);
+	    ;
 	if (toss & PM_EXEC_TOSS_STDOUT)
-	    close(outfd);
+	    ;
 	if (wait == PM_EXEC_WAIT) {
 	    wait_pid = __pmProcessWait(pid, 0, &status, &sig);
 	    if (pmDebugOptions.exec) {
@@ -532,6 +527,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	char	*p;
 	char	*path;
 	char	*name;
+	int	namelen;
 
 	/*
 	 * restore SIGINT and SIGQUIT actions and signal mask
@@ -570,6 +566,16 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 		break;
 	    }
 	}
+	/* be careful, argv[0] is malloc'd ... don't just clobber argv[0] */
+	namelen = strlen(name)+1;
+	if ((name = strdup(name)) == NULL) {
+	    pmNoMem("__pmProcessPipe: name strdup", namelen, PM_RECOV_ERR);
+	    cleanup(ep);
+	    PM_UNLOCK(exec_lock);
+	    *handle = NULL;
+	    return -ENOMEM;
+	}
+	/* still hold ref to argv[0] via path */
 	ep->argv[0] = name;
 	if (toss & PM_EXEC_TOSS_STDERR) {
 	    if ((freopen("/dev/null", "w", stderr)) == NULL)
@@ -656,9 +662,6 @@ int
 __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 {
     __pmExecCtl_t	*ep = *handle;
-    char		*p;
-    char		*path;
-    char		*name;
     int			i;
     int			infd;
     int			outfd;
@@ -683,17 +686,6 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	return -EINVAL;
     }
 
-    name = path = ep->argv[0];
-    p = &path[strlen(ep->argv[0])-1];
-    /* strip leading part path from argv[0] */
-    while (p > ep->argv[0]) {
-	p--;
-	if (*p == '/') {
-	    name = &p[1];
-	    break;
-	}
-    }
-    ep->argv[0] = name;
     ep->argv[ep->argc] = NULL;
 
     pid = __pmProcessCreate(ep->argv, &infd, &outfd);
@@ -744,7 +736,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	map[i].fp = *fp;
     }
     else
-	sts = -oserror();
+	sts = -EPIPE;
 
     PM_UNLOCK(exec_lock);
 
@@ -814,6 +806,8 @@ __pmProcessPipeClose(FILE *fp)
 #else
     /* MinGW version */
     wait_pid = __pmProcessWait(pid, 0, &status, &sig);
+    if (pmDebugOptions.exec)
+	fprintf(stderr, "__pmProcessPipeClose: pid=%ld wait_pid=%ld status=0x%x sig=%d\n", (long)pid, (long)wait_pid, status, sig);
     if (wait_pid != pid)
 	sts = -oserror();
     else {
