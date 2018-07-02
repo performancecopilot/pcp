@@ -239,6 +239,7 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/^warning: File listed twice: .*python/d' \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
+    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
 # end
 if [ -s $tmp.err ]
 then
