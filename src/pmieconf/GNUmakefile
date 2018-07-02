@@ -31,11 +31,7 @@ LCFLAGS = -I$(TOPDIR)/src/pmie/src
 
 ifneq "$(CROSS_COMPILING)" "yes"
 STATICTARGETS = pmieconf.static$(EXECSUFFIX)
-ifeq "$(TARGET_OS)" "mingw"
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp_static/src/libpcp_static.a
-else
-STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
-endif
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 endif
 

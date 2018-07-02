@@ -28,38 +28,39 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
-	access.c getopt.c io.c io_stdio.c exec.c \
+	fault.c access.c getopt.c io.c io_stdio.c exec.c \
 	shellprobe.c subnetprobe.c \
-	deprecated.c win32.c
-HFILES = derive.h internal.h compiler.h pmdbg.h \
-	avahi.h shellprobe.h subnetprobe.h
+	deprecated.c
+HFILES = derive.h internal.h compiler.h pmdbg.h jsmn.h sort_r.h \
+	avahi.h subnetprobe.h shellprobe.h
 EXT_FILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
-# VERSION_SCRIPT = exports
+GENERATED_HFILES = pmdbg.h
 
-# files that will be symbolic-linked to here from libpcp directory
+# files that will be linked to here from libpcp directory
 LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) $(YFILES)
 
 LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
-LCFLAGS += -DPCP_STATIC
-LLDLIBS	+= $(LIBPCP_CFLAGS)
-LLDLIBS	+= $(LIBPCP_LDLIBS)
-LLDLIBS	+= -lpsapi -lws2_32 -liphlpapi
+LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_STATIC
+LLDLIBS += $(LIBPCP_LDLIBS)
 
 ifeq "$(ENABLE_SECURE)" "true"
 CFILES += secureserver.c secureconnect.c
 endif
 
 ifeq "$(ENABLE_AVAHI)" "true"
-LLDLIBS += $(LIB_FOR_AVAHI)
-LCFLAGS += $(AVAHICFLAGS)
 CFILES += avahi.c
 endif
 
 ifeq "$(ENABLE_LZMA)" "true"
-LLDLIBS += $(LIB_FOR_LZMA)
-LCFLAGS += $(LZMACFLAGS)
 CFILES += io_xz.c
+endif
+
+ifneq "$(TARGET_OS)" "mingw"
+CFILES += accounts.c
+LLDLIBS	+= -lpsapi -lws2_32 -liphlpapi
+else
+CFILES += win32.c
 endif
 
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
@@ -78,13 +79,11 @@ LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
 base default : $(HFILES) $(CFILES) $(EXT_FILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
-libpcp.so: $(SYMTARGET)
-	$(LN_S) $(SYMTARGET) libpcp.so
 
 include $(BUILDRULES)
 
-*.o: compiler.h derive.h
-jsmn.o: jsmn.h
+*.o: internal.h compiler.h derive.h
+jsmn.o: jsmn.c jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h

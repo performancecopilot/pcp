@@ -99,6 +99,7 @@ jsmn.o: jsmn.c jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
+labels.o:	sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h \
@@ -150,8 +151,6 @@ pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
 
 exports:	exports.master mk.exports
 	./mk.exports
-
-labels.o:	sort_r.h
 
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition
