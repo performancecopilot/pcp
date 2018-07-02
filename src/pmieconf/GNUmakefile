@@ -61,7 +61,7 @@ makefiles:
 	    cd ..; \
 	done
 
-pmieconf.static$(EXECSUFFIX): $(CFILES)
+pmieconf.static$(EXECSUFFIX): $(CFILES) $(STATIC_LIBPCP)
 	rm -f $(OBJECTS)
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
