@@ -29,6 +29,8 @@ endif
 
 LDIRT = $(CMDTARGET) $(STATICTARGETS)
 
+.NOTPARALLEL:
+
 default:	$(CMDTARGET) $(STATICTARGETS)
 
 include $(BUILDRULES)
@@ -41,5 +43,4 @@ default_pcp:	default
 install_pcp:	install
 
 pmcpp.static$(EXECSUFFIX):	$(CFILES) $(STATIC_LIBPCP)
-	rm -f $(OBJECTS)
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)

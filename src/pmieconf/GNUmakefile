@@ -39,6 +39,8 @@ LDIRT = local $(CMDTARGET) $(STATICTARGETS) rate-syscalls \
 	pmlogconf.tmp pmlogconf $(shell echo */GNUmakefile)
 LDIRDIRT = rules .pcp
 
+.NOTPARALLEL:
+
 default: $(CMDTARGET) $(STATICTARGETS) makefiles local pmlogconf
 
 # for src-link-pcp target from buildrules
@@ -48,7 +50,6 @@ $(CMDTARGET): $(OBJECTS)
 
 pmieconf.o rules.o:    rules.h
 
-.NOTPARALLEL:
 makefiles:
 	@for d in $(MKFILE_SUBDIRS); do \
 	    rm -f $$d/GNUmakefile; \
@@ -58,7 +59,6 @@ makefiles:
 	done
 
 pmieconf.static$(EXECSUFFIX): $(CFILES) $(STATIC_LIBPCP)
-	rm -f $(OBJECTS)
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 local: $(STATICTARGETS) $(SUBDIRS)

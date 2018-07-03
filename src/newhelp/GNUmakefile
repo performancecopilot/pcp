@@ -31,6 +31,8 @@ endif
 
 LDIRT = $(TARGETS) $(STATICTARGETS)
 
+.NOTPARALLEL:
+
 default:	$(TARGETS) $(STATICTARGETS)
 
 install:	default
@@ -38,11 +40,10 @@ install:	default
 
 include $(BUILDRULES)
 
-newhelp$(EXECSUFFIX):	newhelp.o
-	$(CCF) -o $@ $(LDFLAGS) newhelp.o $(LDLIBS)
+newhelp$(EXECSUFFIX):	newhelp.c
+	$(CCF) -o $@ $(LDFLAGS) newhelp.c $(LDLIBS)
 
 newhelp.static$(EXECSUFFIX):	newhelp.c $(STATIC_LIBPCP)
-	rm -f newhelp.o
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
