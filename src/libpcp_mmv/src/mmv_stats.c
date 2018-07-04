@@ -759,7 +759,6 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
                      mmv_metric_type_t type, mmv_metric_sem_t sem, pmUnits units,
                      int serial, const char *shorthelp, const char *longhelp)
 {
-    //fprintf(stderr, "Before checking: \n");
     // Check if it is correct
     if (registry == NULL) {
         fprintf(stderr, "Bad registry in function call add_metric\n");
@@ -768,44 +767,31 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
 
     mmv_metric2_t * metric;
 
-    //fprintf(stderr, "After checking: \n");
-    
-    if (registry->nmetrics == 0) {
-        // init for the first time the struct metric
-        metric = (mmv_metric2_t *) calloc(1,sizeof(mmv_metric2_t));
-        registry->nmetrics = 1;
-	registry->metrics = metric;
+    registry->nmetrics += 1;
+    metric = (mmv_metric2_t *) realloc(registry->metrics, 
+				       registry->nmetrics * sizeof(mmv_metric2_t));
+    if (metric == NULL) {
+        fprintf(stderr, "Not enough space while adding metric\n");
+        return -1;
     }
-    else {
-        // there is already a metric so realloc needs to be performed
-        registry->nmetrics += 1;
-        registry->metrics = (mmv_metric2_t *) realloc(registry->metrics, 
-				           registry->nmetrics * sizeof(mmv_metric2_t));
 
-        //metric = (registry->metrics)[registry->nmetrics-1];
-    }
-    //fprintf(stderr, "After creating one: \n");
-    //metric->name = "hola";
-    //fprintf(stderr, "After creating one: \n");
-    // figure it out how to acces n element
-    // metric[n]
-    // for now metric
-    //strncpy(&metric->name, name, sizeof(name));
-    metric->name = name;
-    //fprintf(stderr, "After name: \n");
-    metric->item = item;        /* Unique identifier */
-    metric->type = type;
-    metric->semantics = sem;
-    metric->dimension = units;
-    metric->indom = serial; // TODO: what is that???/* Indom serial */
-    //fprintf(stderr, "Really¿?: \n");
-    //strncpy(metric->shorttext, shorthelp, sizeof(shorthelp));  /* Short help text string */
-    metric->shorttext = shorthelp;
-    //fprintf(stderr, "which one: \n");
-    metric->helptext = longhelp;
-    //strncpy(metric->helptext, longhelp, sizeof(longhelp));
-    //metric->helptext = longhelp;    /* Long help text string */
-    //fprintf(stderr, "last: \n");
+    registry->metrics = metric;
+    
+    metric[registry->nmetrics-1].name = name;
+    metric[registry->nmetrics-1].item = item;        /* Unique identifier */
+    metric[registry->nmetrics-1].type = type;
+    
+    metric[registry->nmetrics-1].semantics = sem;
+    metric[registry->nmetrics-1].dimension = units;
+    metric[registry->nmetrics-1].indom = serial; // TODO: what is that???/* Indom serial */
+    
+    metric[registry->nmetrics-1].shorttext = shorthelp;
+    metric[registry->nmetrics-1].helptext = longhelp;
+
+    // TODO check!!!
+    //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
+	//return NULL;
+
     return 1; // TODO what returns?
 }
 
@@ -813,7 +799,6 @@ int
 mmv_stats_add_indom(mmv_registry_t *registry, int serial, 
                     const char *shorthelp, const char *longhelp) 
 {
-    fprintf(stderr, "Before checking: \n");
     // Check if it is correct
     if (registry == NULL) {
         fprintf(stderr, "Bad registry in function call add_indom\n");
@@ -822,43 +807,23 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
 
     mmv_indom2_t * indom;
 
-    fprintf(stderr, "After checking: \n");
-    
-    if (registry->nindoms == 0) {
-        // init for the first time the struct indom
-        indom = (mmv_indom2_t *) calloc(1,sizeof(mmv_indom2_t));
-        registry->nindoms = 1;
-	registry->indoms = indom;
-    }
-    else {
-        // there is already a indom so realloc needs to be performed
-        registry->nindoms += 1;
-        registry->indoms = (mmv_indom2_t *) realloc(registry->indoms, 
-	                                 registry->nindoms * sizeof(mmv_indom2_t));
-        indom = registry->indoms; // Should access n element
+    registry->nindoms += 1;
+    indom = (mmv_indom2_t *) realloc(registry->indoms, 
+	                             registry->nindoms * sizeof(mmv_indom2_t));
+    if (indom == NULL) {
+        fprintf(stderr, "Not enough space while adding indom\n");
+        return -1;
     }
 
-    // TODO put it cleaner
-    //fprintf(stderr, "After creating one: \n");
-    indom->serial = serial;
-    //fprintf(stderr, "After creating one: \n");
-    // figure it out how to acces n element
-    // indom[n]
-    // for now indom
-    //strncpy(&indom->name, name, sizeof(name));
-    // TODO: what is that???/* Indom serial */
-    //fprintf(stderr, "Really¿?: \n");
-    //strncpy(indom->shorttext, shorthelp, sizeof(shorthelp));  /* Short help text string */
-    indom->shorttext = shorthelp;
-    //fprintf(stderr, "which one: \n");
-    indom->helptext = longhelp;
+    registry->indoms = indom;
 
+    indom[registry->nindoms-1].serial = serial;
+    indom[registry->nindoms-1].shorttext = shorthelp;
+    indom[registry->nindoms-1].helptext = longhelp;
+
+    // TODO check!!!
     //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
 	//return NULL;
-    //strncpy(indom->helptext, longhelp, sizeof(longhelp));
-    //indom->helptext = longhelp;    /* Long help text string */
-    //fprintf(stderr, "last: \n");
-    
     return 1; // TODO what returns?
 }
 
@@ -866,38 +831,34 @@ int
 mmv_stats_add_instance(mmv_registry_t *registry, int serial,
                        int instid, const char *instname) 
 {
-    fprintf(stderr, "Before checking: \n");
     // Check if it is correct
     if (registry == NULL) {
         fprintf(stderr, "Bad registry in function call add_metric\n");
         return -1;
     }
-    mmv_instances2_t * instance;
-
-    fprintf(stderr, "After checking: \n");
     
-    if (registry->ninstances == 0) {
-        // init for the first time the struct instance
-        instance = (mmv_instances2_t *) calloc(1,sizeof(mmv_instances2_t));
-        registry->ninstances = 1;
-	registry->instances = instance;
+    mmv_instances2_t * instance;
+    
+    registry->ninstances += 1;
+    instance = (mmv_instances2_t *) realloc(registry->instances, 
+ 					    registry->ninstances * sizeof(mmv_instances2_t));
+    
+    if (instance == NULL) {
+        fprintf(stderr, "Not enough space while adding instance\n");
+        return -1;
     }
-    else {
-        // there is already a instance so realloc needs to be performed
-        registry->ninstances += 1;
-        registry->instances = (mmv_instances2_t *) realloc(registry->instances, 
-					     registry->ninstances * sizeof(mmv_instances2_t));
-        instance = registry->instances;
-    }
-    fprintf(stderr, "After creating one: \n");
+    registry->instances = instance;
+    // TODO: add instance etc to indom
     // figure it out how to acces n element
     // instance[n]
     // for now instance
     // TODO: Look for indom and add instance
     //strncpy(&instance->name, name, sizeof(name));
-    instance->internal = instid;        /* Unique identifier */
-    instance->external = instname;
-    fprintf(stderr, "After name: \n");
+    instance[registry->ninstances-1].internal = instid;        /* Unique identifier */
+    instance[registry->ninstances-1].external = instname;
+    // TODO check!!!
+    //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
+	//return NULL;
     return 1; // TODO what returns?
 }
 
@@ -912,27 +873,23 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
         return -1;
     }
     mmv_label_t * label;
-    
-    if (registry->nlabels == 0) {
-        // init for the first time the struct label
-        label = (mmv_label_t *) calloc(1,sizeof(mmv_label_t));
-        registry->nlabels = 1;
-	registry->labels = label;
-	registry->version = 3;
+
+    registry->version = 3;
+    registry->nlabels += 1;
+    label = (mmv_label_t *) realloc(registry->labels, 
+    				    registry->nlabels * sizeof(mmv_label_t));
+    if (label == NULL) {
+        fprintf(stderr, "Not enough space while adding label\n");
+        return -1;
     }
-    else {
-        // there is already a label so realloc needs to be performed
-        registry->nlabels += 1;
-        registry->labels = (mmv_label_t *) realloc(registry->labels, 
-					           registry->nlabels * sizeof(mmv_label_t));
-        label = registry->labels;
-    }
+
+    registry->labels = label;
 	
-    label->flags = PM_LABEL_CLUSTER;
-    label->identity = registry->cluster;
-    label->internal = PM_IN_NULL;
-    label->name = name;
-    label->value = value;
+    label[registry->nlabels-1].flags = PM_LABEL_CLUSTER;
+    label[registry->nlabels-1].identity = registry->cluster;
+    label[registry->nlabels-1].internal = PM_IN_NULL;
+    label[registry->nlabels-1].name = name;
+    label[registry->nlabels-1].value = value;
 
     return 1; // TODO what returns?
 }
@@ -948,26 +905,24 @@ mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
     }
     mmv_label_t * label;
     
-    if (registry->nlabels == 0) {
-        // init for the first time the struct label
-        label = (mmv_label_t *) calloc(1,sizeof(mmv_label_t));
-        registry->nlabels = 1;
-	registry->labels = label;
-	registry->version = 3;
+    registry->version = 3;
+    registry->nlabels += 1;
+    
+    label = (mmv_label_t *) realloc(registry->labels, 
+   				    registry->nlabels * sizeof(mmv_label_t));
+    
+    if (label == NULL) {
+        fprintf(stderr, "Not enough space while adding label\n");
+        return -1;
     }
-    else {
-        // there is already a label so realloc needs to be performed
-        registry->nlabels += 1;
-        registry->labels = (mmv_label_t *) realloc(registry->labels, 
-					   registry->nlabels * sizeof(mmv_label_t));
-        label = registry->labels;
-    }
+
+    registry->labels = label;
 	
-    label->flags = PM_LABEL_INDOM;
-    label->identity = serial;
-    label->internal = PM_IN_NULL;
-    label->name = name;
-    label->value = value;
+    label[registry->nlabels-1].flags = PM_LABEL_INDOM;
+    label[registry->nlabels-1].identity = serial;
+    label[registry->nlabels-1].internal = PM_IN_NULL;
+    label[registry->nlabels-1].name = name;
+    label[registry->nlabels-1].value = value;
 
     return 1; // TODO what returns?
 }
@@ -981,28 +936,27 @@ mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
         fprintf(stderr, "Bad registry in function call add_metric\n");
         return -1;
     }
+    
     mmv_label_t * label;
     
-    if (registry->nlabels == 0) {
-        // init for the first time the struct label
-        label = (mmv_label_t *) calloc(1,sizeof(mmv_label_t));
-        registry->nlabels = 1;
-	registry->labels = label;
-	registry->version = 3;
+    registry->version = 3;
+    registry->nlabels += 1;
+    
+    label = (mmv_label_t *) realloc(registry->labels, 
+   				    registry->nlabels * sizeof(mmv_label_t));
+    
+    if (label == NULL) {
+        fprintf(stderr, "Not enough space while adding label\n");
+        return -1;
     }
-    else {
-        // there is already a label so realloc needs to be performed
-        registry->nlabels += 1;
-        registry->labels = (mmv_label_t *) realloc(registry->labels, 
-					           registry->nlabels * sizeof(mmv_label_t));
-        label = registry->labels;
-    }
+
+    registry->labels = label;
 	
-    label->flags = PM_LABEL_ITEM;
-    label->identity = item;
-    label->internal = PM_IN_NULL;
-    label->name = name;
-    label->value = value;
+    label[registry->nlabels-1].flags = PM_LABEL_ITEM;
+    label[registry->nlabels-1].identity = item;
+    label[registry->nlabels-1].internal = PM_IN_NULL;
+    label[registry->nlabels-1].name = name;
+    label[registry->nlabels-1].value = value;
 
     return 1; // TODO what returns?
 }
@@ -1016,28 +970,27 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
         fprintf(stderr, "Bad registry in function call add_metric\n");
         return -1;
     }
+    
     mmv_label_t * label;
     
-    if (registry->nlabels == 0) {
-        // init for the first time the struct label
-        label = (mmv_label_t *) calloc(1,sizeof(mmv_label_t));
-        registry->nlabels = 1;
-	registry->labels = label;
-	registry->version = 3;
+    registry->version = 3;
+    registry->nlabels += 1;
+    
+    label = (mmv_label_t *) realloc(registry->labels, 
+   				    registry->nlabels * sizeof(mmv_label_t));
+    
+    if (label == NULL) {
+        fprintf(stderr, "Not enough space while adding label\n");
+        return -1;
     }
-    else {
-        // there is already a label so realloc needs to be performed
-	registry->nlabels += 1;
-        registry->labels = (mmv_label_t *) realloc(registry->labels, 
-				                   registry->nlabels * sizeof(mmv_label_t));
-        label = registry->labels;
-    }
+
+    registry->labels = label;
 	
-    label->flags = PM_LABEL_INSTANCES;
-    label->identity = serial;
-    label->internal = instid;
-    label->name = name;
-    label->value = value;
+    label[registry->nlabels-1].flags = PM_LABEL_INSTANCES;
+    label[registry->nlabels-1].identity = serial;
+    label[registry->nlabels-1].internal = instid;
+    label[registry->nlabels-1].name = name;
+    label[registry->nlabels-1].value = value;
 
     return 1; // TODO what returns?
 }

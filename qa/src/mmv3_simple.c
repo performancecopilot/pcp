@@ -19,8 +19,8 @@ static mmv_metric2_t metrics[] = {
         .type = MMV_TYPE_U64,
         .semantics = MMV_SEM_COUNTER,
         .dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
-        .shorttext = NULL,
-        .helptext = NULL,
+        .shorttext = "2sh",
+        .helptext = "2h",
     },
 };
 
@@ -68,6 +68,22 @@ main(int argc, char **argv)
     fprintf(stderr, "name: %s \n", _metric[0].name);
     fprintf(stderr, "shorthelp: %s \n", _metric[0].shorttext);
     fprintf(stderr, "longhelp: %s \n", _metric[0].helptext);
+
+    mmv_stats_add_metric(addr,metrics[1].name,metrics[1].item,metrics[1].type,
+                         metrics[1].semantics,metrics[1].dimension,0,metrics[1].shorttext,
+                         metrics[1].helptext);
+    fprintf(stderr, "[CHECKING AFTER ADDING METRIC] \n");
+    fprintf(stderr, "nindoms: %d \n", addr->nindoms);
+    fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
+    fprintf(stderr, "ninstances: %d \n", addr->ninstances);
+    fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    fprintf(stderr, "version: %d \n", addr->version);
+    
+    _metric = addr->metrics;
+    fprintf(stderr, "[CHECKING METRIC] \n");
+    fprintf(stderr, "name: %s \n", _metric[1].name);
+    fprintf(stderr, "shorthelp: %s \n", _metric[1].shorttext);
+    fprintf(stderr, "longhelp: %s \n", _metric[1].helptext);
     
 
     
