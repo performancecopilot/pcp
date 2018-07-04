@@ -50,9 +50,12 @@ main(int argc, char **argv)
     mmv_stats_add_metric(addr,metrics[0].name,metrics[0].item,metrics[0].type,
                          metrics[0].semantics,metrics[0].dimension,0,metrics[0].shorttext,
                          metrics[0].helptext);
-    //value = mmv_lookup_value_desc(addr, "simple.counter", NULL);
-    //mmv_inc_value(addr, value, 42);
 
-    //mmv_stats_stop(file, addr);
+    void *addr_file = mmv_stats_start(file,addr);
+
+    value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
+    mmv_inc_value(addr_file, value, 42);
+    fprintf(stderr, "File: %s \n", file); 
+    
     return 0;
 }
