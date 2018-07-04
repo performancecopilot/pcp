@@ -45,7 +45,13 @@ static pmOptions opts = {
 };
 
 static int
-filter(const struct dirent *dp)
+filter(
+#ifdef HAVE_CONST_DIRENT
+	const struct dirent *dp
+#else
+	struct dirent *dp
+#endif
+	)
 {
     char logBase[MAXPATHLEN];
     static int	len = -1;
