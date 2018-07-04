@@ -107,9 +107,20 @@ SamplingItem::updateValues(bool forward,
 	value = qQNaN();
     } else {
 	// convert raw value to current chart scale
+	int	sts;
 	raw.d = rateConvert ? metric->value(0) : metric->currentValue(0);
-	pmConvScale(PM_TYPE_DOUBLE, &raw, &ChartItem::my.units, &scaled, units);
-	value = scaled.d * my.scale;
+	sts = pmConvScale(PM_TYPE_DOUBLE, &raw, &ChartItem::my.units, &scaled, units);
+	if (sts < 0) {
+	    /* should never happen */
+	    if (pmDebugOptions.value) {
+		fprintf(stderr, "SamplingItem::updateValues: Botch: %s (%s) scale conversion from %s", 
+		    pmIDStr(metric->metricID()), metric->name().toStdString().c_str(), pmUnitsStr(&ChartItem::my.units));
+		fprintf(stderr, " to %s failed: %s\n", pmUnitsStr(units), pmErrStr(sts));
+	    }
+	    value = 0;
+	}
+	else
+	    value = scaled.d * my.scale;
     }
 
     // sz will be the number of previous samples we want to keep.
@@ -150,15 +161,25 @@ SamplingItem::rescaleValues(pmUnits *new_units)
 			pmUnitsStr(old_units), pmUnitsStr(new_units));
 
     for (int i = my.dataCount - 1; i >= 0; i--) {
+	int	sts = 0;
+	new_av.d = 0;
 	if (my.data[i] != qQNaN()) {
 	    old_av.d = my.data[i];
-	    pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
+	    sts = pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
 	    my.data[i] = new_av.d;
 	}
 	if (my.itemData[i] != qQNaN()) {
 	    old_av.d = my.itemData[i];
-	    pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
+	    sts = pmConvScale(PM_TYPE_DOUBLE, &old_av, old_units, &new_av, new_units);
 	    my.itemData[i] = new_av.d;
+	}
+	if (sts < 0) {
+	    /* should never happen */
+	    if (pmDebugOptions.value) {
+		fprintf(stderr, "SamplingItem::rescaleValues: Botch: %s (%s) scale conversion from %s", 
+		    pmIDStr(ChartItem::my.metric->metricID()), ChartItem::my.metric->name().toStdString().c_str(), pmUnitsStr(old_units));
+		fprintf(stderr, " to %s failed: %s\n", pmUnitsStr(new_units), pmErrStr(sts));
+	    }
 	}
     }
 }
