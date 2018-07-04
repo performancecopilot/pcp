@@ -40,8 +40,13 @@ __pmIsConfigLock(void *lock)
 }
 #endif
 
-#ifdef IS_MINGW
+#ifdef IS_OLD_MINGW
 /*
+ * It is not clear what's the right thing to do on Windows ...
+ * pro tem, disable all of this path rewriting until we have a
+ * clearer understanding.  Note IS_OLD_MINGW that needs to be
+ * removed/changed.  See also NQR note below.  TODO.
+ *
  * Fix up the Windows path separator quirkiness - PCP code deals
  * typically with forward-slash separators (i.e. if not passed in
  * on the command line, but hard-coded), but only very little now.
