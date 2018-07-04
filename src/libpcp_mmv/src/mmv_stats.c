@@ -782,7 +782,7 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
         registry->metrics = (mmv_metric2_t *) realloc(registry->metrics, 
 				           registry->nmetrics * sizeof(mmv_metric2_t));
 
-        // metric = (registry->metrics)[registry->nmetrics-1];
+        //metric = (registry->metrics)[registry->nmetrics-1];
     }
     //fprintf(stderr, "After creating one: \n");
     //metric->name = "hola";

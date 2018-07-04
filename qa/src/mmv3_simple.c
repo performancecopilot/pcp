@@ -5,13 +5,13 @@
 #include <pcp/mmv_stats.h>
 
 static mmv_metric2_t metrics[] = {
-    {   .name = "simple2.counter",
+    {   .name = "simple3.counter",
         .item = 1,
         .type = MMV_TYPE_U32,
         .semantics = MMV_SEM_COUNTER,   
         .dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
-        .shorttext = NULL,
-        .helptext = NULL,
+        .shorttext = "shortext",
+        .helptext = "helptext",
     },
     {   .name =
         "simple2.metric.with.a.much.longer.metric.name.forcing.version2.format",
@@ -35,6 +35,12 @@ main(int argc, char **argv)
         fprintf(stderr, "mmv_metric_register: %s - %s\n", file, strerror(errno));
         return 1;
     }
+    fprintf(stderr, "[CHECKING BEFORE ADDING METRIC] \n");
+    fprintf(stderr, "nindoms: %d \n", addr->nindoms);
+    fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
+    fprintf(stderr, "ninstances: %d \n", addr->ninstances);
+    fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    fprintf(stderr, "version: %d \n", addr->version);
     fprintf(stderr, "File: %s \n", file);
     fprintf(stderr, "File: %s \n", addr->file);
     fprintf(stderr, "File: %d \n", addr->cluster);
@@ -50,12 +56,30 @@ main(int argc, char **argv)
     mmv_stats_add_metric(addr,metrics[0].name,metrics[0].item,metrics[0].type,
                          metrics[0].semantics,metrics[0].dimension,0,metrics[0].shorttext,
                          metrics[0].helptext);
-
-    void *addr_file = mmv_stats_start(file,addr);
-
-    value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
-    mmv_inc_value(addr_file, value, 42);
-    fprintf(stderr, "File: %s \n", file); 
+    fprintf(stderr, "[CHECKING AFTER ADDING METRIC] \n");
+    fprintf(stderr, "nindoms: %d \n", addr->nindoms);
+    fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
+    fprintf(stderr, "ninstances: %d \n", addr->ninstances);
+    fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    fprintf(stderr, "version: %d \n", addr->version);
     
+    mmv_metric2_t * _metric = addr->metrics;
+    fprintf(stderr, "[CHECKING METRIC] \n");
+    fprintf(stderr, "name: %s \n", _metric[0].name);
+    fprintf(stderr, "shorthelp: %s \n", _metric[0].shorttext);
+    fprintf(stderr, "longhelp: %s \n", _metric[0].helptext);
+    
+
+    
+    //fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    //fprintf(stderr, "version: %d \n", addr->version); 
+
+
+    //void *addr_file = mmv_stats_start(file,addr);
+
+    //value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
+    //mmv_inc_value(addr_file, value, 42);
+    //fprintf(stderr, "File: %s \n", file); 
+
     return 0;
 }
