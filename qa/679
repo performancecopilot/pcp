@@ -23,6 +23,7 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
 	-e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
 	-e '/Warning: skipping pmnewlog because we don/d' \
 	-e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \

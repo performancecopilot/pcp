@@ -9,7 +9,7 @@ QA output created by 679
 
 + get mutex lock
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
-+ /usr/lib/pcp/bin/pmlogger_rewrite  -c TMP/oldsem0/pmlogrewrite -V TMP/oldsem0
++ PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem0/pmlogrewrite -V TMP/oldsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 + pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.00.10
@@ -22,7 +22,7 @@ Error: no pmlogger instance running for host "localhost"
 
 + get mutex lock
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
-+ /usr/lib/pcp/bin/pmlogger_rewrite  -c TMP/oldsem1/pmlogrewrite -V TMP/oldsem1
++ PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem1/pmlogrewrite -V TMP/oldsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 + pmlogrewrite -iq  -c TMP/oldsem1/pmlogrewrite 20011005.00.10
@@ -34,7 +34,7 @@ Error: no pmlogger instance running for host "localhost"
 
 + get mutex lock
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
-+ /usr/lib/pcp/bin/pmlogger_rewrite  -c TMP/oldsem2/pmlogrewrite -V TMP/oldsem2
++ PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem2/pmlogrewrite -V TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 + pmlogrewrite -iq  -c TMP/oldsem2/pmlogrewrite 20011005.00.10
@@ -45,7 +45,7 @@ Error: no pmlogger instance running for host "localhost"
 
 + get mutex lock
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
-+ /usr/lib/pcp/bin/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem0
++ PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
@@ -61,7 +61,7 @@ Error: no pmlogger instance running for host "localhost"
 
 + get mutex lock
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
-+ /usr/lib/pcp/bin/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem1
++ PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
@@ -74,7 +74,7 @@ Error: no pmlogger instance running for host "localhost"
 
 + get mutex lock
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
-+ /usr/lib/pcp/bin/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/empty
++ PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/empty
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 pmlogger_daily: Warning: no archives found to merge
