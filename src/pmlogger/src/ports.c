@@ -692,7 +692,7 @@ init_ports(void)
 
 	/* Remove the symlink if it points to a stale primary pmlogger socket */
 	if ((pidlen = readlink(linkSocketPath, pidfile, sizeof(pidfile))) > 0) {
-	    pidfile[pidlen] = '\0';
+	    pidfile[pidlen-1] = '\0';
 	    for (i=0; i < pidlen; i++) {
 		/* first digit is the start of the PID */
 		if (isdigit((int)pidfile[i])) {
