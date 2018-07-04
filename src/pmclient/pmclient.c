@@ -224,9 +224,19 @@ get_sample(info_t *ip)
 	    pmExtractValue(crp->vset[FREEMEM]->valfmt, crp->vset[FREEMEM]->vlist,
 		    desclist[FREEMEM].type, &tmp, PM_TYPE_FLOAT);
 	    /* convert from today's units at the collection site to Mbytes */
-	    pmConvScale(PM_TYPE_FLOAT, &tmp, &desclist[FREEMEM].units,
+	    sts = pmConvScale(PM_TYPE_FLOAT, &tmp, &desclist[FREEMEM].units,
 		    &atom, &mbyte_scale);
-	    ip->freemem = atom.f;
+	    if (sts < 0) {
+		/* should never happen */
+		if (pmDebugOptions.value) {
+		    fprintf(stderr, "%s: get_sample: Botch: %s (%s) scale conversion from %s", 
+			pmGetProgname(), pmIDStr(desclist[FREEMEM].pmid), pmclient_sample[FREEMEM], pmUnitsStr(&desclist[FREEMEM].units));
+		    fprintf(stderr, " to %s failed: %s\n", pmUnitsStr(&mbyte_scale), pmErrStr(sts));
+		}
+		ip->freemem = 0;
+	    }
+	    else
+		ip->freemem = atom.f;
 	}
 
 	/* disk IOPS - expect just one value, but need delta */
