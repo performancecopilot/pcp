@@ -57,7 +57,7 @@ pmpause(void)
     sigemptyset(&sigact.sa_mask);
     sigact.sa_flags = SA_RESTART | SA_NOCLDSTOP;
     if (sigaction(SIGCHLD, &sigact, 0) == -1) {
-	perror(pmGetProgname());
+	perror("pmpause: 1st sigaction failed");
 	return 1;
     }
 
@@ -67,13 +67,17 @@ pmpause(void)
 	sigemptyset(&sigact.sa_mask);
 	sigact.sa_flags = SA_RESTART;
 	if (sigaction(finish[i], &sigact, 0) == -1) {
-	    perror(pmGetProgname());
+	    perror("pmpause: 2nd sigaction failed");
 	    return 1;
 	}
 	sigdelset(&sigset, finish[i]);
     }
 
-    sigprocmask(SIG_BLOCK, &sigset, NULL);
+    if (sigprocmask(SIG_BLOCK, &sigset, NULL) < 0) {
+	/* most unlikely */
+	perror("pmpause: sigprocmask failed");
+	return 1;
+    }
     while (!finished)
 	pause();
     return 0;
