@@ -42,6 +42,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bcc metrics have appeared ... X metrics and X values
 
 Simulate packet loss
+Revert intentional packet loss
 === report metric values for count ===
 OK
 

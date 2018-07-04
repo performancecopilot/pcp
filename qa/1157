@@ -23,13 +23,13 @@ $sudo rm -rf $tmp.* $seq.full
 _simulate_network_troubles()
 {
     echo Simulate packet loss
-    $sudo tc qdisc add dev ${net_dev} root netem loss 50%
+    $sudo tc qdisc add dev ${net_dev} root netem loss 100%
 }
 
 _revert_network_troubles()
 {
     echo Revert intentional packet loss
-    $sudo tc qdisc del dev ${net_dev} root
+    $sudo tc qdisc del dev ${net_dev} root 2>>$here/$seq.full
 }
 
 _value_filter()
@@ -51,10 +51,11 @@ cluster = 9
 EOF
 
 _pmdabcc_wait_for_metric
-_simulate_network_troubles
 
 # Generate system activity for the BCC tcpretrans module
-for i in 1 2 3; do curl -s http://${target_ip}; done
+_simulate_network_troubles
+curl -s --connect-timeout 5 http://${target_ip}
+_revert_network_troubles
 
 echo "=== report metric values for count ==="
 pminfo -dfmtT bcc.io.net.tcp.retrans.count 2>&1 | tee -a $here/$seq.full \
