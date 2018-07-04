@@ -34,7 +34,7 @@ bpf_src = "modules/biotop.bpf"
 # PCP BCC PMDA constants
 #
 MODULE = 'bioperpid'
-METRIC = 'proc.io.perpid'
+METRIC = 'proc.io.total'
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 
 #
