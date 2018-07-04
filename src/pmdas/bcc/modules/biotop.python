@@ -17,7 +17,7 @@
 # Configuration options
 # Name - type - default
 #
-# interval      - int    - 1      : interval
+# interval      - int    - 1      : interval for calculating summaries
 # process_count - int    - 20     : number of processes to show
 # sort          - string - -bytes : sort key: bytes/io/duration/rw
 #                                   sort order can be reversed by prepending '-'
@@ -92,8 +92,9 @@ class PCPBCCModule(PCPBCCBase):
         self.disklookup = {}
 
         self.lock = Lock()
-        self.thread = Thread(name="biotop_refresh", target=self.refresh_stats_loop)
-        self.thread.setDaemon(True)
+        if self.interval > 0:
+            self.thread = Thread(name="biotop_refresh", target=self.refresh_stats_loop)
+            self.thread.setDaemon(True)
 
         self.log("Initialized.")
 
@@ -140,7 +141,8 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
-            self.thread.start()
+            if self.interval > 0:
+                self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
@@ -198,6 +200,9 @@ class PCPBCCModule(PCPBCCBase):
         """ Refresh BPF data """
         if self.bpf is None:
             return None
+
+        if self.interval == 0:
+            self.refresh_stats()
 
         return self.insts
 
