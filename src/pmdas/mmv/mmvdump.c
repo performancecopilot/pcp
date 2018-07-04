@@ -535,6 +535,77 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
     return 0;
 }
 
+// TODO In progress
+/*int
+dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)
+{
+    int i;
+    char buf[MMV_STRINGMAX];
+    mmv_disk_string_t *string;
+    mmv_disk_label_t *m = (mmv_disk_label_t *)((char *)addr + offset);
+
+    for (i = 0; i < count; i++) {
+	__uint64_t name;
+	__uint64_t off = offset + i * sizeof(mmv_disk_metric2_t);
+
+	if (size < off + sizeof(mmv_disk_metric2_t)) {
+	    printf("Bad file size: too small for toc[%d] metric[%d]\n", idx, i);
+	    return 1;
+	}
+	name = m[i].name;
+	if (size < name + sizeof(mmv_disk_string_t)) {
+	    printf("Bad file size: too small for toc[%d] metric[%d] name\n", idx, i);
+	    return 1;
+	} else if (name == 0) {
+	    printf("Bad file: invalid offset for toc[%d] metric[%d] name\n", idx, i);
+	    return 1;
+	}
+	string = (mmv_disk_string_t *)((char *)addr + name);
+	memcpy(buf, string->payload, sizeof(buf));
+	buf[sizeof(buf)-1] = '\0';
+
+	printf("  [%u/%"PRIi64"] %s\n", m[i].item, off, buf);
+	printf("       type=%s (0x%x), sem=%s (0x%x), pad=0x%x\n",
+		metrictype(m[i].type), m[i].type,
+		metricsem(m[i].semantics), m[i].semantics,
+		m[i].padding);
+	printf("       units=%s\n", pmUnitsStr(&m[i].dimension));
+	if (m[i].indom != PM_INDOM_NULL && m[i].indom != 0)
+	    printf("       indom=%d\n", m[i].indom);
+	else
+	    printf("       (no indom)\n");
+
+	off = m[i].shorttext;
+	if (off != 0) {
+	    if (size < off + sizeof(mmv_disk_string_t)) {
+		printf("Bad file size: too small for toc[%d] metric[%d] oneline\n", idx, i);
+		return 1;
+	    }
+	    string = (mmv_disk_string_t *)((char *)addr + off);
+	    memcpy(buf, string->payload, sizeof(buf));
+	    buf[sizeof(buf)-1] = '\0';
+	    printf("       shorttext=%s\n", buf);
+	}
+	else
+	    printf("       (no shorttext)\n");
+
+	off = m[i].helptext;
+	if (off != 0) {
+	    if (size < off + sizeof(mmv_disk_string_t)) {
+		printf("Bad file size: too small for toc[%d] metric[%d] help\n", idx, i);
+		return 1;
+	    }
+	    string = (mmv_disk_string_t *)((char *)addr + off);
+	    memcpy(buf, string->payload, sizeof(buf));
+	    buf[sizeof(buf)-1] = '\0';
+	    printf("       helptext=%s\n", buf);
+	}
+	else
+	    printf("       (no helptext)\n");
+    }
+    return 0;
+}*/
+
 static char *
 flagstr(int flags)
 {

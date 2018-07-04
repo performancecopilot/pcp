@@ -789,8 +789,8 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     metric[registry->nmetrics-1].helptext = longhelp;
 
     // TODO check!!!
-    //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
-	//return NULL;
+    //if ((version = mmv_check2(registry->metrics, registry->nmetrics, NULL, 0)) < 0)
+    //	return NULL;
 
     return 1; // TODO what returns?
 }
@@ -818,6 +818,7 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
     registry->indoms = indom;
 
     indom[registry->nindoms-1].serial = serial;
+    indom[registry->nindoms-1].count = 0;
     indom[registry->nindoms-1].shorttext = shorthelp;
     indom[registry->nindoms-1].helptext = longhelp;
 
@@ -848,14 +849,26 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
         return -1;
     }
     registry->instances = instance;
-    // TODO: add instance etc to indom
-    // figure it out how to acces n element
-    // instance[n]
-    // for now instance
-    // TODO: Look for indom and add instance
-    //strncpy(&instance->name, name, sizeof(name));
+
     instance[registry->ninstances-1].internal = instid;        /* Unique identifier */
     instance[registry->ninstances-1].external = instname;
+
+    // Look for indom and add instance
+    for(int i = 0; i < registry->nindoms; i++) {
+        if (registry->indoms[i].serial == serial) {
+            registry->indoms[i].count += 1;
+            mmv_instances2_t *	inst_aux = realloc(registry->indoms[i].instances,
+                                                   registry->indoms[i].count * sizeof(mmv_instances2_t));
+            if (inst_aux == NULL) {
+                fprintf(stderr, "Not enough space while adding instance\n");
+                return -1;    
+            }
+            registry->indoms[i].instances = inst_aux;
+
+            inst_aux[registry->indoms[i].count].internal = instid;
+            inst_aux[registry->indoms[i].count].external = instname;
+        }
+    }
     // TODO check!!!
     //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
 	//return NULL;

@@ -24,6 +24,20 @@ static mmv_metric2_t metrics[] = {
     },
 };
 
+static mmv_indom2_t indoms[] = {
+    {	.serial = 1,
+	    .count = 2,
+	    .instances = NULL,
+	    .shorttext = "We can be heroes",
+	    .helptext = "We can be heroes, just for one day",
+    },
+    {	.serial = 2,
+	    .count = 3,
+	    .instances = NULL,
+	/* exercise no-help-text case */
+    },
+};
+
 int 
 main(int argc, char **argv)
 {
@@ -72,6 +86,7 @@ main(int argc, char **argv)
     mmv_stats_add_metric(addr,metrics[1].name,metrics[1].item,metrics[1].type,
                          metrics[1].semantics,metrics[1].dimension,0,metrics[1].shorttext,
                          metrics[1].helptext);
+
     fprintf(stderr, "[CHECKING AFTER ADDING METRIC] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
@@ -84,6 +99,37 @@ main(int argc, char **argv)
     fprintf(stderr, "name: %s \n", _metric[1].name);
     fprintf(stderr, "shorthelp: %s \n", _metric[1].shorttext);
     fprintf(stderr, "longhelp: %s \n", _metric[1].helptext);
+
+
+    mmv_stats_add_indom(addr,indoms[0].serial,indoms[0].shorttext,indoms[0].helptext);
+    fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
+    fprintf(stderr, "nindoms: %d \n", addr->nindoms);
+    fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
+    fprintf(stderr, "ninstances: %d \n", addr->ninstances);
+    fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    fprintf(stderr, "version: %d \n", addr->version);
+    
+    mmv_indom2_t * _indom = addr->indoms;
+    fprintf(stderr, "[CHECKING METRIC] \n");
+    fprintf(stderr, "serial: %d \n", _indom[0].serial);
+    fprintf(stderr, "shorthelp: %s \n", _indom[0].shorttext);
+    fprintf(stderr, "longhelp: %s \n", _indom[0].helptext);
+
+    mmv_stats_add_indom(addr,indoms[1].serial,indoms[1].shorttext,indoms[1].helptext);
+    fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
+    fprintf(stderr, "nindoms: %d \n", addr->nindoms);
+    fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
+    fprintf(stderr, "ninstances: %d \n", addr->ninstances);
+    fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    fprintf(stderr, "version: %d \n", addr->version);
+    
+    _indom = addr->indoms;
+    fprintf(stderr, "[CHECKING METRIC] \n");
+    fprintf(stderr, "serial: %d \n", _indom[1].serial);
+    fprintf(stderr, "shorthelp: %s \n", _indom[1].shorttext);
+    fprintf(stderr, "longhelp: %s \n", _indom[1].helptext);
+
+
     
 
     

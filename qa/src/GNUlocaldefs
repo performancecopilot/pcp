@@ -48,7 +48,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	unpickargs.c hanoi.c chain.c progname.c countmark.c spawn.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c \
-        mmv3_simple.c \
+    mmv3_simple.c mmv3_indoms.c \
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
