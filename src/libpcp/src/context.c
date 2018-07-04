@@ -380,13 +380,11 @@ initcontextlock(pthread_mutex_t *lock)
 
     PM_ASSERT_IS_LOCKED(contexts_lock);
 
-#ifdef PM_MULTI_THREAD
     __pmInitMutex(lock);
-#endif
 }
 
 #else
-#define initcontextlock(x)	do { } while (1)
+#define initcontextlock(x)	do { } while (0)
 #endif
 
 static int
