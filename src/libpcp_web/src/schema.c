@@ -22,13 +22,14 @@
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
 
+typedef void (*redis_callback)(redisSlots *, redisReply *, void *);
+
 typedef struct redis_script {
     const char		*text;
     sds			hash;
 } redisScript;
 
 static int duplicates;	/* TODO: add counter to individual contexts */
-static int clustering;	/* TODO: remove with error-handling fallback */
 
 static redisScript scripts[] = {
 /* Script HASH_MAP_ID pcp:map:<name> , <string> -> ID
@@ -55,7 +56,7 @@ enum {
 };
 
 static void
-redis_load_scripts(redisSlots *redis, void *arg)
+redis_load_scripts(redisContext *redis, void *arg)
 {
     redisReply		*reply;
     redisScript		*script;
@@ -70,7 +71,7 @@ redis_load_scripts(redisSlots *redis, void *arg)
 	cmd = redis_param_str(cmd, script->text, strlen(script->text));
 
 	/* Note: needs to be executed on all Redis instances */
-	if (redisAppendFormattedCommand(redis->control, cmd, sdslen(cmd)) != REDIS_OK) {
+	if (redisAppendFormattedCommand(redis, cmd, sdslen(cmd)) != REDIS_OK) {
 	    fprintf(stderr, "Failed to LOAD Redis LUA script[%d] setup\n%s\n",
 			    i, script->text);
 	    exit(1);	/* TODO: propogate error */
@@ -80,7 +81,7 @@ redis_load_scripts(redisSlots *redis, void *arg)
 
     for (i = 0; i < NSCRIPTS; i++) {
 	script = &scripts[i];
-	sts = redisGetReply(redis->control, (void **)&reply);
+	sts = redisGetReply(redis, (void **)&reply);
 	if (sts != REDIS_OK || reply->type != REDIS_REPLY_STRING) {
 	    fprintf(stderr, "Failed to LOAD Redis LUA script[%d]: %s\n%s\n",
 			    i, reply->str, script->text);
@@ -95,6 +96,7 @@ redis_load_scripts(redisSlots *redis, void *arg)
 	if (pmDebugOptions.series)
 	    fprintf(stderr, "Registered script[%d] as %s\n", i, script->hash);
     }
+
 }
 
 int
@@ -236,6 +238,8 @@ redis_map(redisSlots *redis, redisMap *mapping, sds mapkey)
     redisReply		*reply;
     long long		map, add = 0;
     sds			cmd, msg, key;
+    redisContext        *c;
+    sds                 error = sdsnew("NOSCRIPT No matching script. Please use EVAL.");
 
     if (entry != NULL)
 	return redisMapValue(entry);
@@ -247,10 +251,17 @@ redis_map(redisSlots *redis, redisMap *mapping, sds mapkey)
     cmd = redis_param_str(cmd, "1", sizeof("1")-1);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, mapkey);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, EVALSHA, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
+    if (reply && reply->type == REDIS_REPLY_ERROR && strcmp(error, reply->str) == 0) {
+        freeReplyObject(reply);
+        redis_load_scripts(c, NULL);
+        redis_submit(redis, EVALSHA, key, cmd);
+        redisGetReply(c, (void **)&reply);
+    }
     map = checkMapScript(reply, &add, "%s: %s (%s)" EVALSHA,
 			"string mapping script", mapname);
     redisMapInsert(mapping, mapkey, map);
@@ -265,11 +276,13 @@ redis_map(redisSlots *redis, redisMap *mapping, sds mapkey)
 	cmd = redis_param_sds(cmd, key);
 	cmd = redis_param_sds(cmd, msg);
 	sdsfree(msg);
+        c = redisGet(redis, cmd, key);
 	redis_submit(redis, PUBLISH, key, cmd);
 
 	/* TODO: async callback function */
-	redisGetReply(redis->control, (void **)&reply);
+        redisGetReply(c, (void **)&reply);
 	checkInteger(reply, "%s: %s", PUBLISH, "new %s mapping", mapname);
+
 	freeReplyObject(reply);
     }
 
@@ -283,6 +296,7 @@ redis_series_source(redisSlots *redis, context_t *context)
     const char		*hash = pmwebapi_hash_str(context->hash);
     long long		mapid, hostid;
     sds			cmd, key, val;
+    redisContext        *c;
 
     if ((mapid = context->mapid) <= 0) {
 	mapid = redis_map(redis, contextmap, context->name);
@@ -298,10 +312,11 @@ redis_series_source(redisSlots *redis, context_t *context)
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sha(cmd, context->hash);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping context to source name");
     freeReplyObject(reply);
 
@@ -312,10 +327,11 @@ redis_series_source(redisSlots *redis, context_t *context)
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, val);
     sdsfree(val);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping source name to context");
     freeReplyObject(reply);
 
@@ -324,10 +340,11 @@ redis_series_source(redisSlots *redis, context_t *context)
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sha(cmd, context->hash);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping context to host name");
     freeReplyObject(reply);
 
@@ -338,10 +355,11 @@ redis_series_source(redisSlots *redis, context_t *context)
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, val);
     sdsfree(val);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping host name to context");
     freeReplyObject(reply);
 }
@@ -352,6 +370,7 @@ redis_series_inst(redisSlots *redis, metric_t *metric, value_t *value)
     redisReply		*reply;
     const char		*hash;
     sds			cmd, key, val, id;
+    redisContext        *c;
 
     if (!value->name)
 	return;
@@ -367,10 +386,11 @@ redis_series_inst(redisSlots *redis, metric_t *metric, value_t *value)
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sha(cmd, metric->hash);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping series to inst name");
     freeReplyObject(reply);
 
@@ -380,10 +400,11 @@ redis_series_inst(redisSlots *redis, metric_t *metric, value_t *value)
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sha(cmd, value->hash);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping instance to series");
     freeReplyObject(reply);
 
@@ -402,10 +423,11 @@ redis_series_inst(redisSlots *redis, metric_t *metric, value_t *value)
     cmd = redis_param_sha(cmd, metric->hash);
     sdsfree(val);
     sdsfree(id);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkStatusOK(reply, "%s: %s", HMSET, "setting metric inst");
     freeReplyObject(reply);
 }
@@ -427,6 +449,7 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     const char		*hash;
     long long		value_mapid, name_mapid;
     sds			cmd, key, val, name;
+    redisContext        *c;
 
     offset = json + label->name;
     val = sdsnewlen(offset, label->namelen);
@@ -466,10 +489,11 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     cmd = redis_param_sds(cmd, val);
     sdsfree(name);
     sdsfree(val);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkStatusOK(reply, "%s: %s", HMSET, "setting series labels");
     freeReplyObject(reply);
 
@@ -479,10 +503,11 @@ annotate_metric(const pmLabel *label, const char *json, annotate_t *my)
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sha(cmd, my->metric->hash);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s %s", "SADD", "pcp:series:label.X.value:Y");
     freeReplyObject(reply);
 
@@ -531,6 +556,7 @@ redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
     char	*name;
     int		i, map;
     sds		val, cmd, key;
+    redisContext *c;
 
     for (i = 0; i < metric->numnames; i++) {
 	if ((name = metric->names[i]) == NULL)
@@ -549,10 +575,11 @@ redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
 	cmd = redis_param_sds(cmd, key);
 	cmd = redis_param_sds(cmd, val);
 	sdsfree(val);
+        c = redisGet(redis, cmd, key);
 	redis_submit(redis, SADD, key, cmd);
 
 	/* TODO: async callback function */
-	redisGetReply(redis->control, (void **)&reply);
+	redisGetReply(c, (void **)&reply);
 	checkInteger(reply, "%s %s", SADD, "map metric name to series");
 	freeReplyObject(reply);
 
@@ -561,10 +588,11 @@ redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
 	cmd = redis_param_str(cmd, SADD, SADD_LEN);
 	cmd = redis_param_sds(cmd, key);
 	cmd = redis_param_sha(cmd, metric->hash);
+        c = redisGet(redis, cmd, key);
 	redis_submit(redis, SADD, key, cmd);
 
 	/* TODO: async callback function */
-	redisGetReply(redis->control, (void **)&reply);
+	redisGetReply(c, (void **)&reply);
 	checkInteger(reply, "%s: %s", SADD, "map series to metric name");
 	freeReplyObject(reply);
     }
@@ -591,10 +619,11 @@ redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
     cmd = redis_param_str(cmd, type, strlen(type));
     cmd = redis_param_str(cmd, "units", sizeof("units")-1);
     cmd = redis_param_str(cmd, units, strlen(units));
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, HMSET, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkStatusOK(reply, "%s: %s", HMSET, "setting metric desc");
     freeReplyObject(reply);
 
@@ -614,10 +643,11 @@ redis_series_metric(redisSlots *redis, context_t *context, metric_t *metric)
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sha(cmd, metric->hash);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, SADD, key, cmd);
 
     /* TODO: async callback function */
-    redisGetReply(redis->control, (void **)&reply);
+    redisGetReply(c, (void **)&reply);
     checkInteger(reply, "%s: %s", SADD, "mapping series to context");
     freeReplyObject(reply);
 }
@@ -698,6 +728,7 @@ redis_series_stream(redisSlots *redis, sds stamp, metric_t *metric)
     const char		*hash = pmwebapi_hash_str(metric->hash);
     int			i, sts, type;
     sds			cmd, key, name = sdsempty(), stream = sdsempty();
+    redisContext        *c;
 
     count = 3;	/* XADD key stamp */
     key = sdscatfmt(sdsempty(), "pcp:values:series:%s", hash);
@@ -724,7 +755,7 @@ redis_series_stream(redisSlots *redis, sds stamp, metric_t *metric)
 	    }
 	}
     }
-    sdsfree(name);
+    //    sdsfree(name);
 
     cmd = redis_command(count);
     cmd = redis_param_str(cmd, XADD, XADD_LEN);
@@ -732,10 +763,11 @@ redis_series_stream(redisSlots *redis, sds stamp, metric_t *metric)
     cmd = redis_param_sds(cmd, stamp);
     cmd = redis_param_raw(cmd, stream);
     sdsfree(stream);
+    c = redisGet(redis, cmd, key);
     redis_submit(redis, XADD, key, cmd);
 
     /* TODO: check return codes, use async callbacks */
-    redisGetReply(redis->control, (void**)&reply);
+    redisGetReply(c, (void**)&reply);
     if (checkStreamDup(reply, stamp, hash))
 	duplicates++;
     else
@@ -895,7 +927,23 @@ decodeRedisSlots(redisSlots *redis, redisReply *reply)
 static void
 redis_load_slots_callback(redisSlots *redis, redisReply *reply, void *arg)
 {
-    if (checkArray(reply, "%s %s", CLUSTER, "SLOTS") == 0)
+    /* Case where we're dealing with a single redis intance) */
+    sds single = sdsnew("ERR This instance has cluster support disabled");
+    redisSlotServer	*servers = NULL;
+    redisSlotRange      *slots;
+    if (reply && reply->type == REDIS_REPLY_ERROR && strcmp(single, reply->str) == 0) {
+        if ((servers = calloc(1, sizeof(redisSlotServer))) != NULL){
+            if ((slots = calloc(1, sizeof(redisSlotRange))) == NULL)
+                return;
+            servers->hostspec = sdscatfmt(sdsempty(), "%s", redis->hostspec);
+            slots->nslaves = 0;
+            slots->start = 0;
+            slots->end = MAXSLOTS;
+            slots->master = *servers;
+            redisSlotRangeInsert(redis, slots);
+        }
+    }
+    else if (checkArray(reply, "%s %s", CLUSTER, "SLOTS") == 0)
 	decodeRedisSlots(redis, reply);
     freeReplyObject(reply);
 }
@@ -903,22 +951,12 @@ redis_load_slots_callback(redisSlots *redis, redisReply *reply, void *arg)
 static int
 redis_load_slots(redisSlots *redis, void *arg)
 {
-    redisSlotRange	*sp;
     sds			cmd;
 
-    if (clustering) {
-	cmd = redis_command(2);
-	cmd = redis_param_str(cmd, CLUSTER, CLUSTER_LEN);
-	cmd = redis_param_str(cmd, "SLOTS", sizeof("SLOTS")-1);
-	redis_submitcb(redis, CLUSTER, NULL, cmd, redis_load_slots_callback, arg);
-    } else {
-	if ((sp = calloc(1, sizeof(redisSlotRange))) == NULL)
-	    return -ENOMEM;
-	sp->end = MAXSLOTS;
-	sp->master.redis = redis->control;
-	sp->master.hostspec = redis->hostspec;
-	redisSlotRangeInsert(redis, sp);
-    }
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, CLUSTER, CLUSTER_LEN);
+    cmd = redis_param_str(cmd, "SLOTS", sizeof("SLOTS")-1);
+    redis_submitcb(redis, CLUSTER, NULL, cmd, redis_load_slots_callback, arg);
     return 0;
 }
 
@@ -926,11 +964,11 @@ redisSlots *
 redis_init(sds server)
 {
     redisSlots          *slots;
+
     static int		setup;
 
     if (!setup) {	/* create global string map caches */
 	redisMapsInit();
-	clustering = getenv("REDIS_CLUSTER") ? 1 : 0;	/* TODO: remove */
 	setup = 1;
     }
 
@@ -939,7 +977,7 @@ redis_init(sds server)
 
     redis_load_slots(slots, NULL);
     redis_load_version(slots, NULL);
-    redis_load_scripts(slots, NULL);
+    redis_load_scripts(slots->control, NULL);
 
     return slots;
 }

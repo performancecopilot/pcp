@@ -48,6 +48,8 @@ slow
 pmcd
 # pmcd proxy
 pmproxy
+# pmcd pmproxy2
+pmproxy2
 # strip chart app
 pmchart
 # pmdumptext app
@@ -359,7 +361,7 @@ pcp2influxdb
 pcp2json
 pcp2xlsx
 pcp2xml
-pcp2zabbix 
+pcp2zabbix
 
 # Bad tests with unacceptable cross-platform behaviour, these ones
 # will NOT be run in the QA Farm
@@ -1555,6 +1557,7 @@ BAD
 1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract python
 1326 pmstore pmda.pmcd local
+1327:reserved pmproxy2
 1330 pmda.prometheus local python
 1331 verify local
 1342 pmda.prometheus local python

@@ -29,7 +29,7 @@ require {
 	type configfs_t; # pcp-lio
 	type modules_conf_t; # pcp-lio
 	type saslauthd_t; # pcp-lio
-	type modules_object_t; # pcp-lio
+	type modules_object_t; # pcp-lio, pcp.bcc
 	@PCP_NSFS_T@
 	type nfsd_fs_t; #RHBZ1515928
 	type pcp_pmie_exec_t; # pmdasummary
@@ -69,12 +69,15 @@ require {
         type mozilla_plugin_t;
         type fsadm_exec_t;
         type tracefs_t; # pmda.gfs2
+        type system_map_t; # pmda.bcc
+        type sysctl_irq_t; # pmda.bcc
+        type gpsd_t; #RHBZ1594991
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
-	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_owner sys_resource fowner sys_rawio fsetid };
+	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
@@ -125,7 +128,7 @@ allow pcp_pmcd_t pcp_var_lib_t:fifo_file { getattr open read unlink }; #RHBZ1460
 #type=AVC msg=audit(1463754714.313:316): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 #type=AVC msg=audit(1491576442.619:1738169): avc:  denied  { sys_ptrace } for  pid=15205 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 #type=AVC msg=audit(1498833776.957:2094): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
-allow pcp_pmcd_t self:capability { net_admin sys_ptrace ipc_owner chown kill sys_resource };
+allow pcp_pmcd_t self:capability { net_admin sys_ptrace ipc_lock ipc_owner chown kill sys_resource };
 
 #type=AVC msg=audit(1491581538.561:10949): avc:  denied  { getattr } for  pid=9375 comm="pmdaproc" path="/run/systemd/initctl/fifo" dev="tmpfs" ino=13290 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initctl_t:s0 tclass=fifo_file permissive=1
 allow pcp_pmcd_t initctl_t:fifo_file getattr;
@@ -184,7 +187,7 @@ allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_tra
 #type=AVC msg=audit(1498845911.360:7647): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 @PCP_TRACEFS_FILE_RULE@
 
-allow pcp_pmcd_t gconf_home_t:dir search;
+allow pcp_pmcd_t gconf_home_t:dir { getattr open read search };
 allow pcp_pmcd_t virt_etc_t:dir search;
 allow pcp_pmcd_t virt_etc_t:file { read open };
 allow pcp_pmcd_t virtd_t:unix_stream_socket connectto;
@@ -223,7 +226,8 @@ allow pcp_pmcd_t httpd_t:sem { unix_read associate getattr };
 #RHBZ1545245
 allow pcp_pmcd_t sysfs_t:dir write;
 
-#allow pcp_pmcd_t modules_object_t:lnk_file read;
+# pmda.bcc
+allow pcp_pmcd_t modules_object_t:lnk_file read;
 
 allow pcp_pmcd_t hugetlbfs_t:dir { open read };
 allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
@@ -241,6 +245,19 @@ allow pcp_pmcd_t glusterd_var_lib_t:dir search;
 
 #RHBZ1565158
 allow pcp_pmcd_t mozilla_plugin_t:sem unix_read;
+
+#pmda.bcc
+allow pcp_pmcd_t pcp_pmcd_t:process execmem;
+#type=AVC msg=audit(1530448398.992:231): avc:  denied  { read } for pid=16334 comm="python3" name="kallsyms" dev="proc" ino=4026532064 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:system_map_t:s0 tclass=file permissive=1
+allow pcp_pmcd_t system_map_t:file { ioctl open read };
+
+allow pcp_pmcd_t sysctl_irq_t:dir { search };
+
+#RHBZ1592901
+allow pcp_pmcd_t init_t:shm unix_read;
+
+#RHBZ1594991
+allow pcp_pmcd_t gpsd_t:shm { associate getattr };
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
@@ -374,4 +391,3 @@ allow pcp_pmmgr_t zabbix_port_t:tcp_socket name_connect;
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read };
 @PCP_FSADM_EXEC_MAP_RULE@
 allow pcp_pmcd_t self:capability sys_rawio;
-

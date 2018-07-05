@@ -688,12 +688,12 @@ series_prepare_maps(SOLVER *sp, node_t *np, int level)
 static int
 series_resolve_maps(SOLVER *sp, node_t *np, int level)
 {
-    redisSlots	        *redis = sp->redis;
     redisReply		*reply;
     node_t		*left;
     const char		*name;
     sds			msg;
     int			sts = 0;
+    redisContext        *c;
 
     if (np == NULL)
 	return 0;
@@ -707,7 +707,8 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
 
 	/* setup any label and context name map identifiers needed */
 	if (np->subtype == N_LABEL || np->subtype == N_CONTEXT) {
-	    if (redisGetReply(sp->redis->control, (void **)&reply) != REDIS_OK) {
+            c = redisGet(sp->redis, HGET, np->key);
+	    if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 		solverfmt(msg, "no %s named \"%s\" found (error=%d)",
 			node_subtype(np), np->value, sp->redis->control->err);
 		solvermsg(sp, PMLOG_RESPONSE, msg);
@@ -739,8 +740,8 @@ series_resolve_maps(SOLVER *sp, node_t *np, int level)
 
 	left = np->left;
 	name = left->key + sizeof("pcp:map:") - 1;
-
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+        c = redisGet(sp->redis, HGET, np->left->key);
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    solverfmt(msg, "map table %s key %s not found",
 		    left->key, np->right->value);
 	    solvermsg(sp, PMLOG_RESPONSE, msg);
@@ -830,6 +831,7 @@ series_resolve_eval(SOLVER *sp, node_t *np, int level)
     node_t		*left;
     sds			msg;
     int			sts;
+    redisContext        *c;
 
     if (np == NULL)
 	return 0;
@@ -841,8 +843,8 @@ series_resolve_eval(SOLVER *sp, node_t *np, int level)
     case N_EQ:		/* direct hash lookup */
 	left = np->left;
 	name = left->key + sizeof("pcp:map:") - 1;
-
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+        c = redisGet(redis, HGET, np->left->key);
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    solverfmt(msg, "map table %s key %s not found",
 		    left->key, np->right->value);
 	    solvermsg(sp, PMLOG_RESPONSE, msg);
@@ -886,11 +888,13 @@ series_prepare_smembers(SOLVER *sp, sds key)
 {
     redisSlots	        *redis = sp->redis;
     sds			cmd;
+    sds                 local_key = sdscpy(sdsempty(), key);
 
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
-    cmd = redis_param_sds(cmd, key);
-    redis_submit(redis, SMEMBERS, key, cmd);
+    cmd = redis_param_sds(cmd, local_key);
+    redis_submit(redis, SMEMBERS, local_key, cmd);
+
     sp->count++;
 }
 
@@ -901,8 +905,15 @@ series_resolve_smembers(SOLVER *sp, node_t *np)
     redisReply		*reply;
     sds			msg;
     int			sts;
+    redisContext        *c;
 
-    if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+    if (np->key)
+        c = redisGet(redis, SMEMBERS, np->key);
+    else if(sp->index > 0)
+        c = redisGet(sp->redis, SMEMBERS, np->matches[sp->index-1]);
+    else
+        c = redisGet(sp->redis, SMEMBERS, np->matches[sp->index]);
+    if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	solverfmt(msg, "map table %s key %s not found",
 			np->left->key, np->right->value);
 	solvermsg(sp, PMLOG_CORRUPT, msg);
@@ -947,11 +958,13 @@ series_prepare_expr(SOLVER *sp, node_t *np, int level)
     case N_GLOB:	/* globbing or regular expression lookups */
     case N_REQ:
     case N_RNE:
-	for (i = 0; i < np->nmatches; i++)
+	for (i = 0; i < np->nmatches; i++) {
 	    series_prepare_smembers(sp, np->matches[i]);
+        }
 	if (np->matches) {
-	    free(np->matches);
-	    np->matches = NULL;
+            // we use these later
+            //	    free(np->matches);
+            //	    np->matches = NULL;
 	}
 	break;
 
@@ -981,7 +994,7 @@ series_resolve_expr(SOLVER *sp, node_t *np, int level)
 
     switch (np->type) {
     case N_EQ:
-	if (np->key)
+	if (np->key != NULL)
 	    sts = series_resolve_smembers(sp, np);
 	break;
 
@@ -1069,13 +1082,17 @@ series_resolve_time(SOLVER *sp, series_set_t *result, void *arg)
     redisReply		*reply;
     sds			msg, sha;
     int			i, rc, sts = 0;
+    redisContext        *c;
 
     if (result->nseries == 0)
 	return sts;
 
     sha = sdsnewlen(NULL, 40);
     for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
-	if (redisGetReply(sp->redis->control, (void **)&reply) != REDIS_OK) {
+        msg = sdscatfmt(sdsempty(),  "pcp:values:series:%s", pmwebapi_hash_str(series));
+        c = redisGet(sp->redis, XRANGE, msg);
+        sdsfree(msg);
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    solverfmt(msg, "failed series %s XRANGE command",
 				pmwebapi_hash_str(series));
 	    solvermsg(sp, PMLOG_RESPONSE, msg);
@@ -1174,6 +1191,7 @@ series_solve(settings_t *settings,
     /* Perform final matching (set of) series solving */
     if (pmDebugOptions.series)
 	fprintf(stderr, "series_expr\n");
+
     series_prepare_expr(sp, root, 0);
     new_solver_replies(sp);
     series_resolve_expr(sp, root, 0);
@@ -1271,16 +1289,18 @@ series_map_keys(pmSeriesSettings *settings, redisSlots *redis,
     redisReply		*reply, *rp;
     sds			cmd, key, val, msg;
     int			i;
+    redisContext        *c;
 
     key = sdscatfmt(sdsempty(), "pcp:map:%s", name);
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, HKEYS, HKEYS_LEN);
     cmd = redis_param_sds(cmd, key);
+    c = redisGet(redis, HKEYS, key);
     redis_submit(redis, HKEYS, key, cmd);
 
     /* TODO: async response handling */
 
-    if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+    if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	queryfmt(msg, "failed %s string mapping", HKEYS);
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	return -EPROTO;
@@ -1333,8 +1353,11 @@ series_label_value_execute(pmSeriesSettings *settings,
     redisReply		*reply;
     sds			msg;
     int			sts;
+    redisContext        *c;
+    sds                 key = sdscatfmt(sdsempty(), "pcp:map:label.%s.value", mapid);
 
-    if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+    c = redisGet(redis, HGETALL, key);
+    if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	queryfmt(msg, "failed %s %s.%s.value", HGETALL, "pcp:map:label", mapid);
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	sts = -EAGAIN;
@@ -1434,6 +1457,7 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     redisMap		*map = labelsrmap;
     sds			msg, key, cmd;
     int			i, rc, sts = 0;
+    redisContext        *c;
 
     if (nseries <= 0) {
 	sts = (nseries < 0) ? -EINVAL :
@@ -1446,11 +1470,12 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
     cmd = redis_param_sds(cmd, key);
+    c = redisGet(redis, HGETALL, key);
     redis_submit(redis, HGETALL, key, cmd);
 
     /* TODO: async response handling */
 
-    if (redisGetReply(redis->control, (void **)&rp) != REDIS_OK) {
+    if (redisGetReply(c, (void **)&rp) != REDIS_OK) {
 	queryfmt(msg, "failed %s %s", HGETALL, "pcp:map:label.name");
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	sts = -EPROTO;
@@ -1472,11 +1497,12 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
 	cmd = redis_param_sds(cmd, key);
+        c = redisGet(redis, HGETALL, key); // going to need to fix this
 	redis_submit(redis, HGETALL, key, cmd);
 
 	/* TODO: async response handling */
 
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    queryfmt(msg, "failed %s %s:%s",
 			HGETALL, "pcp:labels:series", series[i]);
 	    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
@@ -1520,8 +1546,11 @@ series_metric_name_execute(pmSeriesSettings *settings,
     redisReply		*reply;
     sds			msg;
     int			sts;
+    redisContext        *c;
+    sds                 key = sdsnew("pcp:map:metric.name");
 
-    if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+    c = redisGet(redis, HGETALL, key);
+    if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	queryfmt(msg, "failed %s %s", HGETALL, "pcp:map:metric.name");
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	sts = -EAGAIN;
@@ -1547,6 +1576,7 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, pmSID *series, void *ar
     redisMap		*map = namesrmap;
     sds			cmd, key, msg;
     int			i, rc, sts;
+    redisContext        *c;
 
     if (nseries <= 0) {
 	sts = (nseries < 0) ? -EINVAL :
@@ -1566,6 +1596,7 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, pmSID *series, void *ar
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
 	cmd = redis_param_sds(cmd, key);
+        c = redisGet(redis, SMEMBERS, key);  // not going to work if more than one series
 	redis_submit(redis, SMEMBERS, key, cmd);
     }
 
@@ -1573,7 +1604,7 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, pmSID *series, void *ar
 
     /* unpack - iterate over series and extract names for each via map */
     for (i = 0; i < nseries; i++) {
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    queryfmt(msg, "%s series %s query failed", SMEMBERS, series[i]);
 	    queryinfo(settings, PMLOG_REQUEST, msg, arg);
 	    sts = -EAGAIN;
@@ -1646,6 +1677,7 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
     redisReply		*reply;
     sds			cmd, key, msg;
     int			n, rc, sts = 0;
+    redisContext        *c;
 
     if (nseries <= 0) {
 	sts = -EINVAL;
@@ -1665,6 +1697,7 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
 	cmd = redis_param_str(cmd, "source", sizeof("source")-1);
 	cmd = redis_param_str(cmd, "type", sizeof("type")-1);
 	cmd = redis_param_str(cmd, "units", sizeof("units")-1);
+        c = redisGet(redis, HMGET, key); // this is going to fail as it currently stands XXX
 	redis_submit(redis, HMGET, key, cmd);
     }
 
@@ -1679,7 +1712,7 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
 
     /* unpack - iterate over series and extract descriptor for each */
     for (n = 0; n < nseries; n++) {
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    queryfmt(msg, "failed %s on series %s", HMGET, series[n]);
 	    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	    sts = -EAGAIN;
@@ -1730,8 +1763,11 @@ series_inst_name_execute(pmSeriesSettings *settings,
     redisReply		*reply;
     sds			msg;
     int			sts;
+    redisContext        *c;
+    sds                 key = sdsnew("pcp:map:inst.name");
 
-    if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+    c = redisGet(redis, HGETALL, key);
+    if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	queryfmt(msg, "failed %s %s", HGETALL, "pcp:map:inst.name");
 	queryinfo(settings, PMLOG_RESPONSE, msg, arg);
 	sts = -EAGAIN;
@@ -1792,6 +1828,7 @@ series_instances_reply(pmSeriesSettings *settings, redisSlots *redis,
     pmSID		sid = sdsempty();
     sds			key, cmd, msg;
     int			i, rc, sts = 0;
+    redisContext        *c;
 
     /*
      * Iterate over the instance series identifiers, looking up
@@ -1811,6 +1848,7 @@ series_instances_reply(pmSeriesSettings *settings, redisSlots *redis,
 	cmd = redis_param_str(cmd, "inst", sizeof("inst")-1);
 	cmd = redis_param_str(cmd, "name", sizeof("name")-1);
 	cmd = redis_param_str(cmd, "series", sizeof("series")-1);
+        c = redisGet(redis, HMGET, key); // going to need to fix this as well XXX
 	redis_submit(redis, HMGET, key, cmd);
     }
     sdsfree(sid);
@@ -1820,7 +1858,7 @@ series_instances_reply(pmSeriesSettings *settings, redisSlots *redis,
     sid = sdsempty();
     for (i = 0; i < nelements; i++) {
 	extract_sha1(settings, series, elements[i], &sid, "series", arg);
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    queryfmt(msg, "failed %s %s:%s",
 			HMGET, "pcp:inst:series", series);
 	    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
@@ -1852,6 +1890,7 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     redisMap		*map = instrmap;
     sds			cmd, key, msg;
     int			i, rc, sts = 0;
+    redisContext        *c;
 
     if (nseries <= 0) {
 	sts = (nseries < 0) ? -EINVAL :
@@ -1874,11 +1913,12 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
 	cmd = redis_param_sds(cmd, key);
+        c = redisGet(redis, SMEMBERS, key);
 	redis_submit(redis, SMEMBERS, key, cmd);
 
 	/* TODO: async response handling */
 
-	if (redisGetReply(redis->control, (void **)&reply) != REDIS_OK) {
+	if (redisGetReply(c, (void **)&reply) != REDIS_OK) {
 	    queryfmt(msg, "failed %s %s:%s",
 			SMEMBERS, "pcp:instances:series", series[i]);
 	    queryinfo(settings, PMLOG_RESPONSE, msg, arg);
