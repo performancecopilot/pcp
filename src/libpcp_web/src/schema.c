@@ -951,7 +951,6 @@ redis_load_slots_callback(redisSlots *redis, redisReply *reply, void *arg)
 static int
 redis_load_slots(redisSlots *redis, void *arg)
 {
-    redisSlotRange	*sp;
     sds			cmd;
 
     cmd = redis_command(2);
