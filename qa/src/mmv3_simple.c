@@ -137,10 +137,11 @@ main(int argc, char **argv)
     //fprintf(stderr, "version: %d \n", addr->version); 
 
 
-    //void *addr_file = mmv_stats_start(file,addr);
+    void *addr_file = mmv_stats_start(file,addr);
 
-    //value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
-    //mmv_inc_value(addr_file, value, 42);
+    value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
+    mmv_inc_value(addr_file, value, 42);
+    mmv_stats_stop(file, addr_file);
     //fprintf(stderr, "File: %s \n", file); 
 
     return 0;
