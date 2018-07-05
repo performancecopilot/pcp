@@ -70,6 +70,7 @@ decl 1:
   allow [pcp_pmcd_t] [system_map_t] : [file] { ioctl open read };
   allow [pcp_pmcd_t] [sysctl_irq_t] : [dir] { search };
   allow [pcp_pmcd_t] [init_t] : [shm] { unix_read };
+  allow [pcp_pmcd_t] [gpsd_t] : [shm] { associate getattr };
   allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
   allow [pcp_pmlogger_t] self : [capability] { kill };
   allow [pcp_pmlogger_t] [init_t] : [system] { status };

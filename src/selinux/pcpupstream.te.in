@@ -255,6 +255,10 @@ allow pcp_pmcd_t sysctl_irq_t:dir { search };
 
 #RHBZ1592901
 allow pcp_pmcd_t init_t:shm unix_read;
+
+#RHBZ1594991
+allow pcp_pmcd_t gpsd_t:shm { associate getattr };
+
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
