@@ -71,6 +71,7 @@ require {
         type tracefs_t; # pmda.gfs2
         type system_map_t; # pmda.bcc
         type sysctl_irq_t; # pmda.bcc
+        type gpsd_t; #RHBZ1594991
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -252,6 +253,8 @@ allow pcp_pmcd_t system_map_t:file { ioctl open read };
 
 allow pcp_pmcd_t sysctl_irq_t:dir { search };
 
+#RHBZ1592901
+allow pcp_pmcd_t init_t:shm unix_read;
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
