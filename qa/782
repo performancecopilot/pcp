@@ -12,14 +12,24 @@ echo "QA output created by $seq"
 which pmwebd >/dev/null 2>&1 || _notrun "pmwebd not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
+# only restart pmwebd if it was running before the QA test starts
+#
+if [ -n "`_get_pids_by_name pmwebd`" ]
+then
+    restart_pmwebd=true
+else
+    restart_pmwebd=false
+fi
+
 _cleanup()
 {
     cd $here
     [ -f $tmp.backup ] && \
     $sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
     $sudo rm -rf $tmp.*
+    _service pmwebd stop >/dev/null 2>&1
     _restore_auto_restart pmwebd
-    _service pmwebd restart >/dev/null 2>&1
+    $restart_pmwebd && _service pmwebd restart >/dev/null 2>&1
 }
 
 status=1	# failure is the default!
