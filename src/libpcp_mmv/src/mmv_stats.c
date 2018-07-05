@@ -114,7 +114,8 @@ mmv_init(const char *fname, int version,
 		const mmv_metric_t *st1, int nmetric1,
 		const mmv_indom_t *in1, int nindom1,
 		const mmv_metric2_t *st2, int nmetric2,
-		const mmv_indom2_t *in2, int nindom2)
+		const mmv_indom2_t *in2, int nindom2,
+                const mmv_label_t *lb, int nlabels)
 {
     mmv_disk_instance2_t *inlist2;
     mmv_disk_instance_t *inlist1;
@@ -123,6 +124,7 @@ mmv_init(const char *fname, int version,
     mmv_disk_string_t *slist;
     mmv_disk_indom_t *domlist;
     mmv_disk_value_t *vlist;
+    mmv_disk_label_t *lblist;
     mmv_disk_header_t *hdr;
     mmv_disk_toc_t *toc;
     const mmv_indom_t *mi1;
@@ -132,6 +134,7 @@ mmv_init(const char *fname, int version,
     __uint64_t metrics_offset;		/* anchor start of metrics section */
     __uint64_t values_offset;		/* anchor start of values section */
     __uint64_t strings_offset;		/* anchor start of any/all strings */
+    __uint64_t labels_offset;		/* anchor start of any/all labels */
     void *addr;
     size_t size;
     __uint64_t offset;
@@ -149,7 +152,7 @@ mmv_init(const char *fname, int version,
     }
     for (i = 0; i < nindom2; i++) {
 	ninstances += in2[i].count;
-	if (version == MMV_VERSION2)
+	if (version == MMV_VERSION2 || version == MMV_VERSION3)
 	    nstrings += in2[i].count;	/* instance names */
 	if (in2[i].shorttext)
 	    nstrings++;
@@ -175,7 +178,7 @@ mmv_init(const char *fname, int version,
 	}
     }
     for (i = 0; i < nmetric2; i++) {
-	if (version == MMV_VERSION2)
+	if (version == MMV_VERSION2 || version == MMV_VERSION3)
 	    nstrings++;		/* metric name */
 	if (st2[i].helptext)
 	    nstrings++;
@@ -193,14 +196,24 @@ mmv_init(const char *fname, int version,
 	    nvalues++;
 	}
     }
+    
+    // TODO: check correctness
+    /*for (i = 0; i < nlabels; i++) {
+        if (lb[i].payload) {
+            nstrings++;
+        }
+    }*/
 
     /* TOC follows header, with enough entries to hold */
-    /* indoms, instances, metrics, values, and strings */
+    /* indoms, instances, metrics, values, strings, and labels */
     size = sizeof(mmv_disk_toc_t) * 2;
     if (nindom1 || nindom2)
 	size += sizeof(mmv_disk_toc_t) * 2;
     if (nstrings)
 	size += sizeof(mmv_disk_toc_t) * 1;
+    if (nlabels) {
+        size += sizeof(mmv_disk_toc_t) * 1;
+    }
     indoms_offset = sizeof(mmv_disk_header_t) + size;
 
     /* Following the indom definitions are the actual instances */
@@ -241,8 +254,12 @@ mmv_init(const char *fname, int version,
     size = nvalues * sizeof(mmv_disk_value_t);
     strings_offset = values_offset + size;
 
+    /* TODO: Following the strings are the labels */
+    size = nstrings * sizeof(mmv_disk_string_t);
+    labels_offset = strings_offset + size;
+
     /* End of file follows all of the actual strings */
-    size = strings_offset + nstrings * sizeof(mmv_disk_string_t);
+    size = labels_offset + nlabels * sizeof(mmv_disk_label_t);
 
     if ((addr = mmv_mapping_init(fname, size)) == NULL)
 	return NULL;
@@ -297,6 +314,13 @@ mmv_init(const char *fname, int version,
 	toc[tocidx].type = MMV_TOC_STRINGS;
 	toc[tocidx].count = nstrings;
 	toc[tocidx].offset = strings_offset;
+	tocidx++;
+    }
+    // TODO check
+    if (labels) {
+        toc[tocidx].type = MMV_TOC_MMV;
+	toc[tocidx].count = nlabels;
+	toc[tocidx].offset = labels_offset;
 	tocidx++;
     }
 
@@ -452,10 +476,10 @@ mmv_init(const char *fname, int version,
     stridx = 0;
 
     /*
-     * 5 phases: v2 instance names, v2 metric names, all string values,
+     * 6 phases: v2 instance names, v2 metric names, all string values,
      *           any metric help, any indom help.
      */
-    if (version == MMV_VERSION2) {
+    if (version == MMV_VERSION2 || version == MMV_VERSION3) {
 	inlist2 = (mmv_disk_instance2_t *)((char *)addr + instances_offset);
 	for (i = 0; i < nindom2; i++) {
 	    mmv_instances2_t *insts = in2[i].instances;
@@ -487,7 +511,7 @@ mmv_init(const char *fname, int version,
 	    mmv_disk_metric_t *m1 = (mmv_disk_metric_t *)
 			((char *)(addr + vlist[i].metric));
 	    type = m1->type;
-	} else if (version == MMV_VERSION2) {
+	} else if (version == MMV_VERSION2 || version == MMV_VERSION3) {
 	    mmv_disk_metric2_t *m2 = (mmv_disk_metric2_t *)
 			((char *)(addr + vlist[i].metric));
 	    type = m2->type;
@@ -569,6 +593,28 @@ mmv_init(const char *fname, int version,
 	    stridx++;
 	}
     }
+    // copy payload labels
+    /*for (i = 0; i < nlabels; i++) {
+	if (lb[i].payload) {
+	    lblist[i].payload = strings_offset +
+				(stridx * sizeof(mmv_disk_string_t));
+	    strncpy(slist[stridx].payload, lblist[i].payload, MMV_LABELMAX);
+	    slist[stridx].payload[MMV_LABELMAX-1] = '\0';// Should it be labelmax?
+	    stridx++;
+	}
+    }*/
+
+    /* Labels section */
+    lblist = (mmv_disk_labels_t *)((char *)addr + labels_offset);
+    for (i = 0; i < nlabels; i++) {
+	lblist[i].flags = lb[i].flags;
+	lblist[i].item = lb[i].identity; 
+	lblist[i].internal = lb[i].internal;
+	lblist[i].name = lb[i].name;
+	lblist[i].value = lb[i].value;
+	strncpy(lblist[i].payload, lb[i].payload, MMV_LABELMAX);
+	lblist[i].payload[MMV_LABELMAX-1] = '\0';
+    }
 
     /* Complete - unlock the header, PMDA can read now */
     hdr->g2 = hdr->g1;
@@ -640,7 +686,8 @@ mmv_stats_init(const char *fname,
 	return NULL;
 
     return mmv_init(fname, version, cluster, flags,
-				st, nmetrics, in, nindoms, NULL, 0, NULL, 0);
+		    st, nmetrics, in, nindoms, 
+                    NULL, 0, NULL, 0, NULL, 0);
 }
 
 static int
@@ -724,7 +771,8 @@ mmv_stats2_init(const char *fname,
 	return NULL;
 
     return mmv_init(fname, version, cluster, flags,
-			    NULL, 0, NULL, 0, st, nmetrics, in, nindoms);
+		    NULL, 0, NULL, 0, st, nmetrics, in, nindoms,
+                    NULL, 0);
 }
 
 mmv_registry_t *
@@ -901,8 +949,14 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
     label[registry->nlabels-1].flags = PM_LABEL_CLUSTER;
     label[registry->nlabels-1].identity = registry->cluster;
     label[registry->nlabels-1].internal = PM_IN_NULL;
-    label[registry->nlabels-1].name = name;
-    label[registry->nlabels-1].value = value;
+    label[registry->nlabels-1].name = strlen(name);
+    label[registry->nlabels-1].value = strlen(value);
+    char *aux = name + value;
+    if (strlen(aux) > MMV_LABELMAX) {
+        fprintf(stderr, "Payload too big while adding label\n");
+        return -1;
+    }
+    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
 
     return 1; // TODO what returns?
 }
@@ -934,8 +988,14 @@ mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
     label[registry->nlabels-1].flags = PM_LABEL_INDOM;
     label[registry->nlabels-1].identity = serial;
     label[registry->nlabels-1].internal = PM_IN_NULL;
-    label[registry->nlabels-1].name = name;
-    label[registry->nlabels-1].value = value;
+    label[registry->nlabels-1].name = strlen(name);
+    label[registry->nlabels-1].value = strlen(value);
+    char *aux = name + value;
+    if (strlen(aux) > MMV_LABELMAX) {
+        fprintf(stderr, "Payload too big while adding label\n");
+        return -1;
+    }
+    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
 
     return 1; // TODO what returns?
 }
@@ -968,8 +1028,14 @@ mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
     label[registry->nlabels-1].flags = PM_LABEL_ITEM;
     label[registry->nlabels-1].identity = item;
     label[registry->nlabels-1].internal = PM_IN_NULL;
-    label[registry->nlabels-1].name = name;
-    label[registry->nlabels-1].value = value;
+    label[registry->nlabels-1].name = strlen(name);
+    label[registry->nlabels-1].value = strlen(value);
+    char *aux = name + value;
+    if (strlen(aux) > MMV_LABELMAX) {
+        fprintf(stderr, "Payload too big while adding label\n");
+        return -1;
+    }
+    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
 
     return 1; // TODO what returns?
 }
@@ -1002,8 +1068,14 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
     label[registry->nlabels-1].flags = PM_LABEL_INSTANCES;
     label[registry->nlabels-1].identity = serial;
     label[registry->nlabels-1].internal = instid;
-    label[registry->nlabels-1].name = name;
-    label[registry->nlabels-1].value = value;
+    label[registry->nlabels-1].name = strlen(name);
+    label[registry->nlabels-1].value = strlen(value);
+    char *aux = name + value;
+    if (strlen(aux) > MMV_LABELMAX) {
+        fprintf(stderr, "Payload too big while adding label\n");
+        return -1;
+    }
+    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
 
     return 1; // TODO what returns?
 }
@@ -1014,7 +1086,8 @@ mmv_stats_start(const char *file, mmv_registry_t *registry)
     return mmv_init(file, registry->version, registry->cluster,
                     registry->flags, NULL, 0, NULL, 0, 
                     registry->metrics, registry->nmetrics, 
-                    registry->indoms, registry->nindoms);
+                    registry->indoms, registry->nindoms,
+                    registry->labels, registry->nlabels);
 }
 
 void
