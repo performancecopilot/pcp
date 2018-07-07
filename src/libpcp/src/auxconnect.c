@@ -934,7 +934,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
 	 myAddr != NULL;
 	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
-#if !defined(IS_SOLARIS)
+#if !defined(IS_SOLARIS) && !defined(IS_MINGW)
 	const __pmAddrInfo	*ai;
 	/*
 	 * We should be ignoring any entry without SOCK_STREAM (= 1),
@@ -943,6 +943,12 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	 */
 	ai = __pmHostEntGetAddrInfo(servInfo, enumIx);
 	if (ai->ai_socktype != SOCK_STREAM) {
+	    if (pmDebugOptions.context && pmDebugOptions.desperate) {
+		char *sockname = __pmSockAddrToString(myAddr);
+		fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d): skip socket %s because type=%d not %d\n",
+			  hostname, pmcd_port, sockname, ai->ai_socktype, SOCK_STREAM);
+		free(sockname);
+	    }
 	    __pmSockAddrFree(myAddr);
 	    continue;
 	}
@@ -961,7 +967,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	if (fd < 0) {
 	    if (pmDebugOptions.context && pmDebugOptions.desperate) {
 		char *sockname = __pmSockAddrToString(myAddr);
-		fprintf(stderr, "__pmAuxConnectPMCDPortfd: %s filed to create socket, errno=%d\n", sockname, errno);
+		fprintf(stderr, "__pmAuxConnectPMCDPort: failed to create socket %s, errno=%d\n", sockname, errno);
 		free(sockname);
 	    }
 	    __pmSockAddrFree(myAddr);
