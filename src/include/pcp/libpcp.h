@@ -306,7 +306,7 @@ typedef struct {
 #endif
 } __pmVersionCred;
 
-#if defined(HAVE_64BIT_LONG)
+#if defined(HAVE_64BIT_PTR)
 /*
  * A pmValue contains the union of a 32-bit int and a pointer.  In the world
  * of 64-bit pointers, a pmValue is therefore larger than in the 32-bit world.
@@ -328,12 +328,12 @@ typedef struct {
     int			valfmt;		/* value style */
     __pmValue_PDU	vlist[1];	/* set of instances/values */
 } __pmValueSet_PDU;
-#elif defined(HAVE_32BIT_LONG)
+#elif defined(HAVE_32BIT_PTR)
 /* In the 32-bit world, structures may be used in PDUs as defined */
 typedef pmValue		__pmValue_PDU;
 typedef pmValueSet	__pmValueSet_PDU;
 #else
-bozo - unknown size of long !!!
+bozo - unknown size of pointer !!!
 #endif
 
 /* mode options for __pmGetPDU */
