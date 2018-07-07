@@ -539,11 +539,11 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
 int
 dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)
 {
-    printf("\nTOC[%d]: toc offset %ld, metrics offset %"PRIi64" (%d entries)\n",
+    printf("\nTOC[%d]: offset %ld, labels offset %"PRIi64" (%d entries)\n",
 		idx, base, offset, count);
     int i;
-    char buf[MMV_STRINGMAX];
-    mmv_disk_string_t *string; // ????????
+    //char buf[MMV_STRINGMAX];
+    //mmv_disk_string_t *string; // ????????
     mmv_disk_label_t *lb = (mmv_disk_label_t *)((char *)addr + offset);
 
     for (i = 0; i < count; i++) {
@@ -553,10 +553,16 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	    printf("Bad file size: too small for toc[%d] metric[%d]\n", idx, i);
 	    return 1;
 	}
-	printf("flags=0x%x, identity=0x%x, internal=0x%x, name=%d, value=%d",
-		lb[i].flags, lb[i].identity, lb[i].internal, lb[i].name, lb[i].value);
+	printf("  [%u/%"PRIu64"] %s\n",
+		i+1, offset + i * sizeof(mmv_disk_label_t), 
+		lb[i].payload);
+	printf("        flags=0x%x, identity=0x%x\n",
+		lb[i].flags, lb[i].identity);
+	printf("        internal=0x%x\n",
+		lb[i].internal);
+	printf("        name=%d, value=%d \n ",lb[i].name, lb[i].value);		
 	
-	printf("Payload=0s", lb[i].payload);	
+	//printf("Payload=%s\n", lb[i].payload);	
 
 	/*printf("  [%u/%"PRIi64"] %s\n", m[i].item, off, m[i].name);
 	

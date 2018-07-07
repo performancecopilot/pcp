@@ -285,6 +285,8 @@ mmv_init(const char *fname, int version,
 	hdr->tocs += 2;
     if (nstrings)
 	hdr->tocs += 1;
+    if (lb)
+	hdr->tocs += 1;    
     hdr->flags = fl;
     hdr->cluster = cluster;
     hdr->process = (__int32_t)getpid();
