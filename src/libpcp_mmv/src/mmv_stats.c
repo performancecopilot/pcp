@@ -317,8 +317,8 @@ mmv_init(const char *fname, int version,
 	tocidx++;
     }
     // TODO check
-    if (labels) {
-        toc[tocidx].type = MMV_TOC_MMV;
+    if (lb) {
+        toc[tocidx].type = MMV_TOC_LABELS;
 	toc[tocidx].count = nlabels;
 	toc[tocidx].offset = labels_offset;
 	tocidx++;
@@ -605,10 +605,10 @@ mmv_init(const char *fname, int version,
     }*/
 
     /* Labels section */
-    lblist = (mmv_disk_labels_t *)((char *)addr + labels_offset);
+    lblist = (mmv_disk_label_t *)((char *)addr + labels_offset);
     for (i = 0; i < nlabels; i++) {
 	lblist[i].flags = lb[i].flags;
-	lblist[i].item = lb[i].identity; 
+	lblist[i].identity = lb[i].identity; 
 	lblist[i].internal = lb[i].internal;
 	lblist[i].name = lb[i].name;
 	lblist[i].value = lb[i].value;
@@ -919,7 +919,7 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
     }
     // TODO check!!!
     //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
-	//return NULL;
+	//return -1;
     return 1; // TODO what returns?
 }
 
@@ -951,12 +951,14 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
     label[registry->nlabels-1].internal = PM_IN_NULL;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
-    char *aux = name + value;
-    if (strlen(aux) > MMV_LABELMAX) {
+    if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         fprintf(stderr, "Payload too big while adding label\n");
         return -1;
     }
-    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
+    char *aux = label[registry->nlabels-1].payload;
+    strncpy(aux, name, strlen(name));
+    strncpy(&aux[strlen(name)], value, strlen(value));
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
     return 1; // TODO what returns?
 }
@@ -990,12 +992,14 @@ mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
     label[registry->nlabels-1].internal = PM_IN_NULL;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
-    char *aux = name + value;
-    if (strlen(aux) > MMV_LABELMAX) {
+    if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         fprintf(stderr, "Payload too big while adding label\n");
         return -1;
     }
-    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
+    char *aux = label[registry->nlabels-1].payload;
+    strncpy(aux, name, strlen(name));
+    strncpy(&aux[strlen(name)], value, strlen(value));
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
     return 1; // TODO what returns?
 }
@@ -1030,12 +1034,14 @@ mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
     label[registry->nlabels-1].internal = PM_IN_NULL;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
-    char *aux = name + value;
-    if (strlen(aux) > MMV_LABELMAX) {
+    if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         fprintf(stderr, "Payload too big while adding label\n");
         return -1;
     }
-    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
+    char *aux = label[registry->nlabels-1].payload;
+    strncpy(aux, name, strlen(name));
+    strncpy(&aux[strlen(name)], value, strlen(value));
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
     return 1; // TODO what returns?
 }
@@ -1070,12 +1076,14 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
     label[registry->nlabels-1].internal = instid;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
-    char *aux = name + value;
-    if (strlen(aux) > MMV_LABELMAX) {
+    if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         fprintf(stderr, "Payload too big while adding label\n");
         return -1;
     }
-    strncpy(label[registry->nlabels-1].payload, aux, MMV_LABELMAX);
+    char *aux = label[registry->nlabels-1].payload;
+    strncpy(aux, name, strlen(name));
+    strncpy(&aux[strlen(name)], value, strlen(value));
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
     return 1; // TODO what returns?
 }

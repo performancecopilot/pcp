@@ -83,7 +83,7 @@ main(int argc, char **argv)
     fprintf(stderr, "shorthelp: %s \n", _metric[0].shorttext);
     fprintf(stderr, "longhelp: %s \n", _metric[0].helptext);
 
-    mmv_stats_add_metric(addr,metrics[1].name,metrics[1].item,metrics[1].type,
+    /*mmv_stats_add_metric(addr,metrics[1].name,metrics[1].item,metrics[1].type,
                          metrics[1].semantics,metrics[1].dimension,0,metrics[1].shorttext,
                          metrics[1].helptext);
 
@@ -98,24 +98,24 @@ main(int argc, char **argv)
     fprintf(stderr, "[CHECKING METRIC] \n");
     fprintf(stderr, "name: %s \n", _metric[1].name);
     fprintf(stderr, "shorthelp: %s \n", _metric[1].shorttext);
-    fprintf(stderr, "longhelp: %s \n", _metric[1].helptext);
+    fprintf(stderr, "longhelp: %s \n", _metric[1].helptext);*/
 
 
-    mmv_stats_add_indom(addr,indoms[0].serial,indoms[0].shorttext,indoms[0].helptext);
+    /*mmv_stats_add_indom(addr,indoms[0].serial,indoms[0].shorttext,indoms[0].helptext);
     fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
     fprintf(stderr, "ninstances: %d \n", addr->ninstances);
     fprintf(stderr, "nlabels: %d \n", addr->nlabels);
-    fprintf(stderr, "version: %d \n", addr->version);
+    fprintf(stderr, "version: %d \n", addr->version);*/
     
-    mmv_indom2_t * _indom = addr->indoms;
-    fprintf(stderr, "[CHECKING METRIC] \n");
-    fprintf(stderr, "serial: %d \n", _indom[0].serial);
-    fprintf(stderr, "shorthelp: %s \n", _indom[0].shorttext);
-    fprintf(stderr, "longhelp: %s \n", _indom[0].helptext);
+    //mmv_indom2_t * _indom = addr->indoms;
+    //fprintf(stderr, "[CHECKING METRIC] \n");
+    //fprintf(stderr, "serial: %d \n", _indom[0].serial);
+    //fprintf(stderr, "shorthelp: %s \n", _indom[0].shorttext);
+    //fprintf(stderr, "longhelp: %s \n", _indom[0].helptext);
 
-    mmv_stats_add_indom(addr,indoms[1].serial,indoms[1].shorttext,indoms[1].helptext);
+    /*mmv_stats_add_indom(addr,indoms[1].serial,indoms[1].shorttext,indoms[1].helptext);
     fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
@@ -128,6 +128,39 @@ main(int argc, char **argv)
     fprintf(stderr, "serial: %d \n", _indom[1].serial);
     fprintf(stderr, "shorthelp: %s \n", _indom[1].shorttext);
     fprintf(stderr, "longhelp: %s \n", _indom[1].helptext);
+    */
+    // ADD LABELS
+    char *auxn = "name";
+    char *auxv = "value";
+    mmv_stats_add_registry_label(addr,auxn,auxv);
+    fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
+    fprintf(stderr, "nindoms: %d \n", addr->nindoms);
+    fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
+    fprintf(stderr, "ninstances: %d \n", addr->ninstances);
+    fprintf(stderr, "nlabels: %d \n", addr->nlabels);
+    fprintf(stderr, "version: %d \n", addr->version);
+
+    mmv_label_t *lb = addr->labels;
+    fprintf(stderr, "[CHECKING LABEL] \n");
+    fprintf(stderr, "identity: %d \n", lb[0].identity);
+    fprintf(stderr, "payload: %s \n", lb[0].payload);
+    //printf("payload: %c \n", lb[0].payload[0]);
+    //printf("payload: %c \n", lb[0].payload[1]);
+    //printf("payload: %c \n", lb[0].payload[2]);
+    //printf("payload: %c \n", lb[0].payload[3]);
+    //printf("payload: %c \n", lb[0].payload[4]);
+    //printf("payload: %c \n", lb[0].payload[5]);
+
+    
+    //char *auxtot = addr->labels[0].payload; 
+    //strncpy(auxtot, auxn, strlen(auxn));
+    //fprintf(stderr, "stringtot: %s \n", auxtot);
+    //strncpy(&(addr->labels[0].payload[strlen(auxn)]), auxv, strlen(auxv));
+    //auxtot[29] = '\0';
+    //fprintf(stderr, "stringtot: %s \n", addr->labels[0].payload);
+    
+    //fprintf(stderr, "longhelp: %s \n", lb[0].helptext);
+
 
 
     

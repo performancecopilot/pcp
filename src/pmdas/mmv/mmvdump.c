@@ -536,35 +536,30 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
 }
 
 // TODO In progress
-/*int
+int
 dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)
 {
+    printf("\nTOC[%d]: toc offset %ld, metrics offset %"PRIi64" (%d entries)\n",
+		idx, base, offset, count);
     int i;
     char buf[MMV_STRINGMAX];
-    mmv_disk_string_t *string;
-    mmv_disk_label_t *m = (mmv_disk_label_t *)((char *)addr + offset);
+    mmv_disk_string_t *string; // ????????
+    mmv_disk_label_t *lb = (mmv_disk_label_t *)((char *)addr + offset);
 
     for (i = 0; i < count; i++) {
-	__uint64_t name;
-	__uint64_t off = offset + i * sizeof(mmv_disk_metric2_t);
+	__uint64_t off = offset + i * sizeof(mmv_disk_label_t);
 
-	if (size < off + sizeof(mmv_disk_metric2_t)) {
+	if (size < off + sizeof(mmv_disk_label_t)) {
 	    printf("Bad file size: too small for toc[%d] metric[%d]\n", idx, i);
 	    return 1;
 	}
-	name = m[i].name;
-	if (size < name + sizeof(mmv_disk_string_t)) {
-	    printf("Bad file size: too small for toc[%d] metric[%d] name\n", idx, i);
-	    return 1;
-	} else if (name == 0) {
-	    printf("Bad file: invalid offset for toc[%d] metric[%d] name\n", idx, i);
-	    return 1;
-	}
-	string = (mmv_disk_string_t *)((char *)addr + name);
-	memcpy(buf, string->payload, sizeof(buf));
-	buf[sizeof(buf)-1] = '\0';
+	printf("flags=0x%x, identity=0x%x, internal=0x%x, name=%d, value=%d",
+		lb[i].flags, lb[i].identity, lb[i].internal, lb[i].name, lb[i].value);
+	
+	printf("Payload=0s", lb[i].payload);	
 
-	printf("  [%u/%"PRIi64"] %s\n", m[i].item, off, buf);
+	/*printf("  [%u/%"PRIi64"] %s\n", m[i].item, off, m[i].name);
+	
 	printf("       type=%s (0x%x), sem=%s (0x%x), pad=0x%x\n",
 		metrictype(m[i].type), m[i].type,
 		metricsem(m[i].semantics), m[i].semantics,
@@ -573,9 +568,9 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	if (m[i].indom != PM_INDOM_NULL && m[i].indom != 0)
 	    printf("       indom=%d\n", m[i].indom);
 	else
-	    printf("       (no indom)\n");
+	    printf("       (no indom)\n");*/
 
-	off = m[i].shorttext;
+	/*off = m[i].shorttext;
 	if (off != 0) {
 	    if (size < off + sizeof(mmv_disk_string_t)) {
 		printf("Bad file size: too small for toc[%d] metric[%d] oneline\n", idx, i);
@@ -601,10 +596,10 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	    printf("       helptext=%s\n", buf);
 	}
 	else
-	    printf("       (no helptext)\n");
+	    printf("       (no helptext)\n");*/
     }
     return 0;
-}*/
+}
 
 static char *
 flagstr(int flags)
@@ -658,7 +653,9 @@ dump(const char *file, void *addr, size_t size)
 	return 1;
     }
     version = hdr->version;
-    if (version != MMV_VERSION1 && version != MMV_VERSION2) {
+    if (version != MMV_VERSION1 && version != MMV_VERSION2 &&
+	version != MMV_VERSION3)
+    {
 	printf("Version %d not supported\n", version);
 	return 1;
     }
@@ -672,6 +669,7 @@ dump(const char *file, void *addr, size_t size)
 		hdr->g1, hdr->g2);
 	return 1;
     }
+    // if version 3 should be 3 tocs min right? TOCHECK
     printf("TOC count  = %u\n", hdr->tocs);
     if (hdr->tocs < 2) {
 	printf("Bad tocs: invalid table of contents count (%d)\n", hdr->tocs);
@@ -725,6 +723,10 @@ dump(const char *file, void *addr, size_t size)
 	    if (dump_strings(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
+	case MMV_TOC_LABELS:
+	    if (dump_labels(addr, size, i, base, offset, count))
+		sts = 1;
+	    break;    
 	default:
 	    printf("Unrecognised TOC[%d] type: 0x%x\n", i, type);
 	    sts = 1;
