@@ -23,15 +23,13 @@ CMDTARGET = pmcpp$(EXECSUFFIX)
 
 ifneq "$(CROSS_COMPILING)" "yes"
 STATICTARGETS = pmcpp.static$(EXECSUFFIX)
-ifeq "$(TARGET_OS)" "mingw"
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp_static/src/libpcp_static.a
-else
-STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
-endif
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 endif
 
 LDIRT = $(CMDTARGET) $(STATICTARGETS)
+
+.NOTPARALLEL:
 
 default:	$(CMDTARGET) $(STATICTARGETS)
 
@@ -44,5 +42,5 @@ default_pcp:	default
 
 install_pcp:	install
 
-pmcpp.static$(EXECSUFFIX):	$(OBJECTS)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+pmcpp.static$(EXECSUFFIX):	$(CFILES) $(STATIC_LIBPCP)
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)

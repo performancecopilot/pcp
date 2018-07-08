@@ -22,7 +22,7 @@ echo "QA output created by $seq"
 #
 case `hostname -s`
 in
-    vm00|vm01|vm02|vm03|vm05|vm07|vm18|vm28|vm30|vm34|vm36)
+    vm00|vm02|vm03|vm05|vm07|vm18|vm28|vm30|vm34|vm36)
 	_notrun "multithread10 and helgrind are not happy campers on `hostname`"
 	# NOTREACHED
 	;;

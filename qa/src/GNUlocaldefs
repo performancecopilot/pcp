@@ -115,7 +115,7 @@ ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # appears to have been installed (assumes PCP >= 3.5), and then
 # only for the setup target (so not in the build)
 #
-XTRATARGETS += check_fault_injection exercise_fault
+XTRATARGETS += check_fault_injection$(EXECSUFFIX) exercise_fault$(EXECSUFFIX)
 endif
 MYFILES += check_fault_injection.c exercise_fault.c
 LDIRT += check_fault_injection exercise_fault
@@ -175,9 +175,9 @@ PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
 CFILES_TARGETS = $(CFILES)
 
-TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
-	chkctx2_lite template \
-	fetchrate_lite pv
+TARGETS = $(subst broken_pmda,,$(basename $(patsubst %,%$(EXECSUFFIX),$(CFILES_TARGETS)))) \
+	chkctx2_lite$(EXECSUFFIX) template$(EXECSUFFIX) \
+	fetchrate_lite$(EXECSUFFIX) pv$(EXECSUFFIX)
 
 ifeq "$(TARGET_OS)" "linux"
 TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
@@ -186,7 +186,7 @@ TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
 endif
 
 ifeq ($(HAVE_64), 1)
-TARGETS	+= pv64
+TARGETS	+= pv64$(EXECSUFFIX)
 endif
 
 LCFLAGS = -DHAVE_TRACE

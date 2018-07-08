@@ -50,6 +50,8 @@ static ctl_t		registered = {
 #else
     PTHREAD_MUTEX_INITIALIZER,
 #endif
+#else
+    0,
 #endif
 	0, NULL, 0, 0 };
 

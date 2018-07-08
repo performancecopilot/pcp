@@ -2475,6 +2475,9 @@ End-of-File
 	if test -x ./conftest
 	then
 	    ans=`./conftest`
+	    if test $target_os = mingw -a "$ans" = "lld"; then
+		ans='I64d'
+	    fi
 	    echo "./conftest -> \"$ans\"" >&5
 	fi
     fi
@@ -2654,7 +2657,9 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(PM_SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+if test -n "$ans"; then
+    AC_DEFINE_UNQUOTED(PM_SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+fi
 
 AC_MSG_CHECKING([sizeof time_t])
 if test "$cross_compiling" = "yes"; then
@@ -2672,7 +2677,9 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(PM_SIZEOF_TIME_T, $ans, [sizeof time_t])
+if test -n "$ans"; then
+    AC_DEFINE_UNQUOTED(PM_SIZEOF_TIME_T, $ans, [sizeof time_t])
+fi
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])

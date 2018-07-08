@@ -42,7 +42,9 @@ __pmIsConnectLock(void *lock)
 void
 init_connect_lock(void)
 {
+#if defined(PM_MULTI_THREAD)
     __pmInitMutex(&connect_lock);
+#endif
 }
 
 static int

@@ -248,9 +248,8 @@ _showfiles >$tmp.before
 
 # real QA test starts here
 _setup_control PCP_COMPRESSAFTER=0
-pmlogger_daily -f -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
+pmlogger_daily -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles >$tmp.after
 
 echo

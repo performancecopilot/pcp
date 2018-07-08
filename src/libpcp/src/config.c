@@ -40,8 +40,13 @@ __pmIsConfigLock(void *lock)
 }
 #endif
 
-#ifdef IS_MINGW
+#ifdef IS_OLD_MINGW
 /*
+ * It is not clear what's the right thing to do on Windows ...
+ * pro tem, disable all of this path rewriting until we have a
+ * clearer understanding.  Note IS_OLD_MINGW that needs to be
+ * removed/changed.  See also NQR note below.  TODO.
+ *
  * Fix up the Windows path separator quirkiness - PCP code deals
  * typically with forward-slash separators (i.e. if not passed in
  * on the command line, but hard-coded), but only very little now.
@@ -119,7 +124,13 @@ static int posix_style(void)
 
     PM_LOCK(__pmLock_extcall);
     s = getenv("SHELL");		/* THREADSAFE */
-    sts = (s && strncmp(s, "/bin/", 5) == 0);
+    /*
+     * TODO - this is NQR
+     * with the current git-sdk based mingw build ecosystem, SHELL
+     * from the env here is C:\git-sdk-64\usr\bin\bash.exe and
+     * $EXEPATH=C:\git-sdk-64
+     */
+    sts = (s && (strncmp(s, "/bin/", 5) == 0 || strncmp(s, "/usr/bin/", 9) == 0));
     PM_UNLOCK(__pmLock_extcall);
     return sts;
 }

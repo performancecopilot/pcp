@@ -1305,7 +1305,10 @@ class DstatTool(object):
     @staticmethod
     def finalize():
         """ Finalize and clean up (atexit) """
-        sys.stdout.write('\n' + ANSI['reset'])
+        if not op.verify:
+            sys.stdout.write('\n')
+            if sys.stdout.isatty():
+                sys.stdout.write(ANSI['reset'])
         sys.stdout.flush()
         if op.pidfile:
             os.remove(op.pidfile)

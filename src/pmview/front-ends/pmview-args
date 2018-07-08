@@ -11,6 +11,11 @@
 # for more details.
 #
 
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+# ... and _is_archive()
+. $PCP_SHARE_DIR/lib/utilproc.sh
+
 prog=`basename $0`
 
 PMVIEW=pmview
@@ -84,35 +89,6 @@ _pmview_usage()
 _pmview_multiple_sources_are_ok()
 {
     _multiple_sources=true
-}
-
-# check for magic numbers in a file that indicate it is a PCP archive
-#
-# if file(1) was reliable, this would be much easier, ... sigh
-#
-# if you need to change this, make consistent changes in all these
-# places:
-#	_check_file() in src/pmafm/mkaf
-#	_is_archive() in src/pmafm/pmafm
-#	_is_archive() in src/pmview/front-ends/pmview-args
-#
-_is_archive()
-{
-    case "$PCP_PLATFORM" in 
-    irix)
-	dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
-NR == 1 && $2 == "00000084" && $3 == "50052600" { exit 0 }
-					    { exit 1 }'
-	;;
-    linux)
-	dd ibs=1 count=7 if="$1" 2>/dev/null | od -x | $PCP_AWK_PROG '
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { exit 0 }
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { exit 0 }
-
-						{ exit 1 }'
-	;;
-    esac
-    return $?
 }
 
 # One of the first actions of a front end script should be to call 

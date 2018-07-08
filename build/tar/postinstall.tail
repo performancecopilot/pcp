@@ -16,7 +16,7 @@ fi
 # set up $PATH to include all the optional and bizarre places that
 # useful executables might be hiding
 #
-for xtra in /usr/sbin /sbin /usr/local/bin $PCP_BINADM_DIR \
+for xtra in /usr/sbin /sbin /usr/local/bin "$PCP_BINADM_DIR" \
 	    /usr/local/git/bin /usr/perl5/bin /usr/gnu/bin
 do
     [ -d "$xtra" ] || continue
@@ -34,9 +34,9 @@ export PATH
 #
 
 for conf in \
-    $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
-    $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
-    $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
+    "$PCP_PMCDCONF_PATH" "$PCP_PMCDOPTIONS_PATH" "$PCP_PMCDRCLOCAL_PATH" \
+    "$PCP_PMIECONTROL_PATH" "$PCP_PMLOGGERCONTROL_PATH" \
+    "$PCP_PMPROXYOPTIONS_PATH" "$PCP_PMWEBDOPTIONS_PATH"
 do
     if [ -f "$conf.pre" -a -f "$conf" ]
     then
@@ -57,7 +57,7 @@ if [ -f /etc/passwd ]
 then
     # things like useradd may be hiding in odd places ...
     #
-    PATH=$PATH:/usr/sbin
+    PATH="$PATH":/usr/sbin
     # common command-line options
     # -c comment
     # -g primary_group_name
@@ -70,25 +70,25 @@ then
     # system account (no aging, sys gid/uid range, no home dir creation)
     #   -r for Linux, not supported for netbsd or openbsd
     #
-    if [ $PCP_PLATFORM = netbsd ]
+    if [ "$PCP_PLATFORM" = netbsd ]
     then
 	no_home_dir=''
 	sys_acc=''
 	nologin=/sbin/nologin
 	bash=/usr/pkg/bin/bash
-    elif [ $PCP_PLATFORM = openbsd ]
+    elif [ "$PCP_PLATFORM" = openbsd ]
     then
 	no_home_dir=''
 	sys_acc=''
 	nologin=/sbin/nologin
 	bash=`which bash`
-    elif [ $PCP_PLATFORM = solaris ]
+    elif [ "$PCP_PLATFORM" = solaris ]
     then
 	no_home_dir=''
 	sys_acc=''
 	nologin=`which false`
 	bash=`which bash`
-    elif [ $PCP_PLATFORM = darwin ]
+    elif [ "$PCP_PLATFORM" = darwin ]
     then
 	no_home_dir=''
 	sys_acc=''
@@ -103,9 +103,9 @@ then
 
     # user & group pcp
     #
-    if [ $PCP_PLATFORM = darwin ]
+    if [ "$PCP_PLATFORM" = darwin ]
     then
-	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d $PCP_VAR_DIR -s $nologin pcp
+	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" -s "$nologin" pcp
     else
 	if grep '^pcp:' /etc/group >/dev/null
 	then
@@ -113,9 +113,9 @@ then
 	else
 	    if which groupadd >/dev/null 2>&1
 	    then
-		groupadd $sys_acc pcp
+		groupadd "$sys_acc" pcp
 	    else
-		if [ $PCP_PLATFORM = freebsd ]
+		if [ "$PCP_PLATFORM" = freebsd ]
 		then
 		    : adduser does this for us ...
 		else
@@ -131,7 +131,7 @@ then
 	else
 	    if which useradd >/dev/null 2>&1
 	    then
-		useradd -c "Performance Co-Pilot" -g pcp -d $PCP_VAR_DIR $no_home_dir $sys_acc -s $nologin pcp
+		useradd -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" "$no_home_dir" "$sys_acc" -s "$nologin" pcp
 	    elif which adduser >/dev/null 2>&1
 	    then
 		echo "pcp::::::Performance Co-Pilot:$PCP_VAR_DIR::" \
@@ -146,9 +146,9 @@ then
 
     # user & group pcpqa
     #
-    if [ $PCP_PLATFORM = darwin ]
+    if [ "$PCP_PLATFORM" = darwin ]
     then
-	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d $PCP_VAR_DIR/testsuite -s $bash pcpqa
+	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite -s "$bash" pcpqa
     else
 	if grep '^pcpqa:' /etc/group >/dev/null
 	then
@@ -156,9 +156,9 @@ then
 	else
 	    if which groupadd >/dev/null 2>&1
 	    then
-		groupadd $sys_acc pcpqa
+		groupadd "$sys_acc" pcpqa
 	    else
-		if [ $PCP_PLATFORM = freebsd ]
+		if [ "$PCP_PLATFORM" = freebsd ]
 		then
 		    : adduser does this for us ...
 		else
@@ -174,7 +174,7 @@ then
 	else
 	    if which useradd >/dev/null 2>&1
 	    then
-		useradd -c "PCP Quality Assurance" -g pcpqa -d $PCP_VAR_DIR/testsuite $no_home_dir $sys_acc -s $bash pcpqa
+		useradd -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite "$no_home_dir" "$sys_acc" -s "$bash" pcpqa
 	    elif which adduser >/dev/null 2>&1
 	    then
 		# no bash for default FreeBSD
@@ -193,10 +193,10 @@ fi
 # Usage: _do_dir user:group mode path
 _do_dir()
 {
-    dir=$3
-    [ -d $dir ] || mkdir $dir
-    chown "$1" $dir
-    chmod "$2" $dir
+    dir="$3"
+    [ -d "$dir" ] || mkdir "$dir"
+    chown "$1" "$dir"
+    chmod "$2" "$dir"
 }
 
 # permissions ...
@@ -205,7 +205,7 @@ _do_dir()
 # fix up some ones that used to be pcp:pcp and/or in a different place
 #
 grp=root
-case $PCP_PLATFORM
+case "$PCP_PLATFORM"
 in
     freebsd|netbsd|openbsd|darwin)
 	    grp=wheel
@@ -213,72 +213,116 @@ in
 esac
 for daemon in pmlogger pmie
 do
-    chown root:$grp $PCP_SYSCONF_DIR/$daemon
-    chmod 755 $PCP_SYSCONF_DIR/$daemon
-    if [ -f $PCP_SYSCONF_DIR/$daemon/config.default ]
+    chown root:"$grp" "$PCP_SYSCONF_DIR"/"$daemon"
+    chmod 755 "$PCP_SYSCONF_DIR"/"$daemon"
+    if [ -f "$PCP_SYSCONF_DIR"/"$daemon"/config.default ]
     then
-	if [ -f $PCP_VAR_DIR/config/$daemon/config.default ]
+	if [ -f "$PCP_VAR_DIR"/config/"$daemon"/config.default ]
 	then
-	    mv $PCP_SYSCONF_DIR/$daemon/config.default $PCP_VAR_DIR/config/$daemon/config.default.old
+	    mv "$PCP_SYSCONF_DIR"/"$daemon"/config.default "$PCP_VAR_DIR"/config/"$daemon"/config.default.old
 	else
-	    mv $PCP_SYSCONF_DIR/$daemon/config.default $PCP_VAR_DIR/config/$daemon/config.default
+	    mv "$PCP_SYSCONF_DIR"/"$daemon"/config.default "$PCP_VAR_DIR"/config/"$daemon"/config.default
 	fi
     fi
 done
-chown root:$grp $PCP_SYSCONF_DIR/pmcd/pmcd.conf
-chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
+chown "root:$grp" "$PCP_SYSCONF_DIR"/pmcd/pmcd.conf
+chmod 644 "$PCP_SYSCONF_DIR"/pmcd/pmcd.conf
+
+# /etc/pcp.conf and /etc/pcp.env should be owned by root (for consistency,
+# no functional reason)
+#
+chown "root:$grp" /etc/pcp.conf /etc/pcp.env
+
+# if $PCP_SYSCONFIG_DIR is defined, all the PCP files below there should
+# to be owned by root
+#
+if [ -n "$PCP_SYSCONFIG_DIR" ]
+then
+    for daemon in pmcd pmlogger pmproxy
+    do
+	[ -f "$PCP_SYSCONFIG_DIR/$daemon" ] || continue
+	chown "root:$grp" "$PCP_SYSCONFIG_DIR/$daemon"
+    done
+fi
+
+# if $PCP_SYSTEMDUNIT_DIR is defined, all the PCP files below there should
+# to be owned by root
+#
+if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
+then
+    for service in pmcd pmlogger pmie pmproxy pmmgr pmwebd
+    do
+	[ -f "$PCP_SYSTEMDUNIT_DIR/$service.service" ] || continue
+	chown "root:$grp" "$PCP_SYSTEMDUNIT_DIR/$service.service"
+    done
+fi
+
+# if $PCP_SASLCONF_DIR is defined, the PCP config file there should be
+# owned by root
+#
+if [ -n "$PCP_SASLCONF_DIR" ]
+then
+    [ -f "$PCP_SASLCONF_DIR/pmcd.conf" ] && chown "root:$grp" "$PCP_SASLCONF_DIR/pmcd.conf"
+fi
+
+# all the /etc/cron.d PCP files MUST be owned my root
+#
+for file in /etc/crond./pcp-*
+do
+    [ -f "$file" ] && chown "root:$grp" "$file"
+done
 
 # directories that may be empty and hence not in the tarball
 #
 # from src/pmcd/GNUmakefile
-_do_dir "root:$grp" 700 $PCP_TMP_DIR/pmcd
+_do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
 # from GNUmakefile
-_do_dir "root:$grp" 755 $PCP_SYSCONF_DIR/labels
-if [ -d $PCP_PMDAS_DIR/prometheus ]
+_do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
+if [ -d "$PCP_PMDAS_DIR"/prometheus ]
 then
     # from src/pmdas/prometheus
-    _do_dir "root:$grp" 755 $PCP_PMDAS_DIR/prometheus/config.d
+    _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/prometheus/config.d
 fi
 # from src/webapps/GNUmakefile
-_do_dir "root:$grp" 755 $PCP_SHARE_DIR/webapps
+_do_dir "root:$grp" 755 "$PCP_SHARE_DIR"/webapps
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #
-find $PCP_SYSCONF_DIR ! -user root \
+find "$PCP_SYSCONF_DIR" ! -user root \
 | while read f
 do
-    chown root:$grp $f
+    chown "root:$grp" "$f"
 done
 
 # pcp:pcp and mode 775 directories
 #
-for dir in $PCP_LOG_DIR \
-	   $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie $PCP_LOG_DIR/pmwebd \
-	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger $PCP_LOG_DIR/pmmgr \
-	   $PCP_SA_DIR \
-	   $PCP_RUN_DIR \
-	   $PCP_VAR_DIR/tmp $PCP_VAR_DIR/tmp/pmie $PCP_VAR_DIR/tmp/pmlogger \
-	   $PCP_VAR_DIR/tmp/mmv \
-	   $PCP_VAR_DIR/config/pmda \
-	   $PCP_VAR_DIR/config/pmie $PCP_VAR_DIR/config/pmlogger \
-	   $PCP_NSSDB_DIR
+for dir in "$PCP_LOG_DIR" \
+	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmwebd \
+	   "$PCP_LOG_DIR"/pmproxy "$PCP_LOG_DIR"/pmlogger "$PCP_LOG_DIR"/pmmgr \
+	   "$PCP_SA_DIR" \
+	   "$PCP_RUN_DIR" \
+	   "$PCP_VAR_DIR"/tmp "$PCP_VAR_DIR"/tmp/pmie "$PCP_VAR_DIR"/tmp/pmlogger \
+	   "$PCP_VAR_DIR"/tmp/mmv \
+	   "$PCP_VAR_DIR"/config/pmda \
+	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger \
+	   "$PCP_NSSDB_DIR"
 do
-    _do_dir "pcp:pcp" 775 $dir
+    _do_dir "pcp:pcp" 775 "$dir"
 done
 
 # pcp:pcp and mode 644 files
 #
-for file in $PCP_VAR_DIR/config/pmie/config.default $PCP_VAR_DIR/config/pmlogger/config.default
+for file in "$PCP_VAR_DIR"/config/pmie/config.default "$PCP_VAR_DIR"/config/pmlogger/config.default
 do
-    [ -f $file ] || continue
-    chmod 644 $file
-    chown pcp:pcp $file
+    [ -f "$file" ] || continue
+    chmod 644 "$file"
+    chown pcp:pcp "$file"
 done
 
 # pcpqa:pcpqa and mode 775 dir and all below there
 #
-_do_dir "pcpqa:pcpqa" 775 $PCP_VAR_DIR/testsuite
-chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
+_do_dir "pcpqa:pcpqa" 775 "$PCP_VAR_DIR"/testsuite
+chown -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
 
 # Note: do not start daemons other than: pmcd, pmlogger, pmie and pmproxy
 #
@@ -295,27 +339,27 @@ then
 else
     for svc in pcp pmcd pmie pmlogger pmproxy pmmgr pmwebd
     do
-	[ -f /etc/init.d/$svc ] || continue
+	[ -f /etc/init.d/"$svc" ] || continue
 	if which rc-update >/dev/null 2>&1
 	then
 	    if rc-update show | grep " $svc " >/dev/null 2>&1
 	    then
 		# service is already installed ...
 		#
-		rc-update delete $svc
+		rc-update delete "$svc"
 	    fi
-	    rc-update add $svc
+	    rc-update add "$svc"
 	fi
 
 	# disable or enable and start as required by default policy
-	case $svc
+	case "$svc"
 	in
 	    pmcd|pmlogger|pmproxy|pmie|pmmgr|pmwebd)
 		if which rc-update >/dev/null 2>&1
 		then
 		    : TODO?
 		fi
-		$PCP_RC_DIR/$svc start
+		"$PCP_RC_DIR"/"$svc" start
 		;;
 	    *)
 		if which rc-update >/dev/null 2>&1
@@ -331,11 +375,11 @@ fi
 # cull any old files or directories that used to be in the distribution
 # but that have gone away or moved somewhere else
 #
-for file in $PCP_VAR_DIR/config/pmieconf/pcp/pmda_status
+for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status
 do
     [ -f "$file" ] && rm -f "$file"
 done
-for dir in $PCP_VAR_DIR/config/pmieconf/pcp
+for dir in "$PCP_VAR_DIR"/config/pmieconf/pcp
 do
     [ -d "$dir" ] && rm -rf "$dir"
 done

@@ -641,6 +641,7 @@ freeReplyObject(void *r)
     case REDIS_REPLY_ERROR:
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING:
+
         if (reply->str != NULL)
             free(reply->str);
         break;

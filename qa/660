@@ -14,6 +14,15 @@ which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 # nb: wget dispreferred because of its processing of .. relative links,
 # so it's harder to stress pmwebd's base-directory-escaping logic
 
+# only restart pmwebd if it was running before the QA test starts
+#
+if [ -n "`_get_pids_by_name pmwebd`" ]
+then
+    restart_pmwebd=true
+else
+    restart_pmwebd=false
+fi
+
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
 rm -f $seq.full
@@ -28,7 +37,7 @@ _cleanup()
     $sudo rm -fr $tmp.dir
     $sudo $signal -a pmwebd >/dev/null 2>&1
     _restore_auto_restart pmwebd
-    _service pmwebd restart >/dev/null 2>&1
+    $restart_pmwebd && _service pmwebd restart >/dev/null 2>&1
     $sudo rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15

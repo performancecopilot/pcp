@@ -20,6 +20,33 @@ test -f /etc/zabbix/zabbix_agentd.conf || \
 test -f /etc/zabbix/zabbix_agentd.d/zbxpcp.conf || \
 	_notrun "Zabbix agent PCP module is not installed"
 
+rm -f $seq.out
+# Known versions ...
+# Zabbix Agent (daemon) v2.2.7 (revision 50148) (24 October 2014)
+#	- no [error message] after [.|ZBX_NOTSUPPORTED]
+# zabbix_agentd (daemon) (Zabbix) 3.0.7
+#	- [error message] after [.|ZBX_NOTSUPPORTED]
+#
+version=`zabbix_agentd -V | sed -n -e '/^[Zz]abbix/{
+s/ v/ /
+s/^[^0-9]* \([0-9]\)/\1/
+s/ .*//
+p
+}'`
+
+case "$version"
+in
+    1.*|2.[0-2].*)
+    		ln $seq.out.0 $seq.out
+		;;
+    2.4.*|3.*)
+    		ln $seq.out.1 $seq.out
+    		;;
+    *)		echo "Botch: need to know what output to expect for zabbix_agent version $version"
+    		exit
+		;;
+esac
+
 case "$PCP_PLATFORM"
 in
     darwin)

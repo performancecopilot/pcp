@@ -19,10 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 
 INCLUDE_SUBDIR = include
 PMNS_SUBDIR = pmns
-LIBPCP_SUBDIR = libpcp
-ifeq "$(TARGET_OS)" "mingw"
-LIBPCP_SUBDIR += libpcp_static
-endif
+LIBPCP_SUBDIR = libpcp libpcp_static
 LIBS_SUBDIRS = \
 	libpcp_pmda \
 	libpcp_trace \

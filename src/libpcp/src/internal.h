@@ -350,12 +350,12 @@ extern void notifyerr(int, const char *, va_list) _PCP_HIDDEN;
  * migrated from libpcp.h to here, only used in libpcp
  */
 extern int __pmGetInternalState(void) _PCP_HIDDEN;
-#ifdef HAVE_PTHREAD_MUTEX_T
+#ifdef PM_MULTI_THREAD
 /* mutex for calls to external routines that are not thread-safe */
 extern pthread_mutex_t	__pmLock_extcall;
 #else
 extern void *__pmLock_extcall;			/* symbol exposure */
-#endif /* HAVE_PTHREAD_MUTEX_T */
+#endif /* PM_MULTI_THREAD */
 extern int __pmIsLocked(void *) _PCP_HIDDEN;
 #define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
 #ifdef BUILD_WITH_LOCK_ASSERTS

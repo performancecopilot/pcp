@@ -67,7 +67,8 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmlogger
-_service pmlogger stop | _filter_pcp_stop
+_service pmlogger stop | _filter_pcp_stop \
+| sed -e '/pmlogger not running/d'
 
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels

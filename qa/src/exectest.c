@@ -8,7 +8,6 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 #include <sys/types.h>
-#include <sys/wait.h>
 
 static void
 report_status(int status)
