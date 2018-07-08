@@ -22,8 +22,6 @@
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
 
-typedef void (*redis_callback)(redisSlots *, redisReply *, void *);
-
 typedef struct redis_script {
     const char		*text;
     sds			hash;
