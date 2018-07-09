@@ -42,7 +42,6 @@ LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 endif
 
-CFLAGS_OPT = -g3 -O0
 STATICLIBTARGET = libpcp_web.a
 
 DSOVERSION = 1
@@ -52,6 +51,16 @@ SYMTARGET = libpcp_web.$(DSOSUFFIX)
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_web.$(DSOVERSION).$(DSOSUFFIX)
 SYMTARGET = libpcp_web.$(DSOSUFFIX)
+endif
+ifeq "$(TARGET_OS)" "mingw"
+LIBTARGET = libpcp_web.$(DSOSUFFIX)
+STATICLIBTARGET =
+SYMTARGET =
+endif
+
+ifeq "$(ENABLE_SHARED)" "no"
+LIBTARGET =
+SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
