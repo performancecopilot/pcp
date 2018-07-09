@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, Red Hat. All Rights Reserved.
+ * Copyright (c) 2012-2018, Red Hat. All Rights Reserved.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -152,9 +152,8 @@ SamplingItem::updateValues(bool forward,
 }
 
 void
-SamplingItem::rescaleValues(pmUnits *new_units)
+SamplingItem::rescaleValues(const pmUnits *old_units, const pmUnits *new_units)
 {
-    pmUnits	*old_units = &ChartItem::my.units;
     pmAtomValue	old_av, new_av;
 
     console->post("Chart::rescaleValues change units from %s to %s",
@@ -592,6 +591,9 @@ SamplingEngine::redoScale(void)
 {
     bool	rescale = false;
 
+    // We need the old units in order to drive the rescaling step.
+    pmUnits old_units = my.units;
+
     // The 1,000 and 0.1 thresholds are just a heuristic guess.
     //
     // We're assuming lBound() plays no part in this, which is OK as
@@ -773,7 +775,7 @@ SamplingEngine::redoScale(void)
 	// data, new data will be taken care of by changing my.units.
 	//
 	for (int i = 0; i < my.chart->metricCount(); i++)
-	    samplingItem(i)->rescaleValues(&my.units);
+	    samplingItem(i)->rescaleValues(&old_units, &my.units);
 
 	if (my.chart->my.style == Chart::UtilisationStyle)
 	    my.chart->setYAxisTitle("% utilization");
