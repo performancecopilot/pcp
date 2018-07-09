@@ -105,7 +105,7 @@ __wait_for_pmcd()
 {
     # 60 seconds default seems like a reasonable max time to get going
     [ -z "$__can_wait" ] && __can_wait=${1-60}
-    if pmcd_wait -t $__can_wait
+    if $PCP_BINADM_DIR/pmcd_wait -t $__can_wait
     then
 	__pmcd_is_dead=false	# should be set already, force it anyway
     else
@@ -1235,7 +1235,7 @@ _install()
 	sed -e "s/$SYMDOM:/$domain:/" <$__s >$PMNSDIR/$__n
 
         cd $PMNSDIR
-	if pmnsadd -n $PMNSROOT $__n
+	if $PCP_BINADM_DIR/pmnsadd -n $PMNSROOT $__n
 	then
 	    # Ensure the PMNS timestamp will be different the next
 	    # time the PMNS is updated 
