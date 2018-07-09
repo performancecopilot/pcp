@@ -49,6 +49,11 @@ DSOVERSION = 1
 LIBTARGET = libpcp_web.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_web.$(DSOSUFFIX)
 
+ifeq "$(TARGET_OS)" "darwin"
+LIBTARGET = libpcp_web.$(DSOVERSION).$(DSOSUFFIX)
+SYMTARGET = libpcp_web.$(DSOSUFFIX)
+endif
+
 VERSION_SCRIPT = exports
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 
