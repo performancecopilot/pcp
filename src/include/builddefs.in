@@ -246,6 +246,7 @@ ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_QT = @enable_qt@
 ENABLE_QT3D = @enable_qt3d@
+ENABLE_PERL = @enable_perl@
 ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@

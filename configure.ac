@@ -104,6 +104,12 @@ AC_ARG_WITH([qt3d],
     [do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"],
     [do_qt3d=check])
 
+AC_ARG_WITH([perl],
+    [AC_HELP_STRING([--with-perl],
+                    [enable support for tools requiring Perl (default is on)])],
+    [do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"],
+    [do_perl=check])
+
 AC_ARG_WITH([python],
     [AC_HELP_STRING([--with-python],
                     [enable support for tools requiring Python (default is on)])],
@@ -951,21 +957,26 @@ dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
 AC_SUBST(PERL)
 
-AC_MSG_CHECKING([for any perl version])
-if test "$cross_compiling" = "yes"; then
-    ans=$have_perl
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -n "$PERL"
-then
-    pcp_perl_prog=$PERL
-    have_perl=true
-else
-    pcp_perl_prog=""
-    have_perl=false
-fi
+enable_perl=false
+AS_IF([test "x$do_perl" != "xno"], [
+    enable_perl=true
+    AC_MSG_CHECKING([for any perl version])
+    if test "$cross_compiling" = "yes"; then
+        ans=$have_perl
+        echo "cross-compile -> \"$ans\"" >&5
+    elif test -n "$PERL"
+    then
+        pcp_perl_prog=$PERL
+        have_perl=true
+    else
+        pcp_perl_prog=""
+        have_perl=false
+    fi
+    AC_MSG_RESULT($pcp_perl_prog)
+], [have_perl=false])
 AC_SUBST(pcp_perl_prog)
+AC_SUBST(enable_perl)
 AC_SUBST(have_perl)
-AC_MSG_RESULT($pcp_perl_prog)
 
 AC_MSG_CHECKING([if the SNMP PMDA should be included])
 pmda_snmp=false

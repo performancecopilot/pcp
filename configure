@@ -832,6 +832,7 @@ PMDA_POSTGRESQL
 PMDA_MYSQL
 PMDA_SNMP
 have_perl
+enable_perl
 pcp_perl_prog
 PERL
 PMDA_BCC
@@ -955,7 +956,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -990,6 +990,7 @@ with_discovery
 with_systemd
 with_qt
 with_qt3d
+with_perl
 with_python
 with_python3
 with_books
@@ -1103,7 +1104,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1356,15 +1356,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1502,7 +1493,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1655,7 +1646,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1716,6 +1706,8 @@ Optional Packages:
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-qt3d             enable support for 3D scene graph API (default is
+                          on)
+  --with-perl             enable support for tools requiring Perl (default is
                           on)
   --with-python           enable support for tools requiring Python (default
                           is on)
@@ -2923,6 +2915,15 @@ if test "${with_qt3d+set}" = set; then :
   withval=$with_qt3d; do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"
 else
   do_qt3d=check
+fi
+
+
+
+# Check whether --with-perl was given.
+if test "${with_perl+set}" = set; then :
+  withval=$with_perl; do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"
+else
+  do_perl=check
 fi
 
 
@@ -7703,23 +7704,32 @@ done
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for any perl version" >&5
+enable_perl=false
+if test "x$do_perl" != "xno"; then :
+
+    enable_perl=true
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for any perl version" >&5
 $as_echo_n "checking for any perl version... " >&6; }
-if test "$cross_compiling" = "yes"; then
-    ans=$have_perl
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -n "$PERL"
-then
-    pcp_perl_prog=$PERL
-    have_perl=true
+    if test "$cross_compiling" = "yes"; then
+        ans=$have_perl
+        echo "cross-compile -> \"$ans\"" >&5
+    elif test -n "$PERL"
+    then
+        pcp_perl_prog=$PERL
+        have_perl=true
+    else
+        pcp_perl_prog=""
+        have_perl=false
+    fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
+$as_echo "$pcp_perl_prog" >&6; }
+
 else
-    pcp_perl_prog=""
-    have_perl=false
+  have_perl=false
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
-$as_echo "$pcp_perl_prog" >&6; }
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the SNMP PMDA should be included" >&5
 $as_echo_n "checking if the SNMP PMDA should be included... " >&6; }
