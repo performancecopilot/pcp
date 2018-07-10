@@ -279,3 +279,14 @@ class PCPBCCBase(object):
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
         return self.get_syscall_prefix() + name
+
+    def get_kprobe_functions(self, event_re):
+        """
+        Get list of kprobe functions matching a regex
+        event_re: regex pattern (bytes object)
+        compat wrapper: bcc 0.5.0 expects a string pattern, bcc 0.6.0+ a bytes pattern
+        """
+        try:
+            return self.bpf.get_kprobe_functions(event_re)
+        except TypeError:
+            return self.bpf.get_kprobe_functions(event_re.decode())
