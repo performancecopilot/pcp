@@ -189,11 +189,14 @@ class PCPBCCModule(PCPBCCBase):
                 break
 
         counts.clear()
+        return idx
 
     def refresh_stats_loop(self):
         """ Refresh statistics thread loop """
         while True:
-            self.refresh_stats()
+            cnt = self.refresh_stats()
+            if self.debug:
+                self.log("Fetched data from BPF table, current number of processes performing I/O: %d." % cnt)
             sleep(self.interval)
 
     def refresh(self):
