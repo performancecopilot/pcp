@@ -78,7 +78,9 @@ _pmdabcc_wait_for_metric()
 
 _pmdabcc_wait_for_value()
 {
-    for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value .*' && break; sleep 1; done
+    value_regex=${2:-'.*'}
+
+    for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value '$value_regex && break; sleep 1; done
     if [ $i -ge 30 ]; then
         echo Could not get a single value, test failed
         exit
@@ -172,5 +174,5 @@ _value_filter_nonzero()
 
 _value_filter_exact()
 {
-    grep "$1" > /dev/null && echo OK
+    grep "value $1" > /dev/null && echo OK
 }

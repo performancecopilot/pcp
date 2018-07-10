@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,14 +14,25 @@
 #
 """ PCP BCC PMDA biotop module """
 
+# Configuration options
+# Name - type - default
+#
+# interval      - int    - 1      : interval for calculating summaries
+# process_count - int    - 20     : number of processes to show
+# sort          - string - -bytes : sort key: bytes/io/duration/rw
+#                                   sort order can be reversed by prepending '-'
+
 # pylint: disable=invalid-name, line-too-long
 
-from ctypes import c_int
+import ctypes as ct
+from threading import Lock, Thread
+from os import path
+from time import sleep
 
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_TIME_USEC, PM_SEM_INSTANT, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
 
 from modules.pcpbcc import PCPBCCBase
@@ -34,8 +46,10 @@ bpf_src = "modules/biotop.bpf"
 # PCP BCC PMDA constants
 #
 MODULE = 'biotop'
-METRIC = 'proc.io.perdev'
+METRIC = 'proc.io.perdev.'
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+units_usecs = pmUnits(0, 1, 0, 0, PM_TIME_USEC, 0)
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
 
 #
 # PCP BCC Module
@@ -46,10 +60,41 @@ class PCPBCCModule(PCPBCCBase):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
+        self.sort_fns = {
+            'bytes': lambda counts: counts[1].bytes,
+            'io': lambda counts: counts[1].io,
+            'duration': lambda counts: float(counts[1].us) / counts[1].io,
+            'rw': lambda counts: counts[1].rwflag,
+        }
 
-        self.disklookup = None
-        self.update_disk_info()
+        self.interval = 1
+        self.process_count = 20
+        sort_key = '-bytes'
+
+        for opt in self.config.options(MODULE):
+            if opt == 'interval':
+                self.interval = int(self.config.get(MODULE, opt))
+            if opt == 'process_count':
+                self.process_count = int(self.config.get(MODULE, opt))
+            if opt == 'sort':
+                sort_key = self.config.get(MODULE, opt)
+
+        self.sort_reversed = False
+        if sort_key[0] == "-":
+            sort_key = sort_key[1:]
+            self.sort_reversed = True
+        if sort_key not in self.sort_fns.keys():
+            raise RuntimeError("Sort key must be one of %s." % ", ".join(self.sort_fns.keys()))
+        self.sort_fn = self.sort_fns[sort_key]
+
+        self.cache = {}
+        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.process_count)}
+        self.disklookup = {}
+
+        self.lock = Lock()
+        if self.interval > 0:
+            self.thread = Thread(name="biotop_refresh", target=self.refresh_stats_loop)
+            self.thread.setDaemon(True)
 
         self.log("Initialized.")
 
@@ -67,20 +112,37 @@ class PCPBCCModule(PCPBCCBase):
     def metrics(self):
         """ Get metric definitions """
         name = METRIC
-        self.items.append(
+        self.items = (
             # Name - reserved - type - semantics - units - help
-            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'device io per pid'),
+            (name + 'pid', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'PID'),
+            (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
+            (name + 'direction', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'IO direction'),
+            (name + 'major', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'disk major'),
+            (name + 'minor', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'disk minor'),
+            (name + 'disk', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'disk name'),
+            (name + 'io', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'IO count'),
+            (name + 'bytes', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'number of bytes'),
+            (name + 'duration', None, PM_TYPE_U32, PM_SEM_INSTANT, units_usecs, 'avg duration'),
         )
         return True, self.items
 
     def compile(self):
         """ Compile BPF """
         try:
-            self.bpf = BPF(src_file=bpf_src)
+            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
+                bpf_text = f.read()
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
+            self.bpf = BPF(text=bpf_text)
             self.bpf.attach_kprobe(event="blk_account_io_start", fn_name="trace_pid_start")
             self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
+            if self.interval > 0:
+                self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
@@ -88,46 +150,70 @@ class PCPBCCModule(PCPBCCBase):
             self.err("Module NOT active!")
             raise
 
+    def refresh_stats(self):
+        """ Refresh statistics from BPF table """
+        self.lock.acquire()
+        self.cache.clear()
+        self.lock.release()
+
+        counts = self.bpf.get_table("counts")
+        sorted_counts = sorted(counts.items(), key=self.sort_fn, reverse=self.sort_reversed)
+
+        idx = 0
+        for k, v in sorted_counts:
+            disk = str(k.major) + "," + str(k.minor)
+
+            if disk in self.disklookup:
+                diskname = self.disklookup[disk]
+            else:
+                # Check for hot swapped devices
+                self.update_disk_info()
+                diskname = self.disklookup.get(disk, "?")
+
+            self.lock.acquire()
+            self.cache[idx] = [
+                k.pid,
+                k.name.decode(),
+                "W" if k.rwflag else "R",
+                k.major,
+                k.minor,
+                diskname,
+                v.io,
+                v.bytes,
+                int(float(v.us) / v.io)
+            ]
+            self.lock.release()
+
+            idx += 1
+            if idx >= self.process_count:
+                break
+
+        counts.clear()
+
+    def refresh_stats_loop(self):
+        """ Refresh statistics thread loop """
+        while True:
+            self.refresh_stats()
+            sleep(self.interval)
+
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
             return None
 
-        counts = self.bpf.get_table("counts")
-
-        # Clean stale data
-        for key in list(self.cache):
-            if not self.pid_alive(key.split("::")[1]):
-                del self.cache[key]
-                del self.insts[key]
-
-        # Update current data
-        for k, v in counts.items():
-            disk = str(k.major) + "," + str(k.minor)
-
-            # Unnamed devices (e.g. non-device mounts)
-            if k.major == 0:
-                continue
-            elif disk not in self.disklookup:
-                # Check for hot swapped devices
-                self.update_disk_info()
-                if disk not in self.disklookup:
-                    self.log("Traced unknown device (major: %s minor: %s)" % (k.major, k.minor))
-                    continue
-
-            key = self.disklookup[disk] + "::" + str(k.pid).zfill(6)
-            value = v.bytes if key not in self.cache else v.bytes + self.cache[key]
-            self.cache[key] = value
-            self.insts[key] = c_int(1)
-
-        counts.clear()
+        if self.interval == 0:
+            self.refresh_stats()
 
         return self.insts
 
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """
         try:
-            key = self.pmdaIndom.inst_name_lookup(inst).zfill(6)
-            return [self.cache[key], 1]
+            key = int(self.pmdaIndom.inst_name_lookup(inst))
+            self.lock.acquire()
+            value = self.cache[key][item]
+            self.lock.release()
+            return [value, 1]
         except Exception: # pylint: disable=broad-except
+            self.lock.release()
             return [PM_ERR_AGAIN, 0]
