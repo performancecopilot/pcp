@@ -225,7 +225,7 @@ _start_pmcheck()
 	wait_option=''
     fi
 
-    if pmcd_wait $wait_option
+    if $PCP_BINADM_DIR/pmcd_wait $wait_option
     then
 	:
     else
