@@ -31,7 +31,7 @@ from os import path
 from bcc import BPF, USDT
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U64, PM_SEM_INSTANT, PM_SPACE_BYTE
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
 
 from modules.pcpbcc import PCPBCCBase
@@ -88,7 +88,7 @@ class PCPBCCModule(PCPBCCBase):
         name = METRIC
         self.items.append(
             # Name - reserved - type - semantics - units - help
-            (name, None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'alloc'),
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'alloc'),
         )
         return True, self.items
 
