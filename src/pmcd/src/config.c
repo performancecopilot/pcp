@@ -621,7 +621,15 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	free(entryPoint);
 	return -1;
     }
-    if (*token != '/') {
+    /* expect an absolute path name */
+    if (*token == '/')
+	;
+#ifdef IS_MINGW
+    else if (token[1] == ':')
+	/* assume colon after single letter drive name */
+	;
+#endif
+    else {
 	if (token[strlen(token)-1] == '\n')
 	    token[strlen(token)-1] = '\0';
 	fprintf(stderr, "pmcd config[line %d]: Error: path \"%s\" to PMDA is not absolute\n", nLines, token);
