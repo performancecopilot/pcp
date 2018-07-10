@@ -23,6 +23,7 @@ import fnmatch
 import atexit
 import sys
 import os
+import traceback
 
 from collections import OrderedDict
 
@@ -175,6 +176,7 @@ class BCCPMDA(PMDA):
                 mod = importlib.import_module('modules.%s' % self.modules[module][MODULE])
             except ImportError as error:
                 self.err(str(error))
+                self.err(traceback.format_exc())
                 self.err("Module %s not found, aborting." % module)
                 sys.exit(1)
             obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
@@ -241,6 +243,7 @@ class BCCPMDA(PMDA):
             insts = self.modules[module][REFRESH]()
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
+            self.err(traceback.format_exc())
         if self.modules[module][INDOM] != PM_INDOM_NULL:
             self.modules[module][INSTS].set_instances(self.modules[module][INDOM], insts)
             self.replace_indom(self.modules[module][INDOM], insts)
@@ -252,6 +255,7 @@ class BCCPMDA(PMDA):
             return self.modules[module][BPFDATA](item, inst)
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
+            self.err(traceback.format_exc())
             return [PM_ERR_VALUE, 0]
 
     def bcc_label(self, ident, label_type):
