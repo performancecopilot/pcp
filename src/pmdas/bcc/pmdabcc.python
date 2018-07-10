@@ -75,7 +75,8 @@ class BCCPMDA(PMDA):
         self.set_label_callback(self.bcc_label_callback)
 
         self.pmda_ready()
-        self.log("Ready to process requests.")
+        if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+            self.log("Ready to process requests.")
 
         @atexit.register
         def cleanup(): # pylint: disable=unused-variable
