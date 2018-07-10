@@ -17,7 +17,6 @@ Info: Metrics registered.
 Info: Registering helpers:
 Info: bioperpid
 Info: Helpers registered.
-Info: Ready to process requests.
 Info: Initializing, currently in 'notready' state.
 Info: Enabled modules:
 Info: ['bioperpid']
@@ -34,7 +33,6 @@ Info: Metrics registered.
 Info: Registering helpers:
 Info: bioperpid
 Info: Helpers registered.
-Info: Ready to process requests.
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
