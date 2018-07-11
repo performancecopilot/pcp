@@ -27,8 +27,6 @@ typedef struct redis_script {
     sds			hash;
 } redisScript;
 
-static int duplicates;	/* TODO: add counter to individual contexts */
-
 static redisScript scripts[] = {
 /* Script HASH_MAP_ID pcp:map:<name> , <string> -> ID
 	returns a map identifier from a given key (hash) and
@@ -130,6 +128,13 @@ redis_submit(redisSlots *redis, const char *command, sds key, sds cmd)
     return redis_submitcb(redis, command, key, cmd, NULL, NULL);
 }
 
+static int
+checkReplyError(redisReply *reply, const char *server_message)
+{
+    return (reply && reply->type == REDIS_REPLY_ERROR &&
+	    strcmp(reply->str, server_message) == 0);
+}
+
 static void
 checkError(redisReply *reply, const char *format, va_list argp)
 {
@@ -154,19 +159,6 @@ checkStatusOK(redisReply *reply, const char *format, ...)
 	checkError(reply, format, argp);
 	va_end(argp);
     }
-}
-
-static int
-checkStreamDup(redisReply *reply, sds stamp, const char *hash)
-{
-    const char dupmsg[] = \
-"ERR The ID specified in XADD is smaller than the target stream top item";
-
-    if (reply->type == REDIS_REPLY_ERROR && strcmp(dupmsg, reply->str) == 0) {
-	fprintf(stderr, "Warning: dup stream %s insert at %s\n", hash, stamp);
-	return 1;
-    }
-    return 0;
 }
 
 static void
@@ -237,7 +229,6 @@ redis_map(redisSlots *redis, redisMap *mapping, sds mapkey)
     long long		map, add = 0;
     sds			cmd, msg, key;
     redisContext        *c;
-    sds                 error = sdsnew("NOSCRIPT No matching script. Please use EVAL.");
 
     if (entry != NULL)
 	return redisMapValue(entry);
@@ -254,7 +245,7 @@ redis_map(redisSlots *redis, redisMap *mapping, sds mapkey)
 
     /* TODO: async callback function */
     redisGetReply(c, (void **)&reply);
-    if (reply && reply->type == REDIS_REPLY_ERROR && strcmp(error, reply->str) == 0) {
+    if (checkReplyError(reply, REDIS_ENOSCRIPT)) {
         freeReplyObject(reply);
         redis_load_scripts(c, NULL);
         redis_submit(redis, EVALSHA, key, cmd);
@@ -766,8 +757,9 @@ redis_series_stream(redisSlots *redis, sds stamp, metric_t *metric)
 
     /* TODO: check return codes, use async callbacks */
     redisGetReply(c, (void**)&reply);
-    if (checkStreamDup(reply, stamp, hash))
-	duplicates++;
+    if (checkReplyError(reply, REDIS_ESTREAMXADD))
+	/* TODO: add warning counter to individual contexts */
+	fprintf(stderr, "Warning: dup stream %s insert at %s\n", hash, stamp);
     else
 	checkStatusString(reply, stamp, "status mismatch (%s)", stamp);
     freeReplyObject(reply);
@@ -925,21 +917,22 @@ decodeRedisSlots(redisSlots *redis, redisReply *reply)
 static void
 redis_load_slots_callback(redisSlots *redis, redisReply *reply, void *arg)
 {
-    /* Case where we're dealing with a single redis intance) */
-    sds single = sdsnew("ERR This instance has cluster support disabled");
     redisSlotServer	*servers = NULL;
-    redisSlotRange      *slots;
-    if (reply && reply->type == REDIS_REPLY_ERROR && strcmp(single, reply->str) == 0) {
-        if ((servers = calloc(1, sizeof(redisSlotServer))) != NULL){
-            if ((slots = calloc(1, sizeof(redisSlotRange))) == NULL)
-                return;
-            servers->hostspec = sdscatfmt(sdsempty(), "%s", redis->hostspec);
-            slots->nslaves = 0;
-            slots->start = 0;
-            slots->end = MAXSLOTS;
-            slots->master = *servers;
-            redisSlotRangeInsert(redis, slots);
-        }
+    redisSlotRange	*slots;
+
+    /* Case where we're dealing with a single redis intance */
+    if (checkReplyError(reply, REDIS_ENOCLUSTER)) {
+	if ((servers = calloc(1, sizeof(redisSlotServer))) != NULL) {
+	    if ((slots = calloc(1, sizeof(redisSlotRange))) == NULL)
+		/* TODO: need error handling */
+		return;
+	    servers->hostspec = sdscatfmt(sdsempty(), "%s", redis->hostspec);
+	    slots->nslaves = 0;
+	    slots->start = 0;
+	    slots->end = MAXSLOTS;
+	    slots->master = *servers;
+	    redisSlotRangeInsert(redis, slots);
+	}
     }
     else if (checkArray(reply, "%s %s", CLUSTER, "SLOTS") == 0)
 	decodeRedisSlots(redis, reply);
