@@ -69,7 +69,7 @@ _pmdabcc_wait_for_metric()
 {
     # Wait for the PMDA to compile the bcc modules and become ready, 30s max
     for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
-    grep 'Error:' $PCP_LOG_DIR/pmcd/bcc.log
+    sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
     if [ $i -ge 30 ]; then
         echo PMDA was not ready in 30 seconds, test failed
         exit
@@ -80,6 +80,7 @@ _pmdabcc_wait_for_value()
 {
     value_regex=${2:-'.*'}
 
+    sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
     for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value '$value_regex && break; sleep 1; done
     if [ $i -ge 30 ]; then
         echo Could not get a single value, test failed

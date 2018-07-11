@@ -93,7 +93,7 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf = BPF(text=bpf_text)
             # Compat: bcc < 0.6.0 (first check)
             if 'get_kprobe_functions' in dir(self.bpf) and \
-               self.bpf.get_kprobe_functions(b'ext4_file_read_iter'):
+               self.get_kprobe_functions(b'ext4_file_read_iter'):
                 self.bpf.attach_kprobe(event="ext4_file_read_iter", fn_name="trace_entry")
             else:
                 self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
