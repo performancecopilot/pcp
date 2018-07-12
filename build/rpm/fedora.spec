@@ -803,6 +803,26 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
 
 #
+# pcp-export-pcp2spark
+#
+%package export-pcp2spark
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Spark
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2spark
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in JSON format to Apache Spark. See https://spark.apache.org/ for
+further details on Apache Spark.
+
+#
 # pcp-export-pcp2xlsx
 #
 %if !%{disable_xlsx}
@@ -2317,6 +2337,7 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pmiostat|pmcollectl|zabbix|zbxpcp|dstat' |\
   grep -E -v 'pmrep|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
+  grep -E -v 'pcp2spark' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 
@@ -3227,6 +3248,9 @@ cd
 
 %files export-pcp2json
 %{_bindir}/pcp2json
+
+%files export-pcp2spark
+%{_bindir}/pcp2spark
 
 %if !%{disable_xlsx}
 %files export-pcp2xlsx

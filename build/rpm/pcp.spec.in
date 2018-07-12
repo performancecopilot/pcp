@@ -651,6 +651,26 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
 
 #
+# pcp-export-pcp2spark
+#
+%package export-pcp2spark
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Spark
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+%else
+Requires: %{__python2}-pcp = @package_version@
+%endif
+
+%description export-pcp2spark
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in JSON format to Apache Spark. See https://spark.apache.org/ for
+further details on Apache Spark.
+
+#
 # pcp-export-pcp2xml
 #
 %package export-pcp2xml
@@ -2236,6 +2256,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xlsx' >export_pcp2xlsx_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2json' >export_pcp2json_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2spark' >export_pcp2spark_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xml' >export_pcp2xml_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2zabbix' >export_pcp2zabbix_files
 %endif
@@ -2502,6 +2523,7 @@ BEGIN {
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
+    while( getline < "export_pcp2spark_files") export_pcp2spark[$0]=1;
     while( getline < "export_pcp2xml_files") export_pcp2xml[$0]=1;
     while( getline < "export_pcp2zabbix_files") export_pcp2zabbix[$0]=1;
 %endif
@@ -2637,6 +2659,7 @@ BEGIN {
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
+    else if (export_pcp2spark[$NF]) f="export_pcp2spark_files.rpm";
     else if (export_pcp2xml[$NF]) f="export_pcp2xml_files.rpm";
     else if (export_pcp2zabbix[$NF]) f="export_pcp2zabbix_files.rpm";
 %endif
@@ -3398,6 +3421,8 @@ cd
 %files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
 
 %files export-pcp2json -f export_pcp2json_files.rpm
+
+%files export-pcp2spark -f export_pcp2spark_files.rpm
 
 %files export-pcp2xml -f export_pcp2xml_files.rpm
 
