@@ -546,7 +546,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
 URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp-libs = @package_version@
 
 %description import-collectl2pcp
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
@@ -560,7 +560,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Module for exporting PCP metrics to Zabbix agent
 URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp-libs = @package_version@
 
 %description export-zabbix-agent
 Performance Co-Pilot (PCP) module for exporting metrics from PCP to
@@ -639,7 +639,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for exporting PCP metrics in JSON format
 URL: https://pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs >= @package_version@
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
@@ -658,7 +658,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Spark
 URL: https://pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs >= @package_version@
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
@@ -806,7 +806,7 @@ License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp-libs = @package_version@
 
 %description gui
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -881,7 +881,8 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
 URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp-libs = @package_version@
+
 BuildRequires: papi-devel
 
 %description pmda-papi
