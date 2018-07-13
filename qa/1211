@@ -14,7 +14,7 @@ path=""
 . ./common.filter
 . ./common.check
 
-which $path/pmseries >/dev/null 2>&1 || \
+which pmseries >/dev/null 2>&1 || \
 	_notrun "pmseries command line utility not installed"
 which redis-cli >/dev/null 2>&1 || \
 	_notrun "Redis command line utility not installed"
@@ -52,44 +52,44 @@ redis-cli -c -p 7000 flushall
 echo
 
 echo "Verify basic load from proc archive"
-$path/pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 echo
 
 echo "List all metric names ..."
-$path/pmseries $options -m | LC_COLLATE=POSIX sort
+pmseries $options -m | LC_COLLATE=POSIX sort
 echo
 
 echo "List all label names ..."
-$path/pmseries $options -l | LC_COLLATE=POSIX sort
+pmseries $options -l | LC_COLLATE=POSIX sort
 echo
 
 echo "List all context names ..."
-$path/pmseries $options -c | _filter_source | LC_COLLATE=POSIX sort
+pmseries $options -c | _filter_source | LC_COLLATE=POSIX sort
 echo
 
 echo "List all instance names ..."
-$path/pmseries $options -i | LC_COLLATE=POSIX sort
+pmseries $options -i | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple name-based query ..."
-$path/pmseries $options kernel.all.pswitch | LC_COLLATE=POSIX sort
+pmseries $options kernel.all.pswitch | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple label-based query ..."
 #pmseries $options 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
-$path/pmseries $options 'kernel.all.load{hostname=="bozo-laptop"}' | LC_COLLATE=POSIX sort
+pmseries $options 'kernel.all.load{hostname=="bozo-laptop"}' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple instance-based query ..."
-$path/pmseries $options 'kernel.all.load{instance.name:"1 minute"}'
+pmseries $options 'kernel.all.load{instance.name:"1 minute"}'
 echo
 
 echo "Perform globbing name-based query (1) ..."
-$path/pmseries $options 'kernel.all.ps*' | LC_COLLATE=POSIX sort
+pmseries $options 'kernel.all.ps*' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing name-based query (2) ..."
-$path/pmseries $options 'kernel*pswitch' | LC_COLLATE=POSIX sort
+pmseries $options 'kernel*pswitch' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing name-based query (3) ..."
@@ -97,58 +97,58 @@ echo "Perform globbing name-based query (3) ..."
 echo
 
 echo "Perform globbing instance-based query (1) ..."
-$path/pmseries $options 'kernel.all.load{instance.name:"1*"}'
+pmseries $options 'kernel.all.load{instance.name:"1*"}'
 echo
 
 echo "Perform globbing instance-based query (2) ... no result"
-$path/pmseries $options 'kernel.all.load{instance.name:"1\*"}'
+pmseries $options 'kernel.all.load{instance.name:"1\*"}'
 echo "(expect no result)"
 echo
 
 echo "Perform globbing instance-based query (3) ..."
-$path/pmseries $options 'kernel.all.load{instance.name:"*1*"}'
+pmseries $options 'kernel.all.load{instance.name:"*1*"}'
 echo
 
 # kernel.all.load from proc archive (host:bozo-laptop)
 series=3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 echo "Descriptor lookup for a given SeriesID ..."
-$path/pmseries $options --desc $series
+pmseries $options --desc $series
 echo
 
 echo "Full InDom only for a given SeriesID ..."
-$path/pmseries $options --fullindom $series
+pmseries $options --fullindom $series
 echo
 
 echo "Full PMID only for a given SeriesID ..."
-$path/pmseries $options --fullpmid $series
+pmseries $options --fullpmid $series
 echo
 
 echo "All three lookups for a given SeriesID ..."
-$path/pmseries $options -dIM $series
+pmseries $options -dIM $series
 echo
 
 echo "SourceID lookup for a given SeriesID ..."
-$path/pmseries $options --source $series
+pmseries $options --source $series
 echo
 
 echo "Instances lookup for a given SeriesID ..."
-$path/pmseries $options --instances $series
+pmseries $options --instances $series
 echo
 
 echo "Labels lookup for a given SeriesID ..."
-$path/pmseries $options --labels $series
+pmseries $options --labels $series
 echo
 
 echo "All lookups for a given SeriesID ..."
-$path/pmseries $options --all $series
+pmseries $options --all $series
 echo
 
 echo "Values fetch for a single-valued query ..."
-$path/pmseries $options 'kernel.all.pswitch[count: 30]'
+pmseries $options 'kernel.all.pswitch[count: 30]'
 echo
 
 echo "Values fetch for a multi-valued query ..."
-$path/pmseries $options 'kernel.all.load[count: 30]'
+pmseries $options 'kernel.all.load[count: 30]'
 echo
 
 status=0
@@ -157,26 +157,26 @@ exit  # TODO: pmseries frontend is WIP from here
 
 echo "Perform simple source-based query ..."
 pmseries $options 'kernel.all.pswitch{source.name:"bozo-laptop"}'
-$path/echo
+echo
 
 echo "Error handling - descriptor for bad series identifier"
-$path/pmseries $options -d no.such.identifier
+pmseries $options -d no.such.identifier
 echo
 
 echo "Error handling - metric name for bad series identifier"
-$path/pmseries $options -m no.such.identifier
+pmseries $options -m no.such.identifier
 echo
 
 echo "Error handling - instance names for bad series identifier"
-$path/pmseries $options -i no.such.identifier
+pmseries $options -i no.such.identifier
 echo
 
 echo "Error handling - label names for bad series identifier"
-$path/pmseries $options -l no.such.identifier
+pmseries $options -l no.such.identifier
 echo
 
 echo "Error handling - query with no matching instance name"
-$path/pmseries $options 'kernel.all.load{instance.name == "5 mi*"}'
+pmseries $options 'kernel.all.load{instance.name == "5 mi*"}'
 
 # TODO: verify all the time-related keywords
 
