@@ -1511,6 +1511,7 @@ BAD
 1167 pmdumplog labels archive local pmrep python
 1169 pmrep python local
 1170 pmda.bcc local python
+1171 pmda.bcc local python
 1174 threads valgrind local
 1177 pmns derive libpcp pmlogger local
 1180 logutil local pmrep python BAD @vm34

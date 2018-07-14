@@ -47,7 +47,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
 	unpickargs.c hanoi.c chain.c progname.c countmark.c spawn.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
-	timeshift.c checkstructs.c
+	timeshift.c checkstructs.c bcc_profile.c
 
 #ifeq "$(HAVE_LIBUV)" "true"
 #CFILES += discover-logtail.c
@@ -302,6 +302,9 @@ stripmark: stripmark.c
 
 anon-sa: anon-sa.c
 	$(CCF) $(CDEFS) -o $@ anon-sa.c
+
+bcc_profile: bcc_profile.c
+	$(CCF) $(CDEFS) -g -fno-omit-frame-pointer -o $@ bcc_profile.c
 
 # --- need libpcp
 #
