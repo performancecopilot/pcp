@@ -469,7 +469,8 @@ GetPorts(char *file)
 	fprintf(mapstream, "%s\n", pmcd_host);
 
 	/* then the full pathname to the archive base */
-	__pmNativePath(archBase);
+	/* THREADSAFE - no locks acquired in __pmNativePath() */
+	archBase = __pmNativePath(archBase);
 	if (__pmAbsolutePath(archBase))
 	    fprintf(mapstream, "%s\n", archBase);
 	else {

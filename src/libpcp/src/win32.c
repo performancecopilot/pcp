@@ -303,6 +303,14 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     char *command;
     int i, sz = 0;
     int	sts;
+    static int	init = 1;
+    static char *pcp_dir;
+
+    if (init) {
+	/* one-trip initialize to get possible $PCP_DIR */
+	pcp_dir = getenv("PCP_DIR");
+	init = 0;
+    }
  
     ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
@@ -362,6 +370,18 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     }
 
     /* Flatten the argv array for the Windows CreateProcess API */
+    if (pcp_dir != NULL) {
+	if (argv[0][0] == '/') {
+	    /*
+	     * if argv[0] starts with a /, no $PATH searching happens,
+	     * so we need to prefix argv[0] with $PCP_DIR
+	     */
+	    cmdline = strdup(pcp_dir);
+	    sz = strlen(cmdline);
+	    /* append argv[0] (with leading slash) at cmdline[sz] */
+	}
+    }
+
  
     for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
 	int length = strlen(command);
@@ -393,7 +413,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	DWORD	lasterror;
 	char	*errmsg;
 	lasterror = GetLastError();
-	fprintf(stderr, "__pmProcessCreate: CreateProcess(%s, ...) failed, lasterror=%ld (", argv[0], lasterror);
+	fprintf(stderr, "__pmProcessCreate: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld (", cmdline, lasterror);
 	sts = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		    NULL,		/* lpSource not used */
 		    lasterror,

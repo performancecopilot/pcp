@@ -160,9 +160,73 @@ char *__pmNativePath(char *path) { return dos_native_path(path); }
 int pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 int __pmAbsolutePath(char *path) { return posix_style() ? path[0] == '/' : dos_absolute_path(path); }
 #else
-char *__pmNativePath(char *path) { return path; }
 int __pmAbsolutePath(char *path) { return path[0] == '/'; }
 int pmPathSeparator() { return '/'; }
+
+/*
+ * path argument MUST be malloc'd ... could be free'd here and a
+ * new path allocated
+ *
+ * Handle path rewriting for non-*nix platforms
+ */
+char *__pmNativePath(char *path)
+{
+#ifdef IS_MINGW
+    /*
+     * if path[0] is not '/', do nothing
+     * map /c/mingw... $PCP_DIR/mingw...
+     * map /anythinglese to $PCP_DIR/anythingelse
+     */
+    char	*p;
+    char	*new_path;
+    char	*start;
+    static char *pcp_dir;
+    static int	init = 1;
+
+    if (path[0] != '/') {
+	/* relative pathname, nothing to do */
+	return path;
+    }
+
+    if (init) {
+	/* one-trip initialization */
+	pcp_dir = getenv("PCP_DIR");		/* THREADSAFE */
+	init = 0;
+    }
+
+    if (pcp_dir == NULL)
+	return path;
+
+    /*
+     * check for / drive-digit / mingw...
+     */
+    if (strlen(path) >= 8 &&
+	path[2] == '/' &&
+	strncmp(&path[3], "mingw", 5) == 0) {
+	start = &path[2];
+    }
+    else
+	start = path;
+
+    new_path = (char *)malloc(strlen(pcp_dir) + strlen(start) + 1);
+    if (new_path == NULL) {
+	pmNoMem("__pmNativePath", strlen(pcp_dir) + strlen(start) + 1, PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    strncpy(new_path, pcp_dir, strlen(pcp_dir) + 1);
+    for (p = new_path; *p; p++) {
+	if (*p == '\\') *p = '/';
+    }
+    strncat(new_path, start, strlen(start) + 1);
+    if (pmDebugOptions.config && pmDebugOptions.desperate)
+	fprintf(stderr, "__pmNativePath: \"%s\" start @ [%d] -> \"%s\"\n", path, (int)(start - path), new_path);
+
+    free(path);
+    return(new_path);
+#else
+    return path;
+#endif
+}
 
 /*
  * Called with __pmLock_extcall held, so setenv() is thread-safe.
@@ -205,38 +269,41 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
      * variables found therein into the environment.
      */
     FILE *fp;
-    char confpath[32];
     char errmsg[PM_MAXERRMSGLEN];
     char dir[MAXPATHLEN];
     char var[MAXPATHLEN];
-    char *prefix;
+    char *pcp_dir;
     char *conf;
     char *val;
     char *p;
 
     PM_LOCK(__pmLock_extcall);
-    prefix = getenv("PCP_DIR");		/* THREADSAFE */
+    pcp_dir = getenv("PCP_DIR");		/* THREADSAFE */
     conf = getenv("PCP_CONF");		/* THREADSAFE */
     if (conf == NULL) {
-	strncpy(confpath, "/etc/pcp.conf", sizeof(confpath));
-	if (prefix == NULL) {
-	    /* THREADSAFE - no locks acquired in __pmNativePath() */
-	    conf = __pmNativePath(confpath);
+	conf = strdup("/etc/pcp.conf");
+	if (conf == NULL) {
+	    pmNoMem("__pmconfig", strlen("/etc/pcp.conf")+1, PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
-	else {
+	if (pcp_dir != NULL) {
 	    pmsprintf(dir, sizeof(dir),
-			 "%s%s", prefix, __pmNativePath(confpath));
-	    conf = dir;
+			 "%s%s", pcp_dir, conf);
+	    free(conf);
+	    conf = strdup(dir);
 	}
+	/* THREADSAFE - no locks acquired in __pmNativePath() */
+	conf = __pmNativePath(conf);
     }
-    conf = strdup(conf);
-    if (prefix != NULL) prefix = strdup(prefix);
+    else
+	conf = strdup(conf);
+    if (pcp_dir != NULL) pcp_dir = strdup(pcp_dir);
     PM_UNLOCK(__pmLock_extcall);
 
     if ((fp = fopen(conf, "r")) == NULL) {
 	if (!fatal) {
 	    free(conf);
-	    if (prefix != NULL) free(prefix);
+	    if (pcp_dir != NULL) free(pcp_dir);
 	    return;
 	}
 	/*
@@ -252,7 +319,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	    "You may need to set PCP_CONF or PCP_DIR in your environment.\n",
 		conf, osstrerror_r(errmsg, sizeof(errmsg)));
 	free(conf);
-	if (prefix != NULL) free(prefix);
+	if (pcp_dir != NULL) free(pcp_dir);
 	exit(1);
     }
 
@@ -272,7 +339,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	     * THREADSAFE - no locks acquired in formatter() which is
 	     * really dos_formatter() or posix_formatter()
 	     */
-	    formatter(var, prefix, val);
+	    formatter(var, pcp_dir, val);
 	}
 	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
@@ -280,7 +347,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
     }
     fclose(fp);
     free(conf);
-    if (prefix != NULL) free(prefix);
+    if (pcp_dir != NULL) free(pcp_dir);
 }
 
 void
