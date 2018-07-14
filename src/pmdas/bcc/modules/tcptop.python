@@ -28,6 +28,7 @@ from socket import inet_ntop, AF_INET, AF_INET6
 from struct import pack
 from os import path
 from time import sleep
+from collections import namedtuple
 
 from bcc import BPF
 
@@ -49,6 +50,8 @@ MODULE = 'tcptop'
 METRIC = 'proc.io.net.tcptop.'
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 units_none = pmUnits(0, 0, 0, 0, 0, 0)
+
+TCPSessionKey = namedtuple('TCPSession', ['pid', 'laddr', 'lport', 'daddr', 'dport'])
 
 #
 # PCP BCC Module
@@ -126,22 +129,23 @@ class PCPBCCModule(PCPBCCBase):
             return str(pid)
 
     @staticmethod
-    def build_dict_from_ipv4_table(table):
+    def ipv4_table_to_dict(table):
         """ Build a hashable dict from the IPv4 BPF table """
-        return {(k.pid,
-                 inet_ntop(AF_INET, pack("I", k.saddr)),
-                 k.lport,
-                 inet_ntop(AF_INET, pack("I", k.daddr)),
-                 k.dport):v.value for k, v in table.items()}
+        return {TCPSessionKey(pid=k.pid,
+                              laddr=inet_ntop(AF_INET, pack("I", k.saddr)),
+                              lport=k.lport,
+                              daddr=inet_ntop(AF_INET, pack("I", k.daddr)),
+                              dport=k.dport):v.value for k, v in table.items()}
 
     @staticmethod
-    def build_dict_from_ipv6_table(table):
+    def ipv6_table_to_dict(table):
         """ Build a hashable dict from the IPv6 BPF table """
-        return {(k.pid,
-                 inet_ntop(AF_INET6, pack("QQ", k.saddr0, k.saddr1)),
-                 k.lport,
-                 inet_ntop(AF_INET6, pack("QQ", k.daddr0, k.daddr1)),
-                 k.dport):v.value for k, v in table.items()}
+        return {TCPSessionKey(pid=k.pid,
+                              laddr=inet_ntop(AF_INET6, pack("QQ", k.saddr0, k.saddr1)),
+                              lport=k.lport,
+                              daddr=inet_ntop(AF_INET6, pack("QQ", k.daddr0, k.daddr1)),
+                              dport=k.dport):v.value for k, v in table.items()}
+
 
     def refresh_stats(self):
         """ Refresh statistics from BPF table """
@@ -150,24 +154,23 @@ class PCPBCCModule(PCPBCCBase):
         self.lock.release()
 
         ipv4_send_bytes = self.bpf["ipv4_send_bytes"]
-        ipv4_send_bytes_dict = self.build_dict_from_ipv4_table(ipv4_send_bytes)
+        ipv4_send_bytes_dict = self.ipv4_table_to_dict(ipv4_send_bytes)
         ipv4_recv_bytes = self.bpf["ipv4_recv_bytes"]
-        ipv4_recv_bytes_dict = self.build_dict_from_ipv4_table(ipv4_recv_bytes)
+        ipv4_recv_bytes_dict = self.ipv4_table_to_dict(ipv4_recv_bytes)
 
         ipv6_send_bytes = self.bpf["ipv6_send_bytes"]
-        ipv6_send_bytes_dict = self.build_dict_from_ipv6_table(ipv6_send_bytes)
+        ipv6_send_bytes_dict = self.ipv6_table_to_dict(ipv6_send_bytes)
         ipv6_recv_bytes = self.bpf["ipv6_recv_bytes"]
-        ipv6_recv_bytes_dict = self.build_dict_from_ipv6_table(ipv6_recv_bytes)
+        ipv6_recv_bytes_dict = self.ipv6_table_to_dict(ipv6_recv_bytes)
 
         # build dict of all seen keys (connections)
-        keys = {}
-        for table in [ipv4_send_bytes_dict, ipv4_recv_bytes_dict, ipv6_send_bytes_dict, ipv6_recv_bytes_dict]:
-            for k, v in table.items():
-                if k not in keys:
-                    keys[k] = v
+        keys = ipv4_send_bytes_dict.copy()
+        keys.update(ipv4_recv_bytes_dict)
+        keys.update(ipv6_send_bytes_dict)
+        keys.update(ipv6_recv_bytes_dict)
 
         idx = 0
-        for k, v in sorted(keys.items(), key=lambda kv: kv[1], reverse=True):
+        for k, v in sorted(keys.items(), key=lambda kv: kv[1], reverse=True): # pylint: disable=unused-variable
             send_bytes = 0
             recv_bytes = 0
 
@@ -182,12 +185,12 @@ class PCPBCCModule(PCPBCCBase):
 
             self.lock.acquire()
             self.cache[idx] = [
-                k[0],
-                self.pid_to_comm(k[0]),
-                k[1],
-                k[2],
-                k[3],
-                k[4],
+                k.pid,
+                self.pid_to_comm(k.pid),
+                k.laddr,
+                k.lport,
+                k.daddr,
+                k.dport,
                 recv_bytes,
                 send_bytes
             ]
@@ -201,11 +204,14 @@ class PCPBCCModule(PCPBCCBase):
         ipv4_recv_bytes.clear()
         ipv6_send_bytes.clear()
         ipv6_recv_bytes.clear()
+        return idx
 
     def refresh_stats_loop(self):
         """ Refresh statistics thread loop """
         while True:
-            self.refresh_stats()
+            cnt = self.refresh_stats()
+            if self.debug:
+                self.log("Fetched data from BPF table, current number of connections: %d." % cnt)
             sleep(self.interval)
 
     def refresh(self):

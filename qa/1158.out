@@ -9,6 +9,7 @@ Info: biotop
 Info: Modules configured.
 Info: Initializing modules:
 Info: biotop
+Info: biotop: Debug logging enabled.
 Info: biotop: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
@@ -25,6 +26,7 @@ Info: biotop
 Info: Modules configured.
 Info: Initializing modules:
 Info: biotop
+Info: biotop: Debug logging enabled.
 Info: biotop: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:

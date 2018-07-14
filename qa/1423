@@ -1,0 +1,47 @@
+#! /bin/sh
+# PCP QA Test No. 1423
+# checks basic pcp2spark functionality
+#
+# Copyright (c) 2018 Red Hat
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+which nc >/dev/null 2>&1 || _norun "nc binary not installed"
+which pcp2spark >$seq.full 2>&1 || _notrun "pcp2spark not installed"
+
+port=44325
+$PCP_BINADM_DIR/telnet-probe -c localhost $port \
+       && _notrun "Someone already listening on typical pcp2spark $port"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1       # failure is the default!
+
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_pcp2spark()
+{
+    # filter out some of the output
+    sed -e 's/[>].*//'
+    #    -e 's/}.*/}/'
+}
+
+pcp2spark="$python `which pcp2spark`"
+
+echo "=== pcp2spark archive replay session ===" | tee -a $seq.full
+$pcp2spark -a $here/archives/rep -I "" >$tmp.p2s.out 2>$tmp.p2s.err &
+sleep 2
+nc localhost $port &
+pid=$!
+sleep 1
+$signal $pid 2>/dev/null
+wait
+echo "" | tee -a $seq.full
+
+
+status=0
+exit

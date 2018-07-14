@@ -9,6 +9,7 @@ Info: tcptop
 Info: Modules configured.
 Info: Initializing modules:
 Info: tcptop
+Info: tcptop: Debug logging enabled.
 Info: tcptop: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
@@ -25,6 +26,7 @@ Info: tcptop
 Info: Modules configured.
 Info: Initializing modules:
 Info: tcptop
+Info: tcptop: Debug logging enabled.
 Info: tcptop: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
