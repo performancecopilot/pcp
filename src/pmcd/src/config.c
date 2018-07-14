@@ -498,7 +498,8 @@ BuildArgv(void)
 	    if (*token != '/')
 		result[nArgs] = CopyToken();
 	    else if ((result[nArgs] = CopyToken()) != NULL)
-		__pmNativePath(result[nArgs]);
+		/* THREADSAFE - no locks acquired in __pmNativePath() */
+		result[nArgs] = __pmNativePath(result[nArgs]);
 	}
 	if (result_new == NULL || result[nArgs] == NULL) {
 	    fprintf(stderr, "pmcd config[line %d]: Error: failed to build argument list\n",
@@ -643,7 +644,8 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
-    __pmNativePath(pathName);
+    /* THREADSAFE - no locks acquired in __pmNativePath() */
+    pathName = __pmNativePath(pathName);
 
     FindNextToken();
     if (*token != '\n') {
