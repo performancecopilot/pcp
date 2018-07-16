@@ -1704,7 +1704,7 @@ pmflush(void)
     FILE	*eptr = NULL;
     __pmExecCtl_t	*argp = NULL;
     char	errmsg[PM_MAXERRMSGLEN];
-    char	*path;
+    char	*path = NULL;
 
     /* see thread-safe notes above */
     if (!xconfirm_init) {
@@ -1785,6 +1785,10 @@ pmflush(void)
     }
 
     PM_UNLOCK(util_lock);
+
+    if (path != NULL)
+	free(path);
+
     return sts;
 }
 

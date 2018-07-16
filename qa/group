@@ -1055,6 +1055,7 @@ BAD
 678 logutil pmlogrewrite local
 679 logutil local pmlogrewrite
 680 libpcp local
+681 libpcp local
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
 701 pmlogcheck local

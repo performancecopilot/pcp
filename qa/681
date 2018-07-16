@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 681
+# Exercise __pmProcessExec() and friends from libpcp with valgrind
+# ... same test as 036 (that one's without valgrind)
+#
+# Copyright (c) 2017-2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+# filter pid's in lines like ...
+# __pmProcessExec: pid=1965 wait_pid=1965
+#
+_filter()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
+	-e "s@$tmp@TMP@g" \
+    #end
+}
+
+# whitespace in od(1) output is not consistent across platforms
+#
+_od_filter()
+{
+    sed \
+	-e 's/  */ /g' \
+	-e 's/ $//' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== success cases ==="
+echo "--- echo ---"
+_run_valgrind src/exectest -Dexec -- /bin/echo 'blah;trickme' 2>&1 | _filter
+echo "--- /bin/sh -c ---"
+_run_valgrind src/exectest -Dexec -- /bin/sh -c "echo 'f o o'; kill -TERM \$\$; sleep 1; echo b\\ a\\ r" 2>&1 | _filter
+echo "--- pipe in ---"
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+echo "--- pipe out ---"
+echo "hello other world" >$tmp.data
+_run_valgrind src/exectest -Dexec -P $tmp.data -- od -c 2>&1 | _filter | _od_filter
+echo "---  exec and executable not on \$PATH ---"
+cat <<'End-of-File' >$tmp.sh
+#!/bin/sh
+echo "my arg echoer ..."
+echo "[0] $0"
+i=0
+while true
+do
+    i=`expr $i + 1`
+    echo "[$i] $1"
+    [ $# -eq 1 ] && break
+    shift
+done
+exit 0
+End-of-File
+chmod 755 $tmp.sh
+_run_valgrind src/exectest -Dexec $tmp.sh 'blah;trickme|foo' cat and dog 2>&1 | _filter
+echo "---  popen and executable not on \$PATH ---"
+_run_valgrind src/exectest -Dexec -p $tmp.sh 'blah;trickme|foo' cat and dog 2>&1 | _filter
+
+echo
+echo "=== error and failure cases ==="
+_run_valgrind src/exectest -Dexec -- /a/b/c -f oo bar 2>&1 | _filter
+
+# success, all done
+status=0
+exit
