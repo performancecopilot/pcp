@@ -142,8 +142,7 @@ Options:\n\
 		    break;
 		}
 	    }
-	    if (fin != NULL)
-		fclose(fin);
+	    fclose(fin);
 	    printf("--- end ---\n");
 	    sts = __pmProcessPipeClose(pout);
 	    printf("__pmProcessPipeClose() -> %d", sts);
@@ -171,8 +170,7 @@ Options:\n\
 		}
 	    }
 	    printf("--- end ---\n");
-	    if (fin != NULL)
-		fclose(fin);
+	    fclose(fin);
 	    fclose(pout);
 	    printf("--- start pipe output ---\n");
 	    while ((c = fgetc(pin)) != EOF) {
