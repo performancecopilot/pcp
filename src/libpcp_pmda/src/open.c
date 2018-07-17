@@ -833,6 +833,11 @@ pmdaConnect(pmdaInterface *dispatch)
 
 	    pmda->e_infd = fileno(stdin);
 	    pmda->e_outfd = fileno(stdout);
+#ifdef IS_MINGW
+	    /* do not muck with \n in the PDU stream */
+	    _setmode(pmda->e_infd, _O_BINARY);
+	    _setmode(pmda->e_outfd, _O_BINARY);
+#endif
 
 	    if (pmDebugOptions.libpmda) {
 	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
