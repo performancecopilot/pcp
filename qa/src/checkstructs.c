@@ -221,7 +221,10 @@ main(int argc, char **argv)
 
 #define INT 4
 
-    printf("pmapi.h\n");
+    printf("basic units\n");
+    check("int", sizeof(int), INT);
+
+    printf("\npmapi.h\n");
     check("pmUnits", sizeof(pmUnits), INT);
     check("pmDesc", sizeof(pmDesc), 5*INT);
     check("pmValueBlock", sizeof(pmValueBlock), 2*INT);
