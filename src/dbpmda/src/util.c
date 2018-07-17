@@ -31,8 +31,8 @@
 #include "../../libpcp/src/pmdbg.h"
 
 extern pmdaInterface	dispatch;
-extern int		infd;
-extern int		outfd;
+extern int		fromPMDA;
+extern int		toPMDA;
 
 pmProfile		*profile;
 int			profile_changed;
@@ -517,7 +517,7 @@ dostatus(void)
 	case CONN_DAEMON:
 	    printf("daemon\n");
 	    printf("PMDA PMAPI Version:     ");
-	    i = __pmVersionIPC(infd);
+	    i = __pmVersionIPC(fromPMDA);
 	    if (i == UNKNOWN_VERSION)
 		printf("unknown!\n");
 	    else
