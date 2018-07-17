@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
-which nc >/dev/null 2>&1 || _norun "nc binary not installed"
+which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
 which pcp2spark >$seq.full 2>&1 || _notrun "pcp2spark not installed"
 
 port=44325
