@@ -1784,83 +1784,29 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 static pid_t
 CreateAgentWin32(AgentInfo *aPtr)
 {
-    SECURITY_ATTRIBUTES saAttr;
-    PROCESS_INFORMATION piProcInfo;
-    STARTUPINFO siStartInfo;
-    HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
-    BOOL bSuccess = FALSE;
-    LPTSTR command = NULL;
+    pid_t	pid;
+    char	*argv[2];
 
     if (aPtr->ipcType == AGENT_PIPE)
-	command = (LPTSTR)aPtr->ipc.pipe.commandLine;
+	argv[0] = aPtr->ipc.pipe.commandLine;
     else if (aPtr->ipcType == AGENT_SOCKET)
-	command = (LPTSTR)aPtr->ipc.socket.commandLine;
+	argv[0] = aPtr->ipc.socket.commandLine;
+    argv[1] = NULL;
 
-    // Set the bInheritHandle flag so pipe handles are inherited
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE;
-    saAttr.lpSecurityDescriptor = NULL;
 
-    // Create a pipe for the child process's STDOUT.
-    if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) {
-	fprintf(stderr, "pmcd: stdout CreatePipe failed, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, osstrerror());
-	return (pid_t)-1;
-    }
-    // Ensure the read handle to the pipe for STDOUT is not inherited.
-    if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0)) {
-	fprintf(stderr, "pmcd: stdout SetHandleInformation, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, osstrerror());
-	return (pid_t)-1;
-    }
-
-    // Create a pipe for the child process's STDIN.
-    if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
-	fprintf(stderr, "pmcd: stdin CreatePipe failed, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, osstrerror());
-	return (pid_t)-1;
-    }
-    // Ensure the write handle to the pipe for STDIN is not inherited.
-    if (!SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0)) {
-	fprintf(stderr, "pmcd: stdin SetHandleInformation, \"%s\" agent: %s\n",
-			aPtr->pmDomainLabel, osstrerror());
-	return (pid_t)-1;
-    }
-
-    // Create the child process.
-
-    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
-    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
-    siStartInfo.cb = sizeof(STARTUPINFO);
-    siStartInfo.hStdOutput = hChildStdoutWr;
-    siStartInfo.hStdError = hChildStdoutWr;
-    siStartInfo.hStdInput = hChildStdinRd;
-    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
-
-    bSuccess = CreateProcess(NULL, command,
-			NULL,          // process security attributes
-			NULL,          // primary thread security attributes
-			TRUE,          // handles are inherited
-			0,             // creation flags
-			NULL,          // use parent's environment
-			NULL,          // use parent's current directory
-			&siStartInfo,  // STARTUPINFO pointer
-			&piProcInfo);  // receives PROCESS_INFORMATION
-    if (!bSuccess) {
+    if ((pid = __pmProcessCreate(argv, &aPtr->outFd, &aPtr->inFd)) < (pid_t)0) {
 	fprintf(stderr, "pmcd: CreateProcess for \"%s\" agent: %s: %s\n",
-			aPtr->pmDomainLabel, command, osstrerror());
-	return (pid_t)-1;
+			aPtr->pmDomainLabel, argv[0], osstrerror());
+    }
+    else {
+	pmcd_openfds_sethi(aPtr->inFd);
+	pmcd_openfds_sethi(aPtr->outFd);
+	/* do not muck with \n in PDU stream */
+	_setmode(aPtr->inFd, _O_BINARY);
+	_setmode(aPtr->outFd, _O_BINARY);
     }
 
-    aPtr->inFd = _open_osfhandle((intptr_t)hChildStdinRd, _O_WRONLY);
-    aPtr->outFd = _open_osfhandle((intptr_t)hChildStdoutWr, _O_RDONLY);
-    pmcd_openfds_sethi(aPtr->outFd);
-
-    CloseHandle(piProcInfo.hProcess);
-    CloseHandle(piProcInfo.hThread);
-    CloseHandle(hChildStdoutRd);
-    CloseHandle(hChildStdinWr);
-    return piProcInfo.dwProcessId;
+    return pid;
 }
 #endif
 
