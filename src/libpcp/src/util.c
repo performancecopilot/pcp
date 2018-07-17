@@ -2583,8 +2583,16 @@ __pmProcessRunTimes(double *usr, double *sys)
 #endif
 
 #if !defined(IS_MINGW)
+/*
+ * fromChild - pipe used for reading from the caller, connected to the
+ * standard output of the created process
+ * toChild - pipe used for writing from the caller, connected to the
+ * std input of the created process
+ * If either is NULL, no pipe is created and created process inherits
+ * stdio streams from the parent.
+ */
 pid_t
-__pmProcessCreate(char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *fromChild, int *toChild)
 {
     int		in[2];
     int		out[2];
@@ -2603,8 +2611,8 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	/* parent */
 	close(in[0]);
 	close(out[1]);
-	*infd = out[0];
-	*outfd = in[1];
+	*fromChild = out[0];
+	*toChild = in[1];
     }
     else {
 	/* child */
@@ -2639,6 +2647,8 @@ void
 pmSetProgname(const char *program)
 {
     char	*p;
+
+    __pmInitLocks();	/* not used here, just get in early */
 
     if (program == NULL) {
 	/* Restore the default application name */
