@@ -13,12 +13,17 @@ __pmProcessExec -> 1015 signal=15
 --- pipe in ---
 __pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
 __pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
 hullo world
+--- end ---
 __pmProcessPipeClose: pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0
 --- pipe out ---
 __pmProcessPipe: argc=2 type="w" toss=0 "od" "-c"
 __pmProcessPipe(..., "w", ...) -> 0
+--- start pipe input ---
+hello other world
+--- end ---
 0000000 h e l l o o t h e r w o r l
 0000020 d \n
 0000022
@@ -37,12 +42,14 @@ __pmProcessExec -> 0
 ---  popen and executable not on $PATH ---
 __pmProcessPipe: argc=5 type="r" toss=0 "TMP.sh" "blah;trickme|foo" "cat" "and" "dog"
 __pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
 my arg echoer ...
 [0] TMP.sh
 [1] blah;trickme|foo
 [2] cat
 [3] and
 [4] dog
+--- end ---
 __pmProcessPipeClose: pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0
 

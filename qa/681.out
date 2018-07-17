@@ -31,7 +31,9 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 --- pipe in ---
 === std out ===
 __pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
 hullo world
+--- end ---
 __pmProcessPipeClose() -> 0
 === std err ===
 __pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
@@ -46,6 +48,9 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 --- pipe out ---
 === std out ===
 __pmProcessPipe(..., "w", ...) -> 0
+--- start pipe input ---
+hello other world
+--- end ---
 0000000 h e l l o o t h e r w o r l
 0000020 d \n
 0000022
@@ -82,12 +87,14 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 ---  popen and executable not on $PATH ---
 === std out ===
 __pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
 my arg echoer ...
 [0] TMP.sh
 [1] blah;trickme|foo
 [2] cat
 [3] and
 [4] dog
+--- end ---
 __pmProcessPipeClose() -> 0
 === std err ===
 __pmProcessPipe: argc=5 type="r" toss=0 "TMP.sh" "blah;trickme|foo" "cat" "and" "dog"

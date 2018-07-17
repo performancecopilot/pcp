@@ -1,8 +1,8 @@
 /*
- * Exercise pmSetDebug() and pmClearDebug(), and the deprecated
- * __pmParseDebug() interface.
+ * Exercise __pmProcessAddArg(), __pmProcessExec(), __pmProcessPipe(),
+ * and __pmProcessPipeClose().
  *
- * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
  */
 
 #include <pcp/pmapi.h>
@@ -33,8 +33,11 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		pipein = 0;
     int		pipeout = 0;
-    FILE	*fin;
-    FILE	*fout;
+    int		nargc = 0;
+    char	**nargv;
+    FILE	*fin = NULL;
+    FILE	*pin;
+    FILE	*pout;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
@@ -54,19 +57,11 @@ main(int argc, char **argv)
 	    }
 	    break;
 
-	case 'p':	/* __pmProcessPipe(), reading */
-	    if (pipein || pipeout) {
-		fprintf(stderr, "%s: at most one of -p or -P allowed\n", pmGetProgname());
-		errflag++;
-	    }
+	case 'p':	/* __pmProcessPipe() reading or __pmProcessCreate() */
 	    pipein++;
 	    break;
 
-	case 'P':	/* __pmProcessPipe(), writing */
-	    if (pipein || pipeout) {
-		fprintf(stderr, "%s: at most one of -p or -P allowed\n", pmGetProgname());
-		errflag++;
-	    }
+	case 'P':	/* __pmProcessPipe(), writing or __pmProcessCreate() */
 	    pipeout++;
 	    if ((fin = fopen(optarg, "r")) == NULL) {
 		fprintf(stderr, "%s: cannot open \"%s\" for reading: \"%s\"\n",
@@ -94,6 +89,9 @@ Options:\n\
         exit(1);
     }
 
+    nargv = (char **)malloc((argc+1)*sizeof(char *));
+    nargv[0] = argv[0];
+    nargc = 1;
     h = NULL;
     while (optind < argc) {
 	sts = __pmProcessAddArg(&h, argv[optind]);
@@ -102,41 +100,86 @@ Options:\n\
 	    printf("__pmProcessAddArg: failed (handle is NULL) at argv[%d]: \"%s\"\n", optind-1, argv[optind]);
 	    exit(1);
 	}
+	nargv[nargc++] = argv[optind];
 	optind++;
     }
+    nargv[nargc] = NULL;
 
-    if (pipein) {
-	sts = __pmProcessPipe(&h, "r", PM_EXEC_TOSS_NONE, &fin);
+    if (pipein && !pipeout) {
+	sts = __pmProcessPipe(&h, "r", PM_EXEC_TOSS_NONE, &pin);
 	printf("__pmProcessPipe(..., \"r\", ...) -> %d", sts);
 	if (sts < 0) {
 	    printf(": %s\n", pmErrStr(sts));
 	}
 	else {
+	    if (pmDebugOptions.desperate) printf(" fileno(pin)=%d", fileno(pin));
 	    putchar('\n');
-	    while ((c = fgetc(fin)) != EOF) {
+	    printf("--- start pipe output ---\n");
+	    while ((c = fgetc(pin)) != EOF) {
 		putchar(c);
 	    }
-	    sts = __pmProcessPipeClose(fin);
+	    printf("--- end ---\n");
+	    sts = __pmProcessPipeClose(pin);
 	    printf("__pmProcessPipeClose() -> %d", sts);
 	    report_status(sts);
 	    putchar('\n');
 	}
     }
-    else if (pipeout) {
-	sts = __pmProcessPipe(&h, "w", PM_EXEC_TOSS_NONE, &fout);
+    else if (pipeout && !pipein) {
+	sts = __pmProcessPipe(&h, "w", PM_EXEC_TOSS_NONE, &pout);
 	printf("__pmProcessPipe(..., \"w\", ...) -> %d", sts);
 	if (sts < 0) {
 	    printf(": %s\n", pmErrStr(sts));
 	}
 	else {
+	    if (pmDebugOptions.desperate) printf(" fileno(pin)=%d", fileno(pin));
 	    putchar('\n');
+	    printf("--- start pipe input ---\n");
 	    while ((c = fgetc(fin)) != EOF) {
-		fputc(c, fout);
+		putchar(c);
+		if ((sts = fputc(c, pout)) != (int)c) {
+		    fprintf(stderr, "\nfputc('%c', [%d]) failed: %d %s\n", c & 0xff, fileno(pout), ferror(pout), osstrerror());
+		    break;
+		}
 	    }
-	    sts = __pmProcessPipeClose(fout);
+	    if (fin != NULL)
+		fclose(fin);
+	    printf("--- end ---\n");
+	    sts = __pmProcessPipeClose(pout);
 	    printf("__pmProcessPipeClose() -> %d", sts);
 	    report_status(sts);
 	    putchar('\n');
+	}
+    }
+    else if (pipein && pipeout) {
+	int	fromChild, toChild;
+	sts = __pmProcessCreate(nargv, &fromChild, &toChild);
+	printf("__pmProcessCreate(...) -> %d fromChild=%d toChild=%d", sts, fromChild, toChild);
+	if (sts < 0) {
+	    printf(": %s\n", pmErrStr(sts));
+	}
+	else {
+	    pin = fdopen(fromChild, "r");
+	    pout = fdopen(toChild, "w");
+	    putchar('\n');
+	    printf("--- start pipe input ---\n");
+	    while ((c = fgetc(fin)) != EOF) {
+		putchar(c);
+		if ((sts = fputc(c, pout)) != (int)c) {
+		    fprintf(stderr, "\nfputc('%c', [%d]) failed: %d %s\n", c & 0xff, fileno(pout), ferror(pout), osstrerror());
+		    break;
+		}
+	    }
+	    printf("--- end ---\n");
+	    if (fin != NULL)
+		fclose(fin);
+	    fclose(pout);
+	    printf("--- start pipe output ---\n");
+	    while ((c = fgetc(pin)) != EOF) {
+		putchar(c);
+	    }
+	    printf("--- end ---\n");
+	    fclose(pin);
 	}
     }
     else {
@@ -145,6 +188,8 @@ Options:\n\
 	report_status(sts);
 	putchar('\n');
     }
+
+    free(nargv);
 
     return(0);
 }
