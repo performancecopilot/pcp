@@ -34,6 +34,7 @@
 #include "internal.h"
 #include "fault.h"
 #include <assert.h>
+#include <errno.h>
 
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	pdu_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -251,12 +252,20 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    status = read(fd, buf, len);
 	}
 	__pmOverrideLastFd(fd);
-	if (status < 0)
-	    /* error */
+	if (status <= 0) {
+	    /* end of file or error */
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "pduread(%d, ...): eof/error %d from %s: ", fd, status, socketipc == 0 ? "read" : "__pmRecv");
+		fprintf(stderr, "%s\n", osstrerror_r(errmsg, sizeof(errmsg)));
+	    }
+	    if (status == 0)
+		/* return what we have, or nothing */
+		break;
+
+	    /* else error return */
 	    return status;
-	else if (status == 0)
-	    /* return what we have, or nothing */
-	    break;
+	}
 
 	have += status;
 	buf += status;
@@ -266,6 +275,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		fd, have, status, len);
 	}
     }
+
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
+	fprintf(stderr, "pduread(%d, ...): return %d\n", fd, have);
 
     return have;
 }
