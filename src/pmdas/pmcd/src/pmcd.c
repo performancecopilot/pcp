@@ -313,7 +313,9 @@ typedef struct {
 
 static perctx_t *ctxtab;
 static int      num_ctx;
+#ifndef IS_MINGW
 static int      rootfd = -1;
+#endif
 
 /*
  * expand and initialize the per client context table
@@ -377,6 +379,7 @@ init_tables(int dom)
     ndesc--;
 }
 
+#ifndef IS_MINGW
 /*
  * Ensure we have a connection to pmdaroot in case we need it.
  * Note this must be done early-on (init) only, because pmcd
@@ -393,6 +396,7 @@ init_pmdaroot_connect(void)
 			osstrerror());
     }
 }
+#endif
 
 static int
 pmcd_profile(pmProfile *prof, pmdaExt *pmda)
@@ -1132,6 +1136,7 @@ fetch_feature(int item, pmAtomValue *avp)
     return 0;
 }
 
+#ifndef IS_MINGW
 static pmcd_container_t *
 ctx_container(int ctx)
 {
@@ -1139,6 +1144,7 @@ ctx_container(int ctx)
 	return &ctxtab[ctx].container;
     return NULL;
 }
+#endif
 
 static char *
 ctx_hostname(int ctx, char **hostname)
@@ -1154,13 +1160,16 @@ ctx_hostname(int ctx, char **hostname)
 static char *
 fetch_hostname(int ctx, pmAtomValue *avp, char **hostname)
 {
+#ifndef IS_MINGW
     static char		host[MAXHOSTNAMELEN];
     pmcd_container_t	*container;
     int			sts;
+#endif
 
     if (*hostname)	/* ensure we only ever refresh once-per-fetch */
 	return avp->cp = *hostname;
 
+#ifndef IS_MINGW
     /* see if we're dealing with a request within a container */
     if ((container = ctx_container(ctx)) != NULL &&
 	((sts = pmdaRootContainerHostName(rootfd,
@@ -1169,6 +1178,7 @@ fetch_hostname(int ctx, pmAtomValue *avp, char **hostname)
 					host, sizeof(host)) >= 0))) {
 	return avp->cp = *hostname = host;
     }
+#endif
 
     return avp->cp = *hostname = ctx_hostname(ctx, hostname);
 }
@@ -1988,7 +1998,9 @@ pmcd_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
+#ifndef IS_MINGW
     init_pmdaroot_connect();
+#endif
 
     pmdaInit(dp, NULL, 0, NULL, 0);
 }
