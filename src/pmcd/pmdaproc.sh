@@ -1276,11 +1276,9 @@ _install()
     echo "Updating the PMCD control file, and notifying PMCD ..."
     if [ -n "$args" ]
     then
-	__xargs="$__xargs $args"
-    else
-	__xargs="$__args"
+	__args="$__args $args"
     fi
-    __pmda_add "$iam	$domain	$type $__xargs"
+    __pmda_add "$iam	$domain	$type $__args"
 
     # Check that the agent is running OK
     #
