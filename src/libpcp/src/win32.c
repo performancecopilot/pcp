@@ -287,13 +287,15 @@ __pmProcessTerminate(pid_t pid, int force)
 }
 
 /*
- * infd - pipe used for input _to_ the created process
- * outfd - pipe used for output _from_ the created process
+ * fromChild - pipe used for reading from the caller, connected to the
+ * standard output of the created process
+ * toChild - pipe used for writing from the caller, connected to the
+ * std input of the created process
  * If either is NULL, no pipe is created and created process
  * inherits stdio streams from the parent
  */
 pid_t
-__pmProcessCreate(char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *fromChild, int *toChild)
 {
     HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
     PROCESS_INFORMATION piProcInfo; 
@@ -317,12 +319,11 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     saAttr.bInheritHandle = TRUE;	/* pipe handles are inherited. */
     saAttr.lpSecurityDescriptor = NULL; 
 
-    if (infd != NULL && outfd != NULL) {
-	*infd = *outfd = -1;		/* in case of errors */
+    if (fromChild != NULL && toChild != NULL) {
+	*fromChild = *toChild = -1;		/* in case of errors */
 	/*
-	 * Create a pipe for communication with the child process.
-	 * Ensure that the read handle to the child process's pipe for
-	 * STDOUT is not inherited.
+	 * Create a pipe for stdout of the child process.
+	 * Ensure that the read handle for the pipe is not inherited.
 	 */
 	if ((sts = CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) != 1) {
 	    if (pmDebugOptions.exec)
@@ -338,9 +339,8 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	}
 
 	/*
-	 * Create a pipe for the child process's STDIN.
-	 * Ensure that the write handle to the child process's pipe for
-	 * STDIN is not inherited.
+	 * Create a pipe for stdin of the child process.
+	 * Ensure that the write handle to the pipe is not inherited.
 	 */
 	if ((sts = CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) != 1) {
 	    if (pmDebugOptions.exec)
@@ -363,7 +363,8 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO); 
-    if (infd != NULL && outfd != NULL) {
+    if (fromChild != NULL && toChild != NULL) {
+	siStartInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
 	siStartInfo.hStdOutput = hChildStdoutWr;
 	siStartInfo.hStdInput = hChildStdinRd;
 	siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
@@ -411,28 +412,10 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 		    &piProcInfo)) == 0) {
 	/* failed */
 	DWORD	lasterror;
-	char	*errmsg;
+	char	errmsg[PM_MAXERRMSGLEN];
 	lasterror = GetLastError();
-	fprintf(stderr, "__pmProcessCreate: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld (", cmdline, lasterror);
-	sts = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		    NULL,		/* lpSource not used */
-		    lasterror,
-		    0,			/* default dwLanguageId */
-		    (LPTSTR)&errmsg,	/* message here, please */
-		    0,			/* nSize not used */
-		    NULL);		/* no Arguments */
-	if (sts == 0)
-	    fprintf(stderr, "unknown error)\n");
-	else {
-	    /* errmsg has gratuitous \n at the end */
-	    char *p;
-	    for (p = errmsg; *p && *p != '\n' && *p != '\r'; p++)
-		;
-	    *p = '\0';
-	    fprintf(stderr, "%s)\n", errmsg);
-	    LocalFree(errmsg);
-	}
-	if (infd != NULL && outfd != NULL) {
+	fprintf(stderr, "__pmProcessCreate: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld %s\n", cmdline, lasterror, osstrerror_r(errmsg, sizeof(errmsg)));
+	if (fromChild != NULL && toChild != NULL) {
 	    CloseHandle(hChildStdinRd);
 	    CloseHandle(hChildStdinWr);
 	    CloseHandle(hChildStdoutRd);
@@ -451,11 +434,13 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	}
     }
 
-    if (infd != NULL && outfd != NULL) {
-	CloseHandle(hChildStdinRd);
-	*infd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
-	*outfd = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
+    if (fromChild != NULL && toChild != NULL) {
+	*fromChild = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
 	CloseHandle(hChildStdoutWr);
+	CloseHandle(hChildStdinRd);
+	*toChild = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
+	if (pmDebugOptions.exec && pmDebugOptions.desperate)
+	    fprintf(stderr, "__pmProcessCreate: fromChild=%d toChild=%d\n", *fromChild, *toChild);
     }
 
     return piProcInfo.dwProcessId;
