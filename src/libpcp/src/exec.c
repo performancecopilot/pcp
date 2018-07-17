@@ -663,8 +663,8 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
-    int			infd;
-    int			outfd;
+    int			fromChild;
+    int			toChild;
     int			sts = 0;
     pid_t		pid;
 
@@ -688,7 +688,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
     ep->argv[ep->argc] = NULL;
 
-    pid = __pmProcessCreate(ep->argv, &infd, &outfd);
+    pid = __pmProcessCreate(ep->argv, &fromChild, &toChild);
 
     /* cleanup */
     cleanup(ep);
@@ -717,16 +717,21 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	    nmap++;
 	}
 
+	/*
+	 * Note:
+	 * 	The C fd's are over Windows pipes which have shared state
+	 * 	... you cannot close the fd you're no using or the process
+	 * 	at the other end will not be able to use their end of the
+	 * 	pipe.  So no close()'s here.
+	 */
 	if (type[0] == 'r') {
-	    close(infd);
-	    if ((*fp = fdopen(outfd, "r")) == NULL) {
+	    if ((*fp = fdopen(fromChild, "r")) == NULL) {
 		PM_UNLOCK(exec_lock);
 		return -oserror();
 	    }
 	}
 	else {	/* can safely assume 'w' */
-	    close(outfd);
-	    if ((*fp = fdopen(infd, "w")) == NULL) {
+	    if ((*fp = fdopen(toChild, "w")) == NULL) {
 		PM_UNLOCK(exec_lock);
 		return -oserror();
 	    }
