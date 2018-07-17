@@ -40,6 +40,9 @@
 #include <winbase.h>
 #include <psapi.h>
 
+static int	pcp_dir_init = 1;
+static char	*pcp_dir;
+
 #define FILETIME_1970		116444736000000000ull	/* 1/1/1601-1/1/1970 */
 #define HECTONANOSEC_PER_SEC	10000000ull
 #define MILLISEC_PER_SEC	1000
@@ -200,40 +203,74 @@ __pmServerStart(int argc, char **argv, int flags)
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     LPTSTR cmdline = NULL;
-    int i, sz, total = 3; /* -f\0 */
+    char *command;
+    int i, sz = 0;
+    int	sts;
 
     (void)flags;
     fflush(stdout);
     fflush(stderr);
 
-    for (i = 0; i < argc; i++)
-	total += strlen(argv[i]) + 1;
-    if ((cmdline = malloc(total)) == NULL) {
-	pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
-	exit(1);
+    if (pcp_dir_init) {
+	/* one-trip initialize to get possible $PCP_DIR */
+	pcp_dir = getenv("PCP_DIR");
+	pcp_dir_init = 0;
     }
-    for (sz = i = 0; i < argc; i++)
-	sz += pmsprintf(cmdline + sz, total - sz, "%s ", argv[i]);
-    pmsprintf(cmdline + sz, total - sz, "-f");
+
+    /* Flatten the argv array for the Windows CreateProcess API */
+    if (pcp_dir != NULL) {
+	if (argv[0][0] == '/') {
+	    /*
+	     * if argv[0] starts with a / no $PATH searching happens,
+	     * so we need to prefix argv[0] with $PCP_DIR
+	     */
+	    cmdline = strdup(pcp_dir);
+	    sz = strlen(cmdline);
+	    /* append argv[0] (with leading slash) at cmdline[sz] */
+	}
+    }
+ 
+    for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
+	int length = strlen(command);
+	/* add 1space or 1null */
+	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
+	    pmNoMem("__pmServerStart", sz + length + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	strcpy(&cmdline[sz], command);
+	cmdline[sz + length] = ' ';
+	sz += length + 1;
+    }
+    cmdline[sz - 1] = '\0';
+    if (pmDebugOptions.exec)
+	fprintf(stderr, "__pmServerStart: cmdline=%s\n", cmdline);
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO);
 
-    if (0 == CreateProcess(
-		NULL, cmdline,
-		NULL, NULL,	/* process and thread attributes */
-		FALSE,		/* inherit handles */
-		CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,
-		NULL,		/* environment (from parent) */
-		NULL,		/* current directory */
-		&siStartInfo,	/* STARTUPINFO pointer */
-		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
-	pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+    if ((sts = CreateProcess( NULL,
+		    cmdline,
+		    NULL,          /* process security attributes */
+		    NULL,          /* primary thread security attributes */
+		    TRUE,          /* inherit handles */
+		    CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,	/* creation flags */
+		    NULL,          /* environment (from parent) */
+		    NULL,          /* current directory */
+		    &siStartInfo,  /* STARTUPINFO pointer */
+				   /* receives PROCESS_INFORMATION */
+		    &piProcInfo)) == 0) {
+	/* failed */
+	DWORD	lasterror;
+	char	errmsg[PM_MAXERRMSGLEN];
+	lasterror = GetLastError();
+	fprintf(stderr, "__pmServerStart: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld %s\n", cmdline, lasterror, osstrerror_r(errmsg, sizeof(errmsg)));
 	/* but keep going */
     }
     else {
 	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmServerStart: background PID=%" FMT_PID "\n", (pid_t)piProcInfo.dwProcessId);
 	fclose(stderr);
 	exit(0);
     }
@@ -305,13 +342,11 @@ __pmProcessCreate(char **argv, int *fromChild, int *toChild)
     char *command;
     int i, sz = 0;
     int	sts;
-    static int	init = 1;
-    static char *pcp_dir;
 
-    if (init) {
+    if (pcp_dir_init) {
 	/* one-trip initialize to get possible $PCP_DIR */
 	pcp_dir = getenv("PCP_DIR");
-	init = 0;
+	pcp_dir_init = 0;
     }
  
     ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
@@ -374,7 +409,7 @@ __pmProcessCreate(char **argv, int *fromChild, int *toChild)
     if (pcp_dir != NULL) {
 	if (argv[0][0] == '/') {
 	    /*
-	     * if argv[0] starts with a /, no $PATH searching happens,
+	     * if argv[0] starts with a / no $PATH searching happens,
 	     * so we need to prefix argv[0] with $PCP_DIR
 	     */
 	    cmdline = strdup(pcp_dir);
