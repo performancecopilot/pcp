@@ -375,8 +375,8 @@ _z(void)
 		    memcpy(&gav.ull, gvbp->vbuf, sizeof(__uint64_t));
 		    memcpy(&xav.ull, xvbp->vbuf, sizeof(__uint64_t));
 		    if (gav.ull != xav.ull)
-			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->ull: got %lld expect %lld\n",
-			    i, j, (long long)gav.ull, (long long)xav.ull);
+			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->ull: got %" FMT_UINT64 " expect %" FMT_UINT64 "\n",
+			    i, j, gav.ull, xav.ull);
 		    break;
 		case PM_TYPE_FLOAT:
 		    memcpy(&gav.f, gvbp->vbuf, sizeof(float));
@@ -1634,11 +1634,18 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		port = 4323;	/* default port for remote connection */
     char	*endnum;
+    int		clone = 0;
+#ifdef IS_MINGW
+    pid_t	pid = 0;
+#endif
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:i:Np:v:?")) != EOF) {
+    while ((c = getopt(argc, argv, "cD:i:Np:v:?")) != EOF) {
 	switch (c) {
+	case 'c':	/* clone, stdio set up already */
+	    clone = 1;
+	    break;
 	case 'D':	/* debug options */
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
@@ -1702,9 +1709,32 @@ main(int argc, char **argv)
 
     if (optind == argc) {
 	/* standalone, use a pipe */
-	if (pipe(fd) < 0) {
-	    perror("pipe");
-	    exit(1);
+	if (clone) {
+	    /* pipe already set up in parent, used stdio fd's */
+	    fd[0] = 0;
+	    fd[1] = 1;
+	}
+	else {
+#ifndef IS_MINGW
+	    if (pipe(fd) < 0) {
+		perror("pipe");
+		exit(1);
+	    }
+#else
+	    /*
+	     * for Windows need clone of myself at the other end of the
+	     * "pipe"
+	     */
+	    int		fromChild;
+	    int		toChild;
+	    char	*argv[] = { "./pducheck -c", NULL };
+	    if ((pid = __pmProcessCreate(argv, &fromChild, &toChild)) < (pid_t)0) {
+		perror("__pmProcessCreate");
+		exit(1);
+	    }
+	    fd[0] = fromChild;
+	    fd[1] = toChild;
+#endif
 	}
     }
     else {
@@ -1732,9 +1762,11 @@ main(int argc, char **argv)
     pmidlist[5] = PM_ID_NULL;
 
     for (pass = 0; pass < iter; pass++) {
-	fprintf(stderr, "+++++++++++++++++++++++++++\n");
-	fprintf(stderr, "+ Mode: PDU_BINARY Pass %d +\n", pass);
-	fprintf(stderr, "+++++++++++++++++++++++++++\n");
+	if (!clone) {
+	    fprintf(stderr, "+++++++++++++++++++++++++++\n");
+	    fprintf(stderr, "+ Mode: PDU_BINARY Pass %d +\n", pass);
+	    fprintf(stderr, "+++++++++++++++++++++++++++\n");
+	}
 
 	_z();
     }
@@ -1743,6 +1775,7 @@ main(int argc, char **argv)
 	__pmCloseSocket(fd[0]);
 	__pmCloseSocket(fd[1]);
     }
+
 
     pmUnloadNameSpace();
 
