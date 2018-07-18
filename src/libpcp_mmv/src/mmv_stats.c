@@ -786,6 +786,11 @@ mmv_stats_registry(const char *file,
 
     // init the region of memory of the struct
     mr = (mmv_registry_t *) calloc(1,sizeof(mmv_registry_t));
+
+    if (mr == NULL) {
+	setoserror(ENOMEM);
+	return NULL;
+    }
     // Notes: version start is 1 and will increase while adding 
     // strings big or labels
     mr->indoms = NULL;
@@ -810,8 +815,9 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
                      int serial, const char *shorthelp, const char *longhelp)
 {
     // Check if it is correct
+    int version;
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_metric\n");
+        setoserror(EFAULT);
         return -1;
     }   
 
@@ -821,7 +827,7 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     metric = (mmv_metric2_t *) realloc(registry->metrics, 
 				       registry->nmetrics * sizeof(mmv_metric2_t));
     if (metric == NULL) {
-        fprintf(stderr, "Not enough space while adding metric\n");
+        setoserror(ENOMEM);
         return -1;
     }
 
@@ -839,19 +845,24 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     metric[registry->nmetrics-1].helptext = longhelp;
 
     // TODO check!!!
-    //if ((version = mmv_check2(registry->metrics, registry->nmetrics, NULL, 0)) < 0)
-    //	return NULL;
-
-    return 1; // TODO what returns?
+    mmv_metric2_t * aux = &(registry->metrics[registry->nmetrics-1]);
+    if ((version = mmv_check2(aux, 1, NULL, 0)) < 0) {
+	return -1;
+    }
+    if (registry->version != MMV_VERSION3) {
+        registry->version = version;
+    }
+    return ; // TODO what returns?
 }
 
 int
 mmv_stats_add_indom(mmv_registry_t *registry, int serial, 
                     const char *shorthelp, const char *longhelp) 
 {
+    int version;
     // Check if it is correct
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_indom\n");
+        setoserror(EFAULT);
         return -1;
     }
 
@@ -861,7 +872,7 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
     indom = (mmv_indom2_t *) realloc(registry->indoms, 
 	                             registry->nindoms * sizeof(mmv_indom2_t));
     if (indom == NULL) {
-        fprintf(stderr, "Not enough space while adding indom\n");
+        setoserror(ENOMEM);
         return -1;
     }
 
@@ -873,18 +884,25 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
     indom[registry->nindoms-1].helptext = longhelp;
 
     // TODO check!!!
-    //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
-	//return NULL;
-    return 1; // TODO what returns?
+    mmv_indom2_t * aux = &(indom[registry->nindoms-1]);
+    if ((version = mmv_check2(NULL, 0, aux, 1)) < 0) {
+	return -1;
+    }
+    if (registry->version != MMV_VERSION3) {
+        registry->version = version;
+    }
+
+    return 0; // TODO what returns?
 }
 
 int
 mmv_stats_add_instance(mmv_registry_t *registry, int serial,
                        int instid, const char *instname) 
 {
+    int version;
     // Check if it is correct
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_metric\n");
+        setoserror(EFAULT);
         return -1;
     }
     
@@ -895,7 +913,7 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
  					    registry->ninstances * sizeof(mmv_instances2_t));
     
     if (instance == NULL) {
-        fprintf(stderr, "Not enough space while adding instance\n");
+        setoserror(ENOMEM);
         return -1;
     }
     registry->instances = instance;
@@ -903,46 +921,53 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
     instance[registry->ninstances-1].internal = instid;        /* Unique identifier */
     instance[registry->ninstances-1].external = instname;
 
+    mmv_instances2_t *	inst_aux;
     // Look for indom and add instance
     for(int i = 0; i < registry->nindoms; i++) {
         if (registry->indoms[i].serial == serial) {
             registry->indoms[i].count += 1;
-            mmv_instances2_t *	inst_aux = realloc(registry->indoms[i].instances,
+             inst_aux = realloc(registry->indoms[i].instances,
                                                    registry->indoms[i].count * sizeof(mmv_instances2_t));
             if (inst_aux == NULL) {
-                fprintf(stderr, "Not enough space while adding instance\n");
+                setoserror(ENOMEM);
                 return -1;    
             }
             registry->indoms[i].instances = inst_aux;
 
             inst_aux[registry->indoms[i].count].internal = instid;
             inst_aux[registry->indoms[i].count].external = instname;
+
+	    // TODO check!!!
+	    mmv_indom2_t * aux = &(registry->indoms[i]);
+    	    if ((version = mmv_check2(NULL, 0, aux, 1)) < 0) {
+	        return -1;
+            }
         }
     }
-    // TODO check!!!
-    //if ((version = mmv_check2(NULL, 0, indom, nindoms)) < 0)
-	//return -1;
-    return 1; // TODO what returns?
+    
+    if (registry->version != MMV_VERSION3) {
+        registry->version = version;
+    }
+    return 0; // TODO what returns?
 }
 
 int 
 mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
 		const char *name, const char *value)
 {
-
     // Check if it is correct
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_metric\n");
+        setoserror(EFAULT);
         return -1;
     }
     mmv_label_t * label;
 
-    registry->version = 3;
+    registry->version = MMV_VERSION3;
     registry->nlabels += 1;
     label = (mmv_label_t *) realloc(registry->labels, 
     				    registry->nlabels * sizeof(mmv_label_t));
     if (label == NULL) {
-        fprintf(stderr, "Not enough space while adding label\n");
+        setoserror(ENOMEM);
         return -1;
     }
 
@@ -954,7 +979,7 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
-        fprintf(stderr, "Payload too big while adding label\n");
+        setoserror(E2BIG);
         return -1;
     }
     char *aux = label[registry->nlabels-1].payload;
@@ -962,7 +987,7 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
     strncpy(&aux[strlen(name)], value, strlen(value));
     label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
-    return 1; // TODO what returns?
+    return 0; // TODO what returns?
 }
 
 int 
@@ -971,19 +996,19 @@ mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
 {
 	// Check if it is correct
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_metric\n");
+        setoserror(EFAULT);
         return -1;
     }
     mmv_label_t * label;
     
-    registry->version = 3;
+    registry->version = MMV_VERSION3;
     registry->nlabels += 1;
     
     label = (mmv_label_t *) realloc(registry->labels, 
    				    registry->nlabels * sizeof(mmv_label_t));
     
     if (label == NULL) {
-        fprintf(stderr, "Not enough space while adding label\n");
+        setoserror(ENOMEM);
         return -1;
     }
 
@@ -995,37 +1020,40 @@ mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
-        fprintf(stderr, "Payload too big while adding label\n");
+        setoserror(E2BIG);
         return -1;
     }
-    char *aux = label[registry->nlabels-1].payload;
+    const char *aux = label[registry->nlabels-1].payload;
     strncpy(aux, name, strlen(name));
     strncpy(&aux[strlen(name)], value, strlen(value));
     label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
-    return 1; // TODO what returns?
+    return 0; // TODO what returns?
 }
 
 int
 mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
-		int item, const char *name, const char *value)
+		int item, const char *name, const char *value )
 {
-	// Check if it is correct
+
+    // Check if it is correct
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_metric\n");
+        setoserror(EFAULT);
         return -1;
     }
+
+    // CHECK value looks like flag if not EINVAL
     
     mmv_label_t * label;
     
-    registry->version = 3;
+    registry->version = MMV_VERSION3;
     registry->nlabels += 1;
     
     label = (mmv_label_t *) realloc(registry->labels, 
    				    registry->nlabels * sizeof(mmv_label_t));
     
     if (label == NULL) {
-        fprintf(stderr, "Not enough space while adding label\n");
+        setoserror(ENOMEM);
         return -1;
     }
 
@@ -1037,7 +1065,7 @@ mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
-        fprintf(stderr, "Payload too big while adding label\n");
+        setoserror(E2BIG);
         return -1;
     }
     char *aux = label[registry->nlabels-1].payload;
@@ -1045,7 +1073,7 @@ mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
     strncpy(&aux[strlen(name)], value, strlen(value));
     label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
-    return 1; // TODO what returns?
+    return 0; // TODO what returns?
 }
 
 int 
@@ -1054,20 +1082,20 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
 {
 	// Check if it is correct
     if (registry == NULL) {
-        fprintf(stderr, "Bad registry in function call add_metric\n");
+        setoserror(EFAULT);
         return -1;
     }
     
     mmv_label_t * label;
     
-    registry->version = 3;
+    registry->version = MMV_VERSION3;
     registry->nlabels += 1;
     
     label = (mmv_label_t *) realloc(registry->labels, 
    				    registry->nlabels * sizeof(mmv_label_t));
     
     if (label == NULL) {
-        fprintf(stderr, "Not enough space while adding label\n");
+        setoserror(ENOMEM);
         return -1;
     }
 
@@ -1079,7 +1107,7 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
-        fprintf(stderr, "Payload too big while adding label\n");
+        setoserror(E2BIG);
         return -1;
     }
     char *aux = label[registry->nlabels-1].payload;
@@ -1087,7 +1115,7 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
     strncpy(&aux[strlen(name)], value, strlen(value));
     label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
-    return 1; // TODO what returns?
+    return 0; // TODO what returns?
 }
 
 void *
@@ -1118,6 +1146,29 @@ mmv_stats_stop(const char *fname, void *addr)
     else if (hdr->flags & MMV_FLAG_PROCESS)
 	unlink(path);
     __pmMemoryUnmap(addr, sbuf.st_size);
+}
+
+void
+mmv_stats_free(const char *fname, void *addr,  mmv_registry_t *registry)
+{
+    mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
+    char path[MAXPATHLEN];
+    struct stat sbuf;
+
+    mmv_stats_path(fname, path, sizeof(path));
+    if (stat(path, &sbuf) < 0) {
+	/*
+	 * file has gone, just want to unmap the region that starts
+	 * at addr ... a length of 1 would seem to suffice
+	 */
+	sbuf.st_size = 1;
+    }
+    else if (hdr->flags & MMV_FLAG_PROCESS)
+	unlink(path);
+    __pmMemoryUnmap(addr, sbuf.st_size);
+
+    // Now delete the registry
+    free(registry);
 }
 
 static pmAtomValue *

@@ -174,7 +174,7 @@ main(int argc, char **argv)
 
     value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
     mmv_inc_value(addr_file, value, 42);
-    mmv_stats_stop(file, addr_file);
+    //mmv_stats_stop(file, addr_file);
     //fprintf(stderr, "File: %s \n", file); 
 
     return 0;

@@ -88,8 +88,8 @@ typedef struct mmv_metric2 {
     mmv_metric_sem_t	semantics;
     pmUnits		dimension;
     __uint32_t		indom;		/* Indom serial */
-    char *		shorttext;	/* Short help text string */
-    char *		helptext;	/* Long help text string */
+    const char *		shorttext;	/* Short help text string */
+    const char *		helptext;	/* Long help text string */
 } mmv_metric2_t;
 
 typedef struct mmv_label {
@@ -101,16 +101,25 @@ typedef struct mmv_label {
     char *            payload[MMV_LABELMAX];
 } mmv_label_t;
 
-typedef enum mmv_stats_flags {
-    MMV_FLAG_NOPREFIX	= 0x1,	/* Don't prefix metric names by filename */
-    MMV_FLAG_PROCESS	= 0x2,	/* Indicates process check on PID needed */
-    MMV_FLAG_SENTINEL	= 0x4,	/* Sentinel values == no-value-available */
+typedef enum mmv_stats_flags { 
+    MMV_FLAG_NOPREFIX  = 0x1,  /* Don't prefix metric names by filename */ 
+    MMV_FLAG_PROCESS  = 0x2,  /* Indicates process check on PID needed */ 
+    MMV_FLAG_SENTINEL  = 0x4,  /* Sentinel values == no-value-available */ 
 } mmv_stats_flags_t;
+
+typedef enum mmv_stats_value_type {
+    MMV_STRING_TYPE 	= 0x1,	
+    MMV_INT_TYPE    	= 0x2,	
+    MMV_BOOLEAN_TYPE	= 0x3,
+    MMV_NULL_TYPE   	= 0x4,
+    MMV_ARRAY_TYPE   	= 0x5,
+    MMV_MAP_TYPE   	    = 0x6,	
+} mmv_stats_value_type_t;
 
 typedef struct mmv_registry {
     mmv_indom2_t *      indoms;
     __uint32_t          nindoms;
-    mmv_metric2_t *     metrics;
+    const mmv_metric2_t *     metrics;
     __uint32_t          nmetrics;
     mmv_instances2_t *  instances;
     __uint32_t          ninstances;
@@ -121,6 +130,7 @@ typedef struct mmv_registry {
     __uint32_t          cluster;
     mmv_stats_flags_t   flags;
 } mmv_registry_t;
+
 
 #ifdef HAVE_BITFIELDS_LTOR
 #define MMV_UNITS(a,b,c,d,e,f)	{a,b,c,d,e,f,0}
@@ -152,7 +162,7 @@ extern int mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_IN
 		int serial, int instid, const char *name, const char *value);
 
 extern void * mmv_stats_start(const char *file, mmv_registry_t *registry);
-//extern void mmv_stats_stop(const char *file, mmv_registry_t *registry);
+extern void mmv_stats_free(const char *fname, void *addr, mmv_registry_t *registry);
 
 /* Deprecated mmv_stats_init routines - do not use */
 extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
