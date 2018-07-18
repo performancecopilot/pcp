@@ -1,6 +1,7 @@
 #
 # Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
-# Based on https://github.com/iovisor/bcc/blob/master/tools/tcpretrans.py
+# Based on the tcpretrans BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/tcpretrans.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
