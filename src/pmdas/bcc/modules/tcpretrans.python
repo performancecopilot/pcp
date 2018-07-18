@@ -14,13 +14,6 @@
 #
 """ PCP BCC PMDA tcpretrans module """
 
-# Configuration options
-# Name - type - default
-#
-# include_tlp       - boolean - false : include tail loss probe attempts
-# flow_count        - int     - 20    : number of closed TCP sessions to keep in the cache
-# buffer_page_count - int     - 64    : number of pages for the perf ring buffer, power of two
-
 # pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
 
 import ctypes as ct

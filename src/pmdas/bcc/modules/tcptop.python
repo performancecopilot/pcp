@@ -14,12 +14,6 @@
 #
 """ PCP BCC PMDA tcptop module """
 
-# Configuration options
-# Name - type - default
-#
-# interval   - int    - 1      : interval for calculating summaries
-# conn_count - int    - 20     : number of processes to show
-
 # pylint: disable=invalid-name, line-too-long
 
 import ctypes as ct

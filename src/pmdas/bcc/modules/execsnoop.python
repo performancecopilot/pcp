@@ -14,16 +14,6 @@
 #
 """ PCP BCC PMDA execsnoop module """
 
-# Configuration options
-# Name - type - default
-#
-# include_failed    - boolean - false : include failed exec()s
-# command           - string  - unset : include only commands matching this regex
-# args              - string  - unset : include only arguments matching this regex
-# max_args          - int     - 20    : maximum number of arguments to capture
-# session_count     - int     - 20    : number of closed TCP sessions to keep in the cache
-# buffer_page_count - int     - 64    : number of pages for the perf ring buffer, power of two
-
 # pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
 
 import ctypes as ct
