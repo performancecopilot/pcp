@@ -103,32 +103,33 @@ typedef struct mmv_label {
 
 typedef enum mmv_stats_flags { 
     MMV_FLAG_NOPREFIX  = 0x1,  /* Don't prefix metric names by filename */ 
-    MMV_FLAG_PROCESS  = 0x2,  /* Indicates process check on PID needed */ 
+    MMV_FLAG_PROCESS   = 0x2,  /* Indicates process check on PID needed */ 
     MMV_FLAG_SENTINEL  = 0x4,  /* Sentinel values == no-value-available */ 
 } mmv_stats_flags_t;
 
-typedef enum mmv_stats_value_type {
+typedef enum mmv_value_type {
     MMV_STRING_TYPE 	= 0x1,	
     MMV_INT_TYPE    	= 0x2,	
     MMV_BOOLEAN_TYPE	= 0x3,
     MMV_NULL_TYPE   	= 0x4,
     MMV_ARRAY_TYPE   	= 0x5,
-    MMV_MAP_TYPE   	    = 0x6,	
-} mmv_stats_value_type_t;
+    MMV_MAP_TYPE   	= 0x6,	
+} mmv_value_type_t;
 
 typedef struct mmv_registry {
-    mmv_indom2_t *      indoms;
-    __uint32_t          nindoms;
-    const mmv_metric2_t *     metrics;
-    __uint32_t          nmetrics;
-    mmv_instances2_t *  instances;
-    __uint32_t          ninstances;
-    mmv_label_t *       labels;
-    __uint32_t          nlabels;
-    __uint32_t          version;
-    char *              file;
-    __uint32_t          cluster;
-    mmv_stats_flags_t   flags;
+    mmv_indom2_t *          indoms;
+    __uint32_t              nindoms;
+    const mmv_metric2_t *   metrics;
+    __uint32_t              nmetrics;
+    mmv_instances2_t *      instances;
+    __uint32_t              ninstances;
+    mmv_label_t *           labels;
+    __uint32_t              nlabels;
+    __uint32_t              version;
+    char *                  file;
+    __uint32_t              cluster;
+    mmv_stats_flags_t       flags;
+    void *                  addr;
 } mmv_registry_t;
 
 
@@ -153,16 +154,16 @@ extern int mmv_stats_add_instance(mmv_registry_t *registry,
                                 int serial, int instid, const char *instname);
 
 extern int mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
-		const char *name, const char *value);
+		const char *name, const char *value, mmv_value_type_t type);
 extern int mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
-		int serial, const char *name, const char *value);
+		int serial, const char *name, const char *value, mmv_value_type_t type);
 extern int mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
-		int item, const char *name, const char *value);
+		int item, const char *name, const char *value, mmv_value_type_t type);
 extern int mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
-		int serial, int instid, const char *name, const char *value);
+		int serial, int instid, const char *name, const char *value, mmv_value_type_t type);
 
-extern void * mmv_stats_start(const char *file, mmv_registry_t *registry);
-extern void mmv_stats_free(const char *fname, void *addr, mmv_registry_t *registry);
+extern void mmv_stats_start(const char *file, mmv_registry_t *registry);
+extern void mmv_stats_free(const char *fname, mmv_registry_t *registry);
 
 /* Deprecated mmv_stats_init routines - do not use */
 extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,

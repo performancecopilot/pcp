@@ -132,7 +132,7 @@ main(int argc, char **argv)
     // ADD LABELS
     char *auxn = "name";
     char *auxv = "value";
-    mmv_stats_add_registry_label(addr,auxn,auxv);
+    mmv_stats_add_registry_label(addr,auxn,auxv,MMV_STRING_TYPE);
     fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
@@ -170,11 +170,11 @@ main(int argc, char **argv)
     //fprintf(stderr, "version: %d \n", addr->version); 
 
 
-    void *addr_file = mmv_stats_start(file,addr);
+    mmv_stats_start(file,addr);
 
-    value = mmv_lookup_value_desc(addr_file, metrics[0].name, NULL);
-    mmv_inc_value(addr_file, value, 42);
-    //mmv_stats_stop(file, addr_file);
+    value = mmv_lookup_value_desc(addr->addr, metrics[0].name, NULL);
+    mmv_inc_value(addr->addr, value, 42);
+    mmv_stats_free(file, addr);
     //fprintf(stderr, "File: %s \n", file); 
 
     return 0;

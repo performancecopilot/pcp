@@ -805,6 +805,7 @@ mmv_stats_registry(const char *file,
     mr->file = file;
     mr->cluster = cluster;
     mr->flags = flags;
+    mr->addr = NULL;
 
     return mr;
 }
@@ -922,9 +923,11 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
     instance[registry->ninstances-1].external = instname;
 
     mmv_instances2_t *	inst_aux;
+    int found = 0;
     // Look for indom and add instance
     for(int i = 0; i < registry->nindoms; i++) {
         if (registry->indoms[i].serial == serial) {
+	    found = 1;
             registry->indoms[i].count += 1;
              inst_aux = realloc(registry->indoms[i].instances,
                                                    registry->indoms[i].count * sizeof(mmv_instances2_t));
@@ -944,6 +947,10 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
             }
         }
     }
+
+    if (!found) {
+	return -1;
+    }
     
     if (registry->version != MMV_VERSION3) {
         registry->version = version;
@@ -951,9 +958,10 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
     return 0; // TODO what returns?
 }
 
+/* PM_LABEL_CLUSTER */
 int 
-mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
-		const char *name, const char *value)
+mmv_stats_add_registry_label(mmv_registry_t *registry,	const char *name,
+			     const char *value, mmv_value_type_t type)
 {
     // Check if it is correct
     if (registry == NULL) {
@@ -991,10 +999,11 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	/* PM_LABEL_CLUSTER */
 }
 
 int 
-mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
-		int serial, const char *name, const char *value)
-{
-	// Check if it is correct
+mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
+			  const char *name, const char *value, 
+			  mmv_value_type_t type)
+{ /* PM_LABEL_INDOM */
+    // Check if it is correct
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
@@ -1032,9 +1041,10 @@ mmv_stats_add_indom_label(mmv_registry_t *registry,		/* PM_LABEL_INDOM */
 }
 
 int
-mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
-		int item, const char *name, const char *value )
-{
+mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
+			   const char *name, const char *value,
+			   mmv_value_type_t type)
+{ /* PM_LABEL_ITEM */
 
     // Check if it is correct
     if (registry == NULL) {
@@ -1077,9 +1087,10 @@ mmv_stats_add_metric_label(mmv_registry_t *registry,	/* PM_LABEL_ITEM */
 }
 
 int 
-mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
-		int serial, int instid, const char *name, const char *value)
-{
+mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid, 
+			     const char *name, const char *value,
+			     mmv_value_type_t type)
+{ /* PM_LABEL_INSTANCES */
 	// Check if it is correct
     if (registry == NULL) {
         setoserror(EFAULT);
@@ -1118,14 +1129,14 @@ mmv_stats_add_instance_label(mmv_registry_t *registry,	/* PM_LABEL_INSTANCES */
     return 0; // TODO what returns?
 }
 
-void *
+void
 mmv_stats_start(const char *file, mmv_registry_t *registry) 
 {
-    return mmv_init(file, registry->version, registry->cluster,
-                    registry->flags, NULL, 0, NULL, 0, 
-                    registry->metrics, registry->nmetrics, 
-                    registry->indoms, registry->nindoms,
-                    registry->labels, registry->nlabels);
+    registry->addr = mmv_init(file, registry->version, registry->cluster,
+				registry->flags, NULL, 0, NULL, 0, 
+				registry->metrics, registry->nmetrics, 
+				registry->indoms, registry->nindoms,
+				registry->labels, registry->nlabels);
 }
 
 void
@@ -1149,8 +1160,9 @@ mmv_stats_stop(const char *fname, void *addr)
 }
 
 void
-mmv_stats_free(const char *fname, void *addr,  mmv_registry_t *registry)
+mmv_stats_free(const char *fname, mmv_registry_t *registry)
 {
+    void *addr = registry->addr;
     mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
     char path[MAXPATHLEN];
     struct stat sbuf;
