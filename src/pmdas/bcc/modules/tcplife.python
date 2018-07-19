@@ -1,6 +1,8 @@
 #
 # Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
 # Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the tcplife BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/tcplife.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -97,7 +99,7 @@ class Data_ipv6(ct.Structure):
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC biotop module """
+    """ PCP BCC tcplife module """
     def __init__(self, config, log, err):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
