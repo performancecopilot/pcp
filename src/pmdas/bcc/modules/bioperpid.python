@@ -1,5 +1,7 @@
 #
 # Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+# Based on the biotop BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/biotop.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
