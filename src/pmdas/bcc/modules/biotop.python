@@ -16,14 +16,6 @@
 #
 """ PCP BCC PMDA biotop module """
 
-# Configuration options
-# Name - type - default
-#
-# interval      - int    - 1      : interval for calculating summaries
-# process_count - int    - 20     : number of processes to show
-# sort          - string - -bytes : sort key: bytes/io/duration/rw
-#                                   sort order can be reversed by prepending '-'
-
 # pylint: disable=invalid-name, line-too-long
 
 import ctypes as ct

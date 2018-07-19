@@ -16,15 +16,6 @@
 #
 """ PCP BCC PMDA tcplife module """
 
-# Configuration options
-# Name - type - default
-#
-# process           - string - unset : list of names/pids or regex of processes to monitor
-# dport             - int    - unset : list of remote ports to monitor
-# lport             - int    - unset : list of local ports to monitor
-# session_count     - int    - 20    : number of closed TCP sessions to keep in the cache
-# buffer_page_count - int    - 64    : number of pages for the perf ring buffer, power of two
-
 # pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
 
 import ctypes as ct

@@ -13,13 +13,6 @@
 #
 """ PCP BCC PMDA tracepoint hits module """
 
-# Configuration options
-# Name - type - default
-#
-# compile_test - boolean - False : disable failing tracepoints on-the-fly
-# process      - string  - unset : list of names/pids or regex of processes to monitor
-# tracepoints  - string  - unset : file or comma-separated list of tracepoints
-
 # pylint: disable=invalid-name
 
 from ctypes import c_int
