@@ -1175,6 +1175,40 @@ maperr(void)
     return sts;
 }
 
+static int
+read_proc_entry(int fd, int *lenp, char **bufp)
+{
+    int sts = 0;
+    int n, len = 0;
+    char *p = *bufp;
+    char buf[1024];
+
+    for (len=0;;) {
+	if ((n = read(fd, buf, sizeof(buf))) <= 0)
+	    break;
+	len += n;
+	if (*lenp < len) {
+	    *lenp = len;
+	    *bufp = (char *)realloc(*bufp, len+1);
+	    p = *bufp + len - n;
+	}
+	memcpy(p, buf, n);
+	p += n;
+    }
+
+    if (len > 0)
+    	*p = '\0';
+    else {
+	/* invalid read */
+	if (n < 0)
+	    sts = maperr();
+    	else if (n == 0)
+	    sts = -ENODATA;
+    }
+
+    return sts;
+}
+
 /*
  * fetch a proc/<pid>/stat entry for pid
  */
@@ -1183,10 +1217,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 {
     __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
-    char		buf[1024];
     char		*p;
-    int			fd, n;
-    ssize_t		nread;
+    int			fd;
 
     *sts = 0;
     if (!ep)
@@ -1197,18 +1229,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->stat_buf[0] = '\0';
 	if ((fd = proc_open("stat", ep)) < 0)
 	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    if (ep->stat_buflen <= n) {
-		ep->stat_buflen = n;
-		ep->stat_buf = (char *)realloc(ep->stat_buf, n);
-	    }
-	    memcpy(ep->stat_buf, buf, n);
-	    ep->stat_buf[n-1] = '\0';
-	}
+	else
+	    *sts = read_proc_entry(fd, &ep->stat_buflen, &ep->stat_buf);
 	if (fd >= 0)
 	    close(fd);
 	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
@@ -1219,24 +1241,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->wchan_buf[0] = '\0';
 	if ((fd = proc_open("wchan", ep)) < 0)
 	    ; /* ignore failure here, backwards compat */
-	else if ((n = read(fd, buf, sizeof(buf)-1)) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    /* wchan is empty, nothing to add here */
-	    ;
-	else {
-	    n++;	/* no terminating null (from kernel) */
-	    if (ep->wchan_buflen <= n) {
-		ep->wchan_buflen = n;
-		ep->wchan_buf = (char *)realloc(ep->wchan_buf, n);
-	    }
-	    if (ep->wchan_buf) {
-		memcpy(ep->wchan_buf, buf, n-1);
-		ep->wchan_buf[n-1] = '\0';
-	    } else {
-		ep->wchan_buflen = 0;
-	    }
-	}
+	else
+	    *sts = read_proc_entry(fd, &ep->wchan_buflen, &ep->wchan_buf);
 	if (fd >= 0)
 	    close(fd);
 	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
@@ -1246,22 +1252,17 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	if (ep->environ_buflen > 0)
 	    ep->environ_buf[0] = '\0';
 	if ((fd = proc_open("environ", ep)) >= 0) {
-	    nread = 0;
-	    while ((n = read(fd, buf, sizeof(buf))) > 0) {
-		if ((nread + n) >= ep->environ_buflen) {
-		    ep->environ_buflen = nread + n + 1;
-		    ep->environ_buf = realloc(ep->environ_buf, ep->environ_buflen);
-		}
-
+	    *sts = read_proc_entry(fd, &ep->environ_buflen, &ep->environ_buf);
+	    if (*sts == 0) {
 		/* Replace nulls with spaces */
-		for (p = memchr(buf, '\0', n); p; p = memchr(p, '\0', buf+n-p))
-		    *p = ' ';
-
-		memcpy(&ep->environ_buf[nread], buf, n);
-		nread += n;
+		if (ep->environ_buf) {
+		    for (p=ep->environ_buf; p < ep->environ_buf + ep->environ_buflen; p++) {
+			if (*p == '\0')
+			    *p = ' ';
+		    }
+		}
+		ep->environ_buf[ep->environ_buflen-1] = '\0';
 	    }
-	    if (ep->environ_buf)
-		ep->environ_buf[nread] = '\0';
 	    else
 		ep->environ_buflen = 0;
 	    close(fd);
