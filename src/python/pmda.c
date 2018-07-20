@@ -45,6 +45,7 @@
 static pmdaInterface dispatch;
 static pmdaNameSpace *pmns;
 static int need_refresh;
+static char *helptext_file;
 static PyObject *indom_list;	  	/* indom list */
 static PyObject *metric_list;	  	/* metric list */
 static PyObject *pmns_dict;		/* metric pmid:names dictionary */
@@ -854,7 +855,9 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, NULL);
 	dispatch.version.four.text = text;
     } else {
-	p = strdup(help);
+	if (helptext_file)
+	    free(helptext_file);
+	helptext_file = p = strdup(help);	/* permanent reference */
 	pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, p);
     }
     dispatch.version.seven.fetch = fetch;

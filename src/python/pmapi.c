@@ -552,15 +552,13 @@ setOptionArchiveList(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 setOptionArchive(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    char *archive;
+    char *archive = NULL;
     char *keyword_list[] = {"archive", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"s:pmSetOptionArchive", keyword_list, &archive))
 	return NULL;
 
-    if ((archive = strdup(archive ? archive : "")) == NULL)
-	return PyErr_NoMemory();
     __pmAddOptArchive(&options, archive);
     Py_INCREF(Py_None);
     return Py_None;

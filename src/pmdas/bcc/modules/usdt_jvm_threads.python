@@ -13,14 +13,6 @@
 #
 """ PCP BCC PMDA USDT JVM threads module """
 
-# Configuration options
-# Name - type - default
-#
-# jvm_path - string -  [1]  : path to libjvm.so
-# process  - string - unset : list of names/pids or regex of processes to monitor
-#
-# 1) Default for jvm_path: /etc/alternatives/jre/lib/server/libjvm.so
-
 # pylint: disable=invalid-name
 
 from ctypes import c_int

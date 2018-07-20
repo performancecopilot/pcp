@@ -562,7 +562,7 @@ pacman?	/usr/lib/python2.*/site-packages/openpyxl	[python2-openpyxl? (build opti
 pacman?	/usr/lib/python3.*/site-packages/openpyxl	[python-openpyxl? (build optional)]
 # -- python bcc
 dpkg?	/usr/lib/python3/*-packages/bcc/__init__.py	[python3-bpfcc (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/bcc.py	[python3-bcc or python3-bpfcc (build optional)]
+rpm?	/usr/lib/python3.*/*-packages/bcc/__init__.py	[python3-bcc (build optional)]
 urpmi?	/usr/lib*/python*/*-packages/bcc.py	[python-bcc or python-bpfcc (build optional)]
 emerge?	/usr/lib/python*/*-packages/bcc.py	[dev-python/bcc (build optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/bcc.py	[py36-bcc (build optional)]
