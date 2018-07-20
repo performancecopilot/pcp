@@ -76,10 +76,12 @@ typedef struct {
     mmv_disk_value_t * values;		/* values in mmap */
     mmv_disk_metric_t * metrics1;	/* v1 metric descs in mmap */
     mmv_disk_metric2_t * metrics2;	/* v2 metric descs in mmap */
+	mmv_disk_label_t * labels; 		/* labels desc in mmap */
     int		vcnt;			/* number of values */
     int		mcnt1;			/* number of metrics */
     int		mcnt2;			/* number of v2 metrics */
-    int		version;		/* v1/v2 version number */
+	int		lcnt3;			/* number of labels */
+    int		version;		/* v1/v2/v3 version number */
     int		cluster;		/* cluster identifier */
     pid_t	pid;			/* process identifier */
     __int64_t	len;			/* mmap region len */
@@ -167,7 +169,8 @@ create_client_stat(const char *client, const char *path, size_t size)
 	    }
 
 	    if (header.version != MMV_VERSION1 &&
-		header.version != MMV_VERSION2) {
+		header.version != MMV_VERSION2 &&
+		header.version != MMV_VERSION3) {
 		if (pmDebugOptions.appl0)
 		    pmNotifyErr(LOG_ERR,
 			"%s: %s client version %d unsupported (current is %d)",
@@ -375,7 +378,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	    if (j == ip->it_numinst)
 		newinsts++;
 	}
-    } else if (s->version == MMV_VERSION2) {
+    } else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 	in2 = (mmv_disk_instance2_t *)((char *)s->addr + offset);
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++) {
@@ -414,7 +417,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 		ip->it_numinst++;
 	    }
 	}
-    } else if (s->version == MMV_VERSION2) {
+    } else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++)
 		if (ip->it_set[j].i_inst == in2[i].internal)
@@ -467,7 +470,7 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	    ip->it_set[i].i_inst = in1[i].internal;
 	    ip->it_set[i].i_name = in1[i].external;
 	}
-    } else if (s->version == MMV_VERSION2) {
+    } else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 	in2 = (mmv_disk_instance2_t *)((char *)s->addr + offset);
 	ip->it_numinst = count;
 	for (i = 0; i < count; i++) {
@@ -610,7 +613,7 @@ map_stats(pmdaExt *pmda)
 					mp->type, mp->semantics, mp->dimension);
 		    }
 		}
-		else if (s->version == MMV_VERSION2) {
+		else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 		    mmv_disk_metric2_t *ml = (mmv_disk_metric2_t *)
 					((char *)s->addr + offset);
 
@@ -765,6 +768,8 @@ map_stats(pmdaExt *pmda)
 	    case MMV_TOC_INSTANCES:
 	    case MMV_TOC_STRINGS:
 		break;
+	    case MMV_TOC_LABELS:
+	    	break;
 
 	    default:
 		if (pmDebugOptions.appl0) {
