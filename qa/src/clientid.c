@@ -37,6 +37,10 @@ main(int argc, char *argv[])
 
 	case 'l':	/* linger when done */
 	    lflag = 1;
+#ifdef IS_MINGW
+	    fprintf(stderr, "Botch: no -l on Windows, we don't have pause()\n");
+	    exit(1);
+#endif
 	    break;
 
 	case '?':
@@ -80,8 +84,10 @@ main(int argc, char *argv[])
 	free(cp);
     }
 
+#ifndef IS_MINGW
     if (lflag)
 	pause();
+#endif
 
     exit(0);
 }
