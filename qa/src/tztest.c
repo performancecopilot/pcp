@@ -4,8 +4,6 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
-char * __pmTimezone(void);
-
 int main()
 {
     time_t sept = (30*365.25+244)*24*3600; /* 1 Septemnber 2000 */
