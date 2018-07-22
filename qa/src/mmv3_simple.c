@@ -1,5 +1,5 @@
-/* C language writer - using the application-level API, MMV v2 */
-/* Build via: cc -g -Wall -lpcp_mmv -o mmv_simple mmv_simple.c */
+/* C language writer - using the application-level API, MMV v3 */
+/* Build via: cc -g -Wall -lpcp_mmv -o mmv3_simple mm3v_simple.c */
 
 #include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>

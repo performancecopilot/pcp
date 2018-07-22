@@ -76,7 +76,7 @@ typedef struct {
     mmv_disk_value_t * values;		/* values in mmap */
     mmv_disk_metric_t * metrics1;	/* v1 metric descs in mmap */
     mmv_disk_metric2_t * metrics2;	/* v2 metric descs in mmap */
-	mmv_disk_label_t * labels; 		/* labels desc in mmap */
+    mmv_disk_label_t * labels; 		/* labels desc in mmap */
     int		vcnt;			/* number of values */
     int		mcnt1;			/* number of metrics */
     int		mcnt2;			/* number of v2 metrics */
@@ -768,7 +768,53 @@ map_stats(pmdaExt *pmda)
 	    case MMV_TOC_INSTANCES:
 	    case MMV_TOC_STRINGS:
 		break;
+		
 	    case MMV_TOC_LABELS:
+	        if (count > MAX_MMV_COUNT) {
+		    if (pmDebugOptions.appl0) {
+		        pmNotifyErr(LOG_ERR, "MMV: %s - "
+		                   "labels count: %d > %d",
+				    s->name, count, MAX_MMV_COUNT);
+		    }
+		    continue;
+		}
+		mmv_disk_label_t *lb = (mmv_disk_label_t *)
+					((char *)s->addr + offset);
+
+		offset += (count * sizeof(mmv_disk_label_t));
+		if (s->len < offset) {
+			if (pmDebugOptions.appl0) {
+				pmNotifyErr(LOG_INFO, "MMV: %s - "
+					"metrics offset: %"PRIu64" < %"PRIu64,
+					s->name, s->len, (int64_t)offset);
+			}
+			continue;
+		}
+
+		s->labels = lb;
+		s->mcnt1 = count;
+
+		for (k = 0; k < count; k++) {
+		     mmv_disk_label_t *mp = &lb[k];
+		     char name[MAXPATHLEN];
+		     pmID pmid;
+
+			/* build name, check its legitimate and unique 
+			if (hdr->flags & MMV_FLAG_NOPREFIX)
+				pmsprintf(name, sizeof(name), "%s.", prefix);
+			else
+				pmsprintf(name, sizeof(name), "%s.%s.", prefix, s->name);
+			strcat(name, mp->name);
+			if (verify_metric_name(name, k, s) != 0)
+				continue;
+			if (verify_metric_item(mp->item, name, s) != 0)
+				continue;
+
+			pmid = pmID_build(pmda->e_domain, s->cluster, mp->item);
+			create_metric(pmda, s, name, pmid, mp->indom,
+					mp->type, mp->semantics, mp->dimension);*/
+		}	
+		
 	    	break;
 
 	    default:

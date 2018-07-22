@@ -88,8 +88,8 @@ typedef struct mmv_metric2 {
     mmv_metric_sem_t	semantics;
     pmUnits		dimension;
     __uint32_t		indom;		/* Indom serial */
-    const char *		shorttext;	/* Short help text string */
-    const char *		helptext;	/* Long help text string */
+    const char *	shorttext;	/* Short help text string */
+    const char *	helptext;	/* Long help text string */
 } mmv_metric2_t;
 
 typedef struct mmv_label {

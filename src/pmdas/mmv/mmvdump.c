@@ -542,8 +542,6 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
     printf("\nTOC[%d]: offset %ld, labels offset %"PRIi64" (%d entries)\n",
 		idx, base, offset, count);
     int i;
-    //char buf[MMV_STRINGMAX];
-    //mmv_disk_string_t *string; // ????????
     mmv_disk_label_t *lb = (mmv_disk_label_t *)((char *)addr + offset);
 
     for (i = 0; i < count; i++) {
@@ -561,49 +559,9 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	printf("        internal=0x%x\n",
 		lb[i].internal);
 	printf("        name=%d, value=%d \n ",lb[i].name, lb[i].value);		
-	
-	//printf("Payload=%s\n", lb[i].payload);	
-
-	/*printf("  [%u/%"PRIi64"] %s\n", m[i].item, off, m[i].name);
-	
-	printf("       type=%s (0x%x), sem=%s (0x%x), pad=0x%x\n",
-		metrictype(m[i].type), m[i].type,
-		metricsem(m[i].semantics), m[i].semantics,
-		m[i].padding);
-	printf("       units=%s\n", pmUnitsStr(&m[i].dimension));
-	if (m[i].indom != PM_INDOM_NULL && m[i].indom != 0)
-	    printf("       indom=%d\n", m[i].indom);
-	else
-	    printf("       (no indom)\n");*/
-
-	/*off = m[i].shorttext;
-	if (off != 0) {
-	    if (size < off + sizeof(mmv_disk_string_t)) {
-		printf("Bad file size: too small for toc[%d] metric[%d] oneline\n", idx, i);
-		return 1;
-	    }
-	    string = (mmv_disk_string_t *)((char *)addr + off);
-	    memcpy(buf, string->payload, sizeof(buf));
-	    buf[sizeof(buf)-1] = '\0';
-	    printf("       shorttext=%s\n", buf);
-	}
-	else
-	    printf("       (no shorttext)\n");
-
-	off = m[i].helptext;
-	if (off != 0) {
-	    if (size < off + sizeof(mmv_disk_string_t)) {
-		printf("Bad file size: too small for toc[%d] metric[%d] help\n", idx, i);
-		return 1;
-	    }
-	    string = (mmv_disk_string_t *)((char *)addr + off);
-	    memcpy(buf, string->payload, sizeof(buf));
-	    buf[sizeof(buf)-1] = '\0';
-	    printf("       helptext=%s\n", buf);
-	}
-	else
-	    printf("       (no helptext)\n");*/
+    
     }
+    
     return 0;
 }
 
