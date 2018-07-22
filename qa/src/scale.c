@@ -94,9 +94,9 @@ main(int argc, char **argv)
 		    else {
 			if (vflag) {
 			    u = pmUnitsStr(&iu);
-			    printf("%lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
+			    printf("%" FMT_INT64 " %s", iv.ll, *u == '\0' ? "none" : u);
 			    u = pmUnitsStr(&ou);
-			    printf(" -> %lld %s\n", (long long)ov.ll, *u == '\0' ? "none" : u);
+			    printf(" -> %" FMT_INT64 " %s\n", ov.ll, *u == '\0' ? "none" : u);
 			}
 			if ((sts = pmConvScale(PM_TYPE_64, &ov, &ou, &tv, &iu)) < 0) {
 			    printf("reconvert: %s\n", pmErrStr(sts));
@@ -107,11 +107,11 @@ main(int argc, char **argv)
 				    underflow++;
 				else {
 				    u = pmUnitsStr(&iu);
-				    printf("error?  %lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
+				    printf("error?  %" FMT_INT64 " %s", iv.ll, *u == '\0' ? "none" : u);
 				    u = pmUnitsStr(&ou);
-				    printf(" -> %lld %s", (long long)ov.ll, *u == '\0' ? "none" : u);
+				    printf(" -> %" FMT_INT64 " %s", ov.ll, *u == '\0' ? "none" : u);
 				    u = pmUnitsStr(&iu);
-				    printf(" -> %lld %s\n", (long long)tv.ll, *u == '\0' ? "none" : u);
+				    printf(" -> %" FMT_INT64 " %s\n", tv.ll, *u == '\0' ? "none" : u);
 				}
 			    }
 			}
@@ -148,9 +148,9 @@ main(int argc, char **argv)
 			else {
 			    if (vflag) {
 				u = pmUnitsStr(&iu);
-				printf("%lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
+				printf("%" FMT_INT64 " %s", iv.ll, *u == '\0' ? "none" : u);
 				u = pmUnitsStr(&ou);
-				printf(" -> %lld %s\n", (long long)ov.ll, *u == '\0' ? "none" : u);
+				printf(" -> %" FMT_INT64 " %s\n", ov.ll, *u == '\0' ? "none" : u);
 			    }
 			    if ((sts = pmConvScale(PM_TYPE_64, &ov, &ou, &tv, &iu)) < 0) {
 				printf("reconvert: %s\n", pmErrStr(sts));
@@ -161,11 +161,11 @@ main(int argc, char **argv)
 					underflow++;
 				    else {
 					u = pmUnitsStr(&iu);
-					printf("error?  %lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
+					printf("error?  %" FMT_INT64 " %s", iv.ll, *u == '\0' ? "none" : u);
 					u = pmUnitsStr(&ou);
-					printf(" -> %lld %s", (long long)ov.ll, *u == '\0' ? "none" : u);
+					printf(" -> %" FMT_INT64 " %s", ov.ll, *u == '\0' ? "none" : u);
 					u = pmUnitsStr(&iu);
-					printf(" -> %lld %s\n", (long long)tv.ll, *u == '\0' ? "none" : u);
+					printf(" -> %" FMT_INT64 " %s\n", tv.ll, *u == '\0' ? "none" : u);
 				    }
 				}
 			    }
