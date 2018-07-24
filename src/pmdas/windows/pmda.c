@@ -1152,10 +1152,13 @@ pdh_metric_t metricdesc[] = {
       "\\Thread(*)\\Thread Wait Reason"
     },
 /* process.thread.process_id */
-    { { PMDA_PMID(0,212), PM_TYPE_U32, THREAD_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_REDO, 0, 0, 0, NULL,
-      "\\Thread(*)\\ID Process"
-    },
+    // circa Windows 10 this is no longer returns any data, although
+    // the pattern still matches the output from pdhlist.exe
+    //
+    // { { PMDA_PMID(0,212), PM_TYPE_U32, THREAD_INDOM, PM_SEM_INSTANT,
+	// PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_REDO, 0, 0, 0, NULL,
+      // "\\Thread(*)\\ID Process"
+    // },
 /* process.thread.thread_id */
     { { PMDA_PMID(0,213), PM_TYPE_U32, THREAD_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_REDO, 0, 0, 0, NULL,

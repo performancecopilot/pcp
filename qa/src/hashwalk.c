@@ -8,16 +8,16 @@
 #include "libpcp.h"
 
 void
-dumpnode(unsigned int key, long data)
+dumpnode(unsigned int key, __int64_t data)
 {
-    printf("%u => %ld\n", key, data);
+    printf("%u => %" FMT_INT64 "\n", key, data);
 }
 
 __pmHashWalkState
 walker(const __pmHashNode *n, void *v)
 {
-    __pmHashWalkState state = (__pmHashWalkState)(long)v;
-    dumpnode(n->key, (long)n->data);
+    __pmHashWalkState state = (__pmHashWalkState)v;
+    dumpnode(n->key, (__int64_t)n->data);
     return state;
 }
 
@@ -29,7 +29,7 @@ chained(__pmHashCtl *h)
     for (n = __pmHashWalk(h, PM_HASH_WALK_START);
          n != NULL;
          n = __pmHashWalk(h, PM_HASH_WALK_NEXT)) {
-	dumpnode(n->key, (long)n->data);
+	dumpnode(n->key, (__int64_t)n->data);
     }
 }
 

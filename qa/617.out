@@ -115,7 +115,7 @@ Error: Bad debug flag (blah)
 Type 'help' for a list of commands.
 dbpmda> debug none
 dbpmda> open pipe /blah/this_file_should_not_exist
-openpmda: /blah/this_file_should_not_exist: No such file or directory
+openpmda: stat /blah/this_file_should_not_exist failed: No such file or directory
 dbpmda> status
 
 Namespace:              (default)

@@ -787,8 +787,12 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 	if (credlist != NULL)
 	    free(credlist);
     }
-    else
-	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure\n", agentname);
+    else {
+	char	strbuf[20];
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure, got PDU type %s expecting PDU_CREDS)\n",
+	    agentname,
+	    __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);

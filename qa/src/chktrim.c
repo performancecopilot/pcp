@@ -9,8 +9,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <pcp/pmapi.h>
-
-extern int	errno;
+#include <errno.h>
 
 static char	tag;
 
