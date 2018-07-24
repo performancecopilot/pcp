@@ -39,7 +39,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  coverage.0.xz coverage.meta coverage.index \
 	  bozo-20170904.0.xz bozo-20170904.meta bozo-20170904.index \
 	  pcp-pidstat-process-states.0.xz pcp-pidstat-process-states.meta \
-	  pcp-pidstat-process-states.index
+	  pcp-pidstat-process-states.index zero_disk_activity.0.xz \
+	  zero_disk_activity.index zero_disk_activity.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \

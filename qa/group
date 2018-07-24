@@ -1583,6 +1583,7 @@ BAD
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
 1398 pidstat local
+1407 pmchart derive local
 1422 pmda.mmv local
 1423 pcp2spark python pcp2xxx local
 4751 libpcp threads valgrind local pcp python
