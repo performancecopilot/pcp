@@ -6,6 +6,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
+#include <errno.h>
 
 /*
  * Usage: record-setarg folio
@@ -17,7 +18,6 @@ main(int argc, char **argv)
     pmRecordHost	*rhp;
     int			sts;
     FILE		*f;
-    extern int		errno;
     char		buf[20];
 
     if (argc < 2) {

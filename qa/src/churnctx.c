@@ -100,7 +100,7 @@ main(int argc, char **argv)
     int		fetch_samples = 1;
     char	*endnum;
     pmResult	*rp;
-    char	*highwater = NULL;
+    __uint64_t	highwater = 0;
     char	*q;
     struct timeval delta = { 15, 0 };
     struct timeval startTime;
@@ -108,6 +108,9 @@ main(int argc, char **argv)
     struct timeval appStart;
     struct timeval appEnd;
     struct timeval appOffset;
+#ifdef IS_MINGW
+    MEMORYSTATUSEX	winmemstats;
+#endif
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
@@ -405,8 +408,8 @@ Options:\n\
 
     iter = 1;
     while (samples == -1 || samples-- > 0) {
-	int	new_ctx;
-	char	*check;
+	int		new_ctx;
+	__uint64_t	check;
 
 	if (iter == 1 || (iter % fetch_samples) == 0) {
 	    if (dupctx) {
@@ -439,8 +442,25 @@ Options:\n\
 	__pmFindPDUBuf(-1);
 
 	/* check for outrageous memory leaks */
-	check = (char *)sbrk(0);
-	if (highwater != NULL) {
+#ifndef IS_MINGW
+	check = (__uint64_t)sbrk(0);
+#else
+	/*
+	 * if this fails, don't bother trying to get memory leak data,
+	 * ... c'est la vie on Windows
+	 */
+	if (GlobalMemoryStatusEx(&winmemstats) != 0) {
+	    /*
+	     * ullTotalVirtual is a count in bytes ... casting
+	     * it to a pointer is a bit odd, but we're only
+	     * interested in how much this increases
+	     */
+	    check = (__uint64_t)winmemstats.ullTotalVirtual;
+	}
+	else
+	    check = 0;
+#endif
+	if (highwater != 0) {
 	    if (check - highwater > 512*1024) {
 		/* use first 2 iterations to get stable */
 		if (iter > 2)

@@ -25,8 +25,9 @@ static void
 printstamp(struct timeval *tp)
 {
     static struct tm	*tmp;
+    time_t		clock = (time_t)tp->tv_sec;
 
-    tmp = localtime(&tp->tv_sec);
+    tmp = localtime(&clock);
     printf("%02d:%02d:%02d.%03d", (int)tmp->tm_hour, (int)tmp->tm_min, (int)tmp->tm_sec, (int)(tp->tv_usec/1000));
 }
 

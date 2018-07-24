@@ -66,6 +66,7 @@ main(int argc, char *argv[])
     int errflag = 0;
     int c;
     int sts;
+    time_t clock;
 
     pmSetProgname(argv[0]);
 
@@ -120,7 +121,8 @@ main(int argc, char *argv[])
 	printf ("%s: %s\n", errmsg, tmtmp_str);
     }
     
-    localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
+    clock = tvrslt.tv_sec;
+    localtime_r(&clock, &tmrslt);	// time_t => tm
     printf("   ");
     dump_dt(tmtmp_str, &tmrslt);
 
@@ -228,7 +230,8 @@ main(int argc, char *argv[])
 	    if (__pmParseTime(buffer, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
-	    localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
+	    clock = tvrslt.tv_sec;
+	    localtime_r(&clock, &tmrslt);	// time_t => tm
 
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
@@ -241,7 +244,8 @@ main(int argc, char *argv[])
 	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tvstart, &tvend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
-	    localtime_r(&rsltStart.tv_sec, &tmrslt);	// time_t => tm
+	    clock = rsltStart.tv_sec;
+	    localtime_r(&clock, &tmrslt);	// time_t => tm
 
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
@@ -251,7 +255,8 @@ main(int argc, char *argv[])
 
 	    printf("#2 ");
 	    dump_dt(buffer, &tmrslt);
-	    localtime_r(&rsltEnd.tv_sec, &tmrslt);	// time_t => tm
+	    clock = rsltEnd.tv_sec;
+	    localtime_r(&clock, &tmrslt);	// time_t => tm
 
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",

@@ -488,7 +488,7 @@ pkgin?	/usr/pkg/lib/python3.*/*-packages/setuptools	[py36-setuptools]
 pkg_add?	/usr/local/lib/python*/*-packages/setuptools	[?py-setuptools]
 pkg?	/usr/lib/python2.*/*-packages/setuptools	[python-2/setuptools]
 pkg?	/usr/lib/python3.*/*-packages/setuptools	[python/setuptools]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/setuptools	[?python-setuptools]
+slackpkg?	/usr/lib*/python*/*-packages/setuptools	[python-setuptools]
 pacman?	/usr/lib/python2.*/site-packages/setuptools	[python2-setuptools]
 pacman?	/usr/lib/python3.*/site-packages/setuptools	[python-setuptools]
 # -- python libvirt and lxml for libvirt PMDA
@@ -506,7 +506,7 @@ pkgin?	libvirt.py		[py36-libvirt (build optional)]
 pkg_add?	libvirt.py	[? (build optional)]
 pkg?	/usr/lib/python2.*/*-packages/libvirt	[N/A (build optional)]
 pkg?	/usr/lib/python3.*/*-packages/libvirt	[N/A (build optional)]
-slackpkg?	libvirt.py	[? (build optional)]
+slackpkg?	libvirt.py	[N/A (build optional)]
 pacman?	/usr/lib/python2.*/*-packages/libvirt.py	[libvirt-python2 (build optional)]
 pacman?	/usr/lib/python3.*/*-packages/libvirt.py	[libvirt-python (build optional)]
 urpmi?	lxml.py		[? (build optional)]
@@ -515,7 +515,7 @@ pkgin?	/usr/pkg/lib/python3.*/*-packages/lxml	[py36-lxml (build optional)]
 pkg_add?	lxml.py	[? (build optional)]
 pkg?	/usr/lib/python2.*/*-packages/lxml	[python-2/lxml (build optional)]
 pkg?	/usr/lib/python3.*/*-packages/lxml	[python/lxml (build optional)]
-slackpkg?	lxml.py	[? (build optional)]
+slackpkg?	lxml.py	[N/A (build optional)]
 pacman?	/usr/lib/python2.*/*-packages/defusedxml/lxml.py	[python2-defusedxml (build optional)]
 pacman?	/usr/lib/python3.*/*-packages/defusedxml/lxml.py	[python-defusedxml (build optional)]
 # -- python prometheus-client
@@ -529,7 +529,7 @@ pkgin?	/usr/pkg/lib/python3.*/*-packages/prometheus_client	[py36-prometheus-clie
 pkg_add?	/usr/local/lib/python*/*-packages/prometheus_client	[?py-prometheus-client (build optional)]
 pkg?	/usr/lib/python2.*/*-packages/prometheus_client	[N/A (build optional)]
 pkg?	/usr/lib/python3.*/*-packages/prometheus_client	[N/A (build optional)]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/prometheus_client	[?python-prometheus-client (build optional)]
+slackpkg?	/usr/lib*/python*/*-packages/prometheus_client	[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/prometheus_client	[python2-prometheus-client? (build optional)]
 pacman?	/usr/lib/python3.*/site-packages/prometheus_client	[python-prometheus-client? (build optional)]
 # -- python elasticsearch
@@ -543,7 +543,7 @@ pkgin?	/usr/pkg/lib/python3.*/*-packages/elasticsearch	[py36-elasticsearch (buil
 pkg_add?	/usr/local/lib/python*/*-packages/elasticsearch	[?py-elasticsearch (build optional)]
 pkg?	/usr/lib/python2.*/*-packages/elasticsearch	[N/A (build optional)]
 pkg?	/usr/lib/python3.*/*-packages/elasticsearch	[N/A (build optional)]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/elasticsearch	[?python-elasticsearch (build optional)]
+slackpkg?	/usr/lib*/python*/*-packages/elasticsearch	[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/elasticsearch	[python2-elasticsearch (build optional)]
 pacman?	/usr/lib/python3.*/site-packages/elasticsearch	[python-elasticsearch (build optional)]
 # -- python openpyxl
@@ -557,7 +557,7 @@ pkgin?	/usr/pkg/lib/python3.*/*-packages/openpyxl	[py36-openpyxl (build optional
 pkg_add?	/usr/local/lib/python*/*-packages/openpyxl	[?py-openpyxl (build optional)]
 pkg?	/usr/lib/python2.*/*-packages/openpyxl	[N/A (build optional)]
 pkg?	/usr/lib/python3.*/*-packages/openpyxl	[N/A (build optional)]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/openpyxl	[?python-openpyxl (build optional)]
+slackpkg?	/usr/lib*/python*/*-packages/openpyxl	[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/openpyxl	[python2-openpyxl? (build optional)]
 pacman?	/usr/lib/python3.*/site-packages/openpyxl	[python-openpyxl? (build optional)]
 # -- python bcc
@@ -569,7 +569,7 @@ pkgin?	/usr/pkg/lib/python3.*/*-packages/bcc.py	[py36-bcc (build optional)]
 pkg_add?	/usr/local/lib/python*/*-packages/bcc.py	[py-bcc (build optional)]
 pkg?	/usr/lib/python2.*/*-packages/*/bcc.py	[N/A (build optional)]
 pkg?	/usr/lib/python3.*/*-packages/*/bcc.py	[N/A (build optional)]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/bcc.py	[python-bcc (build optional)]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/bcc.py	[N/A (build optional)]
 pacman?	/usr/lib/python3.*/site-packages/bcc.py	[python-bcc (build optional)]
 # -- python pillow
 dpkg?	/usr/lib/python3/*-packages/PIL/Image.py	[python3-pil (QA optional)]
@@ -578,9 +578,9 @@ urpmi?	/usr/lib*/python3.*/*-packages/PIL/Image.py	[python3-pillow (QA optional)
 emerge?	Image.py		[?]
 pkgin?	Image.py		[?]
 pkg_add?	Image.py	[?]
-pkg?	/usr/lib/python2.*/*-packages/PIL/Image.py	[N/A (build optional)]
-pkg?	/usr/lib/python3.*/*-packages/PIL/Image.py	[N/A (build optional)]
-slackpkg?	Image.py	[?]
+pkg?	/usr/lib/python2.*/*-packages/PIL/Image.py	[N/A (QA optional)]
+pkg?	/usr/lib/python3.*/*-packages/PIL/Image.py	[N/A (QA optional)]
+slackpkg?	/usr/lib*/python2.*/*-packages/PIL/Image.py	[python-pillow (QA optional)]
 pacman?		Image.py	[?]
 # perl modules
 # -- Time::HiRes
@@ -638,10 +638,10 @@ dpkg?	XML::LibXML		[libxml-libxml-perl (QA optional)]
 rpm?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan (QA optional)]
 urpmi?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan (QA optional)]
 emerge?	XML::LibXML		[? (QA optional)]
-pkgin?	XML::LibXML		[cpan (QA optional)]
+pkgin?	XML::LibXML		[from cpan (QA optional)]
 pkg_add?	XML::LibXML	[? (QA optional)]
-slackpkg?	XML::LibXML	[? (QA optional)]
-pacman?	XML::LibXML		[cpan (QA optional)]
+slackpkg?	XML::LibXML	[from cpan (QA optional)]
+pacman?	XML::LibXML		[from cpan (QA optional)]
 # -- XML::TokeParser
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser or 'perl(XML::TokeParser)' or from cpan]
@@ -660,7 +660,7 @@ emerge?	File::Slurp		[? (QA optional)]
 pkgin?	File::Slurp		[p5-File-Slurp (QA optional)]
 pkg_add?	File::Slurp	[? (QA optional)]
 pkg?	File::Slurp		[from cpan (QA optional)]
-slackpkg?	File::Slurp	[? (QA optional)]
+slackpkg?	File::Slurp	[from cpan (QA optional)]
 pacman?	File::Slurp		[from cpan (QA optional)]
 # -- Slurm::Hostlist ... skip this one, it comes in the pcp-testsuite package
 # -- List::MoreUtils
@@ -671,7 +671,7 @@ emerge?	List::MoreUtils		[? (QA optional)]
 pkgin?	List::MoreUtils		[p5-List-MoreUtils (QA optional)]
 pkg_add?	List::MoreUtils	[? (QA optional)]
 pkg?	List::MoreUtils		[from cpan (QA optional)]
-slackpkg?	List::MoreUtils	[? (QA optional)]
+slackpkg?	List::MoreUtils	[from cpan (QA optional)]
 pacman?	List::MoreUtils		[from cpan (QA optional)]
 # -- autodie
 dpkg?	autodie::		[perl-modules (QA optional)]
@@ -681,7 +681,7 @@ emerge?	autodie::		[? (QA optional)]
 pkgin?	autodie::		[? (QA optional)]
 pkg_add?	autodie::	[? (QA optional)]
 pkg?	autodie::		[perl (QA optional)]
-slackpkg?	autodie::	[? (QA optional)]
+slackpkg?	autodie::	[perl (QA optional)]
 pacman?	autodie::		[perl (QA optional)]
 # -- RRDs
 dpkg?	RRDs::			[librrds-perl]
@@ -690,7 +690,7 @@ urpmi?	RRDs::			[rrdtool-perl or perl-rrdtool or rrdtool or 'perl(RRDs)']
 emerge?	RRDs::			[net-analyzer/rrdtool]
 pkgin?	RRDs::			[rrdtool]
 pkg_add?	RRDs::		[rrdtool]
-pkg?	RRDs::			[N/A from cpan]
+pkg?	RRDs::			[from cpan]
 slackpkg?	RRDs::		[N/A]
 pacman?	RRDs::			[rrdtool]
 # -- Spreadsheet::Read
@@ -751,8 +751,8 @@ urpmi?	JSON::			[perl-JSON or 'perl(JSON)']
 emerge?	JSON::			[dev-perl/JSON]
 pkgin?	JSON::			[p5-JSON]
 pkg_add?	JSON::		[p5-JSON]
-pkg?	JSON::			[JSON from cpan]
-slackpkg?	JSON::		[JSON from cpan]
+pkg?	JSON::			[from cpan]
+slackpkg?	JSON::		[from cpan]
 pacman?	JSON::			[perl-json]
 # -- LDAP
 rpm?	Net::LDAP		[perl-LDAP or perl-ldap or 'perl(Net::LDAP)']
@@ -810,11 +810,11 @@ pkg?	host			[dns/bind]
 slackpkg?	host		[bind]
 pacman?	host			[bind-tools]
 # QA
-bc				[(QA optional)]
-curl				[(QA optional)]
-socat				[(QA optional)]
-valgrind			[(QA optional)]
-nmap				[(QA optional)]
+bc				[bc (QA optional)]
+curl				[curl (QA optional)]
+socat				[socat (QA optional)]
+valgrind			[valgrind (QA optional)]
+nmap				[nmap (QA optional)]
 dpkg?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
 rpm?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
 urpmi?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
@@ -832,7 +832,7 @@ emerge?		ifconfig	[?]
 pkgin?		ifconfig	[?]
 pkg_add?	ifconfig	[?]
 pkg?		ifconfig	[?]
-slackpkg?	ifconfig	[?]
+slackpkg?	ifconfig	[net-tools]
 pacman?		ifconfig	[?]
 # -- netstat
 dpkg?		netstat		[net-tools]
@@ -842,7 +842,7 @@ emerge?		netstat		[?]
 pkgin?		netstat		[?]
 pkg_add?	netstat		[?]
 pkg?		netstat		[?]
-slackpkg?	netstat		[?]
+slackpkg?	netstat		[net-tools]
 pacman?		netstat		[?]
 # -- kubectl
 dpkg?		kubectl		[N/A]
@@ -852,7 +852,7 @@ emerge?		kubectl		[?]
 pkgin?		kubectl		[?]
 pkg_add?	kubectl		[?]
 pkg?		kubectl		[?]
-slackpkg?	kubectl		[?]
+slackpkg?	kubectl		[N/A]
 pacman?		kubectl		[?]
 # -- kubelet
 dpkg?		kubelet		[N/A]
@@ -862,7 +862,7 @@ emerge?		kubelet		[?]
 pkgin?		kubelet		[?]
 pkg_add?	kubelet		[?]
 pkg?		kubelet		[?]
-slackpkg?	kubelet		[?]
+slackpkg?	kubelet		[N/A]
 pacman?		kubelet		[?]
 # -- crontab
 dpkg?		crontab		[cron]
@@ -872,7 +872,7 @@ emerge?		crontab		[?]
 pkgin?		crontab		[?]
 pkg_add?	crontab		[?]
 pkg?	crontab			[SUNWcs]
-slackpkg?	crontab		[?]
+slackpkg?	crontab		[dcron]
 pacman?		crontab		[cronie]
 # -- mail(1)
 dpkg?	mail			[bsd-mailx (QA optional)]
@@ -923,7 +923,7 @@ emerge?	/usr/lib/python*/*-packages/requests	[dev-python/requests (QA optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/requests	[py36-requests (QA optional)]
 pkg_add?	/usr/local/lib/python3.4/*-packages/requests	[py3-requests (QA optional)]
 pkg?	requests					[N/A (QA optional)]
-slackpkg?	requests	[N/A (QA optional)]
+slackpkg?	/usr/lib*/python2.*/*-packages/requests	[N/A (QA optional)]
 pacman?	/usr/lib/python2.*/site-packages/requests	[python2-requests (QA optional)]
 pacman?	/usr/lib/python3.*/site-packages/requests	[python-requests (QA optional)]
 # -- logconf for ds389 PMDA
@@ -1027,7 +1027,7 @@ emerge?		docker		[? (QA optional)]
 pkgin?		docker		[? (QA optional)]
 pkg_add?	docker		[? (QA optional)]
 pkg?		docker		[N/A (QA optional)]
-slackpkg?	docker		[? (QA optional)]
+slackpkg?	docker		[N/A (QA optional)]
 pacman?		docker		[docker (QA optional)]
 #
 # pcp-gui
@@ -1040,7 +1040,7 @@ emerge?		qtchooser	[qtchooser (build optional)]
 pkgin?		qtchooser	[qtchooser (build optional)]
 pkg_add?	qtchooser	[qtchooser (build optional)]
 pkg?		qtchooser	[N/A (build optional)]
-slackpkg?	qtchooser	[qtchooser (build optional)]
+slackpkg?	qtchooser	[N/A (build optional)]
 pacman?		qtchooser	[qtchooser (build optional)]
 # -- Qt4
 dpkg?		qmake				[qt4-qmake (build optional)]
@@ -1057,7 +1057,7 @@ urpmi?		/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[lib64soqt20 (build
 emerge?		/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
 pkgin?		/usr/pkg/qt4/lib/libQtCore.so	[qt4-libs (build optional)]
 pkg_add?	/usr/local/lib/qt4/libQtCore.so.*	[qt4 (build optional)]
-slackpkg?	/usr/lib*/libQtCore.so.*	[qt4 (build optional)]
+slackpkg?	/usr/lib*/libQtCore.so.*	[qt (build optional)]
 pacman?		/usr/lib/libQtCore.so		[qt4 (build optional)]
 pacman?		/usr/lib/libicuio.so		[icu (build optional)]
 # -- Qt5
@@ -1069,7 +1069,7 @@ emerge?		libQt5Core.so			[? (build optional)]
 pkgin?		libQt5Core.so			[qt5 (build optional)]
 pkg_add?	libQt5Core.so			[? (build optional)]
 pkg?		/usr/lib/qt/5.*/lib/libQt5Core.so	[library/qt5 (build optional)]
-slackpkg?	libQt5Core.so			[? (build optional)]
+slackpkg?	libQt5Core.so			[N/A (build optional)]
 pacman?		/usr/lib/libQt5Core.so		[qt5-base (build optional)]
 dpkg?		/usr/lib/*/qt5/bin/uic		[qtbase5-dev-tools (build optional)]
 rpm?		uic|/usr/lib/qtchooser/uic	[qtchooser (build optional)]
@@ -1078,7 +1078,7 @@ emerge?		uic				[? (build optional)]
 pkgin?		uic				[uic (build optional)]
 pkg_add?	uic				[? (build optional)]
 pkg?		/usr/lib/qt/5.*/bin/uic		[library/qt5 (build optional)]
-slackpkg?	uic				[? (build optional)]
+slackpkg?	uic				[N/A (build optional)]
 pacman?		uic				[qt5-base (build optional)]
 dpkg?		/usr/include/*/qt5/QtSvg|/usr/include/qt5/QtSvg	[libqt5svg5-dev (build optional)]
 rpm?		/usr/include/qt5/QtSvg		[qt5-qtsvg-devel or libqt5-qtsvg-devel (build optional)]
@@ -1087,7 +1087,7 @@ emerge?		QtSvg				[? (build optional)]
 pkgin?		QtSvg				[? (build optional)]
 pkg_add?	QtSvg				[? (build optional)]
 pkg?		/usr/lib/qt/*/include/QtSvg	[library/qt5 (build optional)]
-slackpkg?	QtSvg				[? (build optional)]
+slackpkg?	/usr/lib*/qt/include/QtSvg	[qt (build optional)]
 pacman?		/usr/include/qt/QtSvg/QtSvg	[qt5-svg (build optional)]
 # -- Inventor stuff
 dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
@@ -1182,7 +1182,7 @@ emerge?		saslpasswd2		[? (QA optional)]
 pkgin?		saslpasswd2		[? (QA optional)]
 pkg_add?	saslpasswd2		[? (QA optional)]
 pkg?		saslpasswd2		[N/A (QA optional)]
-slackpkg?	saslpasswd2		[? (QA optional)]
+slackpkg?	saslpasswd2		[cyrus-sasl (QA optional)]
 pacman?		saslpasswd2		[libsasl (QA optional)]
 dpkg?		saslpluginviewer	[sasl2-bin (QA optional)]
 rpm?		pluginviewer		[cyrus-sasl (QA optional)]
@@ -1191,7 +1191,7 @@ emerge?		pluginviewer		[? (QA optional)]
 pkgin?		pluginviewer		[? (QA optional)]
 pkg_add?	pluginviewer		[? (QA optional)]
 pkg?		pluginviewer		[N/A (QA optional)]
-slackpkg?	pluginviewer		[? (QA optional)]
+slackpkg?	pluginviewer		[cyrus-sasl (QA optional)]
 pacman?		pluginviewer		[libsasl (QA optional)]
 # -- selinux policy
 rpm?		seinfo			[setools-console or setools (build optional)]
@@ -1205,7 +1205,7 @@ emerge?		dtrace		[? (build optional)]
 pkgin?		dtrace		[? (build optional)]
 pkg_add?	dtrace		[? (build optional)]
 pkg?		dtrace		[dtrace (build optional)]
-slackpkg?	dtrace		[? (build optional)]
+slackpkg?	dtrace		[N/A (build optional)]
 pacman?		dtrace		[dtrace? (build optional)]
 # -- boost C++ Libraries
 rpm?		/usr/include/boost	[boost-devel (build optional)]
@@ -1215,7 +1215,7 @@ emerge?		/usr/include/boost	[? (build optional)]
 pkgin?		/usr/include/boost	[? (build optional)]
 pkg_add?	/usr/include/boost	[? (build optional)]
 pkg?		/usr/include/boost	[library/boost (build optional)]
-slackpkg?	/usr/include/boost	[? (build optional)]
+slackpkg?	/usr/include/boost	[N/A (build optional)]
 pacman?		/usr/include/boost	[boost? (build optional)]
 # -- json_reformat
 dpkg?		json_reformat		[yajl-tools (QA optional)]
@@ -1225,7 +1225,7 @@ emerge?		json_reformat		[? (QA optional)]
 pkgin?		json_reformat		[? (QA optional)]
 pkg_add?	json_reformat		[? (QA optional)]
 pkg?		json_reformat		[libyajl2 (QA optional)]
-slackpkg?	json_reformat		[? (QA optional)]
+slackpkg?	json_reformat		[N/A (QA optional)]
 pacman?		json_reformat		[? (QA optional)]
 # -- smartctl
 dpkg?		smartctl		[smartmontools (QA optional)]
@@ -1235,7 +1235,7 @@ emerge?		smartctl		[? (QA optional)]
 pkgin?		smartctl		[? (QA optional)]
 pkg_add?	smartctl		[? (QA optional)]
 pkg?		smartctl		[? (QA optional)]
-slackpkg?	smartctl		[? (QA optional)]
+slackpkg?	smartctl		[smartmontools (QA optional)]
 pacman?		smartctl		[? (QA optional)]
 #
 # misc
@@ -1362,6 +1362,9 @@ in
     vm14)
 	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
 	;;
+    vm15)
+    	na='valgrind socat'
+    	;;
     vm18)
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
@@ -1375,7 +1378,10 @@ in
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
 	;;
     vm22)
-	na='python3-prometheus-client python3-openpyxl'
+	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc'
+	;;
+    vm23)
+	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm24)
 	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io'
@@ -1386,6 +1392,12 @@ in
     vm29)
 	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel python-openpyxl'
     	;;
+    vm30)
+	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus-client python3-prometheus-client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin3-devel SoQt-devel python3-libs boost-devel yajl'
+	;;
+    vm31)
+	na='python-prometheus-client python3-prometheus-client python3-bcc'
+	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;
@@ -1573,12 +1585,14 @@ do
 	then
 	    echo "$apps" \
 	    | sed -n \
-		-e '/\[N\/A\]/d' \
-		-e '/N\/A on host/d' \
+		-e '/^N\/A/d' \
+		-e '/ N\/A/d' \
+		-e '/\[N\/A/d' \
 		-e 's/QA optional//' \
 		-e 's/from cpan//' \
 		-e 's/cpan//' \
 		-e 's/[A-Za-z][A-Za-z_]*::[A-Za-z][A-Za-z_]*//' \
+		-e 's/[A-Za-z][A-Za-z_]*:://' \
 		-e 's/[ 	]*\[[ 	()]*]//' \
 		-e '/[ 	]\[/{
 s/^.*[ 	]\[//
@@ -1587,6 +1601,7 @@ s/[ 	].*//
 p
 n
 }' \
+		-e 's/  */ /g' \
 		-e p \
 	    # end
 
@@ -1609,7 +1624,7 @@ s/@/ /g
 done \
 | if $pkglist
 then
-    tr '[\012]' ' '
+    tr '[\012]' ' ' | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
     echo
 else
     cat

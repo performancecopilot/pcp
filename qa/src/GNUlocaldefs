@@ -33,19 +33,19 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	labels.c mergelabels.c mergelabelsets.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
-	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
+	record.c record-setarg.c clientid.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
 	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c derived.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
-	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
+	github-50.c archfetch.c sortinst.c fetchgroup.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
-	unpickargs.c hanoi.c chain.c progname.c countmark.c spawn.c \
+	unpickargs.c hanoi.c progname.c countmark.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c checkstructs.c
 
@@ -97,7 +97,7 @@ LDIRT += parsehostattrs parsehostspec check_import_name
 endif
 
 ifeq ($(shell test $(PCP_VER) -ge 3802 && echo 1), 1)
-CFILES += chkacc4.c
+POSIXFILES += chkacc4.c
 else
 MYFILES += chkacc4.c
 LDIRT += chkacc4
@@ -115,14 +115,17 @@ ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # appears to have been installed (assumes PCP >= 3.5), and then
 # only for the setup target (so not in the build)
 #
-XTRATARGETS += check_fault_injection$(EXECSUFFIX) exercise_fault$(EXECSUFFIX)
+XTRATARGETS += check_fault_injection exercise_fault
 endif
 MYFILES += check_fault_injection.c exercise_fault.c
 LDIRT += check_fault_injection exercise_fault
 
+# POSIXFILES and TRACEFILES are ones we don't even try to build on
+# non-Posix platforms like Windows
+#
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
-	779246.c 
+	779246.c killparent.c fetchloop.c chain.c spawn.c 
 
 TRACEFILES = \
 	obs.c tstate.c tabort.c 
@@ -143,7 +146,7 @@ PYTHONFILES = \
 	fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
-        test_pmfg.python \
+	test_pmfg.python \
 	mergelabels.python mergelabelsets.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
@@ -175,9 +178,9 @@ PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
 CFILES_TARGETS = $(CFILES)
 
-TARGETS = $(subst broken_pmda,,$(basename $(patsubst %,%$(EXECSUFFIX),$(CFILES_TARGETS)))) \
-	chkctx2_lite$(EXECSUFFIX) template$(EXECSUFFIX) \
-	fetchrate_lite$(EXECSUFFIX) pv$(EXECSUFFIX)
+TARGETS = $(subst broken_pmda,,$(basename $(patsubst %.c,%,$(CFILES_TARGETS)))) \
+	chkctx2_lite$ template \
+	fetchrate_lite pv
 
 ifeq "$(TARGET_OS)" "linux"
 TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
@@ -186,7 +189,7 @@ TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
 endif
 
 ifeq ($(HAVE_64), 1)
-TARGETS	+= pv64$(EXECSUFFIX)
+TARGETS	+= pv64
 endif
 
 LCFLAGS = -DHAVE_TRACE
@@ -296,9 +299,6 @@ pmlcmacro:	pmlcmacro.c
 sys5_ipc:	sys5_ipc.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ sys5_ipc.c
-
-stripmark: stripmark.c
-	$(CCF) $(CDEFS) -o $@ stripmark.c
 
 anon-sa: anon-sa.c
 	$(CCF) $(CDEFS) -o $@ anon-sa.c
@@ -498,6 +498,10 @@ tstate:	tstate.c
 tabort:	tabort.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ tabort.c $(TRACELIB) 
+
+sortinst:	sortinst.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ sortinst.c $(LIB_FOR_REGEX)
 
 # --- need libpcp_import
 #
@@ -751,4 +755,8 @@ xmktime.o:	libpcp.h
 xxx.o:	libpcp.h
 
 bozo:
+	@echo CFILES_TARGETS=$(CFILES_TARGETS)
+	@echo "patsubst ->" $(patsubst %.c,%,$(CFILES_TARGETS))
+	@echo "basename ->" $(basename $(patsubst %.c,%,$(CFILES_TARGETS)))
+	@echo "subst ->" $(subst broken_pmda,,$(basename $(patsubst %.c,%,$(CFILES_TARGETS))))
 	@echo TARGETS=$(TARGETS)

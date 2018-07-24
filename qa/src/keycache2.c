@@ -7,7 +7,6 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
-#include <arpa/inet.h>
 
 static __uint32_t hash(const signed char *, int, __uint32_t);
 

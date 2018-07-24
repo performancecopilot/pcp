@@ -94,7 +94,7 @@ func1(void *arg)
 
     pthread_barrier_wait(&barrier);
 
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 static void *
@@ -155,7 +155,7 @@ func2(void *arg)
     else
 	printf("%s: __pmAccAddClient -> %s\n", fn, pmErrStr(sts));
 
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 int

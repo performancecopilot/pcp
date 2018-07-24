@@ -1,6 +1,6 @@
 QA output created by 010
 
-Value: 123 0x000000000000007b
+Value: 123 0x7b
 (long) 123 => (long) 123
 (long) 123 => (ulong) 123
 (long) 123 => (longlong) 123

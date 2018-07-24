@@ -110,7 +110,13 @@ main(int argc, char **argv)
     work = malloc(sizeof(struct workitem) * argc);
     assert (work != NULL);
 
-    alarm (30); /* somewhat longer than $PMCD_CONNECT_TIMEOUT */
+#ifdef PARANOID
+    /*
+     * don't really need this ... test will finish normally
+     * on its own ... and it does not work for Windows
+     */
+    alarm (60); /* somewhat longer than $PMCD_CONNECT_TIMEOUT */
+#endif
     
     for (i=0; i<argc-1; i++) {
         work[i].host_or_archive_name = argv[i+1];

@@ -54,6 +54,11 @@ process.thread {
     start_address	WINDOWS:0:209
     state		WINDOWS:0:210
     wait_reason		WINDOWS:0:211
-    process_id		WINDOWS:0:212
+    /*
+     * circa Windows 10 this is no longer returns any data, although
+     * metric appears in the output from pdhlist.exe
+     *  
+     * process_id		WINDOWS:0:212
+     */
     thread_id		WINDOWS:0:213
 }
