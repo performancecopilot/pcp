@@ -56,8 +56,6 @@ static pmdaMetric * metrics;
 static int mtot;
 static pmdaIndom * indoms;
 static int intot;
-static pmdaIndom * labels;
-static int lbtot;
 
 static __pmnsTree * pmns;
 static int reload;			/* require reload of maps */
@@ -1245,19 +1243,63 @@ mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *p
 }
 
 static int
+mmv_label_lookup(int ident, int type, pmLabelSet **lp)
+{
+    int i, j;
+    mmv_disk_label_t lb;
+
+    // check if any label has the requested ident
+    for (i = 0; i < scnt; i++) {
+	for (j = 0; j < slist[i].lcnt; j++) {
+	    lb = slist[i].labels[j];
+	    if (lb.flags == type) {
+		if (lb.identity == ident && lb.internal == PM_IN_NULL) {
+		    return __pmAddLabels(lp,lb.payload,lb.flags);
+	        }
+	    }
+	}
+    }
+    return 0;
+}
+
+static int
 mmv_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 {
+    int c = 0;
+    switch (type) {
+	case PM_LABEL_CLUSTER:
+	case PM_LABEL_INDOM:
+	case PM_LABEL_ITEM:
+	    c = mmv_label_lookup(ident, type, lp);
+	    break;
+	default:
+	    break;
+    } 
+    if (c < 0) {
+	return c;
+    }
     return pmdaLabel(ident, type, lp, pmda);
 }
 
 static int
 mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    /* Requires MMV v3 on-disk format adding labels support */
-    (void)indom;
-    (void)inst;
-    (void)lp;
-    return 0;
+    int i, j, cnt=0;
+    mmv_disk_label_t lb;
+
+    // check if any label has the requested inst
+    for (i = 0; i < scnt; i++) {
+	for (j = 0; j < slist[i].lcnt; j++) {
+	    lb = slist[i].labels[j];
+	    if (lb.flags == PM_LABEL_INSTANCES) {
+		if (lb.identity == indom && lb.internal == inst) {
+		    __pmAddLabels(lp,lb.payload,lb.flags);
+		    ++cnt;
+	        }
+	    }
+	}
+    }
+    return cnt;
 }
 
 void
