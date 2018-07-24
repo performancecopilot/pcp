@@ -25,6 +25,7 @@
 [\f3\-c\f1 \f2config\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2root\f1]
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-u\f1 \f2user\f1]
 .SH DESCRIPTION
@@ -83,6 +84,11 @@ number should be different for every PMDA on the one host, and the same
 number should be used for
 .B pmdaprometheus
 PMDA on all hosts.
+See also the
+.B \-r
+option, which allows the root of the dynamic namespace
+to be changed from the default
+.BR prometheus .
 .PP
 The
 .B \-l
@@ -106,6 +112,25 @@ which may itself have redirected
 .BR stderr .
 This redirection is normally most useful in a containerized environment, or when using
 .BR dbpmda (1).
+.PP
+The
+.B \-r
+option allows the root of the dynamic namespace to be changed to
+.I root
+from the default,
+.BR prometheus .
+In conjunction with other command line options,
+this allows
+.B pmdaprometheus
+to be deployed as a different PMDA with distinct metrics namespace
+and metrics domain on the same host system.
+Note that all PMDAs require a unique domain number so the
+.B \-d
+option must also be specified.
+Use of the
+.B \-r
+option may also change the defaults for some other command line options,
+e.g. the default log file name and the default configuration directory.
 .SH "CONFIGURATION SOURCES"
 As it runs,
 .B pmdaprometheus

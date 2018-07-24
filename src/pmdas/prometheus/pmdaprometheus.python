@@ -776,7 +776,7 @@ class PrometheusPMDA(PMDA):
         self.connect_pmcd()
 
         # Write debugging messages to log, see --debug cmdline option
-        # and the storable metric prometheus.control.debug
+        # and the storable metric $(pmda_name).control.debug
         self.dbg = debugflag
 
         # now everything else may take time
@@ -801,40 +801,40 @@ class PrometheusPMDA(PMDA):
 
         # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
         # pmcd to delegate all pmns requests to us.  Do it early, before
-        # other metrics may populate beneath the prometheus.* prefix.
+        # other metrics may populate beneath the $(pmda_name).* prefix.
         dynamic_pmid = (0 << 31) | (511 << 22) | (args.domain << 10) | 0
         dynamic_root = pmdaMetric(dynamic_pmid, 0, 0, 0, pmUnits())
-        self.add_metric('prometheus', dynamic_root, 'dynamic root for prometheus metrics')
+        self.add_metric(self.pmda_name, dynamic_root, 'dynamic root for %s metrics' % self.pmda_name)
 
         # Add statistical metrics
         self.sources_indom = self.indom(0)
 
         # fetch call counter, per-source end-point
         self.stats_fetch_calls = {0:0} # counter, keyed by cluster number
-        self.add_metric('prometheus.control.calls', pmdaMetric(self.pmid(0, 1),
+        self.add_metric('%s.control.calls' % self.pmda_name, pmdaMetric(self.pmid(0, 1),
             c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
             pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
             'per-end-point source call counter')
 
         # fetch time counter, per-source end-point
         self.stats_fetch_time = {0:0} # time counter in msec, keyed by cluster number
-        self.add_metric('prometheus.control.fetch_time', pmdaMetric(self.pmid(0, 2),
+        self.add_metric('%s.control.fetch_time' % self.pmda_name, pmdaMetric(self.pmid(0, 2),
             c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
             pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)), # millisecond counter
             'per-end-point source fetch time counter, excluding parse time')
 
         # parse time counter, per-source end-point
         self.stats_parse_time = {0:0} # time counter in msec, keyed by cluster number
-        self.add_metric('prometheus.control.parse_time', pmdaMetric(self.pmid(0, 3),
+        self.add_metric('%s.control.parse_time' % self.pmda_name, pmdaMetric(self.pmid(0, 3),
             c_api.PM_TYPE_U64, self.sources_indom, c_api.PM_SEM_COUNTER,
             pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)), # millisecond counter
             'per-end-point source parse time counter, excluding fetch time')
 
         # verbose/debug messages metric
-        self.add_metric('prometheus.control.debug', pmdaMetric(self.pmid(0, 4),
+        self.add_metric('%s.control.debug' % self.pmda_name, pmdaMetric(self.pmid(0, 4),
             c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE,
             pmUnits(0, 0, 0, 0, 0, 0)),
-            'debug flag to enable verbose log messages, to enable: pmstore prometheus.control.debug 1')
+            'debug flag to enable verbose log messages, to enable: pmstore %s.control.debug 1' % self.pmda_name)
 
         # schedule a refresh
         self.set_need_refresh()
@@ -933,7 +933,7 @@ class PrometheusPMDA(PMDA):
             # convert file path name into a PCP metric name
             name = file_split[0].replace(self.config_dir + "/", "").replace("/",".")
             if name == "control":
-                self.err("Warning: ignored config file '%s', 'prometheus.control' is a reserved PMNS subtree for PMDA statistics" % file)
+                self.err("Warning: ignored config file '%s', '%s.control' is a reserved PMNS subtree for PMDA statistics" % (file, self.pmda.pmda_name))
                 continue
             if not nickname_regexp.match(name):
                 self.err("Warning: ignored config file '%s', unsuitable for PCP namespace" % file)
@@ -987,7 +987,7 @@ class PrometheusPMDA(PMDA):
                 return [self.stats_fetch_time[inst], 1] if inst in self.stats_fetch_time else [c_api.PM_ERR_INST, 0]
             elif item == 3: # per-source parse time counter
                 return [self.stats_parse_time[inst], 1] if inst in self.stats_parse_time else [c_api.PM_ERR_INST, 0]
-            elif item == 4: # prometheus.control.debug
+            elif item == 4: # $(pmda_name).control.debug
                 return [self.dbg, 1]
             return [c_api.PM_ERR_PMID, 0]
 
@@ -1075,9 +1075,9 @@ class PrometheusPMDA(PMDA):
                         return '{"source":"%s"}' % v.name
 
         elif type == c_api.PM_LABEL_CLUSTER:
-            # Labels for a cluster, i.e. an individual prometheus source.
+            # Labels for a cluster, i.e. an individual source.
             # Note: if using dbpmda, test this with e.g. label cluster 144.1
-            # (you need the domain (144) and the cluster number (1, 2, ..)
+            # (you need the domain (default 144) and the cluster number (1, 2, ..)
             try:
                 s = self.source_by_cluster[ident]
                 if s.is_scripted:
@@ -1140,7 +1140,7 @@ class PrometheusPMDA(PMDA):
             if val < 0:
                 return c_api.PM_ERR_BADSTORE
             self.dbg = (val != 0)
-            self.log('prometheus.control.debug: set to %d' % self.dbg)
+            self.log('%s.control.debug: set to %d' % (self.pmda.pmda_name, self.dbg))
             return 0
 
         if cluster < MAX_CLUSTER and item < MAX_METRIC:
@@ -1159,8 +1159,6 @@ class PrometheusPMDA(PMDA):
 
 
 if __name__ == '__main__':
-    pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'), 'prometheus')
-
     parser = argparse.ArgumentParser(
         description='Prometheus PMDA.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -1172,7 +1170,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-c', '--config',
         type=str,
-        default=os.path.join(pmdadir, 'config.d'),
+        default='config.d',
         help='configuration directory')
     parser.add_argument(
         '-d', '--domain',
@@ -1190,6 +1188,11 @@ if __name__ == '__main__':
         help='do not sort the config file list (default is to sort)',
         action='store_true')
     parser.add_argument(
+        '-r', '--root',
+        type=str,
+        default='prometheus',
+        help='dynamic PMNS root name')
+    parser.add_argument(
         '-t', '--timeout',
         type=int,
         default=2,
@@ -1204,11 +1207,15 @@ if __name__ == '__main__':
     if args.nosort:
         sort_conf_list = False
 
+    pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'), args.root)
+    if not args.config.startswith("/"):
+        args.config = os.path.join(pmdadir, args.config)
+
     # This PMDA starts up in the "notready" state, see the Install script where
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
     # Default domain number is PMDA(144), see -d option.
-    pmda = PrometheusPMDA('prometheus', args.domain, args.config, args.timeout, args.user, args.debug, args.log)
+    pmda = PrometheusPMDA(args.root, args.domain, args.config, args.timeout, args.user, args.debug, args.log)
 
     # Scan initial config
     pmda.log("Initializing ... currently in notready state.")

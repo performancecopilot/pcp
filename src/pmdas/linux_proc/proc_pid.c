@@ -1260,8 +1260,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 			if (*p == '\0')
 			    *p = ' ';
 		    }
+		    ep->environ_buf[ep->environ_buflen-1] = '\0';
 		}
-		ep->environ_buf[ep->environ_buflen-1] = '\0';
 	    }
 	    else
 		ep->environ_buflen = 0;
@@ -1314,31 +1314,14 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 
     if (!(ep->flags & PROC_PID_FLAG_STATUS_FETCHED)) {
 	int	fd;
-	int	n;
-	char	buf[1024];
 	char	*curline;
 
 	if (ep->status_buflen > 0)
 	    ep->status_buf[0] = '\0';
 	if ((fd = proc_open("status", ep)) < 0)
 	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    if (ep->status_buflen < n) {
-		ep->status_buflen = n;
-		ep->status_buf = (char *)realloc(ep->status_buf, n);
-	    }
-	    if (ep->status_buf == NULL) {
-		ep->status_buflen = 0;
-		*sts = -ENODATA;
-	    } else {
-		memcpy(ep->status_buf, buf, n);
-		ep->status_buf[n-1] = '\0';
-	    }
-	}
+	else
+	    *sts = read_proc_entry(fd, &ep->status_buflen, &ep->status_buf);
 
 	if (*sts == 0) {
 	    /* assign pointers to individual lines in buffer */
@@ -1525,30 +1508,14 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
     	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_STATM_FETCHED)) {
-	char buf[1024];
-	int fd, n;
+	int fd;
 
 	if (ep->statm_buflen > 0)
 	    ep->statm_buf[0] = '\0';
 	if ((fd = proc_open("statm", ep)) < 0)
 	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    if (ep->statm_buflen <= n) {
-		ep->statm_buflen = n;
-		ep->statm_buf = (char *)realloc(ep->statm_buf, n);
-	    }
-	    if (ep->statm_buf) {
-		memcpy(ep->statm_buf, buf, n);
-		ep->statm_buf[n-1] = '\0';
-	    } else {
-		ep->statm_buflen = 0;
-	    }
-	}
-
+	else
+	    *sts = read_proc_entry(fd, &ep->statm_buflen, &ep->statm_buf);
 	if (fd >= 0)
 	    close(fd);
 	ep->flags |= PROC_PID_FLAG_STATM_FETCHED;
@@ -1568,7 +1535,6 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 {
     __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
-    char		*maps_bufptr = NULL;
     int			fd;
 
     *sts = 0;
@@ -1581,18 +1547,7 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 	if ((fd = proc_open("maps", ep)) < 0)
 	    *sts = maperr();
 	else {
-	    char buf[1024];
-	    int n, len = 0;
-
-	    while ((n = read(fd, buf, sizeof(buf))) > 0) {
-		len += n;
-		if (ep->maps_buflen <= len) {
-		    ep->maps_buflen = len + 1;
-		    ep->maps_buf = (char *)realloc(ep->maps_buf, ep->maps_buflen);
-		}
-		maps_bufptr = ep->maps_buf + len - n;
-		memcpy(maps_bufptr, buf, n);
-	    }
+	    *sts = read_proc_entry(fd, &ep->maps_buflen, &ep->maps_buf);
 	    /* If there are no maps, make maps_buf a zero length string. */
 	    if (ep->maps_buflen == 0) {
 		ep->maps_buflen = 1;
@@ -1626,30 +1581,14 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_SCHEDSTAT_FETCHED)) {
-	int		fd, n;
-	char		buf[1024];
+	int		fd;
 
 	if (ep->schedstat_buflen > 0)
 	    ep->schedstat_buf[0] = '\0';
 	if ((fd = proc_open("schedstat", ep)) < 0)
 	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    if (ep->schedstat_buflen <= n) {
-		ep->schedstat_buflen = n;
-		ep->schedstat_buf = (char *)realloc(ep->schedstat_buf, n);
-	    }
-	    if (ep->schedstat_buf) {
-		memcpy(ep->schedstat_buf, buf, n);
-		ep->schedstat_buf[n-1] = '\0';
-	    } else {
-		ep->schedstat_buflen = 0;
-	    }
-	}
-
+	else
+	    *sts = read_proc_entry(fd, &ep->schedstat_buflen, &ep->schedstat_buf);
 	if (fd >= 0)
 	    close(fd);
 	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_FETCHED;
@@ -1678,31 +1617,15 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_IO_FETCHED)) {
-	int	fd, n;
-	char	buf[1024];
+	int	fd;
 	char	*curline;
 
 	if (ep->io_buflen > 0)
 	    ep->io_buf[0] = '\0';
 	if ((fd = proc_open("io", ep)) < 0)
 	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    if (ep->io_buflen < n) {
-		ep->io_buflen = n;
-		ep->io_buf = (char *)realloc(ep->io_buf, n);
-	    }
-	    if (ep->io_buf) {
-		memcpy(ep->io_buf, buf, n);
-		ep->io_buf[n-1] = '\0';
-	    } else {
-		ep->io_buflen = 0;
-		*sts = -ENODATA;
-	    }
-	}
+	else
+	    *sts = read_proc_entry(fd, &ep->io_buflen, &ep->io_buf);
 
 	if (*sts == 0) {
 	    /* assign pointers to individual lines in buffer */
