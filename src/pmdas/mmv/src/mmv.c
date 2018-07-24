@@ -56,6 +56,8 @@ static pmdaMetric * metrics;
 static int mtot;
 static pmdaIndom * indoms;
 static int intot;
+static pmdaIndom * labels;
+static int lbtot;
 
 static __pmnsTree * pmns;
 static int reload;			/* require reload of maps */
@@ -80,7 +82,7 @@ typedef struct {
     int		vcnt;			/* number of values */
     int		mcnt1;			/* number of metrics */
     int		mcnt2;			/* number of v2 metrics */
-	int		lcnt3;			/* number of labels */
+    int		lcnt;			/* number of labels */
     int		version;		/* v1/v2/v3 version number */
     int		cluster;		/* cluster identifier */
     pid_t	pid;			/* process identifier */
@@ -329,6 +331,51 @@ create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
 
     return 0;
 }
+
+/*static int
+create_label(pmdaExt *pmda, stats_t *s, char *name, )
+{
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "MMV: create_metric: %s - %s", name, pmIDStr(pmid));
+
+    metrics = realloc(metrics, sizeof(pmdaMetric) * (mtot + 1));
+    if (metrics == NULL)  {
+	pmNotifyErr(LOG_ERR, "cannot grow MMV metric list: %s", s->name);
+	return -ENOMEM;
+    }
+
+    metrics[mtot].m_user = NULL;
+    metrics[mtot].m_desc.pmid = pmid;
+
+    if (type == MMV_TYPE_ELAPSED) {
+	pmUnits unit = PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0);
+	metrics[mtot].m_desc.sem = PM_SEM_COUNTER;
+	metrics[mtot].m_desc.type = MMV_TYPE_I64;
+	metrics[mtot].m_desc.units = unit;
+    } else {
+	if (semantics)
+	    metrics[mtot].m_desc.sem = semantics;
+	else
+	    metrics[mtot].m_desc.sem = PM_SEM_COUNTER;
+	metrics[mtot].m_desc.type = type;
+	memcpy(&metrics[mtot].m_desc.units, &units, sizeof(pmUnits));
+    }
+    if (!indom || indom == PM_INDOM_NULL)
+	metrics[mtot].m_desc.indom = PM_INDOM_NULL;
+    else
+	metrics[mtot].m_desc.indom = 
+		pmInDom_build(pmda->e_domain, (s->cluster << 11) | indom);
+
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG,
+			"MMV: map_stats adding metric[%d] %s %s from %s\n",
+			mtot, name, pmIDStr(pmid), s->name);
+
+    mtot++;
+    __pmAddPMNSNode(pmns, pmid, name);
+
+    return 0;
+}*/
 
 /* check client serial number validity, and check for a duplicate */
 static int
@@ -783,37 +830,24 @@ map_stats(pmdaExt *pmda)
 
 		offset += (count * sizeof(mmv_disk_label_t));
 		if (s->len < offset) {
-			if (pmDebugOptions.appl0) {
-				pmNotifyErr(LOG_INFO, "MMV: %s - "
-					"metrics offset: %"PRIu64" < %"PRIu64,
-					s->name, s->len, (int64_t)offset);
-			}
-			continue;
+		    if (pmDebugOptions.appl0) {
+		        pmNotifyErr(LOG_INFO, "MMV: %s - "
+				"labels offset: %"PRIu64" < %"PRIu64,
+				s->name, s->len, (int64_t)offset);
+		    }
+		    continue;
 		}
 
 		s->labels = lb;
-		s->mcnt1 = count;
+		s->lcnt = count;
 
-		for (k = 0; k < count; k++) {
-		     mmv_disk_label_t *mp = &lb[k];
-		     char name[MAXPATHLEN];
-		     pmID pmid;
+		//for (k = 0; k < count; k++) {
+		     //mmv_disk_label_t *ml = &lb[k];
+		     //char name[MAXPATHLEN];
 
-			/* build name, check its legitimate and unique 
-			if (hdr->flags & MMV_FLAG_NOPREFIX)
-				pmsprintf(name, sizeof(name), "%s.", prefix);
-			else
-				pmsprintf(name, sizeof(name), "%s.%s.", prefix, s->name);
-			strcat(name, mp->name);
-			if (verify_metric_name(name, k, s) != 0)
-				continue;
-			if (verify_metric_item(mp->item, name, s) != 0)
-				continue;
-
-			pmid = pmID_build(pmda->e_domain, s->cluster, mp->item);
-			create_metric(pmda, s, name, pmid, mp->indom,
-					mp->type, mp->semantics, mp->dimension);*/
-		}	
+		     // TODO: some checks
+		     //create_label();
+		//}	
 		
 	    	break;
 
