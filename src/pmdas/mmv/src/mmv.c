@@ -332,51 +332,6 @@ create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
     return 0;
 }
 
-/*static int
-create_label(pmdaExt *pmda, stats_t *s, char *name, )
-{
-    if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: create_metric: %s - %s", name, pmIDStr(pmid));
-
-    metrics = realloc(metrics, sizeof(pmdaMetric) * (mtot + 1));
-    if (metrics == NULL)  {
-	pmNotifyErr(LOG_ERR, "cannot grow MMV metric list: %s", s->name);
-	return -ENOMEM;
-    }
-
-    metrics[mtot].m_user = NULL;
-    metrics[mtot].m_desc.pmid = pmid;
-
-    if (type == MMV_TYPE_ELAPSED) {
-	pmUnits unit = PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0);
-	metrics[mtot].m_desc.sem = PM_SEM_COUNTER;
-	metrics[mtot].m_desc.type = MMV_TYPE_I64;
-	metrics[mtot].m_desc.units = unit;
-    } else {
-	if (semantics)
-	    metrics[mtot].m_desc.sem = semantics;
-	else
-	    metrics[mtot].m_desc.sem = PM_SEM_COUNTER;
-	metrics[mtot].m_desc.type = type;
-	memcpy(&metrics[mtot].m_desc.units, &units, sizeof(pmUnits));
-    }
-    if (!indom || indom == PM_INDOM_NULL)
-	metrics[mtot].m_desc.indom = PM_INDOM_NULL;
-    else
-	metrics[mtot].m_desc.indom = 
-		pmInDom_build(pmda->e_domain, (s->cluster << 11) | indom);
-
-    if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG,
-			"MMV: map_stats adding metric[%d] %s %s from %s\n",
-			mtot, name, pmIDStr(pmid), s->name);
-
-    mtot++;
-    __pmAddPMNSNode(pmns, pmid, name);
-
-    return 0;
-}*/
-
 /* check client serial number validity, and check for a duplicate */
 static int
 verify_indom_serial(pmdaExt *pmda, int serial, stats_t *s, pmInDom *p, pmdaIndom **i)
@@ -840,15 +795,6 @@ map_stats(pmdaExt *pmda)
 
 		s->labels = lb;
 		s->lcnt = count;
-
-		//for (k = 0; k < count; k++) {
-		     //mmv_disk_label_t *ml = &lb[k];
-		     //char name[MAXPATHLEN];
-
-		     // TODO: some checks
-		     //create_label();
-		//}	
-		
 	    	break;
 
 	    default:
