@@ -1519,6 +1519,7 @@ BAD
 1182 libpcp local
 1184 pminfo pmseries local
 1186 pmie local
+1187 python local
 1188 pmda.dm local
 1191 pmda.prometheus local python
 1193 pmlogrewrite labels help pmdumplog local

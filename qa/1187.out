@@ -1,0 +1,86 @@
+QA output created by 1187
+CPU
+=== std out
+----system---- -----cpu1-usage---- -----cpu2-usage---- ----total-usage---- ---------per-cpu-usage---------
+     time     |usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl| 0   1   2   3   4   5   6   7 
+25-07 16:08:22|  3   1  96   0   0:  2   0  96   0   0: 13   2  85   0   0|  4   4   4  22   6  28  51   4
+
+=== std err
+=== done
+
+Kernel
+=== std out
+----system---- --sysv-ipc- ---system-- ----utmp---
+     time     |msg sem shm| int   csw |ses usr adm
+25-07 16:08:22|  0   6  44|2561  4750 |  3   1   0
+
+=== std err
+=== done
+
+Memory
+=== std out
+----system---- -------------advanced-memory-usage------------- ----swap---
+     time     |total  used  free  buf   cach dirty shmem  recl| used  free
+25-07 16:08:22|  15G 6488M 5040M  820M 4078M 2572k 1204M  447M| 440M 7848M
+
+=== std err
+=== done
+
+Network
+=== std out
+----system---- net/enp0s25 --net/tun0- -net/wlp3s0 --------sockets--------- ------tcp-sockets-------
+     time     | recv  send: recv  send: recv  send|tot  tcp  udp  raw  frg |lis  act  syn  tim  clo 
+25-07 16:08:22| 132   202 :   0     0 :   0     0 |  2k  21   14    0    0 |  7   14    0    1    0 
+
+=== std err
+=== done
+
+Processes
+=== std out
+----system---- ---procs---
+     time     |run blk new
+25-07 16:08:22|2.0   0  16
+
+=== std err
+=== done
+
+Filesystem
+=== std out
+----system---- async --filesystem- ---file-locks--
+     time     | #aio|files  inodes|pos lck rea wri
+25-07 16:08:22|   0 |19552    184k| 48 4.0  18  34
+
+=== std err
+=== done
+
+Version
+=== std out
+pcp-dstat VERSION
+Written by the PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>
+Homepages at https://pcp.io/ and http://dag.wieers.com/home-made/dstat/
+
+Platform Linux
+Kernel 4.17.7-200.fc28.x86_64
+Python VERSION
+
+Terminal type: xterm-256color (no color support)
+Terminal size: 25 lines, 80 columns
+
+Processors: 8
+Pagesize: 4096
+Clock ticks per second: 100
+
+internal:
+/etc/pcp/dstat:
+
+=== std err
+=== done
+
+Plugins
+=== std out
+internal:
+/etc/pcp/dstat:
+
+=== std err
+=== done
+

@@ -939,7 +939,8 @@ class DstatTool(object):
             operands = []
         if len(operands) > 0:
             try:
-                self.delay = float(operands[0])
+                self.interval = pmapi.timeval.fromInterval(operands[0])
+                self.delay = float(self.interval)
             except Exception as e:
                 sys.stderr.write("Invalid sample delay '%s'\n" % operands[0])
                 sys.exit(1)
@@ -953,8 +954,6 @@ class DstatTool(object):
             sys.stderr.write("Incorrect argument list, try --help\n")
             sys.exit(1)
 
-        if not self.update:
-            self.interval = pmapi.timeval(self.delay)
         if not self.samples:
             self.samples = -1
 
@@ -1242,6 +1241,8 @@ class DstatTool(object):
         """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
+        if context == PM_CONTEXT_ARCHIVE:
+            self.update = False
         if context == PM_CONTEXT_HOST:
             try:
                 self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -1290,6 +1291,10 @@ class DstatTool(object):
         self.pmconfig.finalize_options()
         self.finalize_options()
 
+    def noop(self):
+        """ Do nothing, quickly """
+        return None
+
     def execute(self):
         """ Fetch and report """
         if self.debug:
@@ -1299,18 +1304,33 @@ class DstatTool(object):
         # Set delay mode, interpolation
         if self.context.type != PM_CONTEXT_ARCHIVE:
             self.interpol = 1
+            delayfunc = time.sleep
+        else:
+            delayfunc = self.noop
 
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
-        scheduler = sched.scheduler(time.time, time.sleep)
+        scheduler = sched.scheduler(time.time, delayfunc)
         self.inittime = time.time()
 
+        try:
+            self.pmfg.fetch()    # prime initial values (TODO: fix, somehow)
+        except:
+            pass
+
         update = 0.0
-        while update <= self.delay * (self.samples-1) or self.samples == -1:
-            scheduler.enterabs(self.inittime + update, 1, perform, (update,))
+        interval = 1.0
+        if not self.update:
+            interval = op.delay
+
+        while update <= self.delay * (self.samples - 1) or self.samples == -1:
+            if self.context.type != PM_CONTEXT_ARCHIVE:
+                scheduler.enterabs(self.inittime + update, 1, perform, (update,))
+            else:
+                self.perform(update)
             scheduler.run()
             sys.stdout.flush()
-            update = update + float(self.interval)
+            update = update + interval
 
 
     @staticmethod
