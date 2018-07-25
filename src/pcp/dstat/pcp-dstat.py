@@ -171,7 +171,7 @@ class DstatTerminal:
             return
         import getpass
         user = getpass.getuser()
-        host = os.uname()[1]    # TODO: hostname via PMAPI context
+        host = pmapi.pmContext().pmGetContextHostName()
         host = host.split('.')[0]
         path = os.path.basename(sys.argv[0])    # TODO: pmProgname
         args = path + ' ' + ' '.join(arguments)
