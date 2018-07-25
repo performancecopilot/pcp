@@ -677,6 +677,7 @@ class DstatTool(object):
         global op
         op = self
 
+        self.inittime = time.time()
         self.context = None
         self.opts = self.options()
         self.arguments = arguments
@@ -704,7 +705,6 @@ class DstatTool(object):
         self.samples = -1 # forever
         self.interval = pmapi.timeval(1)      # 1 sec
         self.opts.pmSetOptionInterval(str(1)) # 1 sec
-        self.missed = 0
         self.delay = 1.0
         self.type = 0
         self.type_prefer = self.type
@@ -775,7 +775,7 @@ class DstatTool(object):
         if self.verify:
             sys.exit(0)
 
-        ### Setup PMAPI context and terminal/file setup
+        ### Setup PMAPI context, console and optionally file
         self.connect()
         self.validate()
         self.prepare_output()
@@ -1234,6 +1234,7 @@ class DstatTool(object):
         print('Pagesize: %d' % pagesize())
         print('Clock ticks per second: %d' % hertz())
         print()
+        self.pmfg.clear()
 
     def connect(self):
         """ Establish a PMAPI context, default is 'local:' with a fallback
@@ -1302,15 +1303,11 @@ class DstatTool(object):
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
         scheduler = sched.scheduler(time.time, time.sleep)
-        inittime = time.time()
-        try:
-            self.pmfg.fetch()    # prime initial values (TODO: fix, somehow)
-        except:
-            pass
+        self.inittime = time.time()
 
         update = 0.0
         while update <= self.delay * (self.samples-1) or self.samples == -1:
-            scheduler.enterabs(inittime + update, 1, perform, (update,))
+            scheduler.enterabs(self.inittime + update, 1, perform, (update,))
             scheduler.run()
             sys.stdout.flush()
             update = update + float(self.interval)
@@ -1326,15 +1323,6 @@ class DstatTool(object):
         sys.stdout.flush()
         if op.pidfile:
             os.remove(op.pidfile)
-
-    def ticks(self):
-        "Return the number of 'ticks' since bootup"
-        # TODO: extract kernel.all.uptime and inject into fetchgroup fetches
-        for line in open('/proc/uptime', 'r').readlines():
-            l = line.split()
-            if len(l) < 2: continue
-            return float(l[0])
-        return 0
 
     def show_header(self, vislist):
         "Return the header for a set of module counters"
@@ -1359,7 +1347,7 @@ class DstatTool(object):
     def perform(self, update):
         "Inner loop that calculates counters and constructs output"
         global oldvislist, vislist, showheader, rows, cols
-        global elapsed, totaltime, starttime
+        global totaltime, starttime
         global loop, step
 
         starttime = time.time()
@@ -1375,19 +1363,16 @@ class DstatTool(object):
             curwidth = 8
 
         # If it takes longer than 500ms, then warn!
-        if loop != 0 and starttime - inittime - update > 1:
+        if loop != 0 and starttime - self.inittime - update > 1:
             self.missed = self.missed + 1
             return 0
 
         # Initialise certain variables
         if loop == 0:
-            elapsed = self.ticks()
             rows, cols = 0, 0
             vislist = []
             oldvislist = []
             showheader = True
-        else:
-            elapsed = step
 
         if sys.stdout.isatty():
             oldcols = cols
@@ -1503,10 +1488,8 @@ def perform(update):
 
 
 if __name__ == '__main__':
-    global outputfile
-    global inittime, update, missed
+    global update
     try:
-        inittime = time.time()
         dstat = DstatTool(sys.argv[1:])
         dstat.execute()
 
