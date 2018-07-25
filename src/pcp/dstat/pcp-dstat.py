@@ -1043,14 +1043,14 @@ class DstatTool(object):
             self.plugins.append('cpu')
         elif opt in ['C']:
             insts = arg.split(',')
-            self.cpulist = sorted({'cpu' + str(x) for x in insts if x != 'total'})
+            self.cpulist = sorted(['cpu' + str(x) for x in insts if x != 'total'])
             if 'total' in insts:
                 self.cpulist.append('total')
         elif opt in ['d']:
             self.plugins.append('disk')
         elif opt in ['D']:
             insts = arg.split(',')
-            self.disklist = sorted({x for x in insts if x != 'total'})
+            self.disklist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.disklist.append('total')
         elif opt in ['--filesystem']:
@@ -1061,7 +1061,7 @@ class DstatTool(object):
             self.plugins.append('int')
         elif opt in ['I']:
             insts = arg.split(',')
-            self.intlist = sorted({'line' + str(x) for x in insts if x != 'total'})
+            self.intlist = sorted(['line' + str(x) for x in insts if x != 'total'])
             if 'total' in insts:
                 self.intlist.append('total')
         elif opt in ['l']:
@@ -1072,7 +1072,7 @@ class DstatTool(object):
             self.plugins.append('net')
         elif opt in ['N']:
             insts = arg.split(',')
-            self.netlist = sorted({x for x in insts if x != 'total'})
+            self.netlist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.netlist.append('total')
         elif opt in ['p']:
@@ -1082,7 +1082,7 @@ class DstatTool(object):
         elif opt in ['s']:
             self.plugins.append('swap')
         elif opt in ['S']:
-            self.swaplist = list({'/dev/' + str(x) for x in arg.split(',')})
+            self.swaplist = list(['/dev/' + str(x) for x in arg.split(',')])
         elif opt in ['t']:
             self.plugins.append('time')
         elif opt in ['T']:
