@@ -154,7 +154,7 @@ class DstatTerminal:
         return False
 
     @staticmethod
-    def set_title(arguments):
+    def set_title(arguments, context):
         """ Write terminal title, if terminal (and shell?) is capable """
         if not sys.stdout.isatty():
             return
@@ -171,9 +171,9 @@ class DstatTerminal:
             return
         import getpass
         user = getpass.getuser()
-        host = pmapi.pmContext().pmGetContextHostName()
+        host = context.pmGetContextHostName()
         host = host.split('.')[0]
-        path = os.path.basename(sys.argv[0])    # TODO: pmProgname
+        path = context.pmProgname()
         args = path + ' ' + ' '.join(arguments)
         sys.stdout.write('\033]0;(%s@%s) %s\007' % (user, host, args))
 
@@ -769,17 +769,21 @@ class DstatTool(object):
         configs = self.prepare_plugins()
         self.create_time_plugins()
 
-        ### Complete command line processing and terminal/file setup
+        ### Complete command line processing
         self.pmconfig.read_cmd_line()
         self.prepare_metrics(configs)
         if self.verify:
             sys.exit(0)
+
+        ### Setup PMAPI context and terminal/file setup
+        self.connect()
+        self.validate()
         self.prepare_output()
 
     def prepare_output(self):
         """ Complete all initialisation and get ready to begin sampling """
         self.pmconfig.set_signal_handler()
-        self.term.set_title(self.arguments)
+        self.term.set_title(self.arguments, self.context)
         self.term.set_theme(self.blackonwhite)
         if self.color == None:
             self.color = self.term.get_color()
@@ -1205,12 +1209,18 @@ class DstatTool(object):
 
     def show_version(self):
         self.connect()
-        print('pcp-dstat %s' % pmapi.pmContext.pmGetConfig('PCP_VERSION'))
+        platform = self.pmfg.extend_item('kernel.uname.sysname')
+        kernel = self.pmfg.extend_item('kernel.uname.release')
+        hertz = self.pmfg.extend_item('kernel.all.hz')
+        cpucount = self.pmfg.extend_item('hinv.ncpu')
+        pagesize = self.pmfg.extend_item('hinv.pagesize')
+        self.pmfg.fetch()
+        print('pcp-dstat %s' % self.context.pmGetConfig('PCP_VERSION'))
         print('Written by the PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>')
         print('Homepages at https://pcp.io/ and http://dag.wieers.com/home-made/dstat/')
         print()
-        print('Platform %s/%s' % (os.name, sys.platform)) # kernel.uname.sysname
-        print('Kernel %s' % os.uname()[2])  # kernel.uname.release
+        print('Platform %s' % platform())
+        print('Kernel %s' % kernel())
         print('Python %s' % sys.version)
         print()
         color = ""
@@ -1220,19 +1230,23 @@ class DstatTool(object):
         rows, cols = self.term.get_size()
         print('Terminal size: %d lines, %d columns' % (rows, cols))
         print()
-#       print('Processors: %d' % hinv.ncpu)    - TODO
-#       print('Pagesize: %d' % hinv.pagesize)
-#       print('Clock ticks per secs: %d' % kernel.all.hz)
-#       print()
+        print('Processors: %d' % cpucount())
+        print('Pagesize: %d' % pagesize())
+        print('Clock ticks per second: %d' % hertz())
+        print()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish a PMAPI context, default is 'local:' with a fallback
+            to using local context mode if pmcd(1) is not running locally.
+        """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         if context == PM_CONTEXT_HOST:
             try:
                 self.pmfg = pmapi.fetchgroup(context, self.source)
             except pmapi.pmErr:
+                if self.source != 'local:':
+                    raise
                 context = PM_CONTEXT_LOCAL
         if self.pmfg == None:
             self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -1494,8 +1508,6 @@ if __name__ == '__main__':
     try:
         inittime = time.time()
         dstat = DstatTool(sys.argv[1:])
-        dstat.connect()
-        dstat.validate()
         dstat.execute()
 
     except pmapi.pmErr as error:
