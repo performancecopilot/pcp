@@ -17,6 +17,8 @@ policy_name="pcpqaqaqaqa"
 policy_file="$PCP_VAR_DIR/selinux/pcpupstream.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
+$sudo semodule -l >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "semodule -l fails"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 #if a matching module is already installed
