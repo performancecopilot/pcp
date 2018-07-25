@@ -248,6 +248,10 @@ __pmServerStart(int argc, char **argv, int flags)
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdInput = (HANDLE)_get_osfhandle(fileno(stdin));
+    siStartInfo.hStdOutput = (HANDLE)_get_osfhandle(fileno(stdout));
+    siStartInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
     if ((sts = CreateProcess( NULL,
 		    cmdline,
