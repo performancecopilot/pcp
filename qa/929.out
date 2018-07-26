@@ -5,23 +5,26 @@ QA output created by 929
 
 === daily maintenance of PCP archives for host one.somewhere ===
 
++ get mutex lock
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
 + pmlogmv -V -N PAST.00.10 PAST
 + cd TMP.two
 
 === daily maintenance of PCP archives for host two.somewhere ===
 
++ get mutex lock
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.13.13
 + pmlogger_merge -V -N -f PAST.00.10 PAST.13.13 PAST
 
 --- -M case ---
@@ -31,19 +34,19 @@ Warning: skipping pmnewlog because we don't know which pmlogger to stop
 
 === daily maintenance of PCP archives for host one.somewhere ===
 
++ get mutex lock
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 + cd TMP.two
 
 === daily maintenance of PCP archives for host two.somewhere ===
 
++ get mutex lock
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-

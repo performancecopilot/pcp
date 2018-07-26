@@ -1,0 +1,41 @@
+QA output created by 676
+
+--- rewrite with data volume compression for multivol ---
+suffix stripping: arg: onevol/20011002.meta -> onevol/20011002
+suffix stripping: arg: onevol/20011003.meta -> onevol/20011003
+suffix stripping: arg: multivol/20011002.meta -> multivol/20011002
+changed: onevol/20011002.0
+changed: onevol/20011002.meta
+changed: onevol/20011003.0
+changed: onevol/20011003.meta
+changed and recompressed: multivol/20011002.0.bz2
+changed and recompressed: multivol/20011002.1.bz2
+changed and recompressed: multivol/20011002.2.bz2
+changed and recompressed: multivol/20011002.3.bz2
+changed: multivol/20011002.meta
+onevol/20011002:
+pmcd.pmlogger.port PMID: 2.4095.1023
+onevol/20011003:
+pmcd.pmlogger.port PMID: 2.4095.1023
+multivol/20011002:
+pmcd.pmlogger.port PMID: 2.4095.1023
+
+--- rewrite with metadata and volume compression for onevol and multivol ---
+suffix stripping: arg: onevol/20011002.meta.bz2 -> onevol/20011002
+suffix stripping: arg: onevol/20011003.meta.bz2 -> onevol/20011003
+suffix stripping: arg: multivol/20011002.meta.bz2 -> multivol/20011002
+changed and recompressed: onevol/20011002.0.bz2
+changed and recompressed: onevol/20011002.meta.bz2
+changed and recompressed: onevol/20011003.0.bz2
+changed and recompressed: onevol/20011003.meta.bz2
+changed and recompressed: multivol/20011002.0.bz2
+changed and recompressed: multivol/20011002.1.bz2
+changed and recompressed: multivol/20011002.2.bz2
+changed and recompressed: multivol/20011002.3.bz2
+changed and recompressed: multivol/20011002.meta.bz2
+onevol/20011002:
+pmcd.pmlogger.port PMID: 2.4095.1023
+onevol/20011003:
+pmcd.pmlogger.port PMID: 2.4095.1023
+multivol/20011002:
+pmcd.pmlogger.port PMID: 2.4095.1023

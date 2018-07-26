@@ -768,6 +768,7 @@ class PidstatOptions(pmapi.pmOptions):
     #initalize them by passing them in
     def __init__(self):
         pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrkV?:f:B:l") 
+        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrkVZ:z?:f:B:") 
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetOverrideCallback(self.override)
         self.pmSetLongOptionHeader("General options")
@@ -786,6 +787,8 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetLongOption("",0,"B","state1,state2,..","Report process state information. Use -B [all] or -B [comma separated states]. Use -B detail for showing time spent in every state per process")
         self.pmSetLongOption("",0,"l","","Display the process command name and all its arguments.")
         self.pmSetLongOptionVersion()
+        self.pmSetLongOptionTimeZone()
+        self.pmSetLongOptionHostZone()
         self.pmSetLongOptionHelp()
 
 

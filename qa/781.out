@@ -1,16 +1,4 @@
 QA output created by 781
-
-=== compressing PCP archives for host local: ===
-
-
-
-=== compressing PCP archives for host no.such.host.pcp.io ===
-
-
-
-=== compressing PCP archives for host another.host ===
-
-
 # $version=1.1    
 + export version; version=1.1    
 pmlogger_check [control:4]
@@ -35,6 +23,10 @@ Restarting pmlogger for host "another.host" ...
 # $version=1.1    
 + export version; version=1.1    
 + cd LOGDIR/logs/HOSTNAME
+
+=== compressing PCP archives for host local: ===
+
++ get mutex lock
 pmlogger_daily: [control:4]
 Error: no pmlogger instance running for host "local:"
 ... logging for host "local:" unchanged
@@ -43,6 +35,10 @@ Warning: skipping pmnewlog because we don't know which pmlogger to stop
 pmlogger_daily: [control:4]
 Warning: current volume of current pmlogger not known, compression skipped
 + cd LOGDIR/logs/no.such.host.pcp.io
+
+=== compressing PCP archives for host no.such.host.pcp.io ===
+
++ get mutex lock
 pmlogger_daily: [control:5]
 Error: no pmlogger instance running for host "no.such.host.pcp.io"
 ... logging for host "no.such.host.pcp.io" unchanged
@@ -51,6 +47,10 @@ Warning: skipping pmnewlog because we don't know which pmlogger to stop
 pmlogger_daily: [control:5]
 Warning: current volume of current pmlogger not known, compression skipped
 + cd LOGDIR/logs/another.host
+
+=== compressing PCP archives for host another.host ===
+
++ get mutex lock
 pmlogger_daily: [control:6]
 Error: no pmlogger instance running for host "another.host"
 ... logging for host "another.host" unchanged

@@ -53,6 +53,13 @@
 #define REDIS_ERR_OTHER		2 /* Everything else... */
 
 /*
+ * Several exact server error strings for fine-tuning behaviour.
+ */
+#define REDIS_ENOSCRIPT		"NOSCRIPT No matching script. Please use EVAL."
+#define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
+#define REDIS_ESTREAMXADD	"ERR The ID specified in XADD is smaller than the target stream top item"
+
+/*
  * Redis protocol reply types
  */
 #define REDIS_REPLY_STRING	1

@@ -1,0 +1,126 @@
+QA output created by 681
+=== success cases ===
+--- echo ---
+=== std out ===
+blah;trickme
+__pmProcessExec -> 0
+=== std err ===
+__pmProcessExec: argc=2 toss=0 "/bin/echo" "blah;trickme"
+__pmProcessExec: pid=PID wait_pid=PID exit=0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -- /bin/echo blah;trickme
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- /bin/sh -c ---
+=== std out ===
+f o o
+__pmProcessExec -> 1015 signal=15
+=== std err ===
+__pmProcessExec: argc=3 toss=0 "/bin/sh" "-c" "echo 'f o o'; kill -TERM $$; sleep 1; echo b\ a\ r"
+__pmProcessExec: pid=PID wait_pid=PID signal=15
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -- /bin/sh -c echo\ 'f\ o\ o';\ kill\ -TERM\ $$;\ sleep\ 1;\ echo\ b\\\ a\\\ r
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- pipe in ---
+=== std out ===
+__pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
+hullo world
+--- end ---
+__pmProcessPipeClose() -> 0
+=== std err ===
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -p -- echo hullo world
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- pipe out ---
+=== std out ===
+__pmProcessPipe(..., "w", ...) -> 0
+--- start pipe input ---
+hello other world
+--- end ---
+0000000 h e l l o o t h e r w o r l
+0000020 d \n
+0000022
+__pmProcessPipeClose() -> 0
+=== std err ===
+__pmProcessPipe: argc=2 type="w" toss=0 "od" "-c"
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -P TMP.data -- od -c
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+---  exec and executable not on $PATH ---
+=== std out ===
+my arg echoer ...
+[0] TMP.sh
+[1] blah;trickme|foo
+[2] cat
+[3] and
+[4] dog
+__pmProcessExec -> 0
+=== std err ===
+__pmProcessExec: argc=5 toss=0 "TMP.sh" "blah;trickme|foo" "cat" "and" "dog"
+__pmProcessExec: pid=PID wait_pid=PID exit=0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec TMP.sh blah;trickme|foo cat and dog
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+---  popen and executable not on $PATH ---
+=== std out ===
+__pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
+my arg echoer ...
+[0] TMP.sh
+[1] blah;trickme|foo
+[2] cat
+[3] and
+[4] dog
+--- end ---
+__pmProcessPipeClose() -> 0
+=== std err ===
+__pmProcessPipe: argc=5 type="r" toss=0 "TMP.sh" "blah;trickme|foo" "cat" "and" "dog"
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -p TMP.sh blah;trickme|foo cat and dog
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== error and failure cases ===
+=== std out ===
+__pmProcessExec -> 127 exit=127
+=== std err ===
+__pmProcessExec: argc=4 toss=0 "/a/b/c" "-f" "oo" "bar"
+__pmProcessExec: pid=PID wait_pid=PID exit=127
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -- /a/b/c -f oo bar
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

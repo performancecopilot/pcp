@@ -19,7 +19,6 @@ Info: Metrics registered.
 Info: Registering helpers:
 Info: uprobe_hits
 Info: Helpers registered.
-Info: Ready to process requests.
 Info: Initializing, currently in 'notready' state.
 Info: Enabled modules:
 Info: ['uprobe_hits']
@@ -38,7 +37,6 @@ Info: Metrics registered.
 Info: Registering helpers:
 Info: uprobe_hits
 Info: Helpers registered.
-Info: Ready to process requests.
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]

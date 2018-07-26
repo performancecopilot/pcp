@@ -66,16 +66,16 @@ main(int argc, char **argv)
 	    printf("f_frsize=[%lu] ", (unsigned long)vbuf.f_frsize);
 #endif
 	    putchar('\n');
-	    printf("f_blocks=%llu [%llu] ", (unsigned long long)buf.f_blocks, (unsigned long long)vbuf.f_blocks);
-	    printf("f_bfree=%llu [%llu] ", (unsigned long long)buf.f_bfree, (unsigned long long)vbuf.f_bfree);
+	    printf("f_blocks=%" FMT_UINT64 " [%" FMT_UINT64 "] ", (__uint64_t)buf.f_blocks, (__uint64_t)vbuf.f_blocks);
+	    printf("f_bfree=%" FMT_UINT64 " [%" FMT_UINT64 "] ", (__uint64_t)buf.f_bfree, (__uint64_t)vbuf.f_bfree);
 #if !defined(IS_SOLARIS)
-	    printf("f_bavail=%llu [%llu] ", (unsigned long long)buf.f_bavail, (unsigned long long)vbuf.f_bavail);
+	    printf("f_bavail=%" FMT_UINT64 " [%" FMT_UINT64 "] ", (__uint64_t)buf.f_bavail, (__uint64_t)vbuf.f_bavail);
 #endif
 	    putchar('\n');
-	    printf("f_files=%llu [%llu] ", (unsigned long long)buf.f_files, (unsigned long long)vbuf.f_files);
-	    printf("f_ffree=%llu [%llu] ", (unsigned long long)buf.f_ffree, (unsigned long long)vbuf.f_ffree);
+	    printf("f_files=%" FMT_UINT64 " [%" FMT_UINT64 "] ", (__uint64_t)buf.f_files, (__uint64_t)vbuf.f_files);
+	    printf("f_ffree=%" FMT_UINT64 " [%" FMT_UINT64 "] ", (__uint64_t)buf.f_ffree, (__uint64_t)vbuf.f_ffree);
 #if !defined(IS_SOLARIS)
-	    printf("f_favail=[%llu] ", (unsigned long long)vbuf.f_favail);
+	    printf("f_favail=[%" FMT_UINT64 "] ", (__uint64_t)vbuf.f_favail);
 #endif
 	    putchar('\n');
 #if defined(IS_SOLARIS)

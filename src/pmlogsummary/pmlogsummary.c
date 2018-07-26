@@ -163,8 +163,10 @@ printstamp(struct timeval *stamp, int delimiter)
     if (dayflag) {
 	char	*ddmm;
 	char	*yr;
+	time_t	time;
 
-	ddmm = pmCtime((const time_t *)&stamp->tv_sec, timebuf);
+	time = stamp->tv_sec;
+	ddmm = pmCtime(&time, timebuf);
 	ddmm[10] = ' ';
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
@@ -185,6 +187,7 @@ printlabel(void)
     char        *ddmm;
     char        *yr;
     int         sts;
+    time_t	time;
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
@@ -195,7 +198,8 @@ printlabel(void)
     printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     printf("Performance metrics from host %s\n", label.ll_hostname);
 
-    ddmm = pmCtime((const time_t *)&opts.start.tv_sec, timebuf);
+    time = opts.start.tv_sec;
+    ddmm = pmCtime(&time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
@@ -207,7 +211,8 @@ printlabel(void)
 	printf("  ending     UNKNOWN\n");
     }
     else {
-	ddmm = pmCtime((const time_t *)&opts.finish.tv_sec, timebuf);
+	time = opts.finish.tv_sec;
+	ddmm = pmCtime(&time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);

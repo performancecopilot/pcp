@@ -3,38 +3,36 @@ QA output created by 1116
 === bcc agent installation ===
 Info: Initializing, currently in 'notready' state.
 Info: Enabled modules:
-Info: ['biotop']
+Info: ['bioperpid']
 Info: Configuring modules:
-Info: biotop
+Info: bioperpid
 Info: Modules configured.
 Info: Initializing modules:
-Info: biotop
-Info: biotop: Initialized.
+Info: bioperpid
+Info: bioperpid: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
-Info: biotop
+Info: bioperpid
 Info: Metrics registered.
 Info: Registering helpers:
-Info: biotop
+Info: bioperpid
 Info: Helpers registered.
-Info: Ready to process requests.
 Info: Initializing, currently in 'notready' state.
 Info: Enabled modules:
-Info: ['biotop']
+Info: ['bioperpid']
 Info: Configuring modules:
-Info: biotop
+Info: bioperpid
 Info: Modules configured.
 Info: Initializing modules:
-Info: biotop
-Info: biotop: Initialized.
+Info: bioperpid
+Info: bioperpid: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
-Info: biotop
+Info: bioperpid
 Info: Metrics registered.
 Info: Registering helpers:
-Info: biotop
+Info: bioperpid
 Info: Helpers registered.
-Info: Ready to process requests.
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]

@@ -33,11 +33,7 @@ default: dist
 MAKEMAKER_OPTIONS = INSTALLDIRS=$(PERL_INSTALLDIRS) INSTALLVENDORMAN3DIR=$(PCP_MAN_DIR)/man3
 INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT
 
-ifeq ($(TARGET_OS),mingw)
-PERLMAKE = dmake.exe
-else
 PERLMAKE = $(MAKE)
-endif
 
 LogImport.o: Makefile LogImport.xs typemap
 	$(PERLMAKE) -f Makefile

@@ -242,7 +242,7 @@ directive(void)
     }
 
     while (*ip && isblank((int)*ip)) ip++;
-    if (*ip != '\n' && *ip != '\0') {
+    if (*ip != '\n' && *ip != '\r' && *ip != '\0') {
 	err("Unexpected extra text in a control line");
 	/*NOTREACHED*/
     }

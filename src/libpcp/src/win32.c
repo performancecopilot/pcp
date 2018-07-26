@@ -40,6 +40,9 @@
 #include <winbase.h>
 #include <psapi.h>
 
+static int	pcp_dir_init = 1;
+static char	*pcp_dir;
+
 #define FILETIME_1970		116444736000000000ull	/* 1/1/1601-1/1/1970 */
 #define HECTONANOSEC_PER_SEC	10000000ull
 #define MILLISEC_PER_SEC	1000
@@ -200,40 +203,78 @@ __pmServerStart(int argc, char **argv, int flags)
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     LPTSTR cmdline = NULL;
-    int i, sz, total = 3; /* -f\0 */
+    char *command;
+    int i, sz = 0;
+    int	sts;
 
     (void)flags;
     fflush(stdout);
     fflush(stderr);
 
-    for (i = 0; i < argc; i++)
-	total += strlen(argv[i]) + 1;
-    if ((cmdline = malloc(total)) == NULL) {
-	pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
-	exit(1);
+    if (pcp_dir_init) {
+	/* one-trip initialize to get possible $PCP_DIR */
+	pcp_dir = getenv("PCP_DIR");
+	pcp_dir_init = 0;
     }
-    for (sz = i = 0; i < argc; i++)
-	sz += pmsprintf(cmdline + sz, total - sz, "%s ", argv[i]);
-    pmsprintf(cmdline + sz, total - sz, "-f");
+
+    /* Flatten the argv array for the Windows CreateProcess API */
+    if (pcp_dir != NULL) {
+	if (argv[0][0] == '/') {
+	    /*
+	     * if argv[0] starts with a / no $PATH searching happens,
+	     * so we need to prefix argv[0] with $PCP_DIR
+	     */
+	    cmdline = strdup(pcp_dir);
+	    sz = strlen(cmdline);
+	    /* append argv[0] (with leading slash) at cmdline[sz] */
+	}
+    }
+ 
+    for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
+	int length = strlen(command);
+	/* add 1space or 1null */
+	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
+	    pmNoMem("__pmServerStart", sz + length + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	strcpy(&cmdline[sz], command);
+	cmdline[sz + length] = ' ';
+	sz += length + 1;
+    }
+    cmdline[sz - 1] = '\0';
+    if (pmDebugOptions.exec)
+	fprintf(stderr, "__pmServerStart: cmdline=%s\n", cmdline);
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdInput = (HANDLE)_get_osfhandle(fileno(stdin));
+    siStartInfo.hStdOutput = (HANDLE)_get_osfhandle(fileno(stdout));
+    siStartInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    if (0 == CreateProcess(
-		NULL, cmdline,
-		NULL, NULL,	/* process and thread attributes */
-		FALSE,		/* inherit handles */
-		CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,
-		NULL,		/* environment (from parent) */
-		NULL,		/* current directory */
-		&siStartInfo,	/* STARTUPINFO pointer */
-		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
-	pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+    if ((sts = CreateProcess( NULL,
+		    cmdline,
+		    NULL,          /* process security attributes */
+		    NULL,          /* primary thread security attributes */
+		    TRUE,          /* inherit handles */
+		    CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,	/* creation flags */
+		    NULL,          /* environment (from parent) */
+		    NULL,          /* current directory */
+		    &siStartInfo,  /* STARTUPINFO pointer */
+				   /* receives PROCESS_INFORMATION */
+		    &piProcInfo)) == 0) {
+	/* failed */
+	DWORD	lasterror;
+	char	errmsg[PM_MAXERRMSGLEN];
+	lasterror = GetLastError();
+	fprintf(stderr, "__pmServerStart: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld %s\n", cmdline, lasterror, osstrerror_r(errmsg, sizeof(errmsg)));
 	/* but keep going */
     }
     else {
 	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmServerStart: background PID=%" FMT_PID "\n", (pid_t)piProcInfo.dwProcessId);
 	fclose(stderr);
 	exit(0);
     }
@@ -286,8 +327,16 @@ __pmProcessTerminate(pid_t pid, int force)
     return -ESRCH;
 }
 
+/*
+ * fromChild - pipe used for reading from the caller, connected to the
+ * standard output of the created process
+ * toChild - pipe used for writing from the caller, connected to the
+ * std input of the created process
+ * If either is NULL, no pipe is created and created process
+ * inherits stdio streams from the parent
+ */
 pid_t
-__pmProcessCreate(char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *fromChild, int *toChild)
 {
     HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
     PROCESS_INFORMATION piProcInfo; 
@@ -296,41 +345,83 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     LPTSTR cmdline = NULL;
     char *command;
     int i, sz = 0;
+    int	sts;
+
+    if (pcp_dir_init) {
+	/* one-trip initialize to get possible $PCP_DIR */
+	pcp_dir = getenv("PCP_DIR");
+	pcp_dir_init = 0;
+    }
  
     ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
     saAttr.bInheritHandle = TRUE;	/* pipe handles are inherited. */
     saAttr.lpSecurityDescriptor = NULL; 
 
-    /*
-     * Create a pipe for communication with the child process.
-     * Ensure that the read handle to the child process's pipe for
-     * STDOUT is not inherited.
-     */
-    if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0))
-	return -1;
-    SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0);
+    if (fromChild != NULL && toChild != NULL) {
+	*fromChild = *toChild = -1;		/* in case of errors */
+	/*
+	 * Create a pipe for stdout of the child process.
+	 * Ensure that the read handle for the pipe is not inherited.
+	 */
+	if ((sts = CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) != 1) {
+	    if (pmDebugOptions.exec)
+		fprintf(stderr, "__pmProcessCreate: CreatePipe() failed for stdout sts=%d\n", sts);
+	    return -1;
+	}
+	if ((sts = SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0)) != 1) {
+	    if (pmDebugOptions.exec)
+		fprintf(stderr, "__pmProcessCreate: set handle inheritance failed for stdout sts=%d\n", sts);
+	    CloseHandle(hChildStdoutRd);
+	    CloseHandle(hChildStdoutWr);
+	    return -1;
+	}
 
-    /*
-     * Create a pipe for the child process's STDIN.
-     * Ensure that the write handle to the child process's pipe for
-     * STDIN is not inherited.
-     */
-    if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
-	CloseHandle(hChildStdoutRd);
-	CloseHandle(hChildStdoutWr);
-	return -1;
+	/*
+	 * Create a pipe for stdin of the child process.
+	 * Ensure that the write handle to the pipe is not inherited.
+	 */
+	if ((sts = CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) != 1) {
+	    if (pmDebugOptions.exec)
+		fprintf(stderr, "__pmProcessCreate: CreatePipe() failed for stdiin sts=%d\n", sts);
+	    CloseHandle(hChildStdoutRd);
+	    CloseHandle(hChildStdoutWr);
+	    return -1;
+	}
+	if ((sts = SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0)) != 1) {
+	    if (pmDebugOptions.exec)
+		fprintf(stderr, "__pmProcessCreate: set handle inheritance failed for stdin sts=%d\n", sts);
+	    CloseHandle(hChildStdoutRd);
+	    CloseHandle(hChildStdoutWr);
+	    CloseHandle(hChildStdinRd);
+	    CloseHandle(hChildStdinWr);
+	    return -1;
+	}
     }
-    SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0);
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO); 
-    siStartInfo.hStdOutput = hChildStdoutWr;
-    siStartInfo.hStdInput = hChildStdinRd;
-    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+    if (fromChild != NULL && toChild != NULL) {
+	siStartInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
+	siStartInfo.hStdOutput = hChildStdoutWr;
+	siStartInfo.hStdInput = hChildStdinRd;
+	siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+    }
 
     /* Flatten the argv array for the Windows CreateProcess API */
+    if (pcp_dir != NULL) {
+	if (argv[0][0] == '/') {
+	    /*
+	     * if argv[0] starts with a / no $PATH searching happens,
+	     * so we need to prefix argv[0] with $PCP_DIR
+	     */
+	    cmdline = strdup(pcp_dir);
+	    sz = strlen(cmdline);
+	    /* append argv[0] (with leading slash) at cmdline[sz] */
+	}
+    }
+
  
     for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
 	int length = strlen(command);
@@ -344,31 +435,53 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	sz += length + 1;
     }
     cmdline[sz - 1] = '\0';
+    if (pmDebugOptions.exec)
+	fprintf(stderr, "__pmProcessCreate: cmdline=%s\n", cmdline);
 
-    if (0 == CreateProcess(NULL, 
-	cmdline,       /* command line */
-	NULL,          /* process security attributes */
-	NULL,          /* primary thread security attributes */
-	TRUE,          /* handles are inherited */
-	0,             /* creation flags */
-	NULL,          /* use parent's environment */
-	NULL,          /* use parent's current directory */
-	&siStartInfo,  /* STARTUPINFO pointer */
-	&piProcInfo))  /* receives PROCESS_INFORMATION */
-    {
-	CloseHandle(hChildStdinRd);
-	CloseHandle(hChildStdinWr);
-	CloseHandle(hChildStdoutRd);
-	CloseHandle(hChildStdoutWr);
+    if ((sts = CreateProcess(NULL, 
+		    cmdline,       /* command line */
+		    NULL,          /* process security attributes */
+		    NULL,          /* primary thread security attributes */
+		    TRUE,          /* handles are inherited */
+		    0,             /* creation flags */
+		    NULL,          /* use parent's environment */
+		    NULL,          /* use parent's current directory */
+		    &siStartInfo,  /* STARTUPINFO pointer */
+				   /* receives PROCESS_INFORMATION */
+		    &piProcInfo)) == 0) {
+	/* failed */
+	DWORD	lasterror;
+	char	errmsg[PM_MAXERRMSGLEN];
+	lasterror = GetLastError();
+	fprintf(stderr, "__pmProcessCreate: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld %s\n", cmdline, lasterror, osstrerror_r(errmsg, sizeof(errmsg)));
+	if (fromChild != NULL && toChild != NULL) {
+	    CloseHandle(hChildStdinRd);
+	    CloseHandle(hChildStdinWr);
+	    CloseHandle(hChildStdoutRd);
+	    CloseHandle(hChildStdoutWr);
+	}
 	return -1;
     }
     else {
-	CloseHandle(piProcInfo.hProcess);
-	CloseHandle(piProcInfo.hThread);
+	if ((sts = CloseHandle(piProcInfo.hProcess)) != 1) {
+	    if (pmDebugOptions.exec)
+		fprintf(stderr, "Warning: CloseHandle() failed for child process sts=%d\n", sts);
+	}
+	if ((sts = CloseHandle(piProcInfo.hThread)) != 1) {
+	    if (pmDebugOptions.exec)
+		fprintf(stderr, "Warning: CloseHandle() failed for child's primary thread sts=%d\n", sts);
+	}
     }
 
-    *infd = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
-    *outfd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
+    if (fromChild != NULL && toChild != NULL) {
+	*fromChild = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
+	CloseHandle(hChildStdoutWr);
+	CloseHandle(hChildStdinRd);
+	*toChild = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
+	if (pmDebugOptions.exec && pmDebugOptions.desperate)
+	    fprintf(stderr, "__pmProcessCreate: fromChild=%d toChild=%d\n", *fromChild, *toChild);
+    }
+
     return piProcInfo.dwProcessId;
 }
 
@@ -378,17 +491,36 @@ __pmProcessWait(pid_t pid, int nowait, int *code, int *signal)
     HANDLE ph;
     DWORD status;
 
-    if (pid == (pid_t)-1 || pid == (pid_t)-2)
+    if (pid == (pid_t)-1 || pid == (pid_t)-2) {
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmProcessWait: pid=%" FMT_PID " is unexpected\n", pid);
 	return -1;
-    if ((ph = OpenProcess(SYNCHRONIZE, FALSE, pid)) == NULL)
+    }
+    if ((ph = OpenProcess(SYNCHRONIZE, FALSE, pid)) == NULL) {
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmProcessWait: OpenProcess pid=%" FMT_PID " failed\n", pid);
 	return -1;
+    }
     if (WaitForSingleObject(ph, (DWORD)(-1L)) == WAIT_FAILED) {
 	CloseHandle(ph);
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmProcessWait: WaitForSingleObject pid=%" FMT_PID " failed\n", pid);
 	return -1;
     }
     if (GetExitCodeProcess(ph, &status)) {
 	CloseHandle(ph);
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmProcessWait: GetExitCodeProcess pid=%" FMT_PID " failed\n", pid);
 	return -1;
+    }
+    if (pmDebugOptions.exec) {
+	fprintf(stderr, "__pmProcessWait: pid=%" FMT_PID " exit status=%" FMT_UINT64, pid, (__uint64_t)status);
+	if (status != 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    pmErrStr_r(-status, errmsg, sizeof(errmsg));
+	    fprintf(stderr, ": %s", errmsg);
+	}
+	fputc('\n', stderr);
     }
     if (code)
 	*code = status;

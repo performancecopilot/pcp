@@ -9,6 +9,8 @@ FILES = \
 	collectl-summary \
 	collectl-interrupts \
 	dmcache \
+	dstat \
+	dstat-summary \
 	free \
 	free-summary \
 	hotproc \

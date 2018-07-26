@@ -12,7 +12,7 @@
 # for more details.
 # 
 
-TOPDIR = ../..
+TOPDIR = $(shell pwd)/../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pcp

@@ -58,10 +58,10 @@ main(int argc, char **argv)
     printf("%u -> %s\n", atom.ul, pmAtomStr(&atom, PM_TYPE_U32));
 
     atom.ll = -1234567890123LL;
-    printf("%lld -> %s\n", (long long)atom.ll, pmAtomStr(&atom, PM_TYPE_64));
+    printf("%" FMT_INT64 " -> %s\n", atom.ll, pmAtomStr(&atom, PM_TYPE_64));
 
     atom.ull = 0x8000000000000000LL;
-    printf("%llu -> %s\n", (unsigned long long)atom.ull, pmAtomStr(&atom, PM_TYPE_U64));
+    printf("%" FMT_UINT64 " -> %s\n", atom.ull, pmAtomStr(&atom, PM_TYPE_U64));
 
     atom.f = 123.456;
     printf("%.3f -> %s\n", atom.f, pmAtomStr(&atom, PM_TYPE_FLOAT));

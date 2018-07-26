@@ -24,6 +24,7 @@ check_import
 check_import_name
 check_import.pl
 check_pmiend_fdleak
+checkstructs
 chkacc1
 chkacc2
 chkacc3
@@ -95,6 +96,7 @@ interp3
 interp4
 interp_bug
 interp_bug2
+iohack
 ipc
 json_test
 keycache

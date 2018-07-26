@@ -3119,7 +3119,9 @@ __pmArchCtlFree(__pmArchCtl *acp)
 	    PM_UNLOCK(lcp->l_lock);
 	    __pmLogClose(acp);
 	    logFreeMeta(lcp);
+#ifdef PM_MULTI_THREAD
 	    __pmDestroyMutex(&lcp->l_lock);
+#endif
 	    free(lcp);
 	}
 	else

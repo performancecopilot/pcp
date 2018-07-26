@@ -63,6 +63,7 @@ dumpLabel(void)
     char	*yr;
     int		sts;
     char	timebuf[32];	/* for pmCtime result + .xxx */
+    time_t	time;
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: cannot get archive label record: %s\n",
@@ -73,7 +74,8 @@ dumpLabel(void)
     fprintf(stderr, "Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     fprintf(stderr, "Performance metrics from host %s\n", label.ll_hostname);
 
-    ddmm = pmCtime((const time_t *)&label.ll_start.tv_sec, timebuf);
+    time = label.ll_start.tv_sec;
+    ddmm = pmCtime(&time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     fprintf(stderr, "  commencing %s ", ddmm);
@@ -85,7 +87,8 @@ dumpLabel(void)
         fprintf(stderr, "  ending     UNKNOWN\n");
     }
     else {
-        ddmm = pmCtime((const time_t *)&opts.finish.tv_sec, timebuf);
+	time = opts.finish.tv_sec;
+        ddmm = pmCtime(&time, timebuf);
         ddmm[10] = '\0';
         yr = &ddmm[20];
         fprintf(stderr, "  ending     %s ", ddmm);

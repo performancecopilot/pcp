@@ -26,7 +26,9 @@
 # By default, the daily report will be written to /var/log/pcp/sa/sarXX
 # where XX is the day of the month, yesterday.
 #
+
 . $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/utilproc.sh
 
 status=0
 prog=`basename $0`

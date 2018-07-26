@@ -96,8 +96,8 @@ _save_prev_file()
 	return 0
     elif [ -L "$1" ]
     then
-	echo "_save_prev_filename: \"$1\" exists and is a symlink" >&2
-	ls -ld "$1" >&2
+	echo "_save_prev_filename: \"$1\" exists and is a symlink"
+	ls -ld "$1"
 	return 1
     elif [ -f "$1" ]
     then
@@ -111,14 +111,14 @@ _save_prev_file()
 	    then
 		:
 	    else
-		echo "_save_prev_filename: unable to remove \"$1.prev\"" >&2
-		ls -ld "$1.prev" >&2
+		echo "_save_prev_filename: unable to remove \"$1.prev\""
+		ls -ld "$1.prev"
 		if rm -f "$1"
 		then
 		    :
 		else
-		    echo "_save_prev_filename: unable to remove \"$1\"" >&2
-		    ls -ld "$1" >&2
+		    echo "_save_prev_filename: unable to remove \"$1\""
+		    ls -ld "$1"
 		fi
 		return 1
 	    fi
@@ -128,21 +128,55 @@ _save_prev_file()
 	then
 	    :
 	else
-	    echo "_save_prev_filename: copy \"$1\" to \"$1.prev\" failed" >&2
+	    echo "_save_prev_filename: copy \"$1\" to \"$1.prev\" failed"
 	    __sts=1
 	fi
 	if rm -f "$1"
 	then
 	    :
 	else
-	    echo "_save_prev_filename: unable to remove \"$1\"" >&2
-	    ls -ld "$1" >&2
+	    echo "_save_prev_filename: unable to remove \"$1\""
+	    ls -ld "$1"
 	    __sts=1
 	fi
 	return $__sts
     else
-	echo "_save_prev_filename: \"$1\" exists and is not a file" >&2
-	ls -ld "$1" >&2
+	echo "_save_prev_filename: \"$1\" exists and is not a file"
+	ls -ld "$1"
 	return 1
     fi
+}
+
+# check for magic numbers in a file that indicate it is a PCP archive
+#
+# if file(1) was reliable, this would be much easier, ... sigh
+#
+_is_archive()
+{
+    if [ ! -f "$1" ]
+    then
+	return 1
+    else
+	case "$1"
+	in
+	    *.xz|*.lzma)	xz -dc "$1"
+	    			;;
+	    *.bz2|*.bz)		bzip2 -dc "$1"
+	    			;;
+	    *.gz|*.Z|*.z)	gzip -dc "$1"
+	    			;;
+	    *)			cat "$1"
+	    			;;
+	esac \
+	| dd ibs=1 count=7 2>/dev/null \
+	| od -X \
+	| $PCP_AWK_PROG '
+BEGIN						{ sts = 1 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
+END						{ exit sts }'
+    fi
+    return $?
 }

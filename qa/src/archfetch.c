@@ -25,6 +25,7 @@ main(int argc, char **argv)
     pmID	*pmidlist = NULL;
     pmResult	*rp;
     char	timebuf[26];
+    time_t	clock;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
@@ -158,7 +159,8 @@ Options:\n\
     while (samples == -1 || samples-- > 0) {
 	sts = pmFetch(numpmid, pmidlist, &rp);
 	if (sts >= 0) {
-	    pmCtime(&rp->timestamp.tv_sec, timebuf);
+	    clock = rp->timestamp.tv_sec;
+	    pmCtime(&clock, timebuf);
 	    printf("numpmid=%2d %.19s.%08d\n", rp->numpmid, timebuf, (int)rp->timestamp.tv_usec);
 	    pmFreeResult(rp);
 	}
@@ -178,7 +180,8 @@ Options:\n\
     while (samples == -1 || samples-- > 0) {
 	sts = pmFetchArchive(&rp);
 	if (sts >= 0) {
-	    pmCtime(&rp->timestamp.tv_sec, timebuf);
+	    clock = rp->timestamp.tv_sec;
+	    pmCtime(&clock, timebuf);
 	    printf("numpmid=%2d %.19s.%08d", rp->numpmid, timebuf, (int)rp->timestamp.tv_usec);
 	    if (rp->numpmid == 0)
 		printf(" <mark>");

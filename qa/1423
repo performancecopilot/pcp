@@ -1,0 +1,68 @@
+#! /bin/sh
+# PCP QA Test No. 1423
+# checks basic pcp2spark functionality
+#
+# Copyright (c) 2018 Red Hat
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
+which pcp2spark >$here/$seq.full 2>&1 || _notrun "pcp2spark not installed"
+
+port=44325
+$PCP_BINADM_DIR/telnet-probe -c localhost $port \
+       && _notrun "Someone already listening on typical pcp2spark $port"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1       # failure is the default!
+
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_pcp2spark()
+{
+    # deal with lack of sensible rounding in some Python variants
+    #
+    sed \
+	-e 's/ 5587.42000000[0-6]*/ 5587.42/' \
+	-e 's/ 3029.03099999[5-9]*/ 3029.031/' \
+	   -e 's/ 0.08999999[5-9]*/ 0.09/' \
+	   -e 's/ 0.08000000[0-6]*/ 0.08/' \
+      -e 's/ 781261.93799999[5-9]*/ 781261.938/' \
+        -e 's/ 2723.43699999[5-9]*/ 2723.437/' \
+	   -e 's/ 9.99900000[0-6]*/ 9.999/' \
+	-e 's/ 2800.10899999[5-9]*/ 2800.109/' \
+    # end
+}
+
+pcp2spark="$python `which pcp2spark`"
+
+echo "=== pcp2spark archive replay session ===" | tee -a $here/$seq.full
+$pcp2spark -a $here/archives/rep -I "" >$tmp.p2s.out 2>$tmp.p2s.err &
+sleep 2
+nc localhost $port >$tmp.nc.out 2>$tmp.nc.err &
+pid=$!
+sleep 1
+$signal $pid 2>/dev/null
+wait
+if [ -s $tmp.nc.err ]
+then
+    echo "errors from nc ..."
+    cat $tmp.nc.err
+fi
+_filter_pcp2spark <$tmp.nc.out
+
+for i in $tmp.p2s.out $tmp.p2s.err $tmp.nc.out $tmp.nc.err
+do
+    echo "=== $i ===" >>$here/$seq.full
+    cat $i >>$here/$seq.full
+done
+
+echo "" | tee -a $here/$seq.full
+
+status=0
+exit

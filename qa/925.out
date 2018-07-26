@@ -9,7 +9,6 @@ Error: no pmlogger instance running for host "local:"
 ... logging for host "local:" unchanged
 pmlogger_daily: [TMP.control:5]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
-
 pmlogger_daily: Warning: no archives found to merge
 mode=drwxr-xr-x user=pcp group=pcp name=myhost
 

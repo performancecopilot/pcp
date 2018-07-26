@@ -104,6 +104,12 @@ AC_ARG_WITH([qt3d],
     [do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"],
     [do_qt3d=check])
 
+AC_ARG_WITH([perl],
+    [AC_HELP_STRING([--with-perl],
+                    [enable support for tools requiring Perl (default is on)])],
+    [do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"],
+    [do_perl=check])
+
 AC_ARG_WITH([python],
     [AC_HELP_STRING([--with-python],
                     [enable support for tools requiring Python (default is on)])],
@@ -803,9 +809,8 @@ AS_IF([test "x$do_python" != "xno"], [
 		enable_python2=false
 	    else
 		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-		    echo Cannot proceed with the Python $PY_MAJOR installation found.
-		    enable_python2=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 		])
 	    fi
 	fi
@@ -839,9 +844,8 @@ AS_IF([test "x$do_python3" != "xno"], [
 		enable_python3=false
 	    else
 		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-		    echo Cannot proceed with the Python $PY_MAJOR installation found.
-		    enable_python3=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 		])
 	    fi
 	fi
@@ -951,21 +955,26 @@ dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
 AC_SUBST(PERL)
 
-AC_MSG_CHECKING([for any perl version])
-if test "$cross_compiling" = "yes"; then
-    ans=$have_perl
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -n "$PERL"
-then
-    pcp_perl_prog=$PERL
-    have_perl=true
-else
-    pcp_perl_prog=""
-    have_perl=false
-fi
+enable_perl=false
+AS_IF([test "x$do_perl" != "xno"], [
+    enable_perl=true
+    AC_MSG_CHECKING([for any perl version])
+    if test "$cross_compiling" = "yes"; then
+        ans=$have_perl
+        echo "cross-compile -> \"$ans\"" >&5
+    elif test -n "$PERL"
+    then
+        pcp_perl_prog=$PERL
+        have_perl=true
+    else
+        pcp_perl_prog=""
+        have_perl=false
+    fi
+    AC_MSG_RESULT($pcp_perl_prog)
+], [have_perl=false])
 AC_SUBST(pcp_perl_prog)
+AC_SUBST(enable_perl)
 AC_SUBST(have_perl)
-AC_MSG_RESULT($pcp_perl_prog)
 
 AC_MSG_CHECKING([if the SNMP PMDA should be included])
 pmda_snmp=false
@@ -2475,6 +2484,9 @@ End-of-File
 	if test -x ./conftest
 	then
 	    ans=`./conftest`
+	    if test $target_os = mingw -a "$ans" = "lld"; then
+		ans='I64d'
+	    fi
 	    echo "./conftest -> \"$ans\"" >&5
 	fi
     fi
@@ -2654,7 +2666,9 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(PM_SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+if test -n "$ans"; then
+    AC_DEFINE_UNQUOTED(PM_SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+fi
 
 AC_MSG_CHECKING([sizeof time_t])
 if test "$cross_compiling" = "yes"; then
@@ -2672,7 +2686,9 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(PM_SIZEOF_TIME_T, $ans, [sizeof time_t])
+if test -n "$ans"; then
+    AC_DEFINE_UNQUOTED(PM_SIZEOF_TIME_T, $ans, [sizeof time_t])
+fi
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])

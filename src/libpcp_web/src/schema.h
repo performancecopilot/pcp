@@ -102,5 +102,4 @@ extern void redis_series_source(redisSlots *, context_t *);
 extern void redis_series_metric(redisSlots *, context_t *, metric_t *);
 extern void redis_series_mark(redisSlots *, context_t *, sds);
 extern void redis_series_stream(redisSlots *, sds, metric_t *);
-
 #endif	/* SERIES_SCHEMA_H */

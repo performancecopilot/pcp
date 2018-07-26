@@ -1,4 +1,5 @@
 domain.h
 pmdasimple
 pmda_simple.so
+pmda_simple.dll
 pmda_simple.dylib

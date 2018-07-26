@@ -79,6 +79,8 @@ tools/cockpit
 tools/collectl
 tools/collectl-interrupts
 tools/dmcache
+tools/dstat
+tools/dstat-summary
 tools/hotproc
 tools/mpstat
 tools/mpstat-summary

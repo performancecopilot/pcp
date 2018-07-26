@@ -52,7 +52,7 @@ width = 4
 grouptype = 1
 printtype = f
 colorstep = 34
-util = disk.dev.util
+util = 100 * rate(disk.dev.avactive)
 
 [disk-wait]
 label = %I
