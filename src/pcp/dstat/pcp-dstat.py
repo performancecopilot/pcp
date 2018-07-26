@@ -711,7 +711,7 @@ class DstatTool(object):
         self.ignore_incompat = 0
         self.precision = 5 # .5f
         self.timefmt = self.TIMEFMT
-        self.interpol = 0
+        self.interpol = 1
         self.leaf_only = True
 
         # Internal
@@ -1291,27 +1291,19 @@ class DstatTool(object):
         self.pmconfig.finalize_options()
         self.finalize_options()
 
-    def noop(self):
-        """ Do nothing, quickly """
-        return None
-
     def execute(self):
         """ Fetch and report """
         if self.debug:
             sys.stdout.write("Config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
-        # Set delay mode, interpolation
+        # Set delay mode for live sampling
         if self.context.type != PM_CONTEXT_ARCHIVE:
-            self.interpol = 1
-            delayfunc = time.sleep
-        else:
-            delayfunc = self.noop
+            scheduler = sched.scheduler(time.time, time.sleep)
+            self.inittime = time.time()
 
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
-        scheduler = sched.scheduler(time.time, delayfunc)
-        self.inittime = time.time()
 
         try:
             self.pmfg.fetch()    # prime initial values (TODO: fix, somehow)
@@ -1326,9 +1318,9 @@ class DstatTool(object):
         while update <= self.delay * (self.samples - 1) or self.samples == -1:
             if self.context.type != PM_CONTEXT_ARCHIVE:
                 scheduler.enterabs(self.inittime + update, 1, perform, (update,))
+                scheduler.run()
             else:
                 self.perform(update)
-            scheduler.run()
             sys.stdout.flush()
             update = update + interval
 
