@@ -51,7 +51,7 @@ typedef struct mmv_instances {
 
 typedef struct mmv_instances2 {
     __int32_t		internal;	/* Internal instance ID */
-    char *		external;	/* External instance ID */
+    const char *	external;	/* External instance ID */
 } mmv_instances2_t;
 
 typedef struct mmv_indom {
@@ -88,8 +88,8 @@ typedef struct mmv_metric2 {
     mmv_metric_sem_t	semantics;
     pmUnits		dimension;
     __uint32_t		indom;		/* Indom serial */
-    const char *	shorttext;	/* Short help text string */
-    const char *	helptext;	/* Long help text string */
+    char *		shorttext;	/* Short help text string */
+    char *		helptext;	/* Long help text string */
 } mmv_metric2_t;
 
 typedef struct mmv_label {

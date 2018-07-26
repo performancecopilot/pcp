@@ -595,16 +595,6 @@ mmv_init(const char *fname, int version,
 	    stridx++;
 	}
     }
-    // copy payload labels
-    /*for (i = 0; i < nlabels; i++) {
-	if (lb[i].payload) {
-	    lblist[i].payload = strings_offset +
-				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, lblist[i].payload, MMV_LABELMAX);
-	    slist[stridx].payload[MMV_LABELMAX-1] = '\0';// Should it be labelmax?
-	    stridx++;
-	}
-    }*/
 
     /* Labels section */
     lblist = (mmv_disk_label_t *)((char *)addr + labels_offset);
@@ -615,7 +605,7 @@ mmv_init(const char *fname, int version,
 	lblist[i].name = lb[i].name;
 	lblist[i].value = lb[i].value;
 	strncpy(lblist[i].payload, lb[i].payload, MMV_LABELMAX);
-	lblist[i].payload[MMV_LABELMAX-1] = '\0';
+	// lblist[i].payload[MMV_LABELMAX-1] = '\0'; this is done before
     }
 
     /* Complete - unlock the header, PMDA can read now */
@@ -815,12 +805,11 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
                      mmv_metric_type_t type, mmv_metric_sem_t sem, pmUnits units,
                      int serial, const char *shorthelp, const char *longhelp)
 {
-    // Check if it is correct
     int version;
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
-    }   
+    }
 
     mmv_metric2_t * metric;
 
@@ -835,17 +824,18 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     registry->metrics = metric;
     
     metric[registry->nmetrics-1].name = name;
-    metric[registry->nmetrics-1].item = item;        /* Unique identifier */
+    //strncpy(metric[registry->nmetrics-1].name, name, MMV_NAMEMAX);
+    metric[registry->nmetrics-1].item = item;
     metric[registry->nmetrics-1].type = type;
     
     metric[registry->nmetrics-1].semantics = sem;
     metric[registry->nmetrics-1].dimension = units;
-    metric[registry->nmetrics-1].indom = serial; // TODO: what is that???/* Indom serial */
+    metric[registry->nmetrics-1].indom = serial;
     
     metric[registry->nmetrics-1].shorttext = shorthelp;
     metric[registry->nmetrics-1].helptext = longhelp;
 
-    // TODO check!!!
+    // check
     mmv_metric2_t * aux = &(registry->metrics[registry->nmetrics-1]);
     if ((version = mmv_check2(aux, 1, NULL, 0)) < 0) {
 	return -1;
@@ -853,7 +843,7 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     if (registry->version != MMV_VERSION3) {
         registry->version = version;
     }
-    return ; // TODO what returns?
+    return 0;
 }
 
 int
@@ -861,7 +851,7 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
                     const char *shorthelp, const char *longhelp) 
 {
     int version;
-    // Check if it is correct
+
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
@@ -884,7 +874,7 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
     indom[registry->nindoms-1].shorttext = shorthelp;
     indom[registry->nindoms-1].helptext = longhelp;
 
-    // TODO check!!!
+    // check
     mmv_indom2_t * aux = &(indom[registry->nindoms-1]);
     if ((version = mmv_check2(NULL, 0, aux, 1)) < 0) {
 	return -1;
@@ -893,7 +883,7 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
         registry->version = version;
     }
 
-    return 0; // TODO what returns?
+    return 0;
 }
 
 int
@@ -901,7 +891,7 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
                        int instid, const char *instname) 
 {
     int version;
-    // Check if it is correct
+
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
@@ -919,7 +909,7 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
     }
     registry->instances = instance;
 
-    instance[registry->ninstances-1].internal = instid;        /* Unique identifier */
+    instance[registry->ninstances-1].internal = instid;
     instance[registry->ninstances-1].external = instname;
 
     mmv_instances2_t *	inst_aux;
@@ -940,7 +930,7 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
             inst_aux[registry->indoms[i].count].internal = instid;
             inst_aux[registry->indoms[i].count].external = instname;
 
-	    // TODO check!!!
+	    // check
 	    mmv_indom2_t * aux = &(registry->indoms[i]);
     	    if ((version = mmv_check2(NULL, 0, aux, 1)) < 0) {
 	        return -1;
@@ -955,21 +945,23 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
     if (registry->version != MMV_VERSION3) {
         registry->version = version;
     }
-    return 0; // TODO what returns?
+    return 0;
 }
 
-/* PM_LABEL_CLUSTER */
+
 int 
 mmv_stats_add_registry_label(mmv_registry_t *registry,	const char *name,
 			     const char *value, mmv_value_type_t type)
-{
-    // Check if it is correct
+{ /* PM_LABEL_CLUSTER */
+
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
     }
 
     mmv_label_t * label;
+    pmLabelSet *set = NULL;
+    int auxlen, ret;
 
     registry->version = MMV_VERSION3;
     registry->nlabels += 1;
@@ -987,36 +979,46 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	const char *name,
     label[registry->nlabels-1].internal = PM_IN_NULL;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
+    
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         setoserror(E2BIG);
         return -1;
     }
-	// Check correctness of label through __pmParseLabelSet
-
+    
+    // TODO: Check with the type if it is correct
+    // Check correctness of label through __pmParseLabelSet
     char *aux = label[registry->nlabels-1].payload;
-    //strncpy(aux, name, strlen(name));
-    //strncpy(&aux[strlen(name)], value, strlen(value));
-	// use pmnsprintf
-	//pmsprintf(&aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
-    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
-	// pmParselabelset()
-	// if succeed pmFreeLabelSets
-    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
-    return 0; // TODO what returns?
+    auxlen = pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
+
+    ret = __pmParseLabelSet(aux, auxlen, PM_LABEL_CLUSTER, &set);
+    
+    pmFreeLabelSets(set,1);
+
+    if (!ret) {
+	setoserror(ret);
+	return -1;
+    }
+
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0'; 
+
+    return 0;
 }
+
 
 int 
 mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
 			  const char *name, const char *value, 
 			  mmv_value_type_t type)
 { /* PM_LABEL_INDOM */
-    // Check if it is correct
+
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
     }
     mmv_label_t * label;
+    pmLabelSet *set = NULL;
+    int auxlen, ret;
     
     registry->version = MMV_VERSION3;
     registry->nlabels += 1;
@@ -1036,16 +1038,30 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
     label[registry->nlabels-1].internal = PM_IN_NULL;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
+
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         setoserror(E2BIG);
-        return -1;
+        return -1; 
     }
-    const char *aux = label[registry->nlabels-1].payload;
-    //strncpy(aux, name, strlen(name));
-    //strncpy(&aux[strlen(name)], value, strlen(value));
-    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
-    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
-    return 0; // TODO what returns?
+    
+    // TODO: Check with the type if it is correct
+    // Check correctness of label through __pmParseLabelSet
+    char *aux = label[registry->nlabels-1].payload;
+
+    auxlen = pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
+
+    ret = __pmParseLabelSet(aux, auxlen, PM_LABEL_INDOM, &set);
+    
+    pmFreeLabelSets(set,1);
+
+    if (!ret) {
+	setoserror(ret);
+	return -1;
+    }
+
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0'; 
+
+    return 0;
 }
 
 int
@@ -1054,15 +1070,14 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
 			   mmv_value_type_t type)
 { /* PM_LABEL_ITEM */
 
-    // Check if it is correct
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
     }
-
-    // CHECK value looks like flag if not EINVAL
     
     mmv_label_t * label;
+    pmLabelSet *set = NULL;
+    int auxlen, ret;
     
     registry->version = MMV_VERSION3;
     registry->nlabels += 1;
@@ -1082,16 +1097,30 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
     label[registry->nlabels-1].internal = PM_IN_NULL;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
+    
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         setoserror(E2BIG);
         return -1;
     }
+
+    // TODO: Check with the type if it is correct
+    // Check correctness of label through __pmParseLabelSet
     char *aux = label[registry->nlabels-1].payload;
-    //strncpy(aux, name, strlen(name));
-    //strncpy(&aux[strlen(name)], value, strlen(value));
-    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
-    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
-    return 0; // TODO what returns?
+
+    auxlen = pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
+
+    ret = __pmParseLabelSet(aux, auxlen, PM_LABEL_ITEM, &set);
+    
+    pmFreeLabelSets(set,1);
+
+    if (!ret) {
+	setoserror(ret);
+	return -1;
+    }
+
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0'; 
+
+    return 0;
 }
 
 int 
@@ -1099,13 +1128,15 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
 			     const char *name, const char *value,
 			     mmv_value_type_t type)
 { /* PM_LABEL_INSTANCES */
-	// Check if it is correct
+
     if (registry == NULL) {
         setoserror(EFAULT);
         return -1;
     }
     
     mmv_label_t * label;
+    pmLabelSet *set = NULL;
+    int auxlen, ret;
     
     registry->version = MMV_VERSION3;
     registry->nlabels += 1;
@@ -1125,16 +1156,30 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
     label[registry->nlabels-1].internal = instid;
     label[registry->nlabels-1].name = strlen(name);
     label[registry->nlabels-1].value = strlen(value);
+    
     if (strlen(name) + strlen(value) > MMV_LABELMAX) {
         setoserror(E2BIG);
         return -1;
     }
+    
+    // TODO: Check with the type if it is correct
+    // Check correctness of label through __pmParseLabelSet
     char *aux = label[registry->nlabels-1].payload;
-    //strncpy(aux, name, strlen(name));
-    //strncpy(&aux[strlen(name)], value, strlen(value));
-    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
-    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
-    return 0; // TODO what returns?
+
+    auxlen = pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
+
+    ret = __pmParseLabelSet(aux, auxlen, PM_LABEL_INSTANCES, &set);
+    
+    pmFreeLabelSets(set,1);
+
+    if (!ret) {
+	setoserror(ret);
+	return -1;
+    }
+
+    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0'; 
+
+    return 0;
 }
 
 void
