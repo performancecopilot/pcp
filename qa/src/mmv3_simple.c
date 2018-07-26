@@ -132,8 +132,13 @@ main(int argc, char **argv)
     // ADD LABELS
     char *auxn = "name";
     char *auxv = "value";
+    char aux[MMV_LABELMAX];
+    
+    pmsprintf(aux, sizeof(aux), "{\"%s\":\"%s\"}", auxn, auxv);
+    fprintf(stderr, "[CHECKING] \n");
+    fprintf(stderr, "%s \n", aux);
     mmv_stats_add_registry_label(addr,auxn,auxv,MMV_STRING_TYPE);
-    fprintf(stderr, "[CHECKING AFTER ADDING INDOM] \n");
+    fprintf(stderr, "[CHECKING AFTER ADDING LABEL] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
     fprintf(stderr, "ninstances: %d \n", addr->ninstances);

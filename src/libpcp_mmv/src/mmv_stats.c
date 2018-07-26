@@ -968,6 +968,7 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	const char *name,
         setoserror(EFAULT);
         return -1;
     }
+
     mmv_label_t * label;
 
     registry->version = MMV_VERSION3;
@@ -990,10 +991,17 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,	const char *name,
         setoserror(E2BIG);
         return -1;
     }
+	// Check correctness of label through __pmParseLabelSet
+
     char *aux = label[registry->nlabels-1].payload;
-    strncpy(aux, name, strlen(name));
-    strncpy(&aux[strlen(name)], value, strlen(value));
-    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
+    //strncpy(aux, name, strlen(name));
+    //strncpy(&aux[strlen(name)], value, strlen(value));
+	// use pmnsprintf
+	//pmsprintf(&aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
+    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
+	// pmParselabelset()
+	// if succeed pmFreeLabelSets
+    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
 
     return 0; // TODO what returns?
 }
@@ -1033,10 +1041,10 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
         return -1;
     }
     const char *aux = label[registry->nlabels-1].payload;
-    strncpy(aux, name, strlen(name));
-    strncpy(&aux[strlen(name)], value, strlen(value));
-    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
-
+    //strncpy(aux, name, strlen(name));
+    //strncpy(&aux[strlen(name)], value, strlen(value));
+    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
+    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
     return 0; // TODO what returns?
 }
 
@@ -1079,10 +1087,10 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
         return -1;
     }
     char *aux = label[registry->nlabels-1].payload;
-    strncpy(aux, name, strlen(name));
-    strncpy(&aux[strlen(name)], value, strlen(value));
-    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
-
+    //strncpy(aux, name, strlen(name));
+    //strncpy(&aux[strlen(name)], value, strlen(value));
+    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
+    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
     return 0; // TODO what returns?
 }
 
@@ -1122,10 +1130,10 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
         return -1;
     }
     char *aux = label[registry->nlabels-1].payload;
-    strncpy(aux, name, strlen(name));
-    strncpy(&aux[strlen(name)], value, strlen(value));
-    label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
-
+    //strncpy(aux, name, strlen(name));
+    //strncpy(&aux[strlen(name)], value, strlen(value));
+    //label[registry->nlabels-1].payload[MMV_LABELMAX-1] = '\0';
+    pmsprintf(aux, MMV_LABELMAX, "{\"%s\":\"%s\"}", name, value);
     return 0; // TODO what returns?
 }
 
