@@ -1,0 +1,59 @@
+/*
+ * Metrics for kvm PMDA
+ *
+ * Copyright (c) 2018 Fujitsu
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+root {
+    kvm
+}
+
+
+kvm {
+    trace       95:*:*
+    efer_reload	95:0:0
+    exits	95:0:1
+    fpu_reload	95:0:2
+    halt_attempted_poll	95:0:3
+    halt_exits	95:0:4
+    halt_successful_poll	95:0:5
+    halt_wakeup	95:0:6
+    host_state_reload	95:0:7
+    hypercalls	95:0:8
+    insn_emulation	95:0:9
+    insn_emulation_fail	95:0:10
+    invlpg	95:0:11
+    io_exits	95:0:12
+    irq_exits	95:0:13
+    irq_injections	95:0:14
+    irq_window	95:0:15
+    largepages	95:0:16
+    mmio_exits	95:0:17
+    mmu_cache_miss	95:0:18
+    mmu_flooded	95:0:19
+    mmu_pde_zapped	95:0:20
+    mmu_pte_updated	95:0:21
+    mmu_pte_write	95:0:22
+    mmu_recycled	95:0:23
+    mmu_shadow_zapped	95:0:24
+    mmu_unsync	95:0:25
+    nmi_injections	95:0:26
+    nmi_window	95:0:27
+    pf_fixed	95:0:28
+    pf_guest	95:0:29
+    remote_tlb_flush	95:0:30
+    request_irq	95:0:31
+    signal_exits	95:0:32
+    tlb_flush	95:0:33
+}                       
+                        

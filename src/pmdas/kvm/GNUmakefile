@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2018 Fujitsu.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,30 +10,47 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
-TOPDIR = ../../..
+TOPDIR     = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= kvm
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LDIRT	= domain.h root pmns *.log
+IAM        = kvm
+DOMAIN     = KVM
+PMDADIR	   = $(PCP_PMDAS_DIR)/$(IAM)
+CMDTARGET  = pmda$(IAM)
+LIBTARGET  = pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT   = $(IAM)_init
+CONF_LINE  = "kvm	95	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 95"
 
-MAN_SECTION = 1
-MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
-MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+CFILES	   = kvmstat.c kvm_debug.c 
+HFILES	   = kvmstat.h kvm_debug.h
+SCRIPTS	   = Install Remove
 
-default: check_domain
+VERSION_SCRIPT	= exports
+LLDLIBS    = $(PCP_PMDALIB)
+LCFLAGS    = -I.
+DFILES	   = help
+LSRCFILES  = kvm_root root $(DFILES) $(SCRIPTS)
+LDIRT      = domain.h $(VERSION_SCRIPT)
+
+default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
+build-me: domain.h $(LIBTARGET) $(CMDTARGET)
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
+
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
+	$(INSTALL) -m 644 root pmns  domain.h  $(PMDADIR)
+	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(SCRIPTS) $(PMDADIR)
 else
+build-me:
 install:
 endif
 
@@ -41,5 +58,10 @@ default_pcp : default
 
 install_pcp : install
 
-check_domain:	../../pmns/stdpmid
-	$(DOMAIN_PERLRULE)
+domain.h    : ../../pmns/stdpmid
+	$(DOMAIN_MAKERULE)
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
+kvmstat.o                               : domain.h
+kvmstat.o kvm_debug.o                   : kvm_debug.h
+kvmstat.o                               : $(VERSION_SCRIPT)

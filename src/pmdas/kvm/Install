@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2018 Fujitsu.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,15 +12,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the KVM PMDA
+# Install the kvm PMDA and/or PMNS
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=kvm
-perl_opt=true
-daemon_opt=false
+pmda_interface=6
+dso_opt=true
 
 if ! test -d /sys/kernel/debug; then
     echo "DEBUGFS not enabled in your kernel"
@@ -32,7 +32,13 @@ if ! test -d /sys/kernel/debug/kvm; then
     status=1
     exit
 fi
+if ! test -d /sys/kernel/debug/tracing/events/kvm; then
+    echo -e "TRACEFS(/sys/kernel/debug/tracing/events/kvm) is not enabled,\n\
+Please enable it or specify the enabled path at /var/lib/pcp/pmdas/kvmstat/trace_kvm.conf"
+    status=1
+    exit
+fi
 
 pmdaSetup
 pmdaInstall
-exit
+exit 0
