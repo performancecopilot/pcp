@@ -20,6 +20,7 @@ SUBDIRS = \
 	cpu \
 	disk \
 	filesystem \
+        gfs2 \
 	kernel \
 	kvm \
 	libvirt \
