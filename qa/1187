@@ -36,7 +36,7 @@ dstat()
 
     echo "$message"
 
-    pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-dstat"
+    pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-dstat"
     $pcp_options dstat --time $options 1 2 >$tmp.out 2>$tmp.err
 
     echo "=== std out"

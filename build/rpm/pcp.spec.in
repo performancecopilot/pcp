@@ -92,6 +92,10 @@ Conflicts: pcp-pro < 2.2
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi
 
+# KVM PMDA moved into pcp (no longer using Perl, default on)
+Obsoletes: pcp-pmda-kvm
+Provides: pcp-pmda-kvm
+
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep coreutils findutils
 # which(1) comes from different places
@@ -1128,21 +1132,6 @@ collecting metrics about a GPS Daemon.
 #end pcp-pmda-gpsd
 
 #
-# pcp-pmda-kvm
-#
-%package pmda-kvm
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for KVM
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = @package_version@
-
-%description pmda-kvm
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Kernel based Virtual Machine.
-#end pcp-pmda-kvm
-
-#
 # pcp-pmda-docker
 #
 %package pmda-docker
@@ -1987,7 +1976,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Collection meta Package
 URL: https://pcp.io
 Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nfsclient pcp-pmda-pdns
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
@@ -2294,7 +2283,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/elasticsearch' > pmda_elastic
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpfs' > pmda_gpfs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpsd' > pmda_gpsd_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/kvm' > pmda_kvm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/docker' > pmda_docker_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustrecomm' > pmda_lustrecomm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustre' > pmda_lustre_files
@@ -2380,7 +2368,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > ze
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_bonding_files pmda_dbping_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
-      pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_lustrecomm_files \
+      pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
       pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_pdns_files \
@@ -2477,7 +2465,6 @@ BEGIN {
 %endif
     while( getline < "pmda_gpfs_files") pmda_gpfs[$0]=1;
     while( getline < "pmda_gpsd_files") pmda_gpsd[$0]=1;
-    while( getline < "pmda_kvm_files") pmda_kvm[$0]=1;
     while( getline < "pmda_docker_files") pmda_docker[$0]=1;
     while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
     while( getline < "pmda_lustre_files") pmda_lustre[$0]=1;
@@ -2613,7 +2600,6 @@ BEGIN {
 %endif
     else if (pmda_gpfs[$NF]) f="pmda_gpfs_files.rpm";
     else if (pmda_gpsd[$NF]) f="pmda_gpsd_files.rpm";
-    else if (pmda_kvm[$NF]) f="pmda_kvm_files.rpm";
     else if (pmda_docker[$NF]) f="pmda_docker_files.rpm";
     else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
     else if (pmda_lustre[$NF]) f="pmda_lustre_files.rpm";
@@ -3031,9 +3017,6 @@ pmieconf -c enable dmthin
 %preun pmda-gpsd
 %{pmda_remove "$1" "gpsd"}
 
-%preun pmda-kvm
-%{pmda_remove "$1" "kvm"}
-
 %preun pmda-docker
 %{pmda_remove "$1" "docker"}
 
@@ -3345,8 +3328,6 @@ cd
 %files pmda-gpfs -f pmda_gpfs_files.rpm
 
 %files pmda-gpsd -f pmda_gpsd_files.rpm
-
-%files pmda-kvm -f pmda_kvm_files.rpm
 
 %files pmda-docker -f pmda_docker_files.rpm
 

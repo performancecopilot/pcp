@@ -1,6 +1,7 @@
 #! /bin/sh
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2018 Fujitsu.
+# Copyright (c) 2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,27 +13,17 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the KVM PMDA
+# Install the kvm PMDA and/or PMNS
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=kvm
-perl_opt=true
-daemon_opt=false
-
-if ! test -d /sys/kernel/debug; then
-    echo "DEBUGFS not enabled in your kernel"
-    status=1
-    exit
-fi
-if ! test -d /sys/kernel/debug/kvm; then
-    echo "KVM statistics unavailable (load kvm module and mount debugfs)"
-    status=1
-    exit
-fi
+daemon_opt=true
+pipe_opt=true
+pmns_source=root_kvm
 
 pmdaSetup
 pmdaInstall
-exit
+exit 0
