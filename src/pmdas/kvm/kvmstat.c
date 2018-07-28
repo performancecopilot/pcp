@@ -228,8 +228,9 @@ static void
 kvm_trace_refresh(void)
 {
     static kvm_trace_value_t *buffer;
-    kvm_trace_value_t	*ktrace;
+    kvm_trace_value_t	*ktrace = NULL;
     char		cpu[64];
+    ssize_t		bytes;
     size_t		ksize = ntrace * sizeof(unsigned long long);
     size_t		bufsize = ksize + sizeof(unsigned long long);
     int			i, sts, changed = 0;
@@ -245,7 +246,6 @@ kvm_trace_refresh(void)
     }
 
     for (i = 0; i < ncpus; i++) {
-	ktrace = NULL;
 	pmsprintf(cpu, sizeof(cpu), "cpu%d", i);
 	if (pmdaCacheLookupName(*trace_indom, cpu, NULL, (void **)&ktrace) < 0 ||
 	    ktrace == NULL) {
@@ -255,12 +255,15 @@ kvm_trace_refresh(void)
 	    changed = 1;
 	}
 	memset(buffer, 0, bufsize);
-	if (read(group_fd[i], buffer, bufsize) <= 0) {
+	if ((bytes = read(group_fd[i], buffer, bufsize)) < 0) {
 	    pmNotifyErr(LOG_ERR, "kvm_trace_refresh trace read error: %s",
 			    strerror(errno));
 	    continue;
 	}
-	memcpy(ktrace, buffer+1, ksize);
+	if (bytes == bufsize)
+	    memcpy(ktrace, buffer+1, ksize);
+	else
+	    memset(ktrace, 0, ksize);
 	sts = pmdaCacheStore(*trace_indom, PMDA_CACHE_ADD, cpu, (void *)ktrace);
 	if (sts < 0)
 	    pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
@@ -282,7 +285,7 @@ perf_event(int ncpus, int *group_fd)
 {
     struct dirent	*de;
     perf_event_attr_t	pe;
-    FILE		*pfile = NULL;
+    FILE		*pfile;
     DIR			*dir;
     char		temp[256];
     int			i, fd = 0, cpu, flag, offset = 0, sts = 0;
@@ -312,7 +315,8 @@ perf_event(int ncpus, int *group_fd)
 		    continue;
 		if (strcmp(de->d_name, trace_nametab[i]) == 0) {
 		    pmsprintf(path, sizeof(path), "%s/events/kvm/%s/id", tracefs, de->d_name);
-		    pfile = fopen(path, "r");
+		    if ((pfile = fopen(path, "r")) == NULL)
+			continue;
 		    memset(temp, 0, sizeof(temp));
 		    pe.config = atoi(fgets(temp, sizeof(temp), pfile));
 		    fclose(pfile);
@@ -589,6 +593,8 @@ kvm_init(pmdaInterface *dp)
 	ncpus = atoi(envpath);
     else
 	ncpus = sysconf(_SC_NPROCESSORS_CONF);
+    if (ncpus <= 0)
+	ncpus = 1;
     if ((envpath = getenv("KVM_DEBUGFS_PATH")))
 	pmsprintf(debugfs, sizeof(debugfs), "%s", envpath);
     else
