@@ -69,7 +69,7 @@ Platform Linux
 Kernel 4.17.7-200.fc28.x86_64
 Python VERSION
 
-Terminal type: xterm-256color (no color support)
+Terminal type: ansi (no color support)
 Terminal size: 25 lines, 80 columns
 
 Processors: 8
