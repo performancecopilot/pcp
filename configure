@@ -9940,6 +9940,18 @@ fi
 
 done
 
+for ac_header in linux/perf_event.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "linux/perf_event.h" "ac_cv_header_linux_perf_event_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_perf_event_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_PERF_EVENT_H 1
+_ACEOF
+
+fi
+
+done
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sys/endian.h " >&5
 $as_echo_n "checking for sys/endian.h ... " >&6; }

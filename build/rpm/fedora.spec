@@ -175,6 +175,10 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi
 
+# KVM PMDA moved into pcp (no longer using Perl, default on)
+Obsoletes: pcp-pmda-kvm
+Provides: pcp-pmda-kvm
+
 # https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
@@ -1118,21 +1122,6 @@ collecting metrics about a GPS Daemon.
 #end pcp-pmda-gpsd
 
 #
-# pcp-pmda-kvm
-#
-%package pmda-kvm
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for KVM
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-
-%description pmda-kvm
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Kernel based Virtual Machine.
-#end pcp-pmda-kvm
-
-#
 # pcp-pmda-docker
 #
 %package pmda-docker
@@ -1974,7 +1963,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Collection meta Package
 URL: https://pcp.io
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
@@ -2280,7 +2269,6 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^elasticsearch' |\
   grep -E -v '^gpfs' |\
   grep -E -v '^gpsd' |\
-  grep -E -v '^kvm' |\
   grep -E -v '^lio' |\
   grep -E -v '^lustre' |\
   grep -E -v '^lustrecomm' |\
@@ -2575,9 +2563,6 @@ fi
 
 %preun pmda-gpsd
 %{pmda_remove "$1" "gpsd"}
-
-%preun pmda-kvm
-%{pmda_remove "$1" "kvm"}
 
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
@@ -3129,9 +3114,6 @@ cd
 
 %files pmda-gpsd
 %{_pmdasdir}/gpsd
-
-%files pmda-kvm
-%{_pmdasdir}/kvm
 
 %files pmda-docker
 %{_pmdasdir}/docker

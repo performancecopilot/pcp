@@ -1,6 +1,7 @@
 cpu/GNUmakefile
 disk/GNUmakefile
 filesystem/GNUmakefile
+gfs2/GNUmakefile
 kernel/GNUmakefile
 kvm/GNUmakefile
 libvirt/GNUmakefile

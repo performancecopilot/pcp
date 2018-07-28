@@ -190,9 +190,6 @@
 /* Define to 1 if you have the <iphlpapi.h> header file. */
 #undef HAVE_IPHLPAPI_H
 
-/* Define to 1 if you have the <netioapi.h> header file. */
-#undef HAVE_NETIOAPI_H
-
 /* Define to 1 if you have the <iptypes.h> header file. */
 #undef HAVE_IPTYPES_H
 
@@ -238,6 +235,9 @@
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
+/* Define to 1 if you have the <linux/perf_event.h> header file. */
+#undef HAVE_LINUX_PERF_EVENT_H
+
 /* lzma decompression */
 #undef HAVE_LZMA_DECOMPRESSION
 
@@ -282,6 +282,9 @@
 
 /* Define to 1 if you have the <netinet/tcp.h> header file. */
 #undef HAVE_NETINET_TCP_H
+
+/* Define to 1 if you have the <netioapi.h> header file. */
+#undef HAVE_NETIOAPI_H
 
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H

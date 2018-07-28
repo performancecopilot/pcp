@@ -13,8 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 
-# [write_json] Copyright (C) 2014-2015 Red Hat, based on pcp2es by Frank Ch. Eigler
-
 # pylint: disable=superfluous-parens
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
@@ -49,9 +47,9 @@ DEFAULT_CONFIG = ["./pcp2spark.conf", "$HOME/.pcp2spark.conf", "$HOME/.pcp/pcp2s
 CONFVER = 1
 INDENT = 2
 
-# Server Vars
-SERVER = "127.0.0.1"
-SERVER_PORT = "44325"
+# Spark server
+SPARK_SERVER = "127.0.0.1"
+SPARK_PORT = "44325"
 
 class PCP2SPARK(object):
     """ PCP to Spark """
@@ -65,7 +63,7 @@ class PCP2SPARK(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'server', 'server_port',
+                     'spark_server', 'spark_port',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
@@ -110,8 +108,8 @@ class PCP2SPARK(object):
         self.time_scale = None
         self.time_scale_force = None
 
-        self.server = SERVER
-        self.server_port = SERVER_PORT
+        self.spark_server = SPARK_SERVER
+        self.spark_port = SPARK_PORT
 
         # Internal
         self.runtime = -1
@@ -186,8 +184,8 @@ class PCP2SPARK(object):
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
-        opts.pmSetLongOption("server", 1, "g", "SERVER", "IP address for local server for metrics (default: " + str(SERVER) + ")")
-        opts.pmSetLongOption("server_port", 1, "p", "PORT", "Port for local server for metrics (default: " + str(SERVER_PORT) + ")")
+        opts.pmSetLongOption("spark_server", 1, "g", "SERVER", "IP address for local server for metrics (default: " + str(SPARK_SERVER) + ")")
+        opts.pmSetLongOption("spark_port", 1, "p", "PORT", "Port for local server for metrics (default: " + str(SPARK_PORT) + ")")
 
         return opts
 
@@ -258,9 +256,9 @@ class PCP2SPARK(object):
         elif opt == 'Y':
             self.time_scale_force = optarg
         elif opt == 'g':
-            self.server = optarg
+            self.spark_server = optarg
         elif opt == 'p':
-            self.server_port = optarg
+            self.spark_port = optarg
         else:
             raise pmapi.pmUsageErr()
 
@@ -302,7 +300,7 @@ class PCP2SPARK(object):
 
         # Setup a socket to send data to Spark
         self.spark_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.spark_socket.bind((self.server, int(self.server_port)))
+        self.spark_socket.bind((self.spark_server, int(self.spark_port)))
         self.spark_socket.listen(0) # Don't handle listen backlog, only allow single connection
 
         # At this point we wait for a connection from the spark worker job
@@ -364,10 +362,10 @@ class PCP2SPARK(object):
     def write_header(self):
         """ Write info header """
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            sys.stdout.write("Broadcasting %d archived metrics to Spark from %s:%s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.server, self.server_port))
+            sys.stdout.write("Broadcasting %d archived metrics to Spark from %s:%s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.spark_server, self.spark_port))
             return
 
-        sys.stdout.write("Broadcasting %d metrics to Spark from %s:%s every %d sec" % (len(self.metrics), self.server, self.server_port, self.interval))
+        sys.stdout.write("Broadcasting %d metrics to Spark from %s:%s every %d sec" % (len(self.metrics), self.spark_server, self.spark_port, self.interval))
         if self.runtime != -1:
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
         elif self.samples:
