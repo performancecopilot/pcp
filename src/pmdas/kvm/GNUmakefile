@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2018 Fujitsu.
+# Copyright (c) 2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -23,13 +24,12 @@ LIBTARGET  = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT   = $(IAM)_init
 CONF_LINE  = "kvm	95	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 95"
 
-CFILES	   = kvmstat.c kvm_debug.c 
-HFILES	   = kvmstat.h kvm_debug.h
+CFILES	   = kvmstat.c
+HFILES	   = kvmstat.h
 SCRIPTS	   = Install Remove
 
 VERSION_SCRIPT	= exports
 LLDLIBS    = $(PCP_PMDALIB)
-LCFLAGS    = -I.
 DFILES	   = help
 LSRCFILES  = kvm_root root $(DFILES) $(SCRIPTS)
 LDIRT      = domain.h $(VERSION_SCRIPT)
@@ -47,8 +47,7 @@ build-me: domain.h $(LIBTARGET) $(CMDTARGET)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 root pmns  domain.h  $(PMDADIR)
-	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(SCRIPTS) $(PMDADIR)
+	$(INSTALL) -m 644 root pmns help domain.h $(IAM).conf $(PMDADIR)
 else
 build-me:
 install:
@@ -60,8 +59,8 @@ install_pcp : install
 
 domain.h    : ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
-kvmstat.o                               : domain.h
-kvmstat.o kvm_debug.o                   : kvm_debug.h
-kvmstat.o                               : $(VERSION_SCRIPT)
+
+kvmstat.o: domain.h kvmstat.h $(VERSION_SCRIPT)

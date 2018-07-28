@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2018 Fujitsu
+# Copyright (c) 2018 Red Hat
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,7 +12,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# perfinfo PMDA help file in the ASCII format
+# KVM PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
 # lines beginning @ introduce a new entry of the form
@@ -30,10 +31,12 @@
 @ kvm.exits Number of guest exits from I/O port accesses. 
 @ kvm.fpu_reload Number of reload fpu(Float Point Unit).
 @ kvm.halt_attempted_poll Number of times the vcpu attempts to polls.
-@ kvm.halt_exits  Number of guest exits due to halt calls. This type of exit is usually seen when a guest is idle.
+@ kvm.halt_exits  Number of guest exits due to halt calls.
+This type of exit is usually seen when a guest is idle.
 @ kvm.halt_successful_poll The number of times the vcpu attempts to polls successfully.
-@ kvm.halt_wakeup  Number of wakeups from a halt.
-@ kvm.host_state_reload Number of full reloads of the host state (currently tallies MSR setup and guest MSR reads).
+@ kvm.halt_wakeup Number of wakeups from a halt.
+@ kvm.host_state_reload Number of full reloads of the host state
+Currently tallies MSR setup and guest MSR reads.
 @ kvm.hypercalls Number of guest hypervisor service calls.
 @ kvm.insn_emulation Number of insn_emulation attempts.
 @ kvm.insn_emulation_fail Number of failed insn_emulation attempts.
@@ -45,7 +48,8 @@
 @ kvm.largepages Number of large pages currently in use.
 @ kvm.mmio_exits Number of guest exits due to memory mapped I/O (MMIO) accesses.
 @ kvm.mmu_cache_miss Number of cache miss.
-@ kvm.mmu_flooded Detection count of excessive write operations to an MMU page. This counts detected write operations not of individual write operations.
+@ kvm.mmu_flooded Detection count of excessive write operations to an MMU page.
+This counts detected write operations not of individual write operations.
 @ kvm.mmu_pde_zapped Number of page directory entry (PDE) destruction operations.
 @ kvm.mmu_pte_updated Number of PTE updated. 
 @ kvm.mmu_pte_write Number of PTE write.

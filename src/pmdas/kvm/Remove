@@ -12,7 +12,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Remove the docker PMDA
+# Remove the KVM PMDA
 #
 
 # source the PCP configuration environment variables

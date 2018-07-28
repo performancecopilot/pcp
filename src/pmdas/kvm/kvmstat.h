@@ -1,6 +1,6 @@
-
 /*
  * Copyright (c) 2018 Fujitsu.
+ * Copyright (c) 2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef KVMSTAT_PMDA_H
-#define KVMSTAT_PMDA_H
+#ifndef KVM_PMDA_H
+#define KVM_PMDA_H
 
 #include "pmapi.h"
 #include "libpcp.h"
@@ -21,7 +21,7 @@
 #include "pmda.h"
 
 /*
- * fetch cluster numbers
+ * PMID cluster numbers
  */
 enum {
         CLUSTER_DEBUG=0,         /* kvm debug */
@@ -30,11 +30,11 @@ enum {
 };
 
 /*
- * instance domain numbers
+ * InDom serial numbers
  */
 enum {
-	TRACE_INDOM=0,	/* tracing/events/kvm/ */ 
+	TRACE_INDOM=0,		/* tracing/events/kvm/ */ 
 	NUM_INDOMS              /* one more than highest numbered cluster */
 };
 
-#endif /* KVMSTAT_PMDA_H */
+#endif /* KVM_PMDA_H */

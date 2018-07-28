@@ -19,7 +19,8 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=kvm
-pmda_interface=6
+daemon_opt=true
+pipe_opt=true
 dso_opt=true
 
 if ! test -d /sys/kernel/debug; then

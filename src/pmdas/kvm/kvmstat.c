@@ -1,7 +1,8 @@
 /*
- * kvm, configurable PMDA
+ * Configurable Kernel Virtual Machine (KVM) PMDA
  *
  * Copyright (c) 2018 Fujitsu.
+ * Copyright (c) 2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,46 +14,38 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <sys/stat.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <linux/perf_event.h>
-#include <asm/unistd.h>
+#include <ctype.h>
 #include "pmapi.h"
-#include "libpcp.h"
-#include "impl.h"
 #include "pmda.h"
 #include "domain.h"
 #include "kvmstat.h"
-#include "kvm_debug.h"
+#include <dirent.h>
+#include <sys/ioctl.h>
+#ifdef HAVE_LINUX_PERF_EVENT_H
+#include <asm/unistd.h>
+#include <linux/perf_event.h>
+typedef struct perf_event_attr perf_event_attr_t;
+#endif
 
-#define MAX_TRACE_NUM 200
-
-static kvmstat_t		kvmstat;
-
-static pmdaMetric *trace_metrics;
-static __pmnsTree *pmns;
-
+static int _isDSO;
+static pmdaNameSpace *pmns;
+static char *username;
+static char helppath[MAXPATHLEN];
 static char sep;
-static int ntrace = 0;
-static char *trace_nametab[MAX_TRACE_NUM];
-static int cpus=0;
-static int *group_fd;
-static   char path[MAXPATHLEN];
-static pmdaMetric *metrictab_t;
 
-/* default trace fs path */
-static char trace_path[BUFSIZ]="/sys/kernel/debug/tracing/events/kvm/";
+static int ntrace;
+static char **trace_nametab;
+static int ncpus;
+static int *group_fd;
+static char tracefs[MAXPATHLEN];
+static char debugfs[MAXPATHLEN];
+static pmdaMetric *tmetrictab;
+
 static pmdaIndom indomtab[] = {
     { TRACE_INDOM, 0, NULL },
 };
 
-static pmInDom	*trace_indom = &indomtab[TRACE_INDOM].it_indom;
+static pmInDom *trace_indom = &indomtab[TRACE_INDOM].it_indom;
 
 /* command line option handling - both short and long options */
 static pmLongOptions longopts[] = {
@@ -74,434 +67,388 @@ static pmdaOptions opts = {
     .long_options = longopts,
 };
 
-typedef struct {
-    long long *value[MAX_TRACE_NUM];
-} trace_value;
+static pmdaMetric metrictab[] = {
+    { "efer_reload",
+	{ PMDA_PMID(CLUSTER_DEBUG, 0), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "exits",
+	{ PMDA_PMID(CLUSTER_DEBUG, 1), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "fpu_reload",
+	{ PMDA_PMID(CLUSTER_DEBUG, 2), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "halt_attempted_poll",
+	{ PMDA_PMID(CLUSTER_DEBUG, 3), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "halt_exits",
+	{ PMDA_PMID(CLUSTER_DEBUG, 4), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "halt_successful_poll",
+	{ PMDA_PMID(CLUSTER_DEBUG, 5), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "halt_wakeup",
+	{ PMDA_PMID(CLUSTER_DEBUG, 6), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "host_state_reload",
+	{ PMDA_PMID(CLUSTER_DEBUG, 7), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "hypercalls",
+	{ PMDA_PMID(CLUSTER_DEBUG, 8), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "insn_emulation",
+	{ PMDA_PMID(CLUSTER_DEBUG, 9), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "insn_emulation_fail",
+	{ PMDA_PMID(CLUSTER_DEBUG, 10), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "invlpg",
+	{ PMDA_PMID(CLUSTER_DEBUG, 11), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "io_exits",
+	{ PMDA_PMID(CLUSTER_DEBUG, 12), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "irq_exits",
+	{ PMDA_PMID(CLUSTER_DEBUG, 13), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "irq_injections",
+	{ PMDA_PMID(CLUSTER_DEBUG, 14), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "irq_window",
+	{ PMDA_PMID(CLUSTER_DEBUG, 15), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "largepages",
+	{ PMDA_PMID(CLUSTER_DEBUG, 16), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmio_exits",
+	{ PMDA_PMID(CLUSTER_DEBUG, 17), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_cache_miss",
+	{ PMDA_PMID(CLUSTER_DEBUG, 18), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_flooded",
+	{ PMDA_PMID(CLUSTER_DEBUG, 19), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_pde_zapped",
+	{ PMDA_PMID(CLUSTER_DEBUG, 20), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_pte_updated",
+	{ PMDA_PMID(CLUSTER_DEBUG, 21), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_pte_write",
+	{ PMDA_PMID(CLUSTER_DEBUG, 22), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_recycled",
+	{ PMDA_PMID(CLUSTER_DEBUG, 23), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_shadow_zapped",
+	{ PMDA_PMID(CLUSTER_DEBUG, 24), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "mmu_unsync",
+	{ PMDA_PMID(CLUSTER_DEBUG, 25), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "nmi_injections",
+	{ PMDA_PMID(CLUSTER_DEBUG, 26), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "nmi_window",
+	{ PMDA_PMID(CLUSTER_DEBUG, 27), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "pf_fixed",
+	{ PMDA_PMID(CLUSTER_DEBUG, 28), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "pf_guest",
+	{ PMDA_PMID(CLUSTER_DEBUG, 29), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "remote_tlb_flush",
+	{ PMDA_PMID(CLUSTER_DEBUG, 30), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "request_irq",
+	{ PMDA_PMID(CLUSTER_DEBUG, 31), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "signal_exits",
+	{ PMDA_PMID(CLUSTER_DEBUG, 32), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { "tlb_flush",
+	{ PMDA_PMID(CLUSTER_DEBUG, 33), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+#define KVM_DEBUG_COUNT	34
 
-void refresh_kvm_trace()
+    { "trace.count",	/* final entry - insert new entries above */
+	{ PMDA_PMID(CLUSTER_TRACE, 0), PM_TYPE_U64, PM_INDOM_NULL,
+	    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+};
+
+typedef struct kvm_debug {
+    unsigned long long	value[KVM_DEBUG_COUNT];
+} kvm_debug_value_t;
+static kvm_debug_value_t kvmstat;
+
+static int
+kvm_debug_refresh(kvm_debug_value_t *kvm)
 {
-    int i, j, sts;
-    long long tmp_values[MAX_TRACE_NUM] = {0};
-    //memset(tmp_values, 0, sizeof(tmp_values));
-    char cpu[6];
-    trace_value *trace_v;
-    int changed = 0;
-    for(i = 0; i < cpus; i++) {
-        pmsprintf(cpu, sizeof(cpu), "cpu%d", i);
-        if (pmdaCacheLookupName(*trace_indom, cpu, NULL, (void **)&trace_v) < 0 ||
-            trace_v == NULL) {
-            trace_v = (trace_value *)calloc(1, sizeof(trace_value));
-            changed = 1;
-        }
-        if(read(group_fd[i], tmp_values, sizeof(tmp_values)) <= 0)
-        {
-            pmNotifyErr(LOG_ERR, "Read trace fd error.\n");
-        }
-        for(j = 0; j < ntrace; j++) {
-            trace_v->value[j] = (long long *)tmp_values[j+1];
+    struct dirent	*de;
+    FILE   		*fp;
+    DIR			*kvm_dir;
+    char		buffer[256];
+    char		path[MAXPATHLEN];
+    int			i, sts = 0;
+
+    pmsprintf(path, sizeof(path), "%s/kvm", debugfs);
+    if ((kvm_dir = opendir(path)) == NULL)
+	return -oserror();
+
+    while ((de = readdir(kvm_dir)) != NULL) {   
+	if (!strncmp(de->d_name, ".", 1))
+	    continue;
+
+	pmsprintf(path, sizeof(path), "%s/kvm/%s", debugfs, de->d_name);
+	path[sizeof(path)-1] = '\0';
+	if ((fp = fopen(path, "r")) == NULL) {
+	    sts = -oserror();
+	    break;
 	}
-        sts = pmdaCacheStore(*trace_indom, PMDA_CACHE_ADD, cpu, (void *)trace_v);
-        if (sts < 0) {
-            pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+
+        if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+	    for (i = 0; i < KVM_DEBUG_COUNT; i++) {
+		if (strcmp(de->d_name, metrictab[i].m_user) != 0)
+		    continue;
+		kvm->value[i] = strtoull(buffer, NULL, 0);
+	    }
         }
-        memset(tmp_values, 0, sizeof(tmp_values));
-        if (changed)
-	     pmdaCacheOp(*trace_indom, PMDA_CACHE_SAVE);
-    }
-
-} 
-
-long perf_event_open(struct perf_event_attr *kvm_event, pid_t pid,
-                int cpu, int group_fd, unsigned long flags)
-{
-    int ret;
-    ret = syscall(__NR_perf_event_open, kvm_event, pid, cpu, group_fd, flags);
-    return ret;
+        fclose(fp);
+    } 
+    closedir(kvm_dir);
+    return sts;
 }
 
-int perf_event(int cpus, int *group_fd)
+typedef struct kvm_trace_value {
+    unsigned long long	value;
+} kvm_trace_value_t;
+
+static void
+kvm_trace_refresh(void)
 {
-    int sts = 0;
-    struct perf_event_attr pe;
-    FILE *pFile = NULL;
-    char temp[MAX_TRACE_NUM] = {0};
-    int fd = 0;
-    int cpu;
-    int flag; 
-    memset(&pe, 0, sizeof(struct perf_event_attr));
+    static kvm_trace_value_t *buffer;
+    kvm_trace_value_t	*ktrace;
+    char		cpu[64];
+    size_t		ksize = ntrace * sizeof(unsigned long long);
+    size_t		bufsize = ksize + sizeof(unsigned long long);
+    int			i, sts, changed = 0;
+
+    if (ntrace == 0)
+	return;
+
+    if (buffer == NULL) {
+	if ((buffer = malloc(bufsize)) == NULL) {
+	    pmNotifyErr(LOG_ERR, "kvm_trace_refresh OOM (%d)", ntrace);
+	    return;
+	}
+    }
+
+    for (i = 0; i < ncpus; i++) {
+	ktrace = NULL;
+	pmsprintf(cpu, sizeof(cpu), "cpu%d", i);
+	if (pmdaCacheLookupName(*trace_indom, cpu, NULL, (void **)&ktrace) < 0 ||
+	    ktrace == NULL) {
+	    ktrace = (kvm_trace_value_t *)calloc(1, ksize);
+	    if (ktrace == NULL)
+		continue;
+	    changed = 1;
+	}
+	memset(buffer, 0, bufsize);
+	if (read(group_fd[i], buffer, bufsize) <= 0) {
+	    pmNotifyErr(LOG_ERR, "kvm_trace_refresh trace read error: %s",
+			    strerror(errno));
+	    continue;
+	}
+	memcpy(ktrace, buffer+1, ksize);
+	sts = pmdaCacheStore(*trace_indom, PMDA_CACHE_ADD, cpu, (void *)ktrace);
+	if (sts < 0)
+	    pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+	if (changed)
+	     pmdaCacheOp(*trace_indom, PMDA_CACHE_SAVE);
+    }
+} 
+
+#ifdef HAVE_LINUX_PERF_EVENT_H
+static long
+perf_event_open(perf_event_attr_t *kvm_event, pid_t pid,
+		int cpu, int group_fd, unsigned long flags)
+{
+    return syscall(__NR_perf_event_open, kvm_event, pid, cpu, group_fd, flags);
+}
+
+static int
+perf_event(int ncpus, int *group_fd)
+{
+    struct dirent	*de;
+    perf_event_attr_t	pe;
+    FILE		*pfile = NULL;
+    DIR			*dir;
+    char		temp[256];
+    int			i, fd = 0, cpu, flag, offset = 0, sts = 0;
+    char		path[MAXPATHLEN];
+
+    memset(&pe, 0, sizeof(perf_event_attr_t));
     pe.type = PERF_TYPE_TRACEPOINT;
     pe.size = sizeof(struct perf_event_attr);
     pe.sample_type = PERF_SAMPLE_RAW | PERF_SAMPLE_TIME | PERF_SAMPLE_CPU;
     pe.sample_period = 1;
     pe.read_format = PERF_FORMAT_GROUP; 
-    DIR *kvm_dir;
-    struct dirent *de;
-    int offset = 0;    
-    char path[MAX_TRACE_NUM];
-    int i = 0;
 
-    snprintf(path, sizeof(path), trace_path);
-    path[sizeof(path)-1] = '\0';
+    pmsprintf(path, sizeof(path), "%s/events/kvm", tracefs);
+    if ((dir = opendir(path)) == NULL)
+	return -errno;
 
-    if ((kvm_dir = opendir(path)) == NULL)
-        sts=1;
-
-    for(cpu = 0; cpu < cpus ; cpu++) {
-        flag = 0;
-        group_fd[cpu] = -1;
-        for (i = 0; i < ntrace; i ++)
-        {
-            while ((de = readdir(kvm_dir)) != NULL) {
-                if (offset == 0)
-                    offset = telldir(kvm_dir);
-                if (!strncmp(de->d_name, ".", 1))
-                    continue;
-                if (!strncmp(de->d_name, "enable", 6) 
-                     || !strncmp(de->d_name, "filter", 6))
-                    continue;
-                if (!strcmp(de->d_name, trace_nametab[i]))
-                {
-                    sprintf(path, "%s%s/id", trace_path, de->d_name);
-                    pFile = fopen(path, "r");
-                    pe.config = atoi(fgets(temp, sizeof(temp), pFile));
-                    fclose(pFile);
-                    fd = perf_event_open(&pe, -1, cpu, group_fd[cpu], 0);	     
-                    if (fd == -1) {
-	                pmNotifyErr(LOG_ERR, "perf_event_open error!\n");
-	                sts = 1;
-                    }
-                    if (flag == 0) {
-                        group_fd[cpu] = fd;
-                        flag = 1;
-                    }
-                    if(ioctl(fd, PERF_EVENT_IOC_RESET, 0) == -1 ||
-                        ioctl(fd, PERF_EVENT_IOC_ENABLE, 0) == -1)
-                        pmNotifyErr(LOG_ERR, "ioctl failed 'PERF_EVENT_IOC_ENABLE'.\n");
-                    break;
-                }
-            }
-            seekdir(kvm_dir, offset);
-        }
+    for (cpu = 0; cpu < ncpus; cpu++) {
+	flag = 0;
+	group_fd[cpu] = -1;
+	for (i = 0; i < ntrace; i++) {
+	    while ((de = readdir(dir)) != NULL) {
+		if (offset == 0)
+		    offset = telldir(dir);
+		if (strncmp(de->d_name, ".", 1) == 0 ||
+		    strcmp(de->d_name, "enable") == 0 ||
+		    strcmp(de->d_name, "filter") == 0)
+		    continue;
+		if (strcmp(de->d_name, trace_nametab[i]) == 0) {
+		    pmsprintf(path, sizeof(path), "%s/events/kvm/%s/id", tracefs, de->d_name);
+		    pfile = fopen(path, "r");
+		    memset(temp, 0, sizeof(temp));
+		    pe.config = atoi(fgets(temp, sizeof(temp), pfile));
+		    fclose(pfile);
+		    if ((fd = perf_event_open(&pe, -1, cpu, group_fd[cpu], 0)) < 0) {
+			pmNotifyErr(LOG_ERR, "perf_event_open error [trace=%d]", i);
+			sts = -errno;
+			break;
+		    }
+		    if (flag == 0) {
+			group_fd[cpu] = fd;
+			flag = 1;
+		    }
+		    if (ioctl(fd, PERF_EVENT_IOC_RESET, 0) == -1 ||
+			ioctl(fd, PERF_EVENT_IOC_ENABLE, 0) == -1)
+			pmNotifyErr(LOG_ERR, "ioctl failed 'PERF_EVENT_IOC_ENABLE'");
+		    break;
+		}
+	    }
+	    seekdir(dir, offset);
+	}
     }
-    closedir(kvm_dir);
+    closedir(dir);
     return sts;
 }
-
-static pmdaMetric metrictab[] = {
-/* kvm.efer_reload */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,0), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.exits */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,1), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.fpu_reload */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,2), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.halt_attempted_poll */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,3), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.halt_exits */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,4), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.halt_successful_poll */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,5), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.halt_wakeup */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,6), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.host_state_reload */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,7), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.hypercalls */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,8), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.insn_emulation */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,9), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.insn_emulation_fail */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,10), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.invlpg */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,11), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.io_exits */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,12), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.irq_exits */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,13), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.irq_injections */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,14), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.irq_window */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,15), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.largepages */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,16), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmio_exits */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,17), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_cache_miss */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,18), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_flooded */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,19), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_pde_zapped */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,20), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_pte_updated */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,21), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_pte_write */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,22), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_recycled */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,23), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_shadow_zapped */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,24), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.mmu_unsync */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,25), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.nmi_injections */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,26), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.nmi_window */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,27), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.pf_fixed */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,28), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.pf_guest */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,29), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.remote_tlb_flush */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,30), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.request_irq */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,31), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.signal_exits */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,32), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-/* kvm.tlb_flush */
-    { NULL,
-      { PMDA_PMID(CLUSTER_DEBUG,33), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,0,0,0,0) } },
-};
+#else
+static int
+perf_event(int c, int *fds)
+{ 
+    (void)c; (void)fds;
+    return -EOPNOTSUPP;
+}
+#endif
 
 /*
- * Refresh Metrics' data
- * pmda         : pmdaExt
- * need_refresh : check clusters whether to be refresh or not.
- * return       : void
+ * Refresh metrics data
+ * pmda		: pmdaExt
+ * need_refresh	: check clusters whether to be refresh or not.
+ * return	: void
  */
 static void
 kvm_refresh(pmdaExt *pmda, int *need_refresh)
 {
     if (need_refresh[CLUSTER_DEBUG])
-        refresh_kvm(&kvmstat);
+	kvm_debug_refresh(&kvmstat);
+    if (need_refresh[CLUSTER_TRACE])
+	kvm_trace_refresh();
 }
 
 /*
- * callback provided to pmdaFetch
+ * Callback provided to help pmdaFetch and kvm_fetch.
  * mdesc  : pmdaMetric transferred from pmcd.
  * inst   : instance transferred from pmcd.
  * atom   : return data buffer.
  * return : check whether the fetchCallBack get a valid data or not.
- *          0 means invalid data.
- *          1 means valid data
- *          other return please cheak pmapi.h
+ *	  0 means invalid data.
+ *	  1 means valid data
+ *	  other return please check pmapi.h
  */
 static int
 kvm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     pmID		*idp = (pmID *)&(mdesc->m_desc.pmid);
     unsigned int	cluster = pmID_cluster(*idp);
-    int sts = 0;
-    trace_value *va;
-    char *name;
+    unsigned int	item = pmID_item(*idp);
+    kvm_trace_value_t	*va;
+    char		*name;
+    int			sts;
+
     switch (cluster) {
     case CLUSTER_TRACE:
-	if ((sts = pmdaCacheLookup(*trace_indom, inst, &name, (void **)&va)) != PMDA_CACHE_ACTIVE) {
-	    if (sts < 0) {
-	        pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-		return PM_ERR_INST;
-	    }
-        }
-	atom->ll = (__int64_t)va->value[pmID_item(*idp)];
-        break;
-    case CLUSTER_DEBUG:
-        switch (pmID_item(*idp)) {
-        case 0:	/* kvm.efer_reload */
-	    atom->ll = kvmstat.debug[0];
+	if (item == 0) {
+	    atom->ull = ntrace;
 	    break;
-        case 1:	/* kvm.exits */
-	    atom->ll = kvmstat.debug[1];
-	    break;
-        case 2:	/* kvm.fpu_reload */
-	    atom->ll = kvmstat.debug[2];
-	    break;
-        case 3:	/* kvm.halt_attempted_poll */
-	    atom->ll = kvmstat.debug[3];
-	    break;
-        case 4:	/* kvm.halt_exits */
-	    atom->ll = kvmstat.debug[4];
-	    break;
-        case 5:	/* kvm.halt_successful_poll */
-	    atom->ll = kvmstat.debug[5];
-	    break;
-        case 6:	/* kvm.halt_wakeup */
-	    atom->ll = kvmstat.debug[6];
-	    break;
-        case 7:	/* kvm.host_state_reload */
-	    atom->ll = kvmstat.debug[7];
-	    break;
-        case 8:	/* kvm.hypercalls */
-	    atom->ll = kvmstat.debug[8];
-	    break;
-        case 9:	/* kvm.insn_emulation */
-	    atom->ll = kvmstat.debug[9];
-	    break;
-        case 10:/* kvm.insn_emulation_fail */
-	    atom->ll = kvmstat.debug[10];
-	    break;
-        case 11:/* kvm.invlpg */
-	    atom->ll = kvmstat.debug[11];
-	    break;
-        case 12:	/* kvm.io_exits */
-	    atom->ll = kvmstat.debug[12];
-	    break;
-        case 13:	/* kvm.irq_exits */
-	    atom->ll = kvmstat.debug[13];
-	    break;
-        case 14:	/* kvm.irq_injections */
-	    atom->ll = kvmstat.debug[14];
-	    break;
-        case 15:	/* kvm.irq_window */
-	    atom->ll = kvmstat.debug[15];
-	    break;
-        case 16:	/* kvm.largepages */
-	    atom->ll = kvmstat.debug[16];
-	    break;
-        case 17:	/* kvm.mmio_exits */
-	    atom->ll = kvmstat.debug[17];
-	    break;
-        case 18:	/* kvm.mmu_cache_miss */
-	    atom->ll = kvmstat.debug[18];
-	    break;
-        case 19:	/* kvm.mmu_flooded */
-	    atom->ll = kvmstat.debug[19];
-	    break;
-        case 20:	/* kvm.mmu_pde_zapped */
-	    atom->ll = kvmstat.debug[20];
-	    break;
-        case 21:	/* kvm.mmu_pte_updated */
-	    atom->ll = kvmstat.debug[21];
-	    break;
-        case 22:	/* kvm.mmu_pte_write */
-	    atom->ll = kvmstat.debug[22];
-	    break;
-        case 23:	/* kvm.mmu_recycled */
-	    atom->ll = kvmstat.debug[23];
-	    break;
-        case 24:	/* kvm.mmu_shadow_zapped */
-	    atom->ll = kvmstat.debug[24];
-	    break;
-        case 25:	/* kvm.mmu_unsync */
-	    atom->ll = kvmstat.debug[25];
-	    break;
-        case 26:	/* kvm.nmi_injections */
-	    atom->ll = kvmstat.debug[26];
-	    break;
-        case 27:	/* kvm.nmi_window */
-	    atom->ll = kvmstat.debug[27];
-	    break;
-        case 28:	/* kvm.pf_fixed */
-	    atom->ll = kvmstat.debug[28];
-	    break;
-        case 29:	/* kvm.pf_guest */
-	    atom->ll = kvmstat.debug[29];
-	    break;
-        case 30:	/* kvm.remote_tlb_flush */
-	    atom->ll = kvmstat.debug[30];
-	    break;
-        case 31:	/* kvm.request_irq */
-	    atom->ll = kvmstat.debug[31];
-	    break;
-        case 32:	/* kvm.signal_exits */
-	    atom->ll = kvmstat.debug[32];
-	    break;
-        case 33:	/* kvm.tlb_flush */
-	    atom->ll = kvmstat.debug[33];
-	    break;
-        default:
+	}
+	sts = pmdaCacheLookup(*trace_indom, inst, &name, (void **)&va);
+	if (sts != PMDA_CACHE_ACTIVE && sts < 0) {
+	    pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s",
+			inst, pmErrStr(sts));
+	    return PM_ERR_INST;
+	}
+	if (item > ntrace)
 	    return PM_ERR_PMID;
-        }
-        break;
-    default: /* unknown cluster */
+	atom->ull = va[item-1].value;
+	break;
+
+    case CLUSTER_DEBUG:
+	if (item >= KVM_DEBUG_COUNT)
+	    return PM_ERR_PMID;
+	atom->ull = kvmstat.value[item];
+	break;
+
+    default:
 	return PM_ERR_PMID;
     }
     return 1;
 }
 
 static int
-trace_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+kvm_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     return pmdaTreePMID(pmns, name, pmid);
 }
 
 static int
-trace_name(pmID pmid, char ***nameset, pmdaExt *pmda)
+kvm_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
     return pmdaTreeName(pmns, pmid, nameset);
 }
 
 static int
-trace_children(const char *name, int traverse, char ***kids, int **sts,
+kvm_children(const char *name, int traverse, char ***kids, int **sts,
 		pmdaExt *pmda)
 {
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
+static int
+kvm_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    if (pmInDom_serial(indom) == TRACE_INDOM)
+	return pmdaAddLabels(lp, "{\"cpu\":%u}", inst);
+    return 0;
+}
+
+static int
+kvm_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    if (type == PM_LABEL_INDOM && pmInDom_serial(ident) == TRACE_INDOM) {
+	pmdaAddLabels(lpp, "{\"device_type\":\"cpu\"}");
+	pmdaAddLabels(lpp, "{\"indom_name\":\"per cpu\"}");
+    }
+    return pmdaLabel(ident, type, lpp, pmda);
+}
+
 /*
- * used to call refresh function and return a valid(or invalid) metric data.
+ * Used to call refresh functions and return metric values (or lack thereof)
  * numpmid : metrics' number transferred to pmda.
  * pmidlist: list of metrics.
  * resp    : returned data buffer.
@@ -511,161 +458,211 @@ trace_children(const char *name, int traverse, char ***kids, int **sts,
 static int
 kvm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    int		need_refresh[NUM_CLUSTERS];
-    int i;
+    int		need_refresh[NUM_CLUSTERS], i;
+
     memset(need_refresh, 0, sizeof(need_refresh));
-    for (i=0; i < numpmid; i++) {
-        pmID *idp = (pmID *)&(pmidlist[i]);
-        if (pmID_cluster(*idp) < NUM_CLUSTERS) {
-	      need_refresh[pmID_cluster(*idp)]++;
-         }
+    for (i = 0; i < numpmid; i++) {
+	pmID *idp = (pmID *)&(pmidlist[i]);
+	if (pmID_cluster(*idp) < NUM_CLUSTERS)
+	    need_refresh[pmID_cluster(*idp)]++;
     }
     kvm_refresh(pmda, need_refresh);
-    refresh_kvm_trace();
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
-void extract_trace_metrices()
+static int
+kvm_config(void)
 {
-    FILE *fp;
-    char buf[BUFSIZ];
-    sep = pmPathSeparator();
+    char		*p;
+    char		buf[BUFSIZ];
+    void		*table;
+    FILE		*fp;
+    enum { STATE_UNKNOWN, STATE_PATHS, STATE_TRACE } state = 0;
 
-    pmsprintf(path, sizeof(path), "%s%c" "kvmstat" "%c" "trace_kvm.conf",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    path[sizeof(path)-1] = '\0';
-    if ((fp = fopen(path, "rt")) == NULL)
+    pmsprintf(buf, sizeof(buf), "%s%ckvm%ckvm.conf",
+		pmGetOptionalConfig("PCP_PMDAS_DIR"), sep, sep);
+    if ((fp = fopen(buf, "rt")) == NULL)
 	return -oserror();
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-        if (strncmp(buf, "#", 1) == 0)
-            continue;
-        if (strncmp(buf, "[", 1) == 0)
-            continue;
-        if (strncmp(buf, "\n", 1) == 0
-            || strncmp(buf, " ", 1) == 0
-            || strncmp(buf, "\t", 1) == 0)    continue;
-        
-        if (sscanf(buf, "PATH=%s", trace_path) != 0) {
-            continue; 
-        }
-        trace_nametab[ntrace] = (char *)malloc(sizeof(char));
-        buf[strlen(buf) - 1] = '\0';
-        strcpy(trace_nametab[ntrace], buf);
-        ntrace++; 
+	buf[sizeof(buf)-1] = '\0';
+	/* strip whitespace from the end then the start */
+	p = buf + strlen(buf) - 1;
+	while (p > buf && isspace(*p)) { *p = '\0'; p--; }
+	for (p = buf; isspace(*p) && *p != '\0'; p++);
+	/* skip empty lines and comments */
+	if (*p == '\0' || *p == '#')
+	    continue;
+
+	if (strcmp(p, "[paths]") == 0) {
+	    state = STATE_PATHS;
+	    continue;
+	} else if (strcmp(p, "[trace]") == 0 || strcmp(p, "[dynamic]") == 0) {
+	    state = STATE_TRACE;
+	    continue;
+	} else if (*p == '[') {
+	    state = STATE_UNKNOWN;	/* ignore unrecognized file sections */
+	    continue;
+	}
+
+	if (state == STATE_PATHS) {
+	    if (sscanf(p, "tracefs=%s", tracefs) != 0)
+	        continue;
+	    if (sscanf(p, "debugfs=%s", debugfs) != 0)
+		continue;
+	}
+	if (state == STATE_TRACE) {
+	    if (!(table = realloc(trace_nametab, (ntrace+1) * sizeof(char*)))) {
+		pmNotifyErr(LOG_ERR, "kvm_config OOM (%d)", ntrace);
+		continue;
+	    }
+	    trace_nametab = (char **)table;
+	    if ((trace_nametab[ntrace] = strdup(p)) == NULL) {
+		pmNotifyErr(LOG_ERR, "kvm_config tracepoint OOM");
+		continue;
+	    }
+	    ntrace++;
+	}
     }
     fclose(fp);
+    return 0;
 }
 
 /*
- * used to Initialize kvmstat pmda.
- * set interface function (fetch, store, instance etc.)
- * set instance domain.
- * run pmdaInit function.
- * dp     : pmdaInterface.
- * return : void
+ * Used to initialize the KVM pmda.
+ * Set interface function (fetch, store, instance etc.), sets instance domain,
+ * and runs the pmdaInit function.
  */
 void
 __PMDA_INIT_CALL
-kvmstat_init(pmdaInterface *dp)
+kvm_init(pmdaInterface *dp)
 {
-    size_t nmetrics, nindoms;
-    size_t tmetrics;
-    int m = 0;
-    int sts;
-    char name[MAXPATHLEN];
-    pmdaMetric *pmetric;
-    char       *envpath;
+    pmdaMetric		*pmetric;
+    size_t		nmetrics, nindoms, tmetrics;
+    char		name[MAXPATHLEN];
+    char		*envpath;
+    int			m = 0, sts;
+
+    if (_isDSO) {
+	sep = pmPathSeparator();
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "kvm" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "KVM DSO", helppath);
+    } else {
+        if (username)
+            pmSetProcessIdentity(username);
+    }
 
     if (dp->status != 0)
 	return;
 
-    /* get the specified kvm trace metrics */ 
-    extract_trace_metrices();
+    /* get paths and any specified KVM trace metrics */ 
+    kvm_config();
 
     nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     tmetrics = nmetrics + ntrace;
 
-    /* allocate memory for metrictab_t */
-    metrictab_t = malloc(tmetrics * sizeof(pmdaMetric));
-    memcpy(metrictab_t, metrictab, sizeof(metrictab));
-    pmetric = &metrictab_t[nmetrics];
-
-    if ((trace_metrics = malloc(ntrace * sizeof(pmdaMetric))) != NULL) {
-        for (m = 0; m < ntrace; m++) {
-            trace_metrics[m].m_user = NULL; 
-            trace_metrics[m].m_desc.pmid = PMDA_PMID(CLUSTER_TRACE, m);
-            trace_metrics[m].m_desc.type = PM_TYPE_64;
-            trace_metrics[m].m_desc.indom = TRACE_INDOM;
-            trace_metrics[m].m_desc.sem = PM_SEM_INSTANT;
-            memset(&trace_metrics[m].m_desc.units, 0, sizeof(pmUnits));
-            memcpy(pmetric, &trace_metrics[m], sizeof(trace_metrics[m]));
-            pmetric += 1;
-        }
-    } else {
-	    pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
-				pmGetProgname());
-            exit(0);
+    /* allocate memory for tmetrictab if needed */
+    if (ntrace) {
+	if ((tmetrictab = calloc(tmetrics, sizeof(pmdaMetric))) != NULL) {
+	    memcpy(tmetrictab, metrictab, sizeof(metrictab));
+	    pmetric = &tmetrictab[nmetrics];
+	    for (m = 0; m < ntrace; m++, pmetric++) {
+		pmetric->m_user = NULL; 
+		pmetric->m_desc.pmid = PMDA_PMID(CLUSTER_TRACE, m + 1);
+		pmetric->m_desc.type = PM_TYPE_64;
+		pmetric->m_desc.indom = TRACE_INDOM;
+		pmetric->m_desc.sem = PM_SEM_INSTANT;
+		memset(&pmetric->m_desc.units, 0, sizeof(pmUnits));
+	    }
+	} else {
+	    pmNotifyErr(LOG_ERR, "%s: kvm_init OOM, using only static metrics",
+		    pmGetProgname());
+	}
     }
-    
-    if ((envpath = getenv("LINUX_NCPUS")))
-        cpus = atoi(envpath);
+    if (tmetrictab == NULL) {
+	tmetrictab = metrictab;
+	tmetrics = nmetrics;
+    }
+
+    if ((envpath = getenv("KVM_NCPUS")))
+	ncpus = atoi(envpath);
     else
-        cpus = sysconf(_SC_NPROCESSORS_CONF);
+	ncpus = sysconf(_SC_NPROCESSORS_CONF);
+    if ((envpath = getenv("KVM_DEBUGFS_PATH")))
+	pmsprintf(debugfs, sizeof(debugfs), "%s", envpath);
+    else
+	pmsprintf(debugfs, sizeof(debugfs), "/sys/kernel/debug");
+    if ((envpath = getenv("KVM_TRACEFS_PATH")))
+	pmsprintf(tracefs, sizeof(tracefs), "%s", envpath);
+    else
+	pmsprintf(tracefs, sizeof(tracefs), "/sys/kernel/debug/tracing");
 
-    group_fd = malloc(cpus * sizeof(int));
-    sts = perf_event(cpus, group_fd);
+    if (tmetrictab != metrictab) {
+	group_fd = malloc(ncpus * sizeof(int));
+	if ((sts = perf_event(ncpus, group_fd)) < 0) {
+	    pmNotifyErr(LOG_INFO, "disabling perf_event support: %s",
+			pmErrStr(sts));
+	    free(group_fd);
+	}
+    }
 
-    dp->version.any.fetch = kvm_fetch;
-    dp->version.six.pmid = trace_pmid;
-    dp->version.six.name = trace_name;
-    dp->version.six.children = trace_children;
+    dp->version.seven.fetch = kvm_fetch;
+    dp->version.seven.label = kvm_label;
+    dp->version.seven.pmid = kvm_pmid;
+    dp->version.seven.name = kvm_name;
+    dp->version.seven.children = kvm_children;
     pmdaSetFetchCallBack(dp, kvm_fetchCallBack);
+    pmdaSetLabelCallBack(dp, kvm_labelCallBack);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(dp, indomtab, nindoms, metrictab_t, tmetrics);
+    pmdaInit(dp, indomtab, nindoms, tmetrictab, tmetrics);
 
     /* Create the dynamic PMNS tree and populate it. */
-    if ((sts = __pmNewPMNS(&pmns)) < 0) {
-	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
-			pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmdaTreeCreate(&pmns)) < 0) {
+	pmNotifyErr(LOG_ERR, "failed to create new PMNS: %s\n",
+			pmErrStr(sts));
+	dp->status = sts;
 	pmns = NULL;
-	return;
+    } else {
+	pmetric = &tmetrictab[0];
+	for (m = 0; m < nmetrics; m++) {
+	    pmsprintf(name, sizeof(name), "kvm.%s", (char *)pmetric[m].m_user);
+	    pmdaTreeInsert(pmns, pmetric[m].m_desc.pmid, name);
+	}
+	pmetric = &tmetrictab[nmetrics];
+	for (m = 0; m < ntrace; m++) {
+	    pmsprintf(name, sizeof(name), "kvm.trace.%s", trace_nametab[m]);
+	    pmdaTreeInsert(pmns, pmetric[m].m_desc.pmid, name);
+	}
+	/* for reverse (pmid->name) lookups */
+	pmdaTreeRebuildHash(pmns, ntrace);
     }
-    pmetric = &metrictab_t[nmetrics];
-    for (m = 0; m < ntrace ; m++) {
-	pmsprintf(name, sizeof(name),
-			"kvm.trace.%s",  trace_nametab[m]);
-	__pmAddPMNSNode(pmns, pmetric[m].m_desc.pmid, name);
-    }
-
-    /* for reverse (pmid->name) lookups */
-    pmdaTreeRebuildHash(pmns, ntrace);
 }
 
-/*
- * main function.
- */
 int
 main(int argc, char **argv)
 {
     pmdaInterface	dispatch;
-    char		helppath[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
+    _isDSO = 0;
+    pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "kvm" "%c" "help",
+    sep = pmPathSeparator();
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "kvm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), KVM, "kvm.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), KVM, "kvm.log", helppath);
 
     pmdaGetOptions(argc, argv,  &opts, &dispatch);
     if (opts.errors) {
 	pmdaUsageMessage(&opts);
 	exit(1);
     }
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&dispatch);
-    kvmstat_init(&dispatch);
+    kvm_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     exit(0);
