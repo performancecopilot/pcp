@@ -29,25 +29,28 @@ HFILES	   = kvmstat.h
 SCRIPTS	   = Install Remove
 
 VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
 LLDLIBS    = $(PCP_PMDALIB)
 DFILES	   = help
-LSRCFILES  = kvm_root root $(DFILES) $(SCRIPTS)
-LDIRT      = domain.h $(VERSION_SCRIPT)
+LDIRT      = $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_kvm kvm.conf $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 root pmns help domain.h $(IAM).conf $(PMDADIR)
+	$(INSTALL) -m 644 root_kvm $(PCP_VAR_DIR)/pmns/root_kvm
 else
 build-me:
 install:
@@ -60,7 +63,11 @@ install_pcp : install
 domain.h    : ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_kvm -v 2 -o help < help
+
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
-kvmstat.o: domain.h kvmstat.h $(VERSION_SCRIPT)
+$(OBJECTS): domain.h
+kvmstat.o: kvmstat.h $(VERSION_SCRIPT)

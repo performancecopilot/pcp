@@ -1,6 +1,7 @@
 #! /bin/sh
 #
 # Copyright (c) 2018 Fujitsu.
+# Copyright (c) 2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,24 +22,7 @@
 iam=kvm
 daemon_opt=true
 pipe_opt=true
-dso_opt=true
-
-if ! test -d /sys/kernel/debug; then
-    echo "DEBUGFS not enabled in your kernel"
-    status=1
-    exit
-fi
-if ! test -d /sys/kernel/debug/kvm; then
-    echo "KVM statistics unavailable (load kvm module and mount debugfs)"
-    status=1
-    exit
-fi
-if ! test -d /sys/kernel/debug/tracing/events/kvm; then
-    echo -e "TRACEFS(/sys/kernel/debug/tracing/events/kvm) is not enabled,\n\
-Please enable it or specify the enabled path at /var/lib/pcp/pmdas/kvmstat/trace_kvm.conf"
-    status=1
-    exit
-fi
+pmns_source=root_kvm
 
 pmdaSetup
 pmdaInstall
