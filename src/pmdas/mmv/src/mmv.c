@@ -1268,9 +1268,13 @@ mmv_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
     int c = 0;
     switch (type) {
 	case PM_LABEL_CLUSTER:
+	    c = mmv_label_lookup(pmID_cluster(ident), type, lp);
+	    break;
 	case PM_LABEL_INDOM:
-	case PM_LABEL_ITEM:
 	    c = mmv_label_lookup(ident, type, lp);
+	    break;
+	case PM_LABEL_ITEM:
+	    c = mmv_label_lookup(pmID_item(ident), type, lp);
 	    break;
 	default:
 	    break;
