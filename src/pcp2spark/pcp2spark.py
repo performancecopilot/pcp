@@ -13,8 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 
-# [write_json] Copyright (C) 2014-2015 Red Hat, based on pcp2es by Frank Ch. Eigler
-
 # pylint: disable=superfluous-parens
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
