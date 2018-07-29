@@ -12,14 +12,6 @@ host=`hostname`
 _check_display
 
 #
-# hackery for Qt warning:
-# QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/...'
-#
-mkdir -p $tmp/xdg-runtime
-chmod 0700 $tmp/xdg-runtime
-export XDG_RUNTIME_DIR=$tmp/xdg-runtime
-
-#
 # hackery for dbus-based environments
 #
 unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
@@ -47,6 +39,7 @@ _cleanup_qt()
     [ -z "$DBUS_SESSION_BUS_PID" ] || kill $DBUS_SESSION_BUS_PID
     unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
     unset XDG_RUNTIME_DIR
+    _clean_display
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
