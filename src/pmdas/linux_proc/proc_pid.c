@@ -1553,8 +1553,10 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 		ep->maps_buflen = 1;
 		ep->maps_buf = (char *)malloc(1);
 	    }
-	    if (ep->maps_buf)
+	    if (ep->maps_buf) {
 		ep->maps_buf[ep->maps_buflen - 1] = '\0';
+		*sts = 0; /* clear -ENODATA */
+	    }
 	    else
 		ep->maps_buflen = 0;
 	}
