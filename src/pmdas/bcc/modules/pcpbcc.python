@@ -78,6 +78,10 @@ class PCPBCCBase(object):
         """ Instance labels """
         return '{}'
 
+    def store(self, item, inst, val):
+        """ Store callback """
+        raise NotImplementedError
+
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:

@@ -64,6 +64,8 @@ static PyObject *label_cb_func;
 static PyObject *refresh_all_func;
 static PyObject *refresh_metrics_func;
 
+static PyThreadState *thread_state;
+
 static Py_ssize_t nindoms;
 static pmdaIndom *indom_buffer;
 static Py_ssize_t nmetrics;
@@ -1084,6 +1086,30 @@ pmda_refresh_metrics(void)
     }
 }
 
+/*
+ * Acquire the global interpreter lock before calling Python callbacks
+ */
+static int
+check_callback(void)
+{
+    if (thread_state) {
+	PyEval_RestoreThread(thread_state);
+	thread_state = NULL;
+    }
+    return 1;
+}
+
+/*
+ * Release the global interpreter lock after calling Python callbacks
+ * This ensures that Python threads can execute while the PMDA is waiting
+ * for new PDUs
+ */
+static void
+done_callback(void)
+{
+    thread_state = PyEval_SaveThread();
+}
+
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 {
@@ -1148,7 +1174,17 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 
 	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "pmda_dispatch entering PDU loop\n");
-	pmdaMain(&dispatch);
+
+        dispatch.version.any.ext->e_checkCallBack = check_callback;
+        dispatch.version.any.ext->e_doneCallBack = done_callback;
+
+        /*
+         * done_callback() releases the GIL
+         * it will be reacquired in check_callback() once a PDU arrives
+         */
+        done_callback();
+        pmdaMain(&dispatch);
+	check_callback(); /* reacquire GIL for graceful exit */
     }
     Py_INCREF(Py_None);
     return Py_None;
