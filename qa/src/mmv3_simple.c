@@ -43,7 +43,7 @@ main(int argc, char **argv)
 {
     pmAtomValue *value;
     char *file = (argc > 1) ? argv[1] : "simple3";
-    mmv_registry_t *addr = mmv_stats_registry(file, 321, 0);
+    mmv_registry_t *addr = mmv_stats_registry(file, 123, 0);
 
     if (!addr) {
         fprintf(stderr, "mmv_metric_register: %s - %s\n", file, strerror(errno));
@@ -131,13 +131,15 @@ main(int argc, char **argv)
     */
     // ADD LABELS
     char *auxn = "name";
-    char *auxv = "value";
+    char *auxv = "cluster-label";
+    char *auxz = "metric-label";
     char aux[MMV_LABELMAX];
     
     pmsprintf(aux, sizeof(aux), "{\"%s\":\"%s\"}", auxn, auxv);
     fprintf(stderr, "[CHECKING] \n");
     fprintf(stderr, "%s \n", aux);
     mmv_stats_add_registry_label(addr,auxn,auxv,MMV_STRING_TYPE);
+    mmv_stats_add_metric_label(addr,1,auxn,auxz,MMV_STRING_TYPE);
     fprintf(stderr, "[CHECKING AFTER ADDING LABEL] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);
