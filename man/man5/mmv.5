@@ -126,8 +126,9 @@ String sections only appear if there are metrics with string values,
 when Metrics or Indoms are defined with help text, or in v2 MMV format
 where metric names and instance names are stored in string sections
 (providing significantly more space than v1 MMV format for these names).
-Finally, labels only appear if there are labels, and hence it is used 
-v3 MMV.
+Label sections only appear if there are metrics annotated with labels
+(name/value pairs).
+Labels are supported in v3 MMV format.
 .PP
 The entries in the Indoms sections have the following format:
 .TS
@@ -269,7 +270,7 @@ _
 _
 20      4       Value length
 _
-24      232     Payload(Name and Value Str)
+24      232     Payload (Name and Value JSONB String)
 .TE
 .PP
 .SH SEE ALSO

@@ -535,14 +535,14 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
     return 0;
 }
 
-// TODO In progress
 int
 dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)
 {
-    printf("\nTOC[%d]: offset %ld, labels offset %"PRIi64" (%d entries)\n",
-		idx, base, offset, count);
     int i;
     mmv_disk_label_t *lb = (mmv_disk_label_t *)((char *)addr + offset);
+
+    printf("\nTOC[%d]: offset %ld, labels offset %"PRIi64" (%d entries)\n",
+		idx, base, offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_label_t);
@@ -558,8 +558,7 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 		lb[i].flags, lb[i].identity);
 	printf("        internal=0x%x\n",
 		lb[i].internal);
-	printf("        name=%d, value=%d \n ",lb[i].name, lb[i].value);		
-    
+	printf("        name=%d, value=%d\n", lb[i].name, lb[i].value);		
     }
     
     return 0;
@@ -633,7 +632,6 @@ dump(const char *file, void *addr, size_t size)
 		hdr->g1, hdr->g2);
 	return 1;
     }
-    // if version 3 should be 3 tocs min right? TOCHECK
     printf("TOC count  = %u\n", hdr->tocs);
     if (hdr->tocs < 2) {
 	printf("Bad tocs: invalid table of contents count (%d)\n", hdr->tocs);

@@ -26,8 +26,6 @@ static mmv_instances2_t dogs[] = {
 int 
 main(int argc, char **argv)
 {
-    int i;
-    pmAtomValue *value;
     char *file = (argc > 1) ? argv[1] : "simple3";
     mmv_registry_t *addr = mmv_stats_registry(file, 321, 0);
 

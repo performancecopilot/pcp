@@ -21,8 +21,6 @@
 #define MMV_VERSION3	3	/* + labels support */
 #define MMV_VERSION     1	/* default, upgrading to v3 only if needed */
 
-#define MMV_LABELMAX    232     /* maximum size of mmv_disk_metric_t to 256 bytes */
-
 typedef enum mmv_toc_type {
     MMV_TOC_INDOMS	= 1,	/* mmv_disk_indom_t */
     MMV_TOC_INSTANCES	= 2,	/* mmv_disk_{instance,instance2}_t */
@@ -66,7 +64,7 @@ typedef struct mmv_disk_string {
 } mmv_disk_string_t;
 
 typedef struct mmv_disk_label {
-    __uint32_t        flags;      /* PM_LABEL_TYPE, flag optional */
+    __uint32_t        flags;      /* PM_LABEL_[TYPE|OPTIONAL] */
     __uint32_t        identity;   /* Indom, Cluster or item ID */
     __int32_t         internal;   /* Instance ID or PM_IN_NULL */
     __uint32_t        name;       /* Length of the label name */
