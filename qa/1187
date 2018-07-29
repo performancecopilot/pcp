@@ -58,6 +58,7 @@ filter_info()
 }
 
 # real QA test starts here
+export TERM=ansi
 dstat "CPU" --cpu -C 1,2,total --cpu-use
 dstat "Kernel" --ipc --sys --utmp
 dstat "Memory" --mem-adv --swap

@@ -61,6 +61,7 @@ _filter_pmdas()
 	-e '/inst \[62 or "nfsclient"]/d' \
 	-e '/inst \[68 or "apache"]/d' \
 	-e '/inst \[78 or "darwin"]/d' \
+	-e '/inst \[95 or "kvm"]/d' \
 	-e '/inst \[126 or "papi"]/d' \
 	-e '/inst \[106 or "logger"]/d' \
 	-e '/inst \[114 or "systemd"]/d' \

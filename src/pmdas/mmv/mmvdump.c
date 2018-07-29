@@ -535,6 +535,35 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
     return 0;
 }
 
+int
+dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)
+{
+    int i;
+    mmv_disk_label_t *lb = (mmv_disk_label_t *)((char *)addr + offset);
+
+    printf("\nTOC[%d]: offset %ld, labels offset %"PRIi64" (%d entries)\n",
+		idx, base, offset, count);
+
+    for (i = 0; i < count; i++) {
+	__uint64_t off = offset + i * sizeof(mmv_disk_label_t);
+
+	if (size < off + sizeof(mmv_disk_label_t)) {
+	    printf("Bad file size: too small for toc[%d] metric[%d]\n", idx, i);
+	    return 1;
+	}
+	printf("  [%u/%"PRIu64"] %s\n",
+		i+1, offset + i * sizeof(mmv_disk_label_t), 
+		lb[i].payload);
+	printf("        flags=0x%x, identity=0x%x\n",
+		lb[i].flags, lb[i].identity);
+	printf("        internal=0x%x\n",
+		lb[i].internal);
+	printf("        name=%d, value=%d\n", lb[i].name, lb[i].value);		
+    }
+    
+    return 0;
+}
+
 static char *
 flagstr(int flags)
 {
@@ -587,7 +616,9 @@ dump(const char *file, void *addr, size_t size)
 	return 1;
     }
     version = hdr->version;
-    if (version != MMV_VERSION1 && version != MMV_VERSION2) {
+    if (version != MMV_VERSION1 && version != MMV_VERSION2 &&
+	version != MMV_VERSION3)
+    {
 	printf("Version %d not supported\n", version);
 	return 1;
     }
@@ -654,6 +685,10 @@ dump(const char *file, void *addr, size_t size)
 	    if (dump_strings(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
+	case MMV_TOC_LABELS:
+	    if (dump_labels(addr, size, i, base, offset, count))
+		sts = 1;
+	    break;    
 	default:
 	    printf("Unrecognised TOC[%d] type: 0x%x\n", i, type);
 	    sts = 1;
