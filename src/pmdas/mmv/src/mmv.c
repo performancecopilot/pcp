@@ -76,10 +76,12 @@ typedef struct {
     mmv_disk_value_t * values;		/* values in mmap */
     mmv_disk_metric_t * metrics1;	/* v1 metric descs in mmap */
     mmv_disk_metric2_t * metrics2;	/* v2 metric descs in mmap */
+    mmv_disk_label_t * labels; 		/* labels desc in mmap */
     int		vcnt;			/* number of values */
     int		mcnt1;			/* number of metrics */
     int		mcnt2;			/* number of v2 metrics */
-    int		version;		/* v1/v2 version number */
+    int		lcnt;			/* number of labels */
+    int		version;		/* v1/v2/v3 version number */
     int		cluster;		/* cluster identifier */
     pid_t	pid;			/* process identifier */
     __int64_t	len;			/* mmap region len */
@@ -167,7 +169,8 @@ create_client_stat(const char *client, const char *path, size_t size)
 	    }
 
 	    if (header.version != MMV_VERSION1 &&
-		header.version != MMV_VERSION2) {
+		header.version != MMV_VERSION2 &&
+		header.version != MMV_VERSION3) {
 		if (pmDebugOptions.appl0)
 		    pmNotifyErr(LOG_ERR,
 			"%s: %s client version %d unsupported (current is %d)",
@@ -375,7 +378,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	    if (j == ip->it_numinst)
 		newinsts++;
 	}
-    } else if (s->version == MMV_VERSION2) {
+    } else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 	in2 = (mmv_disk_instance2_t *)((char *)s->addr + offset);
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++) {
@@ -414,7 +417,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 		ip->it_numinst++;
 	    }
 	}
-    } else if (s->version == MMV_VERSION2) {
+    } else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++)
 		if (ip->it_set[j].i_inst == in2[i].internal)
@@ -467,7 +470,7 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	    ip->it_set[i].i_inst = in1[i].internal;
 	    ip->it_set[i].i_name = in1[i].external;
 	}
-    } else if (s->version == MMV_VERSION2) {
+    } else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 	in2 = (mmv_disk_instance2_t *)((char *)s->addr + offset);
 	ip->it_numinst = count;
 	for (i = 0; i < count; i++) {
@@ -610,7 +613,7 @@ map_stats(pmdaExt *pmda)
 					mp->type, mp->semantics, mp->dimension);
 		    }
 		}
-		else if (s->version == MMV_VERSION2) {
+		else if (s->version == MMV_VERSION2 || s->version == MMV_VERSION3) {
 		    mmv_disk_metric2_t *ml = (mmv_disk_metric2_t *)
 					((char *)s->addr + offset);
 
@@ -765,6 +768,32 @@ map_stats(pmdaExt *pmda)
 	    case MMV_TOC_INSTANCES:
 	    case MMV_TOC_STRINGS:
 		break;
+		
+	    case MMV_TOC_LABELS:
+	        if (count > MAX_MMV_COUNT) {
+		    if (pmDebugOptions.appl0) {
+		        pmNotifyErr(LOG_ERR, "MMV: %s - "
+		                   "labels count: %d > %d",
+				    s->name, count, MAX_MMV_COUNT);
+		    }
+		    continue;
+		}
+		mmv_disk_label_t *lb = (mmv_disk_label_t *)
+					((char *)s->addr + offset);
+
+		offset += (count * sizeof(mmv_disk_label_t));
+		if (s->len < offset) {
+		    if (pmDebugOptions.appl0) {
+		        pmNotifyErr(LOG_INFO, "MMV: %s - "
+				"labels offset: %"PRIu64" < %"PRIu64,
+				s->name, s->len, (int64_t)offset);
+		    }
+		    continue;
+		}
+
+		s->labels = lb;
+		s->lcnt = count;
+	    	break;
 
 	    default:
 		if (pmDebugOptions.appl0) {
@@ -1214,19 +1243,67 @@ mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *p
 }
 
 static int
+mmv_label_lookup(int ident, int type, pmLabelSet **lp)
+{
+    int i, j;
+    mmv_disk_label_t lb;
+
+    // check if any label has the requested ident
+    for (i = 0; i < scnt; i++) {
+	for (j = 0; j < slist[i].lcnt; j++) {
+	    lb = slist[i].labels[j];
+	    if (lb.flags == type) {
+		if (lb.identity == ident && lb.internal == PM_IN_NULL) {
+		    return __pmAddLabels(lp,lb.payload,lb.flags);
+	        }
+	    }
+	}
+    }
+    return 0;
+}
+
+static int
 mmv_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 {
+    int c = 0;
+    switch (type) {
+	case PM_LABEL_CLUSTER:
+	    c = mmv_label_lookup(pmID_cluster(ident), type, lp);
+	    break;
+	case PM_LABEL_INDOM:
+	    c = mmv_label_lookup(ident, type, lp);
+	    break;
+	case PM_LABEL_ITEM:
+	    c = mmv_label_lookup(pmID_item(ident), type, lp);
+	    break;
+	default:
+	    break;
+    } 
+    if (c < 0) {
+	return c;
+    }
     return pmdaLabel(ident, type, lp, pmda);
 }
 
 static int
 mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    /* Requires MMV v3 on-disk format adding labels support */
-    (void)indom;
-    (void)inst;
-    (void)lp;
-    return 0;
+    int i, j, cnt=0;
+    mmv_disk_label_t lb;
+
+    // check if any label has the requested inst
+    for (i = 0; i < scnt; i++) {
+	for (j = 0; j < slist[i].lcnt; j++) {
+	    lb = slist[i].labels[j];
+	    if (lb.flags == PM_LABEL_INSTANCES) {
+		if (lb.identity == indom && lb.internal == inst) {
+		    __pmAddLabels(lp,lb.payload,lb.flags);
+		    ++cnt;
+	        }
+	    }
+	}
+    }
+    return cnt;
 }
 
 void

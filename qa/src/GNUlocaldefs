@@ -33,6 +33,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	labels.c mergelabels.c mergelabelsets.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
+	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
+	mmv3_simple.c mmv3_indoms.c \
 	record.c record-setarg.c clientid.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
 	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
@@ -42,7 +44,6 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
 	github-50.c archfetch.c sortinst.c fetchgroup.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
-	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
 	unpickargs.c hanoi.c progname.c countmark.c \
