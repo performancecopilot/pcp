@@ -1092,7 +1092,10 @@ pmda_refresh_metrics(void)
 static int
 check_callback(void)
 {
-    PyEval_RestoreThread(thread_state);
+    if (thread_state) {
+	PyEval_RestoreThread(thread_state);
+	thread_state = NULL;
+    }
     return 1;
 }
 
@@ -1181,6 +1184,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
          */
         done_callback();
         pmdaMain(&dispatch);
+	check_callback(); /* reacquire GIL for graceful exit */
     }
     Py_INCREF(Py_None);
     return Py_None;
