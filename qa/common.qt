@@ -15,6 +15,8 @@ _check_display
 # hackery for Qt warning:
 # QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/...'
 #
+mkdir -p $tmp/xdg-runtime
+chmod 0700 $tmp/xdg-runtime
 export XDG_RUNTIME_DIR=$tmp/xdg-runtime
 
 #
