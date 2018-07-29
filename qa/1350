@@ -27,12 +27,13 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-nvctxw=`pminfo -f proc.psinfo.nvctxsw | fgrep $$ | awk '{print $NF}'`
+nvctxw=`pminfo -f proc.psinfo.vctxsw | fgrep $$ | awk '{print $NF}'`
 [ $nvctxw -eq 0 ] || status=0
 if [ $status -eq 1 ]
 then
-    echo FAIL, proc.psinfo.nvctxsw should not be zero
+    echo FAIL, proc.psinfo.vctxsw is $nvctxw, should not be zero
+    tail /proc/$$/status
 else
-    echo PASS, proc.psinfo.nvctxsw is nonzero
+    echo PASS, proc.psinfo.vctxsw is nonzero
 fi
 exit
