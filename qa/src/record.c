@@ -7,7 +7,10 @@
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
 #include <sys/types.h>
+#include <errno.h>
+#if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 
 /*
  * Usage: record folio creator replay host [...]
@@ -21,6 +24,7 @@ static char *reportexit(int status)
 
     if (status == 0 || status == -1)
 	return buf;
+#if HAVE_SYS_WAIT_H
     if (WIFEXITED(status)) {
 	if (WIFSIGNALED(status))
 	    pmsprintf(buf, sizeof(buf), " exit %d, signal %d", WEXITSTATUS(status), WTERMSIG(status));
@@ -32,6 +36,7 @@ static char *reportexit(int status)
 	if (WIFSIGNALED(status))
 	    pmsprintf(buf, sizeof(buf), " signal %d", WTERMSIG(status));
     }
+#endif
     return buf;
 }
 
@@ -45,7 +50,6 @@ main(int argc, char **argv)
     int			i;
     int			j;
     FILE		*f;
-    extern int		errno;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);

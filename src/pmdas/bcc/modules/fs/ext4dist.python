@@ -1,5 +1,7 @@
 #
 # Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the ext4dist BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/ext4dist.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,12 +18,14 @@
 # pylint: disable=invalid-name, line-too-long
 
 from os import path
+
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -39,7 +43,7 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC runqlat module """
+    """ PCP BCC ext4dist module """
     def __init__(self, config, log, err):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
@@ -89,7 +93,12 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("\n" + bpf_text)
 
             self.bpf = BPF(text=bpf_text)
-            self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
+            # Compat: bcc < 0.6.0 (first check)
+            if 'get_kprobe_functions' in dir(self.bpf) and \
+               self.get_kprobe_functions(b'ext4_file_read_iter'):
+                self.bpf.attach_kprobe(event="ext4_file_read_iter", fn_name="trace_entry")
+            else:
+                self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
             self.bpf.attach_kprobe(event="ext4_file_write_iter", fn_name="trace_entry")
             self.bpf.attach_kprobe(event="ext4_file_open", fn_name="trace_entry")
             self.bpf.attach_kprobe(event="ext4_sync_file", fn_name="trace_entry")
@@ -99,9 +108,10 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf.attach_kretprobe(event="ext4_sync_file", fn_name="trace_fsync_return")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     def refresh(self):
         """ Refresh BPF data """

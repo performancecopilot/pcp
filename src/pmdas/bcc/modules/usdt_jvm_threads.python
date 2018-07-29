@@ -13,22 +13,16 @@
 #
 """ PCP BCC PMDA USDT JVM threads module """
 
-# Configuration options
-# Name - type - default
-#
-# jvm_path - string -  [1]  : path to libjvm.so
-# process  - string - unset : list of names/pids or regex of processes to monitor
-#
-# 1) Default for jvm_path: /etc/alternatives/jre/lib/server/libjvm.so
-
 # pylint: disable=invalid-name
 
 from ctypes import c_int
+
 from bcc import BPF, USDT
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
+
 from modules.pcpbcc import PCPBCCBase
 
 #
@@ -95,9 +89,10 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf = BPF(src_file=bpf_src, usdt_contexts=[usdt])
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     def refresh(self):
         """ Refresh BPF data """

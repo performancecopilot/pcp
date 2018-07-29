@@ -288,6 +288,16 @@ typedef struct pmdaInterface {
 
 } pmdaInterface;
 
+/* comm(unication) flags */
+#define PMDA_FLAG_AUTHORIZE	(1<<2)	/* authentication support */
+#define PMDA_FLAG_CONTAINER	(1<<6)	/* container name support */
+
+/* communication attributes */
+#define PMDA_ATTR_USERID	11	/* uid - user identifier (posix) */
+#define PMDA_ATTR_GROUPID	12	/* gid - group identifier (posix) */
+#define PMDA_ATTR_PROCESSID	14	/* pid - process identifier (posix) */
+#define PMDA_ATTR_CONTAINER	15	/* container name */
+
 /*
  * PM_CONTEXT_LOCAL support
  */
@@ -401,7 +411,7 @@ typedef struct pmdaOptions {
  * pmdaOpenLog
  *	Redirects stderr to the logfile.
  *
- * pmdaSetFlags / pmdaExtSetFlags
+ * pmdaSetFlags / pmdaExtSetFlags / pmdaSetCommFlags
  *      Allow behaviour flags to be set to enable features, such as to request
  *      libpcp_pmda internally use direct or hashed PMID metric table mapping.
  *      Can be called multiple times - effects are cumulative - no flag can be
@@ -471,6 +481,7 @@ PMDA_CALL extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 PMDA_CALL extern void pmdaOpenLog(pmdaInterface *);
 PMDA_CALL extern void pmdaExtSetFlags(pmdaExt *, int);
 PMDA_CALL extern void pmdaSetFlags(pmdaInterface *, int);
+PMDA_CALL extern void pmdaSetCommFlags(pmdaInterface *, int);
 PMDA_CALL extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
 PMDA_CALL extern void pmdaConnect(pmdaInterface *);
 
@@ -641,6 +652,10 @@ PMDA_CALL extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
 PMDA_CALL extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
 PMDA_CALL extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
 PMDA_CALL extern int pmdaTreeSize(pmdaNameSpace *);
+
+PMDA_CALL extern int pmdaTreeCreate(pmdaNameSpace **);
+PMDA_CALL extern int pmdaTreeInsert(pmdaNameSpace *, pmID, const char *);
+PMDA_CALL extern void pmdaTreeRelease(pmdaNameSpace *);
 
 /*
  * PMDA instance domain cache support

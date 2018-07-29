@@ -1,5 +1,5 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [proc]
@@ -7,16 +7,15 @@ label = procs
 width = 3
 printtype = f
 colorstep = 10
-running = run
-running.formula = kernel.all.running - 1
-blocked = blk
-blocked.formula = kernel.all.blocked
-sysfork = new
-sysfork.formula = kernel.all.sysfork
+running = kernel.all.running - 1
+running.label = run
+blocked = kernel.all.blocked
+blocked.label = blk
+sysfork = kernel.all.sysfork
+sysfork.label = new
 
 [proc-count]
 label = procs
 width = 4
 scalestep = 10
-total = total
-total.formula = proc.nprocs
+total = proc.nprocs

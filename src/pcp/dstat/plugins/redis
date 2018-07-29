@@ -1,9 +1,8 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [redis]
 width = 7
 colorstep = 10000
-tps = tps
-tps.formula = redis.instantaneous_ops_per_sec
+tps = redis.instantaneous_ops_per_sec

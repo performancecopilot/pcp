@@ -1,11 +1,9 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [fs]
 width = 6
 label = filesystem
-f = files
-f.formula = vfs.files.count
-i = inodes
-i.formula = vfs.inodes.count - vfs.inodes.free
+files = vfs.files.count
+inodes = vfs.inodes.count - vfs.inodes.free

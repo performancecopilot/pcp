@@ -59,13 +59,6 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
-#ifdef HAVE_PROCFS
-#ifdef IS_NETBSD
-#include <miscfs/procfs/procfs.h>
-#else
-#include <sys/procfs.h>
-#endif
-
 #define MAXMETRICS 1024
 
 int	verbose = 0;
@@ -233,6 +226,11 @@ set_proc_fmt(void)
     struct dirent *directp;
     int		ndigit;
     int		proc_entry_len; /* number of chars in procfs entry */
+
+    if (access(procfs, R_OK) != 0) {
+	fprintf(stderr, "No /proc pseudo filesystem on this platform\n");
+	exit(1);
+    }
 
     if ((procdir = opendir(procfs)) == NULL) {
 	perror(procfs);
@@ -564,9 +562,6 @@ test_store(void)
     print_banner_end("store");
 }
 
-/*
- * main
- */
 int
 main(int argc, char **argv)
 {
@@ -605,11 +600,3 @@ main(int argc, char **argv)
 
     exit(0);
 }
-#else
-int
-main(int argc, char **argv)
-{
-    printf("No /proc pseudo filesystem on this platform\n");
-    exit(1);
-}
-#endif /* HAVE_PROCFS */

@@ -570,6 +570,14 @@ pmdaSetFlags(pmdaInterface *dispatch, int flags)
     pmdaExtSetFlags(dispatch->version.any.ext, flags);
 }
 
+void
+pmdaSetCommFlags(pmdaInterface *dispatch, int flags)
+{
+    if (pmDebugOptions.libpmda)
+	pmNotifyErr(LOG_DEBUG, "pmdaSetCommFlags: flags=%x", flags);
+    dispatch->comm.flags |= flags;
+}
+
 /*
  * Open the help text file, check for direct mapping into the metric table
  * and whether a hash mapping has been requested.
@@ -779,8 +787,12 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 	if (credlist != NULL)
 	    free(credlist);
     }
-    else
-	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure\n", agentname);
+    else {
+	char	strbuf[20];
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure, got PDU type %s expecting PDU_CREDS)\n",
+	    agentname,
+	    __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -825,6 +837,11 @@ pmdaConnect(pmdaInterface *dispatch)
 
 	    pmda->e_infd = fileno(stdin);
 	    pmda->e_outfd = fileno(stdout);
+#ifdef IS_MINGW
+	    /* do not muck with \n in the PDU stream */
+	    _setmode(pmda->e_infd, _O_BINARY);
+	    _setmode(pmda->e_outfd, _O_BINARY);
+#endif
 
 	    if (pmDebugOptions.libpmda) {
 	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",

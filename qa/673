@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 673
+# pmdumplog -t with compressed archives
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdumplog -z -t archives/20180606
+
+# success, all done
+status=0
+exit

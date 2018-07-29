@@ -131,7 +131,9 @@ __pmIsPmnsLock(void *lock)
 void
 init_pmns_lock(void)
 {
+#ifdef PM_MULTI_THREAD
     __pmInitMutex(&pmns_lock);
+#endif
 }
 
 /*

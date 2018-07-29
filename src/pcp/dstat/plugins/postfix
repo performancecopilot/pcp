@@ -1,0 +1,18 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[postfix]
+width = 4
+colorstep = 100
+printtype = d
+incoming = sum(postfix.queues.incoming)
+incoming.label = inco
+active = sum(postfix.queues.active)
+active.label = actv
+deferred = sum(postfix.queues.deferred)
+deferred.label = dfrd
+bounce = sum(postfix.queues.maildrop)
+bounce.label = bnce
+hold = sum(postfix.queues.hold)
+hold.label = hold

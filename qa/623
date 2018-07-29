@@ -110,51 +110,44 @@ echo "simple cmd args" | tee -a $here/$seq.full
 _setup_control
 _filter $tmp.log
 _setup
-pmlogger_daily -f -X $PROG -x 1 -c $tmp.control -l $tmp.log 2>$tmp.err
-cat $tmp.err $tmp.log | _filter
+pmlogger_daily -f -X $PROG -x 1 -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 
 echo | tee -a $here/$seq.full
 echo "simple env vars" | tee -a $here/$seq.full
 _setup
-PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 pmlogger_daily -f -c $tmp.control -l $tmp.log 2>$tmp.err
-cat $tmp.err $tmp.log | _filter
+PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 pmlogger_daily -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 
 echo | tee -a $here/$seq.full
 echo "some error cases" | tee -a $here/$seq.full
 _setup
-pmlogger_daily -f -x bozo -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
-PCP_COMPRESSAFTER=bozo pmlogger_daily -f -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
-pmlogger_daily -f -x 1 -X no-such-compression-tool -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
-PCP_COMPRESS=no-such-compression-tool pmlogger_daily -f -x 1 -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
+pmlogger_daily -f -x bozo -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
+PCP_COMPRESSAFTER=bozo pmlogger_daily -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
+pmlogger_daily -f -x 1 -X no-such-compression-tool -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
+PCP_COMPRESS=no-such-compression-tool pmlogger_daily -f -x 1 -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 
 _setup_control PCP_COMPRESSAFTER=bozo
-pmlogger_daily -f -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
+pmlogger_daily -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 
 echo | tee -a $here/$seq.full
 echo "some warning cases" | tee -a $here/$seq.full
 _setup_control
 _setup
-PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 PCP_COMPRESSREGEX='\.index$' pmlogger_daily -f -X no-such-compression-tool -x 7 -Y xyz -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
+PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 PCP_COMPRESSREGEX='\.index$' pmlogger_daily -f -X no-such-compression-tool -x 7 -Y xyz -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 _setup_control PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 "PCP_COMPRESSREGEX='\.(index|meta)$'"
 _setup
-PCP_COMPRESS=foo PCP_COMPRESSAFTER=42 PCP_COMPRESSREGEX='\.bar$' pmlogger_daily -f -c $tmp.control -l $tmp.log 2>$tmp.err
-_filter $tmp.err
-_filter $tmp.log
+PCP_COMPRESS=foo PCP_COMPRESSAFTER=42 PCP_COMPRESSREGEX='\.bar$' pmlogger_daily -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+_filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 
 # success, all done

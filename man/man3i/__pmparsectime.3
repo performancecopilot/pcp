@@ -43,12 +43,20 @@ specifying a time, and fills in the given
 .B tm
 structure.
 .PP
-Either a fully specified
-.BR asctime (3)
-string like "Mon Mar  4 13:07:47 1996" or a partially specified time
-like '1996", "Mar 1996", "Mar 4 1996", "Mar", "13:07:47", "13:07",
-"Mar 4 13:07:47",... is accepted.  In addition, the seconds component
-may be a floating point number, for example "13:07:47.5".  The 12 hour
+.I string
+is either a fully specified date and time
+in the format
+.I "Day MMM DD HH:MM:SS YYYY"
+(e.g "Mon Mar  4 13:07:47 1996")
+or a partially specified date and time
+like "1996", "Mar 1996", "Mar 4 1996", "Mar", "13:07:47", "13:07",
+"Mar 4 13:07:47",....
+For a partially specified date and time, the order of the fields must be preserved
+and missing fields are filled in from the current date and time.
+.PP
+The seconds component (\c
+.IR SS )
+may be a floating point number, for example the time "13:07:47.5".  The 12 hour
 clock is also supported, so "13:07" and "1:07 pm" are equivalent.
 .PP
 .B __pmParseCtime

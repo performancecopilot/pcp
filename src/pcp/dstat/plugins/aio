@@ -1,9 +1,9 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [aio]
 width = 5
 label = async
-aio = #aio
-aio.formula = vfs.aio.count
+aio = vfs.aio.count
+aio.label = #aio

@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 	if (htonl(*len) > sizeof(__pmPDUHdr) - sizeof(*len) + sizeof(pmTimeval) + sizeof(int)) {
 	    sts = write(out, buf, htonl(*len));
 	    if (sts != htonl(*len)) {
-		fprintf(stderr, "Error: write %d returns %d\n", htonl(*len), sts);
+		fprintf(stderr, "Error: write %ld returns %d\n", (long)htonl(*len), sts);
 		exit(1);
 	    }
 	}

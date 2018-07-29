@@ -19,32 +19,27 @@
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
+# ... and _is_archive()
+. $PCP_SHARE_DIR/lib/utilproc.sh
 
 _usage()
 {
     echo "Usage: mkaf [findopts] filename ..."
 }
 
-# check for magic numbers in a file that indicate it is a PCP archive
+# strip any known compression suffix from the filename(s) on stdin
 #
-# if file(1) was reliable, this would be much easier, ... sigh
-#
-# if you need to change this, make consistent changes in all these
-# places:
-#	_check_file() in src/pmafm/mkaf
-#	_is_archive() in src/pmafm/pmafm
-#	_is_archive() in src/pmview/front-ends/pmview-args
-#
-_is_archive()
+_strip_compress_suffix()
 {
-    dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
-BEGIN						{ sts = 1 }
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
-NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
-NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
-END						{ exit sts }'
-    return $?
+    sed \
+	-e 's/\.xz$//' \
+	-e 's/\.lzma$//' \
+	-e 's/\.bz2$//' \
+	-e 's/\.bz$//' \
+	-e 's/\.gz$//' \
+	-e 's/\.Z$//' \
+	-e 's/\.z$//' \
+    # end
 }
 
 if [ $# -eq 0 ]
@@ -80,7 +75,7 @@ do
 		do
 		    if _is_archive $file
 		    then
-			echo $file >>$tmp/base
+			echo $file | _strip_compress_suffix >>$tmp/base
 		    fi
 		done
 		$PCP_ECHO_PROG >&2 " done"
@@ -89,7 +84,7 @@ do
 		echo >&2 "mkaf: $1: No such file"
 	    elif _is_archive $1
 	    then
-		echo $1 >>$tmp/base
+		echo $1 | _strip_compress_suffix >>$tmp/base
 	    else
 		echo >&2 "mkaf: $1: Not a PCP archive file"
 	    fi

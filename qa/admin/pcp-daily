@@ -22,7 +22,7 @@ _usage()
     fi
     echo >&2 "  -h          harvest QA failures"
     echo >&2 "  -i          install built pcp packages"
-    echo >&2 "  -l          harvest daily.log after aborted run"
+    echo >&2 "  -l          harvest daily.log/daily.qa.log after aborted run"
     echo >&2 "  -m          build (Makepkgs) for pcp"
     echo >&2 "  -p          git pull for pcp"
     echo >&2 "  -q          run qa"
@@ -36,6 +36,8 @@ _usage()
     echo >&2 "[both vmlists run in parallel for the default case without -S]"
 }
 
+# $1 is "daily" (for build/install) else "daily.qa" (for qa)
+#
 _script_header()
 {
     cat <<End-of-File
@@ -60,31 +62,36 @@ End-of-File
 	:
     else
 	cat <<End-of-File
-rm -f \$HOME/daily.log
-touch \$HOME/daily.log
+rm -f \$HOME/$1.log
+echo "--- starting $1 on \`date\` ---" >\$HOME/$1.log
 End-of-File
     fi
-    cat <<End-of-File
-case "$pcp_tree"
-in
-    pcpfans)
-	if [ ! -d src/pcpfans ]
+    if [ "$1" = daily ]
+    then
+	# not QA, need git tree
+	#
+	if [ "$pcp_tree" = pcpfans ]
 	then
-	    git clone git://sourceware.org/git/${pcp_tree}.git src/pcpfans
-	    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
-	fi
-	;;
-    *)
-	if [ ! -d src/$pcp_tree ]
-	then
-	    git clone ssh://bozo/home/kenj/git-mirror/${pcp_tree}.git src/$pcp_tree
-	    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
-	fi
-	;;
-esac
-
-cd src/$pcp_tree
+	    cat <<End-of-File
+if [ ! -d $build_dir ]
+then
+    git clone git://sourceware.org/git/pcpfans.git $build_dir
+    echo "Info: clone pcpfans git tree" | tee -a \$HOME/daily.log
+fi
 End-of-File
+	else
+	    cat <<End-of-File
+if [ ! -d $build_dir ]
+then
+    git clone ssh://bozo/home/kenj/git-mirror/pcp.git $build_dir
+    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
+fi
+End-of-File
+	fi
+	cat <<End-of-File
+cd $build_dir
+End-of-File
+    fi
 }
 
 _script_git()
@@ -209,6 +216,11 @@ rm -f VERSION.pcp
 git checkout -- VERSION.pcp
 # Look for errors/warnings in the build logs ...
 #
+# In the sed below are "warnings" that are
+# (a) out of out control (e.g. in flex/bison generated code), or
+# (b) apparently benign things we're no going to fix, or
+# (c) stuff we've triaged and made a "no change needed" call
+#
 for log in Logs/*
 do
     echo "--- $log ---" >>$HOME/daily.log
@@ -223,7 +235,12 @@ sed -e 's/^/ /' <Logs/pcp \
     -e 's/^ //' \
     -e '/yyunput.* defined but not used/d' \
     -e '/input.* defined but not used/d' \
-    -e '/jobserver unavailable: using -j1/d'
+    -e '/jobserver unavailable: using -j1/d'\
+    -e '/^warning: File listed twice: .*python/d' \
+    -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
+    -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
+    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
+# end
 if [ -s $tmp.err ]
 then
     echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
@@ -459,15 +476,15 @@ rm -f *.out.bad
 qa_restrict="$check_what -x BAD"
 
 echo "Info: QA \$qa_restrict starting"
-./check -l \$qa_restrict >>\$HOME/daily.log 2>&1
+./check -l \$qa_restrict >>\$HOME/daily.qa.log 2>&1
 sts=\$?
-# look for badness in daily.log and report here (so it goes into any
+# look for badness in daily.qa.log and report here (so it goes into any
 # cron-based email)
-awk <\$HOME/daily.log '
+awk <\$HOME/daily.qa.log '
 \$1 == "Aborted!"	{ print }
 \$1 == "Check!"		{ print }'
 # get last block from check.log ... then get the summary on
-# stdout (not needed in the daily.log, already there)
+# stdout (not needed in the daily.qa.log already there)
 sed -e '/^    [0-9 ]*\$/d' <check.log \
 | awk '
 NF == 0	{ txt = ""; next }
@@ -481,22 +498,22 @@ END	{ print txt }' \
 want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
-    echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.log
+    echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.qa.log
 else
-    echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.log
+    echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.qa.log
 fi
-date >>\$HOME/daily.log
+date >>\$HOME/daily.qa.log
 End-of-File
 }
 
 _script_qa_rerun()
 {
     cat <<End-of-File
-if ./recheck >>\$HOME/daily.log 2>&1
+if ./recheck >>\$HOME/daily.qa.log 2>&1
 then
-    echo "Info: QA recheck" | tee -a \$HOME/daily.log
+    echo "Info: QA recheck" | tee -a \$HOME/daily.qa.log
 else
-    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.log
+    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.qa.log
 fi
 End-of-File
 }
@@ -521,26 +538,28 @@ do
 	nfull=\`expr \$nfull + 1\`
     fi
 done
-[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.log
-echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.log
+[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.qa.log
+echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.qa.log
 End-of-File
 }
 
 # Mainline starts here ...
 #
 
-user=${USER-kenj}
-qa_dir=\$HOME/src/pcp/qa
 tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
-list_2="fuji vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
+list_2="vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
 
 args="$*"
 pcp_branch=master
 pcp_tree=pcp
+build_user=${USER-kenj}
+build_dir=src/$pcp_tree
+qa_user=${USER-kenj}
+qa_dir=src/pcp/qa
 cflag=false
 fflag=false
 hflag=false
@@ -643,6 +662,7 @@ do
 	    ;;
 	t)
 	    pcp_tree="$OPTARG"
+	    build_dir=src/$pcp_tree
 	    ;;
 	?)
 	    _usage
@@ -693,8 +713,7 @@ in
     bozo)
 	echo "bozo" >>$tmp.domains
 	echo "bozo-vm" >>$tmp.domains
-	echo "bozo-laptop" >>$tmp.domains
-	echo "fuji" >>$tmp.domains
+	# echo "fuji" >>$tmp.domains
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -743,6 +762,83 @@ do
     #
     host=`echo $domain | sed -e '/^vm/s/-.*//'`
     echo "::: $domain :::"
+
+    check_what="$what"
+    [ X"$what" = Xall ] && check_what=''
+    case "$domain"
+    in
+
+	vm01)
+	    # 739 segv's sometimes deep inside Python
+	    [ X"$what" = Xall ] && check_what='-X 739'
+	    ;;
+
+	vm06|vm10|vm09|vm13|vm33)
+	    # Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
+	    # or OpenIndiana
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    ;;
+
+	vm07|vm11)
+	    # Exclude -x valgrind at this stage for Debian stretch
+	    # until
+	    # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=810295
+	    # is fixed.
+	    # We have a workaround in common.check, so re-enable these
+	    # tests (20 Jul 2016)
+	    #
+	    ;;
+
+	vm15)
+	    # 1123 loops forever lost in an X11 wasteland
+	    [ X"$what" = Xall ] && check_what='-X 1123'
+	    ;;
+
+	vm20)
+	    # Run from testsuite, not git tree
+	    #
+	    qa_dir=/var/lib/pcp/testsuite
+	    qa_user=pcpqa
+	    ;;
+
+	vm32)
+	    # Only selected groups this stage for FreeBSD:
+	    #	sanity trace
+	    # and some tests are not working yet
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -X 603'
+	    ;;
+
+	vm35)
+	    # this is PCP 2.7.8, need to run as user pcpqa and just
+	    # the sanity group and no -p or -m or -i flags
+	    # and no -e processing
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    qa_user=pcpqa
+	    qa_dir=/var/lib/pcp/testsuite/qa
+	    if $pflag
+	    then
+		echo "Info: skip -p for vm35"
+		pflag=false
+	    fi
+	    if $mflag
+	    then
+		echo "Info: skip -m for vm35"
+		mflag=false
+	    fi
+	    if $iflag
+	    then
+		echo "Info: skip -i for vm35"
+		iflag=false
+	    fi
+	    if [ -n "$efile" ]
+	    then
+		echo "Info: no -e $efile for vm35"
+		efile=''
+	    fi
+	    ;;
+    esac
 
     if which virsh >/dev/null 2>&1
     then
@@ -793,17 +889,22 @@ do
 	max_wait=300
 	while [ $wait -lt $max_wait ]
 	do
-	    # if ping -c 1 $host >/dev/null 2>&1
-	    # then
-		if ssh $user@$host true
+	    if ssh $build_user@$host true
+	    then
+		$debug && echo host $host up and ssh for $build_user ok
+		if [ "$build_user" != "$qa_user" ]
 		then
-		    $debug && echo host up
-		    touch $tmp.up
-		    break
+		    if ssh $qa_user@$host true
+		    then
+			$debug && echo ssh for $qa_user ok
+		    else
+			echo Warning cannot ssh for $qa_user to host $host
+		    fi
 		fi
-	    # else
-		$debug && echo host down
-	    # fi
+		touch $tmp.up
+		break
+	    fi
+	    $debug && echo host $host down, waiting $wait
 	    sleep $delta
 	    wait=`expr $wait + $delta`
 	done
@@ -812,25 +913,6 @@ do
 	    echo "Failed to start VM domain $domain after $max_wait secs ... giving up"
 	    continue
 	fi
-	
-	check=`ssh -t $user@$host uname -sr 2>/dev/null`
-	$debug && echo "check=$check"
-	case "$check"
-	in
-	    FreeBSD\ *)
-	    	osname=freebsd
-		;;
-	    NetBSD\ *)
-	    	osname=netbsd
-		;;
-	    OpenBSD\ *)
-	    	osname=openbsd
-		;;
-	    *)
-	    	osname=unknown
-		;;
-	esac
-	$debug && echo "osname=$osname"
 
 	# per-host settings
 	# MAKE=gmake for *BSD hosts
@@ -844,76 +926,7 @@ do
 	esac
 	$debug && echo "MAKE=$MAKE"
 
-	check_what="$what"
-	[ X"$what" = Xall ] && check_what=''
-	case "$domain"
-	in
-	    vm06|vm10|vm09|vm13|vm33)
-		# Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
-		# or OpenIndiana
-		#
-		[ X"$what" = Xall ] && check_what='-g sanity'
-		;;
-
-	    vm32)
-		# Only selected groups this stage for FreeBSD:
-		#	sanity trace
-		# and some tests are not working yet
-		#
-		[ X"$what" = Xall ] && check_what='-g sanity -g trace -X 603'
-		;;
-
-	    vm07|vm11)
-		# Exclude -x valgrind at this stage for Debian stretch
-		# until
-		# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=810295
-		# is fixed.
-		# We have a workaround in common.check, so re-enable these
-		# tests (20 Jul 2016)
-		#
-		;;
-
-	    vm01)
-		# 739 segv's sometimes deep inside Python
-		[ X"$what" = Xall ] && check_what='-X 739'
-		;;
-
-	    vm15)
-		# 1123 loops forever lost in an X11 wasteland
-		[ X"$what" = Xall ] && check_what='-X 1123'
-		;;
-
-	    vm35)
-		# this is PCP 2.7.8, need to run as user pcpqa and just
-		# the sanity group and no -p or -m or -i flags
-		# and no -e processing
-		[ X"$what" = Xall ] && check_what='-g sanity'
-		user=pcpqa
-		qa_dir=/var/lib/pcp/testsuite/qa
-		if $pflag
-		then
-		    echo "Info: skip -p for vm35"
-		    pflag=false
-		fi
-		if $mflag
-		then
-		    echo "Info: skip -m for vm35"
-		    mflag=false
-		fi
-		if $iflag
-		then
-		    echo "Info: skip -i for vm35"
-		    iflag=false
-		fi
-		if [ -n "$efile" ]
-		then
-		    echo "Info: no -e $efile for vm35"
-		    efile=''
-		fi
-		;;
-	esac
-
-	_script_header >$tmp.script
+	_script_header daily >$tmp.script
 	if [ -n "$efile" ]
 	then
 	    cat $efile >>$tmp.script
@@ -929,16 +942,18 @@ do
 
 	$iflag && _script_install >>$tmp.script
 
-	cat >>$tmp.script <<End-of-File
+	_script_header daily.qa >$tmp.script.qa
+
+	cat >>$tmp.script.qa <<End-of-File
 
 cd $qa_dir
 End-of-File
 
-	$qflag && _script_qa >>$tmp.script
-	$rflag && _script_qa_rerun >>$tmp.script
-	$hflag && _script_harvest >>$tmp.script
+	$qflag && _script_qa >>$tmp.script.qa
+	$rflag && _script_qa_rerun >>$tmp.script.qa
+	$hflag && _script_harvest >>$tmp.script.qa
 
-	chmod 755 $tmp.script
+	chmod 755 $tmp.script $tmp.script.qa
 	# we've sometimes seen the scp fail because we get here a
 	# bit too soon after a VM has been rebooted ... be a little
 	# more patient
@@ -946,13 +961,13 @@ End-of-File
 	rm -f $tmp.ok
 	for i in 1 2 3
 	do
-	    if scp $tmp.script $user@$host:daily.script >$tmp.out 2>&1
+	    if scp $tmp.script $build_user@$host:daily.script >$tmp.out 2>&1
 	    then
 		touch $tmp.ok
 		break
 	    else
 		cat $tmp.out
-		echo "Warning: scp failed!"
+		echo "Warning: scp for daily.script failed!"
 		sleep 2
 	    fi
 	done
@@ -962,19 +977,49 @@ End-of-File
 	    continue
 	fi
 
+	if $qflag || $rflag || $hflag
+	then
+	    rm -f $tmp.ok
+	    for i in 1 2 3
+	    do
+		if scp $tmp.script.qa $qa_user@$host:daily.qa.script >$tmp.out 2>&1
+		then
+		    touch $tmp.ok
+		    break
+		else
+		    cat $tmp.out
+		    echo "Warning: scp for daily.qa.script failed!"
+		    sleep 2
+		fi
+	    done
+	    if [ ! -f $tmp.ok ]
+	    then
+		echo "Error: cannot copy daily.qa.script to $host ... giving up"
+		continue
+	    fi
+	fi
+
 	# actually do the remote work here
 	#
-	ssh -t $user@$host sh -c ./daily.script
-
-	scp -q $user@$host:daily.log $tmp.out
-	echo "=== `date` ===" >>$log
+	ssh -t $build_user@$host sh -c ./daily.script
+	scp -q $build_user@$host:daily.log $tmp.out
+	echo "=== build and install: `date` ===" >>$log
 	cat $tmp.out >>$log
 	echo "=== END ===" >>$log
 
-	if $iflag || $qflag || $hflag
+	if $qflag || $rflag || $hflag
+	then
+	    ssh -t $qa_user@$host sh -c ./daily.qa.script
+	    scp -q $qa_user@$host:daily.qa.log $tmp.out
+	    echo "=== qa: `date` ===" >>$log
+	    cat $tmp.out >>$log
+	    echo "=== END ===" >>$log
+	fi
+
+	if $iflag || $qflag || $rflag || $hflag
 	then
 	    # run whatami on QA host
-	    ssh -t $user@$host src/pcp/qa/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
+	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
 	fi
 
 	if $hflag
@@ -999,13 +1044,13 @@ End-of-File
 	    fi
 	    rm -f $HOME/Logs/by-vm/$domain/qa/[0-9]*
 	    rm -f $tmp.harvest
-	    scp $user@$host:daily.harvest $tmp.harvest >$tmp.out 2>&1
+	    scp $qa_user@$host:daily.harvest $tmp.harvest >$tmp.out 2>&1
 	    if [ -s $tmp.harvest ]
 	    then
 		for file in `cat $tmp.harvest`
 		do
 		    echo -n " $file"
-		    if scp $user@$host:src/pcp/qa/$file $HOME/Logs/by-vm/$domain/qa >$tmp.err 2>&1
+		    if scp $qa_user@$host:$qa_dir/$file $HOME/Logs/by-vm/$domain/qa >$tmp.err 2>&1
 		    then
 			:
 		    else
@@ -1048,7 +1093,7 @@ End-of-File
 		    echo "Warning: Already shutdown"
 		fi
 	    else
-		ssh -f -t -q $user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; ( sudo poweroff || sudo halt )" </dev/null &
+		ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; ( sudo poweroff || sudo halt )" </dev/null &
 		sleep 60
 		sudo virsh shutdown $domain >/dev/null 2>&1
 		sleep 10

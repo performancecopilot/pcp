@@ -1,0 +1,60 @@
+QA output created by 680
+basic units
+int: OK
+
+pmapi.h
+pmUnits: OK
+pmDesc: OK
+pmValueBlock: OK
+pmLabel: OK
+pmTimeval: OK
+pmTimespec: OK
+pmEventParameter: OK
+pmEventRecord: OK
+pmHighResEventRecord: OK
+pmEventArray: OK
+pmHighResEventArray: OK
+
+libpcp.h
+__pmID_int: OK
+__pmInDom_int: OK
+__pmPDUInfo: OK
+__pmPDUHdr: OK
+__pmCred: OK
+__pmVersionCred: OK
+__pmValue_PDU: OK
+__pmValueSet_PDU: OK
+__pmLogHdr: OK
+__pmLogLabel: OK
+__pmLogTI: OK
+__pmLoggerStatus: OK
+
+p_*.c files in libpcp
+attr_t: OK
+creds_t: OK
+desc_req_t: OK
+desc_t: OK
+p_error_t: OK
+x_error_t: OK
+fetch_t: OK
+instance_req_t: OK
+instlist_t: OK
+instance_t: OK
+label_req_t: OK
+labelset_t: OK
+labels_t: OK
+lc_vlist_t: OK
+control_req_t: OK
+notify_t: OK
+logstatus_t: OK
+idlist_t: OK
+name_t: OK
+name_status_t: OK
+namelist_t: OK
+namereq_t: OK
+instprof_t: OK
+profile_t: OK
+vlist_t: OK
+result_t: OK
+text_req_t: OK
+text_t: OK

@@ -654,6 +654,7 @@ do
 	    _abandon
 	fi
 	$VERBOSE && echo "Duplicate archive basename ... rename $archive.* files to $archive-$suff.*"
+	[ -f SaveLogs/$archive.log ] && eval $MV SaveLogs/$archive.log SaveLogs/$archive-$suff.log
     fi
     eval $MV -f $file `echo $file | sed -e "s/$archive/&-$suff/"`
 done
@@ -722,6 +723,18 @@ then
     fi
 else
     _abandon
+fi
+
+# if SaveLogs exists in the same directory that the archive
+# is being created, save pmlogger log file there as well
+# (we've already cd'd into $dir)
+#
+if [ -d SaveLogs ]
+then
+    if [ ! -f SaveLogs/$LOGNAME.log ]
+    then
+	_do_cmd "ln $logfile SaveLogs/$archive.log"
+    fi
 fi
 
 exit

@@ -171,6 +171,19 @@ do_text(void)
 	if (tp->old_type != type)
 	    continue;
 
+	/* Delete the record? */
+	if (tp->flags & TEXT_DELETE) {
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "Delete: %s help text for ",
+			(tp->old_type & PM_TEXT_ONELINE) ? "one line" : "full");
+		if ((tp->old_type & PM_TEXT_PMID))
+		    fprintf(stderr, " metric %s", pmIDStr(tp->old_id));
+		else
+		    fprintf(stderr, " indom %s", pmInDomStr(tp->old_id));
+	    }
+	    return;
+	}
+
 	/* Rewrite the record as specified. */
 	if ((tp->flags & TEXT_CHANGE_ID))
 	    ident = tp->new_id;
@@ -205,6 +218,7 @@ do_text(void)
 	    if ((tp->flags & (TEXT_CHANGE_ID | TEXT_CHANGE_TYPE | TEXT_CHANGE_TEXT)))
 		fputc('\n', stderr);
 	}
+	break;
     }
 
     /*

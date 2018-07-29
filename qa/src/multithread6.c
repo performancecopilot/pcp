@@ -112,7 +112,7 @@ func1(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 static void *
@@ -144,7 +144,7 @@ func2(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 static void *
@@ -177,7 +177,7 @@ func3(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 int

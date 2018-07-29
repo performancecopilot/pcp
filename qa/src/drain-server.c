@@ -103,7 +103,15 @@ main(int argc, char *argv[])
 
     if (hang) {
 	/* wait for a signal ... */
+#ifndef IS_MINGW
 	pause();
+#else
+	/*
+	 * punt ... looks like a signal will get us back from here
+	 * (at least it works in one test case with SIGINT)
+	 */
+	SleepEx(INFINITE, TRUE);
+#endif
 	exit(0);
     }
 

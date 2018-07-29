@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 
 INCLUDE_SUBDIR = include
 PMNS_SUBDIR = pmns
-LIBPCP_SUBDIR = libpcp
+LIBPCP_SUBDIR = libpcp libpcp_static
 LIBS_SUBDIRS = \
 	libpcp_pmda \
 	libpcp_trace \
@@ -46,6 +46,7 @@ OTHER_SUBDIRS = \
 	pcp2graphite \
 	pcp2influxdb \
 	pcp2json \
+	pcp2spark \
 	pcp2xlsx \
 	pcp2xml \
 	pcp2zabbix \

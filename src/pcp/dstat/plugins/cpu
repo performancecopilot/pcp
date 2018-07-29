@@ -1,25 +1,19 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
-#
-# metric [,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [cpu]
-label = total cpu usage
+label = %I usage
 width = 3
 precision = 0
 printtype = p
 colorstep = 34
-usr = usr
-usr.formula = 100 * (rate(kernel.all.cpu.user) + rate(kernel.all.cpu.nice) + rate(kernel.all.cpu.irq.soft) + rate(kernel.all.cpu.irq.hard)) / hinv.ncpu
-sys = sys
-sys.formula = 100 * rate(kernel.all.cpu.sys) / hinv.ncpu
-idl = idl
-idl.formula = 100 * rate(kernel.all.cpu.idle) / hinv.ncpu
-wai = wai
-wai.formula = 100 * rate(kernel.all.cpu.wait.total) / hinv.ncpu
-stl = stl
-stl.formula = 100 * rate(kernel.all.cpu.steal) / hinv.ncpu
+grouptype = 2
+usr = 100 * (rate(kernel.percpu.cpu.user) + rate(kernel.percpu.cpu.nice) + rate(kernel.percpu.cpu.irq.soft) + rate(kernel.percpu.cpu.irq.hard))
+sys = 100 * rate(kernel.percpu.cpu.sys)
+idl = 100 * rate(kernel.percpu.cpu.idle)
+wai = 100 * rate(kernel.percpu.cpu.wait.total)
+stl = 100 * rate(kernel.percpu.cpu.steal)
 
 [cpu-adv]
 width = 3
@@ -27,20 +21,13 @@ label = total cpu usage
 precision = 0
 printtype = p
 colorstep = 34
-usr = usr
-usr.formula = 100 * (rate(kernel.all.cpu.user) + rate(kernel.all.cpu.nice)) / hinv.ncpu
-sys = sys
-sys.formula = 100 * rate(kernel.all.cpu.sys) / hinv.ncpu
-idl = idl
-idl.formula = 100 * rate(kernel.all.cpu.idle) / hinv.ncpu
-wai = wai
-wai.formula = 100 * rate(kernel.all.cpu.wait.total) / hinv.ncpu
-hiq = hiq
-hiq.formula = 100 * rate(kernel.all.cpu.irq.hard) / hinv.ncpu
-siq = siq
-siq.formula = 100 * rate(kernel.all.cpu.irq.soft) / hinv.ncpu
-stl = stl
-stl.formula = 100 * rate(kernel.all.cpu.steal) / hinv.ncpu
+usr = 100 * (rate(kernel.all.cpu.user) + rate(kernel.all.cpu.nice)) / hinv.ncpu
+sys = 100 * rate(kernel.all.cpu.sys) / hinv.ncpu
+idl = 100 * rate(kernel.all.cpu.idle) / hinv.ncpu
+wai = 100 * rate(kernel.all.cpu.wait.total) / hinv.ncpu
+hiq = 100 * rate(kernel.all.cpu.irq.hard) / hinv.ncpu
+siq = 100 * rate(kernel.all.cpu.irq.soft) / hinv.ncpu
+stl = 100 * rate(kernel.all.cpu.steal) / hinv.ncpu
 
 [cpu-use]
 width = 3
@@ -48,6 +35,5 @@ label = per cpu usage
 printtype = p
 precision = 0
 colorstep = 34
-# TODO: the label must be the CPU number (can use instance ID here)
-percpu = use
-percpu.formula = 100 - 100 * (rate(kernel.percpu.cpu.idle))
+percpu = 100 - 100 * (rate(kernel.percpu.cpu.idle))
+percpu.label = %i

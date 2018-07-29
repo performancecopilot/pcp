@@ -6,7 +6,7 @@
 
 set -e # detect syntax errors or subsidiary command failures
 sts=1  # presume failure, in case of an unexpected early exit
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 NM=nm
@@ -162,6 +162,8 @@ config.o
     config_lock		# local mutex
     state			# guarded by config_lock
     ?features			# const
+    ?pcp_dir			# one-trip initialization then read-only
+    ?init			# one-trip initialization then read-only
 connectlocal.o
     atexit_installed		# guarded by __pmLock_libpcp mutex
     buffer			# assert safe, see notes in connectlocal.c
@@ -499,6 +501,8 @@ util.o
     xconfirm			# no unsafe side-effects, see notes in util.c
 deprecated.o
 ?win32.o
+				# skip statics in win32.c as we don't run this
+				# script for Windows builds
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
 

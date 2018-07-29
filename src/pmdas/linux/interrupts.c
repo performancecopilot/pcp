@@ -26,6 +26,7 @@ typedef struct {
     char		*name;		/* becomes PMNS sub-component */
     char		*text;		/* one-line metric help text */
     unsigned long	*values;	/* per-CPU values for this counter */
+    unsigned long long	total;		/* aggregation of interrupt counts */
 } interrupt_t;
 
 typedef struct {
@@ -44,8 +45,8 @@ static interrupt_t *softirqs;
 
 static unsigned int refresh_interrupt_count;
 static unsigned int refresh_softirqs_count;
-static __pmnsTree *interrupt_tree;
-static __pmnsTree *softirqs_tree;
+static pmdaNameSpace *interrupt_tree;
+static pmdaNameSpace *softirqs_tree;
 unsigned int irq_err_count;
 
 /*
@@ -59,9 +60,10 @@ setup_interrupts(int reset)
     if (!setup) {
 	pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_LOAD);
 	pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_LOAD);
+	pmdaCacheOp(INDOM(INTERRUPTS_INDOM), PMDA_CACHE_LOAD);
+	pmdaCacheOp(INDOM(SOFTIRQS_INDOM), PMDA_CACHE_LOAD);
 	setup = 1;
     }
-
     if (cpu_count != _pm_ncpus) {
 	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(online_cpu_t));
 	if (!online_cpumap)
@@ -110,9 +112,7 @@ dynamic_item_lookup(const char *name, int cache)
 static unsigned int
 dynamic_name_insert(const char *name, int cache, void *data)
 {
-    pmInDom dict = INDOM(cache);
-
-    return pmdaCacheStore(dict, PMDA_CACHE_ADD, name, data);
+    return pmdaCacheStore(INDOM(cache), PMDA_CACHE_ADD, name, data);
 }
 
 static void
@@ -135,7 +135,7 @@ update_lines_pmns(int domain, unsigned int item, unsigned int id)
     pmID pmid = pmID_build(domain, CLUSTER_INTERRUPT_LINES, item);
 
     pmsprintf(entry, sizeof(entry), "kernel.percpu.interrupts.line%d", id);
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
 }
 
 static void
@@ -146,10 +146,10 @@ update_other_pmns(int domain, const char *name)
     pmID pmid = pmID_build(domain, CLUSTER_INTERRUPT_OTHER, item);
 
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", name);
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
 }
 
-static __pmnsTree *
+static pmdaNameSpace *
 noop_interrupts_pmns(int domain)
 {
     char entry[128];
@@ -157,10 +157,10 @@ noop_interrupts_pmns(int domain)
 
     pmid = pmID_build(domain, CLUSTER_INTERRUPT_LINES, 0);
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "line");
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
     pmid = pmID_build(domain, CLUSTER_INTERRUPT_OTHER, 0);
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "none");
-    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmdaTreeInsert(interrupt_tree, pmid, entry);
 
     pmdaTreeRebuildHash(interrupt_tree, 2);
     return interrupt_tree;
@@ -174,17 +174,17 @@ update_softirqs_pmns(int domain, const char *name)
     pmID pmid = pmID_build(domain, CLUSTER_SOFTIRQS, item);
 
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", name);
-    __pmAddPMNSNode(softirqs_tree, pmid, entry);
+    pmdaTreeInsert(softirqs_tree, pmid, entry);
 }
 
-static __pmnsTree *
+static pmdaNameSpace *
 noop_softirqs_pmns(int domain)
 {
     char entry[128];
     pmID pmid = pmID_build(domain, CLUSTER_SOFTIRQS, 0);
 
     pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", "none");
-    __pmAddPMNSNode(softirqs_tree, pmid, entry);
+    pmdaTreeInsert(softirqs_tree, pmid, entry);
     pmdaTreeRebuildHash(softirqs_tree, 1);
     return softirqs_tree;
 }
@@ -221,11 +221,12 @@ column_to_cpuid(int column)
 }
 
 static char *
-extract_values(char *buffer, unsigned long *values, int ncolumns, int count)
+extract_values(char *buffer, interrupt_t *ip, int ncolumns, int count)
 {
     unsigned long i, cpuid, value;
     char *s = buffer, *end = NULL;
 
+    ip->total = 0;
     for (i = 0; i < ncolumns; i++) {
 	value = strtoul(s, &end, 10);
 	if (!isspace(*end))
@@ -234,7 +235,8 @@ extract_values(char *buffer, unsigned long *values, int ncolumns, int count)
 	cpuid = column_to_cpuid(i);
 	if (count)
 	    online_cpumap[cpuid].count += value;
-	values[cpuid] = value;
+	ip->values[cpuid] = value;
+	ip->total += value;
     }
     return end;
 }
@@ -262,6 +264,19 @@ oneline_reformat(char *buf)
 }
 
 static void
+reset_indom_cache(int indom, interrupt_t *data, int count)
+{
+    int i;
+    pmInDom cache = INDOM(indom);
+
+    for (i = 0; i < count; i++) {
+	interrupt_t *ip = &data[i];
+	pmdaCacheStore(cache, PMDA_CACHE_ADD, ip->name, (void **)ip);
+    }
+    pmdaCacheOp(cache, PMDA_CACHE_SAVE);
+}
+
+static void
 initialise_interrupt(interrupt_t *ip, unsigned int id, char *s, char *end)
 {
     ip->id = id;
@@ -278,7 +293,7 @@ initialise_named_interrupt(interrupt_t *ip, int cache, char *name, char *end)
 }
 
 static int
-extend_interrupts(interrupt_t **interp, unsigned int *countp)
+extend_interrupts(interrupt_t **interp, int indom, unsigned int *countp)
 {
     int cnt = cpu_count * sizeof(unsigned long);
     unsigned long *values = malloc(cnt);
@@ -290,6 +305,7 @@ extend_interrupts(interrupt_t **interp, unsigned int *countp)
 
     interrupt = realloc(interrupt, count * sizeof(interrupt_t));
     if (!interrupt) {
+	pmdaCacheOp(INDOM(indom), PMDA_CACHE_CULL);
 	free(values);
 	return 0;
     }
@@ -329,11 +345,13 @@ extract_interrupt_lines(char *buffer, int ncolumns, int nlines)
     id = strtoul(name, &end, 10);
     if (*end != '\0')
 	return 0;
-    if (resize && !extend_interrupts(&interrupt_lines, &lines_count))
+    if (resize &&
+	!extend_interrupts(&interrupt_lines, INTERRUPTS_INDOM, &lines_count))
 	return 0;
-    end = extract_values(values, interrupt_lines[nlines].values, ncolumns, 1);
+    end = extract_values(values, &interrupt_lines[nlines], ncolumns, 1);
     if (resize) {
 	initialise_interrupt(&interrupt_lines[nlines], id, name, end);
+	reset_indom_cache(INTERRUPTS_INDOM, interrupt_lines, nlines+1);
 	return 2;
     }
     return 1;
@@ -361,12 +379,14 @@ extract_interrupt_other(char *buffer, int ncolumns, int nlines)
     int resize = (nlines >= other_count);
 
     name = extract_interrupt_name(buffer, &values);
-    if (resize && !extend_interrupts(&interrupt_other, &other_count))
+    if (resize &&
+	!extend_interrupts(&interrupt_other, INTERRUPTS_INDOM, &other_count))
 	return 0;
-    end = extract_values(values, interrupt_other[nlines].values, ncolumns, 1);
+    end = extract_values(values, &interrupt_other[nlines], ncolumns, 1);
     if (resize) {
 	initialise_named_interrupt(&interrupt_other[nlines],
 				   INTERRUPT_NAMES_INDOM, name, end);
+	reset_indom_cache(INTERRUPTS_INDOM, interrupt_other, nlines+1);
 	return 2;
     }
     return 1;
@@ -379,12 +399,14 @@ extract_softirqs(char *buffer, int ncolumns, int nlines)
     int resize = (nlines >= softirqs_count);
 
     name = extract_interrupt_name(buffer, &values);
-    if (resize && !extend_interrupts(&softirqs, &softirqs_count))
+    if (resize &&
+	!extend_interrupts(&softirqs, SOFTIRQS_INDOM, &softirqs_count))
 	return 0;
-    end = extract_values(values, softirqs[nlines].values, ncolumns, 0);
+    end = extract_values(values, &softirqs[nlines], ncolumns, 0);
     if (resize) {
 	initialise_named_interrupt(&softirqs[nlines],
 				    SOFTIRQS_NAMES_INDOM, name, end);
+	reset_indom_cache(SOFTIRQS_INDOM, softirqs, nlines+1);
 	return 2;
     }
     return 1;
@@ -435,8 +457,10 @@ refresh_interrupt_values(void)
     }
     fclose(fp);
 
-    if (resized)
+    if (resized) {
 	dynamic_name_save(INTERRUPT_NAMES_INDOM, interrupt_other, other_count);
+	pmdaCacheOp(INDOM(INTERRUPTS_INDOM), PMDA_CACHE_SAVE);
+    }
 
     return 0;
 }
@@ -475,20 +499,22 @@ refresh_softirqs_values(void)
     }
     fclose(fp);
 
-    if (resized)
+    if (resized) {
 	dynamic_name_save(SOFTIRQS_NAMES_INDOM, softirqs, softirqs_count);
+	pmdaCacheOp(INDOM(SOFTIRQS_INDOM), PMDA_CACHE_SAVE);
+    }
 
     return 0;
 }
 
 static int
-refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
+refresh_interrupts(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int i, sts, dom = pmda->e_domain;
 
     if (interrupt_tree) {
 	*tree = interrupt_tree;
-    } else if ((sts = __pmNewPMNS(&interrupt_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&interrupt_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create interrupt names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
@@ -515,13 +541,13 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 }
 
 static int
-refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
+refresh_softirqs(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int i, sts, dom = pmda->e_domain;
 
     if (softirqs_tree) {
 	*tree = softirqs_tree;
-    } else if ((sts = __pmNewPMNS(&softirqs_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&softirqs_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create softirqs names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
@@ -549,15 +575,38 @@ int
 interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 {
     interrupt_t *ip;
-    int cpuid;
+    int cpuid, sts;
 
     if (!refresh_interrupt_count)
 	refresh_interrupt_values();
 
-    if (cluster == CLUSTER_INTERRUPTS && item == 3) {
-	/* kernel.all.interrupts.error */
-	atom->ul = irq_err_count;
-	return 1;
+    if (cluster == CLUSTER_INTERRUPTS) {
+	if (item == 0) {	/* kernel.all.interrupts.total */
+	    pmInDom indom = INDOM(INTERRUPTS_INDOM);
+	    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&ip);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
+	    	return PM_ERR_INST;
+	    atom->ull = ip->total;
+	    return 1;
+	}
+	if (item == 3) {	/* kernel.all.interrupts.errors */
+	    atom->ul = irq_err_count;
+	    return 1;
+	}
+    }
+    if (cluster == CLUSTER_SOFTIRQS_TOTAL) {
+	if (item == 0) {	/* kernel.all.softirqs.total */
+	    pmInDom indom = INDOM(SOFTIRQS_INDOM);
+	    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&ip);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
+	    	return PM_ERR_INST;
+	    atom->ull = ip->total;
+	    return 1;
+	}
     }
 
     if (inst >= cpu_count)

@@ -26,7 +26,9 @@
 # By default, the daily report will be written to /var/log/pcp/sa/sarXX
 # where XX is the day of the month, yesterday.
 #
+
 . $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/utilproc.sh
 
 status=0
 prog=`basename $0`
@@ -55,6 +57,7 @@ Options:
   -f=FILE		  output filename (default "sarXX" in directory specified with -o, for XX yesterdays day of the month)
   -h=HOSTNAME		  hostname, affects the default input archive file path (default local hostname)
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
+  -p                      poll and exit if processing already done for today
   -o=DIRECTORY		  output directory (default $PCP_SA_DIR, see also -f option)
   -t=TIME		  reporting interval, default 10m
   -A			  use start and end times of input archive for the report (default midnight yesterday for 24hours)
@@ -74,6 +77,7 @@ _usage()
 VERBOSE=false
 ARCHIVETIMES=false
 VERY_VERBOSE=false
+PFLAG=false
 MYARGS=""
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
@@ -93,14 +97,16 @@ do
 	-h)	HOSTNAME="$2"
 		shift
 		;;
+	-l)	PROGLOG="$2"
+		USE_SYSLOG=false
+		shift
+		;;
 	-o)	REPORTDIR="$2"
 		shift
 		;;
-	-t)	INTERVAL="$2"
-		shift
+	-p)     PFLAG=true
 		;;
-	-l)	PROGLOG="$2"
-		USE_SYSLOG=false
+	-t)	INTERVAL="$2"
 		shift
 		;;
 	-A)	ARCHIVETIMES=true
@@ -120,6 +126,64 @@ do
 done
 
 [ $# -ne 0 ] && _usage
+
+if $PFLAG
+then
+    rm -f $tmp/ok
+    if [ -f $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.stamp ]
+    then
+	last_stamp=`sed -e '/^#/d' <$PCP_LOG_DIR/pmlogger/pmlogger_daily_report.stamp`
+	if [ -n "$last_stamp" ]
+	then
+	    # Polling happens every 60 mins, so if pmlogger_daily was last
+	    # run more than 23.5 hours ago, we need to do it again, otherwise
+	    # exit quietly
+	    #
+	    now_stamp=`pmdate %s`
+	    check=`expr $now_stamp - \( 23 \* 3600 \) - 1800`
+	    if [ "$last_stamp" -ge "$check" ]
+	    then
+		# nothing to be done, yet
+		exit
+	    fi
+	    touch $tmp/ok
+	fi
+    fi
+    if [ ! -f $tmp/ok ]
+    then
+	# special start up logic when pmlogger_daily_report.stamp does not
+	# exist ... punt on archive files being below $PCP_LOG_DIR/sa
+	#
+	if [ -d $PCP_LOG_DIR/sa ]
+	then
+	    find $PCP_LOG_DIR/sa -name "sar`pmdate -1d %d`" >$tmp/tmp
+	    if [ -s $tmp/tmp ]
+	    then
+		# heuristic match, assume nothing to be done
+		exit
+	    fi
+	fi
+    fi
+fi
+
+# write date-and-timestamp to be checked by -p polling
+#
+if _save_prev_file $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.stamp
+then
+    :
+else
+    echo "Warning: cannot save previous date-and-timestamp" >&2
+fi
+# only update date-and-timestamp if we can write the file
+#
+pmdate '# %Y-%m-%d %H:%M:%S
+%s' >$tmp/stamp
+if cp $tmp/stamp $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.stamp
+then
+    :
+else
+    echo "Warning: cannot install new date-and-timestamp" >&2
+fi
 
 # After argument checking, everything must be logged to ensure no mail is
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
@@ -172,9 +236,8 @@ REPORT_OPTIONS="-a $ARCHIVEPATH -z -p -f%H:%M:%S -t$INTERVAL"
 if ! $ARCHIVETIMES
 then
     # specific start/finish times - midnight yesterday for 24h
-    start=`pmdate -1d @%m/%d/%y`
-    finish=`pmdate @%m/%d/%y`
-    REPORT_OPTIONS="$REPORT_OPTIONS -S$start -T$finish"
+    start=`pmdate -1d "@%d-%b-%Y"`
+    REPORT_OPTIONS="$REPORT_OPTIONS -S$start -T 24h"
 fi
 $VERBOSE && echo REPORT_OPTIONS=$REPORT_OPTIONS
 

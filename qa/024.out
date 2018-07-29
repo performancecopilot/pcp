@@ -92,7 +92,7 @@ contexts[0] handle 0: host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> o
 Dump Instance Profile state=INCLUDE, 0 profiles
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 <stripped lines>
-pmNewContext(3, (null)) -> 1
+pmNewContext(3, NULL) -> 1
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: standalone: profile=NOT_SENT
 Dump Instance Profile state=INCLUDE, 0 profiles

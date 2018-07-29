@@ -164,7 +164,6 @@ do_logue(int type)
 	    sts = pmFetch(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
 		last_stamp = res->timestamp = res_pmcd->timestamp;	/* struct assignment */
-		last_log_offset = __pmFtell(archctl.ac_mfp);
 	    }
 	    if (sts >= 0 && res_pmcd->vset[0]->numval == 1 &&
 	        (res_pmcd->vset[0]->valfmt == PM_VAL_SPTR || res_pmcd->vset[0]->valfmt == PM_VAL_DPTR))
@@ -193,7 +192,8 @@ do_logue(int type)
 	goto done;
 
     __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));	/* force use of log version */
-    /* and start some writing to the archive log files ... */
+    /* and write to the archive data file ... */
+    last_log_offset = __pmFtell(archctl.ac_mfp);
     sts = __pmLogPutResult2(&archctl, pb);
     __pmUnpinPDUBuf(pb);
     if (sts < 0)

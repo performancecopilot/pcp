@@ -1,0 +1,71 @@
+QA output created by 1158
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['biotop']
+Info: Configuring modules:
+Info: biotop
+Info: Modules configured.
+Info: Initializing modules:
+Info: biotop
+Info: biotop: Debug logging enabled.
+Info: biotop: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: biotop
+Info: Metrics registered.
+Info: Registering helpers:
+Info: biotop
+Info: Helpers registered.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['biotop']
+Info: Configuring modules:
+Info: biotop
+Info: Modules configured.
+Info: Initializing modules:
+Info: biotop
+Info: biotop: Debug logging enabled.
+Info: biotop: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: biotop
+Info: Metrics registered.
+Info: Registering helpers:
+Info: biotop
+Info: Helpers registered.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... X metrics and X values
+
+=== report metric values for pid ===
+OK
+=== report metric values for comm ===
+OK
+=== report metric values for direction ===
+OK
+=== report metric values for major ===
+OK
+=== report metric values for minor ===
+OK
+=== report metric values for disk ===
+OK
+=== report metric values for io ===
+OK
+=== report metric values for bytes ===
+found value 20971520 +- 10%
+=== report metric values for duration ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

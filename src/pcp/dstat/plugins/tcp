@@ -1,19 +1,18 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [tcp]
 label = tcp sockets
 width = 4
 printtype = d
-listen = lis
-listen.formula = network.tcpconn.listen + network.tcpconn6.listen
-active = act
-active.formula = network.tcpconn.established + network.tcpconn6.established
-syn = syn
-syn.formula = network.tcpconn.syn_sent + network.tcpconn.syn_recv + network.tcpconn.last_ack + network.tcpconn6.syn_sent + network.tcpconn6.syn_recv + network.tcpconn6.last_ack
-wait = tim
-wait.formula = network.tcpconn.time_wait + network.tcpconn6.time_wait
-close = clo
-close.formula = network.tcpconn.fin_wait1 + network.tcpconn.fin_wait2 + network.tcpconn.close + network.tcpconn.close_wait + network.tcpconn.closing + network.tcpconn6.fin_wait1 + network.tcpconn6.fin_wait2 + network.tcpconn6.close + network.tcpconn6.close_wait + network.tcpconn6.closing
+listen = network.tcpconn.listen
+listen.label = lis
+active = network.tcpconn.established
+active.label = act
+syn = network.tcpconn.syn_sent + network.tcpconn.syn_recv + network.tcpconn.last_ack
+wait = network.tcpconn.time_wait
+wait.label = tim
+close = network.tcpconn.fin_wait1 + network.tcpconn.fin_wait2 + network.tcpconn.close + network.tcpconn.close_wait + network.tcpconn.closing
+close.label = clo
 

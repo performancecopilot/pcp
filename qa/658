@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 658
+# Check meta files are compressed by pmlogger_daily.
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which xz >/dev/null 2>&1
+then
+    SUFF=xz
+elif which bzip2 >/dev/null 2>&1
+then
+    SUFF=bz2
+elif which gzip >/dev/null 2>&1
+then
+    SUFF=gz
+else
+    _notrun "cannot find a compression program!"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/^-rw/s/\. 1 .* \([^ ][^ ]*\)/ ... \1/' \
+	-e '/^-rw/s/ 1 .* \([^ ][^ ]*\)/ ... \1/' \
+	-e 's/$/ /' \
+	-e "s/\.$SUFF /.SUFF /g" \
+	-e 's/ $//' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir $tmp
+./mk.logfarm $tmp 2>&1 | _filter
+
+# create test control file
+#
+cat <<End-of-File >$tmp.control
+\$version=1.1
+#Host           P?  S?  directory       args
+thishost        n   n   $tmp/thishost    -c /no/such/config
+otherhost       n   n   $tmp/otherhost   -c /no/such/config
+End-of-File
+
+# real QA test starts here
+$sudo $PCP_BINADM_DIR/pmlogger_daily -l $tmp.log -V -k never -x 0 -f -c $tmp.control \
+| _filter
+
+_filter <$tmp.log
+
+echo
+echo "And the smouldering ruins ..."
+find $tmp -type f | sort >$tmp.list
+for arch in `sed -n -e '/\.meta/s/\.meta.*//p' <$tmp.list`
+do
+    echo $arch.* | _filter
+    ls -l $arch.* >>$seq.full
+    pmdumplog -z -l $arch | tee -a $seq.full | grep commencing
+done
+
+# success, all done
+status=0
+exit

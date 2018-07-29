@@ -6,8 +6,8 @@ RUN dnf -y install \
         rpm-build redhat-rpm-config initscripts man procps \
         avahi-devel ncurses-devel readline-devel zlib-devel \
         perl perl-devel perl-generators perl-ExtUtils-MakeMaker \
-        python3 python3-devel \
-        bcc-tools
+        python2-devel python3 python3-devel \
+        bcc-tools e2fsprogs xfsprogs
 
 COPY . /pcp
 RUN cd /pcp && ./Makepkgs

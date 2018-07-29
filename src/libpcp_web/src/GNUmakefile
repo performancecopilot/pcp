@@ -36,7 +36,8 @@ LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_LIBUV)" "true"
-CFILES += libuv.c
+CFILES += libuv.c discover.c
+HFILES += discover.h
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 endif
@@ -46,6 +47,21 @@ STATICLIBTARGET = libpcp_web.a
 DSOVERSION = 1
 LIBTARGET = libpcp_web.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_web.$(DSOSUFFIX)
+
+ifeq "$(TARGET_OS)" "darwin"
+LIBTARGET = libpcp_web.$(DSOVERSION).$(DSOSUFFIX)
+SYMTARGET = libpcp_web.$(DSOSUFFIX)
+endif
+ifeq "$(TARGET_OS)" "mingw"
+LIBTARGET = libpcp_web.$(DSOSUFFIX)
+STATICLIBTARGET =
+SYMTARGET =
+endif
+
+ifeq "$(ENABLE_SHARED)" "no"
+LIBTARGET =
+SYMTARGET =
+endif
 
 VERSION_SCRIPT = exports
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)

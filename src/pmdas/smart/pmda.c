@@ -15,7 +15,6 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
 
@@ -1256,21 +1255,21 @@ smart_text(int ident, int type, char **buf, pmdaExt *pmda)
 static int
 smart_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-	__pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
+	pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
 	return pmdaTreePMID(tree, name, pmid);
 }
 
 static int
 smart_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-	__pmnsTree *tree = pmdaDynamicLookupPMID(pmda, pmid);
+	pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
 	return pmdaTreeName(tree, pmid, nameset);
 }
 
 static int
 smart_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
-	__pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
+	pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
 	return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 

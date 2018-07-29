@@ -2,7 +2,7 @@
  * perfevent PMDA
  *
  * Copyright (c) 2013 Joe White
- * Copyright (c) 2012,2016 Red Hat.
+ * Copyright (c) 2012,2016,2018 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,6 @@
  * for more details.
  */
 #include "pmapi.h"
-#include "libpcp.h"
 #include "pmda.h"
 #include "domain.h"
 #include <sys/stat.h>
@@ -86,7 +85,7 @@ static pmdaIndom *indomtab;
 /*
  * Performance metrics namespace
  */
-static __pmnsTree *pmns;
+static pmdaNameSpace *pmns;
 
 typedef struct dynamic_metric_info
 {
@@ -570,7 +569,7 @@ static int setup_pmns()
     char name[MAXPATHLEN * 2];
     pmdaMetric *pmetric;
 
-    if ((sts = __pmNewPMNS(&pmns)) < 0)
+    if ((sts = pmdaTreeCreate(&pmns)) < 0)
     {
         pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(sts));
         pmns = NULL;
@@ -581,7 +580,7 @@ static int setup_pmns()
 
     /* Setup for derived static metrics */
     pmsprintf(name, sizeof(name), PMDANAME ".derived.%s", "active");
-    __pmAddPMNSNode(pmns, pmetric[0].m_desc.pmid, name);
+    pmdaTreeInsert(pmns, pmetric[0].m_desc.pmid, name);
 
     pmetric += NUM_STATIC_DERIVED_METRICS;
 
@@ -594,7 +593,7 @@ static int setup_pmns()
         {
             pmsprintf(name, sizeof(name),
                      PMDANAME ".hwcounters.%s.%s", id, dynamic_nametab[j]);
-            __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
+            pmdaTreeInsert(pmns, pmetric[j].m_desc.pmid, name);
         }
         pmetric += METRICSPERCOUNTER;
         free(id);
@@ -607,7 +606,7 @@ static int setup_pmns()
         {
             pmsprintf(name, sizeof(name),
                      PMDANAME ".derived.%s.%s", id, dynamic_nametab[j]);
-            __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
+            pmdaTreeInsert(pmns, pmetric[j].m_desc.pmid, name);
         }
         pmetric += METRICSPERDERIVED;
         free(id);

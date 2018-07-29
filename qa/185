@@ -75,6 +75,7 @@ log mandatory on 20 sec sample.bin
 log advisory on 1 min sample.bucket
 End-of-File
 rm -f $tmp.arch.*
+$sudo rm -f /tmp/pmlogger.log /tmp/pmlogger.log.prior /tmp/Latest
 pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch &
 pid=$!
 sleep 1

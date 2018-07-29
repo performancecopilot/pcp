@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, Red Hat.
+ * Copyright (c) 2012-2018, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -46,7 +46,7 @@ public:
     void preserveSample(int, int);
     void punchoutSample(int);
     void updateValues(bool, bool, pmUnits *, int, int, double, double, double);
-    void rescaleValues(pmUnits *);
+    void rescaleValues(const pmUnits *, const pmUnits *);
     void resetValues(int, double, double);
     void revive();
     void remove();

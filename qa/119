@@ -59,6 +59,7 @@ _cleanup()
 _filter()
 {
     sed \
+	-e "/^ln: failed to create hard link.*SaveLogs/d" \
 	-e "s/$myhost/LOCALHOST/g" \
 	-e "/UID.*PID/d" \
 	-e "/USER.*PID/d" \

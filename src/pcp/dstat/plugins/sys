@@ -1,5 +1,5 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [sys]
@@ -7,7 +7,7 @@ width = 5
 label = system
 type = raw
 printtype = decimal
-interrupts = int
-interrupts.formula = delta(kernel.all.intr)
-context_switches = csw
-context_switches.formula = delta(kernel.all.pswitch)
+interrupts = delta(kernel.all.intr)
+interrupts.label = int
+context_switches = delta(kernel.all.pswitch)
+context_switches.label = csw

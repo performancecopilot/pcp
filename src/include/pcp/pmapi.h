@@ -678,8 +678,8 @@ PCP_CALL extern int pmStore(const pmResult *);
 /* Get help and descriptive text */
 PCP_CALL extern int pmLookupText(pmID, int, char **);
 PCP_CALL extern int pmLookupInDomText(pmInDom, int, char **);
-#define PM_TEXT_ONELINE	1
-#define PM_TEXT_HELP	2
+#define PM_TEXT_ONELINE		1
+#define PM_TEXT_HELP		2
 
 /*
  * For the help text PDUs, the type (PM_TEXT_ONELINE or PM_TEXT_HELP)

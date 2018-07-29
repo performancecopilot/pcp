@@ -13,7 +13,6 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "pmda.h"
 #include "linux.h"
 #include "proc_tty.h"

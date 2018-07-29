@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# Usage: new [-n|-s|-v] [base-seq-no group ...]
+# Usage: new [-n|-r|-s|-v] [base-seq-no group ...]
 #
 # base-seq-no defaults to some random place in the range $min-$max
 #
@@ -18,19 +18,33 @@ max_probes=200
 
 _usage()
 {
-    echo >&2 "Usage: new [-n|-s|-v] [starting-seq-no [group ...]]"
+    echo >&2 "Usage: new [options] [starting-seq-no [group ...]]"
+    echo >&2
+    echo >&2 "Options:"
+    echo >&2 "-n   show-me, change nothing"
+    echo >&2 "-r   reserve (and skeletal test added)"
+    echo >&2 "-s   pick smallest unallocated test number"
+    echo >&2 "     [default and preferred is to choose at random]"
+    echo >&2 "-v   verbose"
+    echo >&2
+    echo >&2 "starting-seq-no changes where search starts, but maybe - to ignore"
+    echo >&2 "if group(s) specified on the command line"
+
     exit 1
 }
 
 showme=false
+reserve=false
 verbose=false
 smallest=false
 random=true
-while getopts 'nsv?' p
+while getopts 'nrsv?' p
 do
     case "$p"
     in
 	n)	showme=true
+		;;
+	r)	reserve=true
 		;;
 	s)	smallest=true
 		random=false
@@ -120,20 +134,30 @@ then
     echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 fi
 
+try=""
 if [ $# -gt 0 ]
 then
-    try=`printf "%03d\n" $1`
-    random=false
+    if [ x"$1" != x- ]
+    then
+	try=`printf "%03d\n" $1`
+	random=false
+    fi
     shift
-elif $smallest
+fi
+if [ -z "$try" ]
 then
-    try=000
-else
-    # random in the range $min-$max based on user name convered from alpha
-    # to numeric, prefixed by current clock seconds
-    #
-    seed="`date +%S``echo $USER | tr 'a-z' '0-90-90-9'`"
-    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+    if $smallest
+    then
+	# as of 15 Jun 2018, we're all full up to 650 and a bit
+	#
+	try=650
+    else
+	# random in the range $min-$max based on user name convered from alpha
+	# to numeric, prefixed by current clock seconds
+	#
+	seed="`date +%S``echo $USER | tr 'a-z' '0-90-90-9'`"
+	try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+    fi
 fi
 
 # first $try, then keep randomly probing the min-max space
@@ -174,7 +198,7 @@ then
     exit
 fi
 
-echo "Next test is $id"
+echo "Allocated test number $id"
 
 if [ -f $id ]
 then
@@ -183,11 +207,15 @@ then
     exit
 fi
 
-$PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal script for you to edit ...""$PCP_ECHO_C"
-
 cat <<End-of-File >$id
 #!/bin/sh
 # PCP QA Test No. $id
+End-of-File
+if $reserve
+then
+    echo "# Test reserved by $LOGNAME on `date`" >>$id
+fi
+cat <<End-of-File >>$id
 # [what am I here for?]
 #
 # Copyright (c) `date +%Y` [who are you?].  All Rights Reserved.
@@ -226,12 +254,19 @@ exit
 status=0
 exit
 End-of-File
-
-sleep 2		# latency to read messages to this point
-echo ""
-
 chmod 755 $id
-${EDITOR-vi} $id
+
+if $reserve
+then
+    echo "Creating skeletal $id script"
+    tag=":reserved"
+else
+    $PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal $id script for you to edit ...""$PCP_ECHO_C"
+    sleep 2		# latency to read messages to this point, before vi(1)
+    echo ""
+    ${EDITOR-vi} $id
+    tag=""
+fi
 
 if [ $# -eq 0 ]
 then
@@ -265,7 +300,7 @@ else
     #
     for g in $*
     do
-	if grep "^$g[ 	]" group >/dev/null
+	if sed -e 's/$/ /' <group | grep "^$g[ 	]" >/dev/null
 	then
 	    :
 	else
@@ -275,9 +310,8 @@ else
     ans="$*"
 fi
 
-$PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to group index ...""$PCP_ECHO_C"
-echo "$id $ans" >>group
-echo " done."
+echo "Adding $id to group index"
+echo "$id$tag $ans" >>group
 
 # sort the tests numerically
 #
@@ -287,5 +321,18 @@ state == "head" && /^[0-9]/	{ state = "list" }
 				{ print >"'$tmp'." state }'
 sort -n $tmp.list >>$tmp.head
 cp $tmp.head group
+
+# make a $id.out placeholder if not already done
+#
+if [ ! -f $id.out ]
+then
+    echo "Creating skeletal output, $id.out"
+    echo "QA output created by $id" >$id.out
+    echo "[skeleton from now, replace me]" >>$id.out
+fi
+
+# and finally, don't forget the git work ...
+#
+git add $id $id.out
 
 exit 0

@@ -70,6 +70,8 @@ networking/nfs4-server
 networking/softnet
 storage/vdo
 storage/vdo-summary
+gfs2/gfs2-all
+gfs2/gfs2-base
 tools/atop
 tools/atop-httpstats
 tools/atop-nfsclient
@@ -79,6 +81,8 @@ tools/cockpit
 tools/collectl
 tools/collectl-interrupts
 tools/dmcache
+tools/dstat
+tools/dstat-summary
 tools/hotproc
 tools/mpstat
 tools/mpstat-summary

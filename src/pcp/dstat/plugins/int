@@ -1,0 +1,11 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[int]
+label = interrupts
+width = 4
+printtype = d
+grouptype = 2
+int = kernel.all.interrupts.total
+int.label = %I

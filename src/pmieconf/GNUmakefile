@@ -29,15 +29,17 @@ PMLOGCONF_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
 LLDLIBS = $(PCPLIB)
 LCFLAGS = -I$(TOPDIR)/src/pmie/src
 
-ifneq "$(TARGET_OS)" "mingw"
-STATICTARGETS = pmieconf.static
-STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+ifneq "$(CROSS_COMPILING)" "yes"
+STATICTARGETS = pmieconf.static$(EXECSUFFIX)
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp_static/src/libpcp_static.a
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 endif
 
 LDIRT = local $(CMDTARGET) $(STATICTARGETS) rate-syscalls \
 	pmlogconf.tmp pmlogconf $(shell echo */GNUmakefile)
 LDIRDIRT = rules .pcp
+
+.NOTPARALLEL:
 
 default: $(CMDTARGET) $(STATICTARGETS) makefiles local pmlogconf
 
@@ -48,7 +50,6 @@ $(CMDTARGET): $(OBJECTS)
 
 pmieconf.o rules.o:    rules.h
 
-.NOTPARALLEL:
 makefiles:
 	@for d in $(MKFILE_SUBDIRS); do \
 	    rm -f $$d/GNUmakefile; \
@@ -57,8 +58,8 @@ makefiles:
 	    cd ..; \
 	done
 
-pmieconf.static: $(OBJECTS)
-	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+pmieconf.static$(EXECSUFFIX): $(CFILES) $(STATIC_LIBPCP)
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 local: $(STATICTARGETS) $(SUBDIRS)
 	@rm -fr rules; mkdir rules

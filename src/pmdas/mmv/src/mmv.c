@@ -57,7 +57,7 @@ static int mtot;
 static pmdaIndom * indoms;
 static int intot;
 
-static __pmnsTree * pmns;
+static pmdaNameSpace * pmns;
 static int reload;			/* require reload of maps */
 static int notify;			/* notify pmcd of changes */
 static int statsdir_code;		/* last statsdir stat code */
@@ -325,7 +325,7 @@ create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
 			mtot, name, pmIDStr(pmid), s->name);
 
     mtot++;
-    __pmAddPMNSNode(pmns, pmid, name);
+    pmdaTreeInsert(pmns, pmid, name);
 
     return 0;
 }
@@ -493,11 +493,11 @@ map_stats(pmdaExt *pmda)
     int sep = pmPathSeparator();
 
     if (pmns) {
-	__pmFreePMNS(pmns);
+	pmdaTreeRelease(pmns);
 	notify |= PMDA_EXT_NAMES_CHANGE;
     }
 
-    if ((sts = __pmNewPMNS(&pmns)) < 0) {
+    if ((sts = pmdaTreeCreate(&pmns)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	pmns = NULL;
@@ -506,11 +506,11 @@ map_stats(pmdaExt *pmda)
 
     /* hard-coded metrics (not from mmap'd files) */
     pmsprintf(name, sizeof(name), "%s.control.reload", prefix);
-    __pmAddPMNSNode(pmns, pmID_build(pmda->e_domain, 0, 0), name);
+    pmdaTreeInsert(pmns, pmID_build(pmda->e_domain, 0, 0), name);
     pmsprintf(name, sizeof(name), "%s.control.debug", prefix);
-    __pmAddPMNSNode(pmns, pmID_build(pmda->e_domain, 0, 1), name);
+    pmdaTreeInsert(pmns, pmID_build(pmda->e_domain, 0, 1), name);
     pmsprintf(name, sizeof(name), "%s.control.files", prefix);
-    __pmAddPMNSNode(pmns, pmID_build(pmda->e_domain, 0, 2), name);
+    pmdaTreeInsert(pmns, pmID_build(pmda->e_domain, 0, 2), name);
     mtot = 3;
 
     if (indoms != NULL) {
@@ -1248,15 +1248,12 @@ mmv_label_lookup(int ident, int type, pmLabelSet **lp)
     int i, j;
     mmv_disk_label_t lb;
 
-    // check if any label has the requested ident
+    /* search for labels with requested identifier for given type */
     for (i = 0; i < scnt; i++) {
 	for (j = 0; j < slist[i].lcnt; j++) {
 	    lb = slist[i].labels[j];
-	    if (lb.flags == type) {
-		if (lb.identity == ident && lb.internal == PM_IN_NULL) {
-		    return __pmAddLabels(lp,lb.payload,lb.flags);
-	        }
-	    }
+	    if ((lb.flags & type) && lb.identity == ident)
+		pmdaAddLabels(lp, lb.payload, lb.flags);
 	}
     }
     return 0;
@@ -1265,45 +1262,46 @@ mmv_label_lookup(int ident, int type, pmLabelSet **lp)
 static int
 mmv_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 {
-    int c = 0;
+    int sts = 0;
+
     switch (type) {
 	case PM_LABEL_CLUSTER:
-	    c = mmv_label_lookup(pmID_cluster(ident), type, lp);
+	    sts = mmv_label_lookup(pmID_cluster(ident), type, lp);
 	    break;
 	case PM_LABEL_INDOM:
-	    c = mmv_label_lookup(ident, type, lp);
+	    sts = mmv_label_lookup(ident, type, lp);
 	    break;
 	case PM_LABEL_ITEM:
-	    c = mmv_label_lookup(pmID_item(ident), type, lp);
+	    sts = mmv_label_lookup(pmID_item(ident), type, lp);
 	    break;
 	default:
 	    break;
     } 
-    if (c < 0) {
-	return c;
-    }
+    if (sts < 0)
+	return sts;
     return pmdaLabel(ident, type, lp, pmda);
 }
 
 static int
 mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    int i, j, cnt=0;
+    int i, j, count = 0;
     mmv_disk_label_t lb;
 
-    // check if any label has the requested inst
+    /* search for labels with requested indom and instance identifier */
     for (i = 0; i < scnt; i++) {
 	for (j = 0; j < slist[i].lcnt; j++) {
 	    lb = slist[i].labels[j];
-	    if (lb.flags == PM_LABEL_INSTANCES) {
-		if (lb.identity == indom && lb.internal == inst) {
-		    __pmAddLabels(lp,lb.payload,lb.flags);
-		    ++cnt;
-	        }
+	    if ((lb.flags & PM_LABEL_INSTANCES) &&
+		(lb.identity == indom) &&
+		(lb.internal == inst)) {
+		if (pmdaAddLabels(lp, lb.payload, lb.flags) < 0)
+		    continue;
+		count++;
 	    }
 	}
     }
-    return cnt;
+    return count;
 }
 
 void

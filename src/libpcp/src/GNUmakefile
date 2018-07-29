@@ -2,12 +2,12 @@
 # Copyright (c) 2012-2018 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
 # by the Free Software Foundation; either version 2.1 of the License, or
 # (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -40,9 +40,8 @@ GENERATED_HFILES = pmdbg.h
 LIBCONFIG = libpcp.pc
 VERSION_SCRIPT = exports
 
-LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
-	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
-LCFLAGS += $(LIBPCP_CFLAGS)
+LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
+LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_INTERNAL
 LLDLIBS += $(LIBPCP_LDLIBS)
 
 ifeq "$(ENABLE_SECURE)" "true"
@@ -73,12 +72,12 @@ LIBTARGET = libpcp.$(DSOVERSION).$(DSOSUFFIX)
 SYMTARGET = libpcp.$(DSOSUFFIX)
 endif
 ifeq "$(TARGET_OS)" "mingw"
-STATICLIBTARGET = 
+STATICLIBTARGET =
 LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
 ifeq "$(ENABLE_SHARED)" "no"
-LIBTARGET = 
+LIBTARGET =
 SYMTARGET =
 endif
 
@@ -89,7 +88,7 @@ base default : $(EXT_FILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done
 
 ifneq "$(SYMTARGET)" ""
-$(SYMTARGET): 
+$(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $@
 endif
 
@@ -100,6 +99,7 @@ jsmn.o: jsmn.c jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
+labels.o:	sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h \
@@ -151,8 +151,6 @@ pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
 
 exports:	exports.master mk.exports
 	./mk.exports
-
-labels.o:	sort_r.h
 
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition

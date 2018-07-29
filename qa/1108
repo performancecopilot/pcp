@@ -6,6 +6,7 @@
 # Copyright (c) 2018 Red Hat. All Rights Reserved.
 #
 # check-group-exclude: pmlogger
+# check-group-exclude: pmnewlog
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,6 +18,17 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
+    # restore yesterday's files
+    #
+    cd $PCP_LOG_DIR/pmlogger
+    for dir in */$seq
+    do
+	[ "$dir" = "*/$seq" ] && continue
+	$sudo mv "$dir"/* $dir/..
+	$sudo rmdir "$dir"
+    done
+    cd $here
+
     test -f $PCP_LOG_DIR/NOTICES.orig && \
 	$sudo mv $PCP_LOG_DIR/NOTICES.orig $PCP_LOG_DIR/NOTICES
     $sudo rm -f $tmp.*
@@ -33,6 +45,7 @@ _filter()
 	-e '/^+ date-and-timestamp /s/stamp .*/stamp .../' \
 	-e '/^+ cd /s/cd .*/cd .../' \
 	-e '/^+ mv /s/mv .*/mv .../' \
+	-e '/^+ ln /d' \
 	-e '/^+ pmlogger /s/pmlogger .*/pmlogger .../' \
 	-e '/^+ pmnewlog /s/pmnewlog .*/pmnewlog .../' \
 	-e '/^+ mkaf /s/mkaf .*/mkaf .../' \
@@ -62,9 +75,19 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq.full
 #
 SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
 echo "SUMMARY_LOGNAME=$SUMMARY_LOGNAME" >>$seq.full
-echo "Files to be removed before we start ..." >>$seq.full
-ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.* >>$seq.full 2>&1
-$sudo rm -f $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.*
+echo "Files to be moved before we start ..." >>$seq.full
+ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME* >>$seq.full 2>&1
+# save yesterday's files
+#
+cd $PCP_LOG_DIR/pmlogger
+for file in */$SUMMARY_LOGNAME*
+do
+    [ "$file" = "*/$SUMMARY_LOGNAME*" ] && continue
+    dir=`dirname $file`
+    [ ! -d "$dir/$seq" ] && $sudo mkdir "$dir/$seq"
+    $sudo mv "$file" "$dir/$seq"
+done
+cd $here
 
 # create a temporary control file with well-known contents, ensure
 # we exercise a fix for rebuilding zero-length configuration files

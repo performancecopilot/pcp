@@ -52,7 +52,7 @@ static struct timeval interval = { 2, 0 };
 static char *username;
 
 static int nummetrics;
-static __pmnsTree *pmns;
+static pmdaNameSpace *pmns;
 
 typedef struct dynamic_metric_info {
     int		handle;
@@ -406,7 +406,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
 
     /* Create the dynamic PMNS tree and populate it. */
-    if ((sts = __pmNewPMNS(&pmns)) < 0) {
+    if ((sts = pmdaTreeCreate(&pmns)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	pmns = NULL;
@@ -418,7 +418,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
 	for (j = 0; j < numdynamics; j++) {
 	    pmsprintf(name, sizeof(name),
 			"logger.perfile.%s.%s", id, dynamic_nametab[j]);
-	    __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
+	    pmdaTreeInsert(pmns, pmetric[j].m_desc.pmid, name);
 	}
 	pmetric += numdynamics;
     }

@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 637
+# exercise mk.logfarm
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    # note stripping special UTF-8 quotes thanks to coreutils brain damage
+    # from mkdir(1) error message
+    #
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s/[‘’]//g" \
+	-e "s/'//g" \
+	-e 's/`//g' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "No rootdir ..."
+rm -rf $tmp
+if ./mk.logfarm $tmp >$tmp.out 2>&1
+then
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm did not fail!"
+    exit
+else
+    _filter <$tmp.out
+fi
+
+echo
+echo "Cannot write rootdir ..."
+mkdir $tmp
+chmod 555 $tmp
+if ./mk.logfarm $tmp >$tmp.out 2>&1
+then
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm did not failed!"
+    exit
+else
+    _filter <$tmp.out
+fi
+
+echo
+echo "OK ..."
+rm -rf $tmp
+mkdir $tmp
+if ./mk.logfarm $tmp >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+find $tmp -type f | sort >$tmp.list
+for arch in `sed -n -e '/\.meta/s/\.meta.*//p' <$tmp.list`
+do
+    echo $arch.* | tee -a $seq.full | _filter
+    pmdumplog -z -l $arch | tee -a $seq.full | grep commencing
+done
+
+# success, all done
+status=0
+exit

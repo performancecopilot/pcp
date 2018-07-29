@@ -1,0 +1,145 @@
+#snort-disks!/bin/sh
+# PCP QA Test No. 671
+# test mkaf and pmafm with compressed archives
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which xz >/dev/null 2>&1
+then
+    PROG=xz
+    SUFF=xz
+elif which bzip2 >/dev/null 2>&1
+then
+    PROG=bzip2
+    SUFF=bz2
+elif which gzip >/dev/null 2>&1
+then
+    PROG=gzip
+    SUFF=gz
+else
+    _notrun "cannot find a compression program!"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_filter_pmafm()
+{
+    # Need to sort lines in this block
+    #
+    # Ordinal Hostname             Archive Basename
+    #   [  1] bozo                 ./multivol/20011002	<- start here
+    #   [  2] snort                ./onevol/20011002	<-- end here
+    #
+    host=`hostname`
+    tee -a $here/$seq.full \
+    | tee $tmp.tmp \
+    | sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/\[  *[0-9][0-9]*]/[N]/' \
+	-e '/^Created:/{
+s/'"$host"'/HOSTNAME/
+s/ at .*/ at DATE/
+}' \
+	-e '/^Creator:/s/:.*/: .../' \
+	-e '/^Folio Directory:/s/:.*/: .../' \
+	-e '/^PCP Archive Folio:/s/:.*/: .../' \
+| $PCP_AWK_PROG '
+BEGIN				{ part = 1 }
+part == 2 && NF == 0		{ part = 3 }
+				{ print >"'$tmp.out.'" part }
+part == 1 && $1 == "Ordinal"	{ part = 2 }'
+
+    if [ -f $tmp.out.1 ]
+    then
+	cat $tmp.out.1
+    else
+	echo "Arrgh ... part 1 from pmafm output missing (full output follows)"
+	cat  $tmp.tmp
+    fi
+    if [ -f $tmp.out.2 ]
+    then
+	sort $tmp.out.2
+    else
+	echo "Arrgh ... part 2 from pmafm output missing (full output follows)"
+	cat  $tmp.tmp
+    fi
+    if [ -f $tmp.out.3 ]
+    then
+	cat $tmp.out.3
+    fi
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# setup the log farm
+#
+cat <<End-of-File >$tmp.farm
+onevol		archives/snort-disks	20011002
+onevol		archives/moomba.client	20011003
+multivol	archives/ok-mv-bar	20011002
+End-of-File
+
+mkdir $tmp
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+
+# real QA test starts here
+cd $tmp
+
+echo "=== uncompressed archives ==="
+for arg in . onevol/20011002.0 multivol/20011002.0
+do
+    echo
+    echo "--- $arg ---"
+    mkaf $arg >folio
+    pmafm folio list | _filter_pmafm
+    pmafm folio pminfo -f pmcd.pmlogger.host
+done
+
+echo
+echo "=== archives with compressed data volumes ==="
+find * -name "*.[0-9]" -print \
+| while read file
+do
+    $PROG $file
+done
+for arg in . onevol/20011002.0.$SUFF multivol/20011002.0.$SUFF
+do
+    echo
+    echo "--- $arg ---"
+    mkaf $arg >folio
+    pmafm folio list | _filter_pmafm
+    pmafm folio pminfo -f pmcd.pmlogger.host
+done
+
+# success, all done
+status=0
+exit

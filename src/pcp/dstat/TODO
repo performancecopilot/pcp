@@ -1,8 +1,7 @@
 Key:
 [x]  =  implemented
-[*]  =  implemented, with caveat(s)
 [-]  =  not implemented, no plan to
-[ ]  =  not implemented, but needed
+[ ]  =  not implemented, still needed
 [?]  =  desirable, not clear if needed
 
 
@@ -10,62 +9,58 @@ General Functionality:
 [x] initial code welding pmrep/pmconfig onto original dstat
 [x] local context fallback when no local pmcd available
 [x] make use of PCP metric units for scaling
-[ ] implement interval argument
-[ ] implement #samples argument
-[-] implement --all-plugins option
+[x] implement interval argument
+[x] implement #samples argument
+[?] implement --all-plugins option
 [x] new socket6 plugin for IPv6 socket metrics
-[ ] handle dynamic instances correctly (esp. headings)
-[ ] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
-[ ] need to handle dstat 'total' columns better?  (see instances too)
-[ ] figure out why --disk and --io not usable together (same labels?)
+[x] handle dynamic instances correctly (esp. headings)
+[x] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
+[x] need to handle dstat 'total' columns better?  (see instances too)
+[x] figure out why --disk and --io not usable together (same labels?)
 [ ] improved handling of first counter sample (see ticks() code)
-[ ] improved handling of invalid configuration files
 [ ] fix terminal title writing to use metric values (see code)
 [ ] fix version output writing to use metric values (see code)
-[?] csv output option (for dstat backward compatibility)
-[ ] revisit config file format and pmconfig integration
-    - now using formula (derived metrics) everywhere - bad? good?
-    - setting metric names vs labels in the config is non-intuitive
+[ ] csv output option (for dstat backward compatibility)
 [x] implement sub-second time(stamp) and epoch reporting support
 [ ] implement historical reporting support via PCP archives
 [ ] create pmlogconf(1) configuration file(s)
-[ ] write pcp-dstat.conf(5) man page
+[ ] write regression tests with archives
+[x] write pcp-dstat(5) man page
 [x] write pcp-dstat(1) man page
-[ ] write QA tests
 
 
 Internal Plugins:
-[x] aio		(needs new vfs.aio.* kernel metrics)
+[x] aio
 [x] cpu
 [x] cpu-adv
-[*] cpu-use	(needs instance fixes for per-CPU reporting)
+[x] cpu-use
 [-] cpu24
-[*] disk	(needs instance fixes for per-dev reporting)
+[x] disk
 [-] disk24
 [-] disk24-old
 [x] epoch
 [x] fs
-[?] int		(current interrupts plugin isn't functional)
+[x] int
 [-] int24
-[*] io		(needs instance fixes for per-dev reporting)
+[x] io
 [x] ipc
-[*] load	(needs instance fixes for per-avg reporting)
-[x] lock	(needs new vfs.locks.* kernel metrics)
+[x] load
+[x] lock
 [x] mem
 [x] mem-adv
-[*] net		(needs new network.physical.* kernel metrics)
+[x] net
 [x] page
 [-] page24
 [x] proc
-[x] raw		(needs new network.raw.* kernel metrics)
+[x] raw
 [x] socket
 [x] swap
 [-] swap-old
 [x] sys
-[x] tcp		(needs new network.tcpconn6.* metrics)
+[x] tcp
 [x] time
-[x] udp		(needs new network.udpconn[6].* metrics)
-[x] unix	(needs new network.unixconn.* metics)
+[x] udp
+[x] unix
 [x] vm
 [x] vm-adv
 [?] zones	(compound indom, tough for derived metrics)
@@ -77,12 +72,12 @@ External Plugins:
 [-] condor-queue
 [ ] cpufreq		(needs new ACPI PMDA)
 [ ] dbus		(needs new DBUS PMDA)
-[ ] disk-avgqu
-[ ] disk-avgrq
-[ ] disk-svctm
-[ ] disk-tps
-[ ] disk-util
-[ ] disk-wait
+[x] disk-avgqu
+[x] disk-avgrq
+[x] disk-svctm
+[x] disk-tps
+[x] disk-util
+[x] disk-wait
 [-] dstat
 [-] dstat-cpu
 [-] dstat-ctxt
@@ -100,8 +95,8 @@ External Plugins:
 [?] jvm_full
 [?] jvm_vm
 [ ] lustre
-[ ] md-status		(needs more MD driver metrics)
-[ ] memcache-hits
+[ ] md-status		(needs additional MD driver metrics)
+[x] memcache-hits
 [?] mongodb_conn	(needs new MongoDB PMDA)
 [?] mongodb_mem		(needs new MongoDB PMDA)
 [?] mongodb_opcount	(needs new MongoDB PMDA)
@@ -117,20 +112,20 @@ External Plugins:
 [ ] mysql5-io
 [ ] mysql5-keys
 [x] net-packets
-[ ] nfs3
-[ ] nfs3-ops
-[ ] nfsd3
-[ ] nfsd3-ops
-[ ] nfsd4-ops
-[ ] nfsstat4
+[x] nfs3
+[x] nfs3-ops
+[x] nfsd3
+[x] nfsd3-ops
+[x] nfsd4-ops
+[x] nfsstat4
 [?] ntp
-[ ] postfix
+[x] postfix
 [ ] power		(needs new ACPI PMDA)
 [x] proc-count
 [ ] qmail
 [x] redis
-[ ] rpc
-[ ] rpcd
+[x] rpc
+[x] rpcd
 [ ] sendmail		(needs qlen glob in sendmail PMDA)
 [-] snmp-cpu
 [-] snmp-load
@@ -142,7 +137,7 @@ External Plugins:
 [?] squid		(needs new Squid PMDA)
 [-] test
 [ ] thermal		(needs new ACPI PMDA)
-[ ] top-bio		(use pmrep / pmconfig ranking?)
+[ ] top-bio		(investigate pmconfig.py 'rank'ing)
 [ ] top-bio-adv				"
 [ ] top-childwait			"
 [ ] top-cpu				"
@@ -176,17 +171,17 @@ Missing metrics:
 [x] kernel.all.sessions,kernel.all.nroots utmp metrics
 [x] /proc/locks metrics in Linux kernel PMDA
 [x] per-process out-of-memory metric
-[ ] drop lo/bond*/face - new network.physical.* metrics?
+[x] drop lo/bond*/face - added cullinsts keyword
 [x] network.tcpconn6 metrics ala network.tcpconn
 [x] network.udpconn and network.udpconn6 kernel metrics
 [ ] disk.md.recovery.* metrics (percent complete, speed)
 
 Missing PMDAs:
 [ ] acpi
-[ ] mongodb
 [?] dbus
-[?] gpfs
+[ ] gpfs
 [?] ntp
+[ ] mongodb
 [?] squid
 [?] vmware
 [?] zfs (Linux version)

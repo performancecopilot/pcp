@@ -1,0 +1,232 @@
+#
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the tcptop BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/tcptop.py
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA tcptop module """
+
+# pylint: disable=invalid-name, line-too-long
+
+import ctypes as ct
+from threading import Lock, Thread
+from socket import inet_ntop, AF_INET, AF_INET6
+from struct import pack
+from os import path
+from time import sleep
+from collections import namedtuple
+
+from bcc import BPF
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_SEM_INSTANT, PM_SPACE_BYTE
+from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/tcptop.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'tcptop'
+METRIC = 'proc.io.net.tcptop.'
+units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+
+TCPSessionKey = namedtuple('TCPSession', ['pid', 'laddr', 'lport', 'daddr', 'dport'])
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC tcptop module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.interval = 1
+        self.conn_count = 20
+
+        for opt in self.config.options(MODULE):
+            if opt == 'interval':
+                self.interval = int(self.config.get(MODULE, opt))
+            if opt == 'conn_count':
+                self.conn_count = int(self.config.get(MODULE, opt))
+
+        self.cache = {}
+        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.conn_count)}
+
+        self.lock = Lock()
+        if self.interval > 0:
+            self.thread = Thread(name="tcptop_refresh", target=self.refresh_stats_loop)
+            self.thread.setDaemon(True)
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (name + 'pid', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'PID'),
+            (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
+            (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'local address'),
+            (name + 'lport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'local port'),
+            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination ' \
+                'address'),
+            (name + 'dport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'destination port'),
+            (name + 'rx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'bytes received'),
+            (name + 'tx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'bytes sent'),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
+                bpf_text = f.read()
+
+            bpf_text = bpf_text.replace('FILTER', '')
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
+            self.bpf = BPF(text=bpf_text)
+            if self.interval > 0:
+                self.thread.start()
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
+            self.err(str(error))
+            self.err("Module NOT active!")
+            raise
+
+    @staticmethod
+    def pid_to_comm(pid):
+        """ get command of a PID """
+        try:
+            return open("/proc/%d/comm" % pid, "r").read().rstrip()
+        except IOError:
+            return str(pid)
+
+    @staticmethod
+    def ipv4_table_to_dict(table):
+        """ Build a hashable dict from the IPv4 BPF table """
+        return {TCPSessionKey(pid=k.pid,
+                              laddr=inet_ntop(AF_INET, pack("I", k.saddr)),
+                              lport=k.lport,
+                              daddr=inet_ntop(AF_INET, pack("I", k.daddr)),
+                              dport=k.dport):v.value for k, v in table.items()}
+
+    @staticmethod
+    def ipv6_table_to_dict(table):
+        """ Build a hashable dict from the IPv6 BPF table """
+        return {TCPSessionKey(pid=k.pid,
+                              laddr=inet_ntop(AF_INET6, pack("QQ", k.saddr0, k.saddr1)),
+                              lport=k.lport,
+                              daddr=inet_ntop(AF_INET6, pack("QQ", k.daddr0, k.daddr1)),
+                              dport=k.dport):v.value for k, v in table.items()}
+
+
+    def refresh_stats(self):
+        """ Refresh statistics from BPF table """
+        self.lock.acquire()
+        self.cache.clear()
+        self.lock.release()
+
+        ipv4_send_bytes = self.bpf["ipv4_send_bytes"]
+        ipv4_send_bytes_dict = self.ipv4_table_to_dict(ipv4_send_bytes)
+        ipv4_recv_bytes = self.bpf["ipv4_recv_bytes"]
+        ipv4_recv_bytes_dict = self.ipv4_table_to_dict(ipv4_recv_bytes)
+
+        ipv6_send_bytes = self.bpf["ipv6_send_bytes"]
+        ipv6_send_bytes_dict = self.ipv6_table_to_dict(ipv6_send_bytes)
+        ipv6_recv_bytes = self.bpf["ipv6_recv_bytes"]
+        ipv6_recv_bytes_dict = self.ipv6_table_to_dict(ipv6_recv_bytes)
+
+        # build dict of all seen keys (connections)
+        keys = ipv4_send_bytes_dict.copy()
+        keys.update(ipv4_recv_bytes_dict)
+        keys.update(ipv6_send_bytes_dict)
+        keys.update(ipv6_recv_bytes_dict)
+
+        idx = 0
+        for k, v in sorted(keys.items(), key=lambda kv: kv[1], reverse=True): # pylint: disable=unused-variable
+            send_bytes = 0
+            recv_bytes = 0
+
+            if k in ipv4_send_bytes_dict:
+                send_bytes = ipv4_send_bytes_dict[k]
+            if k in ipv4_recv_bytes_dict:
+                recv_bytes = ipv4_recv_bytes_dict[k]
+            if k in ipv6_send_bytes_dict:
+                send_bytes = ipv6_send_bytes_dict[k]
+            if k in ipv6_recv_bytes_dict:
+                recv_bytes = ipv6_recv_bytes_dict[k]
+
+            self.lock.acquire()
+            self.cache[idx] = [
+                k.pid,
+                self.pid_to_comm(k.pid),
+                k.laddr,
+                k.lport,
+                k.daddr,
+                k.dport,
+                recv_bytes,
+                send_bytes
+            ]
+            self.lock.release()
+
+            idx += 1
+            if idx >= self.conn_count:
+                break
+
+        ipv4_send_bytes.clear()
+        ipv4_recv_bytes.clear()
+        ipv6_send_bytes.clear()
+        ipv6_recv_bytes.clear()
+        return idx
+
+    def refresh_stats_loop(self):
+        """ Refresh statistics thread loop """
+        while True:
+            cnt = self.refresh_stats()
+            if self.debug:
+                self.log("Fetched data from BPF table, current number of connections: %d." % cnt)
+            sleep(self.interval)
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        if self.interval == 0:
+            self.refresh_stats()
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = int(self.pmdaIndom.inst_name_lookup(inst))
+            self.lock.acquire()
+            value = self.cache[key][item]
+            self.lock.release()
+            return [value, 1]
+        except Exception: # pylint: disable=broad-except
+            self.lock.release()
+            return [PM_ERR_AGAIN, 0]

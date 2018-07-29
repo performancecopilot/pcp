@@ -373,11 +373,15 @@ printhdr(Context *x)
     if (opts.context != PM_CONTEXT_ARCHIVE)
 	printf("host:      %s\n", x->hostname);
     else {
+	time_t		time;
 	printf("archive:   %s\n", source);
 	printf("host:      %s\n", x->hostname);
-	printf("start:     %s", pmCtime((const time_t *)&opts.origin.tv_sec, tbfr));
-	if (opts.finish.tv_sec != INT_MAX)
-	    printf("end:       %s", pmCtime((const time_t *)&opts.finish.tv_sec, tbfr));
+	time = opts.origin.tv_sec;
+	printf("start:     %s", pmCtime(&time, tbfr));
+	if (opts.finish.tv_sec != INT_MAX) {
+	    time = opts.finish.tv_sec;
+	    printf("end:       %s", pmCtime(&time, tbfr));
+	}
     }
 
     if (rawEvents)
@@ -734,8 +738,10 @@ printtime(struct timeval *tv)
 {
     char	tbfr[26];
     char	*tp;
+    time_t	time;
 
-    tp = pmCtime((const time_t *)&tv->tv_sec, tbfr);
+    time = tv->tv_sec;
+    tp = pmCtime(&time, tbfr);
     /*
      * tp -> Ddd Mmm DD HH:MM:SS YYYY\n
      *       0   4   8  1      1 2  2 2
@@ -909,9 +915,9 @@ main(int argc, char *argv[])
     char        *subopt;
     char        *endnum;
     char        *errmsg;
-    pmMetricSpec *msp;
+    pmMetricSpec *msp = NULL;
     pmResult    *rslt1;		/* current values */
-    pmResult    *rslt2;		/* previous values */
+    pmResult    *rslt2 = NULL;	/* previous values */
 
     setlinebuf(stdout);
     context.iall = 1;
@@ -1296,9 +1302,16 @@ main(int argc, char *argv[])
 	idx2 = idx1;
     }
 
+    /* make valgrind happy */
+    if (rslt2 != NULL)
+	pmFreeResult(rslt2);
+    if (msp != NULL)
+	pmFreeMetricSpec(msp);
+
     /*
      * All serious error conditions have explicit exit() calls, so
      * if we get this far, all has gone well.
      */
+
     return 0;
 }

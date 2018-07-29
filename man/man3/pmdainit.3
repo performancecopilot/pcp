@@ -19,6 +19,7 @@
 \f3pmdaInit\f1,
 \f3pmdaRehash\f1,
 \f3pmdaSetFlags\f1,
+\f3pmdaSetCommFlags\f1,
 \f3pmdaExtSetFlags\f1 \- initialize a PMDA
 .SH "C SYNOPSIS"
 .ft 3
@@ -37,6 +38,9 @@ void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetric
 .br
 .ti -8n
 void pmdaSetFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
+.br
+.ti -8n
+void pmdaSetCommFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
 .br
 .ti -8n
 void pmdaExtSetFlags(pmdaExt *\fIpmda\fP, int \fIflags\fP);
@@ -255,6 +259,19 @@ and is provided as a convenience interface in situations where the
 is more readily available than the
 .B pmdaInterface
 structure.
+.SH "COMMUNICATION ATTRIBUTES"
+.PP
+Agents that make use of authentication or container attributes
+should indicate this using the
+.B pmdaSetCommFlags
+interface.
+This indicates the need for these attributes to be communicated
+on the channel between the PMDA and
+.B pmcd
+or local context client.
+Valid flags are PMDA_FLAG_AUTHORIZE (for authentication related
+attributes) and PMDA_FLAG_CONTAINER (for container name related
+attributes).
 .SH DIAGNOSTICS
 .B pmdaInit
 will set
@@ -302,17 +319,18 @@ This message is only a warning.
 .TP
 .BI "Direct mapping for metrics disabled @ " num
 The unit numbers of the metrics did not correspond to the index in the
-metric description table.  The direct mapping failed for metric number
+metric description table.
+The direct mapping failed for metric number
 .I num
 in the
 .I metrics
-table.  This is less efficient but is not fatal and the message is only a 
-warning.
+table.
+This is less efficient but is not fatal and the message is only a warning.
 .TP
 .BI "Hashed mapping for metrics disabled @ " num
 A memory allocation failure occurred while building the hash table to
 index the metric description table.
-This is a non-fatal warning message - a fallback to linear searching
+This is a non-fatal warning message \- a fallback to linear searching
 will be automatically performed should this situation arise.
 .SH CAVEAT
 The PMDA must be using 

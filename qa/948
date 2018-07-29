@@ -18,13 +18,17 @@ _cleanup()
     cd $here
     _service pcp start | _filter_pcp_start
     _wait_for_pmcd
+    _restore_auto_restart pmcd
     _wait_for_pmlogger
+    _restore_auto_restart pmlogger
     $sudo rm -rf $tmp.*
 }
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 cat <<End-of-File >$tmp.config
 log mandatory on 1 sec {

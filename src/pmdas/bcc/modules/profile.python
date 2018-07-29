@@ -1,0 +1,298 @@
+#
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the profile BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/profile.py
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA profile module """
+
+from threading import Thread, Lock
+from os import path
+import json
+import errno
+
+from bcc import BPF, PerfType, PerfSWConfig
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_STRING, PM_SEM_INSTANT
+from cpmapi import PM_ERR_AGAIN, PM_ERR_BADSTORE
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/profile.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'profile'
+METRIC = 'proc.profile'
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+
+class StackNode(object):
+    """ Stack Node """
+    def __init__(self, name, libtype=None):
+        self.name = name
+        self.libtype = libtype
+        self.value = 0
+        self.children = {}
+        self.parents = []
+
+    def find_or_create(self, name, libtype=None):
+        """ Finds or creates a new stack node """
+        if name in self.children:
+            return self.children[name]
+
+        new_node = StackNode(name, libtype)
+        new_node.parents = self.parents + [self]
+        self.children[name] = new_node
+        return new_node
+
+    def increment(self, n):
+        """ Increment node and all parents """
+        self.value += n
+        for parent in self.parents:
+            parent.value += n
+
+class StackNodeEncoder(json.JSONEncoder):
+    """ Stack Node JSON Encoder """
+    def default(self, o): # pylint: disable=method-hidden
+        return {"name": o.name, "libtype": o.libtype, "value": o.value,
+                "children": list(o.children.values())}
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC profile module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.pid = None
+        self.user_stacks_only = False
+        self.kernel_stacks_only = False
+        self.stack_storage_size = 16384
+        self.sample_frequency = 47
+        self.sample_period = 1000000
+
+        for opt in self.config.options(MODULE):
+            if opt == 'pid':
+                self.pid = int(self.config.get(MODULE, opt))
+            if opt == 'user_stacks_only':
+                self.user_stacks_only = self.config.getboolean(MODULE, opt)
+            if opt == 'kernel_stacks_only':
+                self.kernel_stacks_only = self.config.getboolean(MODULE, opt)
+            if opt == 'stack_storage_size':
+                self.stack_storage_size = int(self.config.get(MODULE, opt))
+            if opt == 'sample_frequency':
+                self.sample_frequency = int(self.config.get(MODULE, opt))
+            if opt == 'sample_period':
+                self.sample_period = int(self.config.get(MODULE, opt))
+
+        self.lock = Lock()
+        self.status = "stopped"
+        self.data = "null"
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items.append(
+            # Name - reserved - type - semantics - units - help
+            (name, None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'stack traces'),
+        )
+        return False, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        # this module compiles the BPF code on-the-fly if a profiling request is received
+
+    def start_profiling(self):
+        """ Starts profiling """
+        with self.lock:
+            if self.status != "stopped":
+                self.err("Profiling must be stopped before, current status: %s" % self.status)
+                return
+            self.status = "starting"
+            self.data = "null"
+
+        self.log("Starting profiling...")
+        try:
+            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
+                bpf_text = f.read()
+
+            # set thread filter
+            if self.pid is not None:
+                thread_filter = 'pid == %s' % self.pid
+            else:
+                thread_filter = '1'
+            bpf_text = bpf_text.replace('THREAD_FILTER', thread_filter)
+
+            # set stack storage size
+            bpf_text = bpf_text.replace('STACK_STORAGE_SIZE', str(self.stack_storage_size))
+
+            # handle stack args
+            kernel_stack_get = "stack_traces.get_stackid(&ctx->regs, 0)"
+            user_stack_get = "stack_traces.get_stackid(&ctx->regs, BPF_F_USER_STACK)"
+            if self.user_stacks_only:
+                kernel_stack_get = "-1"
+            elif self.kernel_stacks_only:
+                user_stack_get = "-1"
+            bpf_text = bpf_text.replace('USER_STACK_GET', user_stack_get)
+            bpf_text = bpf_text.replace('KERNEL_STACK_GET', kernel_stack_get)
+
+            sample_freq = 0
+            sample_period = 0
+            if self.sample_frequency:
+                sample_freq = self.sample_frequency
+            elif self.sample_period:
+                sample_period = self.sample_period
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
+            self.bpf = BPF(text=bpf_text)
+            self.bpf.attach_perf_event(ev_type=PerfType.SOFTWARE, ev_config=PerfSWConfig.CPU_CLOCK,
+                                       fn_name="do_perf_event", sample_period=sample_period,
+                                       sample_freq=sample_freq)
+
+            self.log("Started profiling")
+            with self.lock:
+                self.status = "started"
+        except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
+            self.err(str(error))
+            self.err("Cannot compile BPF code")
+            with self.lock:
+                self.status = "stopped"
+            raise
+
+    @staticmethod
+    def stack_id_err(stack_id):
+        """ Helper method to detect stack id errors """
+        # -EFAULT in get_stackid normally means the stack-trace is not availible,
+        # Such as getting kernel stack trace in userspace code
+        return (stack_id < 0) and (stack_id != -errno.EFAULT)
+
+    @staticmethod
+    def enforce_str(x):
+        """ Decode bytes object """
+        if isinstance(x, bytes):
+            return x.decode()
+        else:
+            return x
+
+    def stop_profiling(self):
+        """ Stops profiling and generates JSON of stacktraces """
+        with self.lock:
+            if self.status != "started":
+                self.err("Please start profiling first, current status: %s" % self.status)
+                return
+            self.status = "stopping"
+
+        self.log("Stopping profiling...")
+        missing_stacks = 0
+        has_enomem = False
+
+        counts = self.bpf["counts"]
+        stack_traces = self.bpf["stack_traces"]
+
+        root_node = StackNode('root')
+        for k, v in sorted(counts.items(), key=lambda counts: counts[1].value):
+            # handle get_stackid errors
+            if not self.user_stacks_only and self.stack_id_err(k.kernel_stack_id):
+                missing_stacks += 1
+                has_enomem = has_enomem or k.kernel_stack_id == -errno.ENOMEM
+            if not self.kernel_stacks_only and self.stack_id_err(k.user_stack_id):
+                missing_stacks += 1
+                has_enomem = has_enomem or k.user_stack_id == -errno.ENOMEM
+
+            user_stack = [] if k.user_stack_id < 0 else stack_traces.walk(k.user_stack_id)
+            kernel_tmp = [] if k.kernel_stack_id < 0 else stack_traces.walk(k.kernel_stack_id)
+
+            # fix kernel stack
+            kernel_stack = []
+            if k.kernel_stack_id >= 0:
+                for addr in kernel_tmp:
+                    kernel_stack.append(addr)
+                # the later IP checking
+                if k.kernel_ip:
+                    kernel_stack.insert(0, k.kernel_ip)
+
+            user_stack = list(user_stack)
+            kernel_stack = list(kernel_stack)
+            cur_node = root_node.find_or_create(k.name.decode(), libtype="user")
+
+            # if we failed to get the stack is, such as due to no space (-ENOMEM) or
+            # hash collision (-EEXIST), we still print a placeholder for consistency
+            if not self.kernel_stacks_only:
+                if self.stack_id_err(k.user_stack_id):
+                    cur_node = cur_node.find_or_create("[Missed User Stack]", libtype="user")
+                else:
+                    for addr in reversed(user_stack):
+                        cur_node = cur_node.find_or_create(
+                            self.enforce_str(self.bpf.sym(addr, k.pid)), libtype="user")
+            if not self.user_stacks_only:
+                if self.stack_id_err(k.kernel_stack_id):
+                    cur_node = cur_node.find_or_create("[Missed Kernel Stack]", libtype="kernel")
+                else:
+                    for addr in reversed(kernel_stack):
+                        cur_node = cur_node.find_or_create(
+                            self.enforce_str(self.bpf.ksym(addr)), libtype="kernel")
+            cur_node.increment(v.value)
+
+        # check missing
+        if missing_stacks > 0:
+            enomem_str = "" if not has_enomem else " Consider increasing --stack-storage-size."
+            self.log("WARNING: %d stack traces could not be displayed.%s" %
+                     (missing_stacks, enomem_str))
+
+        self.bpf.cleanup()
+        self.bpf = None
+        self.log("Stopped profiling")
+
+        with self.lock:
+            self.data = json.dumps(root_node, cls=StackNodeEncoder)
+            self.status = "stopped"
+
+    def refresh(self):
+        """ Refresh BPF data """
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            with self.lock:
+                value = '{"status": "%s", "data": %s}' % (self.status, self.data)
+            return [value, 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]
+
+    def store(self, _item, _inst, val):
+        """ Start/stop profiling """
+        if val == "start":
+            thread = Thread(target=self.start_profiling)
+            thread.setDaemon(True)
+            thread.start()
+        elif val == "stop":
+            thread = Thread(target=self.stop_profiling)
+            thread.setDaemon(True)
+            thread.start()
+        else:
+            self.err("Received invalid command: " + val)
+            return PM_ERR_BADSTORE
+
+        return 0

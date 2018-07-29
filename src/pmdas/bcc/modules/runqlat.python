@@ -1,5 +1,7 @@
 #
 # Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the runqlat BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/runqlat.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +20,10 @@
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -65,9 +68,10 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf.attach_kprobe(event="finish_task_switch", fn_name="trace_run")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     def refresh(self):
         """ Refresh BPF data """

@@ -15,7 +15,6 @@
 #define LINUX_PMDA_H
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "pmda.h"
 
 /*
@@ -104,6 +103,7 @@ enum {
 	CLUSTER_NET_UDP,	/* 79 /proc/net/udp */
 	CLUSTER_NET_UDP6,	/* 80 /proc/net/udp6 */
 	CLUSTER_NET_UNIX,	/* 81 /proc/net/unix */
+	CLUSTER_SOFTIRQS_TOTAL,	/* 82 /proc/softirqs */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -138,7 +138,7 @@ enum {
 	DISK_INDOM,		/* 1 - disks */
 	LOADAVG_INDOM,		/* 2 - 1, 5, 15 minute load averages */
 	NET_DEV_INDOM,		/* 3 - network interfaces */
-	PROC_INTERRUPTS_INDOM,	/* 4 - interrupt lines -> proc PMDA */
+	INTERRUPTS_INDOM,	/* 4 - interrupt lines */
 	FILESYS_INDOM,		/* 5 - mounted bdev filesystems */
 	SWAPDEV_INDOM,		/* 6 - swap devices */
 	NFS_INDOM,		/* 7 - nfs operations */
@@ -170,6 +170,7 @@ enum {
 	ZONEINFO_PROTECTION_INDOM,	/* 33 - proc zoneinfo protection item */
 	TAPEDEV_INDOM,		/* 34 - tape devices */
 	TTY_INDOM,              /* 35 - serial tty devices */
+	SOFTIRQS_INDOM,		/* 36 - softirqs */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

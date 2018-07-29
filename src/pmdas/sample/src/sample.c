@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015,2017 Red Hat.
+ * Copyright (c) 2014-2015,2017-2018 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -2975,7 +2975,8 @@ sample_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= PDU_FLAG_AUTH;
+
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE);
 
     dp->version.any.fetch = sample_fetch;
     dp->version.any.desc = sample_desc;

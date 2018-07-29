@@ -1,0 +1,264 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (C) 2018 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-DSTAT 5 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-dstat\f1 \- pcp-dstat configuration file
+.SH DESCRIPTION
+.B pcp-dstat
+is a customizable performance metrics reporting tool.
+It has a ``plugin'' architecture, where a set of pre-defined plugins
+offer small sets of columnar metric reports, and
+.B pcp-dstat
+command line options select which of these plugins are used in the
+generated report.
+.PP
+Each plugin is defined in a section of a configuration file.
+A typical installation will provide many configuration files,
+and often multiple sections (plugins) within each file.
+.PP
+Configuration files are read from both a system directory
+and the users home directory (\c
+.I $PCP_ETC_DIR/pcp/dstat
+and
+.IR $HOME/.pcp/dstat ).
+.PP
+.SH FILE FORMAT
+The configuration files have an ini-style syntax consisting of
+sections (plugins) and options within sections.
+A section begins with the name of the plugin in square brackets
+and continues until the next section begins.
+An example section with two options follows:
+.sp 1
+.RS 4
+.nf
+[\fIplugin\fP]
+\fIoption\fP = \fIvalue\fP
+\fImetric.option\fP = \fIvalue2\fP
+.fi
+.RE
+.PP
+A line comment starts with a hash sign (``#'') or a semicolon (``;'').
+Inline comments are not supported.
+.PP
+There are some options which apply to the plugin as a whole,
+and anything else is considered to be a column definition.
+Column definitions map directly to individual PCP metrics.
+.SS The [plugin] options
+.RE
+.PP
+label (string)
+.RS 4
+The overall title to be used for this plugin.
+In the special case of metrics with instances being reported
+as a group (see \fBgrouptype\fP below) this string may contain
+the \fI%I\fP pattern, which will be substituted with the name
+of the instance \- refer to the cpu, disk, net and int(errupts)
+plugins for examples of this special syntax.
+Undefined by default, set automatically to the section (plugin) name.
+.RE
+.PP
+width (integer)
+.RS 4
+The column width used for metrics in this plugin.
+The default is 5.
+.RE
+.PP
+precision (integer)
+.RS 4
+The maximum \fBprecision\fP to be used when reporting
+columns in floating point for this plugin.
+Undefined by default, set automatically based on \fBwidth\fP.
+.RE
+.PP
+printtype (character)
+.RS 4
+Indicates the reporting style for metric values in this plugin.
+Possible settings are d(ecimal), f(loat), p(ercent), s(tring),
+b(its), t(ime).
+By default a setting will be used based on the metric type and
+semantic \- refer to
+.BR PMAPI (3)
+for further details of PCP metric metadata.
+.RE
+.PP
+colorstep (integer)
+.RS 4
+Indicates a ``step'' at which the next color will be transitioned
+to, when reporting metric values.
+As metric values change on each sample, the
+.B colorstep
+is used to determine the increments beyond which a new color is
+to be selected.
+Defaults to 1000.
+.RE
+.PP
+grouptype (integer)
+.RS 4
+For plugins with metrics sharing the same instance domain, it is
+possible to request more complex grouping behaviour.
+The default behaviour is to not use instance grouping, and to
+report each instance of the metric in a separate column (the
+.I load
+plugin is an example of this, using the
+.I kernel.all.load
+metric).
+.PP
+The grouping can be set at three distinct levels \- 1, 2 or 3.
+Level 1 displays instances of metrics only (no totals) \- this
+is the equivalent of using the \fB\-\-cpu\fP plugin on the
+.B pcp-dstat
+command line with specific processors' utilization displayed,
+e.g. displaying CPU numbers 4, 5 and 12 (\fB\-C\fP \fI4,5,12\fP).
+Level 2 displays the total column \- the sum of all instances
+for the specified metric(s) in this plugin.
+Level 3 is a combination of both modes, for example using the
+.B pcp-dstat
+\fB\-\-cpu\fP plugin with options \fB\-C\fP \fI4,5,12,total\fP.
+.RE
+.PP
+instances (comma-separated-value string)
+.RS 4
+Defines the instances to be reported for the metric.
+The default is to report all instances for set-values metrics.
+.RE
+.PP
+cullinsts (regex pattern)
+.RS 4
+An optional regular expression that can be used to cull metric
+instances from the generated reports.
+For example it is common to exclude loopback devices from the
+network interface reports, this is achieved using this option.
+Default is to report on all instances (no culling).
+.RE
+.SS The [plugin] metrics
+Each plugin must have at least one metric associated with it.
+Any key that is not one of the above global plugin options is
+considered to be a metric specification or a metric option.
+These keys define the metrics and their report formatting.
+.PP
+First and foremost, each column is typically represented by an
+individual metric (if the metric is set-valued \- i.e. it has
+instances \- this will result in multiple columns).
+This is specified by a new key (column) being set to a metric
+specification.
+The column (key) name is an arbitrary word using alphabetic
+characters.
+The metric specification is any PCP metric name or derived
+metric specification, allowing basic arithmetic calculations
+to be used to form this individual column.
+The derived metric syntax is described on the
+.BR pmRegisterDerived (3)
+manual page.
+.PP
+Some examples of both forms of metric specification are given
+below in the ``EXAMPLES'' section.
+Once a column has been associated with a metric, other options
+specific to that column can be set using a dot-separated syntax.
+.PP
+\fBMetric options\fP
+.PP
+metric.label
+.RS 4
+The subtitle to be used for the reported values of this metric.
+The default label is the column name from the configuration file.
+.PP
+When set-valued PCP metrics (i.e. with instances) are being used,
+it is often convenient to specify either the instance number or
+instance name in the heading.
+This is achieved using format specifiers \- ``%d'' or ``%i'' for
+instance numbers (e.g. replaced by ``6'' for the sixth processor),
+and ``%s'' or ``%I'' for instance names (e.g. replaced by ``eth0''
+for the ethernet interface).
+Available instance names for any metric can be discovered via the
+.BR pminfo (1)
+or
+.BR pmprobe (1)
+commands.
+.RE
+.PP
+metric.width
+.RS 4
+The column width to be used when reporting values for this metric.
+.RE
+.PP
+metric.unit (string)
+.RS 4
+Defines the unit/scale conversion for the metric.
+Needs to be dimension-compatible and is used with non-string metrics.
+For allowed values, see
+.BR pmrep (1).
+.RE
+.PP
+metric.type (string)
+.RS 4
+If set to \fBraw\fP rate conversion for the metric will be disabled.
+.RE
+.PP
+metric.precision (integer)
+.RS 4
+Defines precision for floating point values.
+.RE
+.PP
+metric.limit (string)
+.RS 4
+Defines value limit filter for numeric metric values.
+.RE
+.SH EXAMPLES
+The following example defines a virtual filesystem plugin, with two
+columns, defined using three PCP metrics \- \fBvfs.files.count\fP,
+\fBvfs.inodes.count\fP and \fBvfs.inodes.free\fP.
+The inodes metrics are combined using the derived metric notation.
+.PP
+.sp 1
+.RS 4
+.nf
+[vfs]
+width = 6
+label = filesystem
+files = vfs.files.count
+inode = vfs.inodes.count - vfs.inodes.free
+inode.label = inodes
+.fi
+.RE
+.sp 1
+.PP
+The system default \fBpcp-dstat\fP plugin files contain many more examples.
+.SH FILES
+.TP
+.I \f(CW$HOME\fP/\&.pcp/dstat/
+private per-user configuration files
+.TP
+.I \f(CW$PCP_ETC_DIR\fP/pcp/dstat/
+system-wide configuration files
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fB/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp-dstat (1),
+.BR pminfo (1),
+.BR pmprobe (1),
+.BR pmrep (1),
+.BR PMAPI (3),
+.BR pmGetOptions (3),
+.BR pmRegisterDerived (3)
+and
+.BR pmrep.conf (5).

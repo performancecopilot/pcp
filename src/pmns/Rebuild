@@ -311,7 +311,7 @@ _trace $root $mergelist | fmt | sed -e 's/^/    /'
 
 rm -f root.new
 eval $PMNSMERGE
-pmnsmerge $verbose $root $mergelist root.new >$tmp/out 2>&1
+$PCP_BINADM_DIR/pmnsmerge $verbose $root $mergelist root.new >$tmp/out 2>&1
 
 if [ $? != 0 ]
 then

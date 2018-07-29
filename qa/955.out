@@ -88,3 +88,63 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 2
     inst [6 or ???] value 0 0 ADDR
     inst [7 or ???] value 0 0 ADDR
 dbpmda> 
+=== Daemon PMDA accumulated interrupts and softirqs ===
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60 -l TMP.log
+dbpmda> fetch kernel.all.interrupts.total
+PMID(s): 60.4.0
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.4.0 (kernel.all.interrupts.total): numval: 38 valfmt: 1 vlist[]:
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 1
+    inst [NN or ???] value 1087515
+    inst [NN or ???] value 1616143
+    inst [NN or ???] value 1855622
+    inst [NN or ???] value 1932008
+    inst [NN or ???] value 1987
+    inst [NN or ???] value 20200
+    inst [NN or ???] value 2084984
+    inst [NN or ???] value 2094731
+    inst [NN or ???] value 2105
+    inst [NN or ???] value 25
+    inst [NN or ???] value 3
+    inst [NN or ???] value 31
+    inst [NN or ???] value 3128
+    inst [NN or ???] value 3128
+    inst [NN or ???] value 33
+    inst [NN or ???] value 38
+    inst [NN or ???] value 416
+    inst [NN or ???] value 45
+    inst [NN or ???] value 4736146
+    inst [NN or ???] value 477134
+    inst [NN or ???] value 547
+    inst [NN or ???] value 756
+    inst [NN or ???] value 95861098
+dbpmda> fetch kernel.all.softirqs.total
+PMID(s): 60.82.0
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.82.0 (kernel.all.softirqs.total): numval: 10 valfmt: 1 vlist[]:
+    inst [NN or ???] value 0
+    inst [NN or ???] value 0
+    inst [NN or ???] value 108981
+    inst [NN or ???] value 159955154
+    inst [NN or ???] value 18
+    inst [NN or ???] value 2034372
+    inst [NN or ???] value 24690715
+    inst [NN or ???] value 386207
+    inst [NN or ???] value 5317658
+    inst [NN or ???] value 54779294
+dbpmda> 

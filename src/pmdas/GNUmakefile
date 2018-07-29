@@ -39,6 +39,8 @@ PYPMDAS = bcc gluster zswap unbound mic haproxy json libvirt lio prometheus
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
 
+HAVE_UNIX_DOMAIN_SOCKETS = $(shell grep 'define HAVE_STRUCT_SOCKADDR_UN' $(TOPDIR)/src/include/pcp/config.h >/dev/null && echo yes)
+
 default :: default_pcp
 
 default_pcp : $(SUBDIRS)
@@ -51,7 +53,11 @@ default_pcp : $(SUBDIRS)
 	@echo '[access]' >> pmcd.conf
 	@echo 'disallow ".*" : store;' >> pmcd.conf
 	@echo 'disallow ":*" : store;' >> pmcd.conf
+ifeq "$(HAVE_UNIX_DOMAIN_SOCKETS)" "yes"
 	@echo 'allow "local:*" : all;' >> pmcd.conf
+else
+	@echo 'allow "localhost" : all;' >> pmcd.conf
+endif
 
 install :: install_pcp
 

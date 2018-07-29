@@ -37,11 +37,12 @@ pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
 echo "=== Check that the number of metrics are correct ===" | tee -a $here/$seq.full
-[ `_pmcount gfs2` -ge 316 ] || _fail "Too few metrics?"
+[ `_pmcount gfs2` -ge 346 ] || _fail "Too few metrics?"
 
 echo
 echo "=== Basic glock stats from all kernels ===" | tee -a $here/$seq.full
 pminfo -fdm gfs2.glocks | _gfs2_filter_pminfo
+pminfo -fdm gfs2.holders | _gfs2_filter_pminfo
 
 _remove_pmda
 

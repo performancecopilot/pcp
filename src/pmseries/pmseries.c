@@ -16,6 +16,9 @@
 #include "pmapi.h"
 #include "sds.h"
 
+unsigned int port = 6379;
+sds hostname = "localhost";
+
 typedef enum series_flags {
     PMSERIES_COLOUR	= (1<<0),	/* report in colour if possible */
     PMSERIES_FAST	= (1<<1),	/* load only the metric metadata */
@@ -744,6 +747,7 @@ static pmSeriesSettings settings = {
     .on_label		= on_series_label,
     .on_info		= on_series_info,
     .on_done		= on_series_done,
+    .hostspec           = "localhost:6379",
 };
 
 static pmLongOptions longopts[] = {

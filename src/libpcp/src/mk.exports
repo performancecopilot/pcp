@@ -13,14 +13,14 @@ fi
 
 . ../../include/pcp.conf
 
-tmp=/var/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 sts=0
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 rm -f $tmp.err
 $PCP_AWK_PROG <exports.master '
 $1 == "#if"	{ if (inif) {
-		    print "mk.exports: Error: exports.maser[" NR "] nested #if" >"'$tmp.err'"
+		    print "mk.exports: Error: exports.maser[" NR "] nested #if" >"'$tmp/err'"
 		    inif = 0
 		    exit
 		  }
@@ -32,7 +32,7 @@ $1 == "#if"	{ if (inif) {
 		  next
 		}
 $1 == "#endif"	{ if (!inif) {
-		    print "mk.exports: Error: exports.maser[" NR "] missing #if" >"'$tmp.err'"
+		    print "mk.exports: Error: exports.maser[" NR "] missing #if" >"'$tmp/err'"
 		    inif = 0
 		    exit
 		  }
@@ -43,15 +43,15 @@ $1 == "#endif"	{ if (!inif) {
 skip == 1	{ next }
 		{ print }
 END		{ if (inif) {
-		    print "mk.exports: Error: exports.maser[" inif "] missing #endif" >"'$tmp.err'"
+		    print "mk.exports: Error: exports.maser[" inif "] missing #endif" >"'$tmp/err'"
 		    exit
 		  }
 		}' \
 | sed -e '/^#/d' >exports
 
-if [ -f $tmp.err ]
+if [ -f $tmp/err ]
 then
-    cat $tmp.err
+    cat $tmp/err
     rm -f exports
     sts=1
     exit

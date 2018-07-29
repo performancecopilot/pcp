@@ -159,7 +159,8 @@ pprintf(char *format, ...)
     if (first == 1) {	/* first time thru */
 	first = 0;
 #ifdef TIOCGWINSZ
-	ioctl(0, TIOCGWINSZ, &geom);
+	if (ioctl(0, TIOCGWINSZ, &geom) < 0)
+	    memset(&geom, 0, sizeof(geom));
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);
 #else

@@ -11,13 +11,10 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+which mkfs.xfs >/dev/null 2>&1 || _notrun "mkfs.xfs not installed"
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
-
-touch ${out_file}
-tmpfile_fs=`df -T ${out_file} | tail -1 | awk '{print $2}'`
-[ $tmpfile_fs = xfs ] || _notrun "this test needs an xfs filesystem at ${out_file}"
+out_file=$tmp.mount.xfs/tmpfile
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -29,8 +26,12 @@ _value_filter()
 }
 
 _prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "_unmount_filesystem xfs; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
+
+# mount xfs before installing the PMDA, as mounting
+# xfs may trigger loading the xfs kernel module
+_mount_filesystem xfs
 
 cat <<EOF | _pmdabcc_install
 [pmda]
@@ -45,7 +46,6 @@ _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC xfsdist module
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
-sync && echo 3 | $sudo tee /proc/sys/vm/drop_caches > /dev/null
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
 echo "=== report metric values for open ==="

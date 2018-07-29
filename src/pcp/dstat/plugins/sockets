@@ -1,32 +1,23 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [socket]
 label = sockets
 width = 4
 printtype = d
-total = tot
-total.formula = network.sockstat.total
-tcp = tcp
-tcp.formula = network.sockstat.tcp.inuse
-udp = udp
-udp.formula = network.sockstat.udp.inuse
-raw = raw
-raw.formula = network.sockstat.raw.inuse
-frag = frg
-frag.formula = network.sockstat.frag.inuse
+tot = network.sockstat.total
+tcp = network.sockstat.tcp.inuse
+udp = network.sockstat.udp.inuse
+raw = network.sockstat.raw.inuse
+frg = network.sockstat.frag.inuse
 
 [socket6]
 label = sockets
 width = 4
 printtype = d
-tcp = tcp6
-tcp.formula = network.sockstat.tcp6.inuse
-udp = udp6
-udp.formula = network.sockstat.udp6.inuse
-raw = raw6
-raw.formula = network.sockstat.raw6.inuse
-frag = frg6
-frag.formula = network.sockstat.frag6.inuse
+tcp6 = network.sockstat.tcp6.inuse
+udp6 = network.sockstat.udp6.inuse
+raw6 = network.sockstat.raw6.inuse
+frg6 = network.sockstat.frag6.inuse
 

@@ -184,6 +184,7 @@ _cleanup()
 	need_clean=false
     fi
     rm -f $tmp.*
+    sudo rm -rf /tmp/\$$ /tmp/\$$.*
 }
 
 need_clean=true

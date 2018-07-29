@@ -1,0 +1,224 @@
+#!/bin/sh
+# PCP QA Test No. 675
+# check pmlogger_rewrite wrapper script
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which xz >/dev/null 2>&1
+then
+    PROG=xz
+    SUFF=xz
+elif which bzip2 >/dev/null 2>&1
+then
+    PROG=bzip2
+    SUFF=bz2
+elif which gzip >/dev/null 2>&1
+then
+    PROG=gzip
+    SUFF=gz
+else
+    _notrun "cannot find a compression program!"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# setup the log farm
+#
+cat <<End-of-File >$tmp.farm
+onevol		archives/snort-disks	20011002
+onevol		archives/moomba.client	20011003
+multivol	archives/ok-mv-bar	20011002
+badvol		badarchives/badlen-10	badlen-10
+End-of-File
+
+mkdir $tmp
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+
+# real QA test starts here
+cd $tmp
+
+echo "=== Arg parsing and error cases ==="
+cd onevol
+echo "--- -c someconfig -N -VV no-such-archive ---"
+$PCP_BINADM_DIR/pmlogger_rewrite -c someconfig -N -VV no-such-archive
+
+echo
+echo "--- -c someconfig -swdv -N -VV 20011002 ---"
+$PCP_BINADM_DIR/pmlogger_rewrite -c someconfig -swdv -N -VV 20011002
+
+echo
+echo "--- -N -VV 20011002.index 20011002.meta 20011002.0 ---"
+$PCP_BINADM_DIR/pmlogger_rewrite -N -VV 20011002.index 20011002.meta 20011002.0
+
+echo
+echo "--- ../onevol ../multivol ---"
+$PCP_BINADM_DIR/pmlogger_rewrite -N -VV ../onevol ../multivol | sort -r
+
+echo
+echo "--- empty foo ---"
+mkdir foo
+$PCP_BINADM_DIR/pmlogger_rewrite -N -VV foo | sort -r
+
+echo
+echo "--- populated foo ---"
+base=0
+for suff in xz lzma bz2 bz gz Z z
+do
+    touch foo/$base.meta.$suff
+    touch foo/$base.0.$suff
+    touch foo/$base.$base.$suff
+    touch foo/$base.index.$suff
+    base=`expr $base + 1`
+done
+$PCP_BINADM_DIR/pmlogger_rewrite -N -VV foo | sort -r
+rm -rf foo
+cd ..
+
+echo
+echo "--- bad archive ---"
+$PCP_BINADM_DIR/pmlogger_rewrite -V badvol | sort -r
+
+echo
+echo "--- disk.dev.bytes type rewrite in snort-disks and not in moomba.client ---"
+cat <<End-of-File >$tmp.rewrite
+metric disk.dev.bytes {
+    type -> U64
+}
+End-of-File
+$PCP_BINADM_DIR/pmlogger_rewrite -VV -c $tmp.rewrite onevol/20011002 onevol/20011003
+for arch in onevol/20011002 onevol/20011003
+do
+    echo $arch:
+    pminfo -a $arch -d disk.dev.bytes
+done
+rm -rf onevol multivol
+cd $here
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+cd $tmp
+
+echo
+echo "--- pmcd.pmlogger.port pmid rewrite in snort-disks and moomba.client ---"
+cat <<End-of-File >$tmp.rewrite
+metric pmcd.pmlogger.port {
+    pmid -> 2.4095.1023
+}
+End-of-File
+$PCP_BINADM_DIR/pmlogger_rewrite -VV -c $tmp.rewrite onevol/20011002 onevol/20011003
+for arch in onevol/20011002 onevol/20011003
+do
+    echo $arch:
+    pminfo -a $arch -md pmcd.pmlogger.port
+done
+rm -rf onevol multivol
+cd $here
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+cd $tmp
+
+echo
+echo "--- rewrite with data volume compression for multivol ---"
+cat <<End-of-File >$tmp.rewrite
+metric pmcd.pmlogger.port {
+    pmid -> 2.4095.1023
+}
+End-of-File
+for file in multivol/*.[0-9]
+do
+    $PROG $file
+done
+$PCP_BINADM_DIR/pmlogger_rewrite -VV -c $tmp.rewrite onevol/*.meta multivol/*.meta
+for arch in onevol/*.meta multivol/*.meta
+do
+    arch=`echo $arch | sed -e 's/.meta//'`
+    echo $arch:
+    pminfo -a $arch -m pmcd.pmlogger.port
+done
+rm -rf onevol multivol
+cd $here
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+cd $tmp
+
+echo
+echo "--- rewrite with metadata and volume compression for onevol and multivol ---"
+cat <<End-of-File >$tmp.rewrite
+metric pmcd.pmlogger.port {
+    pmid -> 2.4095.1023
+}
+End-of-File
+for file in multivol/*.[0-9] multivol/*.meta onevol/*.[0-9] onevol/*.meta
+do
+    $PROG $file
+done
+$PCP_BINADM_DIR/pmlogger_rewrite -VV -c $tmp.rewrite onevol/*.meta* multivol/*.meta*
+for arch in onevol/*.meta* multivol/*.meta*
+do
+    arch=`echo $arch | sed -e 's/.meta.*//'`
+    echo $arch:
+    pminfo -a $arch -m pmcd.pmlogger.port
+done
+rm -rf onevol multivol
+cd $here
+if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh ... mk.logfarm failed!"
+    exit
+fi
+cd $tmp
+
+# success, all done
+status=0
+exit

@@ -57,7 +57,7 @@ __pmProcessExec -> -11 Resource temporarily unavailable
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/exectest -- sh -c sleep 1; echo not supposed to get here
+Command: src/exectest -- sh -c sleep\ 1;\ echo\ not\ supposed\ to\ get\ here
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

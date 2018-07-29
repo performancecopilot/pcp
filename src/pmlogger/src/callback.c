@@ -562,7 +562,8 @@ do_work(task_t *tp)
     fetchctl_t		*fp;
     indomctl_t		*idp;
     pmResult		*resp;
-    __pmPDU		*pb;
+    __pmPDU		*pb_in;
+    __pmPDU		*pb_out;
     AFctl_t		*acp;
     lastfetch_t		*lfp;
     lastfetch_t		*free_lfp;
@@ -664,7 +665,7 @@ do_work(task_t *tp)
 
 	clearavail(fp);
 
-	if ((sts = changed = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb)) < 0) {
+	if ((sts = changed = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb_in)) < 0) {
 	    if (sts == -EINTR) {
 		/* disconnect() already done in myFetch() */
 		return;
@@ -684,7 +685,7 @@ do_work(task_t *tp)
 	/*
 	 * hook to rewrite PDU buffer ...
 	 */
-	pb = rewrite_pdu(pb, archive_version);
+	pb_in = rewrite_pdu(pb_in, archive_version);
 
 	if (rflag) {
 	    /*
@@ -693,7 +694,7 @@ do_work(task_t *tp)
 	     * a PDU buffer is reformatted to make len shorter by one int
 	     * before the record is written to the external file
 	     */
-	    pdu_bytes += ((__pmPDUHdr *)pb)->len - sizeof (__pmPDUHdr) + 
+	    pdu_bytes += ((__pmPDUHdr *)pb_in)->len - sizeof (__pmPDUHdr) + 
 		2*sizeof(int); 
 	    pdu_metrics += fp->f_numpmid;
 	}
@@ -703,7 +704,7 @@ do_work(task_t *tp)
 	 * if the data file exceeds 2^31-1 bytes
 	 */
 	peek_offset = __pmFtell(archctl.ac_mfp);
-	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	peek_offset += ((__pmPDUHdr *)pb_in)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", __pmFtell(archctl.ac_mfp));
@@ -711,25 +712,28 @@ do_work(task_t *tp)
 	}
 
 	/*
-	 * Would prefer to save this up until after any meta data and/or
-	 * temporal index writes, but __pmDecodeResult changes the pointers
-	 * in the pdu buffer for the non INSITU values ... sigh
-	 * Unfortunately, if we have derived metrics we need to rewrite
-	 * the PMIDs, and this can't be done until after the pmResult
-	 * is decoded ... so we have 2 "write" paths for the PDU buffer
-	 * ... more sighing
+	 * Output write ordering ... need to do any required metadata
+	 * changes first, then the pmResult, then optionally a new
+	 * index entry.
+	 *
+	 * But for 32-bit pointer platforms, __pmDecodeResult changes the
+	 * pointers in the input PDU buffer for the non INSITU values and
+	 * __pmDecodeResult also does potential hton*() translation
+	 * within the the input PDU buffer and if we have derived metrics
+	 * we need to rewrite the PMIDs, and this can't be done until after
+	 * the input PDU buffer is decoded into a pmResult.
+	 *
+	 * So in general there is no real choice but to call
+	 * _pmDecodeResult, do all the pmResult processing and after
+	 * the metadata changes have been written out, call
+	 * __pmEncodeResult to re-encode a PDU buffer before doing
+	 * the pmResult write.
 	 */
 	last_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(last_log_offset >= 0);
-	if (tp->t_dm == 0) {
-	    if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
-		fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
-		exit(1);
-	    }
-	    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
-	}
+
 	resp = NULL; /* silence coverity */
-	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
+	if ((sts = __pmDecodeResult(pb_in, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
@@ -742,39 +746,6 @@ do_work(task_t *tp)
 	     * Change to the context labels associated with logged host
 	     */
 	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp_tval);
-	}
-
-	if (tp->t_dm != 0) {
-	    /*
-	     * pmResult contains at least one derived metric, rewrite
-	     * the cluster field of the PMID(s) (set the top bit), then
-	     * then output the buffer then restore the PMID(s).
-	     *
-	     * This forces the PMID in the archive to NOT look like
-	     * the PMID of a derived metric, which is need to replay
-	     * the archive correctly.
-	     */
-	    __pmPDU	*pdubuf;
-	    for (i = 0; i < resp->numpmid; i++) {
-		pmValueSet	*vsp = resp->vset[i];
-		if (IS_DERIVED(vsp->pmid))
-		    vsp->pmid = SET_DERIVED_LOGGED(vsp->pmid);
-	    }
-	    if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), resp, &pdubuf)) < 0) {
-		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
-		exit(1);
-	    }
-	    if ((sts = __pmLogPutResult2(&archctl, pdubuf)) < 0) {
-		fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
-		exit(1);
-	    }
-	    __pmUnpinPDUBuf(pdubuf);
-	    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
-	    for (i = 0; i < resp->numpmid; i++) {
-		pmValueSet	*vsp = resp->vset[i];
-		if (IS_DERIVED_LOGGED(vsp->pmid))
-		    vsp->pmid = CLEAR_DERIVED_LOGGED(vsp->pmid);
-	    }
 	}
 
 	needti = 0;
@@ -907,17 +878,47 @@ do_work(task_t *tp)
 	    }
 	}
 
-	if (__pmFtell(archctl.ac_mfp) > flushsize) {
-	    needti = 1;
-	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)__pmFtell(archctl.ac_mfp), flushsize);
-	}
-
 	if (last_log_offset == 0 || last_log_offset == sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    /* first result in this volume */
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "callback: first result for this volume\n");
+	}
+
+	if (tp->t_dm != 0) {
+	    /*
+	     * pmResult contains at least one derived metric, rewrite
+	     * the cluster field of the PMID(s) (set the top bit)
+	     * before output ... no need to restore PMID(s) because
+	     * we're finished with this pmResult once the write is
+	     * done.
+	     *
+	     * This forces the PMID in the archive to NOT look like
+	     * the PMID of a derived metric, which is need to replay
+	     * the archive correctly.
+	     */
+	    for (i = 0; i < resp->numpmid; i++) {
+		pmValueSet	*vsp = resp->vset[i];
+		if (IS_DERIVED(vsp->pmid))
+		    vsp->pmid = SET_DERIVED_LOGGED(vsp->pmid);
+	    }
+	}
+
+	if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), resp, &pb_out)) < 0) {
+	    fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = __pmLogPutResult2(&archctl, pb_out)) < 0) {
+	    fprintf(stderr, "__pmLogPutResult2: (encode) %s\n", pmErrStr(sts));
+	    exit(1);
+	}
+	__pmUnpinPDUBuf(pb_out);
+	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
+
+	if (__pmFtell(archctl.ac_mfp) > flushsize) {
+	    needti = 1;
+	    if (pmDebugOptions.appl2)
+		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)__pmFtell(archctl.ac_mfp), flushsize);
 	}
 
 	if (needti) {
@@ -954,7 +955,7 @@ do_work(task_t *tp)
 	lfp->lf_resp = resp;
 	if (lfp->lf_pb != NULL)
 	    __pmUnpinPDUBuf(lfp->lf_pb);
-	lfp->lf_pb = pb;
+	lfp->lf_pb = pb_in;
     }
 
     if (rflag && tp->t_size == 0 && pdu_metrics > 0) {

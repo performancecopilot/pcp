@@ -43,7 +43,7 @@ _cleanup()
     $sudo rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
-_restore_auto_restart pmcd
+_stop_auto_restart pmcd
 
 # ditch timestamps and exact hostnames 
 _filter_pmie()

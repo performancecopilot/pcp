@@ -24,6 +24,7 @@ static mmv_metric2_t metrics[] = {
     },
 };
 
+#if 0
 static mmv_indom2_t indoms[] = {
     {	.serial = 1,
 	    .count = 2,
@@ -37,6 +38,7 @@ static mmv_indom2_t indoms[] = {
 	/* exercise no-help-text case */
     },
 };
+#endif
 
 int 
 main(int argc, char **argv)
@@ -138,8 +140,7 @@ main(int argc, char **argv)
     pmsprintf(aux, sizeof(aux), "{\"%s\":\"%s\"}", auxn, auxv);
     fprintf(stderr, "[CHECKING] \n");
     fprintf(stderr, "%s \n", aux);
-    mmv_stats_add_registry_label(addr,auxn,auxv,MMV_STRING_TYPE);
-    mmv_stats_add_metric_label(addr,1,auxn,auxz,MMV_STRING_TYPE);
+    mmv_stats_add_registry_label(addr, auxn, auxv, MMV_STRING_TYPE, 0);
     fprintf(stderr, "[CHECKING AFTER ADDING LABEL] \n");
     fprintf(stderr, "nindoms: %d \n", addr->nindoms);
     fprintf(stderr, "nmetrics: %d \n", addr->nmetrics);

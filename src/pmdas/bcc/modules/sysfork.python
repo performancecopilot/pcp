@@ -16,12 +16,14 @@
 # pylint: disable=invalid-name
 
 from ctypes import c_int
+
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
 from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program
@@ -39,7 +41,7 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC biotop module """
+    """ PCP BCC sysfork module """
     def __init__(self, config, log, err):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
@@ -64,9 +66,10 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf.attach_kprobe(event="sched_fork", fn_name="do_count")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     def refresh(self):
         """ Refresh BPF data """

@@ -119,7 +119,6 @@ timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
     struct timeval ctv;
     long seconds, useconds;
     char *keyword_list[] = {"seconds", "useconds", NULL};
-    extern void __pmtimevalSleep(struct timeval);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "ll:pmtimevalSleep", keyword_list, &seconds, &useconds))
@@ -137,7 +136,6 @@ timevalToReal(PyObject *self, PyObject *args, PyObject *keywords)
     struct timeval ctv;
     long seconds, useconds;
     char *keyword_list[] = {"seconds", "useconds", NULL};
-    extern double pmtimevalToReal(const struct timeval *);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "ll:pmtimevalToReal", keyword_list, &seconds, &useconds))
@@ -152,7 +150,6 @@ setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *name;
     char *keyword_list[] = {"name", NULL};
-    extern int pmSetProcessIdentity(const char *);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "s:pmSetProcessIdentity", keyword_list, &name))
@@ -555,15 +552,13 @@ setOptionArchiveList(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 setOptionArchive(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    char *archive;
+    char *archive = NULL;
     char *keyword_list[] = {"archive", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"s:pmSetOptionArchive", keyword_list, &archive))
 	return NULL;
 
-    if ((archive = strdup(archive ? archive : "")) == NULL)
-	return PyErr_NoMemory();
     __pmAddOptArchive(&options, archive);
     Py_INCREF(Py_None);
     return Py_None;
@@ -1485,7 +1480,9 @@ MOD_INIT(cpmapi)
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
 #endif
+#ifdef PM_SIZEOF_SUSECONDS_T
     dict_add(dict, "PM_SIZEOF_SUSECONDS_T", PM_SIZEOF_SUSECONDS_T);
+#endif
     dict_add(dict, "PM_SIZEOF_TIME_T", PM_SIZEOF_TIME_T);
 
     dict_add(dict, "PM_SPACE_BYTE", PM_SPACE_BYTE);

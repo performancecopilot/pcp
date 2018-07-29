@@ -30,10 +30,10 @@ Creator: pmchart [config]
 #    "pmview", or "cron.pmdaily" ... yes, this will happen!
 #
 # 4. for a Basename of eek, expect to find
-#	eek.meta
+#	eek.meta	[ maybe compressed ]
 #	eek.index
-#	eek.0
-#	eek.1, ...	[ maybe ]
+#	eek.0		[ maybe compressed ]
+#	eek.1, ...	[ maybe and maybe compressed ]
 #	eek.pmlogger	[ maybe, pmlogger config used to create _this_ archive ]
 
 # 		Host			Basename

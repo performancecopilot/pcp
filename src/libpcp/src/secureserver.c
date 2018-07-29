@@ -65,7 +65,9 @@ __pmIsSecureserverLock(void *lock)
 void
 init_secureserver_lock(void)
 {
+#ifdef PM_MULTI_THREAD
     __pmInitMutex(&secureserver_lock);
+#endif
 }
 
 int

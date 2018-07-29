@@ -46,7 +46,7 @@ _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC biolatency module
 # block device required here, no tmpfs (e.g. /tmp)
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
+dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>$here/$seq.full
 
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.disk.all.latency 2>&1 | tee -a $here/$seq.full \

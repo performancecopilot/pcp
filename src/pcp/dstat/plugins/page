@@ -1,10 +1,8 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [page]
 label = paging
-in = in
-in.formula = swap.pagesin
-out = out
-out.formula = swap.pagesout
+in = swap.pagesin
+out = swap.pagesout

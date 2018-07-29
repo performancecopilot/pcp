@@ -1,7 +1,7 @@
 #!gmake
 #
 # Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
-# Copyright (c) 2012,2014,2017 Red Hat.
+# Copyright (c) 2012,2014,2017,2018 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -31,14 +31,17 @@ FOLIOS = $(shell echo *.folio)
 
 DEFLATE = small.0.xz small.meta small.index \
 	  20130706.0.bz2 20130706.meta 20130706.index \
+	  20180606.0.xz 20180606.meta.xz 20180606.index \
 	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
+	  pcp-dstat.0.xz pcp-dstat.meta pcp-dstat.index \
 	  pcp-hotatop.0.xz pcp-hotatop.meta pcp-hotatop.index \
 	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index \
 	  value-test.0.xz value-test.meta value-test.index \
 	  coverage.0.xz coverage.meta coverage.index \
 	  bozo-20170904.0.xz bozo-20170904.meta bozo-20170904.index \
 	  pcp-pidstat-process-states.0.xz pcp-pidstat-process-states.meta \
-	  pcp-pidstat-process-states.index
+	  pcp-pidstat-process-states.index zero_disk_activity.0.xz \
+	  zero_disk_activity.index zero_disk_activity.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \

@@ -12,7 +12,7 @@ TMP/DATE.7.compressed
 TMP/DATE.8.compressed
 TMP/DATE.9.compressed
 TMP/DATE.index
-TMP/DATE.meta
+TMP/DATE.meta.compressed
 
 simple env vars
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
@@ -27,7 +27,7 @@ TMP/DATE.7.compressed
 TMP/DATE.8.compressed
 TMP/DATE.9.compressed
 TMP/DATE.index
-TMP/DATE.meta
+TMP/DATE.meta.compressed
 
 some error cases
 Error: -x value (bozo) must be numeric, "forever" or "never"

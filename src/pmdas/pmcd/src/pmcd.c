@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,7 +14,6 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
 #include "deprecated.h"
 #include "pmda.h"
 #include "stats.h"
@@ -314,7 +313,9 @@ typedef struct {
 
 static perctx_t *ctxtab;
 static int      num_ctx;
+#ifndef IS_MINGW
 static int      rootfd = -1;
+#endif
 
 /*
  * expand and initialize the per client context table
@@ -378,6 +379,7 @@ init_tables(int dom)
     ndesc--;
 }
 
+#ifndef IS_MINGW
 /*
  * Ensure we have a connection to pmdaroot in case we need it.
  * Note this must be done early-on (init) only, because pmcd
@@ -394,6 +396,7 @@ init_pmdaroot_connect(void)
 			osstrerror());
     }
 }
+#endif
 
 static int
 pmcd_profile(pmProfile *prof, pmdaExt *pmda)
@@ -1133,6 +1136,7 @@ fetch_feature(int item, pmAtomValue *avp)
     return 0;
 }
 
+#ifndef IS_MINGW
 static pmcd_container_t *
 ctx_container(int ctx)
 {
@@ -1140,6 +1144,7 @@ ctx_container(int ctx)
 	return &ctxtab[ctx].container;
     return NULL;
 }
+#endif
 
 static char *
 ctx_hostname(int ctx, char **hostname)
@@ -1155,13 +1160,16 @@ ctx_hostname(int ctx, char **hostname)
 static char *
 fetch_hostname(int ctx, pmAtomValue *avp, char **hostname)
 {
+#ifndef IS_MINGW
     static char		host[MAXHOSTNAMELEN];
     pmcd_container_t	*container;
     int			sts;
+#endif
 
     if (*hostname)	/* ensure we only ever refresh once-per-fetch */
 	return avp->cp = *hostname;
 
+#ifndef IS_MINGW
     /* see if we're dealing with a request within a container */
     if ((container = ctx_container(ctx)) != NULL &&
 	((sts = pmdaRootContainerHostName(rootfd,
@@ -1170,6 +1178,7 @@ fetch_hostname(int ctx, pmAtomValue *avp, char **hostname)
 					host, sizeof(host)) >= 0))) {
 	return avp->cp = *hostname = host;
     }
+#endif
 
     return avp->cp = *hostname = ctx_hostname(ctx, hostname);
 }
@@ -1930,7 +1939,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		     * pmcd can then inform all PMDAs about the change,
 		     * including pmdapmcd, via the attribute callback.
 		     */
-		    SetClientAttribute(this_client_id, PCP_ATTR_CONTAINER, cp);
+		    SetClientAttribute(this_client_id, PMDA_ATTR_CONTAINER, cp);
 		}
 	    }
 	    else {
@@ -1953,7 +1962,7 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
     if (ctx >= num_ctx)
 	grow_ctxtab(ctx);
-    if (attr == PCP_ATTR_CONTAINER) {
+    if (attr == PMDA_ATTR_CONTAINER) {
 	char	*name = len > 1 ? strndup(value, len) : NULL;
 
 	ctxtab[ctx].id = this_client_id;
@@ -1978,7 +1987,7 @@ pmcd_init(pmdaInterface *dp)
     pmsprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_6, "pmcd", helppath);
-    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE | PMDA_FLAG_CONTAINER);
 
     dp->version.six.profile = pmcd_profile;
     dp->version.six.fetch = pmcd_fetch;
@@ -1989,7 +1998,9 @@ pmcd_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
+#ifndef IS_MINGW
     init_pmdaroot_connect();
+#endif
 
     pmdaInit(dp, NULL, 0, NULL, 0);
 }

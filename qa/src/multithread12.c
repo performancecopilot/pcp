@@ -99,7 +99,7 @@ thread_A(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 static void *
@@ -169,7 +169,7 @@ thread_B(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 static void *
@@ -233,7 +233,7 @@ thread_C(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 /*
@@ -358,7 +358,7 @@ thread_D(void *arg)
     }
 
     fclose(f);
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 int

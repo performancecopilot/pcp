@@ -40,7 +40,7 @@ trap "_cleanup; cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{ print $3 }'`
 
-rm -rf $tmp
+rm -rf $tmp $seq.full
 mkdir $tmp
 chmod ugo+w $tmp
 cd $tmp
@@ -69,13 +69,13 @@ $signal -a -s TERM pmlogger
 
 echo
 echo "Checking ..."
-for seq in 00 01
+for sn in 00 01
 do
-    if [ "`echo *-$seq.index`" != "*-$seq.index" ]
+    if [ "`echo *-$sn.index`" != "*-$sn.index" ]
     then
-	echo "Found at least one \"-$seq\" suffix"
+	echo "Found at least one \"-$sn\" suffix"
     else
-	echo "No \"-$seq\" suffix found!"
+	echo "No \"-$sn\" suffix found!"
 	status=1
     fi
 done
@@ -93,7 +93,10 @@ fi
 
 echo
 echo "merge 'em together ..."
-$sudo $PCP_BINADM_DIR/pmlogextract *.0 out
-pmval -U out pmcd.control.debug | _filter
+ls -l >>$here/$seq.full
+$sudo $PCP_BINADM_DIR/pmlogextract *.meta* out
+pmval -U out pmcd.control.debug \
+| tee -a $here/$seq.full \
+| _filter
 
 exit

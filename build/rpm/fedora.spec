@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.0
+Version: 4.1.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -50,7 +50,12 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_webapps 0
 %global disable_cairo 0
 
+%if 0%{?rhel} > 7
+%global disable_python2 1
+%else
 %global disable_python2 0
+%endif
+
 # Default for epel5 is python24, so use the (optional) python26 packages
 %if 0%{?rhel} == 5
 %global default_python 26
@@ -155,7 +160,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 8
 %global disable_elasticsearch 0
 %else
 %global disable_elasticsearch 1
@@ -170,12 +175,17 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi
 
+# KVM PMDA moved into pcp (no longer using Perl, default on)
+Obsoletes: pcp-pmda-kvm
+Provides: pcp-pmda-kvm
+
 # https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
+BuildRequires: xz-devel
 BuildRequires: zlib-devel
 %if !%{disable_python2}
 %if 0%{?default_python} != 3
@@ -208,10 +218,12 @@ BuildRequires: systemtap-sdt-devel
 %if !%{disable_boost}
 BuildRequires: boost-devel
 %endif
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: perl-devel perl-generators
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
+BuildRequires: perl-generators
 %endif
-BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: perl-devel perl(strict)
+BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
+BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: initscripts man
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
@@ -344,10 +356,10 @@ fi
 %global selinux_handle_policy() %{expand:
 if [ %1 -ge 1 ]
 then
-    %{_libexecdir}/pcp/bin/selinux-setup install %2
+    %{_libexecdir}/pcp/bin/selinux-setup %{_selinuxdir} install %2
 elif [ %1 -eq 0 ]
 then
-    %{_libexecdir}/pcp/bin/selinux-setup remove %2
+    %{_libexecdir}/pcp/bin/selinux-setup %{_selinuxdir} remove %2
 fi
 }
 
@@ -796,6 +808,26 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
 
 #
+# pcp-export-pcp2spark
+#
+%package export-pcp2spark
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Spark
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2spark
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in JSON format to Apache Spark. See https://spark.apache.org/ for
+further details on Apache Spark.
+
+#
 # pcp-export-pcp2xlsx
 #
 %if !%{disable_xlsx}
@@ -808,9 +840,11 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-openpyxl
+BuildRequires: python3-openpyxl
 %else
 Requires: %{__python2}-pcp = %{version}-%{release}
 Requires: %{__python2}-openpyxl
+BuildRequires: %{__python2}-openpyxl
 %endif
 
 %description export-pcp2xlsx
@@ -1086,21 +1120,6 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about a GPS Daemon.
 #end pcp-pmda-gpsd
-
-#
-# pcp-pmda-kvm
-#
-%package pmda-kvm
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for KVM
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-
-%description pmda-kvm
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Kernel based Virtual Machine.
-#end pcp-pmda-kvm
 
 #
 # pcp-pmda-docker
@@ -1944,7 +1963,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Collection meta Package
 URL: https://pcp.io
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
@@ -2070,15 +2089,14 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%endif
-%if !%{disable_python2}
+%else
 Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 
 %description system-tools
 This PCP module contains additional system monitoring tools written
-in python.
+in the Python language.
 %endif #end pcp-system-tools
 
 %if !%{disable_qt}
@@ -2251,7 +2269,6 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^elasticsearch' |\
   grep -E -v '^gpfs' |\
   grep -E -v '^gpsd' |\
-  grep -E -v '^kvm' |\
   grep -E -v '^lio' |\
   grep -E -v '^lustre' |\
   grep -E -v '^lustrecomm' |\
@@ -2306,9 +2323,10 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub-packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|zabbix|zbxpcp' |\
+  grep -E -v 'pmiostat|pmcollectl|zabbix|zbxpcp|dstat' |\
   grep -E -v 'pmrep|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
+  grep -E -v 'pcp2spark' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 
@@ -2317,10 +2335,11 @@ sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 # pcp(1) sub-command variants so are also in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E 'pmiostat|pmcollectl|pmrep' |\
+  egrep -e 'pmiostat|pmcollectl|pmrep|dstat' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp-system-tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  grep -E 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify' |\
+  egrep -e 'atop|collectl|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' \
+        -e 'numastat|pidstat|shping|tapestat|uptime|verify' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp-system-tools.list
 %endif
 # Separate the pcp-selinux package files.
@@ -2334,7 +2353,8 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat|pidstat|shping|tapestat|uptime|verify|selinux-setup' |\
+  grep -E -v 'atop|collectl|dmcache|dstat|free|iostat|mpstat|numastat' |\
+  grep -E -v 'shping|tapestat|uptime|verify|selinux-setup' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
@@ -2543,9 +2563,6 @@ fi
 
 %preun pmda-gpsd
 %{pmda_remove "$1" "gpsd"}
-
-%preun pmda-kvm
-%{pmda_remove "$1" "kvm"}
 
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
@@ -3098,9 +3115,6 @@ cd
 %files pmda-gpsd
 %{_pmdasdir}/gpsd
 
-%files pmda-kvm
-%{_pmdasdir}/kvm
-
 %files pmda-docker
 %{_pmdasdir}/docker
 
@@ -3217,6 +3231,9 @@ cd
 
 %files export-pcp2json
 %{_bindir}/pcp2json
+
+%files export-pcp2spark
+%{_bindir}/pcp2spark
 
 %if !%{disable_xlsx}
 %files export-pcp2xlsx
@@ -3335,13 +3352,19 @@ cd
 
 %if !%{disable_python2} || !%{disable_python3}
 %files system-tools -f pcp-system-tools.list
+%dir %{_confdir}/dstat
 %dir %{_confdir}/pmrep
-%config(noreplace) %{_confdir}/pmrep/pmrep.conf
+%config(noreplace) %{_confdir}/dstat/*
+%config(noreplace) %{_confdir}/pmrep/*
 %endif
 
 %changelog
-* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
+* Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
 - Work-in-progress, see https://pcp.io/roadmap
+
+* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
+- Rapid compression of PCP log data and metadata (BZ 1293471)
+- Update to latest PCP sources.
 
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
 - Propogate build flags throughout PCP (BZ 1538187)

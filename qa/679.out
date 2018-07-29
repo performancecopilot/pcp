@@ -1,0 +1,380 @@
+QA output created by 679
++++ -N, do nothing +++
++ date-and-timestamp ...
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/oldsem0
+
+=== daily maintenance of PCP archives for host localhost ===
+
++ get mutex lock
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
++ PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem0/pmlogrewrite -V TMP/oldsem0
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
++ pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.00.10
++ pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.08.00
++ pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.16.00
++ pmlogger_merge -N -V -f 20011005.00.10 20011005.08.00 20011005.16.00 20011005
++ cd TMP/oldsem1
+
+=== daily maintenance of PCP archives for host localhost ===
+
++ get mutex lock
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
++ PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem1/pmlogrewrite -V TMP/oldsem1
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
++ pmlogrewrite -iq  -c TMP/oldsem1/pmlogrewrite 20011005.00.10
++ pmlogrewrite -iq  -c TMP/oldsem1/pmlogrewrite 20011005.12.00
++ pmlogger_merge -N -V -f 20011005.00.10 20011005.12.00 20011005
++ cd TMP/oldsem2
+
+=== daily maintenance of PCP archives for host localhost ===
+
++ get mutex lock
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
++ PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem2/pmlogrewrite -V TMP/oldsem2
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
++ pmlogrewrite -iq  -c TMP/oldsem2/pmlogrewrite 20011005.00.10
++ pmlogmv -N -V 20011005.00.10 20011005
++ cd TMP/newsem0
+
+=== daily maintenance of PCP archives for host localhost ===
+
++ get mutex lock
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
++ PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem0
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.06.00
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00-00
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00-01
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.18.00
++ pmlogger_merge -N -V -f 20011005.00.10 20011005.06.00 20011005.12.00 20011005.12.00-00 20011005.12.00-01 20011005.18.00 20011005
++ cd TMP/newsem1
+
+=== daily maintenance of PCP archives for host localhost ===
+
++ get mutex lock
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
++ PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem1
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.06.00
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.18.00
++ pmlogger_merge -N -V -f 20011005.00.10 20011005.06.00 20011005.18.00 20011005
++ cd TMP/empty
+
+=== daily maintenance of PCP archives for host localhost ===
+
++ get mutex lock
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
++ PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/empty
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: Warning: no archives found to merge
+oldsem0/20011002:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem0/20011003:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem0/20011004:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem0/20011005.00.10:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem0/20011005.08.00:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem0/20011005.16.00:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem1/20011003:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem1/20011004:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem1/20011005.00.10:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem1/20011005.12.00:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem1/20011006:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem2/20011004:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem2/20011005.00.10:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+oldsem2/20011006:
+    Semantics: instant  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005.00.10:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005.06.00:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005.12.00-00:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005.12.00-01:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005.12.00:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005.18.00:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011005.00.10:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011005.06.00:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011005.18.00:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011007:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011008:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+
++++ -V -R +++
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Input archives to be merged:
+	20011005.00.10
+	20011005.08.00
+	20011005.16.00
+Output archive files:
+<ls output> 20011005.meta
+<ls output> 20011005.index
+<ls output> 20011005.0
+Removing input archive files ......... done
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Input archives to be merged:
+	20011005.00.10
+	20011005.12.00
+Output archive files:
+<ls output> 20011005.meta
+<ls output> 20011005.index
+<ls output> 20011005.0
+Removing input archive files ...... done
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+link 20011005.00.10.0 -> 20011005.0
+link 20011005.00.10.index -> 20011005.index
+link 20011005.00.10.meta -> 20011005.meta
+remove 20011005.00.10.0
+remove 20011005.00.10.index
+remove 20011005.00.10.meta
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Input archives to be merged:
+	20011005.00.10
+	20011005.06.00
+	20011005.12.00
+	20011005.12.00-00
+	20011005.12.00-01
+	20011005.18.00
+Output archive files:
+<ls output> 20011005.meta
+<ls output> 20011005.index
+<ls output> 20011005.0
+Removing input archive files .................. done
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Input archives to be merged:
+	20011005.00.10
+	20011005.06.00
+	20011005.18.00
+Output archive files:
+<ls output> 20011005.meta
+<ls output> 20011005.index
+<ls output> 20011005.0
+Removing input archive files ......... done
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
+Warning: no PCP archives found
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: Warning: no archives found to merge
+oldsem0/20011002:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem0/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem0/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem0/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem2/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem2/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem2/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+newsem0/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011007:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011008:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+
++++ .NeedRewrite +++
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+.NeedRewrite removed as expected
+oldsem0/20011002:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem0/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem0/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem0/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem1/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem2/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem2/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+oldsem2/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: Kbyte
+newsem0/20011003:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011004:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem0/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011005:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011006:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011007:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte
+newsem1/20011008:
+    Semantics: discrete  Units: none
+    Semantics: counter  Units: byte

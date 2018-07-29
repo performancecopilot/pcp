@@ -48,7 +48,7 @@ _warning()
 }
 
 cat > $tmp/usage << EOF
-Usage: [options] [input-basename ... output-name]
+# Usage: [options] [input-basename ... output-name]
 
 Options:
   -f, --force    remove input files after creating output files
@@ -109,21 +109,31 @@ fi
 
 fail=false
 mergelist=""
-rmlist=""
 
-# handle dupicate-breaking name form of the base name
-# i.e. YYYYMMDD.HH.MM-seq# and ensure no duplicates
+# handle glob expansion if command line arguments contain
+# shell metacharacters and handle dupicate-breaking name
+# form of the base name i.e. YYYYMMDD.HH.MM-seq# ...
+# and ensure no duplicates
 #
 rm -f $tmp/input
 echo >$tmp/input
 for try in $trylist
 do
-    grep "^$try\$" $tmp/input >/dev/null || echo "$try" >>$tmp/input
-    for xxx in $try-*.index
+    # regular YYYYMMDD.HH.MM.meta files (maybe with compression)
+    #
+    for xxx in $try.meta*
     do
-	[ "$xxx" = "$try-*.index" ] && continue
-	tie=`basename $xxx .index`
-	grep "^$tie\$" $tmp/input >/dev/null || echo "$tie" >>$tmp/input
+	[ "$xxx" = "$try.meta*" ] && continue
+	base=`echo "$xxx" | sed -e 's/\(.*\)\.meta.*/\1/'`
+	grep "^$base\$" $tmp/input >/dev/null || echo "$base" >>$tmp/input
+    done
+    # duplicate-breaking YYYYMMDD.HH.MM-seq#.meta files (maybe with compression)
+    #
+    for xxx in $try-*.meta*
+    do
+	[ "$xxx" = "$try-*.meta*" ] && continue
+	base=`echo "$xxx" | sed -e 's/\(.\)\.meta.*/\1/'`
+	grep "^$base\$" $tmp/input >/dev/null || echo "$base" >>$tmp/input
     done
 done
 
@@ -135,35 +145,22 @@ then
     compress_suffixes='.xz .lzma .bz2 .bz .gz .Z .z'
 fi
 
+# For each input archive, need to have at least .0 and .meta and
+# warn if .index is missing.
+# Need to handle compressed versions of all of these.
+#
 for input in `cat $tmp/input`
 do
-    for file in $input.meta
+    empty=0
+    for part in index meta 0
     do
-	file=`basename $file .meta`
-	rmlist="$rmlist $file"
-	empty=0
-	if [ ! -f "$file.index" ]
-	then
-	    echo "$prog: Warning: \"index\" file missing for archive \"$file\""
-	elif [ ! -s "$file.index" ]
-	then
-	    empty=`expr $empty + 1`
-	fi
-	if [ ! -f "$file.meta" ]
-	then
-	    echo "$prog: Error: \"meta\" file missing for archive \"$file\""
-	    fail=true
-	elif [ ! -s "$file.meta" ]
-	then
-	    empty=`expr $empty + 1`
-	fi
 	rm -f $tmp/found
 	for suff in "" $compress_suffixes
 	do
-	    if [ -f "$file.0$suff" ]
+	    if [ -f "$input.$part$suff" ]
 	    then
 		touch $tmp/found
-		if [ ! -s "$file.0$suff" ]
+		if [ ! -s "$input.$part$suff" ]
 		then
 		    empty=`expr $empty + 1`
 		fi
@@ -172,19 +169,30 @@ do
 	done
 	if [ ! -f $tmp/found ]
 	then
-	    echo "$prog: Error: \"volume 0\" file missing for archive \"$file\""
-	    ls ${file}*
-	    fail=true
-	else
-	    rm -f $tmp/found
-	    if [ $empty -eq 3 ]
-	    then
-		echo "$prog: Warning: archive \"$file\" is empty and will be skipped"
-	    else
-		mergelist="$mergelist $file"
-	    fi
+	    case $part
+	    in
+		index)
+		    echo "$prog: Warning: \"index\" file missing for archive \"$input\""
+		    empty=`expr $empty + 1`
+		    ;;
+		meta)
+		    echo "$prog: Error: \"meta\" file missing for archive \"$input\""
+		    fail=true
+		    ;;
+		0)
+		    echo "$prog: Error: \"volume 0\" file missing for archive \"$input\""
+		    ls ${file}*
+		    fail=true
+		    ;;
+	    esac
 	fi
     done
+    if [ $empty -eq 3 ]
+    then
+	echo "$prog: Warning: archive \"$input\" is empty and will be skipped"
+    else
+	mergelist="$mergelist $input"
+    fi
 done
 
 if [ -f $output.index ]
@@ -215,46 +223,42 @@ else
     $VERBOSE && echo "Input archives to be merged:"
     for input in $mergelist
     do
-	for file in $input.index
-	do
-	    if [ $i -ge 35 ]
+	if [ $i -ge 35 ]
+	then
+	    # this limit requires of the order of 3 x 35 input + 3 x 1
+	    # output = 108 file descriptors which should be well below any
+	    # shell-imposed or system-imposed limits
+	    #
+	    $VERBOSE && echo "		-> partial merge to $tmp/$part"
+	    cmd="pmlogextract $list $tmp/$part"
+	    if $SHOWME
 	    then
-		# this limit requires of the order of 3 x 35 input + 3 x 1
-		# output = 108 file descriptors which should be well below any
-		# shell-imposed or system-imposed limits
-		#
-		$VERBOSE && echo "		-> partial merge to $tmp/$part"
-		cmd="pmlogextract $list $tmp/$part"
-		if $SHOWME
-		then
-		    echo "+ $cmd"
-		else
-		    if $cmd
-		    then
-			:
-		    else
-			$VERBOSE || echo "		-> partial merge to $tmp/$part"
-			echo "$prog: Directory: `pwd`"
-			echo "$prog: Failed: pmlogextract $list $tmp/$part"
-			_warning
-		    fi
-		fi
-		list=$tmp/$part
-		part=`expr $part + 1`
-		i=0
-	    fi
-	    file=`basename $file .index`
-	    list="$list $file"
-	    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "	$file""$PCP_ECHO_C"
-	    numarch=`echo $file.[0-9]* | wc -w | sed -e 's/  *//g'`
-	    if [ $numarch -gt 1 ]
-	    then
-		$VERBOSE && echo " ($numarch archives)"
+		echo "+ $cmd"
 	    else
-		$VERBOSE && echo
+		if $cmd
+		then
+		    :
+		else
+		    $VERBOSE || echo "		-> partial merge to $tmp/$part"
+		    echo "$prog: Directory: `pwd`"
+		    echo "$prog: Failed: pmlogextract $list $tmp/$part"
+		    _warning
+		fi
 	    fi
-	    i=`expr $i + 1`
-	done
+	    list=$tmp/$part
+	    part=`expr $part + 1`
+	    i=0
+	fi
+	list="$list $input"
+	$VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "	$input""$PCP_ECHO_C"
+	numarch=`echo $input.[0-9]* | wc -w | sed -e 's/  *//g'`
+	if [ $numarch -gt 1 ]
+	then
+	    $VERBOSE && echo " ($numarch volumes)"
+	else
+	    $VERBOSE && echo
+	fi
+	i=`expr $i + 1`
     done
 
     cmd="pmlogextract $list $output"
@@ -286,15 +290,17 @@ fi
 
 if $force
 then
-    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Removing input archive files ...""$PCP_ECHO_C"
-    for input in $rmlist
+    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Removing input archive files ""$PCP_ECHO_C"
+    for input in `cat $tmp/input`
     do
-	for file in $input.index
-	do
-	    file=`basename $file .index`
-	    [ "$file" = "$output" ] && continue
-	    eval $RM -f $file.index $file.meta $file.[0-9]*
-	done
+	if $VERBOSE
+	then
+	    for file in $input.index* $input.meta* $input.[0-9]*
+	    do
+		$PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	    done
+	fi
+	eval $RM -f $input.index* $input.meta* $input.[0-9]*
     done
     $VERBOSE && echo " done"
 fi

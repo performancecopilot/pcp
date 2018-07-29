@@ -1,0 +1,97 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2018 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMLOGGER_REWRITE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogger_rewrite\f1 \- helper script to rewrite Performance Co-Pilot archives
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmlogger_rewrite
+[\f3\-dNsVvw\f1]
+[\f3\-c\f1 \f2config\f1]
+\f2archive\f1 ...
+.br
+.SH DESCRIPTION
+.B pmlogger_rewrite
+is a helper script that is used by
+.BR pmlogger_daily (1)
+when rewriting Performance Co-Pilot (PCP)
+archives.
+Rewriting is usually required to accommodate evolutionary changes in metadata
+so old archives can be updated and then merged with current archives.
+.PP
+.B pmlogger_rewrite
+is a wrapper script for
+.BR pmlogrewrite (1)
+that will potentially rewrite all of the archive logs matching the
+.I archive
+arguments.
+Each
+.I archive
+argument may be a PCP archive file name, the basename for
+the files in a PCP archive, or a directory (in which
+case all subordinate PCP archives are found by recursive
+descent).
+.PP
+.B pmlogrewrite (1)
+is run with the
+.B \-i
+option so rewiting is done ``in place'' and the
+.B \-q
+option so if no rewriting is required then no changes are made to the
+archive files.
+.PP
+Using
+.B \-N
+option runs
+.B pmlogger_rewrite
+in a ``show me'' or ``dry run'' mode where the
+tasks that would be performed are reported, but no changes are made.
+This is typically used for debugging in combination with one (verbose)
+or two (very verbose)
+.B \-V
+options.
+.PP
+The following options are passed through to
+.BR pmlogrewrite :
+.BR \-c ,
+.BR \-d ,
+.BR \-s ,
+.BR \-v
+and
+.BR \-w .
+Refer to
+.BR pmlogrewrite (1)
+for the meaning of these options.
+
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmlogger (1),
+.BR pmlogger_daily (1)
+and
+.BR pmlogrewrite (1).

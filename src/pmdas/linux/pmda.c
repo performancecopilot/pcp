@@ -324,7 +324,7 @@ static pmdaIndom indomtab[] = {
     { DISK_INDOM, 0, NULL }, /* cached */
     { LOADAVG_INDOM, 3, loadavg_indom_id },
     { NET_DEV_INDOM, 0, NULL },
-    { PROC_INTERRUPTS_INDOM, 0, NULL },	/* deprecated */
+    { INTERRUPTS_INDOM, 0, NULL },
     { FILESYS_INDOM, 0, NULL },
     { SWAPDEV_INDOM, 0, NULL },
     { NFS_INDOM, NR_RPC_COUNTERS, nfs_indom_id },
@@ -355,7 +355,8 @@ static pmdaIndom indomtab[] = {
     { ZONEINFO_INDOM, 0, NULL },
     { ZONEINFO_PROTECTION_INDOM, 0, NULL },
     { TAPEDEV_INDOM, 0, NULL },
-    { TTY_INDOM, 0, NULL }
+    { TTY_INDOM, 0, NULL },
+    { SOFTIRQS_INDOM, 0, NULL },
 };
 
 
@@ -2041,12 +2042,12 @@ static pmdaMetric metrictab[] = {
 
 /* nfs.server.threads.total */
   { &proc_fs_nfsd.th_cnt,
-    { PMDA_PMID(CLUSTER_NET_NFS,71), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_NET_NFS,71), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* nfs.server.threads.pools */
   { &proc_fs_nfsd.pool_cnt,
-    { PMDA_PMID(CLUSTER_NET_NFS,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_NET_NFS,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* nfs.server.threads.requests */
@@ -5325,10 +5326,13 @@ static pmdaMetric metrictab[] = {
 /*
  * /proc/interrupts clusters
  */
+    /* kernel.all.interrupts.total */
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS, 0), PM_TYPE_U64,
+    INTERRUPTS_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
     /* kernel.all.interrupts.errors */
-    { &irq_err_count,
-      { PMDA_PMID(CLUSTER_INTERRUPTS, 3), PM_TYPE_U32, PM_INDOM_NULL,
-	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { &irq_err_count, { PMDA_PMID(CLUSTER_INTERRUPTS, 3), PM_TYPE_U32,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* kernel.percpu.intr */
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS,4), PM_TYPE_U64,
@@ -5343,8 +5347,12 @@ static pmdaMetric metrictab[] = {
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
- * /proc/softirqs cluster
+ * /proc/softirqs clusters
  */
+
+    /* kernel.all.softirqs.total */
+    { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS_TOTAL, 0), PM_TYPE_U64,
+    SOFTIRQS_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* kernel.percpu.softirqs.[<name>] */
     { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS, 0), PM_TYPE_U32,
@@ -5630,8 +5638,8 @@ static pmdaMetric metrictab[] = {
 };
 
 typedef struct {
-    int uid_flag; /* uid attribute received */
-    int uid;     /* uid receieved from PCP_ATTR_* */
+    int			uid_flag;	/* uid attribute received */
+    int			uid;		/* uid via PMDA_ATTR_USERID */
 } linux_access_t;
 
 typedef struct {
@@ -5820,7 +5828,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	need_refresh[CLUSTER_INTERRUPT_OTHER])
 	need_refresh_mtab |= refresh_interrupt_values();
 
-    if (need_refresh[CLUSTER_SOFTIRQS])
+    if (need_refresh[CLUSTER_SOFTIRQS] ||
+	need_refresh[CLUSTER_SOFTIRQS_TOTAL])
 	need_refresh_mtab |= refresh_softirqs_values();
 
     if (need_refresh[CLUSTER_SWAPDEV])
@@ -7758,6 +7767,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_INTERRUPT_LINES:
     case CLUSTER_INTERRUPT_OTHER:
     case CLUSTER_INTERRUPTS:
+    case CLUSTER_SOFTIRQS_TOTAL:
     case CLUSTER_SOFTIRQS:
 	return interrupts_fetch(cluster, item, inst, atom);
 
@@ -7975,6 +7985,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_INTERRUPT_LINES:
 	case CLUSTER_INTERRUPT_OTHER:
 	case CLUSTER_INTERRUPTS:
+	case CLUSTER_SOFTIRQS_TOTAL:
 	case CLUSTER_SOFTIRQS:
 	case CLUSTER_SYSFS_DEVICES:
 	case CLUSTER_NET_SOFTNET:
@@ -8107,15 +8118,15 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
     int		id = -1;
 
-    if (attr == PCP_ATTR_USERID || attr == PCP_ATTR_CONTAINER ) {
+    if (attr == PMDA_ATTR_USERID || attr == PMDA_ATTR_CONTAINER ) {
 	if (ctx >= num_ctx)
 	    linux_grow_ctxtab(ctx);
     }
-    if (attr == PCP_ATTR_USERID) {
+    if (attr == PMDA_ATTR_USERID) {
 	ctxtab[ctx].access.uid_flag = 1;
 	ctxtab[ctx].access.uid = id = atoi(value);
     }
-    if (attr == PCP_ATTR_CONTAINER) {
+    if (attr == PMDA_ATTR_CONTAINER) {
 	char	*name = len > 1 ? strndup(value, len) : 0;
 
 	if (ctxtab[ctx].container.name)
@@ -8394,7 +8405,8 @@ linux_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
+
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE|PMDA_FLAG_CONTAINER);
 
     dp->version.seven.instance = linux_instance;
     dp->version.seven.fetch = linux_fetch;

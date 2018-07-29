@@ -16,8 +16,7 @@
 .TH PMLOGGER_CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogger_check\f1,
-\f3pmlogger_daily\f1,
-\f3pmlogger_merge\f1 \- administration of Performance Co-Pilot archive log files
+\f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
 [\f3\-CNsTV\f1]
@@ -25,7 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-KMNoprV\f1]
+[\f3\-KMNoprRV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -35,13 +34,8 @@
 [\f3\-x\f1 \f2compress\f1]
 [\f3\-X\f1 \f2program\f1]
 [\f3\-Y\f1 \f2regex\f1]
-.br
-.B $PCP_BINADM_DIR/pmlogger_merge
-[\f3\-fNV\f1]
-[\f2input-basename\f1 ... \f2output-name\f1]
-.br
 .SH DESCRIPTION
-This series of shell scripts and associated control files may be used to
+These shell scripts and associated control files may be used to
 create a customized regime of administration and management for
 Performance Co-Pilot (see
 .BR PCPintro (1))
@@ -50,7 +44,8 @@ archive log files.
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
 soon after midnight as practicable.
-Its task is to aggregate and rotate one or more sets of PCP archives.
+Its task is to aggregate, rotate and perform general housekeeping one or more sets of PCP archives.
+.PP
 After some period, old PCP archives are discarded.
 This period is 14 days by default, but may be changed using the
 .B \-k
@@ -100,7 +95,7 @@ The
 option controls compression and
 .I compress
 specifies the number of days after which to compress archive data
-files.
+files and metadata files.
 If
 .I compress
 is
@@ -147,7 +142,7 @@ the set of files matched for compression to be omitted \- this allows
 only the data file to be compressed, and also prevents the program from
 attempting to compress it more than once.  The default
 .I regex
-is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+is "\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
 filtered using the
 .B \-v
 option to
@@ -201,6 +196,37 @@ prevents all archive rewriting with
 .BR pmlogrewrite (1)
 independent of the presence of any rewriting rule files or directories.
 .PP
+Sometimes PMDA changes require
+.I all
+archives to be rewritten,
+not just the ones involved
+in any current merging.
+This is required for example after a PCP upgrade where a new version of an
+existing PMDA has revised metadata.
+The
+.B \-R
+command line forces this universal-style of rewriting.
+.PP
+The
+.B \-R
+option to
+.B pmlogger_daily
+is mutually exclusive with both the
+.B \-r
+and
+.B \-M
+options.
+.PP
+As an alternate mechanism, if the file
+.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+exists when
+.B pmlogger_daily
+starts then this is treated the same as specifying
+.B \-R
+on the command line and
+.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+will be removed once all the rewriting has been done.
+.PP
 By default all possible archives will be merged.  The
 .B \-o
 option reinstates the old behaviour in which only yesterday's archives
@@ -209,9 +235,10 @@ will be considered as merge candidates.
 In the special case where only a single input archive
 needs to be merged,
 .BR pmlogmv (1)
-is used to rename the archive, rather than copy the input archive
-using
-.BR pmlogger_merge .
+is used to rename the archive, otherwise
+.BR pmlogger_merge (1)
+is used to merge all of the archives for a single host and a single day into a new
+PCP archive and the individual archives are removed.
 .PP
 The
 .B \-M
@@ -383,27 +410,14 @@ that is most suitable for a
 .I pmlogger
 are expected to be running.
 .PP
-.B pmlogger_merge
-is a wrapper script for
-.BR pmlogextract (1)
-that merges all of the archive logs matching the
-.I input-basename
-arguments, and creates a new archive using 
-.I output-name
-as the base name for the physical files that constitute
-an archive log.
-The
-.I input-basename
-arguments may contain meta characters in the style of
-.BR sh (1).
-If specified, the
-.B \-f
-option causes all of the input files to be removed once the output
-archive has been created.
-.PP
-.B pmlogger_merge
-is used by
-.BR pmlogger_daily .
+Using
+.B \-N
+option invokes the scripts in a ``show me'' or ``dry run'' mode where the
+tasks that would be performed are reported, but no changes are made.
+This is typically used for debugging in combination with one (verbose)
+or two (very verbose)
+.B \-V
+options.
 .PP
 Both
 .B pmlogger_daily
@@ -723,6 +737,39 @@ if the previous execution of
 .B pmlogger_daily
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
+if this directory exists,
+then the log file from the
+.B \-l
+argument
+of a newly launched
+.BR pmlogger (1)
+for
+.I hostname
+will be linked into this directory with the name
+.IB archive .log
+where
+.I archive
+is the basename of the associated
+.BR pmlogger (1)
+PCP archive files.
+This allows the log file to be inspected at a later time, even if
+several
+.BR pmlogger (1)
+instances for
+.I hostname
+have been launched in the interim.
+Because the cron-driven PCP archive management scripts run under
+the uid of the user ``pcp'',
+.BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
+typically needs to be owned by the user ``pcp''.
+.TP
+.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+if this file exists, then this is treated as equivalent to using
+.B \-R
+on the command line and the file will be removed once all rewriting
+has been done.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -743,9 +790,9 @@ as described in
 .BR pmconfig (1),
 .BR pmlc (1),
 .BR pmlogconf (1),
-.BR pmlogextract (1),
 .BR pmlogger (1),
 .BR pmlogger_daily_report (1),
+.BR pmlogger_merge (1),
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
 .BR pmnewlog (1),

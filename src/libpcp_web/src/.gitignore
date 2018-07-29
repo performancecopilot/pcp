@@ -12,6 +12,8 @@ http_parser.c
 http_parser.h
 query_parser.tab.c
 query_parser.tab.h
+libpcp_web.dll
+libpcp_web.dll.1
 libpcp_web.dylib
 libpcp_web.dylib.1
 libpcp_web.so

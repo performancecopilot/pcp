@@ -1,0 +1,68 @@
+#
+# Copyright (c) 2018 Fujitsu
+# Copyright (c) 2018 Red Hat
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# KVM PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline_text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ 95.0 set of all processors running KVM trace metrics
+
+@ kvm.efer_reload Number of Extended Feature Enable Register (EFER) reloads.
+@ kvm.exits Number of guest exits from I/O port accesses. 
+@ kvm.fpu_reload Number of reload fpu(Float Point Unit).
+@ kvm.halt_attempted_poll Number of times the vcpu attempts to polls.
+@ kvm.halt_exits  Number of guest exits due to halt calls.
+This type of exit is usually seen when a guest is idle.
+@ kvm.halt_successful_poll The number of times the vcpu attempts to polls successfully.
+@ kvm.halt_wakeup Number of wakeups from a halt.
+@ kvm.host_state_reload Number of full reloads of the host state
+Currently tallies MSR setup and guest MSR reads.
+@ kvm.hypercalls Number of guest hypervisor service calls.
+@ kvm.insn_emulation Number of insn_emulation attempts.
+@ kvm.insn_emulation_fail Number of failed insn_emulation attempts.
+@ kvm.invlpg Number of invlpg attepts. 
+@ kvm.io_exits Number of guest exits from I/O port accesses.
+@ kvm.irq_exits Number of guest exits due to external interrupts.
+@ kvm.irq_injections Number of interrupts sent to guests.
+@ kvm.irq_window Number of guest exits from an outstanding interrupt window.
+@ kvm.largepages Number of large pages currently in use.
+@ kvm.mmio_exits Number of guest exits due to memory mapped I/O (MMIO) accesses.
+@ kvm.mmu_cache_miss Number of cache miss.
+@ kvm.mmu_flooded Detection count of excessive write operations to an MMU page.
+This counts detected write operations not of individual write operations.
+@ kvm.mmu_pde_zapped Number of page directory entry (PDE) destruction operations.
+@ kvm.mmu_pte_updated Number of PTE updated. 
+@ kvm.mmu_pte_write Number of PTE write.
+@ kvm.mmu_recycled Number of shadow pages that can be reclaimed.
+@ kvm.mmu_shadow_zapped Number of shadow pages that has been zapped.
+@ kvm.mmu_unsync Number of non-synchronized pages which are not yet unlinked 
+@ kvm.nmi_injections Number of Non-maskable Interrupt (NMI) injections.
+@ kvm.nmi_window Number of guest exits from (outstanding) Non-maskable Interrupt (NMI) windows.
+@ kvm.pf_fixed Number of fixed (non-paging) page table entry (PTE) maps.
+@ kvm.pf_guest Number of page faults injected into guests.
+@ kvm.remote_tlb_flush Number of tlb_flush operations performed by the hypervisor.
+@ kvm.request_irq Number of guest interrupt window request exits.
+@ kvm.signal_exits Number of guest exits due to pending signals from the host.
+@ kvm.tlb_flush Number of tlb_flush operations performed by the hypervisor.

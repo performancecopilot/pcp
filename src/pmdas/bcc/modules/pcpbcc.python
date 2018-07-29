@@ -78,6 +78,10 @@ class PCPBCCBase(object):
         """ Instance labels """
         return '{}'
 
+    def store(self, item, inst, val):
+        """ Store callback """
+        raise NotImplementedError
+
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:
@@ -240,3 +244,53 @@ class PCPBCCBase(object):
             return True
         except Exception: # pylint: disable=broad-except
             return False
+
+    def perf_buffer_poller(self):
+        """ BPF poller """
+        try:
+            # pylint: disable=no-member
+            if 'perf_buffer_poll' in dir(self.bpf):
+                poll = self.bpf.perf_buffer_poll
+            else:
+                # Compat: bcc < 0.6.0
+                poll = self.bpf.kprobe_poll
+            while self.bpf:
+                poll()
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("BPF kprobe poll failed!")
+        self.log("Poller thread exiting.")
+
+    def get_syscall_prefix(self):
+        """
+        Get syscall prefix
+        compat for bcc < 0.6.0
+        source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
+        """
+        # test bpf syscall kernel func name
+        if self.bpf.ksymname("sys_bpf") != -1:
+            return "sys_"
+        if self.bpf.ksymname("__x64_sys_bpf") != -1:
+            return "__x64_sys_"
+        # none of them, just return "sys_", later API
+        # calls will return error
+        return "sys_"
+
+    def get_syscall_fnname(self, name):
+        """
+        Get syscall function name
+        compat for bcc < 0.6.0
+        source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
+        """
+        return self.get_syscall_prefix() + name
+
+    def get_kprobe_functions(self, event_re):
+        """
+        Get list of kprobe functions matching a regex
+        event_re: regex pattern (bytes object)
+        compat wrapper: bcc 0.5.0 expects a string pattern, bcc 0.6.0+ a bytes pattern
+        """
+        try:
+            return self.bpf.get_kprobe_functions(event_re)
+        except TypeError:
+            return self.bpf.get_kprobe_functions(event_re.decode())

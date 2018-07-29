@@ -1,13 +1,10 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [utmp]
 width = 3
 colorstep = 10
-sessions = ses
-sessions.formula = kernel.all.nsessions
-users = usr
-users.formula = kernel.all.nusers
-roots = adm
-roots.formula = kernel.all.nroots
+ses = kernel.all.nsessions
+usr = kernel.all.nusers
+adm = kernel.all.nroots

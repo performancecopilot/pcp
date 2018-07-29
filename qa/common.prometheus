@@ -7,6 +7,9 @@
 # get standard environment, filters and checks
 . ./common.python
 
+$python -c "import requests" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python requests module not installed"
+
 CONFIG_DIR=$PCP_PMDAS_DIR/prometheus/config.d
 
 _pmdaprometheus_check()

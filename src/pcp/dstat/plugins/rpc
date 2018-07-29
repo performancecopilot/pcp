@@ -1,0 +1,29 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[rpc]
+label = rpc client
+width = 5
+printtype = d
+calls = rpc.client.rpccnt
+calls.label = call
+retransmits = rpc.client.rpcretrans
+retransmits.label = retr
+refreshes = rpc.client.rpcauthrefresh
+refreshes.label = refr
+
+[rpcd]
+label = rpc server
+width = 5
+printtype = d
+calls = rpc.server.rpccnt
+calls.label = call
+badcalls = rpc.server.rpcbadfmt
+badcalls.label = erca
+badauth = rpc.server.rpcbadauth
+badauth.label = erau
+badclnt = rpc.server.rpcbadclnt
+badclnt.label = ercl
+xdrcall = rpc.server.rpcerr
+xdrcall.label = xdrc

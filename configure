@@ -832,6 +832,7 @@ PMDA_POSTGRESQL
 PMDA_MYSQL
 PMDA_SNMP
 have_perl
+enable_perl
 pcp_perl_prog
 PERL
 PMDA_BCC
@@ -989,6 +990,7 @@ with_discovery
 with_systemd
 with_qt
 with_qt3d
+with_perl
 with_python
 with_python3
 with_books
@@ -1704,6 +1706,8 @@ Optional Packages:
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-qt3d             enable support for 3D scene graph API (default is
+                          on)
+  --with-perl             enable support for tools requiring Perl (default is
                           on)
   --with-python           enable support for tools requiring Python (default
                           is on)
@@ -2911,6 +2915,15 @@ if test "${with_qt3d+set}" = set; then :
   withval=$with_qt3d; do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"
 else
   do_qt3d=check
+fi
+
+
+
+# Check whether --with-perl was given.
+if test "${with_perl+set}" = set; then :
+  withval=$with_perl; do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"
+else
+  do_perl=check
 fi
 
 
@@ -7311,9 +7324,8 @@ _ACEOF
 
 else
 
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-		    echo Cannot proceed with the Python $PY_MAJOR installation found.
-		    enable_python2=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 
 fi
 
@@ -7364,9 +7376,8 @@ _ACEOF
 
 else
 
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-		    echo Cannot proceed with the Python $PY_MAJOR installation found.
-		    enable_python3=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 
 fi
 
@@ -7691,23 +7702,32 @@ done
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for any perl version" >&5
+enable_perl=false
+if test "x$do_perl" != "xno"; then :
+
+    enable_perl=true
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for any perl version" >&5
 $as_echo_n "checking for any perl version... " >&6; }
-if test "$cross_compiling" = "yes"; then
-    ans=$have_perl
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -n "$PERL"
-then
-    pcp_perl_prog=$PERL
-    have_perl=true
+    if test "$cross_compiling" = "yes"; then
+        ans=$have_perl
+        echo "cross-compile -> \"$ans\"" >&5
+    elif test -n "$PERL"
+    then
+        pcp_perl_prog=$PERL
+        have_perl=true
+    else
+        pcp_perl_prog=""
+        have_perl=false
+    fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
+$as_echo "$pcp_perl_prog" >&6; }
+
 else
-    pcp_perl_prog=""
-    have_perl=false
+  have_perl=false
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
-$as_echo "$pcp_perl_prog" >&6; }
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the SNMP PMDA should be included" >&5
 $as_echo_n "checking if the SNMP PMDA should be included... " >&6; }
@@ -9320,29 +9340,6 @@ then
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /proc " >&5
-$as_echo_n "checking for /proc ... " >&6; }
-if test "$cross_compiling" = "yes"; then
-    ans=$have_procfs
-    echo "cross-compile -> \"$ans\"" >&5
-elif test -d /proc
-then
-    have_procfs=true
-else
-    have_procfs=false
-fi
-if $have_procfs
-then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-$as_echo "#define HAVE_PROCFS 1" >>confdefs.h
-
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
 ac_header_dirent=no
 for ac_hdr in dirent.h sys/ndir.h sys/dir.h ndir.h; do
   as_ac_Header=`$as_echo "ac_cv_header_dirent_$ac_hdr" | $as_tr_sh`
@@ -9937,6 +9934,18 @@ do :
 if test "x$ac_cv_header_ncurses_curses_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_NCURSES_CURSES_H 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in linux/perf_event.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "linux/perf_event.h" "ac_cv_header_linux_perf_event_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_perf_event_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_PERF_EVENT_H 1
 _ACEOF
 
 fi
@@ -12960,6 +12969,9 @@ End-of-File
 	if test -x ./conftest
 	then
 	    ans=`./conftest`
+	    if test $target_os = mingw -a "$ans" = "lld"; then
+		ans='I64d'
+	    fi
 	    echo "./conftest -> \"$ans\"" >&5
 	fi
     fi
@@ -13251,11 +13263,13 @@ End-of-File
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
+if test -n "$ans"; then
 
 cat >>confdefs.h <<_ACEOF
 #define PM_SIZEOF_SUSECONDS_T $ans
 _ACEOF
 
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof time_t" >&5
 $as_echo_n "checking sizeof time_t... " >&6; }
@@ -13275,11 +13289,13 @@ End-of-File
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
+if test -n "$ans"; then
 
 cat >>confdefs.h <<_ACEOF
 #define PM_SIZEOF_TIME_T $ans
 _ACEOF
 
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof long" >&5
 $as_echo_n "checking sizeof long... " >&6; }

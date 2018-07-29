@@ -47,8 +47,8 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 {
     int		sts;
     __pmPDU	*pb;
-    extern int	outfd;
-    extern int	infd;
+    extern int	toPMDA;
+    extern int	fromPMDA;
     extern pmdaInterface	dispatch;
 
     if (IS_DYNAMIC_ROOT(*pmidp)) {
@@ -59,9 +59,9 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	    }
 	}
 	else if (connmode == CONN_DAEMON) {
-	    sts = __pmSendNameList(outfd, FROM_ANON, 1, &name, NULL);
+	    sts = __pmSendNameList(toPMDA, FROM_ANON, 1, &name, NULL);
 	    if (sts < 0) return sts;
-	    sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb);
+	    sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb);
 	    if (sts < 0) return sts;
 	    if (sts == PDU_PMNS_IDS) {
 		int	xsts;
@@ -521,7 +521,15 @@ stmt	: OPEN EOL				{
 	    }
 	;
 
-fname	: NAME					{ $$ = strcons("./", $1); }
+fname	: NAME					{
+		    /* check for absolute path - *nix and Windows style */
+		    if ($1[0] == '/' ||
+		        (strlen($1) > 4 && $1[1] == ':' && $1[2] == '/'))
+			$$ = $1;
+		    else
+			/* relative path */
+			$$ = strcons("./", $1);
+	    }
 	| PATHNAME				{ $$ = $1; }
 	;
 

@@ -291,28 +291,28 @@ gfs2_extract_worst_glock(char **buffer, pmInDom gfs_fs_indom)
 }
 
 static void
-add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
+add_pmns_node(pmdaNameSpace *tree, int domain, int cluster, int lock, int stat)
 {
     char entry[64];
     pmID pmid = pmID_build(domain, cluster, (lock * NUM_GLOCKSTATS) + stat);
 
     pmsprintf(entry, sizeof(entry),
 	     "gfs2.worst_glock.%s.%s", topnum[lock], stattype[stat]);
-    __pmAddPMNSNode(tree, pmid, entry);
+    pmdaTreeInsert(tree, pmid, entry);
 
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 worst_glock added %s (%s)", entry, pmIDStr(pmid));
 }
 
 static int
-refresh_worst_glock(pmdaExt *pmda, __pmnsTree **tree)
+refresh_worst_glock(pmdaExt *pmda, pmdaNameSpace **tree)
 {
     int t, s, sts;
-    static __pmnsTree *worst_glock_tree;
+    static pmdaNameSpace *worst_glock_tree;
 
     if (worst_glock_tree) {
 	*tree = worst_glock_tree;
-    } else if ((sts = __pmNewPMNS(&worst_glock_tree)) < 0) {
+    } else if ((sts = pmdaTreeCreate(&worst_glock_tree)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create worst_glock names: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;

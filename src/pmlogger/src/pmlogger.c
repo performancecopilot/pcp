@@ -86,7 +86,7 @@ run_done(int sts, char *msg)
     	fprintf(stderr, "pmlogger: End of run time, exiting\n");
 
     /*
-     * write the last last temportal index entry with the time stamp
+     * write the last last temporal index entry with the time stamp
      * of the last pmResult and the seek pointer set to the offset
      * _before_ the last log record
      */
@@ -94,6 +94,9 @@ run_done(int sts, char *msg)
 	pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
+	if (last_log_offset < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
+	}
 	__pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &tmp);
     }
@@ -411,7 +414,13 @@ do_dialog(char cmd)
 	nchar = add_msg(&p, nchar, "\n\nTerminate this PCP recording session now?");
 
     if (nchar > 0) {
-	char * xconfirm = __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG"));
+	char *xconfirm = strdup(pmGetConfig("PCP_XCONFIRM_PROG"));
+	if (xconfirm == NULL) {
+	    pmNoMem("do_dialog", strlen(pmGetConfig("PCP_XCONFIRM_PROG"))+1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	/* THREADSAFE - no locks acquired in __pmNativePath() */
+	xconfirm = __pmNativePath(xconfirm);
 	int fd = -1;
 
 #if HAVE_MKSTEMP
@@ -429,6 +438,7 @@ do_dialog(char cmd)
 	    fprintf(stderr, "Reason? %s\n", osstrerror());
 	    if (fd != -1)
 		close(fd);
+	    free(xconfirm);
 	    goto failed;
 	}
 	fputs(p, msgf);
@@ -449,11 +459,13 @@ do_dialog(char cmd)
 	    fprintf(stderr, "\nError: __pmProcessUnpickArgs failed for recording session dialog\n");
 	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
 	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
+	    free(xconfirm);
 	    goto failed;
 	}
 	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &msgf)) < 0) {
 	    fprintf(stderr, "\nError: failed to start command for recording session dialog\n");
 	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
+	    free(xconfirm);
 	    goto failed;
 	}
 
@@ -475,6 +487,7 @@ failed:
 	if (msgf != NULL)
 	    __pmProcessPipeClose(msgf);
 	unlink(msg);
+	free(xconfirm);
     }
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
@@ -847,7 +860,11 @@ main(int argc, char **argv)
     }
 
     /* base name for archive is here ... */
-    archBase = argv[opts.optind];
+    archBase = strdup(argv[opts.optind]);
+    if (archBase == NULL) {
+	pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
 
     /* initialise access control */
     if (__pmAccAddOp(PM_OP_LOG_ADV) < 0 ||

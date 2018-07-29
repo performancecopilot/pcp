@@ -27,6 +27,14 @@ main(int argc, char* argv[])
     if (argc != 2)
 	usage();
     sts = pmSetProcessIdentity(argv[1]);
+#ifndef IS_MINGW
     pause();
+#else
+    /*
+     * punt ... looks like a signal will get us back from here
+     * (at least it works in one test case with SIGINT)
+     */
+    SleepEx(INFINITE, TRUE);
+#endif
     return sts;
 }

@@ -1,0 +1,10 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[memcache]
+label = Memcache Hits
+width = 6
+colorstep = 50
+hit = sum(memcache.hits)
+miss = sum(memcache.misses)

@@ -1,5 +1,5 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [ipc]
@@ -7,9 +7,6 @@ label = sysv ipc
 printtype = d
 width = 3
 colorstep = 10
-msgqueue = msg
-msgqueue.formula = ipc.msg.used_queues
-semaphore = sem
-semaphore.formula = ipc.sem.used_sem
-sharedmem = shm
-sharedmem.formula = ipc.shm.used_ids
+msg = ipc.msg.used_queues
+sem = ipc.sem.used_sem
+shm = ipc.shm.used_ids

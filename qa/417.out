@@ -172,82 +172,82 @@ Temporal Index
 16:11:13.259723	      0        69936      1045256
 		Error: offset to log file past end of file (3076)
 11:02:12.1342514690	  29015    816930151       554564
-		Warning: file missing or compressed for log volume 29015
+		Warning: file missing for log volume 29015
 		Error: illegal timestamp value (132 sec, 1342514690 usec)
 		Error: offset to meta file past end of file (75462)
 		Error: timestamp went backwards in time 816930673.259723 -> 132.1342514690
 10:59:58.1836019565	  1650524160            0            0
-		Warning: file missing or compressed for log volume 1650524160
+		Warning: file missing for log volume 1650524160
 		Error: illegal timestamp value (-2 sec, 1836019565 usec)
 		Error: timestamp went backwards in time 132.1342514690 -> -2.1836019565
 11:00:00.000000	      0            0            0
 		Error: volume number decreased
 11:00:00.000000	      0            0            0
 11:00:00.000000	  1163088941    825312595   1412247856
-		Warning: file missing or compressed for log volume 1163088941
+		Warning: file missing for log volume 1163088941
 		Error: offset to meta file past end of file (75462)
 00:09:51.842674224	  741552179    791820848    805306368
-		Warning: file missing or compressed for log volume 741552179
+		Warning: file missing for log volume 741552179
 		Error: illegal timestamp value (741881391 sec, 842674224 usec)
 		Error: offset to meta file past end of file (75462)
 		Error: volume number decreased
 11:00:00.000000	    132    816930151       554564
-		Warning: file missing or compressed for log volume 132
+		Warning: file missing for log volume 132
 		Error: offset to meta file past end of file (75462)
 		Error: timestamp went backwards in time 741881391.842674224 -> 0.000000
 		Error: volume number decreased
 11:00:00.001644	    132    816930151       842927
 		Error: offset to meta file past end of file (75462)
 11:00:00.004949	    776    816930164       394424
-		Warning: file missing or compressed for log volume 776
+		Warning: file missing for log volume 776
 		Error: offset to meta file past end of file (75462)
 11:00:00.005974	  17720    816930172       126787
-		Warning: file missing or compressed for log volume 17720
+		Warning: file missing for log volume 17720
 		Error: offset to meta file past end of file (75462)
 11:00:00.010829	  26312    816930177       161532
-		Warning: file missing or compressed for log volume 26312
+		Warning: file missing for log volume 26312
 		Error: offset to meta file past end of file (75462)
 11:00:00.016255	  34200    816930599       184043
-		Warning: file missing or compressed for log volume 34200
+		Warning: file missing for log volume 34200
 		Error: offset to meta file past end of file (75462)
 11:00:00.021581	  904248    816930612       524938
-		Warning: file missing or compressed for log volume 904248
+		Warning: file missing for log volume 904248
 		Error: offset to meta file past end of file (75462)
 11:00:00.026722	  932696    816930622       471061
-		Warning: file missing or compressed for log volume 932696
+		Warning: file missing for log volume 932696
 		Error: offset to meta file past end of file (75462)
 11:00:00.031712	  952816    816930626       115458
-		Warning: file missing or compressed for log volume 952816
+		Warning: file missing for log volume 952816
 		Error: offset to meta file past end of file (75462)
 11:00:00.036430	  956800    816930630       222020
-		Warning: file missing or compressed for log volume 956800
+		Warning: file missing for log volume 956800
 		Error: offset to meta file past end of file (75462)
 11:00:00.040879	  960744    816930640       330045
-		Warning: file missing or compressed for log volume 960744
+		Warning: file missing for log volume 960744
 		Error: offset to meta file past end of file (75462)
 11:00:00.045185	  987512    816930648       730269
-		Warning: file missing or compressed for log volume 987512
+		Warning: file missing for log volume 987512
 		Error: offset to meta file past end of file (75462)
 11:00:00.049355	  1002648    816930651       373224
-		Warning: file missing or compressed for log volume 1002648
+		Warning: file missing for log volume 1002648
 		Error: offset to meta file past end of file (75462)
 11:00:00.053400	  1006392    816930658       243284
-		Warning: file missing or compressed for log volume 1006392
+		Warning: file missing for log volume 1006392
 		Error: offset to meta file past end of file (75462)
 11:00:00.057141	  1021208    816930661        70416
-		Warning: file missing or compressed for log volume 1021208
+		Warning: file missing for log volume 1021208
 		Error: offset to meta file past end of file (75462)
 11:00:00.060380	  1024872    816930664       194088
-		Warning: file missing or compressed for log volume 1024872
+		Warning: file missing for log volume 1024872
 		Error: offset to meta file past end of file (75462)
 11:00:00.063475	  1028416    816930668       796477
-		Warning: file missing or compressed for log volume 1028416
+		Warning: file missing for log volume 1028416
 		Error: offset to meta file past end of file (75462)
 11:00:00.065966	  1038688    816930671       264798
-		Warning: file missing or compressed for log volume 1038688
+		Warning: file missing for log volume 1038688
 		Error: offset to meta file past end of file (75462)
 11:00:00.068180	  1042032    816930673       259723
-		Warning: file missing or compressed for log volume 1042032
+		Warning: file missing for log volume 1042032
 		Error: offset to meta file past end of file (75462)
 
 === pmdumplog -t, no index ===

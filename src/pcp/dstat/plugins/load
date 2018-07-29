@@ -1,13 +1,10 @@
 #
-# pcp-dstat(1) configuration file - see pcp-dstat.conf(5)
-#
-# metric[,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
 [load]
 label = load avg
 width = 4
 colorstep = 0.5
-load = load
-#load.label = %Im
-load.formula = kernel.all.load
+load = kernel.all.load
+load.label = %dm

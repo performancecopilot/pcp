@@ -239,10 +239,10 @@ pipe_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 	return sts;
 
     switch (attr) {
-    case PCP_ATTR_USERID:
+    case PMDA_ATTR_USERID:
 	event_userid(ctx, value);
 	break;
-    case PCP_ATTR_GROUPID:
+    case PMDA_ATTR_GROUPID:
 	event_groupid(ctx, value);
 	break;
     default:
@@ -287,7 +287,7 @@ pipe_init(pmdaInterface *dp, const char *configfile, int checkonly)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= PDU_FLAG_AUTH;
+    pmdaSetCommFlags(dp, PMDA_FLAG_AUTHORIZE);
 
     dp->version.six.fetch = pipe_fetch;
     dp->version.six.store = pipe_store;

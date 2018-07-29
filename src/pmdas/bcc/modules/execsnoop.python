@@ -1,0 +1,210 @@
+#
+# Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the execsnoop BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/execsnoop.py
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA execsnoop module """
+
+# pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
+
+import ctypes as ct
+from collections import deque, defaultdict
+from threading import Lock, Thread
+import sys
+from os import path
+import re
+
+from bcc import BPF
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_STRING, PM_SEM_INSTANT
+from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/execsnoop.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'execsnoop'
+BASENS = 'proc.exec.'
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+
+TASK_COMM_LEN = 16      # linux/sched.h
+ARGSIZE = 128           # should match #define in execsnoop.bpf
+
+class Data(ct.Structure):
+    """ execsnoop data struct """
+    _fields_ = [
+        ("pid", ct.c_uint),
+        ("comm", ct.c_char * TASK_COMM_LEN),
+        ("type", ct.c_int),
+        ("argv", ct.c_char * ARGSIZE),
+        ("retval", ct.c_int),
+    ]
+
+class EventType(object):
+    """ eventtype """
+    EVENT_ARG = 0
+    EVENT_RET = 1
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC execsnoop module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.include_failed = False
+        self.command = None
+        self.args = None
+        self.max_args = 20
+        self.process_count = 20
+        self.buffer_page_count = 64
+
+        for opt in self.config.options(MODULE):
+            if opt == 'include_failed':
+                self.include_failed = self.config.getboolean(MODULE, opt)
+            if opt == 'command':
+                self.command = self.config.get(MODULE, opt).encode(sys.getfilesystemencoding())
+            if opt == 'args':
+                self.args = self.config.get(MODULE, opt).encode(sys.getfilesystemencoding())
+            if opt == 'max_args':
+                self.max_args = int(self.config.get(MODULE, opt))
+            if opt == 'process_count':
+                self.process_count = int(self.config.get(MODULE, opt))
+            if opt == 'buffer_page_count':
+                self.buffer_page_count = int(self.config.get(MODULE, opt))
+                if not self.buffer_page_count or \
+                   self.buffer_page_count & (self.buffer_page_count - 1):
+                    raise RuntimeError("Buffer page count is not power of two.")
+
+        self.cache = deque(maxlen=self.process_count)
+        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.process_count)}
+
+        self.lock = Lock()
+        self.argv_cache = defaultdict(list)
+        self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
+        self.thread.setDaemon(True)
+
+        self.log("Initialized.")
+
+    @classmethod
+    def get_ppid(cls, pid):
+        """ Get parent PID """
+        try:
+            with open("/proc/%d/status" % pid) as status:
+                for line in status:
+                    if line.startswith("PPid:"):
+                        return int(line.split()[1])
+        except IOError:
+            pass
+        return 0
+
+    def handle_event(self, _cpu, data, _size):
+        """ Event handler """
+        event = ct.cast(data, ct.POINTER(Data)).contents
+        skip = False
+
+        if event.type == EventType.EVENT_ARG:
+            self.argv_cache[event.pid].append(event.argv)
+        elif event.type == EventType.EVENT_RET:
+            if event.retval != 0 and not self.include_failed:
+                skip = True
+            if self.command and not re.search(self.command, event.comm):
+                skip = True
+            if self.args and not re.search(self.args, b' '.join(self.argv_cache[event.pid])):
+                skip = True
+
+            if not skip:
+                ppid = self.get_ppid(event.pid)
+                argv_text = b' '.join(self.argv_cache[event.pid]).replace(b'\n', b'\\n')
+
+                self.lock.acquire()
+                self.cache.appendleft([
+                    event.comm.decode(), event.pid, ppid, event.retval, argv_text.decode()
+                ])
+                self.lock.release()
+            try:
+                del self.argv_cache[event.pid]
+            except Exception: # pylint: disable=broad-except
+                pass
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = BASENS
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
+            (name + 'pid', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'PID'),
+            (name + 'ppid', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'parent PID'),
+            (name + 'ret', None, PM_TYPE_32, PM_SEM_INSTANT, units_none, 'return code'),
+            (name + 'args', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command arguments'),
+        )
+        return True, self.items
+
+    def perf_buffer_lost_cb(self, lost_cnt):
+        """ Callback for lost perf buffer events """
+        self.err("Lost %d events; buffer_page_count should be increased." % lost_cnt)
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
+                bpf_text = f.read()
+
+            bpf_text = bpf_text.replace("MAXARG", str(self.max_args))
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
+            self.bpf = BPF(text=bpf_text)
+            execve_fnname = self.get_syscall_fnname("execve")
+            self.bpf.attach_kprobe(event=execve_fnname, fn_name="syscall__execve")
+            self.bpf.attach_kretprobe(event=execve_fnname, fn_name="do_ret_sys_execve")
+            self.bpf["events"].open_perf_buffer(self.handle_event,
+                                                page_cnt=self.buffer_page_count,
+                                                lost_cb=self.perf_buffer_lost_cb)
+            self.thread.start()
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
+            self.err(str(error))
+            self.err("Module NOT active!")
+            raise
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = int(self.pmdaIndom.inst_name_lookup(inst))
+            self.lock.acquire()
+            value = self.cache[key][item]
+            self.lock.release()
+            return [value, 1]
+        except Exception: # pylint: disable=broad-except
+            self.lock.release()
+            return [PM_ERR_AGAIN, 0]
