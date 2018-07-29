@@ -1571,6 +1571,7 @@ BAD
 1342 pmda.prometheus local python
 1343 pmmgr local pmlogrewrite
 1344 pmmgr local
+1350 pmda.proc local
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
