@@ -1,0 +1,1627 @@
+QA output created by 1399
+
+pcp-pidstat output: Display the process command name and all its arguments.
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/24/18  x86_64    (4 CPU)
+Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
+18:00:33         root	1	?	?	?	?	0	/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+18:00:33         root	2	?	?	?	?	0	(kthreadd)
+18:00:33         root	3	?	?	?	?	0	(ksoftirqd/0)
+18:00:33         root	4	?	?	?	?	0	(kworker/0:0)
+18:00:33         root	5	?	?	?	?	0	(kworker/0:0H)
+18:00:33         root	6	?	?	?	?	3	(kworker/u8:0)
+18:00:33         root	7	?	?	?	?	0	(migration/0)
+18:00:33         root	8	?	?	?	?	0	(rcu_bh)
+18:00:33         root	9	?	?	?	?	3	(rcu_sched)
+18:00:33         root	10	?	?	?	?	0	(watchdog/0)
+18:00:33         root	11	?	?	?	?	1	(watchdog/1)
+18:00:33         root	12	?	?	?	?	1	(migration/1)
+18:00:33         root	13	?	?	?	?	1	(ksoftirqd/1)
+18:00:33         root	14	?	?	?	?	1	(kworker/1:0)
+18:00:33         root	15	?	?	?	?	1	(kworker/1:0H)
+18:00:33         root	16	?	?	?	?	2	(watchdog/2)
+18:00:33         root	17	?	?	?	?	2	(migration/2)
+18:00:33         root	18	?	?	?	?	2	(ksoftirqd/2)
+18:00:33         root	19	?	?	?	?	2	(kworker/2:0)
+18:00:33         root	20	?	?	?	?	2	(kworker/2:0H)
+18:00:33         root	21	?	?	?	?	3	(watchdog/3)
+18:00:33         root	22	?	?	?	?	3	(migration/3)
+18:00:33         root	23	?	?	?	?	3	(ksoftirqd/3)
+18:00:33         root	24	?	?	?	?	3	(kworker/3:0)
+18:00:33         root	25	?	?	?	?	3	(kworker/3:0H)
+18:00:33         root	27	?	?	?	?	1	(kdevtmpfs)
+18:00:33         root	28	?	?	?	?	1	(netns)
+18:00:33         root	29	?	?	?	?	1	(khungtaskd)
+18:00:33         root	30	?	?	?	?	1	(writeback)
+18:00:33         root	31	?	?	?	?	1	(kintegrityd)
+18:00:33         root	32	?	?	?	?	1	(bioset)
+18:00:33         root	33	?	?	?	?	1	(kblockd)
+18:00:33         root	34	?	?	?	?	1	(md)
+18:00:33         root	35	?	?	?	?	3	(kworker/3:1)
+18:00:33         root	40	?	?	?	?	1	(kswapd0)
+18:00:33         root	41	?	?	?	?	3	(ksmd)
+18:00:33         root	42	?	?	?	?	1	(khugepaged)
+18:00:33         root	43	?	?	?	?	1	(crypto)
+18:00:33         root	51	?	?	?	?	1	(kthrotld)
+18:00:33         root	52	?	?	?	?	2	(kworker/u8:1)
+18:00:33         root	53	?	?	?	?	3	(kmpath_rdacd)
+18:00:33         root	54	?	?	?	?	2	(kworker/2:1)
+18:00:33         root	55	?	?	?	?	0	(kworker/0:1)
+18:00:33         root	56	?	?	?	?	1	(kworker/1:1)
+18:00:33         root	57	?	?	?	?	0	(kpsmoused)
+18:00:33         root	58	?	?	?	?	1	(kworker/1:2)
+18:00:33         root	59	?	?	?	?	3	(ipv6_addrconf)
+18:00:33         root	60	?	?	?	?	1	(kworker/1:3)
+18:00:33         root	79	?	?	?	?	3	(deferwq)
+18:00:33         root	112	?	?	?	?	1	(kauditd)
+18:00:33         root	300	?	?	?	?	3	(ata_sff)
+18:00:33         root	306	?	?	?	?	0	(scsi_eh_0)
+18:00:33         root	307	?	?	?	?	2	(scsi_tmf_0)
+18:00:33         root	308	?	?	?	?	1	(scsi_eh_1)
+18:00:33         root	309	?	?	?	?	1	(scsi_tmf_1)
+18:00:33         root	310	?	?	?	?	1	(kworker/u8:2)
+18:00:33         root	311	?	?	?	?	0	(kworker/u8:3)
+18:00:33         root	313	?	?	?	?	0	(ttm_swap)
+18:00:33         root	325	?	?	?	?	1	(kworker/1:1H)
+18:00:33         root	326	?	?	?	?	2	(kworker/2:2)
+18:00:33         root	327	?	?	?	?	0	(kworker/0:2)
+18:00:33         root	328	?	?	?	?	3	(kworker/3:1H)
+18:00:33         root	329	?	?	?	?	0	(kworker/0:1H)
+18:00:33         root	331	?	?	?	?	2	(kworker/2:1H)
+18:00:33         root	392	?	?	?	?	3	(kdmflush)
+18:00:33         root	393	?	?	?	?	0	(bioset)
+18:00:33         root	402	?	?	?	?	3	(kdmflush)
+18:00:33         root	403	?	?	?	?	3	(bioset)
+18:00:33         root	418	?	?	?	?	3	(bioset)
+18:00:33         root	419	?	?	?	?	0	(xfsalloc)
+18:00:33         root	420	?	?	?	?	3	(xfs_mru_cache)
+18:00:33         root	421	?	?	?	?	1	(xfs-buf/dm-0)
+18:00:33         root	422	?	?	?	?	1	(xfs-data/dm-0)
+18:00:33         root	423	?	?	?	?	1	(xfs-conv/dm-0)
+18:00:33         root	424	?	?	?	?	1	(xfs-cil/dm-0)
+18:00:33         root	425	?	?	?	?	1	(xfs-reclaim/dm-)
+18:00:33         root	426	?	?	?	?	1	(xfs-log/dm-0)
+18:00:33         root	427	?	?	?	?	1	(xfs-eofblocks/d)
+18:00:33         root	428	?	?	?	?	1	(xfsaild/dm-0)
+18:00:33         root	500	?	?	?	?	2	/usr/lib/systemd/systemd-journald
+18:00:33         root	513	?	?	?	?	3	(kworker/3:2)
+18:00:33         root	517	?	?	?	?	0	/usr/sbin/lvmetad -f
+18:00:33         root	536	?	?	?	?	0	(rpciod)
+18:00:33         root	537	?	?	?	?	0	(xprtiod)
+18:00:33         root	539	?	?	?	?	1	/usr/lib/systemd/systemd-udevd
+18:00:33         root	635	?	?	?	?	0	(xfs-buf/sda1)
+18:00:33         root	636	?	?	?	?	0	(xfs-data/sda1)
+18:00:33         root	637	?	?	?	?	0	(xfs-conv/sda1)
+18:00:33         root	638	?	?	?	?	0	(xfs-cil/sda1)
+18:00:33         root	639	?	?	?	?	0	(xfs-reclaim/sda)
+18:00:33         root	640	?	?	?	?	0	(xfs-log/sda1)
+18:00:33         root	641	?	?	?	?	0	(xfs-eofblocks/s)
+18:00:33         root	643	?	?	?	?	0	(kworker/0:3)
+18:00:33         root	644	?	?	?	?	0	(xfsaild/sda1)
+18:00:33         root	676	?	?	?	?	1	/sbin/auditd
+18:00:33         root	678	?	?	?	?	1	/sbin/audispd
+18:00:33         root	680	?	?	?	?	1	/usr/sbin/sedispatch
+18:00:33         avahi	701	?	?	?	?	2	avahi-daemon: running [linux.local]
+18:00:33         root	702	?	?	?	?	2	/usr/sbin/irqbalance --foreground
+18:00:33         root	703	?	?	?	?	0	/usr/sbin/ModemManager
+18:00:33         root	706	?	?	?	?	1	/usr/lib/systemd/systemd-logind
+18:00:33         root	707	?	?	?	?	0	/usr/sbin/abrtd -d -s
+18:00:33         dbus	709	?	?	?	?	1	/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+18:00:33         avahi	710	?	?	?	?	2	avahi-daemon: chroot helper
+18:00:33         chrony	714	?	?	?	?	0	/usr/sbin/chronyd
+18:00:33         root	726	?	?	?	?	2	/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+18:00:33         root	735	?	?	?	?	1	/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+18:00:33         root	738	?	?	?	?	2	/usr/sbin/rsyslogd -n
+18:00:33         root	744	?	?	?	?	3	/usr/sbin/smartd -n -q never
+18:00:33         polkitd	746	?	?	?	?	2	/usr/lib/polkit-1/polkitd --no-debug
+18:00:33         rtkit	748	?	?	?	?	1	/usr/libexec/rtkit-daemon
+18:00:33         root	749	?	?	?	?	2	/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+18:00:33         root	750	?	?	?	?	3	/usr/libexec/accounts-daemon
+18:00:33         libstoragemgmt	752	?	?	?	?	1	/usr/bin/lsmd -d
+18:00:33         root	755	?	?	?	?	0	/sbin/rngd -f
+18:00:33         root	761	?	?	?	?	1	/usr/sbin/mcelog --ignorenodev --daemon --syslog
+18:00:33         root	776	?	?	?	?	2	/bin/bash /usr/sbin/ksmtuned
+18:00:33         root	777	?	?	?	?	1	sleep 60
+18:00:33         root	781	?	?	?	?	1	/usr/sbin/spice-vdagentd
+18:00:33         root	789	?	?	?	?	1	/usr/sbin/gssproxy -D
+18:00:33         root	793	?	?	?	?	2	/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+18:00:33         root	800	?	?	?	?	3	/usr/sbin/NetworkManager --no-daemon
+18:00:33         root	830	?	?	?	?	1	/usr/lib/systemd/systemd-hostnamed
+18:00:33         root	923	?	?	?	?	3	/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+18:00:33         root	1117	?	?	?	?	1	/usr/sbin/cupsd -f
+18:00:33         root	1118	?	?	?	?	3	/usr/bin/python -Es /usr/sbin/tuned -l -P
+18:00:33         root	1125	?	?	?	?	0	/usr/bin/rhsmcertd
+18:00:33         root	1139	?	?	?	?	3	/usr/sbin/sshd -D
+18:00:33         root	1143	?	?	?	?	3	/usr/sbin/libvirtd
+18:00:33         root	1176	?	?	?	?	1	rhnsd
+18:00:33         root	1178	?	?	?	?	2	/usr/sbin/atd -f
+18:00:33         root	1180	?	?	?	?	2	/usr/sbin/gdm
+18:00:33         root	1181	?	?	?	?	2	/usr/sbin/crond -n
+18:00:33         root	1490	?	?	?	?	2	/usr/libexec/postfix/master -w
+18:00:33         postfix	1496	?	?	?	?	0	pickup -l -t unix -u
+18:00:33         postfix	1497	?	?	?	?	3	qmgr -l -t unix -u
+18:00:33         pcp	1500	?	?	?	?	1	/usr/libexec/pcp/bin/pmcd -T 3
+18:00:33         root	1503	?	?	?	?	2	/var/lib/pcp/pmdas/root/pmdaroot
+18:00:33         pcp	1506	?	?	?	?	2	/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+18:00:33         root	1507	?	?	?	?	2	/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+18:00:33         pcp	1508	?	?	?	?	2	/var/lib/pcp/pmdas/sample/pmdasample -d 29
+18:00:33         root	1509	?	?	?	?	1	/var/lib/pcp/pmdas/linux/pmdalinux
+18:00:33         root	1510	?	?	?	?	0	python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+18:00:33         root	1517	?	?	?	?	2	/var/lib/pcp/pmdas/dm/pmdadm -d 129
+18:00:33         pcp	1518	?	?	?	?	3	/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+18:00:33         root	1521	?	?	?	?	0	/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-H0mtXe/database -seat seat0 -nolisten tcp vt1
+18:00:33         setroubleshoot	1635	?	?	?	?	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:33         root	1652	?	?	?	?	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:33         root	1656	?	?	?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         root	1698	?	?	?	?	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:33         gdm	1823	?	?	?	?	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         gdm	1912	?	?	?	?	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:33         root	1946	?	?	?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         gdm	1975	?	?	?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         pcp	2007	?	?	?	?	0	/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+18:00:33         gdm	2025	?	?	?	?	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         gdm	2031	?	?	?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         gdm	2078	?	?	?	?	?	/usr/libexec/at-spi-bus-launcher
+18:00:33         gdm	2092	?	?	?	?	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:33         gdm	2097	?	?	?	?	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:33         gdm	2136	?	?	?	?	?	/usr/bin/gnome-shell
+18:00:33         root	2202	?	?	?	?	3	/usr/libexec/upowerd
+18:00:33         gdm	2269	?	?	?	?	1	/usr/bin/pulseaudio --start --log-target=syslog
+18:00:33         root	2765	?	?	?	?	3	/usr/lib/systemd/systemd-localed
+18:00:33         gdm	2788	?	?	?	?	?	ibus-daemon --xim --panel disable
+18:00:33         gdm	2814	?	?	?	?	?	/usr/libexec/ibus-dconf
+18:00:33         gdm	2822	?	?	?	?	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:33         gdm	2898	?	?	?	?	?	/usr/libexec/xdg-permission-store
+18:00:33         root	2921	?	?	?	?	3	/usr/libexec/packagekitd
+18:00:33         gdm	2945	?	?	?	?	?	/usr/libexec/gnome-settings-daemon
+18:00:33         gdm	2946	?	?	?	?	1	/usr/bin/spice-vdagent
+18:00:33         root	2951	?	?	?	?	1	/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+18:00:33         colord	3063	?	?	?	?	0	/usr/libexec/colord
+18:00:33         root	3099	?	?	?	?	2	/usr/libexec/fprintd
+18:00:33         root	3119	?	?	?	?	1	/usr/lib64/realmd/realmd
+18:00:33         gdm	3174	?	?	?	?	?	/usr/libexec/ibus-engine-simple
+18:00:33         pcp	7203	?	?	?	?	2	/usr/libexec/pcp/bin/pmlogger -P -r -T24h10m -c config.default -v 100mb -m pmlogger_check 20180724.18.00
+Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
+18:00:34         root	1	0.2	1.1	0.0	1.3	0	/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+18:00:34         root	2	0.0	0.0	0.0	0.0	0	(kthreadd)
+18:00:34         root	3	0.0	0.0	0.0	0.0	0	(ksoftirqd/0)
+18:00:34         root	4	0.0	0.0	0.0	0.0	0	(kworker/0:0)
+18:00:34         root	5	0.0	0.0	0.0	0.0	0	(kworker/0:0H)
+18:00:34         root	6	0.0	0.1	0.0	0.1	3	(kworker/u8:0)
+18:00:34         root	7	0.0	0.1	0.0	0.1	0	(migration/0)
+18:00:34         root	8	0.0	0.0	0.0	0.0	0	(rcu_bh)
+18:00:34         root	9	0.0	0.5	0.0	0.5	3	(rcu_sched)
+18:00:34         root	10	0.0	0.0	0.0	0.0	0	(watchdog/0)
+18:00:34         root	11	0.0	0.0	0.0	0.0	1	(watchdog/1)
+18:00:34         root	12	0.0	0.0	0.0	0.0	1	(migration/1)
+18:00:34         root	13	0.0	0.0	0.0	0.0	1	(ksoftirqd/1)
+18:00:34         root	14	0.0	0.1	0.0	0.1	1	(kworker/1:0)
+18:00:34         root	15	0.0	0.0	0.0	0.0	1	(kworker/1:0H)
+18:00:34         root	16	0.0	0.0	0.0	0.0	2	(watchdog/2)
+18:00:34         root	17	0.0	0.0	0.0	0.0	2	(migration/2)
+18:00:34         root	18	0.0	0.0	0.0	0.0	2	(ksoftirqd/2)
+18:00:34         root	19	0.0	0.0	0.0	0.0	2	(kworker/2:0)
+18:00:34         root	20	0.0	0.0	0.0	0.0	2	(kworker/2:0H)
+18:00:34         root	21	0.0	0.0	0.0	0.0	3	(watchdog/3)
+18:00:34         root	22	0.0	0.0	0.0	0.0	3	(migration/3)
+18:00:34         root	23	0.0	0.0	0.0	0.0	3	(ksoftirqd/3)
+18:00:34         root	24	0.0	0.0	0.0	0.0	3	(kworker/3:0)
+18:00:34         root	25	0.0	0.0	0.0	0.0	3	(kworker/3:0H)
+18:00:34         root	27	0.0	0.0	0.0	0.0	1	(kdevtmpfs)
+18:00:34         root	28	0.0	0.0	0.0	0.0	1	(netns)
+18:00:34         root	29	0.0	0.0	0.0	0.0	1	(khungtaskd)
+18:00:34         root	30	0.0	0.0	0.0	0.0	1	(writeback)
+18:00:34         root	31	0.0	0.0	0.0	0.0	1	(kintegrityd)
+18:00:34         root	32	0.0	0.0	0.0	0.0	1	(bioset)
+18:00:34         root	33	0.0	0.0	0.0	0.0	1	(kblockd)
+18:00:34         root	34	0.0	0.0	0.0	0.0	1	(md)
+18:00:34         root	35	0.0	0.0	0.0	0.0	3	(kworker/3:1)
+18:00:34         root	40	0.0	0.0	0.0	0.0	1	(kswapd0)
+18:00:34         root	41	0.0	0.0	0.0	0.0	3	(ksmd)
+18:00:34         root	42	0.0	0.0	0.0	0.0	1	(khugepaged)
+18:00:34         root	43	0.0	0.0	0.0	0.0	1	(crypto)
+18:00:34         root	51	0.0	0.0	0.0	0.0	1	(kthrotld)
+18:00:34         root	52	0.0	0.0	0.0	0.0	2	(kworker/u8:1)
+18:00:34         root	53	0.0	0.0	0.0	0.0	3	(kmpath_rdacd)
+18:00:34         root	54	0.0	0.0	0.0	0.0	2	(kworker/2:1)
+18:00:34         root	55	0.0	0.1	0.0	0.1	0	(kworker/0:1)
+18:00:34         root	56	0.0	0.0	0.0	0.0	1	(kworker/1:1)
+18:00:34         root	57	0.0	0.0	0.0	0.0	0	(kpsmoused)
+18:00:34         root	58	0.0	0.0	0.0	0.0	1	(kworker/1:2)
+18:00:34         root	59	0.0	0.0	0.0	0.0	3	(ipv6_addrconf)
+18:00:34         root	60	0.0	0.0	0.0	0.0	1	(kworker/1:3)
+18:00:34         root	79	0.0	0.0	0.0	0.0	3	(deferwq)
+18:00:34         root	112	0.0	0.0	0.0	0.0	1	(kauditd)
+18:00:34         root	300	0.0	0.0	0.0	0.0	3	(ata_sff)
+18:00:34         root	306	0.0	0.0	0.0	0.0	0	(scsi_eh_0)
+18:00:34         root	307	0.0	0.0	0.0	0.0	2	(scsi_tmf_0)
+18:00:34         root	308	0.0	0.0	0.0	0.0	1	(scsi_eh_1)
+18:00:34         root	309	0.0	0.0	0.0	0.0	1	(scsi_tmf_1)
+18:00:34         root	310	0.0	0.0	0.0	0.0	1	(kworker/u8:2)
+18:00:34         root	311	0.0	0.0	0.0	0.0	0	(kworker/u8:3)
+18:00:34         root	313	0.0	0.0	0.0	0.0	0	(ttm_swap)
+18:00:34         root	325	0.0	0.1	0.0	0.1	1	(kworker/1:1H)
+18:00:34         root	326	0.0	0.0	0.0	0.0	2	(kworker/2:2)
+18:00:34         root	327	0.0	0.0	0.0	0.0	0	(kworker/0:2)
+18:00:34         root	328	0.0	0.1	0.0	0.1	3	(kworker/3:1H)
+18:00:34         root	329	0.0	0.0	0.0	0.0	0	(kworker/0:1H)
+18:00:34         root	331	0.0	0.1	0.0	0.1	2	(kworker/2:1H)
+18:00:34         root	392	0.0	0.0	0.0	0.0	3	(kdmflush)
+18:00:34         root	393	0.0	0.0	0.0	0.0	0	(bioset)
+18:00:34         root	402	0.0	0.0	0.0	0.0	3	(kdmflush)
+18:00:34         root	403	0.0	0.0	0.0	0.0	3	(bioset)
+18:00:34         root	418	0.0	0.0	0.0	0.0	3	(bioset)
+18:00:34         root	419	0.0	0.0	0.0	0.0	0	(xfsalloc)
+18:00:34         root	420	0.0	0.0	0.0	0.0	3	(xfs_mru_cache)
+18:00:34         root	421	0.0	0.0	0.0	0.0	1	(xfs-buf/dm-0)
+18:00:34         root	422	0.0	0.0	0.0	0.0	1	(xfs-data/dm-0)
+18:00:34         root	423	0.0	0.0	0.0	0.0	1	(xfs-conv/dm-0)
+18:00:34         root	424	0.0	0.0	0.0	0.0	1	(xfs-cil/dm-0)
+18:00:34         root	425	0.0	0.0	0.0	0.0	1	(xfs-reclaim/dm-)
+18:00:34         root	426	0.0	0.0	0.0	0.0	1	(xfs-log/dm-0)
+18:00:34         root	427	0.0	0.0	0.0	0.0	1	(xfs-eofblocks/d)
+18:00:34         root	428	0.0	0.0	0.0	0.0	1	(xfsaild/dm-0)
+18:00:34         root	500	0.2	0.6	0.0	0.8	2	/usr/lib/systemd/systemd-journald
+18:00:34         root	513	0.0	0.0	0.0	0.0	3	(kworker/3:2)
+18:00:34         root	517	0.0	0.0	0.0	0.0	0	/usr/sbin/lvmetad -f
+18:00:34         root	536	0.0	0.0	0.0	0.0	0	(rpciod)
+18:00:34         root	537	0.0	0.0	0.0	0.0	0	(xprtiod)
+18:00:34         root	539	0.0	0.1	0.0	0.1	1	/usr/lib/systemd/systemd-udevd
+18:00:34         root	635	0.0	0.0	0.0	0.0	0	(xfs-buf/sda1)
+18:00:34         root	636	0.0	0.0	0.0	0.0	0	(xfs-data/sda1)
+18:00:34         root	637	0.0	0.0	0.0	0.0	0	(xfs-conv/sda1)
+18:00:34         root	638	0.0	0.0	0.0	0.0	0	(xfs-cil/sda1)
+18:00:34         root	639	0.0	0.0	0.0	0.0	0	(xfs-reclaim/sda)
+18:00:34         root	640	0.0	0.0	0.0	0.0	0	(xfs-log/sda1)
+18:00:34         root	641	0.0	0.0	0.0	0.0	0	(xfs-eofblocks/s)
+18:00:34         root	643	0.0	0.0	0.0	0.0	0	(kworker/0:3)
+18:00:34         root	644	0.0	0.0	0.0	0.0	0	(xfsaild/sda1)
+18:00:34         root	676	0.0	0.0	0.0	0.0	1	/sbin/auditd
+18:00:34         root	678	0.0	0.0	0.0	0.0	1	/sbin/audispd
+18:00:34         root	680	0.0	0.0	0.0	0.0	1	/usr/sbin/sedispatch
+18:00:34         avahi	701	0.0	0.0	0.0	0.0	2	avahi-daemon: running [linux.local]
+18:00:34         root	702	0.0	0.0	0.0	0.0	2	/usr/sbin/irqbalance --foreground
+18:00:34         root	703	0.0	0.0	0.0	0.0	0	/usr/sbin/ModemManager
+18:00:34         root	706	0.0	0.2	0.0	0.2	1	/usr/lib/systemd/systemd-logind
+18:00:34         root	707	0.0	0.0	0.0	0.0	0	/usr/sbin/abrtd -d -s
+18:00:34         dbus	709	2.1	0.9	0.0	3.0	1	/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+18:00:34         avahi	710	0.0	0.0	0.0	0.0	2	avahi-daemon: chroot helper
+18:00:34         chrony	714	0.0	0.0	0.0	0.0	0	/usr/sbin/chronyd
+18:00:34         root	726	0.0	0.0	0.0	0.0	2	/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+18:00:34         root	735	0.0	0.0	0.0	0.0	1	/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+18:00:34         root	738	0.2	0.0	0.0	0.2	2	/usr/sbin/rsyslogd -n
+18:00:34         root	744	0.0	0.0	0.0	0.0	3	/usr/sbin/smartd -n -q never
+18:00:34         polkitd	746	0.2	0.2	0.0	0.4	2	/usr/lib/polkit-1/polkitd --no-debug
+18:00:34         rtkit	748	0.1	0.1	0.0	0.2	1	/usr/libexec/rtkit-daemon
+18:00:34         root	749	0.1	0.0	0.0	0.1	2	/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+18:00:34         root	750	0.1	0.2	0.0	0.3	3	/usr/libexec/accounts-daemon
+18:00:34         libstoragemgmt	752	0.0	0.0	0.0	0.0	1	/usr/bin/lsmd -d
+18:00:34         root	755	0.0	0.1	0.0	0.1	0	/sbin/rngd -f
+18:00:34         root	761	0.0	0.0	0.0	0.0	1	/usr/sbin/mcelog --ignorenodev --daemon --syslog
+18:00:34         root	776	0.0	0.0	0.0	0.0	2	/bin/bash /usr/sbin/ksmtuned
+18:00:34         root	777	0.0	0.0	0.0	0.0	1	sleep 60
+18:00:34         root	781	0.0	0.1	0.0	0.1	1	/usr/sbin/spice-vdagentd
+18:00:34         root	789	0.0	0.0	0.0	0.0	1	/usr/sbin/gssproxy -D
+18:00:34         root	793	0.1	0.1	0.0	0.2	2	/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+18:00:34         root	800	0.2	0.1	0.0	0.3	3	/usr/sbin/NetworkManager --no-daemon
+18:00:34         root	830	0.0	0.1	0.0	0.1	1	/usr/lib/systemd/systemd-hostnamed
+18:00:34         root	923	0.0	0.0	0.0	0.0	3	/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+18:00:34         root	1117	0.0	0.1	0.0	0.1	1	/usr/sbin/cupsd -f
+18:00:34         root	1118	0.0	0.0	0.0	0.0	3	/usr/bin/python -Es /usr/sbin/tuned -l -P
+18:00:34         root	1125	0.0	0.0	0.0	0.0	0	/usr/bin/rhsmcertd
+18:00:34         root	1139	0.0	0.0	0.0	0.0	3	/usr/sbin/sshd -D
+18:00:34         root	1143	0.0	0.1	0.0	0.1	3	/usr/sbin/libvirtd
+18:00:34         root	1176	0.0	0.0	0.0	0.0	1	rhnsd
+18:00:34         root	1178	0.0	0.0	0.0	0.0	2	/usr/sbin/atd -f
+18:00:34         root	1180	0.0	0.1	0.0	0.1	2	/usr/sbin/gdm
+18:00:34         root	1181	0.0	0.0	0.0	0.0	2	/usr/sbin/crond -n
+18:00:34         root	1490	0.0	0.0	0.0	0.0	2	/usr/libexec/postfix/master -w
+18:00:34         postfix	1496	0.0	0.0	0.0	0.0	0	pickup -l -t unix -u
+18:00:34         postfix	1497	0.0	0.0	0.0	0.0	3	qmgr -l -t unix -u
+18:00:34         pcp	1500	0.4	0.7	0.0	1.1	1	/usr/libexec/pcp/bin/pmcd -T 3
+18:00:34         root	1503	0.0	0.0	0.0	0.0	2	/var/lib/pcp/pmdas/root/pmdaroot
+18:00:34         pcp	1506	0.2	0.7	0.0	0.9	2	/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+18:00:34         root	1507	0.0	0.0	0.0	0.0	2	/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+18:00:34         pcp	1508	0.0	0.0	0.0	0.0	2	/var/lib/pcp/pmdas/sample/pmdasample -d 29
+18:00:34         root	1509	0.1	0.2	0.0	0.3	1	/var/lib/pcp/pmdas/linux/pmdalinux
+18:00:34         root	1510	0.0	0.0	0.0	0.0	0	python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+18:00:34         root	1517	0.0	0.0	0.0	0.0	2	/var/lib/pcp/pmdas/dm/pmdadm -d 129
+18:00:34         pcp	1518	0.0	0.0	0.0	0.0	3	/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+18:00:34         root	1521	0.6	1.1	0.0	1.7	0	/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-H0mtXe/database -seat seat0 -nolisten tcp vt1
+18:00:34         setroubleshoot	1635	?	?	?	?	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:34         root	1652	?	?	?	?	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:34         root	1656	?	?	?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         root	1698	?	?	?	?	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:34         gdm	1823	?	?	?	?	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         gdm	1912	?	?	?	?	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:34         root	1946	?	?	?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         gdm	1975	?	?	?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         pcp	2007	0.0	0.0	0.0	0.0	0	/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+18:00:34         gdm	2025	?	?	?	?	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         gdm	2031	?	?	?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         gdm	2078	?	?	?	?	?	/usr/libexec/at-spi-bus-launcher
+18:00:34         gdm	2092	?	?	?	?	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:34         gdm	2097	?	?	?	?	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:34         gdm	2136	?	?	?	?	?	/usr/bin/gnome-shell
+18:00:34         root	2202	0.0	0.1	0.0	0.1	3	/usr/libexec/upowerd
+18:00:34         gdm	2269	0.0	0.0	0.0	0.0	1	/usr/bin/pulseaudio --start --log-target=syslog
+18:00:34         root	2765	0.0	0.0	0.0	0.0	3	/usr/lib/systemd/systemd-localed
+18:00:34         gdm	2788	?	?	?	?	?	ibus-daemon --xim --panel disable
+18:00:34         gdm	2814	?	?	?	?	?	/usr/libexec/ibus-dconf
+18:00:34         gdm	2822	?	?	?	?	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:34         gdm	2898	?	?	?	?	?	/usr/libexec/xdg-permission-store
+18:00:34         root	2921	0.0	0.1	0.0	0.1	3	/usr/libexec/packagekitd
+18:00:34         gdm	2945	?	?	?	?	?	/usr/libexec/gnome-settings-daemon
+18:00:34         gdm	2946	0.0	0.0	0.0	0.0	1	/usr/bin/spice-vdagent
+18:00:34         root	2951	0.0	0.0	0.0	0.0	1	/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+18:00:34         colord	3063	0.0	0.1	0.0	0.1	0	/usr/libexec/colord
+18:00:34         root	3099	0.0	0.0	0.0	0.0	2	/usr/libexec/fprintd
+18:00:34         root	3119	0.1	0.1	0.0	0.2	1	/usr/lib64/realmd/realmd
+18:00:34         gdm	3174	?	?	?	?	?	/usr/libexec/ibus-engine-simple
+18:00:34         pcp	7203	0.4	0.5	0.0	0.9	2	/usr/libexec/pcp/bin/pmlogger -P -r -T24h10m -c config.default -v 100mb -m pmlogger_check 20180724.18.00
+
+pcp-pidstat output: Report realtime priority and scheduling policy information of processes along with its arguments.
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/24/18  x86_64    (4 CPU)
+Timestamp        UID	PID	prio	policy	Command
+18:00:33         0	7	99	FIFO	(migration/0)
+18:00:33         0	10	99	FIFO	(watchdog/0)
+18:00:33         0	11	99	FIFO	(watchdog/1)
+18:00:33         0	12	99	FIFO	(migration/1)
+18:00:33         0	16	99	FIFO	(watchdog/2)
+18:00:33         0	17	99	FIFO	(migration/2)
+18:00:33         0	21	99	FIFO	(watchdog/3)
+18:00:33         0	22	99	FIFO	(migration/3)
+18:00:33         993	1635	?	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:33         0	1652	?	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:33         0	1656	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         0	1698	?	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:33         42	1823	?	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         42	1912	?	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:33         0	1946	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         42	1975	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         42	2025	?	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         42	2031	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         42	2078	?	?	/usr/libexec/at-spi-bus-launcher
+18:00:33         42	2092	?	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:33         42	2097	?	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:33         42	2136	?	?	/usr/bin/gnome-shell
+18:00:33         42	2788	?	?	ibus-daemon --xim --panel disable
+18:00:33         42	2814	?	?	/usr/libexec/ibus-dconf
+18:00:33         42	2822	?	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:33         42	2898	?	?	/usr/libexec/xdg-permission-store
+18:00:33         42	2945	?	?	/usr/libexec/gnome-settings-daemon
+18:00:33         42	3174	?	?	/usr/libexec/ibus-engine-simple
+Timestamp        UID	PID	prio	policy	Command
+18:00:34         0	7	99	FIFO	(migration/0)
+18:00:34         0	10	99	FIFO	(watchdog/0)
+18:00:34         0	11	99	FIFO	(watchdog/1)
+18:00:34         0	12	99	FIFO	(migration/1)
+18:00:34         0	16	99	FIFO	(watchdog/2)
+18:00:34         0	17	99	FIFO	(migration/2)
+18:00:34         0	21	99	FIFO	(watchdog/3)
+18:00:34         0	22	99	FIFO	(migration/3)
+18:00:34         993	1635	?	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:34         0	1652	?	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:34         0	1656	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         0	1698	?	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:34         42	1823	?	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         42	1912	?	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:34         0	1946	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         42	1975	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         42	2025	?	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         42	2031	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         42	2078	?	?	/usr/libexec/at-spi-bus-launcher
+18:00:34         42	2092	?	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:34         42	2097	?	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:34         42	2136	?	?	/usr/bin/gnome-shell
+18:00:34         42	2788	?	?	ibus-daemon --xim --panel disable
+18:00:34         42	2814	?	?	/usr/libexec/ibus-dconf
+18:00:34         42	2822	?	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:34         42	2898	?	?	/usr/libexec/xdg-permission-store
+18:00:34         42	2945	?	?	/usr/libexec/gnome-settings-daemon
+18:00:34         42	3174	?	?	/usr/libexec/ibus-engine-simple
+
+pcp-pidstat output: Report page faults and memory utilization of processes along with its arguments
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/24/18  x86_64    (4 CPU)
+Timestamp        UID	PID	MinFlt/s	MajFlt/s	VSize	RSS	%Mem	Command
+18:00:33         0	1	?		?		193852	6968	0.37	/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+18:00:33         0	500	?		?		39204	2900	0.15	/usr/lib/systemd/systemd-journald
+18:00:33         0	517	?		?		197228	4220	0.22	/usr/sbin/lvmetad -f
+18:00:33         0	539	?		?		47392	5160	0.27	/usr/lib/systemd/systemd-udevd
+18:00:33         0	676	?		?		55496	896	0.05	/sbin/auditd
+18:00:33         0	678	?		?		84544	912	0.05	/sbin/audispd
+18:00:33         0	680	?		?		55592	1652	0.09	/usr/sbin/sedispatch
+18:00:33         70	701	?		?		62112	2072	0.11	avahi-daemon: running [linux.local]
+18:00:33         0	702	?		?		21528	1220	0.06	/usr/sbin/irqbalance --foreground
+18:00:33         0	703	?		?		430136	5452	0.29	/usr/sbin/ModemManager
+18:00:33         0	706	?		?		26428	1808	0.1	/usr/lib/systemd/systemd-logind
+18:00:33         0	707	?		?		223488	5560	0.3	/usr/sbin/abrtd -d -s
+18:00:33         81	709	?		?		69700	3412	0.18	/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+18:00:33         70	710	?		?		62112	392	0.02	avahi-daemon: chroot helper
+18:00:33         995	714	?		?		120344	2016	0.11	/usr/sbin/chronyd
+18:00:33         0	726	?		?		16884	1372	0.07	/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+18:00:33         0	735	?		?		221160	4716	0.25	/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+18:00:33         0	738	?		?		216376	3716	0.2	/usr/sbin/rsyslogd -n
+18:00:33         0	744	?		?		24424	2368	0.13	/usr/sbin/smartd -n -q never
+18:00:33         999	746	?		?		542256	14484	0.77	/usr/lib/polkit-1/polkitd --no-debug
+18:00:33         172	748	?		?		198760	1796	0.1	/usr/libexec/rtkit-daemon
+18:00:33         0	749	?		?		221160	4724	0.25	/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+18:00:33         0	750	?		?		396288	4076	0.22	/usr/libexec/accounts-daemon
+18:00:33         998	752	?		?		8576	820	0.04	/usr/bin/lsmd -d
+18:00:33         0	755	?		?		6516	640	0.03	/sbin/rngd -f
+18:00:33         0	761	?		?		6608	280	0.01	/usr/sbin/mcelog --ignorenodev --daemon --syslog
+18:00:33         0	776	?		?		115296	660	0.04	/bin/bash /usr/sbin/ksmtuned
+18:00:33         0	777	?		?		107948	608	0.03	sleep 60
+18:00:33         0	781	?		?		54400	1240	0.07	/usr/sbin/spice-vdagentd
+18:00:33         0	789	?		?		201296	1260	0.07	/usr/sbin/gssproxy -D
+18:00:33         0	793	?		?		357828	28888	1.53	/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+18:00:33         0	800	?		?		632008	9312	0.49	/usr/sbin/NetworkManager --no-daemon
+18:00:33         0	830	?		?		24448	3908	0.21	/usr/lib/systemd/systemd-hostnamed
+18:00:33         0	923	?		?		118012	16152	0.86	/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+18:00:33         0	1117	?		?		197928	4192	0.22	/usr/sbin/cupsd -f
+18:00:33         0	1118	?		?		573788	18868	1.0	/usr/bin/python -Es /usr/sbin/tuned -l -P
+18:00:33         0	1125	?		?		115696	680	0.04	/usr/bin/rhsmcertd
+18:00:33         0	1139	?		?		112808	4284	0.23	/usr/sbin/sshd -D
+18:00:33         0	1143	?		?		695104	16996	0.9	/usr/sbin/libvirtd
+18:00:33         0	1176	?		?		107936	292	0.02	rhnsd
+18:00:33         0	1178	?		?		25900	936	0.05	/usr/sbin/atd -f
+18:00:33         0	1180	?		?		484540	6544	0.35	/usr/sbin/gdm
+18:00:33         0	1181	?		?		126276	1688	0.09	/usr/sbin/crond -n
+18:00:33         0	1490	?		?		91712	2140	0.11	/usr/libexec/postfix/master -w
+18:00:33         89	1496	?		?		91816	4060	0.22	pickup -l -t unix -u
+18:00:33         89	1497	?		?		91884	4092	0.22	qmgr -l -t unix -u
+18:00:33         387	1500	?		?		179788	3260	0.17	/usr/libexec/pcp/bin/pmcd -T 3
+18:00:33         0	1503	?		?		95156	2696	0.14	/var/lib/pcp/pmdas/root/pmdaroot
+18:00:33         387	1506	?		?		97776	3456	0.18	/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+18:00:33         0	1507	?		?		92856	2648	0.14	/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+18:00:33         387	1508	?		?		97104	2644	0.14	/var/lib/pcp/pmdas/sample/pmdasample -d 29
+18:00:33         0	1509	?		?		93456	3252	0.17	/var/lib/pcp/pmdas/linux/pmdalinux
+18:00:33         0	1510	?		?		245608	10748	0.57	python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+18:00:33         0	1517	?		?		92856	2644	0.14	/var/lib/pcp/pmdas/dm/pmdadm -d 129
+18:00:33         387	1518	?		?		97028	2732	0.15	/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+18:00:33         0	1521	?		?		313072	16792	0.89	/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-H0mtXe/database -seat seat0 -nolisten tcp vt1
+18:00:33         993	1635	?		?		?	?	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:33         0	1652	?		?		?	?	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:33         0	1656	?		?		?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         0	1698	?		?		?	?	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:33         42	1823	?		?		?	?	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         42	1912	?		?		?	?	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:33         0	1946	?		?		?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         42	1975	?		?		?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         387	2007	?		?		95068	3284	0.17	/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+18:00:33         42	2025	?		?		?	?	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         42	2031	?		?		?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         42	2078	?		?		?	?	?	/usr/libexec/at-spi-bus-launcher
+18:00:33         42	2092	?		?		?	?	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:33         42	2097	?		?		?	?	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:33         42	2136	?		?		?	?	?	/usr/bin/gnome-shell
+18:00:33         0	2202	?		?		430156	7100	0.38	/usr/libexec/upowerd
+18:00:33         42	2269	?		?		1252044	6468	0.34	/usr/bin/pulseaudio --start --log-target=syslog
+18:00:33         0	2765	?		?		24460	3924	0.21	/usr/lib/systemd/systemd-localed
+18:00:33         42	2788	?		?		?	?	?	ibus-daemon --xim --panel disable
+18:00:33         42	2814	?		?		?	?	?	/usr/libexec/ibus-dconf
+18:00:33         42	2822	?		?		?	?	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:33         42	2898	?		?		?	?	?	/usr/libexec/xdg-permission-store
+18:00:33         0	2921	?		?		410348	7136	0.38	/usr/libexec/packagekitd
+18:00:33         42	2945	?		?		?	?	?	/usr/libexec/gnome-settings-daemon
+18:00:33         42	2946	?		?		41288	1588	0.08	/usr/bin/spice-vdagent
+18:00:33         0	2951	?		?		78616	3352	0.18	/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+18:00:33         997	3063	?		?		419308	6096	0.32	/usr/libexec/colord
+18:00:33         0	3099	?		?		159396	3660	0.19	/usr/libexec/fprintd
+18:00:33         0	3119	?		?		341072	5292	0.28	/usr/lib64/realmd/realmd
+18:00:33         42	3174	?		?		?	?	?	/usr/libexec/ibus-engine-simple
+18:00:33         387	7203	?		?		95372	3592	0.19	/usr/libexec/pcp/bin/pmlogger -P -r -T24h10m -c config.default -v 100mb -m pmlogger_check 20180724.18.00
+Timestamp        UID	PID	MinFlt/s	MajFlt/s	VSize	RSS	%Mem	Command
+18:00:34         0	1	71.0		0.0		193852	6968	0.37	/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+18:00:34         0	500	69.0		0.0		39204	2900	0.15	/usr/lib/systemd/systemd-journald
+18:00:34         0	517	0.0		0.0		197228	4220	0.22	/usr/sbin/lvmetad -f
+18:00:34         0	539	8.0		0.0		47392	5160	0.27	/usr/lib/systemd/systemd-udevd
+18:00:34         0	676	0.0		0.0		55496	896	0.05	/sbin/auditd
+18:00:34         0	678	0.0		0.0		84544	912	0.05	/sbin/audispd
+18:00:34         0	680	0.0		0.0		55592	1652	0.09	/usr/sbin/sedispatch
+18:00:34         70	701	0.0		0.0		62112	2072	0.11	avahi-daemon: running [linux.local]
+18:00:34         0	702	0.0		0.0		21528	1220	0.06	/usr/sbin/irqbalance --foreground
+18:00:34         0	703	0.0		0.0		430136	5452	0.29	/usr/sbin/ModemManager
+18:00:34         0	706	4.0		0.0		26428	1808	0.1	/usr/lib/systemd/systemd-logind
+18:00:34         0	707	0.0		0.0		223488	5560	0.3	/usr/sbin/abrtd -d -s
+18:00:34         81	709	16.0		0.0		69700	3412	0.18	/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+18:00:34         70	710	0.0		0.0		62112	392	0.02	avahi-daemon: chroot helper
+18:00:34         995	714	0.0		0.0		120344	2016	0.11	/usr/sbin/chronyd
+18:00:34         0	726	0.0		0.0		16884	1372	0.07	/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+18:00:34         0	735	0.0		0.0		221160	4716	0.25	/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+18:00:34         0	738	3.0		0.0		216376	3716	0.2	/usr/sbin/rsyslogd -n
+18:00:34         0	744	0.0		0.0		24424	2368	0.13	/usr/sbin/smartd -n -q never
+18:00:34         999	746	46.0		0.0		542256	14484	0.77	/usr/lib/polkit-1/polkitd --no-debug
+18:00:34         172	748	5.0		0.0		198760	1796	0.1	/usr/libexec/rtkit-daemon
+18:00:34         0	749	0.0		0.0		221160	4724	0.25	/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+18:00:34         0	750	13.0		0.0		396288	4076	0.22	/usr/libexec/accounts-daemon
+18:00:34         998	752	0.0		0.0		8576	820	0.04	/usr/bin/lsmd -d
+18:00:34         0	755	0.0		0.0		6516	640	0.03	/sbin/rngd -f
+18:00:34         0	761	0.0		0.0		6608	280	0.01	/usr/sbin/mcelog --ignorenodev --daemon --syslog
+18:00:34         0	776	0.0		0.0		115296	660	0.04	/bin/bash /usr/sbin/ksmtuned
+18:00:34         0	777	0.0		0.0		107948	608	0.03	sleep 60
+18:00:34         0	781	1.0		0.0		54400	1240	0.07	/usr/sbin/spice-vdagentd
+18:00:34         0	789	0.0		0.0		201296	1260	0.07	/usr/sbin/gssproxy -D
+18:00:34         0	793	0.0		0.0		357828	28888	1.53	/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+18:00:34         0	800	0.0		0.0		632008	9312	0.49	/usr/sbin/NetworkManager --no-daemon
+18:00:34         0	830	0.0		0.0		24448	3908	0.21	/usr/lib/systemd/systemd-hostnamed
+18:00:34         0	923	0.0		0.0		118012	16152	0.86	/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+18:00:34         0	1117	4.0		0.0		197928	4192	0.22	/usr/sbin/cupsd -f
+18:00:34         0	1118	0.0		0.0		573788	18868	1.0	/usr/bin/python -Es /usr/sbin/tuned -l -P
+18:00:34         0	1125	0.0		0.0		115696	680	0.04	/usr/bin/rhsmcertd
+18:00:34         0	1139	0.0		0.0		112808	4284	0.23	/usr/sbin/sshd -D
+18:00:34         0	1143	2.0		0.0		695104	16996	0.9	/usr/sbin/libvirtd
+18:00:34         0	1176	0.0		0.0		107936	292	0.02	rhnsd
+18:00:34         0	1178	0.0		0.0		25900	936	0.05	/usr/sbin/atd -f
+18:00:34         0	1180	16.0		0.0		484540	6544	0.35	/usr/sbin/gdm
+18:00:34         0	1181	0.0		0.0		126276	1688	0.09	/usr/sbin/crond -n
+18:00:34         0	1490	0.0		0.0		91712	2140	0.11	/usr/libexec/postfix/master -w
+18:00:34         89	1496	0.0		0.0		91816	4060	0.22	pickup -l -t unix -u
+18:00:34         89	1497	0.0		0.0		91884	4092	0.22	qmgr -l -t unix -u
+18:00:34         387	1500	357.0		0.0		179788	3260	0.17	/usr/libexec/pcp/bin/pmcd -T 3
+18:00:34         0	1503	0.0		0.0		95156	2696	0.14	/var/lib/pcp/pmdas/root/pmdaroot
+18:00:34         387	1506	93.0		0.0		97776	3456	0.18	/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+18:00:34         0	1507	3.0		0.0		92856	2648	0.14	/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+18:00:34         387	1508	0.0		0.0		97104	2644	0.14	/var/lib/pcp/pmdas/sample/pmdasample -d 29
+18:00:34         0	1509	10.0		0.0		93456	3252	0.17	/var/lib/pcp/pmdas/linux/pmdalinux
+18:00:34         0	1510	0.0		0.0		245608	10748	0.57	python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+18:00:34         0	1517	0.0		0.0		92856	2644	0.14	/var/lib/pcp/pmdas/dm/pmdadm -d 129
+18:00:34         387	1518	0.0		0.0		97028	2732	0.15	/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+18:00:34         0	1521	133.0		0.0		313072	16792	0.89	/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-H0mtXe/database -seat seat0 -nolisten tcp vt1
+18:00:34         993	1635	?		?		?	?	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:34         0	1652	?		?		?	?	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:34         0	1656	?		?		?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         0	1698	?		?		?	?	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:34         42	1823	?		?		?	?	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         42	1912	?		?		?	?	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:34         0	1946	?		?		?	?	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         42	1975	?		?		?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         387	2007	0.0		0.0		95068	3284	0.17	/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+18:00:34         42	2025	?		?		?	?	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         42	2031	?		?		?	?	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         42	2078	?		?		?	?	?	/usr/libexec/at-spi-bus-launcher
+18:00:34         42	2092	?		?		?	?	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:34         42	2097	?		?		?	?	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:34         42	2136	?		?		?	?	?	/usr/bin/gnome-shell
+18:00:34         0	2202	0.0		0.0		430156	7100	0.38	/usr/libexec/upowerd
+18:00:34         42	2269	0.0		0.0		1252044	6468	0.34	/usr/bin/pulseaudio --start --log-target=syslog
+18:00:34         0	2765	0.0		0.0		24460	3924	0.21	/usr/lib/systemd/systemd-localed
+18:00:34         42	2788	?		?		?	?	?	ibus-daemon --xim --panel disable
+18:00:34         42	2814	?		?		?	?	?	/usr/libexec/ibus-dconf
+18:00:34         42	2822	?		?		?	?	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:34         42	2898	?		?		?	?	?	/usr/libexec/xdg-permission-store
+18:00:34         0	2921	3.0		0.0		410348	7136	0.38	/usr/libexec/packagekitd
+18:00:34         42	2945	?		?		?	?	?	/usr/libexec/gnome-settings-daemon
+18:00:34         42	2946	0.0		0.0		41288	1588	0.08	/usr/bin/spice-vdagent
+18:00:34         0	2951	0.0		0.0		78616	3352	0.18	/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+18:00:34         997	3063	0.0		0.0		419308	6096	0.32	/usr/libexec/colord
+18:00:34         0	3099	1.0		0.0		159396	3660	0.19	/usr/libexec/fprintd
+18:00:34         0	3119	0.0		0.0		341072	5292	0.28	/usr/lib64/realmd/realmd
+18:00:34         42	3174	?		?		?	?	?	/usr/libexec/ibus-engine-simple
+18:00:34         387	7203	653.0		0.0		95372	3592	0.19	/usr/libexec/pcp/bin/pmlogger -P -r -T24h10m -c config.default -v 100mb -m pmlogger_check 20180724.18.00
+
+pcp-pidstat output: Report page faults and memory utilization.
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/24/18  x86_64    (4 CPU)
+Timestamp        UID	PID	StkSize	Command
+18:00:33         0	1	132	/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+18:00:33         0	500	132	/usr/lib/systemd/systemd-journald
+18:00:33         0	517	132	/usr/sbin/lvmetad -f
+18:00:33         0	539	132	/usr/lib/systemd/systemd-udevd
+18:00:33         0	676	132	/sbin/auditd
+18:00:33         0	678	132	/sbin/audispd
+18:00:33         0	680	132	/usr/sbin/sedispatch
+18:00:33         70	701	132	avahi-daemon: running [linux.local]
+18:00:33         0	702	132	/usr/sbin/irqbalance --foreground
+18:00:33         0	703	132	/usr/sbin/ModemManager
+18:00:33         0	706	132	/usr/lib/systemd/systemd-logind
+18:00:33         0	707	132	/usr/sbin/abrtd -d -s
+18:00:33         81	709	132	/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+18:00:33         70	710	132	avahi-daemon: chroot helper
+18:00:33         995	714	132	/usr/sbin/chronyd
+18:00:33         0	726	132	/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+18:00:33         0	735	132	/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+18:00:33         0	738	132	/usr/sbin/rsyslogd -n
+18:00:33         0	744	132	/usr/sbin/smartd -n -q never
+18:00:33         999	746	132	/usr/lib/polkit-1/polkitd --no-debug
+18:00:33         172	748	132	/usr/libexec/rtkit-daemon
+18:00:33         0	749	132	/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+18:00:33         0	750	132	/usr/libexec/accounts-daemon
+18:00:33         998	752	132	/usr/bin/lsmd -d
+18:00:33         0	755	132	/sbin/rngd -f
+18:00:33         0	761	132	/usr/sbin/mcelog --ignorenodev --daemon --syslog
+18:00:33         0	776	132	/bin/bash /usr/sbin/ksmtuned
+18:00:33         0	777	132	sleep 60
+18:00:33         0	781	132	/usr/sbin/spice-vdagentd
+18:00:33         0	789	132	/usr/sbin/gssproxy -D
+18:00:33         0	793	132	/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+18:00:33         0	800	132	/usr/sbin/NetworkManager --no-daemon
+18:00:33         0	830	132	/usr/lib/systemd/systemd-hostnamed
+18:00:33         0	923	132	/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+18:00:33         0	1117	132	/usr/sbin/cupsd -f
+18:00:33         0	1118	132	/usr/bin/python -Es /usr/sbin/tuned -l -P
+18:00:33         0	1125	132	/usr/bin/rhsmcertd
+18:00:33         0	1139	132	/usr/sbin/sshd -D
+18:00:33         0	1143	132	/usr/sbin/libvirtd
+18:00:33         0	1176	132	rhnsd
+18:00:33         0	1178	132	/usr/sbin/atd -f
+18:00:33         0	1180	132	/usr/sbin/gdm
+18:00:33         0	1181	520	/usr/sbin/crond -n
+18:00:33         0	1490	132	/usr/libexec/postfix/master -w
+18:00:33         89	1496	132	pickup -l -t unix -u
+18:00:33         89	1497	132	qmgr -l -t unix -u
+18:00:33         387	1500	364	/usr/libexec/pcp/bin/pmcd -T 3
+18:00:33         0	1503	132	/var/lib/pcp/pmdas/root/pmdaroot
+18:00:33         387	1506	132	/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+18:00:33         0	1507	132	/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+18:00:33         387	1508	132	/var/lib/pcp/pmdas/sample/pmdasample -d 29
+18:00:33         0	1509	360	/var/lib/pcp/pmdas/linux/pmdalinux
+18:00:33         0	1510	132	python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+18:00:33         0	1517	132	/var/lib/pcp/pmdas/dm/pmdadm -d 129
+18:00:33         387	1518	132	/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+18:00:33         0	1521	132	/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-H0mtXe/database -seat seat0 -nolisten tcp vt1
+18:00:33         993	1635	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:33         0	1652	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:33         0	1656	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         0	1698	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:33         42	1823	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         42	1912	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:33         0	1946	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:33         42	1975	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         387	2007	132	/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+18:00:33         42	2025	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:33         42	2031	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:33         42	2078	?	/usr/libexec/at-spi-bus-launcher
+18:00:33         42	2092	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:33         42	2097	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:33         42	2136	?	/usr/bin/gnome-shell
+18:00:33         0	2202	132	/usr/libexec/upowerd
+18:00:33         42	2269	132	/usr/bin/pulseaudio --start --log-target=syslog
+18:00:33         0	2765	132	/usr/lib/systemd/systemd-localed
+18:00:33         42	2788	?	ibus-daemon --xim --panel disable
+18:00:33         42	2814	?	/usr/libexec/ibus-dconf
+18:00:33         42	2822	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:33         42	2898	?	/usr/libexec/xdg-permission-store
+18:00:33         0	2921	132	/usr/libexec/packagekitd
+18:00:33         42	2945	?	/usr/libexec/gnome-settings-daemon
+18:00:33         42	2946	132	/usr/bin/spice-vdagent
+18:00:33         0	2951	132	/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+18:00:33         997	3063	132	/usr/libexec/colord
+18:00:33         0	3099	132	/usr/libexec/fprintd
+18:00:33         0	3119	132	/usr/lib64/realmd/realmd
+18:00:33         42	3174	?	/usr/libexec/ibus-engine-simple
+18:00:33         387	7203	132	/usr/libexec/pcp/bin/pmlogger -P -r -T24h10m -c config.default -v 100mb -m pmlogger_check 20180724.18.00
+Timestamp        UID	PID	StkSize	Command
+18:00:34         0	1	132	/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+18:00:34         0	500	132	/usr/lib/systemd/systemd-journald
+18:00:34         0	517	132	/usr/sbin/lvmetad -f
+18:00:34         0	539	132	/usr/lib/systemd/systemd-udevd
+18:00:34         0	676	132	/sbin/auditd
+18:00:34         0	678	132	/sbin/audispd
+18:00:34         0	680	132	/usr/sbin/sedispatch
+18:00:34         70	701	132	avahi-daemon: running [linux.local]
+18:00:34         0	702	132	/usr/sbin/irqbalance --foreground
+18:00:34         0	703	132	/usr/sbin/ModemManager
+18:00:34         0	706	132	/usr/lib/systemd/systemd-logind
+18:00:34         0	707	132	/usr/sbin/abrtd -d -s
+18:00:34         81	709	132	/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+18:00:34         70	710	132	avahi-daemon: chroot helper
+18:00:34         995	714	132	/usr/sbin/chronyd
+18:00:34         0	726	132	/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+18:00:34         0	735	132	/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+18:00:34         0	738	132	/usr/sbin/rsyslogd -n
+18:00:34         0	744	132	/usr/sbin/smartd -n -q never
+18:00:34         999	746	132	/usr/lib/polkit-1/polkitd --no-debug
+18:00:34         172	748	132	/usr/libexec/rtkit-daemon
+18:00:34         0	749	132	/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+18:00:34         0	750	132	/usr/libexec/accounts-daemon
+18:00:34         998	752	132	/usr/bin/lsmd -d
+18:00:34         0	755	132	/sbin/rngd -f
+18:00:34         0	761	132	/usr/sbin/mcelog --ignorenodev --daemon --syslog
+18:00:34         0	776	132	/bin/bash /usr/sbin/ksmtuned
+18:00:34         0	777	132	sleep 60
+18:00:34         0	781	132	/usr/sbin/spice-vdagentd
+18:00:34         0	789	132	/usr/sbin/gssproxy -D
+18:00:34         0	793	132	/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+18:00:34         0	800	132	/usr/sbin/NetworkManager --no-daemon
+18:00:34         0	830	132	/usr/lib/systemd/systemd-hostnamed
+18:00:34         0	923	132	/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+18:00:34         0	1117	132	/usr/sbin/cupsd -f
+18:00:34         0	1118	132	/usr/bin/python -Es /usr/sbin/tuned -l -P
+18:00:34         0	1125	132	/usr/bin/rhsmcertd
+18:00:34         0	1139	132	/usr/sbin/sshd -D
+18:00:34         0	1143	132	/usr/sbin/libvirtd
+18:00:34         0	1176	132	rhnsd
+18:00:34         0	1178	132	/usr/sbin/atd -f
+18:00:34         0	1180	132	/usr/sbin/gdm
+18:00:34         0	1181	520	/usr/sbin/crond -n
+18:00:34         0	1490	132	/usr/libexec/postfix/master -w
+18:00:34         89	1496	132	pickup -l -t unix -u
+18:00:34         89	1497	132	qmgr -l -t unix -u
+18:00:34         387	1500	364	/usr/libexec/pcp/bin/pmcd -T 3
+18:00:34         0	1503	132	/var/lib/pcp/pmdas/root/pmdaroot
+18:00:34         387	1506	132	/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+18:00:34         0	1507	132	/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+18:00:34         387	1508	132	/var/lib/pcp/pmdas/sample/pmdasample -d 29
+18:00:34         0	1509	360	/var/lib/pcp/pmdas/linux/pmdalinux
+18:00:34         0	1510	132	python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+18:00:34         0	1517	132	/var/lib/pcp/pmdas/dm/pmdadm -d 129
+18:00:34         387	1518	132	/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+18:00:34         0	1521	132	/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-H0mtXe/database -seat seat0 -nolisten tcp vt1
+18:00:34         993	1635	?	/usr/bin/python -Es /usr/sbin/setroubleshootd -f
+18:00:34         0	1652	?	/bin/sh /usr/share/pcp/lib/pmlogger start
+18:00:34         0	1656	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         0	1698	?	gdm-session-worker [pam/gdm-launch-environment]
+18:00:34         42	1823	?	/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         42	1912	?	dbus-launch --autolaunch 4da21e58f09b49829a5a86e8855706d1 --binary-syntax --close-stderr
+18:00:34         0	1946	?	/bin/sh /usr/libexec/pcp/bin/pmlogger_check -V
+18:00:34         42	1975	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         387	2007	132	/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+18:00:34         42	2025	?	dbus-launch --exit-with-session /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+18:00:34         42	2031	?	/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+18:00:34         42	2078	?	/usr/libexec/at-spi-bus-launcher
+18:00:34         42	2092	?	/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+18:00:34         42	2097	?	/usr/libexec/at-spi2-registryd --use-gnome-session
+18:00:34         42	2136	?	/usr/bin/gnome-shell
+18:00:34         0	2202	132	/usr/libexec/upowerd
+18:00:34         42	2269	132	/usr/bin/pulseaudio --start --log-target=syslog
+18:00:34         0	2765	132	/usr/lib/systemd/systemd-localed
+18:00:34         42	2788	?	ibus-daemon --xim --panel disable
+18:00:34         42	2814	?	/usr/libexec/ibus-dconf
+18:00:34         42	2822	?	/usr/libexec/ibus-x11 --kill-daemon
+18:00:34         42	2898	?	/usr/libexec/xdg-permission-store
+18:00:34         0	2921	132	/usr/libexec/packagekitd
+18:00:34         42	2945	?	/usr/libexec/gnome-settings-daemon
+18:00:34         42	2946	132	/usr/bin/spice-vdagent
+18:00:34         0	2951	132	/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+18:00:34         997	3063	132	/usr/libexec/colord
+18:00:34         0	3099	132	/usr/libexec/fprintd
+18:00:34         0	3119	132	/usr/lib64/realmd/realmd
+18:00:34         42	3174	?	/usr/libexec/ibus-engine-simple
+18:00:34         387	7203	132	/usr/libexec/pcp/bin/pmlogger -P -r -T24h10m -c config.default -v 100mb -m pmlogger_check 20180724.18.00
+
+pcp-pidstat output: -B Report process state information. Use -B all or -B comma separated states. Use -B detail for showing time spent in every state per process.
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/30/18  x86_64    (4 CPU)
+
+Timestamp	PID	State	Utime	Stime	Total Time	Function			Command
+16:00:50	1505	R	10	10	1.02		N/A				/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+
+Timestamp	PID	State	Utime	Stime	Total Time	Function			Command
+16:00:51	1505	R	0	10	2.07		N/A				/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+16:00:51	10770	R	0	0	1.05		N/A				(kworker/1:0)
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/30/18  x86_64    (4 CPU)
+
+Timestamp	PID	State	Utime	Stime	Total Time	Function			Command
+16:00:52	1	S	0	0	1.01		ep_poll				/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+16:00:52	2	S	0	0	1.01		kthreadd			(kthreadd)
+16:00:52	3	S	0	0	1.01		smpboot_thread_fn		(ksoftirqd/0)
+16:00:52	5	S	0	0	1.01		worker_thread			(kworker/0:0H)
+16:00:52	7	S	0	0	1.01		smpboot_thread_fn		(migration/0)
+16:00:52	8	S	0	0	1.01		rcu_gp_kthread			(rcu_bh)
+16:00:52	9	S	0	0	1.01		rcu_gp_kthread			(rcu_sched)
+16:00:52	10	S	0	0	1.01		smpboot_thread_fn		(watchdog/0)
+16:00:52	11	S	0	0	1.01		smpboot_thread_fn		(watchdog/1)
+16:00:52	12	S	0	0	1.01		smpboot_thread_fn		(migration/1)
+16:00:52	13	S	0	0	1.01		smpboot_thread_fn		(ksoftirqd/1)
+16:00:52	15	S	0	0	1.01		worker_thread			(kworker/1:0H)
+16:00:52	16	S	0	0	1.01		smpboot_thread_fn		(watchdog/2)
+16:00:52	17	S	0	0	1.01		smpboot_thread_fn		(migration/2)
+16:00:52	18	S	0	0	1.01		smpboot_thread_fn		(ksoftirqd/2)
+16:00:52	20	S	0	0	1.01		worker_thread			(kworker/2:0H)
+16:00:52	21	S	0	0	1.01		smpboot_thread_fn		(watchdog/3)
+16:00:52	22	S	0	0	1.01		smpboot_thread_fn		(migration/3)
+16:00:52	23	S	0	0	1.01		smpboot_thread_fn		(ksoftirqd/3)
+16:00:52	25	S	0	0	1.01		worker_thread			(kworker/3:0H)
+16:00:52	27	S	0	0	1.01		devtmpfsd			(kdevtmpfs)
+16:00:52	28	S	0	0	1.01		rescuer_thread			(netns)
+16:00:52	29	S	0	0	1.01		watchdog			(khungtaskd)
+16:00:52	30	S	0	0	1.01		rescuer_thread			(writeback)
+16:00:52	31	S	0	0	1.01		rescuer_thread			(kintegrityd)
+16:00:52	32	S	0	0	1.01		rescuer_thread			(bioset)
+16:00:52	33	S	0	0	1.01		rescuer_thread			(kblockd)
+16:00:52	34	S	0	0	1.01		rescuer_thread			(md)
+16:00:52	40	S	0	0	1.01		kswapd				(kswapd0)
+16:00:52	41	S	0	0	1.01		ksm_scan_thread			(ksmd)
+16:00:52	42	S	0	0	1.01		khugepaged			(khugepaged)
+16:00:52	43	S	0	0	1.01		rescuer_thread			(crypto)
+16:00:52	51	S	0	0	1.01		rescuer_thread			(kthrotld)
+16:00:52	52	S	0	0	1.01		worker_thread			(kworker/u8:1)
+16:00:52	53	S	0	0	1.01		rescuer_thread			(kmpath_rdacd)
+16:00:52	55	S	0	0	1.01		rescuer_thread			(kpsmoused)
+16:00:52	57	S	0	0	1.01		rescuer_thread			(ipv6_addrconf)
+16:00:52	77	S	0	0	1.01		rescuer_thread			(deferwq)
+16:00:52	112	S	0	0	1.01		kauditd_thread			(kauditd)
+16:00:52	291	S	0	0	1.01		worker_thread			(kworker/u8:2)
+16:00:52	292	S	0	0	1.01		rescuer_thread			(ata_sff)
+16:00:52	308	S	0	0	1.01		scsi_error_handler		(scsi_eh_0)
+16:00:52	309	S	0	0	1.01		rescuer_thread			(scsi_tmf_0)
+16:00:52	310	S	0	0	1.01		scsi_error_handler		(scsi_eh_1)
+16:00:52	311	S	0	0	1.01		rescuer_thread			(scsi_tmf_1)
+16:00:52	313	S	0	0	1.01		rescuer_thread			(ttm_swap)
+16:00:52	325	S	0	0	1.01		worker_thread			(kworker/3:1H)
+16:00:52	326	S	0	0	1.01		worker_thread			(kworker/1:1H)
+16:00:52	329	S	0	0	1.01		worker_thread			(kworker/2:1H)
+16:00:52	330	S	0	0	1.01		worker_thread			(kworker/0:1H)
+16:00:52	392	S	0	0	1.01		rescuer_thread			(kdmflush)
+16:00:52	393	S	0	0	1.01		rescuer_thread			(bioset)
+16:00:52	402	S	0	0	1.01		rescuer_thread			(kdmflush)
+16:00:52	403	S	0	0	1.01		rescuer_thread			(bioset)
+16:00:52	418	S	0	0	1.01		rescuer_thread			(bioset)
+16:00:52	419	S	0	0	1.01		rescuer_thread			(xfsalloc)
+16:00:52	420	S	0	0	1.01		rescuer_thread			(xfs_mru_cache)
+16:00:52	421	S	0	0	1.01		rescuer_thread			(xfs-buf/dm-0)
+16:00:52	422	S	0	0	1.01		rescuer_thread			(xfs-data/dm-0)
+16:00:52	423	S	0	0	1.01		rescuer_thread			(xfs-conv/dm-0)
+16:00:52	424	S	0	0	1.01		rescuer_thread			(xfs-cil/dm-0)
+16:00:52	425	S	0	0	1.01		rescuer_thread			(xfs-reclaim/dm-)
+16:00:52	426	S	0	0	1.01		rescuer_thread			(xfs-log/dm-0)
+16:00:52	427	S	0	0	1.01		rescuer_thread			(xfs-eofblocks/d)
+16:00:52	428	S	0	10	1.01		xfsaild				(xfsaild/dm-0)
+16:00:52	501	S	0	0	1.01		ep_poll				/usr/lib/systemd/systemd-journald
+16:00:52	522	S	0	0	1.01		rescuer_thread			(rpciod)
+16:00:52	523	S	0	0	1.01		rescuer_thread			(xprtiod)
+16:00:52	527	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/lvmetad -f
+16:00:52	543	S	0	0	1.01		ep_poll				/usr/lib/systemd/systemd-udevd
+16:00:52	644	S	0	0	1.01		rescuer_thread			(xfs-buf/sda1)
+16:00:52	645	S	0	0	1.01		rescuer_thread			(xfs-data/sda1)
+16:00:52	646	S	0	0	1.01		rescuer_thread			(xfs-conv/sda1)
+16:00:52	647	S	0	0	1.01		rescuer_thread			(xfs-cil/sda1)
+16:00:52	648	S	0	0	1.01		rescuer_thread			(xfs-reclaim/sda)
+16:00:52	649	S	0	0	1.01		rescuer_thread			(xfs-log/sda1)
+16:00:52	650	S	0	0	1.01		rescuer_thread			(xfs-eofblocks/s)
+16:00:52	651	S	0	0	1.01		xfsaild				(xfsaild/sda1)
+16:00:52	677	S	0	0	1.01		ep_poll				/sbin/auditd
+16:00:52	679	S	0	0	1.01		futex_wait_queue_me		/sbin/audispd
+16:00:52	681	S	0	0	1.01		unix_stream_read_generic	sedispatch
+16:00:52	708	S	0	0	1.01		hrtimer_nanosleep		/usr/sbin/smartd -n -q never
+16:00:52	709	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+16:00:52	713	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/ModemManager
+16:00:52	714	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/rtkit-daemon
+16:00:52	716	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/abrtd -d -s
+16:00:52	720	S	0	0	1.01		wait_woken			/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+16:00:52	722	S	0	0	1.01		poll_schedule_timeout		/usr/bin/lsmd -d
+16:00:52	724	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/rsyslogd -n
+16:00:52	726	S	0	0	1.01		ep_poll				/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+16:00:52	731	S	0	0	1.01		ep_poll				/usr/lib/systemd/systemd-logind
+16:00:52	732	S	0	0	1.01		poll_schedule_timeout		/usr/lib/polkit-1/polkitd --no-debug
+16:00:52	738	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/accounts-daemon
+16:00:52	739	S	0	0	1.01		wait_woken			/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+16:00:52	740	S	0	0	1.01		poll_schedule_timeout		/sbin/rngd -f
+16:00:52	745	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/chronyd
+16:00:52	753	S	0	0	1.01		hrtimer_nanosleep		/usr/sbin/irqbalance --foreground
+16:00:52	755	S	0	0	1.01		poll_schedule_timeout		avahi-daemon: running [linux.local]
+16:00:52	761	S	0	0	1.01		ep_poll				/usr/sbin/gssproxy -D
+16:00:52	762	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/mcelog --ignorenodev --daemon --syslog
+16:00:52	772	S	0	0	1.01		unix_stream_read_generic	avahi-daemon
+16:00:52	775	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/spice-vdagentd
+16:00:52	782	S	0	0	1.01		do_wait				/bin/bash /usr/sbin/ksmtuned
+16:00:52	801	S	0	0	1.01		poll_schedule_timeout		/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+16:00:52	803	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/NetworkManager --no-daemon
+16:00:52	925	S	0	0	1.01		poll_schedule_timeout		/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+16:00:52	1119	S	0	0	1.01		ep_poll				/usr/sbin/cupsd -f
+16:00:52	1121	S	0	0	1.01		poll_schedule_timeout		/usr/bin/python -Es /usr/sbin/tuned -l -P
+16:00:52	1124	S	0	0	1.01		poll_schedule_timeout		/usr/bin/rhsmcertd
+16:00:52	1127	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/sshd -D
+16:00:52	1151	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/libvirtd
+16:00:52	1164	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/gdm
+16:00:52	1168	S	0	0	1.01		hrtimer_nanosleep		rhnsd
+16:00:52	1180	S	0	0	1.01		hrtimer_nanosleep		/usr/sbin/atd -f
+16:00:52	1191	S	0	0	1.01		hrtimer_nanosleep		/usr/sbin/crond -n
+16:00:52	1497	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/pcp/bin/pmcd -T 3
+16:00:52	1501	S	0	0	1.01		poll_schedule_timeout		/var/lib/pcp/pmdas/root/pmdaroot
+16:00:52	1505	R	0	10	1.01		N/A				/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+16:00:52	1506	S	0	0	1.01		ep_poll				/usr/libexec/postfix/master -w
+16:00:52	1507	S	0	0	1.01		pipe_wait			/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+16:00:52	1508	S	0	0	1.01		pipe_wait			/var/lib/pcp/pmdas/sample/pmdasample -d 29
+16:00:52	1509	S	0	0	1.01		ep_poll				pickup -l -t unix -u
+16:00:52	1510	S	0	0	1.01		ep_poll				qmgr -l -t unix -u
+16:00:52	1511	S	0	0	1.01		pipe_wait			/var/lib/pcp/pmdas/linux/pmdalinux
+16:00:52	1512	S	0	0	1.01		pipe_wait			python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+16:00:52	1519	S	0	0	1.01		pipe_wait			/var/lib/pcp/pmdas/dm/pmdadm -d 129
+16:00:52	1520	S	0	0	1.01		pipe_wait			/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+16:00:52	1525	S	0	0	1.01		ep_poll				/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-iTUJte/database -seat seat0 -nolisten tcp vt1
+16:00:52	2012	S	0	0	1.01		hrtimer_nanosleep		/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+16:00:52	2213	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/upowerd
+16:00:52	3113	S	0	0	1.01		poll_schedule_timeout		/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+16:00:52	3119	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/packagekitd
+16:00:52	3133	S	0	0	1.01		poll_schedule_timeout		/usr/bin/spice-vdagent
+16:00:52	3208	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/colord
+16:00:52	7255	S	0	0	1.01		poll_schedule_timeout		gdm-session-worker [pam/gdm-password]
+16:00:52	7522	S	0	0	1.01		poll_schedule_timeout		/usr/bin/gnome-keyring-daemon --daemonize --login
+16:00:52	7533	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gnome-session-binary --session gnome-classic
+16:00:52	7542	S	0	0	1.01		poll_schedule_timeout		dbus-launch --sh-syntax --exit-with-session
+16:00:52	7543	S	0	0	1.01		ep_poll				/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+16:00:52	7620	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfsd
+16:00:52	7625	S	0	0	1.01		futex_wait_queue_me		/usr/libexec/gvfsd-fuse /run/user/0/gvfs -f -o big_writes
+16:00:52	7714	S	0	0	1.01		poll_schedule_timeout		/usr/bin/ssh-agent /bin/sh -c exec -l /bin/bash -c "env GNOME_SHELL_SESSION_MODE=classic gnome-session --session gnome-classic"
+16:00:52	7732	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/at-spi-bus-launcher
+16:00:52	7737	S	0	0	1.01		ep_poll				/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+16:00:52	7740	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/at-spi2-registryd --use-gnome-session
+16:00:52	7760	S	0	0	1.01		poll_schedule_timeout		/usr/bin/gnome-shell
+16:00:52	7775	S	0	0	1.01		poll_schedule_timeout		ibus-daemon --xim --panel disable
+16:00:52	7780	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/ibus-dconf
+16:00:52	7783	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/ibus-x11 --kill-daemon
+16:00:52	7790	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gnome-shell-calendar-server
+16:00:52	7796	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/evolution-source-registry
+16:00:52	7798	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/geoclue -t 5
+16:00:52	7799	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/xdg-permission-store
+16:00:52	7811	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/mission-control-5
+16:00:52	7813	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfs-udisks2-volume-monitor
+16:00:52	7816	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/goa-daemon
+16:00:52	7825	S	0	0	1.01		poll_schedule_timeout		/usr/lib/udisks2/udisksd --no-debug
+16:00:52	7837	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/goa-identity-service
+16:00:52	7847	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfs-mtp-volume-monitor
+16:00:52	7852	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfs-gphoto2-volume-monitor
+16:00:52	7857	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfs-goa-volume-monitor
+16:00:52	7862	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfs-afc-volume-monitor
+16:00:52	7871	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gnome-settings-daemon
+16:00:52	7872	S	0	0	1.01		poll_schedule_timeout		/usr/bin/spice-vdagent
+16:00:52	7883	S	0	0	1.01		poll_schedule_timeout		/usr/bin/pulseaudio --start
+16:00:52	7896	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/evolution-calendar-factory
+16:00:52	7898	S	0	0	1.01		poll_schedule_timeout		nautilus-desktop --force
+16:00:52	7907	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfsd-trash --spawner :1.3 /org/gtk/gvfs/exec_spaw/0
+16:00:52	7909	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gsd-printer
+16:00:52	7921	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/ibus-engine-simple
+16:00:52	7927	S	0	0	1.01		poll_schedule_timeout		/usr/bin/gnome-software --gapplication-service
+16:00:52	7930	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/tracker-store
+16:00:52	7931	S	0	0	1.01		poll_schedule_timeout		/usr/bin/seapplet
+16:00:52	7948	S	0	0	1.01		poll_schedule_timeout		rhsm-icon
+16:00:52	7949	S	0	0	1.01		poll_schedule_timeout		abrt-applet
+16:00:52	7951	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/evolution-calendar-factory-subprocess --factory contacts --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/2
+16:00:52	7958	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/tracker-extract
+16:00:52	7966	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/tracker-miner-apps
+16:00:52	7970	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/tracker-miner-fs
+16:00:52	7993	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/tracker-miner-user-guides
+16:00:52	8001	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gconfd-2
+16:00:52	8032	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/dconf-service
+16:00:52	8042	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/evolution-addressbook-factory
+16:00:52	8048	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/evolution-calendar-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x3 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/3
+16:00:52	8088	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/evolution-addressbook-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.AddressBookx8042x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/AddressBook/8042/2
+16:00:52	8146	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gnome-terminal-server
+16:00:52	8152	S	0	0	1.01		unix_stream_read_generic	gnome-pty-helpe
+16:00:52	8153	S	0	0	1.01		n_tty_read			bash
+16:00:52	8764	S	0	0	1.01		n_tty_read			bash
+16:00:52	8806	S	0	0	1.01		n_tty_read			bash
+16:00:52	9426	T	0	0	1.01		do_signal_stop			vim pcp-pidstat.1
+16:00:52	9919	S	0	0	1.01		worker_thread			(kworker/2:2)
+16:00:52	10770	S	0	0	1.01		worker_thread			(kworker/1:0)
+16:00:52	11096	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/pcp/bin/pmlogger -r -T 24h10m -v 100mb -m pmlogger_daily -P -l pmlogger.log -c /var/lib/pcp/config/pmlogger/config.default 20180730.15.30
+16:00:52	11380	S	0	0	1.01		worker_thread			(kworker/0:2)
+16:00:52	11482	S	0	0	1.01		poll_schedule_timeout		/usr/libexec/gvfsd-metadata
+16:00:52	11501	S	0	0	1.01		worker_thread			(kworker/1:1)
+16:00:52	11507	S	0	0	1.01		worker_thread			(kworker/3:2)
+16:00:52	11562	S	0	0	1.01		worker_thread			(kworker/2:0)
+16:00:52	11579	S	0	0	1.01		worker_thread			(kworker/0:1)
+16:00:52	11606	S	0	0	1.01		worker_thread			(kworker/3:1)
+16:00:52	12031	S	0	0	1.01		do_wait				bash
+16:00:52	12153	S	0	0	1.01		worker_thread			(kworker/0:0)
+16:00:52	12765	S	0	0	1.01		worker_thread			(kworker/3:0)
+16:00:52	12828	S	0	0	1.01		hrtimer_nanosleep		sleep 60
+16:00:52	12829	S	0	0	1.01		do_wait				/bin/sh ./1399
+16:00:52	12882	S	0	0	1.01		poll_schedule_timeout		python /usr/libexec/pcp/bin/pcp-pidstat -B all -l -s 3
+
+Timestamp	PID	State	Utime	Stime	Total Time	Function			Command
+16:00:53	1	S	0	0	2.06		ep_poll				/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+16:00:53	2	S	0	0	2.06		kthreadd			(kthreadd)
+16:00:53	3	S	0	0	2.06		smpboot_thread_fn		(ksoftirqd/0)
+16:00:53	5	S	0	0	2.06		worker_thread			(kworker/0:0H)
+16:00:53	7	S	0	0	2.06		smpboot_thread_fn		(migration/0)
+16:00:53	8	S	0	0	2.06		rcu_gp_kthread			(rcu_bh)
+16:00:53	9	S	0	0	2.06		rcu_gp_kthread			(rcu_sched)
+16:00:53	10	S	0	0	2.06		smpboot_thread_fn		(watchdog/0)
+16:00:53	11	S	0	0	2.06		smpboot_thread_fn		(watchdog/1)
+16:00:53	12	S	0	0	2.06		smpboot_thread_fn		(migration/1)
+16:00:53	13	S	0	0	2.06		smpboot_thread_fn		(ksoftirqd/1)
+16:00:53	15	S	0	0	2.06		worker_thread			(kworker/1:0H)
+16:00:53	16	S	0	0	2.06		smpboot_thread_fn		(watchdog/2)
+16:00:53	17	S	0	0	2.06		smpboot_thread_fn		(migration/2)
+16:00:53	18	S	0	0	2.06		smpboot_thread_fn		(ksoftirqd/2)
+16:00:53	20	S	0	0	2.06		worker_thread			(kworker/2:0H)
+16:00:53	21	S	0	0	2.06		smpboot_thread_fn		(watchdog/3)
+16:00:53	22	S	0	0	2.06		smpboot_thread_fn		(migration/3)
+16:00:53	23	S	0	0	2.06		smpboot_thread_fn		(ksoftirqd/3)
+16:00:53	25	S	0	0	2.06		worker_thread			(kworker/3:0H)
+16:00:53	27	S	0	0	2.06		devtmpfsd			(kdevtmpfs)
+16:00:53	28	S	0	0	2.06		rescuer_thread			(netns)
+16:00:53	29	S	0	0	2.06		watchdog			(khungtaskd)
+16:00:53	30	S	0	0	2.06		rescuer_thread			(writeback)
+16:00:53	31	S	0	0	2.06		rescuer_thread			(kintegrityd)
+16:00:53	32	S	0	0	2.06		rescuer_thread			(bioset)
+16:00:53	33	S	0	0	2.06		rescuer_thread			(kblockd)
+16:00:53	34	S	0	0	2.06		rescuer_thread			(md)
+16:00:53	40	S	0	0	2.06		kswapd				(kswapd0)
+16:00:53	41	S	0	0	2.06		ksm_scan_thread			(ksmd)
+16:00:53	42	S	0	0	2.06		khugepaged			(khugepaged)
+16:00:53	43	S	0	0	2.06		rescuer_thread			(crypto)
+16:00:53	51	S	0	0	2.06		rescuer_thread			(kthrotld)
+16:00:53	52	S	0	0	2.06		worker_thread			(kworker/u8:1)
+16:00:53	53	S	0	0	2.06		rescuer_thread			(kmpath_rdacd)
+16:00:53	55	S	0	0	2.06		rescuer_thread			(kpsmoused)
+16:00:53	57	S	0	0	2.06		rescuer_thread			(ipv6_addrconf)
+16:00:53	77	S	0	0	2.06		rescuer_thread			(deferwq)
+16:00:53	112	S	0	0	2.06		kauditd_thread			(kauditd)
+16:00:53	291	S	0	0	2.06		worker_thread			(kworker/u8:2)
+16:00:53	292	S	0	0	2.06		rescuer_thread			(ata_sff)
+16:00:53	308	S	0	0	2.06		scsi_error_handler		(scsi_eh_0)
+16:00:53	309	S	0	0	2.06		rescuer_thread			(scsi_tmf_0)
+16:00:53	310	S	0	0	2.06		scsi_error_handler		(scsi_eh_1)
+16:00:53	311	S	0	0	2.06		rescuer_thread			(scsi_tmf_1)
+16:00:53	313	S	0	0	2.06		rescuer_thread			(ttm_swap)
+16:00:53	325	S	0	0	2.06		worker_thread			(kworker/3:1H)
+16:00:53	326	S	0	0	2.06		worker_thread			(kworker/1:1H)
+16:00:53	329	S	0	0	2.06		worker_thread			(kworker/2:1H)
+16:00:53	330	S	0	0	2.06		worker_thread			(kworker/0:1H)
+16:00:53	392	S	0	0	2.06		rescuer_thread			(kdmflush)
+16:00:53	393	S	0	0	2.06		rescuer_thread			(bioset)
+16:00:53	402	S	0	0	2.06		rescuer_thread			(kdmflush)
+16:00:53	403	S	0	0	2.06		rescuer_thread			(bioset)
+16:00:53	418	S	0	0	2.06		rescuer_thread			(bioset)
+16:00:53	419	S	0	0	2.06		rescuer_thread			(xfsalloc)
+16:00:53	420	S	0	0	2.06		rescuer_thread			(xfs_mru_cache)
+16:00:53	421	S	0	0	2.06		rescuer_thread			(xfs-buf/dm-0)
+16:00:53	422	S	0	0	2.06		rescuer_thread			(xfs-data/dm-0)
+16:00:53	423	S	0	0	2.06		rescuer_thread			(xfs-conv/dm-0)
+16:00:53	424	S	0	0	2.06		rescuer_thread			(xfs-cil/dm-0)
+16:00:53	425	S	0	0	2.06		rescuer_thread			(xfs-reclaim/dm-)
+16:00:53	426	S	0	0	2.06		rescuer_thread			(xfs-log/dm-0)
+16:00:53	427	S	0	0	2.06		rescuer_thread			(xfs-eofblocks/d)
+16:00:53	428	S	0	0	2.06		xfsaild				(xfsaild/dm-0)
+16:00:53	501	S	0	0	2.06		ep_poll				/usr/lib/systemd/systemd-journald
+16:00:53	522	S	0	0	2.06		rescuer_thread			(rpciod)
+16:00:53	523	S	0	0	2.06		rescuer_thread			(xprtiod)
+16:00:53	527	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/lvmetad -f
+16:00:53	543	S	0	0	2.06		ep_poll				/usr/lib/systemd/systemd-udevd
+16:00:53	644	S	0	0	2.06		rescuer_thread			(xfs-buf/sda1)
+16:00:53	645	S	0	0	2.06		rescuer_thread			(xfs-data/sda1)
+16:00:53	646	S	0	0	2.06		rescuer_thread			(xfs-conv/sda1)
+16:00:53	647	S	0	0	2.06		rescuer_thread			(xfs-cil/sda1)
+16:00:53	648	S	0	0	2.06		rescuer_thread			(xfs-reclaim/sda)
+16:00:53	649	S	0	0	2.06		rescuer_thread			(xfs-log/sda1)
+16:00:53	650	S	0	0	2.06		rescuer_thread			(xfs-eofblocks/s)
+16:00:53	651	S	0	0	2.06		xfsaild				(xfsaild/sda1)
+16:00:53	677	S	0	0	2.06		ep_poll				/sbin/auditd
+16:00:53	679	S	0	0	2.06		futex_wait_queue_me		/sbin/audispd
+16:00:53	681	S	0	0	2.06		unix_stream_read_generic	sedispatch
+16:00:53	708	S	0	0	2.06		hrtimer_nanosleep		/usr/sbin/smartd -n -q never
+16:00:53	709	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+16:00:53	713	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/ModemManager
+16:00:53	714	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/rtkit-daemon
+16:00:53	716	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/abrtd -d -s
+16:00:53	720	S	0	0	2.06		wait_woken			/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+16:00:53	722	S	0	0	2.06		poll_schedule_timeout		/usr/bin/lsmd -d
+16:00:53	724	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/rsyslogd -n
+16:00:53	726	S	0	0	2.06		ep_poll				/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+16:00:53	731	S	0	0	2.06		ep_poll				/usr/lib/systemd/systemd-logind
+16:00:53	732	S	0	0	2.06		poll_schedule_timeout		/usr/lib/polkit-1/polkitd --no-debug
+16:00:53	738	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/accounts-daemon
+16:00:53	739	S	0	0	2.06		wait_woken			/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+16:00:53	740	S	0	0	2.06		poll_schedule_timeout		/sbin/rngd -f
+16:00:53	745	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/chronyd
+16:00:53	753	S	0	0	2.06		hrtimer_nanosleep		/usr/sbin/irqbalance --foreground
+16:00:53	755	S	0	0	2.06		poll_schedule_timeout		avahi-daemon: running [linux.local]
+16:00:53	761	S	0	0	2.06		ep_poll				/usr/sbin/gssproxy -D
+16:00:53	762	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/mcelog --ignorenodev --daemon --syslog
+16:00:53	772	S	0	0	2.06		unix_stream_read_generic	avahi-daemon
+16:00:53	775	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/spice-vdagentd
+16:00:53	782	S	0	0	2.06		do_wait				/bin/bash /usr/sbin/ksmtuned
+16:00:53	801	S	0	0	2.06		poll_schedule_timeout		/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+16:00:53	803	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/NetworkManager --no-daemon
+16:00:53	925	S	0	0	2.06		poll_schedule_timeout		/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+16:00:53	1119	S	0	0	2.06		ep_poll				/usr/sbin/cupsd -f
+16:00:53	1121	S	0	0	2.06		poll_schedule_timeout		/usr/bin/python -Es /usr/sbin/tuned -l -P
+16:00:53	1124	S	0	0	2.06		poll_schedule_timeout		/usr/bin/rhsmcertd
+16:00:53	1127	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/sshd -D
+16:00:53	1151	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/libvirtd
+16:00:53	1164	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/gdm
+16:00:53	1168	S	0	0	2.06		hrtimer_nanosleep		rhnsd
+16:00:53	1180	S	0	0	2.06		hrtimer_nanosleep		/usr/sbin/atd -f
+16:00:53	1191	S	0	0	2.06		hrtimer_nanosleep		/usr/sbin/crond -n
+16:00:53	1497	S	0	10	2.06		poll_schedule_timeout		/usr/libexec/pcp/bin/pmcd -T 3
+16:00:53	1501	S	0	0	2.06		poll_schedule_timeout		/var/lib/pcp/pmdas/root/pmdaroot
+16:00:53	1505	R	20	20	2.06		N/A				/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+16:00:53	1506	S	0	0	2.06		ep_poll				/usr/libexec/postfix/master -w
+16:00:53	1507	S	0	0	2.06		pipe_wait			/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+16:00:53	1508	S	0	0	2.06		pipe_wait			/var/lib/pcp/pmdas/sample/pmdasample -d 29
+16:00:53	1509	S	0	0	2.06		ep_poll				pickup -l -t unix -u
+16:00:53	1510	S	0	0	2.06		ep_poll				qmgr -l -t unix -u
+16:00:53	1511	S	10	0	2.06		pipe_wait			/var/lib/pcp/pmdas/linux/pmdalinux
+16:00:53	1512	S	0	0	2.06		pipe_wait			python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+16:00:53	1519	S	0	0	2.06		pipe_wait			/var/lib/pcp/pmdas/dm/pmdadm -d 129
+16:00:53	1520	S	0	0	2.06		pipe_wait			/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+16:00:53	1525	S	0	0	2.06		ep_poll				/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-iTUJte/database -seat seat0 -nolisten tcp vt1
+16:00:53	2012	S	0	0	2.06		hrtimer_nanosleep		/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+16:00:53	2213	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/upowerd
+16:00:53	3113	S	0	0	2.06		poll_schedule_timeout		/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+16:00:53	3119	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/packagekitd
+16:00:53	3133	S	0	0	2.06		poll_schedule_timeout		/usr/bin/spice-vdagent
+16:00:53	3208	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/colord
+16:00:53	7255	S	0	0	2.06		poll_schedule_timeout		gdm-session-worker [pam/gdm-password]
+16:00:53	7522	S	0	0	2.06		poll_schedule_timeout		/usr/bin/gnome-keyring-daemon --daemonize --login
+16:00:53	7533	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gnome-session-binary --session gnome-classic
+16:00:53	7542	S	0	0	2.06		poll_schedule_timeout		dbus-launch --sh-syntax --exit-with-session
+16:00:53	7543	S	0	0	2.06		ep_poll				/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+16:00:53	7620	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfsd
+16:00:53	7625	S	0	0	2.06		futex_wait_queue_me		/usr/libexec/gvfsd-fuse /run/user/0/gvfs -f -o big_writes
+16:00:53	7714	S	0	0	2.06		poll_schedule_timeout		/usr/bin/ssh-agent /bin/sh -c exec -l /bin/bash -c "env GNOME_SHELL_SESSION_MODE=classic gnome-session --session gnome-classic"
+16:00:53	7732	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/at-spi-bus-launcher
+16:00:53	7737	S	0	0	2.06		ep_poll				/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+16:00:53	7740	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/at-spi2-registryd --use-gnome-session
+16:00:53	7760	S	0	0	2.06		poll_schedule_timeout		/usr/bin/gnome-shell
+16:00:53	7775	S	0	0	2.06		poll_schedule_timeout		ibus-daemon --xim --panel disable
+16:00:53	7780	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/ibus-dconf
+16:00:53	7783	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/ibus-x11 --kill-daemon
+16:00:53	7790	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gnome-shell-calendar-server
+16:00:53	7796	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/evolution-source-registry
+16:00:53	7798	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/geoclue -t 5
+16:00:53	7799	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/xdg-permission-store
+16:00:53	7811	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/mission-control-5
+16:00:53	7813	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfs-udisks2-volume-monitor
+16:00:53	7816	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/goa-daemon
+16:00:53	7825	S	0	0	2.06		poll_schedule_timeout		/usr/lib/udisks2/udisksd --no-debug
+16:00:53	7837	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/goa-identity-service
+16:00:53	7847	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfs-mtp-volume-monitor
+16:00:53	7852	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfs-gphoto2-volume-monitor
+16:00:53	7857	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfs-goa-volume-monitor
+16:00:53	7862	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfs-afc-volume-monitor
+16:00:53	7871	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gnome-settings-daemon
+16:00:53	7872	S	0	0	2.06		poll_schedule_timeout		/usr/bin/spice-vdagent
+16:00:53	7883	S	0	0	2.06		poll_schedule_timeout		/usr/bin/pulseaudio --start
+16:00:53	7896	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/evolution-calendar-factory
+16:00:53	7898	S	0	0	2.06		poll_schedule_timeout		nautilus-desktop --force
+16:00:53	7907	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfsd-trash --spawner :1.3 /org/gtk/gvfs/exec_spaw/0
+16:00:53	7909	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gsd-printer
+16:00:53	7921	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/ibus-engine-simple
+16:00:53	7927	S	0	0	2.06		poll_schedule_timeout		/usr/bin/gnome-software --gapplication-service
+16:00:53	7930	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/tracker-store
+16:00:53	7931	S	0	0	2.06		poll_schedule_timeout		/usr/bin/seapplet
+16:00:53	7948	S	0	0	2.06		poll_schedule_timeout		rhsm-icon
+16:00:53	7949	S	0	0	2.06		poll_schedule_timeout		abrt-applet
+16:00:53	7951	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/evolution-calendar-factory-subprocess --factory contacts --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/2
+16:00:53	7958	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/tracker-extract
+16:00:53	7966	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/tracker-miner-apps
+16:00:53	7970	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/tracker-miner-fs
+16:00:53	7993	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/tracker-miner-user-guides
+16:00:53	8001	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gconfd-2
+16:00:53	8032	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/dconf-service
+16:00:53	8042	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/evolution-addressbook-factory
+16:00:53	8048	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/evolution-calendar-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x3 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/3
+16:00:53	8088	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/evolution-addressbook-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.AddressBookx8042x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/AddressBook/8042/2
+16:00:53	8146	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gnome-terminal-server
+16:00:53	8152	S	0	0	2.06		unix_stream_read_generic	gnome-pty-helpe
+16:00:53	8153	S	0	0	2.06		n_tty_read			bash
+16:00:53	8764	S	0	0	2.06		n_tty_read			bash
+16:00:53	8806	S	0	0	2.06		n_tty_read			bash
+16:00:53	9426	T	0	0	2.06		do_signal_stop			vim pcp-pidstat.1
+16:00:53	9919	S	0	0	2.06		worker_thread			(kworker/2:2)
+16:00:53	10770	S	0	0	2.06		worker_thread			(kworker/1:0)
+16:00:53	11096	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/pcp/bin/pmlogger -r -T 24h10m -v 100mb -m pmlogger_daily -P -l pmlogger.log -c /var/lib/pcp/config/pmlogger/config.default 20180730.15.30
+16:00:53	11380	S	0	0	2.06		worker_thread			(kworker/0:2)
+16:00:53	11482	S	0	0	2.06		poll_schedule_timeout		/usr/libexec/gvfsd-metadata
+16:00:53	11501	S	0	0	2.06		worker_thread			(kworker/1:1)
+16:00:53	11507	S	0	0	2.06		worker_thread			(kworker/3:2)
+16:00:53	11562	S	0	0	2.06		worker_thread			(kworker/2:0)
+16:00:53	11579	S	0	0	2.06		worker_thread			(kworker/0:1)
+16:00:53	11606	S	0	0	2.06		worker_thread			(kworker/3:1)
+16:00:53	12031	S	0	0	2.06		do_wait				bash
+16:00:53	12153	S	0	0	2.06		worker_thread			(kworker/0:0)
+16:00:53	12765	S	0	0	2.06		worker_thread			(kworker/3:0)
+16:00:53	12828	S	0	0	2.06		hrtimer_nanosleep		sleep 60
+16:00:53	12829	S	0	0	2.06		do_wait				/bin/sh ./1399
+16:00:53	12882	S	30	0	2.06		poll_schedule_timeout		python /usr/libexec/pcp/bin/pcp-pidstat -B all -l -s 3
+Linux  3.10.0-693.el7.x86_64  (localhost.localdomain)  07/30/18  x86_64    (4 CPU)
+
+Timestamp	PID		R		S		Z		T		D		Command
+16:00:54	1		0.00		1.02		0.00		0.00		0.00		/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+16:00:54	2		0.00		1.02		0.00		0.00		0.00		(kthreadd)
+16:00:54	3		0.00		1.02		0.00		0.00		0.00		(ksoftirqd/0)
+16:00:54	5		0.00		1.02		0.00		0.00		0.00		(kworker/0:0H)
+16:00:54	7		0.00		1.02		0.00		0.00		0.00		(migration/0)
+16:00:54	8		0.00		1.02		0.00		0.00		0.00		(rcu_bh)
+16:00:54	9		0.00		1.02		0.00		0.00		0.00		(rcu_sched)
+16:00:54	10		0.00		1.02		0.00		0.00		0.00		(watchdog/0)
+16:00:54	11		0.00		1.02		0.00		0.00		0.00		(watchdog/1)
+16:00:54	12		0.00		1.02		0.00		0.00		0.00		(migration/1)
+16:00:54	13		0.00		1.02		0.00		0.00		0.00		(ksoftirqd/1)
+16:00:54	15		0.00		1.02		0.00		0.00		0.00		(kworker/1:0H)
+16:00:54	16		0.00		1.02		0.00		0.00		0.00		(watchdog/2)
+16:00:54	17		0.00		1.02		0.00		0.00		0.00		(migration/2)
+16:00:54	18		0.00		1.02		0.00		0.00		0.00		(ksoftirqd/2)
+16:00:54	20		0.00		1.02		0.00		0.00		0.00		(kworker/2:0H)
+16:00:54	21		0.00		1.02		0.00		0.00		0.00		(watchdog/3)
+16:00:54	22		0.00		1.02		0.00		0.00		0.00		(migration/3)
+16:00:54	23		0.00		1.02		0.00		0.00		0.00		(ksoftirqd/3)
+16:00:54	25		0.00		1.02		0.00		0.00		0.00		(kworker/3:0H)
+16:00:54	27		0.00		1.02		0.00		0.00		0.00		(kdevtmpfs)
+16:00:54	28		0.00		1.02		0.00		0.00		0.00		(netns)
+16:00:54	29		0.00		1.02		0.00		0.00		0.00		(khungtaskd)
+16:00:54	30		0.00		1.02		0.00		0.00		0.00		(writeback)
+16:00:54	31		0.00		1.02		0.00		0.00		0.00		(kintegrityd)
+16:00:54	32		0.00		1.02		0.00		0.00		0.00		(bioset)
+16:00:54	33		0.00		1.02		0.00		0.00		0.00		(kblockd)
+16:00:54	34		0.00		1.02		0.00		0.00		0.00		(md)
+16:00:54	40		0.00		1.02		0.00		0.00		0.00		(kswapd0)
+16:00:54	41		0.00		1.02		0.00		0.00		0.00		(ksmd)
+16:00:54	42		0.00		1.02		0.00		0.00		0.00		(khugepaged)
+16:00:54	43		0.00		1.02		0.00		0.00		0.00		(crypto)
+16:00:54	51		0.00		1.02		0.00		0.00		0.00		(kthrotld)
+16:00:54	52		0.00		1.02		0.00		0.00		0.00		(kworker/u8:1)
+16:00:54	53		0.00		1.02		0.00		0.00		0.00		(kmpath_rdacd)
+16:00:54	55		0.00		1.02		0.00		0.00		0.00		(kpsmoused)
+16:00:54	57		0.00		1.02		0.00		0.00		0.00		(ipv6_addrconf)
+16:00:54	77		0.00		1.02		0.00		0.00		0.00		(deferwq)
+16:00:54	112		0.00		1.02		0.00		0.00		0.00		(kauditd)
+16:00:54	291		0.00		1.02		0.00		0.00		0.00		(kworker/u8:2)
+16:00:54	292		0.00		1.02		0.00		0.00		0.00		(ata_sff)
+16:00:54	308		0.00		1.02		0.00		0.00		0.00		(scsi_eh_0)
+16:00:54	309		0.00		1.02		0.00		0.00		0.00		(scsi_tmf_0)
+16:00:54	310		0.00		1.02		0.00		0.00		0.00		(scsi_eh_1)
+16:00:54	311		0.00		1.02		0.00		0.00		0.00		(scsi_tmf_1)
+16:00:54	313		0.00		1.02		0.00		0.00		0.00		(ttm_swap)
+16:00:54	325		0.00		1.02		0.00		0.00		0.00		(kworker/3:1H)
+16:00:54	326		0.00		1.02		0.00		0.00		0.00		(kworker/1:1H)
+16:00:54	329		0.00		1.02		0.00		0.00		0.00		(kworker/2:1H)
+16:00:54	330		0.00		1.02		0.00		0.00		0.00		(kworker/0:1H)
+16:00:54	392		0.00		1.02		0.00		0.00		0.00		(kdmflush)
+16:00:54	393		0.00		1.02		0.00		0.00		0.00		(bioset)
+16:00:54	402		0.00		1.02		0.00		0.00		0.00		(kdmflush)
+16:00:54	403		0.00		1.02		0.00		0.00		0.00		(bioset)
+16:00:54	418		0.00		1.02		0.00		0.00		0.00		(bioset)
+16:00:54	419		0.00		1.02		0.00		0.00		0.00		(xfsalloc)
+16:00:54	420		0.00		1.02		0.00		0.00		0.00		(xfs_mru_cache)
+16:00:54	421		0.00		1.02		0.00		0.00		0.00		(xfs-buf/dm-0)
+16:00:54	422		0.00		1.02		0.00		0.00		0.00		(xfs-data/dm-0)
+16:00:54	423		0.00		1.02		0.00		0.00		0.00		(xfs-conv/dm-0)
+16:00:54	424		0.00		1.02		0.00		0.00		0.00		(xfs-cil/dm-0)
+16:00:54	425		0.00		1.02		0.00		0.00		0.00		(xfs-reclaim/dm-)
+16:00:54	426		0.00		1.02		0.00		0.00		0.00		(xfs-log/dm-0)
+16:00:54	427		0.00		1.02		0.00		0.00		0.00		(xfs-eofblocks/d)
+16:00:54	428		0.00		1.02		0.00		0.00		0.00		(xfsaild/dm-0)
+16:00:54	501		0.00		1.02		0.00		0.00		0.00		/usr/lib/systemd/systemd-journald
+16:00:54	522		0.00		1.02		0.00		0.00		0.00		(rpciod)
+16:00:54	523		0.00		1.02		0.00		0.00		0.00		(xprtiod)
+16:00:54	527		0.00		1.02		0.00		0.00		0.00		/usr/sbin/lvmetad -f
+16:00:54	543		0.00		1.02		0.00		0.00		0.00		/usr/lib/systemd/systemd-udevd
+16:00:54	644		0.00		1.02		0.00		0.00		0.00		(xfs-buf/sda1)
+16:00:54	645		0.00		1.02		0.00		0.00		0.00		(xfs-data/sda1)
+16:00:54	646		0.00		1.02		0.00		0.00		0.00		(xfs-conv/sda1)
+16:00:54	647		0.00		1.02		0.00		0.00		0.00		(xfs-cil/sda1)
+16:00:54	648		0.00		1.02		0.00		0.00		0.00		(xfs-reclaim/sda)
+16:00:54	649		0.00		1.02		0.00		0.00		0.00		(xfs-log/sda1)
+16:00:54	650		0.00		1.02		0.00		0.00		0.00		(xfs-eofblocks/s)
+16:00:54	651		0.00		1.02		0.00		0.00		0.00		(xfsaild/sda1)
+16:00:54	677		0.00		1.02		0.00		0.00		0.00		/sbin/auditd
+16:00:54	679		0.00		1.02		0.00		0.00		0.00		/sbin/audispd
+16:00:54	681		0.00		1.02		0.00		0.00		0.00		/usr/sbin/sedispatch
+16:00:54	708		0.00		1.02		0.00		0.00		0.00		/usr/sbin/smartd -n -q never
+16:00:54	709		0.00		1.02		0.00		0.00		0.00		/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+16:00:54	713		0.00		1.02		0.00		0.00		0.00		/usr/sbin/ModemManager
+16:00:54	714		0.00		1.02		0.00		0.00		0.00		/usr/libexec/rtkit-daemon
+16:00:54	716		0.00		1.02		0.00		0.00		0.00		/usr/sbin/abrtd -d -s
+16:00:54	720		0.00		1.02		0.00		0.00		0.00		/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+16:00:54	722		0.00		1.02		0.00		0.00		0.00		/usr/bin/lsmd -d
+16:00:54	724		0.00		1.02		0.00		0.00		0.00		/usr/sbin/rsyslogd -n
+16:00:54	726		0.00		1.02		0.00		0.00		0.00		/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+16:00:54	731		0.00		1.02		0.00		0.00		0.00		/usr/lib/systemd/systemd-logind
+16:00:54	732		0.00		1.02		0.00		0.00		0.00		/usr/lib/polkit-1/polkitd --no-debug
+16:00:54	738		0.00		1.02		0.00		0.00		0.00		/usr/libexec/accounts-daemon
+16:00:54	739		0.00		1.02		0.00		0.00		0.00		/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+16:00:54	740		0.00		1.02		0.00		0.00		0.00		/sbin/rngd -f
+16:00:54	745		0.00		1.02		0.00		0.00		0.00		/usr/sbin/chronyd
+16:00:54	753		0.00		1.02		0.00		0.00		0.00		/usr/sbin/irqbalance --foreground
+16:00:54	755		0.00		1.02		0.00		0.00		0.00		avahi-daemon: running [linux.local]
+16:00:54	761		0.00		1.02		0.00		0.00		0.00		/usr/sbin/gssproxy -D
+16:00:54	762		0.00		1.02		0.00		0.00		0.00		/usr/sbin/mcelog --ignorenodev --daemon --syslog
+16:00:54	772		0.00		1.02		0.00		0.00		0.00		avahi-daemon: chroot helper
+16:00:54	775		0.00		1.02		0.00		0.00		0.00		/usr/sbin/spice-vdagentd
+16:00:54	782		0.00		1.02		0.00		0.00		0.00		/bin/bash /usr/sbin/ksmtuned
+16:00:54	801		0.00		1.02		0.00		0.00		0.00		/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+16:00:54	803		0.00		1.02		0.00		0.00		0.00		/usr/sbin/NetworkManager --no-daemon
+16:00:54	925		0.00		1.02		0.00		0.00		0.00		/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+16:00:54	1119		0.00		1.02		0.00		0.00		0.00		/usr/sbin/cupsd -f
+16:00:54	1121		0.00		1.02		0.00		0.00		0.00		/usr/bin/python -Es /usr/sbin/tuned -l -P
+16:00:54	1124		0.00		1.02		0.00		0.00		0.00		/usr/bin/rhsmcertd
+16:00:54	1127		0.00		1.02		0.00		0.00		0.00		/usr/sbin/sshd -D
+16:00:54	1151		0.00		1.02		0.00		0.00		0.00		/usr/sbin/libvirtd
+16:00:54	1164		0.00		1.02		0.00		0.00		0.00		/usr/sbin/gdm
+16:00:54	1168		0.00		1.02		0.00		0.00		0.00		rhnsd
+16:00:54	1180		0.00		1.02		0.00		0.00		0.00		/usr/sbin/atd -f
+16:00:54	1191		0.00		1.02		0.00		0.00		0.00		/usr/sbin/crond -n
+16:00:54	1497		0.00		1.02		0.00		0.00		0.00		/usr/libexec/pcp/bin/pmcd -T 3
+16:00:54	1501		0.00		1.02		0.00		0.00		0.00		/var/lib/pcp/pmdas/root/pmdaroot
+16:00:54	1505		1.02		0.00		0.00		0.00		0.00		/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+16:00:54	1506		0.00		1.02		0.00		0.00		0.00		/usr/libexec/postfix/master -w
+16:00:54	1507		0.00		1.02		0.00		0.00		0.00		/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+16:00:54	1508		0.00		1.02		0.00		0.00		0.00		/var/lib/pcp/pmdas/sample/pmdasample -d 29
+16:00:54	1509		0.00		1.02		0.00		0.00		0.00		pickup -l -t unix -u
+16:00:54	1510		0.00		1.02		0.00		0.00		0.00		qmgr -l -t unix -u
+16:00:54	1511		0.00		1.02		0.00		0.00		0.00		/var/lib/pcp/pmdas/linux/pmdalinux
+16:00:54	1512		0.00		1.02		0.00		0.00		0.00		python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+16:00:54	1519		0.00		1.02		0.00		0.00		0.00		/var/lib/pcp/pmdas/dm/pmdadm -d 129
+16:00:54	1520		0.00		1.02		0.00		0.00		0.00		/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+16:00:54	1525		0.00		1.02		0.00		0.00		0.00		/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-iTUJte/database -seat seat0 -nolisten tcp vt1
+16:00:54	2012		0.00		1.02		0.00		0.00		0.00		/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+16:00:54	2213		0.00		1.02		0.00		0.00		0.00		/usr/libexec/upowerd
+16:00:54	3113		0.00		1.02		0.00		0.00		0.00		/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+16:00:54	3119		0.00		1.02		0.00		0.00		0.00		/usr/libexec/packagekitd
+16:00:54	3133		0.00		1.02		0.00		0.00		0.00		/usr/bin/spice-vdagent
+16:00:54	3208		0.00		1.02		0.00		0.00		0.00		/usr/libexec/colord
+16:00:54	7255		0.00		1.02		0.00		0.00		0.00		gdm-session-worker [pam/gdm-password]
+16:00:54	7522		0.00		1.02		0.00		0.00		0.00		/usr/bin/gnome-keyring-daemon --daemonize --login
+16:00:54	7533		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gnome-session-binary --session gnome-classic
+16:00:54	7542		0.00		1.02		0.00		0.00		0.00		dbus-launch --sh-syntax --exit-with-session
+16:00:54	7543		0.00		1.02		0.00		0.00		0.00		/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+16:00:54	7620		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfsd
+16:00:54	7625		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfsd-fuse /run/user/0/gvfs -f -o big_writes
+16:00:54	7714		0.00		1.02		0.00		0.00		0.00		/usr/bin/ssh-agent /bin/sh -c exec -l /bin/bash -c "env GNOME_SHELL_SESSION_MODE=classic gnome-session --session gnome-classic"
+16:00:54	7732		0.00		1.02		0.00		0.00		0.00		/usr/libexec/at-spi-bus-launcher
+16:00:54	7737		0.00		1.02		0.00		0.00		0.00		/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+16:00:54	7740		0.00		1.02		0.00		0.00		0.00		/usr/libexec/at-spi2-registryd --use-gnome-session
+16:00:54	7760		0.00		1.02		0.00		0.00		0.00		/usr/bin/gnome-shell
+16:00:54	7775		0.00		1.02		0.00		0.00		0.00		ibus-daemon --xim --panel disable
+16:00:54	7780		0.00		1.02		0.00		0.00		0.00		/usr/libexec/ibus-dconf
+16:00:54	7783		0.00		1.02		0.00		0.00		0.00		/usr/libexec/ibus-x11 --kill-daemon
+16:00:54	7790		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gnome-shell-calendar-server
+16:00:54	7796		0.00		1.02		0.00		0.00		0.00		/usr/libexec/evolution-source-registry
+16:00:54	7798		0.00		1.02		0.00		0.00		0.00		/usr/libexec/geoclue -t 5
+16:00:54	7799		0.00		1.02		0.00		0.00		0.00		/usr/libexec/xdg-permission-store
+16:00:54	7811		0.00		1.02		0.00		0.00		0.00		/usr/libexec/mission-control-5
+16:00:54	7813		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfs-udisks2-volume-monitor
+16:00:54	7816		0.00		1.02		0.00		0.00		0.00		/usr/libexec/goa-daemon
+16:00:54	7825		0.00		1.02		0.00		0.00		0.00		/usr/lib/udisks2/udisksd --no-debug
+16:00:54	7837		0.00		1.02		0.00		0.00		0.00		/usr/libexec/goa-identity-service
+16:00:54	7847		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfs-mtp-volume-monitor
+16:00:54	7852		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfs-gphoto2-volume-monitor
+16:00:54	7857		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfs-goa-volume-monitor
+16:00:54	7862		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfs-afc-volume-monitor
+16:00:54	7871		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gnome-settings-daemon
+16:00:54	7872		0.00		1.02		0.00		0.00		0.00		/usr/bin/spice-vdagent
+16:00:54	7883		0.00		1.02		0.00		0.00		0.00		/usr/bin/pulseaudio --start
+16:00:54	7896		0.00		1.02		0.00		0.00		0.00		/usr/libexec/evolution-calendar-factory
+16:00:54	7898		0.00		1.02		0.00		0.00		0.00		nautilus-desktop --force
+16:00:54	7907		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfsd-trash --spawner :1.3 /org/gtk/gvfs/exec_spaw/0
+16:00:54	7909		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gsd-printer
+16:00:54	7921		0.00		1.02		0.00		0.00		0.00		/usr/libexec/ibus-engine-simple
+16:00:54	7927		0.00		1.02		0.00		0.00		0.00		/usr/bin/gnome-software --gapplication-service
+16:00:54	7930		0.00		1.02		0.00		0.00		0.00		/usr/libexec/tracker-store
+16:00:54	7931		0.00		1.02		0.00		0.00		0.00		/usr/bin/seapplet
+16:00:54	7948		0.00		1.02		0.00		0.00		0.00		rhsm-icon
+16:00:54	7949		0.00		1.02		0.00		0.00		0.00		abrt-applet
+16:00:54	7951		0.00		1.02		0.00		0.00		0.00		/usr/libexec/evolution-calendar-factory-subprocess --factory contacts --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/2
+16:00:54	7958		0.00		1.02		0.00		0.00		0.00		/usr/libexec/tracker-extract
+16:00:54	7966		0.00		1.02		0.00		0.00		0.00		/usr/libexec/tracker-miner-apps
+16:00:54	7970		0.00		1.02		0.00		0.00		0.00		/usr/libexec/tracker-miner-fs
+16:00:54	7993		0.00		1.02		0.00		0.00		0.00		/usr/libexec/tracker-miner-user-guides
+16:00:54	8001		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gconfd-2
+16:00:54	8032		0.00		1.02		0.00		0.00		0.00		/usr/libexec/dconf-service
+16:00:54	8042		0.00		1.02		0.00		0.00		0.00		/usr/libexec/evolution-addressbook-factory
+16:00:54	8048		0.00		1.02		0.00		0.00		0.00		/usr/libexec/evolution-calendar-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x3 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/3
+16:00:54	8088		0.00		1.02		0.00		0.00		0.00		/usr/libexec/evolution-addressbook-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.AddressBookx8042x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/AddressBook/8042/2
+16:00:54	8146		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gnome-terminal-server
+16:00:54	8152		0.00		1.02		0.00		0.00		0.00		gnome-pty-helper
+16:00:54	8153		0.00		1.02		0.00		0.00		0.00		bash
+16:00:54	8764		0.00		1.02		0.00		0.00		0.00		bash
+16:00:54	8806		0.00		1.02		0.00		0.00		0.00		bash
+16:00:54	9426		0.00		0.00		0.00		1.02		0.00		vim pcp-pidstat.1
+16:00:54	9919		0.00		1.02		0.00		0.00		0.00		(kworker/2:2)
+16:00:54	10770		0.00		1.02		0.00		0.00		0.00		(kworker/1:0)
+16:00:54	11096		0.00		1.02		0.00		0.00		0.00		/usr/libexec/pcp/bin/pmlogger -r -T 24h10m -v 100mb -m pmlogger_daily -P -l pmlogger.log -c /var/lib/pcp/config/pmlogger/config.default 20180730.15.30
+16:00:54	11380		0.00		1.02		0.00		0.00		0.00		(kworker/0:2)
+16:00:54	11482		0.00		1.02		0.00		0.00		0.00		/usr/libexec/gvfsd-metadata
+16:00:54	11501		0.00		1.02		0.00		0.00		0.00		(kworker/1:1)
+16:00:54	11507		0.00		1.02		0.00		0.00		0.00		(kworker/3:2)
+16:00:54	11562		0.00		1.02		0.00		0.00		0.00		(kworker/2:0)
+16:00:54	11579		0.00		1.02		0.00		0.00		0.00		(kworker/0:1)
+16:00:54	11606		0.00		1.02		0.00		0.00		0.00		(kworker/3:1)
+16:00:54	12031		0.00		1.02		0.00		0.00		0.00		bash
+16:00:54	12153		0.00		1.02		0.00		0.00		0.00		(kworker/0:0)
+16:00:54	12765		1.02		0.00		0.00		0.00		0.00		(kworker/3:0)
+16:00:54	12828		0.00		1.02		0.00		0.00		0.00		sleep 60
+16:00:54	12829		0.00		1.02		0.00		0.00		0.00		/bin/sh ./1399
+16:00:54	12887		0.00		1.02		0.00		0.00		0.00		python /usr/libexec/pcp/bin/pcp-pidstat -B detail -l -s 3
+
+Timestamp	PID		R		S		Z		T		D		Command
+16:00:55	1		0.00		2.04		0.00		0.00		0.00		/usr/lib/systemd/systemd --switched-root --system --deserialize 21
+16:00:55	2		0.00		2.04		0.00		0.00		0.00		(kthreadd)
+16:00:55	3		0.00		2.04		0.00		0.00		0.00		(ksoftirqd/0)
+16:00:55	5		0.00		2.04		0.00		0.00		0.00		(kworker/0:0H)
+16:00:55	7		0.00		2.04		0.00		0.00		0.00		(migration/0)
+16:00:55	8		0.00		2.04		0.00		0.00		0.00		(rcu_bh)
+16:00:55	9		0.00		2.04		0.00		0.00		0.00		(rcu_sched)
+16:00:55	10		0.00		2.04		0.00		0.00		0.00		(watchdog/0)
+16:00:55	11		0.00		2.04		0.00		0.00		0.00		(watchdog/1)
+16:00:55	12		0.00		2.04		0.00		0.00		0.00		(migration/1)
+16:00:55	13		0.00		2.04		0.00		0.00		0.00		(ksoftirqd/1)
+16:00:55	15		0.00		2.04		0.00		0.00		0.00		(kworker/1:0H)
+16:00:55	16		0.00		2.04		0.00		0.00		0.00		(watchdog/2)
+16:00:55	17		0.00		2.04		0.00		0.00		0.00		(migration/2)
+16:00:55	18		0.00		2.04		0.00		0.00		0.00		(ksoftirqd/2)
+16:00:55	20		0.00		2.04		0.00		0.00		0.00		(kworker/2:0H)
+16:00:55	21		0.00		2.04		0.00		0.00		0.00		(watchdog/3)
+16:00:55	22		0.00		2.04		0.00		0.00		0.00		(migration/3)
+16:00:55	23		0.00		2.04		0.00		0.00		0.00		(ksoftirqd/3)
+16:00:55	25		0.00		2.04		0.00		0.00		0.00		(kworker/3:0H)
+16:00:55	27		0.00		2.04		0.00		0.00		0.00		(kdevtmpfs)
+16:00:55	28		0.00		2.04		0.00		0.00		0.00		(netns)
+16:00:55	29		0.00		2.04		0.00		0.00		0.00		(khungtaskd)
+16:00:55	30		0.00		2.04		0.00		0.00		0.00		(writeback)
+16:00:55	31		0.00		2.04		0.00		0.00		0.00		(kintegrityd)
+16:00:55	32		0.00		2.04		0.00		0.00		0.00		(bioset)
+16:00:55	33		0.00		2.04		0.00		0.00		0.00		(kblockd)
+16:00:55	34		0.00		2.04		0.00		0.00		0.00		(md)
+16:00:55	40		0.00		2.04		0.00		0.00		0.00		(kswapd0)
+16:00:55	41		0.00		2.04		0.00		0.00		0.00		(ksmd)
+16:00:55	42		0.00		2.04		0.00		0.00		0.00		(khugepaged)
+16:00:55	43		0.00		2.04		0.00		0.00		0.00		(crypto)
+16:00:55	51		0.00		2.04		0.00		0.00		0.00		(kthrotld)
+16:00:55	52		0.00		2.04		0.00		0.00		0.00		(kworker/u8:1)
+16:00:55	53		0.00		2.04		0.00		0.00		0.00		(kmpath_rdacd)
+16:00:55	55		0.00		2.04		0.00		0.00		0.00		(kpsmoused)
+16:00:55	57		0.00		2.04		0.00		0.00		0.00		(ipv6_addrconf)
+16:00:55	77		0.00		2.04		0.00		0.00		0.00		(deferwq)
+16:00:55	112		0.00		2.04		0.00		0.00		0.00		(kauditd)
+16:00:55	291		0.00		2.04		0.00		0.00		0.00		(kworker/u8:2)
+16:00:55	292		0.00		2.04		0.00		0.00		0.00		(ata_sff)
+16:00:55	308		0.00		2.04		0.00		0.00		0.00		(scsi_eh_0)
+16:00:55	309		0.00		2.04		0.00		0.00		0.00		(scsi_tmf_0)
+16:00:55	310		0.00		2.04		0.00		0.00		0.00		(scsi_eh_1)
+16:00:55	311		0.00		2.04		0.00		0.00		0.00		(scsi_tmf_1)
+16:00:55	313		0.00		2.04		0.00		0.00		0.00		(ttm_swap)
+16:00:55	325		0.00		2.04		0.00		0.00		0.00		(kworker/3:1H)
+16:00:55	326		0.00		2.04		0.00		0.00		0.00		(kworker/1:1H)
+16:00:55	329		0.00		2.04		0.00		0.00		0.00		(kworker/2:1H)
+16:00:55	330		0.00		2.04		0.00		0.00		0.00		(kworker/0:1H)
+16:00:55	392		0.00		2.04		0.00		0.00		0.00		(kdmflush)
+16:00:55	393		0.00		2.04		0.00		0.00		0.00		(bioset)
+16:00:55	402		0.00		2.04		0.00		0.00		0.00		(kdmflush)
+16:00:55	403		0.00		2.04		0.00		0.00		0.00		(bioset)
+16:00:55	418		0.00		2.04		0.00		0.00		0.00		(bioset)
+16:00:55	419		0.00		2.04		0.00		0.00		0.00		(xfsalloc)
+16:00:55	420		0.00		2.04		0.00		0.00		0.00		(xfs_mru_cache)
+16:00:55	421		0.00		2.04		0.00		0.00		0.00		(xfs-buf/dm-0)
+16:00:55	422		0.00		2.04		0.00		0.00		0.00		(xfs-data/dm-0)
+16:00:55	423		0.00		2.04		0.00		0.00		0.00		(xfs-conv/dm-0)
+16:00:55	424		0.00		2.04		0.00		0.00		0.00		(xfs-cil/dm-0)
+16:00:55	425		0.00		2.04		0.00		0.00		0.00		(xfs-reclaim/dm-)
+16:00:55	426		0.00		2.04		0.00		0.00		0.00		(xfs-log/dm-0)
+16:00:55	427		0.00		2.04		0.00		0.00		0.00		(xfs-eofblocks/d)
+16:00:55	428		0.00		2.04		0.00		0.00		0.00		(xfsaild/dm-0)
+16:00:55	501		0.00		2.04		0.00		0.00		0.00		/usr/lib/systemd/systemd-journald
+16:00:55	522		0.00		2.04		0.00		0.00		0.00		(rpciod)
+16:00:55	523		0.00		2.04		0.00		0.00		0.00		(xprtiod)
+16:00:55	527		0.00		2.04		0.00		0.00		0.00		/usr/sbin/lvmetad -f
+16:00:55	543		0.00		2.04		0.00		0.00		0.00		/usr/lib/systemd/systemd-udevd
+16:00:55	644		0.00		2.04		0.00		0.00		0.00		(xfs-buf/sda1)
+16:00:55	645		0.00		2.04		0.00		0.00		0.00		(xfs-data/sda1)
+16:00:55	646		0.00		2.04		0.00		0.00		0.00		(xfs-conv/sda1)
+16:00:55	647		0.00		2.04		0.00		0.00		0.00		(xfs-cil/sda1)
+16:00:55	648		0.00		2.04		0.00		0.00		0.00		(xfs-reclaim/sda)
+16:00:55	649		0.00		2.04		0.00		0.00		0.00		(xfs-log/sda1)
+16:00:55	650		0.00		2.04		0.00		0.00		0.00		(xfs-eofblocks/s)
+16:00:55	651		0.00		2.04		0.00		0.00		0.00		(xfsaild/sda1)
+16:00:55	677		0.00		2.04		0.00		0.00		0.00		/sbin/auditd
+16:00:55	679		0.00		2.04		0.00		0.00		0.00		/sbin/audispd
+16:00:55	681		0.00		2.04		0.00		0.00		0.00		/usr/sbin/sedispatch
+16:00:55	708		0.00		2.04		0.00		0.00		0.00		/usr/sbin/smartd -n -q never
+16:00:55	709		0.00		2.04		0.00		0.00		0.00		/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+16:00:55	713		0.00		2.04		0.00		0.00		0.00		/usr/sbin/ModemManager
+16:00:55	714		0.00		2.04		0.00		0.00		0.00		/usr/libexec/rtkit-daemon
+16:00:55	716		0.00		2.04		0.00		0.00		0.00		/usr/sbin/abrtd -d -s
+16:00:55	720		0.00		2.04		0.00		0.00		0.00		/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+16:00:55	722		0.00		2.04		0.00		0.00		0.00		/usr/bin/lsmd -d
+16:00:55	724		0.00		2.04		0.00		0.00		0.00		/usr/sbin/rsyslogd -n
+16:00:55	726		0.00		2.04		0.00		0.00		0.00		/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+16:00:55	731		0.00		2.04		0.00		0.00		0.00		/usr/lib/systemd/systemd-logind
+16:00:55	732		0.00		2.04		0.00		0.00		0.00		/usr/lib/polkit-1/polkitd --no-debug
+16:00:55	738		0.00		2.04		0.00		0.00		0.00		/usr/libexec/accounts-daemon
+16:00:55	739		0.00		2.04		0.00		0.00		0.00		/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD
+16:00:55	740		0.00		2.04		0.00		0.00		0.00		/sbin/rngd -f
+16:00:55	745		0.00		2.04		0.00		0.00		0.00		/usr/sbin/chronyd
+16:00:55	753		0.00		2.04		0.00		0.00		0.00		/usr/sbin/irqbalance --foreground
+16:00:55	755		0.00		2.04		0.00		0.00		0.00		avahi-daemon: running [linux.local]
+16:00:55	761		0.00		2.04		0.00		0.00		0.00		/usr/sbin/gssproxy -D
+16:00:55	762		0.00		2.04		0.00		0.00		0.00		/usr/sbin/mcelog --ignorenodev --daemon --syslog
+16:00:55	772		0.00		2.04		0.00		0.00		0.00		avahi-daemon: chroot helper
+16:00:55	775		0.00		2.04		0.00		0.00		0.00		/usr/sbin/spice-vdagentd
+16:00:55	782		0.00		2.04		0.00		0.00		0.00		/bin/bash /usr/sbin/ksmtuned
+16:00:55	801		0.00		2.04		0.00		0.00		0.00		/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+16:00:55	803		0.00		2.04		0.00		0.00		0.00		/usr/sbin/NetworkManager --no-daemon
+16:00:55	925		0.00		2.04		0.00		0.00		0.00		/sbin/dhclient -d -q -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-ens3.pid -lf /var/lib/NetworkManager/dhclient-ea34e79b-b1ee-4988-9cd2-8aced6e3da62-ens3.lease -cf /var/lib/NetworkManager/dhclient-ens3.conf ens3
+16:00:55	1119		0.00		2.04		0.00		0.00		0.00		/usr/sbin/cupsd -f
+16:00:55	1121		0.00		2.04		0.00		0.00		0.00		/usr/bin/python -Es /usr/sbin/tuned -l -P
+16:00:55	1124		0.00		2.04		0.00		0.00		0.00		/usr/bin/rhsmcertd
+16:00:55	1127		0.00		2.04		0.00		0.00		0.00		/usr/sbin/sshd -D
+16:00:55	1151		0.00		2.04		0.00		0.00		0.00		/usr/sbin/libvirtd
+16:00:55	1164		0.00		2.04		0.00		0.00		0.00		/usr/sbin/gdm
+16:00:55	1168		0.00		2.04		0.00		0.00		0.00		rhnsd
+16:00:55	1180		0.00		2.04		0.00		0.00		0.00		/usr/sbin/atd -f
+16:00:55	1191		0.00		2.04		0.00		0.00		0.00		/usr/sbin/crond -n
+16:00:55	1497		0.00		2.04		0.00		0.00		0.00		/usr/libexec/pcp/bin/pmcd -T 3
+16:00:55	1501		0.00		2.04		0.00		0.00		0.00		/var/lib/pcp/pmdas/root/pmdaroot
+16:00:55	1505		2.04		0.00		0.00		0.00		0.00		/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+16:00:55	1506		0.00		2.04		0.00		0.00		0.00		/usr/libexec/postfix/master -w
+16:00:55	1507		0.00		2.04		0.00		0.00		0.00		/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+16:00:55	1508		0.00		2.04		0.00		0.00		0.00		/var/lib/pcp/pmdas/sample/pmdasample -d 29
+16:00:55	1509		0.00		2.04		0.00		0.00		0.00		pickup -l -t unix -u
+16:00:55	1510		0.00		2.04		0.00		0.00		0.00		qmgr -l -t unix -u
+16:00:55	1511		0.00		2.04		0.00		0.00		0.00		/var/lib/pcp/pmdas/linux/pmdalinux
+16:00:55	1512		0.00		2.04		0.00		0.00		0.00		python /var/lib/pcp/pmdas/nfsclient/pmdanfsclient.python
+16:00:55	1519		0.00		2.04		0.00		0.00		0.00		/var/lib/pcp/pmdas/dm/pmdadm -d 129
+16:00:55	1520		0.00		2.04		0.00		0.00		0.00		/var/lib/pcp/pmdas/simple/pmdasimple -d 253
+16:00:55	1525		0.00		2.04		0.00		0.00		0.00		/usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-iTUJte/database -seat seat0 -nolisten tcp vt1
+16:00:55	2012		0.00		2.04		0.00		0.00		0.00		/usr/bin/pmie -b -h local: -l /var/log/pcp/pmie/localhost.localdomain/pmie.log -c config.default
+16:00:55	2213		0.00		2.04		0.00		0.00		0.00		/usr/libexec/upowerd
+16:00:55	3113		0.00		2.04		0.00		0.00		0.00		/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -P /var/run/wpa_supplicant.pid
+16:00:55	3119		0.00		2.04		0.00		0.00		0.00		/usr/libexec/packagekitd
+16:00:55	3133		0.00		2.04		0.00		0.00		0.00		/usr/bin/spice-vdagent
+16:00:55	3208		0.00		2.04		0.00		0.00		0.00		/usr/libexec/colord
+16:00:55	7255		0.00		2.04		0.00		0.00		0.00		gdm-session-worker [pam/gdm-password]
+16:00:55	7522		0.00		2.04		0.00		0.00		0.00		/usr/bin/gnome-keyring-daemon --daemonize --login
+16:00:55	7533		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gnome-session-binary --session gnome-classic
+16:00:55	7542		0.00		2.04		0.00		0.00		0.00		dbus-launch --sh-syntax --exit-with-session
+16:00:55	7543		0.00		2.04		0.00		0.00		0.00		/usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+16:00:55	7620		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfsd
+16:00:55	7625		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfsd-fuse /run/user/0/gvfs -f -o big_writes
+16:00:55	7714		0.00		2.04		0.00		0.00		0.00		/usr/bin/ssh-agent /bin/sh -c exec -l /bin/bash -c "env GNOME_SHELL_SESSION_MODE=classic gnome-session --session gnome-classic"
+16:00:55	7732		0.00		2.04		0.00		0.00		0.00		/usr/libexec/at-spi-bus-launcher
+16:00:55	7737		0.00		2.04		0.00		0.00		0.00		/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+16:00:55	7740		0.00		2.04		0.00		0.00		0.00		/usr/libexec/at-spi2-registryd --use-gnome-session
+16:00:55	7760		0.00		2.04		0.00		0.00		0.00		/usr/bin/gnome-shell
+16:00:55	7775		0.00		2.04		0.00		0.00		0.00		ibus-daemon --xim --panel disable
+16:00:55	7780		0.00		2.04		0.00		0.00		0.00		/usr/libexec/ibus-dconf
+16:00:55	7783		0.00		2.04		0.00		0.00		0.00		/usr/libexec/ibus-x11 --kill-daemon
+16:00:55	7790		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gnome-shell-calendar-server
+16:00:55	7796		0.00		2.04		0.00		0.00		0.00		/usr/libexec/evolution-source-registry
+16:00:55	7798		0.00		2.04		0.00		0.00		0.00		/usr/libexec/geoclue -t 5
+16:00:55	7799		0.00		2.04		0.00		0.00		0.00		/usr/libexec/xdg-permission-store
+16:00:55	7811		0.00		2.04		0.00		0.00		0.00		/usr/libexec/mission-control-5
+16:00:55	7813		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfs-udisks2-volume-monitor
+16:00:55	7816		0.00		2.04		0.00		0.00		0.00		/usr/libexec/goa-daemon
+16:00:55	7825		0.00		2.04		0.00		0.00		0.00		/usr/lib/udisks2/udisksd --no-debug
+16:00:55	7837		0.00		2.04		0.00		0.00		0.00		/usr/libexec/goa-identity-service
+16:00:55	7847		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfs-mtp-volume-monitor
+16:00:55	7852		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfs-gphoto2-volume-monitor
+16:00:55	7857		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfs-goa-volume-monitor
+16:00:55	7862		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfs-afc-volume-monitor
+16:00:55	7871		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gnome-settings-daemon
+16:00:55	7872		0.00		2.04		0.00		0.00		0.00		/usr/bin/spice-vdagent
+16:00:55	7883		0.00		2.04		0.00		0.00		0.00		/usr/bin/pulseaudio --start
+16:00:55	7896		0.00		2.04		0.00		0.00		0.00		/usr/libexec/evolution-calendar-factory
+16:00:55	7898		0.00		2.04		0.00		0.00		0.00		nautilus-desktop --force
+16:00:55	7907		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfsd-trash --spawner :1.3 /org/gtk/gvfs/exec_spaw/0
+16:00:55	7909		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gsd-printer
+16:00:55	7921		0.00		2.04		0.00		0.00		0.00		/usr/libexec/ibus-engine-simple
+16:00:55	7927		0.00		2.04		0.00		0.00		0.00		/usr/bin/gnome-software --gapplication-service
+16:00:55	7930		0.00		2.04		0.00		0.00		0.00		/usr/libexec/tracker-store
+16:00:55	7931		0.00		2.04		0.00		0.00		0.00		/usr/bin/seapplet
+16:00:55	7948		0.00		2.04		0.00		0.00		0.00		rhsm-icon
+16:00:55	7949		0.00		2.04		0.00		0.00		0.00		abrt-applet
+16:00:55	7951		0.00		2.04		0.00		0.00		0.00		/usr/libexec/evolution-calendar-factory-subprocess --factory contacts --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/2
+16:00:55	7958		0.00		2.04		0.00		0.00		0.00		/usr/libexec/tracker-extract
+16:00:55	7966		0.00		2.04		0.00		0.00		0.00		/usr/libexec/tracker-miner-apps
+16:00:55	7970		0.00		2.04		0.00		0.00		0.00		/usr/libexec/tracker-miner-fs
+16:00:55	7993		0.00		2.04		0.00		0.00		0.00		/usr/libexec/tracker-miner-user-guides
+16:00:55	8001		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gconfd-2
+16:00:55	8032		0.00		2.04		0.00		0.00		0.00		/usr/libexec/dconf-service
+16:00:55	8042		0.00		2.04		0.00		0.00		0.00		/usr/libexec/evolution-addressbook-factory
+16:00:55	8048		0.00		2.04		0.00		0.00		0.00		/usr/libexec/evolution-calendar-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.Calendarx7896x3 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/Calendar/7896/3
+16:00:55	8088		0.00		2.04		0.00		0.00		0.00		/usr/libexec/evolution-addressbook-factory-subprocess --factory local --bus-name org.gnome.evolution.dataserver.Subprocess.Backend.AddressBookx8042x2 --own-path /org/gnome/evolution/dataserver/Subprocess/Backend/AddressBook/8042/2
+16:00:55	8146		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gnome-terminal-server
+16:00:55	8152		0.00		2.04		0.00		0.00		0.00		gnome-pty-helper
+16:00:55	8153		0.00		2.04		0.00		0.00		0.00		bash
+16:00:55	8764		0.00		2.04		0.00		0.00		0.00		bash
+16:00:55	8806		0.00		2.04		0.00		0.00		0.00		bash
+16:00:55	9426		0.00		0.00		0.00		2.04		0.00		vim pcp-pidstat.1
+16:00:55	9919		0.00		2.04		0.00		0.00		0.00		(kworker/2:2)
+16:00:55	10770		0.00		2.04		0.00		0.00		0.00		(kworker/1:0)
+16:00:55	11096		0.00		2.04		0.00		0.00		0.00		/usr/libexec/pcp/bin/pmlogger -r -T 24h10m -v 100mb -m pmlogger_daily -P -l pmlogger.log -c /var/lib/pcp/config/pmlogger/config.default 20180730.15.30
+16:00:55	11380		0.00		2.04		0.00		0.00		0.00		(kworker/0:2)
+16:00:55	11482		0.00		2.04		0.00		0.00		0.00		/usr/libexec/gvfsd-metadata
+16:00:55	11501		0.00		2.04		0.00		0.00		0.00		(kworker/1:1)
+16:00:55	11507		0.00		2.04		0.00		0.00		0.00		(kworker/3:2)
+16:00:55	11562		0.00		2.04		0.00		0.00		0.00		(kworker/2:0)
+16:00:55	11579		0.00		2.04		0.00		0.00		0.00		(kworker/0:1)
+16:00:55	11606		0.00		2.04		0.00		0.00		0.00		(kworker/3:1)
+16:00:55	12031		0.00		2.04		0.00		0.00		0.00		bash
+16:00:55	12153		0.00		2.04		0.00		0.00		0.00		(kworker/0:0)
+16:00:55	12765		1.02		1.02		0.00		0.00		0.00		(kworker/3:0)
+16:00:55	12828		0.00		2.04		0.00		0.00		0.00		sleep 60
+16:00:55	12829		0.00		2.04		0.00		0.00		0.00		/bin/sh ./1399
+16:00:55	12887		0.00		2.04		0.00		0.00		0.00		python /usr/libexec/pcp/bin/pcp-pidstat -B detail -l -s 3
