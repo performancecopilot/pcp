@@ -23,7 +23,7 @@
  * Find or create a new labelspec_t
  */
 labelspec_t *
-start_label(int type, int id)
+start_label(int type, int id, char *label)
 {
     labelspec_t	*lp;
     char	buf[64];
@@ -37,12 +37,16 @@ start_label(int type, int id)
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	if (type == lp->old_type) {
 	    if (id == lp->old_id) {
-		if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
-		    fprintf(stderr, " -> %s",
-			    __pmLabelIdentString(lp->new_id, lp->new_type,
-						 buf, sizeof(buf)));
+		if ((label == NULL && lp->old_label == NULL) ||
+		    (label != NULL && lp->old_label != NULL &&
+		     strcmp (label, lp->old_label) == 0)) {
+		    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+			fprintf(stderr, " -> %s",
+				__pmLabelIdentString(lp->new_id, lp->new_type,
+						     buf, sizeof(buf)));
+		    }
+		    return lp;
 		}
-		return lp;
 	    }
 	}
     }
@@ -60,7 +64,9 @@ start_label(int type, int id)
     label_root = lp;
     lp->old_type = lp->new_type = type;
     lp->old_id = lp->new_id = id;
+    lp->old_label = label;
     lp->new_label = NULL;
+    lp->new_value = NULL;
     lp->flags = 0;
     lp->ip = NULL;
 
@@ -201,34 +207,54 @@ do_labelset(void)
 	if (lp->old_type != type)
 	    continue;
 
+	/* Delete the record? */
+	if (lp->flags & LABEL_DELETE) {
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "Delete: label for ");
+		if ((lp->old_type & PM_LABEL_CONTEXT))
+		    fprintf(stderr, " context\n");
+		else if ((lp->old_type & PM_LABEL_DOMAIN))
+		    fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
+		else if ((lp->old_type & PM_LABEL_CLUSTER))
+		    fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
+		else if ((lp->old_type & PM_LABEL_ITEM))
+		    fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
+		else if ((lp->old_type & PM_LABEL_INDOM))
+		    fprintf(stderr, " indom %s\n", pmInDomStr(lp->old_id));
+		else if ((lp->old_type & PM_LABEL_INSTANCES))
+		    fprintf(stderr, " the instances of indom %s\n", pmInDomStr(lp->old_id));
+	    }
+	    return;
+	}
+
 	/* Rewrite the record as specified. */
 	if ((lp->flags & LABEL_CHANGE_ID))
 	    ident = lp->new_id;
-	if ((lp->flags & LABEL_CHANGE_TYPE))
-	    type = lp->new_type;
 #if 0 /* not supported yet */
 	if ((lp->flags & LABEL_CHANGE_LABEL))
+	    buffer = lp->new_label;
+	if ((lp->flags & LABEL_CHANGE_VALUE))
 	    buffer = lp->new_label;
 #endif
 	
 	if (pmDebugOptions.appl1) {
-	    if ((lp->flags & (LABEL_CHANGE_ID | LABEL_CHANGE_TYPE | LABEL_CHANGE_LABEL))) {
+	    if ((lp->flags & LABEL_CHANGE_ANY)) {
 		fprintf(stderr, "Rewrite: label set %s",
 			__pmLabelIdentString(lp->old_id, lp->old_type,
 					     buf, sizeof(buf)));
 	    }
-	    if ((lp->flags & (LABEL_CHANGE_LABEL))) {
+	    if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
 		fprintf(stderr, " \"%s\"", lp->old_label);
 	    }
-	    if ((lp->flags & (LABEL_CHANGE_ID | LABEL_CHANGE_TYPE | LABEL_CHANGE_LABEL))) {
+	    if ((lp->flags & LABEL_CHANGE_ANY)) {
 		fprintf(stderr, " to\nlabel set %s",
 			__pmLabelIdentString(lp->new_id, lp->new_type,
 					     buf, sizeof(buf)));
 	    }
-	    if ((lp->flags & (LABEL_CHANGE_LABEL))) {
-		fprintf(stderr, " \"%s\"", lp->new_label);
+	    if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
+		fprintf(stderr, " \"%s\"\"%s\"", lp->new_label, lp->new_value);
 	    }
-	    if ((lp->flags & (LABEL_CHANGE_ID | LABEL_CHANGE_TYPE | LABEL_CHANGE_LABEL)))
+	    if ((lp->flags & LABEL_CHANGE_ANY))
 		fputc('\n', stderr);
 	}
     }
