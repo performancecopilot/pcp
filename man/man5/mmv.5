@@ -1,7 +1,7 @@
 '\"! tbl | nroff \-man
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2017 Red Hat.
+.\" Copyright (c) 2016-2018 Red Hat.
 .\" Copyright (c) 2009 Max Matveev
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\" 
@@ -260,17 +260,13 @@ c | c | c
 n | n | l.
 Offset  Length  Value
 _
-0       4       Flags (PM_LABEL_[INDOM|CLUSTER|ITEM|INSTANCES]|OPTIONAL)
+0       4       Flags (PM_LABEL_[CLUSTER|ITEM|INDOM|INSTANCES]|OPTIONAL)
 _
-4       8       Identifier for given type (indom, cluster or item)
+4       4       Identifier for given type (indom, cluster or item)
 _
-12      4       Internal Instance or PM_IN_NULL
+8       4       Internal Instance or PM_IN_NULL
 _
-16      4       Name length
-_
-20      4       Value length
-_
-24      232     Payload (Name and Value JSONB String)
+12      244     Payload (Name and Value JSONB String)
 .TE
 .PP
 .SH SEE ALSO

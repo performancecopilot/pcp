@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All rights reserved.
  * Copyright (C) 2009 Aconex.  All rights reserved.
- * Copyright (C) 2013,2016 Red Hat.
+ * Copyright (C) 2013,2016,2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,22 @@
 #include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "libpcp.h"
+
+struct mmv_registry {
+    mmv_indom2_t *	indoms;
+    __uint32_t		nindoms;
+    mmv_metric2_t *	metrics;
+    __uint32_t		nmetrics;
+    mmv_instances2_t *	instances;
+    __uint32_t		ninstances;
+    mmv_label_t *	labels;
+    __uint32_t		nlabels;
+    __uint32_t		version;
+    const char *	file;
+    __uint32_t		cluster;
+    mmv_stats_flags_t	flags;
+    void *		addr;
+};
 
 static void
 mmv_stats_path(const char *fname, char *fullpath, size_t pathlen)
@@ -594,8 +610,6 @@ mmv_init(const char *fname, int version,
 	lblist[i].flags = lb[i].flags;
 	lblist[i].identity = lb[i].identity; 
 	lblist[i].internal = lb[i].internal;
-	lblist[i].name = lb[i].name;
-	lblist[i].value = lb[i].value;
 	memcpy(lblist[i].payload, lb[i].payload, MMV_LABELMAX);
     }
 
@@ -989,8 +1003,6 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,
     label[registry->nlabels].flags = flags;
     label[registry->nlabels].identity = registry->cluster;
     label[registry->nlabels].internal = PM_IN_NULL;
-    label[registry->nlabels].name = strlen(name);
-    label[registry->nlabels].value = strlen(value);
     memcpy(label[registry->nlabels].payload, buffer, buflen);
 
     registry->nlabels++;
@@ -1034,8 +1046,6 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
     label[registry->nlabels].flags = flags;
     label[registry->nlabels].identity = serial;
     label[registry->nlabels].internal = PM_IN_NULL;
-    label[registry->nlabels].name = strlen(name);
-    label[registry->nlabels].value = strlen(value);
     memcpy(label[registry->nlabels].payload, buffer, buflen);
 
     registry->nlabels++;
@@ -1079,8 +1089,6 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
     label[registry->nlabels].flags = flags;
     label[registry->nlabels].identity = item;
     label[registry->nlabels].internal = PM_IN_NULL;
-    label[registry->nlabels].name = strlen(name);
-    label[registry->nlabels].value = strlen(value);
     memcpy(label[registry->nlabels].payload, buffer, buflen);
     
     registry->nlabels++;
@@ -1121,18 +1129,16 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
     registry->version = MMV_VERSION3;
     registry->labels = label;
 
-    label[registry->nlabels-1].flags = flags;
-    label[registry->nlabels-1].identity = serial;
-    label[registry->nlabels-1].internal = instid;
-    label[registry->nlabels-1].name = strlen(name);
-    label[registry->nlabels-1].value = strlen(value);
+    label[registry->nlabels].flags = flags;
+    label[registry->nlabels].identity = serial;
+    label[registry->nlabels].internal = instid;
     memcpy(label[registry->nlabels].payload, buffer, buflen);
 
     registry->nlabels++;
     return 0;
 }
 
-void
+void *
 mmv_stats_start(const char *file, mmv_registry_t *registry) 
 {
     registry->addr = mmv_init(file, registry->version, registry->cluster,
@@ -1140,6 +1146,7 @@ mmv_stats_start(const char *file, mmv_registry_t *registry)
 				registry->metrics, registry->nmetrics, 
 				registry->indoms, registry->nindoms,
 				registry->labels, registry->nlabels);
+    return registry->addr;
 }
 
 void
@@ -1148,41 +1155,28 @@ mmv_stats_stop(const char *fname, void *addr)
     mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
     char path[MAXPATHLEN];
     struct stat sbuf;
+    int fd;
 
     mmv_stats_path(fname, path, sizeof(path));
-    if (stat(path, &sbuf) < 0) {
-	/*
-	 * file has gone, just want to unmap the region that starts
-	 * at addr ... a length of 1 would seem to suffice
-	 */
+    /*
+     * If file has gone or is inaccessible, we just want to unmap the
+     * region that starts at addr ... a length of 1 seems to suffice.
+     */
+    if ((fd = open(path, O_RDONLY)) < 0)
 	sbuf.st_size = 1;
-    }
+    else if (fstat(fd, &sbuf) < 0)
+	sbuf.st_size = 1;
     else if (hdr->flags & MMV_FLAG_PROCESS)
 	unlink(path);
+    if (fd >= 0)
+	close(fd);
     __pmMemoryUnmap(addr, sbuf.st_size);
 }
 
 void
 mmv_stats_free(const char *fname, mmv_registry_t *registry)
 {
-    void *addr = registry->addr;
-    mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
-    char path[MAXPATHLEN];
-    struct stat sbuf;
-
-    mmv_stats_path(fname, path, sizeof(path));
-    if (stat(path, &sbuf) < 0) {
-	/*
-	 * file has gone, just want to unmap the region that starts
-	 * at addr ... a length of 1 would seem to suffice
-	 */
-	sbuf.st_size = 1;
-    }
-    else if (hdr->flags & MMV_FLAG_PROCESS)
-	unlink(path);
-    __pmMemoryUnmap(addr, sbuf.st_size);
-
-    /* Now delete the registry */
+    mmv_stats_stop(fname, registry->addr);
     free(registry);
 }
 

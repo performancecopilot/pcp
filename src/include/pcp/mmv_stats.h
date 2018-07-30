@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013,2016 Red Hat.
+ * Copyright (C) 2013,2016,2018 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 #define MMV_NAMEMAX	64
-#define MMV_LABELMAX    232
+#define MMV_LABELMAX    244
 #define MMV_STRINGMAX	256
 
 typedef enum mmv_metric_type {
@@ -94,8 +94,6 @@ typedef struct mmv_label {
     __uint32_t		flags;		/* PM_LABEL_TYPE, flag optional */
     __uint32_t		identity;	/* Indom, Cluster or item ID */
     __int32_t		internal;	/* Instance ID or PM_IN_NULL */
-    __uint32_t		name;		/* Length of the label name */
-    __uint32_t		value;		/* Length of the label value*/
     char		payload[MMV_LABELMAX];
 } mmv_label_t;
 
@@ -114,27 +112,14 @@ typedef enum mmv_value_type {
     MMV_MAP_TYPE   	= 0x6,	
 } mmv_value_type_t;
 
-typedef struct mmv_registry {
-    mmv_indom2_t *	indoms;
-    __uint32_t		nindoms;
-    mmv_metric2_t *	metrics;
-    __uint32_t		nmetrics;
-    mmv_instances2_t *	instances;
-    __uint32_t		ninstances;
-    mmv_label_t *	labels;
-    __uint32_t		nlabels;
-    __uint32_t		version;
-    const char *	file;
-    __uint32_t		cluster;
-    mmv_stats_flags_t	flags;
-    void *		addr;
-} mmv_registry_t;
-
 #ifdef HAVE_BITFIELDS_LTOR
 #define MMV_UNITS(a,b,c,d,e,f)	{a,b,c,d,e,f,0}
 #else
 #define MMV_UNITS(a,b,c,d,e,f)	{0,f,e,d,c,b,a}
 #endif
+
+struct mmv_registry;
+typedef struct mmv_registry mmv_registry_t;
 
 extern mmv_registry_t * mmv_stats_registry(const char *, int,
 		mmv_stats_flags_t);
@@ -154,17 +139,8 @@ extern int mmv_stats_add_metric_label(mmv_registry_t *,
 extern int mmv_stats_add_instance_label(mmv_registry_t *,
 		int, int, const char *, const char *, mmv_value_type_t, int);
 
-extern void mmv_stats_start(const char *, mmv_registry_t *);
+extern void * mmv_stats_start(const char *, mmv_registry_t *);
 extern void mmv_stats_free(const char *, mmv_registry_t *);
-
-/* Deprecated init and stop routines - use a registry instead */
-extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
-				const mmv_metric_t *, int,
-				const mmv_indom_t *, int);
-extern void * mmv_stats2_init(const char *, int, mmv_stats_flags_t,
-				const mmv_metric2_t *, int,
-				const mmv_indom2_t *, int);
-extern void mmv_stats_stop(const char *, void *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
 extern void mmv_inc_value(void *, pmAtomValue *, double);
@@ -185,6 +161,15 @@ extern void mmv_stats_set_string(void *, const char *,
 				const char *, const char *);
 extern void mmv_stats_set_strlen(void *, const char *,
 				const char *, const char *, size_t);
+
+/* Deprecated init and stop routines - use a registry instead */
+extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
+				const mmv_metric_t *, int,
+				const mmv_indom_t *, int);
+extern void * mmv_stats2_init(const char *, int, mmv_stats_flags_t,
+				const mmv_metric2_t *, int,
+				const mmv_indom2_t *, int);
+extern void mmv_stats_stop(const char *, void *);
 
 #ifdef __cplusplus
 }
