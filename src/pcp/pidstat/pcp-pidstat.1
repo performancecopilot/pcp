@@ -14,6 +14,7 @@
 [\f3\-p\f1 PID1,PID2..]
 [\f3\-R\f1/\f3\-r/\f3\-k\f1]
 [\f3\-V\f1]
+[\f3\-l\f2]
 [\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
 [\f3\-z\f1 \f3--hostzone\f1]
 [\f3\-?\f1]
@@ -154,6 +155,9 @@ Command
 Display version and exit
 
 .TP
+.BR \-l \fR
+Display the process command name and all its arguments.
+
 .B \-Z
 By default,
 .B pcp-pidstat
@@ -182,6 +186,7 @@ When replaying a PCP archive that was captured in a foreign timezone, the
 .B \-z
 option would almost always be used (the default reporting timezone is the local timezone,
 which may not be the same as the timezone of the PCP archive).
+
 
 .TP
 .BR \-? " , " \fB\-\-help\fR
